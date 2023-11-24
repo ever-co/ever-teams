@@ -145,7 +145,7 @@ const Kanban= () => {
         ]}
 
     useEffect(() => {
-        if(demoData.ongoing.length > 0 && demoData.todo.length > 0 && demoData..length > 0) {
+        if(demoData.ongoing.length > 0 && demoData.todo.length > 0 && demoData.review.length > 0) {
             setwinReady(true);
         }
        

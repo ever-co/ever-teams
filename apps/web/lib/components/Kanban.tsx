@@ -134,9 +134,9 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
             {(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
                 <div
                     style={getBackgroundColor(dropSnapshot)}
-                    data-isDragging={dropSnapshot.isDraggingOver}
-                    data-isDropDisabled={false}
-                    data-isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
+                    data-isdragging={dropSnapshot.isDraggingOver}
+                    data-isdropDisabled={false}
+                    data-isdraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
                     {...dropProvided.droppableProps}
                 >
                    
