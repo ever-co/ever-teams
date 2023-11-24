@@ -161,7 +161,7 @@ export function useTimer() {
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 
 	// Queries
-	const { queryCall, loading } = useQuery(getTimerStatusAPI);
+	const { queryCall, loading, loadingRef } = useQuery(getTimerStatusAPI);
 	const { queryCall: toggleQueryCall } = useQuery(toggleTimerAPI);
 	const { queryCall: startTimerQueryCall } = useQuery(startTimerAPI);
 	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(stopTimerAPI);
@@ -187,6 +187,9 @@ export function useTimer() {
 
 	const getTimerStatus = useCallback(
 		(deepCheck?: boolean) => {
+			if (loadingRef.current) {
+				return;
+			}
 			return queryCall().then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t) => {
@@ -199,7 +202,7 @@ export function useTimer() {
 				return res;
 			});
 		},
-		[timerStatus, setTimerStatus, queryCall]
+		[timerStatus, setTimerStatus, queryCall, loadingRef]
 	);
 
 	const toggleTimer = useCallback(
