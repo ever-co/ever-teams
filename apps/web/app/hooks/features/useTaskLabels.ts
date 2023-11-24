@@ -17,7 +17,7 @@ export function useTaskLabels() {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskLabelsList);
+	const { loading, queryCall, loadingRef } = useQuery(getTaskLabelsList);
 	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } = useQuery(createTaskLabelsAPI);
 	const { loading: deleteTaskLabelsLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskLabelsAPI);
 	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } = useQuery(editTaskLabelsAPI);
@@ -34,6 +34,9 @@ export function useTaskLabels() {
 	}, [loading, firstLoad, setTaskLabelsFetching]);
 
 	const loadTaskLabels = useCallback(() => {
+		if (loadingRef.current) {
+			return;
+		}
 		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,

@@ -158,8 +158,12 @@ function useUpdateOrganizationTeam() {
  * It returns an object with all the data and functions needed to manage the teams in the organization
  */
 export function useOrganizationTeams() {
-	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
-	const { loading: loadingTeam, queryCall: queryCallTeam } = useQuery(getOrganizationTeamAPI);
+	const { loading, queryCall, loadingRef } = useQuery(getOrganizationTeamsAPI);
+	const {
+		loading: loadingTeam,
+		queryCall: queryCallTeam,
+		loadingRef: loadingRefTeam
+	} = useQuery(getOrganizationTeamAPI);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useRecoilValue(activeTeamState);
 
@@ -222,6 +226,10 @@ export function useOrganizationTeams() {
 	);
 
 	const loadTeamsData = useCallback(() => {
+		if (loadingRef.current || loadingRefTeam.current) {
+			return;
+		}
+
 		let teamId = getActiveTeamIdCookie();
 		setActiveTeamId(teamId);
 
@@ -273,6 +281,7 @@ export function useOrganizationTeams() {
 						}
 					}
 				});
+
 			return res;
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps

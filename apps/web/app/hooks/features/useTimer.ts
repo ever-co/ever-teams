@@ -165,7 +165,11 @@ export function useTimer() {
 	const { queryCall: toggleQueryCall } = useQuery(toggleTimerAPI);
 	const { queryCall: startTimerQueryCall } = useQuery(startTimerAPI);
 	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(stopTimerAPI);
-	const { queryCall: syncTimerQueryCall, loading: syncTimerLoading } = useQuery(syncTimerAPI);
+	const {
+		queryCall: syncTimerQueryCall,
+		loading: syncTimerLoading,
+		loadingRef: syncTimerLoadingRef
+	} = useQuery(syncTimerAPI);
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
@@ -220,13 +224,13 @@ export function useTimer() {
 	);
 
 	const syncTimer = useCallback(() => {
-		if (syncTimerLoading) {
+		if (syncTimerLoading || syncTimerLoadingRef.current) {
 			return;
 		}
 		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS).then((res) => {
 			return res;
 		});
-	}, [syncTimerQueryCall, timerStatus, syncTimerLoading]);
+	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef]);
 
 	// Loading states
 	useEffect(() => {

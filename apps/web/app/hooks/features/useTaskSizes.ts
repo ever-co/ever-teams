@@ -13,7 +13,7 @@ export function useTaskSizes() {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskSizesList);
+	const { loading, queryCall, loadingRef } = useQuery(getTaskSizesList);
 	const { loading: createTaskSizesLoading, queryCall: createQueryCall } = useQuery(createTaskSizesAPI);
 	const { loading: deleteTaskSizesLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskSizesAPI);
 	const { loading: editTaskSizesLoading, queryCall: editQueryCall } = useQuery(editTaskSizesAPI);
@@ -31,6 +31,10 @@ export function useTaskSizes() {
 	}, [loading, firstLoad, setTaskSizesFetching]);
 
 	const loadTaskSizes = useCallback(() => {
+		if (loadingRef.current) {
+			return;
+		}
+
 		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,
@@ -43,7 +47,7 @@ export function useTaskSizes() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskSizes, taskSizes, queryCall]);
+	}, [user, activeTeamId, setTaskSizes, taskSizes, queryCall, loadingRef]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
