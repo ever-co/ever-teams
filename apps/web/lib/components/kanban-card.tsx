@@ -1,4 +1,3 @@
-import { clsxm } from "@app/utils";
 import BugIcon from "@components/ui/svgs/bug";
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 
@@ -48,6 +47,7 @@ function TagList({tags}: {
                 {tags.map((tag: any, index: number)=> {
                     return (
                         <Tag 
+                            key={index}
                             title={tag.title} 
                             backgroundColor={tag.backgroundColor} 
                             color={tag.color}

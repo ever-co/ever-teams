@@ -4,7 +4,6 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
 import Item from './kanban-card';
-import { AddIcon } from './svgs';
 
 const grid = 8;
 
@@ -77,7 +76,7 @@ function InnerItemList({items}: {
         }
          </section>
     </>
-)};
+)}
 
 /**
  * inner column within a kanaban column,
