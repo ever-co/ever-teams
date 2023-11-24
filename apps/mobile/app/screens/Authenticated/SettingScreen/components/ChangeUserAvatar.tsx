@@ -26,6 +26,8 @@ import mime from 'mime';
 import LoadingModal from '../../../../components/LoadingModal';
 import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
 import { IUser } from '../../../../services/interfaces/IUserData';
+import { SvgXml } from 'react-native-svg';
+import { galleryDarkIcon, galleryLightIcon } from '../../../../components/svgs/icons';
 
 interface IFileInfo {
 	size: number;
@@ -137,9 +139,7 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 		setSelectedImage(null);
 	}, [onDismiss]);
 
-	const image = dark
-		? require('../../../../../assets/images/new/image-dark.png')
-		: require('../../../../../assets/images/new/image-light.png');
+	const galleryImage = dark ? <SvgXml xml={galleryDarkIcon} /> : <SvgXml xml={galleryLightIcon} />;
 
 	return (
 		<>
@@ -160,7 +160,7 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.wrapCirclePic} onPress={() => pickImageFromGalery()}>
 						<View style={[styles.circlePic, { backgroundColor: dark ? '#303540' : '#fff' }]}>
-							<Image source={image} />
+							{galleryImage}
 						</View>
 						<Text style={styles.selectText}>
 							{translate('settingScreen.changeAvatar.selectFromGalery')}

@@ -161,11 +161,15 @@ export function useTimer() {
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 
 	// Queries
-	const { queryCall, loading } = useQuery(getTimerStatusAPI);
+	const { queryCall, loading, loadingRef } = useQuery(getTimerStatusAPI);
 	const { queryCall: toggleQueryCall } = useQuery(toggleTimerAPI);
 	const { queryCall: startTimerQueryCall } = useQuery(startTimerAPI);
 	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } = useQuery(stopTimerAPI);
-	const { queryCall: syncTimerQueryCall, loading: syncTimerLoading } = useQuery(syncTimerAPI);
+	const {
+		queryCall: syncTimerQueryCall,
+		loading: syncTimerLoading,
+		loadingRef: syncTimerLoadingRef
+	} = useQuery(syncTimerAPI);
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
@@ -187,6 +191,9 @@ export function useTimer() {
 
 	const getTimerStatus = useCallback(
 		(deepCheck?: boolean) => {
+			if (loadingRef.current) {
+				return;
+			}
 			return queryCall().then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t) => {
@@ -199,7 +206,7 @@ export function useTimer() {
 				return res;
 			});
 		},
-		[timerStatus, setTimerStatus, queryCall]
+		[timerStatus, setTimerStatus, queryCall, loadingRef]
 	);
 
 	const toggleTimer = useCallback(
@@ -217,13 +224,13 @@ export function useTimer() {
 	);
 
 	const syncTimer = useCallback(() => {
-		if (syncTimerLoading) {
+		if (syncTimerLoading || syncTimerLoadingRef.current) {
 			return;
 		}
 		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS).then((res) => {
 			return res;
 		});
-	}, [syncTimerQueryCall, timerStatus, syncTimerLoading]);
+	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef]);
 
 	// Loading states
 	useEffect(() => {

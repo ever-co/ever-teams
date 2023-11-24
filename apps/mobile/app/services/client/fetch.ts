@@ -1,5 +1,4 @@
 import Config from '../../config';
-import { getToken } from '../api/tokenHandler';
 
 export function serverFetch<T>({
 	path,
@@ -22,7 +21,7 @@ export function serverFetch<T>({
 	};
 
 	if (bearer_token) {
-		headers['authorization'] = `Bearer ${bearer_token}`;
+		headers.authorization = `Bearer ${bearer_token}`;
 	}
 
 	if (tenantId) {
@@ -31,7 +30,7 @@ export function serverFetch<T>({
 
 	const datas: { body?: string } = {};
 	if (body) {
-		datas['body'] = JSON.stringify(body);
+		datas.body = JSON.stringify(body);
 	}
 
 	return fetch((Config.API_URL || '') + path, {
