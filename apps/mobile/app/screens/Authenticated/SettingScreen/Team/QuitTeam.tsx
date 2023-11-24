@@ -1,12 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
 import { observer } from 'mobx-react-lite';
 import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
+import { SvgXml } from 'react-native-svg';
+import { danGerZoneRemoveUserIcon } from '../../../../components/svgs/icons';
 
 const QuitTheTeam = observer(({ onDismiss }: { onDismiss: () => unknown }) => {
 	const { colors, dark } = useAppTheme();
@@ -23,8 +25,8 @@ const QuitTheTeam = observer(({ onDismiss }: { onDismiss: () => unknown }) => {
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={styles.transparentContainer}>
 					<TouchableWithoutFeedback>
-						<View style={{ ...styles.circleFrame, shadowColor: colors.border }}>
-							<Image source={require('../../../../../assets/images/new/user-remove.png')} />
+						<View style={{ ...styles.circleFrame, shadowColor: dark ? 'transparent' : colors.border }}>
+							<SvgXml xml={danGerZoneRemoveUserIcon} />
 						</View>
 					</TouchableWithoutFeedback>
 				</View>

@@ -110,8 +110,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 				<View style={{ marginBottom: 16 }}>
 					<View style={styles.wrapperTask}>
-						<TouchableOpacity onPress={() => navigateToTask(props.task?.id)}>
-							<View style={{ flexDirection: 'row', width: '80%' }}>
+						<TouchableOpacity onPress={() => navigateToTask(props.task?.id)} style={{ width: '80%' }}>
+							<View
+								style={{
+									flexDirection: 'row',
+									width: '80%',
+									alignItems: 'center'
+								}}
+							>
 								<View style={{ marginRight: 3 }}>
 									<IssuesModal task={props.task} readonly={true} />
 								</View>
@@ -309,7 +315,7 @@ export default ListCardItem;
 const styles = StyleSheet.create({
 	cardContainer: {
 		borderRadius: 14,
-		elevation: 24,
+		elevation: 5,
 		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 12 },
 		shadowOpacity: 0.05,

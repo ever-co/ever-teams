@@ -16,13 +16,20 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } = useQuery(getAuthenticatedUserDataAPI);
+	const {
+		queryCall: refreshUserQueryCall,
+		loading: refreshUserLoading,
+		loadingRef: refreshUserLoadingRef
+	} = useQuery(getAuthenticatedUserDataAPI);
 
 	const updateUserFromAPI = useCallback(() => {
+		if (refreshUserLoadingRef.current) {
+			return;
+		}
 		refreshUserQueryCall().then((res) => {
 			setUser(res.data.user);
 		});
-	}, [refreshUserQueryCall, setUser]);
+	}, [refreshUserQueryCall, setUser, refreshUserLoadingRef]);
 
 	$user.current = useMemo(() => {
 		return user || $user.current;

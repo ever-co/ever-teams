@@ -17,7 +17,7 @@ export function useTaskStatus() {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskStatusList);
+	const { loading, queryCall, loadingRef } = useQuery(getTaskStatusList);
 	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(createTaskStatusAPI);
 	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskStatusAPI);
 	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(editTaskStatusAPI);
@@ -33,6 +33,9 @@ export function useTaskStatus() {
 	}, [loading, firstLoad, setTaskStatusFetching]);
 
 	const loadTaskStatusData = useCallback(() => {
+		if (loadingRef.current) {
+			return;
+		}
 		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,
@@ -44,7 +47,7 @@ export function useTaskStatus() {
 			}
 			return res;
 		});
-	}, [user, activeTeamId, setTaskStatus, taskStatus, queryCall]);
+	}, [user, activeTeamId, setTaskStatus, taskStatus, queryCall, loadingRef]);
 
 	useEffect(() => {
 		if (!firstLoad) return;

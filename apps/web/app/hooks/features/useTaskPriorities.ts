@@ -17,7 +17,7 @@ export function useTaskPriorities() {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskPrioritiesList);
+	const { loading, queryCall, loadingRef } = useQuery(getTaskPrioritiesList);
 	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } = useQuery(createTaskPrioritiesAPI);
 	const { loading: deleteTaskPrioritiesLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskPrioritiesAPI);
 	const { loading: editTaskPrioritiesLoading, queryCall: editQueryCall } = useQuery(editTaskPrioritiesAPI);
@@ -34,6 +34,10 @@ export function useTaskPriorities() {
 	}, [loading, firstLoad, setTaskPrioritiesFetching]);
 
 	const loadTaskPriorities = useCallback(() => {
+		if (loadingRef.current) {
+			return;
+		}
+
 		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,
@@ -46,7 +50,7 @@ export function useTaskPriorities() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskPriorities, taskPriorities, queryCall]);
+	}, [user, activeTeamId, setTaskPriorities, taskPriorities, queryCall, loadingRef]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
