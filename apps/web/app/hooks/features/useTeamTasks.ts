@@ -45,7 +45,7 @@ export function useTeamTasks() {
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// Queries hooks
-	const { queryCall, loading } = useQuery(getTeamTasksAPI);
+	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
 	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
 
 	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(deleteTaskAPI);
@@ -104,12 +104,15 @@ export function useTeamTasks() {
 
 	const loadTeamTasksData = useCallback(
 		(deepCheck?: boolean) => {
+			if (loadingRef.current) {
+				return;
+			}
 			return queryCall().then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], deepCheck);
 				return res;
 			});
 		},
-		[queryCall, deepCheckAndUpdateTasks]
+		[queryCall, deepCheckAndUpdateTasks, loadingRef]
 	);
 
 	// Global loading state
