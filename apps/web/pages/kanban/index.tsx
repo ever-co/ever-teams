@@ -1,5 +1,6 @@
 import { withAuthentication } from "lib/app/authenticator";
 import { KanbanView } from "lib/features/team-members-kanban-view"
+import { MainLayout } from "lib/layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -153,12 +154,13 @@ const Kanban= () => {
 
     return (
         <>
+        <MainLayout>
            {winReady ? 
             <KanbanView itemsArray={demoData}/>
             :
             null
            }
-            
+        </MainLayout>
         </>
     )
 }
