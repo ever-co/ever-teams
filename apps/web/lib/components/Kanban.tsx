@@ -73,7 +73,7 @@ function InnerItemList({items}: {
 )}
 
 /**
- * inner column within a kanaban column,
+ * inner column within a kanban column,
  * it holds all cards underneath the name of the column
  * @param props 
  * @returns 
