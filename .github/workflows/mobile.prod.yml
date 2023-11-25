@@ -1,4 +1,4 @@
-name: Mobile Build, Deploy and Publish PROD
+name: Mobile Build PROD
 on:
   push:
     branches:
@@ -23,13 +23,6 @@ jobs:
       contents: read
 
     steps:
-      - name: Check for EXPO_TOKEN
-        run: |
-          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
-            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
-            exit 1
-          fi
-
       - uses: actions/checkout@v3
 
       - name: Use Node.js 18.x
@@ -37,38 +30,6 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-
-      - name: Setup EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Set Apple Store Credentials
-        run: |
-          echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
-          echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
-          echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
-
-      - name: Replace Secrets in eas.json
-        run: |
-          sed -i 's/APPLE_ID_PLACEHOLDER/${{ secrets.APPLE_ID }}/' ./apps/mobile/eas.json
-          sed -i 's/APPSTORE_ISSUER_ID_PLACEHOLDER/${{ secrets.APPSTORE_ISSUER_ID }}/' ./apps/mobile/eas.json
-          sed -i 's/APPSTORE_API_KEY_ID_PLACEHOLDER/${{ secrets.APPSTORE_API_KEY_ID }}/' ./apps/mobile/eas.json
-
-      - name: Create Apple API Key File
-        run: |
-          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
-
-      - name: Decode Google Credentials
-        run: |
-          DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
-          echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
-          echo "::add-mask::$DECODED_GOOGLE_CREDENTIALS"
-          ESCAPED_GOOGLE_CREDENTIALS=$(echo "$DECODED_GOOGLE_CREDENTIALS" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
-          ESCAPED_GOOGLE_CREDENTIALS=$(echo $ESCAPED_GOOGLE_CREDENTIALS | sed 's/\\n/\\\\n/g')
-          echo "ESCAPED_GOOGLE_CREDENTIALS=$ESCAPED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
-          echo "::add-mask::$ESCAPED_GOOGLE_CREDENTIALS"
 
       - name: Install Packages
         run: |
