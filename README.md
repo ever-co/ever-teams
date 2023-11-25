@@ -9,7 +9,7 @@
 
 [Ever® Teams™](https://app.ever.team) - Open Work and Project Management Platform.
 
-![web](https://docs.ever.team/docs/assets/web/overview.png)
+![web](https://docs.ever.team/web/overview.png)
 
 **NOTE: Platform currently is in active development stage / WIP, please use with caution!**
 
@@ -33,17 +33,17 @@ Below is a list of the most important planned features:
 
 ### Web Platform
 
-![web](https://docs.ever.team/docs/assets/web/overview.png)
-![web](https://docs.ever.team/docs/assets/web/web2.png)
-![web](https://docs.ever.team/docs/assets/web/web3.png)
+![web](https://docs.ever.team/web/overview.png)
+![web](https://docs.ever.team/web/web2.png)
+![web](https://docs.ever.team/web/web3.png)
 
 ### Mobile Apps (iOS/Android)
 
-![mobile](https://docs.ever.team/docs/assets/mobile/overview.png)
+![mobile](https://docs.ever.team/mobile/overview.png)
 
 ### Browser Extension
 
-![extension](https://docs.ever.team/docs/assets/extension/overview.png)
+![extension](https://docs.ever.team/extension/overview.png)
 
 Note: Currently WIP, the screenshot is just a temporary picture :)
 
