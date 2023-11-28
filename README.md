@@ -152,6 +152,10 @@ WIP
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
+### Koyeb
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=ever-teams&type=docker&builder=dockerfile&image=ghcr.io/ever-co/ever-teams-webapp:latest&env[PORT]=3000&ports=3000;http;/)
+
 ## 📄 Content
 
 -   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
