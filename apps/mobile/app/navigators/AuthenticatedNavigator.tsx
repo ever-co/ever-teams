@@ -186,21 +186,6 @@ const TabNavigator = observer(function TabNavigator() {
 			) : null}
 
 			<Tab.Screen
-				name="Team"
-				component={AuthenticatedTeamScreen}
-				options={{
-					tabBarLabel: translate('teamScreen.name'),
-					tabBarIcon: ({ focused }) =>
-						!focused ? (
-							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
-						) : (
-							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
-						),
-					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
-				}}
-			/>
-
-			<Tab.Screen
 				name="Profile"
 				component={AuthenticatedProfileScreen}
 				options={{
@@ -222,6 +207,21 @@ const TabNavigator = observer(function TabNavigator() {
 							activeTab: 'worked'
 						});
 					}
+				}}
+			/>
+
+			<Tab.Screen
+				name="Team"
+				component={AuthenticatedTeamScreen}
+				options={{
+					tabBarLabel: translate('teamScreen.name'),
+					tabBarIcon: ({ focused }) =>
+						!focused ? (
+							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
+						) : (
+							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
+						),
+					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
 				}}
 			/>
 		</Tab.Navigator>
