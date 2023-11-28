@@ -3,6 +3,7 @@ import Image from 'next/image';
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 import { DraggableProvided } from "react-beautiful-dnd";
 import CircularProgress from "@components/ui/svgs/circular-progress";
+import PriorityIcon from "@components/ui/svgs/priority-icon";
 
 function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
@@ -74,6 +75,27 @@ const stackImages = (index: number, length: number) => {
     }
 }
 
+function Priority({
+    level
+}: {
+    level: number
+}) {
+
+    const numberArray = Array.from({ length: level }, (_, index) => index + 1);
+
+    return(
+        <>
+            <div className="flex flex-col">
+                {numberArray.map((item: any, index: number)=> {
+                    return (
+                        <PriorityIcon key={index}/>
+                    )
+                })}
+            </div>
+        </>
+    )
+}
+
 /**
  * card that represent each task
  * @param props 
@@ -115,8 +137,8 @@ export default function Item(props: any) {
                         <BugIcon/>
                     </span>
                     <span className="text-grey text-normal mr-1">#213</span>
-                    <span className="text-black dark:text-white text-normal capitalize">{item.content}</span>
-                    
+                    <span className="text-black dark:text-white text-normal capitalize mr-2">{item.content}</span>
+                    <Priority level={1}/>
                 </div>
             </div>
             <div className="flex flex-col justify-between w-[48px] items-end">
