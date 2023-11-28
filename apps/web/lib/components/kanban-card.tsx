@@ -2,6 +2,8 @@ import BugIcon from "@components/ui/svgs/bug";
 import Image from 'next/image';
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 import { DraggableProvided } from "react-beautiful-dnd";
+import CircularProgress from "@components/ui/svgs/circular-progress";
+import PriorityIcon from "@components/ui/svgs/priority-icon";
 
 function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
@@ -73,14 +75,33 @@ const stackImages = (index: number, length: number) => {
     }
 }
 
+function Priority({
+    level
+}: {
+    level: number
+}) {
+
+    const numberArray = Array.from({ length: level }, (_, index) => index + 1);
+
+    return(
+        <>
+            <div className="flex flex-col">
+                {numberArray.map((item: any, index: number)=> {
+                    return (
+                        <PriorityIcon key={index}/>
+                    )
+                })}
+            </div>
+        </>
+    )
+}
+
 /**
  * card that represent each task
  * @param props 
  * @returns 
  */
-export default function Item(props: any) {
-
-   
+export default function Item(props: any) {   
 
     const {
       item,
@@ -91,7 +112,7 @@ export default function Item(props: any) {
       isClone,
       index,
     } = props;
-  
+   
     return (
       <section
         href={``}
@@ -111,17 +132,19 @@ export default function Item(props: any) {
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
             <div className="flex flex-col gap-5 grow">
                 <TagList tags={item.tags}/>
-                <div className="flex flex-row items-center gap-2 text-sm not-italic font-semibold">
-                    <div className="bg-indianRed rounded p-1">
+                <div className="flex flex-row flex-wrap items-center text-sm not-italic font-semibold">
+                    <span className="bg-indianRed rounded p-1 mr-1">
                         <BugIcon/>
-                    </div>
-                    <p className="text-grey text-normal">#213</p>
-                    <p className="text-black dark:text-white text-normal capitalize">{item.content}</p>
-                    
+                    </span>
+                    <span className="text-grey text-normal mr-1">#213</span>
+                    <span className="text-black dark:text-white text-normal capitalize mr-2">{item.content}</span>
+                    <Priority level={1}/>
                 </div>
             </div>
-            <div className="flex flex-col w-[48px] items-end">
+            <div className="flex flex-col justify-between w-[48px] items-end">
                 <VerticalThreeDot/>
+
+                <CircularProgress percentage={10}/>
             </div>
         </div>
         <div className="flex flex-row justify-between items-center pt-4">
