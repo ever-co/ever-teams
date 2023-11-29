@@ -36,7 +36,7 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 	return serverFetch<{ status: number; message: string | 'ok' }>({
 		path: '/auth/signin.email',
 		method: 'POST',
-		body: { email, callbackUrl }
+		body: { email, appMagicSignUrl: callbackUrl, appName: APP_NAME }
 	});
 }
 export const signInEmailConfirmRequest = (data: { code: string; email: string }) => {

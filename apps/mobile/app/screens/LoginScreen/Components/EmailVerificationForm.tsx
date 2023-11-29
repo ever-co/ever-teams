@@ -37,11 +37,11 @@ const EmailVerificationForm: FC<Props> = observer(
 				style={{
 					...styles.form,
 					backgroundColor: colors.background,
-					elevation: !dark && 10,
-					shadowColor: !dark && 'rgba(0,0,0,0.1)',
-					shadowOffset: !dark && { width: 10, height: 10 },
-					shadowOpacity: !dark && 5,
-					shadowRadius: !dark && 9
+					elevation: !dark ? 10 : undefined,
+					shadowColor: !dark ? 'rgba(0,0,0,0.1)' : undefined,
+					shadowOffset: !dark ? { width: 10, height: 10 } : undefined,
+					shadowOpacity: !dark ? 0.5 : undefined,
+					shadowRadius: !dark ? 9 : undefined
 				}}
 			>
 				<Text style={styles.text}>{translate('loginScreen.step3Title')}</Text>

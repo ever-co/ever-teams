@@ -4,7 +4,7 @@ import { Platform, TextStyle, View, ViewStyle } from 'react-native';
 import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import { CompositeScreenProps, CompositeNavigationProp, RouteProp } from '@react-navigation/native';
+import { CompositeScreenProps, CompositeNavigationProp, RouteProp, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // COMPONENTS
@@ -45,6 +45,7 @@ import {
 	userNotFocusedDark,
 	userNotFocusedLight
 } from '../components/svgs/icons';
+import { useOrganizationTeam } from '../services/hooks/useOrganization';
 
 export type AuthenticatedTabParamList = {
 	Timer: undefined;
@@ -101,6 +102,9 @@ const TabNavigator = observer(function TabNavigator() {
 		teamStore: { isTrackingEnabled }
 	} = useStores();
 	const [isLoading, setIsLoading] = useState(true);
+	const { currentUser } = useOrganizationTeam();
+
+	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
 
 	useEffect(() => {
 		setTimeout(() => setIsLoading(false), 3000);
@@ -163,35 +167,6 @@ const TabNavigator = observer(function TabNavigator() {
 			}}
 			initialRouteName="Team"
 		>
-			<Tab.Screen
-				name="Profile"
-				component={AuthenticatedProfileScreen}
-				options={{
-					tabBarLabel: translate('tasksScreen.name'),
-					tabBarIcon: ({ focused }) =>
-						focused ? (
-							<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
-						) : (
-							<SvgXml xml={dark ? briefCaseNotFocusedDark : briefCaseNotFocusedLight} />
-						),
-					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
-				}}
-			/>
-
-			<Tab.Screen
-				name="Team"
-				component={AuthenticatedTeamScreen}
-				options={{
-					tabBarLabel: translate('teamScreen.name'),
-					tabBarIcon: ({ focused }) =>
-						!focused ? (
-							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
-						) : (
-							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
-						),
-					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
-				}}
-			/>
 			{isTrackingEnabled ? (
 				<Tab.Screen
 					name="Timer"
@@ -209,6 +184,46 @@ const TabNavigator = observer(function TabNavigator() {
 					}}
 				/>
 			) : null}
+
+			<Tab.Screen
+				name="Profile"
+				component={AuthenticatedProfileScreen}
+				options={{
+					tabBarLabel: translate('tasksScreen.name'),
+					tabBarIcon: ({ focused }) =>
+						focused ? (
+							<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
+						) : (
+							<SvgXml xml={dark ? briefCaseNotFocusedDark : briefCaseNotFocusedLight} />
+						),
+					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
+				}}
+				listeners={{
+					tabPress: (e) => {
+						e.preventDefault();
+
+						navigation.navigate('Profile', {
+							userId: currentUser?.id,
+							activeTab: 'worked'
+						});
+					}
+				}}
+			/>
+
+			<Tab.Screen
+				name="Team"
+				component={AuthenticatedTeamScreen}
+				options={{
+					tabBarLabel: translate('teamScreen.name'),
+					tabBarIcon: ({ focused }) =>
+						!focused ? (
+							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
+						) : (
+							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
+						),
+					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
+				}}
+			/>
 		</Tab.Navigator>
 	);
 });
