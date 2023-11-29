@@ -65,7 +65,9 @@ const ko: Translations = {
 		userNameFieldPlaceholder: '당신의 이름을 입력',
 		tapContinue: '계속하다',
 		tapJoin: '가입하다',
-		createTeam: 'Create Team'
+		createTeam: 'Create Team',
+		invalidConfirmCode: '잘못된 확인 코드',
+		securityCodeSent: '보안 코드가 새 이메일로 전송되었습니다'
 	},
 	myWorkScreen: {
 		name: '일하다',

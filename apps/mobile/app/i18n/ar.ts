@@ -66,7 +66,9 @@ const ar: Translations = {
 		userNameFieldPlaceholder: 'أدخل أسمك',
 		tapContinue: 'يكمل',
 		tapJoin: 'ينضم',
-		createTeam: 'إنشاء فريق'
+		createTeam: 'إنشاء فريق',
+		invalidConfirmCode: 'رمز التأكيد غير صالح',
+		securityCodeSent: 'تم إرسال رمز الأمان على البريد الإلكتروني الجديد'
 	},
 	myWorkScreen: {
 		name: 'عمل',

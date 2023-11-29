@@ -63,7 +63,9 @@ const en = {
 		userNameFieldPlaceholder: 'Enter your name',
 		tapContinue: 'Continue',
 		tapJoin: 'Join',
-		createTeam: 'Create Team'
+		createTeam: 'Create Team',
+		invalidConfirmCode: 'Invalid confirm code',
+		securityCodeSent: 'Security code was sent on new email'
 	},
 	myWorkScreen: {
 		name: 'Work',
