@@ -12,7 +12,9 @@ import {
 	Animated,
 	Dimensions,
 	TouchableOpacity,
-	FlatList
+	FlatList,
+	KeyboardAvoidingView,
+	Platform
 } from 'react-native';
 import { Text } from 'react-native-paper';
 // COMPONENTS
@@ -65,9 +67,13 @@ const ModalPopUp = ({ visible, children }) => {
 					height: '100%'
 				}}
 			/>
-			<View style={$modalBackGround}>
+			<KeyboardAvoidingView
+				keyboardVerticalOffset={Platform.OS === 'android' ? 20 : 0}
+				style={$modalBackGround}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+			>
 				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
-			</View>
+			</KeyboardAvoidingView>
 		</Modal>
 	);
 };
