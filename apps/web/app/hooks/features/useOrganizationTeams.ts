@@ -263,7 +263,9 @@ export function useOrganizationTeams() {
 			}
 
 			teamId &&
-				queryCallTeam(teamId).then((res) => {
+				user?.employee.organizationId &&
+				user?.employee.tenantId &&
+				queryCallTeam(teamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 					const newTeam = res.data;
 
 					/**
@@ -291,12 +293,20 @@ export function useOrganizationTeams() {
 	 * Get active team profile from api
 	 */
 	useEffect(() => {
-		if (activeTeamId && firstLoad) {
-			getOrganizationTeamAPI(activeTeamId).then((res) => {
+		if (activeTeamId && firstLoad && user?.employee.organizationId && user?.employee.tenantId) {
+			getOrganizationTeamAPI(activeTeamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 				!loadingTeamsRef.current && setTeamsUpdate(res.data);
 			});
 		}
-	}, [activeTeamId, firstLoad, loadingTeamsRef, setTeams, setTeamsUpdate]);
+	}, [
+		activeTeamId,
+		firstLoad,
+		loadingTeamsRef,
+		setTeams,
+		setTeamsUpdate,
+		user?.employee.organizationId,
+		user?.employee.tenantId
+	]);
 
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {
