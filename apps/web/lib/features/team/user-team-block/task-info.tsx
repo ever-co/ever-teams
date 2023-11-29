@@ -2,7 +2,7 @@ import React from 'react';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
+import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay, TaskStatus, useTaskSizesValue } from 'lib/features';
 import { useRouter } from 'next/router';
 
 type Props = IClassName & {
@@ -38,7 +38,7 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Pr
 				{edition.task && (
 					<>
 						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
-						<p className="text-yellow-700">{task?.size}</p>
+						<p>{task?.size?.substring(0, 2)}</p>
 					</>
 				)}
 				{!edition.task && <div className="text-center">--</div>}

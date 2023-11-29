@@ -18,7 +18,7 @@ type TeamMembersProps = {
 export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const activeFilter = useRecoilValue(taskBlockFilterState);
-	const { activeTeam,  teamsFetching } = useOrganizationTeams();
+	const { activeTeam, teamsFetching } = useOrganizationTeams();
 
 	const members =
 		activeFilter == 'all'
