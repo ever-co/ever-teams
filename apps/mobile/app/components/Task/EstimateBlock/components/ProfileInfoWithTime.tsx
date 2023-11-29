@@ -35,7 +35,7 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 			style={{
 				flexDirection: 'row',
 				justifyContent: 'space-between',
-				paddingRight: !time && 12
+				paddingRight: !time ? 12 : undefined
 			}}
 		>
 			<TouchableOpacity onPress={userId && navigateToProfile} style={styles.container}>

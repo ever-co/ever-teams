@@ -256,9 +256,9 @@ const styles = StyleSheet.create({
 	dropdownItem: {
 		alignItems: 'center',
 		borderRadius: 10,
-		elevation: 10,
 		flexDirection: 'row',
 		height: 44,
+		overflow: 'hidden',
 		paddingHorizontal: 16,
 		width: '60%'
 	},
