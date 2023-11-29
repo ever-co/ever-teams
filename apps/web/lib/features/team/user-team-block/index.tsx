@@ -1,11 +1,12 @@
+import React from 'react';
 import { secondsToTime } from '@app/helpers';
-import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
-import { IClassName, IOrganizationTeamList } from '@app/interfaces';
+import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@app/hooks';
+import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
-import { TaskTimes, TodayWorkedTime } from 'lib/features';
+import { TaskTimes, TodayWorkedTime, getTimerStatusValue } from 'lib/features';
 import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
@@ -55,6 +56,11 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const { timerStatus } = useTimer();
+
+	const timerStatusValue: ITimerStatusEnum = React.useMemo(() => {
+		return getTimerStatusValue(timerStatus, member, publicTeam);
+	}, [timerStatus, member, publicTeam]);
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
@@ -100,17 +106,25 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				shadow="bigger"
 				className={clsxm(
 					'relative items-center py-3  dark:bg-[#1E2025] min-h-[7rem]',
-					['dark:border border-t-4 border-transparent ', ` border-green-700`],
+					[
+						'dark:border border-t-4 border-transparent ',
+						timerStatusValue == 'running' && ' border-green-700',
+						timerStatusValue == 'idle' && ' border-green-700',
+						timerStatusValue == 'online' && ' border-green-700',
+						timerStatusValue == 'pause' && ' border-yellow-700',
+						timerStatusValue == 'suspended' && ' border-red-700'
+					],
 
 					className
 				)}
 			>
 				{/* flex */}
-				<div className="flex items-center justify-between py-2">
-					<div className="flex items-center justify-between py-2">
+				<div className="flex items-center justify-between py-2 w-full">
+					<div className="flex items-center justify-between py-2 w-full">
 						<UserBoxInfo memberInfo={memberInfo} className="w-full" publicTeam={publicTeam} />
 						{/* total time  */}
-						<TaskTimes
+						{totalWork}
+						{/* <TaskTimes
 							activeAuthTask={true}
 							showDaily={false}
 							memberInfo={memberInfo}
@@ -118,7 +132,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 							isAuthUser={memberInfo.isAuthUser}
 							className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 							isBlock={true}
-						/>
+						/> */}
 					</div>
 					{/* more */}
 					<div className="absolute right-2">{menu}</div>
@@ -126,12 +140,11 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 
 				<HorizontalSeparator />
 
-				{/* task logo, number, title,   */}
 				{/* Task information */}
 				<TaskBlockInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-full 3xl:w-[32rem] w-1/5 lg:px-4 px-2 py-2"
+					className="2xl:w-full 3xl:w-[32rem] w-1/5 lg:px-4 px-2 py-2 overflow-hidden"
 					publicTeam={publicTeam}
 				/>
 				{/* prograssion,  tags */}
@@ -151,14 +164,43 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 							isBlock={true}
 						/>
 						{/* today time */}
-						{/* <TodayWorkedTime
-							isAuthUser={memberInfo.isAuthUser}
-							className="flex-1 lg:text-base text-xs 3xl:w-[12rem]"
-							memberInfo={memberInfo}
-						/> */}
 					</div>
 					{/* progress time */}
-					<p>c.p.</p>
+					<div>
+						<div className="relative w-40 h-40">
+							<svg className="w-full h-full" viewBox="0 0 100 100">
+								<circle
+									className="text-gray-200 stroke-current"
+									strokeWidth="10"
+									cx="30"
+									cy="30"
+									r="40"
+									fill="transparent"
+								></circle>
+								<circle
+									className="text-green-700  progress-ring__circle stroke-current"
+									strokeWidth="10"
+									strokeLinecap="round"
+									cx="30"
+									cy="30"
+									r="40"
+									fill="transparent"
+									strokeDashoffset={`calc(400 - ${memberInfo.memberTask?.taskNumber} / 100 * 400)`}
+								></circle>
+
+								<text
+									x="30"
+									y="30"
+									fontFamily="Verdana"
+									fontSize="10"
+									textAnchor="middle"
+									alignmentBaseline="middle"
+								>
+									70%
+								</text>
+							</svg>
+						</div>
+					</div>
 				</div>
 			</Card>
 		</div>
