@@ -57,6 +57,17 @@ function MainPage() {
 						>
 							<QueueListIcon className="w-5 h-5 inline" />
 						</button>
+						<button
+							className={clsxm(
+								'rounded-md px-3 py-1 text-sm font-medium',
+								view === IssuesView.BLOCKS
+									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+									: 'text-gray-700 dark:text-gray-300'
+							)}
+							onClick={() => setView(IssuesView.BLOCKS)}
+						>
+							<QueueListIcon className="w-5 h-5 inline" />
+						</button>
 					</div>
 				</div>
 
@@ -66,7 +77,7 @@ function MainPage() {
 
 			<div
 				className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
-					view === IssuesView.TABLE ? 'pb-7' : ''
+					view !== IssuesView.CARDS ? 'pb-7' : ''
 				}`}
 			>
 				<Container>

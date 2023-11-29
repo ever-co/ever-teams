@@ -12,9 +12,10 @@ type Props = {
 	memberInfo?: I_TeamMemberCardHook | OT_Member | any;
 	showDaily?: boolean;
 	showTotal?: boolean;
+	isBlock?: boolean;
 } & IClassName;
 
-export function TaskTimes({ className, task, memberInfo, showDaily = true, showTotal = true }: Props) {
+export function TaskTimes({ className, task, memberInfo, showDaily = true, showTotal = true, isBlock = false }: Props) {
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id);
@@ -38,7 +39,11 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 
 	return (
 		<div className={clsxm(className)}>
-			<TimeInfo showDaily={showDaily} showTotal={showTotal} daily={{ h: dh, m: dm }} total={{ h, m }} />
+			{isBlock ? (
+				<TimeBlockInfo showDaily={showDaily} showTotal={showTotal} daily={{ h: dh, m: dm }} total={{ h, m }} />
+			) : (
+				<TimeInfo showDaily={showDaily} showTotal={showTotal} daily={{ h: dh, m: dm }} total={{ h, m }} />
+			)}
 		</div>
 	);
 }
@@ -80,6 +85,46 @@ function TimeInfo({
 				</div>
 			)}
 		</>
+	);
+}
+
+function TimeBlockInfo({
+	daily,
+	total,
+	showDaily = true,
+	showTotal = true
+}: {
+	daily: { h: number; m: number };
+	total: { h: number; m: number };
+	showDaily?: boolean;
+	showTotal?: boolean;
+}) {
+	const { t } = useTranslation();
+	return (
+		<div className="flex gap-3">
+			{showDaily && (
+				<div className=" text-base font-normal flex flex-col items-center ">
+					<span className="text-[#7B8089]">{t('common.TODAY')}:</span>
+					<Text className="text-lg font-semibold">
+						{daily.h}h : {daily.m}m
+					</Text>
+				</div>
+			)}
+
+			{showTotal && (
+				<div
+					className={clsxm(
+						'font-normal text-base flex flex-col items-center '
+						// showDaily && ['text-sm']
+					)}
+				>
+					<span className="text-[#7B8089]">{t('common.TOTAL')}:</span>
+					<Text className="text-lg font-semibold">
+						{total.h}h : {total.m}m
+					</Text>
+				</div>
+			)}
+		</div>
 	);
 }
 

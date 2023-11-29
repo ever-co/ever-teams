@@ -6,6 +6,7 @@ import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
 import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
 import { IssuesView } from '@app/constants';
+import TeamMembersBlockView from './team-members-block-view';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -66,6 +67,17 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 						active={user?.isEmailVerified}
 					/>
 				</Transition>
+			);
+			break;
+
+		case kanbanView == IssuesView.BLOCKS:
+			teamMembersView = (
+				<TeamMembersBlockView
+					teamMembers={$members}
+					currentUser={currentUser}
+					publicTeam={publicTeam}
+					teamsFetching={$teamsFetching}
+				/>
 			);
 			break;
 		default:
