@@ -76,11 +76,9 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 							<BlurView tint="dark" intensity={25} style={$blurContainer} />
 						</TouchableWithoutFeedback>
 					)}
-					<View style={{ flex: 0.95 }}>
-						<View style={[$headerContainer, { backgroundColor: colors.background }]}>
-							<SettingHeader {..._props} />
-							<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
-						</View>
+					<View style={[$headerContainer, { flex: 0.75, backgroundColor: colors.background }]}>
+						<SettingHeader {..._props} />
+						<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
 					</View>
 					<View style={{ flex: 4, paddingHorizontal: 20 }}>
 						{isLoading ? (
