@@ -68,7 +68,8 @@ const ar: Translations = {
 		tapJoin: 'ينضم',
 		createTeam: 'إنشاء فريق',
 		invalidConfirmCode: 'رمز التأكيد غير صالح',
-		securityCodeSent: 'تم إرسال رمز الأمان على البريد الإلكتروني الجديد'
+		securityCodeSent: 'تم إرسال رمز الأمان على البريد الإلكتروني الجديد',
+		codeSentTo: 'تم إرسال رمز مكوّن من 6 أحرف إلى:'
 	},
 	myWorkScreen: {
 		name: 'عمل',
