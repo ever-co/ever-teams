@@ -65,7 +65,8 @@ const fr = {
 		tapJoin: 'Rejoindre',
 		createTeam: "Créer l'équipe",
 		invalidConfirmCode: 'Code de confirmation invalide',
-		securityCodeSent: 'Le code de sécurité a été envoyé sur le nouvel e-mail'
+		securityCodeSent: 'Le code de sécurité a été envoyé sur le nouvel e-mail',
+		codeSentTo: 'Un code de 6 caractères envoyé à :'
 	},
 	myWorkScreen: {
 		name: 'Travail',

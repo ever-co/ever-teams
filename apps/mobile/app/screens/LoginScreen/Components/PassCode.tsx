@@ -222,6 +222,16 @@ const PassCode: FC<Props> = observer(
 					</>
 				) : step === 'Code' ? (
 					<View>
+						{authEmail && (
+							<Text
+								numberOfLines={1}
+								style={{ fontSize: 11, textAlign: 'center', color: '#fff', top: -50 }}
+							>
+								{translate('loginScreen.codeSentTo')}{' '}
+								<Text style={{ fontWeight: '600' }}>{authEmail}</Text>
+							</Text>
+						)}
+
 						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
 							{translate('loginScreen.inviteCodeFieldLabel')}
 						</Text>
