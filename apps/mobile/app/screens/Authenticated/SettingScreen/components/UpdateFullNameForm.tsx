@@ -101,7 +101,8 @@ const UpdateFullNameForm = observer(
 					paddingHorizontal: 25,
 					paddingTop: 26,
 					paddingBottom: 40,
-					height: 349
+					height: 349,
+					zIndex: 100
 				}}
 			>
 				<View style={{ flex: 3 }}>

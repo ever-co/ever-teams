@@ -118,7 +118,8 @@ export default TeamSettings;
 
 const $contentContainer: ViewStyle = {
 	width: '100%',
-	alignItems: 'center'
+	alignItems: 'center',
+	zIndex: 10
 };
 
 const $dangerZoneContainer: ViewStyle = {
