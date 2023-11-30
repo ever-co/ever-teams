@@ -4,8 +4,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
-// import { translate } from '../../../../i18n';
-import { limitTextCharaters } from '../../../../helpers/sub-text';
+import { translate } from '../../../../i18n';
 import { Toggle } from '../../../../components/Toggle';
 import { typography, useAppTheme } from '../../../../theme';
 
@@ -29,12 +28,13 @@ const SwitchTeamPublicity: FC<Props> = observer(() => {
 	return (
 		<View style={styles.container}>
 			<View style={styles.wrapperInfo}>
-				<Text style={[styles.infoTitle, { color: colors.primary }]}>Team Type</Text>
+				<Text style={[styles.infoTitle, { color: colors.primary }]}>
+					{translate('settingScreen.teamSection.teamType')}
+				</Text>
 				<Text style={[styles.infoText, { color: colors.tertiary }]}>
-					{limitTextCharaters({
-						text: isTeamPublic ? 'Public Team' : 'Private Team',
-						numChars: 77
-					})}
+					{isTeamPublic
+						? translate('settingScreen.teamSection.publicTeam')
+						: translate('settingScreen.teamSection.privateTeam')}
 				</Text>
 			</View>
 			<Toggle

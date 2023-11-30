@@ -209,6 +209,9 @@ const ar: Translations = {
 			quitTeam: 'Quit the team',
 			quitTeamHint: 'You are about to quit the team',
 			areYouSure: 'Are you sure ?',
+			teamType: 'نوع الفريق',
+			publicTeam: 'الفريق العام',
+			privateTeam: 'الفريق الخاص',
 			changeTeamName: {
 				mainTitle: 'Change Team Name',
 				inputPlaceholder: 'Team Name'

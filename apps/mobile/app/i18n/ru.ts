@@ -205,6 +205,9 @@ const ru = {
 			quitTeam: 'Quit the team',
 			quitTeamHint: 'You are about to quit the team',
 			areYouSure: 'Are you sure ?',
+			teamType: 'Team Type',
+			publicTeam: 'Public Team',
+			privateTeam: 'Private Team',
 			changeTeamName: {
 				mainTitle: 'Change Team Name',
 				inputPlaceholder: 'Team Name'
