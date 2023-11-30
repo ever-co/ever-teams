@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
 		shadowOffset: { width: 0, height: 5 },
 		shadowOpacity: 1,
 		width: 84,
-		zIndex: 1000
+		zIndex: 99
 	},
 	container: {
 		width: '100%'
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
 		height: '100%',
 		paddingHorizontal: 25,
 		paddingTop: 56,
-		zIndex: 999
+		zIndex: 99
 	},
 	title: {
 		fontFamily: typography.primary.semiBold,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
 	},
 	transparentContainer: {
 		height: '5%',
-		zIndex: 1000
+		zIndex: 100
 	},
 	warningMessage: {
 		color: '#6C7278',
