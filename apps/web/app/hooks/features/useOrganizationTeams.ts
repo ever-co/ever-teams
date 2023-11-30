@@ -304,8 +304,8 @@ export function useOrganizationTeams() {
 		loadingTeamsRef,
 		setTeams,
 		setTeamsUpdate,
-		user?.employee.organizationId,
-		user?.employee.tenantId
+		user?.employee?.organizationId,
+		user?.employee?.tenantId
 	]);
 
 	const editOrganizationTeam = useCallback(
