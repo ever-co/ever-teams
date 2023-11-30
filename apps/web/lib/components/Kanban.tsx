@@ -46,7 +46,8 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any){
  * @param param0 
  * @returns 
  */
-function InnerItemList({items}: {
+function InnerItemList({items, title}: {
+    title: string,
     items: any[]
 }) {
     return (
@@ -61,6 +62,11 @@ function InnerItemList({items}: {
                     isDragging={dragSnapshot.isDragging}
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
+                    style={title === 'review' && {
+                        borderWidth: '1px',
+                        borderColor: '#6FCF97',
+                        borderStyle: 'solid'
+                    }}
                 />
                 )}
             </Draggable>
@@ -82,14 +88,14 @@ function InnerList(props: {
     dropProvided: DroppableProvided,
     dropSnapshot: DroppableStateSnapshot
 }) {
-    const { items, dropProvided, dropSnapshot } = props;
+    const { items, dropProvided, dropSnapshot, title } = props;
   
     return (
    
         <div 
         style={getBackgroundColor(dropSnapshot)}
         ref={dropProvided.innerRef}>
-          <InnerItemList items={items} />
+          <InnerItemList items={items} title={title} />
             <>
             {dropProvided.placeholder}
             </>

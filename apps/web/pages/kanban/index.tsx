@@ -29,6 +29,7 @@ const demoData = {
         {
             id: '1',
             content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            hasComment: "tagged",
             tags: [
                 {
                     id: 'tag-1',
@@ -48,6 +49,7 @@ const demoData = {
         {
             id: '4',
             content: 'demo content2',
+            hasComment: "none",
             tags: [
                 {
                     id: 'tag-1',
@@ -69,6 +71,7 @@ const demoData = {
         {
             id: '2',
             content: 'another content',
+            hasComment: "untagged",
             tags: [
                 {
                     id: 'tag-1',
@@ -88,6 +91,7 @@ const demoData = {
         {
             id: '5',
             content: 'another content2',
+            hasComment: "none",
             tags: [
                 {
                     id: 'tag-1',
@@ -109,6 +113,7 @@ const demoData = {
         {
             id: '3',
             content: 'a simple tes',
+            hasComment: "none",
             tags: [
                 {
                     id: 'tag-1',
@@ -128,6 +133,7 @@ const demoData = {
         {
             id: '6',
             content: 'a simple tes',
+            hasComment: "none",
             tags: [
                 {
                     id: 'tag-1',
