@@ -182,7 +182,7 @@ const es = {
 			removeAccount: 'Remove Account',
 			removeAccountHint: 'Account will be removed from all teams, except where you are the only manager',
 			deleteAccount: 'Delete Account',
-			deleteAccountHint: 'Your account will be deleted permanently with remolving from all teams',
+			deleteAccountHint: 'Your account will be deleted permanently with removing from all teams',
 			detect: 'Detect'
 		},
 		teamSection: {
@@ -205,6 +205,9 @@ const es = {
 			quitTeam: 'Quit the team',
 			quitTeamHint: 'You are about to quit the team',
 			areYouSure: 'Are you sure ?',
+			teamType: 'Team Type',
+			publicTeam: 'Public Team',
+			privateTeam: 'Private Team',
 			changeTeamName: {
 				mainTitle: 'Change Team Name',
 				inputPlaceholder: 'Team Name'
