@@ -204,6 +204,9 @@ const fr = {
 			quitTeam: "Quitter l'équipe",
 			quitTeamHint: "Vous êtes sur le point de quitter l'équipe",
 			areYouSure: 'Etes-vous sûr ?',
+			teamType: "Type d'équipe",
+			publicTeam: 'Équipe publique',
+			privateTeam: 'Équipe privée',
 			changeTeamName: {
 				mainTitle: 'Change Team Name',
 				inputPlaceholder: 'Team Name'

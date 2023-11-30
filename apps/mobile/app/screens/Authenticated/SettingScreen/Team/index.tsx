@@ -17,6 +17,7 @@ import { useTaskPriority } from '../../../../services/hooks/features/useTaskPrio
 import { useTaskSizes } from '../../../../services/hooks/features/useTaskSizes';
 import { useTaskLabels } from '../../../../services/hooks/features/useTaskLabels';
 import { useTaskVersion } from '../../../../services/hooks/features/useTaskVersion';
+import SwitchTeamPublicity from '../components/SwitchTeamPublicity';
 
 interface ITeamSettingProps {
 	props: any;
@@ -51,6 +52,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					value={activeTeam?.name}
 					onPress={() => onOpenBottomSheet('Team Name', 4)}
 				/>
+				{isTeamManager ? <SwitchTeamPublicity /> : null}
 				{isTeamManager ? <SwithTimeTracking /> : null}
 				<SingleInfo
 					title={'Task Versions'}

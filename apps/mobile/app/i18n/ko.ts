@@ -208,6 +208,9 @@ const ko: Translations = {
 			quitTeam: 'Quit the team',
 			quitTeamHint: 'You are about to quit the team',
 			areYouSure: 'Are you sure ?',
+			teamType: '팀 타입',
+			publicTeam: '공개 팀',
+			privateTeam: '비공개 팀',
 			changeTeamName: {
 				mainTitle: 'Change Team Name',
 				inputPlaceholder: 'Team Name'
