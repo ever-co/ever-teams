@@ -28,7 +28,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 	const {
 		teamStore: { activeTeam }
 	} = useStores();
-	const { isTeamManager } = useOrganizationTeam();
+	const { isTeamManager, activeTeamManagers, currentUser } = useOrganizationTeam();
 
 	const [open, setOpen] = useState(false);
 	const { navigation } = props;
@@ -99,16 +99,25 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 						title={translate('settingScreen.teamSection.transferOwnership')}
 						value={translate('settingScreen.teamSection.transferOwnership')}
 						onPress={() => setOpen(true)}
+						disabled={!(isTeamManager && activeTeamManagers.length >= 2)}
 					/>
 					<SingleInfo
 						title={translate('settingScreen.teamSection.removeTeam')}
 						value={translate('settingScreen.teamSection.removeTeamHint')}
 						onPress={() => onOpenBottomSheet('Remove Team', 5)}
+						disabled={!(isTeamManager && activeTeamManagers.length === 1)}
 					/>
 					<SingleInfo
 						title={translate('settingScreen.teamSection.quitTeam')}
 						value={translate('settingScreen.teamSection.quitTeamHint')}
 						onPress={() => onOpenBottomSheet('Quit Team', 5)}
+						disabled={
+							!(
+								(isTeamManager && activeTeamManagers.length > 1) ||
+								(!isTeamManager &&
+									activeTeam?.members?.some((member) => member.employee.userId === currentUser?.id))
+							)
+						}
 					/>
 				</View>
 			</ScrollView>
