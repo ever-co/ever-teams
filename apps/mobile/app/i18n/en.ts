@@ -183,7 +183,7 @@ const en = {
 			removeAccount: 'Remove Account',
 			removeAccountHint: 'Account will be removed from all teams, except where you are the only manager',
 			deleteAccount: 'Delete Account',
-			deleteAccountHint: 'Your account will be deleted permanently with remolving from all teams',
+			deleteAccountHint: 'Your account will be deleted permanently with removing from all teams',
 			detect: 'Detect'
 		},
 		teamSection: {
