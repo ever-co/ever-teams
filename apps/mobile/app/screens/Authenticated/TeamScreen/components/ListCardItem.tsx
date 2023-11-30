@@ -137,7 +137,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 
 const ListCardItem: React.FC<Props> = observer((props) => {
 	const { colors } = useAppTheme();
-	// // STATS
+	//  STATS
 	const memberInfo = useTeamMemberCard(props.member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { timerStatus } = useTimer();
