@@ -191,10 +191,10 @@ export function useTimer() {
 
 	const getTimerStatus = useCallback(
 		(deepCheck?: boolean) => {
-			if (loadingRef.current) {
+			if (loadingRef.current || !user?.tenantId) {
 				return;
 			}
-			return queryCall().then((res) => {
+			return queryCall(user?.tenantId, user?.employee.organizationId).then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t) => {
 						if (deepCheck) {
@@ -206,7 +206,7 @@ export function useTimer() {
 				return res;
 			});
 		},
-		[timerStatus, setTimerStatus, queryCall, loadingRef]
+		[timerStatus, setTimerStatus, queryCall, loadingRef, user]
 	);
 
 	const toggleTimer = useCallback(
