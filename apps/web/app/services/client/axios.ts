@@ -1,5 +1,6 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH } from '@app/constants';
-import { getAccessTokenCookie, getActiveTeamIdCookie } from '@app/helpers/cookies';
+import { getAccessTokenCookie, getActiveTeamIdCookie, getTenantIdCookie } from '@app/helpers/cookies';
 import axios, { AxiosResponse } from 'axios';
 
 const api = axios.create({
@@ -70,8 +71,20 @@ apiDirect.interceptors.response.use(
 	}
 );
 
-function get(endpoint: string, isDirect: boolean) {
-	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? apiDirect.get(endpoint) : api.get(endpoint);
+function get(
+	endpoint: string,
+	isDirect: boolean,
+	extras?: {
+		tenantId: string;
+	}
+) {
+	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+		? apiDirect.get(endpoint, {
+				headers: {
+					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
+				}
+		  })
+		: api.get(endpoint);
 }
 
 export default api;
