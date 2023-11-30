@@ -16,6 +16,27 @@ function getStyle(provided: DraggableProvided, style: any) {
     };
 }
 
+function setCommentIconColor(commentType: "tagged" | "untagged") {
+
+    let style;
+
+    if(commentType === "tagged"){
+        style = {
+            backgroundColor: '#D95F5F'
+        }
+    }else if(commentType === "untagged"){
+        style = {
+            backgroundColor: '#27AE60'
+        }
+    } else {
+        style = {
+
+        }
+    }
+
+    return style
+}
+
 function Tag({title, backgroundColor, color}: {
     title: string,
     backgroundColor: string,
@@ -170,6 +191,15 @@ export default function Item(props: any) {
                </div>
             </div>
         </div>
+        {item.hasComment !== "none" &&
+            (<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
+                <div 
+                    className="w-3.5 h-3.5 rounded-full"
+                    style={setCommentIconColor(item.hasComment)}
+                >
+                </div>
+            </div>)
+        }
       </section>
     );
 }
