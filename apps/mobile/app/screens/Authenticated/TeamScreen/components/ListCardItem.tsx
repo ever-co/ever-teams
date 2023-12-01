@@ -136,7 +136,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 });
 
 const ListCardItem: React.FC<Props> = observer((props) => {
-	const { colors } = useAppTheme();
+	const { colors, dark } = useAppTheme();
 	//  STATS
 	const memberInfo = useTeamMemberCard(props.member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -205,6 +205,8 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 								...GS.shadowLg,
 								shadowColor: 'rgba(0, 0, 0, 0.52)',
 								borderRadius: 14,
+								borderWidth: dark ? 1 : 0,
+								borderColor: colors.border,
 								width: 172,
 								marginTop: -5,
 								marginRight: 17,
