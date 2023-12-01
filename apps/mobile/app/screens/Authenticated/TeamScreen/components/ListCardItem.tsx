@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
-import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Platform } from 'react-native';
+import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 
 // COMPONENTS
@@ -87,14 +87,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 					</View>
 				</View>
 				<View style={[styles.times, { borderTopColor: colors.divider }]}>
-					<TouchableWithoutFeedback
-						onPress={(event) => {
-							if (Platform.OS === 'android' && taskEdition.estimateEditMode) {
-								event.stopPropagation();
-								taskEdition.setEstimateEditMode(false);
-							}
-						}}
-					>
+					<TouchableWithoutFeedback>
 						<View
 							style={{
 								flexDirection: 'row',
@@ -114,7 +107,11 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 							</View>
 
 							{memberInfo.memberTask && taskEdition.estimateEditMode ? (
-								<View style={styles.estimate} ref={clickOutsideTaskEstimationInputRef}>
+								<View
+									style={styles.estimate}
+									collapsable={false}
+									ref={clickOutsideTaskEstimationInputRef}
+								>
 									<EstimateTime
 										setEditEstimate={taskEdition.setEstimateEditMode}
 										currentTask={memberInfo.memberTask}

@@ -41,10 +41,18 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 
 	const others = teams.filter((t) => t.id !== activeTeamId);
 
-	const { colors } = useAppTheme();
+	const { colors, dark } = useAppTheme();
 	return (
 		<View
-			style={[styles.mainContainer, { backgroundColor: colors.background, shadowColor: 'rgba(0, 0, 0, 0.12)' }]}
+			style={[
+				styles.mainContainer,
+				{
+					backgroundColor: colors.background,
+					shadowColor: 'rgba(0, 0, 0, 0.12)',
+					borderWidth: dark ? 1 : 0,
+					borderColor: colors.border
+				}
+			]}
 		>
 			{/* <View style={styles.indDropDown}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
