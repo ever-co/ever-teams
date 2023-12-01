@@ -51,6 +51,7 @@
 		"@react-navigation/native": "~6.1.6",
 		"@react-navigation/native-stack": "^6.9.12",
 		"@react-navigation/stack": "~6.3.16",
+		"@sentry/cli": "^2.22.3",
 		"@sentry/react-native": "4.15.2",
 		"@types/react-dom": "~18.0.10",
 		"apisauce": "3.0.0",
@@ -109,7 +110,7 @@
 		"reactotron-react-native": "5.0.3",
 		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
 		"reanimated-color-picker": "^2.3.4",
-		"sentry-expo": "~6.2.0",
+		"sentry-expo": "^7.1.1",
 		"validator": "^13.11.0"
 	},
 	"devDependencies": {
