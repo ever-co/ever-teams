@@ -39,18 +39,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	 * If the invite code verification failed then try again with auth code
 	 */
 	if (!inviteReq || !inviteReq.response.ok || (inviteReq.data as any).response?.statusCode) {
-		const authReq = await verifyAuthCodeRequest(body.email, body.code);
+		try {
+			const authReq = await verifyAuthCodeRequest(body.email, body.code);
+			if (
+				!authReq.response.ok ||
+				(authReq.data as any).status === 404 ||
+				(authReq.data as any).status === 400 ||
+				(authReq.data as any).status === 401
+			) {
+				return res.status(200).json({
+					errors: {
+						email: 'Authentication code or email address invalid'
+					}
+				});
+			}
 
-		if (
-			!authReq.response.ok ||
-			(authReq.data as any).status === 404 ||
-			(authReq.data as any).status === 400 ||
-			(authReq.data as any).status === 401
-		) {
-			return notFound(res);
+			loginResponse = authReq.data;
+		} catch (error) {
+			// return notFound(res);
+			return res.status(200).json({
+				errors: {
+					email: 'Authentication code or email address invalid'
+				}
+			});
 		}
-
-		loginResponse = authReq.data;
 
 		/**
 		 * If provided code is an invite code and
