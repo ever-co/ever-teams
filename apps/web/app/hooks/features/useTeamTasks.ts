@@ -23,9 +23,11 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
+	const { user } = useAuthenticateUser();
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
@@ -109,12 +111,24 @@ export function useTeamTasks() {
 					response(true);
 				});
 			}
-			return queryCall().then((res) => {
+
+			if (!user || activeTeamRef.current?.id) {
+				return;
+			}
+
+			return queryCall(
+				user?.employee.organizationId,
+				user?.employee.tenantId,
+				activeTeamRef.current?.projects && activeTeamRef.current?.projects.length
+					? activeTeamRef.current?.projects[0].id
+					: '',
+				activeTeamRef.current?.id || ''
+			).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], deepCheck);
 				return res;
 			});
 		},
-		[queryCall, deepCheckAndUpdateTasks, loadingRef]
+		[queryCall, deepCheckAndUpdateTasks, loadingRef, user, activeTeamRef]
 	);
 
 	// Global loading state
