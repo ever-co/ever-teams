@@ -8,7 +8,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 	const tasks = useRecoilValue(tasksByTeamState);
 
 	const { activeTeam } = useOrganizationTeams();
-	const currentMember = activeTeam?.members.find((member) => member.employee?.userId === user?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === user?.id);
 
 	const assignedTasks = useMemo(() => {
 		if (!user) return [];
