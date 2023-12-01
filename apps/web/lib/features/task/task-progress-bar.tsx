@@ -43,10 +43,18 @@ export function TaskProgressBar({
 		task?.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	);
 
-	console.log({ radial });
 
 	return radial ? (
-		<CircularProgress size="lg" value={progress || 0} showValueLabel={true} className="text-green-700" />
+		<CircularProgress classNames={{
+			svg: "w-16 h-16 drop-shadow-md ",
+			indicator: "stroke-green-700  ",
+			track: "stroke-gray-30 tex-green-700",
+			value: "text-md  font-semibold text-green-700",
+		}}
+		value={progress}
+		valueLabel={`${progress}H`}
+		strokeWidth={4}
+		showValueLabel={true} />
 	) : (
 		<ProgressBar width="100%" progress={`${progress || 0}%`} showPercents={showPercents} />
 	);

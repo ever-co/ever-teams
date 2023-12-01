@@ -12,6 +12,7 @@ import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
+import { CircularProgress } from '@nextui-org/react';
 
 export function UserTeamCardHeader() {
 	const { t } = useTranslation();
@@ -82,7 +83,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 		);
 
 		totalWork = (
-			<div className={clsxm('flex space-x-2 items-center justify-center font-normal flex-col mr-4')}>
+			<div className={clsxm('flex space-x-2 items-center justify-center w-32 font-normal flex-col mr-4')}>
 				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
@@ -113,7 +114,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				shadow="bigger"
 				className={clsxm(
 					'relative items-center py-3  dark:bg-[#1E2025] min-h-[7rem]',
-					['dark:border border-t-4 border-transparent ', cardColorType[timerStatusValue]],
+					['dark:border border-t-5 border-transparent ', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
@@ -134,7 +135,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				<TaskBlockInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-full 3xl:w-[32rem] w-1/5 lg:px-4 px-2 py-2 overflow-hidden"
+					className="2xl:w-full 3xl:w-[32rem] w-full lg:px-4 px-2 py-2 overflow-hidden"
 					publicTeam={publicTeam}
 				/>
 				{/* prograssion,  tags */}
@@ -150,7 +151,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 							memberInfo={memberInfo}
 							task={memberInfo.memberTask}
 							isAuthUser={memberInfo.isAuthUser}
-							className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+							className="2xl:w-48 3xl:w-[12rem] w-full lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 							isBlock={true}
 						/>
 						{/* today time */}
@@ -164,6 +165,8 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 						radial={true}
 					/>
+
+
 				</div>
 			</Card>
 		</div>
