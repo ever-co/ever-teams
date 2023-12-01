@@ -27,7 +27,7 @@ kind: Deployment
 metadata:
     name: ever-teams-prod-webapp
 spec:
-    replicas: 1
+    replicas: 8
     selector:
         matchLabels:
             app: ever-teams-prod-webapp
@@ -38,7 +38,7 @@ spec:
         spec:
             containers:
                 - name: ever-teams-prod-webapp
-                  image: registry.digitalocean.com/ever/ever-teams-webapp-prod:latest
+                  image: registry.digitalocean.com/ever/ever-teams-webapp:latest
                   env:
                       - name: DEMO
                         value: 'true'
