@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList, StatusBar } from 'react-native';
+import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList, StatusBar, Keyboard } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
@@ -128,6 +128,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
 						onDismiss={() => {
 							setEditMode(false);
 							setIsSheetOpen(false);
+							Keyboard.dismiss();
 							sheetRef.current.snapTo(1);
 						}}
 						onUpdateStatus={updateStatus}

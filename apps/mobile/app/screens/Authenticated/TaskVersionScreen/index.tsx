@@ -9,7 +9,8 @@ import {
 	StyleSheet,
 	ActivityIndicator,
 	FlatList,
-	StatusBar
+	StatusBar,
+	Keyboard
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
@@ -137,6 +138,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 						onDismiss={() => {
 							setEditMode(false);
 							setIsSheetOpen(false);
+							Keyboard.dismiss();
 							sheetRef.current.snapTo(1);
 						}}
 						onUpdateVersion={updateTaskVersion}

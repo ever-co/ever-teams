@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		paddingVertical: 20,
+		paddingTop: 10,
 		width: '100%'
 	},
 	deleteContainer: {

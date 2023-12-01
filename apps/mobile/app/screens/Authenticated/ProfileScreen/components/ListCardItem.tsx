@@ -264,6 +264,7 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 				{isAssigned && (
 					<ListItem
 						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+						TextProps={{ numberOfLines: 1 }}
 						onPress={() => {
 							profile.unassignTask(task);
 							setShowMenu();
