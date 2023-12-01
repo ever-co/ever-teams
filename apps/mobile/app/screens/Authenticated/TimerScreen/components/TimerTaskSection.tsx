@@ -160,7 +160,8 @@ const TimerTaskSection = observer(
 									>
 										{translate('myWorkScreen.estimateLabel')} :{' '}
 									</Text>
-									<EstimateTime currentTask={activeTask} />
+
+									<EstimateTime timerScreen={true} currentTask={activeTask} />
 								</View>
 								<TaskSize
 									task={activeTask}

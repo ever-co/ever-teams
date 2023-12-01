@@ -8,16 +8,18 @@ import { secondsToTime } from '../../../../helpers/date';
 import { typography, useAppTheme } from '../../../../theme';
 import { useTeamTasks } from '../../../../services/hooks/features/useTeamTasks';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
+import { useClickOutside } from 'react-native-click-outside';
 
 interface Props {
 	setEditEstimate?: (value: boolean) => unknown;
 	currentTask: ITeamTask;
 	setEstimateTime?: (value: number) => unknown;
+	timerScreen?: boolean;
 }
-const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime }) => {
+const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime, timerScreen }) => {
 	// Hooks
 	const { updateTask } = useTeamTasks();
-	const { colors } = useAppTheme();
+	const { colors, dark } = useAppTheme();
 
 	// STATES
 	const textInputRef = useRef(null);
@@ -25,6 +27,18 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime
 	const [editing, setEditing] = useState({ editingHour: false, editingMinutes: false });
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false);
+
+	const clickOutsideTaskEstimationInputRef = useClickOutside<View>(() => outsideClickInTimerScreen());
+
+	const outsideClickInTimerScreen = () => {
+		setShowCheckIcon(false);
+		textInputRef?.current?.blur();
+		const { h, m } = secondsToTime(currentTask?.estimate || 0);
+		setEstimate({
+			hours: h.toString(),
+			minutes: m.toString()
+		});
+	};
 
 	useEffect(() => {
 		const { h, m } = secondsToTime(currentTask?.estimate || 0);
@@ -127,7 +141,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime
 	};
 
 	return (
-		<View style={[styles.estimate, {}]}>
+		<View style={[styles.estimate, {}]} collapsable={false} ref={timerScreen && clickOutsideTaskEstimationInputRef}>
 			<View>
 				<TextInput
 					ref={textInputRef}
@@ -174,8 +188,22 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime
 				</View>
 			</View>
 			<Text style={[styles.suffix, { color: colors.primary }]}>{' m'}</Text>
-			{showCheckIcon && <Feather size={25} color={'green'} name="check" onPress={() => handleSubmit()} />}
-			{isLoading ? <ActivityIndicator size={14} color="#1B005D" style={styles.loading} /> : null}
+			{showCheckIcon && (
+				<Feather
+					size={25}
+					color={'green'}
+					name="check"
+					onPress={() => handleSubmit()}
+					style={timerScreen ? { position: 'absolute', right: -24 } : undefined}
+				/>
+			)}
+			{isLoading && (
+				<ActivityIndicator
+					size={14}
+					color={timerScreen ? (dark ? colors.primary : '#1B005D') : '#1B005D'}
+					style={timerScreen ? { position: 'absolute', right: -19 } : styles.loading}
+				/>
+			)}
 		</View>
 	);
 };
