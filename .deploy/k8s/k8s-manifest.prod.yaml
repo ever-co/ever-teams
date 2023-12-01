@@ -27,7 +27,7 @@ kind: Deployment
 metadata:
     name: ever-teams-prod-webapp
 spec:
-    replicas: 1
+    replicas: 8
     selector:
         matchLabels:
             app: ever-teams-prod-webapp
