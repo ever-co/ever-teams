@@ -45,7 +45,7 @@ spec:
                       - name: NEXT_PUBLIC_SENTRY_DNS
                         value: '$NEXT_PUBLIC_SENTRY_DNS'
                       - name: SENTRY_DSN
-                        value: '$NEXT_PUBLIC_SENTRY_DNS'
+                        value: '$SENTRY_DSN'
                       - name: NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
                         value: '$NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY'
                       - name: NEXT_PUBLIC_JITSU_BROWSER_URL
