@@ -90,7 +90,13 @@ export function useAuthenticationPasscode() {
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
-				.then(() => {
+				.then((res) => {
+					const errors = (res.data as any).errors as any;
+					if (errors.email) {
+						setErrors(errors || {});
+						return;
+					}
+
 					window.location.reload();
 					setAuthenticated(true);
 				})
@@ -188,12 +194,10 @@ export function useAuthenticationPasscode() {
 	useEffect(() => {
 		if (query.email && query.code && !loginFromQuery.current) {
 			setScreen('passcode');
-
 			verifyPasscodeRequest({
 				email: query.email as string,
 				code: query.code as string
 			});
-
 			loginFromQuery.current = true;
 		}
 	}, [query, verifyPasscodeRequest]);

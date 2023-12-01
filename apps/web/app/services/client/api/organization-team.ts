@@ -17,7 +17,7 @@ export function createOrganizationTeamAPI(name: string) {
 	return api.post<PaginationResponse<IOrganizationTeamList>>('/organization-team', { name });
 }
 
-export function getOrganizationTeamAPI(teamId: string, organizationId: string, tenantId: string) {
+export async function getOrganizationTeamAPI(teamId: string, organizationId: string, tenantId: string) {
 	const params = {
 		organizationId: organizationId,
 		tenantId: tenantId,
@@ -46,7 +46,9 @@ export function getOrganizationTeamAPI(teamId: string, organizationId: string, t
 	const queries = new URLSearchParams(params || {});
 
 	const endpoint = `/organization-team/${teamId}?${queries.toString()}`;
-	return get(endpoint, true);
+	const data = await get(endpoint, true);
+
+	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
 }
 
 export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
