@@ -2,11 +2,10 @@
 import { I_TeamMemberCardHook, useTimer } from '@app/hooks';
 import { IClassName, ITimerStatusEnum } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
-import { Avatar, Text, Tooltip } from 'lib/components';
+import { Avatar } from 'lib/components';
 // import { MailIcon } from 'lib/components/svgs';
 import { getTimerStatusValue, TimerStatus } from 'lib/features';
 import Link from 'next/link';
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';

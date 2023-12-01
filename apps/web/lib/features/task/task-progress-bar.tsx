@@ -3,12 +3,14 @@ import { ITeamTask, Nullable } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { ProgressBar } from 'lib/components';
 import { useRecoilValue } from 'recoil';
+import { CircularProgress } from '@nextui-org/react';
 
 export function TaskProgressBar({
 	isAuthUser,
 	task,
 	activeAuthTask,
-	showPercents
+	showPercents,
+	radial
 }: // memberInfo,
 {
 	isAuthUser: boolean | undefined;
@@ -16,6 +18,7 @@ export function TaskProgressBar({
 	activeAuthTask: boolean;
 	showPercents?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
+	radial?: boolean;
 }) {
 	const seconds = useRecoilValue(timerSecondsState);
 	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
@@ -36,9 +39,15 @@ export function TaskProgressBar({
 	const progress = getEstimation(
 		null,
 		task,
-		/*addSeconds || */ totalWorkedTasksTimer || 0,
+		/*addSeconds || */ totalWorkedTasksTimer || 1,
 		task?.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	);
 
-	return <ProgressBar width="100%" progress={`${progress || 0}%`} showPercents={showPercents} />;
+	console.log({ radial });
+
+	return radial ? (
+		<CircularProgress size="lg" value={progress || 0} showValueLabel={true} className="text-green-700" />
+	) : (
+		<ProgressBar width="100%" progress={`${progress || 0}%`} showPercents={showPercents} />
+	);
 }

@@ -9,6 +9,10 @@
 	--tooltipBackground: #000;
 }
 
+body {
+	@apply bg-[#F2F2F2];
+}
+
 html.dark {
 	--tooltipBackground: #000;
 }

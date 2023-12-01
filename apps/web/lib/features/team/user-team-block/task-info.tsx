@@ -2,7 +2,7 @@ import React from 'react';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay, TaskStatus, useTaskSizesValue } from 'lib/features';
+import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
 import { useRouter } from 'next/router';
 
 type Props = IClassName & {

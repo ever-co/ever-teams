@@ -4,15 +4,14 @@ import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCa
 import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
-import { DraggerIcon } from 'lib/components/svgs';
-import { TaskTimes, TodayWorkedTime, getTimerStatusValue } from 'lib/features';
+import { Card, HorizontalSeparator, InputField, Text } from 'lib/components';
+import { TaskTimes, getTimerStatusValue } from 'lib/features';
 import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
-import { TaskEstimateInfo } from './task-estimate';
-import { TaskBlockInfo, TaskInfo } from './task-info';
+import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
+import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 
 export function UserTeamCardHeader() {
 	const { t } = useTranslation();
@@ -47,6 +46,14 @@ type IUserTeamBlock = {
 	members?: IOrganizationTeamList['members'];
 } & IClassName;
 
+const cardColorType = {
+	running: ' border-green-700',
+	idle: ' border-green-700',
+	online: ' border-green-700',
+	pause: ' border-yellow-700',
+	suspended: ' border-red-700'
+};
+
 export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamBlock) {
 	const { t } = useTranslation();
 	const memberInfo = useTeamMemberCard(member);
@@ -75,7 +82,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 		);
 
 		totalWork = (
-			<div className={clsxm('flex space-x-2 items-center font-normal flex-col mr-4')}>
+			<div className={clsxm('flex space-x-2 items-center justify-center font-normal flex-col mr-4')}>
 				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
@@ -106,33 +113,16 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				shadow="bigger"
 				className={clsxm(
 					'relative items-center py-3  dark:bg-[#1E2025] min-h-[7rem]',
-					[
-						'dark:border border-t-4 border-transparent ',
-						timerStatusValue == 'running' && ' border-green-700',
-						timerStatusValue == 'idle' && ' border-green-700',
-						timerStatusValue == 'online' && ' border-green-700',
-						timerStatusValue == 'pause' && ' border-yellow-700',
-						timerStatusValue == 'suspended' && ' border-red-700'
-					],
-
+					['dark:border border-t-4 border-transparent ', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
 				{/* flex */}
 				<div className="flex items-center justify-between py-2 w-full">
 					<div className="flex items-center justify-between py-2 w-full">
-						<UserBoxInfo memberInfo={memberInfo} className="w-full" publicTeam={publicTeam} />
+						<UserBoxInfo memberInfo={memberInfo} className="w-3/4" publicTeam={publicTeam} />
 						{/* total time  */}
 						{totalWork}
-						{/* <TaskTimes
-							activeAuthTask={true}
-							showDaily={false}
-							memberInfo={memberInfo}
-							task={memberInfo.memberTask}
-							isAuthUser={memberInfo.isAuthUser}
-							className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
-							isBlock={true}
-						/> */}
 					</div>
 					{/* more */}
 					<div className="absolute right-2">{menu}</div>
@@ -166,41 +156,14 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 						{/* today time */}
 					</div>
 					{/* progress time */}
-					<div>
-						<div className="relative w-40 h-40">
-							<svg className="w-full h-full" viewBox="0 0 100 100">
-								<circle
-									className="text-gray-200 stroke-current"
-									strokeWidth="10"
-									cx="30"
-									cy="30"
-									r="40"
-									fill="transparent"
-								></circle>
-								<circle
-									className="text-green-700  progress-ring__circle stroke-current"
-									strokeWidth="10"
-									strokeLinecap="round"
-									cx="30"
-									cy="30"
-									r="40"
-									fill="transparent"
-									strokeDashoffset={`calc(400 - ${memberInfo.memberTask?.taskNumber} / 100 * 400)`}
-								></circle>
-
-								<text
-									x="30"
-									y="30"
-									fontFamily="Verdana"
-									fontSize="10"
-									textAnchor="middle"
-									alignmentBaseline="middle"
-								>
-									70%
-								</text>
-							</svg>
-						</div>
-					</div>
+					<TaskEstimateInfo
+						memberInfo={memberInfo}
+						edition={taskEdition}
+						activeAuthTask={true}
+						showTime={false}
+						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+						radial={true}
+					/>
 				</div>
 			</Card>
 		</div>
