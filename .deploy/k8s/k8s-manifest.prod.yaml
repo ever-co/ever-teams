@@ -1,0 +1,110 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+    name: ever-teams-prod-lb
+    annotations:
+        service.beta.kubernetes.io/do-loadbalancer-name: 'app.ever.team'
+        service.beta.kubernetes.io/do-loadbalancer-protocol: 'http2'
+        service.beta.kubernetes.io/do-loadbalancer-http2-ports: '443'
+        # Replace with your Certificate Id. You can get a list of Ids with 'doctl compute certificate list'
+        service.beta.kubernetes.io/do-loadbalancer-certificate-id: '0c4085c5-9692-4320-86f3-34f52b775a88'
+        service.beta.kubernetes.io/do-loadbalancer-size-slug: 'lb-small'
+        service.beta.kubernetes.io/do-loadbalancer-hostname: 'app.ever.team'
+spec:
+    type: LoadBalancer
+    selector:
+        app: ever-teams-prod-webapp
+    ports:
+        - name: http
+          protocol: TCP
+          port: 443
+          targetPort: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: ever-teams-prod-webapp
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: ever-teams-prod-webapp
+    template:
+        metadata:
+            labels:
+                app: ever-teams-prod-webapp
+        spec:
+            containers:
+                - name: ever-teams-prod-webapp
+                  image: registry.digitalocean.com/ever/ever-teams-webapp-prod:latest
+                  env:
+                      - name: DEMO
+                        value: 'true'
+                      - name: NEXT_PUBLIC_SENTRY_DNS
+                        value: '$NEXT_PUBLIC_SENTRY_DNS'
+                      - name: SENTRY_DSN
+                        value: '$SENTRY_DSN'
+                      - name: NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
+                        value: '$NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY'
+                      - name: NEXT_PUBLIC_JITSU_BROWSER_URL
+                        value: '$NEXT_PUBLIC_JITSU_BROWSER_URL'
+                      - name: SENTRY_AUTH_TOKEN
+                        value: '$SENTRY_AUTH_TOKEN'
+                      - name: NEXT_PUBLIC_CHATWOOT_API_KEY
+                        value: '$NEXT_PUBLIC_CHATWOOT_API_KEY'
+                      - name: NEXT_PUBLIC_SENTRY_DEBUG
+                        value: '$NEXT_PUBLIC_SENTRY_DEBUG'
+                      - name: SENTRY_PROJECT
+                        value: '$SENTRY_PROJECT'
+                      - name: SENTRY_ORG
+                        value: '$SENTRY_ORG'
+                      - name: SMTP_FROM_ADDRESS
+                        value: '$SMTP_FROM_ADDRESS'
+                      - name: JITSU_SERVER_WRITE_KEY
+                        value: '$JITSU_SERVER_WRITE_KEY'
+                      - name: JITSU_SERVER_URL
+                        value: '$JITSU_SERVER_URL'
+                      - name: NEXT_PUBLIC_COOKIE_DOMAINS
+                        value: '$NEXT_PUBLIC_COOKIE_DOMAINS'
+                      - name: NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
+                        value: '$NEXT_PUBLIC_BOARD_FIREBASE_CONFIG'
+                      - name: NEXT_PUBLIC_BOARD_BACKEND_POST_URL
+                        value: '$NEXT_PUBLIC_BOARD_BACKEND_POST_URL'
+                      - name: NEXT_PUBLIC_BOARD_APP_DOMAIN
+                        value: '$NEXT_PUBLIC_BOARD_APP_DOMAIN'
+                      - name: MEET_JWT_APP_SECRET
+                        value: '$MEET_JWT_APP_SECRET'
+                      - name: MEET_JWT_APP_ID
+                        value: '$MEET_JWT_APP_ID'
+                      - name: NEXT_PUBLIC_MEET_DOMAIN
+                        value: '$NEXT_PUBLIC_MEET_DOMAIN'
+                      - name: GAUZY_API_SERVER_URL
+                        value: '$GAUZY_API_SERVER_URL'
+                      - name: NEXT_PUBLIC_GAUZY_API_SERVER_URL
+                        value: '$NEXT_PUBLIC_GAUZY_API_SERVER_URL'
+                      - name: MAILCHIMP_LIST_ID
+                        value: '$MAILCHIMP_LIST_ID'
+                      - name: MAILCHIMP_API_KEY
+                        value: '$MAILCHIMP_API_KEY'
+                      - name: POSTMARK_SERVER_API_TOKEN
+                        value: '$POSTMARK_SERVER_API_TOKEN'
+                      - name: NEXT_PUBLIC_GA_MEASUREMENT_ID
+                        value: '$NEXT_PUBLIC_GA_MEASUREMENT_ID'
+                      - name: SMTP_HOST
+                        value: '$SMTP_HOST'
+                      - name: SMTP_SECURE
+                        value: '$SMTP_SECURE'
+                      - name: SMTP_USERNAME
+                        value: '$SMTP_USERNAME'
+                      - name: SMTP_PASSWORD
+                        value: '$SMTP_PASSWORD'
+                      - name: CAPTCHA_SECRET_KEY
+                        value: '$CAPTCHA_SECRET_KEY'
+                      - name: NEXT_PUBLIC_CAPTCHA_SITE_KEY
+                        value: '$NEXT_PUBLIC_CAPTCHA_SITE_KEY'
+
+                  ports:
+                      - containerPort: 3000
+                        protocol: TCP
