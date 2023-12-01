@@ -1,103 +1,106 @@
 {
-	"name": "ever-teams",
-	"displayName": "Ever Teams",
-	"expo": {
-		"name": "Ever Teams",
-		"slug": "ever-teams-mobile",
-		"version": "0.1.0",
-		"orientation": "portrait",
-		"icon": "./assets/images/ever-teams-logo.png",
-		"splash": {
-			"image": "./assets/images/splash-ever-teams.png",
-			"resizeMode": "cover",
-			"backgroundColor": "#ffffff"
-		},
-		"owner": "everco",
-		"updates": {
-			"fallbackToCacheTimeout": 0,
-			"url": "https://u.expo.dev/2ff924e4-7a91-4b23-9db9-7453a8063bb0"
-		},
-		"jsEngine": "hermes",
-		"assetBundlePatterns": ["**/*"],
-		"plugins": [
-			[
-				"expo-media-library",
-				{
-					"photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
-					"savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
-					"isAccessMediaLocationEnabled": true
-				}
-			],
-			"sentry-expo",
-			[
-				"expo-build-properties",
-				{
-					"android": {
-						"enableProguardInReleaseBuilds": true,
-						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
-						"allowBackup": false
-					}
-				}
-			]
-		],
-		"android": {
-			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
-			"package": "ever.team",
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground-ever.png",
-				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
-			},
-			"splash": {
-				"image": "./assets/images/splash-ever-teams.png",
-				"resizeMode": "cover",
-				"backgroundColor": "#ffffff"
-			},
-			"permissions": [
-				"android.permission.READ_EXTERNAL_STORAGE",
-				"android.permission.WRITE_EXTERNAL_STORAGE",
-				"android.permission.ACCESS_MEDIA_LOCATION"
-			]
-		},
-		"ios": {
-			"icon": "./assets/images/app-icon-ios-ever-teams.png",
-			"supportsTablet": true,
-			"bundleIdentifier": "co.ever.teams",
-			"splash": {
-				"image": "./assets/images/splash-ever-teams.png",
-				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",
-				"resizeMode": "cover",
-				"backgroundColor": "#ffffff"
-			},
-			"infoPlist": {
-				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
-				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
-				"NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
-			}
-		},
-		"web": {
-			"favicon": "./assets/images/app-icon-web-favicon.png",
-			"splash": {
-				"image": "./assets/images/splash-logo-web-ever-teams.png",
-				"resizeMode": "contain",
-				"backgroundColor": "#ffffff"
-			}
-		},
-		"extra": {
-			"eas": {
-				"projectId": "2ff924e4-7a91-4b23-9db9-7453a8063bb0"
-			}
-		},
-		"hooks": {
-			"postPublish": [
-				{
-					"file": "sentry-expo/upload-sourcemaps",
-					"config": {
-						"organization": "ever-co",
-						"project": "ever-teams-mobile"
-					}
-				}
-			]
-		},
-		"runtimeVersion": "exposdk:48.0.0"
-	}
+  "name": "ever-teams",
+  "displayName": "Ever Teams",
+  "expo": {
+    "name": "Ever Teams",
+    "slug": "ever-teams-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/ever-teams-logo.png",
+    "splash": {
+      "image": "./assets/images/splash-ever-teams.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "owner": "everco",
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2ff924e4-7a91-4b23-9db9-7453a8063bb0"
+    },
+    "jsEngine": "hermes",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      "sentry-expo",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
+            "allowBackup": false
+          }
+        }
+      ],
+      "expo-localization"
+    ],
+    "android": {
+      "icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
+      "package": "ever.team",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground-ever.png",
+        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
+      },
+      "splash": {
+        "image": "./assets/images/splash-ever-teams.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
+      ]
+    },
+    "ios": {
+      "icon": "./assets/images/app-icon-ios-ever-teams.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "co.ever.teams",
+      "splash": {
+        "image": "./assets/images/splash-ever-teams.png",
+        "tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#ffffff"
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/app-icon-web-favicon.png",
+      "splash": {
+        "image": "./assets/images/splash-logo-web-ever-teams.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2ff924e4-7a91-4b23-9db9-7453a8063bb0"
+      }
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "ever-co",
+            "project": "ever-teams-mobile"
+          }
+        }
+      ]
+    },
+    "runtimeVersion": "exposdk:48.0.0"
+  }
 }
