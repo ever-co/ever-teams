@@ -32,7 +32,7 @@
 			"env": {
 				"GAUZY_API_URL": "https://api.gauzy.co",
 				"INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode",
-				"SENTRY_AUTH_TOKEN": "d4945346d7803b6ffcaaee198063e7cf"
+				"SENTRY_AUTH_TOKEN": ""
 			}
 		}
 	},
