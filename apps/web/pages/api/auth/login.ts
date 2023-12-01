@@ -11,12 +11,12 @@ import {
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const notFound = (res: NextApiResponse) =>
-	res.status(400).json({
-		errors: {
-			code: 'Authentication code or email address invalid'
-		}
-	});
+// const notFound = (res: NextApiResponse) =>
+// 	res.status(400).json({
+// 		errors: {
+// 			code: 'Authentication code or email address invalid'
+// 		}
+// 	});
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const body = req.body as ILoginDataAPI;
