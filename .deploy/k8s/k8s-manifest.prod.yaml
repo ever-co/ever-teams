@@ -38,7 +38,7 @@ spec:
         spec:
             containers:
                 - name: ever-teams-prod-webapp
-                  image: registry.digitalocean.com/ever/ever-teams-webapp-prod:latest
+                  image: registry.digitalocean.com/ever/ever-teams-webapp:latest
                   env:
                       - name: DEMO
                         value: 'true'
