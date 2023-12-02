@@ -29,19 +29,19 @@ const nextConfig = {
 	}, // Optional build-time configuration options
 	sentry: {
 		// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-	
+
 		// Upload a larger set of source maps for prettier stack traces (increases build time)
 		widenClientFileUpload: true,
-	
+
 		// Transpiles SDK to be compatible with IE11 (increases bundle size)
 		transpileClientSDK: true,
-	
+
 		// Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
 		tunnelRoute: '/monitoring',
-	
+
 		// Hides source maps from generated client bundles
 		hideSourceMaps: true,
-	
+
 		// Automatically tree-shake Sentry logger statements to reduce bundle size
 		disableLogger: true
 	}
@@ -50,9 +50,9 @@ const nextConfig = {
 // Injected content via Sentry wizard below
 const { withSentryConfig } = require('@sentry/nextjs');
 
-const sentryWebpackPluginOptions = {	
-	org: process.env.SENTRY_ORG,
-	project: process.env.SENTRY_PROJECT,
+const sentryWebpackPluginOptions = {
+	org: process.env.SENTRY_ORG || 'ever-co',
+	project: process.env.SENTRY_PROJECT || 'ever-teams-web',
 
 	// An auth token is required for uploading source maps.
 	authToken: process.env.SENTRY_AUTH_TOKEN,
@@ -60,8 +60,8 @@ const sentryWebpackPluginOptions = {
 	silent: true, // Suppresses all logs
 
     dryRun: process.env.NODE_ENV !== "production"
-	
-	// Additional config options for the Sentry Webpack plugin. 
+
+	// Additional config options for the Sentry Webpack plugin.
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 

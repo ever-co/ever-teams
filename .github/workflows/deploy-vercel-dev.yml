@@ -1,4 +1,4 @@
-name: Web Build & Deploy DEV
+name: Web Build & Vercel Deploy DEV
 on:
   push:
     branches:
