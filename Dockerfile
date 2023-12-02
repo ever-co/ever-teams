@@ -21,6 +21,9 @@ ARG NEXT_PUBLIC_CHATWOOT_API_KEY
 
 FROM node:${NODE_VERSION}-slim as base
 
+# Output the environment variable value
+RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
+
 LABEL maintainer="ever@ever.co"
 LABEL org.opencontainers.image.source https://github.com/ever-co/ever-teams
 
@@ -77,6 +80,8 @@ RUN cd apps/web && \
 COPY . .
 
 ENV NODE_ENV=production
+
+RUN echo $NEXT_PUBLIC_GAUZY_API_SERVER_URL
 
 # Build application
 RUN yarn run build:web
