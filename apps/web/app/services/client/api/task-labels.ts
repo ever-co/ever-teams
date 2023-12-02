@@ -26,6 +26,4 @@ export async function getTaskLabelsList(tenantId: string, organizationId: string
 	const data = await get(endpoint, true, { tenantId });
 
 	return data;
-
-	// return api.get(`/tags/level?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`);
 }
