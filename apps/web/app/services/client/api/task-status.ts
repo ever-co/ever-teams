@@ -22,7 +22,6 @@ export function deleteTaskStatusAPI(id: string) {
 }
 
 export async function getTaskStatusList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
-	// return api.get(`/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`);
 	const endpoint = `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
 	const data = await get(endpoint, true, { tenantId });
