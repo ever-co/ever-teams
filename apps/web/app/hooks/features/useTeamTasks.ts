@@ -113,7 +113,9 @@ export function useTeamTasks() {
 			}
 
 			if (!user || activeTeamRef.current?.id) {
-				return;
+				return new Promise((response) => {
+					response(true);
+				});
 			}
 
 			return queryCall(

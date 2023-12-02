@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH } from '@app/constants';
-import { getAccessTokenCookie, getActiveTeamIdCookie, getTenantIdCookie } from '@app/helpers/cookies';
+import { getAccessTokenCookie, getActiveTeamIdCookie } from '@app/helpers/cookies';
 import axios, { AxiosResponse } from 'axios';
 
 const api = axios.create({

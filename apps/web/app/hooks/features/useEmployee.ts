@@ -22,7 +22,7 @@ export const useEmployee = () => {
 			if (data?.data?.items && data?.data?.items?.length) {
 				const items = data.data.items || [];
 				setWorkingEmployees(items);
-				setWorkingEmployeesEmail(items.map((item) => item.user?.email || ''));
+				setWorkingEmployeesEmail(items.map((item: any) => item.user?.email || ''));
 			}
 		});
 	}, [getWorkingEmployeeQueryCall, setWorkingEmployees, setWorkingEmployeesEmail, user]);
