@@ -26,6 +26,4 @@ export async function getIssueTypeList(tenantId: string, organizationId: string,
 	const data = await get(endpoint, true, { tenantId });
 
 	return data;
-
-	// return api.get(`/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`);
 }
