@@ -30,8 +30,5 @@ export async function getTaskRelatedIssueTypeList(
 
 	const data = await get(endpoint, true, { tenantId });
 
-	return data;
-	// return api.get(
-	// 	`/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
-	// );
+	return data;	
 }
