@@ -24,11 +24,11 @@ Jenkinsfile
 
 **/.vscode
 
-# **/.env
+**/.env
 **/.env.local
 **/.env*.local
 **/.env*.sample
-# apps/**/.env
+apps/**/.env
 apps/**/.env.local
 apps/**/.env*.local
 apps/**/.env*.sample

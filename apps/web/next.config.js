@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 
+console.log(`GAUZY_API_SERVER_URL: ${process.env.GAUZY_API_SERVER_URL}`);
+console.log(`NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}`);
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 /** @type {import('next').NextConfig} */
 const nextConfig = {
