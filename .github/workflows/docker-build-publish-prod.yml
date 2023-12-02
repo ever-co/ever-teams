@@ -11,6 +11,9 @@ concurrency:
 jobs:
   ever-teams-webapp:
     runs-on: buildjet-8vcpu-ubuntu-2204
+
+    environment: prod
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
