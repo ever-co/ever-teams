@@ -4,6 +4,9 @@ import { serverFetch } from '../fetch';
 
 export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
 	const config = smtpConfiguration();
+
+	console.log(`SMTP Config: ${JSON.stringify(config)}`);
+
 	return serverFetch<I_SMTP>({
 		path: '/smtp',
 		method: 'POST',
