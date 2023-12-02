@@ -36,6 +36,21 @@ jobs:
           cache-to: type=inline
           build-args: |
             NODE_ENV=development
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}
+            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+            NEXT_PUBLIC_CAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}
+            NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
+            NEXT_PUBLIC_COOKIE_DOMAINS=${{ secrets.NEXT_PUBLIC_COOKIE_DOMAINS }}
+            NEXT_PUBLIC_BOARD_APP_DOMAIN=${{ secrets.NEXT_PUBLIC_BOARD_APP_DOMAIN }}
+            NEXT_PUBLIC_BOARD_BACKEND_POST_URL=${{ secrets.NEXT_PUBLIC_BOARD_BACKEND_POST_URL }}
+            NEXT_PUBLIC_BOARD_FIREBASE_CONFIG=${{ secrets.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG }}
+            NEXT_PUBLIC_MEET_DOMAIN=${{ secrets.NEXT_PUBLIC_MEET_DOMAIN }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_SENTRY_DEBUG=${{ secrets.NEXT_PUBLIC_SENTRY_DEBUG }}
+            NEXT_PUBLIC_JITSU_BROWSER_URL=${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}
+            NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY=${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}
+            NEXT_PUBLIC_GITHUB_APP_NAME=ever-github
+            NEXT_PUBLIC_CHATWOOT_API_KEY=${{ secrets.NEXT_PUBLIC_CHATWOOT_API_KEY }}
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
