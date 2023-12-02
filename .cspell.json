@@ -20,6 +20,8 @@
 		"cloudinary",
 		"clsx",
 		"clsxm",
+		"opentelemetry",
+		"otlp",
 		"commitlint",
 		"compodoc",
 		"consectetur",
