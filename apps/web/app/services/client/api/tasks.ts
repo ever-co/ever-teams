@@ -40,8 +40,6 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 	const data = await get(endpoint, true, { tenantId });
 
 	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
-
-	// return api.get<PaginationResponse<ITeamTask>>('/tasks/team');
 }
 
 export function deleteTaskAPI(taskId: string) {
