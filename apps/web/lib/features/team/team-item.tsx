@@ -25,7 +25,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam:
 						<div className="max-w-[90%]">
 							<TeamItem
 								title={team.name}
-								count={team.members.length}
+								count={team.members?.length}
 								className={clsxm(selected && ['font-medium'])}
 								logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
 								color={team.color}

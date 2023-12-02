@@ -1,7 +1,7 @@
 import { getRefreshTokenCookie } from '@app/helpers/cookies';
 import { ISuccessResponse } from '@app/interfaces';
 import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
-import api from '../axios';
+import api, { get } from '../axios';
 
 export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
 	return api.post<ILoginResponse>(`/auth/login`, {
@@ -31,8 +31,20 @@ export const signInEmailAPI = (email: string) => {
 	});
 };
 
-export const getAuthenticatedUserDataAPI = () => {
-	return api.get<Pick<ILoginResponse, 'user'>>(`/user/me`);
+export const getAuthenticatedUserDataAPI = async () => {
+	const params = {} as { [x: string]: string };
+	const relations = ['employee', 'role', 'tenant'];
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
+
+	const query = new URLSearchParams(params);
+
+	const endpoint = `/user/me?${query.toString()}`;
+	const data = await get(endpoint, true);
+
+	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
 };
 
 export const verifyUserEmailByCodeAPI = (code: string) => {

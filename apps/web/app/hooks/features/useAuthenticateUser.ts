@@ -27,7 +27,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 			return;
 		}
 		refreshUserQueryCall().then((res) => {
-			setUser(res.data.user);
+			setUser(res.data);
 		});
 	}, [refreshUserQueryCall, setUser, refreshUserLoadingRef]);
 

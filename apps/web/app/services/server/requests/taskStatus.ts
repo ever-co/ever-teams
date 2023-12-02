@@ -52,16 +52,16 @@ export function getTaskStatusListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId
+		organizationTeamId
 	}: {
 		tenantId: string;
 		organizationId: string;
-		activeTeamId: string | null;
+		organizationTeamId: string | null;
 	},
 	bearer_token: string
 ) {
 	return serverFetch({
-		path: `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
+		path: `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
 		method: 'GET',
 		bearer_token
 	});
