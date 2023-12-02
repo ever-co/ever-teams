@@ -1,5 +1,5 @@
 import { CreateResponse, DeleteResponse, ITaskRelatedIssueTypeCreate } from '@app/interfaces';
-import api from '../axios';
+import api, { get } from '../axios';
 
 export function createTaskRelatedIssueTypeAPI(data: ITaskRelatedIssueTypeCreate, tenantId?: string) {
 	return api.post<CreateResponse<ITaskRelatedIssueTypeCreate>>('/task-related-issue-types', data, {
@@ -21,8 +21,17 @@ export function deleteTaskRelatedIssueTypeAPI(id: string) {
 	return api.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
 }
 
-export function getTaskRelatedIssueTypeList(tenantId: string, organizationId: string, activeTeamId: string | null) {
-	return api.get(
-		`/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
-	);
+export async function getTaskRelatedIssueTypeList(
+	tenantId: string,
+	organizationId: string,
+	organizationTeamId: string | null
+) {
+	const endpoint = `/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
+
+	const data = await get(endpoint, true, { tenantId });
+
+	return data;
+	// return api.get(
+	// 	`/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
+	// );
 }
