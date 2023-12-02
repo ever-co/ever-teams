@@ -7,7 +7,7 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	fromAddress: SMTP_FROM_ADDRESS || '',
 	host: SMTP_HOST || '',
 	port: parseInt(SMTP_PORT, 10) || 0,
-	secure: SMTP_SECURE === 'true' ? true : false,
+	secure: SMTP_SECURE === 'true',
 	username: SMTP_USERNAME || '',
 	password: SMTP_PASSWORD || ''
 });
