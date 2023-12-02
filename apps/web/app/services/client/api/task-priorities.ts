@@ -31,8 +31,4 @@ export async function getTaskPrioritiesList(
 	const data = await get(endpoint, true, { tenantId });
 
 	return data;
-
-	// return api.get(
-	// 	`/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`
-	// );
 }
