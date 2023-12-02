@@ -7,12 +7,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	if (!user) return $res();
 
-	const { activeTeamId } = req.query;
+	const { organizationTeamId } = req.query;
 
 	const par = {
 		tenantId,
 		organizationId,
-		activeTeamId: (activeTeamId as string) || null
+		organizationTeamId: (organizationTeamId as string) || null
 	};
 
 	switch (req.method) {

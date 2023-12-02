@@ -52,12 +52,12 @@ export function getTaskPrioritiesListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId
-	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
+		organizationTeamId
+	}: { tenantId: string; organizationId: string; organizationTeamId: string | null },
 	bearer_token: string
 ) {
 	return serverFetch({
-		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
+		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
 		method: 'GET',
 		bearer_token
 	});
