@@ -406,10 +406,14 @@ export function TaskNameFilter({
 	setValue: (v: string) => void;
 	close: () => void;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fullWidth?: boolean;
 =======
 	fullWidth: boolean;
 >>>>>>> 9821e14e (feat: add filter features on issues  block view)
+=======
+	fullWidth?: boolean;
+>>>>>>> 7ee6bfb1 (fix: task filter missing)
 }) {
 	const { t } = useTranslation();
 
