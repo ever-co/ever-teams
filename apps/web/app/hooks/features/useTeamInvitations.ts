@@ -59,12 +59,13 @@ export function useTeamInvitations() {
 	);
 
 	useEffect(() => {
-		if (activeTeamId && firstLoad && isTeamManager) {
-			queryCall().then((res) => {
+		if (activeTeamId && firstLoad && isTeamManager && user?.tenantId) {
+			queryCall(user?.tenantId, user.employee.organizationId, 'EMPLOYEE', activeTeamId).then((res) => {
+				console.log(res.data?.items);
 				setTeamInvitations(res.data?.items || []);
 			});
 		}
-	}, [activeTeamId, firstLoad, isTeamManager, queryCall, setTeamInvitations]);
+	}, [activeTeamId, firstLoad, isTeamManager, queryCall, setTeamInvitations, user]);
 
 	useEffect(() => {
 		if (firstLoad) {
