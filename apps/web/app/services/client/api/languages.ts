@@ -1,6 +1,8 @@
-import { ILanguageItemList, CreateResponse, PaginationResponse } from '@app/interfaces';
-import api from '../axios';
+import { get } from '../axios';
 
-export function getLanguageListAPI(is_system: boolean) {
-	return api.get<CreateResponse<PaginationResponse<ILanguageItemList>>>(`/languages?is_system=${is_system}`);
+export async function getLanguageListAPI(is_system: boolean) {
+	const endpoint = `/languages?is_system=${is_system}`;
+	const data = await get(endpoint, true);
+
+	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
 }
