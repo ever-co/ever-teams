@@ -1,6 +1,6 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import { IInvitation, IInviteRequest, IMyInvitations, MyInvitationActionEnum, CreateResponse } from '@app/interfaces';
-import api from '../axios';
+import api, { get } from '../axios';
 
 export function inviteByEmailsAPI(data: IInviteRequest) {
 	return api.post<PaginationResponse<IInvitation>>('/invite/emails', data);
@@ -20,8 +20,11 @@ export function resendTeamInvitationsAPI(inviteId: string) {
 	});
 }
 
-export function getMyInvitationsAPI() {
-	return api.get<PaginationResponse<IMyInvitations>>('/invite/me');
+export async function getMyInvitationsAPI(tenantId: string) {
+	const endpoint = '/invite/me';
+	const data = await get(endpoint, true, { tenantId });
+
+	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
 }
 
 export function acceptRejectMyInvitationsAPI(invitationId: string, action: MyInvitationActionEnum) {

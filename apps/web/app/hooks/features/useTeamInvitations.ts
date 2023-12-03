@@ -21,6 +21,8 @@ import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamInvitations() {
+	const { user } = useAuthenticateUser();
+
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
 	const [myInvitationsList, setMyInvitationsList] = useRecoilState(myInvitationsState);
 
@@ -87,11 +89,15 @@ export function useTeamInvitations() {
 	);
 
 	const myInvitations = useCallback(() => {
-		myInvitationsQueryCall().then((res) => {
+		if (!user?.tenantId) {
+			return;
+		}
+
+		myInvitationsQueryCall(user.tenantId).then((res) => {
 			setMyInvitationsList(res.data.items);
 			return res.data;
 		});
-	}, [myInvitationsQueryCall, setMyInvitationsList]);
+	}, [myInvitationsQueryCall, setMyInvitationsList, user]);
 	const removeMyInvitation = useCallback(
 		(id: string) => {
 			setMyInvitationsList(myInvitationsList.filter((invitation) => invitation.id !== id));
