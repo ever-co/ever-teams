@@ -38,7 +38,7 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Pr
 				{edition.task && (
 					<>
 						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
-						<p>{task?.size?.substring(0, 2)}</p>
+						<p className="text-yellow-700">{task?.size}</p>
 					</>
 				)}
 				{!edition.task && <div className="text-center">--</div>}

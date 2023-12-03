@@ -16,7 +16,6 @@ const TeamMembersBlockView: React.FC<Props> = ({
 	currentUser,
 	teamsFetching = false
 }) => {
-	console.log(publicTeam, currentUser, teamsFetching);
 	return (
 		<div className="mt-7">
 			{/* Current authenticated user members */}
