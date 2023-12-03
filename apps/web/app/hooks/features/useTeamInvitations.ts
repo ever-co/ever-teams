@@ -61,7 +61,6 @@ export function useTeamInvitations() {
 	useEffect(() => {
 		if (activeTeamId && firstLoad && isTeamManager && user?.tenantId) {
 			queryCall(user?.tenantId, user.employee.organizationId, 'EMPLOYEE', activeTeamId).then((res) => {
-				console.log(res.data?.items);
 				setTeamInvitations(res.data?.items || []);
 			});
 		}
