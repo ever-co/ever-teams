@@ -52,16 +52,16 @@ export function getTaskVersionListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId
+		organizationTeamId
 	}: {
 		tenantId: string;
 		organizationId: string;
-		activeTeamId: string | null;
+		organizationTeamId: string | null;
 	},
 	bearer_token: string
 ) {
 	return serverFetch({
-		path: `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
+		path: `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
 		method: 'GET',
 		bearer_token
 	});
