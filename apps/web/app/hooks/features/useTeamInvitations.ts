@@ -50,12 +50,22 @@ export function useTeamInvitations() {
 
 	const inviteUser = useCallback(
 		(email: string, name: string) => {
-			return inviteQueryCall({ email, name }, user?.tenantId as string).then((res) => {
-				setTeamInvitations(res.data?.items || []);
+			return inviteQueryCall(
+				{
+					email,
+					name,
+					organizationId: user?.employee.organizationId as string,
+					teamId: activeTeamId as string
+				},
+				user?.tenantId as string
+			).then((res) => {
+				console.log('invited!!!!:', res);
+
+				setTeamInvitations((prev) => [...prev, ...(res.data?.items || [])]);
 				return res;
 			});
 		},
-		[inviteQueryCall, setTeamInvitations, user?.tenantId]
+		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee.organizationId]
 	);
 
 	useEffect(() => {

@@ -101,7 +101,6 @@ function post(
 				headers: {
 					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
 				}
-				// eslint-disable-next-line
 		  })
 		: api.post(endpoint, data);
 }
