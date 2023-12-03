@@ -39,7 +39,7 @@ export function useLanguageSettings() {
 		if (user) {
 			return queryCall(user.role.isSystem).then((res) => {
 				setLanguages(
-					res?.data?.data?.items.filter((item) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
+					res?.data?.data?.items.filter((item: any) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
 				);
 				return res;
 			});
