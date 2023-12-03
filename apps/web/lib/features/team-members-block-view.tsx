@@ -10,12 +10,7 @@ interface Props {
 	teamsFetching: boolean;
 }
 
-const TeamMembersBlockView: React.FC<Props> = ({
-	teamMembers: members,
-	publicTeam = false,
-	currentUser,
-	teamsFetching = false
-}) => {
+const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTeam = false, currentUser }) => {
 	return (
 		<div className="mt-7">
 			{/* Current authenticated user members */}
@@ -28,7 +23,7 @@ const TeamMembersBlockView: React.FC<Props> = ({
 				leaveFrom="opacity-100"
 				leaveTo="opacity-0"
 			>
-				{/* <li className="mb-4">authenticated  user task card  here</li> */}
+				{/* <UserTeamBlock member={currentUser} publicTeam={publicTeam} /> */}
 			</Transition>
 			<div className="flex w-full items-center">
 				{members.map((member) => {
