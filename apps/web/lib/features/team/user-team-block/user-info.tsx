@@ -59,37 +59,6 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 			</div>
 
 			<p>{fullname}</p>
-
-			{/* <div className="lg:w-64 w-1/2 flex flex-col gap-1.5">
-				<Tooltip
-					label={fullname.trim()}
-					placement="auto"
-					enabled={fullname.trim().length > CHARACTER_LIMIT_TO_SHOW}
-				>
-					<Text.Heading
-						as="h3"
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg flex gap-2"
-					>
-						{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)} </span> : fullname}
-
-						{(member?.role?.name === 'MANAGER' ||
-							member?.role?.name === 'SUPER_ADMIN' ||
-							member?.role?.name === 'ADMIN') && (
-							<Tooltip
-								label={'Manager'}
-								placement="auto"
-								enabled={
-									member?.role?.name === 'MANAGER' ||
-									member?.role?.name === 'SUPER_ADMIN' ||
-									member?.role?.name === 'ADMIN'
-								}
-							>
-								<UserManagerIcon className="w-4" />
-							</Tooltip>
-						)}
-					</Text.Heading>
-				</Tooltip>
-			</div> */}
 		</Link>
 	);
 }

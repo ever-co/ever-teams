@@ -15,7 +15,7 @@ type TeamMembersProps = {
 	kanbanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = IssuesView.CARDS }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const activeFilter = useRecoilValue(taskBlockFilterState);
 	const { activeTeam } = useOrganizationTeams();
@@ -46,7 +46,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 				</div>
 			);
 			break;
-		case kanbanView === IssuesView.CARDS:
+		case view === IssuesView.CARDS:
 			teamMembersView = (
 				<TeamMembersCardView
 					teamMembers={$members}
@@ -56,7 +56,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 				/>
 			);
 			break;
-		case kanbanView === IssuesView.TABLE:
+		case view === IssuesView.TABLE:
 			teamMembersView = (
 				<Transition
 					show={!!currentUser}
@@ -77,7 +77,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 			);
 			break;
 
-		case kanbanView == IssuesView.BLOCKS:
+		case view == IssuesView.BLOCKS:
 			teamMembersView = (
 				<TeamMembersBlockView
 					teamMembers={members}
