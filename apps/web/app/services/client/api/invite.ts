@@ -1,9 +1,15 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import { IInvitation, IInviteRequest, IMyInvitations, MyInvitationActionEnum, CreateResponse } from '@app/interfaces';
-import api from '../axios';
+import api, { post } from '../axios';
 
-export function inviteByEmailsAPI(data: IInviteRequest) {
-	return api.post<PaginationResponse<IInvitation>>('/invite/emails', data);
+// export function inviteByEmailsAPI(data: IInviteRequest) {
+// 	return api.post<PaginationResponse<IInvitation>>('/invite/emails', data);
+// }
+
+export async function inviteByEmailsAPI(data: IInviteRequest, tenantId: string) {
+	const endpoint = '/invite/emails';
+
+	return await post(endpoint, data, false, { tenantId });
 }
 
 export function getTeamInvitationsAPI() {

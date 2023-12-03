@@ -46,14 +46,16 @@ export function useTeamInvitations() {
 	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } =
 		useQuery(acceptRejectMyInvitationsAPI);
 
+	const { user } = useAuthenticateUser();
+
 	const inviteUser = useCallback(
 		(email: string, name: string) => {
-			return inviteQueryCall({ email, name }).then((res) => {
+			return inviteQueryCall({ email, name }, user?.tenantId as string).then((res) => {
 				setTeamInvitations(res.data?.items || []);
 				return res;
 			});
 		},
-		[inviteQueryCall, setTeamInvitations]
+		[inviteQueryCall, setTeamInvitations, user?.tenantId]
 	);
 
 	useEffect(() => {
