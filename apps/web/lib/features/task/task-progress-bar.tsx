@@ -52,7 +52,7 @@ export function TaskProgressBar({
 			value: "text-md  font-semibold text-green-700",
 		}}
 		value={progress}
-		valueLabel={`${progress}H`}
+		valueLabel={`${progress}%`}
 		strokeWidth={4}
 		showValueLabel={true} />
 	) : (

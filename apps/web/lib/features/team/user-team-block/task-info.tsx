@@ -30,7 +30,6 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 
 export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Props) {
 	const task = edition.task;
-	console.log('task block in', task);
 
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
@@ -39,7 +38,7 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Pr
 				{edition.task && (
 					<>
 						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
-						<p>{task?.size?.substring(0, 2)}</p>
+						<p className="text-yellow-700">{task?.size}</p>
 					</>
 				)}
 				{!edition.task && <div className="text-center">--</div>}
@@ -69,7 +68,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
-					'text-xs lg:text-sm text-ellipsis overflow-hidden cursor-pointer',
+					'text-xs lg:text-sm text-ellipsis overflow-hidden cursor-pointer w-full',
 					hasEditMode && ['hidden']
 				)}
 				onClick={publicTeam ? () => null : () => task && router.push(`/task/${task?.id}`)}

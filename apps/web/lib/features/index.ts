@@ -17,6 +17,7 @@ export * from './task/task-labels';
 export * from './task/task-displays';
 
 export * from './team/user-team-card';
+export * from './team/user-team-block';
 export * from './team-members';
 export * from './team/create-team-modal';
 export * from './team/teams-dropdown';

@@ -10,7 +10,8 @@ import {
 	TeamMembers,
 	Timer,
 	UnverifiedEmail,
-	UserTeamCardHeader
+	UserTeamCardHeader,
+	UserTeamBlockHeader
 } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +67,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.BLOCKS)}
 						>
-							<QueueListIcon className="w-5 h-5 inline" />
+							<TableCellsIcon className="w-5 h-5 inline" />
 						</button>
 					</div>
 				</div>
@@ -83,7 +84,8 @@ function MainPage() {
 				<Container>
 					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
-					{view === IssuesView.CARDS && isTeamMember ? <UserTeamCardHeader /> : null}
+					{view === IssuesView.CARDS && isTeamMember ? <UserTeamCardHeader /> :
+					view === IssuesView.BLOCKS  ? <UserTeamBlockHeader /> : null}
 				</Container>
 
 				{/* Divider */}

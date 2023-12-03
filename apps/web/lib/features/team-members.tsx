@@ -35,6 +35,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 					<div className="block lg:hidden">
 						<UserCard />
 						<UserCard />
+						<UserCard />
 					</div>
 				</div>
 			);

@@ -1,10 +1,19 @@
 import React from 'react';
 import { secondsToTime } from '@app/helpers';
-import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@app/hooks';
+import {
+	useCollaborative,
+	useTMCardTaskEdit,
+	useTaskStatistics,
+	useOrganizationTeams,
+	useTeamMemberCard,
+	useTimer,
+	useAuthenticateUser,
+	useModal
+} from '@app/hooks';
 import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator, InputField, Text } from 'lib/components';
+import { Card, HorizontalSeparator, InputField, Text, Button } from 'lib/components';
 import { TaskTimes, getTimerStatusValue } from 'lib/features';
 import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
@@ -12,31 +21,72 @@ import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
-import { CircularProgress } from '@nextui-org/react';
+import { InviteFormModal } from '../invite/invite-form-modal';
 
-export function UserTeamCardHeader() {
-	const { t } = useTranslation();
+export function UserTeamBlockHeader() {
+	// const { t } = useTranslation();
+	const { activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+
+	console.log({ activeTeam });
+	const membersStatusNumber: { running: number; online: number; pause: number; idle: number; suspended: number } = {
+		running: 0,
+		online: 0,
+		pause: 0,
+		idle: 0,
+		suspended: 0
+	};
+
+	const members = activeTeam?.members ? activeTeam?.members : [];
+	members?.map((item) => {
+		membersStatusNumber[item.timerStatus!]++;
+	});
+
 	return (
-		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
-			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
-			<div className="2xl:w-[20.625rem] text-center">{t('common.NAME')}</div>
-			<div className="w-1"></div>
-			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
-			<div className="w-1"></div>
-			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
-				{t('task.taskTableHead.TASK_WORK.TITLE')}
-				<br />
-				{t('common.TASK')}
+		<>
+			<div className="hidden sm:flex row font-normal pt-4 justify-between hidde dark:text-[#7B8089]">
+				<div className="flex items-center w-3/4">
+					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
+						<p>All members </p>
+						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
+							{members?.length}
+						</div>
+					</div>
+					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
+						<p>Not working </p>
+						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
+							{membersStatusNumber.idle}
+						</div>
+					</div>
+					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
+						<p>Working </p>
+						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
+							{membersStatusNumber.running}
+						</div>
+					</div>
+					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
+						<p>Paused </p>
+						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
+							{membersStatusNumber.pause}
+						</div>
+					</div>
+					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
+						<p>Online</p>
+						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
+							{membersStatusNumber.online}
+						</div>
+					</div>
+				</div>
+				<div className="w-1/4 flex justify-end	items-center">
+					{/* <Invite /> */}
+					<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
+						Invite
+					</Button>
+				</div>
 			</div>
-			<div className="w-1"></div>
-			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
-			<div className="w-1"></div>
-			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
-				{t('task.taskTableHead.TOTAL_WORK.TITLE')}
-				<br />
-				{t('common.TODAY')}
-			</div>
-		</div>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+		</>
 	);
 }
 
@@ -55,9 +105,10 @@ const cardColorType = {
 	suspended: ' border-red-700'
 };
 
-export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamBlock) {
+export function UserTeamBlock({ className, active, member, publicTeam = false }: IUserTeamBlock) {
 	const { t } = useTranslation();
 	const memberInfo = useTeamMemberCard(member);
+
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
@@ -114,7 +165,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				shadow="bigger"
 				className={clsxm(
 					'relative items-center py-3  dark:bg-[#1E2025] min-h-[7rem]',
-					['dark:border border-t-5 border-transparent ', cardColorType[timerStatusValue]],
+					['dark:border dark:border-t-5 border-t-5 border-transparent ', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
@@ -135,7 +186,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				<TaskBlockInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-full 3xl:w-[32rem] w-full lg:px-4 px-2 py-2 overflow-hidden"
+					className=" w-full lg:px-4 px-2 py-2 overflow-hidden"
 					publicTeam={publicTeam}
 				/>
 				{/* prograssion,  tags */}
@@ -165,49 +216,8 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 						radial={true}
 					/>
-
-
 				</div>
 			</Card>
-		</div>
-	);
-}
-
-export function UserTeamCardSkeleton() {
-	return (
-		<div
-			role="status"
-			className="p-4 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-		>
-			<div className="flex items-center justify-between">
-				<div className="flex items-center space-x-3">
-					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div>
-						<div className="w-32 h-3 mb-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
-					</div>
-				</div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-24"></div>
-			</div>
-		</div>
-	);
-}
-
-export function InviteUserTeamSkeleton() {
-	return (
-		<div
-			role="status"
-			className="p-4 mt-3 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-		>
-			<div className="flex items-center justify-between">
-				<div className="flex items-center space-x-3">
-					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div className="w-24 bg-gray-200 h-9 rounded-xl dark:bg-gray-700"></div>
-				</div>
-			</div>
 		</div>
 	);
 }

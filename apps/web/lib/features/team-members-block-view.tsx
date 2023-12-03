@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { OT_Member } from '@app/interfaces';
 import { Transition } from '@headlessui/react';
-import { UserTeamCard } from './team/user-team-block';
+import { UserTeamBlock } from './team/user-team-block';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -16,7 +16,6 @@ const TeamMembersBlockView: React.FC<Props> = ({
 	currentUser,
 	teamsFetching = false
 }) => {
-	console.log(publicTeam, currentUser, teamsFetching);
 	return (
 		<div className="mt-7">
 			{/* Current authenticated user members */}
@@ -45,7 +44,7 @@ const TeamMembersBlockView: React.FC<Props> = ({
 								leaveFrom="opacity-100"
 								leaveTo="opacity-0"
 							>
-								<UserTeamCard member={member} publicTeam={publicTeam} />
+								<UserTeamBlock member={member} publicTeam={publicTeam} />
 							</Transition>
 						</div>
 					);
