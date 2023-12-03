@@ -1,19 +1,10 @@
 import React from 'react';
 import { secondsToTime } from '@app/helpers';
-import {
-	useCollaborative,
-	useTMCardTaskEdit,
-	useTaskStatistics,
-	useOrganizationTeams,
-	useTeamMemberCard,
-	useTimer,
-	useAuthenticateUser,
-	useModal
-} from '@app/hooks';
+import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard, useTimer } from '@app/hooks';
 import { IClassName, IOrganizationTeamList, ITimerStatusEnum } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator, InputField, Text, Button } from 'lib/components';
+import { Card, HorizontalSeparator, InputField, Text } from 'lib/components';
 import { TaskTimes, getTimerStatusValue } from 'lib/features';
 import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
@@ -21,74 +12,6 @@ import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
-import { InviteFormModal } from '../invite/invite-form-modal';
-
-export function UserTeamBlockHeader() {
-	// const { t } = useTranslation();
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
-	const { openModal, isOpen, closeModal } = useModal();
-
-	console.log({ activeTeam });
-	const membersStatusNumber: { running: number; online: number; pause: number; idle: number; suspended: number } = {
-		running: 0,
-		online: 0,
-		pause: 0,
-		idle: 0,
-		suspended: 0
-	};
-
-	const members = activeTeam?.members ? activeTeam?.members : [];
-	members?.map((item) => {
-		membersStatusNumber[item.timerStatus!]++;
-	});
-
-	return (
-		<>
-			<div className="hidden sm:flex row font-normal pt-4 justify-between hidde dark:text-[#7B8089]">
-				<div className="flex items-center w-3/4">
-					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
-						<p>All members </p>
-						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
-							{members?.length}
-						</div>
-					</div>
-					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
-						<p>Not working </p>
-						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
-							{membersStatusNumber.idle}
-						</div>
-					</div>
-					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
-						<p>Working </p>
-						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
-							{membersStatusNumber.running}
-						</div>
-					</div>
-					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
-						<p>Paused </p>
-						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
-							{membersStatusNumber.pause}
-						</div>
-					</div>
-					<div className="w-1/6 text-center flex items-center justify-center py-4 border-b-4 border-gray-100 dark:border-dark hover:border-primary dark:hover:border-primary hover:text-primary ">
-						<p>Online</p>
-						<div className="bg-gray-200 p-1 px-2 flex items-center justify-center rounded mx-1">
-							{membersStatusNumber.online}
-						</div>
-					</div>
-				</div>
-				<div className="w-1/4 flex justify-end	items-center">
-					{/* <Invite /> */}
-					<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
-						Invite
-					</Button>
-				</div>
-			</div>
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
-		</>
-	);
-}
 
 type IUserTeamBlock = {
 	active?: boolean;
@@ -98,11 +21,11 @@ type IUserTeamBlock = {
 } & IClassName;
 
 const cardColorType = {
-	running: ' border-green-700',
-	idle: ' border-green-700',
-	online: ' border-green-700',
-	pause: ' border-yellow-700',
-	suspended: ' border-red-700'
+	running: ' border-green-300',
+	idle: ' border-[#F5BEBE]',
+	online: ' border-green-300',
+	pause: ' border-[#EFCF9E]',
+	suspended: ' border-[#DCD6D6]'
 };
 
 export function UserTeamBlock({ className, active, member, publicTeam = false }: IUserTeamBlock) {

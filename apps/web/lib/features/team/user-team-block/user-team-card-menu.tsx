@@ -125,7 +125,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											</Text>
 										);
 
-								withAuthentication		// When true show combobox component (AssignActionMenu)
+										// When true show combobox component (AssignActionMenu)
 										const assignAction = item.action === 'assign';
 
 										const removeAction = item.action === 'remove';

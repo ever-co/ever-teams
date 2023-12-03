@@ -17,7 +17,7 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { IssuesView } from '@app/constants';
-import { TableCellsIcon, QueueListIcon } from '@heroicons/react/24/solid';
+import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -67,7 +67,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.BLOCKS)}
 						>
-							<TableCellsIcon className="w-5 h-5 inline" />
+							<Squares2X2Icon className="w-5 h-5 inline" />
 						</button>
 					</div>
 				</div>
@@ -84,8 +84,11 @@ function MainPage() {
 				<Container>
 					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
-					{view === IssuesView.CARDS && isTeamMember ? <UserTeamCardHeader /> :
-					view === IssuesView.BLOCKS  ? <UserTeamBlockHeader /> : null}
+					{view === IssuesView.CARDS && isTeamMember ? (
+						<UserTeamCardHeader />
+					) : view === IssuesView.BLOCKS ? (
+						<UserTeamBlockHeader />
+					) : null}
 				</Container>
 
 				{/* Divider */}
