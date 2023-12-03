@@ -405,7 +405,7 @@ export function TaskNameFilter({
 	value: string;
 	setValue: (v: string) => void;
 	close: () => void;
-	fullWidth: boolean;
+	fullWidth?: boolean;
 }) {
 	const { t } = useTranslation();
 
