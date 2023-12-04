@@ -10,13 +10,14 @@ import {
 	TeamMembers,
 	Timer,
 	UnverifiedEmail,
-	UserTeamCardHeader
+	UserTeamCardHeader,
+	UserTeamBlockHeader
 } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { IssuesView } from '@app/constants';
-import { TableCellsIcon, QueueListIcon } from '@heroicons/react/24/solid';
+import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -57,6 +58,17 @@ function MainPage() {
 						>
 							<QueueListIcon className="w-5 h-5 inline" />
 						</button>
+						<button
+							className={clsxm(
+								'rounded-md px-3 py-1 text-sm font-medium',
+								view === IssuesView.BLOCKS
+									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+									: 'text-gray-700 dark:text-gray-300'
+							)}
+							onClick={() => setView(IssuesView.BLOCKS)}
+						>
+							<Squares2X2Icon className="w-5 h-5 inline" />
+						</button>
 					</div>
 				</div>
 
@@ -66,13 +78,17 @@ function MainPage() {
 
 			<div
 				className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
-					view === IssuesView.TABLE ? 'pb-7' : ''
+					view !== IssuesView.CARDS ? 'pb-7' : ''
 				}`}
 			>
 				<Container>
 					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
-					{view === IssuesView.CARDS && isTeamMember ? <UserTeamCardHeader /> : null}
+					{view === IssuesView.CARDS && isTeamMember ? (
+						<UserTeamCardHeader />
+					) : view === IssuesView.BLOCKS ? (
+						<UserTeamBlockHeader />
+					) : null}
 				</Container>
 
 				{/* Divider */}

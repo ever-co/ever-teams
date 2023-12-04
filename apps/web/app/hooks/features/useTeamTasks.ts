@@ -112,7 +112,7 @@ export function useTeamTasks() {
 				});
 			}
 
-			if (!user || activeTeamRef.current?.id) {
+			if (!user || !activeTeamRef.current?.id) {
 				return new Promise((response) => {
 					response(true);
 				});

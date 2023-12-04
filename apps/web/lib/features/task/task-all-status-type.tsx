@@ -10,7 +10,15 @@ import {
 	useTaskStatusValue
 } from './task-status';
 
-export function TaskAllStatusTypes({ task, showStatus = false }: { task?: Nullable<ITeamTask>; showStatus?: boolean }) {
+export function TaskAllStatusTypes({
+	task,
+	showStatus = false,
+	toBlockCard = false
+}: {
+	task?: Nullable<ITeamTask>;
+	showStatus?: boolean;
+	toBlockCard?: boolean;
+}) {
 	const taskPriorities = useTaskPrioritiesValue();
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
@@ -64,7 +72,7 @@ export function TaskAllStatusTypes({ task, showStatus = false }: { task?: Nullab
 						/>
 					)}
 
-					{task?.size && (
+					{task?.size && !toBlockCard && (
 						<TaskStatus
 							{...taskSizes[task?.size || 'Medium']}
 							className="rounded-[0.625rem]"
