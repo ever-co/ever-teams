@@ -10,8 +10,6 @@ export function getEmployeeRoleRequest({
 	role: 'EMPLOYEE';
 	tenantId: string;
 }) {
-	console.log('authToken:', bearer_token);
-	console.log('tenantId:', tenantId);
 	return serverFetch<IRole>({
 		path: `/roles/options?name=${role}`,
 		method: 'GET',

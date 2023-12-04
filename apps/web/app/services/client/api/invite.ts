@@ -1,19 +1,8 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import {
-	IInvitation,
-	//  IInviteRequest,
-	MyInvitationActionEnum,
-	CreateResponse,
-	IInviteCreate
-} from '@app/interfaces';
+import { IInvitation, MyInvitationActionEnum, CreateResponse, IInviteCreate, IRole } from '@app/interfaces';
 import { INVITE_CALLBACK_URL } from '@app/constants';
 import api, { get, post } from '../axios';
-// import { getEmployeeRoleRequest } from '@app/services/server/requests';
-// import { getCookie } from 'cookies-next';
-
-// export function inviteByEmailsAPI(data: IInviteRequest) {
-// 	return api.post<PaginationResponse<IInvitation>>('/invite/emails', data);
-// }
+import { AxiosResponse } from 'axios';
 
 interface IIInviteRequest {
 	email: string;
@@ -25,36 +14,31 @@ interface IIInviteRequest {
 export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string) {
 	const endpoint = '/invite/emails';
 
-	// const authToken = getCookie('auth-token')?.toString();
-
 	const date = new Date();
 	date.setDate(date.getDate() - 1);
 
-	// console.log('authToken:', authToken);
-	// console.log('tenantId:', tenantId);
+	const getRoleEndpoint = '/roles/options?name=EMPLOYEE';
 
-	// const { data: employeeRole } = await getEmployeeRoleRequest({
-	// 	tenantId,
-	// 	role: 'EMPLOYEE',
-	// 	bearer_token: authToken as string
-	// });
+	const employeeRole: AxiosResponse<IRole, any> = (await get(getRoleEndpoint, true, { tenantId })).data;
 
-	const dataToInviteUser: IInviteCreate = {
+	const dataToInviteUser: IInviteCreate & { tenantId: string } = {
 		emailIds: [data.email],
 		projectIds: [],
 		departmentIds: [],
 		organizationContactIds: [],
 		teamIds: [data.teamId],
-		roleId: 'b1d702d9-9380-4cda-a442-0e7d1ca7480e' || '',
+		roleId: employeeRole.data.id || '',
 		invitationExpirationPeriod: 'Never',
 		inviteType: 'TEAM',
 		appliedDate: null,
 		fullName: data.name,
 		callbackUrl: INVITE_CALLBACK_URL,
 		organizationId: data.organizationId,
+		tenantId,
 		startedWorkOn: date.toISOString()
 	};
 
+	// for not direct call we need to adjust data to include name and email only
 	const fetchData = await post(endpoint, dataToInviteUser, true, { tenantId });
 
 	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? fetchData.data : fetchData;

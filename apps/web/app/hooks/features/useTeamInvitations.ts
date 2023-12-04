@@ -59,8 +59,6 @@ export function useTeamInvitations() {
 				},
 				user?.tenantId as string
 			).then((res) => {
-				console.log('invited!!!!:', res);
-
 				setTeamInvitations((prev) => [...prev, ...(res.data?.items || [])]);
 				return res;
 			});

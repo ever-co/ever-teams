@@ -95,7 +95,6 @@ function post(
 		tenantId: string;
 	}
 ) {
-	console.log('Post Request:', endpoint, data, isDirect, extras);
 	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 		? apiDirect.post(endpoint, data, {
 				headers: {
