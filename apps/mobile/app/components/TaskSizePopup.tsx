@@ -26,7 +26,7 @@ export interface Props {
 	onDismiss: () => unknown;
 	sizeName: string;
 	setSelectedSize: (status: ITaskSizeItem) => unknown;
-	canCreateSize: boolean;
+	canCreateSize?: boolean;
 }
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
@@ -130,7 +130,7 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 										color: dark ? '#6755C9' : '#3826A6'
 									}}
 								>
-									{translate('settingScreen.statusScreen.createNewStatusText')}
+									{translate('settingScreen.sizeScreen.createNewSizeText')}
 								</Text>
 							</TouchableOpacity>
 						)}
