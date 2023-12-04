@@ -8,7 +8,6 @@ module.exports = {
 		'./components/**/*.{ts,tsx}',
 		'./app/**/*.{ts,tsx}',
 		'./src/**/*.{ts,tsx}',
-		'./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
 		join(__dirname, '{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
 		...createGlobPatternsForDependencies(__dirname)
 	],
