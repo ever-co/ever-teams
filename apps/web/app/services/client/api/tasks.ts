@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { CreateResponse, DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
@@ -54,10 +55,47 @@ export function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }
 	return api.post<PaginationResponse<ITeamTask>>('/tasks/team', body);
 }
 
-export function tasksTimesheetStatisticsAPI(employeeId?: string) {
-	return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
-		`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
-	);
+export async function tasksTimesheetStatisticsAPI(
+	tenantId: string,
+	activeTaskId: string,
+	organizationId: string,
+	employeeId?: string
+) {
+	console.log('process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL', process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL);
+	if (process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL) {
+		const employeesParams = employeeId
+			? [employeeId].reduce((acc: any, v, i) => {
+					acc[`employeeIds[${i}]`] = v;
+					return acc;
+			  })
+			: {};
+		const commonParams = {
+			tenantId,
+			organizationId,
+			...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
+			...employeesParams
+		};
+		const globalQueries = new URLSearchParams({
+			...commonParams,
+			defaultRange: 'false'
+		});
+		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, true);
+
+		const todayQueries = new URLSearchParams({
+			defaultRange: 'true',
+			unitOfTime: 'day'
+		});
+		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, true);
+
+		return {
+			global: globalData.data,
+			today: todayData.data
+		};
+	} else {
+		return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+			`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
+		);
+	}
 }
 
 export function activeTaskTimesheetStatisticsAPI() {
