@@ -130,10 +130,7 @@ export async function activeTaskTimesheetStatisticsAPI(
 			tenantId
 		});
 
-		const todayQueries = new URLSearchParams({
-			defaultRange: 'true',
-			unitOfTime: 'day'
-		});
+		const todayQueries = new URLSearchParams({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
 		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, true, {
 			tenantId
 		});

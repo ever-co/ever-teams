@@ -85,7 +85,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
-		if (!user?.employee.tenantId) {
+		if (!user?.employee.tenantId || !user?.employee.organizationId) {
 			return new Promise((resolve) => {
 				resolve(true);
 			});
