@@ -29,7 +29,7 @@ export function TaskNameInfoDisplay({ task, className, taskTitleClassName, taskN
 					<span className={clsxm('text-gray-500 mr-1 font-normal', taskNumberClassName)}>
 						#{task?.taskNumber} {dash && '-'}
 					</span>
-					{task?.title}
+					<span>{task?.title.slice(0, 90)}</span>
 				</span>
 			</span>
 		</Tooltip>
