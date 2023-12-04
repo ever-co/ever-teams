@@ -65,7 +65,7 @@ export function UserTeamBlockHeader() {
 						<StopCircleIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 dark:!text-gray-200',
-								activeFilter == 'all' && '!text-primary !fill-primary dark:border-white dark:text-white'
+								activeFilter == 'all' && '!text-primary !fill-primary  dark:text-white dark:!fill-none'
 							)}
 						/>
 						<p>All members </p>
@@ -88,7 +88,7 @@ export function UserTeamBlockHeader() {
 						<NotWorkingIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
-								activeFilter == 'idle' && '!text-primary dark:border-white dark:text-white'
+								activeFilter == 'idle' && '!text-primary !fill-primary  dark:text-white dark:!fill-none'
 							)}
 						/>
 						<p>Not working </p>
@@ -113,7 +113,7 @@ export function UserTeamBlockHeader() {
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
 								activeFilter == 'running' &&
-									'!text-primary !fill-primary dark:border-white dark:text-white'
+									'!text-primary !fill-primary  dark:text-white dark:!fill-none'
 							)}
 						/>
 						<p>Working </p>
@@ -138,7 +138,7 @@ export function UserTeamBlockHeader() {
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
 								activeFilter == 'pause' &&
-									'!text-primary !fill-primary dark:border-white dark:text-white'
+									'!text-primary !fill-primary  dark:text-white dark:!fill-none'
 							)}
 						/>
 						<p>Paused </p>
@@ -162,7 +162,8 @@ export function UserTeamBlockHeader() {
 						<OnlineIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
-								activeFilter == 'online' && '!text-primary dark:border-white dark:text-white'
+								activeFilter == 'online' &&
+									'!text-primary !fill-primary  dark:text-white dark:!fill-none'
 							)}
 						/>
 						<p>Online</p>
