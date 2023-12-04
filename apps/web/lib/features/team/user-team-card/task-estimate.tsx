@@ -12,19 +12,22 @@ type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
 	edition: I_TMCardTaskEditHook;
 	activeAuthTask: boolean;
+	showTime?: boolean;
+	radial?: boolean;
 };
 
-export function TaskEstimateInfo({ className, activeAuthTask, ...rest }: Props) {
+export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, radial = false, ...rest }: Props) {
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col gap-y-[2rem] justify-center">
-				<TaskEstimateInput {...rest} />
+				{showTime && <TaskEstimateInput {...rest} />}
 
 				<TaskProgressBar
 					task={rest.edition.task || rest.memberInfo.memberTask}
 					isAuthUser={rest.memberInfo.isAuthUser}
 					activeAuthTask={activeAuthTask}
 					memberInfo={rest.memberInfo}
+					radial={radial}
 				/>
 			</div>
 		</div>
