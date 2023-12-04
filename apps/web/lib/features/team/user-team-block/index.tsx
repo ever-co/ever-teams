@@ -112,7 +112,6 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 					className=" w-full lg:px-4 px-2 py-2 overflow-hidden"
 					publicTeam={publicTeam}
 				/>
-				{/* prograssion,  tags */}
 
 				<HorizontalSeparator />
 
