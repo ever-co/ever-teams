@@ -1,6 +1,6 @@
 const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const { join } = require('path');
-const { nextui } = require('@nextui-org/react');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	darkMode: ['class'],
@@ -166,5 +166,5 @@ module.exports = {
 			}
 		}
 	},
-	plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography'), nextui()]
+	plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')]
 };
