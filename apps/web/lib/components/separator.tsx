@@ -7,8 +7,8 @@ export const VerticalSeparator = ({ className }: IClassName) => {
 
 export const HorizontalSeparator = ({ className }: IClassName) => {
 	return (
-		<div className="px-4 w-full">
-			<div className={clsxm('h-1 w-full border-t-[0.125rem] dark:border-l-[#FFFFFF14]', className)} />
+		<div className="px-2 w-full">
+			<div className={clsxm('h-1 w-full border-t-[0.125rem] dark:!border-t-[#FFFFFF14]', className)} />
 		</div>
 	);
 };

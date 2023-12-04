@@ -94,7 +94,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 			>
 				{/* flex */}
 				<div className="flex items-center justify-between py-2 w-full">
-					<div className="flex items-center justify-between py-2 w-full">
+					<div className="flex items-center justify-between py-2 w-[80%]">
 						<UserBoxInfo memberInfo={memberInfo} className="w-3/4" publicTeam={publicTeam} />
 						{/* total time  */}
 						{totalWork}
@@ -109,7 +109,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 				<TaskBlockInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className=" w-full lg:px-4 px-2 py-2 overflow-hidden"
+					className=" w-full px-1 py-2 overflow-hidden"
 					publicTeam={publicTeam}
 				/>
 
@@ -124,7 +124,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 							memberInfo={memberInfo}
 							task={memberInfo.memberTask}
 							isAuthUser={memberInfo.isAuthUser}
-							className="2xl:w-48 3xl:w-[12rem] w-full lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+							className=" w-full  px-2 flex flex-col gap-y-[1.125rem] justify-center"
 							isBlock={true}
 						/>
 						{/* today time */}
@@ -135,7 +135,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 						edition={taskEdition}
 						activeAuthTask={true}
 						showTime={false}
-						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+						className="w-1/5"
 						radial={true}
 					/>
 				</div>

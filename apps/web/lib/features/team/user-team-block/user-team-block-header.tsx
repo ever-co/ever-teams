@@ -57,21 +57,22 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
-							activeFilter == 'all' && 'border-b-4 border-primary text-primary '
+							activeFilter == 'all' &&
+								'border-b-4 border-primary text-primary dark:border-white dark:text-white'
 						)}
 						onClick={() => setActiveFilter('all')}
 					>
 						<StopCircleIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 dark:!text-gray-200',
-								activeFilter == 'all' && '!text-primary !fill-primary'
+								activeFilter == 'all' && '!text-primary !fill-primary dark:border-white dark:text-white'
 							)}
 						/>
 						<p>All members </p>
 						<div
 							className={clsxm(
 								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'all' && '!bg-primary !text-white'
+								activeFilter == 'all' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
 							)}
 						>
 							{members?.length}
@@ -87,14 +88,14 @@ export function UserTeamBlockHeader() {
 						<NotWorkingIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
-								activeFilter == 'idle' && '!text-primary '
+								activeFilter == 'idle' && '!text-primary dark:border-white dark:text-white'
 							)}
 						/>
 						<p>Not working </p>
 						<div
 							className={clsxm(
 								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'idle' && '!bg-primary !text-white'
+								activeFilter == 'idle' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
 							)}
 						>
 							{membersStatusNumber.idle}
@@ -103,21 +104,23 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
-							activeFilter == 'running' && 'border-b-4 border-primary text-primary '
+							activeFilter == 'running' &&
+								'border-b-4 border-primary dark:border-white dark:text-white text-primary '
 						)}
 						onClick={() => setActiveFilter('running')}
 					>
 						<TimerPlayIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
-								activeFilter == 'running' && '!text-primary !fill-primary'
+								activeFilter == 'running' &&
+									'!text-primary !fill-primary dark:border-white dark:text-white'
 							)}
 						/>
 						<p>Working </p>
 						<div
 							className={clsxm(
 								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'running' && '!bg-primary !text-white'
+								activeFilter == 'running' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
 							)}
 						>
 							{membersStatusNumber.running}
@@ -126,21 +129,23 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
-							activeFilter == 'pause' && 'border-b-4 border-primary text-primary '
+							activeFilter == 'pause' &&
+								'border-b-4 border-primary text-primary dark:border-white dark:text-white'
 						)}
 						onClick={() => setActiveFilter('pause')}
 					>
 						<PauseIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
-								activeFilter == 'pause' && '!text-primary !fill-primary'
+								activeFilter == 'pause' &&
+									'!text-primary !fill-primary dark:border-white dark:text-white'
 							)}
 						/>
 						<p>Paused </p>
 						<div
 							className={clsxm(
 								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'pause' && '!bg-primary !text-white'
+								activeFilter == 'pause' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
 							)}
 						>
 							{membersStatusNumber.pause}
@@ -149,21 +154,22 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
-							activeFilter == 'online' && 'border-b-4 border-primary text-primary '
+							activeFilter == 'online' &&
+								'border-b-4 border-primary text-primary dark:border-white dark:text-white'
 						)}
 						onClick={() => setActiveFilter('online')}
 					>
 						<OnlineIcon
 							className={clsxm(
 								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
-								activeFilter == 'online' && '!text-primary'
+								activeFilter == 'online' && '!text-primary dark:border-white dark:text-white'
 							)}
 						/>
 						<p>Online</p>
 						<div
 							className={clsxm(
 								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'online' && '!bg-primary !text-white'
+								activeFilter == 'online' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
 							)}
 						>
 							{membersStatusNumber.online}

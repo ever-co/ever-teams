@@ -9,9 +9,17 @@ type Props = {
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;
 	dash?: boolean;
+	showSize?: boolean;
 };
 
-export function TaskNameInfoDisplay({ task, className, taskTitleClassName, taskNumberClassName, dash = false }: Props) {
+export function TaskNameInfoDisplay({
+	task,
+	className,
+	taskTitleClassName,
+	taskNumberClassName,
+	dash = false,
+	showSize = false
+}: Props) {
 	return (
 		<Tooltip label={task?.title || ''} placement="top" enabled={(task?.title && task?.title.length > 60) || false}>
 			<span className="flex">
