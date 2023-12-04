@@ -63,7 +63,7 @@ export function UserTeamBlockHeader() {
 					>
 						<StopCircleIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80',
+								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 dark:!text-gray-200',
 								activeFilter == 'all' && '!text-primary !fill-primary'
 							)}
 						/>
@@ -85,7 +85,10 @@ export function UserTeamBlockHeader() {
 						onClick={() => setActiveFilter('idle')}
 					>
 						<NotWorkingIcon
-							className={clsxm('w-8 h-8 p-1  !text-dark/80', activeFilter == 'idle' && '!text-primary ')}
+							className={clsxm(
+								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
+								activeFilter == 'idle' && '!text-primary '
+							)}
 						/>
 						<p>Not working </p>
 						<div
@@ -106,7 +109,7 @@ export function UserTeamBlockHeader() {
 					>
 						<TimerPlayIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80',
+								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
 								activeFilter == 'running' && '!text-primary !fill-primary'
 							)}
 						/>
@@ -129,7 +132,7 @@ export function UserTeamBlockHeader() {
 					>
 						<PauseIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80',
+								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
 								activeFilter == 'pause' && '!text-primary !fill-primary'
 							)}
 						/>
@@ -152,7 +155,7 @@ export function UserTeamBlockHeader() {
 					>
 						<OnlineIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 ',
+								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
 								activeFilter == 'online' && '!text-primary'
 							)}
 						/>
