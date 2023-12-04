@@ -9,6 +9,10 @@
 	--tooltipBackground: #000;
 }
 
+body {
+	@apply bg-[#F2F2F2];
+}
+
 html.dark {
 	--tooltipBackground: #000;
 }
@@ -296,4 +300,11 @@ html.dark {
 		opacity: 1;
 		transform: scale(1.2);
 	}
+}
+
+.progress-ring__circle {
+	stroke-dasharray: 400, 400;
+	transition: stroke-dashoffset 0.35s;
+	transform: rotate(-90deg);
+	transform-origin: 50% 50%;
 }
