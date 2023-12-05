@@ -101,7 +101,7 @@ function TimeBlockInfo({
 }) {
 	const { t } = useTranslation();
 	return (
-		<div className="flex gap-3">
+		<div className="flex gap-5">
 			{showDaily && (
 				<div className=" text-base font-normal flex flex-col items-center ">
 					<span className="text-[#7B8089]">{t('common.TODAY')}:</span>
