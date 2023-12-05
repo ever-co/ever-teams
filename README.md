@@ -156,6 +156,10 @@ WIP
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=ever-teams&type=docker&builder=dockerfile&image=ghcr.io/ever-co/ever-teams-webapp:latest&env[PORT]=3000&ports=3000;http;/)
 
+### Northflank
+
+[Deploy to Northflank](https://app.northflank.com/s/account/templates/new?data=656ed069216b5d387f5379c6)
+
 ## 📄 Content
 
 -   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
