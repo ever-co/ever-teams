@@ -57,7 +57,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 		);
 
 		totalWork = (
-			<div className={clsxm('flex space-x-2 items-center justify-center w-32 font-normal flex-col mr-4')}>
+			<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
 				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
@@ -87,20 +87,19 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative items-center py-3  dark:bg-[#1E2025] min-h-[7rem]',
+					'relative items-center py-3 !px-4 dark:bg-[#1E2025] min-h-[7rem]',
 					['dark:border border-t-[6px] ', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
 				{/* flex */}
 				<div className="flex items-center justify-between py-2 w-full">
-					<div className="flex items-center justify-between py-2 w-[80%]">
-						<UserBoxInfo memberInfo={memberInfo} className="w-3/4" publicTeam={publicTeam} />
-						{/* total time  */}
+					<UserBoxInfo memberInfo={memberInfo} className="w-3/5" publicTeam={publicTeam} />
+					{/* total time  */}
+					<div className="flex items-center justify-end w-2/5 gap-1">
 						{totalWork}
+						<div className="w-2 right-2">{menu}</div>
 					</div>
-					{/* more */}
-					<div className="absolute right-2">{menu}</div>
 				</div>
 
 				<HorizontalSeparator />

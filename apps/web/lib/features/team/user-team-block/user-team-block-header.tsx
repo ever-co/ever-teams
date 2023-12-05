@@ -56,125 +56,128 @@ export function UserTeamBlockHeader() {
 				<div className="flex items-center w-3/4">
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
 							activeFilter == 'all' &&
-								'border-b-4 border-primary text-primary dark:border-white dark:text-white'
+								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('all')}
 					>
 						<StopCircleIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 dark:!text-gray-200',
-								activeFilter == 'all' && '!text-primary !fill-primary  dark:text-white dark:!fill-none'
+								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								activeFilter == 'all' &&
+									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>All members </p>
-						<div
+						<span
 							className={clsxm(
-								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'all' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
+								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								activeFilter == 'all' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{members?.length}
-						</div>
+						</span>
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
-							activeFilter == 'idle' && 'border-b-4 border-primary text-primary '
+							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
+							activeFilter == 'idle' &&
+								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('idle')}
 					>
 						<NotWorkingIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
-								activeFilter == 'idle' && '!text-primary !fill-primary  dark:text-white dark:!fill-none'
+								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								activeFilter == 'idle' &&
+									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>Not working </p>
-						<div
+						<span
 							className={clsxm(
-								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'idle' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
+								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								activeFilter == 'idle' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.idle}
-						</div>
+						</span>
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
 							activeFilter == 'running' &&
-								'border-b-4 border-primary dark:border-white dark:text-white text-primary '
+								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('running')}
 					>
 						<TimerPlayIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
+								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
 								activeFilter == 'running' &&
-									'!text-primary !fill-primary  dark:text-white dark:!fill-none'
+									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>Working </p>
-						<div
+						<span
 							className={clsxm(
-								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'running' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
+								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								activeFilter == 'running' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.running}
-						</div>
+						</span>
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
 							activeFilter == 'pause' &&
-								'border-b-4 border-primary text-primary dark:border-white dark:text-white'
+								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('pause')}
 					>
 						<PauseIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 !fill-dark/80 !dark:text-gray-200',
+								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
 								activeFilter == 'pause' &&
-									'!text-primary !fill-primary  dark:text-white dark:!fill-none'
+									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>Paused </p>
-						<div
+						<span
 							className={clsxm(
-								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'pause' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
+								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								activeFilter == 'pause' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.pause}
-						</div>
+						</span>
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
 							activeFilter == 'online' &&
-								'border-b-4 border-primary text-primary dark:border-white dark:text-white'
+								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('online')}
 					>
 						<OnlineIcon
 							className={clsxm(
-								'w-8 h-8 p-1  !text-dark/80 dark:!text-gray-200',
+								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
 								activeFilter == 'online' &&
-									'!text-primary !fill-primary  dark:text-white dark:!fill-none'
+									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>Online</p>
-						<div
+						<span
 							className={clsxm(
-								'bg-gray-200  px-2 flex items-center justify-center rounded mx-1',
-								activeFilter == 'online' && '!bg-primary !text-white dark:bg-[#7B8089] dark:text-white'
+								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								activeFilter == 'online' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.online}
-						</div>
+						</span>
 					</div>
 				</div>
 				<div className="w-1/4 flex justify-end gap-2	items-center">

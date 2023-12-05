@@ -25,7 +25,7 @@ const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTea
 			>
 				{/* <UserTeamBlock member={currentUser} publicTeam={publicTeam} /> */}
 			</Transition>
-			<div className="flex w-full items-center">
+			<div className="flex w-full flex-wrap items-center">
 				{members.map((member) => {
 					return (
 						<div className="p-1 w-full md:w-1/2  lg:w-1/4" key={member.id}>
