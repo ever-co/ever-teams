@@ -14,8 +14,8 @@ type TeamMembersProps = {
 
 export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
-	const { teamsFetching } = useOrganizationTeams();
+	const { activeTeam, teamsFetching } = useOrganizationTeams();
+	
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members.filter((member) => member.id !== currentUser?.id);
