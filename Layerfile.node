@@ -19,4 +19,4 @@ RUN REPEATABLE cd apps/web && yarn install && yarn build
 
 RUN BACKGROUND PORT=3033 yarn start:web
 
-EXPOSE WEBSITE localhost:3000
+EXPOSE WEBSITE localhost:3033
