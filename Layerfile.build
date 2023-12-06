@@ -17,8 +17,7 @@ COPY . .
 
 RUN REPEATABLE docker build -t ever-teams .
 
-RUN REPEATABLE docker rm ever-teams --force || true
-
-RUN REPEATABLE docker run --name ever-teams -d -p 3000:3000 ever-teams && sleep 5
+RUN REPEATABLE (docker rm ever-teams --force || true) &&\
+    docker run --name ever-teams -d -p 3000:3000 ever-teams && sleep 5
 
 EXPOSE WEBSITE localhost:3000
