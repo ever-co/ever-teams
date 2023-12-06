@@ -18,12 +18,13 @@ type TeamMembersProps = {
 export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const activeFilter = useRecoilValue(taskBlockFilterState);
-	const { activeTeam,  teamsFetching } = useOrganizationTeams();
+	const { activeTeam } = useOrganizationTeams();
+	const { teamsFetching } = useOrganizationTeams();
+	const members = activeTeam?.members || [];
 
-	const members =
-		activeFilter == 'all'
-			? activeTeam?.members || []
-			: activeTeam?.members.filter((m) => m.timerStatus == activeFilter) || [];
+	const blockViewMembers =
+		activeFilter == 'all' ? members : members.filter((m) => m.timerStatus == activeFilter) || [];
+
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members.filter((member) => member.id !== currentUser?.id);
 	const $teamsFetching = teamsFetching && members.length === 0;
@@ -80,7 +81,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 		case view == IssuesView.BLOCKS:
 			teamMembersView = (
 				<TeamMembersBlockView
-					teamMembers={members}
+					teamMembers={blockViewMembers}
 					currentUser={currentUser}
 					publicTeam={publicTeam}
 					teamsFetching={$teamsFetching}
