@@ -29,17 +29,12 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 }
 
 export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Props) {
-	const task = edition.task;
-
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
 			<div className={clsxm('w-full h-12', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
-					<>
-						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
-						<p className="text-yellow-700">{task?.size}</p>
-					</>
+					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
 				)}
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
@@ -74,6 +69,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 				onClick={publicTeam ? () => null : () => task && router.push(`/task/${task?.id}`)}
 			>
 				<TaskNameInfoDisplay
+					showSize={true}
 					task={task}
 					className={`${
 						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'

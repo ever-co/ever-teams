@@ -55,8 +55,6 @@ const TeamMembersTableView = ({
 		[]
 	);
 
-	const footerRows = React.useMemo<React.ReactNode[]>(() => [<Invite key={0} />], []);
-
 	const sortedTeamMembers: OT_Member[] = [];
 	if (currentUser) {
 		sortedTeamMembers.push(currentUser);
@@ -64,15 +62,17 @@ const TeamMembersTableView = ({
 	sortedTeamMembers.push(...teamMembers);
 
 	return (
-		<DataTable
-			columns={columns as Column<OT_Member>[]}
-			data={sortedTeamMembers}
-			footerRows={footerRows}
-			noResultsMessage={{
-				heading: 'No team members found',
-				content: 'Try adjusting your search or filter to find what you’re looking for.'
-			}}
-		/>
+		<>
+			<DataTable
+				columns={columns as Column<OT_Member>[]}
+				data={sortedTeamMembers}
+				noResultsMessage={{
+					heading: 'No team members found',
+					content: 'Try adjusting your search or filter to find what you’re looking for.'
+				}}
+			/>
+			<Invite />
+		</>
 	);
 };
 
@@ -81,10 +81,10 @@ function Invite() {
 	const { openModal, isOpen, closeModal } = useModal();
 
 	return (
-		<>
+		<div className="py-2">
 			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
-		</>
+		</div>
 	);
 }
 

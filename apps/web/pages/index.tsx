@@ -45,7 +45,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.CARDS)}
 						>
-							<TableCellsIcon className="w-5 h-5 inline" />
+							<QueueListIcon className="w-5 h-5 inline" />
 						</button>
 						<button
 							className={clsxm(
@@ -56,7 +56,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.TABLE)}
 						>
-							<QueueListIcon className="w-5 h-5 inline" />
+							<TableCellsIcon className="w-5 h-5 inline" />
 						</button>
 						<button
 							className={clsxm(

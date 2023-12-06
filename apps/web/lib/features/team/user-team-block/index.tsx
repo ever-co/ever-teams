@@ -57,9 +57,9 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 		);
 
 		totalWork = (
-			<div className={clsxm('flex space-x-2 items-center justify-center w-32 font-normal flex-col mr-4')}>
-				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
-				<Text className="text-xs">
+			<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
+				<span className="text-xs text-gray-500 text-center	">{t('common.TOTAL_WORKED_TODAY')}:</span>
+				<Text className="text-sm">
 					{h}h : {m}m
 				</Text>
 			</div>
@@ -87,20 +87,19 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative items-center py-3  dark:bg-[#1E2025] min-h-[7rem]',
+					'relative items-center py-3 !px-4 dark:bg-[#1E2025] min-h-[7rem]',
 					['dark:border border-t-[6px] ', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
 				{/* flex */}
 				<div className="flex items-center justify-between py-2 w-full">
-					<div className="flex items-center justify-between py-2 w-full">
-						<UserBoxInfo memberInfo={memberInfo} className="w-3/4" publicTeam={publicTeam} />
-						{/* total time  */}
+					<UserBoxInfo memberInfo={memberInfo} className="w-3/5" publicTeam={publicTeam} />
+					{/* total time  */}
+					<div className="flex items-center justify-end w-2/5 gap-1">
 						{totalWork}
+						<div className="w-2 right-2">{menu}</div>
 					</div>
-					{/* more */}
-					<div className="absolute right-2">{menu}</div>
 				</div>
 
 				<HorizontalSeparator />
@@ -109,7 +108,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 				<TaskBlockInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className=" w-full lg:px-4 px-2 py-2 overflow-hidden"
+					className=" w-full px-1 py-2 overflow-hidden"
 					publicTeam={publicTeam}
 				/>
 
@@ -124,7 +123,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 							memberInfo={memberInfo}
 							task={memberInfo.memberTask}
 							isAuthUser={memberInfo.isAuthUser}
-							className="2xl:w-48 3xl:w-[12rem] w-full lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+							className=" w-full  px-2 flex flex-col gap-y-[1.125rem] justify-center"
 							isBlock={true}
 						/>
 						{/* today time */}
@@ -135,7 +134,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 						edition={taskEdition}
 						activeAuthTask={true}
 						showTime={false}
-						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+						className="w-1/5"
 						radial={true}
 					/>
 				</div>

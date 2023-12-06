@@ -217,14 +217,13 @@ export function InviteUserTeamCard({
 				shadow="bigger"
 				className={clsxm(
 					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
-					'dark:border dark:border-[#FFFFFF14]',
+					'dark:border dark:border-[#FFFFFF14] w-full',
 					className
 				)}
 			>
 				<div className="absolute opacity-40 -left-0">
 					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
-
 
 				{/* Show user name, email and image */}
 				<div className="2xl:w-[20.625rem] w-1/4 px-4 flex space-x-3">
