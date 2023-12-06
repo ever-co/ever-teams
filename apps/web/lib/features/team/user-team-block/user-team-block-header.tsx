@@ -56,7 +56,7 @@ export function UserTeamBlockHeader() {
 				<div className="flex items-center w-3/4">
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
 							activeFilter == 'all' &&
 								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
@@ -72,7 +72,7 @@ export function UserTeamBlockHeader() {
 						<p>All members </p>
 						<span
 							className={clsxm(
-								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
 								activeFilter == 'all' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
@@ -81,7 +81,7 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
 							activeFilter == 'idle' &&
 								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
@@ -89,15 +89,14 @@ export function UserTeamBlockHeader() {
 					>
 						<NotWorkingIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
-								activeFilter == 'idle' &&
-									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
+								'w-8 h-8 p-1 !text-gray-300  dark:!text-white',
+								activeFilter == 'idle' && '!text-primary !fill-white  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>Not working </p>
 						<span
 							className={clsxm(
-								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
 								activeFilter == 'idle' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
@@ -106,7 +105,7 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
 							activeFilter == 'running' &&
 								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
@@ -122,7 +121,7 @@ export function UserTeamBlockHeader() {
 						<p>Working </p>
 						<span
 							className={clsxm(
-								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
 								activeFilter == 'running' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
@@ -131,7 +130,7 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
 							activeFilter == 'pause' &&
 								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
@@ -147,7 +146,7 @@ export function UserTeamBlockHeader() {
 						<p>Paused </p>
 						<span
 							className={clsxm(
-								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
 								activeFilter == 'pause' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
@@ -156,7 +155,7 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-3 py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
 							activeFilter == 'online' &&
 								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
 						)}
@@ -164,15 +163,15 @@ export function UserTeamBlockHeader() {
 					>
 						<OnlineIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								'w-8 h-8 p-1 !text-gray-400  dark:!text-white',
 								activeFilter == 'online' &&
-									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
+									'!text-primary !fill-white  dark:!text-primary dark:!fill-white'
 							)}
 						/>
 						<p>Online</p>
 						<span
 							className={clsxm(
-								' bg-gray-600/50 p-1 px-2 text-xs rounded-md',
+								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
 								activeFilter == 'online' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
