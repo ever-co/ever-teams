@@ -1,7 +1,7 @@
+import { useKanban } from "@app/hooks/features/useKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
 import { AddIcon } from "lib/components/svgs";
-import { state } from "pages/kanban";
 import React from "react";
 import {  useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
@@ -53,19 +53,22 @@ const reorderItemMap = ({ itemMap, source, destination }: {
   };
 };
 
-const getHeaderBackground = (column: any) => {
-  const selectState = state.filter((item: any)=> {
+const getHeaderBackground = (columns: any, column: any) => {
+  const selectState = columns.filter((item: any)=> {
     return item.name === column.toUpperCase()
   });
 
-  return selectState[0].backgroundColor
+  return selectState[0].color
 }
 
 export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
 
-    const [items, setItems] = useState<any>(itemsArray);
+    const { columns:kanbanColumns } = useKanban();
 
+    const [items, setItems] = useState<any>(itemsArray);
+  
     const [columns, setColumn] = useState<any>(Object.keys(itemsArray));
+   
     /**
      * This function handles all drag and drop logic
      * on the kanban board.
@@ -156,7 +159,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className={clsxm("flex flex-row justify-center gap-[20px] w-full h-full p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
+                  className={clsxm("flex flex-row justify-center gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
@@ -172,7 +175,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                               index={index}
                               title={column}
                               items={items[column]} 
-                              backgroundColor={getHeaderBackground(column)}                            
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
                             />
                             <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
                                 <AddIcon height={20} width={20}/>
