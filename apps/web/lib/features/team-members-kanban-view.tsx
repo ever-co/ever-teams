@@ -53,10 +53,7 @@ const reorderItemMap = ({ itemMap, source, destination }: {
   };
 };
 
-const getHeaderBackground = (column: any) => {
-
-  const { columns } = useKanban();
-
+const getHeaderBackground = (columns: any, column: any) => {
   const selectState = columns.filter((item: any)=> {
     return item.name === column.toUpperCase()
   });
@@ -65,6 +62,8 @@ const getHeaderBackground = (column: any) => {
 }
 
 export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
+
+    const { columns:kanbanColumns } = useKanban();
 
     const [items, setItems] = useState<any>(itemsArray);
   
@@ -176,7 +175,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                               index={index}
                               title={column}
                               items={items[column]} 
-                              backgroundColor={getHeaderBackground(column)}                            
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
                             />
                             <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
                                 <AddIcon height={20} width={20}/>
