@@ -13,6 +13,8 @@ RUN apt-get update && \
 
 RUN REPEATABLE docker pull everco/ever-teams-webapp
 
-RUN REPEATABLE docker run -d -p 3000:3000 everco/ever-teams-webapp  && sleep 5
+RUN REPEATABLE docker rm ever-teams --force || true
+
+RUN REPEATABLE docker run --name ever-teams -d -p 3000:3000 everco/ever-teams-webapp  && sleep 5
 
 EXPOSE WEBSITE localhost:3000

@@ -21,8 +21,6 @@ import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamInvitations() {
-	const { user } = useAuthenticateUser();
-
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
 	const [myInvitationsList, setMyInvitationsList] = useRecoilState(myInvitationsState);
 
@@ -48,14 +46,24 @@ export function useTeamInvitations() {
 	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } =
 		useQuery(acceptRejectMyInvitationsAPI);
 
+	const { user } = useAuthenticateUser();
+
 	const inviteUser = useCallback(
 		(email: string, name: string) => {
-			return inviteQueryCall({ email, name }).then((res) => {
-				setTeamInvitations(res.data?.items || []);
+			return inviteQueryCall(
+				{
+					email,
+					name,
+					organizationId: user?.employee.organizationId as string,
+					teamId: activeTeamId as string
+				},
+				user?.tenantId as string
+			).then((res) => {
+				setTeamInvitations((prev) => [...prev, ...(res.data?.items || [])]);
 				return res;
 			});
 		},
-		[inviteQueryCall, setTeamInvitations]
+		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee.organizationId]
 	);
 
 	useEffect(() => {

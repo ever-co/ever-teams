@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { calculateRemainingDays, formatDateString } from '@app/helpers';
 import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
@@ -217,7 +218,10 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 	const unassignedMembers = useMemo(
 		() =>
 			memberList.filter((member) =>
-				member.employee ? !task?.members.map((item) => item.userId).includes(member.employee.userId) : false
+				member.employee
+					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
+					  member.employee?.isActive
+					: false
 			),
 		[memberList, task?.members]
 	);
@@ -225,7 +229,10 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 	const assignedTaskMembers = useMemo(
 		() =>
 			memberList.filter((member) =>
-				member.employee ? task?.members.map((item) => item.userId).includes(member.employee?.userId) : false
+				member.employee
+					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
+					  member.employee?.isActive
+					: false
 			),
 		[memberList, task?.members]
 	);
