@@ -2,6 +2,7 @@ import * as React from 'react';
 import { OT_Member } from '@app/interfaces';
 import { Transition } from '@headlessui/react';
 import { UserTeamBlock } from './team/user-team-block';
+import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -44,6 +45,25 @@ const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTea
 						</div>
 					);
 				})}
+			</div>
+			<div>
+				<Transition
+					show={members.length < 1}
+					enter="transition-opacity duration-75"
+					enterFrom="opacity-0"
+					enterTo="opacity-100"
+					leave="transition-opacity duration-150"
+					leaveFrom="opacity-100"
+					leaveTo="opacity-0"
+				>
+					{new Array(3).fill(0).map((_, i) => {
+						return (
+							<div key={i} className="mt-3">
+								<UserTeamCardSkeletonCard />
+							</div>
+						);
+					})}
+				</Transition>
 			</div>
 		</div>
 	);
