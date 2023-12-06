@@ -58,8 +58,8 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 
 		totalWork = (
 			<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
-				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
-				<Text className="text-xs">
+				<span className="text-xs text-gray-500 text-center	">{t('common.TOTAL_WORKED_TODAY')}:</span>
+				<Text className="text-sm">
 					{h}h : {m}m
 				</Text>
 			</div>
