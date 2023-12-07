@@ -1,7 +1,7 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 
-type TTasksTimesheetStatisticsParams = {
+export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
 	organizationId: string;
 	startDate?: string;
