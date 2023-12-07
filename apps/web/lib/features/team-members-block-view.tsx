@@ -2,7 +2,8 @@ import * as React from 'react';
 import { OT_Member } from '@app/interfaces';
 import { Transition } from '@headlessui/react';
 import { UserTeamBlock } from './team/user-team-block';
-import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
+import { useRecoilValue } from 'recoil';
+import { taskBlockFilterState } from '@app/stores/task-filter';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -12,6 +13,23 @@ interface Props {
 }
 
 const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTeam = false, currentUser }) => {
+	const activeFilter = useRecoilValue(taskBlockFilterState);
+
+	let emptyMessage = '';
+	switch (activeFilter) {
+		case 'online':
+			emptyMessage = 'There is no user online now (and not working)';
+			break;
+		case 'running':
+			emptyMessage = 'No user are working now';
+			break;
+		case 'pause':
+			emptyMessage = 'No user are in pause now';
+			break;
+		case 'idle':
+			emptyMessage = 'No user are not working now';
+			break;
+	}
 	return (
 		<div className="mt-7">
 			{/* Current authenticated user members */}
@@ -46,25 +64,11 @@ const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTea
 					);
 				})}
 			</div>
-			<div>
-				<Transition
-					show={members.length < 1}
-					enter="transition-opacity duration-75"
-					enterFrom="opacity-0"
-					enterTo="opacity-100"
-					leave="transition-opacity duration-150"
-					leaveFrom="opacity-100"
-					leaveTo="opacity-0"
-				>
-					{new Array(3).fill(0).map((_, i) => {
-						return (
-							<div key={i} className="mt-3">
-								<UserTeamCardSkeletonCard />
-							</div>
-						);
-					})}
-				</Transition>
-			</div>
+			{members.length < 1 && (
+				<div className="py-16 flex justify-center items-center">
+					<p className="text-lg">{emptyMessage}</p>
+				</div>
+			)}
 		</div>
 	);
 };
