@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox, StatusBar } from 'react-native';
+import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox, StatusBar, Keyboard } from 'react-native';
 import Animated from 'react-native-reanimated';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { BlurView } from 'expo-blur';
@@ -70,19 +70,18 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 						<TouchableWithoutFeedback
 							onPress={() => {
 								setIsOpen(false);
+								Keyboard.dismiss();
 								sheetRef.current.snapTo(2);
 							}}
 						>
 							<BlurView tint="dark" intensity={25} style={$blurContainer} />
 						</TouchableWithoutFeedback>
 					)}
-					<View style={{ flex: 0.95 }}>
-						<View style={[$headerContainer, { backgroundColor: colors.background }]}>
-							<SettingHeader {..._props} />
-							<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
-						</View>
+					<View style={[$headerContainer, { flex: 0.75, backgroundColor: colors.background }]}>
+						<SettingHeader {..._props} />
+						<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
 					</View>
-					<View style={{ flex: 4, paddingHorizontal: 20 }}>
+					<View style={{ flex: 4, paddingHorizontal: 20, zIndex: 10 }}>
 						{isLoading ? (
 							<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
 								<ActivityIndicator size={'small'} />
@@ -108,6 +107,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 								onDismiss={() => {
 									setIsOpen(false);
 									sheetRef.current.snapTo(2);
+									Keyboard.dismiss();
 								}}
 								openBottomSheet={openBottomSheet}
 							/>
@@ -137,5 +137,5 @@ const $blurContainer: ViewStyle = {
 	width: '100%',
 	position: 'absolute',
 	top: 0,
-	zIndex: 1001
+	zIndex: 99
 };

@@ -3,6 +3,7 @@ import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@app/inte
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { PauseIcon, StopCircleIcon, TimerPlayIcon, UserOnlineAndTrackingTimeIcon } from 'lib/components/svgs';
+import { capitalize } from 'lodash';
 import moment from 'moment';
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
 export function TimerStatus({ status, className, showIcon = true, tooltipClassName, labelContainerClassName }: Props) {
 	return (
 		<Tooltip
-			label={status === 'online' ? 'Online and Tracking Time' : status}
+			label={status === 'online' ? 'Online and Tracking Time' : capitalize(status)}
 			enabled
 			placement="auto"
 			className={tooltipClassName}

@@ -86,10 +86,12 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={{ ...styles.container, backgroundColor: colors.background }}>
-				<Text style={{ ...styles.title, color: colors.primary }}>Security Code</Text>
+				<Text style={{ ...styles.title, color: colors.primary }}>
+					{translate('loginScreen.inviteCodeFieldLabel')}
+				</Text>
 				<CodeInput onChange={setConfirmCode} editable={true} />
-				{error && <Text style={styles.errorText}>Invalid confirm code</Text>}
-				<Text style={{ ...styles.text, marginTop: 10 }}>Security code was sent on new email</Text>
+				{error && <Text style={styles.errorText}>{translate('loginScreen.invalidConfirmCode')}</Text>}
+				<Text style={{ ...styles.text, marginTop: 10 }}>{translate('loginScreen.securityCodeSent')}</Text>
 				<View style={styles.wrapResendText}>
 					<Text style={styles.text}>
 						{translate('loginScreen.codeNotReceived') + ' '}

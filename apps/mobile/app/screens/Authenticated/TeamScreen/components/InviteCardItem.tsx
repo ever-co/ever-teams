@@ -116,7 +116,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 });
 
 const ListCardItem: React.FC<Props> = (props) => {
-	const { colors } = useAppTheme();
+	const { colors, dark } = useAppTheme();
 	const { isTeamManager } = useOrganizationTeam();
 	const { resendInvite, removeSentInvitation } = useTeamInvitations();
 	// STATS
@@ -164,10 +164,14 @@ const ListCardItem: React.FC<Props> = (props) => {
 								...GS.positionAbsolute,
 								...GS.p2,
 								...GS.pt1,
-								...GS.shadow,
+								...GS.shadowLg,
+								shadowColor: 'rgba(0, 0, 0, 0.52)',
 								...GS.r0,
-								...GS.roundedSm,
 								...GS.zIndexFront,
+								borderRadius: 14,
+								borderWidth: dark ? 1 : 0,
+								borderColor: colors.border,
+								paddingHorizontal: 20,
 								opacity: 1,
 								width: 172,
 								marginTop: -spacing.extraSmall,

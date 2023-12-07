@@ -108,7 +108,7 @@ export function Timer({ className }: IClassName) {
 						running={timerStatus?.running}
 						disabled={
 							// If timer is running at some other source and user may or may not have selected the task
-							disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+							!canRunTimer || (disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS)
 						}
 					/>
 				</Tooltip>

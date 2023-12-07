@@ -11,13 +11,6 @@ import {
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const notFound = (res: NextApiResponse) =>
-	res.status(400).json({
-		errors: {
-			code: 'Authentication code or email address invalid'
-		}
-	});
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const body = req.body as ILoginDataAPI;
 	let loginResponse: ILoginResponse | null = null;
@@ -29,32 +22,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	}
 
 	/**
-	 * Verify first if match with invite code
+	 * Verify first if matches with invite code
 	 */
 	const inviteReq = await verifyInviteCodeRequest({
 		email: body.email,
 		code: body.code
 	}).catch(() => void 0);
 	/**
-	 * If the invite code verification failed then try again with auth code
+	 * If the invite code verification failed then try again with the Auth code
 	 */
 	if (!inviteReq || !inviteReq.response.ok || (inviteReq.data as any).response?.statusCode) {
-		const authReq = await verifyAuthCodeRequest(body.email, body.code);
+		try {
+			const authReq = await verifyAuthCodeRequest(body.email, body.code);
+			if (
+				!authReq.response.ok ||
+				(authReq.data as any).status === 404 ||
+				(authReq.data as any).status === 400 ||
+				(authReq.data as any).status === 401
+			) {
+				return res.status(200).json({
+					errors: {
+						email: 'Authentication code or email address invalid'
+					}
+				});
+			}
 
-		if (
-			!authReq.response.ok ||
-			(authReq.data as any).status === 404 ||
-			(authReq.data as any).status === 400 ||
-			(authReq.data as any).status === 401
-		) {
-			return notFound(res);
+			loginResponse = authReq.data;
+		} catch (error) {
+			// return notFound(res);
+			return res.status(200).json({
+				errors: {
+					email: 'Authentication code or email address invalid'
+				}
+			});
 		}
 
-		loginResponse = authReq.data;
-
 		/**
-		 * If provided code is an invite code and
-		 * verified the accepte and register the related user
+		 * If the provided code is an invite code and
+		 * verified then accept and register the related user
 		 */
 	} else {
 		// General a random password with 8 chars
@@ -84,6 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				}
 			});
 		}
+
 		loginResponse = acceptInviteRes.data;
 	}
 
@@ -96,7 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	}
 
 	/**
-	 * Get the first team from first organization
+	 * Get the first team from the first organization
 	 */
 	const tenantId = loginResponse.user?.tenantId || '';
 	const access_token = loginResponse.token;
@@ -122,13 +128,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const team = teams.items[0];
 
 	if (!team) {
-		setNoTeamPopupShowCookie(true);
-		// No need to check now if user is in any Team or not, as we are allowing to login and then user can Join/Create new Team
-		// return res.status(400).json({
-		// 	errors: {
-		// 		email: "We couldn't find any teams associated to this account",
-		// 	},
-		// });
+		setNoTeamPopupShowCookie(true);		
 	}
 
 	setAuthCookies(

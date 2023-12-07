@@ -36,7 +36,9 @@ export function CreateTeamModal({
 	};
 
 	const disabled = useMemo(() => {
-		return createOTeamLoading || teams.some((t) => t.name.trim().toLowerCase().includes(name.toLowerCase().trim()));
+		return (
+			createOTeamLoading || teams.some((t) => t.name?.trim().toLowerCase().includes(name.toLowerCase().trim()))
+		);
 	}, [createOTeamLoading, name, teams]);
 
 	return (

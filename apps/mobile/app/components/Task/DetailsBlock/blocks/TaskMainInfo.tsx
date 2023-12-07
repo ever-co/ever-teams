@@ -148,6 +148,7 @@ const TaskMainInfo = observer(() => {
 			>
 				<TaskVersion
 					task={task}
+					canCreateVersion={true}
 					containerStyle={{
 						width: '70%',
 						borderRadius: 3
@@ -187,6 +188,7 @@ const TaskMainInfo = observer(() => {
 			>
 				<TaskStatus
 					task={task}
+					canCreateStatus={true}
 					containerStyle={{
 						width: '70%',
 						borderRadius: 3,
@@ -226,6 +228,7 @@ const TaskMainInfo = observer(() => {
 			>
 				<TaskSize
 					task={task}
+					canCreateSize={true}
 					containerStyle={{
 						width: '70%',
 						borderRadius: 3,
@@ -245,6 +248,7 @@ const TaskMainInfo = observer(() => {
 			>
 				<TaskPriority
 					task={task}
+					canCreatePriority={true}
 					containerStyle={{
 						width: '70%',
 						borderRadius: 3,

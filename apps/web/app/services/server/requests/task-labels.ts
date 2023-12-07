@@ -52,8 +52,8 @@ export function getTaskLabelsListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId: organizationTeamId
-	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
+		organizationTeamId: organizationTeamId
+	}: { tenantId: string; organizationId: string; organizationTeamId: string | null },
 	bearer_token: string
 ) {
 	const params = new URLSearchParams({

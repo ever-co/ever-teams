@@ -17,20 +17,26 @@ Jenkinsfile
 
 **/.next
 **/build
-**/node_modules/*
 **/dist
 **/out
 
 **/*.log
 
 **/.vscode
+
+**/.env
 **/.env.local
 **/.env*.local
+**/.env*.sample
+apps/**/.env
+apps/**/.env.local
+apps/**/.env*.local
+apps/**/.env*.sample
 
 fly.toml
 
 node_modules
-
+**/node_modules/*
 apps/mobile/node_modules
 apps/desktop/node_modules
 apps/extensions/node_modules

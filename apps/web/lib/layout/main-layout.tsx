@@ -34,7 +34,7 @@ export function MainLayout({ children, title, showTimer, publicTeam, notFound, c
 
 			<div
 				className={clsxm(
-					'w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px] pt-20',
+					'w-full flex flex-col  lg:items-start justify-between h-screen min-h-[500px] pt-20',
 					className
 				)}
 			>

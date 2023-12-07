@@ -12,10 +12,11 @@ import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from '../.
 interface Props {
 	title: string;
 	value: string;
+	disabled?: boolean;
 	onPress?: () => unknown;
 	onDetectTimezone?: () => unknown;
 }
-const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
+const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone, disabled = false }) => {
 	const { colors, dark } = useAppTheme();
 
 	return (
@@ -38,7 +39,11 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
 			) : null}
 
 			{title !== translate('settingScreen.personalSection.themes') ? (
-				<TouchableOpacity onPress={() => (onPress ? onPress() : {})}>
+				<TouchableOpacity
+					disabled={disabled}
+					style={{ opacity: disabled ? 0.5 : 1 }}
+					onPress={() => (onPress ? onPress() : {})}
+				>
 					<AntDesign name="right" size={24} color="#938FA4" />
 				</TouchableOpacity>
 			) : (

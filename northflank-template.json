@@ -1,0 +1,59 @@
+{
+  "apiVersion": "v1",
+  "spec": {
+    "kind": "Workflow",
+    "spec": {
+      "type": "sequential",
+      "steps": [
+        {
+          "kind": "DeploymentService",
+          "spec": {
+            "deployment": {
+              "instances": 1,
+              "docker": {
+                "configType": "default"
+              },
+              "external": {
+                "imagePath": "ghcr.io/ever-co/ever-teams-webapp:latest"
+              }
+            },
+            "runtimeEnvironment": {},
+            "runtimeFiles": {},
+            "billing": {
+              "deploymentPlan": "nf-compute-10"
+            },
+            "name": "ever-teams-web",
+            "ports": [
+              {
+                "internalPort": 3000,
+                "protocol": "HTTP",
+                "public": true,
+                "name": "p01",
+                "domains": [],
+                "security": {
+                  "policies": [],
+                  "credentials": []
+                },
+                "disableNfDomain": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "name": "ever-teams-template",
+  "description": "Open Work and Project Management Platform.",
+  "project": {
+    "spec": {
+      "name": "Ever Teams Template",
+      "region": "europe-west",
+      "description": "Open Work and Project Management Platform.",
+      "color": "#3826A6",
+      "networking": {
+        "allowedIngressProjects": []
+      }
+    }
+  },
+  "$schema": "https://api.northflank.com/v1/schemas/template"
+}

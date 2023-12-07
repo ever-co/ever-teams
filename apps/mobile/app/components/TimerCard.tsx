@@ -43,8 +43,10 @@ const TimerCard: FC<Props> = observer(() => {
 	return (
 		<View style={[styles.mainContainer, { borderTopColor: colors.border }]}>
 			<View style={styles.horizontal}>
-				<View style={styles.timeAndProgressBarWrapper}>
-					<Text style={[styles.timerText, { color: colors.primary }]}>
+				<View
+					style={[styles.timeAndProgressBarWrapper, { borderRightColor: colors.border, borderRightWidth: 2 }]}
+				>
+					<Text style={[styles.timerText, { color: colors.primary }]} numberOfLines={1}>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 						<Text style={{ fontSize: screenWidth * 0.03, fontWeight: '600' }}>:{pad(ms_p)}</Text>
 					</Text>
@@ -56,7 +58,6 @@ const TimerCard: FC<Props> = observer(() => {
 						/>
 					</View>
 				</View>
-				<View style={{ height: '100%', width: 2, backgroundColor: colors.border }} />
 				<View style={[styles.timerBtn, { borderLeftColor: colors.border }]}>
 					<TimerButton />
 				</View>
@@ -84,7 +85,8 @@ const styles = EStyleSheet.create({
 		flexDirection: 'column',
 		justifyContent: 'space-between',
 		height: 70,
-		paddingBottom: 0
+		paddingBottom: 0,
+		flex: 0.9
 	},
 	horizontal: {
 		flexDirection: 'row',
@@ -101,10 +103,10 @@ const styles = EStyleSheet.create({
 	timerText: {
 		fontWeight: '600',
 		fontSize: screenWidth * 0.082,
-		color: '#1B005D',
 		marginTop: 0,
 		paddingTop: 0,
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold
+		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		width: '100%'
 	}
 });
 

@@ -33,8 +33,8 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
 };
 
 // this function changes column header color when dragged
-function headerStyleChanger(snapshot: DraggableStateSnapshot){
-    const backgroundColor = snapshot.isDragging ? '#0000ee' : '#fffee';
+function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any){
+    const backgroundColor = snapshot.isDragging ? '#0000ee' : bgColor;
 
     return {
         backgroundColor
@@ -46,7 +46,8 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot){
  * @param param0 
  * @returns 
  */
-function InnerItemList({items}: {
+function InnerItemList({items, title}: {
+    title: string,
     items: any[]
 }) {
     return (
@@ -61,6 +62,11 @@ function InnerItemList({items}: {
                     isDragging={dragSnapshot.isDragging}
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
+                    style={title === 'review' && {
+                        borderWidth: '1px',
+                        borderColor: '#6FCF97',
+                        borderStyle: 'solid'
+                    }}
                 />
                 )}
             </Draggable>
@@ -82,14 +88,14 @@ function InnerList(props: {
     dropProvided: DroppableProvided,
     dropSnapshot: DroppableStateSnapshot
 }) {
-    const { items, dropProvided, dropSnapshot } = props;
+    const { items, dropProvided, dropSnapshot, title } = props;
   
     return (
    
         <div 
         style={getBackgroundColor(dropSnapshot)}
         ref={dropProvided.innerRef}>
-          <InnerItemList items={items} />
+          <InnerItemList items={items} title={title} />
             <>
             {dropProvided.placeholder}
             </>
@@ -200,8 +206,8 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                             { title.length > 0 ?
                                 <>
                                    <header
-                                        className={"flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
-                                        style={headerStyleChanger(snapshot)}
+                                        className={"relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
+                                        style={headerStyleChanger(snapshot, '#D95F5F')}
                                         data-isDragging={snapshot.isDragging}
                                     >
                                         <div
@@ -214,24 +220,28 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                           
                                         </div>
                                         <div
-                                            className="flex flex-col w-7 items-center gap-2.5 "
+                                            className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20"
                                         >
-                                            <div
-                                                className="
-                                                flex flex-col items-center justify-center px-[10px] text-xs py-1 text-white 
-                                                bg-transparentWhite rounded-[20px]"
-                                            >
-                                                {items.length}
-                                            </div>
-                                            <div className="origin-top-right -translate-x-3/4 -rotate-90">
-                                            <h2 
-                                                className="text-base font-bold not-italic h-full text-white font-PlusJakartaSansBold capitalize"
-                                                data-isDragging={snapshot.isDragging}
-                                                {...provided.dragHandleProps}
-                                                aria-label={`${title} quote list`}
-                                            >
-                                                {title}
-                                            </h2>
+                                            <div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
+                                                <div
+                                                    className="
+                                                    flex flex-col items-center justify-center px-[10px] text-xs py-1 text-white 
+                                                    bg-transparentWhite rounded-[20px]"
+                                                >
+                                                    {items.length}
+                                                </div>
+                                                <div>
+                                                    <h2 
+                                                        className=" flex flex-row text-base font-bold not-italic h-full text-white font-PlusJakartaSansBold capitalize"
+                                                        data-isDragging={snapshot.isDragging}
+                                                        {...provided.dragHandleProps}
+                                                        aria-label={`${title}`}
+                                                    >
+                                                        <span className="">
+                                                        {title}
+                                                        </span>
+                                                    </h2>
+                                                </div>
                                             </div>
                                         </div>
                                         
@@ -255,17 +265,19 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
     )
 };
 
-const KanbanDraggableHeader = ({title, items, snapshot, provided}: {
+const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColor}: {
     title: string,
     items: any,
     snapshot: DraggableStateSnapshot,
+    backgroundColor: string,
     provided: DraggableProvided
 }) => {
+   
     return (
         <>
             <header
-                className={"flex flex-row justify-between items-center rounded-lg px-4 py-2 bg-primary"}
-                style={headerStyleChanger(snapshot)}
+                className={"flex flex-row justify-between items-center rounded-lg px-4 py-2"}
+                style={headerStyleChanger(snapshot, backgroundColor)}
                 data-isDragging={snapshot.isDragging}
             >
                 <div
@@ -303,12 +315,15 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided}: {
  * @param param0 
  * @returns 
  */
-const KanbanDraggable = ({index,title, items}: {
+const KanbanDraggable = ({index,title, items, backgroundColor}: {
     index: number;
     title: string;
+    backgroundColor: any
     items: any;
 }) => {
 
+    
+  
     return (
         <>
             { items.length > 0 &&
@@ -337,6 +352,7 @@ const KanbanDraggable = ({index,title, items}: {
                                         items={items} 
                                         snapshot={snapshot} 
                                         provided={provided}
+                                        backgroundColor={backgroundColor}
                                     />
                                     <KanbanDroppable 
                                         title={title} 
@@ -344,8 +360,6 @@ const KanbanDraggable = ({index,title, items}: {
                                         type={'TASK'} 
                                         content={items}                     
                                     />
-                                 
-                                    
                                 </>
                                     : 
                                 null

@@ -210,9 +210,13 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 	);
 
 	useEffect(() => {
-		if (form.workspaces.length === 1 && form.workspaces[0].current_teams.length === 1) {
+		if (form.workspaces.length === 1) {
 			setSelectedWorkspace(0);
+		}
+		if (form.workspaces.length === 1 && form.workspaces[0].current_teams.length === 1) {
 			setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
+		}
+		if (form.workspaces.length === 1 && form.workspaces[0].current_teams.length <= 1) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
@@ -331,7 +335,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 						<Button
 							type="submit"
 							loading={form.signInWorkspaceLoading}
-							disabled={form.signInWorkspaceLoading || !selectedTeam}
+							disabled={form.signInWorkspaceLoading || (!selectedWorkspace && selectedWorkspace !== 0)}
 							id="continue-to-workspace"
 						>
 							{t('common.CONTINUE')}

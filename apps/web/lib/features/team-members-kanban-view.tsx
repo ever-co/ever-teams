@@ -1,3 +1,4 @@
+import { useKanban } from "@app/hooks/features/useKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
 import { AddIcon } from "lib/components/svgs";
@@ -52,12 +53,22 @@ const reorderItemMap = ({ itemMap, source, destination }: {
   };
 };
 
+const getHeaderBackground = (columns: any, column: any) => {
+  const selectState = columns.filter((item: any)=> {
+    return item.name === column.toUpperCase()
+  });
+
+  return selectState[0].color
+}
+
 export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
 
+    const { columns:kanbanColumns } = useKanban();
+
     const [items, setItems] = useState<any>(itemsArray);
-
-    const [column, setColumn] = useState<any>(Object.keys(itemsArray))
-
+  
+    const [columns, setColumn] = useState<any>(Object.keys(itemsArray));
+   
     /**
      * This function handles all drag and drop logic
      * on the kanban board.
@@ -68,7 +79,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
 
       if (result.combine) {
         if (result.type === 'COLUMN') {
-          const shallow = [...column];
+          const shallow = [...columns];
           shallow.splice(result.source.index, 1);
           setColumn(shallow);
           return;
@@ -140,7 +151,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
            <DragDropContext 
                 onDragEnd={onDragEnd}
             >
-              { column.length > 0 && 
+              { columns.length > 0 && 
               <Droppable 
                 droppableId="droppable"
                 type="COLUMN"
@@ -148,25 +159,26 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className={clsxm("flex flex-row gap-[20px] w-full h-full p-[32px] bg-transparent", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
+                  className={clsxm("flex flex-row justify-center gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  {column.length > 0 ?
+                  {columns.length > 0 ?
                   <>
-                    {column.map((column: any, index: number) => {
+                    {columns.map((column: any, index: number) => {
                       return (
                         <React.Fragment key={index}>
                         { items[column].length > 0 ?
                         <>
-                          <div className="flex flex-col"  key={index}>
+                          <div className="flex flex-col" key={index}>
                             <KanbanDraggable 
-                              index={index} 
+                              index={index}
                               title={column}
-                              items={items[column]}
+                              items={items[column]} 
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
                             />
-                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white p-4">
-                                <AddIcon/>
+                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+                                <AddIcon height={20} width={20}/>
                                 <p>Create Issues</p>
                             </div>
                           </div>
@@ -174,7 +186,6 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                         :
                         <div className={'order-last'} key={index}>
                           <EmptyKanbanDroppable 
-                              
                               index={index} 
                               title={column}
                               items={items[column]}

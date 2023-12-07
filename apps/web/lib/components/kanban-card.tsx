@@ -2,6 +2,8 @@ import BugIcon from "@components/ui/svgs/bug";
 import Image from 'next/image';
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 import { DraggableProvided } from "react-beautiful-dnd";
+import CircularProgress from "@components/ui/svgs/circular-progress";
+import PriorityIcon from "@components/ui/svgs/priority-icon";
 
 function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
@@ -12,6 +14,27 @@ function getStyle(provided: DraggableProvided, style: any) {
       ...provided.draggableProps.style,
       ...style,
     };
+}
+
+function setCommentIconColor(commentType: "tagged" | "untagged") {
+
+    let style;
+
+    if(commentType === "tagged"){
+        style = {
+            backgroundColor: '#D95F5F'
+        }
+    }else if(commentType === "untagged"){
+        style = {
+            backgroundColor: '#27AE60'
+        }
+    } else {
+        style = {
+
+        }
+    }
+
+    return style
 }
 
 function Tag({title, backgroundColor, color}: {
@@ -73,14 +96,33 @@ const stackImages = (index: number, length: number) => {
     }
 }
 
+function Priority({
+    level
+}: {
+    level: number
+}) {
+
+    const numberArray = Array.from({ length: level }, (_, index) => index + 1);
+
+    return(
+        <>
+            <div className="flex flex-col">
+                {numberArray.map((item: any, index: number)=> {
+                    return (
+                        <PriorityIcon key={index}/>
+                    )
+                })}
+            </div>
+        </>
+    )
+}
+
 /**
  * card that represent each task
  * @param props 
  * @returns 
  */
-export default function Item(props: any) {
-
-   
+export default function Item(props: any) {   
 
     const {
       item,
@@ -91,7 +133,7 @@ export default function Item(props: any) {
       isClone,
       index,
     } = props;
-  
+   
     return (
       <section
         href={``}
@@ -102,7 +144,7 @@ export default function Item(props: any) {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         style={getStyle(provided, style)}
-        className="flex flex-col rounded-2xl bg-white p-4 relative"
+        className="flex flex-col rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
         data-is-dragging={isDragging}
         data-testid={item.id}
         data-index={index}
@@ -111,23 +153,25 @@ export default function Item(props: any) {
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
             <div className="flex flex-col gap-5 grow">
                 <TagList tags={item.tags}/>
-                <div className="flex flex-row items-center gap-2 text-sm not-italic font-semibold">
-                    <div className="bg-indianRed rounded p-1">
+                <div className="flex flex-row flex-wrap items-center text-sm not-italic font-semibold">
+                    <span className="bg-indianRed rounded p-1 mr-1">
                         <BugIcon/>
-                    </div>
-                    <p className="text-grey">#213</p>
-                    <p className="text-black capitalize">{item.content}</p>
-                    
+                    </span>
+                    <span className="text-grey text-normal mr-1">#213</span>
+                    <span className="text-black dark:text-white text-normal capitalize mr-2">{item.content}</span>
+                    <Priority level={1}/>
                 </div>
             </div>
-            <div className="flex flex-col w-[48px] items-end">
+            <div className="flex flex-col justify-between w-[48px] items-end">
                 <VerticalThreeDot/>
+
+                <CircularProgress percentage={10}/>
             </div>
         </div>
         <div className="flex flex-row justify-between items-center pt-4">
             <div className="flex flex-row items-center gap-2">
-                <small className="text-[#7E7991] text-xs text-normal">Worked:</small>
-                <p className="text-black font-medium text-sm">0 h 0 m </p>
+                <small className="text-grey text-xs text-normal">Worked:</small>
+                <p className="text-black dark:text-white font-medium text-sm">0 h 0 m </p>
             </div>
             <div className="relative">
                 <div className="w-10 flex flex-row justify-end items-center relative bg-primary">
@@ -147,6 +191,15 @@ export default function Item(props: any) {
                </div>
             </div>
         </div>
+        {item.hasComment !== "none" &&
+            (<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
+                <div 
+                    className="w-3.5 h-3.5 rounded-full"
+                    style={setCommentIconColor(item.hasComment)}
+                >
+                </div>
+            </div>)
+        }
       </section>
     );
 }

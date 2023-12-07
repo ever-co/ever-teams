@@ -17,7 +17,7 @@ export function useSettings() {
 		(userData: Partial<IUser> & { id: string }) => {
 			return updateAvatarQueryCall(userData.id, userData).then((res) => {
 				refreshUserQueryCall().then((result) => {
-					setUser(result.data.user);
+					setUser(result.data);
 				});
 				return res;
 			});

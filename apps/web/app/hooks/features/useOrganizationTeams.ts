@@ -226,20 +226,25 @@ export function useOrganizationTeams() {
 	);
 
 	const loadTeamsData = useCallback(() => {
-		if (loadingRef.current || loadingRefTeam.current) {
+		if (
+			loadingRef.current ||
+			loadingRefTeam.current ||
+			!user?.employee.organizationId ||
+			!user?.employee.tenantId
+		) {
 			return;
 		}
 
 		let teamId = getActiveTeamIdCookie();
 		setActiveTeamId(teamId);
 
-		return queryCall().then((res) => {
+		return queryCall(user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 			if (res.data?.items && res.data?.items?.length === 0) {
 				setIsTeamMember(false);
 			}
 			const latestTeams = res.data?.items || [];
 
-			const latestTeamsSorted = latestTeams.slice().sort((a, b) => a.name.localeCompare(b.name));
+			const latestTeamsSorted = latestTeams.slice().sort((a: any, b: any) => a.name.localeCompare(b.name));
 
 			const teamsRefSorted = teamsRef.current.slice().sort((a, b) => a.name.localeCompare(b.name));
 
@@ -256,14 +261,16 @@ export function useOrganizationTeams() {
 
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
-			if (!latestTeams.find((team) => team.id === teamId) && latestTeams.length) {
+			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';
 			}
 
 			teamId &&
-				queryCallTeam(teamId).then((res) => {
+				user?.employee.organizationId &&
+				user?.employee.tenantId &&
+				queryCallTeam(teamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 					const newTeam = res.data;
 
 					/**
@@ -272,7 +279,7 @@ export function useOrganizationTeams() {
 					 * (It prevents unnecessary re-rendering)
 					 */
 					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
-						setTeams([newTeam, ...latestTeams.filter((team) => team.id !== newTeam.id)]);
+						setTeams([newTeam, ...latestTeams.filter((team: any) => team.id !== newTeam.id)]);
 
 						// Set Project Id to cookie
 						// TODO: Make it dynamic when we add Dropdown in Navbar
@@ -291,12 +298,20 @@ export function useOrganizationTeams() {
 	 * Get active team profile from api
 	 */
 	useEffect(() => {
-		if (activeTeamId && firstLoad) {
-			getOrganizationTeamAPI(activeTeamId).then((res) => {
+		if (activeTeamId && firstLoad && user?.employee.organizationId && user?.employee.tenantId) {
+			getOrganizationTeamAPI(activeTeamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 				!loadingTeamsRef.current && setTeamsUpdate(res.data);
 			});
 		}
-	}, [activeTeamId, firstLoad, loadingTeamsRef, setTeams, setTeamsUpdate]);
+	}, [
+		activeTeamId,
+		firstLoad,
+		loadingTeamsRef,
+		setTeams,
+		setTeamsUpdate,
+		user?.employee?.organizationId,
+		user?.employee?.tenantId
+	]);
 
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {

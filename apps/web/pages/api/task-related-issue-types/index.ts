@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const par = {
 		tenantId,
 		organizationId,
-		activeTeamId: (activeTeamId as string) || null
+		organizationTeamId: (activeTeamId as string) || null
 	};
 
 	switch (req.method) {

@@ -9,9 +9,34 @@ type Props = {
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;
 	dash?: boolean;
+	showSize?: boolean;
 };
 
-export function TaskNameInfoDisplay({ task, className, taskTitleClassName, taskNumberClassName, dash = false }: Props) {
+const taskSizeColor = {
+	'x-large': { color: 'text-red-700', short: 'XXL' },
+	large: { color: 'text-orange-700', short: 'XL' },
+	medium: { color: 'text-yellow-500', short: 'M' },
+	small: { color: 'text-blue-700', short: 'S' },
+	tiny: { color: 'text-blue-500', short: 'XS' }
+};
+
+export function TaskNameInfoDisplay({
+	task,
+	className,
+	taskTitleClassName,
+	taskNumberClassName,
+	dash = false,
+	showSize = false
+}: Props) {
+	const size =
+		task && task?.size && ['x-large', 'large', 'medium', 'small', 'tiny'].includes(task?.size.toLowerCase())
+			? task?.size.toLowerCase()
+			: 'medium';
+
+	// @ts-expect-error
+	const color: string = taskSizeColor[size].color;
+	// @ts-expect-error
+	const short: string = taskSizeColor[size].short;
 	return (
 		<Tooltip label={task?.title || ''} placement="top" enabled={(task?.title && task?.title.length > 60) || false}>
 			<span className="flex">
@@ -30,6 +55,7 @@ export function TaskNameInfoDisplay({ task, className, taskTitleClassName, taskN
 						#{task?.taskNumber} {dash && '-'}
 					</span>
 					{task?.title}
+					{showSize && <span className={clsxm(size && `${color}`)}>{size && '  ' + short}</span>}
 				</span>
 			</span>
 		</Tooltip>

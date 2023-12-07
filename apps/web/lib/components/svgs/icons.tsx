@@ -1305,6 +1305,46 @@ export function StopCircleIcon({ className }: IClassName) {
 	);
 }
 
+export function NotWorkingIcon({ className }: IClassName) {
+	return (
+		<svg
+			aria-hidden="true"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			viewBox="0 0 24 24"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#282048]', className)}
+		>
+			<path
+				d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			></path>
+		</svg>
+	);
+}
+
+export function OnlineIcon({ className }: IClassName) {
+	return (
+		<svg
+			aria-hidden="true"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+			viewBox="0 0 24 24"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#282048]', className)}
+		>
+			<path
+				d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			></path>
+		</svg>
+	);
+}
+
 //  ============================= Settings 4 Icon ============================= //
 
 export function Settings4Icon({ className }: IClassName) {
@@ -2221,11 +2261,18 @@ export function QuoteBlockIcon({ className }: IClassName) {
 	);
 }
 
-export function AddIcon({ className }: IClassName) {
+export function AddIcon({
+	className,
+	width = 14,
+	height = 14
+}: IClassName<{
+	width?: number;
+	height?: number;
+}>) {
 	return (
 		<svg
-			width="14"
-			height="14"
+			width={width}
+			height={height}
 			viewBox="0 0 14 14"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"

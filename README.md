@@ -9,7 +9,7 @@
 
 [Ever® Teams™](https://app.ever.team) - Open Work and Project Management Platform.
 
-![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/overview.png)
+![web](https://docs.ever.team/web/overview.png)
 
 **NOTE: Platform currently is in active development stage / WIP, please use with caution!**
 
@@ -33,17 +33,17 @@ Below is a list of the most important planned features:
 
 ### Web Platform
 
-![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/overview.png)
-![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/web2.png)
-![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/web3.png)
+![web](https://docs.ever.team/web/overview.png)
+![web](https://docs.ever.team/web/web2.png)
+![web](https://docs.ever.team/web/web3.png)
 
 ### Mobile Apps (iOS/Android)
 
-![mobile](https://docs.gauzy.co/docs/assets/gauzy-teams/mobile/overview.png)
+![mobile](https://docs.ever.team/mobile/overview.png)
 
 ### Browser Extension
 
-![extension](https://docs.gauzy.co/docs/assets/gauzy-teams/extension/overview.png)
+![extension](https://docs.ever.team/extension/overview.png)
 
 Note: Currently WIP, the screenshot is just a temporary picture :)
 
@@ -151,6 +151,14 @@ WIP
 ### Heroku
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+### Koyeb
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=ever-teams&type=docker&builder=dockerfile&image=ghcr.io/ever-co/ever-teams-webapp:latest&env[PORT]=3000&ports=3000;http;/)
+
+### Northflank
+
+[Deploy to Northflank](https://app.northflank.com/s/account/templates/new?data=656ed069216b5d387f5379c6)
 
 ## 📄 Content
 

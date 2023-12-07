@@ -14,7 +14,8 @@ import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
 import { SvgXml } from 'react-native-svg';
 import {
 	idleStatusIcon,
-	onlineAndTrackingTimeStatusIcon,
+	onlineAndTrackingTimeAlternate,
+	// onlineAndTrackingTimeStatusIcon,
 	pauseStatusIcon,
 	suspendedStatusIcon
 } from '../../../../components/svgs/icons';
@@ -27,7 +28,7 @@ const TimerStatus: FC<ITimerStatus> = ({ status }) => {
 
 	switch (status) {
 		case 'online':
-			iconSvgXml = onlineAndTrackingTimeStatusIcon;
+			iconSvgXml = onlineAndTrackingTimeAlternate;
 			break;
 		case 'pause':
 			iconSvgXml = pauseStatusIcon;
