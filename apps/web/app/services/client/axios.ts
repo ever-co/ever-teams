@@ -87,6 +87,23 @@ function get(
 		: api.get(endpoint);
 }
 
+function post(
+	endpoint: string,
+	data: any,
+	isDirect: boolean,
+	extras?: {
+		tenantId: string;
+	}
+) {
+	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+		? apiDirect.post(endpoint, data, {
+				headers: {
+					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
+				}
+		  })
+		: api.post(endpoint, data);
+}
+
 export default api;
 
-export { apiDirect, get };
+export { apiDirect, get, post };

@@ -206,7 +206,7 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                             { title.length > 0 ?
                                 <>
                                    <header
-                                        className={"flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
+                                        className={"relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
                                         style={headerStyleChanger(snapshot, '#D95F5F')}
                                         data-isDragging={snapshot.isDragging}
                                     >
@@ -220,24 +220,28 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                           
                                         </div>
                                         <div
-                                            className="flex flex-col w-7 items-center gap-2.5 "
+                                            className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20"
                                         >
-                                            <div
-                                                className="
-                                                flex flex-col items-center justify-center px-[10px] text-xs py-1 text-white 
-                                                bg-transparentWhite rounded-[20px]"
-                                            >
-                                                {items.length}
-                                            </div>
-                                            <div className="origin-top-right -translate-x-3/4 -rotate-90">
-                                            <h2 
-                                                className="text-base font-bold not-italic h-full text-white font-PlusJakartaSansBold capitalize"
-                                                data-isDragging={snapshot.isDragging}
-                                                {...provided.dragHandleProps}
-                                                aria-label={`${title} quote list`}
-                                            >
-                                                {title}
-                                            </h2>
+                                            <div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
+                                                <div
+                                                    className="
+                                                    flex flex-col items-center justify-center px-[10px] text-xs py-1 text-white 
+                                                    bg-transparentWhite rounded-[20px]"
+                                                >
+                                                    {items.length}
+                                                </div>
+                                                <div>
+                                                    <h2 
+                                                        className=" flex flex-row text-base font-bold not-italic h-full text-white font-PlusJakartaSansBold capitalize"
+                                                        data-isDragging={snapshot.isDragging}
+                                                        {...provided.dragHandleProps}
+                                                        aria-label={`${title}`}
+                                                    >
+                                                        <span className="">
+                                                        {title}
+                                                        </span>
+                                                    </h2>
+                                                </div>
                                             </div>
                                         </div>
                                         

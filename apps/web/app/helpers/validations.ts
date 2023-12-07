@@ -23,10 +23,9 @@ export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegi
 				}
 				break;
 			case 'recaptcha':
-				if(RECAPTCHA_SITE_KEY) {
+				if (RECAPTCHA_SITE_KEY) {
 					if (!values['recaptcha'] || values['recaptcha'].trim().length < 2) {
-						err['recaptcha'] =
-							'Please check the ReCaptcha checkbox before continue';
+						err['recaptcha'] = 'Please check the ReCaptcha checkbox before continue';
 					}
 				}
 				break;
@@ -89,6 +88,8 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 
 export function validSMTPConfig() {
 	const SMTPConfig = smtpConfiguration();
+
+	console.log(`SMTP Config: ${JSON.stringify(SMTPConfig)}`);
 
 	const keys = Object.keys(SMTPConfig) as (keyof I_SMTPRequest)[];
 

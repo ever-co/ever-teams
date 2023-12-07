@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import {
 	View,
 	ViewStyle,
@@ -12,19 +12,21 @@ import {
 	TouchableOpacity,
 	TouchableWithoutFeedback
 } from 'react-native';
-import { Feather, AntDesign } from '@expo/vector-icons';
-import { spacing, useAppTheme } from '../theme';
+import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
+import { spacing, useAppTheme, typography } from '../theme';
 import { BadgedTaskPriority } from './PriorityIcon';
 import { useTaskPriority } from '../services/hooks/features/useTaskPriority';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';
 import { BlurView } from 'expo-blur';
+import TaskPriorityForm from '../screens/Authenticated/TaskPrioritiesScreen/components/TaskPriorityForm';
 
 export interface Props {
 	visible: boolean;
 	onDismiss: () => unknown;
 	priorityName: string;
 	setSelectedPriority: (status: ITaskPriorityItem) => unknown;
+	canCreatePriority?: boolean;
 }
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
@@ -74,10 +76,15 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 	visible,
 	onDismiss,
 	setSelectedPriority,
-	priorityName
+	priorityName,
+	canCreatePriority
 }) {
 	const { allTaskPriorities } = useTaskPriority();
-	const { colors } = useAppTheme();
+	const { colors, dark } = useAppTheme();
+	const { createPriority, updatePriority } = useTaskPriority();
+
+	const [createPriorityMode, setCreatePriorityMode] = useState<boolean>(false);
+
 	const onPrioritySelected = (size: ITaskPriorityItem) => {
 		setSelectedPriority(size);
 		onDismiss();
@@ -85,20 +92,61 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
-			<View style={{ ...styles.container, backgroundColor: colors.background }}>
-				<Text style={{ ...styles.title, color: colors.primary }}>
-					{translate('settingScreen.priorityScreen.priorities')}
-				</Text>
-				<FlatList
-					data={allTaskPriorities}
-					contentContainerStyle={{ paddingHorizontal: 10 }}
-					renderItem={({ item }) => (
-						<Item currentSizeName={priorityName} onPrioritySelected={onPrioritySelected} priority={item} />
-					)}
-					legacyImplementation={true}
-					showsVerticalScrollIndicator={true}
-					keyExtractor={(_, index) => index.toString()}
-				/>
+			<View
+				style={{
+					...styles.container,
+					backgroundColor: colors.background,
+					height: canCreatePriority ? 460 : 396,
+					overflow: canCreatePriority ? 'hidden' : 'scroll'
+				}}
+			>
+				{!createPriorityMode ? (
+					<>
+						<Text style={{ ...styles.title, color: colors.primary }}>
+							{translate('settingScreen.priorityScreen.priorities')}
+						</Text>
+						<FlatList
+							data={allTaskPriorities}
+							contentContainerStyle={{ paddingHorizontal: 10 }}
+							renderItem={({ item }) => (
+								<Item
+									currentSizeName={priorityName}
+									onPrioritySelected={onPrioritySelected}
+									priority={item}
+								/>
+							)}
+							legacyImplementation={true}
+							showsVerticalScrollIndicator={true}
+							keyExtractor={(_, index) => index.toString()}
+						/>
+						{canCreatePriority && (
+							<TouchableOpacity
+								style={{
+									...styles.createButton,
+									borderColor: dark ? '#6755C9' : '#3826A6'
+								}}
+								onPress={() => setCreatePriorityMode(true)}
+							>
+								<Ionicons name="add" size={24} color={dark ? '#6755C9' : '#3826A6'} />
+								<Text
+									style={{
+										...styles.btnText,
+										color: dark ? '#6755C9' : '#3826A6'
+									}}
+								>
+									{translate('settingScreen.priorityScreen.createNewPriorityText')}
+								</Text>
+							</TouchableOpacity>
+						)}
+					</>
+				) : (
+					<TaskPriorityForm
+						onDismiss={() => setCreatePriorityMode(false)}
+						onCreatePriority={createPriority}
+						onUpdatePriority={updatePriority}
+						isEdit={false}
+					/>
+				)}
 			</View>
 		</ModalPopUp>
 	);
@@ -138,6 +186,12 @@ const $modalBackGround: ViewStyle = {
 };
 
 const styles = StyleSheet.create({
+	btnText: {
+		color: '#3826A6',
+		fontFamily: typography.primary.semiBold,
+		fontSize: 16,
+		fontStyle: 'normal'
+	},
 	colorFrame: {
 		borderRadius: 10,
 		height: 44,
@@ -153,6 +207,18 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 6,
 		paddingVertical: 16,
 		width: '90%'
+	},
+	createButton: {
+		alignItems: 'center',
+		alignSelf: 'center',
+		borderColor: '#3826A6',
+		borderRadius: 12,
+		borderWidth: 2,
+		flexDirection: 'row',
+		justifyContent: 'center',
+		marginTop: 10,
+		padding: 12,
+		width: '80%'
 	},
 	title: {
 		fontSize: spacing.medium - 2,

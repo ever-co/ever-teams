@@ -6,17 +6,25 @@ import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
 import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
 import { IssuesView } from '@app/constants';
+import TeamMembersBlockView from './team-members-block-view';
+import { useRecoilValue } from 'recoil';
+import { taskBlockFilterState } from '@app/stores/task-filter';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
 	kanbanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = IssuesView.CARDS }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
+	const activeFilter = useRecoilValue(taskBlockFilterState);
 	const { activeTeam } = useOrganizationTeams();
 	const { teamsFetching } = useOrganizationTeams();
 	const members = activeTeam?.members || [];
+
+	const blockViewMembers =
+		activeFilter == 'all' ? members : members.filter((m) => m.timerStatus == activeFilter) || [];
+
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members.filter((member) => member.id !== currentUser?.id);
 	const $teamsFetching = teamsFetching && members.length === 0;
@@ -34,11 +42,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 					<div className="block lg:hidden">
 						<UserCard />
 						<UserCard />
+						<UserCard />
 					</div>
 				</div>
 			);
 			break;
-		case kanbanView === IssuesView.CARDS:
+		case view === IssuesView.CARDS:
 			teamMembersView = (
 				<TeamMembersCardView
 					teamMembers={$members}
@@ -48,7 +57,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 				/>
 			);
 			break;
-		case kanbanView === IssuesView.TABLE:
+		case view === IssuesView.TABLE:
 			teamMembersView = (
 				<Transition
 					show={!!currentUser}
@@ -66,6 +75,17 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 						active={user?.isEmailVerified}
 					/>
 				</Transition>
+			);
+			break;
+
+		case view == IssuesView.BLOCKS:
+			teamMembersView = (
+				<TeamMembersBlockView
+					teamMembers={blockViewMembers}
+					currentUser={currentUser}
+					publicTeam={publicTeam}
+					teamsFetching={$teamsFetching}
+				/>
 			);
 			break;
 		default:
