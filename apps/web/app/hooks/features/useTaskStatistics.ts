@@ -21,8 +21,10 @@ import { useSyncRef } from '../useSyncRef';
 import { Nullable } from '@app/interfaces';
 import { useRefreshInterval } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTaskStatistics(addSeconds = 0) {
+	const { user } = useAuthenticateUser();
 	const [statActiveTask, setStatActiveTask] = useRecoilState(activeTaskStatisticsState);
 	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
 	const setTasksFetching = useSetRecoilState(tasksFetchingState);
@@ -45,14 +47,19 @@ export function useTaskStatistics(addSeconds = 0) {
 	 */
 	const getTasksStatsData = useCallback(
 		(employeeId?: string) => {
-			tasksTimesheetStatisticsAPI(employeeId).then(({ data }) => {
-				setStatTasks({
-					all: data.global || [],
-					today: data.today || []
-				});
-			});
+			if (!user?.employee.tenantId) {
+				return;
+			}
+			tasksTimesheetStatisticsAPI(user?.employee.tenantId, '', user?.employee.organizationId, employeeId).then(
+				({ data }) => {
+					setStatTasks({
+						all: data.global || [],
+						today: data.today || []
+					});
+				}
+			);
 		},
-		[setStatTasks]
+		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
 		allTaskTimesheetStatisticsAPI().then(({ data }) => {
@@ -78,8 +85,20 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
+		if (!user?.employee.tenantId || !user?.employee.organizationId) {
+			return new Promise((resolve) => {
+				resolve(true);
+			});
+		}
+
 		setTasksFetching(true);
-		const promise = activeTaskTimesheetStatisticsAPI();
+
+		const promise = activeTaskTimesheetStatisticsAPI(
+			user?.employee.tenantId,
+			'',
+			user?.employee.organizationId,
+			''
+		);
 		promise.then(({ data }) => {
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,
@@ -90,7 +109,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			setTasksFetching(false);
 		});
 		return promise;
-	}, [setStatActiveTask, setTasksFetching]);
+	}, [setStatActiveTask, setTasksFetching, user?.employee.organizationId, user?.employee.tenantId]);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), []);
@@ -104,7 +123,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				initialLoad.current = true;
 			});
 		}
-	}, [firstLoad, getActiveTaskStatData]);
+	}, [firstLoad, getActiveTaskStatData, user?.employee.organizationId, user?.employee.tenantId]);
 
 	/**
 	 * Get fresh statistic of the active task
