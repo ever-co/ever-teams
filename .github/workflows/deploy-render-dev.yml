@@ -1,8 +1,8 @@
-name: Deploy to Render Demo
+name: Deploy to Render Dev
 
 on:
     workflow_run:
-        workflows: ['Build and Publish Docker Images Demo']
+        workflows: ['Build and Publish Docker Images Dev']
         branches: [render]
         types:
             - completed
@@ -11,7 +11,7 @@ jobs:
     deploy-demo:
         runs-on: ubuntu-latest
 
-        environment: demo
+        environment: dev
 
         steps:
             - name: Checkout code
@@ -37,5 +37,5 @@ jobs:
 
             - name: Deploy Services
               run: |
-                  cp .render/render.demo.yaml ./render.yaml
-                  render blueprint launch --profile demo
+                  cp .render/render.dev.yaml ./render.yaml
+                  render blueprint launch --profile dev
