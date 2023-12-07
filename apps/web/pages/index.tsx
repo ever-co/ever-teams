@@ -18,12 +18,20 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
+import { useNetworkState } from '@uidotdev/usehooks';
 
 function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const breadcrumb = [...(t('pages.home.BREADCRUMB', { returnObjects: true }) as any), activeTeam?.name || ''];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
+	const { online } = useNetworkState();
+
+	if (!online) {
+		return (
+			<div className="flex w-full h-screen justify-center items-center text-xl">You are Currently Offline</div>
+		);
+	}
 
 	return (
 		<MainLayout>
