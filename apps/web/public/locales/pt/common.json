@@ -419,6 +419,10 @@
 			"HEADING_TITLE": "Not Found",
 			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
 			"LINK_LABEL": "Go to homepage"
+		},
+		"offline": {
+			"HEADING_TITLE": "Rede Desconectada!",
+			"HEADING_DESCRIPTION": "Você está atualmente offline, por favor, verifique sua conexão com a Internet..."
 		}
 	},
 

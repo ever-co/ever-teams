@@ -420,9 +420,13 @@
 			"SELECT_ROLES": "Select Roles"
 		},
 		"page404": {
-			"HEADING_TITLE": "Not Found",
-			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
-			"LINK_LABEL": "Go to homepage"
+			"HEADING_TITLE": "Page not found !",
+			"HEADING_DESCRIPTION": "We looked, but can't find it .... ",
+			"LINK_LABEL": "Home"
+		},
+		"offline": {
+			"HEADING_TITLE": "Network Disconnected!",
+			"HEADING_DESCRIPTION": "You are currently Offline, please check your internet connection..."
 		}
 	},
 
