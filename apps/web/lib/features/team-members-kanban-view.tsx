@@ -54,8 +54,9 @@ const reorderItemMap = ({ itemMap, source, destination }: {
 };
 
 const getHeaderBackground = (columns: any, column: any) => {
+
   const selectState = columns.filter((item: any)=> {
-    return item.name === column.toUpperCase()
+    return item.name === column
   });
 
   return selectState[0].color

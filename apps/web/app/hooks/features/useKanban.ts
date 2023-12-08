@@ -2,7 +2,8 @@ import { kanbanBoardState } from "@app/stores/kanban";
 import { useTaskStatus } from "./useTaskStatus";
 import { useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
-import { ITaskStatusItemList } from "@app/interfaces";
+import { ITaskStatusItemList, ITeamTask } from "@app/interfaces";
+import { useTeamTasks } from "./useTeamTasks";
 
 export function useKanban() {
 
@@ -11,23 +12,32 @@ export function useKanban() {
     const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 
     const taskStatusHook = useTaskStatus();
+    const { tasks, tasksFetching } = useTeamTasks();
 
+   
     /**
      * format data for kanban board
      */
     useEffect(()=> {
-        if(taskStatusHook.loading) {
+        if(!taskStatusHook.loading && !tasksFetching) {
             let kanban = {};
+
+            const getTasksByStatus = (status: string | undefined) => {
+                return tasks.filter((task: ITeamTask)=> {
+                    return task.status === status
+                })
+            }
+
             taskStatusHook.taskStatus.map((taskStatus: ITaskStatusItemList,)=> {
                 kanban = {
                     ...kanban,
-                    [taskStatus.name ? taskStatus.name : ''] : []
+                    [taskStatus.name ? taskStatus.name : ''] : getTasksByStatus(taskStatus.name)
                 }
             });
             setKanbanBoard(kanban)
             setLoading(false)
         }
-    },[taskStatusHook.loading])
+    },[taskStatusHook.loading, tasksFetching])
 
     return {
         data: kanbanBoard,
