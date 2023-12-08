@@ -1,6 +1,6 @@
-import { useModal } from '@app/hooks';
+import { useAuthenticateUser, useModal } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Avatar, Button, Text } from 'lib/components';
+import { Avatar, Button, Text, Tooltip } from 'lib/components';
 import { CreateTeamModal } from 'lib/features';
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
 const NoTeam = ({ className, ...rest }: Props) => {
 	const { t } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
+	const { user } = useAuthenticateUser();
 
 	return (
 		<div className={clsxm('flex justify-center items-center flex-col xs:mt-32 mt-8 mx-auto', className)} {...rest}>
@@ -22,9 +23,16 @@ const NoTeam = ({ className, ...rest }: Props) => {
 					{t('common.NO_TEAM_SUB')}
 				</p>
 			</div>
-			<Button className="mt-10 text-base font-medium capitalize" onClick={openModal}>
-				{t('common.CREATE_TEAM')}
-			</Button>
+
+			<Tooltip placement="auto" label={t('common.NO_TEAM_TOOLTIP')} enabled={!user?.isEmailVerified}>
+				<Button
+					className="mt-10 text-base font-medium capitalize"
+					onClick={openModal}
+					disabled={!user?.isEmailVerified}
+				>
+					{t('common.CREATE_TEAM')}
+				</Button>
+			</Tooltip>
 			<CreateTeamModal open={isOpen} closeModal={closeModal} />
 		</div>
 	);

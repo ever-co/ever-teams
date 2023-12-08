@@ -1,5 +1,5 @@
 import { CreateResponse, DeleteResponse, ITaskStatusCreate } from '@app/interfaces';
-import api from '../axios';
+import api, { get } from '../axios';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
 	return api.post<CreateResponse<ITaskStatusCreate>>('/task-statuses', data, {
@@ -21,6 +21,10 @@ export function deleteTaskStatusAPI(id: string) {
 	return api.delete<DeleteResponse>(`/task-statuses/${id}`);
 }
 
-export function getTaskStatusList(tenantId: string, organizationId: string, activeTeamId: string | null) {
-	return api.get(`/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`);
+export async function getTaskStatusList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
+	const endpoint = `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
+
+	const data = await get(endpoint, true, { tenantId });
+
+	return data;
 }

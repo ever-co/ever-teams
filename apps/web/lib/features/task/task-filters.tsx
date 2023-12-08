@@ -396,14 +396,16 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	);
 }
 
-function TaskNameFilter({
+export function TaskNameFilter({
 	value,
 	setValue,
-	close
+	close,
+	fullWidth = false
 }: {
 	value: string;
 	setValue: (v: string) => void;
 	close: () => void;
+	fullWidth?: boolean;
 }) {
 	const { t } = useTranslation();
 
@@ -426,7 +428,7 @@ function TaskNameFilter({
 	};
 
 	return (
-		<div className="flex flex-row w-1/2 gap-2 mt-3 ml-auto">
+		<div className={clsxm('flex flex-row w-1/2 gap-2 mt-3 ml-auto', fullWidth && '!w-full')}>
 			<InputField
 				value={tempValue}
 				autoFocus={true}

@@ -86,6 +86,12 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 	const jitsuWriteKey = process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY;
 
 	const jitsuConf = jitsuConfiguration();
+
+	console.log(`Jitsu Host: ${jitsuHost}`);
+	console.log(`Jitsu Write Key: ${jitsuWriteKey}`);
+
+	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
+
 	// Call the static method getInitialProps
 	// of the page component if it exists
 	let pageProps = {};

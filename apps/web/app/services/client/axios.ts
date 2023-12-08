@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH } from '@app/constants';
 import { getAccessTokenCookie, getActiveTeamIdCookie } from '@app/helpers/cookies';
 import axios, { AxiosResponse } from 'axios';
@@ -70,10 +71,39 @@ apiDirect.interceptors.response.use(
 	}
 );
 
-function get(endpoint: string, isDirect: boolean) {
-	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? apiDirect.get(endpoint) : api.get(endpoint);
+function get(
+	endpoint: string,
+	isDirect: boolean,
+	extras?: {
+		tenantId: string;
+	}
+) {
+	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+		? apiDirect.get(endpoint, {
+				headers: {
+					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
+				}
+		  })
+		: api.get(endpoint);
+}
+
+function post(
+	endpoint: string,
+	data: any,
+	isDirect: boolean,
+	extras?: {
+		tenantId: string;
+	}
+) {
+	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+		? apiDirect.post(endpoint, data, {
+				headers: {
+					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
+				}
+		  })
+		: api.post(endpoint, data);
 }
 
 export default api;
 
-export { apiDirect, get };
+export { apiDirect, get, post };

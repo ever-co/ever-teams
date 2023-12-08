@@ -42,7 +42,10 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 	const assignedToTaskMembers = useMemo(
 		() =>
 			memberList?.filter((member) =>
-				member.employee ? task?.members.map((item) => item.userId).includes(member.employee?.userId) : false
+				member.employee
+					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
+					  member.employee?.isActive
+					: false
 			),
 		[memberList, task?.members]
 	);
@@ -50,7 +53,10 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 	const unassignedMembers = useMemo(
 		() =>
 			memberList?.filter((member) =>
-				member.employee ? !task?.members.map((item) => item.userId).includes(member.employee.userId) : false
+				member.employee
+					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
+					  member.employee?.isActive
+					: false
 			),
 		[memberList, task?.members]
 	);

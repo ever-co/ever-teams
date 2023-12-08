@@ -178,9 +178,10 @@ export function useTimer() {
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const canRunTimer =
-		(!!activeTeamTask && activeTeamTask.status !== 'closed') ||
-		// If timer is running at some other source and user may or may not have selected the task
-		timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS;
+		user?.isEmailVerified &&
+		((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
+			// If timer is running at some other source and user may or may not have selected the task
+			timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS);
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
@@ -191,10 +192,10 @@ export function useTimer() {
 
 	const getTimerStatus = useCallback(
 		(deepCheck?: boolean) => {
-			if (loadingRef.current) {
+			if (loadingRef.current || !user?.tenantId) {
 				return;
 			}
-			return queryCall().then((res) => {
+			return queryCall(user?.tenantId, user?.employee.organizationId).then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t) => {
 						if (deepCheck) {
@@ -206,7 +207,7 @@ export function useTimer() {
 				return res;
 			});
 		},
-		[timerStatus, setTimerStatus, queryCall, loadingRef]
+		[timerStatus, setTimerStatus, queryCall, loadingRef, user]
 	);
 
 	const toggleTimer = useCallback(

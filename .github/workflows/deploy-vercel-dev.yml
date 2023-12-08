@@ -1,0 +1,49 @@
+name: Web Build & Vercel Deploy DEV
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.deploy/web/**'
+      - '.github/workflows/web.dev.yml'
+      - 'apps/web/**'
+      - 'package.json'
+      - 'yarn.lock'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install Packages
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Build Web
+        run: |
+          yarn build:web
+
+      - name: Deploy to Vercel
+        uses: BetaHuhn/deploy-to-vercel-action@v1
+        with:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} # Required
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Optional
+          GITHUB_DEPLOYMENT_ENV: Preview
+          PRODUCTION: false
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID}} #Required
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID}} #Required
+          WORKING_DIRECTORY: ./
+          # ALIAS_DOMAINS: |
+          #   appdev.ever.team
