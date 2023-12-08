@@ -37,7 +37,6 @@ export function TaskNameInfoDisplay({
 	const color: string = taskSizeColor[size].color;
 	// @ts-expect-error
 	const short: string = taskSizeColor[size].short;
-	console.log(task?.size);
 	return (
 		<Tooltip label={task?.title || ''} placement="top" enabled={(task?.title && task?.title.length > 60) || false}>
 			<span className="flex">

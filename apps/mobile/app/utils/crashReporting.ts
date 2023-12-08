@@ -26,7 +26,7 @@ export const initCrashReporting = () => {
 	process.env.EXPO_PUBLIC_SENTRY_DSN &&
 		Sentry.init({
 			dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-			enableInExpoDevelopment: true,
+			enableInExpoDevelopment: false,
 			debug: __DEV__ // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
 		});
 	// Bugsnag.start("YOUR API KEY")
