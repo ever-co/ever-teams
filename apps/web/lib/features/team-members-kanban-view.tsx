@@ -1,23 +1,25 @@
 import { useKanban } from "@app/hooks/features/useKanban";
+import { ITaskStatusItemList, ITeamTask } from "@app/interfaces";
+import { IKanban } from "@app/interfaces/IKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
 import { AddIcon } from "lib/components/svgs";
 import React from "react";
 import {  useEffect, useState } from "react";
-import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
+import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
-const reorder = (list: any[], startIndex:number , endIndex:number ) => {
+const reorder = (list: ITeamTask[], startIndex:number , endIndex:number ) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
-
+ 
   return result;
 };
 
 const reorderItemMap = ({ itemMap, source, destination }: {
-  itemMap: any,
-  source: any,
-  destination: any
+  itemMap: IKanban,
+  source: DraggableLocation,
+  destination: DraggableLocation
 }) => {
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
@@ -35,8 +37,6 @@ const reorderItemMap = ({ itemMap, source, destination }: {
     };
   }
 
-  // moving to different list
-
   // remove from original
   current.splice(source.index, 1);
   // insert into next
@@ -53,22 +53,22 @@ const reorderItemMap = ({ itemMap, source, destination }: {
   };
 };
 
-const getHeaderBackground = (columns: any, column: any) => {
+const getHeaderBackground = (columns: ITaskStatusItemList[], column: string) => {
 
-  const selectState = columns.filter((item: any)=> {
+  const selectState = columns.filter((item: ITaskStatusItemList)=> {
     return item.name === column
   });
 
   return selectState[0].color
 }
 
-export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
+export const KanbanView = ({ itemsArray }: { itemsArray: IKanban}) => {
 
-    const { columns:kanbanColumns } = useKanban();
+    const { columns:kanbanColumns, updateKanbanBoard, data:kanbandata } = useKanban();
 
-    const [items, setItems] = useState<any>(itemsArray);
-  
-    const [columns, setColumn] = useState<any>(Object.keys(itemsArray));
+    const [items, setItems] = useState<IKanban>(itemsArray);
+   
+    const [columns, setColumn] = useState<string[]>(Object.keys(itemsArray));
    
     /**
      * This function handles all drag and drop logic
@@ -96,6 +96,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
           [result.source.droppableId]: withItemRemoved,
         };
         setItems(orderedItems);
+
         return;
       }
 
@@ -115,14 +116,15 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
         return;
       }
   
-      // reordering column
-      if (result.type === 'COLUMN') {
-        const reorderedItem = reorder(items, source.index, destination.index);
+      // TODO: fix issues with reordering column
+      // if (result.type === 'COLUMN') {
+      //   const reorderedItem = reorder(items, source.index, destination.index);
   
-        setItems(reorderedItem);
-  
-        return;
-      }
+      //   setItems(reorderedItem);
+      //   // updateKanbanBoard(reorderedItem);
+      //   // console.log('data '+ kanbandata)
+      //   return;
+      // }
   
       const data = reorderItemMap({
         itemMap: items,
@@ -131,7 +133,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
       });
   
       setItems(data.quoteItem);
-       
+  
     }
 
     const [enabled, setEnabled] = useState(false);
