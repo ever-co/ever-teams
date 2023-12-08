@@ -18,7 +18,7 @@ const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTea
 	let emptyMessage = '';
 	switch (activeFilter) {
 		case 'online':
-			emptyMessage = 'There is no user online now (and not working)';
+			emptyMessage = 'There is no user online now ';
 			break;
 		case 'running':
 			emptyMessage = 'No user are working now';
