@@ -4,6 +4,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import Item from './kanban-card';
+import { ITeamTask } from '@app/interfaces';
 
 const grid = 8;
 
@@ -48,12 +49,12 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any){
  */
 function InnerItemList({items, title}: {
     title: string,
-    items: any[]
+    items: ITeamTask[]
 }) {
     return (
         <>
         <section className="flex flex-col gap-2.5 max-h-[520px] overflow-scroll ">
-        {items.map((item: any, index: number) => (
+        {items.map((item: ITeamTask, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
                 <Item
@@ -84,7 +85,7 @@ function InnerItemList({items, title}: {
  */
 function InnerList(props: {
     title: string, 
-    items: any,
+    items: ITeamTask[],
     dropProvided: DroppableProvided,
     dropSnapshot: DroppableStateSnapshot
 }) {
@@ -114,7 +115,7 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
     title: string,
     droppableId: string,
     type: string,
-    content: any
+    content: ITeamTask[]
 } ) => {
     const [enabled, setEnabled] = useState(false);
   
@@ -319,7 +320,7 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
     index: number;
     title: string;
     backgroundColor: any
-    items: any;
+    items: ITeamTask[];
 }) => {
 
     

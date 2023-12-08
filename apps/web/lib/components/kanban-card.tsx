@@ -152,13 +152,16 @@ export default function Item(props: any) {
       >
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
             <div className="flex flex-col gap-5 grow">
-                <TagList tags={item.tags}/>
+                {item.tags && (
+                    <TagList tags={item.tags}/>
+                )}
+               
                 <div className="flex flex-row flex-wrap items-center text-sm not-italic font-semibold">
                     <span className="bg-indianRed rounded p-1 mr-1">
                         <BugIcon/>
                     </span>
-                    <span className="text-grey text-normal mr-1">#213</span>
-                    <span className="text-black dark:text-white text-normal capitalize mr-2">{item.content}</span>
+                    <span className="text-grey text-normal mr-1">#{item.number}</span>
+                    <span className="text-black dark:text-white text-normal capitalize mr-2">{item.title}</span>
                     <Priority level={1}/>
                 </div>
             </div>
@@ -175,16 +178,16 @@ export default function Item(props: any) {
             </div>
             <div className="relative">
                 <div className="w-10 flex flex-row justify-end items-center relative bg-primary">
-                {images.map((image: any, index: number)=> {
+                {item.members.map((option: any, index: number)=> {
                     return (
                         <Image 
                             key={index}
-                            src={image.url} 
-                            alt={""} 
+                            src={option.user.imageUrl} 
+                            alt={`${option.user.firstName} avatar`} 
                             height={40} 
                             width={40} 
                             className="absolute rounded-full border-2 border-white"
-                            style={stackImages(index, images.length)}
+                            style={stackImages(index, item.members.length)}
                         />
                     )
                 })}
@@ -203,26 +206,3 @@ export default function Item(props: any) {
       </section>
     );
 }
-
-const images = [
-    {
-        id: 0,
-        url: '/assets/cover/auth-bg-cover-dark.png'
-    },
-    {
-        id: 1,
-        url: '/assets/cover/auth-bg-cover-dark.png'
-    },
-    {
-        id: 2,
-        url: '/assets/cover/auth-bg-cover-dark.png'
-    },
-    {
-        id: 3,
-        url: '/assets/cover/auth-bg-cover-dark.png'
-    },
-    {
-        id: 4,
-        url: '/assets/cover/auth-bg-cover-dark.png'
-    },
-]

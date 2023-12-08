@@ -417,6 +417,10 @@
 			"HEADING_TITLE": "לא נמצא",
 			"HEADING_DESCRIPTION": "המשאב שאתה מחפש לא נמצא!",
 			"LINK_LABEL": "לך לדף הבית"
+		},
+		"offline": {
+			"HEADING_TITLE": "רשת מנותקת!",
+			"HEADING_DESCRIPTION": "אתה לא מחובר כרגע, בבקשה בדוק את חיבור האינטרנט שלך..."
 		}
 	},
 	"timer": {
