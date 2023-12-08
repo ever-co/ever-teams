@@ -422,6 +422,10 @@
 			"HEADING_TITLE": "Nicht gefunden",
 			"HEADING_DESCRIPTION": "Die gesuchte Ressource wurde nicht gefunden!",
 			"LINK_LABEL": "Zur Startseite"
+		},
+		"offline": {
+			"HEADING_TITLE": "Netzwerk getrennt!",
+			"HEADING_DESCRIPTION": "Sie sind derzeit offline, bitte überprüfen Sie Ihre Internetverbindung..."
 		}
 	},
 	"timer": {

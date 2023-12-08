@@ -417,6 +417,10 @@
 			"HEADING_TITLE": "Page non trouvée",
 			"HEADING_DESCRIPTION": "La ressource que vous recherchez est introuvable !",
 			"LINK_LABEL": "Aller à la page d'accueil"
+		},
+		"offline": {
+			"HEADING_TITLE": "Réseau déconnecté !",
+			"HEADING_DESCRIPTION": "Vous êtes actuellement hors ligne, veuillez vérifier votre connexion Internet..."
 		}
 	},
 

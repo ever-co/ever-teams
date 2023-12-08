@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
+import Offline from '@components/pages/offline';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -28,9 +29,7 @@ function MainPage() {
 	const { online } = useNetworkState();
 
 	if (!online) {
-		return (
-			<div className="flex w-full h-screen justify-center items-center text-xl">You are Currently Offline</div>
-		);
+		return <Offline />;
 	}
 
 	return (

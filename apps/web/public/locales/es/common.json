@@ -406,6 +406,10 @@
 			"HEADING_TITLE": "No encontrado",
 			"HEADING_DESCRIPTION": "¡El recurso que buscas no se encuentra!",
 			"LINK_LABEL": "Ir a la página de inicio"
+		},
+		"offline": {
+			"HEADING_TITLE": "¡Red Desconectada!",
+			"HEADING_DESCRIPTION": "Actualmente estás desconectado, por favor verifica tu conexión a Internet..."
 		}
 	},
 	"timer": {

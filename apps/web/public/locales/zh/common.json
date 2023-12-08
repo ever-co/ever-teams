@@ -396,6 +396,10 @@
 
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!"
+		},
+		"offline": {
+			"HEADING_TITLE": "网络断开连接！",
+			"HEADING_DESCRIPTION": "您目前处于离线状态，请检查您的互联网连接..."
 		}
 	},
 
