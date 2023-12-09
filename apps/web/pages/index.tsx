@@ -18,12 +18,9 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
-<<<<<<< HEAD
 import { useNetworkState } from '@uidotdev/usehooks';
 import Offline from '@components/pages/offline';
-=======
 import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
->>>>>>> 011ba692 (refact: add fixed header on Table View of team issues)
 
 function MainPage() {
 	const { t } = useTranslation();
