@@ -18,7 +18,8 @@ import {
 	useTaskVersion,
 	useTeamInvitations,
 	useTeamTasks,
-	useTimer
+	useTimer,
+	useHealthCheck
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useSyncLanguage } from 'ni18n';
@@ -51,6 +52,7 @@ function InitState() {
 	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabels();
 	const { firstLoadIssueTypeData } = useIssueType();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
+	const { getHealthCheck } = useHealthCheck();
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -98,6 +100,8 @@ function InitState() {
 			useOTRefreshInterval(loadTeamsData, five_seconds, publicTeam);
 			// Refresh tasks with a deep compare
 			useRefreshInterval(loadTeamTasksData, five_seconds, true /* used as loadTeamTasksData deepCheck param */);
+
+			useOTRefreshInterval(getHealthCheck, five_seconds, false);
 
 			// Timer status
 			// useRefreshInterval(

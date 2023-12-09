@@ -39,6 +39,7 @@ export * from './features/useTeamTasks';
 export * from './features/useTimer';
 export * from './features/useUser';
 export * from './features/useUserProfilePage';
+export * from './features/useHealthCheck';
 export * from './useCollaborative';
 
 //export user personal setting

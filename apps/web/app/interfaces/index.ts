@@ -31,6 +31,7 @@ export * from './ITheme';
 export * from './IRolePermissions';
 export * from './ITimer';
 export * from './IProject';
+export * from './IApiHealth';
 
 export * from './integrations/IGithubRepositories';
 export * from './integrations/IGithubMetadata';
