@@ -20,6 +20,7 @@ import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
 import Offline from '@components/pages/offline';
+import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -95,6 +96,8 @@ function MainPage() {
 						<UserTeamCardHeader />
 					) : view === IssuesView.BLOCKS ? (
 						<UserTeamBlockHeader />
+					) : view === IssuesView.TABLE ? (
+						<UserTeamTableHeader />
 					) : null}
 				</Container>
 
