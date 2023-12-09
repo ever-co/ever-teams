@@ -4,6 +4,7 @@ import { Transition } from '@headlessui/react';
 import { UserTeamBlock } from './team/user-team-block';
 import { useRecoilValue } from 'recoil';
 import { taskBlockFilterState } from '@app/stores/task-filter';
+import { UserTeamCardSkeleton } from './team/user-team-card';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -12,7 +13,12 @@ interface Props {
 	teamsFetching: boolean;
 }
 
-const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTeam = false, currentUser }) => {
+const TeamMembersBlockView: React.FC<Props> = ({
+	teamMembers: members,
+	publicTeam = false,
+	currentUser,
+	teamsFetching
+}) => {
 	const activeFilter = useRecoilValue(taskBlockFilterState);
 
 	let emptyMessage = '';
@@ -66,7 +72,24 @@ const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTea
 					);
 				})}
 			</div>
-			{members.length < 1 && (
+			<Transition
+				show={teamsFetching}
+				enter="transition-opacity duration-75"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition-opacity duration-150"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
+				{[1, 2].map((_, i) => {
+					return (
+						<li key={i} className="mt-3">
+							<UserTeamCardSkeleton />
+						</li>
+					);
+				})}
+			</Transition>
+			{members.length < 1 && !teamsFetching && (
 				<div className="py-16 flex justify-center items-center">
 					<p className="text-lg">{emptyMessage}</p>
 				</div>
