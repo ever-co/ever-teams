@@ -16,20 +16,22 @@ const TeamMembersBlockView: React.FC<Props> = ({ teamMembers: members, publicTea
 	const activeFilter = useRecoilValue(taskBlockFilterState);
 
 	let emptyMessage = '';
+
 	switch (activeFilter) {
 		case 'online':
-			emptyMessage = 'There is no user online now ';
+			emptyMessage = 'There are no users online.';
 			break;
 		case 'running':
-			emptyMessage = 'No user are working now';
+			emptyMessage = 'No users are currently working.';
 			break;
 		case 'pause':
-			emptyMessage = 'No user are in pause now';
+			emptyMessage = 'No users are paused work at the moment.';
 			break;
 		case 'idle':
-			emptyMessage = 'No user are not working now';
+			emptyMessage = 'No users are idle right now.';
 			break;
 	}
+
 	return (
 		<div className="mt-7">
 			{/* Current authenticated user members */}
