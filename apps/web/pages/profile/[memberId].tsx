@@ -123,7 +123,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 			</div>
 
 			<div className="flex flex-col gap-3.5">
-				<Text.Heading as="h3" className="text-4xl">
+				<Text.Heading as="h3" className="text-xl md:text-4xl">
 					{user?.firstName} {user?.lastName}
 				</Text.Heading>
 				<Text className="text-lg text-gray-500">{user?.email}</Text>
