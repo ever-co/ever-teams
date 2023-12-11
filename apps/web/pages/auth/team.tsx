@@ -1,10 +1,10 @@
+import { RECAPTCHA_SITE_KEY } from '@app/constants';
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
-import { getRecaptchaAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function AuthTeam() {
@@ -171,20 +171,11 @@ function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: an
 	const { t } = useTranslation();
 	const [feedback, setFeedback] = useState<string>('');
 
-	const [recaptchaKeys, setRecaptchaKeys] = useState<{
-		RECAPTCHA_SITE_KEY: string;
-		RECAPTCHA_SECRET_KEY: boolean;
-	}>();
-
-	useEffect(() => {
-		getRecaptchaAPI().then(({ data }) => setRecaptchaKeys(data));
-	}, []);
-
-	const content = recaptchaKeys && recaptchaKeys.RECAPTCHA_SECRET_KEY && recaptchaKeys.RECAPTCHA_SITE_KEY && (
+	const content = RECAPTCHA_SITE_KEY.value && (
 		<div className="w-full flex">
 			<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
 				<SiteReCAPTCHA
-					siteKey={recaptchaKeys.RECAPTCHA_SITE_KEY}
+					siteKey={RECAPTCHA_SITE_KEY.value}
 					onChange={(res) => {
 						handleOnChange({ target: { name: 'recaptcha', value: res } });
 						setFeedback('');

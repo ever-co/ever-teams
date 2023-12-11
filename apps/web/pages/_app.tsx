@@ -1,4 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { loadNextPublicEnvs, setNextPublicEnv } from '@app/env';
 import { GA_MEASUREMENT_ID, jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
@@ -11,33 +12,35 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { I18nextProvider } from 'react-i18next';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import { RecoilRoot } from 'recoil';
 import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
 import i18n from '../ni18n.config';
+import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	const jitsuConf = pageProps?.jitsuConf;
-	console.log('Jitsu Host', pageProps);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
 	const isJitsuEnvsPresent: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
 	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
 
+	// Set Envs to availabe on client side
+	setNextPublicEnv(pageProps.envs);
+
 	return (
 		<>
-			{GA_MEASUREMENT_ID && (
+			{GA_MEASUREMENT_ID.value && (
 				<>
 					<Script
 						strategy="lazyOnload"
-						src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+						src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID.value}`}
 					/>
 					<Script strategy="lazyOnload" id="google-analytic-script">
 						{` window.dataLayer = window.dataLayer || [];
 					  function gtag(){dataLayer.push(arguments);}
 					  gtag('js', new Date());
-					  gtag('config', '${GA_MEASUREMENT_ID}');`}
+					  gtag('config', '${GA_MEASUREMENT_ID.value}');`}
 					</Script>
 				</>
 			)}
@@ -105,7 +108,8 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 			...pageProps,
 			jitsuConf,
 			jitsuHost,
-			jitsuWriteKey
+			jitsuWriteKey,
+			envs: loadNextPublicEnvs()
 		}
 	};
 };

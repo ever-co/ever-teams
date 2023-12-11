@@ -1,5 +1,6 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
+import { getNextPublicEnv } from './env';
 
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
@@ -28,7 +29,7 @@ export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
+export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY');
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
@@ -37,7 +38,7 @@ export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://a
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+export const GA_MEASUREMENT_ID = getNextPublicEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID');
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
@@ -45,7 +46,7 @@ export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
-export const DISABLE_AUTO_REFRESH = process.env.NEXT_PUBLIC_DISABLE_AUTO_REFRESH === 'true';
+export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_REFRESH');
 
 export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
 export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
@@ -64,7 +65,13 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 });
 
 // Cookies
-export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team').split(',').map((d) => d.trim());
+// export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team').split(',').map((d) => d.trim());
+export const COOKIE_DOMAINS = getNextPublicEnv('NEXT_PUBLIC_COOKIE_DOMAINS', {
+	default: 'ever.team',
+	map(value) {
+		return value?.split(',').map((d) => d.trim()) || [];
+	}
+});
 
 // MEET Constants
 export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team';
