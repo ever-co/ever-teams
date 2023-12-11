@@ -125,3 +125,7 @@ export enum IssuesView {
 	TABLE = 'TABLE',
 	BLOCKS = 'BLOCKS'
 }
+
+export const TaskStatus = {
+	INPROGRESS: 'in-progress'
+}
