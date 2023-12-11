@@ -74,7 +74,7 @@ export const COOKIE_DOMAINS = getNextPublicEnv('NEXT_PUBLIC_COOKIE_DOMAINS', {
 });
 
 // MEET Constants
-export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team';
+export const MEET_DOMAIN = getNextPublicEnv('NEXT_PUBLIC_MEET_DOMAIN', 'meet.ever.team');
 export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID || 'ever_teams';
 export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
 export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
