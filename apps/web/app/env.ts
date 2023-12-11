@@ -2,12 +2,11 @@ const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
 
 type Env = Record<string, string | undefined>;
 
-type Options<T> =
-	| string
-	| {
-			default?: string;
-			map?: (value: string | undefined) => T;
-	  };
+type Poptions<T> = {
+	default?: string;
+	map?: (value: string | undefined) => T;
+};
+type Options<T> = string | Poptions<T>;
 
 type InferValue<T> = T extends { map: (value: any) => infer U } ? U : string | undefined;
 

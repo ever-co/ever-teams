@@ -19,14 +19,14 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
+	// Set Envs to availabe on client side
+	setNextPublicEnv(pageProps.envs);
+
 	const jitsuConf = pageProps?.jitsuConf;
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
 	const isJitsuEnvsPresent: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
 	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
-
-	// Set Envs to availabe on client side
-	setNextPublicEnv(pageProps.envs);
 
 	return (
 		<>
