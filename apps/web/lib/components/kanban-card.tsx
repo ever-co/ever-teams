@@ -4,6 +4,7 @@ import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 import { DraggableProvided } from "react-beautiful-dnd";
 import CircularProgress from "@components/ui/svgs/circular-progress";
 import PriorityIcon from "@components/ui/svgs/priority-icon";
+import { Tag } from "@app/interfaces";
 
 function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
@@ -37,7 +38,7 @@ function setCommentIconColor(commentType: "tagged" | "untagged") {
     return style
 }
 
-function Tag({title, backgroundColor, color}: {
+function TagCard({title, backgroundColor, color}: {
     title: string,
     backgroundColor: string,
     color: string
@@ -64,17 +65,17 @@ function Tag({title, backgroundColor, color}: {
 }
 
 function TagList({tags}: {
-    tags: any[]
+    tags: Tag[]
 }){
     return (
         <>
             <div className="flex flex-row flex-wrap gap-1 items-center">
-                {tags.map((tag: any, index: number)=> {
+                {tags.map((tag: Tag, index: number)=> {
                     return (
-                        <Tag 
+                        <TagCard 
                             key={index}
-                            title={tag.title} 
-                            backgroundColor={tag.backgroundColor} 
+                            title={tag.name} 
+                            backgroundColor={tag.color} 
                             color={tag.color}
                         />
                     )
@@ -194,7 +195,7 @@ export default function Item(props: any) {
                </div>
             </div>
         </div>
-        {item.hasComment !== "none" &&
+        {item.hasComment &&
             (<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
                 <div 
                     className="w-3.5 h-3.5 rounded-full"

@@ -11,7 +11,7 @@ const Kanban= () => {
         <>
         <MainLayout>
            {Object.keys(data).length > 0 ? 
-            <KanbanView itemsArray={data}/>
+            <KanbanView kanbanBoardTasks={data}/>
             :
             null
            }
