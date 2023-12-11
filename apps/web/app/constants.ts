@@ -28,8 +28,8 @@ export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
-export const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
+export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
+export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
 
