@@ -65,7 +65,6 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 });
 
 // Cookies
-// export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team').split(',').map((d) => d.trim());
 export const COOKIE_DOMAINS = getNextPublicEnv('NEXT_PUBLIC_COOKIE_DOMAINS', {
 	default: 'ever.team',
 	map(value) {
@@ -98,7 +97,7 @@ export const jitsuConfiguration: () => JitsuOptions = () => ({
 });
 
 // Github Integration
-export const GITHUB_APP_NAME = process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+export const GITHUB_APP_NAME = getNextPublicEnv('NEXT_PUBLIC_GITHUB_APP_NAME', 'ever-github');
 
 // Application Languages
 export const APPLICATION_LANGUAGES = [
