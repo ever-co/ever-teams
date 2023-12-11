@@ -1,5 +1,5 @@
 import { useKanban } from "@app/hooks/features/useKanban";
-import { ITaskStatusItemList, ITeamTask } from "@app/interfaces";
+import { ITaskStatus, ITaskStatusItemList, ITeamTask } from "@app/interfaces";
 import { IKanban } from "@app/interfaces/IKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
@@ -52,8 +52,10 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
     
       // remove from original
       currentTaskStatus.splice(sourceIndex, 1);
+
+      const taskstatus = destinationDroppableID as ITaskStatus;
      
-      const updateTaskStatusData = {...targetStatus, status: destinationDroppableID};
+      const updateTaskStatusData = {...targetStatus, status: taskstatus};
       
       // update task status on server
       updateTaskStatus(updateTaskStatusData);
