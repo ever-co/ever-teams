@@ -15,7 +15,7 @@ export const exportToBackend = async (
 	appState: Partial<AppState>,
 	files: BinaryFiles
 ): Promise<ExportToBackendResult> => {
-	if (!BOARD_BACKEND_POST_URL || !BOARD_APP_DOMAIN) {
+	if (!BOARD_BACKEND_POST_URL.value || !BOARD_APP_DOMAIN.value) {
 		return { url: null, errorMessage: 'could Not Create Shareable Link' };
 	}
 
@@ -40,13 +40,13 @@ export const exportToBackend = async (
 			maxBytes: FILE_UPLOAD_MAX_BYTES
 		});
 
-		const response = await fetch(BOARD_BACKEND_POST_URL, {
+		const response = await fetch(BOARD_BACKEND_POST_URL.value, {
 			method: 'POST',
 			body: payload.buffer
 		});
 		const json = await response.json();
 		if (json.id) {
-			const url = new URL(BOARD_APP_DOMAIN);
+			const url = new URL(BOARD_APP_DOMAIN.value);
 			// We need to store the key (and less importantly the id) as hash instead
 			// of queryParam in order to never send it to the server
 			url.hash = `json=${json.id},${encryptionKey}`;

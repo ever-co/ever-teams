@@ -80,10 +80,12 @@ export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
 export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // BOARD board
-export const BOARD_APP_DOMAIN = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team';
-export const BOARD_BACKEND_POST_URL =
-	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || 'https://jsonboard.ever.team/api/v2/post/';
-export const BOARD_FIREBASE_CONFIG = process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
+export const BOARD_APP_DOMAIN = getNextPublicEnv('NEXT_PUBLIC_BOARD_APP_DOMAIN', 'https://board.ever.team');
+export const BOARD_BACKEND_POST_URL = getNextPublicEnv(
+	'NEXT_PUBLIC_BOARD_BACKEND_POST_URL',
+	'https://jsonboard.ever.team/api/v2/post/'
+);
+export const BOARD_FIREBASE_CONFIG = getNextPublicEnv('NEXT_PUBLIC_BOARD_FIREBASE_CONFIG');
 
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
