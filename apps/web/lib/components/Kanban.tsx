@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
+import { TaskStatus } from '@app/constants';
 
 const grid = 8;
 
@@ -63,7 +64,7 @@ function InnerItemList({items, title}: {
                     isDragging={dragSnapshot.isDragging}
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
-                    style={title === 'review' && {
+                    style={title === TaskStatus.INPROGRESS && {
                         borderWidth: '1px',
                         borderColor: '#6FCF97',
                         borderStyle: 'solid'
