@@ -195,7 +195,7 @@ export default function Item(props: any) {
                </div>
             </div>
         </div>
-        {item.hasComment !== "none" &&
+        {item.hasComment &&
             (<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
                 <div 
                     className="w-3.5 h-3.5 rounded-full"
