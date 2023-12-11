@@ -1,10 +1,10 @@
-import { RECAPTCHA_SITE_KEY } from '@app/constants';
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
+import { getRecaptchaAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function AuthTeam() {
@@ -122,7 +122,6 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const { t } = useTranslation();
-	const [feedback, setFeedback] = useState<string>('');
 
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
@@ -153,24 +152,7 @@ function FillUserDataForm({
 						onChange={handleOnChange}
 						autoComplete="off"
 					/>
-					{ RECAPTCHA_SITE_KEY && 
-						<div className="w-full flex">
-							<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
-								<SiteReCAPTCHA
-									onChange={(res) => {
-										handleOnChange({ target: { name: 'recaptcha', value: res } });
-										setFeedback('');
-									}}
-									onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
-								/>
-								{(errors['recaptcha'] || feedback) && (
-									<Text.Error className="self-start justify-self-start">
-										{errors['recaptcha'] || feedback}
-									</Text.Error>
-								)}
-							</div>
-						</div>
-					}
+					<ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />
 				</div>
 
 				<div className="flex items-center justify-between w-full">
@@ -183,4 +165,38 @@ function FillUserDataForm({
 			</div>
 		</Card>
 	);
+}
+
+function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: any }) {
+	const { t } = useTranslation();
+	const [feedback, setFeedback] = useState<string>('');
+
+	const [recaptchaKeys, setRecaptchaKeys] = useState<{
+		RECAPTCHA_SITE_KEY: string;
+		RECAPTCHA_SECRET_KEY: boolean;
+	}>();
+
+	useEffect(() => {
+		getRecaptchaAPI().then(({ data }) => setRecaptchaKeys(data));
+	}, []);
+
+	const content = recaptchaKeys && recaptchaKeys.RECAPTCHA_SECRET_KEY && recaptchaKeys.RECAPTCHA_SITE_KEY && (
+		<div className="w-full flex">
+			<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
+				<SiteReCAPTCHA
+					siteKey={recaptchaKeys.RECAPTCHA_SITE_KEY}
+					onChange={(res) => {
+						handleOnChange({ target: { name: 'recaptcha', value: res } });
+						setFeedback('');
+					}}
+					onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
+				/>
+				{(errors['recaptcha'] || feedback) && (
+					<Text.Error className="self-start justify-self-start">{errors['recaptcha'] || feedback}</Text.Error>
+				)}
+			</div>
+		</div>
+	);
+
+	return content || <></>;
 }

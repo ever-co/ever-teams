@@ -28,8 +28,8 @@ export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
-export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
+export const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
+export const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
 
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
 
@@ -74,7 +74,8 @@ export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // BOARD board
 export const BOARD_APP_DOMAIN = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team';
-export const BOARD_BACKEND_POST_URL = process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || 'https://jsonboard.ever.team/api/v2/post/';
+export const BOARD_BACKEND_POST_URL =
+	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || 'https://jsonboard.ever.team/api/v2/post/';
 export const BOARD_FIREBASE_CONFIG = process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
 
 // Jitsu
