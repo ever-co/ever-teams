@@ -169,7 +169,7 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
 export const EmptyKanbanDroppable = ({index,title, items}: {
     index: number;
     title: string;
-    items: any;
+    items: ITeamTask[];
 })=> {
     const [enabled, setEnabled] = useState(false);
   
