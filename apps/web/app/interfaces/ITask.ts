@@ -132,7 +132,7 @@ export type ITaskStatusField =
 	| 'tags';
 
 export type ITaskStatusStack = {
-	status: ITaskStatus;
+	status: ITaskStatus | string;
 	size: ITaskSize;
 	label: ITaskLabel;
 	priority: ITaskPriority;
