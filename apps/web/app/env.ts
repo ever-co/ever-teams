@@ -14,6 +14,15 @@ type ReturnedType<T> = {
 	readonly value: T extends string ? string : InferValue<T>;
 };
 
+/**
+ * This function loads only env variables which start with NEXT_PUBLIC_*
+ *
+ * Usefull to get the latest value of variable at runtime instead of buildtime
+ *
+ * @param name
+ * @param options
+ * @returns
+ */
 export function getNextPublicEnv<O extends Options<unknown>>(name: string, options?: O): ReturnedType<O> {
 	return {
 		get value() {
