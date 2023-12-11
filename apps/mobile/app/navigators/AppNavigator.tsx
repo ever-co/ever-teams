@@ -11,7 +11,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StackScreenProps } from '@react-navigation/stack';
 import { observer } from 'mobx-react-lite';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Config from '../config';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useStores } from '../models'; // @demo remove-current-line
@@ -25,6 +25,8 @@ import {
 } from './AuthenticatedNavigator';
 import { DemoTabParamList } from './DemoNavigator'; // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from './navigationUtilities';
+import { Appearance } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -94,6 +96,27 @@ const AppStack = observer(function AppStack() {
 interface NavigationProps extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
+	const {
+		authenticationStore: { isDarkMode, toggleTheme }
+	} = useStores();
+
+	useEffect(() => {
+		const checkAppInstallAndSetTheme = async () => {
+			const firstTimeAppOpen = await AsyncStorage.getItem('initialThemeSetupDone');
+
+			if (!firstTimeAppOpen) {
+				const colorsScheme = Appearance.getColorScheme();
+				if (colorsScheme === 'dark' && !isDarkMode) {
+					toggleTheme();
+				} else if (colorsScheme === 'light' && isDarkMode) {
+					toggleTheme();
+				}
+				await AsyncStorage.setItem('initialThemeSetupDone', JSON.stringify(true));
+			}
+		};
+		checkAppInstallAndSetTheme();
+	}, []);
+
 	useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
 	const queryClient = new QueryClient();
 	return (
