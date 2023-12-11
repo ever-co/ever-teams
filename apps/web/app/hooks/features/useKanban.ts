@@ -12,9 +12,9 @@ export function useKanban() {
     const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 
     const taskStatusHook = useTaskStatus();
-    const { tasks, tasksFetching } = useTeamTasks();
 
-   
+    const { tasks, tasksFetching, updateTask } = useTeamTasks();
+
     /**
      * format data for kanban board
      */
@@ -42,6 +42,8 @@ export function useKanban() {
     return {
         data: kanbanBoard,
         isLoading: loading,
-        columns: taskStatusHook.taskStatus
+        columns: taskStatusHook.taskStatus,
+        updateKanbanBoard: setKanbanBoard,
+        updateTaskStatus: updateTask
     }
 }
