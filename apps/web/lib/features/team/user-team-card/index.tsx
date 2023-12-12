@@ -3,7 +3,7 @@ import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCa
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslation } from 'react-i18next';
@@ -22,19 +22,23 @@ export function UserTeamCardHeader() {
 			<div className="w-1"></div>
 			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
 			<div className="w-1"></div>
-			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
-				{t('task.taskTableHead.TASK_WORK.TITLE')}
-				<br />
-				{t('common.TASK')}
-			</div>
+			<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+				<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
+					{t('task.taskTableHead.TASK_WORK.TITLE')}
+					<br />
+					{t('common.TASK')}
+				</div>
+			</Tooltip>
 			<div className="w-1"></div>
 			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
 			<div className="w-1"></div>
-			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
-				{t('task.taskTableHead.TOTAL_WORK.TITLE')}
-				<br />
-				{t('common.TODAY')}
-			</div>
+			<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+				<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
+					{t('task.taskTableHead.TOTAL_WORK.TITLE')}
+					<br />
+					{t('common.TODAY')}
+				</div>
+			</Tooltip>
 		</div>
 	);
 }

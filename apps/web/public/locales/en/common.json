@@ -447,6 +447,10 @@
 		"ASSIGN_NEW_TASK": "Assign new task",
 		"ASSIGNED_BY": "Assigned By",
 		"NO_ONE_FOR_TASK": "No One Assigned to this Task",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "worked today on this task for",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "worked on this task for a total of",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "worked today on all",
+		"TASKS_FOR_TOOLTIP": "tasks for",
 		"taskLabel": {
 			"WORK_LABEL": "Worked",
 			"TASK_ASSIGNED": "Assigned",
@@ -472,7 +476,9 @@
 				"TITLE": "Total Worked",
 				"DESCRIPTION": "Today",
 				"LABEL": "Total worked Today"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours employee worked for total and today on task",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours employee worked today on all tasks for selected Team"
 		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
 	},
