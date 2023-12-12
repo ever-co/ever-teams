@@ -123,7 +123,8 @@ export const APPLICATION_LANGUAGES_CODE = [
 export enum IssuesView {
 	CARDS = 'CARDS',
 	TABLE = 'TABLE',
-	BLOCKS = 'BLOCKS'
+	BLOCKS = 'BLOCKS',
+	KANBAN = 'KANBAN'
 }
 
 export const TaskStatus = {
