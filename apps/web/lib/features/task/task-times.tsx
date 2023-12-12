@@ -40,7 +40,14 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 	return (
 		<div className={clsxm(className)}>
 			{isBlock ? (
-				<TimeBlockInfo showDaily={showDaily} showTotal={showTotal} daily={{ h: dh, m: dm }} total={{ h, m }} />
+				<TimeBlockInfo
+					showDaily={showDaily}
+					showTotal={showTotal}
+					currentUser={currentMember}
+					task={task}
+					daily={{ h: dh, m: dm }}
+					total={{ h, m }}
+				/>
 			) : (
 				<TimeInfo
 					currentUser={currentMember}
@@ -48,6 +55,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 					showTotal={showTotal}
 					daily={{ h: dh, m: dm }}
 					total={{ h, m }}
+					task={task}
 				/>
 			)}
 		</div>
@@ -59,13 +67,15 @@ function TimeInfo({
 	total,
 	showDaily = true,
 	showTotal = true,
-	currentUser
+	currentUser,
+	task
 }: {
 	daily: { h: number; m: number };
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
 	currentUser: OT_Member | undefined;
+	task: Nullable<ITeamTask>;
 }) {
 	const { t } = useTranslation();
 
@@ -73,6 +83,7 @@ function TimeInfo({
 		<>
 			{showDaily && (
 				<Tooltip
+					enabled={task ? true : false}
 					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
 						daily.m
 					}m`}
@@ -88,6 +99,7 @@ function TimeInfo({
 
 			{showTotal && (
 				<Tooltip
+					enabled={task ? true : false}
 					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
 						total.m
 					}m`}
@@ -113,41 +125,59 @@ function TimeBlockInfo({
 	daily,
 	total,
 	showDaily = true,
-	showTotal = true
+	showTotal = true,
+	currentUser,
+	task
 }: {
 	daily: { h: number; m: number };
 	total: { h: number; m: number };
 	showDaily?: boolean;
 	showTotal?: boolean;
+	currentUser: OT_Member | undefined;
+	task: Nullable<ITeamTask>;
 }) {
 	const { t } = useTranslation();
 	return (
 		<div className="flex gap-1">
 			{showDaily && (
-				<div className=" text-base font-normal flex flex-col items-center ">
-					<span className="text-[#7B8089] text-center text-xs">
-						{t('common.WORKED_ON_TASK')} {t('common.TODAY')}:
-					</span>
-					<Text className="text-lg font-semibold">
-						{daily.h}h : {daily.m}m
-					</Text>
-				</div>
+				<Tooltip
+					enabled={task ? true : false}
+					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
+						daily.m
+					}m`}
+				>
+					<div className=" text-base font-normal flex flex-col items-center ">
+						<span className="text-[#7B8089] text-center text-xs">
+							{t('common.WORKED_ON_TASK')} {t('common.TODAY')}:
+						</span>
+						<Text className="text-lg font-semibold">
+							{daily.h}h : {daily.m}m
+						</Text>
+					</div>
+				</Tooltip>
 			)}
 
 			{showTotal && (
-				<div
-					className={clsxm(
-						'font-normal text-base flex flex-col items-center '
-						// showDaily && ['text-sm']
-					)}
+				<Tooltip
+					enabled={task ? true : false}
+					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
+						total.m
+					}m`}
 				>
-					<span className="text-[#7B8089] text-center text-xs">
-						{t('common.WORKED_ON_TASK')} {t('common.TOTAL')}:
-					</span>
-					<Text className="text-lg font-semibold">
-						{total.h}h : {total.m}m
-					</Text>
-				</div>
+					<div
+						className={clsxm(
+							'font-normal text-base flex flex-col items-center '
+							// showDaily && ['text-sm']
+						)}
+					>
+						<span className="text-[#7B8089] text-center text-xs">
+							{t('common.WORKED_ON_TASK')} {t('common.TOTAL')}:
+						</span>
+						<Text className="text-lg font-semibold">
+							{total.h}h : {total.m}m
+						</Text>
+					</div>
+				</Tooltip>
 			)}
 		</div>
 	);
