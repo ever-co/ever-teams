@@ -58,7 +58,7 @@ export function Timer({ className }: IClassName) {
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
-		<div className={clsxm('flex flex-row mb-12 2xl:mb-0', className)}>
+		<div className={clsxm('flex flex-row mb-6 md:mb-12 2xl:mb-0', className)}>
 			<div className="flex items-start justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
 				<div className="w-[11rem]">
 					<Text.Heading

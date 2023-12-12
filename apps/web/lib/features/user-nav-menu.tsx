@@ -275,8 +275,8 @@ function UserNavMenu() {
 					{isTeamMember && isTeamDropdownAllowed ? <TeamsDropDown publicTeam={publicTeam || false} /> : null}
 
 					<KeyboardShortcuts />
+					<Divider className="mt-1 mb-3 w-full" />
 				</ul>
-				<Divider className="mt-4 mb-3" />
 				<ul className="w-full">
 					{/* Logout menu */}
 					<li>

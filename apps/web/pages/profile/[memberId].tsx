@@ -43,7 +43,7 @@ const Profile = () => {
 					</div>
 
 					{/* User Profile Detail */}
-					<div className="flex flex-col items-center justify-between py-10 xs:flex-row">
+					<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
 						<UserProfileDetail member={profile.member} />
 
 						{profileIsAuthUser && isTrackingEnabled && (
