@@ -139,15 +139,7 @@ export default function Item(props: any) {
     } = props;
 
     const {
-		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
-		timerStatus,
-		timerStatusFetching,
-		startTimer,
-		stopTimer,
-		canRunTimer,
-		timerSeconds,
-		activeTeamTask,
-		syncTimerLoading
+		fomatedTimeCounter: { hours, minutes, seconds }
 	} = useTimer();
    
     return (
