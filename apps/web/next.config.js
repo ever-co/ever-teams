@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 
+const withNextIntl = require('next-intl/plugin')();
+
 console.log(`NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}`);
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -61,12 +63,14 @@ const sentryWebpackPluginOptions = {
 
 	silent: true, // Suppresses all logs
 
-    dryRun: process.env.NODE_ENV !== "production"
+	dryRun: process.env.NODE_ENV !== 'production'
 
 	// Additional config options for the Sentry Webpack plugin.
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports = process.env.NODE_ENV === "production" && process.env.SENTRY_DSN
-	? withSentryConfig(nextConfig, sentryWebpackPluginOptions) : nextConfig
+// module.exports = process.env.NODE_ENV === "production" && process.env.SENTRY_DSN
+// 	? withSentryConfig(nextConfig, sentryWebpackPluginOptions) : nextConfig
+
+module.exports = withNextIntl(nextConfig);

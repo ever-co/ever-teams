@@ -10,9 +10,19 @@ import { currentAuthenticatedUserRequest } from '@app/services/server/requests/a
 import { range } from 'lib/utils';
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
 
 export const config = {
-	matcher: ['/', '/auth/(.*)', '/profile/:path*', '/settings/(.*)', '/task(.*)', '/meet(.*)', '/board(.*)']
+	matcher: [
+		'/',
+		'/auth/(.*)',
+		'/profile/:path*',
+		'/settings/(.*)',
+		'/task(.*)',
+		'/meet(.*)',
+		'/board(.*)',
+		'/(de|en)/:path*'
+	]
 };
 
 export async function middleware(request: NextRequest) {
@@ -78,3 +88,11 @@ export async function middleware(request: NextRequest) {
 
 	return response;
 }
+
+// createMiddleware({
+// 	// A list of all locales that are supported
+// 	locales: ['en', 'de'],
+
+// 	// Used when no locale matches
+// 	defaultLocale: 'en'
+// })
