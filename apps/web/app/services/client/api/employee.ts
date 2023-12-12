@@ -6,7 +6,7 @@ export async function getWorkingEmployeesAPI(tenantId: string, organizationId: s
 		'where[organizationId]': organizationId,
 		'relations[0]': 'user'
 	};
-	const query = new URLSearchParams(params);	
+	const query = new URLSearchParams(params);
 
 	const endpoint = process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 		? `/employee/pagination?${query.toString()}`

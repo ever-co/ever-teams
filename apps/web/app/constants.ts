@@ -33,7 +33,9 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
+export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv('NEXT_PUBLIC_GAUZY_API_SERVER_URL', 'https://api.gauzy.co');
 
+// Invite
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/passcode';
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
@@ -88,8 +90,8 @@ export const BOARD_FIREBASE_CONFIG = getNextPublicEnv('NEXT_PUBLIC_BOARD_FIREBAS
 
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
-	host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL || '',
-	writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY || '',
+	host: getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_URL', '').value,
+	writeKey: getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY', '').value,
 	// if enabled - events will be sent to the console but no data sent to Jitsu.
 	// Strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
 	echoEvents: false,

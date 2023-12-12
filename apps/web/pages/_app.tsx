@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { loadNextPublicEnvs, setNextPublicEnv } from '@app/env';
+import { getNextPublicEnv, loadNextPublicEnvs, setNextPublicEnv } from '@app/env';
 import { GA_MEASUREMENT_ID, jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
@@ -85,8 +85,8 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
 MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProps>; ctx: NextPageContext }) => {
 	// Recover environment variables
-	const jitsuHost = process.env.NEXT_PUBLIC_JITSU_BROWSER_URL;
-	const jitsuWriteKey = process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY;
+	const jitsuHost = getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_URL').value;
+	const jitsuWriteKey = getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY').value;
 
 	const jitsuConf = jitsuConfiguration();
 
