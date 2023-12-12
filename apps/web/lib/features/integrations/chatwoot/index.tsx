@@ -1,3 +1,4 @@
+import { CHATWOOT_API_KEY } from '@app/constants';
 import React, { useEffect } from 'react';
 
 declare global {
@@ -9,7 +10,7 @@ declare global {
 
 export default function ChatwootWidget() {
 	useEffect(() => {
-		const websiteToken = process.env.NEXT_PUBLIC_CHATWOOT_API_KEY;
+		const websiteToken = CHATWOOT_API_KEY.value;
 		if (!websiteToken) {
 			return;
 		}

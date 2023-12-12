@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		avatar: user.imageUrl,
 		audience: 'jitsi',
 		room: '*',
-		domain: MEET_DOMAIN,
+		domain: MEET_DOMAIN.value,
 		appid: MEET_JWT_APP_ID,
 		appkey: MEET_JWT_APP_SECRET
 	});

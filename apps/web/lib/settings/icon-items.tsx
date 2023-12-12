@@ -1,3 +1,4 @@
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { IIcon } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
@@ -93,7 +94,7 @@ export function IconItem({
 export function generateIconList(iconFor: string, icons: string[]) {
 	return icons.map((icon) => {
 		return {
-			fullUrl: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/${iconFor}/${icon}.svg`,
+			fullUrl: `${GAUZY_API_BASE_SERVER_URL.value}/public/ever-icons/${iconFor}/${icon}.svg`,
 			path: `ever-icons/${iconFor}/${icon}.svg`,
 			title: icon
 		};
