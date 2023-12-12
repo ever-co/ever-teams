@@ -17,7 +17,7 @@ type ReturnedType<T> = {
 /**
  * This function loads only env variables which start with NEXT_PUBLIC_*
  *
- * Usefull to get the latest value of variable at runtime instead of buildtime
+ * Useful to get the latest value of variable at runtime instead of build time
  *
  * @param name
  * @param options
