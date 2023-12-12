@@ -7,7 +7,7 @@ export default function MeetPage({ jwt, roomName }: { jwt: string; roomName: str
 
 	return (
 		<JitsiMeeting
-			domain={MEET_DOMAIN}
+			domain={MEET_DOMAIN.value}
 			roomName={roomName}
 			configOverwrite={{
 				startWithAudioMuted: true,

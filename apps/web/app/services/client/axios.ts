@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { API_BASE_URL, DEFAULT_APP_PATH } from '@app/constants';
+import { API_BASE_URL, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getAccessTokenCookie, getActiveTeamIdCookie } from '@app/helpers/cookies';
 import axios, { AxiosResponse } from 'axios';
 
@@ -36,9 +36,9 @@ api.interceptors.response.use(
 );
 
 const apiDirect = axios.create({
-	baseURL: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/api`,
 	timeout: 60 * 1000
 });
+
 apiDirect.interceptors.request.use(
 	async (config: any) => {
 		const cookie = getAccessTokenCookie();
@@ -53,6 +53,7 @@ apiDirect.interceptors.request.use(
 		Promise.reject(error);
 	}
 );
+
 apiDirect.interceptors.response.use(
 	(response: AxiosResponse) => {
 		return {
@@ -78,8 +79,12 @@ function get(
 		tenantId: string;
 	}
 ) {
-	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
+	baseURL = baseURL ? `${baseURL}/api` : undefined;
+
+	return isDirect && baseURL
 		? apiDirect.get(endpoint, {
+				baseURL,
 				headers: {
 					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
 				}
@@ -95,8 +100,12 @@ function post(
 		tenantId: string;
 	}
 ) {
-	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
+	baseURL = baseURL ? `${baseURL}/api` : undefined;
+
+	return isDirect && baseURL
 		? apiDirect.post(endpoint, data, {
+				baseURL,
 				headers: {
 					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
 				}
@@ -104,6 +113,6 @@ function post(
 		: api.post(endpoint, data);
 }
 
-export default api;
+export { get, post };
 
-export { apiDirect, get, post };
+export default api;
