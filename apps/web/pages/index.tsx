@@ -2,7 +2,7 @@ import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, Container } from 'lib/components';
+import { Breadcrumb, Card, Container, Tooltip } from 'lib/components';
 import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
@@ -19,6 +19,8 @@ import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
+import { useRouter } from 'next/router';
+import KanbanIcon from '@components/ui/svgs/kanaban';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -26,6 +28,7 @@ function MainPage() {
 	const breadcrumb = [...(t('pages.home.BREADCRUMB', { returnObjects: true }) as any), activeTeam?.name || ''];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 	const { online } = useNetworkState();
+	const router = useRouter();
 
 	if (!online) {
 		return (
@@ -44,6 +47,10 @@ function MainPage() {
 
 					{/* <Collaborative /> */}
 					<div className="flex items-end gap-1">
+						<Tooltip
+							label={'Cards'}
+							placement="top-start"
+						>
 						<button
 							className={clsxm(
 								'rounded-md px-3 py-1 text-sm font-medium',
@@ -55,6 +62,11 @@ function MainPage() {
 						>
 							<QueueListIcon className="w-5 h-5 inline" />
 						</button>
+						</Tooltip>
+						<Tooltip
+							label={'Table'}
+							placement="top-start"
+						>
 						<button
 							className={clsxm(
 								'rounded-md px-3 py-1 text-sm font-medium',
@@ -66,6 +78,11 @@ function MainPage() {
 						>
 							<TableCellsIcon className="w-5 h-5 inline" />
 						</button>
+						</Tooltip>
+						<Tooltip
+							label={'Blocks'}
+							placement="top-start"
+						>
 						<button
 							className={clsxm(
 								'rounded-md px-3 py-1 text-sm font-medium',
@@ -77,6 +94,25 @@ function MainPage() {
 						>
 							<Squares2X2Icon className="w-5 h-5 inline" />
 						</button>
+						</Tooltip>
+						<Tooltip
+							label={'Kanban'}
+							placement="top-start"
+						>
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.KANBAN
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => {
+									router.push('/kanban');
+								}}
+							>
+								<KanbanIcon />
+							</button>
+						</Tooltip>
 					</div>
 				</div>
 
