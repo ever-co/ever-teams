@@ -11,7 +11,7 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	useReactTable,
+	useReactTable
 } from "@tanstack/react-table"
 
 import {
@@ -72,7 +72,7 @@ function DataTable<TData, TValue>({
 	})
 
 	return (
-		<Table className='border-transparent bg-light--theme-light dark:bg-dark--theme-light mt-8 w-full'>
+		<Table className="border-transparent bg-light--theme-light dark:bg-dark--theme-light mt-8 w-full rounded-2xl">
 			<TableHeader>
 				{table.getHeaderGroups().map((headerGroup) => (
 					<TableRow key={headerGroup.id}>
@@ -81,12 +81,9 @@ function DataTable<TData, TValue>({
 								<TableHead key={header.id}>
 									{header.isPlaceholder
 										? null
-										: flexRender(
-											header.column.columnDef.header,
-											header.getContext()
-										)}
+										: flexRender(header.column.columnDef.header, header.getContext())}
 								</TableHead>
-							)
+							);
 						})}
 					</TableRow>
 				))}
@@ -94,44 +91,29 @@ function DataTable<TData, TValue>({
 			<TableBody className="divide-y divide-gray-200">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (
-						<TableRow
-							key={row.id}
-							data-state={row.getIsSelected() && "selected"}
-							className='my-4'
-						>
+						<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="my-4">
 							{row.getVisibleCells().map((cell) => (
-								<TableCell key={cell.id}
-								className="rounded-[16px] my-4">
-
-									{flexRender(
-										cell.column.columnDef.cell,
-										cell.getContext()
-									)}
+								<TableCell key={cell.id} className="rounded-[16px] my-4">
+									{flexRender(cell.column.columnDef.cell, cell.getContext())}
 								</TableCell>
 							))}
 						</TableRow>
 					))
 				) : (
 					<TableRow>
-						<TableCell
-							colSpan={columns.length}
-							className="h-24 text-center"
-						>
+						<TableCell colSpan={columns.length} className="h-24 text-center">
 							No results.
 						</TableCell>
 					</TableRow>
 				)}
 			</TableBody>
-			{
-				footerRows && footerRows?.length > 0 && (
-					<TableFooter className='bg-gray-50 dark:bg-gray-800'>
-						{footerRows.map((row, index) => (
-							<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
-						))}
-					</TableFooter>
-				)
-			}
-
+			{footerRows && footerRows?.length > 0 && (
+				<TableFooter className="bg-gray-50 dark:bg-gray-800">
+					{footerRows.map((row, index) => (
+						<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
+					))}
+				</TableFooter>
+			)}
 		</Table>
 	);
 }

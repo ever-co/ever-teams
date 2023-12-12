@@ -417,6 +417,10 @@
 			"HEADING_TITLE": "Page non trouvée",
 			"HEADING_DESCRIPTION": "La ressource que vous recherchez est introuvable !",
 			"LINK_LABEL": "Aller à la page d'accueil"
+		},
+		"offline": {
+			"HEADING_TITLE": "Réseau déconnecté !",
+			"HEADING_DESCRIPTION": "Vous êtes actuellement hors ligne, veuillez vérifier votre connexion Internet..."
 		}
 	},
 
@@ -436,6 +440,10 @@
 		"ASSIGN_NEW_TASK": "Assigner une nouvelle tâche",
 		"ASSIGNED_BY": "Assigné par",
 		"NO_ONE_FOR_TASK": "Personne n'est assigné à cette tâche",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "a travaillé aujourd'hui sur cette tâche pendant",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "a travaillé sur cette tâche pour un total de",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "a travaillé aujourd'hui sur toutes",
+		"TASKS_FOR_TOOLTIP": "tâches pour",
 		"taskLabel": {
 			"WORK_LABEL": "Travaillé",
 			"TASK_ASSIGNED": "Assigné",
@@ -461,7 +469,9 @@
 				"TITLE": "Total travaillé",
 				"DESCRIPTION": "Aujourd'hui",
 				"LABEL": "Total travaillé aujourd'hui"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Combien d'heures l'employé a-t-il travaillé au total et aujourd'hui sur la tâche",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "Combien d'heures l'employé a-t-il travaillé aujourd'hui sur toutes les tâches pour l'équipe sélectionnée"
 		},
 		"CONFIRM_CLOSE_TASK": "Veuillez confirmer si vous voulez fermer la tâche"
 	},

@@ -1,8 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { getNextPublicEnv, loadNextPublicEnvs, setNextPublicEnv } from '@app/env';
 import { GA_MEASUREMENT_ID, jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
 import { AppState } from 'lib/app/init-state';
+import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import { NextPage, NextPageContext } from 'next';
 import { ThemeProvider } from 'next-themes';
@@ -11,15 +13,23 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { I18nextProvider } from 'react-i18next';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import { RecoilRoot } from 'recoil';
 import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
 import i18n from '../ni18n.config';
+import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
+type MyAppProps = {
+	jitsuConf?: JitsuOptions;
+	jitsuHost?: string;
+	envs: Record<string, string>;
+	user?: any;
+};
+
+const MyApp = ({ Component, pageProps }: AppProps<MyAppProps>) => {
+	setNextPublicEnv(pageProps.envs);
+
 	const jitsuConf = pageProps?.jitsuConf;
-	console.log('Jitsu Host', pageProps);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
 	const isJitsuEnvsPresent: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
@@ -27,17 +37,17 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
 	return (
 		<>
-			{GA_MEASUREMENT_ID && (
+			{GA_MEASUREMENT_ID.value && (
 				<>
 					<Script
 						strategy="lazyOnload"
-						src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+						src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID.value}`}
 					/>
 					<Script strategy="lazyOnload" id="google-analytic-script">
 						{` window.dataLayer = window.dataLayer || [];
 					  function gtag(){dataLayer.push(arguments);}
 					  gtag('js', new Date());
-					  gtag('config', '${GA_MEASUREMENT_ID}');`}
+					  gtag('config', '${GA_MEASUREMENT_ID.value}');`}
 					</Script>
 				</>
 			)}
@@ -51,11 +61,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 				options={
 					isJitsuEnvsPresent
 						? {
-								host: jitsuConf.host ?? '',
-								writeKey: jitsuConf.writeKey ?? undefined,
-								debug: jitsuConf.debug,
-								cookieDomain: jitsuConf.cookieDomain ?? undefined,
-								echoEvents: jitsuConf.echoEvents
+								host: jitsuConf?.host ?? '',
+								writeKey: jitsuConf?.writeKey ?? undefined,
+								debug: jitsuConf?.debug,
+								cookieDomain: jitsuConf?.cookieDomain ?? undefined,
+								echoEvents: jitsuConf?.echoEvents
 						  }
 						: {
 								disabled: true
@@ -82,8 +92,8 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
 MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProps>; ctx: NextPageContext }) => {
 	// Recover environment variables
-	const jitsuHost = process.env.NEXT_PUBLIC_JITSU_BROWSER_URL;
-	const jitsuWriteKey = process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY;
+	const jitsuHost = getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_URL').value;
+	const jitsuWriteKey = getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY').value;
 
 	const jitsuConf = jitsuConfiguration();
 
@@ -105,7 +115,8 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 			...pageProps,
 			jitsuConf,
 			jitsuHost,
-			jitsuWriteKey
+			jitsuWriteKey,
+			envs: loadNextPublicEnvs()
 		}
 	};
 };

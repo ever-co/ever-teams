@@ -21,6 +21,8 @@ import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/
 import { useNetworkState } from '@uidotdev/usehooks';
 import { useRouter } from 'next/router';
 import KanbanIcon from '@components/ui/svgs/kanaban';
+import Offline from '@components/pages/offline';
+import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -31,9 +33,7 @@ function MainPage() {
 	const router = useRouter();
 
 	if (!online) {
-		return (
-			<div className="flex w-full h-screen justify-center items-center text-xl">You are Currently Offline</div>
-		);
+		return <Offline />;
 	}
 
 	return (
@@ -132,6 +132,8 @@ function MainPage() {
 						<UserTeamCardHeader />
 					) : view === IssuesView.BLOCKS ? (
 						<UserTeamBlockHeader />
+					) : view === IssuesView.TABLE ? (
+						<UserTeamTableHeader />
 					) : null}
 				</Container>
 

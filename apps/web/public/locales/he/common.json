@@ -417,6 +417,10 @@
 			"HEADING_TITLE": "לא נמצא",
 			"HEADING_DESCRIPTION": "המשאב שאתה מחפש לא נמצא!",
 			"LINK_LABEL": "לך לדף הבית"
+		},
+		"offline": {
+			"HEADING_TITLE": "רשת מנותקת!",
+			"HEADING_DESCRIPTION": "אתה לא מחובר כרגע, בבקשה בדוק את חיבור האינטרנט שלך..."
 		}
 	},
 	"timer": {
@@ -436,6 +440,10 @@
 		"ASSIGN_NEW_TASK": "הקצה משימה חדשה",
 		"ASSIGNED_BY": "הוקצה על ידי",
 		"NO_ONE_FOR_TASK": "אף אחד לא הוקצה למשימה זו",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "עבד היום על משימה זו למשך",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "עבד על משימה זו לסך הכל למשך",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "עבד היום על כל",
+		"TASKS_FOR_TOOLTIP": "משימות עבור",
 		"taskLabel": {
 			"WORK_LABEL": "עבד",
 			"TASK_ASSIGNED": "הוקצה",
@@ -461,7 +469,9 @@
 				"TITLE": "סך עבודה",
 				"DESCRIPTION": "היום",
 				"LABEL": "סך עבודה היום"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "כמה שעות עבד העובד בסך הכול והיום על המשימה",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "כמה שעות עבד העובד היום בכל המשימות לצוות שנבחר"
 		},
 		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה"
 	},

@@ -419,6 +419,10 @@
 			"HEADING_TITLE": "Not Found",
 			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
 			"LINK_LABEL": "Go to homepage"
+		},
+		"offline": {
+			"HEADING_TITLE": "Сеть отключена!",
+			"HEADING_DESCRIPTION": "В настоящее время вы не подключены к Интернету, проверьте ваше соединение..."
 		}
 	},
 
@@ -439,6 +443,10 @@
 		"ASSIGN_NEW_TASK": "Assign new task",
 		"ASSIGNED_BY": "Assigned By",
 		"NO_ONE_FOR_TASK": "No One Assigned to this Task",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "сегодня поработал по этой задаче",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "поработал на этой задаче в общей сложности",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "сегодня поработал над всеми",
+		"TASKS_FOR_TOOLTIP": "задачами для",
 		"taskLabel": {
 			"WORK_LABEL": "Worked",
 			"TASK_ASSIGNED": "Assigned",
@@ -464,7 +472,9 @@
 				"TITLE": "Total Worked",
 				"DESCRIPTION": "Today",
 				"LABEL": "Total worked Today"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Сколько часов сотрудник поработал всего и сегодня по задаче",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "Сколько часов сотрудник поработал сегодня по всем задачам для выбранной команды"
 		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
 	},

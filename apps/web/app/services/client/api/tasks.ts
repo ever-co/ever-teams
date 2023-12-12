@@ -3,6 +3,7 @@ import { CreateResponse, DeleteResponse, PaginationResponse } from '@app/interfa
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import api, { get } from '../axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export function getTasksByIdAPI(taskId: string) {
 	return api.get<CreateResponse<ITeamTask>>(`/tasks/${taskId}`);
@@ -40,7 +41,7 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 	const endpoint = `/tasks/team?${query.toString()}`;
 	const data = await get(endpoint, true, { tenantId });
 
-	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
+	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
 }
 
 export function deleteTaskAPI(taskId: string) {
@@ -61,7 +62,7 @@ export async function tasksTimesheetStatisticsAPI(
 	organizationId: string,
 	employeeId?: string
 ) {
-	if (process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
 		const employeesParams = employeeId
 			? [employeeId].reduce((acc: any, v, i) => {
 					acc[`employeeIds[${i}]`] = v;
@@ -109,7 +110,7 @@ export async function activeTaskTimesheetStatisticsAPI(
 	organizationId: string,
 	employeeId?: string
 ) {
-	if (process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
 		const employeesParams = employeeId
 			? [employeeId].reduce((acc: any, v, i) => {
 					acc[`employeeIds[${i}]`] = v;

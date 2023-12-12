@@ -419,6 +419,10 @@
 			"HEADING_TITLE": "Not Found",
 			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
 			"LINK_LABEL": "Go to homepage"
+		},
+		"offline": {
+			"HEADING_TITLE": "Netwerk Verbroken!",
+			"HEADING_DESCRIPTION": "U bent momenteel offline, controleer uw internetverbinding..."
 		}
 	},
 
@@ -439,6 +443,10 @@
 		"ASSIGN_NEW_TASK": "Nieuwe taak toewijzen",
 		"ASSIGNED_BY": "Toegewezen door",
 		"NO_ONE_FOR_TASK": "Niemand toegewezen aan deze taak",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "vandaag gewerkt aan deze taak voor",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "in totaal gewerkt aan deze taak voor",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "vandaag gewerkt aan alles voor",
+		"TASKS_FOR_TOOLTIP": "taken voor",
 		"taskLabel": {
 			"WORK_LABEL": "Gewerkt",
 			"TASK_ASSIGNED": "Toegewezen",
@@ -464,7 +472,9 @@
 				"TITLE": "Totaal gewerkt",
 				"DESCRIPTION": "Vandaag",
 				"LABEL": "Totaal gewerkt vandaag"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer in totaal en vandaag aan de taak gewerkt",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer vandaag gewerkt aan alle taken voor het geselecteerde team"
 		},
 		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten"
 	},

@@ -9,14 +9,15 @@ import { Footer } from './footer';
 type Props = {
 	title?: string;
 	description?: string | ReactNode;
+	isAuthPage?: boolean;
 } & PropsWithChildren;
 
-export function AuthLayout({ children, title, description }: Props) {
+export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
 	const { t } = useTranslation();
 	return (
 		<>
 			<Meta title={title} />
-			<div className="flex">
+			<div className="flex flex-row">
 				{/* Bg Cover side */}
 				<div
 					className={clsxm(
@@ -87,19 +88,21 @@ export function AuthLayout({ children, title, description }: Props) {
 					)}
 				>
 					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
-						<div className="w-11/12">
-							{title && (
-								<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
-									{title}
-								</Text.Heading>
-							)}
+						{isAuthPage &&
+							<div className="w-11/12">
+								{title && (
+									<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
+										{title}
+									</Text.Heading>
+								)}
 
-							{description && (
-								<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px] min-h-[10vh]">
-									{description}
-								</Text>
-							)}
-						</div>
+								{description && (
+									<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px] min-h-[10vh]">
+										{description}
+									</Text>
+								)}
+							</div>
+						}
 
 						{children}
 					</div>
