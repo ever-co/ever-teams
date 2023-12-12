@@ -15,9 +15,9 @@ type ReturnedType<T> = {
 };
 
 /**
- * This function loads only env variables which start with NEXT_PUBLIC_*
+ * This function only loads environment variables starting with NEXT_PUBLIC_*
  *
- * Useful to get the latest value of variable at runtime instead of build time
+ * Useful for getting the latest value of the variable at runtime rather than at build time
  *
  * @param name
  * @param options
@@ -26,9 +26,9 @@ type ReturnedType<T> = {
 export function getNextPublicEnv<O extends Options<unknown>>(name: string, options?: O): ReturnedType<O> {
 	return {
 		get value() {
-			let value = typeof options === 'string' ? options : options?.default;
-			value = NEXT_PUBLIC_ENVS.value[name] || value;
+			const defaultValue = typeof options === 'string' ? options : options?.default;
 
+			let value = NEXT_PUBLIC_ENVS.value[name] || defaultValue;
 			if (typeof options === 'object' && options.map) {
 				value = options.map(value) as any;
 			}

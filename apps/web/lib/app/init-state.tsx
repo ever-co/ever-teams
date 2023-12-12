@@ -121,7 +121,7 @@ function InitState() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	return DISABLE_AUTO_REFRESH.value !== 'true' ? <AutoRefresher /> : <></>;
+	return !DISABLE_AUTO_REFRESH.value ? <AutoRefresher /> : <></>;
 }
 
 function useOneTimeLoad(func: () => void) {
