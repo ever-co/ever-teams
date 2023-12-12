@@ -5,6 +5,9 @@ import { DraggableProvided } from "react-beautiful-dnd";
 import CircularProgress from "@components/ui/svgs/circular-progress";
 import PriorityIcon from "@components/ui/svgs/priority-icon";
 import { Tag } from "@app/interfaces";
+import { useTimer } from "@app/hooks";
+import { pad } from "@app/helpers";
+import { TaskStatus } from "@app/constants";
 
 function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
@@ -134,6 +137,10 @@ export default function Item(props: any) {
       isClone,
       index,
     } = props;
+
+    const {
+		fomatedTimeCounter: { hours, minutes, seconds }
+	} = useTimer();
    
     return (
       <section
@@ -173,12 +180,21 @@ export default function Item(props: any) {
             </div>
         </div>
         <div className="flex flex-row justify-between items-center pt-4">
-            <div className="flex flex-row items-center gap-2">
-                <small className="text-grey text-xs text-normal">Worked:</small>
-                <p className="text-black dark:text-white font-medium text-sm">0 h 0 m </p>
-            </div>
+
+            {item.status === TaskStatus.INPROGRESS ? (
+                <div className="flex flex-row items-center gap-2">
+                    <small className="text-grey text-xs text-normal">Live:</small>
+                    <p className="text-[#219653] font-medium text-sm">{pad(hours)}:{pad(minutes)}:{pad(seconds)} </p>
+                </div>
+            ): (
+                <div className="flex flex-row items-center gap-2">
+                    <small className="text-grey text-xs text-normal">Worked:</small>
+                    <p className="text-black dark:text-white font-medium text-sm">{pad(hours)}:{pad(minutes)}:{pad(seconds)} </p>
+                </div>
+            )}
+            
             <div className="relative">
-                <div className="w-10 flex flex-row justify-end items-center relative bg-primary">
+                <div className="w-10 flex h-fit flex-row justify-end items-center relative bg-primary">
                 {item.members.map((option: any, index: number)=> {
                     return (
                         <Image 
