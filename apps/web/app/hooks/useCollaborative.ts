@@ -65,8 +65,8 @@ export function useCollaborative(user?: IUser) {
 	const onBoardClick = useCallback(() => {
 		const members = collaborativeMembers.map((m) => m.id).join(',');
 
-		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN) {
-			const url = new URL(BOARD_APP_DOMAIN);
+		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN.value) {
+			const url = new URL(BOARD_APP_DOMAIN.value);
 			url.searchParams.set('live', 'true');
 			url.searchParams.set('members', btoa(members));
 

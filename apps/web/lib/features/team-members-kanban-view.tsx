@@ -1,74 +1,87 @@
 import { useKanban } from "@app/hooks/features/useKanban";
+import { ITaskStatus, ITaskStatusItemList, ITeamTask } from "@app/interfaces";
+import { IKanban } from "@app/interfaces/IKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
 import { AddIcon } from "lib/components/svgs";
 import React from "react";
 import {  useEffect, useState } from "react";
-import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
+import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
-const reorder = (list: any[], startIndex:number , endIndex:number ) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
 
-  return result;
-};
+export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) => {
 
-const reorderItemMap = ({ itemMap, source, destination }: {
-  itemMap: any,
-  source: any,
-  destination: any
-}) => {
-  const current = [...itemMap[source.droppableId]];
-  const next = [...itemMap[destination.droppableId]];
-  const target = current[source.index];
-
-  // moving to same list
-  if (source.droppableId === destination.droppableId) {
-    const reordered = reorder(current, source.index, destination.index);
-    const result = {
-      ...itemMap,
-      [source.droppableId]: reordered,
-    };
-    return {
-      quoteItem: result,
-    };
-  }
-
-  // moving to different list
-
-  // remove from original
-  current.splice(source.index, 1);
-  // insert into next
-  next.splice(destination.index, 0, target);
-
-  const result = {
-    ...itemMap,
-    [source.droppableId]: current,
-    [destination.droppableId]: next,
-  };
-
-  return {
-    quoteItem: result,
-  };
-};
-
-const getHeaderBackground = (columns: any, column: any) => {
-
-  const selectState = columns.filter((item: any)=> {
-    return item.name === column
-  });
-
-  return selectState[0].color
-}
-
-export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
-
-    const { columns:kanbanColumns } = useKanban();
-
-    const [items, setItems] = useState<any>(itemsArray);
+    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus } = useKanban();
+   
+    const [items, setItems] = useState<IKanban>(kanbanBoardTasks);
   
-    const [columns, setColumn] = useState<any>(Object.keys(itemsArray));
+    const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
+
+    const reorderTask = (list: ITeamTask[], startIndex:number , endIndex:number ) => {
+      const tasks = Array.from(list);
+      const [removedTask] = tasks.splice(startIndex, 1);
+      tasks.splice(endIndex, 0, removedTask);
+     
+      return tasks;
+    };
+    
+    const reorderKanbanTasks = ({ kanbanTasks, source, destination }: {
+      kanbanTasks: IKanban,
+      source: DraggableLocation,
+      destination: DraggableLocation
+    }) => {
+      const sourceDroppableID = source.droppableId;
+      const destinationDroppableID = destination.droppableId;
+      const sourceIndex = source.index;
+      const destinationIndex = destination.index;
+      const currentTaskStatus = [...kanbanTasks[sourceDroppableID]];
+      const nextTaskStatus = [...kanbanTasks[destinationDroppableID]];
+      const targetStatus = currentTaskStatus[source.index];
+    
+      // moving to same list
+      if (sourceDroppableID === destinationDroppableID) {
+        const reorderedKanbanTasks = reorderTask(currentTaskStatus, sourceIndex, destinationIndex);
+        const result = {
+          ...kanbanTasks,
+          [sourceDroppableID]: reorderedKanbanTasks,
+        };
+        return {
+          kanbanBoard: result,
+        };
+      }
+    
+      // remove from original
+      currentTaskStatus.splice(sourceIndex, 1);
+
+      const taskstatus = destinationDroppableID as ITaskStatus;
+     
+      const updateTaskStatusData = {...targetStatus, status: taskstatus};
+      
+      // update task status on server
+      updateTaskStatus(updateTaskStatusData);
+    
+      // insert into next
+      nextTaskStatus.splice(destinationIndex, 0, updateTaskStatusData);
+    
+      const result = {
+        ...kanbanTasks,
+        [sourceDroppableID]: currentTaskStatus,
+        [destinationDroppableID]: nextTaskStatus,
+      };
+    
+      return {
+        kanbanBoard: result,
+      };
+    };
+    
+    const getHeaderBackground = (columns: ITaskStatusItemList[], column: string) => {
+    
+      const selectState = columns.filter((item: ITaskStatusItemList)=> {
+        return item.name === column
+      });
+    
+      return selectState[0].color
+    }
    
     /**
      * This function handles all drag and drop logic
@@ -96,6 +109,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
           [result.source.droppableId]: withItemRemoved,
         };
         setItems(orderedItems);
+
         return;
       }
 
@@ -115,23 +129,24 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
         return;
       }
   
-      // reordering column
-      if (result.type === 'COLUMN') {
-        const reorderedItem = reorder(items, source.index, destination.index);
+      // TODO: fix issues with reordering column
+      // if (result.type === 'COLUMN') {
+      //   const reorderedItem = reorder(items, source.index, destination.index);
   
-        setItems(reorderedItem);
+      //   setItems(reorderedItem);
+      //   // updateKanbanBoard(reorderedItem);
+      //   // console.log('data '+ kanbandata)
+      //   return;
+      // }
   
-        return;
-      }
-  
-      const data = reorderItemMap({
-        itemMap: items,
+      const data = reorderKanbanTasks({
+        kanbanTasks: items,
         source,
         destination,
       });
   
-      setItems(data.quoteItem);
-       
+      setItems(data.kanbanBoard);
+      updateKanbanBoard(() => data.kanbanBoard)
     }
 
     const [enabled, setEnabled] = useState(false);
