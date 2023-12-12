@@ -54,7 +54,7 @@ function InnerItemList({items, title}: {
 }) {
     return (
         <>
-        <section className="flex flex-col gap-2.5 max-h-[520px] overflow-scroll ">
+        <section className="flex flex-col gap-2.5 max-h-[520px] overflow-y-scroll overflow-x-hidden">
         {items.map((item: ITeamTask, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
