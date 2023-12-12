@@ -1,0 +1,546 @@
+{
+	"TITLE": "إيفر تيمز",
+	"common": {
+		"ACCEPT": "قبول",
+		"ACCEPTED": "مقبول",
+		"REJECT": "رفض",
+		"REJECTED": "مرفوض",
+		"VERIFY": "تحقق",
+
+		"INVITE": "دعوة",
+		"INVITED": "مدعو",
+		"EXPIRE": "انتهاء الصلاحية",
+		"EXPIRED": "منتهي الصلاحية",
+		"REQUEST": "طلب",
+		"REQUESTED": "مطلوب",
+		"LABEL": "تصنيف",
+		"LABELS": "تصنيفات",
+		"POSITION": "منصب",
+		"ROLES": "أدوار",
+		"JOIN_OR_LEFT": "انضم / غادر",
+		"PLEASE": "من فضلك",
+		"HERE": "هنا",
+		"PEOPLE": "أشخاص",
+		"COLLABORATE": "تعاون",
+		"NO": "لا",
+		"ONLY_ME": "أنا فقط",
+		"YES": "نعم",
+		"BASIC": "أساسي",
+		"DELETE": "حذف",
+		"MEET": "اجتماع",
+		"BOARD": "لوحة",
+		"SECURITY_CODE": "رمز الأمان",
+		"CONFIRM": "تأكيد",
+		"YOUR_EMAIL": "بريدك الإلكتروني",
+		"CONTINUE": "متابعة",
+		"EDIT_TASK": "تعديل المهمة",
+		"ASSIGN_TASK": "تعيين مهمة",
+
+		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
+		"REMOVE_ACCOUNT": "إزالة الحساب",
+		"REMOVE_EVERYWHERE": "إزالة من كل مكان",
+		"DELETE_ACCOUNT": "حذف هذا الحساب",
+		"UNASSIGN_TASK": "إلغاء تعيين المهمة",
+		"MAKE_A_MANAGER": "جعل مدير",
+		"UNMAKE_A_MANAGER": "إلغاء جعل مدير",
+		"TRANSFERT_OWNERSHIP": "نقل الملكية",
+		"TRANSFERT_OWNERSHIP_TO": "نقل الملكية الكاملة للفريق إلى مستخدم آخر",
+		"REMOVE": "إزالة",
+		"REMOVE_TEAM": "إزالة الفريق",
+		"DISPOSE_TEAM": "التخلص من الفريق",
+		"QUIT_TEAM": "مغادرة الفريق",
+		"QUIT": "مغادرة",
+		"STATUSES": "الحالات",
+		"RESEND_INVITATION": "إعادة إرسال الدعوة",
+		"TODAY": "اليوم",
+		"TOTAL": "المجموع",
+		"ESTIMATED": "التقديري",
+		"ESTIMATE": "تقدير",
+		"STATUS": "الحالة",
+		"NAME": "الاسم",
+		"TASK": "المهمة",
+		"MY_TASKS": "مهامي",
+		"WORKED_ON_TASK": "عمل على المهمة",
+		"TOTAL_WORKED_TODAY": "إجمالي العمل اليوم",
+		"TOTAL_WORK": "عمل اليوم",
+		"OPEN": "فتح",
+		"NOW": "الآن",
+		"NEXT": "التالي",
+		"PREV": "السابق",
+		"DETAILS": "التفاصيل",
+		"CLOSED": "مغلق",
+		"CLOSE": "إغلاق",
+		"USER_NOT_FOUND": "لم يتم العثور على مستخدمين.",
+		"TASK_TITTLE": "عنوان المهمة",
+		"PUBLIC_TASK": "هذه المهمة عامة",
+		"PRIVATE_TASK": "هذه المهمة خاصة",
+		"PUBLIC_TASK_LABEL": "جعل عامة",
+		"PRIVATE_TASK_LABEL": "جعل خاصة",
+		"CREATE_TASK": "إنشاء مهمة جديدة",
+		"LINK_TASK": "تحديد القضية ذات الصلة",
+		"LINK": "رابط",
+		"LINKS": "روابط",
+		"SHOW": "عرض",
+		"ADD_LINK": "إضافة روابط",
+		"COMMENT": "تعليق",
+		"DESCRIPTION": "وصف",
+		"CHILD_ISSUE_TASK": "تحديد القضية الفرعية",
+		"CREATE_TEAM": "إنشاء فريق جديد",
+		"VERIFY_ACCOUNT_MSG": "يرجى التحقق من حسابك قبل البدء في استخدام التطبيق",
+		"CREATE_ROLE": "إنشاء دور",
+		"CREATE": "إنشاء",
+		"CREATE_ISSUE": "إنشاء قضية",
+		"NEW_ISSUE": "قضية جديدة",
+		"ACTIVATED": "مفعل",
+		"DEACTIVATED": "غير مفعل",
+		"PERIOD": "فترة",
+		"NEW": "جديد",
+		"CREATE_VERSION": "إنشاء إصدار",
+		"VERSION": "الإصدار",
+		"LOADING": "جاري التحميل",
+		"TOTAL_TIME": "إجمالي الوقت",
+		"LAST_24_HOURS": "آخر 24 ساعة",
+		"WORKED": "عمل",
+		"ASSIGNED": "معين",
+		"SELECT_STATUS": "تحديد الحالة",
+		"SELECT_ISSUE": "تحديد القضية",
+		"UNASSIGNED": "غير معين",
+		"TASK_DETAILS": "تفاصيل المهمة",
+		"TYPE_SOMETHING": "اكتب شيئًا ما",
+		"FILTER": "تصفية",
+		"APPLY": "تطبيق",
+		"RESET": "إعادة تعيين",
+		"LOGOUT": "تسجيل خروج",
+		"THEMES": "المواضيع",
+		"3D_MODE": "الوضع ثلاثي الأبعاد",
+		"DARK_MODE": "الوضع الداكن",
+		"SETTINGS": "الإعدادات",
+		"PERSONAL": "شخصي",
+		"USE_SETTING": "استخدام الإعداد",
+		"TEAM": "الفريق",
+		"MY_TEAM": "فريقي",
+		"FULL_NAME": "الاسم الكامل",
+		"USER_AVATAR": "صورة المستخدم",
+		"CONTACT": "جهة الاتصال",
+		"THEME": "الموضوع",
+		"TIME_ZONE": "المنطقة الزمنية",
+		"EDIT": "تعديل",
+		"SAVE": "حفظ",
+		"LANGUAGE": "اللغة",
+		"DETECT": "كشف",
+		"TRANSFER": "نقل",
+		"TRANSFER_TEAM": "نقل الفريق",
+		"TEAM_MEMBERS": "أعضاء الفريق",
+		"NO_TEAM": "أنشئ فريقك الخاص أو انضم إلى فريق موجود",
+		"NO_TEAM_SUB": "من الرائع العمل مع الآخرين، لذا قم بإنشاء فريق وادعو الجميع للتعاون!",
+		"NO_TEAM_TOOLTIP": "تحتاج إلى التحقق من عنوان بريدك الإلكتروني",
+		"CANCEL": "إلغاء",
+		"DISCARD": "تجاهل",
+		"EXISTING_MEMBER": "عضو بالفعل",
+		"NEW_MEMBER": "أصبح عضوًا",
+		"BACK": "رجوع",
+		"JOIN_REQUEST": "طلب الانضمام",
+		"PERMISSION": "الإذن",
+		"SEARCH": "بحث",
+		"ADD_PARENT": "إضافة أصل",
+		"BLOCKS": "يحجب",
+		"CLONES": "نسخ",
+		"DUPLICATES": "مكررات",
+		"IS_BLOCKED_BY": "محجوب بواسطة",
+		"IS_CLONED_BY": "منسوخ بواسطة",
+		"IS_DUPLICATED_BY": "مكرر بواسطة",
+		"RELATES_TO": "يتعلق بـ",
+		"CHANGE_PARENT": "تغيير الأصل",
+		"RELATED_ISSUES": "القضايا ذات الصلة",
+		"CHILD_ISSUES": "القضايا الفرعية",
+		"REOPEN": "إعادة فتح",
+		"NO_TASKS": "لا توجد مهام",
+		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
+
+		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
+		"COLLABORATE_DIALOG_SUB_TITLE": "ادعُ عضوًا (أعضاء) وابدأ التعاون",
+		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "بدء اجتماع أو تعاون لوحة",
+		"ISSUE_TYPE": "نوع القضية",
+		"ACTIVITY": "النشاط",
+		"FILTER_ALL": "الكل",
+		"FILTER_COMMENTS": "التعليقات",
+		"FILTER_HISTORY": "التاريخ",
+		"FILTER_UNSUBSCRIBE": "إلغاء الاشتراك",
+
+		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح",
+		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "قم بمزامنة المهام تلقائيًا في تطبيقك لتحديثات سلسة وفعّالة.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "تزامن المهام بشكل انتقائي عن طريق ربطها بتصنيف معين.",
+		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي"
+	},
+	"alerts": {
+		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",
+		"ALERT_ACCOUNT_PERMANENT_DELETE": "سيتم حذف حسابك نهائياً مع إزالته من جميع الفرق",
+		"ALERT_REMOVE_TEAM": "سيتم إزالة الفريق بالكامل من النظام وفقدان أعضاء الفريق للوصول",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_QUIT_TEAM": "أنت على وشك مغادرة الفريق"
+	},
+	"pages": {
+		"home": {
+			"BREADCRUMB": ["لوحة التحكم"],
+			"SENT_EMAIL_VERIFICATION": "تم إرسال تحقق الرمز إلى بريدك الإلكتروني",
+			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "تحتاج إلى",
+			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " عنوان بريدك الإلكتروني. يجب أن يكون الرمز التحقق قد أُرسل بالفعل إلى بريدك الإلكتروني، ولكن يمكنك النقر فوق",
+			"SENT_EMAIL_VERIFICATION_RESEND": "لإعادة إرسال الرمز إذا لم تتلقاه.",
+			"INVITATIONS": "لقد تمت دعوتك للانضمام إلى",
+			"CONFIRM_ACCEPT_INVITATION": "هل أنت متأكد من رغبتك في قبول الدعوة؟",
+			"CONFIRM_REJECT_INVITATION": "هل أنت متأكد من رغبتك في رفض الدعوة؟"
+		},
+
+		"profile": {
+			"BREADCRUMB": ["مهام العضو"]
+		},
+
+		"taskDetails": {
+			"BREADCRUMB": ["تفاصيل المهمة"],
+			"DESCRIPTION": "الوصف",
+			"ADD_DESCRIPTION": "أضف وصفًا هنا",
+			"TYPE_OF_ISSUE": "نوع القضية",
+			"CREATOR": "المنشئ",
+			"ASSIGNEES": "المعينون",
+			"START_DATE": "تاريخ البدء",
+			"DUE_DATE": "تاريخ الاستحقاق",
+			"DAYS_REMAINING": "الأيام المتبقية",
+			"VERSION": "الإصدار",
+			"EPIC": "الملحمي",
+			"STATUS": "الحالة",
+			"LABEL": "التصنيف",
+			"LABELS": "التصنيفات",
+			"SIZE": "الحجم",
+			"PRIORITY": "الأولوية",
+			"ESTIMATIONS": "التقديرات",
+			"PROGRESS": "التقدم",
+			"TOTAL_TIME": "إجمالي الوقت",
+			"TIME_TODAY": "الوقت اليوم",
+			"TOTAL_GROUP_TIME": "إجمالي وقت المجموعة",
+			"TIME_REMAINING": "الوقت المتبقي",
+			"CREATED": "تم الإنشاء",
+			"UPDATED": "تم التحديث",
+			"RESOLVED": "تم الحل",
+
+			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "تعذر علينا تحديث عنوان المهمة.",
+			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
+
+			"TASK_IS_ALREADY_EPIC": "لا يمكن تغيير نوع المهمة الملحمية.",
+			"TASK_HAS_PARENT": "لا يمكن تغيير نوع المهمة حيث أن لديها بالفعل والد."
+		},
+
+		"auth": {
+			"SEND_CODE": "إرسال الرمز",
+			"JOIN": "انضمام",
+			"UNRECEIVED_CODE": "لم تتلقى الرمز؟",
+			"JOIN_TEAM": "انضمام للفريق",
+			"INPUT_INVITE_CODE": "إدخال رمز الدعوة.",
+			"INPUT_INVITE_CODE_DESC": "أدخل رمز الدعوة الذي أرسلناه إلى بريدك الإلكتروني.",
+			"INVALID_INVITE_CODE_MESSAGE": "رمز غير صالح",
+			"WELCOME_TEAMS": "مرحبًا بك في إيفر تيمز",
+
+			"COVER_TITLE": "تابع تقدم عمل فرقك في الوقت الفعلي!",
+			"COVER_DESCRIPTION": "نص تجريبي هنا",
+			"LOGIN": "تسجيل الدخول",
+			"SELECT_WORKSPACE": "تحديد مساحة العمل",
+			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
+			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل"
+		},
+		"authPasscode": {
+			"HEADING_TITLE": "الانضمام إلى فريق موجود",
+			"HEADING_DESCRIPTION": "يرجى إدخال البريد الإلكتروني ورمز الدعوة للانضمام إلى فريق موجود."
+		},
+		"authLogin": {
+			"HEADING_TITLE": "تسجيل الدخول إلى الفريق",
+			"HEADING_DESCRIPTION": "يرجى إدخال البريد الإلكتروني ورمز الدعوة لتسجيل الدخول.",
+
+			"WORKSPACE": "مساحة العمل",
+			"HEADING_WORKSPACE_LINE1": "البريد الإلكتروني المرتبط بمساحات عمل متعددة،",
+			"HEADING_WORKSPACE_LINE2": "يرجى تحديد واحدة للمتابعة"
+		},
+		"authTeam": {
+			"HEADING_TITLE": "إنشاء فريق جديد",
+			"HEADING_DESCRIPTION": "يرجى إدخال تفاصيل فريقك لإنشاء فريق جديد.",
+			"LOADING_TEXT": "نحن الآن ننشئ مساحة عملك الجديدة، انتظر...",
+			"VERIFY_EMAIL_LOADING_TEXT": "نحن نحقق من بريدك الإلكتروني، انتظر...",
+			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
+			"JOIN_EXISTING_TEAM": "الانضمام إلى فريق موجود؟",
+			"CREATE_FIRST_TEAM": "أنشئ أول فريق لك",
+			"CREATE_TEAM": "إنشاء فريق"
+		},
+
+		"settings": {
+			"BREADCRUMB": [{ "title": "لوحة التحكم", "href": "/" }, "الإعدادات"],
+			"DANDER_ZONE": "منطقة الخطر",
+			"HEADING_DESCRIPTION": "ضبط وإدارة لوحة التحكم الشخصية هنا",
+			"ARE_YOU_SURE_TO_DELETE_USER": "هل أنت متأكد من رغبتك في حذف هذا المستخدم؟"
+		},
+
+		"settingsPersonal": {
+			"HEADING_TITLE": "الإعدادات العامة",
+			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
+			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
+			"WORK_SCHEDULE": "جدول العمل",
+			"SUBSCRIPTION": "الاشتراك",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "المنطقة الزمنية الخاصة بك",
+			"ABOUT_TO_CHANGE_EMAIL": "أنت على وشك تغيير البريد الإلكتروني",
+			"ABOUT_TO_DELETE_ACCOUNT": "أنت على وشك حذف حسابك؟",
+			"ABOUT_TO_REMOVE_ACCOUNT": "أنت على وشك إزالة حسابك؟",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+		},
+
+		"settingsTeam": {
+			"HEADING_TITLE": "الإعدادات العامة",
+			"MEMBER_HEADING_TITLE": "الأعضاء",
+			"PRIORITIES_HEADING": "الأولويات",
+			"NOTIFICATION_HEADING": "الإشعارات",
+			"SIZES_HEADING": "الأحجام",
+			"TEAM_NAME": "اسم الفريق",
+			"TEAM_TYPE": "نوع الفريق",
+			"TIME_TRACKING": "تتبع الوقت",
+
+			"ADD_NEW_MEMBER": "إضافة عضو جديد",
+			"MANAGE_ASSIGNEES": "إدارة المعينين",
+			"SEARCH_MEMBER": "البحث عن عضو",
+			"TASK_STATUSES": "حالات المهام",
+			"TASK_PRIORITIES": "أولويات المهام",
+			"TASK_SIZES": "أحجام المهام",
+			"TASK_LABELS": "تصنيفات المهام",
+			"ISSUE_TYPES": "أنواع القضايا",
+			"RELATED_TYPE": "النوع ذو الصلة",
+
+			"INVITATION_HEADING_TITLE": "الدعوات",
+			"CREATE_NEW_STATUSES": "إنشاء حالات جديدة",
+			"CREATE_NEW_STATUS": "إنشاء حالة جديدة",
+			"CREATE_NEW_VERSION": "إنشاء إصدار جديد",
+			"CREATE_NEW_PRIORITIES": "إنشاء أولويات جديدة",
+			"CREATE_NEW_PRIORITY": "إنشاء أولوية جديدة",
+			"CREATE_NEW_SIZES": "إنشاء أحجام جديدة",
+			"CREATE_NEW_SIZE": "إنشاء حجم جديد",
+			"CREATE_NEW_LABELS": "إنشاء تصنيفات جديدة",
+			"CREATE_NEW_LABEL": "إنشاء تصنيف جديد",
+			"CREATE_NEW_ISSUE_TYPES": "إنشاء قضايا جديدة",
+
+			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "إخفاء معلومات الأعضاء الشخصية",
+			"POSITION_CUSTOM": "المناصب المخصصة",
+			"INVITATION_EXPIRATION": "انتهاء صلاحية الدعوة",
+			"NOTIFY_IF": "إشعار إذا",
+			"TEAM_REQUEST": "طلب الفريق",
+			"WORK_SCHEDULE": "جدول العمل",
+			"MEMBER_AND_ROLES": "الأعضاء والأدوار",
+			"INTEGRATIONS": "التكاملات",
+			"DANDER_ZONES": "مناطق الخطر",
+
+			"GITHUB": "GitHub",
+			"GITHUB_INTEGRATION_DESCRIPTION": "قم بالاتصال بـ GitHub وابدأ مزامنة قضايا GitHub مع فريقك",
+			"SELECT_REPOSITORY": "تحديد المستودع",
+
+			"INSTALL": "تثبيت",
+
+			"LIST_OF_STATUSES": "قائمة الحالات",
+			"LIST_OF_PRIORITIES": "قائمة الأولويات",
+			"LIST_OF_SIZES": "قائمة الأحجام",
+			"LIST_OF_LABELS": "قائمة التصنيفات",
+			"LIST_OF_ISSUES_TYPE": "قائمة القضايا",
+
+			"GENERAL": "عام",
+			"SOUND": "الصوت",
+			"EMAIL": "البريد الإلكتروني",
+			"USERS": "المستخدمون",
+			"TASKS": "المهام",
+			"SYSTEM": "النظام",
+			"SECURITY": "الأمان",
+			"INAPP": "داخل التطبيق",
+			"NOTIFICATION_HEADING_TITLE": "إعدادات الإشعارات",
+			"ISSUE_HEADING_TITLE": "إعدادات القضايا",
+
+			"TASK_PRIVACY": "خصوصية المهمة",
+			"MULTIPLE_ASSIGNEES": "متعدد المعينين",
+			"MANUAL_TIME": "الوقت اليدوي",
+			"GROUP_ESTIMATION": "تقدير المجموعة",
+			"ESTIMATION_IN_HOURS": "التقدير بالساعات",
+			"ESTIMATION_IN_STORY_POINTS": "التقدير بنقاط القصة",
+			"PROOF_OF_COMPLETION": "إثبات الإتمام",
+			"LINKED_ISSUES": "القضايا المرتبطة",
+			"COMMENTS": "التعليقات",
+			"HISTORY": "التاريخ",
+			"ACCEPTANCE_CRITERIA": "معايير القبول",
+			"DRAFT_ISSUES": "القضايا المسودة",
+			"AUTO_CLOSE_ISSUE": "إغلاق القضية تلقائيًا",
+			"AUTO_ARCHIVE_ISSUE": "أرشفة القضية تلقائيًا",
+			"AUTO_STATUS": "الحالة التلقائية",
+			"VERSIONS": "الإصدارات",
+			"LIST_OF_VERSONS": "قائمة الإصدارات",
+			"ISSUETYPE": "أنواع القضايا",
+			"LIST_OF_ISSUES": "قائمة القضايا",
+			"RELATED_ISSUE_TYPE": "أنواع القضايا ذات الصلة",
+			"LIST_OF_RELATED_TYPE": "قائمة الأنواع ذات الصلة",
+			"INITIAL": "البداية",
+			"COPY_NUMBER": "رقم النسخة",
+			"IN_PROGRESS": "قيد التقدم",
+			"FINAL": "النهائي",
+			"DISPOSE_TEAM": "أنت على وشك التخلص من الفريق؟",
+			"QUIT_TEAM": "أنت على وشك مغادرة الفريق؟",
+			"TEAM_COLOR": "لون الفريق",
+			"TEAM_SIZE": "حجم الفريق",
+			"EMOJI": "الإيموجي",
+			"ISSUES_HEADING_TITLE": "إعدادات القضايا",
+
+			"TRACK_TIME": "تتبع الوقت",
+			"ESTIMATE_ISSUE": "تقدير القضية",
+			"EPICS_CREATE_CLOSE": "إنشاء/إغلاق الملاحم",
+			"ISSUE_CREATE_CLOSE": "إنشاء/إغلاق القضية",
+			"ISSUE_ASSIGN_UNASSIGN": "تعيين/إلغاء تعيين القضية",
+			"INVITE_MEMBERS": "دعوة أعضاء",
+			"REMOVE_MEMBERS": "إزالة أعضاء",
+			"HANDLE_REQUESTS": "التعامل مع الطلبات",
+			"ROLES_POSITIONS_CHANGE": "تغيير الأدوار/المناصب",
+			"VIEW_DETAILS": "عرض التفاصيل",
+
+			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
+			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!"
+		},
+		"invite": {
+			"HEADING_TITLE": "دعوة عضو لفريقك",
+			"HEADING_DESCRIPTION": "إرسال دعوة إلى عضو الفريق عبر البريد الإلكتروني",
+			"TEAM_MEMBER_EMAIL": "البريد الإلكتروني لعضو الفريق",
+			"TEAM_MEMBER_FULLNAME": "الاسم الكامل لعضو الفريق",
+			"SEND_INVITE": "إرسال الدعوة",
+			"ERROR_WHILE_ACCEPTING_INVITATION": "حدث خطأ أثناء قبول الدعوة",
+			"ERROR_WHILE_REJECTING_INVITATION": "حدث خطأ أثناء رفض الدعوة",
+			"INVITE_LABEL_SEND": "إرسال دعوة",
+			"invitationTable": {
+				"NAME_AND_EMAIL": "الاسم والبريد الإلكتروني",
+				"POSITION": "المنصب",
+				"DATE_AND_TIME_REQUEST": "التاريخ والوقت للطلب",
+				"CV_OR_ATTACHMENT": "المرفقات"
+			}
+		},
+		"permissions": {
+			"SELECT_ROLES": "تحديد الأدوار"
+		},
+
+		"page404": {
+			"HEADING_TITLE": "غير موجود",
+			"HEADING_DESCRIPTION": "المورد الذي تبحث عنه غير موجود!",
+			"LINK_LABEL": "الذهاب إلى الصفحة الرئيسية"
+		},
+		"offline": {
+			"HEADING_TITLE": "انقطاع الشبكة!",
+			"HEADING_DESCRIPTION": "أنت غير متصل حاليًا، يرجى التحقق من اتصالك بالإنترنت..."
+		}
+	},
+
+	"timer": {
+		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت",
+		"TEAM_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
+		},
+		"ESTIMATION": {
+			"ESTIMATE_LABEL": "التقدير"
+		},
+		"DAY_LIST": [{ "title": "7 أيام" }, { "title": "14 يوم" }]
+	},
+
+	"task": {
+		"TITLE": "المهمة",
+		"ASSIGN_NEW_TASK": "تعيين مهمة جديدة",
+		"ASSIGNED_BY": "تم التعيين بواسطة",
+		"NO_ONE_FOR_TASK": "لم يتم تعيين أحد لهذه المهمة",
+		"taskLabel": {
+			"WORK_LABEL": "عمل",
+			"TASK_ASSIGNED": "معينة",
+			"TASK_UNASSIGNED": "غير معينة",
+			"BUTTON_LABEL": "تعيين مهمة"
+		},
+		"tabFilter": {
+			"WORKED_DESCRIPTION": "يعرض هذا التبويب جميع المهام التي بدأت العمل عليها",
+			"ASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام المعينة لك",
+			"UNASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام غير المعينة لك",
+			"NO_TASK_USER_ASSIGNED": "لم يتم تعيين أحد لهذه المهمة"
+		},
+		"taskTableHead": {
+			"TASK_NAME": "الاسم",
+			"TASK_STATUS": "الحالة",
+			"TASK_WORK": {
+				"TITLE": "عمل على",
+				"DESCRIPTION": "المهمة",
+				"LABEL": "عمل على المهمة"
+			},
+			"TASK_TIME": "التقدير",
+			"TOTAL_WORK": {
+				"TITLE": "إجمالي العمل",
+				"DESCRIPTION": "اليوم",
+				"LABEL": "إجمالي العمل اليوم"
+			}
+		},
+		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة"
+	},
+
+	"form": {
+		"NAME_PLACEHOLDER": "أدخل اسمك",
+		"FIRST_NAME_PLACEHOLDER": "الاسم الأول",
+		"LAST_NAME_PLACEHOLDER": "اسم العائلة",
+		"EMAIL_PLACEHOLDER": "أدخل عنوان بريدك الإلكتروني",
+		"PHONE_PLACEHOLDER": "رقم الهاتف",
+
+		"ISSUE_NAME_PLACEHOLDER": "اسم القضية",
+
+		"TEAM_NAME_PLACEHOLDER": "يرجى إدخال اسم فريقك",
+		"TASK_INPUT_PLACEHOLDER": "على ماذا تعمل؟",
+
+		"TEAM_MEMBER_NAME_PLACEHOLDER": "اسم عضو الفريق",
+		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "عنوان بريد عضو الفريق الإلكتروني",
+		"COMPLETION_DESCRIPTION": "اكتب الوصف",
+		"UPLOAD_FILES": "تحميل الملفات",
+		"ATTACHMENT_FILE": "ملفات مرفقة",
+		"ADD_COMMENT": "أضف تعليقًا هنا",
+		"SET_THEME": "تعيين الموضوع",
+		"CHANGE_AVATAR": "تغيير الصورة الرمزية",
+		"SELECT_TEAM_SIZE": "حدد حجم الفريق",
+		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي"
+	},
+
+	"layout": {
+		"footer": {
+			"RIGHTS_RESERVED": "جميع الحقوق محفوظة.",
+			"COPY_RIGHT1": "© {{date}}-حاضر،",
+			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT4": "إيفر ش.م.م.",
+			"COMPANY_NAME": "إيفر ش.م.م.",
+			"TERMS": "شروط الخدمة",
+			"PRIVACY_POLICY": "سياسة الخصوصية",
+			"COOKIES": "سياسة ملفات تعريف الارتباط",
+			"BY": "من طرف"
+		}
+	},
+
+	"errors": {
+		"NETWORK_ISSUE": "مشكلة في الشبكة، يرجى إعادة المحاولة لاحقًا",
+		"ERROR_WHILE_VERIFY_CODE": "حدث خطأ أثناء التحقق من الرمز.",
+		"LENGTH_NUMBER_ERROR": "يجب أن يكون الطول رقمًا وأكبر من 0",
+		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي ",
+		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح"
+	},
+	"placeholders": {
+		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"
+	},
+	"team": {
+		"BACK_LABEL": "العودة إلى الفريق",
+		"PUBLIC_TEAM": "فريق عام",
+		"PRIVATE_TEAM": "فريق خاص",
+		"creation": {
+			"NEW": "إنشاء فريق جديد"
+		}
+	},
+	"links": {
+		"common": {
+			"TASKS": "المهام",
+			"TEAM": "الفريق",
+			"SETTINGS": "الإعدادات"
+		}
+	}
+}

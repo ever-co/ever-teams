@@ -3,7 +3,7 @@ import { Meta, Text } from 'lib/components';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { Footer } from './footer';
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 } & PropsWithChildren;
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<>
 			<Meta title={title} />
@@ -88,7 +88,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 					)}
 				>
 					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
-						{isAuthPage &&
+						{isAuthPage && (
 							<div className="w-11/12">
 								{title && (
 									<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
@@ -102,7 +102,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 									</Text>
 								)}
 							</div>
-						}
+						)}
 
 						{children}
 					</div>
