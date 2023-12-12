@@ -32,6 +32,7 @@ export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY');
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
+// Gauzy Server URL
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
 export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv('NEXT_PUBLIC_GAUZY_API_SERVER_URL', 'https://api.gauzy.co');
 
@@ -41,6 +42,9 @@ export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 export const GA_MEASUREMENT_ID = getNextPublicEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID');
+
+// Chatwoot
+export const CHATWOOT_API_KEY = getNextPublicEnv('NEXT_PUBLIC_CHATWOOT_API_KEY');
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
