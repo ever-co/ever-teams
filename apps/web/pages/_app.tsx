@@ -19,7 +19,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-	// Set Envs to availabe on client side
 	setNextPublicEnv(pageProps.envs);
 
 	const jitsuConf = pageProps?.jitsuConf;
