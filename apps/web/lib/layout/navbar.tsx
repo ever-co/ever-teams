@@ -81,7 +81,7 @@ export function Navbar({
 									)}
 									{showTimer && <MinTimerFrame />}
 
-									<div className="hidden md:flex items-center">
+									<div className="hidden md:flex gap-4 items-center">
 										{!publicTeam && <Collaborate />}
 
 										{isTeamMember && isTeamDropdownAllowed ? (

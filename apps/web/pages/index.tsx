@@ -148,7 +148,7 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 			{/* Task inputs */}
 			{/* {showInput && ( */}
 			<AuthUserTaskInput className={clsxm('w-4/5 md:w-1/2 2xl:w-full ', !showInput && '!hidden md:!flex')} />
-			{/* )} */}
+			{/* )}  */}
 
 			<button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
 				{showInput ? 'hide the issue input' : 'show the issue input'}

@@ -86,7 +86,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		<div className="flex items-center mb-4 space-x-4 md:mb-0">
 			<div
 				className={clsx(
-					`w-[100px] h-[100px]`, // removed the size variable from width and height, as passing variables is not supported by tailwind
+					` w-[100px] h-[100px]`, // removed the size variable from width and height, as passing variables is not supported by tailwind
 					'flex justify-center items-center relative',
 					'rounded-full text-white',
 					'shadow-md text-7xl dark:text-6xl font-thin font-PlusJakartaSans ',
@@ -123,7 +123,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 			</div>
 
 			<div className="flex flex-col gap-3.5">
-				<Text.Heading as="h3" className="text-xl md:text-4xl">
+				<Text.Heading as="h3" className="text-2xl md:text-4xl">
 					{user?.firstName} {user?.lastName}
 				</Text.Heading>
 				<Text className="text-lg text-gray-500">{user?.email}</Text>
