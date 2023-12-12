@@ -4,6 +4,7 @@ import { GA_MEASUREMENT_ID, jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
 import { AppState } from 'lib/app/init-state';
+import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import { NextPage, NextPageContext } from 'next';
 import { ThemeProvider } from 'next-themes';
@@ -18,7 +19,14 @@ import i18n from '../ni18n.config';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
+type MyAppProps = {
+	jitsuConf?: JitsuOptions;
+	jitsuHost?: string;
+	envs: Record<string, string>;
+	user?: any;
+};
+
+const MyApp = ({ Component, pageProps }: AppProps<MyAppProps>) => {
 	setNextPublicEnv(pageProps.envs);
 
 	const jitsuConf = pageProps?.jitsuConf;
@@ -53,11 +61,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 				options={
 					isJitsuEnvsPresent
 						? {
-								host: jitsuConf.host ?? '',
-								writeKey: jitsuConf.writeKey ?? undefined,
-								debug: jitsuConf.debug,
-								cookieDomain: jitsuConf.cookieDomain ?? undefined,
-								echoEvents: jitsuConf.echoEvents
+								host: jitsuConf?.host ?? '',
+								writeKey: jitsuConf?.writeKey ?? undefined,
+								debug: jitsuConf?.debug,
+								cookieDomain: jitsuConf?.cookieDomain ?? undefined,
+								echoEvents: jitsuConf?.echoEvents
 						  }
 						: {
 								disabled: true
