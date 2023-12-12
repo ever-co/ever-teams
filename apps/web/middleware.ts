@@ -26,8 +26,17 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
+	const midd = createMiddleware({
+		// A list of all locales that are supported
+		locales: ['en', 'de'],
+
+		// Used when no locale matches
+		defaultLocale: 'en'
+	});
+	let response = midd(request);
+
 	// Setting cookies on the response
-	let response = NextResponse.next();
+	// let response = NextResponse.next();
 
 	let access_token = null;
 
@@ -88,11 +97,3 @@ export async function middleware(request: NextRequest) {
 
 	return response;
 }
-
-// createMiddleware({
-// 	// A list of all locales that are supported
-// 	locales: ['en', 'de'],
-
-// 	// Used when no locale matches
-// 	defaultLocale: 'en'
-// })

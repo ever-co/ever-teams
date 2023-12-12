@@ -1,3 +1,5 @@
+'use client';
+
 import { getAccessTokenCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
@@ -8,12 +10,12 @@ import { AuthLayout } from 'lib/layout';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<AuthLayout
@@ -51,7 +53,7 @@ export default function AuthPasscode() {
 }
 
 function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const handleSendCode = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
@@ -105,7 +107,7 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 }
 
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<form className={className} onSubmit={form.handleCodeSubmit} autoComplete="off">
@@ -194,7 +196,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 }
 
 function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');

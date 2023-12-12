@@ -8,7 +8,7 @@ import {
 	signInWorkspaceAPI
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '../useQuery';
@@ -19,7 +19,8 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
-	const { query, pathname } = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
 
 	const { t } = useTranslation();
 
@@ -63,15 +64,17 @@ export function useAuthenticationPasscode() {
 				// If user tries to login from public Team Page as an Already a Member
 				// Redirect to the current team automatically
 				if (pathname === '/team/[teamId]/[profileLink]' && res.data.workspaces.length) {
-					if (query.teamId) {
+					if (searchParams?.get('teamId')) {
 						const currentWorkspace = res.data.workspaces.find((workspace) =>
-							workspace.current_teams.map((item) => item.team_id).includes(query.teamId as string)
+							workspace.current_teams
+								.map((item) => item.team_id)
+								.includes(searchParams?.get('teamId') as string)
 						);
 
 						signInToWorkspaceRequest({
 							email: email,
 							token: currentWorkspace?.token as string,
-							selectedTeam: query.teamId as string
+							selectedTeam: searchParams?.get('teamId') as string
 						});
 					}
 				}
@@ -192,15 +195,15 @@ export function useAuthenticationPasscode() {
 	 * Verifiy immediatly passcode if email and code were passed from url
 	 */
 	useEffect(() => {
-		if (query.email && query.code && !loginFromQuery.current) {
+		if (searchParams?.get('email') && searchParams?.get('code') && !loginFromQuery.current) {
 			setScreen('passcode');
 			verifyPasscodeRequest({
-				email: query.email as string,
-				code: query.code as string
+				email: searchParams?.get('email') as string,
+				code: searchParams?.get('code') as string
 			});
 			loginFromQuery.current = true;
 		}
-	}, [query, verifyPasscodeRequest]);
+	}, [searchParams, verifyPasscodeRequest]);
 
 	/**
 	 * send a fresh auth request handler

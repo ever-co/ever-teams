@@ -8,11 +8,11 @@ import { Button, Container } from 'lib/components';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
-import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Skeleton from 'react-loading-skeleton';
 import { useRecoilState } from 'recoil';
+import { usePathname } from 'next/navigation';
 
 const HeaderSkeleton = () => {
 	return (
@@ -48,12 +48,12 @@ export function Navbar({
 	const [user] = useRecoilState(userState);
 	const { isOpen, closeModal, openModal } = useModal();
 
-	const router = useRouter();
+	const pathname = usePathname();
 
 	const isTeamDropdownAllowed = useMemo(() => {
 		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
-		return !notAllowedList.includes(router.route);
-	}, [router.route]);
+		return pathname && !notAllowedList.includes(pathname);
+	}, [pathname]);
 
 	return (
 		<>
