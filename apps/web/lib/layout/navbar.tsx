@@ -81,14 +81,15 @@ export function Navbar({
 									)}
 									{showTimer && <MinTimerFrame />}
 
-									{!publicTeam && <Collaborate />}
+									<div className="hidden md:flex gap-4 items-center">
+										{!publicTeam && <Collaborate />}
 
-									{isTeamMember && isTeamDropdownAllowed ? (
-										<TeamsDropDown publicTeam={publicTeam || false} />
-									) : null}
+										{isTeamMember && isTeamDropdownAllowed ? (
+											<TeamsDropDown publicTeam={publicTeam || false} />
+										) : null}
 
-									<KeyboardShortcuts />
-
+										<KeyboardShortcuts />
+									</div>
 									{!publicTeam && <UserNavAvatar />}
 								</div>
 							)}
