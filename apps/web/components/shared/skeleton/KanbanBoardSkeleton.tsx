@@ -1,3 +1,4 @@
+import React from "react";
 import Skeleton from "react-loading-skeleton";
 
 const KanbanBoardSkeleton = () => {
@@ -13,23 +14,23 @@ const KanbanBoardSkeleton = () => {
             >
                {columns.map((_, index: number)=> {
                 return (
-                    <>
-                    <div className="flex flex-col gap-[10px]" key={index}>
+                    <React.Fragment key={index}>
+                    <div className="flex flex-col gap-[10px]">
                         <Skeleton height={40} width={325} borderRadius={10} className="dark:bg-[#353741]" />
 
                         <div className="flex flex-col gap-[5px]">
                         {tasks.map((_, index: number)=> {
                             return (
-                                <>
-                                    <Skeleton key={index} height={155} width={325} borderRadius={10} className="dark:bg-[#353741]" />
-                                </>
+                                <React.Fragment key={index}>
+                                    <Skeleton height={155} width={325} borderRadius={10} className="dark:bg-[#353741]" />
+                                </React.Fragment>
                             )
                         })} 
 
                             <Skeleton height={56} width={325} borderRadius={10} className="dark:bg-[#353741]" />
                         </div>
                     </div>
-                    </>
+                    </React.Fragment>
                 )
                })}                       
             </div>
