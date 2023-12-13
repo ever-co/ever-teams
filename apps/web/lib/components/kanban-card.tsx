@@ -178,7 +178,7 @@ export default function Item(props: any) {
         aria-label={`${item.status.name} ${item.content}`}
       >
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
-            <div className="flex flex-col gap-5 grow">
+            <div className="flex flex-col justify-start gap-5 grow">
                 {item.tags && (
                     <TagList tags={item.tags}/>
                 )}
@@ -187,6 +187,7 @@ export default function Item(props: any) {
                     <TaskIssueStatus showIssueLabels={false} task={item} className={`${
 						item.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
 					} rounded-sm mr-1`}/>
+                    
                     <span className="text-grey text-normal mr-1">#{item.number}</span>
                     <span className="text-black dark:text-white text-normal capitalize mr-2">{item.title}</span>
                     <Priority level={1}/>
