@@ -50,13 +50,10 @@ export function setNextPublicEnv(envs: Env) {
 export function loadNextPublicEnvs() {
 	return Object.keys(process.env)
 		.filter((key) => key.startsWith('NEXT_PUBLIC'))
-		.reduce(
-			(acc, value) => {
-				acc[value] = process.env[value] as string;
-				return acc;
-			},
-			{} as Record<string, string>
-		);
+		.reduce((acc, value) => {
+			acc[value] = process.env[value];
+			return acc;
+		}, {} as Env);
 }
 
 // Preload Some variables
