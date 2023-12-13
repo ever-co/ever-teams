@@ -37,6 +37,7 @@ const Kanban= () => {
     const { data } = useKanban();
 
     const imageRadius = 20;
+    const numberOfImagesDisplayed = 4;
     const totalLength = ((images.length+1) * imageRadius);
    
     return (
@@ -57,14 +58,14 @@ const Kanban= () => {
                             }}>
                                 {images.map((image: any, index: number)=> {
                                    
-                                    if(index < 4) {
+                                    if(index < numberOfImagesDisplayed) {
                                         return (
                                         <Image 
                                             key={index}
                                             src={image.src} 
                                             alt={image.title} 
-                                            height={40} 
-                                            width={40} 
+                                            height={imageRadius*2} 
+                                            width={imageRadius*2} 
                                             className="absolute rounded-full border-2 border-white"
                                             style={stackImages(index, images.length)}
                                         />)
@@ -72,8 +73,8 @@ const Kanban= () => {
                                     
                                 })}
                                 {(images.length > 4) && (
-                                    <div className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] bg-white dark:bg-transparent" style={stackImages(4, images.length)}>
-                                        {images.length - 4}+
+                                    <div className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]" style={stackImages(4, images.length)}>
+                                        {images.length - numberOfImagesDisplayed}+
                                     </div>
                                 )}
                             </div>
