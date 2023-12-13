@@ -89,7 +89,7 @@ function TimeInfo({
 					}m`}
 				>
 					<div className="flex items-center space-x-2 text-base font-normal">
-						<span className="text-[#7B8089] text-center">{t('common.TODAY')}:</span>
+						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
 						<Text>
 							{daily.h}h : {daily.m}m
 						</Text>
@@ -110,7 +110,7 @@ function TimeInfo({
 							// showDaily && ['text-sm']
 						)}
 					>
-						<span className="text-[#7B8089] text-center">{t('common.TOTAL')}:</span>
+						<span className="text-[#7B8089] text-center capitalize">{t('common.TOTAL')}</span>
 						<Text>
 							{total.h}h : {total.m}m
 						</Text>
@@ -147,8 +147,8 @@ function TimeBlockInfo({
 					}m`}
 				>
 					<div className=" text-base font-normal flex flex-col items-center ">
-						<span className="text-[#7B8089] text-center text-xs">
-							{t('common.WORKED_ON_TASK')} {t('common.TODAY')}:
+						<span className="text-[#7B8089] text-center text-xs capitalize">
+							{t('common.WORKED_ON_TASK')} {t('common.TODAY')}
 						</span>
 						<Text className="text-lg font-semibold">
 							{daily.h}h : {daily.m}m
@@ -170,8 +170,8 @@ function TimeBlockInfo({
 							// showDaily && ['text-sm']
 						)}
 					>
-						<span className="text-[#7B8089] text-center text-xs">
-							{t('common.WORKED_ON_TASK')} {t('common.TOTAL')}:
+						<span className="text-[#7B8089] text-center text-xs capitalize">
+							{t('common.WORKED_ON_TASK')} {t('common.TOTAL')}
 						</span>
 						<Text className="text-lg font-semibold">
 							{total.h}h : {total.m}m

@@ -44,27 +44,22 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 
-	let totalWork = <></>;
-	if (memberInfo.isAuthUser) {
-		const { h, m } = secondsToTime(
-			((member?.totalTodayTasks &&
-				member?.totalTodayTasks.reduce(
-					(previousValue, currentValue) => previousValue + currentValue.duration,
-					0
-				)) ||
-				activeTaskTotalStat?.duration ||
-				0) + addSeconds
-		);
+	const { h, m } = secondsToTime(
+		((member?.totalTodayTasks &&
+			member?.totalTodayTasks.reduce(
+				(previousValue, currentValue) => previousValue + currentValue.duration,
+				0
+			)) ||
+			activeTaskTotalStat?.duration ||
+			0) + addSeconds
+	);
 
-		totalWork = (
-			<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
-				<span className="text-xs text-gray-500 text-center	">{t('common.TOTAL_WORKED_TODAY')}:</span>
-				<Text className="text-sm">
-					{h}h : {m}m
-				</Text>
-			</div>
-		);
-	}
+	const totalWork = (
+		<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
+			<span className="text-xs text-gray-500 text-center	capitalize">{t('common.TOTAL_WORKED_TODAY')}</span>
+			<Text className="text-sm">{memberInfo.isAuthUser ? `${h}h : ${m}m` : `0h : 0m`}</Text>
+		</div>
+	);
 
 	const menu = (
 		<>
@@ -105,12 +100,14 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 				<HorizontalSeparator />
 
 				{/* Task information */}
-				<TaskBlockInfo
-					edition={taskEdition}
-					memberInfo={memberInfo}
-					className=" w-full px-1 py-2 overflow-hidden"
-					publicTeam={publicTeam}
-				/>
+
+					<TaskBlockInfo
+						edition={taskEdition}
+						memberInfo={memberInfo}
+						className=" w-full px-1 py-2 overflow-hidden"
+						publicTeam={publicTeam}
+					/>
+
 
 				<HorizontalSeparator />
 
