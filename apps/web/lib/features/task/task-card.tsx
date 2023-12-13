@@ -221,7 +221,7 @@ export function TaskCard(props: Props) {
 						<UsersTaskAssigned className="px-3 w-52" task={task} />
 					</>
 				)}
-				<div className="flex justify-between mt-8 mb-8 space-x-5">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
@@ -230,11 +230,11 @@ export function TaskCard(props: Props) {
 					</div>
 
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
-				</div>
 
-				{task && memberInfo && currentMember && (
-					<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
-				)}
+					{task && memberInfo && currentMember && (
+						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+					)}
+				</div>
 			</Card>
 		</>
 	);

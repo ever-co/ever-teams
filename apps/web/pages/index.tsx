@@ -40,14 +40,14 @@ function MainPage() {
 	return (
 		<MainLayout>
 			<MainHeader className="pb-1">
-				<div className="flex items-start justify-between h-5">
-					<div className="flex items-center gap-8">
+				<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
+					<div className="flex  items-center gap-8">
 						<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
 						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 
 					{/* <Collaborative /> */}
-					<div className="flex items-end gap-1">
+					<div className="flex w-full md:w-max items-center justify-center py-4 md:py-0 md:items-end gap-1">
 						<Tooltip label={'Cards'} placement="top-start">
 							<button
 								className={clsxm(
