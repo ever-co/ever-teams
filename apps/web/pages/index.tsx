@@ -1,3 +1,4 @@
+import React from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
@@ -47,58 +48,46 @@ function MainPage() {
 
 					{/* <Collaborative /> */}
 					<div className="flex items-end gap-1">
-						<Tooltip
-							label={'Cards'}
-							placement="top-start"
-						>
-						<button
-							className={clsxm(
-								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.CARDS
-									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-									: 'text-gray-700 dark:text-gray-300'
-							)}
-							onClick={() => setView(IssuesView.CARDS)}
-						>
-							<QueueListIcon className="w-5 h-5 inline" />
-						</button>
+						<Tooltip label={'Cards'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.CARDS
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => setView(IssuesView.CARDS)}
+							>
+								<QueueListIcon className="w-5 h-5 inline" />
+							</button>
 						</Tooltip>
-						<Tooltip
-							label={'Table'}
-							placement="top-start"
-						>
-						<button
-							className={clsxm(
-								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.TABLE
-									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-									: 'text-gray-700 dark:text-gray-300'
-							)}
-							onClick={() => setView(IssuesView.TABLE)}
-						>
-							<TableCellsIcon className="w-5 h-5 inline" />
-						</button>
+						<Tooltip label={'Table'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.TABLE
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => setView(IssuesView.TABLE)}
+							>
+								<TableCellsIcon className="w-5 h-5 inline" />
+							</button>
 						</Tooltip>
-						<Tooltip
-							label={'Blocks'}
-							placement="top-start"
-						>
-						<button
-							className={clsxm(
-								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.BLOCKS
-									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-									: 'text-gray-700 dark:text-gray-300'
-							)}
-							onClick={() => setView(IssuesView.BLOCKS)}
-						>
-							<Squares2X2Icon className="w-5 h-5 inline" />
-						</button>
+						<Tooltip label={'Blocks'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.BLOCKS
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => setView(IssuesView.BLOCKS)}
+							>
+								<Squares2X2Icon className="w-5 h-5 inline" />
+							</button>
 						</Tooltip>
-						<Tooltip
-							label={'Kanban'}
-							placement="top-start"
-						>
+						<Tooltip label={'Kanban'} placement="top-start">
 							<button
 								className={clsxm(
 									'rounded-md px-3 py-1 text-sm font-medium',
@@ -147,6 +136,7 @@ function MainPage() {
 }
 
 function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean }) {
+	const [showInput, setShowInput] = React.useState(false);
 	return (
 		<Card
 			shadow="bigger"
@@ -156,8 +146,13 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 			)}
 		>
 			{/* Task inputs */}
-			<AuthUserTaskInput className="w-4/5 md:w-1/2 2xl:w-full " />
+			{/* {showInput && ( */}
+			<AuthUserTaskInput className={clsxm('w-4/5 md:w-1/2 2xl:w-full ', !showInput && '!hidden md:!flex')} />
+			{/* )}  */}
 
+			<button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
+				{showInput ? 'hide the issue input' : 'show the issue input'}
+			</button>
 			{/* Timer  */}
 			{isTrackingEnabled ? <Timer /> : null}
 		</Card>
