@@ -52,9 +52,7 @@ export function loadNextPublicEnvs() {
 		.filter((key) => key.startsWith('NEXT_PUBLIC'))
 		.reduce(
 			(acc, value) => {
-				if (process.env[value]) {
-					acc[value] = process.env[value] as string;
-				}
+				acc[value] = process.env[value] as string;
 				return acc;
 			},
 			{} as Record<string, string>
