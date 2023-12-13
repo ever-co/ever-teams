@@ -178,7 +178,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["Tablero"],
+			"BREADCRUMB": "[\"Tablero\"]",
 			"SENT_EMAIL_VERIFICATION": "Se ha enviado la verificación de código a tu correo electrónico",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Tienes que",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " tu dirección de correo electrónico. El código de verificación ya debería haber sido enviado a tu correo electrónico, pero siéntete libre de hacer clic en",
@@ -188,10 +188,10 @@
 			"CONFIRM_REJECT_INVITATION": "¿Estás seguro de que deseas rechazar la invitación?"
 		},
 		"profile": {
-			"BREADCRUMB": ["Tareas de miembro"]
+			"BREADCRUMB": "[\"Tareas de miembro\"]"
 		},
 		"taskDetails": {
-			"BREADCRUMB": ["Detalles de la tarea"],
+			"BREADCRUMB": "[\"Detalles de la tarea\"]",
 			"DESCRIPTION": "Descripciones",
 			"ADD_DESCRIPTION": "Agregar descripción aquí",
 			"TYPE_OF_ISSUE": "Tipo de problema",
@@ -259,13 +259,7 @@
 			"CREATE_TEAM": "Crear equipo"
 		},
 		"settings": {
-			"BREADCRUMB": [
-				{
-					"title": "Tablero",
-					"href": "/"
-				},
-				"Ajustes"
-			],
+			"BREADCRUMB": "[{ \"title\": \"Tablero\", \"href\": \"/\" }, \"Ajustes\"]",
 			"DANDER_ZONE": "Zona de peligro",
 			"HEADING_DESCRIPTION": "Configurar y administrar su tablero personal aquí",
 			"ARE_YOU_SURE_TO_DELETE_USER": "¿Estás seguro de que deseas eliminar este usuario?"

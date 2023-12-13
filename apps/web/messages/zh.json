@@ -182,7 +182,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["仪表板"],
+			"BREADCRUMB": "[\"仪表板\"]",
 			"SENT_EMAIL_VERIFICATION": "验证码已发送至您的电子邮箱",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "您需要",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " 您的电子邮箱。验证码应已发送至您的邮箱,如未收到可点击",
@@ -193,11 +193,11 @@
 		},
 
 		"profile": {
-			"BREADCRUMB": ["成员任务"]
+			"BREADCRUMB": "[\"成员任务\"]"
 		},
 
 		"taskDetails": {
-			"BREADCRUMB": ["任务详情"],
+			"BREADCRUMB": "[\"任务详情\"]",
 			"DESCRIPTION": "描述",
 			"ADD_DESCRIPTION": "在此添加描述",
 			"TYPE_OF_ISSUE": "议题类型",
@@ -270,7 +270,7 @@
 			"CREATE_TEAM": "创建团队"
 		},
 		"settings": {
-			"BREADCRUMB": [{ "title": "仪表板", "href": "/" }, "设置"],
+			"BREADCRUMB": "[{ \"title\": \"仪表板\", \"href\": \"/\" }, \"设置\"]",
 			"DANDER_ZONE": "危险区域",
 			"HEADING_DESCRIPTION": "在此设置和管理您的个人仪表板",
 			"ARE_YOU_SURE_TO_DELETE_USER": "您确定要删除此用户吗?"

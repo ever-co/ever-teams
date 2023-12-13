@@ -182,7 +182,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["لوحة التحكم"],
+			"BREADCRUMB": "[\"لوحة التحكم\"]",
 			"SENT_EMAIL_VERIFICATION": "تم إرسال تحقق الرمز إلى بريدك الإلكتروني",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "تحتاج إلى",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " عنوان بريدك الإلكتروني. يجب أن يكون الرمز التحقق قد أُرسل بالفعل إلى بريدك الإلكتروني، ولكن يمكنك النقر فوق",
@@ -193,11 +193,11 @@
 		},
 
 		"profile": {
-			"BREADCRUMB": ["مهام العضو"]
+			"BREADCRUMB": "[\"مهام العضو\"]"
 		},
 
 		"taskDetails": {
-			"BREADCRUMB": ["تفاصيل المهمة"],
+			"BREADCRUMB": "[\"تفاصيل المهمة\"]",
 			"DESCRIPTION": "الوصف",
 			"ADD_DESCRIPTION": "أضف وصفًا هنا",
 			"TYPE_OF_ISSUE": "نوع القضية",
@@ -271,7 +271,7 @@
 		},
 
 		"settings": {
-			"BREADCRUMB": [{ "title": "لوحة التحكم", "href": "/" }, "الإعدادات"],
+			"BREADCRUMB": "[{ \"title\": \"لوحة التحكم\", \"href\": \"/\" }, \"الإعدادات\"]",
 			"DANDER_ZONE": "منطقة الخطر",
 			"HEADING_DESCRIPTION": "ضبط وإدارة لوحة التحكم الشخصية هنا",
 			"ARE_YOU_SURE_TO_DELETE_USER": "هل أنت متأكد من رغبتك في حذف هذا المستخدم؟"

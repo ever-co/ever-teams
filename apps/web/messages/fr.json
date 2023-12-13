@@ -180,7 +180,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["Tableau de bord"],
+			"BREADCRUMB": "[\"Tableau de bord\"]",
 			"SENT_EMAIL_VERIFICATION": "Le code de vérification a été envoyé à votre adresse e-mail",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Vous devez ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " votre adresse e-mail. Le code de vérification a déjà été envoyé à votre adresse e-mail, mais n'hésitez pas à cliquer sur ",
@@ -190,10 +190,10 @@
 			"CONFIRM_REJECT_INVITATION": "Êtes-vous sûr de vouloir refuser l'invitation ?"
 		},
 		"profile": {
-			"BREADCRUMB": ["Tâches du membre"]
+			"BREADCRUMB": "[\"Tâches du membre\"]"
 		},
 		"taskDetails": {
-			"BREADCRUMB": ["Détails de la tâche"],
+			"BREADCRUMB": "[\"Détails de la tâche\"]",
 			"DESCRIPTION": "Description",
 			"ADD_DESCRIPTION": "Ajouter une description ici",
 			"TYPE_OF_ISSUE": "Type de problème",
@@ -265,7 +265,7 @@
 			"CREATE_TEAM": "Créer une équipe"
 		},
 		"settings": {
-			"BREADCRUMB": [{ "title": "Tableau de bord", "href": "/" }, "Paramètres"],
+			"BREADCRUMB": "[{ \"title\": \"Tableau de bord\", \"href\": \"/\" }, \"Paramètres\"]",
 			"DANDER_ZONE": "Zone de danger",
 			"HEADING_DESCRIPTION": "Paramétrez et gérez votre tableau de bord personnel ici",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"

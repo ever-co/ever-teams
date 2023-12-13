@@ -182,7 +182,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["Dashboard"],
+			"BREADCRUMB": "[\"Dashboard\"]",
 			"SENT_EMAIL_VERIFICATION": "Codeverificatie is verzonden naar uw e-mailadres",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "U moet",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " uw e-mailadres. De verificatiecode is al verzonden naar uw e-mailadres, maar voel vrij om te klikken",
@@ -193,10 +193,10 @@
 		},
 
 		"profile": {
-			"BREADCRUMB": ["Taken teamlid"]
+			"BREADCRUMB": "[\"Taken teamlid\"]"
 		},
 		"taskDetails": {
-			"BREADCRUMB": ["Taakdetails"],
+			"BREADCRUMB": "[\"Taakdetails\"]",
 			"DESCRIPTION": "Beschrijvingen",
 			"ADD_DESCRIPTION": "Voeg hier beschrijving toe",
 			"TYPE_OF_ISSUE": "Soort probleem",
@@ -269,7 +269,7 @@
 			"CREATE_TEAM": "Team maken"
 		},
 		"settings": {
-			"BREADCRUMB": [{ "title": "Dashboard", "href": "/" }, "Instellingen"],
+			"BREADCRUMB": "[{ \"title\": \"Dashboard\", \"href\": \"/\" }, \"Instellingen\"]",
 			"DANDER_ZONE": "Gevaarlijke zone",
 			"HEADING_DESCRIPTION": "Stel hier uw persoonlijke dashboard in",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Weet u zeker dat u deze gebruiker wilt verwijderen?"

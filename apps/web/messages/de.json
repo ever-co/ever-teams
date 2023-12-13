@@ -182,7 +182,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["Dashboard"],
+			"BREADCRUMB": "[\"Dashboard\"]",
 			"SENT_EMAIL_VERIFICATION": "Verifizierungscode wurde an Ihre E-Mail gesendet",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Sie müssen ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " Ihre E-Mail-Adresse. Der Verifizierungscode sollte bereits an Ihre E-Mail gesendet worden sein, aber klicken Sie gerne auf ",
@@ -193,11 +193,11 @@
 		},
 
 		"profile": {
-			"BREADCRUMB": ["Aufgaben des Mitglieds"]
+			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]"
 		},
 
 		"taskDetails": {
-			"BREADCRUMB": ["Aufgabendetails"],
+			"BREADCRUMB": "[\"Aufgabendetails\"]",
 			"DESCRIPTION": "Beschreibungen",
 			"ADD_DESCRIPTION": "Beschreibung hier hinzufügen",
 			"TYPE_OF_ISSUE": "Art des Tickets",
@@ -270,7 +270,7 @@
 			"CREATE_TEAM": "Team erstellen"
 		},
 		"settings": {
-			"BREADCRUMB": [{ "title": "Dashboard", "href": "/" }, "Einstellungen"],
+			"BREADCRUMB": "[{ \"title\": \"Dashboard\", \"href\": \"/\" }, \"Einstellungen\"]",
 			"DANDER_ZONE": "Gefahrenzone",
 			"HEADING_DESCRIPTION": "Hier können Sie Ihr persönliches Dashboard einrichten und verwalten",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Möchten Sie diesen Benutzer wirklich löschen?"

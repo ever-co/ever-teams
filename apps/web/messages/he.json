@@ -182,7 +182,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["לוח מחוונים"],
+			"BREADCRUMB": "[\"לוח מחוונים\"]",
 			"SENT_EMAIL_VERIFICATION": "אימות קוד נשלח לאימייל שלך",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "עליך ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " את כתובת האימייל שלך. קוד האימות כבר היה אמור להישלח לאימייל שלך, אבל אל תהסס ללחוץ על ",
@@ -193,10 +193,10 @@
 		},
 
 		"profile": {
-			"BREADCRUMB": ["משימות חבר"]
+			"BREADCRUMB": "[\"משימות חבר\"]"
 		},
 		"taskDetails": {
-			"BREADCRUMB": ["פרטי משימה"],
+			"BREADCRUMB": "[\"פרטי משימה\"]",
 			"DESCRIPTION": "תיאורים",
 			"ADD_DESCRIPTION": "הוסף תיאור כאן",
 			"TYPE_OF_ISSUE": "סוג בעיה",
@@ -268,7 +268,7 @@
 			"CREATE_TEAM": "צור צוות"
 		},
 		"settings": {
-			"BREADCRUMB": [{ "title": "לוח מחוונים", "href": "/" }, "הגדרות"],
+			"BREADCRUMB": "[{ \"title\": \"לוח מחוונים\", \"href\": \"/\" }, \"הגדרות\"]",
 			"DANDER_ZONE": "אזור סיכון",
 			"HEADING_DESCRIPTION": "הגדר ונהל את לוח הבקרה האישי שלך כאן",
 			"ARE_YOU_SURE_TO_DELETE_USER": "האם אתה בטוח שברצונך למחוק משתמש זה?"

@@ -180,7 +180,7 @@
 	},
 	"pages": {
 		"home": {
-			"BREADCRUMB": ["Табло"],
+			"BREADCRUMB": "[\"Табло\"]",
 			"SENT_EMAIL_VERIFICATION": "Потвърждаващият код беше изпратен до имейла ви",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Трябва да",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " вашия имейл адрес. Потвърждаващият код вече би трябвало да е изпратен до имейла ви, но свободно натиснете",
@@ -191,11 +191,11 @@
 		},
 
 		"profile": {
-			"BREADCRUMB": ["Задачи за член"]
+			"BREADCRUMB": "[\"Задачи за член\"]"
 		},
 
 		"taskDetails": {
-			"BREADCRUMB": ["Детайли за задачата"],
+			"BREADCRUMB": "[\"Детайли за задачата\"]",
 
 			"DESCRIPTION": "Описания",
 			"ADD_DESCRIPTION": "Добави описание тук",
@@ -271,7 +271,7 @@
 			"CREATE_TEAM": "Създаване на отбор"
 		},
 		"settings": {
-			"BREADCRUMB": [{ "title": "Табло", "href": "/" }, "Настройки"],
+			"BREADCRUMB": "[{ \"title\": \"Табло\", \"href\": \"/\" }, \"Настройки\"]",
 			"DANDER_ZONE": "Опасна зона",
 			"HEADING_DESCRIPTION": "Настройване и управление на личното ви табло тук",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Сигурни ли сте, че искате да изтриете този потребител?"

@@ -34,7 +34,9 @@ function MainPage() {
 	// const { t } = useTranslation();
 	const t = useTranslations();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const breadcrumb = [...(t('pages.home.BREADCRUMB', { returnObjects: true }) as any), activeTeam?.name || ''];
+	const breadcrumbArray = JSON.parse(t('pages.home.BREADCRUMB'));
+
+	const breadcrumb = [...breadcrumbArray, activeTeam?.name || ''];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 	const { online } = useNetworkState();
 
