@@ -98,7 +98,7 @@ const Kanban= () => {
                                 borderBottomWidth: '3px',
                                 borderBottomStyle: 'solid',
                                 borderBottomColor: activeTab === KanbanTabs.TODAY ? '#3826A6' : '#FFFFFF',
-                                color: activeTab ===  KanbanTabs.TODAY ? '#3826A6' : '#000000',
+                                color: activeTab ===  KanbanTabs.TODAY ? '#3826A6' : '#282048',
                             }}>
                                 Today
                             </div>
@@ -108,7 +108,7 @@ const Kanban= () => {
                                 borderBottomWidth: '3px',
                                 borderBottomStyle: 'solid',
                                 borderBottomColor: activeTab === KanbanTabs.YESTERDAY ? '#3826A6' : '#FFFFFF',
-                                color: activeTab ===  KanbanTabs.YESTERDAY ? '#3826A6' : '#000000',
+                                color: activeTab ===  KanbanTabs.YESTERDAY ? '#3826A6' : '#282048',
                             }}>
                                 Yesterday
                             </div>
@@ -118,7 +118,7 @@ const Kanban= () => {
                                 borderBottomWidth: '3px',
                                 borderBottomStyle: 'solid',
                                 borderBottomColor: activeTab === KanbanTabs.TOMORROW ? '#3826A6' : '#FFFFFF',
-                                color: activeTab ===  KanbanTabs.TOMORROW ? '#3826A6' : '#000000',
+                                color: activeTab ===  KanbanTabs.TOMORROW ? '#3826A6' : '#282048',
                             }}>
                                 Tomorrow
                             </div>
@@ -129,11 +129,39 @@ const Kanban= () => {
                     </div>
                 </Container>
             </div>
-           {Object.keys(data).length > 0 ? 
-            <KanbanView kanbanBoardTasks={data}/>
-            :
-            <KanbanBoardSkeleton/>
-           }
+            {/** Kanbanboard for today tasks */}
+            {(activeTab === KanbanTabs.TODAY) && (
+                <>
+                {Object.keys(data).length > 0 ? 
+                    <KanbanView kanbanBoardTasks={data}/>
+                    :
+                    <KanbanBoardSkeleton/>
+                }
+                </>
+            )}
+
+            {/** Kanbanboard for yesterday tasks */}
+            {(activeTab === KanbanTabs.YESTERDAY) && (
+                <>
+                {Object.keys(data).length > 0 ? 
+                    <KanbanView kanbanBoardTasks={data}/>
+                    :
+                    <KanbanBoardSkeleton/>
+                }
+                </>
+            )}
+
+            {/** Kanbanboard for tomorrow tasks */}
+            {(activeTab === KanbanTabs.TOMORROW) && (
+                <>
+                {Object.keys(data).length > 0 ? 
+                    <KanbanView kanbanBoardTasks={data}/>
+                    :
+                    <KanbanBoardSkeleton/>
+                }
+                </>
+            )}
+           
         </MainLayout>
         </>
     )
