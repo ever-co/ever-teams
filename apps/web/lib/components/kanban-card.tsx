@@ -51,7 +51,7 @@ function TagCard({title, backgroundColor, color}: {
     return (
         <>
             <div 
-                className="flex flex-row gap-2 items-center py-1 px-2.5 rounded-xl"
+                className="flex flex-row gap-2 items-center py-1 px-2.5 rounded-[10px]"
                 style={{
                     backgroundColor: `${backgroundColor}`
                 }}
@@ -178,7 +178,7 @@ export default function Item(props: any) {
         aria-label={`${item.status.name} ${item.content}`}
       >
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
-            <div className="flex flex-col justify-start gap-5 grow">
+            <div className="flex flex-col justify- gap-5 grow">
                 {item.tags && (
                     <TagList tags={item.tags}/>
                 )}
@@ -199,7 +199,7 @@ export default function Item(props: any) {
                 <CircularProgress percentage={10}/>
             </div>
         </div>
-        <div className="flex flex-row justify-between items-center pt-4">
+        <div className="flex flex-row justify-between items-center pt-5 pb-2 h-fit">
 
             {item.status === TaskStatus.INPROGRESS ? (
                 <div className="flex flex-row items-center gap-2">
@@ -213,7 +213,7 @@ export default function Item(props: any) {
                 </div>
             )}
             
-            <div className="relative">
+            <div className="relative ">
                 <div className="w-10 flex h-fit flex-row justify-end items-center relative bg-primary">
                 {item.members.map((option: any, index: number)=> {
                     return (
