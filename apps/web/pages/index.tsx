@@ -1,8 +1,9 @@
+import React from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, Container } from 'lib/components';
+import { Breadcrumb, Card, Container, Tooltip } from 'lib/components';
 import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
@@ -19,7 +20,10 @@ import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
+import { useRouter } from 'next/router';
+import KanbanIcon from '@components/ui/svgs/kanaban';
 import Offline from '@components/pages/offline';
+import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -27,6 +31,7 @@ function MainPage() {
 	const breadcrumb = [...(t('pages.home.BREADCRUMB', { returnObjects: true }) as any), activeTeam?.name || ''];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 	const { online } = useNetworkState();
+	const router = useRouter();
 
 	if (!online) {
 		return <Offline />;
@@ -43,39 +48,60 @@ function MainPage() {
 
 					{/* <Collaborative /> */}
 					<div className="flex items-end gap-1">
-						<button
-							className={clsxm(
-								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.CARDS
-									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-									: 'text-gray-700 dark:text-gray-300'
-							)}
-							onClick={() => setView(IssuesView.CARDS)}
-						>
-							<QueueListIcon className="w-5 h-5 inline" />
-						</button>
-						<button
-							className={clsxm(
-								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.TABLE
-									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-									: 'text-gray-700 dark:text-gray-300'
-							)}
-							onClick={() => setView(IssuesView.TABLE)}
-						>
-							<TableCellsIcon className="w-5 h-5 inline" />
-						</button>
-						<button
-							className={clsxm(
-								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.BLOCKS
-									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-									: 'text-gray-700 dark:text-gray-300'
-							)}
-							onClick={() => setView(IssuesView.BLOCKS)}
-						>
-							<Squares2X2Icon className="w-5 h-5 inline" />
-						</button>
+						<Tooltip label={'Cards'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.CARDS
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => setView(IssuesView.CARDS)}
+							>
+								<QueueListIcon className="w-5 h-5 inline" />
+							</button>
+						</Tooltip>
+						<Tooltip label={'Table'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.TABLE
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => setView(IssuesView.TABLE)}
+							>
+								<TableCellsIcon className="w-5 h-5 inline" />
+							</button>
+						</Tooltip>
+						<Tooltip label={'Blocks'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.BLOCKS
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => setView(IssuesView.BLOCKS)}
+							>
+								<Squares2X2Icon className="w-5 h-5 inline" />
+							</button>
+						</Tooltip>
+						<Tooltip label={'Kanban'} placement="top-start">
+							<button
+								className={clsxm(
+									'rounded-md px-3 py-1 text-sm font-medium',
+									view === IssuesView.KANBAN
+										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+										: 'text-gray-700 dark:text-gray-300'
+								)}
+								onClick={() => {
+									router.push('/kanban');
+								}}
+							>
+								<KanbanIcon />
+							</button>
+						</Tooltip>
 					</div>
 				</div>
 
@@ -95,6 +121,8 @@ function MainPage() {
 						<UserTeamCardHeader />
 					) : view === IssuesView.BLOCKS ? (
 						<UserTeamBlockHeader />
+					) : view === IssuesView.TABLE ? (
+						<UserTeamTableHeader />
 					) : null}
 				</Container>
 
@@ -108,6 +136,7 @@ function MainPage() {
 }
 
 function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean }) {
+	const [showInput, setShowInput] = React.useState(false);
 	return (
 		<Card
 			shadow="bigger"
@@ -117,8 +146,13 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 			)}
 		>
 			{/* Task inputs */}
-			<AuthUserTaskInput className="w-4/5 md:w-1/2 2xl:w-full " />
+			{/* {showInput && ( */}
+			<AuthUserTaskInput className={clsxm('w-4/5 md:w-1/2 2xl:w-full ', !showInput && '!hidden md:!flex')} />
+			{/* )}  */}
 
+			<button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
+				{showInput ? 'hide the issue input' : 'show the issue input'}
+			</button>
 			{/* Timer  */}
 			{isTrackingEnabled ? <Timer /> : null}
 		</Card>

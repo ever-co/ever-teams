@@ -1,4 +1,5 @@
 import { useKanban } from "@app/hooks/features/useKanban";
+import KanbanBoardSkeleton from "@components/shared/skeleton/KanbanBoardSkeleton";
 import { withAuthentication } from "lib/app/authenticator";
 import { KanbanView } from "lib/features/team-members-kanban-view"
 import { MainLayout } from "lib/layout";
@@ -11,9 +12,9 @@ const Kanban= () => {
         <>
         <MainLayout>
            {Object.keys(data).length > 0 ? 
-            <KanbanView itemsArray={data}/>
+            <KanbanView kanbanBoardTasks={data}/>
             :
-            null
+            <KanbanBoardSkeleton/>
            }
         </MainLayout>
         </>

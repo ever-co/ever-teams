@@ -1,5 +1,6 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
+import { getNextPublicEnv } from './env';
 
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
@@ -28,16 +29,34 @@ export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
+export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
+	'NEXT_PUBLIC_CAPTCHA_SITE_KEY',
+	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
+);
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
+// Gauzy Server URL
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
+export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
+	'NEXT_PUBLIC_GAUZY_API_SERVER_URL',
+	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+);
 
+// Invite
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL || 'https://app.ever.team/auth/passcode';
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL || 'https://app.ever.team/verify-email';
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+export const GA_MEASUREMENT_ID = getNextPublicEnv(
+	'NEXT_PUBLIC_GA_MEASUREMENT_ID',
+	process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+);
+
+// Chatwoot
+export const CHATWOOT_API_KEY = getNextPublicEnv(
+	'NEXT_PUBLIC_CHATWOOT_API_KEY',
+	process.env.NEXT_PUBLIC_CHATWOOT_API_KEY
+);
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
@@ -45,7 +64,12 @@ export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
-export const DISABLE_AUTO_REFRESH = process.env.NEXT_PUBLIC_DISABLE_AUTO_REFRESH === 'true';
+export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_REFRESH', {
+	default: process.env.NEXT_PUBLIC_DISABLE_AUTO_REFRESH,
+	map(value) {
+		return value === 'true';
+	}
+});
 
 export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
 export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
@@ -64,23 +88,42 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 });
 
 // Cookies
-export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team').split(',').map((d) => d.trim());
+export const COOKIE_DOMAINS = getNextPublicEnv('NEXT_PUBLIC_COOKIE_DOMAINS', {
+	default: process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team',
+	map(value) {
+		return value?.split(',').map((d) => d.trim()) || [];
+	}
+});
 
 // MEET Constants
-export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team';
+export const MEET_DOMAIN = getNextPublicEnv(
+	'NEXT_PUBLIC_MEET_DOMAIN',
+	process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team'
+);
 export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID || 'ever_teams';
 export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
 export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // BOARD board
-export const BOARD_APP_DOMAIN = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team';
-export const BOARD_BACKEND_POST_URL = process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || 'https://jsonboard.ever.team/api/v2/post/';
-export const BOARD_FIREBASE_CONFIG = process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
+export const BOARD_APP_DOMAIN = getNextPublicEnv(
+	'NEXT_PUBLIC_BOARD_APP_DOMAIN',
+	process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team'
+);
+
+export const BOARD_BACKEND_POST_URL = getNextPublicEnv(
+	'NEXT_PUBLIC_BOARD_BACKEND_POST_URL',
+	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL || 'https://jsonboard.ever.team/api/v2/post/'
+);
+export const BOARD_FIREBASE_CONFIG = getNextPublicEnv(
+	'NEXT_PUBLIC_BOARD_FIREBASE_CONFIG',
+	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
+);
 
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
-	host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL || '',
-	writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY || '',
+	host: getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_URL', process.env.NEXT_PUBLIC_JITSU_BROWSER_URL).value,
+	writeKey: getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY', process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY)
+		.value,
 	// if enabled - events will be sent to the console but no data sent to Jitsu.
 	// Strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
 	echoEvents: false,
@@ -88,7 +131,10 @@ export const jitsuConfiguration: () => JitsuOptions = () => ({
 });
 
 // Github Integration
-export const GITHUB_APP_NAME = process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+export const GITHUB_APP_NAME = getNextPublicEnv(
+	'NEXT_PUBLIC_GITHUB_APP_NAME',
+	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github'
+);
 
 // Application Languages
 export const APPLICATION_LANGUAGES = [
@@ -123,5 +169,10 @@ export const APPLICATION_LANGUAGES_CODE = [
 export enum IssuesView {
 	CARDS = 'CARDS',
 	TABLE = 'TABLE',
-	BLOCKS = 'BLOCKS'
+	BLOCKS = 'BLOCKS',
+	KANBAN = 'KANBAN'
+}
+
+export const TaskStatus = {
+	INPROGRESS: 'in-progress'
 }

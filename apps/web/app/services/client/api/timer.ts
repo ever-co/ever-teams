@@ -1,14 +1,13 @@
 import { ITimerStatus, IToggleTimerParams, TimerSource } from '@app/interfaces/ITimer';
 import api, { get } from '../axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export async function getTimerStatusAPI(tenantId: string, organizationId: string) {
 	const params = new URLSearchParams({ tenantId, organizationId });
-	const endpoint = process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-		? `/timesheet/timer/status?${params.toString()}`
-		: '/timer/status';
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params.toString()}` : '/timer/status';
 	const data = await get(endpoint, true);
 
-	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
+	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
 }
 
 export function toggleTimerAPI(body: Pick<IToggleTimerParams, 'taskId'>) {

@@ -1,3 +1,4 @@
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { get } from '../axios';
 
 export async function getWorkingEmployeesAPI(tenantId: string, organizationId: string) {
@@ -6,12 +7,10 @@ export async function getWorkingEmployeesAPI(tenantId: string, organizationId: s
 		'where[organizationId]': organizationId,
 		'relations[0]': 'user'
 	};
-	const query = new URLSearchParams(params);	
+	const query = new URLSearchParams(params);
 
-	const endpoint = process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-		? `/employee/pagination?${query.toString()}`
-		: '/employee/working';
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/employee/pagination?${query.toString()}` : '/employee/working';
 	const data = await get(endpoint, true, { tenantId });
 
-	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
+	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
 }

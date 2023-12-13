@@ -4,7 +4,7 @@ import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _s
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	_deleteCookie(key, options);
 
-	COOKIE_DOMAINS.forEach((domain) => {
+	COOKIE_DOMAINS.value.forEach((domain) => {
 		_deleteCookie(key, {
 			domain,
 			...options
@@ -22,7 +22,7 @@ export const setCookie: SetCookie = (key, data, options, crossSite) => {
 	_setCookie(key, data, options);
 
 	crossSite &&
-		COOKIE_DOMAINS.forEach((domain) => {
+		COOKIE_DOMAINS.value.forEach((domain) => {
 			_setCookie(key, data, {
 				domain,
 				...options

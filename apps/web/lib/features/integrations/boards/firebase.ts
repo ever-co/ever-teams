@@ -14,10 +14,10 @@ const _loadFirebase = async () => {
 
 	if (!isFirebaseInitialized) {
 		try {
-			if (!BOARD_FIREBASE_CONFIG) {
+			if (!BOARD_FIREBASE_CONFIG.value) {
 				throw Error('Invalid Firebase configuration');
 			}
-			firebase.initializeApp(JSON.parse(BOARD_FIREBASE_CONFIG));
+			firebase.initializeApp(JSON.parse(BOARD_FIREBASE_CONFIG.value));
 		} catch (error: any) {
 			// trying initialize again throws. Usually this is harmless, and happens
 			// mainly in dev (HMR)
