@@ -3,12 +3,41 @@ import KanbanBoardSkeleton from "@components/shared/skeleton/KanbanBoardSkeleton
 import VerticalLine from "@components/ui/svgs/vertificalline";
 import { withAuthentication } from "lib/app/authenticator";
 import { Breadcrumb } from "lib/components";
+import { stackImages } from "lib/components/kanban-card";
+import { AddIcon } from "lib/components/svgs";
 import { KanbanView } from "lib/features/team-members-kanban-view"
 import { MainHeader, MainLayout } from "lib/layout";
+import Image from 'next/image';
+
+const images: any[] = [
+    {
+        src: '/assets/cover/auth-bg-cover-dark.png',
+        title: 'profile'
+    },
+    {
+        src: '/assets/cover/auth-bg-cover-dark.png',
+        title: 'profile'
+    },
+    {
+        src: '/assets/cover/auth-bg-cover-dark.png',
+        title: 'profile'
+    },
+    {
+        src: '/assets/cover/auth-bg-cover-dark.png',
+        title: 'profile'
+    },
+    {
+        src: '/assets/cover/auth-bg-cover-dark.png',
+        title: 'profile'
+    }
+]
 
 const Kanban= () => {
   
     const { data } = useKanban();
+
+    const imageRadius = 20;
+    const totalLength = ((images.length+1) * imageRadius);
    
     return (
         <>
@@ -22,9 +51,37 @@ const Kanban= () => {
                     <div className="flex flex-row items-center gap-[12px]">
                         <p>08:00 ( UTC +04:30 )</p>
                         <VerticalLine/>
-                        <p>08:00 ( UTC +04:30 )</p>
+                        <div className="relative ">
+                            <div className="flex h-fit flex-row justify-end items-center relative " style={{
+                                width: `${totalLength}px`
+                            }}>
+                                {images.map((image: any, index: number)=> {
+                                   
+                                    if(index < 4) {
+                                        return (
+                                        <Image 
+                                            key={index}
+                                            src={image.src} 
+                                            alt={image.title} 
+                                            height={40} 
+                                            width={40} 
+                                            className="absolute rounded-full border-2 border-white"
+                                            style={stackImages(index, images.length)}
+                                        />)
+                                    }
+                                    
+                                })}
+                                {(images.length > 4) && (
+                                    <div className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] bg-white dark:bg-transparent" style={stackImages(4, images.length)}>
+                                        {images.length - 4}+
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         <VerticalLine/>
-                        <p>08:00 ( UTC +04:30 )</p>
+                        <button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white" onClick={()=> {}}>
+                            <AddIcon width={24} height={24}/>
+                        </button>
                     </div>
                 </div>
 			</MainHeader>
