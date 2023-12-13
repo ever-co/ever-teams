@@ -21,14 +21,14 @@ export const config = {
 		'/task(.*)',
 		'/meet(.*)',
 		'/board(.*)',
-		'/(de|en)/:path*'
+		'/(en|de|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*'
 	]
 };
 
 export async function middleware(request: NextRequest) {
 	const midd = createMiddleware({
 		// A list of all locales that are supported
-		locales: ['en', 'de'],
+		locales: ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'],
 
 		// Used when no locale matches
 		defaultLocale: 'en'

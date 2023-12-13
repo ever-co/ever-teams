@@ -1,5 +1,6 @@
 'use client';
 
+import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { RecoilRoot } from 'recoil';
 
@@ -10,10 +11,15 @@ export default function LocaleLayout({ children, params: { locale } }: any) {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
 
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const messages = require(`../../messages/${locale}.json`);
+
 	return (
 		<html lang={locale}>
 			<body>
-				<RecoilRoot>{children}</RecoilRoot>
+				<NextIntlClientProvider locale={locale} messages={messages}>
+					<RecoilRoot>{children}</RecoilRoot>
+				</NextIntlClientProvider>
 			</body>
 		</html>
 	);

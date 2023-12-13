@@ -8,7 +8,7 @@ import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, Spinn
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
@@ -229,7 +229,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		if (form.authScreen.screen === 'workspace') {
 			const accessToken = getAccessTokenCookie();
 			if (accessToken && accessToken.length > 100) {
-				router.reload();
+				router.refresh();
 			}
 		}
 	}, [form.authScreen, router]);

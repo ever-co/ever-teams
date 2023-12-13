@@ -1,11 +1,12 @@
 import { IUser } from '@app/interfaces';
 import { useJitsu } from '@jitsu/jitsu-react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 export function JitsuAnalytics({ user }: { user?: IUser }) {
 	const { analytics } = useJitsu();
-	const router = useRouter();
+	const pathname = usePathname();
+
 	useEffect(() => {
 		if (user?.id) {
 			analytics.identify(user.id, {
@@ -15,10 +16,10 @@ export function JitsuAnalytics({ user }: { user?: IUser }) {
 				tenantId: user?.tenant?.id
 			});
 		}
-	}, [user, analytics, router.asPath]);
+	}, [user, analytics, pathname]);
 
 	useEffect(() => {
-		analytics.page(router.asPath, {
+		analytics.page(pathname, {
 			context: {
 				email: user?.email,
 				name: user?.name,
@@ -26,6 +27,6 @@ export function JitsuAnalytics({ user }: { user?: IUser }) {
 				tenantId: user?.tenant?.id
 			}
 		});
-	}, [router.asPath, user, analytics]);
+	}, [pathname, user, analytics]);
 	return <React.Fragment />;
 }

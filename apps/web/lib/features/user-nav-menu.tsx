@@ -29,7 +29,7 @@ import { TimerStatus, getTimerStatusValue } from './timer/timer-status';
 import Collaborate from '@components/shared/collaborate';
 import { TeamsDropDown } from './team/teams-dropdown';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -136,12 +136,12 @@ function UserNavMenu() {
 		return m.employee.userId === user?.id;
 	});
 
-	const router = useRouter();
+	const pathname = usePathname();
 
 	const isTeamDropdownAllowed = useMemo(() => {
 		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
-		return !notAllowedList.includes(router.route);
-	}, [router.route]);
+		return !notAllowedList.includes(pathname || '');
+	}, [pathname]);
 
 	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
