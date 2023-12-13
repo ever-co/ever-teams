@@ -65,7 +65,7 @@ function InnerItemList({items, title}: {
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
                     style={title === TaskStatus.INPROGRESS && {
-                        borderWidth: '1px',
+                        borderWidth: '2px',
                         borderColor: '#6FCF97',
                         borderStyle: 'solid'
                     }}
