@@ -496,7 +496,7 @@
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "כל הזכויות שמורות.",
-			"COPY_RIGHT1": "© {{date}}-היום,",
+			"COPY_RIGHT1": "© {date}-היום,",
 			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",

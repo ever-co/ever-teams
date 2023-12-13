@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { RecoilRoot } from 'recoil';
 
 // Can be imported from a shared config
-const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es'];
+const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
 export default function LocaleLayout({ children, params: { locale } }: any) {
 	// Validate that the incoming `locale` parameter is valid

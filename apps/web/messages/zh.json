@@ -471,13 +471,13 @@
 		"SET_THEME": "设置主题",
 		"CHANGE_AVATAR": "更改头像",
 		"SELECT_TEAM_SIZE": "选择团队规模",
-		"INVALID_ALLOWED_CHARACTER": "allowedCharacters的值无效。请使用字母、数字或字母数字"
+		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字"
 	},
 
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "版权所有。",
-			"COPY_RIGHT1": "© {{date}}-至今,",
+			"COPY_RIGHT1": "© {date}-至今,",
 			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "永恒公司",
 			"COMPANY_NAME": "永恒有限公司",
@@ -492,7 +492,7 @@
 		"NETWORK_ISSUE": "网络问题,请稍后再试",
 		"ERROR_WHILE_VERIFY_CODE": "验证码验证时出错。",
 		"LENGTH_NUMBER_ERROR": "长度应为数字且大于0",
-		"INVALID_ALLOWED_CHARACTER": "allowedCharacters的值无效。请使用字母、数字或字母数字",
+		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字",
 		"VALID_EMAIL": "请输入有效的电子邮箱"
 	},
 	"placeholders": {

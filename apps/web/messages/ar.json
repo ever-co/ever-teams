@@ -507,7 +507,7 @@
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "جميع الحقوق محفوظة.",
-			"COPY_RIGHT1": "© {{date}}-حاضر،",
+			"COPY_RIGHT1": "© {date}-حاضر،",
 			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "إيفر ش.م.م.",
 			"COMPANY_NAME": "إيفر ش.م.م.",

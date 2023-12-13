@@ -504,7 +504,7 @@
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "All rights reserved.",
-			"COPY_RIGHT1": "© {{date}}-Present,",
+			"COPY_RIGHT1": "© {date}-Present,",
 			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",

@@ -124,7 +124,6 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const t = useTranslations();
-	const [feedback, setFeedback] = useState<string>('');
 
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
@@ -155,24 +154,7 @@ function FillUserDataForm({
 						onChange={handleOnChange}
 						autoComplete="off"
 					/>
-					{RECAPTCHA_SITE_KEY && (
-						<div className="w-full flex">
-							<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
-								<SiteReCAPTCHA
-									onChange={(res) => {
-										handleOnChange({ target: { name: 'recaptcha', value: res } });
-										setFeedback('');
-									}}
-									onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
-								/>
-								{(errors['recaptcha'] || feedback) && (
-									<Text.Error className="self-start justify-self-start">
-										{errors['recaptcha'] || feedback}
-									</Text.Error>
-								)}
-							</div>
-						</div>
-					)}
+					<ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />
 				</div>
 
 				<div className="flex items-center justify-between w-full">
@@ -185,4 +167,29 @@ function FillUserDataForm({
 			</div>
 		</Card>
 	);
+}
+
+function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: any }) {
+	const t = useTranslations();
+	const [feedback, setFeedback] = useState<string>('');
+
+	const content = RECAPTCHA_SITE_KEY.value && (
+		<div className="w-full flex">
+			<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
+				<SiteReCAPTCHA
+					siteKey={RECAPTCHA_SITE_KEY.value}
+					onChange={(res) => {
+						handleOnChange({ target: { name: 'recaptcha', value: res } });
+						setFeedback('');
+					}}
+					onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
+				/>
+				{(errors['recaptcha'] || feedback) && (
+					<Text.Error className="self-start justify-self-start">{errors['recaptcha'] || feedback}</Text.Error>
+				)}
+			</div>
+		</div>
+	);
+
+	return content || <></>;
 }
