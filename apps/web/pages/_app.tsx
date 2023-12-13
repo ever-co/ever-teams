@@ -117,7 +117,7 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 			jitsuHost,
 			jitsuWriteKey,
 			envs: loadNextPublicEnvs()
-		}
+		} as MyAppProps
 	};
 };
 

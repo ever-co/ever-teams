@@ -1,13 +1,14 @@
-import BugIcon from "@components/ui/svgs/bug";
 import Image from 'next/image';
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 import { DraggableProvided } from "react-beautiful-dnd";
 import CircularProgress from "@components/ui/svgs/circular-progress";
 import PriorityIcon from "@components/ui/svgs/priority-icon";
 import { Tag } from "@app/interfaces";
-import { useTimer } from "@app/hooks";
+import { useTimerView } from "@app/hooks";
 import { pad } from "@app/helpers";
 import { TaskStatus } from "@app/constants";
+import { useEffect } from "react";
+import { TaskIssueStatus } from "lib/features";
 
 function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
@@ -139,8 +140,26 @@ export default function Item(props: any) {
     } = props;
 
     const {
-		fomatedTimeCounter: { hours, minutes, seconds }
-	} = useTimer();
+        hours,
+		minutes,
+		seconds,
+        startTimer,
+		stopTimer,
+        timerStatus
+    } = useTimerView();
+
+    const handleTime = ()=>{
+        if(item.status === TaskStatus.INPROGRESS){
+            startTimer()
+        } else {
+            stopTimer()
+        }
+        
+    }
+
+    useEffect(()=>{
+        handleTime()
+    },[timerStatus?.running])
    
     return (
       <section
@@ -165,9 +184,9 @@ export default function Item(props: any) {
                 )}
                
                 <div className="flex flex-row flex-wrap items-center text-sm not-italic font-semibold">
-                    <span className="bg-indianRed rounded p-1 mr-1">
-                        <BugIcon/>
-                    </span>
+                    <TaskIssueStatus showIssueLabels={false} task={item} className={`${
+						item.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
+					} rounded-sm mr-1`}/>
                     <span className="text-grey text-normal mr-1">#{item.number}</span>
                     <span className="text-black dark:text-white text-normal capitalize mr-2">{item.title}</span>
                     <Priority level={1}/>
