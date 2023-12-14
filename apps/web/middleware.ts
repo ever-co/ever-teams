@@ -92,7 +92,7 @@ export async function middleware(request: NextRequest) {
 			response.headers.set('x-user', JSON.stringify(res.data));
 		}
 	} else if (!protected_path && (refresh_token || access_token)) {
-		response = NextResponse.redirect(url.origin + DEFAULT_MAIN_PATH);
+		// response = NextResponse.redirect(url.origin + DEFAULT_MAIN_PATH);
 	}
 
 	return response;

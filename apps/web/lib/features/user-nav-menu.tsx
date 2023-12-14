@@ -20,7 +20,7 @@ import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import stc from 'string-to-color';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
@@ -125,7 +125,7 @@ function MenuIndicator() {
 
 function UserNavMenu() {
 	const { user, logOut } = useAuthenticateUser();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { timerStatus } = useTimer();

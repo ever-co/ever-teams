@@ -31,7 +31,6 @@ import { useNetworkState } from '@uidotdev/usehooks';
 import Offline from '@components/pages/offline';
 
 function MainPage() {
-	// const { t } = useTranslation();
 	const t = useTranslations();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const breadcrumbArray = JSON.parse(t('pages.home.BREADCRUMB'));

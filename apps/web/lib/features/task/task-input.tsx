@@ -18,7 +18,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
@@ -61,7 +61,7 @@ type Props = {
  */
 
 export function TaskInput(props: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
@@ -412,7 +412,7 @@ function TaskCard({
 	forParentChildRelationship?: boolean;
 	updatedTaskList?: ITeamTask[];
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const { taskLabels: taskLabelsData } = useTaskLabels();
 

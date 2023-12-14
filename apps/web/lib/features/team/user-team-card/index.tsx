@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import { Card, InputField, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
@@ -14,7 +14,8 @@ import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 
 export function UserTeamCardHeader() {
-	const { t } = useTranslation();
+	const t = useTranslations();
+
 	return (
 		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
@@ -51,7 +52,7 @@ type IUserTeamCard = {
 } & IClassName;
 
 export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamCard) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
