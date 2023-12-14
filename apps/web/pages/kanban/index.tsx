@@ -1,4 +1,5 @@
 import { KanbanTabs } from "@app/constants";
+import { useOrganizationTeams } from "@app/hooks";
 import { useKanban } from "@app/hooks/features/useKanban";
 import { clsxm } from "@app/utils";
 import KanbanBoardSkeleton from "@components/shared/skeleton/KanbanBoardSkeleton";
@@ -12,37 +13,17 @@ import { MainLayout } from "lib/layout";
 import Image from 'next/image';
 import { useState } from "react";
 
-const images: any[] = [
-    {
-        src: '/assets/cover/auth-bg-cover-dark.png',
-        title: 'profile'
-    },
-    {
-        src: '/assets/cover/auth-bg-cover-dark.png',
-        title: 'profile'
-    },
-    {
-        src: '/assets/cover/auth-bg-cover-dark.png',
-        title: 'profile'
-    },
-    {
-        src: '/assets/cover/auth-bg-cover-dark.png',
-        title: 'profile'
-    },
-    {
-        src: '/assets/cover/auth-bg-cover-dark.png',
-        title: 'profile'
-    }
-]
-
 const Kanban= () => {
   
     const { data } = useKanban();
+    const {activeTeam} = useOrganizationTeams();
+    
     const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 
     const imageRadius = 20;
     const numberOfImagesDisplayed = 4;
-    const totalLength = ((images.length+1) * imageRadius);
+    const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
+    const totalLength = ((activeTeamMembers.length+1) * imageRadius);
    
     return (
         <>
@@ -61,25 +42,25 @@ const Kanban= () => {
                                 <div className="flex h-fit flex-row justify-end items-center relative " style={{
                                     width: `${totalLength}px`
                                 }}>
-                                    {images.map((image: any, index: number)=> {
+                                    {activeTeamMembers.map((image: any, index: number)=> {
                                     
                                         if(index < numberOfImagesDisplayed) {
                                             return (
                                             <Image 
                                                 key={index}
-                                                src={image.src} 
+                                                src={image.employee.user.imageUrl} 
                                                 alt={image.title} 
                                                 height={imageRadius*2} 
                                                 width={imageRadius*2} 
                                                 className="absolute rounded-full border-2 border-white"
-                                                style={stackImages(index, images.length)}
+                                                style={stackImages(index, activeTeamMembers.length)}
                                             />)
                                         }
                                         
                                     })}
-                                    {(images.length > 4) && (
-                                        <div className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]" style={stackImages(4, images.length)}>
-                                            {images.length - numberOfImagesDisplayed}+
+                                    {(activeTeamMembers.length > 4) && (
+                                        <div className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]" style={stackImages(4, activeTeamMembers.length)}>
+                                            {activeTeamMembers.length - numberOfImagesDisplayed}+
                                         </div>
                                     )}
                                 </div>
