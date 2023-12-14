@@ -1,5 +1,6 @@
 'use client';
 
+import moment from 'moment';
 import { NextIntlClientProvider } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { RecoilRoot } from 'recoil';
@@ -17,7 +18,7 @@ export default function LocaleLayout({ children, params: { locale } }: any) {
 	return (
 		<html lang={locale}>
 			<body>
-				<NextIntlClientProvider locale={locale} messages={messages}>
+				<NextIntlClientProvider locale={locale} messages={messages} timeZone={moment().tz()}>
 					<RecoilRoot>{children}</RecoilRoot>
 				</NextIntlClientProvider>
 			</body>
