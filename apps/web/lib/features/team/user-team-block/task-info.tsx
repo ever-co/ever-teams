@@ -36,11 +36,15 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Pr
 				{edition.task && (
 					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
 				)}
-				{!edition.task && <div className="text-center">--</div>}
+				{!edition.task && (
+					<div className="text-center">
+						<p>There is no task assigned </p>
+					</div>
+				)}
 			</div>
 
 			{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} toBlockCard={true} />}
-			{!edition.task && <div className="text-center self-center">--</div>}
+			{!edition.task && <div className="text-center self-center text-white dark:text-dark">_</div>}
 		</div>
 	);
 }

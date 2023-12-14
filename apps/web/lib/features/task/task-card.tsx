@@ -106,7 +106,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'md:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
+					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
 					active && ['border-primary-light dark:bg-[#1E2025]'],
 					'gap-5',
 					className
@@ -189,7 +189,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative md:hidden flex justify-between py-3 flex-col',
+					'relative lg:hidden flex justify-between py-3 flex-col',
 					active && ['border-primary-light border-[2px]'],
 					className
 				)}
@@ -221,7 +221,7 @@ export function TaskCard(props: Props) {
 						<UsersTaskAssigned className="px-3 w-52" task={task} />
 					</>
 				)}
-				<div className="flex justify-between mt-8 mb-8 space-x-5">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
@@ -230,11 +230,11 @@ export function TaskCard(props: Props) {
 					</div>
 
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
-				</div>
 
-				{task && memberInfo && currentMember && (
-					<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
-				)}
+					{task && memberInfo && currentMember && (
+						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+					)}
+				</div>
 			</Card>
 		</>
 	);

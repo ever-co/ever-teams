@@ -187,7 +187,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 		<div className="relative w-full z-10">
 			<div
 				className={clsxm(
-					'flex justify-between flex-col xs:flex-row  items-center w-full flex-wrap-reverse md:flex-nowrap',
+					'flex justify-between flex-col xs:flex-row  items-center w-full flex-wrap-reverse lg:flex-nowrap',
 					className
 				)}
 			>

@@ -65,7 +65,7 @@ function InnerItemList({items, title}: {
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
                     style={title === TaskStatus.INPROGRESS && {
-                        borderWidth: '1px',
+                        borderWidth: '2px',
                         borderColor: '#6FCF97',
                         borderStyle: 'solid'
                     }}
@@ -278,7 +278,7 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
     return (
         <>
             <header
-                className={"flex flex-row justify-between items-center rounded-lg px-4 py-2"}
+                className={"flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px]"}
                 style={headerStyleChanger(snapshot, backgroundColor)}
                 data-isDragging={snapshot.isDragging}
             >
