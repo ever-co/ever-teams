@@ -166,6 +166,12 @@ export const APPLICATION_LANGUAGES_CODE = [
 	'es'
 ];
 
+export enum KanbanTabs {
+	TODAY = 'TODAY',
+	YESTERDAY = 'YESTERDAY',
+	TOMORROW = 'TOMORROW'
+}
+
 export enum IssuesView {
 	CARDS = 'CARDS',
 	TABLE = 'TABLE',

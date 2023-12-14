@@ -90,7 +90,7 @@ function TagList({tags}: {
 }
 
 
-const stackImages = (index: number, length: number) => {
+export const stackImages = (index: number, length: number) => {
     const imageRadius = 20;
     
     const total_length = ((length+1) * imageRadius);
