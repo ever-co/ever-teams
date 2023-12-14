@@ -94,7 +94,7 @@ const Kanban= () => {
                         <div className="flex flex-row">
                             <div onClick={()=> {
                                 setActiveTab(KanbanTabs.TODAY)
-                            }} className={`pt-2.5 px-5 pb-[30px] text-base font-bold ${activeTab === KanbanTabs.TODAY ? 'border-b-[#3826A6] text-[#3826A6]': 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'}`} style={{
+                            }} className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-bold ${activeTab === KanbanTabs.TODAY ? 'border-b-[#3826A6] text-[#3826A6]': 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'}`} style={{
                                 borderBottomWidth: '3px',
                                 borderBottomStyle: 'solid',
                             }}>
@@ -102,7 +102,7 @@ const Kanban= () => {
                             </div>
                             <div onClick={()=> {
                                 setActiveTab(KanbanTabs.YESTERDAY)
-                            }} className={`pt-2.5 px-5 pb-[30px] text-base font-bold ${activeTab === KanbanTabs.YESTERDAY ? 'border-b-[#3826A6] text-[#3826A6]': 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'}`} style={{
+                            }} className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-bold ${activeTab === KanbanTabs.YESTERDAY ? 'border-b-[#3826A6] text-[#3826A6]': 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'}`} style={{
                                 borderBottomWidth: '3px',
                                 borderBottomStyle: 'solid',
                             }}>
@@ -110,7 +110,7 @@ const Kanban= () => {
                             </div>
                             <div onClick={()=> {
                                 setActiveTab(KanbanTabs.TOMORROW)
-                            }} className={`pt-2.5 px-5 pb-[30px] text-base font-bold ${activeTab === KanbanTabs.TOMORROW ? 'border-b-[#3826A6] text-[#3826A6]': 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'}`} style={{
+                            }} className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-bold ${activeTab === KanbanTabs.TOMORROW ? 'border-b-[#3826A6] text-[#3826A6]': 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'}`} style={{
                                 borderBottomWidth: '3px',
                                 borderBottomStyle: 'solid',
                             }}>
