@@ -66,7 +66,7 @@ const Kanban= () => {
                                 </div>
                             </div>
                             <VerticalLine/>
-                            <button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white" onClick={()=> {}}>
+                            <button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white" >
                                 <AddIcon width={24} height={24} className={"dark:stroke-white"}/>
                             </button>
                         </div>
