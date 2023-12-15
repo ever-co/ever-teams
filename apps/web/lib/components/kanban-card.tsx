@@ -214,18 +214,19 @@ export default function Item(props: any) {
             )}
             
             <div className="relative ">
-                <div className="w-10 flex h-fit flex-row justify-end items-center relative bg-primary">
+                <div className="w-10 flex h-fit flex-row justify-end items-center relative">
                 {item.members.map((option: any, index: number)=> {
                     return (
+                        <div className="relative w-[40px] h-[40px]">
                         <Image 
                             key={index}
                             src={option.user.imageUrl} 
                             alt={`${option.user.firstName} avatar`} 
-                            height={40} 
-                            width={40} 
+                            fill={true}
                             className="absolute rounded-full border-2 border-white"
                             style={stackImages(index, item.members.length)}
                         />
+                        </div>
                     )
                 })}
                </div>
