@@ -178,7 +178,7 @@ export default function Item(props: any) {
         aria-label={`${item.status.name} ${item.content}`}
       >
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
-            <div className="flex flex-col justify- gap-5 grow">
+            <div className="flex flex-col justify-between gap-5 grow">
                 {item.tags && (
                     <TagList tags={item.tags}/>
                 )}
@@ -193,13 +193,13 @@ export default function Item(props: any) {
                     <Priority level={1}/>
                 </div>
             </div>
-            <div className="flex flex-col justify-between w-[48px] items-end">
+            <div className="flex flex-col w-[48px] gap-4 items-end">
                 <VerticalThreeDot/>
 
                 <CircularProgress percentage={10}/>
             </div>
         </div>
-        <div className="flex flex-row justify-between items-center pt-5 pb-2 h-fit">
+        <div className="flex flex-row justify-between items-center pt-4 h-fit">
 
             {item.status === TaskStatus.INPROGRESS ? (
                 <div className="flex flex-row items-center gap-2">
