@@ -57,7 +57,7 @@ export const DangerZoneTeam = () => {
 									{t('common.TRANSFERT_OWNERSHIP_TO')}
 								</Text>
 							</div>
-							<div className="flex-auto sm:w-10">
+							<div className="flex-auto w-full sm:w-10">
 								<Button
 									variant="danger"
 									type="submit"
@@ -82,7 +82,7 @@ export const DangerZoneTeam = () => {
 									{t('alerts.ALERT_REMOVE_TEAM')}
 								</Text>
 							</div>
-							<div className="flex-auto sm:w-10">
+							<div className="flex-auto w-full sm:w-10">
 								<Button
 									variant="danger"
 									type="submit"
@@ -109,7 +109,7 @@ export const DangerZoneTeam = () => {
 									{t('alerts.ALERT_QUIT_TEAM')}
 								</Text>
 							</div>
-							<div className="flex-auto sm:w-10">
+							<div className="flex-auto w-full sm:w-10">
 								<Button
 									variant="danger"
 									type="submit"
