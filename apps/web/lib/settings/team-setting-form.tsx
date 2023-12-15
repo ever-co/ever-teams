@@ -148,7 +148,7 @@ export const TeamSettingForm = () => {
 
 	return (
 		<>
-			<form className="w-[98%] md:w-[930px] mt-8" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form className=" lg:w-[98%] md:w-[930px] mt-8" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">

@@ -64,7 +64,7 @@ const Team = () => {
 									{isTeamManager ? (
 										<Accordian
 											title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
-											className="p-4 mt-4 dark:bg-dark--theme"
+											className="max-w-[96vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
 											id="invitations"
 										>
 											<InvitationSetting />
@@ -77,7 +77,7 @@ const Team = () => {
 									{isTeamManager ? (
 										<Accordian
 											title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-											className="p-4 mt-4 dark:bg-dark--theme"
+											className="max-w-[96vw]  p-4 mt-4 dark:bg-dark--theme"
 											id="member"
 										>
 											<MemberSetting />
@@ -99,7 +99,7 @@ const Team = () => {
 									{/* Issues Settings */}
 									<Accordian
 										title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-										className="p-4 mt-4 dark:bg-dark--theme"
+										className="max-w-[96vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
 										id="issues-settings"
 									>
 										<IssuesSettings />
