@@ -159,7 +159,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div
 									ref={inputWrapperRef}
-									className="flex flex-row items-center justify-between flex-grow-0 w-4/5"
+									className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5"
 								>
 									<InputField
 										autoCustomFocus={!disabled}
@@ -200,11 +200,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Team Color */}
-							<div className="z-50 flex items-center justify-between w-full gap-12 ">
-								<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+							<div className="z-50 flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
+								<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+								<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 									<ColorPicker
 										defaultColor={activeTeam?.color}
 										onChange={(color: any | null) => {
@@ -219,11 +219,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Emoji */}
-							<div className="flex items-center justify-between w-full gap-12 ">
-								<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+							<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
+								<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 									{t('pages.settingsTeam.EMOJI')}
 								</Text>
-								<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+								<div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
 									<EmojiPicker
 										onChange={(emoji: string) => {
 											setValue('emoji', emoji);
@@ -238,11 +238,11 @@ export const TeamSettingForm = () => {
 
 							{/* Team Size */}
 							{
-								<div className="flex items-center justify-between w-full gap-12 mt-3 ">
-									<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+								<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 mt-3 ">
+									<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 										{t('pages.settingsTeam.TEAM_SIZE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+									<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 										<TeamSize
 											defaultValue={activeTeam?.teamSize || ''}
 											onChange={(teamSize: string) => {
@@ -258,10 +258,10 @@ export const TeamSettingForm = () => {
 
 							{/* Team Type */}
 							<div className="flex flex-col items-center w-full mt-8 sm:gap-12 sm:flex-row">
-								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 w-full sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_TYPE')}
 								</Text>
-								<div className="flex gap-x-[30px] flex-col sm:flex-row items-center">
+								<div className="flex lg:gap-x-[30px] flex-col sm:flex-row items-center">
 									{isTeamManager && (
 										<div className="flex items-center justify-between w-full space-y-2 sm:block">
 											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
@@ -309,7 +309,7 @@ export const TeamSettingForm = () => {
 									)}
 									{getTeamLink() && (
 										<div className="flex flex-col items-center gap-4 sm:flex-row">
-											<div className="flex flex-row items-center justify-between flex-grow-0 w-64 mb-0">
+											<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-64 mb-0">
 												<Tooltip
 													label={getTeamLink()}
 													placement="auto"

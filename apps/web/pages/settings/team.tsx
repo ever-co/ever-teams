@@ -44,14 +44,14 @@ const Team = () => {
 					</div>
 
 					<Container className="mb-10">
-						<div className="flex flex-col w-full sm:flex-row">
+						<div className="flex flex-col w-full lg:flex-row">
 							<LeftSideSettingMenu />
 							{isTeamMember ? (
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
 									{/* General Settings */}
 									<Accordian
 										title={t('pages.settingsTeam.HEADING_TITLE')}
-										className="p-4 mt-8 dark:bg-dark--theme"
+										className="max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 										id="general-settings"
 									>
 										<div className="flex flex-col">
@@ -89,7 +89,7 @@ const Team = () => {
 									{isTeamManager && (
 										<Accordian
 											title={t('pages.settingsTeam.INTEGRATIONS')}
-											className="p-4 mt-4 dark:bg-dark--theme"
+											className="max-w-[96vw] p-4 mt-4 dark:bg-dark--theme"
 											id="integrations"
 										>
 											<IntegrationSetting />
@@ -117,7 +117,7 @@ const Team = () => {
 									{/* Danger Zone */}
 									<Accordian
 										title={t('pages.settings.DANDER_ZONE')}
-										className="p-4 mt-4 dark:bg-dark--theme"
+										className="max-w-[96vw] p-4 mt-4 dark:bg-dark--theme"
 										isDanger={true}
 										id="danger-zones"
 									>

@@ -58,7 +58,7 @@ export const LeftSideSettingMenu = () => {
 
 	return (
 		<>
-			<div className="hidden md:block sm:w-[320px] mt-[36px] sm:mr-[56px] mx-auto">
+			<div className="hidden lg:block lg:w-[320px] mt-[36px] sm:mr-[56px] mx-auto">
 				<Text className="text-4xl font-normal mb-[40px] text-center sm:text-left">{t('common.SETTINGS')}</Text>
 				<div className="flex sm:block">
 					<SidebarAccordian

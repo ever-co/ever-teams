@@ -160,7 +160,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.FULL_NAME')}
 									</Text>
-									<div className="flex justify-start w-full">
+									<div className="flex flex-col gap-2 lg:flex-row justify-start w-full">
 										<InputField
 											type="text"
 											placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
@@ -172,7 +172,7 @@ export const PersonalSettingForm = () => {
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editFullname}
-											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
+											wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
 										/>
 										<InputField
 											type="text"
@@ -184,7 +184,7 @@ export const PersonalSettingForm = () => {
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editFullname}
-											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
+											wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
 										/>
 
 										{editFullname ? (
@@ -220,7 +220,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.CONTACT')}
 									</Text>
-									<div className="flex justify-start w-full">
+									<div className="flex flex-col lg:flex-row gap-2 justify-start w-full">
 										<div className="relative">
 											<InputField
 												type="email"
@@ -236,7 +236,7 @@ export const PersonalSettingForm = () => {
 												onChange={checkEmailValidity}
 												disabled={!editContacts}
 												notValidBorder={!isValid.email}
-												wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5 `}
+												wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5 `}
 											/>
 											{!isValid.email && (
 												<p className="absolute text-xs text-red-500 -bottom-5">
@@ -257,7 +257,7 @@ export const PersonalSettingForm = () => {
 												onChange={checkPhoneValidity}
 												disabled={!editContacts}
 												notValidBorder={!isValid.phone}
-												wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
+												wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
 											/>
 											{!isValid.phone && (
 												<p className="absolute text-xs text-red-500 -bottom-5">
@@ -302,7 +302,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.THEME')}
 									</Text>
-									<div className="flex w-full">
+									<div className="flex items-center lg:items-start w-full">
 										<ThemeToggler />
 										<Text className="flex items-center ml-5 text-sm font-normal text-gray-400">
 											{theme === 'light' ? 'Light' : 'Dark'} Mode
@@ -316,7 +316,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.LANGUAGE')}
 									</Text>
-									<div className="flex w-full">
+									<div className="flex flex-col lg:flex-row w-full">
 										<LanguageDropDown
 											currentLanguage={currentLanguage}
 											onChangeLanguage={(t: string) => {
@@ -332,7 +332,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.TIME_ZONE')}
 									</Text>
-									<div className="flex w-full">
+									<div className="flex flex-col lg:flex-row gap-2 w-full">
 										<TimezoneDropDown
 											currentTimezone={currentTimezone}
 											onChangeTimezone={(t: string) => {
