@@ -45,7 +45,7 @@ const Personal = () => {
 							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
 								<Accordian
 									title={t('pages.settingsPersonal.HEADING_TITLE')}
-									className="p-4 mt-8 dark:bg-dark--theme"
+									className=" max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 									id="general"
 								>
 									{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">

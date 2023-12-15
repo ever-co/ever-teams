@@ -90,7 +90,7 @@ function TagList({tags}: {
 }
 
 
-const stackImages = (index: number, length: number) => {
+export const stackImages = (index: number, length: number) => {
     const imageRadius = 20;
     
     const total_length = ((length+1) * imageRadius);
@@ -178,7 +178,7 @@ export default function Item(props: any) {
         aria-label={`${item.status.name} ${item.content}`}
       >
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
-            <div className="flex flex-col justify- gap-5 grow">
+            <div className="flex flex-col gap-5 grow">
                 {item.tags && (
                     <TagList tags={item.tags}/>
                 )}
@@ -189,17 +189,19 @@ export default function Item(props: any) {
 					} rounded-sm mr-1`}/>
                     
                     <span className="text-grey text-normal mr-1">#{item.number}</span>
-                    <span className="text-black dark:text-white text-normal capitalize mr-2">{item.title}</span>
+                    <span className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
+                        {item.title}
+                    </span>
                     <Priority level={1}/>
                 </div>
             </div>
-            <div className="flex flex-col justify-between w-[48px] items-end">
+            <div className="flex flex-col w-[48px] gap-4 items-end">
                 <VerticalThreeDot/>
 
                 <CircularProgress percentage={10}/>
             </div>
         </div>
-        <div className="flex flex-row justify-between items-center pt-5 pb-2 h-fit">
+        <div className="flex flex-row justify-between items-center pt-4 h-fit">
 
             {item.status === TaskStatus.INPROGRESS ? (
                 <div className="flex flex-row items-center gap-2">
@@ -214,18 +216,18 @@ export default function Item(props: any) {
             )}
             
             <div className="relative ">
-                <div className="w-10 flex h-fit flex-row justify-end items-center relative bg-primary">
+                <div className="w-10 flex h-fit flex-row justify-end items-center relative">
                 {item.members.map((option: any, index: number)=> {
                     return (
+                        <div className="relative w-[40px] h-[40px]" key={index}>
                         <Image 
-                            key={index}
                             src={option.user.imageUrl} 
                             alt={`${option.user.firstName} avatar`} 
-                            height={40} 
-                            width={40} 
+                            fill={true}
                             className="absolute rounded-full border-2 border-white"
                             style={stackImages(index, item.members.length)}
                         />
+                        </div>
                     )
                 })}
                </div>

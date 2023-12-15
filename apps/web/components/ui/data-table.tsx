@@ -12,42 +12,26 @@ import {
 	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable
-} from "@tanstack/react-table"
+} from '@tanstack/react-table';
 
-import {
-	Table,
-	TableHeader,
-	TableRow,
-	TableHead,
-	TableCell,
-	TableBody,
-	TableFooter,
-} from './table';
+import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
 
 interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[]
-	data: TData[],
-	footerRows?: React.ReactNode[],
+	columns: ColumnDef<TData, TValue>[];
+	data: TData[];
+	footerRows?: React.ReactNode[];
 	isError?: boolean;
 	noResultsMessage?: {
 		heading: string;
 		content: string;
-	}
+	};
 }
 
-function DataTable<TData, TValue>({
-	columns,
-	data,
-	footerRows,
-}: DataTableProps<TData, TValue>) {
-
-	const [rowSelection, setRowSelection] = React.useState({})
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({})
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[]
-	)
-	const [sorting, setSorting] = React.useState<SortingState>([])
+function DataTable<TData, TValue>({ columns, data, footerRows }: DataTableProps<TData, TValue>) {
+	const [rowSelection, setRowSelection] = React.useState({});
+	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+	const [sorting, setSorting] = React.useState<SortingState>([]);
 
 	const table = useReactTable({
 		data,
@@ -56,7 +40,7 @@ function DataTable<TData, TValue>({
 			sorting,
 			columnVisibility,
 			rowSelection,
-			columnFilters,
+			columnFilters
 		},
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
@@ -68,8 +52,8 @@ function DataTable<TData, TValue>({
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
-	})
+		getFacetedUniqueValues: getFacetedUniqueValues()
+	});
 
 	return (
 		<Table className="border-transparent bg-light--theme-light dark:bg-dark--theme-light mt-8 w-full rounded-2xl">
