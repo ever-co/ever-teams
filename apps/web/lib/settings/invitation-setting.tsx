@@ -45,7 +45,7 @@ export const InvitationSetting = () => {
 						}}
 					/>
 				</div>
-				<div className="flex items-center justify-between w-auto gap-4">
+				<div className="flex items-center justify-between w-auto gap-0 md:gap-4">
 					{/* TODO: Will imlement Sort/FIlter logic in future */}
 					{/* <FilterDropdown setValue={() => console.log('filter')} /> */}
 					<Button

@@ -24,7 +24,7 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<Text className="flex-none flex-grow-0 w-1/5 mt-8 mb-2 text-xl font-normal text-gray-400">
+			<Text className="flex-none flex-grow-0 w-full md:w-1/5 mt-8 mb-2 text-xl font-normal text-gray-400">
 				{t('pages.settingsTeam.MEMBER_AND_ROLES')}
 			</Text>
 			<div className="flex items-center justify-between w-full mt-8">
@@ -46,7 +46,7 @@ export const MemberSetting = () => {
 			</div>
 
 			{members.length > 0 ? (
-				<div className="mb-8 mt-7">
+				<div className="mb-8 mt-7 overflow-y-auto">
 					<MemberTable members={members} />
 				</div>
 			) : (

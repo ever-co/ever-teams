@@ -88,7 +88,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 					)}
 				>
 					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
-						{isAuthPage &&
+						{isAuthPage && (
 							<div className="w-11/12">
 								{title && (
 									<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
@@ -102,7 +102,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 									</Text>
 								)}
 							</div>
-						}
+						)}
 
 						{children}
 					</div>

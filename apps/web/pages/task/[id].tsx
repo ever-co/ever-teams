@@ -66,7 +66,7 @@ const TaskDetails = () => {
 						<section className="md:mr-5 max-w-[57rem] 3xl:max-w-none xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 
-							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8 rounded-sm">
+							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-2 md:p-6 pt-0 flex flex-col gap-8 rounded-sm">
 								<RichTextEditor />
 								{/* <TaskDescriptionBlock /> */}
 								<ChildIssueCard />
@@ -78,7 +78,7 @@ const TaskDetails = () => {
 								{/* <ActivityBlock /> */}
 							</div>
 						</section>
-						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-[30%]">
+						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-full lg:w-[30%]">
 							<div className="flex flex-col bg-white dark:bg-dark--theme-light rounded-xl">
 								<TaskDetailsAside />
 							</div>

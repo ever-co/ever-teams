@@ -16,7 +16,10 @@ export function Paginate({ total, itemsPerPage = 10, onPageChange, itemOffset, e
 	const pageCount: number = Math.ceil(total / itemsPerPage);
 
 	return (
-		<div className="flex items-center justify-between pt-4" aria-label="Table navigation">
+		<div
+			className="flex flex-col md:flex-row gap-2 items-center justify-between pt-4"
+			aria-label="Table navigation"
+		>
 			<ReactPaginate
 				breakLabel=". . ."
 				nextLabel={

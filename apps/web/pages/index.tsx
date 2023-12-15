@@ -141,13 +141,15 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex md:flex-row flex-col-reverse justify-between items-center py-4',
+				'w-full flex md:flex-row flex-col-reverse justify-center md:justify-between items-center py-4',
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
 			{/* Task inputs */}
 			{/* {showInput && ( */}
-			<AuthUserTaskInput className={clsxm('w-4/5 md:w-1/2 2xl:w-full ', !showInput && '!hidden md:!flex')} />
+			<AuthUserTaskInput
+				className={clsxm('mx-auto w-full md:w-1/2 2xl:w-full ', !showInput && '!hidden md:!flex')}
+			/>
 			{/* )}  */}
 
 			<button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>

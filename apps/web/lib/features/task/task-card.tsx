@@ -196,9 +196,9 @@ export function TaskCard(props: Props) {
 			>
 				<div className="flex justify-between mb-4 ml-2">
 					{totalWork}
-					{isTrackingEnabled && isAuthUser && viewType === 'unassign' && task && (
+					{/* {isTrackingEnabled && isAuthUser && viewType === 'unassign' && task && (
 						<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
-					)}
+					)} */}
 				</div>
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
 					<TaskInfo task={task} className="px-4 mb-4 w-80" />{' '}
@@ -246,7 +246,7 @@ function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & 
 
 	return (
 		<div className={clsxm('flex justify-center items-center', className)}>
-			<div className="flex flex-col justify-center">
+			<div className="flex flex-col justify-center items-center">
 				{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
 				<span className="text-sm font-medium text-center">
 					{members.length > 0
