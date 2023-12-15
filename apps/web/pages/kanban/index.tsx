@@ -46,15 +46,17 @@ const Kanban= () => {
                                     
                                         if(index < numberOfImagesDisplayed) {
                                             return (
-                                            <Image 
-                                                key={index}
-                                                src={image.employee.user.imageUrl} 
-                                                alt={image.title} 
-                                                height={imageRadius*2} 
-                                                width={imageRadius*2} 
-                                                className="absolute rounded-full border-2 border-white"
-                                                style={stackImages(index, activeTeamMembers.length)}
-                                            />)
+                                                <div className="relative w-[40px] h-[40px]">
+                                                    <Image 
+                                                        key={index}
+                                                        src={image.employee.user.imageUrl} 
+                                                        alt={image.title} 
+                                                        fill={true}
+                                                        className="absolute rounded-full border-2 border-white"
+                                                        style={stackImages(index, activeTeamMembers.length)}
+                                                    />
+                                                </div>
+                                            )
                                         }
                                         
                                     })}
