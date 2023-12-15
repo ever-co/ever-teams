@@ -239,7 +239,7 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                                         {...provided.dragHandleProps}
                                                         aria-label={`${title}`}
                                                     >
-                                                        <span className="">
+                                                        <span>
                                                         {title}
                                                         </span>
                                                     </h2>
@@ -248,12 +248,7 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                         </div>
                                         
                                     </header>
-                                    <KanbanDroppable 
-                                        title={title} 
-                                        droppableId={title} 
-                                        type={'TASK'} 
-                                        content={items}                     
-                                    />
+                                    
                                 </>
                                     : 
                                 null
