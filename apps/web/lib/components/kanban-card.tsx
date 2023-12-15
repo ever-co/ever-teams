@@ -219,9 +219,8 @@ export default function Item(props: any) {
                 <div className="w-10 flex h-fit flex-row justify-end items-center relative">
                 {item.members.map((option: any, index: number)=> {
                     return (
-                        <div className="relative w-[40px] h-[40px]">
+                        <div className="relative w-[40px] h-[40px]" key={index}>
                         <Image 
-                            key={index}
                             src={option.user.imageUrl} 
                             alt={`${option.user.firstName} avatar`} 
                             fill={true}

@@ -46,9 +46,9 @@ const Kanban= () => {
                                     
                                         if(index < numberOfImagesDisplayed) {
                                             return (
-                                                <div className="relative w-[40px] h-[40px]">
+                                                <div className="relative w-[40px] h-[40px]" key={index}>
                                                     <Image 
-                                                        key={index}
+                                                        
                                                         src={image.employee.user.imageUrl} 
                                                         alt={image.title} 
                                                         fill={true}
