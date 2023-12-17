@@ -18,7 +18,7 @@ export interface ITaskStatusItemList {
 }
 
 export interface ITaskStatusCreate {
-	name: string;
+	name?: string;
 	description?: string;
 	icon?: string;
 	color?: string;
