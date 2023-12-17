@@ -40,11 +40,11 @@ export function useKanban() {
     },[taskStatusHook.loading, tasksFetching])
 
     /**
-     * collapse kanban column
+     * collapse or show kanban column
      */
-    const collapseColumn = (statusId: string) => {
+    const toggleColumn = (statusId: string, status: boolean) => {
 		taskStatusHook.editTaskStatus(statusId, {
-			isCollapsed: true
+			isCollapsed: status
 		});
 	}
 
@@ -54,6 +54,6 @@ export function useKanban() {
         columns: taskStatusHook.taskStatus,
         updateKanbanBoard: setKanbanBoard,
         updateTaskStatus: updateTask,
-        collapseColumn
+        toggleColumn
     }
 }
