@@ -39,11 +39,21 @@ export function useKanban() {
         }
     },[taskStatusHook.loading, tasksFetching])
 
+    /**
+     * collapse kanban column
+     */
+    const collapseColumn = (statusId: string) => {
+		taskStatusHook.editTaskStatus(statusId, {
+			isCollapsed: true
+		});
+	}
+
     return {
         data: kanbanBoard,
         isLoading: loading,
         columns: taskStatusHook.taskStatus,
         updateKanbanBoard: setKanbanBoard,
-        updateTaskStatus: updateTask
+        updateTaskStatus: updateTask,
+        collapseColumn
     }
 }
