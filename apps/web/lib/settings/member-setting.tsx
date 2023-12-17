@@ -3,11 +3,11 @@ import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { ChangeEvent, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { MemberTable } from './member-table';
 
 export const MemberSetting = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { activeTeam } = useOrganizationTeams();
 	const [filterString, setFilterString] = useState<string>('');

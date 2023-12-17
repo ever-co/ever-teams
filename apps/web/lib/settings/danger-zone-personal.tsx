@@ -3,14 +3,14 @@ import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@a
 import { Button, Text } from 'lib/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import dangerZoneImage from '../../public/assets/svg/danger-zones.svg';
 import { RemoveModal } from './remove-modal';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => void;
 
 export const DangerZone = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 

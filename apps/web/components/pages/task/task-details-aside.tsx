@@ -1,13 +1,13 @@
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'react-i18next';
 import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
 import TaskMainInfo from './details-section/blocks/task-main-info';
 import TaskProgress from './details-section/blocks/task-progress';
 import TaskPublicity from './details-section/blocks/task-publicity';
 import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
+import { useTranslations } from 'next-intl';
 
 const TaskDetailsAside = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<section
 			className={clsxm(

@@ -1,11 +1,16 @@
+'use client';
+
 import { verifyUserEmailByTokenAPI } from '@app/services/client/api';
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 
 export function useEmailVerifyToken() {
-	const { query } = useRouter();
+	const searchParams = useSearchParams();
+	const email = searchParams?.get('email');
+	const token = searchParams?.get('token');
+
 	const loginFromQuery = useRef(false);
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
@@ -34,15 +39,15 @@ export function useEmailVerifyToken() {
 	 * Verify token immediately if email and token were passed from url
 	 */
 	useEffect(() => {
-		if (query.email && query.token) {
+		if (email && token) {
 			verifyEmailRequest({
-				email: query.email as string,
-				token: query.token as string
+				email: email as string,
+				token: token as string
 			});
 
 			loginFromQuery.current = true;
 		}
-	}, [query, verifyEmailRequest]);
+	}, [email, token, verifyEmailRequest]);
 
 	return {
 		errors,

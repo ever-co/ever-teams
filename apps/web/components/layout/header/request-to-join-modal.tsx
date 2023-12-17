@@ -1,16 +1,18 @@
+'use client';
+
 import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@app/hooks';
 import { IRequestToJoinCreate } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { PositionDropDown } from './position-dropdown';
+import { useTranslations } from 'next-intl';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
@@ -50,7 +52,7 @@ export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeM
 };
 
 const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const {
 		loading,
 		formValues,
@@ -145,7 +147,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 	const [requestToJoinPayload, setRequestToJoinPayload] = useState<IRequestToJoinCreate | null>(null);
 	const [position, setPosition] = useState<string>('');
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { formValues, setFormValues, errors, setErrors, sendCodeLoading, inputCodeRef } = useAuthenticationPasscode();
 	const { activeTeam } = useOrganizationTeams();
 	const {

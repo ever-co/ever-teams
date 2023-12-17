@@ -1,6 +1,6 @@
 import { PaginationDropdown } from 'lib/settings/page-dropdown';
+import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
 import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 } & ReactPaginateProps;
 
 export function Paginate({ total, itemsPerPage = 10, onPageChange, itemOffset, endOffset, setItemsPerPage }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const pageCount: number = Math.ceil(total / itemsPerPage);
 
 	return (

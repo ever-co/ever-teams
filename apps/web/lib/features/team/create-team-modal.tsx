@@ -1,7 +1,9 @@
+'use client';
+
 import { useOrganizationTeams } from '@app/hooks';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
+import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Create team modal
@@ -15,7 +17,7 @@ export function CreateTeamModal({
 	closeModal: () => void;
 	joinTeamModal?: Dispatch<SetStateAction<boolean>>;
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { createOTeamLoading, createOrganizationTeam, teams } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);

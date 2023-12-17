@@ -1,3 +1,5 @@
+'use client';
+
 import { clsxm } from '@app/utils';
 import { Dialog, Transition } from '@headlessui/react';
 import Image from 'next/image';

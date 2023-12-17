@@ -6,9 +6,9 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { timerSecondsState } from '@app/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
 import { useRecoilValue } from 'recoil';
+import { useTranslations } from 'next-intl';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -18,7 +18,7 @@ interface ITaskDetailCard {
 const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
 	const timerReconds = useRecoilValue(timerSecondsState);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	let taskStat: ITasksTimesheet | null | undefined = null;
 
 	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);

@@ -1,3 +1,5 @@
+'use client';
+
 import { DEFAULT_APP_PATH } from '@app/constants';
 import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';

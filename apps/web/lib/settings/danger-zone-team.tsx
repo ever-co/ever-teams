@@ -3,13 +3,13 @@ import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganiz
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from 'lib/components';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { RemoveModal } from './remove-modal';
 import { TransferTeamModal } from './transfer-team-modal';
 
 export const DangerZoneTeam = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: dangerIsOpen, closeModal: dangerCloseModal, openModal: dangerOpenaModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<'DISPOSE' | 'QUIT' | null>(null);

@@ -3,7 +3,7 @@ import { IOrganizationTeamMember } from '@app/interfaces';
 import { activeTeamManagersState } from '@app/stores';
 import { BackButton, Button, Card, Modal, Text } from 'lib/components';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
 
@@ -11,7 +11,7 @@ import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
  * Transfer team modal
  */
 export function TransferTeamModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 	const { activeTeam, editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();

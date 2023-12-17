@@ -1,3 +1,5 @@
+'use client';
+
 import { useRecoilValue } from 'recoil';
 import { timerStatusState, userState } from '@app/stores';
 import { useFirstLoad, useSyncRef, useTeamTasks } from '..';

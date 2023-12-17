@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
@@ -7,9 +9,9 @@ import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
+import { useTranslations } from 'next-intl';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -29,7 +31,7 @@ type StatusFilter = { [x in IStatusType]: string[] };
  * component.
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const defaultValue =
 		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
@@ -229,7 +231,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
  * @returns A div with a button, a vertical separator, a button, and a button.
  */
 function InputFilters({ hook, profile }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
 
 	const osSpecificAssignTaskTooltipLabel = 'A';
@@ -340,7 +342,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  */
 function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const [key, setKey] = useState(0);
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row">
@@ -413,7 +415,7 @@ export function TaskNameFilter({
 	close: () => void;
 	fullWidth?: boolean;
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 	const [tempValue, setTempValue] = useState<string>('');

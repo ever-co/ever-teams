@@ -1,6 +1,6 @@
 import { Button, Card, Modal, Text } from 'lib/components';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export const RemoveModal = ({
 	open,
@@ -15,7 +15,7 @@ export const RemoveModal = ({
 	onAction: () => any;
 	loading: boolean;
 }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
 
 	return (

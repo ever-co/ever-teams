@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrganizationTeams } from '@app/hooks';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
@@ -14,7 +14,7 @@ import debounce from 'lodash/debounce';
 import Link from 'next/link';
 
 export const IntegrationSetting = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [isTasksAutoSync, setIsTasksAutoSync] = useState<boolean>();
 	const [isTasksAutoSyncOnLabel, setIsTasksAutoSyncOnLabel] = useState<boolean>();

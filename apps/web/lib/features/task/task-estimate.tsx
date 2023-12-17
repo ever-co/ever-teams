@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallbackRef, useTaskEstimation } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';

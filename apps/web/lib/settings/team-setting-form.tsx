@@ -9,14 +9,14 @@ import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import TeamSize from './team-size-popover';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { activeTeam, editOrganizationTeam, loading, loadingTeam } = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);

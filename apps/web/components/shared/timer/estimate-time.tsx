@@ -5,7 +5,7 @@ import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 export function EstimateTime() {
@@ -13,7 +13,7 @@ export function EstimateTime() {
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	useEffect(() => {
 		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
 		setValue({

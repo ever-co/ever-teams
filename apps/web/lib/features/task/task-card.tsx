@@ -1,3 +1,5 @@
+'use client';
+
 import { secondsToTime } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
@@ -25,7 +27,6 @@ import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
@@ -35,6 +36,7 @@ import { TaskNameInfoDisplay } from './task-displays';
 import { TaskAvatars } from './task-item';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	active?: boolean;
@@ -61,7 +63,7 @@ export function TaskCard(props: Props) {
 		taskBadgeClassName,
 		taskTitleClassName
 	} = props;
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -241,7 +243,7 @@ export function TaskCard(props: Props) {
 }
 
 function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const members = task?.members || [];
 
 	return (
@@ -419,7 +421,7 @@ function TaskCardMenu({
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign';
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const handleAssignment = useCallback(() => {
 		if (viewType === 'unassign') {
 			memberInfo?.assignTask(task);

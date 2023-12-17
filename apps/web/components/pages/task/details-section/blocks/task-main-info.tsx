@@ -7,7 +7,6 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { TrashIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import { useTranslation } from 'react-i18next';
 import { Fragment, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
@@ -15,11 +14,12 @@ import TaskRow from '../components/task-row';
 
 import { DatePicker } from 'components/ui/DatePicker';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
@@ -72,7 +72,7 @@ DateCustomInput.displayName = 'DateCustomInput';
 function DueDates() {
 	const { updateTask } = useTeamTasks();
 	const [task] = useRecoilState(detailedTaskState);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [dueDate, setDueDate] = useState<Date | null>(null);
 
@@ -208,7 +208,7 @@ function DueDates() {
 }
 
 const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [member, setMember] = useState<OT_Member>();
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);

@@ -1,16 +1,16 @@
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import { Card } from 'lib/components';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const ActivityBlock = () => {
 	const [selectedAll, setSelectedAll] = useState<boolean>(true);
 	const [selectedComments, setSelectedComments] = useState<boolean>(false);
 	const [selectedHistory, setSelectedHistory] = useState<boolean>(false);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const onAllSelect = () => {
 		setSelectedAll(true);
 		setSelectedComments(false);

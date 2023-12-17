@@ -1,5 +1,5 @@
 import { CheckIcon, CloseIcon } from 'lib/components/svgs';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 interface isProps {
 	status: string | undefined;
 	acceptJoinRequest: () => void;
@@ -7,7 +7,7 @@ interface isProps {
 }
 
 export const InvitationTableStatus = ({ status, acceptJoinRequest, rejectJoinRequest }: isProps) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const RenderStatus = (status: string | undefined) => {
 		switch (status) {
 			case 'ACCEPTED':

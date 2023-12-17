@@ -7,11 +7,11 @@ import { Avatar, Button } from 'lib/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 export const ProfileAvatar = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
 	const { updateAvatar } = useSettings();

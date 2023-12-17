@@ -2,11 +2,12 @@ import { Card } from 'lib/components';
 import { useState } from 'react';
 // import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+
 const CompletionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<Card className="w-full mt-8" shadow="bigger">
 			<div className="flex justify-between">

@@ -1,3 +1,5 @@
+'use client';
+
 import { ITeamTask } from '@app/interfaces';
 import {
 	activeTaskTimesheetStatisticsAPI,
