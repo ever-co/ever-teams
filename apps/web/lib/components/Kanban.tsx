@@ -21,12 +21,12 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
     
     if (dropSnapshot.isDraggingOver) {
       return {
-        backgroundColor: '#FFEBE6',
+        backgroundColor: '',
     }
     }
     if (dropSnapshot.draggingFromThisWith) {
       return {
-        backgroundColor:  '#E6FCFF',
+        backgroundColor:  '',
     }
     }
     return {
@@ -49,13 +49,19 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any){
  * @param param0 
  * @returns 
  */
-function InnerItemList({items, title}: {
+function InnerItemList({items, title, dropSnapshot}: {
     title: string,
-    items: ITeamTask[]
+    items: ITeamTask[],
+    dropSnapshot: DroppableStateSnapshot
 }) {
     return (
         <>
-        <section className="flex flex-col gap-2.5 max-h-[520px] overflow-y-scroll overflow-x-hidden">
+        <section 
+            style={{
+                minHeight: ((items.length < 0) && dropSnapshot.isDraggingOver) ? '120px' : '20px',
+                marginTop: (items.length > 0) ? '20px' : '0px'
+            }}
+            className="flex flex-col gap-2.5 max-h-[520px] overflow-y-scroll overflow-x-hidden">
         {items.map((item: ITeamTask, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
@@ -98,7 +104,7 @@ function InnerList(props: {
         <div 
         style={getBackgroundColor(dropSnapshot)}
         ref={dropProvided.innerRef}>
-          <InnerItemList items={items} title={title} />
+          <InnerItemList items={items} title={title} dropSnapshot={dropSnapshot} />
             <>
             {dropProvided.placeholder}
             </>
@@ -117,7 +123,7 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
     title: string,
     droppableId: string,
     type: string,
-    content: ITeamTask[]
+    content: ITeamTask[],
 } ) => {
     const [enabled, setEnabled] = useState(false);
   
@@ -277,6 +283,7 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
    
     return (
         <>
+            {title && (
             <header
                 className={"flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px]"}
                 style={headerStyleChanger(snapshot, backgroundColor)}
@@ -310,6 +317,7 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
                     </button>  
                 </div>
             </header>
+            )}
         </>
     )
 }
@@ -346,7 +354,7 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
                                 snapshot.isDragging,
                                 provided.draggableProps.style
                             )}
-                            className="flex flex-col gap-5 w-[325px]"
+                            className="flex flex-col w-[325px]"
                             
                         >
                             { items ?
