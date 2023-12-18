@@ -7,13 +7,14 @@ import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@app/hooks/features/useKanban';
+import { AddIcon } from './svgs';
 
 const grid = 8;
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   userSelect: "none",
   margin: `0 0 ${grid}px 0`,
-  background: isDragging ? "lightgreen" : null,
+  background: isDragging ? "" : null,
   ...draggableStyle
 });
 
@@ -334,11 +335,9 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
     items: ITeamTask[];
 }) => {
 
-    
-  
     return (
         <>
-            { items &&
+            { title &&
                 <Draggable
                     key={title}
                     index={index}
@@ -357,7 +356,7 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
                             className="flex flex-col w-[325px]"
                             
                         >
-                            { items ?
+                            { title ?
                                 <>
                                     <KanbanDraggableHeader 
                                         title={title} 
@@ -366,12 +365,18 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
                                         provided={provided}
                                         backgroundColor={backgroundColor}
                                     />
+                                    <div className="flex flex-col gap-3">
                                     <KanbanDroppable 
                                         title={title} 
                                         droppableId={title} 
                                         type={'TASK'} 
                                         content={items}                     
                                     />
+                                    <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+                                        <AddIcon height={20} width={20}/>
+                                        <p>Create Issues</p>
+                                    </div>
+                                    </div>
                                 </>
                                     : 
                                 null
