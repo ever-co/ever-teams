@@ -48,12 +48,21 @@ export function useKanban() {
 		});
 	}
 
+    const isColumnCollapse = (column: string) => {
+        const columnData = taskStatusHook.taskStatus.filter((taskStatus: ITaskStatusItemList,)=> {
+           return taskStatus.name === column
+        });
+
+        return columnData[0].isCollapsed
+    }
+
     return {
         data: kanbanBoard,
         isLoading: loading,
         columns: taskStatusHook.taskStatus,
         updateKanbanBoard: setKanbanBoard,
         updateTaskStatus: updateTask,
-        toggleColumn
+        toggleColumn,
+        isColumnCollapse
     }
 }
