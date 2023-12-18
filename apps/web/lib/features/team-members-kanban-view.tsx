@@ -3,7 +3,6 @@ import { ITaskStatus, ITaskStatusItemList, ITeamTask } from "@app/interfaces";
 import { IKanban } from "@app/interfaces/IKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
-import { AddIcon } from "lib/components/svgs";
 import React from "react";
 import {  useEffect, useState } from "react";
 import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
