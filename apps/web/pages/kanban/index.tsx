@@ -1,11 +1,10 @@
 import { KanbanTabs } from "@app/constants";
 import { useOrganizationTeams } from "@app/hooks";
 import { useKanban } from "@app/hooks/features/useKanban";
-import { clsxm } from "@app/utils";
 import KanbanBoardSkeleton from "@components/shared/skeleton/KanbanBoardSkeleton";
 import VerticalLine from "@components/ui/svgs/vertificalline";
 import { withAuthentication } from "lib/app/authenticator";
-import { Breadcrumb, Container } from "lib/components";
+import { Breadcrumb } from "lib/components";
 import { stackImages } from "lib/components/kanban-card";
 import { AddIcon } from "lib/components/svgs";
 import { KanbanView } from "lib/features/team-members-kanban-view"
