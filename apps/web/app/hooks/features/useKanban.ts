@@ -42,8 +42,14 @@ export function useKanban() {
     /**
      * collapse or show kanban column
      */
-    const toggleColumn = (statusId: string, status: boolean) => {
-		taskStatusHook.editTaskStatus(statusId, {
+    const toggleColumn = (column: string, status: boolean) => {
+        const columnData = taskStatusHook.taskStatus.filter((taskStatus: ITaskStatusItemList,)=> {
+            return taskStatus.name === column
+         });
+
+         const columnId = columnData[0].id;
+
+		taskStatusHook.editTaskStatus(columnId, {
 			isCollapsed: status
 		});
 	}
