@@ -323,7 +323,7 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
   
     return (
         <>
-            { items.length > 0 &&
+            { items &&
                 <Draggable
                     key={title}
                     index={index}
@@ -342,7 +342,7 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
                             className="flex flex-col gap-5 w-[325px]"
                             
                         >
-                            { items.length > 0 ?
+                            { items ?
                                 <>
                                     <KanbanDraggableHeader 
                                         title={title} 
