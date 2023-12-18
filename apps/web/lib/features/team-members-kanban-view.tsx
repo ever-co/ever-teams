@@ -3,7 +3,6 @@ import { ITaskStatus, ITaskStatusItemList, ITeamTask } from "@app/interfaces";
 import { IKanban } from "@app/interfaces/IKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
-import { AddIcon } from "lib/components/svgs";
 import React from "react";
 import {  useEffect, useState } from "react";
 import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
@@ -17,12 +16,19 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
   
     const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
 
-    const reorderTask = (list: ITeamTask[], startIndex:number , endIndex:number ) => {
+    const reorderTask = (list: ITeamTask[] , startIndex:number , endIndex:number ) => {
       const tasks = Array.from(list);
       const [removedTask] = tasks.splice(startIndex, 1);
       tasks.splice(endIndex, 0, removedTask);
      
       return tasks;
+    };
+
+    const reorderColumn = (list: IKanban , startIndex:number , endIndex:number ) => {
+      const columns = Object.keys(list)
+      const [removedColumn] = columns.splice(startIndex, 1);
+      columns.splice(endIndex, 0, removedColumn);
+      return columns;
     };
     
     const reorderKanbanTasks = ({ kanbanTasks, source, destination }: {
@@ -129,15 +135,13 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
         return;
       }
   
-      // TODO: fix issues with reordering column
-      // if (result.type === 'COLUMN') {
-      //   const reorderedItem = reorder(items, source.index, destination.index);
-  
-      //   setItems(reorderedItem);
-      //   // updateKanbanBoard(reorderedItem);
-      //   // console.log('data '+ kanbandata)
-      //   return;
-      // }
+
+      if (result.type === 'COLUMN') {
+        const reorderedItem = reorderColumn(items, source.index, destination.index);
+        setColumn(reorderedItem);
+       
+        return;
+      }
   
       const data = reorderKanbanTasks({
         kanbanTasks: items,
@@ -194,17 +198,15 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
                         </div>
                         :
                         <>
-                          <div className="flex flex-col" key={index}>
+                          <div className="flex flex-col">
                             <KanbanDraggable 
+                              key={index}
                               index={index}
                               title={column}
                               items={items[column]} 
                               backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
                             />
-                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
-                                <AddIcon height={20} width={20}/>
-                                <p>Create Issues</p>
-                            </div>
+                           
                           </div>
                         </>
                       }
