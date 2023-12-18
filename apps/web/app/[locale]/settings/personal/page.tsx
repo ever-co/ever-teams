@@ -16,7 +16,7 @@ import { useRecoilState } from 'recoil';
 const Personal = () => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
-	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB', { returnObjects: true }))];
+	const breadcrumb = [...t('pages.settings.BREADCRUMB', { returnObjects: true })];
 
 	return (
 		<>

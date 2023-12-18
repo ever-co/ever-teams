@@ -26,6 +26,7 @@ import KanbanIcon from '@components/ui/svgs/kanaban';
 import Offline from '@components/pages/offline';
 import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 import { useTranslations } from 'next-intl';
+import { AppState } from 'lib/app/init-state';
 
 function MainPage() {
 	const t = useTranslations();

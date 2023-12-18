@@ -11,7 +11,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { MainLayout } from 'lib/layout';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -19,23 +19,26 @@ const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const t = useTranslations();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const { getTaskById, detailedTask: task, getTasksByIdLoading } = useTeamTasks();
+
+	const id = searchParams?.get('id');
 
 	const breadcrumb = [{ title: activeTeam?.name || '', href: '/' }, ...JSON.parse(t('pages.taskDetails.BREADCRUMB'))];
 
 	useEffect(() => {
 		if (
-			router.isReady &&
+			router &&
 			// If id is passed in query param
-			router.query?.id &&
+			id &&
 			// Either no task or task id doesn't match query id
-			(!task || (task && task.id !== router.query?.id)) &&
+			(!task || (task && task.id !== id)) &&
 			!getTasksByIdLoading
 		) {
-			getTaskById(router.query?.id as string);
+			getTaskById(id as string);
 		}
-	}, [getTaskById, router, task, getTasksByIdLoading]);
+	}, [getTaskById, router, task, getTasksByIdLoading, id]);
 
 	return (
 		<MainLayout

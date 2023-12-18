@@ -7,14 +7,17 @@ import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
 import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 
 const Team = () => {
 	const router = useRouter();
-	const query = router.query;
+	const searchParams = useSearchParams();
+	const teamId = searchParams?.get('teamId');
+	const profileLink = searchParams?.get('profileLink');
+
 	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
 	const t = useTranslations();
 	const [publicTeam, setPublic] = useRecoilState(publicState);
@@ -28,20 +31,20 @@ const Team = () => {
 	}, [publicTeamData, router]);
 
 	const loadData = useCallback(() => {
-		if (query && query.teamId && query.profileLink) {
-			loadPublicTeamData(query.profileLink as string, query.teamId as string).then((res) => {
+		if (teamId && profileLink) {
+			loadPublicTeamData(profileLink as string, teamId as string).then((res) => {
 				if (res?.data?.data?.status === 404) {
 					router.replace('/404');
 				}
 			});
 			setPublic(true);
 		}
-	}, [loadPublicTeamData, query, router, setPublic]);
+	}, [loadPublicTeamData, router, setPublic, teamId, profileLink]);
 	const loadMicsData = useCallback(() => {
-		if (query && query.teamId && query.profileLink) {
-			loadPublicTeamMiscData(query.profileLink as string, query.teamId as string);
+		if (teamId && profileLink) {
+			loadPublicTeamMiscData(profileLink as string, teamId as string);
 		}
-	}, [loadPublicTeamMiscData, query]);
+	}, [loadPublicTeamMiscData, teamId, profileLink]);
 
 	useEffect(() => {
 		loadData();

@@ -25,7 +25,7 @@ const Team = () => {
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
-	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB', { returnObjects: true }))];
+	const breadcrumb = [...t('pages.settings.BREADCRUMB', { returnObjects: true })];
 	return (
 		<>
 			{!user ? (

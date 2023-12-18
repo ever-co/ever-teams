@@ -5,11 +5,15 @@ import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegrati
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader } from 'lib/components';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
 const GitHub = () => {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const installation_id = searchParams?.get('installation_id');
+	const setup_action = searchParams?.get('setup_action');
+
 	const t = useTranslations();
 
 	const installing = useRef<boolean>(false);
@@ -30,14 +34,14 @@ const GitHub = () => {
 	const handleInstallGitHub = useCallback(() => {
 		installing.current = true;
 
-		if (router && router.query.installation_id && router.query.setup_action) {
+		if (installation_id && setup_action) {
 			setTimeout(() => {
-				installGitHub(router.query.installation_id as string, router.query.setup_action as string).then(() => {
+				installGitHub(installation_id as string, setup_action as string).then(() => {
 					router.replace('/settings/team#integrations');
 				});
 			}, 100);
 		}
-	}, [installGitHub, router]);
+	}, [installGitHub, router, installation_id, setup_action]);
 
 	useEffect(() => {
 		if (installing.current) {
