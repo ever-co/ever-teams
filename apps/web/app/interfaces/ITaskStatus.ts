@@ -13,10 +13,12 @@ export interface ITaskStatusItemList {
 	is_system?: boolean;
 	isSystem?: boolean;
 	projectId?: string;
+	isCollapsed?: boolean;
+	order?: number;
 }
 
 export interface ITaskStatusCreate {
-	name: string;
+	name?: string;
 	description?: string;
 	icon?: string;
 	color?: string;
@@ -24,4 +26,6 @@ export interface ITaskStatusCreate {
 	organizationId?: string;
 	tenantId?: string | undefined | null;
 	organizationTeamId?: string | undefined | null;
+	isCollapsed?: boolean;
+	order?: number;
 }

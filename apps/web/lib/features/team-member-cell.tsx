@@ -20,7 +20,7 @@ export function TaskCell({ row }: { row: any }) {
 		<TaskInfo
 			edition={taskEdition}
 			memberInfo={memberInfo}
-			className="2xl:w-80 3xl:w-[32rem] w-full lg:w-1/5 lg:px-4 px-2"
+			className="2xl:w-80 3xl:w-[32rem] !w-full lg:w-1/5 lg:px-4 px-2"
 			publicTeam={publicTeam}
 		/>
 	);
@@ -45,7 +45,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			task={memberInfo?.memberTask}
 			isAuthUser={memberInfo?.isAuthUser}
-			className="2xl:w-32 3xl:w-[8rem] w-52 lg:w-1/5  flex flex-col gap-y-[1.125rem] justify-center"
+			className="2xl:w-32 3xl:w-[8rem] min-w-[15rem] w-52 lg:w-1/5  flex flex-col gap-y-[1.125rem] justify-center"
 		/>
 	);
 }
@@ -60,7 +60,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className="lg:px-3 2xl:w-52 3xl:w-64 w-52 lg:w-1/5"
+			className="lg:px-3 2xl:w-52 3xl:w-64  min-w-[15rem] w-52 lg:w-1/5"
 		/>
 	);
 }
