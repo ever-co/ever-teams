@@ -269,7 +269,7 @@
 			"CREATE_TEAM": "Team maken"
 		},
 		"settings": {
-			"BREADCRUMB": "[{ \"title\": \"Dashboard\", \"href\": \"/\" }, \"Instellingen\"]",
+			"BREADCRUMB": "[\"Dashboard\", \"Instellingen\"]",
 			"DANDER_ZONE": "Gevaarlijke zone",
 			"HEADING_DESCRIPTION": "Stel hier uw persoonlijke dashboard in",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Weet u zeker dat u deze gebruiker wilt verwijderen?"

@@ -259,7 +259,7 @@
 			"CREATE_TEAM": "Crear equipo"
 		},
 		"settings": {
-			"BREADCRUMB": "[{ \"title\": \"Tablero\", \"href\": \"/\" }, \"Ajustes\"]",
+			"BREADCRUMB": "[\"Tablero\", \"Ajustes\"]",
 			"DANDER_ZONE": "Zona de peligro",
 			"HEADING_DESCRIPTION": "Configurar y administrar su tablero personal aquí",
 			"ARE_YOU_SURE_TO_DELETE_USER": "¿Estás seguro de que deseas eliminar este usuario?"

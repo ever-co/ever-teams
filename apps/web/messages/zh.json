@@ -270,7 +270,7 @@
 			"CREATE_TEAM": "创建团队"
 		},
 		"settings": {
-			"BREADCRUMB": "[{ \"title\": \"仪表板\", \"href\": \"/\" }, \"设置\"]",
+			"BREADCRUMB": "[\"仪表板\", \"设置\"]",
 			"DANDER_ZONE": "危险区域",
 			"HEADING_DESCRIPTION": "在此设置和管理您的个人仪表板",
 			"ARE_YOU_SURE_TO_DELETE_USER": "您确定要删除此用户吗?"

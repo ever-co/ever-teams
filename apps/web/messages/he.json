@@ -268,7 +268,7 @@
 			"CREATE_TEAM": "צור צוות"
 		},
 		"settings": {
-			"BREADCRUMB": "[{ \"title\": \"לוח מחוונים\", \"href\": \"/\" }, \"הגדרות\"]",
+			"BREADCRUMB": "[\"לוח מחוונים\", \"הגדרות\"]",
 			"DANDER_ZONE": "אזור סיכון",
 			"HEADING_DESCRIPTION": "הגדר ונהל את לוח הבקרה האישי שלך כאן",
 			"ARE_YOU_SURE_TO_DELETE_USER": "האם אתה בטוח שברצונך למחוק משתמש זה?"
