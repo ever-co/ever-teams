@@ -6,6 +6,7 @@ import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, Droppa
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
+import { useKanban } from '@app/hooks/features/useKanban';
 
 const grid = 8;
 
@@ -172,6 +173,8 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
     items: ITeamTask[];
 })=> {
     const [enabled, setEnabled] = useState(false);
+
+    const { toggleColumn } = useKanban();
   
     useEffect(() => {
       const animation = requestAnimationFrame(() => setEnabled(true));
@@ -215,9 +218,9 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                         <div
                                             className="flex flex-col items-center  gap-2"
                                         >
-                                            <span className="rotate-180">
-                                            <LeftArrowTailessIcon/>
-                                            </span>
+                                            <button className="rotate-180" onClick={() => toggleColumn(title, false)}>
+                                                <LeftArrowTailessIcon/>
+                                            </button>
                                             <ThreeDotIcon/>
                                           
                                         </div>
@@ -269,6 +272,8 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
     backgroundColor: string,
     provided: DraggableProvided
 }) => {
+
+    const { toggleColumn } = useKanban();
    
     return (
         <>
@@ -300,7 +305,9 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
                     className="flex flex-row items-center gap-2"
                 >
                     <ThreeDotIcon/>
-                    <LeftArrowTailessIcon/>
+                    <button onClick={() => toggleColumn(title, true)}>
+                        <LeftArrowTailessIcon/>
+                    </button>  
                 </div>
             </header>
         </>
