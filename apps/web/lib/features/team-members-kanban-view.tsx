@@ -11,7 +11,7 @@ import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppablePro
 
 export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) => {
 
-    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus } = useKanban();
+    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus, isColumnCollapse } = useKanban();
    
     const [items, setItems] = useState<IKanban>(kanbanBoardTasks);
   
@@ -175,16 +175,24 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className={clsxm("flex flex-row justify-center gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
+                  className={clsxm("flex flex-row justify-start overflow-x-auto gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
                   {columns.length > 0 ?
                   <>
-                    {columns.map((column: any, index: number) => {
+                    {columns.map((column: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
-                        { items[column].length > 0 ?
+                        { isColumnCollapse(column) ?
+                        <div className={'order-last'} key={index}>
+                          <EmptyKanbanDroppable 
+                              index={index} 
+                              title={column}
+                              items={items[column]}
+                          />
+                        </div>
+                        :
                         <>
                           <div className="flex flex-col" key={index}>
                             <KanbanDraggable 
@@ -199,14 +207,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
                             </div>
                           </div>
                         </>
-                        :
-                        <div className={'order-last'} key={index}>
-                          <EmptyKanbanDroppable 
-                              index={index} 
-                              title={column}
-                              items={items[column]}
-                          />
-                        </div>
                       }
                       </React.Fragment>
                       )
