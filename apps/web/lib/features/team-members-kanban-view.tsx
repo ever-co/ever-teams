@@ -140,7 +140,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
 
         //update column order in server side
         reorderedItem.map((item: string, index: number) => {
-          reorderStatus(item, index);
+          return reorderStatus(item, index);
         });
         
         setColumn(reorderedItem);
