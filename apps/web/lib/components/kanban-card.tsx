@@ -195,7 +195,7 @@ export default function Item(props: any) {
                     <Priority level={1}/>
                 </div>
             </div>
-            <div className="flex flex-col w-[48px] gap-4 items-end">
+            <div className="flex flex-col w-[48px] justify-between items-end">
                 <VerticalThreeDot/>
 
                 <CircularProgress percentage={10}/>
