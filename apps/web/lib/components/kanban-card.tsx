@@ -80,7 +80,7 @@ function TagList({tags}: {
                             key={index}
                             title={tag.name} 
                             backgroundColor={tag.color} 
-                            color={tag.color}
+                            color={"#FFFFFF"}
                         />
                     )
                 })}
