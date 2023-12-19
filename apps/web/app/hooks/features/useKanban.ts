@@ -62,7 +62,7 @@ export function useKanban() {
         return columnData[0].isCollapsed
     }
 
-    const reorderStatus = (itemStatus: String, index: number) => {
+    const reorderStatus = (itemStatus: string, index: number) => {
         taskStatusHook.taskStatus.filter((status: ITaskStatusItemList)=> {
             return status.name === itemStatus
         }).map((status: ITaskStatusItemList)=> {
