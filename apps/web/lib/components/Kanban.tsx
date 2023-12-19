@@ -62,7 +62,7 @@ function InnerItemList({items, title, dropSnapshot}: {
                 minHeight: ((items.length < 0) && dropSnapshot.isDraggingOver) ? '120px' : '20px',
                 marginTop: (items.length > 0) ? '20px' : '0px'
             }}
-            className="flex flex-col gap-2.5 max-h-[520px] overflow-y-scroll overflow-x-hidden">
+            className="flex flex-col gap-2.5 max-h-[520px] overflow-y-auto overflow-x-hidden">
         {items.map((item: ITeamTask, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
@@ -174,9 +174,10 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
  * @param param0 
  * @returns 
  */
-export const EmptyKanbanDroppable = ({index,title, items}: {
+export const EmptyKanbanDroppable = ({index,title, items, backgroundColor}: {
     index: number;
     title: string;
+    backgroundColor: any;
     items: ITeamTask[];
 })=> {
     const [enabled, setEnabled] = useState(false);
@@ -219,7 +220,7 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                 <>
                                    <header
                                         className={"relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
-                                        style={headerStyleChanger(snapshot, '#D95F5F')}
+                                        style={headerStyleChanger(snapshot, backgroundColor)}
                                         data-isDragging={snapshot.isDragging}
                                     >
                                         <div

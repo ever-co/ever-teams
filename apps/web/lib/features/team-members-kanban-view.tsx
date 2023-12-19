@@ -10,7 +10,7 @@ import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppablePro
 
 export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) => {
 
-    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus, isColumnCollapse } = useKanban();
+    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus, isColumnCollapse, reorderStatus } = useKanban();
    
     const [items, setItems] = useState<IKanban>(kanbanBoardTasks);
   
@@ -20,12 +20,11 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
       const tasks = Array.from(list);
       const [removedTask] = tasks.splice(startIndex, 1);
       tasks.splice(endIndex, 0, removedTask);
-     
       return tasks;
     };
 
     const reorderColumn = (list: IKanban , startIndex:number , endIndex:number ) => {
-      const columns = Object.keys(list)
+      const columns = Object.keys(list);
       const [removedColumn] = columns.splice(startIndex, 1);
       columns.splice(endIndex, 0, removedColumn);
       return columns;
@@ -138,6 +137,12 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
 
       if (result.type === 'COLUMN') {
         const reorderedItem = reorderColumn(items, source.index, destination.index);
+
+        //update column order in server side
+        reorderedItem.map((item: string, index: number) => {
+          return reorderStatus(item, index);
+        });
+        
         setColumn(reorderedItem);
        
         return;
@@ -194,6 +199,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
                               index={index} 
                               title={column}
                               items={items[column]}
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)} 
                           />
                         </div>
                         :
@@ -206,7 +212,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
                               items={items[column]} 
                               backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
                             />
-                           
                           </div>
                         </>
                       }
