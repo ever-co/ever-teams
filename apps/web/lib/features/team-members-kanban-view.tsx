@@ -199,6 +199,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
                               index={index} 
                               title={column}
                               items={items[column]}
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)} 
                           />
                         </div>
                         :
