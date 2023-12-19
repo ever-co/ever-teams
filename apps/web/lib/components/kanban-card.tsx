@@ -73,7 +73,7 @@ function TagList({tags}: {
 }){
     return (
         <>
-            <div className="flex flex-row flex-wrap gap-1 items-center">
+            <div className="flex flex-wrap gap-1 items-center">
                 {tags.map((tag: Tag, index: number)=> {
                     return (
                         <TagCard 
