@@ -215,7 +215,9 @@ export function UserTeamCard({
 				{/* Card menu */}
 				<div className="absolute right-2">{menu}</div>
 			</Card>
-			{currentExit && <HorizontalSeparator className="mt-1 !border-primary-light !border-t-2" />}
+			{currentExit && (
+				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
+			)}
 		</div>
 	);
 }

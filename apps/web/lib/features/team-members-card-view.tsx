@@ -23,6 +23,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	const { teamInvitations } = useTeamInvitations();
 
+	// TODO: sort teamMembers by index
 	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
 	const dragTeamMember = React.useRef<number>(0);
 	const draggedOverTeamMember = React.useRef<number>(0);
@@ -33,6 +34,8 @@ const TeamMembersCardView: React.FC<Props> = ({
 		peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
 		peopleClone[draggedOverTeamMember.current] = temp;
 		setMemberOrdereds(peopleClone);
+
+		// TODO: update teamMembers index
 	}
 
 	return (
@@ -81,8 +84,14 @@ const TeamMembersCardView: React.FC<Props> = ({
 								publicTeam={publicTeam}
 								currentExit={draggedOverTeamMember.current == i}
 								draggable
-								onDragStart={() => (dragTeamMember.current = i)}
-								onDragEnter={() => (draggedOverTeamMember.current = i)}
+								onDragStart={() => {
+									// TODO: update also index of tamMember for API
+									dragTeamMember.current = i;
+								}}
+								onDragEnter={() => {
+									// TODO: update also index of tamMember for API
+									draggedOverTeamMember.current = i;
+								}}
 								onDragEnd={handleSort}
 								onDragOver={(e) => e.preventDefault()}
 							/>
