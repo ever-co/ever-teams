@@ -27,7 +27,6 @@ import { useRecoilValue } from 'recoil';
 
 export function AppState() {
 	const user = useRecoilValue(userState);
-	console.log('>>>', user);
 
 	// const { currentLanguage } = useLanguage();
 	// useSyncLanguage(currentLanguage);
