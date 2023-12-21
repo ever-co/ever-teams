@@ -21,12 +21,11 @@ import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
-import { useRouter } from 'next/navigation';
 import KanbanIcon from '@components/ui/svgs/kanaban';
 import Offline from '@components/pages/offline';
 import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 import { useTranslations } from 'next-intl';
-import { AppState } from 'lib/app/init-state';
+import Link from 'next/link';
 
 function MainPage() {
 	const t = useTranslations();
@@ -35,7 +34,6 @@ function MainPage() {
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB')), activeTeam?.name || ''];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 	const { online } = useNetworkState();
-	const router = useRouter();
 
 	if (!online) {
 		return <Offline />;
@@ -51,7 +49,7 @@ function MainPage() {
 					</div>
 
 					{/* <Collaborative /> */}
-					<div className="flex w-full md:w-max items-center justify-center py-4 md:py-0 md:items-end gap-1">
+					<div className="flex w-full md:w-max items-center justify-center py-4 md:py-0 gap-1">
 						<Tooltip label={'Cards'} placement="top-start">
 							<button
 								className={clsxm(
@@ -92,19 +90,17 @@ function MainPage() {
 							</button>
 						</Tooltip>
 						<Tooltip label={'Kanban'} placement="top-start">
-							<button
+							<Link
+								href={'/en/kanban'}
 								className={clsxm(
 									'rounded-md px-3 py-1 text-sm font-medium',
 									view === IssuesView.KANBAN
 										? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
 										: 'text-gray-700 dark:text-gray-300'
 								)}
-								onClick={() => {
-									router.push('/kanban');
-								}}
 							>
 								<KanbanIcon />
-							</button>
+							</Link>
 						</Tooltip>
 					</div>
 				</div>
