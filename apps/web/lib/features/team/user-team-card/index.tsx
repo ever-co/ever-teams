@@ -3,7 +3,7 @@ import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCa
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, InputField, Text, Tooltip, VerticalSeparator } from 'lib/components';
+import { Card, HorizontalSeparator, InputField, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslations } from 'next-intl';
@@ -48,9 +48,26 @@ type IUserTeamCard = {
 	member?: IOrganizationTeamList['members'][number];
 	publicTeam?: boolean;
 	members?: IOrganizationTeamList['members'];
+	draggable: boolean;
+	onDragStart: () => any;
+	onDragEnter: () => any;
+	onDragEnd: any;
+	onDragOver: (e: React.DragEvent<HTMLDivElement>) => any;
+	currentExit: boolean;
 } & IClassName;
 
-export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamCard) {
+export function UserTeamCard({
+	className,
+	active,
+	member,
+	publicTeam = false,
+	draggable = false,
+	onDragStart,
+	onDragEnd,
+	onDragEnter,
+	onDragOver,
+	currentExit = false
+}: IUserTeamCard) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -99,7 +116,14 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 	);
 
 	return (
-		<div className={clsxm(!active && 'border-2 border-transparent')}>
+		<div
+			className={clsxm(!active && 'border-2 border-transparent')}
+			draggable={draggable}
+			onDragStart={onDragStart}
+			onDragEnter={onDragEnter}
+			onDragEnd={onDragEnd}
+			onDragOver={onDragOver}
+		>
 			<Card
 				shadow="bigger"
 				className={clsxm(
@@ -111,7 +135,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 					className
 				)}
 			>
-				<div className="absolute -left-0">
+				<div className="absolute -left-0 cursor-pointer">
 					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
@@ -191,6 +215,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				{/* Card menu */}
 				<div className="absolute right-2">{menu}</div>
 			</Card>
+			{currentExit && <HorizontalSeparator className="mt-1 !border-primary-light !border-t-2" />}
 		</div>
 	);
 }
