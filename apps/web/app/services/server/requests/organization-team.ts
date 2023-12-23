@@ -172,6 +172,26 @@ export function removeEmployeeOrganizationTeamRequest({
 	});
 }
 
+export function addEmployeeOrganizationTeamIndexRequest({
+	employeeId,
+	bearer_token,
+	tenantId,
+	index
+}: {
+	employeeId: string;
+	bearer_token: string;
+	tenantId: string;
+	index: number;
+}) {
+	return serverFetch<boolean>({
+		path: `/organization-team-employee/${employeeId}`,
+		method: 'DELETE',
+		bearer_token,
+		body: { index },
+		tenantId
+	});
+}
+
 export function removeUserFromAllTeam({
 	userId,
 	bearer_token,

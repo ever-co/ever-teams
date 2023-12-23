@@ -8,15 +8,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const { id } = req.query;
 
-	if (req.method !== 'DELETE' || !id) {
+	if (!id) {
 		return $res.status(405).json({});
 	}
 
-	await removeEmployeeOrganizationTeamRequest({
-		bearer_token: access_token,
-		tenantId,
-		employeeId: id.toString()
-	});
+	switch (req.method) {
+		case 'DELETE':
+			await removeEmployeeOrganizationTeamRequest({
+				bearer_token: access_token,
+				tenantId,
+				employeeId: id.toString()
+			});
+			break;
+		case 'PUT':
+	}
+
+	// if (req.method !== 'DELETE' || !id) {
+	// 	return $res.status(405).json({});
+	// }
+
+	// await removeEmployeeOrganizationTeamRequest({
+	// 	bearer_token: access_token,
+	// 	tenantId,
+	// 	employeeId: id.toString()
+	// });
 
 	return;
 }

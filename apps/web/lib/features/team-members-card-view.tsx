@@ -86,10 +86,12 @@ const TeamMembersCardView: React.FC<Props> = ({
 								draggable
 								onDragStart={() => {
 									// TODO: update also index of tamMember for API
+									console.log({ d: dragTeamMember.current });
 									dragTeamMember.current = i;
 								}}
 								onDragEnter={() => {
 									// TODO: update also index of tamMember for API
+									console.log({ d: draggedOverTeamMember.current });
 									draggedOverTeamMember.current = i;
 								}}
 								onDragEnd={handleSort}
