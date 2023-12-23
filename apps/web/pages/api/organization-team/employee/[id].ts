@@ -1,5 +1,8 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import { removeEmployeeOrganizationTeamRequest } from '@app/services/server/requests';
+import {
+	addEmployeeOrganizationTeamIndexRequest,
+	removeEmployeeOrganizationTeamRequest
+} from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -7,6 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	if (!user) return $res();
 
 	const { id } = req.query;
+	const index = req.body.index;
 
 	if (!id) {
 		return $res.status(405).json({});
@@ -21,6 +25,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			});
 			break;
 		case 'PUT':
+			await addEmployeeOrganizationTeamIndexRequest({
+				bearer_token: access_token,
+				tenantId,
+				employeeId: id.toString(),
+				index
+			});
+			break;
 	}
 
 	// if (req.method !== 'DELETE' || !id) {
