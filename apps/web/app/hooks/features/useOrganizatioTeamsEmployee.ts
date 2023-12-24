@@ -7,6 +7,7 @@ import {
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
+import { editEmployeeIndexOrganizationTeamAPI } from '@app/services/client/api';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
@@ -17,6 +18,10 @@ export function useOrganizationEmployeeTeams() {
 
 	const { loading: updateOrganizationEmployeeTeamLoading, queryCall: updateQueryCall } = useQuery(
 		updateOrganizationEmployeeTeamAPI
+	);
+
+	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateIndexCall } = useQuery(
+		editEmployeeIndexOrganizationTeamAPI
 	);
 
 	const {
@@ -59,6 +64,16 @@ export function useOrganizationEmployeeTeams() {
 		[loadTeamsData, updateQueryCall]
 	);
 
+	const updateOrganizationTeamEmployeeIndexOnList = useCallback(
+		(employeeId: string, index: number) => {
+			updateIndexCall(employeeId, { index }).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+		[loadTeamsData, updateIndexCall]
+	);
+
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) => {
 			updateOrganizationTeamEmployeeActiveTaskQueryCall(id, data).then((res) => {
@@ -75,6 +90,8 @@ export function useOrganizationEmployeeTeams() {
 		updateOrganizationEmployeeTeamLoading,
 		updateOrganizationTeamEmployee,
 		updateOrganizationTeamEmployeeActiveTaskLoading,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		editEmployeeIndexOrganizationTeamLoading,
+		updateOrganizationTeamEmployeeIndexOnList
 	};
 }

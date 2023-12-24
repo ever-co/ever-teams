@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useTeamInvitations } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
@@ -23,6 +23,8 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	const { teamInvitations } = useTeamInvitations();
 
+	const { updateOrganizationTeamEmployeeIndexOnList } = useOrganizationEmployeeTeams();
+
 	// TODO: sort teamMembers by index
 	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
 	const dragTeamMember = React.useRef<number>(0);
@@ -34,9 +36,18 @@ const TeamMembersCardView: React.FC<Props> = ({
 		peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
 		peopleClone[draggedOverTeamMember.current] = temp;
 		setMemberOrdereds(peopleClone);
+		handleChangeIndex(peopleClone[dragTeamMember.current].id, draggedOverTeamMember.current);
+		handleChangeIndex(peopleClone[draggedOverTeamMember.current].id, dragTeamMember.current);
 
 		// TODO: update teamMembers index
 	}
+
+	const handleChangeIndex = React.useCallback(
+		(employeeId: string, index: number) => {
+			updateOrganizationTeamEmployeeIndexOnList(employeeId, index);
+		},
+		[updateOrganizationTeamEmployeeIndexOnList]
+	);
 
 	return (
 		<ul className="mt-7">

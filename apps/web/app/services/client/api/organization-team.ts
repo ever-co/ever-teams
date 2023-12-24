@@ -92,6 +92,10 @@ export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }
 
+export function editEmployeeIndexOrganizationTeamAPI(employeeId: string, data: { index: number }) {
+	return api.put<boolean>(`/organization-team/employee/${employeeId}`, data);
+}
+
 export function removeUserFromAllTeamAPI(userId: string) {
 	return api.delete<DeleteResponse | CreateResponse<ISuccessResponse>>(`/organization-team/teams/${userId}`);
 }

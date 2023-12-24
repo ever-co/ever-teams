@@ -185,7 +185,7 @@ export function addEmployeeOrganizationTeamIndexRequest({
 }) {
 	return serverFetch<boolean>({
 		path: `/organization-team-employee/${employeeId}`,
-		method: 'DELETE',
+		method: 'PUT',
 		bearer_token,
 		body: { index },
 		tenantId
