@@ -23,7 +23,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	const { teamInvitations } = useTeamInvitations();
 
-	const { updateOrganizationTeamEmployeeIndexOnList } = useOrganizationEmployeeTeams();
+	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 
 	// TODO: sort teamMembers by index
 	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
@@ -36,17 +36,16 @@ const TeamMembersCardView: React.FC<Props> = ({
 		peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
 		peopleClone[draggedOverTeamMember.current] = temp;
 		setMemberOrdereds(peopleClone);
-		handleChangeIndex(peopleClone[dragTeamMember.current].id, draggedOverTeamMember.current);
-		handleChangeIndex(peopleClone[draggedOverTeamMember.current].id, dragTeamMember.current);
-
 		// TODO: update teamMembers index
+		handleChangeOrder(peopleClone[dragTeamMember.current].id, draggedOverTeamMember.current);
+		handleChangeOrder(peopleClone[draggedOverTeamMember.current].id, dragTeamMember.current);
 	}
 
-	const handleChangeIndex = React.useCallback(
-		(employeeId: string, index: number) => {
-			updateOrganizationTeamEmployeeIndexOnList(employeeId, index);
+	const handleChangeOrder = React.useCallback(
+		(employeeId: string, order: number) => {
+			updateOrganizationTeamEmployeeOrderOnList(employeeId, order);
 		},
-		[updateOrganizationTeamEmployeeIndexOnList]
+		[updateOrganizationTeamEmployeeOrderOnList]
 	);
 
 	return (
@@ -96,13 +95,9 @@ const TeamMembersCardView: React.FC<Props> = ({
 								currentExit={draggedOverTeamMember.current == i}
 								draggable
 								onDragStart={() => {
-									// TODO: update also index of tamMember for API
-									console.log({ d: dragTeamMember.current });
 									dragTeamMember.current = i;
 								}}
 								onDragEnter={() => {
-									// TODO: update also index of tamMember for API
-									console.log({ d: draggedOverTeamMember.current });
 									draggedOverTeamMember.current = i;
 								}}
 								onDragEnd={handleSort}

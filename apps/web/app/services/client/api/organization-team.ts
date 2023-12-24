@@ -92,7 +92,7 @@ export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }
 
-export function editEmployeeIndexOrganizationTeamAPI(employeeId: string, data: { index: number }) {
+export function editEmployeeOrderOrganizationTeamAPI(employeeId: string, data: { order: number }) {
 	return api.put<boolean>(`/organization-team/employee/${employeeId}`, data);
 }
 

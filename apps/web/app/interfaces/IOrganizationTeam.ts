@@ -66,7 +66,7 @@ export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
 
 export interface OT_Member {
 	id: string;
-	index?: number;
+	order?: number;
 	createdAt: string;
 	updatedAt: string;
 	tenantId: any;

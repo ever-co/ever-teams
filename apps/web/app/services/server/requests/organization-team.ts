@@ -172,22 +172,22 @@ export function removeEmployeeOrganizationTeamRequest({
 	});
 }
 
-export function addEmployeeOrganizationTeamIndexRequest({
+export function addEmployeeOrganizationTeamOrderRequest({
 	employeeId,
 	bearer_token,
 	tenantId,
-	index
+	order
 }: {
 	employeeId: string;
 	bearer_token: string;
 	tenantId: string;
-	index: number;
+	order: number;
 }) {
 	return serverFetch<boolean>({
 		path: `/organization-team-employee/${employeeId}`,
 		method: 'PUT',
 		bearer_token,
-		body: { index },
+		body: { order },
 		tenantId
 	});
 }
