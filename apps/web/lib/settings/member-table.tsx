@@ -80,37 +80,37 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 						<tr>
 							<th
 								scope="col"
-								className="pl-0 py-3 text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-56"
+								className="pl-0 py-3 text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-56"
 							>
 								{t('common.NAME')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-40"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-40"
 							>
 								{t('common.POSITION')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-44"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-44"
 							>
 								{t('common.ROLES')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-48"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-48"
 							>
 								{t('common.JOIN_OR_LEFT')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-32"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-32"
 							>
 								{t('common.STATUS')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-6"
+								className="text-sm font-normal capitalize  text-[#B1AEBC] dark:text-white w-6"
 							></th>
 						</tr>
 					</thead>

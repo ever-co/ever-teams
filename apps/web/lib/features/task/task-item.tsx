@@ -32,17 +32,17 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 	return (
 		<div
-			className={clsxm('flex justify-between items-center', className)}
+			className={clsxm('flex justify-between items-center overflow-y-auto', className)}
 			onClick={() => onClick && task && task.status !== 'closed' && onClick(task)}
 		>
 			<div
 				className={clsxm(
-					'font-normal text-sm',
+					'font-normal min-w-[19rem] text-sm',
 					'overflow-hidden text-ellipsis flex-1',
 					selected && ['font-medium text-primary dark:text-primary-light']
 				)}
 			>
-				<div className="inline-flex items-center mr-2">
+				<div className="inline-flex  items-center mr-2">
 					<div className="mr-2">
 						<TaskIssueStatus
 							showIssueLabels={false}

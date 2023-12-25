@@ -148,7 +148,7 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 			{/* Task inputs */}
 			{/* {showInput && ( */}
 			<AuthUserTaskInput
-				className={clsxm('mx-auto w-full md:w-1/2 2xl:w-full ', !showInput && '!hidden md:!flex')}
+				className={clsxm('mx-auto w-full md:w-1/2 2xl:w-full lg:mr-10', !showInput && '!hidden md:!flex')}
 			/>
 			{/* )}  */}
 

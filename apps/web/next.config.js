@@ -8,7 +8,7 @@ console.log(`NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${process.env.NEXT_PUBLIC_GAUZY_A
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: process.env.NEXT_BUILD_OUTPUT_TYPE === 'standalone' ? 'standalone' : undefined,
-	reactStrictMode: true,
+	reactStrictMode: false,
 	swcMinify: true,
 	webpack: (config, { isServer }) => {
 		config.resolve.alias['@app'] = path.join(__dirname, 'app');

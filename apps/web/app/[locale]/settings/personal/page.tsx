@@ -42,6 +42,11 @@ const Personal = () => {
 						<div className="flex flex-col w-full sm:flex-row">
 							<LeftSideSettingMenu />
 							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
+								<Link href={'/settings/team'} className="w-full">
+									<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
+										Go to Team settings
+									</button>
+								</Link>
 								<Accordian
 									title={t('pages.settingsPersonal.HEADING_TITLE')}
 									className=" max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"

@@ -39,11 +39,47 @@ export function useKanban() {
         }
     },[taskStatusHook.loading, tasksFetching])
 
+    /**
+     * collapse or show kanban column
+     */
+    const toggleColumn = (column: string, status: boolean) => {
+        const columnData = taskStatusHook.taskStatus.filter((taskStatus: ITaskStatusItemList,)=> {
+            return taskStatus.name === column
+         });
+
+         const columnId = columnData[0].id;
+
+		taskStatusHook.editTaskStatus(columnId, {
+			isCollapsed: status
+		});
+	}
+
+    const isColumnCollapse = (column: string) => {
+        const columnData = taskStatusHook.taskStatus.filter((taskStatus: ITaskStatusItemList,)=> {
+           return taskStatus.name === column
+        });
+
+        return columnData[0].isCollapsed
+    }
+
+    const reorderStatus = (itemStatus: string, index: number) => {
+        taskStatusHook.taskStatus.filter((status: ITaskStatusItemList)=> {
+            return status.name === itemStatus
+        }).map((status: ITaskStatusItemList)=> {
+            taskStatusHook.editTaskStatus(status.id, {
+                order: index
+            });
+        })
+    }
+
     return {
         data: kanbanBoard,
         isLoading: loading,
         columns: taskStatusHook.taskStatus,
         updateKanbanBoard: setKanbanBoard,
-        updateTaskStatus: updateTask
+        updateTaskStatus: updateTask,
+        toggleColumn,
+        isColumnCollapse,
+        reorderStatus
     }
 }

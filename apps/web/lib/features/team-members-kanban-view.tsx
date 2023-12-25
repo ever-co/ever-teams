@@ -3,7 +3,6 @@ import { ITaskStatus, ITaskStatusItemList, ITeamTask } from "@app/interfaces";
 import { IKanban } from "@app/interfaces/IKanban";
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
-import { AddIcon } from "lib/components/svgs";
 import React from "react";
 import {  useEffect, useState } from "react";
 import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
@@ -11,18 +10,24 @@ import { DragDropContext, DraggableLocation, DropResult, Droppable, DroppablePro
 
 export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) => {
 
-    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus } = useKanban();
+    const { columns:kanbanColumns, updateKanbanBoard,  updateTaskStatus, isColumnCollapse, reorderStatus } = useKanban();
    
     const [items, setItems] = useState<IKanban>(kanbanBoardTasks);
   
     const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
 
-    const reorderTask = (list: ITeamTask[], startIndex:number , endIndex:number ) => {
+    const reorderTask = (list: ITeamTask[] , startIndex:number , endIndex:number ) => {
       const tasks = Array.from(list);
       const [removedTask] = tasks.splice(startIndex, 1);
       tasks.splice(endIndex, 0, removedTask);
-     
       return tasks;
+    };
+
+    const reorderColumn = (list: IKanban , startIndex:number , endIndex:number ) => {
+      const columns = Object.keys(list);
+      const [removedColumn] = columns.splice(startIndex, 1);
+      columns.splice(endIndex, 0, removedColumn);
+      return columns;
     };
     
     const reorderKanbanTasks = ({ kanbanTasks, source, destination }: {
@@ -129,15 +134,19 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
         return;
       }
   
-      // TODO: fix issues with reordering column
-      // if (result.type === 'COLUMN') {
-      //   const reorderedItem = reorder(items, source.index, destination.index);
-  
-      //   setItems(reorderedItem);
-      //   // updateKanbanBoard(reorderedItem);
-      //   // console.log('data '+ kanbandata)
-      //   return;
-      // }
+
+      if (result.type === 'COLUMN') {
+        const reorderedItem = reorderColumn(items, source.index, destination.index);
+
+        //update column order in server side
+        reorderedItem.map((item: string, index: number) => {
+          return reorderStatus(item, index);
+        });
+        
+        setColumn(reorderedItem);
+       
+        return;
+      }
   
       const data = reorderKanbanTasks({
         kanbanTasks: items,
@@ -175,38 +184,36 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban}) =
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className={clsxm("flex flex-row justify-center gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
+                  className={clsxm("flex flex-row justify-start overflow-x-auto gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
                   {columns.length > 0 ?
                   <>
-                    {columns.map((column: any, index: number) => {
+                    {columns.map((column: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
-                        { items[column].length > 0 ?
-                        <>
-                          <div className="flex flex-col" key={index}>
-                            <KanbanDraggable 
-                              index={index}
-                              title={column}
-                              items={items[column]} 
-                              backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
-                            />
-                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
-                                <AddIcon height={20} width={20}/>
-                                <p>Create Issues</p>
-                            </div>
-                          </div>
-                        </>
-                        :
+                        { isColumnCollapse(column) ?
                         <div className={'order-last'} key={index}>
                           <EmptyKanbanDroppable 
                               index={index} 
                               title={column}
                               items={items[column]}
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)} 
                           />
                         </div>
+                        :
+                        <>
+                          <div className="flex flex-col">
+                            <KanbanDraggable 
+                              key={index}
+                              index={index}
+                              title={column}
+                              items={items[column]} 
+                              backgroundColor={getHeaderBackground(kanbanColumns, column)}                            
+                            />
+                          </div>
+                        </>
                       }
                       </React.Fragment>
                       )

@@ -6,13 +6,15 @@ import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, Droppa
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
+import { useKanban } from '@app/hooks/features/useKanban';
+import { AddIcon } from './svgs';
 
 const grid = 8;
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   userSelect: "none",
   margin: `0 0 ${grid}px 0`,
-  background: isDragging ? "lightgreen" : null,
+  background: isDragging ? "" : null,
   ...draggableStyle
 });
 
@@ -20,12 +22,12 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
     
     if (dropSnapshot.isDraggingOver) {
       return {
-        backgroundColor: '#FFEBE6',
+        backgroundColor: '',
     }
     }
     if (dropSnapshot.draggingFromThisWith) {
       return {
-        backgroundColor:  '#E6FCFF',
+        backgroundColor:  '',
     }
     }
     return {
@@ -48,13 +50,19 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any){
  * @param param0 
  * @returns 
  */
-function InnerItemList({items, title}: {
+function InnerItemList({items, title, dropSnapshot}: {
     title: string,
-    items: ITeamTask[]
+    items: ITeamTask[],
+    dropSnapshot: DroppableStateSnapshot
 }) {
     return (
         <>
-        <section className="flex flex-col gap-2.5 max-h-[520px] overflow-y-scroll overflow-x-hidden">
+        <section 
+            style={{
+                minHeight: ((items.length < 0) && dropSnapshot.isDraggingOver) ? '120px' : '20px',
+                marginTop: (items.length > 0) ? '20px' : '0px'
+            }}
+            className="flex flex-col gap-2.5 max-h-[520px] overflow-y-auto overflow-x-hidden">
         {items.map((item: ITeamTask, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
@@ -97,7 +105,7 @@ function InnerList(props: {
         <div 
         style={getBackgroundColor(dropSnapshot)}
         ref={dropProvided.innerRef}>
-          <InnerItemList items={items} title={title} />
+          <InnerItemList items={items} title={title} dropSnapshot={dropSnapshot} />
             <>
             {dropProvided.placeholder}
             </>
@@ -116,7 +124,7 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
     title: string,
     droppableId: string,
     type: string,
-    content: ITeamTask[]
+    content: ITeamTask[],
 } ) => {
     const [enabled, setEnabled] = useState(false);
   
@@ -166,12 +174,15 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
  * @param param0 
  * @returns 
  */
-export const EmptyKanbanDroppable = ({index,title, items}: {
+export const EmptyKanbanDroppable = ({index,title, items, backgroundColor}: {
     index: number;
     title: string;
+    backgroundColor: any;
     items: ITeamTask[];
 })=> {
     const [enabled, setEnabled] = useState(false);
+
+    const { toggleColumn } = useKanban();
   
     useEffect(() => {
       const animation = requestAnimationFrame(() => setEnabled(true));
@@ -209,15 +220,15 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                 <>
                                    <header
                                         className={"relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
-                                        style={headerStyleChanger(snapshot, '#D95F5F')}
+                                        style={headerStyleChanger(snapshot, backgroundColor)}
                                         data-isDragging={snapshot.isDragging}
                                     >
                                         <div
                                             className="flex flex-col items-center  gap-2"
                                         >
-                                            <span className="rotate-180">
-                                            <LeftArrowTailessIcon/>
-                                            </span>
+                                            <button className="rotate-180" onClick={() => toggleColumn(title, false)}>
+                                                <LeftArrowTailessIcon/>
+                                            </button>
                                             <ThreeDotIcon/>
                                           
                                         </div>
@@ -269,9 +280,12 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
     backgroundColor: string,
     provided: DraggableProvided
 }) => {
+
+    const { toggleColumn } = useKanban();
    
     return (
         <>
+            {title && (
             <header
                 className={"flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px]"}
                 style={headerStyleChanger(snapshot, backgroundColor)}
@@ -300,9 +314,12 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided, backgroundColo
                     className="flex flex-row items-center gap-2"
                 >
                     <ThreeDotIcon/>
-                    <LeftArrowTailessIcon/>
+                    <button onClick={() => toggleColumn(title, true)}>
+                        <LeftArrowTailessIcon/>
+                    </button>  
                 </div>
             </header>
+            )}
         </>
     )
 }
@@ -319,11 +336,9 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
     items: ITeamTask[];
 }) => {
 
-    
-  
     return (
         <>
-            { items.length > 0 &&
+            { title &&
                 <Draggable
                     key={title}
                     index={index}
@@ -339,10 +354,10 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
                                 snapshot.isDragging,
                                 provided.draggableProps.style
                             )}
-                            className="flex flex-col gap-5 w-[325px]"
+                            className="flex flex-col w-[325px]"
                             
                         >
-                            { items.length > 0 ?
+                            { title ?
                                 <>
                                     <KanbanDraggableHeader 
                                         title={title} 
@@ -351,12 +366,18 @@ const KanbanDraggable = ({index,title, items, backgroundColor}: {
                                         provided={provided}
                                         backgroundColor={backgroundColor}
                                     />
+                                    <div className="flex flex-col gap-3">
                                     <KanbanDroppable 
                                         title={title} 
                                         droppableId={title} 
                                         type={'TASK'} 
                                         content={items}                     
                                     />
+                                    <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+                                        <AddIcon height={20} width={20}/>
+                                        <p>Create Issues</p>
+                                    </div>
+                                    </div>
                                 </>
                                     : 
                                 null

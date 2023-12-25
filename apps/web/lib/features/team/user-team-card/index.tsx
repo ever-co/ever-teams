@@ -123,7 +123,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2"
+					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2 overflow-y-auto"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
