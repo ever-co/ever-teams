@@ -11,7 +11,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { MainLayout } from 'lib/layout';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
@@ -19,11 +19,11 @@ const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const t = useTranslations();
 	const router = useRouter();
-	const searchParams = useSearchParams();
+	const params = useParams();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const { getTaskById, detailedTask: task, getTasksByIdLoading } = useTeamTasks();
 
-	const id = searchParams?.get('id');
+	const id = params?.id;
 
 	const breadcrumb = [{ title: activeTeam?.name || '', href: '/' }, ...JSON.parse(t('pages.taskDetails.BREADCRUMB'))];
 
