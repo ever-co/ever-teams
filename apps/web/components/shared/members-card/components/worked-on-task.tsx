@@ -1,11 +1,11 @@
 import { secondsToTime } from '@app/helpers/date';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { ITeamTask } from '@app/interfaces/ITask';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: ITeamTask | null; isAuthUser: boolean }) {
 	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } = useTaskStatistics();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	if (isAuthUser) {
 		const { h, m } = secondsToTime(activeTaskTotalStat?.duration || 0);
 		const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);

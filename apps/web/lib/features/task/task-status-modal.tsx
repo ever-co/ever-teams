@@ -1,8 +1,9 @@
+'use client';
+
 import { IHookModal, useModal } from '@app/hooks';
 import { ITaskStatusField } from '@app/interfaces';
 import { Button, Card, Modal, Text } from 'lib/components';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { taskIssues } from './task-issue';
 import {
 	StatusDropdown,
@@ -15,6 +16,7 @@ import {
 	useTaskSizesValue,
 	useTaskStatusValue
 } from './task-status';
+import { useTranslations } from 'next-intl';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
 	types,
@@ -31,7 +33,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 	const imodal = useModal();
 	const { isOpen, closeModal, openModal } = modal || imodal;
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [value, setValue] = useState(defaultValue);
 	const checkedRef = useRef<HTMLDivElement | null>(null);
 

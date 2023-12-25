@@ -1,3 +1,5 @@
+'use client';
+
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';

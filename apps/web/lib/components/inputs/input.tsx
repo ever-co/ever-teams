@@ -1,3 +1,5 @@
+'use client';
+
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';

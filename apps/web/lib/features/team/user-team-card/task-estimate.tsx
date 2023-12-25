@@ -1,3 +1,5 @@
+'use client';
+
 import { mergeRefs, secondsToTime } from '@app/helpers';
 import { I_TMCardTaskEditHook, I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
@@ -6,7 +8,7 @@ import { Text } from 'lib/components';
 import { EditIcon, TickSaveIcon } from 'lib/components/svgs';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -35,7 +37,7 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 }
 
 function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;
 

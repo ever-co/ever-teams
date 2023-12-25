@@ -1,3 +1,5 @@
+'use client';
+
 import { OTRefreshIntervalState } from '@app/stores';
 import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';

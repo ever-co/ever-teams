@@ -1,8 +1,8 @@
 import { clsxm } from '@app/utils';
 import { PropsWithChildren } from 'react';
-import { useTranslation } from 'react-i18next';
 import { SpinnerLoader } from './loader';
 import { ArrowLeft } from './svgs';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	variant?:
@@ -92,7 +92,7 @@ export function RoundedButton({ children, className, ...rest }: RoundedButtonPro
 }
 
 export function BackButton({ onClick, className }: { onClick?: () => void; className?: string }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<button type="button" className={clsxm('flex items-center', className)} onClick={onClick}>

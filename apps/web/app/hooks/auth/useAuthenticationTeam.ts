@@ -1,3 +1,6 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
+'use client';
+
 import { userTimezone } from '@app/helpers/date';
 import { authFormValidate } from '@app/helpers/validations';
 import { IRegisterDataAPI } from '@app/interfaces';
@@ -15,19 +18,18 @@ export interface IStepProps {
 	form: IRegisterDataAPI;
 }
 
-const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY  ? {
-	name: '',
-	email: '',
-	team: '',
-	recaptcha: ''
-} :
-{
-	name: '',
-	email: '',
-	team: ''
-}
-;
-
+const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY
+	? {
+			name: '',
+			email: '',
+			team: '',
+			recaptcha: ''
+	  }
+	: {
+			name: '',
+			email: '',
+			team: ''
+	  };
 export function useAuthenticationTeam() {
 	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
@@ -48,12 +50,9 @@ export function useAuthenticationTeam() {
 		const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
 
 		const validationFields = RECAPTCHA_SITE_KEY ? withRecaptchaArray : noRecaptchaArray;
-		
-		const { errors, valid } = authFormValidate(
-			validationFields,
-			formValues
-		);
-		
+
+		const { errors, valid } = authFormValidate(validationFields, formValues);
+
 		if (!valid) {
 			setErrors(errors as any);
 			return;
@@ -61,7 +60,7 @@ export function useAuthenticationTeam() {
 
 		formValues['timezone'] = userTimezone();
 		infiniteLoading.current = true;
-		
+
 		queryCall(formValues)
 			.then(() => window.location.reload())
 			.catch((err: AxiosError) => {

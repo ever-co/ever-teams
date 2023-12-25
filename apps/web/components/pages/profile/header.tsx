@@ -2,12 +2,13 @@ import { IUser } from '@app/interfaces/IUserData';
 import TimerCard from '@components/shared/timer/timer-card';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import capitalize from 'lodash/capitalize';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export function Header({ user }: { user: IUser | undefined }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
+
 	return (
 		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">

@@ -1,3 +1,5 @@
+'use client';
+
 import { ITaskSizesCreate } from '@app/interfaces';
 import { createTaskSizesAPI, deleteTaskSizesAPI, getTaskSizesList, editTaskSizesAPI } from '@app/services/client/api';
 import { activeTeamIdState, userState } from '@app/stores';

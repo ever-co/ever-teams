@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { Paginate } from 'lib/components/pagination';
 import moment from 'moment';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 
@@ -14,7 +14,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
 		IInvitation | IRequestToJoin
 	>(invitations);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
 
 	return (

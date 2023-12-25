@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
@@ -71,7 +71,7 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 		},
 		ref
 	) => {
-		const { t } = useTranslation();
+		const t = useTranslations();
 		if (isNaN(length) || length < 1) {
 			throw new Error('Length should be a number and greater than 0');
 		}

@@ -6,18 +6,18 @@ import { useToast } from '@components/ui/use-toast';
 import { Button, Tooltip } from 'lib/components';
 import { CloseAlternateIcon, CopyIconRounded, TickIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import CreateParentTask from '../ParentTask';
 import TitleLoader from './title-loader';
+import { useTranslations } from 'next-intl';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
 	const { toast } = useToast();
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
@@ -293,7 +293,7 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 };
 const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
 	const modal = useModal();
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return task && task.issueType !== 'Epic' ? (
 		<div className="box-border flex items-center justify-center h-5 text-center bg-transparent rounded cursor-pointer min-w-48 3xl:h-6">

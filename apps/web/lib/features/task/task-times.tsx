@@ -3,7 +3,7 @@ import { I_TeamMemberCardHook, useOrganizationTeams } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text, Tooltip } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -77,7 +77,7 @@ function TimeInfo({
 	currentUser: OT_Member | undefined;
 	task: Nullable<ITeamTask>;
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<>
@@ -136,7 +136,7 @@ function TimeBlockInfo({
 	currentUser: OT_Member | undefined;
 	task: Nullable<ITeamTask>;
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className="flex gap-1">
 			{showDaily && (
@@ -187,7 +187,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 	// Get current timer seconds
 	const { activeTeam } = useOrganizationTeams();
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id);
 	const { h, m } = secondsToTime(

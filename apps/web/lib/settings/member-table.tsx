@@ -10,14 +10,14 @@ import { Paginate } from 'lib/components/pagination';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<OT_Member>(members);
 	const { updateAvatar } = useSettings();

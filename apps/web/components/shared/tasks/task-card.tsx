@@ -6,7 +6,7 @@ import { timerSecondsState } from '@app/stores';
 import { RawStatusDropdown } from '@components/shared/tasks/status-dropdown';
 import { ProgressBar } from '@components/ui/progress-bar';
 import Separator from '@components/ui/separator';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -18,7 +18,7 @@ interface ITaskDetailCard {
 const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
 	const timerReconds = useRecoilValue(timerSecondsState);
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	let taskStat: ITasksTimesheet | null | undefined = null;
 

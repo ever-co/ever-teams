@@ -1,9 +1,9 @@
 import { ITeamTask } from '@app/interfaces';
 import moment from 'moment';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 const TaskProperties = ({ task }: { task: ITeamTask | null }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div className="flex flex-col gap-2 text-[0.625rem] 3xl:text-[0.700rem] text-[#A5A2B2] pl-4 mt-4 font-[600]">

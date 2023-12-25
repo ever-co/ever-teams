@@ -2,11 +2,11 @@ import { pad } from '@app/helpers/number';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/legacy/image';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
 import { MC_EditableValues } from '../types';
 import { EstimationProgress } from './estimation-progress';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	memberTask: ITeamTask | null;
@@ -37,7 +37,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 		},
 		ref
 	) => {
-		const { t } = useTranslation();
+		const t = useTranslations();
 		const canEditMode = useCallback(() => {
 			hasEditMode && setEditMode(true);
 		}, [setEditMode, hasEditMode]);

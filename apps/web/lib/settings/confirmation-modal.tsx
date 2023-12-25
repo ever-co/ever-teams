@@ -1,5 +1,5 @@
 import { Button, Card, Modal, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export const ConfirmationModal = ({
 	open,
@@ -14,7 +14,7 @@ export const ConfirmationModal = ({
 	onAction: () => any;
 	loading: boolean;
 }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<>

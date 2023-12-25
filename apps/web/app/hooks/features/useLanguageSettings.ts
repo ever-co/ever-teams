@@ -1,3 +1,5 @@
+'use client';
+
 import { APPLICATION_LANGUAGES_CODE } from '@app/constants';
 import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@app/helpers/cookies';
 import { getLanguageListAPI } from '@app/services/client/api';

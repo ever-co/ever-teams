@@ -7,14 +7,14 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, InputField, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
 
 export const IssueTypesForm = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);

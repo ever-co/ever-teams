@@ -13,7 +13,7 @@ import { useRecoilState } from 'recoil';
 
 import { useRefetchData } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -22,7 +22,7 @@ type StatusForm = {
 };
 
 export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();

@@ -3,8 +3,8 @@ import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Modal } from 'lib/components';
 import { PropsWithChildren, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TaskInput } from './task-input';
+import { useTranslations } from 'next-intl';
 
 export function TaskUnOrAssignPopover({
 	children,
@@ -24,7 +24,7 @@ export function TaskUnOrAssignPopover({
 	}[];
 	userProfile: OT_Member | undefined;
 }>) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, openModal, closeModal } = useModal();
 
 	// Handling Hotkeys

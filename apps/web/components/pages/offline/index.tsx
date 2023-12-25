@@ -1,9 +1,9 @@
 import SadCry from '@components/ui/svgs/sad-cry';
 import { Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 function Offline() {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div className="mt-28 flex flex-col gap-7 items-center">

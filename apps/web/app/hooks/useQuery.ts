@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useRef, useState } from 'react';
 
 export function useQuery<T extends (...params: any[]) => Promise<any>>(queryFunction: T) {

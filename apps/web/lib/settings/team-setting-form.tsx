@@ -7,21 +7,27 @@ import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
 import TimeTrackingToggle from 'lib/components/switch';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import TeamSize from './team-size-popover';
+import { useParams } from 'next/navigation';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { activeTeam, editOrganizationTeam, loading, loadingTeam } = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);
 	const inputWrapperRef = useRef<HTMLDivElement>(null);
+
+	const params = useParams();
+	const locale = useMemo(() => {
+		return params?.locale || '';
+	}, [params]);
 
 	const formDetails = useRef<{
 		teamName: string;
@@ -131,10 +137,12 @@ export const TeamSettingForm = () => {
 
 	const getTeamLink = useCallback(() => {
 		if (typeof window !== 'undefined' && activeTeam && activeTeam.id && activeTeam.profile_link) {
-			return `${window.location.origin}/team/${activeTeam.id}/${activeTeam.profile_link}`;
+			return `${window.location.origin}${locale ? '/' + locale : ''}/team/${activeTeam.id}/${
+				activeTeam.profile_link
+			}`;
 		}
 		return '';
-	}, [activeTeam]);
+	}, [activeTeam, locale]);
 
 	const handleChange = useCallback(() => {
 		const latestFormData = getValues();

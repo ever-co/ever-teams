@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	IClassName,

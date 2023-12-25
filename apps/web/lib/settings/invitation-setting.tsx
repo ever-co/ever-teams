@@ -3,11 +3,11 @@ import { Button, InputField, NoData } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { InvitationTable } from './invitation-table';
 
 export const InvitationSetting = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { teamInvitations } = useTeamInvitations();
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();

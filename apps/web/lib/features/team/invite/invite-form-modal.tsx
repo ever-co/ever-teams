@@ -1,3 +1,5 @@
+'use client';
+
 import { useOrganizationTeams, useTeamInvitations } from '@app/hooks';
 import { useEmployee } from '@app/hooks/features/useEmployee';
 import { IInviteEmail } from '@app/interfaces';
@@ -5,11 +7,11 @@ import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState<{
 		email?: string;

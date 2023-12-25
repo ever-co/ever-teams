@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { en, Translations } from '.';
 

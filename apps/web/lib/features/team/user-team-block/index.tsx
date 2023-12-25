@@ -6,7 +6,7 @@ import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, HorizontalSeparator, InputField, Text } from 'lib/components';
 import { TaskTimes, getTimerStatusValue } from 'lib/features';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
@@ -29,7 +29,7 @@ const cardColorType = {
 };
 
 export function UserTeamBlock({ className, active, member, publicTeam = false }: IUserTeamBlock) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -101,13 +101,12 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 
 				{/* Task information */}
 
-					<TaskBlockInfo
-						edition={taskEdition}
-						memberInfo={memberInfo}
-						className=" w-full px-1 py-2 overflow-hidden"
-						publicTeam={publicTeam}
-					/>
-
+				<TaskBlockInfo
+					edition={taskEdition}
+					memberInfo={memberInfo}
+					className=" w-full px-1 py-2 overflow-hidden"
+					publicTeam={publicTeam}
+				/>
 
 				<HorizontalSeparator />
 

@@ -3,9 +3,9 @@ import { clsxm } from '@app/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
+import { useTranslations } from 'next-intl';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -47,7 +47,7 @@ export function Dropdown<T extends DropdownItem>({
 	searchBar = false,
 	setSearchText
 }: Props<T>) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className={clsxm('rounded-xl', className)}>
 			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
