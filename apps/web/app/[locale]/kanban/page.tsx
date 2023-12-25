@@ -13,12 +13,16 @@ import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const Kanban = () => {
 	const { data } = useKanban();
 	const { activeTeam } = useOrganizationTeams();
+	const t = useTranslations();
 
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
+
+	const breadcrumbPath = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'}, activeTeam?.name || '', 'Kanban Board'];
 
 	const imageRadius = 20;
 	const numberOfImagesDisplayed = 4;
@@ -29,10 +33,10 @@ const Kanban = () => {
 		<>
 			<MainLayout>
 				<div className={'relative bg-white dark:bg-dark--theme pt-20 -mt-8 px-[32px] mx-[0px] w-full'}>
-					<Breadcrumb paths={['Dashboard', 'Team Page']} className="text-sm" />
+					<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 					<div className="flex flex-row items-center justify-between mt-[24px]">
 						<div>
-							<h1 className="text-[35px] font-bold text-[#282048] dark:text-white">Kanban Board</h1>
+							
 						</div>
 						<div className="flex flex-row items-center gap-[12px]">
 							<p>08:00 ( UTC +04:30 )</p>
