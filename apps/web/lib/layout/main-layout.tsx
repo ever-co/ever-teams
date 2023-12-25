@@ -1,3 +1,5 @@
+'use client';
+
 import { clsxm } from '@app/utils';
 import { Toaster } from '@components/ui/toaster';
 import { Container, Divider, Meta } from 'lib/components';

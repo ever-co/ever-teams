@@ -68,7 +68,7 @@ const Permissions = () => {
 										? 'bg-primary dark:bg-primary-light text-white'
 										: ''
 								}`}
-								key={role.id}
+								key={role?.id}
 								onClick={() => {
 									setSelectedRole(role);
 								}}
@@ -95,7 +95,6 @@ const Permissions = () => {
 											onChange={() => {
 												handleToggleRolePermission('TIME_TRACKER');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -116,7 +115,6 @@ const Permissions = () => {
 												handleToggleRolePermission('ORG_TASK_ADD');
 												handleToggleRolePermission('ORG_TASK_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -137,7 +135,6 @@ const Permissions = () => {
 												handleToggleRolePermission('ORG_TASK_ADD');
 												handleToggleRolePermission('ORG_TASK_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -158,7 +155,6 @@ const Permissions = () => {
 												handleToggleRolePermission('ORG_TASK_ADD');
 												handleToggleRolePermission('ORG_TASK_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -179,7 +175,6 @@ const Permissions = () => {
 												handleToggleRolePermission('ORG_TASK_ADD');
 												handleToggleRolePermission('ORG_TASK_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -195,7 +190,6 @@ const Permissions = () => {
 											onChange={() => {
 												handleToggleRolePermission('ORG_INVITE_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -216,7 +210,6 @@ const Permissions = () => {
 												handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
 												handleToggleRolePermission('CHANGE_SELECTED_EMPLOYEE');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -235,7 +228,6 @@ const Permissions = () => {
 											onChange={() => {
 												handleToggleRolePermission('ORG_TEAM_JOIN_REQUEST_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -251,7 +243,6 @@ const Permissions = () => {
 											onChange={() => {
 												handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>
@@ -267,7 +258,6 @@ const Permissions = () => {
 											onChange={() => {
 												handleToggleRolePermission('ORG_TASK_VIEW');
 											}}
-											disabled={selectedRole ? false : true}
 										/>
 									</div>
 								</div>

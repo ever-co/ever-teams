@@ -3,7 +3,6 @@ import {
 	useAutoAssignTask,
 	useCallbackRef,
 	useIssueType,
-	useLanguage,
 	useLanguageSettings,
 	useOTRefreshInterval,
 	useOrganizationTeams,
