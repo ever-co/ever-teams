@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo, useRef } from 'react';
 
 export function useSyncRef<T>(value: T) {

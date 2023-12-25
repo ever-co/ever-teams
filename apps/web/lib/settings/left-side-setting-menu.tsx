@@ -5,26 +5,28 @@ import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 
 export const LeftSideSettingMenu = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
-	const router = useRouter();
+	const pathname = usePathname();
 	const [activePage, setActivePage] = useState('');
 
 	const [user] = useRecoilState(userState);
 	const { isTeamManager } = useIsMemberManager(user);
 
 	useEffect(() => {
-		setActivePage(router.route);
-	}, [router.route]);
+		if (pathname) {
+			setActivePage(pathname);
+		}
+	}, [pathname]);
 
 	useEffect(() => {
-		const url = new URL(window.location.origin + router.asPath);
+		const url = new URL(window.location.origin + pathname);
 		window.setTimeout(() => {
 			if (!url.hash) return;
 
@@ -36,12 +38,12 @@ export const LeftSideSettingMenu = () => {
 		}, 100);
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [router.pathname]);
+	}, [pathname]);
 
 	const onLinkClick = useCallback(
 		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 			const url = new URL(e.currentTarget.href);
-			if (url.pathname !== router.pathname) {
+			if (url.pathname !== pathname) {
 				return;
 			}
 			e.stopPropagation();
@@ -53,7 +55,7 @@ export const LeftSideSettingMenu = () => {
 				scrollToElement(rect, 100);
 			}
 		},
-		[router]
+		[pathname]
 	);
 
 	return (

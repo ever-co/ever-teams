@@ -1,7 +1,8 @@
-import { useTranslation } from 'react-i18next';
 import ToggleThemeContainer from '../toggleThemeBtns';
+import { useTranslations } from 'next-intl';
+
 const Footer = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<footer className="flex flex-col items-center justify-between py-2 text-sm font-light text-center md:flex-row lg:text-base sm:text-start x-container-fluid">
 			<div className="flex flex-col space-x-1 text-center text-light sm:flex-row md:flex-start sm:items-center md:flex-row">

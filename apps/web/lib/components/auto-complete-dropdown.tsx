@@ -1,3 +1,5 @@
+'use client';
+
 import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
 import { Transition, Combobox } from '@headlessui/react';
 import { clsxm } from '@app/utils';

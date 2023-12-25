@@ -1,3 +1,5 @@
+'use client';
+
 import { authFormValidate } from '@app/helpers/validations';
 import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import {
@@ -8,10 +10,10 @@ import {
 	signInWorkspaceAPI
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
+import { useTranslations } from 'next-intl';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -19,9 +21,20 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
-	const { query, pathname } = useRouter();
+	const pathname = usePathname();
+	const query = useSearchParams();
 
-	const { t } = useTranslation();
+	const queryTeamId = useMemo(() => {
+		return query?.get('teamId');
+	}, [query]);
+	const queryEmail = useMemo(() => {
+		return query?.get('email');
+	}, [query]);
+	const queryCode = useMemo(() => {
+		return query?.get('code');
+	}, [query]);
+
+	const t = useTranslations();
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
@@ -63,15 +76,15 @@ export function useAuthenticationPasscode() {
 				// If user tries to login from public Team Page as an Already a Member
 				// Redirect to the current team automatically
 				if (pathname === '/team/[teamId]/[profileLink]' && res.data.workspaces.length) {
-					if (query.teamId) {
+					if (queryTeamId) {
 						const currentWorkspace = res.data.workspaces.find((workspace) =>
-							workspace.current_teams.map((item) => item.team_id).includes(query.teamId as string)
+							workspace.current_teams.map((item) => item.team_id).includes(queryTeamId as string)
 						);
 
 						signInToWorkspaceRequest({
 							email: email,
 							token: currentWorkspace?.token as string,
-							selectedTeam: query.teamId as string
+							selectedTeam: queryTeamId as string
 						});
 					}
 				}
@@ -192,15 +205,15 @@ export function useAuthenticationPasscode() {
 	 * Verifiy immediatly passcode if email and code were passed from url
 	 */
 	useEffect(() => {
-		if (query.email && query.code && !loginFromQuery.current) {
+		if (queryEmail && queryCode && !loginFromQuery.current) {
 			setScreen('passcode');
 			verifyPasscodeRequest({
-				email: query.email as string,
-				code: query.code as string
+				email: queryEmail as string,
+				code: queryCode as string
 			});
 			loginFromQuery.current = true;
 		}
-	}, [query, verifyPasscodeRequest]);
+	}, [query, verifyPasscodeRequest, queryEmail, queryCode]);
 
 	/**
 	 * send a fresh auth request handler

@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef } from 'react';
 
 export function useCallbackRef<T extends (...data: any[]) => void>(func?: T) {

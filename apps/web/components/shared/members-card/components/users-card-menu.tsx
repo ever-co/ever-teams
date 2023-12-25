@@ -8,7 +8,7 @@ import { CreateTaskOption } from '@components/shared/tasks/task-input';
 import { TaskItem } from '@components/shared/tasks/task-item';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import React, { Dispatch, Fragment, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
 
@@ -31,7 +31,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 	const { styles, attributes } = usePopper(referenceElement, popperElement, {
 		placement: 'left'
 	});
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const options: IOption[] = [
 		{
 			name: t('common.EDIT'),
@@ -167,7 +167,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 	const reversedTask = useMemo(() => {
 		return filteredTasks.slice().reverse();
 	}, [filteredTasks]);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<>
 			<OptionPopover setEstimateEdit={setEstimateEdit} setEdit={setEdit}>

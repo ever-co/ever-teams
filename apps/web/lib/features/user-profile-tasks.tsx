@@ -1,8 +1,8 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -16,7 +16,7 @@ type Props = {
  * @returns A component that displays a user's profile page.
  */
 export function UserProfileTask({ profile, tabFiltered }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	// Get current timer seconds
 	const { time, timerStatus } = useLiveTimerStatus();
 

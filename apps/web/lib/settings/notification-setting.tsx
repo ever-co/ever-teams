@@ -1,8 +1,8 @@
 import { CommonToggle, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export const NotificationSettings = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div id="notifications">

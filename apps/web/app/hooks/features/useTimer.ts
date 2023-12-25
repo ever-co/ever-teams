@@ -1,3 +1,4 @@
+'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@app/helpers/date';
 import { ITeamTask } from '@app/interfaces/ITask';

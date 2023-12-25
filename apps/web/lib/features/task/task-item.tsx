@@ -7,11 +7,11 @@ import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components'
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 import { TaskIssueStatus } from './task-issue';
 import { TaskPriorityStatus } from './task-status';
 import { TaskStatusModal } from './task-status-modal';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	task?: ITeamTask;
@@ -21,7 +21,7 @@ type Props = {
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
 	const { handleStatusUpdate, updateLoading } = useTeamTasks();
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {

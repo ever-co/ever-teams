@@ -7,12 +7,12 @@ import { clsxm } from '@app/utils';
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lib/components/svgs';
 import { TaskInput, TaskLinkedIssue } from 'lib/features';
-import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
+import { useTranslations } from 'next-intl';
 
 export const RelatedIssueCard = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const modal = useModal();
 
 	const task = useRecoilValue(detailedTaskState);
@@ -103,7 +103,7 @@ export const RelatedIssueCard = () => {
 };
 
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
 	const { queryCall } = useQuery(createTaskLinkedIsssueAPI);

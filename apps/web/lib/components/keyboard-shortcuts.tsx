@@ -2,13 +2,13 @@
 import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@app/hooks';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/ui/dialog';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from './button';
 import { KeyboardLinearIcon } from './svgs';
 import { Tooltip } from './tooltip';
+import { useTranslations } from 'next-intl';
 
 export function KeyboardShortcuts() {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 
 	const { os } = useDetectOS();

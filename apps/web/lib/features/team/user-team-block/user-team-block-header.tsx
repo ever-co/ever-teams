@@ -25,7 +25,7 @@ interface IFilter {
 }
 
 export function UserTeamBlockHeader() {
-	// const { t } = useTranslation();
+	// const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();

@@ -1,3 +1,5 @@
+'use client';
+
 import { MyInvitationActionEnum } from '@app/interfaces';
 import {
 	getTeamInvitationsAPI,

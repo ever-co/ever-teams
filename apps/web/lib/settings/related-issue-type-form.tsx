@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Button, InputField, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { StatusesListCard } from './list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@app/hooks';
@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();

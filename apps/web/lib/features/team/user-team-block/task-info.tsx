@@ -3,7 +3,7 @@ import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;

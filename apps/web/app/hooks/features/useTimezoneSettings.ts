@@ -1,3 +1,5 @@
+'use client';
+
 import { setActiveTimezoneCookie } from '@app/helpers';
 import { activeTimezoneState, timezoneListState, activeTimezoneIdState, timezonesFetchingState } from '@app/stores';
 import { useCallback, useEffect } from 'react';

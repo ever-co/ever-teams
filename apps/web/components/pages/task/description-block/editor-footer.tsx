@@ -1,12 +1,12 @@
 import { useTeamTasks } from '@app/hooks';
 import { detailedTaskState } from '@app/stores';
 import { Button } from 'lib/components';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { slateToHtml } from 'slate-serializers';
 import { configSlateToHtml } from './editor-components/serializerConfigurations';
+import { useTranslations } from 'next-intl';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -19,7 +19,7 @@ interface IDFooterProps {
 const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUnsavedValues }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const saveDescription = useCallback(
 		(newDescription: string) => {
 			updateDescription(newDescription, task, true);

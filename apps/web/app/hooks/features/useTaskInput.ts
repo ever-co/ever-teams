@@ -1,3 +1,5 @@
+'use client';
+
 import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskLabelsItemList, Nullable } from '@app/interfaces';

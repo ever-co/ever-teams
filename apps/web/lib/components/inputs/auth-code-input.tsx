@@ -1,7 +1,9 @@
+'use client';
+
 import { clsxm } from '@app/utils';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { InputField } from './input';
+import { useTranslations } from 'next-intl';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
@@ -77,7 +79,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		},
 		ref
 	) => {
-		const { t } = useTranslation();
+		const t = useTranslations();
 		if (isNaN(length) || length < 1) {
 			throw new Error(t('errors.LENGTH_NUMBER_ERROR'));
 		}

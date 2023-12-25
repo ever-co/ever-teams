@@ -1,29 +1,21 @@
+'use client';
+
 import { getAccessTokenCookie } from '@app/helpers';
 import { useAuthenticateUser, useModal, useQuery } from '@app/hooks';
 import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from 'lib/components';
-// import { CloseIcon } from 'lib/components/svgs';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [verified, setVefified] = useState(true);
 
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
 
 	const { openModal, isOpen, closeModal } = useModal();
-
-	// const closeIt = useCallback(() => {
-	// 	window.localStorage.setItem(
-	// 		'unverified-message-closed',
-	// 		getAccessTokenCookie()
-	// 	);
-	// 	// close message popup
-	// 	setVefified(true);
-	// }, [setVefified]);
 
 	useEffect(() => {
 		const hasVerified = user ? user.isEmailVerified : true;
@@ -89,7 +81,7 @@ export function ConfirmUserModal({ open, closeModal }: { open: boolean; closeMod
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
 
 	const [code, setCode] = useState('');
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {

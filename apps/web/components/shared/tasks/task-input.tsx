@@ -6,13 +6,13 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useTaskInput } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { useTranslation } from 'react-i18next';
 import DeleteTask from './delete-task';
 import TaskFilter from './task-filter';
 import { TaskItem } from './task-item';
+import { useTranslations } from 'next-intl';
 
 export function CreateTaskOption({ onClick, loading }: { onClick: () => void; loading?: boolean }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div
 			className="relative px-4 py-2 text-gray-700 cursor-pointer select-none"
@@ -51,7 +51,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 		closeModal,
 		closeableTask
 	} = useTaskInput();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [combxShow, setCombxShow] = useState<true | undefined>(undefined);
 
 	useEffect(() => {

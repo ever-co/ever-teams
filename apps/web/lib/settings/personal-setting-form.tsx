@@ -13,7 +13,7 @@ import { Button, InputField, Text, ThemeToggler } from 'lib/components';
 import { useTheme } from 'next-themes';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import validator from 'validator';
 import { EmailResetModal } from './email-reset-modal';
@@ -40,7 +40,7 @@ export const PersonalSettingForm = () => {
 		email: true,
 		phone: true
 	});
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const handleFullnameChange = useCallback(() => {
 		const values = getValues();

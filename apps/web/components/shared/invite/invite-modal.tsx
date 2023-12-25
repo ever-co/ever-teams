@@ -3,10 +3,10 @@ import Input from '@components/ui/inputs/input';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';
 import { AxiosError } from 'axios';
-import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { IInvite, IInviteProps } from '../../../app/interfaces/hooks';
 import UserIcon from '../../ui/svgs/user-icon';
+import { useTranslations } from 'next-intl';
 
 const initalValues: IInvite = {
 	email: '',
@@ -16,7 +16,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initalValues);
 	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState({});
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setErrors((er) => {

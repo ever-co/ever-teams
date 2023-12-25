@@ -62,6 +62,16 @@ export function useKanban() {
         return columnData[0].isCollapsed
     }
 
+    const reorderStatus = (itemStatus: string, index: number) => {
+        taskStatusHook.taskStatus.filter((status: ITaskStatusItemList)=> {
+            return status.name === itemStatus
+        }).map((status: ITaskStatusItemList)=> {
+            taskStatusHook.editTaskStatus(status.id, {
+                order: index
+            });
+        })
+    }
+
     return {
         data: kanbanBoard,
         isLoading: loading,
@@ -69,6 +79,7 @@ export function useKanban() {
         updateKanbanBoard: setKanbanBoard,
         updateTaskStatus: updateTask,
         toggleColumn,
-        isColumnCollapse
+        isColumnCollapse,
+        reorderStatus
     }
 }

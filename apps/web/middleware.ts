@@ -8,16 +8,35 @@ import {
 import { cookiesKeys } from '@app/helpers/cookies';
 import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
 import { range } from 'lib/utils';
-import { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+import createMiddleware from 'next-intl/middleware';
 
 export const config = {
-	matcher: ['/', '/auth/(.*)', '/profile/:path*', '/settings/(.*)', '/task(.*)', '/meet(.*)', '/board(.*)']
+	matcher: [
+		'/',
+		'/(en|de|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*',
+		// '/((?!_next|_vercel|.*\\..*).*)',
+		'/auth/(.*)',
+		'/profile/:path*',
+		'/settings/(.*)',
+		'/task(.*)',
+		'/meet(.*)',
+		'/board(.*)'
+	]
 };
 
 export async function middleware(request: NextRequest) {
+	const nextIntlMiddleware = createMiddleware({
+		defaultLocale: 'en',
+		locales: ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'],
+		// pathnames,
+		localePrefix: undefined
+	});
+
 	// Setting cookies on the response
-	let response = NextResponse.next();
+	// let response = NextResponse.next();
+	let response = nextIntlMiddleware(request);
 
 	let access_token = null;
 
@@ -73,7 +92,8 @@ export async function middleware(request: NextRequest) {
 			response.headers.set('x-user', JSON.stringify(res.data));
 		}
 	} else if (!protected_path && (refresh_token || access_token)) {
-		response = NextResponse.redirect(url.origin + DEFAULT_MAIN_PATH);
+		console.log('url.origin + DEFAULT_MAIN_PATH', url.origin + DEFAULT_MAIN_PATH);
+		// response = NextResponse.redirect(url.origin + DEFAULT_MAIN_PATH);
 	}
 
 	return response;

@@ -4,10 +4,10 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from '@components/ui/svgs/pause-icon';
 import { PlayIcon } from '@components/ui/svgs/play-icon';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 const Timer = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const {
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 		timerStatus,

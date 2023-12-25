@@ -73,14 +73,14 @@ function TagList({tags}: {
 }){
     return (
         <>
-            <div className="flex flex-row flex-wrap gap-1 items-center">
+            <div className="flex flex-wrap gap-1 items-center">
                 {tags.map((tag: Tag, index: number)=> {
                     return (
                         <TagCard 
                             key={index}
                             title={tag.name} 
                             backgroundColor={tag.color} 
-                            color={tag.color}
+                            color={"#FFFFFF"}
                         />
                     )
                 })}
@@ -195,7 +195,7 @@ export default function Item(props: any) {
                     <Priority level={1}/>
                 </div>
             </div>
-            <div className="flex flex-col w-[48px] gap-4 items-end">
+            <div className="flex flex-col w-[48px] justify-between items-end">
                 <VerticalThreeDot/>
 
                 <CircularProgress percentage={10}/>

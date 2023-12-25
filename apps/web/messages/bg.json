@@ -1,0 +1,552 @@
+{
+	"TITLE": "Ever Отбори",
+	"common": {
+		"ACCEPT": "Приемам",
+		"ACCEPTED": "Приет",
+		"REJECT": "Отхвърлям",
+		"REJECTED": "Отхвърлен",
+		"VERIFY": "провери",
+		"INVITE": "Покани",
+		"INVITED": "Поканен",
+		"EXPIRE": "Изтича",
+		"EXPIRED": "Изтекъл",
+		"REQUEST": "Заявка",
+		"REQUESTED": "Заявен",
+		"LABEL": "Етикет",
+		"LABELS": "Етикети",
+		"POSITION": "Позиция",
+		"ROLES": "Роли",
+		"JOIN_OR_LEFT": "Присъедини се / Напусна",
+		"PLEASE": "Моля",
+		"HERE": "тук",
+		"PEOPLE": "Хора",
+		"COLLABORATE": "Сътрудничество",
+		"NO": "Не",
+		"ONLY_ME": "Само аз",
+		"YES": "Да",
+		"BASIC": "Основен",
+		"DELETE": "Изтриване",
+		"MEET": "Среща",
+		"BOARD": "Дъска",
+		"SECURITY_CODE": "Код за сигурност",
+		"CONFIRM": "Потвърди",
+		"YOUR_EMAIL": "вашият имейл",
+		"CONTINUE": "Продължи",
+		"EDIT_TASK": "Редактиране на задача",
+		"ASSIGN_TASK": "Възлагане на задача",
+		"ASSIGN_TASK_TO": "Възлагане на задача",
+		"REMOVE_ACCOUNT": "Премахване на профил",
+		"REMOVE_EVERYWHERE": "Премахване навсякъде",
+		"DELETE_ACCOUNT": "Изтриване на този профил",
+		"UNASSIGN_TASK": "Отмяна на възлагането на задача",
+		"MAKE_A_MANAGER": "Направи мениджър",
+		"UNMAKE_A_MANAGER": "Премахни мениджъра",
+		"TRANSFERT_OWNERSHIP": "Прехвърляне на собствеността",
+		"TRANSFERT_OWNERSHIP_TO": "Прехвърляне на пълната собственост на отбора към друг потребител",
+		"REMOVE": "Премахване",
+		"REMOVE_TEAM": "Премахване на отбор",
+		"DISPOSE_TEAM": "Ликвидиране на отбор",
+		"QUIT_TEAM": "Напускане на отбора",
+		"QUIT": "Напускане",
+		"STATUSES": "Статуси",
+		"RESEND_INVITATION": "Повторно изпращане на поканата",
+		"TODAY": "Днес",
+		"TOTAL": "Общо",
+		"ESTIMATED": "Предвидено",
+		"ESTIMATE": "Предвиждане",
+		"STATUS": "Статус",
+		"NAME": "Име",
+		"TASK": "Задача",
+		"MY_TASKS": "Моите задачи",
+		"WORKED_ON_TASK": "Работено по задача",
+		"TOTAL_WORKED_TODAY": "Общо работено днес",
+		"TOTAL_WORK": "Работа днес",
+		"OPEN": "Отворен",
+		"NOW": "Сега",
+		"NEXT": "Следващ",
+		"PREV": "Предишен",
+		"DETAILS": "Детайли",
+		"CLOSED": "Затворен",
+		"CLOSE": "Затваряне",
+		"USER_NOT_FOUND": "Не са намерени потребители.",
+		"TASK_TITTLE": "Заглавие на задачата",
+		"PUBLIC_TASK": "Тази задача е публична",
+		"PRIVATE_TASK": "Тази задача е частна",
+		"PUBLIC_TASK_LABEL": "Направи я публична",
+		"PRIVATE_TASK_LABEL": "Направи я частна",
+		"CREATE_TASK": "Създаване на нова задача",
+		"LINK_TASK": "Избери свързан проблем",
+		"LINK": "Връзка",
+		"LINKS": "Връзки",
+		"SHOW": "Покажи",
+		"ADD_LINK": "Добави връзки",
+		"COMMENT": "Коментар",
+		"DESCRIPTION": "Описание",
+		"CHILD_ISSUE_TASK": "Избери детски проблем",
+		"CREATE_TEAM": "Създаване на нов отбор",
+		"VERIFY_ACCOUNT_MSG": "Моля, потвърдете профила си, преди да започнете да използвате приложението",
+		"CREATE_ROLE": "Създаване на роля",
+		"CREATE": "Създаване",
+		"CREATE_ISSUE": "Създаване на проблем",
+		"NEW_ISSUE": "Нов проблем",
+		"ACTIVATED": "Активиран",
+		"DEACTIVATED": "Деактивиран",
+		"PERIOD": "Период",
+		"NEW": "Нов",
+		"CREATE_VERSION": "Създаване на версия",
+		"VERSION": "Версия",
+		"LOADING": "Зареждане",
+		"TOTAL_TIME": "Общо време",
+		"LAST_24_HOURS": "Последните 24 часа",
+		"WORKED": "Работено",
+		"ASSIGNED": "Възложено",
+		"SELECT_STATUS": "Избери статус",
+		"SELECT_ISSUE": "Избери проблем",
+		"UNASSIGNED": "Невъзложено",
+		"TASK_DETAILS": "Детайли за задачата",
+		"TYPE_SOMETHING": "Напиши нещо",
+		"FILTER": "Филтър",
+		"APPLY": "Приложи",
+		"RESET": "Нулиране",
+		"LOGOUT": "Изход",
+		"THEMES": "Теми",
+		"3D_MODE": "3D режим",
+		"DARK_MODE": "Тъмен режим",
+		"SETTINGS": "Настройки",
+		"PERSONAL": "Лични",
+		"USE_SETTING": "Използвай настройка",
+		"TEAM": "Отбор",
+		"MY_TEAM": "Моят отбор",
+		"FULL_NAME": "Пълно име",
+		"USER_AVATAR": "Потребителски аватар",
+		"CONTACT": "Контакт",
+		"THEME": "Тема",
+		"TIME_ZONE": "Часова зона",
+		"EDIT": "Редактиране",
+		"SAVE": "Запазване",
+		"LANGUAGE": "Език",
+		"DETECT": "Открий",
+		"TRANSFER": "Прехвърляне",
+		"TRANSFER_TEAM": "Прехвърляне на отбор",
+		"TEAM_MEMBERS": "Членове на отбора",
+		"NO_TEAM": "Създайте собствен отбор или се присъединете към съществуващ",
+		"NO_TEAM_SUB": "Прекрасно е да се работи с други, затова създайте екип и поканете всички за сътрудничество!",
+		"NO_TEAM_TOOLTIP": "You need to verify your email address",
+		"CANCEL": "Отказ",
+		"DISCARD": "Изхвърляне",
+		"EXISTING_MEMBER": "Вече член",
+		"NEW_MEMBER": "Стани член",
+		"BACK": "Назад",
+		"JOIN_REQUEST": "Искане за присъединяване",
+		"PERMISSION": "Разрешение",
+		"SEARCH": "Търсене",
+		"ADD_PARENT": "Добави родител",
+		"BLOCKS": "Блокира",
+		"CLONES": "Клонира",
+		"DUPLICATES": "Дублира",
+		"IS_BLOCKED_BY": "Е блокирано от",
+		"IS_CLONED_BY": "Е клонирано от",
+		"IS_DUPLICATED_BY": "Е дублирано от",
+		"RELATES_TO": "Свързано с",
+		"CHANGE_PARENT": "Промени родител",
+		"RELATED_ISSUES": "Свързани проблеми",
+		"CHILD_ISSUES": "Детски проблеми",
+		"REOPEN": "Отваряне отново",
+		"NO_TASKS": "Няма задачи",
+		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да промените задачата",
+
+		"COLLABORATE_DIALOG_TITLE": "Стартиране на сътрудничество",
+		"COLLABORATE_DIALOG_SUB_TITLE": "Поканете член(ове) и започнете да си сътрудничите",
+		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Стартиране на среща или сътрудничество с дъска",
+		"ISSUE_TYPE": "Тип проблем",
+		"ACTIVITY": "Дейност",
+		"FILTER_ALL": "Всички",
+		"FILTER_COMMENTS": "Коментари",
+		"FILTER_HISTORY": "История",
+		"FILTER_UNSUBSCRIBE": "Отпиши се",
+
+		"KEYBOARD_SHORTCUTS": "Клавишни комбинации",
+		"GITHUB_LOADING_TEXT": "В момента инсталираме вашия GitHub интеграция, изчакайте...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматично синхронизирайте задачите в приложението си за безпроблемни и ефективни актуализации.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Синхронизирайте задачите избирателно, като ги свържете с конкретен етикет.",
+		"GITHUB_AUTO_SYNC_LABEL": "Изберете етикет за автоматична синхронизация"
+	},
+	"alerts": {
+		"ALERT_DELETE_ACCOUNT": "Профилът ще бъде премахнат от всички отбори, освен където сте само мениджър",
+		"ALERT_ACCOUNT_PERMANENT_DELETE": "Вашият профил ще бъде изтрит завинаги с премахване от всички отбори",
+		"ALERT_REMOVE_TEAM": "Отборът ще бъде премахнат напълно от системата и членовете на отбора ще загубят достъп",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_QUIT_TEAM": "Ще напуснете отбора"
+	},
+	"pages": {
+		"home": {
+			"BREADCRUMB": "[\"Табло\"]",
+			"SENT_EMAIL_VERIFICATION": "Потвърждаващият код беше изпратен до имейла ви",
+			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Трябва да",
+			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " вашия имейл адрес. Потвърждаващият код вече би трябвало да е изпратен до имейла ви, но свободно натиснете",
+			"SENT_EMAIL_VERIFICATION_RESEND": "за да изпратите кода отново, ако не сте го получили.",
+			"INVITATIONS": "Поканени сте да се присъедините към",
+			"CONFIRM_ACCEPT_INVITATION": "Сигурни ли сте, че искате да приемете поканата?",
+			"CONFIRM_REJECT_INVITATION": "Сигурни ли сте, че искате да отхвърлите поканата?"
+		},
+
+		"profile": {
+			"BREADCRUMB": "[\"Задачи за член\"]"
+		},
+
+		"taskDetails": {
+			"BREADCRUMB": "[\"Детайли за задачата\"]",
+
+			"DESCRIPTION": "Описания",
+			"ADD_DESCRIPTION": "Добави описание тук",
+			"TYPE_OF_ISSUE": "Тип проблем",
+			"CREATOR": "Създател",
+			"ASSIGNEES": "Отговорници",
+			"START_DATE": "Начална дата",
+			"DUE_DATE": "Краен срок",
+			"DAYS_REMAINING": "Оставащи дни",
+			"VERSION": "Версия",
+			"EPIC": "Епичен",
+			"STATUS": "Статус",
+			"LABEL": "Етикет",
+			"LABELS": "Етикети",
+			"SIZE": "Големина",
+			"PRIORITY": "Приоритет",
+			"ESTIMATIONS": "Предвиждания",
+			"PROGRESS": "Напредък",
+			"TOTAL_TIME": "Общо време",
+			"TIME_TODAY": "Време днес",
+			"TOTAL_GROUP_TIME": "Общо групово време",
+			"TIME_REMAINING": "Оставащо време",
+			"CREATED": "Създадено",
+			"UPDATED": "Обновено",
+			"RESOLVED": "Разрешено",
+
+			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Не можахме да обновим заглавието на задачата.",
+			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Заглавието на задачата не може да надвишава 255 символа.",
+
+			"TASK_IS_ALREADY_EPIC": "Епичният тип задача не може да бъде променен.",
+			"TASK_HAS_PARENT": "Типът задача не може да бъде променен, тъй като задачата вече има родител."
+		},
+
+		"auth": {
+			"SEND_CODE": "изпрати код",
+			"JOIN": "Присъединяване",
+			"UNRECEIVED_CODE": "Не получихте код?",
+			"JOIN_TEAM": "Присъединяване към отбор",
+			"INPUT_INVITE_CODE": "Въведете код за покана.",
+			"INPUT_INVITE_CODE_DESC": "Въведете кода за покана, който изпратихме до имейла ви.",
+			"INVALID_INVITE_CODE_MESSAGE": "Невалиден код",
+			"WELCOME_TEAMS": "Добре дошли в Ever Teams",
+
+			"COVER_TITLE": "Следете напредъка на работата на отборите си в реално време!",
+			"COVER_DESCRIPTION": "Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis",
+			"LOGIN": "Вход",
+			"SELECT_WORKSPACE": "Избери работно пространство",
+			"ENTER_EMAIL": "Въведи имейл",
+			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени"
+		},
+		"authPasscode": {
+			"HEADING_TITLE": "Присъединяване към съществуващ отбор",
+			"HEADING_DESCRIPTION": "Моля, въведете имейл и покана за присъединяване към съществуващ отбор."
+		},
+		"authLogin": {
+			"HEADING_TITLE": "Вход в отбора",
+
+			"HEADING_DESCRIPTION": "Моля, въведете имейл и покана за вход.",
+
+			"WORKSPACE": "Работно пространство",
+			"HEADING_WORKSPACE_LINE1": "Имейлът, свързан с множество работни пространства,",
+			"HEADING_WORKSPACE_LINE2": "моля, изберете едно за продължаване"
+		},
+		"authTeam": {
+			"HEADING_TITLE": "Създаване на нов отбор",
+			"HEADING_DESCRIPTION": "Моля, въведете данните на вашия отбор, за да създадете нов отбор.",
+			"LOADING_TEXT": "В момента създаваме новото ви работно място, изчакайте...",
+			"VERIFY_EMAIL_LOADING_TEXT": "Проверяваме имейла ви, изчакайте...",
+
+			"INPUT_TEAM_NAME": "Въведете име на отбора",
+			"JOIN_EXISTING_TEAM": "Присъединявате се към съществуващ отбор?",
+			"CREATE_FIRST_TEAM": "Създайте първия си отбор",
+			"CREATE_TEAM": "Създаване на отбор"
+		},
+		"settings": {
+			"BREADCRUMB": "[\"Табло\", \"Настройки\"]",
+			"DANDER_ZONE": "Опасна зона",
+			"HEADING_DESCRIPTION": "Настройване и управление на личното ви табло тук",
+			"ARE_YOU_SURE_TO_DELETE_USER": "Сигурни ли сте, че искате да изтриете този потребител?"
+		},
+		"settingsPersonal": {
+			"HEADING_TITLE": "Основни настройки",
+			"emailNotValid": "Моля, въведете валиден имейл",
+			"phoneNotValid": "Моля, въведете валиден телефонен номер",
+			"WORK_SCHEDULE": "Работен график",
+			"SUBSCRIPTION": "Абонамент",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Вашата часова зона",
+			"ABOUT_TO_CHANGE_EMAIL": "Ще промените имейл",
+			"ABOUT_TO_DELETE_ACCOUNT": "Ще изтриете профила си?",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Ще премахнете профила си?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+		},
+		"settingsTeam": {
+			"HEADING_TITLE": "Основни настройки",
+
+			"MEMBER_HEADING_TITLE": "Членове",
+			"PRIORITIES_HEADING": "Приоритети",
+			"NOTIFICATION_HEADING": "Известия",
+			"SIZES_HEADING": "Размери",
+			"TEAM_NAME": "Име на отбора",
+			"TEAM_TYPE": "Тип отбор",
+			"TIME_TRACKING": "Проследяване на времето",
+
+			"ADD_NEW_MEMBER": "Добави нов член",
+			"MANAGE_ASSIGNEES": "Управление на отговорници",
+
+			"SEARCH_MEMBER": "Търсене на член",
+			"TASK_STATUSES": "Статуси на задачи",
+			"TASK_PRIORITIES": "Приоритети на задачи",
+			"TASK_SIZES": "Размери на задачи",
+			"TASK_LABELS": "Етикети на задачи",
+			"ISSUE_TYPES": "Типове проблеми",
+			"RELATED_TYPE": "Свързан тип",
+
+			"INVITATION_HEADING_TITLE": "Покани",
+			"CREATE_NEW_STATUSES": "Създаване на нови статуси",
+			"CREATE_NEW_STATUS": "Създаване на нов статус",
+			"CREATE_NEW_VERSION": "Създаване на нова версия",
+			"CREATE_NEW_PRIORITIES": "Създаване на нови приоритети",
+			"CREATE_NEW_PRIORITY": "Създаване на нов приоритет",
+			"CREATE_NEW_SIZES": "Създаване на нови размери",
+			"CREATE_NEW_SIZE": "Създаване на нов размер",
+			"CREATE_NEW_LABELS": "Създаване на нови етикети",
+			"CREATE_NEW_LABEL": "Създаване на нов етикет",
+			"CREATE_NEW_ISSUE_TYPES": "Създаване на нови проблеми",
+
+			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "Скрий лична информация за членовете",
+			"POSITION_CUSTOM": "Персонализирани позиции",
+			"INVITATION_EXPIRATION": "Изтичане на поканата",
+			"NOTIFY_IF": "Извести ако",
+			"TEAM_REQUEST": "Заявка за отбор",
+			"WORK_SCHEDULE": "Работен график",
+			"MEMBER_AND_ROLES": "Членове и роли",
+
+			"INTEGRATIONS": "Интеграции",
+			"DANDER_ZONES": "Опасни зони",
+
+			"GITHUB": "GitHub",
+			"GITHUB_INTEGRATION_DESCRIPTION": "Свържете се с GitHub и започнете да синхронизирате проблеми от GitHub с отбора си",
+			"SELECT_REPOSITORY": "Избери хранилище",
+
+			"INSTALL": "Инсталиране",
+
+			"LIST_OF_STATUSES": "Списък със статуси",
+			"LIST_OF_PRIORITIES": "Списък с приоритети",
+			"LIST_OF_SIZES": "Списък с размери",
+			"LIST_OF_LABELS": "Списък с етикети",
+			"LIST_OF_ISSUES_TYPE": "Списък с проблеми",
+
+			"GENERAL": "Общи",
+			"SOUND": "Звук",
+			"EMAIL": "Имейл",
+
+			"USERS": "Потребители",
+			"TASKS": "Задачи",
+			"SYSTEM": "Система",
+			"SECURITY": "Сигурност",
+			"INAPP": "В приложението",
+			"NOTIFICATION_HEADING_TITLE": "Настройки за известия",
+			"ISSUE_HEADING_TITLE": "Настройки за проблеми",
+
+			"TASK_PRIVACY": "Поверителност на задачата",
+			"MULTIPLE_ASSIGNEES": "Множество отговорници",
+			"MANUAL_TIME": "Ръчно време",
+			"GROUP_ESTIMATION": "Групова оценка",
+			"ESTIMATION_IN_HOURS": "Оценка в часове",
+			"ESTIMATION_IN_STORY_POINTS": "Оценка в точки",
+			"PROOF_OF_COMPLETION": "Доказателство за завършване",
+			"LINKED_ISSUES": "Свързани проблеми",
+
+			"COMMENTS": "Коментари",
+			"HISTORY": "История",
+			"ACCEPTANCE_CRITERIA": "Критерии за приемане",
+			"DRAFT_ISSUES": "Чернови на проблеми",
+			"AUTO_CLOSE_ISSUE": "Автоматично затваряне на проблем",
+			"AUTO_ARCHIVE_ISSUE": "Автоматично архивиране на проблем",
+			"AUTO_STATUS": "Автоматичен статус",
+			"VERSIONS": "Версии",
+			"LIST_OF_VERSONS": "Списък с версии",
+			"ISSUETYPE": "Типове проблеми",
+			"LIST_OF_ISSUES": "Списък с проблеми",
+			"RELATED_ISSUE_TYPE": "Свързани типове проблеми",
+			"LIST_OF_RELATED_TYPE": "Списък със свързани типове",
+			"INITIAL": "Начален",
+			"COPY_NUMBER": "Копие номер",
+			"IN_PROGRESS": "В процес",
+			"FINAL": "Краен",
+			"DISPOSE_TEAM": "Ще ликвидирате отбора?",
+			"QUIT_TEAM": "Ще напуснете отбора?",
+			"TEAM_COLOR": "Цвят на отбора",
+			"TEAM_SIZE": "Размер на отбора",
+			"EMOJI": "Емотикон",
+			"ISSUES_HEADING_TITLE": "Настройки за проблеми",
+
+			"TRACK_TIME": "Проследяване на времето",
+			"ESTIMATE_ISSUE": "Оценка на проблем",
+			"EPICS_CREATE_CLOSE": "Създаване/затваряне на епични задачи",
+			"ISSUE_CREATE_CLOSE": "Създаване/затваряне на проблем",
+
+			"ISSUE_ASSIGN_UNASSIGN": "Възлагане/отмяна на възлагане на проблем",
+			"INVITE_MEMBERS": "Покана за членове",
+			"REMOVE_MEMBERS": "Премахване на членове",
+			"HANDLE_REQUESTS": "Обработване на заявки",
+			"ROLES_POSITIONS_CHANGE": "Промяна на роли/позиции",
+			"VIEW_DETAILS": "Преглед на детайли",
+
+			"NO_INVITATIONS": "В момента няма покани!",
+			"NO_MEMBERS": "В момента няма членове!"
+		},
+		"invite": {
+			"HEADING_TITLE": "Поканете член в отбора ви",
+			"HEADING_DESCRIPTION": "Изпратете покана до член на отбора по имейл",
+			"TEAM_MEMBER_EMAIL": "Имейл на члена на отбора",
+			"TEAM_MEMBER_FULLNAME": "Цялото име на члена на отбора",
+			"SEND_INVITE": "Изпрати покана",
+			"ERROR_WHILE_ACCEPTING_INVITATION": "Грешка при приемане на поканата",
+			"ERROR_WHILE_REJECTING_INVITATION": "Грешка при отхвърляне на поканата",
+			"INVITE_LABEL_SEND": "Изпрати покана",
+			"invitationTable": {
+				"NAME_AND_EMAIL": "Име и имейл",
+				"POSITION": "Позиция",
+				"DATE_AND_TIME_REQUEST": "Дата и час на искането",
+				"CV_OR_ATTACHMENT": "Автобиография / прикачен файл"
+			}
+		},
+		"permissions": {
+			"SELECT_ROLES": "Избери роли"
+		},
+		"page404": {
+			"HEADING_TITLE": "Ненамерено",
+			"HEADING_DESCRIPTION": "Търсеният ресурс не беше намерен!",
+			"LINK_LABEL": "Отиди на началната страница"
+		},
+		"offline": {
+			"HEADING_TITLE": "Мрежата е прекъсната!",
+			"HEADING_DESCRIPTION": "В момента сте извън линия, моля, проверете интернет връзката си..."
+		}
+	},
+
+	"timer": {
+		"START_TIMER": "Моля, изберете или създайте нова задача, за да започнете да проследявате времето",
+		"TEAM_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
+
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на отбора"
+		},
+		"ESTIMATION": {
+			"ESTIMATE_LABEL": "Оценка"
+		},
+		"DAY_LIST": [{ "title": "7 дни" }, { "title": "14 дни" }]
+	},
+
+	"task": {
+		"TITLE": "Задача",
+		"ASSIGN_NEW_TASK": "Възлагане на нова задача",
+		"ASSIGNED_BY": "Възложено от",
+		"NO_ONE_FOR_TASK": "Няма отговорник за тази задача",
+
+		"taskLabel": {
+			"WORK_LABEL": "Работено",
+			"TASK_ASSIGNED": "Възложено",
+			"TASK_UNASSIGNED": "Невъзложено",
+			"BUTTON_LABEL": "Възлагане на задача"
+		},
+		"tabFilter": {
+			"WORKED_DESCRIPTION": "Тази раздел показва всички задачи, по които сте започнали да работите",
+			"ASSIGNED_DESCRIPTION": "Тази раздел показва всички задачи, които са възложени на вас",
+			"UNASSIGNED_DESCRIPTION": "Тази раздел показва всички задачи, които не са възложени на вас",
+			"NO_TASK_USER_ASSIGNED": "Никой не е възложен на тази задача"
+		},
+		"taskTableHead": {
+			"TASK_NAME": "Име",
+			"TASK_STATUS": "Статус",
+			"TASK_WORK": {
+				"TITLE": "Работено по",
+				"DESCRIPTION": "Задача",
+				"LABEL": "Работено по задача"
+			},
+			"TASK_TIME": "Оценка",
+			"TOTAL_WORK": {
+				"TITLE": "Общо работено",
+				"DESCRIPTION": "Днес",
+				"LABEL": "Общо работено днес"
+			}
+		},
+		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата"
+	},
+
+	"form": {
+		"NAME_PLACEHOLDER": "Въведете името си",
+		"FIRST_NAME_PLACEHOLDER": "Собствено име",
+		"LAST_NAME_PLACEHOLDER": "Фамилия",
+		"EMAIL_PLACEHOLDER": "Въведете имейл адреса си",
+		"PHONE_PLACEHOLDER": "Телефонен номер",
+
+		"ISSUE_NAME_PLACEHOLDER": "Име на проблема",
+
+		"TEAM_NAME_PLACEHOLDER": "Моля въведете име на отбора",
+		"TASK_INPUT_PLACEHOLDER": "По какво работите?",
+
+		"TEAM_MEMBER_NAME_PLACEHOLDER": "Име на члена на отбора",
+		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Имейл адрес на члена на отбора",
+		"COMPLETION_DESCRIPTION": "Напишете описание",
+		"UPLOAD_FILES": "Качване на файлове",
+		"ATTACHMENT_FILE": "Прикачени файлове",
+		"ADD_COMMENT": "Добавяне на коментар тук",
+		"SET_THEME": "Задаване на тема",
+		"CHANGE_AVATAR": "Смяна на аватар",
+		"SELECT_TEAM_SIZE": "Изберете размер на отбора",
+		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric"
+	},
+
+	"layout": {
+		"footer": {
+			"RIGHTS_RESERVED": "Всички права запазени.",
+			"COPY_RIGHT1": "© {date}-настояще,",
+			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT4": "Ever Co.",
+			"COMPANY_NAME": "Ever Co. LTD.",
+			"TERMS": "Общи условия",
+			"PRIVACY_POLICY": "Политика за поверителност",
+			"COOKIES": "Политика за бисквитки",
+			"BY": "От"
+		}
+	},
+
+	"errors": {
+		"NETWORK_ISSUE": "проблем с мрежата, моля опитайте по-късно",
+		"ERROR_WHILE_VERIFY_CODE": "Грешка при потвърждаване на кода.",
+		"LENGTH_NUMBER_ERROR": "Дължината трябва да е число и по-голяма от 0",
+		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric",
+		"VALID_EMAIL": "Моля, въведете валиден имейл"
+	},
+	"placeholders": {
+		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране"
+	},
+	"team": {
+		"BACK_LABEL": "Обратно към отбора",
+		"PUBLIC_TEAM": "Публичен отбор",
+		"PRIVATE_TEAM": "Частен отбор",
+		"creation": {
+			"NEW": "Създаване на нов отбор"
+		}
+	},
+
+	"links": {
+		"common": {
+			"TASKS": "Задачи",
+			"TEAM": "Отбор",
+			"SETTINGS": "Настройки"
+		}
+	}
+}

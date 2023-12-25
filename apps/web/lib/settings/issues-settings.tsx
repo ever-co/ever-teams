@@ -1,5 +1,5 @@
 import { CommonToggle, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { PeriodDropdown } from './period-dropdown';
 import { ProofDropdown } from './proof-dropdown';
 import { VersionForm } from './version-form';
@@ -10,7 +10,7 @@ import { TaskSizesForm } from './task-sizes-form';
 import { TaskStatusesForm } from './task-statuses-form';
 
 export const IssuesSettings = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div>
 			{/* TODO */}

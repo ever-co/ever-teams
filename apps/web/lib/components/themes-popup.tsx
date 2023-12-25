@@ -1,10 +1,10 @@
 import { ThemesPopup as IThemesPopup } from '@app/interfaces';
 import { Switch } from '@headlessui/react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useTranslation } from 'react-i18next';
 
 const ThemesPopup = ({ theme, currentTheme, text, image, enabled, setTheme, index }: IThemesPopup) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div
 			onClick={() => setTheme(theme)}

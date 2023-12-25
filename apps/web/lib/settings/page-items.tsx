@@ -1,7 +1,7 @@
 import { IPagination } from '@app/interfaces/IPagination';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export type PaginationItems = DropdownItem<IPagination>;
 
@@ -23,7 +23,7 @@ export function mappaginationItems(PaginationList: IPagination[]) {
 }
 
 export function PaginationItems({ title, className }: { title?: string; className?: string }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2', className)}>
 			<span className={clsxm('text-normal mb-0')}>

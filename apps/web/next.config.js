@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
+const withNextIntl = require('next-intl/plugin')();
 
 console.log(`NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}`);
 
@@ -50,23 +51,25 @@ const nextConfig = {
 };
 
 // Injected content via Sentry wizard below
-const { withSentryConfig } = require('@sentry/nextjs');
+// const { withSentryConfig } = require('@sentry/nextjs');
 
-const sentryWebpackPluginOptions = {
-	org: process.env.SENTRY_ORG || 'ever-co',
-	project: process.env.SENTRY_PROJECT || 'ever-teams-web',
+// const sentryWebpackPluginOptions = {
+// 	org: process.env.SENTRY_ORG || 'ever-co',
+// 	project: process.env.SENTRY_PROJECT || 'ever-teams-web',
 
-	// An auth token is required for uploading source maps.
-	authToken: process.env.SENTRY_AUTH_TOKEN,
+// 	// An auth token is required for uploading source maps.
+// 	authToken: process.env.SENTRY_AUTH_TOKEN,
 
-	silent: true, // Suppresses all logs
+// 	silent: true, // Suppresses all logs
 
-    dryRun: process.env.NODE_ENV !== "production"
+// 	dryRun: process.env.NODE_ENV !== 'production'
 
-	// Additional config options for the Sentry Webpack plugin.
-	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
-};
+// 	// Additional config options for the Sentry Webpack plugin.
+// 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
+// };
 
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports = process.env.NODE_ENV === "production" && process.env.SENTRY_DSN
-	? withSentryConfig(nextConfig, sentryWebpackPluginOptions) : nextConfig
+// module.exports = process.env.NODE_ENV === "production" && process.env.SENTRY_DSN
+// 	? withSentryConfig(nextConfig, sentryWebpackPluginOptions) : nextConfig
+
+module.exports = withNextIntl(nextConfig);

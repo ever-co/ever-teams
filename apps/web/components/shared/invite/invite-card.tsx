@@ -1,11 +1,11 @@
 import InviteModal from '@components/shared/invite/invite-modal';
 import Separator from '@components/ui/separator';
-import { useTranslation } from 'react-i18next';
 import { Fragment, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const InviteCard = () => {
 	const [isOpen, setIsOpen] = useState(false);
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const closeModal = () => {
 		setIsOpen(false);

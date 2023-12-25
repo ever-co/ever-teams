@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallbackRef } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
