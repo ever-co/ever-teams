@@ -9,7 +9,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { RecoilRoot } from 'recoil';
 import { AppState } from 'lib/app/init-state';
 
-import { GA_MEASUREMENT_ID } from '@app/constants';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
@@ -44,7 +43,7 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 	const messages = require(`../../messages/${locale}.json`);
 	return (
 		<html className="h-full" lang={locale}>
-			<head>
+			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 				{GA_MEASUREMENT_ID.value && (
@@ -58,8 +57,8 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 						</script>
 					</>
 				)}
-			</head>
-			<NextIntlClientProvider locale={locale} messages={messages}>
+			</head> */}
+			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
 				<body className={clsx(inter.className, 'flex h-full flex-col')}>
 					<RecoilRoot>
 						<AppState />

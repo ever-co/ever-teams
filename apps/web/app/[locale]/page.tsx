@@ -58,7 +58,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 		return <Offline />;
 	}
 
-	setNextPublicEnv(pageProps.envs);
+	pageProps?.envs && setNextPublicEnv(pageProps.envs);
 
 	const jitsuConf = pageProps?.jitsuConf;
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
