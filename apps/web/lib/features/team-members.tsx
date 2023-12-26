@@ -28,10 +28,16 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 		activeFilter == 'all' ? orderedMembers : orderedMembers.filter((m) => m.timerStatus == activeFilter) || [];
 
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
-	const $members = members.filter((member) => member.id !== currentUser?.id);
+	const $members = members
+		.filter((member) => member.id !== currentUser?.id)
+		.sort((a, b) => {
+			if (a.order && b.order) return a.order > b.order ? -1 : 1;
+			else return -1;
+		});
 	const $teamsFetching = teamsFetching && members.length === 0;
 
 	let teamMembersView;
+	console.log($members);
 
 	switch (true) {
 		case members.length === 0:

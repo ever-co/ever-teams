@@ -37,16 +37,14 @@ const TeamMembersCardView: React.FC<Props> = ({
 		peopleClone[draggedOverTeamMember.current] = temp;
 		setMemberOrdereds(peopleClone);
 		// TODO: update teamMembers index
-		handleChangeOrder(peopleClone[dragTeamMember.current].id, draggedOverTeamMember.current);
-		handleChangeOrder(peopleClone[draggedOverTeamMember.current].id, dragTeamMember.current);
+		handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
+		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
 	}
 
-	const handleChangeOrder = React.useCallback(
-		(employeeId: string, order: number) => {
-			updateOrganizationTeamEmployeeOrderOnList(employeeId, order);
-		},
-		[updateOrganizationTeamEmployeeOrderOnList]
-	);
+	const handleChangeOrder = (employee: OT_Member, order: number) => {
+		console.log({ employee, order });
+		updateOrganizationTeamEmployeeOrderOnList(employee, order);
+	};
 
 	return (
 		<ul className="mt-7">

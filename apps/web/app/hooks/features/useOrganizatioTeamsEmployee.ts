@@ -1,4 +1,4 @@
-import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
+import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@app/interfaces';
 import {
 	deleteOrganizationEmployeeTeamAPI,
 	updateOrganizationEmployeeTeamAPI,
@@ -65,12 +65,15 @@ export function useOrganizationEmployeeTeams() {
 	);
 
 	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
-		(employeeId: string, order: number) => {
-			updateOrderCall(employeeId, { order }).then((res) => {
+		(employee: OT_Member, order: number) => {
+			updateOrderCall(employee.id, {
+				order
+			}).then((res) => {
 				loadTeamsData();
 				return res;
 			});
 		},
+
 		[loadTeamsData, updateOrderCall]
 	);
 
@@ -91,7 +94,7 @@ export function useOrganizationEmployeeTeams() {
 		updateOrganizationTeamEmployee,
 		updateOrganizationTeamEmployeeActiveTaskLoading,
 		updateOrganizationTeamEmployeeActiveTask,
-		editEmployeeIndexOrganizationTeamLoading,
+		// editEmployeeIndexOrganizationTeamLoading,
 		updateOrganizationTeamEmployeeOrderOnList
 	};
 }
