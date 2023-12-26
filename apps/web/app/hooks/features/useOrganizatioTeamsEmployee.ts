@@ -94,7 +94,7 @@ export function useOrganizationEmployeeTeams() {
 		updateOrganizationTeamEmployee,
 		updateOrganizationTeamEmployeeActiveTaskLoading,
 		updateOrganizationTeamEmployeeActiveTask,
-		// editEmployeeIndexOrganizationTeamLoading,
+		editEmployeeIndexOrganizationTeamLoading,
 		updateOrganizationTeamEmployeeOrderOnList
 	};
 }
