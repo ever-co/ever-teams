@@ -19,10 +19,11 @@ const Kanban = () => {
 	const { data } = useKanban();
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
+	
 
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 
-	const breadcrumbPath = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'}, activeTeam?.name || '', 'Kanban Board'];
+	const breadcrumbPath = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'},  {title: activeTeam?.name || '', href:'/'}, {title:'Kanban Board', href: '/kanban'}];
 
 	const imageRadius = 20;
 	const numberOfImagesDisplayed = 4;
