@@ -2,7 +2,6 @@
 'use client';
 
 import clsx from 'clsx';
-import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
@@ -13,8 +12,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
-
-const inter = Inter({ subsets: ['latin'] });
 
 type Props = {
 	children: ReactNode;
@@ -59,7 +56,7 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 				)}
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
-				<body className={clsx(inter.className, 'flex h-full flex-col')}>
+				<body className={clsx('flex h-full flex-col')}>
 					<RecoilRoot>
 						<AppState />
 						{children}

@@ -30,7 +30,7 @@ const Team = () => {
 
 	const loadData = useCallback(() => {
 		if (params?.teamId && params?.profileLink) {
-			loadPublicTeamData(params?.profileLink as string, params?.teamId as string).then((res) => {
+			loadPublicTeamData(params?.profileLink as string, params?.teamId as string).then((res: any) => {
 				if (res?.data?.data?.status === 404) {
 					notFound();
 				}

@@ -454,7 +454,10 @@
 		"ASSIGN_NEW_TASK": "Възлагане на нова задача",
 		"ASSIGNED_BY": "Възложено от",
 		"NO_ONE_FOR_TASK": "Няма отговорник за тази задача",
-
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "работено днес по тази задача за",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "работено по тази задача общо за",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "работено днес по всички",
+		"TASKS_FOR_TOOLTIP": "задачи за",
 		"taskLabel": {
 			"WORK_LABEL": "Работено",
 			"TASK_ASSIGNED": "Възложено",
@@ -480,7 +483,9 @@
 				"TITLE": "Общо работено",
 				"DESCRIPTION": "Днес",
 				"LABEL": "Общо работено днес"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Колко часа работил служителят общо и днес по задача",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "Колко часа е работил служителят днес по всички задачи за избрания екип"
 		},
 		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата"
 	},
