@@ -37,7 +37,6 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const $teamsFetching = teamsFetching && members.length === 0;
 
 	let teamMembersView;
-	console.log($members);
 
 	switch (true) {
 		case members.length === 0:

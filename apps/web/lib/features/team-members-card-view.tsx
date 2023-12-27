@@ -42,7 +42,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 	}
 
 	const handleChangeOrder = (employee: OT_Member, order: number) => {
-		console.log({ employee, order });
+		console.log({ isTeamManager, employee, order });
 		updateOrganizationTeamEmployeeOrderOnList(employee, order);
 	};
 
@@ -91,7 +91,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 								member={member}
 								publicTeam={publicTeam}
 								currentExit={draggedOverTeamMember.current == i}
-								draggable
+								draggable={isTeamManager}
 								onDragStart={() => {
 									dragTeamMember.current = i;
 								}}
