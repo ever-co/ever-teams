@@ -30,7 +30,9 @@ export function usePublicOrganizationTeams() {
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {
 			if (loadingRef.current) {
-				return;
+				return new Promise((response) => {
+					response({});
+				});
 			}
 
 			return queryCall(profileLink, teamId).then((res) => {
