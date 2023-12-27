@@ -29,7 +29,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				bearer_token: access_token,
 				tenantId,
 				employeeId: id.toString(),
-				order
+				order,
+				organizationTeamId: req.body.organizationTeamId,
+				organizationId: req.body.organizationId
 			});
 			break;
 	}

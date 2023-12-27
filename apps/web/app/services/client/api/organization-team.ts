@@ -93,8 +93,14 @@ export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }
 
-export function editEmployeeOrderOrganizationTeamAPI(employeeId: string, data: { order: number }) {
-	return api.put<CreateResponse<OT_Member>>(`/organization-team/employee/${employeeId}`, data);
+export function editEmployeeOrderOrganizationTeamAPI(
+	employeeId: string,
+	data: { order: number; organizationTeamId: string; organizationId: string },
+	tenantId?: string
+) {
+	return api.put<CreateResponse<OT_Member>>(`/organization-team/employee/${employeeId}`, data, {
+		headers: { 'Tenant-Id': tenantId }
+	});
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {

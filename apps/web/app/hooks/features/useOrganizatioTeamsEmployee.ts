@@ -8,9 +8,12 @@ import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { editEmployeeOrderOrganizationTeamAPI } from '@app/services/client/api';
+import { userState } from '@app/stores';
+import { useRecoilState } from 'recoil';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
+	const [user] = useRecoilState(userState);
 
 	const { loading: deleteOrganizationEmployeeTeamLoading, queryCall: deleteQueryCall } = useQuery(
 		deleteOrganizationEmployeeTeamAPI
@@ -66,15 +69,21 @@ export function useOrganizationEmployeeTeams() {
 
 	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
 		(employee: OT_Member, order: number) => {
-			updateOrderCall(employee.id, {
-				order
-			}).then((res) => {
+			updateOrderCall(
+				employee.id,
+				{
+					order,
+					organizationTeamId: employee.organizationTeamId,
+					organizationId: employee.organizationId
+				},
+				user?.tenantId || ''
+			).then((res) => {
 				loadTeamsData();
 				return res;
 			});
 		},
 
-		[loadTeamsData, updateOrderCall]
+		[loadTeamsData, updateOrderCall, user]
 	);
 
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(

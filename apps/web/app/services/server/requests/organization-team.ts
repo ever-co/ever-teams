@@ -176,20 +176,27 @@ export function addEmployeeOrganizationTeamOrderRequest({
 	employeeId,
 	bearer_token,
 	tenantId,
-	order
+	order,
+	organizationTeamId,
+	organizationId
 }: {
 	employeeId: string;
 	bearer_token: string;
 	tenantId: string;
 	order: number;
+	organizationTeamId: string;
+	organizationId: string;
 }) {
-	return serverFetch<boolean>({
+	console.log({ order, tenantId, employeeId });
+	const res = serverFetch({
 		path: `/organization-team-employee/${employeeId}`,
 		method: 'PUT',
 		bearer_token,
-		body: { order },
+		body: { order, organizationTeamId, organizationId },
 		tenantId
 	});
+	res.then((d) => console.log(d.data));
+	return res;
 }
 
 export function removeUserFromAllTeam({
