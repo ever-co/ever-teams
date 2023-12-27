@@ -48,9 +48,10 @@ type MyAppProps = {
 
 function MainPage({ pageProps }: AppProps<MyAppProps>) {
 	const t = useTranslations();
+
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
-	const breadcrumb = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'}, activeTeam?.name || ''];
+	const breadcrumb = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'}, { title: activeTeam?.name || '', href:'/'}];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 	const { online } = useNetworkState();
 

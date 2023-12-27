@@ -14,15 +14,19 @@ import { MainLayout } from 'lib/layout';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 
 const Kanban = () => {
 	const { data } = useKanban();
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
+	const params = useParams<{locale: string}>();
+	
+	const currentLocale = params ? params.locale : null;
 
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 
-	const breadcrumbPath = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'}, activeTeam?.name || '', 'Kanban Board'];
+	const breadcrumbPath = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'},  {title: activeTeam?.name || '', href:'/'}, {title:'Kanban Board', href: `/${currentLocale}/kanban`}];
 
 	const imageRadius = 20;
 	const numberOfImagesDisplayed = 4;
