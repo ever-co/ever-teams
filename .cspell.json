@@ -311,7 +311,8 @@
 		"plasmohq",
 		"Proguard",
 		"horcrux",
-		"dimesions"
+		"dimesions",
+		"Ordereds"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
