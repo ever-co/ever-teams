@@ -41,8 +41,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
 	}
 
-	const handleChangeOrder = (employee: OT_Member, order: number) => {
-		console.log({ isTeamManager, employee, order });
+	const handleChangeOrder = (employee: OT_Member, order: number) => {		
 		updateOrganizationTeamEmployeeOrderOnList(employee, order);
 	};
 
