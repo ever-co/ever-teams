@@ -5,15 +5,20 @@ import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
-import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useParams, usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
+import Link from 'next/link';
 
 export const LeftSideSettingMenu = () => {
 	const t = useTranslations();
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const pathname = usePathname();
+	const params = useParams();
+	const locale = useMemo(() => {
+		return params?.locale || '';
+	}, [params]);
 	const [activePage, setActivePage] = useState('');
 
 	const [user] = useRecoilState(userState);
@@ -94,7 +99,11 @@ export const LeftSideSettingMenu = () => {
 						<div className="flex flex-col">
 							{PersonalAccordianData.map((ad, index) => {
 								return (
-									<a onClick={onLinkClick} href={`/settings/personal${ad.href}`} key={index}>
+									<Link
+										onClick={onLinkClick}
+										href={`/${locale}/settings/personal${ad.href}`}
+										key={index}
+									>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -102,7 +111,7 @@ export const LeftSideSettingMenu = () => {
 										>
 											{ad.title}
 										</Text>
-									</a>
+									</Link>
 								);
 							})}
 						</div>
@@ -138,7 +147,11 @@ export const LeftSideSettingMenu = () => {
 							{TeamAccordianData.filter((ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager).map(
 								(ad, index) => {
 									return (
-										<a onClick={onLinkClick} href={`/settings/team${ad.href}`} key={index}>
+										<Link
+											onClick={onLinkClick}
+											href={`/${locale}/settings/team${ad.href}`}
+											key={index}
+										>
 											<Text
 												className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 												key={index}
@@ -146,7 +159,7 @@ export const LeftSideSettingMenu = () => {
 											>
 												{ad.title}
 											</Text>
-										</a>
+										</Link>
 									);
 								}
 							)}

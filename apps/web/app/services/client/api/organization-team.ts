@@ -5,7 +5,8 @@ import {
 	IOrganizationTeamWithMStatus,
 	IOrganizationTeamUpdate,
 	IOrganizationTeam,
-	TimerSource
+	TimerSource,
+	OT_Member
 } from '@app/interfaces';
 import moment from 'moment';
 import api, { get } from '../axios';
@@ -90,6 +91,16 @@ export function deleteOrganizationTeamAPI(id: string) {
 }
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
+}
+
+export function editEmployeeOrderOrganizationTeamAPI(
+	employeeId: string,
+	data: { order: number; organizationTeamId: string; organizationId: string },
+	tenantId?: string
+) {
+	return api.put<CreateResponse<OT_Member>>(`/organization-team/employee/${employeeId}`, data, {
+		headers: { 'Tenant-Id': tenantId }
+	});
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {

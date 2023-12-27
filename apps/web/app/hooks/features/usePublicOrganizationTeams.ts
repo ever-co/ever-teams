@@ -17,7 +17,7 @@ import { useTaskStatus } from './useTaskStatus';
 import { useTeamTasks } from './useTeamTasks';
 
 export function usePublicOrganizationTeams() {
-	const { loading, queryCall } = useQuery(getPublicOrganizationTeamsAPI);
+	const { loading, queryCall, loadingRef } = useQuery(getPublicOrganizationTeamsAPI);
 	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(getPublicOrganizationTeamsMiscDataAPI);
 	const { activeTeam, teams, setTeams } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
@@ -29,6 +29,12 @@ export function usePublicOrganizationTeams() {
 
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {
+			if (loadingRef.current) {
+				return new Promise((response) => {
+					response({});
+				});
+			}
+
 			return queryCall(profileLink, teamId).then((res) => {
 				if (res.data?.data?.status === 404) {
 					setTeams([]);

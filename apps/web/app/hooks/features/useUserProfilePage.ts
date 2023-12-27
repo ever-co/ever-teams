@@ -1,7 +1,7 @@
 'use client';
 
 import { ITeamTask } from '@app/interfaces';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
@@ -16,10 +16,10 @@ export function useUserProfilePage() {
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
 
-	const searchParams = useSearchParams();
+	const params = useParams();
 	const memberId: string = useMemo(() => {
-		return (searchParams?.get('memberId') || '') as string;
-	}, [searchParams]);
+		return (params?.memberId || '') as string;
+	}, [params]);
 
 	const members = activeTeam?.members || [];
 

@@ -91,15 +91,15 @@ export function Dropdown<T extends DropdownItem>({
 				>
 					<Listbox.Options
 						className={clsxm(
-							'shadow-2xl outline-none min-w-full mt-3 max-h-64',
-							'overflow-hidden overflow-y-auto rounded-xl outline-none',
+							'shadow-2xl outline-none min-w-full mt-3 h-fit',
+							'overflow-hidden rounded-xl outline-none',
 							optionsClassName
 						)}
 					>
 						<Card
 							shadow="custom"
 							className={clsxm(
-								'md:px-4 py-4 rounded-x  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+								' md:px-4 py-4 rounded-x  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
 								searchBar && 'w-96'
 							)}
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
@@ -113,7 +113,7 @@ export function Dropdown<T extends DropdownItem>({
 									/>
 								</div>
 							)}
-
+							<section className={"max-h-[9.125rem] overflow-y-auto"}>
 							{items.map((Item, index) => (
 								<Listbox.Option
 									key={Item.key ? Item.key : index}
@@ -125,6 +125,7 @@ export function Dropdown<T extends DropdownItem>({
 									}}
 								</Listbox.Option>
 							))}
+							</section>
 
 							{/* Additional content */}
 							{closeOnChildrenClick && <Listbox.Button as="div">{children}</Listbox.Button>}
