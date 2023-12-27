@@ -9,6 +9,7 @@ export interface IOrganizationTeamEmployeeCreate {
 	roleId?: string;
 	isTrackingEnabled?: boolean;
 	activeTaskId?: string;
+	order?: number;
 }
 export interface IOrganizationTeamEmployeeUpdate extends IOrganizationTeamEmployeeCreate {
 	id: string;

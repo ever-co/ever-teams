@@ -1,4 +1,4 @@
-import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
+import { IOrganizationTeamEmployeeUpdate, OT_Member } from '@app/interfaces';
 import {
 	deleteOrganizationEmployeeTeamAPI,
 	updateOrganizationEmployeeTeamAPI,
@@ -7,9 +7,13 @@ import {
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
+import { editEmployeeOrderOrganizationTeamAPI } from '@app/services/client/api';
+import { userState } from '@app/stores';
+import { useRecoilState } from 'recoil';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
+	const [user] = useRecoilState(userState);
 
 	const { loading: deleteOrganizationEmployeeTeamLoading, queryCall: deleteQueryCall } = useQuery(
 		deleteOrganizationEmployeeTeamAPI
@@ -17,6 +21,10 @@ export function useOrganizationEmployeeTeams() {
 
 	const { loading: updateOrganizationEmployeeTeamLoading, queryCall: updateQueryCall } = useQuery(
 		updateOrganizationEmployeeTeamAPI
+	);
+
+	const { loading: editEmployeeIndexOrganizationTeamLoading, queryCall: updateOrderCall } = useQuery(
+		editEmployeeOrderOrganizationTeamAPI
 	);
 
 	const {
@@ -59,6 +67,25 @@ export function useOrganizationEmployeeTeams() {
 		[loadTeamsData, updateQueryCall]
 	);
 
+	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
+		(employee: OT_Member, order: number) => {
+			updateOrderCall(
+				employee.id,
+				{
+					order,
+					organizationTeamId: employee.organizationTeamId,
+					organizationId: employee.organizationId
+				},
+				user?.tenantId || ''
+			).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+
+		[loadTeamsData, updateOrderCall, user]
+	);
+
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) => {
 			updateOrganizationTeamEmployeeActiveTaskQueryCall(id, data).then((res) => {
@@ -75,6 +102,8 @@ export function useOrganizationEmployeeTeams() {
 		updateOrganizationEmployeeTeamLoading,
 		updateOrganizationTeamEmployee,
 		updateOrganizationTeamEmployeeActiveTaskLoading,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		editEmployeeIndexOrganizationTeamLoading,
+		updateOrganizationTeamEmployeeOrderOnList
 	};
 }

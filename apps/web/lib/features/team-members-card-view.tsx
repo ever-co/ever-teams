@@ -1,9 +1,10 @@
-import { useAuthenticateUser, useModal, useTeamInvitations } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
+import React from 'react';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -22,6 +23,28 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	const { teamInvitations } = useTeamInvitations();
 
+	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
+
+	// TODO: sort teamMembers by index
+	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
+	const dragTeamMember = React.useRef<number>(0);
+	const draggedOverTeamMember = React.useRef<number>(0);
+
+	function handleSort() {
+		const peopleClone = [...memberOrdereds];
+		const temp = peopleClone[dragTeamMember.current];
+		peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
+		peopleClone[draggedOverTeamMember.current] = temp;
+		setMemberOrdereds(peopleClone);
+		// TODO: update teamMembers index
+		handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
+		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
+	}
+
+	const handleChangeOrder = (employee: OT_Member, order: number) => {		
+		updateOrganizationTeamEmployeeOrderOnList(employee, order);
+	};
+
 	return (
 		<ul className="mt-7">
 			{/* Current authenticated user members */}
@@ -35,12 +58,22 @@ const TeamMembersCardView: React.FC<Props> = ({
 				leaveTo="opacity-0"
 			>
 				<li className="mb-4">
-					<UserTeamCard member={currentUser} active publicTeam={publicTeam} />
+					<UserTeamCard
+						member={currentUser}
+						active
+						publicTeam={publicTeam}
+						draggable={false}
+						currentExit={false}
+						onDragStart={() => (dragTeamMember.current = 0)}
+						onDragEnter={() => (draggedOverTeamMember.current = 0)}
+						onDragEnd={handleSort}
+						onDragOver={(e) => e.preventDefault()}
+					/>
 				</li>
 			</Transition>
 
 			{/* Team members list */}
-			{members.map((member) => {
+			{memberOrdereds.map((member, i) => {
 				return (
 					<Transition
 						key={member.id}
@@ -53,7 +86,20 @@ const TeamMembersCardView: React.FC<Props> = ({
 						leaveTo="opacity-0"
 					>
 						<li className="mb-4">
-							<UserTeamCard member={member} publicTeam={publicTeam} />
+							<UserTeamCard
+								member={member}
+								publicTeam={publicTeam}
+								currentExit={draggedOverTeamMember.current == i}
+								draggable={isTeamManager}
+								onDragStart={() => {
+									dragTeamMember.current = i;
+								}}
+								onDragEnter={() => {
+									draggedOverTeamMember.current = i;
+								}}
+								onDragEnd={handleSort}
+								onDragOver={(e) => e.preventDefault()}
+							/>
 						</li>
 					</Transition>
 				);
