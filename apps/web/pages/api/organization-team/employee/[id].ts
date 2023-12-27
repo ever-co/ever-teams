@@ -24,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				employeeId: id.toString()
 			});
 			break;
+
 		case 'PUT':
 			await addEmployeeOrganizationTeamOrderRequest({
 				bearer_token: access_token,
@@ -35,16 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			});
 			break;
 	}
-
-	// if (req.method !== 'DELETE' || !id) {
-	// 	return $res.status(405).json({});
-	// }
-
-	// await removeEmployeeOrganizationTeamRequest({
-	// 	bearer_token: access_token,
-	// 	tenantId,
-	// 	employeeId: id.toString()
-	// });
 
 	return;
 }
