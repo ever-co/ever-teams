@@ -11,7 +11,6 @@ import {
 	NotWorkingIcon,
 	OnlineIcon
 } from 'lib/components/svgs';
-import { Transition } from '@headlessui/react';
 import { Button, VerticalSeparator } from 'lib/components';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { useRecoilState } from 'recoil';
@@ -53,7 +52,7 @@ export function UserTeamBlockHeader() {
 	return (
 		<>
 			<div className="hidden sm:flex row font-normal pt-4 justify-between hidde dark:text-[#7B8089]">
-				<div className="flex items-center w-3/4">
+				<div className="flex items-center w-5/6">
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
@@ -179,29 +178,42 @@ export function UserTeamBlockHeader() {
 						</span>
 					</div>
 				</div>
-				<div className="w-1/4 flex justify-end gap-2	items-center">
+
+				<div className="1/6 flex justify-end gap-2 items-center">
 					{/* <Invite /> */}
-					<button
-						ref={hook.outclickFilterCard.ignoreElementRef}
-						className={clsxm('outline-none')}
-						onClick={() => hook.toggleFilterType('search')}
-					>
-						<SearchNormalIcon
-							className={clsxm(
-								'dark:stroke-white',
-								hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
-							)}
+					{hook.filterType === 'search' ? (
+						<TaskNameFilter
+							fullWidth={true}
+							value={hook.taskName}
+							setValue={hook.setTaskName}
+							close={() => {
+								hook.toggleFilterType('search');
+							}}
 						/>
-					</button>
+					) : (
+						<>
+							<button
+								ref={hook.outclickFilterCard.ignoreElementRef}
+								className={clsxm('outline-none')}
+								onClick={() => hook.toggleFilterType('search')}
+							>
+								<SearchNormalIcon
+									className={clsxm(
+										'dark:stroke-white'
+										// hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
+									)}
+								/>
+							</button>
+							<VerticalSeparator />
 
-					<VerticalSeparator />
-
-					<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
-						Invite
-					</Button>
+							<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
+								Invite
+							</Button>
+						</>
+					)}
 				</div>
 			</div>
-			<div className="hidden sm:flex w-1/2 row font-normal  justify-end hidde dark:text-[#7B8089]">
+			{/* <div className="hidden sm:flex w-1/2 row font-normal  justify-end hidde dark:text-[#7B8089]">
 				<Transition
 					show={hook.filterType !== undefined}
 					enter="transition duration-100 ease-out"
@@ -224,7 +236,7 @@ export function UserTeamBlockHeader() {
 						/>
 					)}
 				</Transition>
-			</div>
+			</div> */}
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);

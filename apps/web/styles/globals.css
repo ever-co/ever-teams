@@ -17,6 +17,10 @@ html.dark {
 	--tooltipBackground: #000;
 }
 
+.font-poppins {
+	font-family: 'Poppins';
+}
+
 @layer base {
 	html {
 		font-family: 'Poppins', sans-serif;

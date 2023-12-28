@@ -10,6 +10,7 @@ import { AppState } from 'lib/app/init-state';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
+import { ThemeProvider } from 'next-themes';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
@@ -56,10 +57,12 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 				)}
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
-				<body className={clsx('flex h-full flex-col')}>
+				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
-						<AppState />
-						{children}
+						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+							<AppState />
+							{children}
+						</ThemeProvider>
 					</RecoilRoot>
 				</body>
 			</NextIntlClientProvider>
