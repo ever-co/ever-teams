@@ -17,8 +17,6 @@ const Personal = () => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
-	console.log(JSON.parse(t('pages.settings.BREADCRUMB')));
-
 
 	return (
 		<>
