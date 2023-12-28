@@ -49,6 +49,7 @@ const TaskEstimationsInfo = () => {
 													key={member.id}
 													profilePicSrc={member.user?.imageUrl}
 													names={member.fullName}
+													userId={member.userId}
 													//@ts-ignore
 													time={
 														<TaskEstimate
