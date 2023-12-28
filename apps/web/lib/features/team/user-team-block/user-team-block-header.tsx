@@ -11,7 +11,6 @@ import {
 	NotWorkingIcon,
 	OnlineIcon
 } from 'lib/components/svgs';
-import { Transition } from '@headlessui/react';
 import { Button, VerticalSeparator } from 'lib/components';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { useRecoilState } from 'recoil';
