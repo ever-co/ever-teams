@@ -52,18 +52,17 @@ export function UserTeamBlockHeader() {
 	return (
 		<>
 			<div className="hidden sm:flex row font-normal pt-4 justify-between hidde dark:text-[#7B8089]">
-				<div className="flex items-center w-5/6">
+				<div className="flex items-center w-9/12">
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
-							activeFilter == 'all' &&
-								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
+							activeFilter == 'all' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('all')}
 					>
 						<StopCircleIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
 								activeFilter == 'all' &&
 									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
@@ -80,15 +79,14 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
-							activeFilter == 'idle' &&
-								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
+							activeFilter == 'idle' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('idle')}
 					>
 						<NotWorkingIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-300  dark:!text-white',
+								'w-7 h-7 p-1 !text-gray-300  dark:!text-white',
 								activeFilter == 'idle' && '!text-primary !fill-white  dark:!text-white dark:!fill-white'
 							)}
 						/>
@@ -104,15 +102,15 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
 							activeFilter == 'running' &&
-								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
+								'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('running')}
 					>
 						<TimerPlayIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
 								activeFilter == 'running' &&
 									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
@@ -129,15 +127,14 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
-							activeFilter == 'pause' &&
-								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
+							activeFilter == 'pause' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('pause')}
 					>
 						<PauseIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
 								activeFilter == 'pause' &&
 									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
@@ -154,15 +151,14 @@ export function UserTeamBlockHeader() {
 					</div>
 					<div
 						className={clsxm(
-							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer',
-							activeFilter == 'online' &&
-								'border-b-4 border-primary dark:border-white  text-primary dark:text-white'
+							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
+							activeFilter == 'online' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('online')}
 					>
 						<OnlineIcon
 							className={clsxm(
-								'w-8 h-8 p-1 !text-gray-400  dark:!text-white',
+								'w-7 h-7 p-1 !text-gray-400  dark:!text-white',
 								activeFilter == 'online' &&
 									'!text-primary !fill-white  dark:!text-primary dark:!fill-white'
 							)}
@@ -179,7 +175,7 @@ export function UserTeamBlockHeader() {
 					</div>
 				</div>
 
-				<div className="1/6 flex justify-end gap-2 items-center">
+				<div className="3/12 flex justify-end gap-2 items-center">
 					{/* <Invite /> */}
 					{hook.filterType === 'search' ? (
 						<TaskNameFilter
@@ -191,7 +187,7 @@ export function UserTeamBlockHeader() {
 							}}
 						/>
 					) : (
-						<>
+						<div className="flex gap-6">
 							<button
 								ref={hook.outclickFilterCard.ignoreElementRef}
 								className={clsxm('outline-none')}
@@ -204,12 +200,13 @@ export function UserTeamBlockHeader() {
 									)}
 								/>
 							</button>
+
 							<VerticalSeparator />
 
-							<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
+							<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none w-44" onClick={openModal}>
 								Invite
 							</Button>
-						</>
+						</div>
 					)}
 				</div>
 			</div>
