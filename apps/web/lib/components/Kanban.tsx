@@ -43,7 +43,7 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
 
 // this function changes column header color when dragged
 function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
-	const backgroundColor = snapshot.isDragging ? '#0000ee' : bgColor;
+	const backgroundColor = snapshot.isDragging ? '#3826a6' : bgColor;
 
 	return {
 		backgroundColor
