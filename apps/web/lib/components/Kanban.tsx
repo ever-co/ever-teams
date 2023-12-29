@@ -361,8 +361,8 @@ const KanbanDraggable = ({
 											type={'TASK'}
 											content={items}
 										/>
-										<div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
-											<AddIcon height={20} width={20} />
+										<div className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+											<AddIcon height={20} width={20} className="dark:stroke-white" />
 											<p>Create Issues</p>
 										</div>
 									</div>

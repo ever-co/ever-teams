@@ -91,7 +91,7 @@ const Kanban = () => {
 								onClick={() => {
 									setActiveTab(KanbanTabs.TODAY);
 								}}
-								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base ${
+								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
 									activeTab === KanbanTabs.TODAY
 										? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
 										: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
@@ -107,7 +107,7 @@ const Kanban = () => {
 								onClick={() => {
 									setActiveTab(KanbanTabs.YESTERDAY);
 								}}
-								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base  ${
+								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
 									activeTab === KanbanTabs.YESTERDAY
 										? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
 										: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
@@ -123,7 +123,7 @@ const Kanban = () => {
 								onClick={() => {
 									setActiveTab(KanbanTabs.TOMORROW);
 								}}
-								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base ${
+								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
 									activeTab === KanbanTabs.TOMORROW
 										? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
 										: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
