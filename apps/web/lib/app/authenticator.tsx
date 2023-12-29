@@ -55,14 +55,14 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		if (!user || loading) {
 			return <></>;
 		}
-		if ((!user || loading) && showPageSkeleton) {
+		if (showPageSkeleton) {
 			return <TeamPageSkeleton />;
 		}
 
 		return (
 			<div>
 				<Component {...props} />
-				{user && !isTeamMember && showCreateTeamModal && (
+				{!isTeamMember && showCreateTeamModal && (
 					<CreateTeamModal
 						open={showCreateTeamModal}
 						closeModal={() => {
@@ -74,7 +74,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 						}}
 					/>
 				)}
-				{user && !isTeamMember && showJoinTeamModal && (
+				{!isTeamMember && showJoinTeamModal && (
 					<JoinTeamModal
 						open={showJoinTeamModal}
 						closeModal={() => {
