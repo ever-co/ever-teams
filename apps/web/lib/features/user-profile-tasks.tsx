@@ -26,7 +26,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	const tasks = tabFiltered.tasksFiltered;
 
 	const otherTasks = tasks.filter((t) =>
-		profile.member?.running == true ? t.id !== profile?.activeUserTeamTask?.id : t
+		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
 	);
 
 	return (
