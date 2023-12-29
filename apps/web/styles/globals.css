@@ -18,7 +18,7 @@ html.dark {
 }
 
 .font-poppins {
-	font-family: 'Poppins';
+	font-family: 'Poppins' !important;
 }
 
 @layer base {

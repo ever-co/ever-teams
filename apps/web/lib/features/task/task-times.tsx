@@ -150,7 +150,7 @@ function TimeBlockInfo({
 						<span className="text-[#7B8089] text-center text-xs capitalize">
 							{t('common.WORKED_ON_TASK')} {t('common.TODAY')}
 						</span>
-						<Text className="text-lg font-semibold">
+						<Text className="text-lg">
 							{daily.h}h : {daily.m}m
 						</Text>
 					</div>
@@ -173,7 +173,7 @@ function TimeBlockInfo({
 						<span className="text-[#7B8089] text-center text-xs capitalize">
 							{t('common.WORKED_ON_TASK')} {t('common.TOTAL')}
 						</span>
-						<Text className="text-lg font-semibold">
+						<Text className="text-lg">
 							{total.h}h : {total.m}m
 						</Text>
 					</div>

@@ -52,36 +52,37 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			}
 		}, [queryCall, setUser, user]);
 
+		if (!user || loading) {
+			return <></>;
+		}
+		if (showPageSkeleton) {
+			return <TeamPageSkeleton />;
+		}
+
 		return (
-			<>
-				{(!user || loading) && showPageSkeleton ? (
-					<TeamPageSkeleton />
-				) : (
-					<>
-						<Component {...props} />
-						{user && !isTeamMember && showCreateTeamModal && (
-							<CreateTeamModal
-								open={showCreateTeamModal}
-								closeModal={() => {
-									closeModalIfNewTeamCreated();
-								}}
-								joinTeamModal={() => {
-									setShowCreateTeamModal(false);
-									setShowJoinTeamModal(true);
-								}}
-							/>
-						)}
-						{user && !isTeamMember && showJoinTeamModal && (
-							<JoinTeamModal
-								open={showJoinTeamModal}
-								closeModal={() => {
-									closeModalIfNewTeamCreated();
-								}}
-							/>
-						)}
-					</>
+			<div>
+				<Component {...props} />
+				{!isTeamMember && showCreateTeamModal && (
+					<CreateTeamModal
+						open={showCreateTeamModal}
+						closeModal={() => {
+							closeModalIfNewTeamCreated();
+						}}
+						joinTeamModal={() => {
+							setShowCreateTeamModal(false);
+							setShowJoinTeamModal(true);
+						}}
+					/>
 				)}
-			</>
+				{!isTeamMember && showJoinTeamModal && (
+					<JoinTeamModal
+						open={showJoinTeamModal}
+						closeModal={() => {
+							closeModalIfNewTeamCreated();
+						}}
+					/>
+				)}
+			</div>
 		);
 	};
 
