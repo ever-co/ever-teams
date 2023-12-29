@@ -17,7 +17,7 @@ type Props = PropsWithChildren<{
 
 export function MainLayout({ children, title, showTimer, publicTeam, notFound, className, childrenClassName }: Props) {
 	return (
-		<>
+		<div>
 			<style jsx global>
 				{`
 					:root {
@@ -48,6 +48,6 @@ export function MainLayout({ children, title, showTimer, publicTeam, notFound, c
 				</Container>
 			</div>
 			<Toaster />
-		</>
+		</div>
 	);
 }

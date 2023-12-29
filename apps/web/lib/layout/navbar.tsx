@@ -1,3 +1,5 @@
+'use client';
+
 import { useModal, useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { userState } from '@app/stores';
@@ -59,7 +61,7 @@ export function Navbar({
 	}, [pathname]);
 
 	return (
-		<>
+		<div>
 			{!user && !notFound && !publicTeam ? (
 				<HeaderSkeleton />
 			) : (
@@ -101,6 +103,6 @@ export function Navbar({
 					<RequestToJoinModal open={isOpen} closeModal={closeModal} />
 				</nav>
 			)}
-		</>
+		</div>
 	);
 }
