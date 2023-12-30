@@ -55,9 +55,9 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		if (!user || loading) {
 			return <></>;
 		}
-		if (showPageSkeleton) {
-			return <TeamPageSkeleton />;
-		}
+		// if (showPageSkeleton) {
+		// 	return <TeamPageSkeleton />;
+		// }
 
 		return (
 			<div>
