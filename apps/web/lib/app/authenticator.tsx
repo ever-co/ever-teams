@@ -3,7 +3,6 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
-import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 import { CreateTeamModal } from 'lib/features';
 import { JoinTeamModal } from 'lib/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
@@ -18,8 +17,6 @@ type Params = {
 };
 
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
-	const { showPageSkeleton = true } = params;
-
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useRecoilState(userState);
