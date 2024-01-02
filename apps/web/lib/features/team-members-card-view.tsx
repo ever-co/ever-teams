@@ -41,7 +41,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
 	}
 
-	const handleChangeOrder = (employee: OT_Member, order: number) => {		
+	const handleChangeOrder = (employee: OT_Member, order: number) => {
 		updateOrganizationTeamEmployeeOrderOnList(employee, order);
 	};
 
@@ -122,7 +122,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 				leaveFrom="opacity-100"
 				leaveTo="opacity-0"
 			>
-				{[1, 2].map((_, i) => {
+				{[0, 2].map((_, i) => {
 					return (
 						<li key={i} className="mt-3">
 							<UserTeamCardSkeleton />
