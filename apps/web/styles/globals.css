@@ -295,7 +295,7 @@ html.dark {
 	}
 }
 
-@keyframes pulse {
+/* @keyframes pulse {
 	0%,
 	100% {
 		opacity: 1;
@@ -304,7 +304,7 @@ html.dark {
 		opacity: 1;
 		transform: scale(1.2);
 	}
-}
+} */
 
 .progress-ring__circle {
 	stroke-dasharray: 400, 400;
