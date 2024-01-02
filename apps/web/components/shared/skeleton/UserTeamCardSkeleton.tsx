@@ -1,7 +1,6 @@
 import { clsxm } from '@app/utils';
 import { Card, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
-// import Skeleton from 'react-loading-skeleton';
 
 const UserTeamCardSkeletonCard = () => {
 	return (
@@ -59,8 +58,7 @@ const Skeleton = ({
 	width: number;
 	borderRadius: number;
 	className: string;
-}) => {
-	console.log({ borderRadius });
+}) => {	
 	return (
 		<div
 			className={clsxm(
