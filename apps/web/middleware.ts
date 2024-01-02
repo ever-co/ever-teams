@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
 		defaultLocale: 'en',
 		locales: ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'],
 		// pathnames,
-		localePrefix: undefined
+		localePrefix: 'never'
 	});
 
 	// Setting cookies on the response
