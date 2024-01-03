@@ -137,6 +137,8 @@ export const PersonalSettingForm = () => {
 					id: user.id
 				});
 			}
+
+			window.location.replace(`/${newLanguage}/settings/personal`);
 		},
 		[user, setValue, updateAvatar, changeLanguage]
 	);

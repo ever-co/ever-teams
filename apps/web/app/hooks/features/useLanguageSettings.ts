@@ -35,13 +35,15 @@ export function useLanguageSettings() {
 		if (language) {
 			changeLanguage(language);
 		}
-	}, []);
+	}, [changeLanguage, user]);
+
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
 			return queryCall(user.role.isSystem).then((res) => {
+				console.log(res.data.items);
 				setLanguages(
-					res?.data?.data?.items.filter((item: any) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
+					res?.data?.items.filter((item: any) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
 				);
 				return res;
 			});
