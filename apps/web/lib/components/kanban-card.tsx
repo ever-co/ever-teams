@@ -8,6 +8,7 @@ import { useTimerView } from '@app/hooks';
 import { pad } from '@app/helpers';
 import { TaskStatus } from '@app/constants';
 import { TaskIssueStatus } from 'lib/features';
+import Link from 'next/link';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -155,9 +156,9 @@ export default function Item(props: any) {
 						/>
 
 						<span className="text-grey text-normal mr-1">#{item.number}</span>
-						<span className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
+						<Link href={`/task/${item.id}`} className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
 							{item.title}
-						</span>
+						</Link>
 						<Priority level={1} />
 					</div>
 				</div>
