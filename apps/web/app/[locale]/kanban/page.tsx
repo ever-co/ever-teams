@@ -74,7 +74,7 @@ const Kanban = () => {
 											className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
 											style={stackImages(4, activeTeamMembers.length)}
 										>
-											{activeTeamMembers.length - numberOfImagesDisplayed}+
+											{(activeTeamMembers.length - numberOfImagesDisplayed) < 100 ? (activeTeamMembers.length - numberOfImagesDisplayed) : 99}+
 										</div>
 									)}
 								</div>
