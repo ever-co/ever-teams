@@ -15,11 +15,8 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
-import { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
-const Profile = ({ pageProps }: AppProps<MyAppProps>) => {
+const Profile = () => {
 	const profile = useUserProfilePage();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
@@ -33,44 +30,42 @@ const Profile = ({ pageProps }: AppProps<MyAppProps>) => {
 
 	return (
 		<>
-			<JitsuRoot pageProps={pageProps}>
-				<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-					<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
-						{/* Breadcrumb */}
-						<div className="flex items-center gap-8">
-							<Link href="/">
-								<ArrowLeft className="w-6 h-6" />
-							</Link>
+			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
+				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
+					{/* Breadcrumb */}
+					<div className="flex items-center gap-8">
+						<Link href="/">
+							<ArrowLeft className="w-6 h-6" />
+						</Link>
 
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
-						</div>
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
+					</div>
 
-						{/* User Profile Detail */}
-						<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
-							<UserProfileDetail member={profile.member} />
+					{/* User Profile Detail */}
+					<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
+						<UserProfileDetail member={profile.member} />
 
-							{profileIsAuthUser && isTrackingEnabled && (
-								<Timer
-									className={clsxm(
-										'p-5 rounded-2xl shadow-xlcard',
-										'dark:border-[0.125rem] dark:border-[#28292F]',
-										'dark:bg-[#1B1D22]'
-									)}
-								/>
-							)}
-						</div>
+						{profileIsAuthUser && isTrackingEnabled && (
+							<Timer
+								className={clsxm(
+									'p-5 rounded-2xl shadow-xlcard',
+									'dark:border-[0.125rem] dark:border-[#28292F]',
+									'dark:bg-[#1B1D22]'
+								)}
+							/>
+						)}
+					</div>
 
-						{/* TaskFilter */}
-						<TaskFilter profile={profile} hook={hook} />
-					</MainHeader>
-					{/* Divider */}
-					<div className="h-0.5 bg-[#FFFFFF14]"></div>
+					{/* TaskFilter */}
+					<TaskFilter profile={profile} hook={hook} />
+				</MainHeader>
+				{/* Divider */}
+				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-					<Container className="mb-10">
-						<UserProfileTask profile={profile} tabFiltered={hook} />
-					</Container>
-				</MainLayout>
-			</JitsuRoot>
+				<Container className="mb-10">
+					<UserProfileTask profile={profile} tabFiltered={hook} />
+				</Container>
+			</MainLayout>
 		</>
 	);
 };
