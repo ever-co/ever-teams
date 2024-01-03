@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { setNextPublicEnv } from '@app/env';
