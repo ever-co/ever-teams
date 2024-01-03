@@ -13,7 +13,6 @@ import '../../styles/globals.css';
 import { ThemeProvider } from 'next-themes';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
-import { AppProps } from 'next/app';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
