@@ -19,6 +19,7 @@ import validator from 'validator';
 import { EmailResetModal } from './email-reset-modal';
 import { LanguageDropDown } from './language-dropdown';
 import { TimezoneDropDown } from './timezone-dropdown';
+import { useRouter } from 'next/navigation';
 
 interface IValidation {
 	email: boolean;
@@ -41,6 +42,7 @@ export const PersonalSettingForm = () => {
 		phone: true
 	});
 	const t = useTranslations();
+	const router = useRouter();
 
 	const handleFullnameChange = useCallback(() => {
 		const values = getValues();
@@ -138,9 +140,9 @@ export const PersonalSettingForm = () => {
 				});
 			}
 
-			window.location.replace(`/${newLanguage}/settings/personal`);
+			router.replace(`/${newLanguage}/settings/personal`);
 		},
-		[user, setValue, updateAvatar, changeLanguage]
+		[user, setValue, updateAvatar, changeLanguage, router]
 	);
 
 	return (
