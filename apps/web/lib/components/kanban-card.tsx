@@ -8,6 +8,7 @@ import { useTimerView } from '@app/hooks';
 import { pad } from '@app/helpers';
 import { TaskStatus } from '@app/constants';
 import { TaskIssueStatus } from 'lib/features';
+import Link from 'next/link';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -107,6 +108,10 @@ export default function Item(props: any) {
 
 	const { hours, minutes, seconds } = useTimerView();
 
+	const imageRadius = 20;
+	const numberOfImagesDisplayed = 4;
+	const totalLength = (item.members.length + 1) * imageRadius;
+
 	// const handleTime = () => {
 	// 	if (item.status === TaskStatus.INPROGRESS) {
 	// 		startTimer();
@@ -135,11 +140,11 @@ export default function Item(props: any) {
 			data-index={index}
 			aria-label={`${item.status.name} ${item.content}`}
 		>
-			<div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
-				<div className="flex flex-col gap-5 grow">
+			<div className="grid grid-cols-4 w-full justify-between border-b border-b-gray-200 pb-4">
+				<div className="col-span-3 flex flex-col gap-5 grow w-full">
 					{item.tags && <TagList tags={item.tags} />}
 
-					<div className="flex flex-row flex-wrap items-center text-sm not-italic font-semibold">
+					<div className="flex flex-row flex-wrap text-wrap items-center text-sm not-italic font-semibold">
 						<TaskIssueStatus
 							showIssueLabels={false}
 							task={item}
@@ -151,13 +156,13 @@ export default function Item(props: any) {
 						/>
 
 						<span className="text-grey text-normal mr-1">#{item.number}</span>
-						<span className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
+						<Link href={`/task/${item.id}`} className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
 							{item.title}
-						</span>
+						</Link>
 						<Priority level={1} />
 					</div>
 				</div>
-				<div className="flex flex-col w-[48px] justify-between items-end">
+				<div className="flex flex-col justify-between items-end">
 					<VerticalThreeDot />
 
 					<CircularProgress percentage={10} />
@@ -181,8 +186,13 @@ export default function Item(props: any) {
 				)}
 
 				<div className="relative ">
-					<div className="w-10 flex h-fit flex-row justify-end items-center relative">
+					<div className="flex h-fit flex-row justify-end items-center relative"
+						style={{
+							width: `${totalLength}px`
+						}}
+					>
 						{item.members.map((option: any, index: number) => {
+							if (index < numberOfImagesDisplayed) {
 							return (
 								<div className="relative w-[40px] h-[40px]" key={index}>
 									<Image
@@ -194,7 +204,16 @@ export default function Item(props: any) {
 									/>
 								</div>
 							);
+							}
 						})}
+						{item.members.length > 4 && (
+							<div
+								className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
+								style={stackImages(4, item.members.length)}
+							>
+								{(item.members.length - numberOfImagesDisplayed) < 100 ? (item.members.length - numberOfImagesDisplayed) : 99}+
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
