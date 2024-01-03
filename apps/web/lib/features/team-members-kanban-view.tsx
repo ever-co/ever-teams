@@ -199,8 +199,8 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 										{columns.map((column: string, index: number) => {
 											return (
 												<React.Fragment key={index}>
+													<div className="flex flex-col" key={index}>
 													{isColumnCollapse(column) ? (
-														<div className={'order-last'} key={index}>
 															<EmptyKanbanDroppable
 																index={index}
 																title={column}
@@ -210,23 +210,21 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 																	column
 																)}
 															/>
-														</div>
 													) : (
 														<>
-															<div className="flex flex-col">
-																<KanbanDraggable
-																	key={index}
-																	index={index}
-																	title={column}
-																	items={items[column]}
-																	backgroundColor={getHeaderBackground(
-																		kanbanColumns,
-																		column
-																	)}
-																/>
-															</div>
+															<KanbanDraggable
+																key={index}
+																index={index}
+																title={column}
+																items={items[column]}
+																backgroundColor={getHeaderBackground(
+																	kanbanColumns,
+																	column
+																)}
+															/>
 														</>
 													)}
+													</div>
 												</React.Fragment>
 											);
 										})}
