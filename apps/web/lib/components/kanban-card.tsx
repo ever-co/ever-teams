@@ -135,11 +135,11 @@ export default function Item(props: any) {
 			data-index={index}
 			aria-label={`${item.status.name} ${item.content}`}
 		>
-			<div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
-				<div className="flex flex-col gap-5 grow">
+			<div className="grid grid-cols-4 w-full justify-between border-b border-b-gray-200 pb-4">
+				<div className="col-span-3 flex flex-col gap-5 grow w-full">
 					{item.tags && <TagList tags={item.tags} />}
 
-					<div className="flex flex-row flex-wrap items-center text-sm not-italic font-semibold">
+					<div className="flex flex-row flex-wrap text-wrap items-center text-sm not-italic font-semibold">
 						<TaskIssueStatus
 							showIssueLabels={false}
 							task={item}
@@ -157,7 +157,7 @@ export default function Item(props: any) {
 						<Priority level={1} />
 					</div>
 				</div>
-				<div className="flex flex-col w-[48px] justify-between items-end">
+				<div className="flex flex-col justify-between items-end">
 					<VerticalThreeDot />
 
 					<CircularProgress percentage={10} />
