@@ -39,7 +39,9 @@ const Kanban = () => {
 
 	return (
 		<>
-			<MainLayout>
+			<MainLayout
+				showTimer={true}
+			>
 				<div className={'relative bg-white dark:bg-dark--theme pt-20 -mt-8 px-[32px] mx-[0px] w-full'}>
 					<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 					<div className="flex flex-row items-center justify-between mt-[24px]">
