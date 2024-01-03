@@ -51,7 +51,10 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
-	const breadcrumb = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'}, { title: activeTeam?.name || '', href:'/'}];
+	const breadcrumb = [
+		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+		{ title: activeTeam?.name || '', href: '/' }
+	];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 	const { online } = useNetworkState();
 
@@ -137,7 +140,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 								</Tooltip>
 								<Tooltip label={'Kanban'} placement="top-start">
 									<Link
-										href={'/en/kanban'}
+										href={'/kanban'}
 										className={clsxm(
 											'rounded-md px-3 py-1 text-sm font-medium',
 											view === IssuesView.KANBAN
