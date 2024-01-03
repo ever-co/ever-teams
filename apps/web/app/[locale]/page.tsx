@@ -23,7 +23,7 @@ import { useState } from 'react';
 import { IssuesView } from '@app/constants';
 import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
-import KanbanIcon from '@components/ui/svgs/kanaban';
+import KanbanIcon from '@components/ui/svgs/kanban';
 import Offline from '@components/pages/offline';
 import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 import { useTranslations } from 'next-intl';

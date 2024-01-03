@@ -312,7 +312,9 @@
 		"Proguard",
 		"horcrux",
 		"dimesions",
-		"Ordereds"
+		"Ordereds",
+		"uidotdev",
+		"usehooks"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
