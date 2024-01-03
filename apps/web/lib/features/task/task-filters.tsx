@@ -436,15 +436,15 @@ export function TaskNameFilter({
 	};
 
 	return (
-		<div className={clsxm('flex flex-row w-full md:w-1/2 gap-2 mt-3 ml-auto', fullWidth && '!w-full')}>
+		<div className={clsxm('flex flex-row w-full md:w-1/2 gap-2 mt-0 ml-auto', fullWidth && '!w-full')}>
 			<InputField
 				value={tempValue}
 				autoFocus={true}
 				onChange={(e) => handleInputChange(e)}
 				placeholder={t('common.TYPE_SOMETHING') + '...'}
-				wrapperClassName="mb-0 dark:bg-transparent"
+				wrapperClassName="mb-0 dark:bg-transparent !w-full rounded-xl"
 			/>
-			<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl" variant="outline-danger" onClick={close}>
+			<Button className="py-1 md:px-3 px-1 min-w-[5rem] rounded-xl" variant="outline-danger" onClick={close}>
 				{t('common.CLOSE')}
 			</Button>
 		</div>

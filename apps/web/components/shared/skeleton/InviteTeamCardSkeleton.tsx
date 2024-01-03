@@ -1,4 +1,4 @@
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from './Skeleton';
 import { Card, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 
@@ -10,7 +10,7 @@ const InviteUserTeamCardSkeleton = () => {
 			</div>
 			<div className="w-[330px] px-4 flex space-x-3 items-center">
 				<div className="opacity-40 w-8 h-8 bg-slate-400 dark:bg-[#353741] rounded-full" />
-				<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#353741]" />
+				<Skeleton height={20} width={160} borderRadius={10} className="dark:bg-[#353741]" />
 			</div>
 			<VerticalSeparator />
 

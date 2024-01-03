@@ -113,18 +113,22 @@ export function Dropdown<T extends DropdownItem>({
 									/>
 								</div>
 							)}
-							<section className={"max-h-[9.125rem] overflow-y-auto"}>
-							{items.map((Item, index) => (
-								<Listbox.Option
-									key={Item.key ? Item.key : index}
-									value={Item}
-									disabled={!!Item.disabled}
-								>
-									{({ active, selected }) => {
-										return Item.Label ? <Item.Label active={active} selected={selected} /> : <></>;
-									}}
-								</Listbox.Option>
-							))}
+							<section className={'max-h-[80vh] overflow-y-auto'}>
+								{items.map((Item, index) => (
+									<Listbox.Option
+										key={Item.key ? Item.key : index}
+										value={Item}
+										disabled={!!Item.disabled}
+									>
+										{({ active, selected }) => {
+											return Item.Label ? (
+												<Item.Label active={active} selected={selected} />
+											) : (
+												<></>
+											);
+										}}
+									</Listbox.Option>
+								))}
 							</section>
 
 							{/* Additional content */}

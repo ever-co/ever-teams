@@ -17,6 +17,10 @@ html.dark {
 	--tooltipBackground: #000;
 }
 
+.font-poppins {
+	font-family: 'Poppins' !important;
+}
+
 @layer base {
 	html {
 		font-family: 'Poppins', sans-serif;
@@ -291,7 +295,7 @@ html.dark {
 	}
 }
 
-@keyframes pulse {
+/* @keyframes pulse {
 	0%,
 	100% {
 		opacity: 1;
@@ -300,7 +304,7 @@ html.dark {
 		opacity: 1;
 		transform: scale(1.2);
 	}
-}
+} */
 
 .progress-ring__circle {
 	stroke-dasharray: 400, 400;

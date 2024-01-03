@@ -21,13 +21,14 @@ interface DataTableProps<TData, TValue> {
 	data: TData[];
 	footerRows?: React.ReactNode[];
 	isError?: boolean;
+	isHeader?: boolean;
 	noResultsMessage?: {
 		heading: string;
 		content: string;
 	};
 }
 
-function DataTable<TData, TValue>({ columns, data, footerRows }: DataTableProps<TData, TValue>) {
+function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -57,21 +58,24 @@ function DataTable<TData, TValue>({ columns, data, footerRows }: DataTableProps<
 
 	return (
 		<Table className="border-transparent bg-light--theme-light dark:bg-dark--theme-light mt-8 w-full rounded-2xl">
-			<TableHeader>
-				{table.getHeaderGroups().map((headerGroup) => (
-					<TableRow key={headerGroup.id}>
-						{headerGroup.headers.map((header) => {
-							return (
-								<TableHead key={header.id}>
-									{header.isPlaceholder
-										? null
-										: flexRender(header.column.columnDef.header, header.getContext())}
-								</TableHead>
-							);
-						})}
-					</TableRow>
-				))}
-			</TableHeader>
+			{isHeader && (
+				<TableHeader>
+					{table.getHeaderGroups().map((headerGroup) => (
+						<TableRow key={headerGroup.id}>
+							{headerGroup.headers.map((header) => {
+								return (
+									<TableHead key={header.id}>
+										{header.isPlaceholder
+											? null
+											: flexRender(header.column.columnDef.header, header.getContext())}
+									</TableHead>
+								);
+							})}
+						</TableRow>
+					))}
+				</TableHeader>
+			)}
+
 			<TableBody className="divide-y divide-gray-200">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (

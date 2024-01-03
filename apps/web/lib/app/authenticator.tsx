@@ -3,7 +3,6 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
-import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 import { CreateTeamModal } from 'lib/features';
 import { JoinTeamModal } from 'lib/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
@@ -18,8 +17,6 @@ type Params = {
 };
 
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
-	const { showPageSkeleton = true } = params;
-
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useRecoilState(userState);
@@ -52,36 +49,37 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			}
 		}, [queryCall, setUser, user]);
 
+		if (!user || loading) {
+			return <></>;
+		}
+		// if (showPageSkeleton) {
+		// 	return <TeamPageSkeleton />;
+		// }
+
 		return (
-			<>
-				{(!user || loading) && showPageSkeleton ? (
-					<TeamPageSkeleton />
-				) : (
-					<>
-						<Component {...props} />
-						{user && !isTeamMember && showCreateTeamModal && (
-							<CreateTeamModal
-								open={showCreateTeamModal}
-								closeModal={() => {
-									closeModalIfNewTeamCreated();
-								}}
-								joinTeamModal={() => {
-									setShowCreateTeamModal(false);
-									setShowJoinTeamModal(true);
-								}}
-							/>
-						)}
-						{user && !isTeamMember && showJoinTeamModal && (
-							<JoinTeamModal
-								open={showJoinTeamModal}
-								closeModal={() => {
-									closeModalIfNewTeamCreated();
-								}}
-							/>
-						)}
-					</>
+			<div>
+				<Component {...props} />
+				{!isTeamMember && showCreateTeamModal && (
+					<CreateTeamModal
+						open={showCreateTeamModal}
+						closeModal={() => {
+							closeModalIfNewTeamCreated();
+						}}
+						joinTeamModal={() => {
+							setShowCreateTeamModal(false);
+							setShowJoinTeamModal(true);
+						}}
+					/>
 				)}
-			</>
+				{!isTeamMember && showJoinTeamModal && (
+					<JoinTeamModal
+						open={showJoinTeamModal}
+						closeModal={() => {
+							closeModalIfNewTeamCreated();
+						}}
+					/>
+				)}
+			</div>
 		);
 	};
 
