@@ -28,6 +28,7 @@ export function useLanguage() {
 				// Navigation to force rerender
 				// router.push({ pathname: router.pathname, query: router.query }, undefined, { locale: newLanguage });
 			}
+			// router.refresh();
 		},
 		[router, i18n]
 	);

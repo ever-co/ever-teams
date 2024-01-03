@@ -16,13 +16,14 @@ export const config = {
 	matcher: [
 		'/',
 		'/(en|de|ar|bg|zh|nl|de|he|it|pl|pt|ru|es|fr)/:path*',
-		// '/((?!_next|_vercel|.*\\..*).*)',
+		'/((?!api|_next|_vercel|.*\\..*).*)',
 		'/auth/(.*)',
 		'/profile/:path*',
 		'/settings/(.*)',
 		'/task(.*)',
 		'/meet(.*)',
-		'/board(.*)'
+		'/board(.*)',
+		'/kanban(.*)'
 	]
 };
 
@@ -31,7 +32,7 @@ export async function middleware(request: NextRequest) {
 		defaultLocale: 'en',
 		locales: ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'],
 		// pathnames,
-		localePrefix: 'never'
+		localePrefix: 'as-needed'
 	});
 
 	// Setting cookies on the response
