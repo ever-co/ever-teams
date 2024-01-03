@@ -107,6 +107,10 @@ export default function Item(props: any) {
 
 	const { hours, minutes, seconds } = useTimerView();
 
+	const imageRadius = 20;
+	const numberOfImagesDisplayed = 4;
+	const totalLength = (item.members.length + 1) * imageRadius;
+
 	// const handleTime = () => {
 	// 	if (item.status === TaskStatus.INPROGRESS) {
 	// 		startTimer();
@@ -181,8 +185,13 @@ export default function Item(props: any) {
 				)}
 
 				<div className="relative ">
-					<div className="w-10 flex h-fit flex-row justify-end items-center relative">
+					<div className="flex h-fit flex-row justify-end items-center relative"
+						style={{
+							width: `${totalLength}px`
+						}}
+					>
 						{item.members.map((option: any, index: number) => {
+							if (index < numberOfImagesDisplayed) {
 							return (
 								<div className="relative w-[40px] h-[40px]" key={index}>
 									<Image
@@ -194,7 +203,16 @@ export default function Item(props: any) {
 									/>
 								</div>
 							);
+							}
 						})}
+						{item.members.length > 4 && (
+							<div
+								className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
+								style={stackImages(4, item.members.length)}
+							>
+								{(item.members.length - numberOfImagesDisplayed) < 100 ? (item.members.length - numberOfImagesDisplayed) : 99}+
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
