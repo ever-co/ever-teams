@@ -29,15 +29,13 @@ import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-tab
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
-import { setNextPublicEnv } from '@app/env';
-import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
 import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import type { AppProps } from 'next/app';
-import { JitsuAnalytics } from '../../lib/components/services/jitsu-analytics';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
 type MyAppProps = {
 	jitsuConf?: JitsuOptions;
@@ -62,33 +60,10 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 		return <Offline />;
 	}
 
-	pageProps?.envs && setNextPublicEnv(pageProps.envs);
-
-	const jitsuConf = pageProps?.jitsuConf;
-	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
-
-	const isJitsuEnvsPresent: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
-	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
-
 	return (
 		<>
-			<JitsuProvider
-				options={
-					isJitsuEnvsPresent
-						? {
-								host: jitsuConf?.host ?? '',
-								writeKey: jitsuConf?.writeKey ?? undefined,
-								debug: jitsuConf?.debug,
-								cookieDomain: jitsuConf?.cookieDomain ?? undefined,
-								echoEvents: jitsuConf?.echoEvents
-						  }
-						: {
-								disabled: true
-						  }
-				}
-			>
+			<JitsuRoot pageProps={pageProps}>
 				<MainLayout>
-					<JitsuAnalytics user={pageProps?.user} />
 					<ChatwootWidget />
 					<MainHeader className="pb-1">
 						<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
@@ -181,7 +156,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 
 					<Container className="">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</Container>
 				</MainLayout>
-			</JitsuProvider>
+			</JitsuRoot>
 			<Analytics />
 		</>
 	);
