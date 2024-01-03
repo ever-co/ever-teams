@@ -33,48 +33,11 @@ const Kanban = () => {
 		{ title: 'Kanban Board', href: `/${currentLocale}/kanban` }
 	];
 
-	// const images = [
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	},
-	// 	{
-	// 		url: '/assets/cover/auth-bg-cover-dark.png',
-	// 		alt: ''
-	// 	}
-	// ]
-
 	const imageRadius = 20;
 	const numberOfImagesDisplayed = 3;
-	const numberOfImagesBeforeCollapse = 5;
+	
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 	const totalLength = (activeTeamMembers.length + 1) * imageRadius;
-
-	
 
 	return (
 		<>
