@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import { OT_Member } from '@app/interfaces';
 
 const Kanban = () => {
 	const { data } = useKanban();
@@ -32,46 +33,46 @@ const Kanban = () => {
 		{ title: 'Kanban Board', href: `/${currentLocale}/kanban` }
 	];
 
-	const images = [
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		},
-		{
-			url: '/assets/cover/auth-bg-cover-dark.png',
-			alt: ''
-		}
-	]
+	// const images = [
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	},
+	// 	{
+	// 		url: '/assets/cover/auth-bg-cover-dark.png',
+	// 		alt: ''
+	// 	}
+	// ]
 
 	const imageRadius = 20;
 	const numberOfImagesDisplayed = 3;
 	const numberOfImagesBeforeCollapse = 5;
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
-	const totalLength = (images.length + 1) * imageRadius;
+	const totalLength = (activeTeamMembers.length + 1) * imageRadius;
 
 	
 
@@ -89,21 +90,21 @@ const Kanban = () => {
 								<div
 									className="flex h-fit flex-row justify-end items-center relative "
 									style={{
-										width: `${images.length < 4 ? totalLength : (100)}px`
+										width: `${activeTeamMembers.length < 4 ? totalLength : (100)}px`
 									}}
 								>
-									{images.filter((_:any, index: number) => {
+									{activeTeamMembers.filter((_:any, index: number) => {
 										return index < numberOfImagesDisplayed
-									}).map((image: any, index: number) => {
+									}).map((image: OT_Member, index: number) => {
 											return (
 												<div 
 													className="h-fit w-fit absolute" 
-													style={stackImages(index, (images.length < numberOfImagesDisplayed ? images.length : (numberOfImagesDisplayed + 1)))}
+													style={stackImages(index, (activeTeamMembers.length < numberOfImagesDisplayed ? activeTeamMembers.length : (numberOfImagesDisplayed + 1)))}
 												>
 													<div className="relative w-[40px] h-[40px]" key={index}>
 														<Image
-															src={'/assets/cover/auth-bg-cover-dark.png'}
-															alt={image.alt}
+															src={image.employee.user ? image.employee.user.imageUrl : ""}
+															alt={""}
 															fill={true}
 															className="rounded-full border-2 border-white"
 														/>
@@ -111,12 +112,12 @@ const Kanban = () => {
 												</div>
 											);
 									})}
-									{images.length > numberOfImagesDisplayed && (
+									{activeTeamMembers.length > numberOfImagesDisplayed && (
 										<div
 											className="flex flex-row text-sm text-[#282048] dark:text-white border-2 border-[#0000001a] dark:border-white bg-white dark:bg-transparent rounded-full font-semibold items-center justify-center z-20 h-[40px] w-[40px]"
 											style={stackImages(3, 4)}
 										>
-											{images.length - numberOfImagesDisplayed}+
+											{activeTeamMembers.length - numberOfImagesDisplayed}+
 										</div>
 									)}
 								</div>
