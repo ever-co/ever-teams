@@ -28,10 +28,48 @@ const Kanban = () => {
 
 	const breadcrumbPath = [{title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/'},  {title: activeTeam?.name || '', href:'/'}, {title:'Kanban Board', href: `/${currentLocale}/kanban`}];
 
+	const images = [
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		},
+		{
+			url: '/assets/cover/auth-bg-cover-dark.png',
+			alt: ''
+		}
+	]
+
 	const imageRadius = 20;
-	const numberOfImagesDisplayed = 4;
+	const numberOfImagesDisplayed = 3;
+	const numberOfImagesBeforeCollapse = 5;
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
-	const totalLength = (activeTeamMembers.length + 1) * imageRadius;
+	const totalLength = (images.length + 1) * imageRadius;
+
+	
 
 	return (
 		<>
@@ -45,34 +83,38 @@ const Kanban = () => {
 						<div className="flex flex-row items-center gap-[12px]">
 							<p>08:00 ( UTC +04:30 )</p>
 							<VerticalLine />
-							<div className="relative ">
+							<div className="relative">
 								<div
 									className="flex h-fit flex-row justify-end items-center relative "
 									style={{
-										width: `${totalLength}px`
+										width: `${images.length < 4 ? totalLength : (100)}px`
 									}}
 								>
-									{activeTeamMembers.map((image: any, index: number) => {
-										if (index < numberOfImagesDisplayed) {
+									{images.filter((_:any, index: number) => {
+										return index < numberOfImagesDisplayed
+									}).map((image: any, index: number) => {
 											return (
-												<div className="relative w-[40px] h-[40px]" key={index}>
-													<Image
-														src={image.employee.user.imageUrl}
-														alt={image.title}
-														fill={true}
-														className="absolute rounded-full border-2 border-white"
-														style={stackImages(index, activeTeamMembers.length)}
-													/>
+												<div 
+													className="h-fit w-fit absolute" 
+													style={stackImages(index, (images.length < numberOfImagesDisplayed ? images.length : (numberOfImagesDisplayed + 1)))}
+												>
+													<div className="relative w-[40px] h-[40px]" key={index}>
+														<Image
+															src={'/assets/cover/auth-bg-cover-dark.png'}
+															alt={image.alt}
+															fill={true}
+															className="rounded-full border-2 border-white"
+														/>
+													</div>
 												</div>
 											);
-										}
 									})}
-									{activeTeamMembers.length > 4 && (
+									{images.length > numberOfImagesDisplayed && (
 										<div
-											className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
-											style={stackImages(4, activeTeamMembers.length)}
+											className="flex flex-row text-sm text-[#282048] dark:text-white border-2 border-[#0000001a] dark:border-white bg-white dark:bg-transparent rounded-full font-semibold items-center justify-center z-20 h-[40px] w-[40px]"
+											style={stackImages(3, 4)}
 										>
-											{activeTeamMembers.length - numberOfImagesDisplayed}+
+											{images.length - numberOfImagesDisplayed}+
 										</div>
 									)}
 								</div>
