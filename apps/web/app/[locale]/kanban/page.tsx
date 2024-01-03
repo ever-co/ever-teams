@@ -61,6 +61,7 @@ const Kanban = () => {
 									}).map((image: OT_Member, index: number) => {
 											return (
 												<div 
+													key={index}
 													className="h-fit w-fit absolute" 
 													style={stackImages(index, (activeTeamMembers.length < numberOfImagesDisplayed ? activeTeamMembers.length : (numberOfImagesDisplayed + 1)))}
 												>
