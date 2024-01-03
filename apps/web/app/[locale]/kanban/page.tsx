@@ -42,10 +42,9 @@ const Kanban = () => {
 			<MainLayout
 				showTimer={true}
 			>
-				<div className={'relative bg-white dark:bg-dark--theme pt-20 -mt-8 px-[32px] mx-[0px] w-full'}>
-					<Breadcrumb paths={breadcrumbPath} className="text-sm" />
-					<div className="flex flex-row items-center justify-between mt-[24px]">
-						<div></div>
+				<div className={'fixed flex flex-col justify-between bg-white dark:bg-dark--theme h-[20vh] z-10 px-[32px] mx-[0px] w-full'}>
+					<div className="flex flex-row items-center justify-between mt-[34px]">
+						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						<div className="flex flex-row items-center gap-[12px]">
 							<p>08:00 ( UTC +04:30 )</p>
 							<VerticalLine />
@@ -87,7 +86,7 @@ const Kanban = () => {
 							</button>
 						</div>
 					</div>
-					<div className="relative flex flex-row justify-between items-center mt-[36px]">
+					<div className="relative flex flex-row justify-between items-center ">
 						<div className="flex flex-row">
 							<div
 								onClick={() => {
@@ -141,6 +140,7 @@ const Kanban = () => {
 						<div></div>
 					</div>
 				</div>
+				<div className="mt-[20vh] overflow-y-auto max-h-[60vh] z-0">
 				{/** TODO:fetch teamtask based on days */}
 				{/** Kanbanboard for today tasks */}
 				{activeTab === KanbanTabs.TODAY && (
@@ -174,6 +174,7 @@ const Kanban = () => {
 						)}
 					</>
 				)}
+				</div>
 			</MainLayout>
 		</>
 	);
