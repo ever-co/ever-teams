@@ -140,40 +140,40 @@ const Kanban = () => {
 						<div></div>
 					</div>
 				</div>
-				<div className="mt-[20vh] overflow-y-auto max-h-[60vh] z-0">
-				{/** TODO:fetch teamtask based on days */}
-				{/** Kanbanboard for today tasks */}
-				{activeTab === KanbanTabs.TODAY && (
-					<>
-						{Object.keys(data).length > 0 ? (
-							<KanbanView kanbanBoardTasks={data} />
-						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</>
-				)}
+				<div className="mt-[20vh] z-0">
+					{/** TODO:fetch teamtask based on days */}
+					{/** Kanbanboard for today tasks */}
+					{activeTab === KanbanTabs.TODAY && (
+						<>
+							{Object.keys(data).length > 0 ? (
+								<KanbanView kanbanBoardTasks={data} />
+							) : (
+								<KanbanBoardSkeleton />
+							)}
+						</>
+					)}
 
-				{/** Kanbanboard for yesterday tasks */}
-				{activeTab === KanbanTabs.YESTERDAY && (
-					<>
-						{Object.keys(data).length > 0 ? (
-							<KanbanView kanbanBoardTasks={data} />
-						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</>
-				)}
+					{/** Kanbanboard for yesterday tasks */}
+					{activeTab === KanbanTabs.YESTERDAY && (
+						<>
+							{Object.keys(data).length > 0 ? (
+								<KanbanView kanbanBoardTasks={data} />
+							) : (
+								<KanbanBoardSkeleton />
+							)}
+						</>
+					)}
 
-				{/** Kanbanboard for tomorrow tasks */}
-				{activeTab === KanbanTabs.TOMORROW && (
-					<>
-						{Object.keys(data).length > 0 ? (
-							<KanbanView kanbanBoardTasks={data} />
-						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</>
-				)}
+					{/** Kanbanboard for tomorrow tasks */}
+					{activeTab === KanbanTabs.TOMORROW && (
+						<>
+							{Object.keys(data).length > 0 ? (
+								<KanbanView kanbanBoardTasks={data} />
+							) : (
+								<KanbanBoardSkeleton />
+							)}
+						</>
+					)}
 				</div>
 			</MainLayout>
 		</>
