@@ -104,7 +104,7 @@ export default function Item(props: any) {
 		taskAssignee.push({
 			id: member.user.id,
 			url: member.user.imageUrl,
-			alt: member.user.firstname
+			alt: member.user.firstName
 		})
 	});
 

@@ -40,7 +40,7 @@ const Kanban = () => {
 		teamMembers.push({
 			id: member.employee.user.id,
 			url: member.employee.user.imageUrl,
-			alt: member.employee.user.firstname
+			alt: member.employee.user.firstName
 		})
 	});
 

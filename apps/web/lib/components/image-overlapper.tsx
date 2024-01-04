@@ -42,7 +42,7 @@ export default function ImageOverlapper({
                     if (index < numberOfImagesDisplayed) {
                     return (
                             <Link href={`/profile/${image.id}`} className="relative w-[40px] h-[40px]" key={index}>
-                                <Tooltip label={image.alt} placement="top-start">
+                                <Tooltip label={image.alt} placement="bottom-end">
                                     <Image
                                         src={image.url}
                                         alt={`${image.alt} avatar`}
