@@ -14,7 +14,7 @@ import { MainLayout } from 'lib/layout';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { fullWidthState } from '@app/stores/fullWidth';

@@ -5,7 +5,7 @@ import { AuthCodeInputField, Button, Card, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 const AuthPasscode = ({ pageProps }: AppProps<MyAppProps>) => {
 	const t = useTranslations();
 

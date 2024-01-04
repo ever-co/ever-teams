@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { MyAppProps } from '@app/interfaces/AppProps';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Permissions = ({ pageProps }: AppProps<MyAppProps>) => {

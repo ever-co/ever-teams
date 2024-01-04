@@ -6,7 +6,7 @@ import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';

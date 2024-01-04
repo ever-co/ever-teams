@@ -4,7 +4,7 @@ import { MyAppProps } from '@app/interfaces/AppProps';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 
 const Board = dynamic(() => import('lib/features/integrations/boards'), {

@@ -6,7 +6,7 @@ import { BackdropLoader } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 
 const VerifyEmail = ({ pageProps }: AppProps<MyAppProps>) => {
 	const { loading } = useEmailVerifyToken();

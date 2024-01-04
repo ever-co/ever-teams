@@ -7,7 +7,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader } from 'lib/components';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
