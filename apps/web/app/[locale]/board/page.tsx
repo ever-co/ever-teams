@@ -1,10 +1,7 @@
 'use client';
 
-import { MyAppProps } from '@app/interfaces/AppProps';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 
 const Board = dynamic(() => import('lib/features/integrations/boards'), {
@@ -15,16 +12,14 @@ const Board = dynamic(() => import('lib/features/integrations/boards'), {
 function BoardPage() {
 	return (
 		<>
-
-				<div className="relative">
-					<Meta title="Board" />
-					<Board />
-				</div>
-			</JitsuRoot>
+			<div className="relative">
+				<Meta title="Board" />
+				<Board />
+			</div>
 		</>
 	);
 }
+
 export default withAuthentication(BoardPage, {
-	displayName: 'BoardPage',
-	showPageSkeleton: false
+	displayName: 'BoardIntegrationPage'
 });
