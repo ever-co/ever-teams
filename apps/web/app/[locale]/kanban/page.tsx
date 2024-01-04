@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import Skeleton from 'react-loading-skeleton';
 
 const Kanban = () => {
 	const { data } = useKanban();
@@ -46,9 +47,14 @@ const Kanban = () => {
 					<div className="flex flex-row items-center justify-between mt-[34px]">
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						<div className="flex flex-row items-center gap-[12px]">
-							<p>08:00 ( UTC +04:30 )</p>
+							{activeTeamMembers.length > 0 ? 
+								<p>08:00 ( UTC +04:30 )</p>
+							:
+								<Skeleton height={20} width={120} borderRadius={5} className="rounded-full dark:bg-[#353741]" />
+							}
 							<VerticalLine />
 							<div className="relative ">
+								{activeTeamMembers.length > 0 ? 
 								<div
 									className="flex h-fit flex-row justify-end items-center relative "
 									style={{
@@ -79,6 +85,9 @@ const Kanban = () => {
 										</div>
 									)}
 								</div>
+								:
+								<Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />
+								}
 							</div>
 							<VerticalLine />
 							<button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white">
