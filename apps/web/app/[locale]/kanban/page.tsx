@@ -7,15 +7,14 @@ import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton
 import VerticalLine from '@components/ui/svgs/vertificalline';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb } from 'lib/components';
-import { stackImages } from 'lib/components/kanban-card';
 import { AddIcon } from 'lib/components/svgs';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
-import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Skeleton from 'react-loading-skeleton';
+import ImageOverlapper, { IImageOverlapper } from 'lib/components/image-overlapper';
 
 const Kanban = () => {
 	const { data } = useKanban();
@@ -33,10 +32,17 @@ const Kanban = () => {
 		{ title: 'Kanban Board', href: `/${currentLocale}/kanban` }
 	];
 
-	const imageRadius = 20;
-	const numberOfImagesDisplayed = 4;
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
-	const totalLength = (activeTeamMembers.length + 1) * imageRadius;
+
+	const teamMembers: IImageOverlapper[] = [];
+
+	activeTeamMembers.map((member: any)=> {
+		teamMembers.push({
+			id: member.employee.user.id,
+			url: member.employee.user.imageUrl,
+			alt: member.employee.user.firstname
+		})
+	});
 
 	return (
 		<>
@@ -52,43 +58,8 @@ const Kanban = () => {
 							:
 								<Skeleton height={20} width={120} borderRadius={5} className="rounded-full dark:bg-[#353741]" />
 							}
-							<VerticalLine />
-							<div className="relative ">
-								{activeTeamMembers.length > 0 ? 
-								<div
-									className="flex h-fit flex-row justify-end items-center relative "
-									style={{
-										width: `${totalLength}px`
-									}}
-								>
-									{activeTeamMembers.map((image: any, index: number) => {
-										if (index < numberOfImagesDisplayed) {
-											return (
-												<div className="relative w-[40px] h-[40px]" key={index}>
-													<Image
-														src={image.employee.user.imageUrl}
-														alt={image.title}
-														fill={true}
-														className="absolute rounded-full border-2 border-white"
-														style={stackImages(index, activeTeamMembers.length)}
-													/>
-												</div>
-											);
-										}
-									})}
-									{activeTeamMembers.length > 4 && (
-										<div
-											className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
-											style={stackImages(4, activeTeamMembers.length)}
-										>
-											{(activeTeamMembers.length - numberOfImagesDisplayed) < 100 ? (activeTeamMembers.length - numberOfImagesDisplayed) : 99}+
-										</div>
-									)}
-								</div>
-								:
-								<Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />
-								}
-							</div>
+							<VerticalLine /> 
+								<ImageOverlapper images={teamMembers}/>
 							<VerticalLine />
 							<button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white">
 								<AddIcon width={24} height={24} className={'dark:stroke-white'} />
