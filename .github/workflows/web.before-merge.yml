@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Skip workflow if PR is from develop to main
         if: github.event.pull_request.head.ref == 'develop' && github.event.pull_request.base.ref == 'main'

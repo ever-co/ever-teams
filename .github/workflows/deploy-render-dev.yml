@@ -1,41 +1,41 @@
 name: Deploy to Render Dev
 
 on:
-    workflow_run:
-        workflows: ['Build and Publish Docker Images Dev']
-        branches: [render]
-        types:
-            - completed
+  workflow_run:
+    workflows: ['Build and Publish Docker Images Dev']
+    branches: [render]
+    types:
+      - completed
 
 jobs:
-    deploy-demo:
-        runs-on: ubuntu-latest
+  deploy-demo:
+    runs-on: ubuntu-latest
 
-        environment: dev
+    environment: dev
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Set up Render CLI
-              run: |
-                  wget  -O render https://github.com/render-oss/render-cli/releases/download/v0.1.8/render-linux-x86_64
-                  chmod +x render
-                  sudo mv render /usr/local/bin/render
-                  mkdir ~/.render
-                  cat << EOF > ~/.render/config.yaml
-                        version: 1
-                        sshPreserveHosts: true
-                        profiles:
-                          default:
-                            defaultRegion: oregon
-                            apiKey: ${{ secrets.RENDER_API_KEY }}
-                          demo:
-                            defaultRegion: oregon
-                            apiKey: ${{ secrets.RENDER_API_KEY }}
-                        EOF
+      - name: Set up Render CLI
+        run: |
+          wget  -O render https://github.com/render-oss/render-cli/releases/download/v0.1.8/render-linux-x86_64
+          chmod +x render
+          sudo mv render /usr/local/bin/render
+          mkdir ~/.render
+          cat << EOF > ~/.render/config.yaml
+                version: 1
+                sshPreserveHosts: true
+                profiles:
+                  default:
+                    defaultRegion: oregon
+                    apiKey: ${{ secrets.RENDER_API_KEY }}
+                  demo:
+                    defaultRegion: oregon
+                    apiKey: ${{ secrets.RENDER_API_KEY }}
+                EOF
 
-            - name: Deploy Services
-              run: |
-                  cp .render/render.dev.yaml ./render.yaml
-                  render blueprint launch --profile dev
+      - name: Deploy Services
+        run: |
+          cp .render/render.dev.yaml ./render.yaml
+          render blueprint launch --profile dev
