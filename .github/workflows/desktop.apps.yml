@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'ever-co/ever-gauzy'
           ref: develop
@@ -29,7 +29,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: buildjet/setup-node@v3
         with:
-          node-version: 16
+          node-version: '18'
           cache: 'yarn'
 
       - name: Change permissions
@@ -105,7 +105,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'ever-co/ever-gauzy'
           ref: develop
@@ -113,7 +113,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: '18'
           cache: 'yarn'
 
       - name: Fix node-gyp and Python
@@ -183,7 +183,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'ever-co/ever-gauzy'
           ref: develop
@@ -191,7 +191,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: '18'
           cache: 'yarn'
 
       - name: Fix node-gyp and Python
