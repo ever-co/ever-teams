@@ -2,13 +2,16 @@
 
 import { useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegration';
+import { MyAppProps } from '@app/interfaces/AppProps';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader } from 'lib/components';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
+import { AppProps } from 'next/app';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
-const GitHub = () => {
+const GitHub = ({ pageProps }: AppProps<MyAppProps>) => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const installation_id = searchParams?.get('installation_id');
@@ -69,9 +72,11 @@ const GitHub = () => {
 	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
 
 	return (
-		<div className="flex flex-col p-3">
-			<BackdropLoader show={true} title={t('common.GITHUB_LOADING_TEXT')} />
-		</div>
+		<JitsuRoot pageProps={pageProps}>
+			<div className="flex flex-col p-3">
+				<BackdropLoader show={true} title={t('common.GITHUB_LOADING_TEXT')} />
+			</div>
+		</JitsuRoot>
 	);
 };
 

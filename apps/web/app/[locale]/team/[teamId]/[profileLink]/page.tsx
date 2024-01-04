@@ -11,8 +11,11 @@ import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
+import { AppProps } from 'next/app';
+import { MyAppProps } from '@app/interfaces/AppProps';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
-const Team = () => {
+const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const router = useRouter();
 	const params = useParams();
 
@@ -56,23 +59,25 @@ const Team = () => {
 
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 	return (
-		<MainLayout publicTeam={publicTeam}>
-			<MainHeader>
-				<Breadcrumb paths={breadcrumb} className="text-sm" />
+		<JitsuRoot pageProps={pageProps}>
+			<MainLayout publicTeam={publicTeam}>
+				<MainHeader>
+					<Breadcrumb paths={breadcrumb} className="text-sm" />
 
-				<UnverifiedEmail />
+					<UnverifiedEmail />
 
-				{/* Header user card list */}
-				<UserTeamCardHeader />
-			</MainHeader>
+					{/* Header user card list */}
+					<UserTeamCardHeader />
+				</MainHeader>
 
-			{/* Divider */}
-			<div className="h-0.5 bg-[#FFFFFF14]"></div>
+				{/* Divider */}
+				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-			<Container>
-				<TeamMembers publicTeam={publicTeam} />
-			</Container>
-		</MainLayout>
+				<Container>
+					<TeamMembers publicTeam={publicTeam} />
+				</Container>
+			</MainLayout>
+		</JitsuRoot>
 	);
 };
 

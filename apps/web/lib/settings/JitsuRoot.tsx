@@ -19,6 +19,8 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 	pageProps?.envs && setNextPublicEnv(pageProps?.envs);
 	const jitsuConf = pageProps?.jitsuConf;
 	const isJitsuEnvs: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
+	console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
+	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
 	return (
 		<JitsuProvider

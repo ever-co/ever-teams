@@ -12,59 +12,63 @@ import { ArrowLeft } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
+import { AppProps } from 'next/app';
+import { MyAppProps } from '@app/interfaces/AppProps';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
-const Personal = () => {
+const Personal = ({ pageProps }: AppProps<MyAppProps>) => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
 
 	return (
 		<>
-			{!user ? (
-				<SettingsPersonalSkeleton />
-			) : (
-				<MainLayout className="items-start pb-1">
-					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
-						<Container>
-							<div className="flex items-center gap-8">
-								<Link href="/">
-									<ArrowLeft className="w-6 h-6" />
-								</Link>
+			<JitsuRoot pageProps={pageProps}>
+				{!user ? (
+					<SettingsPersonalSkeleton />
+				) : (
+					<MainLayout className="items-start pb-1">
+						<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
+							<Container>
+								<div className="flex items-center gap-8">
+									<Link href="/">
+										<ArrowLeft className="w-6 h-6" />
+									</Link>
 
-								<Breadcrumb paths={breadcrumb} className="text-sm" />
-							</div>
-						</Container>
-					</div>
+									<Breadcrumb paths={breadcrumb} className="text-sm" />
+								</div>
+							</Container>
+						</div>
 
-					<Container className="mb-10">
-						<div className="flex flex-col w-full sm:flex-row">
-							<LeftSideSettingMenu />
-							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
-								<Link href={'/settings/team'} className="w-full">
-									<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
-										Go to Team settings
-									</button>
-								</Link>
-								<Accordian
-									title={t('pages.settingsPersonal.HEADING_TITLE')}
-									className=" max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
-									id="general"
-								>
-									{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
+						<Container className="mb-10">
+							<div className="flex flex-col w-full sm:flex-row">
+								<LeftSideSettingMenu />
+								<div className="flex flex-col w-full mr-[20px] lg:mr-0">
+									<Link href={'/settings/team'} className="w-full">
+										<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
+											Go to Team settings
+										</button>
+									</Link>
+									<Accordian
+										title={t('pages.settingsPersonal.HEADING_TITLE')}
+										className=" max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
+										id="general"
+									>
+										{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
 										{t('pages.settings.HEADING_DESCRIPTION')}
 									</Text> */}
-									<ProfileAvatar />
-									<PersonalSettingForm />
-								</Accordian>
-								<Accordian
-									title={t('pages.settings.DANDER_ZONE')}
-									className="p-4 mt-4 dark:bg-dark--theme"
-									isDanger={true}
-									id="danger-zone"
-								>
-									<DangerZone />
-								</Accordian>
-								{/*
+										<ProfileAvatar />
+										<PersonalSettingForm />
+									</Accordian>
+									<Accordian
+										title={t('pages.settings.DANDER_ZONE')}
+										className="p-4 mt-4 dark:bg-dark--theme"
+										isDanger={true}
+										id="danger-zone"
+									>
+										<DangerZone />
+									</Accordian>
+									{/*
 								<Card
 									className="dark:bg-dark--theme p-[32px] mt-4"
 									shadow="bigger"
@@ -87,11 +91,12 @@ const Personal = () => {
 									</Text>
 									<DangerZone />
 								</Card> */}
+								</div>
 							</div>
-						</div>
-					</Container>
-				</MainLayout>
-			)}
+						</Container>
+					</MainLayout>
+				)}
+			</JitsuRoot>
 		</>
 	);
 };

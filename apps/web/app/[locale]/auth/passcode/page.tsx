@@ -3,18 +3,21 @@
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
+import { MyAppProps } from '@app/interfaces/AppProps';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
+import { AppProps } from 'next/app';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 
 import stc from 'string-to-color';
 
-export default function AuthPasscode() {
+function AuthPasscode({ pageProps }: AppProps<MyAppProps>) {
 	const form = useAuthenticationPasscode();
 	const t = useTranslations();
 	const router = useRouter();
@@ -25,41 +28,46 @@ export default function AuthPasscode() {
 			router.replace('/');
 		}
 	}, [router]);
+	console.log(`Jits p: ${JSON.stringify(pageProps)}`);
 
 	return (
-		<AuthLayout
-			title={
-				form.authScreen.screen === 'workspace'
-					? t('pages.authLogin.WORKSPACE')
-					: t('pages.authLogin.HEADING_TITLE')
-			}
-			description={
-				form.authScreen.screen === 'workspace' ? (
-					<>
-						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE1')}</span>
-						<br />
-						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
-					</>
-				) : (
-					t('pages.authLogin.HEADING_DESCRIPTION')
-				)
-			}
-		>
-			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
-					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
-					{form.authScreen.screen === 'passcode' && (
-						<PasscodeScreen form={form} className={clsxm('w-full')} />
-					)}
+		<JitsuRoot pageProps={pageProps}>
+			<AuthLayout
+				title={
+					form.authScreen.screen === 'workspace'
+						? t('pages.authLogin.WORKSPACE')
+						: t('pages.authLogin.HEADING_TITLE')
+				}
+				description={
+					form.authScreen.screen === 'workspace' ? (
+						<>
+							<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE1')}</span>
+							<br />
+							<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
+						</>
+					) : (
+						t('pages.authLogin.HEADING_DESCRIPTION')
+					)
+				}
+			>
+				<div className="w-[98%] md:w-[550px] overflow-x-hidden">
+					<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+						{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
+						{form.authScreen.screen === 'passcode' && (
+							<PasscodeScreen form={form} className={clsxm('w-full')} />
+						)}
 
-					{form.authScreen.screen === 'workspace' && (
-						<WorkSpaceScreen form={form} className={clsxm('w-full')} />
-					)}
+						{form.authScreen.screen === 'workspace' && (
+							<WorkSpaceScreen form={form} className={clsxm('w-full')} />
+						)}
+					</div>
 				</div>
-			</div>
-		</AuthLayout>
+			</AuthLayout>
+		</JitsuRoot>
 	);
 }
+
+export default AuthPasscode;
 
 function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();

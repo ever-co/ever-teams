@@ -11,20 +11,12 @@ import { AppState } from 'lib/app/init-state';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 import { ThemeProvider } from 'next-themes';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
 interface Props {
 	children: ReactNode;
 	params: { locale: string };
-	pageProps: {
-		jitsuConf?: JitsuOptions;
-		jitsuHost?: string;
-		envs: Record<string, string>;
-		user?: any;
-	};
 }
 
 // export function generateStaticParams() {
@@ -39,7 +31,7 @@ interface Props {
 // 	};
 // }
 
-const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
+const LocaleLayout = ({ children, params: { locale } }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
 	// Enable static rendering
@@ -70,7 +62,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 							<AppState />
 
-							<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+							{children}
 						</ThemeProvider>
 					</RecoilRoot>
 				</body>

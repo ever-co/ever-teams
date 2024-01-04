@@ -19,8 +19,11 @@ import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
+import { AppProps } from 'next/app';
+import { MyAppProps } from '@app/interfaces/AppProps';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
-const Team = () => {
+const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
@@ -28,119 +31,121 @@ const Team = () => {
 	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
 	return (
 		<>
-			{!user ? (
-				<SettingsTeamSkeleton />
-			) : (
-				<MainLayout className="items-start pb-1">
-					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
-						<Container>
-							<div className="flex items-center gap-8">
-								<Link href="/">
-									<ArrowLeft className="w-6 h-6" />
-								</Link>
-
-								<Breadcrumb paths={breadcrumb} className="text-sm" />
-							</div>
-						</Container>
-					</div>
-
-					<Container className="mb-10">
-						<div className="flex flex-col w-full lg:flex-row">
-							<LeftSideSettingMenu />
-							{isTeamMember ? (
-								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
-									<Link href={'/settings/personal'} className="w-full">
-										<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
-											Go to Personnal settings
-										</button>
+			<JitsuRoot pageProps={pageProps}>
+				{!user ? (
+					<SettingsTeamSkeleton />
+				) : (
+					<MainLayout className="items-start pb-1">
+						<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
+							<Container>
+								<div className="flex items-center gap-8">
+									<Link href="/">
+										<ArrowLeft className="w-6 h-6" />
 									</Link>
-									{/* General Settings */}
-									<Accordian
-										title={t('pages.settingsTeam.HEADING_TITLE')}
-										className="max-w-[66vw] p-4 mt-8 dark:bg-dark--theme"
-										id="general-settings"
-									>
-										<div className="flex flex-col">
-											<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />
-											<TeamSettingForm />
-										</div>
-									</Accordian>
 
-									{/* Invitations */}
-									{isTeamManager ? (
+									<Breadcrumb paths={breadcrumb} className="text-sm" />
+								</div>
+							</Container>
+						</div>
+
+						<Container className="mb-10">
+							<div className="flex flex-col w-full lg:flex-row">
+								<LeftSideSettingMenu />
+								{isTeamMember ? (
+									<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
+										<Link href={'/settings/personal'} className="w-full">
+											<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
+												Go to Personnal settings
+											</button>
+										</Link>
+										{/* General Settings */}
 										<Accordian
-											title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
+											title={t('pages.settingsTeam.HEADING_TITLE')}
+											className="max-w-[66vw] p-4 mt-8 dark:bg-dark--theme"
+											id="general-settings"
+										>
+											<div className="flex flex-col">
+												<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />
+												<TeamSettingForm />
+											</div>
+										</Accordian>
+
+										{/* Invitations */}
+										{isTeamManager ? (
+											<Accordian
+												title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
+												className="max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
+												id="invitations"
+											>
+												<InvitationSetting />
+											</Accordian>
+										) : (
+											''
+										)}
+
+										{/* Members */}
+										{isTeamManager ? (
+											<Accordian
+												title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
+												className="max-w-[66vw]  p-4 mt-4 dark:bg-dark--theme"
+												id="member"
+											>
+												<MemberSetting />
+											</Accordian>
+										) : (
+											<></>
+										)}
+
+										{isTeamManager && (
+											<Accordian
+												title={t('pages.settingsTeam.INTEGRATIONS')}
+												className="max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
+												id="integrations"
+											>
+												<IntegrationSetting />
+											</Accordian>
+										)}
+
+										{/* Issues Settings */}
+										<Accordian
+											title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
 											className="max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
-											id="invitations"
+											id="issues-settings"
 										>
-											<InvitationSetting />
+											<IssuesSettings />
 										</Accordian>
-									) : (
-										''
-									)}
 
-									{/* Members */}
-									{isTeamManager ? (
-										<Accordian
-											title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-											className="max-w-[66vw]  p-4 mt-4 dark:bg-dark--theme"
-											id="member"
-										>
-											<MemberSetting />
-										</Accordian>
-									) : (
-										<></>
-									)}
-
-									{isTeamManager && (
-										<Accordian
-											title={t('pages.settingsTeam.INTEGRATIONS')}
-											className="max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
-											id="integrations"
-										>
-											<IntegrationSetting />
-										</Accordian>
-									)}
-
-									{/* Issues Settings */}
-									<Accordian
-										title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-										className="max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
-										id="issues-settings"
-									>
-										<IssuesSettings />
-									</Accordian>
-
-									{/* TODO */}
-									{/* Notification Settings */}
-									{/* <Accordian
+										{/* TODO */}
+										{/* Notification Settings */}
+										{/* <Accordian
 										title={t('pages.settingsTeam.NOTIFICATION_HEADING_TITLE')}
 										className="p-4 mt-4 dark:bg-dark--theme"
 									>
 										<NotificationSettings />
 									</Accordian> */}
 
-									{/* Danger Zone */}
-									<Accordian
-										title={t('pages.settings.DANDER_ZONE')}
-										className="max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
-										isDanger={true}
-										id="danger-zones"
-									>
-										<DangerZoneTeam />
-									</Accordian>
-								</div>
-							) : (
-								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
-									<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
-										<NoTeam className="p-5 mt-0 xs:mt-0" />
-									</Card>
-								</div>
-							)}
-						</div>
-					</Container>
-				</MainLayout>
-			)}
+										{/* Danger Zone */}
+										<Accordian
+											title={t('pages.settings.DANDER_ZONE')}
+											className="max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
+											isDanger={true}
+											id="danger-zones"
+										>
+											<DangerZoneTeam />
+										</Accordian>
+									</div>
+								) : (
+									<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
+										<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+											<NoTeam className="p-5 mt-0 xs:mt-0" />
+										</Card>
+									</div>
+								)}
+							</div>
+						</Container>
+					</MainLayout>
+				)}
+			</JitsuRoot>
 		</>
 	);
 };
