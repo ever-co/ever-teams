@@ -49,7 +49,7 @@ const Kanban = () => {
 			<MainLayout
 				showTimer={true}
 			>
-				<div className={'fixed flex flex-col justify-between bg-white dark:bg-dark--theme h-[20vh] z-10 px-[32px] mx-[0px] w-full'}>
+				<div className={'fixed flex flex-col bg-white dark:bg-dark--theme h-auto z-10 px-[32px] mx-[0px] w-full'}>
 					<div className="flex flex-row items-center justify-between mt-[34px]">
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						<div className="flex flex-row items-center gap-[12px]">
@@ -120,7 +120,7 @@ const Kanban = () => {
 						<div></div>
 					</div>
 				</div>
-				<div className="mt-[20vh] z-0">
+				<div className="mt-[15vh] z-0">
 					{/** TODO:fetch teamtask based on days */}
 					{/** Kanbanboard for today tasks */}
 					{activeTab === KanbanTabs.TODAY && (
