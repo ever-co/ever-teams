@@ -17,7 +17,7 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 
 import stc from 'string-to-color';
 
-function AuthPasscode({ pageProps }: AppProps<MyAppProps>) {
+const AuthPasscode = ({ pageProps }: AppProps<MyAppProps>) => {
 	const form = useAuthenticationPasscode();
 	const t = useTranslations();
 	const router = useRouter();
@@ -64,7 +64,7 @@ function AuthPasscode({ pageProps }: AppProps<MyAppProps>) {
 			</AuthLayout>
 		</JitsuRoot>
 	);
-}
+};
 
 export default AuthPasscode;
 

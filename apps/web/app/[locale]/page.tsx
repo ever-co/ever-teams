@@ -36,7 +36,7 @@ import type { AppProps } from 'next/app';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 type MyAppProps = {
@@ -50,7 +50,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 	const t = useTranslations();
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
