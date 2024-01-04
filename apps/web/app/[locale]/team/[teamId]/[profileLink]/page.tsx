@@ -14,6 +14,7 @@ import { useRecoilState } from 'recoil';
 import { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const router = useRouter();
@@ -22,6 +23,7 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
 	const t = useTranslations();
 	const [publicTeam, setPublic] = useRecoilState(publicState);
+	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
@@ -60,8 +62,8 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 	return (
 		<JitsuRoot pageProps={pageProps}>
-			<MainLayout publicTeam={publicTeam}>
-				<MainHeader>
+			<MainLayout publicTeam={publicTeam} fullWidth={fullWidth}>
+				<MainHeader fullWidth={fullWidth}>
 					<Breadcrumb paths={breadcrumb} className="text-sm" />
 
 					<UnverifiedEmail />

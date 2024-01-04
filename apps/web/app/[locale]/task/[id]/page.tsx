@@ -17,6 +17,8 @@ import { useTranslations } from 'next-intl';
 import { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { fullWidthState } from '@app/stores/fullWidth';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
 	const profile = useUserProfilePage();
@@ -25,6 +27,7 @@ const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
 	const params = useParams();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const { getTaskById, detailedTask: task, getTasksByIdLoading } = useTeamTasks();
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const id = params?.id;
 
@@ -50,7 +53,7 @@ const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
 				childrenClassName="bg-white dark:bg-dark--theme"
 			>
 				<div className="pt-20 pb-4 -mt-8 bg-white dark:bg-dark--theme">
-					<Container>
+					<Container fullWidth={fullWidth}>
 						<div className="flex items-center gap-8">
 							<span
 								className="cursor-pointer"
@@ -66,7 +69,7 @@ const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
 					</Container>
 				</div>
 
-				<Container className="mb-10">
+				<Container fullWidth={fullWidth} className="mb-10">
 					<div className="flex flex-col w-full min-h-screen pt-5">
 						<section className="flex flex-col justify-between lg:flex-row lg:items-start 3xl:gap-8">
 							<section className="md:mr-5 max-w-[57rem] 3xl:max-w-none xl:w-full mb-4 md:mb-0">

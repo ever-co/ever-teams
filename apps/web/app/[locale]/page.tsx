@@ -36,6 +36,8 @@ import type { AppProps } from 'next/app';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { useRecoilState } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 type MyAppProps = {
 	jitsuConf?: JitsuOptions;
@@ -48,7 +50,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 	const t = useTranslations();
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const [fullWidth, setFullWidth] = React.useState(true);
+	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -64,7 +66,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 	return (
 		<>
 			<JitsuRoot pageProps={pageProps}>
-				<MainLayout fullWidth={fullWidth}>
+				<MainLayout>
 					<ChatwootWidget />
 					<MainHeader className="pb-1" fullWidth={fullWidth}>
 						<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
@@ -139,40 +141,24 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 							view !== IssuesView.CARDS ? 'pb-7' : ''
 						}`}
 					>
-						{fullWidth ? (
-							<div className="mx-8">
-								{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
-								{view === IssuesView.CARDS && isTeamMember ? (
-									<UserTeamCardHeader />
-								) : view === IssuesView.BLOCKS ? (
-									<UserTeamBlockHeader />
-								) : view === IssuesView.TABLE ? (
-									<UserTeamTableHeader />
-								) : null}
-							</div>
-						) : (
-							<Container>
-								{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
-								{view === IssuesView.CARDS && isTeamMember ? (
-									<UserTeamCardHeader />
-								) : view === IssuesView.BLOCKS ? (
-									<UserTeamBlockHeader />
-								) : view === IssuesView.TABLE ? (
-									<UserTeamTableHeader />
-								) : null}
-							</Container>
-						)}
+						<Container fullWidth={fullWidth}>
+							{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+							{view === IssuesView.CARDS && isTeamMember ? (
+								<UserTeamCardHeader />
+							) : view === IssuesView.BLOCKS ? (
+								<UserTeamBlockHeader />
+							) : view === IssuesView.TABLE ? (
+								<UserTeamTableHeader />
+							) : null}
+						</Container>
 
 						{/* Divider */}
 						<div className="h-0.5 bg-[#FFFFFF14]"></div>
 					</div>
-					{fullWidth ? (
-						<div className="mx-8">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</div>
-					) : (
-						<Container className="">
-							{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-						</Container>
-					)}
+
+					<Container className="" fullWidth={fullWidth}>
+						{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
+					</Container>
 				</MainLayout>
 			</JitsuRoot>
 			<Analytics />

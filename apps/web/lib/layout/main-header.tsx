@@ -7,7 +7,7 @@ export function MainHeader({ children, className, fullWidth }: PropsWithChildren
 	return (
 		<>
 			<div className={clsxm('bg-white dark:bg-dark--theme pt-20 -mt-8 pb-4', className)}>
-				{fullWidth ? <div className="mx-8">{children}</div> : <Container>{children}</Container>}
+				<Container fullWidth={fullWidth}>{children}</Container>
 			</div>
 			{/* <Divider /> */}
 		</>
