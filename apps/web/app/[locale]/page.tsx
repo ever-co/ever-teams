@@ -48,6 +48,7 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 	const t = useTranslations();
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const [fullWidth, setFullWidth] = React.useState(true);
 
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -63,9 +64,9 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 	return (
 		<>
 			<JitsuRoot pageProps={pageProps}>
-				<MainLayout>
+				<MainLayout fullWidth={fullWidth}>
 					<ChatwootWidget />
-					<MainHeader className="pb-1">
+					<MainHeader className="pb-1" fullWidth={fullWidth}>
 						<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
 							<div className="flex  items-center gap-8">
 								<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
@@ -138,23 +139,40 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 							view !== IssuesView.CARDS ? 'pb-7' : ''
 						}`}
 					>
-						<Container>
-							{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
-							{/* Header user card list */}
-							{view === IssuesView.CARDS && isTeamMember ? (
-								<UserTeamCardHeader />
-							) : view === IssuesView.BLOCKS ? (
-								<UserTeamBlockHeader />
-							) : view === IssuesView.TABLE ? (
-								<UserTeamTableHeader />
-							) : null}
-						</Container>
+						{fullWidth ? (
+							<div className="mx-8">
+								{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+								{view === IssuesView.CARDS && isTeamMember ? (
+									<UserTeamCardHeader />
+								) : view === IssuesView.BLOCKS ? (
+									<UserTeamBlockHeader />
+								) : view === IssuesView.TABLE ? (
+									<UserTeamTableHeader />
+								) : null}
+							</div>
+						) : (
+							<Container>
+								{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+								{view === IssuesView.CARDS && isTeamMember ? (
+									<UserTeamCardHeader />
+								) : view === IssuesView.BLOCKS ? (
+									<UserTeamBlockHeader />
+								) : view === IssuesView.TABLE ? (
+									<UserTeamTableHeader />
+								) : null}
+							</Container>
+						)}
 
 						{/* Divider */}
 						<div className="h-0.5 bg-[#FFFFFF14]"></div>
 					</div>
-
-					<Container className="">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</Container>
+					{fullWidth ? (
+						<div className="mx-8">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</div>
+					) : (
+						<Container className="">
+							{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
+						</Container>
+					)}
 				</MainLayout>
 			</JitsuRoot>
 			<Analytics />

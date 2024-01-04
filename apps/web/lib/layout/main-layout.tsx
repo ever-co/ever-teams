@@ -13,9 +13,19 @@ type Props = PropsWithChildren<{
 	notFound?: boolean;
 	className?: string;
 	childrenClassName?: string;
+	fullWidth?: boolean;
 }>;
 
-export function MainLayout({ children, title, showTimer, publicTeam, notFound, className, childrenClassName }: Props) {
+export function MainLayout({
+	children,
+	title,
+	showTimer,
+	publicTeam,
+	notFound,
+	className,
+	childrenClassName,
+	fullWidth
+}: Props) {
 	return (
 		<div>
 			<style jsx global>
@@ -41,11 +51,17 @@ export function MainLayout({ children, title, showTimer, publicTeam, notFound, c
 				)}
 			>
 				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>{children}</div>
-
-				<Container>
-					<Divider />
-					<Footer className="justify-between px-0" />
-				</Container>
+				{fullWidth ? (
+					<div className="px-8 w-full">
+						<Divider />
+						<Footer className="justify-between px-0" />
+					</div>
+				) : (
+					<Container>
+						<Divider />
+						<Footer className="justify-between px-0" />
+					</Container>
+				)}
 			</div>
 			<Toaster />
 		</div>

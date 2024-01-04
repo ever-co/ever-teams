@@ -28,7 +28,6 @@ function AuthPasscode({ pageProps }: AppProps<MyAppProps>) {
 			router.replace('/');
 		}
 	}, [router]);
-	console.log(`Jits p: ${JSON.stringify(pageProps)}`);
 
 	return (
 		<JitsuRoot pageProps={pageProps}>
