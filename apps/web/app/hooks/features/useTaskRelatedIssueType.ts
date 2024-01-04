@@ -1,3 +1,5 @@
+'use client';
+
 import { ITaskRelatedIssueTypeCreate } from '@app/interfaces';
 import {
 	createTaskRelatedIssueTypeAPI,

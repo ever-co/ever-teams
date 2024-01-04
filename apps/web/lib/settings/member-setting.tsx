@@ -3,11 +3,11 @@ import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { ChangeEvent, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { MemberTable } from './member-table';
 
 export const MemberSetting = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { activeTeam } = useOrganizationTeams();
 	const [filterString, setFilterString] = useState<string>('');
@@ -24,7 +24,7 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<Text className="flex-none flex-grow-0 w-1/5 mt-8 mb-2 text-xl font-normal text-gray-400">
+			<Text className="flex-none flex-grow-0 w-full md:w-1/5 mt-8 mb-2 text-xl font-normal text-gray-400">
 				{t('pages.settingsTeam.MEMBER_AND_ROLES')}
 			</Text>
 			<div className="flex items-center justify-between w-full mt-8">
@@ -46,7 +46,7 @@ export const MemberSetting = () => {
 			</div>
 
 			{members.length > 0 ? (
-				<div className="mb-8 mt-7">
+				<div className="mb-8 mt-7 overflow-y-auto">
 					<MemberTable members={members} />
 				</div>
 			) : (

@@ -1,6 +1,8 @@
+'use client';
+
 import { ITeamTask } from '@app/interfaces';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
@@ -14,8 +16,10 @@ export function useUserProfilePage() {
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
 
-	const router = useRouter();
-	const { memberId } = router.query;
+	const params = useParams();
+	const memberId: string = useMemo(() => {
+		return (params?.memberId || '') as string;
+	}, [params]);
 
 	const members = activeTeam?.members || [];
 

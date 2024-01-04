@@ -3,11 +3,11 @@ import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatio
 import { OT_Member } from '@app/interfaces';
 import { Switch } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Text } from './typography';
+import { useTranslations } from 'next-intl';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: OT_Member | undefined }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [enabled, setEnabled] = useState(activeManager?.isTrackingEnabled);
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();

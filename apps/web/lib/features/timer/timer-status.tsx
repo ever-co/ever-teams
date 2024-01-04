@@ -66,9 +66,8 @@ export function getTimerStatusValue(
 		  moment().diff(moment(timerStatus?.lastLog?.startedAt), 'hours') < 24 &&
 		  timerStatus?.lastLog?.source !== 'TEAMS'
 		? 'pause'
-		: member?.employee?.isOnline
-		? //  && member?.timerStatus !== 'running'
-		  'online'
+		: member?.employee?.isOnline && member?.timerStatus === 'running'
+		? 'online'
 		: !member?.totalTodayTasks?.length
 		? 'idle'
 		: member?.timerStatus || 'idle';

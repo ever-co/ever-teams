@@ -6,16 +6,16 @@ import { Disclosure } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
-import { useTranslation } from 'react-i18next';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { useTranslations } from 'next-intl';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
 		hours: 0,

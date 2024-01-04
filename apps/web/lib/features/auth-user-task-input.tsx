@@ -3,15 +3,15 @@ import { useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import { TaskEstimate } from './task/task-estimate';
 import { TaskInput } from './task/task-input';
 import { TaskLabels } from './task/task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task/task-status';
+import { useTranslations } from 'next-intl';
 
 export function AuthUserTaskInput({ className }: IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 	const { isTrackingEnabled } = useOrganizationTeams();
 

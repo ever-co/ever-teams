@@ -1,3 +1,5 @@
+'use client';
+
 import { ITaskPrioritiesCreate } from '@app/interfaces';
 import {
 	getTaskPrioritiesList,

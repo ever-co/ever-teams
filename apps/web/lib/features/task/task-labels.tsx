@@ -1,3 +1,5 @@
+'use client';
+
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { Button, Card, Modal } from 'lib/components';

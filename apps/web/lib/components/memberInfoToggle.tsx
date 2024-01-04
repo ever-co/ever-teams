@@ -1,11 +1,11 @@
 import { Switch } from '@headlessui/react';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Text } from './typography';
+import { useTranslations } from 'next-intl';
 
 export default function MemberInfo() {
 	const [enabled, setEnabled] = useState(true);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const handleChange = useCallback(() => {
 		setEnabled(!enabled);
 	}, [enabled]);

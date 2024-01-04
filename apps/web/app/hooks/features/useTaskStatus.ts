@@ -1,3 +1,5 @@
+'use client';
+
 import { ITaskStatusCreate } from '@app/interfaces';
 import {
 	createTaskStatusAPI,

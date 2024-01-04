@@ -1,6 +1,9 @@
+'use client';
+
 import { getAccessTokenCookie } from '@app/helpers';
 import { useCallback, useState } from 'react';
 import axios, { AxiosResponse } from 'axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export function useImageAssets() {
 	const [loading, setLoading] = useState(false);
@@ -15,7 +18,7 @@ export function useImageAssets() {
 			setLoading(true);
 
 			return axios
-				.post(process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL + `/api/image-assets/upload/${folder}`, formData, {
+				.post(GAUZY_API_BASE_SERVER_URL.value + `/api/image-assets/upload/${folder}`, formData, {
 					headers: {
 						'tenant-id': tenantId,
 						authorization: `Bearer ${bearer_token}`

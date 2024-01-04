@@ -6,8 +6,8 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Card, InputField } from 'lib/components';
 import { ArrowDown, Edit2Icon, TrashIcon } from 'lib/components/svgs';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { PermissonItem } from './permission-item';
+import { useTranslations } from 'next-intl';
 
 export const PermissionDropDown = ({
 	selectedRole,
@@ -82,7 +82,7 @@ export const PermissionDropDown = ({
 		[roles, filterValue]
 	);
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<>

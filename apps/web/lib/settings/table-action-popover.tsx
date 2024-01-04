@@ -5,7 +5,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { MenuIcon } from 'lib/components/svgs';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
 import { Fragment, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 export const TableActionPopover = ({ member, handleEdit }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);

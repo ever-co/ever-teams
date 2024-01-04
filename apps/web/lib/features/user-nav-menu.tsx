@@ -20,12 +20,16 @@ import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import stc from 'string-to-color';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import { TimerStatus, getTimerStatusValue } from './timer/timer-status';
+import Collaborate from '@components/shared/collaborate';
+import { TeamsDropDown } from './team/teams-dropdown';
+import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -121,16 +125,27 @@ function MenuIndicator() {
 
 function UserNavMenu() {
 	const { user, logOut } = useAuthenticateUser();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { timerStatus } = useTimer();
-	const { activeTeam } = useOrganizationTeams();
+	const { activeTeam, isTeamMember } = useOrganizationTeams();
 	const publicTeam = useRecoilValue(publicState);
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
 		return m.employee.userId === user?.id;
 	});
+
+	const pathname = usePathname();
+
+	const isTeamDropdownAllowed = useMemo(() => {
+		if (!pathname) {
+			return false;
+		}
+
+		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
+		return !notAllowedList.includes(pathname);
+	}, [pathname]);
 
 	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
@@ -258,6 +273,14 @@ function UserNavMenu() {
 					</li>
 				</ul>
 				<Divider className="mt-4 mb-3" />
+				<ul className="md:hidden flex flex-col gap-2 justify-start items-center">
+					{!publicTeam && <Collaborate />}
+
+					{isTeamMember && isTeamDropdownAllowed ? <TeamsDropDown publicTeam={publicTeam || false} /> : null}
+
+					<KeyboardShortcuts />
+					<Divider className="mt-1 mb-3 w-full" />
+				</ul>
 				<ul className="w-full">
 					{/* Logout menu */}
 					<li>

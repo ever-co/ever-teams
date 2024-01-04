@@ -1,8 +1,8 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -16,7 +16,7 @@ type Props = {
  * @returns A component that displays a user's profile page.
  */
 export function UserProfileTask({ profile, tabFiltered }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	// Get current timer seconds
 	const { time, timerStatus } = useLiveTimerStatus();
 
@@ -25,10 +25,15 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	 */
 	const tasks = tabFiltered.tasksFiltered;
 
+	const otherTasks = tasks.filter((t) =>
+		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
+	);
+
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) && (
+				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) &&
+				otherTasks.length > 0 && (
 					/* Displaying the current time. */
 					<div className="flex items-center mb-3 space-x-2">
 						<Text className="font-normal">{t('common.NOW')}</Text>
@@ -64,17 +69,17 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					/>
 				)}
 
-			{tabFiltered.tab === 'worked' && (
+			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 				<div className="flex items-center my-6 space-x-2">
 					<Text className="font-normal">
-						{t('common.LAST_24_HOURS')} ({tasks.length})
+						{t('common.LAST_24_HOURS')} ({otherTasks.length})
 					</Text>
 					<Divider className="flex-1" />
 				</div>
 			)}
 
 			<ul className="flex flex-col gap-6">
-				{tasks.map((task) => {
+				{otherTasks.map((task) => {
 					return (
 						<li key={task.id}>
 							<TaskCard

@@ -1,3 +1,5 @@
+'use client';
+
 import { Dropdown } from 'lib/components';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 

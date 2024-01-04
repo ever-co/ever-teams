@@ -8,7 +8,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, InputField, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
@@ -24,7 +24,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',

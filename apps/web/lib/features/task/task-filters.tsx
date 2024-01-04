@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
@@ -7,9 +9,9 @@ import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
+import { useTranslations } from 'next-intl';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -29,7 +31,7 @@ type StatusFilter = { [x in IStatusType]: string[] };
  * component.
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const defaultValue =
 		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
@@ -184,8 +186,13 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
-		<div className="relative z-10">
-			<div className={clsxm('flex justify-between xs:flex-row flex-col items-center', className)}>
+		<div className="relative w-full z-10">
+			<div
+				className={clsxm(
+					'flex justify-between flex-col xs:flex-row  items-center w-full flex-wrap-reverse lg:flex-nowrap',
+					className
+				)}
+			>
 				<TabsNav hook={hook} />
 				<InputFilters profile={profile} hook={hook} />
 			</div>
@@ -200,7 +207,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0 ease-out"
-				// className="pb-3"
+				className="w-full"
 				ref={hook.outclickFilterCard.targetEl}
 			>
 				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
@@ -224,7 +231,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
  * @returns A div with a button, a vertical separator, a button, and a button.
  */
 function InputFilters({ hook, profile }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
 
 	const osSpecificAssignTaskTooltipLabel = 'A';
@@ -291,22 +298,23 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex mt-4 space-x-1 md:space-x-4 md:mt-0">
+		<nav className="flex justify-center md:justify-start items-center mt-4 space-x-1 w-full md:space-x-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
+
 				return (
-					<Tooltip key={i} placement="top-start" label={item.description}>
+					<Tooltip key={i} placement="top-start" label={item.description} className="">
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								'md:text-lg text-xs text-gray-500 font-normal outline-none py-[1.5rem] px-[2.5rem] relative mt-4 md:mt-0 min-w-[10.625rem]',
+								`md:text-lg text-xs text-gray-500 font-normal outline-none md:py-[1.5rem] px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
 								active && ['text-primary dark:text-white']
 							)}
 						>
 							{item.name}{' '}
 							<span
 								className={clsxm(
-									'bg-gray-lighter p-1 px-2 text-xs rounded-md',
+									'bg-gray-lighter p-1 px-2 text-xs rounded-md m-1',
 									active && ['bg-primary dark:bg-[#47484D] text-white']
 								)}
 							>
@@ -334,7 +342,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  */
 function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const [key, setKey] = useState(0);
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row">
@@ -342,28 +350,28 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
-					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
-					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
-					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
 
@@ -407,7 +415,7 @@ export function TaskNameFilter({
 	close: () => void;
 	fullWidth?: boolean;
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 	const [tempValue, setTempValue] = useState<string>('');
@@ -428,15 +436,15 @@ export function TaskNameFilter({
 	};
 
 	return (
-		<div className={clsxm('flex flex-row w-1/2 gap-2 mt-3 ml-auto', fullWidth && '!w-full')}>
+		<div className={clsxm('flex flex-row w-full md:w-1/2 gap-2 mt-0 ml-auto', fullWidth && '!w-full')}>
 			<InputField
 				value={tempValue}
 				autoFocus={true}
 				onChange={(e) => handleInputChange(e)}
 				placeholder={t('common.TYPE_SOMETHING') + '...'}
-				wrapperClassName="mb-0 dark:bg-transparent"
+				wrapperClassName="mb-0 dark:bg-transparent !w-full rounded-xl"
 			/>
-			<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl" variant="outline-danger" onClick={close}>
+			<Button className="py-1 md:px-3 px-1 min-w-[5rem] rounded-xl" variant="outline-danger" onClick={close}>
 				{t('common.CLOSE')}
 			</Button>
 		</div>

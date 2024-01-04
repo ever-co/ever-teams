@@ -1,6 +1,6 @@
 import { useAuthenticationPasscode } from '@app/hooks';
 import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 /**
  * Join team modal
@@ -18,7 +18,7 @@ export function JoinTeamModal({ open, closeModal }: { open: boolean; closeModal:
 		inputCodeRef
 	} = useAuthenticationPasscode();
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>

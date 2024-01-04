@@ -10,14 +10,14 @@ import { Paginate } from 'lib/components/pagination';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<OT_Member>(members);
 	const { updateAvatar } = useSettings();
@@ -80,37 +80,37 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 						<tr>
 							<th
 								scope="col"
-								className="pl-0 py-3 text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-56"
+								className="pl-0 py-3 text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-56"
 							>
 								{t('common.NAME')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-40"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-40"
 							>
 								{t('common.POSITION')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-44"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-44"
 							>
 								{t('common.ROLES')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-48"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-48"
 							>
 								{t('common.JOIN_OR_LEFT')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-32"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-32"
 							>
 								{t('common.STATUS')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-6"
+								className="text-sm font-normal capitalize  text-[#B1AEBC] dark:text-white w-6"
 							></th>
 						</tr>
 					</thead>

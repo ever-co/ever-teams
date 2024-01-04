@@ -1,10 +1,10 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text, ThemeToggler } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export function Footer({ className }: IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<footer className={clsxm('flex flex-col xs:flex-row justify-around items-center w-full py-6 px-3', className)}>

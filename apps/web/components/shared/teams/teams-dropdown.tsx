@@ -4,13 +4,13 @@ import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { useTranslation } from 'react-i18next';
 import { Fragment, useState } from 'react';
 import { Spinner } from '../../ui/loaders/spinner';
+import { useTranslations } from 'next-intl';
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
 	const { teams, activeTeam, setActiveTeam, teamsFetching } = useOrganizationTeams();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className="w-[290px] max-w-sm">
 			<Popover className="relative">
@@ -111,7 +111,7 @@ export const TeamsDropDown = () => {
 function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<boolean>) => void }) {
 	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);

@@ -396,6 +396,10 @@
 
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!"
+		},
+		"offline": {
+			"HEADING_TITLE": "网络断开连接！",
+			"HEADING_DESCRIPTION": "您目前处于离线状态，请检查您的互联网连接..."
 		}
 	},
 
@@ -416,6 +420,10 @@
 		"ASSIGN_NEW_TASK": "分配新任务",
 		"ASSIGNED_BY": "分配者",
 		"NO_ONE_FOR_TASK": "此任务未分配",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "今天在这个任务上工作了",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "总共在这个任务上工作了",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "今天在所有任务上工作了",
+		"TASKS_FOR_TOOLTIP": "的任务",
 		"taskLabel": {
 			"WORK_LABEL": "已处理",
 			"TASK_ASSIGNED": "已分配",
@@ -441,7 +449,9 @@
 				"TITLE": "总共处理",
 				"DESCRIPTION": "今天",
 				"LABEL": "今天总共处理"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "员工今天和总共在任务上工作了多少小时",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "员工今天在所选团队的所有任务上工作了多少小时"
 		},
 		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务"
 	},

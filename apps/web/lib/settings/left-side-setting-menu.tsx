@@ -5,26 +5,33 @@ import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useParams, usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
+import Link from 'next/link';
 
 export const LeftSideSettingMenu = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
-	const router = useRouter();
+	const pathname = usePathname();
+	const params = useParams();
+	const locale = useMemo(() => {
+		return params?.locale || '';
+	}, [params]);
 	const [activePage, setActivePage] = useState('');
 
 	const [user] = useRecoilState(userState);
 	const { isTeamManager } = useIsMemberManager(user);
 
 	useEffect(() => {
-		setActivePage(router.route);
-	}, [router.route]);
+		if (pathname) {
+			setActivePage(pathname);
+		}
+	}, [pathname]);
 
 	useEffect(() => {
-		const url = new URL(window.location.origin + router.asPath);
+		const url = new URL(window.location.origin + pathname);
 		window.setTimeout(() => {
 			if (!url.hash) return;
 
@@ -36,12 +43,12 @@ export const LeftSideSettingMenu = () => {
 		}, 100);
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [router.pathname]);
+	}, [pathname]);
 
 	const onLinkClick = useCallback(
 		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 			const url = new URL(e.currentTarget.href);
-			if (url.pathname !== router.pathname) {
+			if (url.pathname !== pathname) {
 				return;
 			}
 			e.stopPropagation();
@@ -53,12 +60,12 @@ export const LeftSideSettingMenu = () => {
 				scrollToElement(rect, 100);
 			}
 		},
-		[router]
+		[pathname]
 	);
 
 	return (
 		<>
-			<div className="sm:w-[320px] mt-[36px] sm:mr-[56px] mx-auto">
+			<div className="hidden lg:block lg:w-[320px] mt-[36px] sm:mr-[56px] mx-auto">
 				<Text className="text-4xl font-normal mb-[40px] text-center sm:text-left">{t('common.SETTINGS')}</Text>
 				<div className="flex sm:block">
 					<SidebarAccordian
@@ -92,7 +99,11 @@ export const LeftSideSettingMenu = () => {
 						<div className="flex flex-col">
 							{PersonalAccordianData.map((ad, index) => {
 								return (
-									<a onClick={onLinkClick} href={`/settings/personal${ad.href}`} key={index}>
+									<Link
+										onClick={onLinkClick}
+										href={`/${locale}/settings/personal${ad.href}`}
+										key={index}
+									>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -100,7 +111,7 @@ export const LeftSideSettingMenu = () => {
 										>
 											{ad.title}
 										</Text>
-									</a>
+									</Link>
 								);
 							})}
 						</div>
@@ -136,7 +147,11 @@ export const LeftSideSettingMenu = () => {
 							{TeamAccordianData.filter((ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager).map(
 								(ad, index) => {
 									return (
-										<a onClick={onLinkClick} href={`/settings/team${ad.href}`} key={index}>
+										<Link
+											onClick={onLinkClick}
+											href={`/${locale}/settings/team${ad.href}`}
+											key={index}
+										>
 											<Text
 												className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 												key={index}
@@ -144,7 +159,7 @@ export const LeftSideSettingMenu = () => {
 											>
 												{ad.title}
 											</Text>
-										</a>
+										</Link>
 									);
 								}
 							)}

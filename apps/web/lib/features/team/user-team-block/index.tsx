@@ -6,7 +6,7 @@ import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, HorizontalSeparator, InputField, Text } from 'lib/components';
 import { TaskTimes, getTimerStatusValue } from 'lib/features';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
@@ -29,7 +29,7 @@ const cardColorType = {
 };
 
 export function UserTeamBlock({ className, active, member, publicTeam = false }: IUserTeamBlock) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -44,27 +44,22 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 
-	let totalWork = <></>;
-	if (memberInfo.isAuthUser) {
-		const { h, m } = secondsToTime(
-			((member?.totalTodayTasks &&
-				member?.totalTodayTasks.reduce(
-					(previousValue, currentValue) => previousValue + currentValue.duration,
-					0
-				)) ||
-				activeTaskTotalStat?.duration ||
-				0) + addSeconds
-		);
+	const { h, m } = secondsToTime(
+		((member?.totalTodayTasks &&
+			member?.totalTodayTasks.reduce(
+				(previousValue, currentValue) => previousValue + currentValue.duration,
+				0
+			)) ||
+			activeTaskTotalStat?.duration ||
+			0) + addSeconds
+	);
 
-		totalWork = (
-			<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
-				<span className="text-xs text-gray-500 text-center	">{t('common.TOTAL_WORKED_TODAY')}:</span>
-				<Text className="text-sm">
-					{h}h : {m}m
-				</Text>
-			</div>
-		);
-	}
+	const totalWork = (
+		<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
+			<span className="text-xs text-gray-500 text-center	capitalize">{t('common.TOTAL_WORKED_TODAY')}</span>
+			<Text className="text-sm">{memberInfo.isAuthUser ? `${h}h : ${m}m` : `0h : 0m`}</Text>
+		</div>
+	);
 
 	const menu = (
 		<>
@@ -105,6 +100,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 				<HorizontalSeparator />
 
 				{/* Task information */}
+
 				<TaskBlockInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}

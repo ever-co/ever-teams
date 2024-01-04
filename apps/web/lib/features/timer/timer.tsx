@@ -3,7 +3,7 @@ import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@app/hooks';
 import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 
 import {
@@ -17,7 +17,7 @@ import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
 
 export function Timer({ className }: IClassName) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { hours, minutes, seconds, activeTaskEstimation, ms_p, canRunTimer, timerHanlder, timerStatus, disabled } =
 		useTimerView();
 
@@ -58,7 +58,7 @@ export function Timer({ className }: IClassName) {
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
-		<div className={clsxm('flex flex-row mb-12 2xl:mb-0', className)}>
+		<div className={clsxm('flex flex-row mb-6 md:mb-12 2xl:mb-0', className)}>
 			<div className="flex items-start justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
 				<div className="w-[11rem]">
 					<Text.Heading

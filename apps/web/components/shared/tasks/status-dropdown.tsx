@@ -2,10 +2,10 @@ import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'react-i18next';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Spinner } from '../../ui/loaders/spinner';
 import { StatusIcon, statusIcons } from '../../ui/status-icons';
+import { useTranslations } from 'next-intl';
 
 const statusKeys = Object.keys(statusIcons) as ITaskStatus[];
 
@@ -17,7 +17,7 @@ const StatusDropdown = () => {
 
 export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 	const { updateTask, updateLoading } = useTeamTasks();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [selected, setSelected] = useState<ITaskStatus | null>(task?.status || null);
 
 	useEffect(() => {

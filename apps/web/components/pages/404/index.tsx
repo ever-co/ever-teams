@@ -1,25 +1,27 @@
+'use client';
+import SadCry from '@components/ui/svgs/sad-cry';
 import { Button, Text } from 'lib/components';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+
 function NotFound() {
-	const { t } = useTranslation();
 	return (
-		<div className="mt-28">
-			<div className="m-auto w-[218px] h-[218px] rounded-full relative flex justify-center items-center text-center p-5 bg-[#6755c933] dark:bg-light--theme-light">
-				<Text className="text-6xl font-semibold text-primary">404</Text>
+		<div className="mt-28 flex flex-col gap-7 items-center">
+			<div className="m-auto relative flex justify-center items-center gap-4 text-center ">
+				<SadCry width={97} height={97} />
+				<Text className="text-[78px] font-semibold text-chetwodeBlue">404!</Text>
 			</div>
 
-			<Text className="text-2xl font-normal text-center mt-10 text-[#282048] dark:text-light--theme">
-				{t('pages.page404.HEADING_TITLE')}
+			<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
+				Page not found !
 			</Text>
-			<Text className="mt-5 text-base font-normal text-center text-gray-400">
-				{t('pages.page404.HEADING_DESCRIPTION')}
-			</Text>
-			<Link href="/">
-				<Button className="m-auto mt-10 font-normal rounded-lg pl-7 pr-7">
-					{t('pages.page404.LINK_LABEL')}
-				</Button>
-			</Link>
+			<div className="flex flex-col gap-4">
+				<Text className="text-[20px] font-normal text-center text-gray-400">
+					{`We looked, but can't find it ....`}
+				</Text>
+				<Link href="/">
+					<Button className="m-auto mt-10 font-normal rounded-lg pl-7 pr-7">Home</Button>
+				</Link>
+			</div>
 		</div>
 	);
 }

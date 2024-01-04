@@ -1,3 +1,5 @@
+'use client';
+
 import { APPLICATION_LANGUAGES_CODE } from '@app/constants';
 import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@app/helpers/cookies';
 import { getLanguageListAPI } from '@app/services/client/api';
@@ -33,13 +35,14 @@ export function useLanguageSettings() {
 		if (language) {
 			changeLanguage(language);
 		}
-	}, []);
+	}, [changeLanguage, user]);
+
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
-			return queryCall(user.role.isSystem).then((res) => {
+			return queryCall(user.role.isSystem).then((res) => {				
 				setLanguages(
-					res?.data?.data?.items.filter((item: any) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
+					res?.data?.items.filter((item: any) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
 				);
 				return res;
 			});

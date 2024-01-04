@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrganizationTeams } from '@app/hooks';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
@@ -12,22 +12,27 @@ import { getActiveProjectIdCookie } from '@app/helpers';
 import { Switch } from '@headlessui/react';
 import debounce from 'lodash/debounce';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 export const IntegrationSetting = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [isTasksAutoSync, setIsTasksAutoSync] = useState<boolean>();
 	const [isTasksAutoSyncOnLabel, setIsTasksAutoSyncOnLabel] = useState<boolean>();
 	const [syncTag, setSyncTag] = useState<string>('');
+	const queryParams = useParams();
+	const locale = useMemo(() => {
+		return queryParams?.locale || '';
+	}, [queryParams]);
 
 	const params = useMemo(() => {
 		return {
-			state: `${window.location.origin}/integration/github`
+			state: `${window.location.origin}${locale ? '/' + locale : ''}/integration/github`
 		} as { [x: string]: string };
-	}, []);
+	}, [locale]);
 
 	const queries = new URLSearchParams(params || {});
-	const url = `https://github.com/apps/${GITHUB_APP_NAME}/installations/new?${queries.toString()}`;
+	const url = `https://github.com/apps/${GITHUB_APP_NAME.value}/installations/new?${queries.toString()}`;
 
 	const { activeTeam } = useOrganizationTeams();
 

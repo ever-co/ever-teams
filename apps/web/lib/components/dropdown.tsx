@@ -3,9 +3,9 @@ import { clsxm } from '@app/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
+import { useTranslations } from 'next-intl';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -47,7 +47,7 @@ export function Dropdown<T extends DropdownItem>({
 	searchBar = false,
 	setSearchText
 }: Props<T>) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className={clsxm('rounded-xl', className)}>
 			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
@@ -91,15 +91,15 @@ export function Dropdown<T extends DropdownItem>({
 				>
 					<Listbox.Options
 						className={clsxm(
-							'shadow-2xl outline-none min-w-full mt-3 max-h-64',
-							'overflow-hidden overflow-y-auto rounded-xl outline-none',
+							'shadow-2xl outline-none min-w-full mt-3 h-fit',
+							'overflow-hidden rounded-xl outline-none',
 							optionsClassName
 						)}
 					>
 						<Card
 							shadow="custom"
 							className={clsxm(
-								'md:px-4 py-4 rounded-x  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+								' md:px-4 py-4 rounded-x  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
 								searchBar && 'w-96'
 							)}
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
@@ -113,18 +113,23 @@ export function Dropdown<T extends DropdownItem>({
 									/>
 								</div>
 							)}
-
-							{items.map((Item, index) => (
-								<Listbox.Option
-									key={Item.key ? Item.key : index}
-									value={Item}
-									disabled={!!Item.disabled}
-								>
-									{({ active, selected }) => {
-										return Item.Label ? <Item.Label active={active} selected={selected} /> : <></>;
-									}}
-								</Listbox.Option>
-							))}
+							<section className={'max-h-[80vh] overflow-y-auto'}>
+								{items.map((Item, index) => (
+									<Listbox.Option
+										key={Item.key ? Item.key : index}
+										value={Item}
+										disabled={!!Item.disabled}
+									>
+										{({ active, selected }) => {
+											return Item.Label ? (
+												<Item.Label active={active} selected={selected} />
+											) : (
+												<></>
+											);
+										}}
+									</Listbox.Option>
+								))}
+							</section>
 
 							{/* Additional content */}
 							{closeOnChildrenClick && <Listbox.Button as="div">{children}</Listbox.Button>}

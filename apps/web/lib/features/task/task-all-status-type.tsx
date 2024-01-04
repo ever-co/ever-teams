@@ -1,3 +1,5 @@
+'use client';
+
 import { useCustomEmblaCarousel, useSyncRef } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';

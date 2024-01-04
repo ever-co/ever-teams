@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@app/hooks';
 import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
@@ -5,9 +7,9 @@ import { clsxm } from '@app/utils';
 import { Card, Dropdown, DropdownItem } from 'lib/components';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
+import { useTranslations } from 'next-intl';
 
 export function TaskLinkedIssue({
 	task,
@@ -95,7 +97,7 @@ function mapToActionType(items: ActionType[] = []) {
 }
 
 function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: LinkedTaskIssue | undefined) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const { queryCall } = useQuery(updateTaskLinkedIssueAPI);
 

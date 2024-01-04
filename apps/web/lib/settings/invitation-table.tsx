@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { Paginate } from 'lib/components/pagination';
 import moment from 'moment';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 
@@ -14,7 +14,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
 		IInvitation | IRequestToJoin
 	>(invitations);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
 
 	return (
@@ -23,25 +23,43 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 				<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
-							<th scope="col" className="pl-5 py-3 text-sm font-normal capitalize text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="pl-5 min-w-[20rem] py-3 text-sm font-normal capitalize text-[#B1AEBC]"
+							>
 								{t('pages.invite.invitationTable.NAME_AND_EMAIL')}
 							</th>
-							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								{t('pages.invite.invitationTable.POSITION')}
 							</th>
-							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								{t('pages.invite.invitationTable.DATE_AND_TIME_REQUEST')}
 							</th>
-							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								{t('pages.invite.invitationTable.CV_OR_ATTACHMENT')}
 							</th>
-							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								{t('common.LINK')}
 							</th>
-							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								{t('common.STATUS')}
 							</th>
-							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"></th>
+							<th scope="col" className="text-sm  font-normal capitalize py-3 text-[#B1AEBC]"></th>
 						</tr>
 					</thead>
 					<tbody className="dark:bg-dark--theme-light">
@@ -49,7 +67,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700" key={index}>
 								<th
 									scope="row"
-									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center  py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
 								>
 									<div
 										className={clsxm(

@@ -1,10 +1,10 @@
 import { useAuthenticateUser } from '@app/hooks';
 import { Popover, Transition } from '@headlessui/react';
 import capitalize from 'lodash/capitalize';
-import { useTranslation } from 'react-i18next';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { Fragment } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface IOption {
 	name: string;
@@ -14,7 +14,7 @@ interface IOption {
 
 const Profile = () => {
 	const { logOut, user } = useAuthenticateUser();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const options: IOption[] = [
 		{
 			name: t('links.common.TASKS'),

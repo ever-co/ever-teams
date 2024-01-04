@@ -3,11 +3,11 @@ import { ITeamTask } from '@app/interfaces';
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { TaskInput } from 'lib/features';
 import cloneDeep from 'lodash/cloneDeep';
-import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { tasks, loadTeamTasksData, updateTask } = useTeamTasks();
 
 	const [loading, setLoading] = useState(false);

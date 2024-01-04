@@ -1,3 +1,5 @@
+'use client';
+
 import { pad, secondsToTime } from '@app/helpers';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';

@@ -15,12 +15,12 @@ import {
 } from 'lib/components';
 import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 type Props = IClassName & { invitation: IInvitation };
 
 export function InvitedCard({ invitation, className }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div>
@@ -140,7 +140,7 @@ export function InvitedCard({ invitation, className }: Props) {
 }
 
 export function RemoveUserInviteMenu({ invitation }: Props) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { removeInviteLoading, removeTeamInvitation, resendTeamInvitation, resendInviteLoading } =
 		useTeamInvitations();
 
@@ -209,7 +209,7 @@ export function InviteUserTeamCard({
 	onClick,
 	active = true
 }: IClassName & { onClick?: () => void; active?: boolean }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	return (
 		<div>

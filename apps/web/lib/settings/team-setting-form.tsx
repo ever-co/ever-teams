@@ -7,21 +7,27 @@ import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
 import TimeTrackingToggle from 'lib/components/switch';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import TeamSize from './team-size-popover';
+import { useParams } from 'next/navigation';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { activeTeam, editOrganizationTeam, loading, loadingTeam } = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);
 	const inputWrapperRef = useRef<HTMLDivElement>(null);
+
+	const params = useParams();
+	const locale = useMemo(() => {
+		return params?.locale || '';
+	}, [params]);
 
 	const formDetails = useRef<{
 		teamName: string;
@@ -131,10 +137,12 @@ export const TeamSettingForm = () => {
 
 	const getTeamLink = useCallback(() => {
 		if (typeof window !== 'undefined' && activeTeam && activeTeam.id && activeTeam.profile_link) {
-			return `${window.location.origin}/team/${activeTeam.id}/${activeTeam.profile_link}`;
+			return `${window.location.origin}${locale ? '/' + locale : ''}/team/${activeTeam.id}/${
+				activeTeam.profile_link
+			}`;
 		}
 		return '';
-	}, [activeTeam]);
+	}, [activeTeam, locale]);
 
 	const handleChange = useCallback(() => {
 		const latestFormData = getValues();
@@ -148,7 +156,7 @@ export const TeamSettingForm = () => {
 
 	return (
 		<>
-			<form className="w-[98%] md:w-[930px] mt-8" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form className=" lg:w-[98%] md:w-[930px] mt-8" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">
@@ -159,7 +167,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div
 									ref={inputWrapperRef}
-									className="flex flex-row items-center justify-between flex-grow-0 w-4/5"
+									className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5"
 								>
 									<InputField
 										autoCustomFocus={!disabled}
@@ -200,11 +208,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Team Color */}
-							<div className="z-50 flex items-center justify-between w-full gap-12 ">
-								<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+							<div className="z-50 flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
+								<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+								<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 									<ColorPicker
 										defaultColor={activeTeam?.color}
 										onChange={(color: any | null) => {
@@ -219,11 +227,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Emoji */}
-							<div className="flex items-center justify-between w-full gap-12 ">
-								<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+							<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
+								<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 									{t('pages.settingsTeam.EMOJI')}
 								</Text>
-								<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+								<div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
 									<EmojiPicker
 										onChange={(emoji: string) => {
 											setValue('emoji', emoji);
@@ -238,11 +246,11 @@ export const TeamSettingForm = () => {
 
 							{/* Team Size */}
 							{
-								<div className="flex items-center justify-between w-full gap-12 mt-3 ">
-									<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+								<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 mt-3 ">
+									<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 										{t('pages.settingsTeam.TEAM_SIZE')}
 									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+									<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 										<TeamSize
 											defaultValue={activeTeam?.teamSize || ''}
 											onChange={(teamSize: string) => {
@@ -258,10 +266,10 @@ export const TeamSettingForm = () => {
 
 							{/* Team Type */}
 							<div className="flex flex-col items-center w-full mt-8 sm:gap-12 sm:flex-row">
-								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 w-full sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_TYPE')}
 								</Text>
-								<div className="flex gap-x-[30px] flex-col sm:flex-row items-center">
+								<div className="flex lg:gap-x-[30px] flex-col sm:flex-row items-center">
 									{isTeamManager && (
 										<div className="flex items-center justify-between w-full space-y-2 sm:block">
 											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
@@ -309,7 +317,7 @@ export const TeamSettingForm = () => {
 									)}
 									{getTeamLink() && (
 										<div className="flex flex-col items-center gap-4 sm:flex-row">
-											<div className="flex flex-row items-center justify-between flex-grow-0 w-64 mb-0">
+											<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-64 mb-0">
 												<Tooltip
 													label={getTeamLink()}
 													placement="auto"

@@ -1,3 +1,5 @@
+'use client';
+
 import { IIssueTypesCreate } from '@app/interfaces';
 import { createIssueTypeAPI, getIssueTypeList, deleteIssueTypeAPI, editIssueTypeAPI } from '@app/services/client/api';
 import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdState } from '@app/stores';

@@ -1,14 +1,16 @@
+'use client';
+
 import { useModal, useTeamInvitations } from '@app/hooks';
 import { MyInvitationActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Card, Modal, Text } from 'lib/components';
 import { CloseCircleIcon, CloseIcon, TickCircleIcon } from 'lib/components/svgs';
 import cloneDeep from 'lodash/cloneDeep';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 export function TeamInvitations() {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const {
 		myInvitationsList,
 		myInvitations,
@@ -139,7 +141,7 @@ export const ConfirmModal = ({
 	loading: boolean;
 	action: MyInvitationActionEnum;
 }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
 
 	const handleOnClose = () => {

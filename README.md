@@ -162,10 +162,12 @@ WIP
 
 ## 📄 Content
 
--   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
--   `/mobile` - Expo (ReactNative) powered mobile app
--   `/desktop` - Electron based Desktop Application (customized build from [Ever Gauzy Desktop Timer App](https://github.com/ever-co/ever-gauzy/tree/develop/apps/desktop-timer))
--   `/extensions` - Browser Extensions (powered by <https://github.com/PlasmoHQ/plasmo>)
+-   `/apps/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
+-   `/apps/mobile` - Expo (ReactNative) powered mobile app
+-   `/apps/desktop` - Electron-based Desktop Application (customized build from [Ever Gauzy Desktop Timer App](https://github.com/ever-co/ever-gauzy/tree/develop/apps/desktop-timer))
+-   `/apps/extensions` - Browser Extensions (powered by <https://github.com/PlasmoHQ/plasmo>)
+-   `/apps/server-api` - Ever Teams API Server (customized build from [Ever Gauzy API Server](https://github.com/ever-co/ever-gauzy/tree/develop/apps/server-api))
+-   `/apps/server-web` - Electron-based Ever Teams Web Server that serve Ever Teams NextJs frontend (wraps `apps/web` folder)
 
 ## 💌 Contact Us
 

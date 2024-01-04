@@ -2,7 +2,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { Button } from 'lib/components';
 import { Edit2Icon } from 'lib/components/svgs';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 const sizeOption = [
 	{
@@ -32,7 +32,7 @@ const TeamSize = ({
 	isTeamManager: boolean;
 	disabled?: boolean;
 }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [value, setValue] = useState(defaultValue || 'Only me');
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);

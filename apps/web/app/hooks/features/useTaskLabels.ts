@@ -1,3 +1,5 @@
+'use client';
+
 import { ITaskLabelsCreate } from '@app/interfaces';
 import {
 	getTaskLabelsList,

@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	getActiveTaskIdCookie,
@@ -106,13 +108,7 @@ export function useTeamTasks() {
 
 	const loadTeamTasksData = useCallback(
 		(deepCheck?: boolean) => {
-			if (loadingRef.current) {
-				return new Promise((response) => {
-					response(true);
-				});
-			}
-
-			if (!user || !activeTeamRef.current?.id) {
+			if (loadingRef.current || !user || !activeTeamRef.current?.id) {
 				return new Promise((response) => {
 					response(true);
 				});

@@ -1,11 +1,11 @@
 import StatusDropdown from '@components/shared/tasks/status-dropdown';
+import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
 
 export type IProfileTabs = 'worked' | 'assigned' | 'unassigned';
 
 export function ProfileTabs({ tab, setTab }: { tab: IProfileTabs; setTab: Dispatch<SetStateAction<IProfileTabs>> }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 			<div className="flex">

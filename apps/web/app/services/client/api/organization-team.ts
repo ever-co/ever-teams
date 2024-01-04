@@ -5,10 +5,12 @@ import {
 	IOrganizationTeamWithMStatus,
 	IOrganizationTeamUpdate,
 	IOrganizationTeam,
-	TimerSource
+	TimerSource,
+	OT_Member
 } from '@app/interfaces';
 import moment from 'moment';
 import api, { get } from '../axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export async function getOrganizationTeamsAPI(organizationId: string, tenantId: string) {
 	const relations = [
@@ -36,7 +38,7 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 	const endpoint = `/organization-team?${query.toString()}`;
 
 	const data = await get(endpoint, true, { tenantId });
-	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
+	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
 }
 
 export function createOrganizationTeamAPI(name: string) {
@@ -74,7 +76,7 @@ export async function getOrganizationTeamAPI(teamId: string, organizationId: str
 	const endpoint = `/organization-team/${teamId}?${queries.toString()}`;
 	const data = await get(endpoint, true);
 
-	return process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? data.data : data;
+	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
 }
 
 export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
@@ -89,6 +91,16 @@ export function deleteOrganizationTeamAPI(id: string) {
 }
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
+}
+
+export function editEmployeeOrderOrganizationTeamAPI(
+	employeeId: string,
+	data: { order: number; organizationTeamId: string; organizationId: string },
+	tenantId?: string
+) {
+	return api.put<CreateResponse<OT_Member>>(`/organization-team/employee/${employeeId}`, data, {
+		headers: { 'Tenant-Id': tenantId }
+	});
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {

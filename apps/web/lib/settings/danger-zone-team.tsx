@@ -3,13 +3,13 @@ import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganiz
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from 'lib/components';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { RemoveModal } from './remove-modal';
 import { TransferTeamModal } from './transfer-team-modal';
 
 export const DangerZoneTeam = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: dangerIsOpen, closeModal: dangerCloseModal, openModal: dangerOpenaModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<'DISPOSE' | 'QUIT' | null>(null);
@@ -57,7 +57,7 @@ export const DangerZoneTeam = () => {
 									{t('common.TRANSFERT_OWNERSHIP_TO')}
 								</Text>
 							</div>
-							<div className="flex-auto sm:w-10">
+							<div className="flex-auto w-full sm:w-10">
 								<Button
 									variant="danger"
 									type="submit"
@@ -82,7 +82,7 @@ export const DangerZoneTeam = () => {
 									{t('alerts.ALERT_REMOVE_TEAM')}
 								</Text>
 							</div>
-							<div className="flex-auto sm:w-10">
+							<div className="flex-auto w-full sm:w-10">
 								<Button
 									variant="danger"
 									type="submit"
@@ -109,7 +109,7 @@ export const DangerZoneTeam = () => {
 									{t('alerts.ALERT_QUIT_TEAM')}
 								</Text>
 							</div>
-							<div className="flex-auto sm:w-10">
+							<div className="flex-auto w-full sm:w-10">
 								<Button
 									variant="danger"
 									type="submit"

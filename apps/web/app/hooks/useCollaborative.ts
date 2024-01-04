@@ -5,7 +5,7 @@ import { useRecoilState } from 'recoil';
 import { useAuthenticateUser } from './features/useAuthenticateUser';
 import { useOrganizationTeams } from './features/useOrganizationTeams';
 import { BOARD_APP_DOMAIN } from '@app/constants';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import capitalize from 'lodash/capitalize';
 
@@ -15,7 +15,7 @@ export function useCollaborative(user?: IUser) {
 	const [collaborativeSelect, setCollaborativeSelect] = useRecoilState(collaborativeSelectState);
 	const [collaborativeMembers, setCollaborativeMembers] = useRecoilState(collaborativeMembersState);
 
-	const url = useRouter();
+	const router = useRouter();
 
 	const randomMeetName = useCallback(() => nanoid(15), []);
 
@@ -59,14 +59,14 @@ export function useCollaborative(user?: IUser) {
 	const onMeetClick = useCallback(() => {
 		const meetName = getMeetRoomName();
 
-		url.push(`/meet?room=${btoa(meetName)}`);
-	}, [getMeetRoomName, url]);
+		router.push(`/meet?room=${btoa(meetName)}`);
+	}, [getMeetRoomName, router]);
 
 	const onBoardClick = useCallback(() => {
 		const members = collaborativeMembers.map((m) => m.id).join(',');
 
-		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN) {
-			const url = new URL(BOARD_APP_DOMAIN);
+		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN.value) {
+			const url = new URL(BOARD_APP_DOMAIN.value);
 			url.searchParams.set('live', 'true');
 			url.searchParams.set('members', btoa(members));
 
@@ -74,8 +74,8 @@ export function useCollaborative(user?: IUser) {
 			return;
 		}
 
-		url.push('/board');
-	}, [collaborativeMembers, url]);
+		router.push('/board');
+	}, [collaborativeMembers, router]);
 
 	return {
 		collaborativeSelect,

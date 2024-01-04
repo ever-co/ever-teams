@@ -7,7 +7,7 @@ import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
 import { MoreIcon } from 'lib/components/svgs';
 import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -24,7 +24,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		memberInfo
 	});
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
 
 	const menu = [

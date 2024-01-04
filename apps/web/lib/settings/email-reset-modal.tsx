@@ -2,7 +2,7 @@ import { useAuthenticateUser, useEmailReset } from '@app/hooks';
 import { AuthCodeInputField, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
 
@@ -10,7 +10,7 @@ export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
  * Email Reset modal
  */
 export function EmailResetModal({ open, closeModal, email }: { open: boolean; closeModal: () => void; email: string }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { register, setValue, getValues } = useForm();
 	const [code, setCode] = useState('');
 	const [step, setStep] = useState<ISteps>('EMAIL');

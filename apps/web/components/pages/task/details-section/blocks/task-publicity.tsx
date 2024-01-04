@@ -3,13 +3,13 @@ import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { GlobIcon, LockIcon } from 'lib/components/svgs';
 import { debounce } from 'lodash';
-import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { useTranslations } from 'next-intl';
 
 const TaskPublicity = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined>(task?.public);
 	const { updatePublicity } = useTeamTasks();
 

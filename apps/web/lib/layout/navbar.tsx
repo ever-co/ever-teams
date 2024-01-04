@@ -1,3 +1,5 @@
+'use client';
+
 import { useModal, useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { userState } from '@app/stores';
@@ -8,9 +10,9 @@ import { Button, Container } from 'lib/components';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
 import { useRecoilState } from 'recoil';
 
@@ -43,20 +45,23 @@ export function Navbar({
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isTeamMember } = useOrganizationTeams();
 	const [user] = useRecoilState(userState);
 	const { isOpen, closeModal, openModal } = useModal();
 
-	const router = useRouter();
+	const pathname = usePathname();
 
 	const isTeamDropdownAllowed = useMemo(() => {
+		if (!pathname) {
+			return false;
+		}
 		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
-		return !notAllowedList.includes(router.route);
-	}, [router.route]);
+		return !notAllowedList.includes(pathname);
+	}, [pathname]);
 
 	return (
-		<>
+		<div>
 			{!user && !notFound && !publicTeam ? (
 				<HeaderSkeleton />
 			) : (
@@ -81,14 +86,15 @@ export function Navbar({
 									)}
 									{showTimer && <MinTimerFrame />}
 
-									{!publicTeam && <Collaborate />}
+									<div className="hidden md:flex gap-4 items-center">
+										{!publicTeam && <Collaborate />}
 
-									{isTeamMember && isTeamDropdownAllowed ? (
-										<TeamsDropDown publicTeam={publicTeam || false} />
-									) : null}
+										{isTeamMember && isTeamDropdownAllowed ? (
+											<TeamsDropDown publicTeam={publicTeam || false} />
+										) : null}
 
-									<KeyboardShortcuts />
-
+										<KeyboardShortcuts />
+									</div>
 									{!publicTeam && <UserNavAvatar />}
 								</div>
 							)}
@@ -97,6 +103,6 @@ export function Navbar({
 					<RequestToJoinModal open={isOpen} closeModal={closeModal} />
 				</nav>
 			)}
-		</>
+		</div>
 	);
 }

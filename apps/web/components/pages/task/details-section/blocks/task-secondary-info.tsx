@@ -17,11 +17,11 @@ import {
 import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
 import { cloneDeep } from 'lodash';
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import TaskRow from '../components/task-row';
+import { useTranslations } from 'next-intl';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -33,7 +33,7 @@ const TaskSecondaryInfo = () => {
 
 	const { handleStatusUpdate } = useTeamTasks();
 
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const modal = useModal();
 	const [formTarget, setFormTarget] = useState<StatusType | null>(null);
@@ -223,7 +223,7 @@ const TaskSecondaryInfo = () => {
 };
 
 const EpicParent = ({ task }: { task: ITeamTask }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	if (task.issueType === 'Story') {
 		return <></>;

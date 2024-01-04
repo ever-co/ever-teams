@@ -2,16 +2,16 @@ import { detailedTaskState } from '@app/stores';
 import { Disclosure } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
 import { TaskEstimate } from 'lib/features';
-import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
 // import { useAuthenticateUser } from '@app/hooks';
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const { t } = useTranslation();
+	const t = useTranslations();
 	// const { user } = useAuthenticateUser();
 
 	return (
@@ -49,6 +49,7 @@ const TaskEstimationsInfo = () => {
 													key={member.id}
 													profilePicSrc={member.user?.imageUrl}
 													names={member.fullName}
+													userId={member.userId}
 													//@ts-ignore
 													time={
 														<TaskEstimate

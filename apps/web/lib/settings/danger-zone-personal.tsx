@@ -3,14 +3,14 @@ import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@a
 import { Button, Text } from 'lib/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import dangerZoneImage from '../../public/assets/svg/danger-zones.svg';
 import { RemoveModal } from './remove-modal';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => void;
 
 export const DangerZone = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
@@ -46,7 +46,7 @@ export const DangerZone = () => {
 			<div className="flex flex-col items-center justify-between">
 				<div className="w-full mt-5">
 					<div className="">
-						<div className="flex items-center justify-between w-full gap-6">
+						<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-6">
 							<div className="flex items-center justify-center flex-auto opacity-50 sm:w-32">
 								<Image alt="Danger zone" src={dangerZoneImage} width={150} height={150} />
 							</div>
@@ -57,7 +57,7 @@ export const DangerZone = () => {
 											{t('alerts.ALERT_DELETE_ACCOUNT')}
 										</Text>
 									</div>
-									<div className="flex-auto w-32">
+									<div className="flex-auto w-full lg:w-32">
 										<Button
 											variant="danger"
 											type="submit"
@@ -77,7 +77,7 @@ export const DangerZone = () => {
 											{t('alerts.ALERT_ACCOUNT_PERMANENT_DELETE')}
 										</Text>
 									</div>
-									<div className="flex-auto w-32">
+									<div className="flex-auto w-full lg:w-32">
 										<Button
 											variant="danger"
 											type="submit"
@@ -97,7 +97,7 @@ export const DangerZone = () => {
 											{t('alerts.ALERT_REMOVE_ALL_DATA')}
 										</Text>
 									</div>
-									<div className="flex-auto w-32">
+									<div className="flex-auto w-full lg:w-32">
 										<Button
 											variant="danger"
 											type="submit"

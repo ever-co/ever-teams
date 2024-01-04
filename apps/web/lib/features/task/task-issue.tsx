@@ -3,7 +3,6 @@ import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/int
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { BugReportIcon, CategoryIcon, NoteIcon, TaskSquareIcon } from 'lib/components/svgs';
-import { useTranslation } from 'react-i18next';
 import {
 	IActiveTaskStatuses,
 	StatusDropdown,
@@ -14,6 +13,7 @@ import {
 	useActiveTaskStatus,
 	useStatusValue
 } from './task-status';
+import { useTranslations } from 'next-intl';
 
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
@@ -92,7 +92,7 @@ export function TaskIssuesDropdown({
  * @returns A dropdown component that allows the user to select a status for the task.
  */
 export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issueType'>) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { item, items, onChange, field } = useActiveTaskStatus(props, taskIssues, 'issueType');
 
 	const validTransitions: Record<IssueType, TStatusItem[]> = {
@@ -163,7 +163,7 @@ export function TaskIssueStatus({
  * @returns A modal that allows the user to create a task issue.
  */
 export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 	};

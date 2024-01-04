@@ -13,7 +13,7 @@ import { useRecoilState } from 'recoil';
 
 import { useRefetchData } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -22,7 +22,7 @@ type StatusForm = {
 };
 
 export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
@@ -90,10 +90,10 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 	return (
 		<>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-				<div className="flex w-full">
+				<div className="flex flex-row w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
 						{!formOnly && (
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-full  md:w-[200px]">
 								{t('pages.settingsTeam.VERSIONS')}
 							</Text>
 						)}

@@ -3,12 +3,12 @@ import { clsxm } from '@app/utils';
 import { Avatar, Button, Text, Tooltip } from 'lib/components';
 import { CreateTeamModal } from 'lib/features';
 import { PropsWithChildren } from 'react';
-import { useTranslation } from 'react-i18next';
 import noTeamImg from '../../../public/assets/svg/no-team.svg';
+import { useTranslations } from 'next-intl';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
 const NoTeam = ({ className, ...rest }: Props) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { user } = useAuthenticateUser();
 

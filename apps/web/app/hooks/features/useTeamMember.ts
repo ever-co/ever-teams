@@ -1,3 +1,5 @@
+'use client';
+
 import { IUser, OT_Member, RoleNameEnum } from '@app/interfaces';
 import { activeTeamState } from '@app/stores';
 import { useEffect, useState } from 'react';

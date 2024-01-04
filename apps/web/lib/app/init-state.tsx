@@ -3,7 +3,6 @@ import {
 	useAutoAssignTask,
 	useCallbackRef,
 	useIssueType,
-	useLanguage,
 	useLanguageSettings,
 	useOTRefreshInterval,
 	useOrganizationTeams,
@@ -21,15 +20,15 @@ import {
 	useTimer
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
-import { useSyncLanguage } from 'ni18n';
+// import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 
 export function AppState() {
 	const user = useRecoilValue(userState);
 
-	const { currentLanguage } = useLanguage();
-	useSyncLanguage(currentLanguage);
+	// const { currentLanguage } = useLanguage();
+	// useSyncLanguage(currentLanguage);
 	return <>{user && <InitState />}</>;
 }
 
@@ -121,7 +120,7 @@ function InitState() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	return DISABLE_AUTO_REFRESH !== true ? <AutoRefresher /> : <></>;
+	return !DISABLE_AUTO_REFRESH.value ? <AutoRefresher /> : <></>;
 }
 
 function useOneTimeLoad(func: () => void) {

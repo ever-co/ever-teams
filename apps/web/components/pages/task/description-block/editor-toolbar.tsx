@@ -25,9 +25,9 @@ import {
 	UnderlineIcon,
 	UnorderedListIcon
 } from 'lib/components/svgs';
-import { useTranslation } from 'react-i18next';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';
+import { useTranslations } from 'next-intl';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -35,7 +35,7 @@ interface IToolbarProps {
 }
 
 const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const editor = useSlateStatic();
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');

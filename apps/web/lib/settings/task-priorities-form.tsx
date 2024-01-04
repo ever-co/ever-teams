@@ -11,7 +11,7 @@ import { IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 
@@ -25,7 +25,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
-	const { t } = useTranslation();
+	const t = useTranslations();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',

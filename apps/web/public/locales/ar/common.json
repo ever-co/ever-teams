@@ -426,6 +426,10 @@
 			"HEADING_TITLE": "غير موجود",
 			"HEADING_DESCRIPTION": "المورد الذي تبحث عنه غير موجود!",
 			"LINK_LABEL": "الذهاب إلى الصفحة الرئيسية"
+		},
+		"offline": {
+			"HEADING_TITLE": "انقطاع الشبكة!",
+			"HEADING_DESCRIPTION": "أنت غير متصل حاليًا، يرجى التحقق من اتصالك بالإنترنت..."
 		}
 	},
 
@@ -446,6 +450,10 @@
 		"ASSIGN_NEW_TASK": "تعيين مهمة جديدة",
 		"ASSIGNED_BY": "تم التعيين بواسطة",
 		"NO_ONE_FOR_TASK": "لم يتم تعيين أحد لهذه المهمة",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "عمل اليوم على هذه المهمة لمدة",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "عمل على هذه المهمة لمدة إجمالية",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "عمل اليوم على الكل",
+		"TASKS_FOR_TOOLTIP": "المهام ل",
 		"taskLabel": {
 			"WORK_LABEL": "عمل",
 			"TASK_ASSIGNED": "معينة",
@@ -471,7 +479,9 @@
 				"TITLE": "إجمالي العمل",
 				"DESCRIPTION": "اليوم",
 				"LABEL": "إجمالي العمل اليوم"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم والإجمالي في المهمة",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم في جميع المهام للفريق المحدد"
 		},
 		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة"
 	},

@@ -1,13 +1,13 @@
 import { MEET_DOMAIN } from '@app/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function MeetPage({ jwt, roomName }: { jwt: string; roomName: string }) {
 	const router = useRouter();
 
 	return (
 		<JitsiMeeting
-			domain={MEET_DOMAIN}
+			domain={MEET_DOMAIN.value}
 			roomName={roomName}
 			configOverwrite={{
 				startWithAudioMuted: true,

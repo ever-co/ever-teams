@@ -2,7 +2,7 @@ import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
@@ -12,7 +12,12 @@ type Props = IClassName & {
 
 export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) {
 	return (
-		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
+		<div
+			className={clsxm(
+				'h-full flex flex-col items-start justify-between gap-[1.0620rem] max-h-full overflow-hidden',
+				className
+			)}
+		>
 			{/* task */}
 			<div className={clsxm('w-full h-10', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (

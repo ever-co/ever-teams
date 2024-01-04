@@ -422,6 +422,10 @@
 			"HEADING_TITLE": "Nicht gefunden",
 			"HEADING_DESCRIPTION": "Die gesuchte Ressource wurde nicht gefunden!",
 			"LINK_LABEL": "Zur Startseite"
+		},
+		"offline": {
+			"HEADING_TITLE": "Netzwerk getrennt!",
+			"HEADING_DESCRIPTION": "Sie sind derzeit offline, bitte überprüfen Sie Ihre Internetverbindung..."
 		}
 	},
 	"timer": {
@@ -441,6 +445,10 @@
 		"ASSIGN_NEW_TASK": "Neue Aufgabe zuweisen",
 		"ASSIGNED_BY": "Zugewiesen von",
 		"NO_ONE_FOR_TASK": "Niemand dieser Aufgabe zugewiesen",
+		"WORKED_TODAY_ON_TASK_TOOLTIP": "heute an dieser Aufgabe gearbeitet für",
+		"WORKED_TOTAL_ON_TASK_TOOLTIP": "insgesamt an dieser Aufgabe gearbeitet für",
+		"WORKED_TODAY_ON_ALL_TOOLTIP": "heute an allem gearbeitet für",
+		"TASKS_FOR_TOOLTIP": "Aufgaben für",
 		"taskLabel": {
 			"WORK_LABEL": "Gearbeitet",
 			"TASK_ASSIGNED": "Zugewiesen",
@@ -466,7 +474,9 @@
 				"TITLE": "Insgesamt gearbeitet",
 				"DESCRIPTION": "Heute",
 				"LABEL": "Heute insgesamt gearbeitet"
-			}
+			},
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Wie viele Stunden hat der Mitarbeiter heute und insgesamt an der Aufgabe gearbeitet",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "Wie viele Stunden hat der Mitarbeiter heute an allen Aufgaben für das ausgewählte Team gearbeitet"
 		},
 		"CONFIRM_CLOSE_TASK": "Bitte bestätigen Sie, ob Sie die Aufgabe schließen möchten"
 	},

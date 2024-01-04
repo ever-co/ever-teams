@@ -4,7 +4,8 @@ import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
 import InviteCard from '@components/shared/invite/invite-card';
 import { InvitedCard } from '@components/shared/invite/invited-card';
 import UsersCard from '@components/shared/members-card/members-card';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
+
 const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, teamsFetching } = useOrganizationTeams();
@@ -94,7 +95,8 @@ const TeamMemberSection = () => {
 };
 
 const Header = () => {
-	const { t } = useTranslation();
+	const t = useTranslations();
+
 	return (
 		<li>
 			<div className="flex items-center justify-between text-primary font-bold dark:text-[#FFFFFF]">

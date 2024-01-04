@@ -9,11 +9,11 @@ import Image from 'next/image';
 import { readableColor } from 'polished';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string }) => {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
 	const { updateOrganizationTeam, activeTeam } = useOrganizationTeams();

@@ -3,10 +3,10 @@ import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCa
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
+import { Card, HorizontalSeparator, InputField, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
@@ -14,7 +14,7 @@ import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 
 export function UserTeamCardHeader() {
-	const { t } = useTranslation();
+	const t = useTranslations();
 	return (
 		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
@@ -22,19 +22,23 @@ export function UserTeamCardHeader() {
 			<div className="w-1"></div>
 			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
 			<div className="w-1"></div>
-			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
-				{t('task.taskTableHead.TASK_WORK.TITLE')}
-				<br />
-				{t('common.TASK')}
-			</div>
+			<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+				<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
+					{t('task.taskTableHead.TASK_WORK.TITLE')}
+					<br />
+					{t('common.TASK')}
+				</div>
+			</Tooltip>
 			<div className="w-1"></div>
 			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
 			<div className="w-1"></div>
-			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
-				{t('task.taskTableHead.TOTAL_WORK.TITLE')}
-				<br />
-				{t('common.TODAY')}
-			</div>
+			<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+				<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
+					{t('task.taskTableHead.TOTAL_WORK.TITLE')}
+					<br />
+					{t('common.TODAY')}
+				</div>
+			</Tooltip>
 		</div>
 	);
 }
@@ -44,10 +48,27 @@ type IUserTeamCard = {
 	member?: IOrganizationTeamList['members'][number];
 	publicTeam?: boolean;
 	members?: IOrganizationTeamList['members'];
+	draggable: boolean;
+	onDragStart: () => any;
+	onDragEnter: () => any;
+	onDragEnd: any;
+	onDragOver: (e: React.DragEvent<HTMLDivElement>) => any;
+	currentExit: boolean;
 } & IClassName;
 
-export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamCard) {
-	const { t } = useTranslation();
+export function UserTeamCard({
+	className,
+	active,
+	member,
+	publicTeam = false,
+	draggable = false,
+	onDragStart,
+	onDragEnd,
+	onDragEnter,
+	onDragOver,
+	currentExit = false
+}: IUserTeamCard) {
+	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
@@ -95,7 +116,14 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 	);
 
 	return (
-		<div className={clsxm(!active && 'border-2 border-transparent')}>
+		<div
+			className={clsxm(!active && 'border-2 border-transparent')}
+			draggable={draggable}
+			onDragStart={onDragStart}
+			onDragEnter={onDragEnter}
+			onDragEnd={onDragEnd}
+			onDragOver={onDragOver}
+		>
 			<Card
 				shadow="bigger"
 				className={clsxm(
@@ -107,7 +135,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 					className
 				)}
 			>
-				<div className="absolute -left-0">
+				<div className="absolute -left-0 cursor-pointer">
 					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
@@ -119,7 +147,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2"
+					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2 overflow-y-hidden"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
@@ -187,6 +215,9 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 				{/* Card menu */}
 				<div className="absolute right-2">{menu}</div>
 			</Card>
+			{currentExit && (
+				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
+			)}
 		</div>
 	);
 }

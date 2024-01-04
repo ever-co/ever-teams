@@ -1,3 +1,5 @@
+'use client';
+
 import { MyInvitationActionEnum } from '@app/interfaces';
 import {
 	getTeamInvitationsAPI,
@@ -41,7 +43,11 @@ export function useTeamInvitations() {
 
 	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(resendTeamInvitationsAPI);
 
-	const { queryCall: myInvitationsQueryCall, loading: myInvitationsLoading } = useQuery(getMyInvitationsAPI);
+	const {
+		queryCall: myInvitationsQueryCall,
+		loading: myInvitationsLoading,
+		loadingRef: myInvitationsLoadingRef
+	} = useQuery(getMyInvitationsAPI);
 
 	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } =
 		useQuery(acceptRejectMyInvitationsAPI);
@@ -97,7 +103,7 @@ export function useTeamInvitations() {
 	);
 
 	const myInvitations = useCallback(() => {
-		if (!user?.tenantId) {
+		if (myInvitationsLoadingRef.current || !user?.tenantId) {
 			return;
 		}
 
@@ -105,7 +111,7 @@ export function useTeamInvitations() {
 			setMyInvitationsList(res.data.items);
 			return res.data;
 		});
-	}, [myInvitationsQueryCall, setMyInvitationsList, user]);
+	}, [myInvitationsQueryCall, setMyInvitationsList, user, myInvitationsLoadingRef]);
 	const removeMyInvitation = useCallback(
 		(id: string) => {
 			setMyInvitationsList(myInvitationsList.filter((invitation) => invitation.id !== id));
