@@ -10,7 +10,7 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
@@ -23,7 +23,7 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
 	const t = useTranslations();
 	const [publicTeam, setPublic] = useRecoilState(publicState);
-	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
@@ -62,7 +62,7 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 	return (
 		<JitsuRoot pageProps={pageProps}>
-			<MainLayout publicTeam={publicTeam} fullWidth={fullWidth}>
+			<MainLayout publicTeam={publicTeam}>
 				<MainHeader fullWidth={fullWidth}>
 					<Breadcrumb paths={breadcrumb} className="text-sm" />
 
@@ -75,7 +75,7 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-				<Container>
+				<Container fullWidth={fullWidth}>
 					<TeamMembers publicTeam={publicTeam} />
 				</Container>
 			</MainLayout>

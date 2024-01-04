@@ -13,7 +13,7 @@ import NoTeam from '@components/pages/main/no-team';
 import { ArrowLeft } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { Accordian } from 'lib/components/accordian';
 import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
@@ -22,6 +22,7 @@ import { MemberSetting } from 'lib/settings/member-setting';
 import { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const t = useTranslations();
@@ -29,6 +30,7 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
 	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
+	const fullWidth = useRecoilValue(fullWidthState);
 	return (
 		<>
 			<JitsuRoot pageProps={pageProps}>
@@ -48,7 +50,7 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 							</Container>
 						</div>
 
-						<Container className="mb-10">
+						<Container fullWidth={fullWidth} className="mb-10">
 							<div className="flex flex-col w-full lg:flex-row">
 								<LeftSideSettingMenu />
 								{isTeamMember ? (

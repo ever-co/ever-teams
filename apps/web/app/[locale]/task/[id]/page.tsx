@@ -18,7 +18,7 @@ import { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 
 const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
 	const profile = useUserProfilePage();

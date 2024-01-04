@@ -18,10 +18,13 @@ import stc from 'string-to-color';
 import { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Profile = ({ pageProps }: AppProps<MyAppProps>) => {
 	const profile = useUserProfilePage();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const hook = useTaskFilter(profile);
 
@@ -35,7 +38,7 @@ const Profile = ({ pageProps }: AppProps<MyAppProps>) => {
 		<>
 			<JitsuRoot pageProps={pageProps}>
 				<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-					<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
+					<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 						{/* Breadcrumb */}
 						<div className="flex items-center gap-8">
 							<Link href="/">
@@ -66,7 +69,7 @@ const Profile = ({ pageProps }: AppProps<MyAppProps>) => {
 					{/* Divider */}
 					<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-					<Container className="mb-10">
+					<Container fullWidth={fullWidth} className="mb-10">
 						<UserProfileTask profile={profile} tabFiltered={hook} />
 					</Container>
 				</MainLayout>
