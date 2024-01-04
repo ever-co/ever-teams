@@ -284,7 +284,7 @@ const KanbanDraggableHeader = ({
 		<>
 			{title && (
 				<header
-					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px]'}
+					className={'fixed w-[325px] flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px]'}
 					style={headerStyleChanger(snapshot, backgroundColor)}
 					data-isDragging={snapshot.isDragging}
 				>
