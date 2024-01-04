@@ -20,7 +20,7 @@ import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useRecoilValue } from 'recoil';
 
-const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
+const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const t = useTranslations();
 	const router = useRouter();
@@ -47,59 +47,57 @@ const TaskDetails = ({ pageProps }: AppProps<MyAppProps>) => {
 	}, [getTaskById, router, task, getTasksByIdLoading, id]);
 
 	return (
-		<JitsuRoot pageProps={pageProps}>
-			<MainLayout
-				showTimer={!profile.isAuthUser && isTrackingEnabled}
-				childrenClassName="bg-white dark:bg-dark--theme"
-			>
-				<div className="pt-20 pb-4 -mt-8 bg-white dark:bg-dark--theme">
-					<Container fullWidth={fullWidth}>
-						<div className="flex items-center gap-8">
-							<span
-								className="cursor-pointer"
-								onClick={() => {
-									router.replace('/');
-								}}
-							>
-								<ArrowLeft className="w-6 h-6" />
-							</span>
+		<MainLayout
+			showTimer={!profile.isAuthUser && isTrackingEnabled}
+			childrenClassName="bg-white dark:bg-dark--theme"
+		>
+			<div className="pt-20 pb-4 -mt-8 bg-white dark:bg-dark--theme">
+				<Container fullWidth={fullWidth}>
+					<div className="flex items-center gap-8">
+						<span
+							className="cursor-pointer"
+							onClick={() => {
+								router.replace('/');
+							}}
+						>
+							<ArrowLeft className="w-6 h-6" />
+						</span>
 
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
-						</div>
-					</Container>
-				</div>
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
+					</div>
+				</Container>
+			</div>
 
-				<Container fullWidth={fullWidth} className="mb-10">
-					<div className="flex flex-col w-full min-h-screen pt-5">
-						<section className="flex flex-col justify-between lg:flex-row lg:items-start 3xl:gap-8">
-							<section className="md:mr-5 max-w-[57rem] 3xl:max-w-none xl:w-full mb-4 md:mb-0">
-								<TaskTitleBlock />
+			<Container fullWidth={fullWidth} className="mb-10">
+				<div className="flex flex-col w-full min-h-screen pt-5">
+					<section className="flex flex-col justify-between lg:flex-row lg:items-start 3xl:gap-8">
+						<section className="md:mr-5 max-w-[57rem] 3xl:max-w-none xl:w-full mb-4 md:mb-0">
+							<TaskTitleBlock />
 
-								<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-2 md:p-6 pt-0 flex flex-col gap-8 rounded-sm">
-									<RichTextEditor />
-									{/* <TaskDescriptionBlock /> */}
-									<ChildIssueCard />
-									<RelatedIssueCard />
+							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-2 md:p-6 pt-0 flex flex-col gap-8 rounded-sm">
+								<RichTextEditor />
+								{/* <TaskDescriptionBlock /> */}
+								<ChildIssueCard />
+								<RelatedIssueCard />
 
-									{/* <IssueCard related={true} /> */}
+								{/* <IssueCard related={true} /> */}
 
-									{/* <CompletionBlock /> */}
-									{/* <ActivityBlock /> */}
-								</div>
-							</section>
-							<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-full lg:w-[30%]">
-								<div className="flex flex-col bg-white dark:bg-dark--theme-light rounded-xl">
-									<TaskDetailsAside />
-								</div>
-								<TaskProperties task={task} />
+								{/* <CompletionBlock /> */}
+								{/* <ActivityBlock /> */}
 							</div>
 						</section>
-					</div>
+						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-full lg:w-[30%]">
+							<div className="flex flex-col bg-white dark:bg-dark--theme-light rounded-xl">
+								<TaskDetailsAside />
+							</div>
+							<TaskProperties task={task} />
+						</div>
+					</section>
+				</div>
 
-					{/* <IssueModal task={task} /> */}
-				</Container>
-			</MainLayout>
-		</JitsuRoot>
+				{/* <IssueModal task={task} /> */}
+			</Container>
+		</MainLayout>
 	);
 };
 

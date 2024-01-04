@@ -11,7 +11,7 @@ import type { AppProps } from 'next/app';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
-const GitHub = ({ pageProps }: AppProps<MyAppProps>) => {
+const GitHub = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const installation_id = searchParams?.get('installation_id');
@@ -72,11 +72,9 @@ const GitHub = ({ pageProps }: AppProps<MyAppProps>) => {
 	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
 
 	return (
-		<JitsuRoot pageProps={pageProps}>
-			<div className="flex flex-col p-3">
-				<BackdropLoader show={true} title={t('common.GITHUB_LOADING_TEXT')} />
-			</div>
-		</JitsuRoot>
+		<div className="flex flex-col p-3">
+			<BackdropLoader show={true} title={t('common.GITHUB_LOADING_TEXT')} />
+		</div>
 	);
 };
 

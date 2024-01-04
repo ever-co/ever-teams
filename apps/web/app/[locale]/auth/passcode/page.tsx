@@ -23,7 +23,7 @@ type MyAppProps = {
 	envs: Record<string, string>;
 	user?: any;
 };
-function AuthPasscode({ pageProps }: AppProps<MyAppProps>) {
+function AuthPasscode() {
 	const form = useAuthenticationPasscode();
 	const t = useTranslations();
 	const router = useRouter();
@@ -36,39 +36,37 @@ function AuthPasscode({ pageProps }: AppProps<MyAppProps>) {
 	}, [router]);
 
 	return (
-		<JitsuRoot pageProps={pageProps}>
-			<AuthLayout
-				title={
-					form.authScreen.screen === 'workspace'
-						? t('pages.authLogin.WORKSPACE')
-						: t('pages.authLogin.HEADING_TITLE')
-				}
-				description={
-					form.authScreen.screen === 'workspace' ? (
-						<>
-							<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE1')}</span>
-							<br />
-							<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
-						</>
-					) : (
-						t('pages.authLogin.HEADING_DESCRIPTION')
-					)
-				}
-			>
-				<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-					<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
-						{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
-						{form.authScreen.screen === 'passcode' && (
-							<PasscodeScreen form={form} className={clsxm('w-full')} />
-						)}
+		<AuthLayout
+			title={
+				form.authScreen.screen === 'workspace'
+					? t('pages.authLogin.WORKSPACE')
+					: t('pages.authLogin.HEADING_TITLE')
+			}
+			description={
+				form.authScreen.screen === 'workspace' ? (
+					<>
+						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE1')}</span>
+						<br />
+						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
+					</>
+				) : (
+					t('pages.authLogin.HEADING_DESCRIPTION')
+				)
+			}
+		>
+			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
+				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
+					{form.authScreen.screen === 'passcode' && (
+						<PasscodeScreen form={form} className={clsxm('w-full')} />
+					)}
 
-						{form.authScreen.screen === 'workspace' && (
-							<WorkSpaceScreen form={form} className={clsxm('w-full')} />
-						)}
-					</div>
+					{form.authScreen.screen === 'workspace' && (
+						<WorkSpaceScreen form={form} className={clsxm('w-full')} />
+					)}
 				</div>
-			</AuthLayout>
-		</JitsuRoot>
+			</div>
+		</AuthLayout>
 	);
 }
 

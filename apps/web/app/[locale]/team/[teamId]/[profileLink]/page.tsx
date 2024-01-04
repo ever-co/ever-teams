@@ -16,7 +16,7 @@ import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { fullWidthState } from '@app/stores/fullWidth';
 
-const Team = ({ pageProps }: AppProps<MyAppProps>) => {
+const Team = () => {
 	const router = useRouter();
 	const params = useParams();
 
@@ -61,25 +61,23 @@ const Team = ({ pageProps }: AppProps<MyAppProps>) => {
 
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 	return (
-		<JitsuRoot pageProps={pageProps}>
-			<MainLayout publicTeam={publicTeam}>
-				<MainHeader fullWidth={fullWidth}>
-					<Breadcrumb paths={breadcrumb} className="text-sm" />
+		<MainLayout publicTeam={publicTeam}>
+			<MainHeader fullWidth={fullWidth}>
+				<Breadcrumb paths={breadcrumb} className="text-sm" />
 
-					<UnverifiedEmail />
+				<UnverifiedEmail />
 
-					{/* Header user card list */}
-					<UserTeamCardHeader />
-				</MainHeader>
+				{/* Header user card list */}
+				<UserTeamCardHeader />
+			</MainHeader>
 
-				{/* Divider */}
-				<div className="h-0.5 bg-[#FFFFFF14]"></div>
+			{/* Divider */}
+			<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-				<Container fullWidth={fullWidth}>
-					<TeamMembers publicTeam={publicTeam} />
-				</Container>
-			</MainLayout>
-		</JitsuRoot>
+			<Container fullWidth={fullWidth}>
+				<TeamMembers publicTeam={publicTeam} />
+			</Container>
+		</MainLayout>
 	);
 };
 

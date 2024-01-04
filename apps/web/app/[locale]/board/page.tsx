@@ -12,10 +12,10 @@ const Board = dynamic(() => import('lib/features/integrations/boards'), {
 	loading: () => <BackdropLoader show />
 });
 
-function BoardPage({ pageProps }: AppProps<MyAppProps>) {
+function BoardPage() {
 	return (
 		<>
-			<JitsuRoot pageProps={pageProps}>
+
 				<div className="relative">
 					<Meta title="Board" />
 					<Board />

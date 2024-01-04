@@ -46,7 +46,7 @@ type MyAppProps = {
 	user?: any;
 };
 
-function MainPage({ pageProps }: AppProps<MyAppProps>) {
+function MainPage() {
 	const t = useTranslations();
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -65,102 +65,101 @@ function MainPage({ pageProps }: AppProps<MyAppProps>) {
 
 	return (
 		<>
-			<JitsuRoot pageProps={pageProps}>
-				<MainLayout>
-					<ChatwootWidget />
-					<MainHeader className="pb-1" fullWidth={fullWidth}>
-						<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
-							<div className="flex  items-center gap-8">
-								<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
-								<Breadcrumb paths={breadcrumb} className="text-sm" />
-							</div>
-
-							{/* <Collaborative /> */}
-							<div className="flex w-full md:w-max items-center justify-center py-4 md:py-0 gap-1">
-								<Tooltip label={'Cards'} placement="top-start">
-									<button
-										className={clsxm(
-											'rounded-md px-3 py-1 text-sm font-medium',
-											view === IssuesView.CARDS
-												? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-												: 'text-gray-700 dark:text-gray-300'
-										)}
-										onClick={() => setView(IssuesView.CARDS)}
-									>
-										<QueueListIcon className="w-5 h-5 inline" />
-									</button>
-								</Tooltip>
-								<Tooltip label={'Table'} placement="top-start">
-									<button
-										className={clsxm(
-											'rounded-md px-3 py-1 text-sm font-medium',
-											view === IssuesView.TABLE
-												? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-												: 'text-gray-700 dark:text-gray-300'
-										)}
-										onClick={() => setView(IssuesView.TABLE)}
-									>
-										<TableCellsIcon className="w-5 h-5 inline" />
-									</button>
-								</Tooltip>
-								<Tooltip label={'Blocks'} placement="top-start">
-									<button
-										className={clsxm(
-											'rounded-md px-3 py-1 text-sm font-medium',
-											view === IssuesView.BLOCKS
-												? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-												: 'text-gray-700 dark:text-gray-300'
-										)}
-										onClick={() => setView(IssuesView.BLOCKS)}
-									>
-										<Squares2X2Icon className="w-5 h-5 inline" />
-									</button>
-								</Tooltip>
-								<Tooltip label={'Kanban'} placement="top-start">
-									<Link
-										href={'/kanban'}
-										className={clsxm(
-											'rounded-md px-3 py-1 text-sm font-medium',
-											view === IssuesView.KANBAN
-												? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-												: 'text-gray-700 dark:text-gray-300'
-										)}
-									>
-										<KanbanIcon />
-									</Link>
-								</Tooltip>
-							</div>
+			<MainLayout>
+				<ChatwootWidget />
+				<MainHeader className="pb-1" fullWidth={fullWidth}>
+					<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
+						<div className="flex  items-center gap-8">
+							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
 
-						<UnverifiedEmail />
-						<TeamInvitations />
-					</MainHeader>
-
-					<div
-						className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
-							view !== IssuesView.CARDS ? 'pb-7' : ''
-						}`}
-					>
-						<Container fullWidth={fullWidth}>
-							{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
-							{view === IssuesView.CARDS && isTeamMember ? (
-								<UserTeamCardHeader />
-							) : view === IssuesView.BLOCKS ? (
-								<UserTeamBlockHeader />
-							) : view === IssuesView.TABLE ? (
-								<UserTeamTableHeader />
-							) : null}
-						</Container>
-
-						{/* Divider */}
-						<div className="h-0.5 bg-[#FFFFFF14]"></div>
+						{/* <Collaborative /> */}
+						<div className="flex w-full md:w-max items-center justify-center py-4 md:py-0 gap-1">
+							<Tooltip label={'Cards'} placement="top-start">
+								<button
+									className={clsxm(
+										'rounded-md px-3 py-1 text-sm font-medium',
+										view === IssuesView.CARDS
+											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+											: 'text-gray-700 dark:text-gray-300'
+									)}
+									onClick={() => setView(IssuesView.CARDS)}
+								>
+									<QueueListIcon className="w-5 h-5 inline" />
+								</button>
+							</Tooltip>
+							<Tooltip label={'Table'} placement="top-start">
+								<button
+									className={clsxm(
+										'rounded-md px-3 py-1 text-sm font-medium',
+										view === IssuesView.TABLE
+											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+											: 'text-gray-700 dark:text-gray-300'
+									)}
+									onClick={() => setView(IssuesView.TABLE)}
+								>
+									<TableCellsIcon className="w-5 h-5 inline" />
+								</button>
+							</Tooltip>
+							<Tooltip label={'Blocks'} placement="top-start">
+								<button
+									className={clsxm(
+										'rounded-md px-3 py-1 text-sm font-medium',
+										view === IssuesView.BLOCKS
+											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+											: 'text-gray-700 dark:text-gray-300'
+									)}
+									onClick={() => setView(IssuesView.BLOCKS)}
+								>
+									<Squares2X2Icon className="w-5 h-5 inline" />
+								</button>
+							</Tooltip>
+							<Tooltip label={'Kanban'} placement="top-start">
+								<Link
+									href={'/kanban'}
+									className={clsxm(
+										'rounded-md px-3 py-1 text-sm font-medium',
+										view === IssuesView.KANBAN
+											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+											: 'text-gray-700 dark:text-gray-300'
+									)}
+								>
+									<KanbanIcon />
+								</Link>
+							</Tooltip>
+						</div>
 					</div>
 
-					<Container className="" fullWidth={fullWidth}>
-						{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
+					<UnverifiedEmail />
+					<TeamInvitations />
+				</MainHeader>
+
+				<div
+					className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
+						view !== IssuesView.CARDS ? 'pb-7' : ''
+					}`}
+				>
+					<Container fullWidth={fullWidth}>
+						{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+						{view === IssuesView.CARDS && isTeamMember ? (
+							<UserTeamCardHeader />
+						) : view === IssuesView.BLOCKS ? (
+							<UserTeamBlockHeader />
+						) : view === IssuesView.TABLE ? (
+							<UserTeamTableHeader />
+						) : null}
 					</Container>
-				</MainLayout>
-			</JitsuRoot>
+
+					{/* Divider */}
+					<div className="h-0.5 bg-[#FFFFFF14]"></div>
+				</div>
+
+				<Container className="" fullWidth={fullWidth}>
+					{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
+				</Container>
+			</MainLayout>
+
 			<Analytics />
 		</>
 	);

@@ -28,7 +28,7 @@ function useMeetJwtToken() {
 	return { loading, token };
 }
 
-function MeetPage({ pageProps }: AppProps<MyAppProps>) {
+function MeetPage() {
 	const router = useRouter();
 	const pathname = usePathname();
 	const { token } = useMeetJwtToken();
@@ -62,7 +62,7 @@ function MeetPage({ pageProps }: AppProps<MyAppProps>) {
 
 	return (
 		<>
-			<JitsuRoot pageProps={pageProps}>
+
 				<Meta title="Meet" />
 				{token && roomName && <Meet jwt={token} roomName={encodeURIComponent(roomName)} />}
 			</JitsuRoot>

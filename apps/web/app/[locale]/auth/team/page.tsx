@@ -12,7 +12,7 @@ import type { AppProps } from 'next/app';
 import { MyAppProps } from '@app/interfaces/AppProps';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
-function AuthTeam({ pageProps }: AppProps<MyAppProps>) {
+function AuthTeam() {
 	const {
 		handleSubmit,
 		step,
@@ -28,7 +28,7 @@ function AuthTeam({ pageProps }: AppProps<MyAppProps>) {
 	const t = useTranslations();
 
 	return (
-		<JitsuRoot pageProps={pageProps}>
+		<>
 			<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
 				<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 					<form onSubmit={handleSubmit} autoComplete="off">
@@ -61,7 +61,7 @@ function AuthTeam({ pageProps }: AppProps<MyAppProps>) {
 				</div>
 				<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
 			</AuthLayout>
-		</JitsuRoot>
+		</>
 	);
 }
 
