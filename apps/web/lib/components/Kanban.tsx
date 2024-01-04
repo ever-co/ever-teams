@@ -284,7 +284,7 @@ const KanbanDraggableHeader = ({
 		<>
 			{title && (
 				<header
-					className={'fixed w-[325px] flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px]'}
+					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px] z-40'}
 					style={headerStyleChanger(snapshot, backgroundColor)}
 					data-isDragging={snapshot.isDragging}
 				>
@@ -343,18 +343,20 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-col w-[325px]"
+							className="relative flex flex-col w-[325px]"
 						>
 							{title ? (
 								<>
-									<KanbanDraggableHeader
-										title={title}
-										items={items}
-										snapshot={snapshot}
-										provided={provided}
-										backgroundColor={backgroundColor}
-									/>
-									<div className="flex flex-col gap-3">
+									<div>
+										<KanbanDraggableHeader
+											title={title}
+											items={items}
+											snapshot={snapshot}
+											provided={provided}
+											backgroundColor={backgroundColor}
+										/>
+									</div>
+									<div className="flex flex-col gap-3 ">
 										<KanbanDroppable
 											title={title}
 											droppableId={title}

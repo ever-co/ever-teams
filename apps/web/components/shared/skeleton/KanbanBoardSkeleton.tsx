@@ -3,14 +3,14 @@ import Skeleton from "react-loading-skeleton";
 
 const KanbanBoardSkeleton = () => {
 
-    const columns = Array.from(Array(3));
+    const columns = Array.from(Array(5));
 
     const tasks = Array.from(Array(2));
 
     return (
         <>
             <div
-                className="flex flex-row justify-center gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]"
+                className="flex flex-row gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]"
             >
                {columns.map((_, index: number)=> {
                 return (
