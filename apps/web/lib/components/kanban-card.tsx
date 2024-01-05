@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import VerticalThreeDot from '@components/ui/svgs/vertical-three-dot';
 import { DraggableProvided } from 'react-beautiful-dnd';
 import CircularProgress from '@components/ui/svgs/circular-progress';
@@ -9,6 +8,7 @@ import { pad } from '@app/helpers';
 import { TaskStatus } from '@app/constants';
 import { TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
+import ImageOverlapper, { IImageOverlapper } from './image-overlapper';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -73,16 +73,6 @@ function TagList({ tags }: { tags: Tag[] }) {
 	);
 }
 
-export const stackImages = (index: number, length: number) => {
-	const imageRadius = 20;
-
-	const total_length = (length + 1) * imageRadius;
-
-	return {
-		zIndex: (index + 1).toString(),
-		right: `calc(${total_length - imageRadius * (index + 2)}px)`
-	};
-};
 
 function Priority({ level }: { level: number }) {
 	const numberArray = Array.from({ length: level }, (_, index) => index + 1);
@@ -108,9 +98,15 @@ export default function Item(props: any) {
 
 	const { hours, minutes, seconds } = useTimerView();
 
-	const imageRadius = 20;
-	const numberOfImagesDisplayed = 4;
-	const totalLength = (item.members.length + 1) * imageRadius;
+	const taskAssignee: IImageOverlapper[] = [];
+
+	item.members.map((member: any)=> {
+		taskAssignee.push({
+			id: member.user.id,
+			url: member.user.imageUrl,
+			alt: member.user.firstName
+		})
+	});
 
 	// const handleTime = () => {
 	// 	if (item.status === TaskStatus.INPROGRESS) {
@@ -184,38 +180,8 @@ export default function Item(props: any) {
 						</p>
 					</div>
 				)}
-
-				<div className="relative ">
-					<div className="flex h-fit flex-row justify-end items-center relative"
-						style={{
-							width: `${totalLength}px`
-						}}
-					>
-						{item.members.map((option: any, index: number) => {
-							if (index < numberOfImagesDisplayed) {
-							return (
-								<div className="relative w-[40px] h-[40px]" key={index}>
-									<Image
-										src={option.user.imageUrl}
-										alt={`${option.user.firstName} avatar`}
-										fill={true}
-										className="absolute rounded-full border-2 border-white"
-										style={stackImages(index, item.members.length)}
-									/>
-								</div>
-							);
-							}
-						})}
-						{item.members.length > 4 && (
-							<div
-								className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
-								style={stackImages(4, item.members.length)}
-							>
-								{(item.members.length - numberOfImagesDisplayed) < 100 ? (item.members.length - numberOfImagesDisplayed) : 99}+
-							</div>
-						)}
-					</div>
-				</div>
+				<ImageOverlapper images={taskAssignee}/>
+				
 			</div>
 			{item.hasComment && (
 				<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
