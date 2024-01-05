@@ -19,7 +19,7 @@ import stc from 'string-to-color';
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 
-const Profile = () => {
+const Profile = ({ params }: { params: { memberId: string } }) => {
 	const profile = useUserProfilePage();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
@@ -27,7 +27,10 @@ const Profile = () => {
 	const hook = useTaskFilter(profile);
 
 	const t = useTranslations();
-	const breadcrumb = [{ title: activeTeam?.name || '', href: '/' }, ...JSON.parse(t('pages.profile.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: activeTeam?.name || '', href: '/' },
+		{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
+	];
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
