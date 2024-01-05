@@ -1,12 +1,9 @@
 'use client';
 
 import { useCollaborative, useQuery } from '@app/hooks';
-import { MyAppProps } from '@app/interfaces/AppProps';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -62,10 +59,8 @@ function MeetPage() {
 
 	return (
 		<>
-
-				<Meta title="Meet" />
-				{token && roomName && <Meet jwt={token} roomName={encodeURIComponent(roomName)} />}
-			</JitsuRoot>
+			<Meta title="Meet" />
+			{token && roomName && <Meet jwt={token} roomName={encodeURIComponent(roomName)} />}
 		</>
 	);
 }

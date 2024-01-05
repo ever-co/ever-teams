@@ -19,9 +19,7 @@ import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
-import type { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
+
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Team = () => {

@@ -15,9 +15,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
-import type { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
+
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 

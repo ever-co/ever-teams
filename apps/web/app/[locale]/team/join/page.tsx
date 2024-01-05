@@ -1,11 +1,10 @@
 'use client';
 
-import { MyAppProps } from '@app/interfaces/AppProps';
 import { AuthCodeInputField, Button, Card, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
+
 import { useTranslations } from 'next-intl';
-import type { AppProps } from 'next/app';
+
 const AuthPasscode = () => {
 	const t = useTranslations();
 

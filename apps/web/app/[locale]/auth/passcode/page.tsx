@@ -4,25 +4,16 @@ import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
-import type { AppProps } from 'next/app';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 
 import stc from 'string-to-color';
 
-type MyAppProps = {
-	jitsuConf?: JitsuOptions;
-	jitsuHost?: string;
-	envs: Record<string, string>;
-	user?: any;
-};
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
 	const t = useTranslations();

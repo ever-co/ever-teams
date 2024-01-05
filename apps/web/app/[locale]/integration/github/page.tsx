@@ -2,12 +2,9 @@
 
 import { useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegration';
-import { MyAppProps } from '@app/interfaces/AppProps';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader } from 'lib/components';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { useTranslations } from 'next-intl';
-import type { AppProps } from 'next/app';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 

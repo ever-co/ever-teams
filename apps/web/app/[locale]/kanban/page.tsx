@@ -16,9 +16,6 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { OT_Member } from '@app/interfaces';
-import type { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
 const Kanban = () => {
 	const { data } = useKanban();

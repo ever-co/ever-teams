@@ -11,9 +11,7 @@ import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import type { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
+
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Team = () => {

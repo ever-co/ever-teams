@@ -8,9 +8,6 @@ import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Te
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
 
 function AuthTeam() {
 	const {

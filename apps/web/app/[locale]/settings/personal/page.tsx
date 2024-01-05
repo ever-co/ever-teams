@@ -12,9 +12,7 @@ import { ArrowLeft } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import type { AppProps } from 'next/app';
-import { MyAppProps } from '@app/interfaces/AppProps';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
+
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Personal = () => {

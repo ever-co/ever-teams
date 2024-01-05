@@ -30,21 +30,13 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 import { Analytics } from '@vercel/analytics/react';
-import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import ChatwootWidget from 'lib/features/integrations/chatwoot';
-import type { AppProps } from 'next/app';
+
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
-import { JitsuRoot } from 'lib/settings/JitsuRoot';
+
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
-
-type MyAppProps = {
-	jitsuConf?: JitsuOptions;
-	jitsuHost?: string;
-	envs: Record<string, string>;
-	user?: any;
-};
 
 function MainPage() {
 	const t = useTranslations();
