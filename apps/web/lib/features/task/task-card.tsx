@@ -108,7 +108,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
+					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
 					active && ['border-primary-light dark:bg-[#1E2025]'],
 					'gap-5',
 					className
@@ -118,11 +118,11 @@ export function TaskCard(props: Props) {
 					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
-				<div className="w-[35%] flex flex-row justify-between">
+				<div className="flex-1 flex flex-row justify-between">
 					{/* Task information */}
 					<TaskInfo
 						task={task}
-						className="px-4 2xl:w-96 md:w-80"
+						className="px-4 w-full"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
 					/>
@@ -145,7 +145,7 @@ export function TaskCard(props: Props) {
 				<VerticalSeparator />
 
 				{/* TaskTimes */}
-				<div className="flex items-center justify-between gap-[1.125rem] w-[25%] px-5">
+				<div className="flex items-center justify-between gap-[1.125rem]  px-5 w-1/5 lg:px-3 2xl:w-52 3xl:w-72">
 					<TaskTimes
 						activeAuthTask={activeAuthTask}
 						task={task}
@@ -172,7 +172,7 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex flex-row justify-between items-center w-[25%]">
+				<div className="flex flex-row justify-between items-center w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<ActiveTaskStatusDropdown
 						task={task}
@@ -203,10 +203,10 @@ export function TaskCard(props: Props) {
 					)} */}
 				</div>
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="px-4 mb-4 w-80" />{' '}
+					<TaskInfo task={task} className="px-4 mb-4 w-full" />{' '}
 					{viewType === 'default' && (
 						<>
-							<div className="flex items-end space-x-2">
+							<div className="flex items-end mx-auto py-4 space-x-2">
 								<TaskEstimateInfo
 									memberInfo={memberInfo}
 									edition={taskEdition}
@@ -220,7 +220,7 @@ export function TaskCard(props: Props) {
 
 				{viewType === 'unassign' && (
 					<>
-						<UsersTaskAssigned className="px-3 w-52" task={task} />
+						<UsersTaskAssigned className="px-3 mx-auto w-full py-4" task={task} />
 					</>
 				)}
 				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
