@@ -35,16 +35,18 @@ const Kanban = () => {
 
 	const imageRadius = 20;
 	const numberOfImagesDisplayed = 3;
-	
+
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 	const totalLength = (activeTeamMembers.length + 1) * imageRadius;
 
 	return (
 		<>
-			<MainLayout
-				showTimer={true}
-			>
-				<div className={'fixed flex flex-col justify-between bg-white dark:bg-dark--theme h-[20vh] z-10 px-[32px] mx-[0px] w-full'}>
+			<MainLayout showTimer={true}>
+				<div
+					className={
+						'fixed flex flex-col justify-between bg-white dark:bg-dark--theme h-[20vh] z-10 px-[32px] mx-[0px] w-full'
+					}
+				>
 					<div className="flex flex-row items-center justify-between mt-[34px]">
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						<div className="flex flex-row items-center gap-[12px]">
@@ -54,35 +56,47 @@ const Kanban = () => {
 								<div
 									className="flex h-fit flex-row justify-end items-center relative "
 									style={{
-										width: `${activeTeamMembers.length < 4 ? totalLength : (100)}px`
+										width: `${activeTeamMembers.length < 4 ? totalLength : 100}px`
 									}}
 								>
-									{activeTeamMembers.filter((_:any, index: number) => {
-										return index < numberOfImagesDisplayed
-									}).map((image: OT_Member, index: number) => {
+									{activeTeamMembers
+										.filter((_: any, index: number) => {
+											return index < numberOfImagesDisplayed;
+										})
+										.map((image: OT_Member, index: number) => {
 											return (
-												<div 
+												<div
 													key={index}
-													className="h-fit w-fit absolute" 
-													style={stackImages(index, (activeTeamMembers.length < numberOfImagesDisplayed ? activeTeamMembers.length : (numberOfImagesDisplayed + 1)))}
+													className="h-fit w-fit absolute"
+													style={stackImages(
+														index,
+														activeTeamMembers.length < numberOfImagesDisplayed
+															? activeTeamMembers.length
+															: numberOfImagesDisplayed + 1
+													)}
 												>
 													<div className="relative w-[40px] h-[40px]" key={index}>
 														<Image
-															src={image.employee.user ? image.employee.user.imageUrl : ""}
-															alt={""}
+															src={
+																image.employee.user ? image.employee.user.imageUrl : ''
+															}
+															alt={''}
 															fill={true}
 															className="rounded-full border-2 border-white"
 														/>
 													</div>
 												</div>
 											);
-									})}
+										})}
 									{activeTeamMembers.length > numberOfImagesDisplayed && (
 										<div
 											className="flex flex-row text-sm text-[#282048] dark:text-white border-2 border-[#0000001a] dark:border-white bg-white dark:bg-transparent rounded-full font-semibold items-center justify-center z-20 h-[40px] w-[40px]"
 											style={stackImages(3, 4)}
 										>
-											{(activeTeamMembers.length - numberOfImagesDisplayed) < 100 ? (activeTeamMembers.length - numberOfImagesDisplayed) : 99}+
+											{activeTeamMembers.length - numberOfImagesDisplayed < 100
+												? activeTeamMembers.length - numberOfImagesDisplayed
+												: 99}
+											+
 										</div>
 									)}
 								</div>
@@ -148,39 +162,39 @@ const Kanban = () => {
 					</div>
 				</div>
 				<div className="mt-[20vh] overflow-y-auto max-h-[60vh] z-0">
-				{/** TODO:fetch teamtask based on days */}
-				{/** Kanbanboard for today tasks */}
-				{activeTab === KanbanTabs.TODAY && (
-					<>
-						{Object.keys(data).length > 0 ? (
-							<KanbanView kanbanBoardTasks={data} />
-						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</>
-				)}
+					{/** TODO:fetch teamtask based on days */}
+					{/** Kanbanboard for today tasks */}
+					{activeTab === KanbanTabs.TODAY && (
+						<>
+							{Object.keys(data).length > 0 ? (
+								<KanbanView kanbanBoardTasks={data} />
+							) : (
+								<KanbanBoardSkeleton />
+							)}
+						</>
+					)}
 
-				{/** Kanbanboard for yesterday tasks */}
-				{activeTab === KanbanTabs.YESTERDAY && (
-					<>
-						{Object.keys(data).length > 0 ? (
-							<KanbanView kanbanBoardTasks={data} />
-						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</>
-				)}
+					{/** Kanbanboard for yesterday tasks */}
+					{activeTab === KanbanTabs.YESTERDAY && (
+						<>
+							{Object.keys(data).length > 0 ? (
+								<KanbanView kanbanBoardTasks={data} />
+							) : (
+								<KanbanBoardSkeleton />
+							)}
+						</>
+					)}
 
-				{/** Kanbanboard for tomorrow tasks */}
-				{activeTab === KanbanTabs.TOMORROW && (
-					<>
-						{Object.keys(data).length > 0 ? (
-							<KanbanView kanbanBoardTasks={data} />
-						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</>
-				)}
+					{/** Kanbanboard for tomorrow tasks */}
+					{activeTab === KanbanTabs.TOMORROW && (
+						<>
+							{Object.keys(data).length > 0 ? (
+								<KanbanView kanbanBoardTasks={data} />
+							) : (
+								<KanbanBoardSkeleton />
+							)}
+						</>
+					)}
 				</div>
 			</MainLayout>
 		</>

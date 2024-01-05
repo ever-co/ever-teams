@@ -14,7 +14,8 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const HeaderSkeleton = () => {
 	return (
@@ -49,6 +50,7 @@ export function Navbar({
 	const { isTeamMember } = useOrganizationTeams();
 	const [user] = useRecoilState(userState);
 	const { isOpen, closeModal, openModal } = useModal();
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const pathname = usePathname();
 
@@ -71,7 +73,7 @@ export function Navbar({
 						className
 					)}
 				>
-					<Container>
+					<Container fullWidth={fullWidth}>
 						<div className="w-full flex justify-between items-center min-h-[90px]">
 							<EverTeamsLogo dash />
 							{!notFound && (
