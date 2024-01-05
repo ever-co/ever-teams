@@ -143,6 +143,7 @@
 		"apistage",
 		"flaticon",
 		"VERSONS",
+		"vertificalline",
 		"Tongatapu",
 		"Moresby",
 		"Pago",
@@ -300,12 +301,15 @@
 		"Chami",
 		"Mazen",
 		"Heinze",
+		"Kanbanboard",
+		"Kolkata",
 		"Holmgren",
 		"Jamon",
 		"Rickert",
 		"Metral",
 		"subsquently",
 		"Syle",
+		"teamtask",
 		"imagebutton",
 		"hwba",
 		"plasmohq",
@@ -314,7 +318,8 @@
 		"dimesions",
 		"Ordereds",
 		"uidotdev",
-		"usehooks"
+		"usehooks",
+		"Personnal"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

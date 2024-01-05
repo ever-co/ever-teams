@@ -16,9 +16,13 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
+
 const Profile = () => {
 	const profile = useUserProfilePage();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const hook = useTaskFilter(profile);
 
@@ -31,7 +35,7 @@ const Profile = () => {
 	return (
 		<>
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
+				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
@@ -62,7 +66,7 @@ const Profile = () => {
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-				<Container className="mb-10">
+				<Container fullWidth={fullWidth} className="mb-10">
 					<UserProfileTask profile={profile} tabFiltered={hook} />
 				</Container>
 			</MainLayout>

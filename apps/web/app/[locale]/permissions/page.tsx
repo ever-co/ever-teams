@@ -10,7 +10,9 @@ import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from 'lib/co
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
+
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Permissions = () => {
 	const t = useTranslations();
@@ -18,6 +20,7 @@ const Permissions = () => {
 	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
 
 	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [user] = useRecoilState(userState);
 	const { isTeamManager } = useIsMemberManager(user);
@@ -58,7 +61,7 @@ const Permissions = () => {
 			<MainHeader>
 				<Breadcrumb paths={['Dashboard', 'Roles & Permissions']} className="text-sm" />
 			</MainHeader>
-			<Container className="flex">
+			<Container fullWidth={fullWidth} className="flex">
 				<Card className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
 					<div className="flex flex-col w-[35%] overflow-scroll gap-2 mt-5">
 						{roles.map((role) => (

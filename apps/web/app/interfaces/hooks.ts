@@ -109,6 +109,7 @@ export interface IDrowDownData {
 
 export type IClassName<T = object> = {
 	className?: string;
+	fullWidth?: boolean;
 	type?: 'VERTICAL' | 'HORIZONTAL';
 } & T;
 

@@ -5,6 +5,8 @@ import { Toaster } from '@components/ui/toaster';
 import { Container, Divider, Meta } from 'lib/components';
 import { PropsWithChildren } from 'react';
 import { Footer, Navbar } from '.';
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 type Props = PropsWithChildren<{
 	title?: string;
@@ -16,6 +18,7 @@ type Props = PropsWithChildren<{
 }>;
 
 export function MainLayout({ children, title, showTimer, publicTeam, notFound, className, childrenClassName }: Props) {
+	const fullWidth = useRecoilValue(fullWidthState);
 	return (
 		<div>
 			<style jsx global>
@@ -42,9 +45,9 @@ export function MainLayout({ children, title, showTimer, publicTeam, notFound, c
 			>
 				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>{children}</div>
 
-				<Container>
+				<Container fullWidth={fullWidth} className="w-full !mx-0 px-8">
 					<Divider />
-					<Footer className="justify-between px-0" />
+					<Footer className="justify-between px-0 w-full" />
 				</Container>
 			</div>
 			<Toaster />
