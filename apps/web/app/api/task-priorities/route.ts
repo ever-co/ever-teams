@@ -1,7 +1,6 @@
 import { ITaskPrioritiesCreate } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { createPrioritiesRequest, getTaskPrioritiesListRequest } from '@app/services/server/requests/task-priorities';
-import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
