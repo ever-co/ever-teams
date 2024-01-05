@@ -147,7 +147,7 @@ export function UserTeamCard({
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2 overflow-y-hidden"
+					className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
@@ -174,7 +174,7 @@ export function UserTeamCard({
 				{/* TodayWorkedTime */}
 				<TodayWorkedTime
 					isAuthUser={memberInfo.isAuthUser}
-					className="flex-1 lg:text-base text-xs 3xl:w-[12rem]"
+					className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 					memberInfo={memberInfo}
 				/>
 
