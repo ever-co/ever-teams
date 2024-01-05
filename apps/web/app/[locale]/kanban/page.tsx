@@ -15,7 +15,6 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Skeleton from 'react-loading-skeleton';
 import ImageOverlapper, { IImageOverlapper } from 'lib/components/image-overlapper';
-import { OT_Member } from '@app/interfaces';
 
 const Kanban = () => {
 	const { data } = useKanban();
@@ -32,9 +31,6 @@ const Kanban = () => {
 		{ title: activeTeam?.name || '', href: '/' },
 		{ title: 'Kanban Board', href: `/${currentLocale}/kanban` }
 	];
-
-	const imageRadius = 20;
-	const numberOfImagesDisplayed = 3;
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 
