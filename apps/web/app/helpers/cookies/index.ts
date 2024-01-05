@@ -16,7 +16,6 @@ import {
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from './helpers';
 import { chunk, range } from 'lib/utils';
-import { NextApiRequest, NextApiResponse } from 'next';
 
 type DataParams = {
 	refresh_token: {
@@ -33,13 +32,16 @@ type DataParams = {
 	userId: string;
 };
 
-type NextCtx = { req: NextApiRequest; res: NextApiResponse };
+type NextCtx = {
+	req: any;
+	res: any;
+};
 
 export const setLargeStringInCookies = (
 	COOKIE_NAME: string,
 	largeString: string,
-	req: NextApiRequest,
-	res: NextApiResponse,
+	req: any,
+	res: any,
 	crossSite = false
 ) => {
 	const chunkSize = 4000;
@@ -75,7 +77,7 @@ export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) =>
 	return chunks.join('');
 };
 
-export function setAuthCookies(datas: DataParams, req: NextApiRequest, res: NextApiResponse) {
+export function setAuthCookies(datas: DataParams, req: any, res: any) {
 	const {
 		refresh_token,
 		access_token,
