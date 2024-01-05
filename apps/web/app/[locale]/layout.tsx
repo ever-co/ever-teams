@@ -11,13 +11,22 @@ import { AppState } from 'lib/app/init-state';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 import { ThemeProvider } from 'next-themes';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
-type Props = {
+interface Props {
 	children: ReactNode;
 	params: { locale: string };
-};
+
+	pageProps: {
+		jitsuConf?: JitsuOptions;
+		jitsuHost?: string;
+		envs: Record<string, string>;
+		user?: any;
+	};
+}
 
 // export function generateStaticParams() {
 // 	return locales.map((locale: any) => ({ locale }));
@@ -31,7 +40,7 @@ type Props = {
 // 	};
 // }
 
-export default function LocaleLayout({ children, params: { locale } }: Props) {
+const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
 	// Enable static rendering
@@ -39,6 +48,7 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
+	console.log({ pageProps });
 	return (
 		<html className="h-full" lang={locale}>
 			{/* <head>
@@ -61,11 +71,13 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 							<AppState />
-							{children}
+							<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
 						</ThemeProvider>
 					</RecoilRoot>
 				</body>
 			</NextIntlClientProvider>
 		</html>
 	);
-}
+};
+
+export default LocaleLayout;

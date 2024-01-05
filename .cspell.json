@@ -318,7 +318,8 @@
 		"dimesions",
 		"Ordereds",
 		"uidotdev",
-		"usehooks"
+		"usehooks",
+		"Personnal"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

@@ -14,7 +14,7 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 
 import stc from 'string-to-color';
 
-export default function AuthPasscode() {
+function AuthPasscode() {
 	const form = useAuthenticationPasscode();
 	const t = useTranslations();
 	const router = useRouter();
@@ -60,6 +60,8 @@ export default function AuthPasscode() {
 		</AuthLayout>
 	);
 }
+
+export default AuthPasscode;
 
 function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
