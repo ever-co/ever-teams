@@ -174,11 +174,13 @@ export function TaskCard(props: Props) {
 
 				<div className="flex flex-row justify-between items-center w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<ActiveTaskStatusDropdown
-						task={task}
-						onChangeLoading={(load) => setLoading(load)}
-						className="min-w-[10.625rem]"
-					/>
+					<div className="w-full flex items-center justify-center">
+						<ActiveTaskStatusDropdown
+							task={task}
+							onChangeLoading={(load) => setLoading(load)}
+							className="min-w-[10.625rem]"
+						/>
+					</div>
 
 					{/* TaskCardMenu */}
 					{task && memberInfo && currentMember && (
