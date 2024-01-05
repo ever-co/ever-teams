@@ -1,17 +1,14 @@
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
+import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, syncTimeSlotRequest } from '@app/services/server/requests';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: Request) {
+	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId } = await authenticatedGuard(req, res);
-	if (!user) return $res();
+	if (!user) return $res('Unauthorized');
 
-	if (req.method !== 'POST') {
-		$res.status(405).send({});
-		return;
-	}
-
-	const { source } = req.body;
+	const body = req.body as unknown as { source: any };
+	const { source } = body;
 	await syncTimeSlotRequest(
 		{
 			tenantId,
@@ -26,5 +23,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const { data: timerStatus } = await getTimerStatusRequest({ tenantId, organizationId }, access_token);
 
-	return $res.json(timerStatus);
+	return $res(timerStatus);
 }
