@@ -29,7 +29,10 @@ const TaskDetails = () => {
 
 	const id = params?.id;
 
-	const breadcrumb = [{ title: activeTeam?.name || '', href: '/' }, ...JSON.parse(t('pages.taskDetails.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: activeTeam?.name || '', href: '/' },
+		{ title: JSON.parse(t('pages.taskDetails.BREADCRUMB')), href: `/task/${id}` }
+	];
 
 	useEffect(() => {
 		if (
