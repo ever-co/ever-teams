@@ -9,10 +9,10 @@ export async function GET(req: Request) {
 	const { searchParams } = new URL(req.url);
 
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
-	if (!user) return $res();
+	if (!user) return $res('Unauthorized');
 
 	const { id: userId } = searchParams as unknown as { id: string };
-	return Response.json(
+	return $res(
 		await getTaskCreator({
 			userId: userId as string,
 			bearer_token: access_token
@@ -24,11 +24,11 @@ export async function POST(req: Request) {
 	const res = new NextResponse();
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return $res();
+	if (!user) return $res('Unauthorized');
 
 	const body = req.body as unknown as IUser;
 
-	return Response.json(
+	return $res(
 		await updateUserAvatarRequest(
 			{
 				data: body,
@@ -44,9 +44,9 @@ export async function DELETE(req: Request) {
 	const res = new NextResponse();
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return $res();
+	if (!user) return $res('Unauthorized');
 
-	return Response.json(
+	return $res(
 		await deleteUserRequest({
 			id: user.id,
 			bearer_token: access_token,

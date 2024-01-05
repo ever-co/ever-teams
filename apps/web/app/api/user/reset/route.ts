@@ -6,9 +6,9 @@ import { NextResponse } from 'next/server';
 export default async function DELETE(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return $res();
+	if (!user) return $res('Unauthorized');
 
-	return Response.json(
+	return $res(
 		await resetUserRequest({
 			bearer_token: access_token,
 			tenantId

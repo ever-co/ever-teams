@@ -23,13 +23,14 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 
 	if (!r_res || (r_res.data as any).statusCode === 401) {
 		return {
-			$res: () => Response.json({ statusCode: 401, message: 'Unauthorized' }),
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			$res: (data: any) => Response.json({ statusCode: 401, message: data }),
 			user: null
 		};
 	}
 
 	return {
-		$res: res,
+		$res: (data: any) => Response.json(data),
 		user: r_res.data,
 		access_token: access_token as string,
 		tenantId,
