@@ -2,7 +2,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { getTimerStatusRequest, stopTimerRequest, toggleTimerRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export default async function POST(req: Request) {
+export async function POST(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('');

@@ -2,8 +2,9 @@ import {
 	getPublicOrganizationTeamMiscDataRequest,
 	getPublicOrganizationTeamRequest
 } from '@app/services/server/requests/public-organization-team';
+import { NextResponse } from 'next/server';
 
-export default async function GET(req: Request) {
+export async function GET(req: Request) {
 	const { searchParams } = new URL(req.url);
 	const { profileLink, teamId, type }: { profileLink: string; teamId: string; type: string } =
 		searchParams as unknown as {
@@ -13,14 +14,14 @@ export default async function GET(req: Request) {
 		};
 
 	if (type === 'misc') {
-		return Response.json(
+		return NextResponse.json(
 			await getPublicOrganizationTeamMiscDataRequest({
 				profileLink: profileLink,
 				teamId
 			})
 		);
 	}
-	return Response.json(
+	return NextResponse.json(
 		await getPublicOrganizationTeamRequest({
 			profileLink: profileLink,
 			teamId
