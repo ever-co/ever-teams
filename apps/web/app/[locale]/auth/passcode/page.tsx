@@ -101,10 +101,13 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 					<div className="flex items-center justify-between w-full mt-6">
 						{/* Send code */}
-						<div className="flex flex-col items-start">
-							<Link href="/auth/team">
-								<BackButton />
-							</Link>
+						<div className="flex flex-col items-start gap-2">
+							<div className="flex justify-start items-center text-sm">
+								<span>{t('common.BACK')}</span>
+								<Link href="/auth/team" className="text-primary">
+									<span>Register now</span>
+								</Link>
+							</div>
 						</div>
 
 						<Button type="submit" loading={form.signInEmailLoading} disabled={form.signInEmailLoading}>

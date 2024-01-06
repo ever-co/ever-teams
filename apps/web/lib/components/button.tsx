@@ -97,9 +97,8 @@ export function BackButton({ onClick, className }: { onClick?: () => void; class
 	return (
 		<button type="button" className={clsxm('flex items-center justify-start text-sm', className)}>
 			<ArrowLeft className="mr-2" />
-			<span>{t('common.BACK')}</span>
 			<span className="text-sm" onClick={onClick}>
-				Register now
+				Back
 			</span>
 		</button>
 	);
