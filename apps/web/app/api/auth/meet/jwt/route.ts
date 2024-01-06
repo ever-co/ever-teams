@@ -74,5 +74,5 @@ export async function GET(req: Request) {
 	// We don't use this cookie for now
 	// setMeetJwtSessionCookie(new_token, { req, res });
 
-	NextResponse.json({ token: new_token });
+	return NextResponse.json({ token: new_token });
 }

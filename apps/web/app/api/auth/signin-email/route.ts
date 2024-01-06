@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
 	const callbackUrl = `${url}${INVITE_CALLBACK_PATH}`;
 
-	const body = req.body as unknown as { email: string };
+	const body = (await req.json()) as unknown as { email: string };
 
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
 
@@ -19,12 +19,15 @@ export async function POST(req: Request) {
 	const codeSendRes = await signInEmailRequest(body.email, callbackUrl).catch(() => void 0);
 
 	if (!codeSendRes) {
-		return NextResponse.json({
-			errors: {
-				email: "We couldn't find any account associated to this email"
-			}
-		});
+		return NextResponse.json(
+			{
+				errors: {
+					email: "We couldn't find any account associated to this email"
+				}
+			},
+			{ status: 400 }
+		);
 	}
 
-	NextResponse.json(codeSendRes.data);
+	return NextResponse.json(codeSendRes.data);
 }

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('unauthorized');
 
-	const body = req.body as unknown as { code: string };
+	const body = (await req.json()) as unknown as { code: string };
 
 	const { errors, valid: formValid } = authFormValidate(['code'], body as any);
 
@@ -24,5 +24,5 @@ export async function POST(req: Request) {
 		email: user.email
 	});
 
-	$res(data);
+	return $res(data);
 }

@@ -52,7 +52,8 @@ export function signInWorkspaceRequest(email: string, token: string) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/signin.workspace',
 		method: 'POST',
-		body: { email, token }
+		body: { email, token },
+		bearer_token: token
 	});
 }
 

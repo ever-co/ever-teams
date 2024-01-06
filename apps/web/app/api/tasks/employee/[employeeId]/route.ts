@@ -14,7 +14,7 @@ export async function DELETE(req: Request) {
 		organizationTeamId: string;
 	};
 
-	$res(
+	return $res(
 		await deleteEmployeeFromTasksRequest({
 			tenantId,
 			employeeId,

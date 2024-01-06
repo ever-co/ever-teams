@@ -7,7 +7,7 @@ export async function POST(req: Request) {
 	const url = new URL(req.url);
 	const callbackUrl = `${url.origin}${INVITE_CALLBACK_PATH}`;
 
-	const body = req.body as unknown as { email: string };
+	const body = (await req.json()) as unknown as { email: string };
 
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
 

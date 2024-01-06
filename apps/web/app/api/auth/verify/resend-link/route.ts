@@ -20,5 +20,5 @@ export async function POST(req: Request) {
 		appEmailConfirmationUrl
 	});
 
-	$res(data);
+	return $res(data);
 }

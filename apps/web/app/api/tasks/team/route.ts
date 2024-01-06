@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 	);
 	if (!user) return $res('Unauthorized');
 
-	const body: Record<string, any> = req.body || {};
+	const body: Record<string, any> = (await req.json()) || {};
 
 	const title = body.title?.trim() || '';
 	if (title.trim().length < 2) {
@@ -48,5 +48,5 @@ export async function POST(req: Request) {
 		bearer_token: access_token
 	});
 
-	$res(tasks);
+	return $res(tasks);
 }

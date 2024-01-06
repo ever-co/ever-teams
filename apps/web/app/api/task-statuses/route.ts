@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = req.body as unknown as ITaskStatusCreate;
+	const body = (await req.json()) as unknown as ITaskStatusCreate;
 
 	return $res(await createStatusRequest(body, access_token, body?.tenantId));
 }

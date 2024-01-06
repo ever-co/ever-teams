@@ -6,5 +6,5 @@ export async function GET(req: Request) {
 	const { $res, user } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	$res(user);
+	return $res(user);
 }

@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = req.body as unknown as ITaskRelatedIssueTypeCreate;
+	const body = (await req.json()) as unknown as ITaskRelatedIssueTypeCreate;
 
 	return $res(await createRelatedIssueTypeRequest(body, access_token, body?.tenantId));
 }

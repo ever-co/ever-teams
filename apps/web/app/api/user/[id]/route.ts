@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	const body = req.body as unknown as IUser;
+	const body = (await req.json()) as unknown as IUser;
 
 	return $res(
 		await updateUserAvatarRequest(

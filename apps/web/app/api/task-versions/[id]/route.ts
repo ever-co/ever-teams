@@ -12,7 +12,7 @@ export async function PUT(req: Request) {
 	const { searchParams } = new URL(req.url);
 	const { id } = searchParams as unknown as { id: string };
 
-	const datas = req.body as unknown as ITaskVersionCreate;
+	const datas = (await req.json()) as unknown as ITaskVersionCreate;
 	return $res(
 		await editTaskVersionRequest({
 			id,

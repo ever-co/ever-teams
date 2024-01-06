@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = req.body as unknown as ITaskSizesCreate;
+	const body = (await req.json()) as unknown as ITaskSizesCreate;
 
 	return $res(await createSizesRequest(body, access_token, body?.tenantId));
 }

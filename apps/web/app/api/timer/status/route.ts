@@ -9,5 +9,5 @@ export async function GET(req: Request) {
 
 	const { data } = await getTimerStatusRequest({ tenantId, organizationId }, access_token);
 
-	$res(data);
+	return $res(data);
 }

@@ -1,4 +1,5 @@
 import { authFormValidate } from '@app/helpers/validations';
+import { NextApiRequest, NextApiResponse } from 'next';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -8,12 +9,13 @@ import {
 } from '@app/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
 import { ILoginResponse } from '@app/interfaces';
-import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
-	const res = new NextResponse();
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	if (req.method !== 'POST') {
+		return res.status(405).json({ status: 'fail' });
+	}
 
-	const body = req.body as unknown as {
+	const body = req.body as {
 		email: string;
 		token: string;
 		teamId: string;
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
 
 	if (!formValid) {
-		return NextResponse.json({ errors });
+		return res.status(400).json({ errors });
 	}
 
 	// Accept Invite Flow Start
@@ -59,7 +61,7 @@ export async function POST(req: Request) {
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes.data as any).response?.statusCode
 		) {
-			return NextResponse.json({
+			return res.status(400).json({
 				errors: {
 					email: 'Authentication code or email address invalid'
 				}
@@ -68,7 +70,7 @@ export async function POST(req: Request) {
 		loginResponse = acceptInviteRes.data;
 
 		if (!loginResponse) {
-			return NextResponse.json({
+			return res.status(400).json({
 				errors: {
 					email: 'Authentication code or email address invalid'
 				}
@@ -89,7 +91,7 @@ export async function POST(req: Request) {
 		const organization = organizations?.items[0];
 
 		if (!organization) {
-			return NextResponse.json({
+			return res.status(400).json({
 				errors: {
 					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
 				}
@@ -120,7 +122,7 @@ export async function POST(req: Request) {
 			req,
 			res
 		);
-		return NextResponse.json({ team, loginResponse });
+		return res.status(200).json({ team, loginResponse });
 	}
 	// Accept Invite Flow End
 
@@ -138,7 +140,7 @@ export async function POST(req: Request) {
 	const organization = organizations?.items[0];
 
 	if (!organization) {
-		return NextResponse.json({
+		return res.status(400).json({
 			errors: {
 				email: 'Your account is not yet ready to be used on the Ever Teams Platform'
 			}
@@ -162,5 +164,5 @@ export async function POST(req: Request) {
 		res
 	);
 
-	NextResponse.json({ loginResponse: data });
+	res.status(200).json({ loginResponse: data });
 }

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
 	const appEmailConfirmationUrl = `${url.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 
-	const body = req.body as unknown as IRegisterDataAPI;
+	const body = (await req.json()) as unknown as IRegisterDataAPI;
 
 	const noRecaptchaArray = ['email', 'name', 'team'];
 
@@ -141,5 +141,5 @@ export async function POST(req: Request) {
 		res
 	);
 
-	NextResponse.json({ loginRes, team, employee });
+	return NextResponse.json({ loginRes, team, employee });
 }

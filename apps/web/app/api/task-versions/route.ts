@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = req.body as unknown as ITaskVersionCreate;
+	const body = (await req.json()) as unknown as ITaskVersionCreate;
 
 	return $res(await createVersionRequest(body, access_token, body?.tenantId));
 }

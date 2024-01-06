@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
 	const res = new NextResponse();
 
-	const body = req.body as { refresh_token: string } | null;
+	const body = (await req.json()) as { refresh_token: string } | null;
 	const refresh_token = body?.refresh_token;
 
 	if (!refresh_token || refresh_token.trim().length < 2) {

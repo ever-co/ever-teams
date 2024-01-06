@@ -7,7 +7,7 @@ export async function POST(req: Request) {
 	const { $res, user, tenantId, access_token, organizationId, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('');
 
-	const body = req.body as unknown as { source: any };
+	const body = (await req.json()) as unknown as { source: any };
 	const { source } = body;
 
 	await toggleTimerRequest(

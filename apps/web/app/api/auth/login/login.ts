@@ -13,8 +13,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
-	const body = req.body as unknown as ILoginDataAPI;
-	console.log(body);
+	const body = (await req.json()) as unknown as ILoginDataAPI;
 	let loginResponse: ILoginResponse | null = null;
 
 	const { errors, valid: formValid } = authFormValidate(['email', 'code'], body as any);
@@ -150,5 +149,5 @@ export async function POST(req: Request) {
 		res
 	);
 
-	NextResponse.json({ team, loginResponse });
+	return NextResponse.json({ team, loginResponse });
 }

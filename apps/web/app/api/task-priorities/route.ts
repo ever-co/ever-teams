@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = req.body as unknown as ITaskPrioritiesCreate;
+	const body = (await req.json()) as unknown as ITaskPrioritiesCreate;
 
 	return $res(await createPrioritiesRequest(body, access_token, body?.tenantId));
 }

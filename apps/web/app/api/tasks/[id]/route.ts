@@ -33,7 +33,7 @@ export async function PUT(req: Request) {
 	const { searchParams } = new URL(req.url);
 
 	const { id: taskId } = searchParams as unknown as { id: string };
-	const body = req.body as unknown as ITeamTask;
+	const body = (await req.json()) as unknown as ITeamTask;
 
 	delete body.selectedTeam;
 	delete body.rootEpic;
@@ -54,6 +54,6 @@ export async function PUT(req: Request) {
 		bearer_token: access_token
 	});
 
-	$res(tasks);
+	return $res(tasks);
 }
 // Unauthorized;
