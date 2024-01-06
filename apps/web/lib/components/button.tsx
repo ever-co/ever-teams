@@ -2,7 +2,6 @@ import { clsxm } from '@app/utils';
 import { PropsWithChildren } from 'react';
 import { SpinnerLoader } from './loader';
 import { ArrowLeft } from './svgs';
-import { useTranslations } from 'next-intl';
 
 type Props = {
 	variant?:
@@ -92,7 +91,6 @@ export function RoundedButton({ children, className, ...rest }: RoundedButtonPro
 }
 
 export function BackButton({ onClick, className }: { onClick?: () => void; className?: string }) {
-	const t = useTranslations();
 
 	return (
 		<button type="button" className={clsxm('flex items-center justify-start text-sm', className)}>
