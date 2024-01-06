@@ -23,17 +23,17 @@ export function UserTeamCardHeader() {
 			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
 			<div className="w-1"></div>
 			<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-				<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
+				<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col justify-center text-center">
 					{t('task.taskTableHead.TASK_WORK.TITLE')}
 					<br />
 					{t('common.TASK')}
 				</div>
 			</Tooltip>
 			<div className="w-1"></div>
-			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
+			<div className=" text-center w-1/5 lg:px-3 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
 			<div className="w-1"></div>
 			<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-				<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
+				<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 text-center">
 					{t('task.taskTableHead.TOTAL_WORK.TITLE')}
 					<br />
 					{t('common.TODAY')}
