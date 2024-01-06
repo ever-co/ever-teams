@@ -83,7 +83,7 @@ export const en = {
 		DISCARD: 'Discard',
 		EXISTING_MEMBER: 'Already a Member',
 		NEW_MEMBER: 'Become a Member',
-		BACK: 'Back',
+		BACK: `Don't have an account?`,
 		JOIN_REQUEST: 'Request To Join',
 		PERMISSION: 'Permission',
 		SEARCH: 'Search',

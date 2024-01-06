@@ -95,9 +95,17 @@ export function BackButton({ onClick, className }: { onClick?: () => void; class
 	const t = useTranslations();
 
 	return (
-		<button type="button" className={clsxm('flex items-center', className)} onClick={onClick}>
+		<div className="flex gap-2 text-sm items-center">
 			<ArrowLeft className="mr-2" />
-			<span className="text-sm">{t('common.BACK')}</span>
-		</button>
+			<span>
+				{/* {t('common.BACK')} */}
+				Don&apos;t have an account?{' '}
+			</span>
+			<button type="button" className={clsxm('flex items-center', className)}>
+				<span className="text-sm" onClick={onClick}>
+					Register now
+				</span>
+			</button>
+		</div>
 	);
 }

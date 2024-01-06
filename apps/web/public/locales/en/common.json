@@ -138,7 +138,7 @@
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a Member",
 		"NEW_MEMBER": "Become a Member",
-		"BACK": "Back",
+		"BACK": "Don't have an account?",
 		"JOIN_REQUEST": "Request To Join",
 		"PERMISSION": "Permission",
 		"SEARCH": "Search",
@@ -254,8 +254,8 @@
 			"HEADING_DESCRIPTION": "Please enter email and invitation code to join existing team."
 		},
 		"authLogin": {
-			"HEADING_TITLE": "Login to the Team",
-			"HEADING_DESCRIPTION": "Please enter email and invitation code to login.",
+			"HEADING_TITLE": "Log In to Ever Teams",
+			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process.",
 
 			"WORKSPACE": "Workspace",
 			"HEADING_WORKSPACE_LINE1": "The email associated with multiple workspaces,",
