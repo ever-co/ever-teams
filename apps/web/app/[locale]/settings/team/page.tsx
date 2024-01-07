@@ -27,7 +27,10 @@ const Team = () => {
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
-	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+		{ title: JSON.parse(t('pages.settings.BREADCRUMB')), href: '/settings/team' }
+	];
 	const fullWidth = useRecoilValue(fullWidthState);
 	return (
 		<>

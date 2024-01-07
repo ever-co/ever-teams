@@ -1,32 +1,25 @@
+import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
 import { authFormValidate } from '@app/helpers/validations';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { ILoginResponse } from '@app/interfaces';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
 	getUserOrganizationsRequest,
-	signInWorkspaceRequest,
+	signInEmailConfirmRequest,
 	verifyInviteCodeRequest
 } from '@app/services/server/requests';
-import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
-import { ILoginResponse } from '@app/interfaces';
+import { NextResponse } from 'next/server';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-	if (req.method !== 'POST') {
-		return res.status(405).json({ status: 'fail' });
-	}
+export async function POST(req: Request) {
+	const res = new NextResponse();
 
-	const body = req.body as {
-		email: string;
-		token: string;
-		teamId: string;
-		code: string;
-	};
+	const body = (await req.json()) as unknown as { email: string; code: string };
 	let loginResponse: ILoginResponse | null = null;
 
-	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
+	const { errors, valid: formValid } = authFormValidate(['email', 'code'], body as any);
 
 	if (!formValid) {
-		return res.status(400).json({ errors });
+		return NextResponse.json({ errors });
 	}
 
 	// Accept Invite Flow Start
@@ -41,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	// General a random password with 8 chars
 	if (inviteReq && inviteReq.data.fullName) {
 		const password = generateToken(8);
+		console.log('inviteReq', inviteReq.data);
 
 		const names = inviteReq.data.fullName.split(' ');
 		const acceptInviteRes = await acceptInviteRequest({
@@ -61,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes?.data as any).response?.statusCode
 		) {
-			return res.status(400).json({
+			return NextResponse.json({
 				errors: {
 					email: 'Authentication code or email address invalid'
 				}
@@ -70,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		loginResponse = acceptInviteRes.data;
 
 		if (!loginResponse) {
-			return res.status(400).json({
+			return NextResponse.json({
 				errors: {
 					email: 'Authentication code or email address invalid'
 				}
@@ -91,7 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		const organization = organizations?.items[0];
 
 		if (!organization) {
-			return res.status(400).json({
+			return NextResponse.json({
 				errors: {
 					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
 				}
@@ -122,47 +116,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			req,
 			res
 		);
-		return res.status(200).json({ team, loginResponse });
+		return NextResponse.json({ team, loginResponse });
 	}
 	// Accept Invite Flow End
 
-	const { data } = await signInWorkspaceRequest(body.email, body.token);
+	const { data } = await signInEmailConfirmRequest({
+		code: body.code,
+		email: body.email
+	});
 
-	/**
-	 * Get the first team from first organization
-	 */
-	const tenantId = data.user?.tenantId || '';
-	const access_token = data.token;
-	const userId = data.user?.id;
-
-	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-
-	const organization = organizations?.items[0];
-
-	if (!organization) {
-		return res.status(400).json({
-			errors: {
-				email: 'Your account is not yet ready to be used on the Ever Teams Platform'
-			}
-		});
-	}
-
-	setAuthCookies(
-		{
-			access_token: data.token,
-			refresh_token: {
-				token: data.refresh_token
-			},
-			teamId: body.teamId,
-			tenantId,
-			organizationId: organization?.organizationId,
-			languageId: 'en', // TODO: not sure what should be here
-			noTeamPopup: true,
-			userId
-		},
-		req,
-		res
-	);
-
-	res.status(200).json({ loginResponse: data });
+	return NextResponse.json(data);
 }
