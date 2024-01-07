@@ -11,18 +11,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	const { id } = params;
 	const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
 
-	switch (req.method) {
-		case 'PUT':
-			if (id) {
-				return $res(
-					await updateOrganizationTeamEmployeeActiveTaskRequest({
-						id: id as string,
-						bearer_token: access_token,
-						tenantId,
-						body
-					})
-				);
-			}
-			break;
+	if (id) {
+		return $res(
+			await updateOrganizationTeamEmployeeActiveTaskRequest({
+				id: id as string,
+				bearer_token: access_token,
+				tenantId,
+				body
+			})
+		);
 	}
 }
