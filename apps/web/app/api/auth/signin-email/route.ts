@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
 
 	if (!formValid) {
-		return NextResponse.json({ errors });
+		return NextResponse.json({ errors }, { status: 400 });
 	}
 
 	const codeSendRes = await signInEmailRequest(body.email, callbackUrl).catch(() => void 0);
