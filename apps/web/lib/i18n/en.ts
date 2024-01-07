@@ -169,7 +169,7 @@ export const en = {
 			INVALID_INVITE_CODE_MESSAGE: 'Invalid Code',
 			WELCOME_TEAMS: 'Real-Time Clarity, Real-Time Reality™.',
 
-			COVER_TITLE: 'Open Work  and Project Management Platform',
+			COVER_TITLE: 'Open Work and Project Management Platform',
 			COVER_DESCRIPTION:
 				'All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!',
 			LOGIN: 'Login',

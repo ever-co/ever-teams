@@ -137,7 +137,8 @@
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a Member",
 		"NEW_MEMBER": "Become a Member",
-		"BACK": "Don't have an account?",
+		"BACK": "Back",
+		"DONT_HAVE_ACCOUNT": "Don't have an account?",
 		"JOIN_REQUEST": "Request To Join",
 		"PERMISSION": "Permission",
 		"SEARCH": "Search",
@@ -240,7 +241,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Invalid Code",
 			"WELCOME_TEAMS": "Welcome to Ever Teams",
 
-			"COVER_TITLE": "Open Work  and Project Management Platform",
+			"COVER_TITLE": "Open Work and Project Management Platform",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Select Workspace",
