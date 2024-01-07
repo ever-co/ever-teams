@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'unathorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
 
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'unathorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	return $res(await createLabelsRequest(body, access_token, body?.tenantId));
 }
