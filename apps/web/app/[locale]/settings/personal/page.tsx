@@ -18,7 +18,10 @@ import { fullWidthState } from '@app/stores/fullWidth';
 const Personal = () => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
-	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+		{ title: JSON.parse(t('pages.settings.BREADCRUMB')), href: '/settings/personnal' }
+	];
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
