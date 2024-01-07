@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			!acceptInviteRes.response.ok ||
 			acceptInviteRes.response.status === 401 ||
 			acceptInviteRes.response.status === 400 ||
-			(acceptInviteRes.data as any).response?.statusCode
+			(acceptInviteRes?.data as any).response?.statusCode
 		) {
 			return res.status(400).json({
 				errors: {

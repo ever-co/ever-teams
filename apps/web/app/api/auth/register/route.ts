@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
 	if (RECAPTCHA_SECRET_KEY) {
 		const { success } = await recaptchaVerification({
-			secret: RECAPTCHA_SECRET_KEY || '',
+			secret: RECAPTCHA_SECRET_KEY,
 			response: body.recaptcha ? body.recaptcha : ''
 		});
 
