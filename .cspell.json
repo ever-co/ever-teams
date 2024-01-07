@@ -24,6 +24,7 @@
 		"opentelemetry",
 		"otlp",
 		"commitlint",
+		"DONT",
 		"greenkeeper",
 		"classpath",
 		"tsbuildinfo",
@@ -357,14 +358,15 @@
 		"signin",
 		"Chatwoot",
 		"CHATWOOT",
-		"apps/web/lib/settings/timezones.js",
-		"apps/**/*.{svg,css,scss}",
-		"apps/web/lib/i18n/*.ts",
-		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",
+		"apps/web/messages/*.json",
 		"apps/web/public/locales/**",
+		"apps/web/lib/i18n/*.ts",
+		"apps/web/lib/settings/timezones.js",		
+		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",		
 		"apps/mobile/app/i18n/*.ts",
 		"apps/mobile/android/**",
 		"apps/mobile/ios/**",
-		"apps/desktop/i18n/**"
+		"apps/desktop/i18n/**",
+		"apps/**/*.{svg,css,scss}"
 	]
 }

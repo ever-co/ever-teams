@@ -83,7 +83,7 @@ export const en = {
 		DISCARD: 'Discard',
 		EXISTING_MEMBER: 'Already a Member',
 		NEW_MEMBER: 'Become a Member',
-		BACK: 'Back',
+		BACK: `Don't have an account?`,
 		JOIN_REQUEST: 'Request To Join',
 		PERMISSION: 'Permission',
 		SEARCH: 'Search',
@@ -167,11 +167,11 @@ export const en = {
 			INPUT_INVITE_CODE: 'Input invitation code.',
 			INPUT_INVITE_CODE_DESC: 'Enter the invitation code we sent to your email.',
 			INVALID_INVITE_CODE_MESSAGE: 'Invalid Code',
-			WELCOME_TEAMS: 'Welcome to Ever Teams',
+			WELCOME_TEAMS: 'Real-Time Clarity, Real-Time Reality™.',
 
-			COVER_TITLE: 'Follow your teams work progress in real-time!',
+			COVER_TITLE: 'Open Work and Project Management Platform',
 			COVER_DESCRIPTION:
-				'Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis',
+				'All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!',
 			LOGIN: 'Login',
 			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
