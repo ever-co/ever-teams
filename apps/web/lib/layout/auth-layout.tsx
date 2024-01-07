@@ -69,7 +69,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 					<div className="self-end w-full h-1/3 bg-primary-mid p-9">
 						<Text.Heading
 							as="h3"
-							className="text-white xl:text-3xl 2xl:text-4xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
+							className="text-white lg:text-lg xl:text-xl 2xl:text-3xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
 						>
 							{t('pages.auth.COVER_TITLE')}
 						</Text.Heading>
