@@ -19,15 +19,14 @@ export async function PUT(req: Request) {
 	);
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: Request,  { params }: { params: { id: string } }) {
 	const res = new NextResponse();
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
-	const { searchParams } = new URL(req.url);
 
-	const { id } = searchParams as unknown as { id: string };
+	const { id } = params
 
 	return $res(
 		await deleteRoleRequest({

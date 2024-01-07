@@ -3,14 +3,14 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { acceptRejectRequestToJoinRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request) {
+export async function PUT(req: Request, { params }: { params : { id: string; action: string}}) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return $res('unauthorized');
 
 	const { searchParams } = new URL(req.url);
 
-	const { id, action } = searchParams as unknown as { id: string; action: string };
+	const { id, action } = params;
 
 	if (id) {
 		return $res(

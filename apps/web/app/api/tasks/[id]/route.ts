@@ -3,14 +3,14 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request) {
+export async function GET(req: Request,  { params }: { params: { id: string } }) {
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
 	const { searchParams } = new URL(req.url);
 
-	const { id: taskId } = searchParams as unknown as { id: string };
+	const { id: taskId } = params
 
 	return $res(
 		await getTaskByIdRequest({
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
 	);
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: Request,  { params }: { params: { id: string } }) {
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId, projectId, teamId } = await authenticatedGuard(
 		req,
@@ -30,9 +30,7 @@ export async function PUT(req: Request) {
 	);
 	if (!user) return $res('Unauthorized');
 
-	const { searchParams } = new URL(req.url);
-
-	const { id: taskId } = searchParams as unknown as { id: string };
+	const { id: taskId } = params
 	const body = (await req.json()) as unknown as ITeamTask;
 
 	delete body.selectedTeam;

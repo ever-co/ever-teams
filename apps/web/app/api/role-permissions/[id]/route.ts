@@ -2,14 +2,13 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { getRolePermissionsRequest, updateRolePermissionRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request) {
+export async function GET(req: Request,  { params }: { params: { id: string } }) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
 
-	const { searchParams } = new URL(req.url);
-	const { id } = searchParams as unknown as { id: string };
+	const { id } = params;
 
 	return $res(
 		(
