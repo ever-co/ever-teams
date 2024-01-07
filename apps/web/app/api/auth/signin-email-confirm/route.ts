@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 			!acceptInviteRes.response.ok ||
 			acceptInviteRes.response.status === 401 ||
 			acceptInviteRes.response.status === 400 ||
-			(acceptInviteRes.data as any).response?.statusCode
+			(acceptInviteRes?.data as any).response?.statusCode
 		) {
 			return NextResponse.json({
 				errors: {

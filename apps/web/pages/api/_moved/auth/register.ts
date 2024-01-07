@@ -27,28 +27,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const noRecaptchaArray = ['email', 'name', 'team'];
 
-	const withRecaptchaArray = [...noRecaptchaArray, "recaptcha"];
+	const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
 
-	const validationFields = RECAPTCHA_SECRET_KEY ? withRecaptchaArray : noRecaptchaArray
+	const validationFields = RECAPTCHA_SECRET_KEY ? withRecaptchaArray : noRecaptchaArray;
 
-	const { errors, valid: formValid } = authFormValidate(
-		validationFields,
-		body
-	);
+	const { errors, valid: formValid } = authFormValidate(validationFields, body);
 
 	if (!formValid) {
 		return res.status(400).json({ errors });
 	}
 
-	if(RECAPTCHA_SECRET_KEY) {
+	if (RECAPTCHA_SECRET_KEY) {
 		const { success } = await recaptchaVerification({
-			secret: RECAPTCHA_SECRET_KEY || '',
+			secret: RECAPTCHA_SECRET_KEY,
 			response: body.recaptcha ? body.recaptcha : ''
 		});
 
-	if (!success) {
-		return res.status(400).json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
-	}
+		if (!success) {
+			return res.status(400).json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
+		}
 	}
 	/**
 	 * Verify if the SMTP has been configured
