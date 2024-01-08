@@ -73,34 +73,35 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				</MainHeader>
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
-
-				<Container fullWidth={fullWidth} className="py-8">
-					<div className={clsxm('flex  justify-start items-center gap-4')}>
-						{Object.values(ActivityFilters).map((filter: ActivityFilters, i) => (
-							<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
-								{i !== 0 && <VerticalSeparator />}
-								<div
-									className={clsxm(
-										'text-gray-500',
-										activityFilter == filter && 'text-black dark:text-white'
-									)}
-									onClick={() => setActivityFilter(filter)}
-								>
-									{filter}
+				{hook.tab == 'worked' && (
+					<Container fullWidth={fullWidth} className="py-8">
+						<div className={clsxm('flex  justify-start items-center gap-4')}>
+							{Object.values(ActivityFilters).map((filter: ActivityFilters, i) => (
+								<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+									{i !== 0 && <VerticalSeparator />}
+									<div
+										className={clsxm(
+											'text-gray-500',
+											activityFilter == filter && 'text-black dark:text-white'
+										)}
+										onClick={() => setActivityFilter(filter)}
+									>
+										{filter}
+									</div>
 								</div>
-							</div>
-						))}
-					</div>
-				</Container>
+							))}
+						</div>
+					</Container>
+				)}
 
 				<Container fullWidth={fullWidth} className="mb-10">
-					{activityFilter == ActivityFilters.TASKS ? (
+					{hook.tab == 'worked' && activityFilter == ActivityFilters.TASKS ? (
 						<UserProfileTask profile={profile} tabFiltered={hook} />
-					) : activityFilter == ActivityFilters.SCREENSHOOTS ? (
+					) : hook.tab == 'worked' && activityFilter == ActivityFilters.SCREENSHOOTS ? (
 						<ScreenshootTab />
-					) : activityFilter == ActivityFilters.APPS ? (
+					) : hook.tab == 'worked' && activityFilter == ActivityFilters.APPS ? (
 						<AppsTab />
-					) : activityFilter == ActivityFilters.VISITED_SITES ? (
+					) : hook.tab == 'worked' && activityFilter == ActivityFilters.VISITED_SITES ? (
 						<VisitedSitesTab />
 					) : (
 						<UserProfileTask profile={profile} tabFiltered={hook} />
