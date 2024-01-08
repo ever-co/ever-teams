@@ -74,7 +74,7 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-				<Container fullWidth={fullWidth} className="py-10">
+				<Container fullWidth={fullWidth} className="py-8">
 					<div className={clsxm('flex  justify-start items-center gap-4')}>
 						{Object.values(ActivityFilters).map((filter: ActivityFilters, i) => (
 							<div key={i} className="flex cursor-pointer justify-start items-center gap-4">

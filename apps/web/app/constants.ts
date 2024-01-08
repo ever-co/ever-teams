@@ -168,9 +168,9 @@ export const APPLICATION_LANGUAGES_CODE = [
 
 export enum ActivityFilters {
 	TASKS = 'Tasks',
-	SCREENSHOOTS = 'Screenshoots',
-	APPS = 'apps',
-	VISITED_SITES = 'Visited sites'
+	SCREENSHOOTS = 'Screenshots',
+	APPS = 'Apps',
+	VISITED_SITES = 'Visited Sites'
 }
 
 export enum KanbanTabs {
