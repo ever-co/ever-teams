@@ -166,6 +166,13 @@ export const APPLICATION_LANGUAGES_CODE = [
 	'es'
 ];
 
+export enum ActivityFilters {
+	TASKS = 'Tasks',
+	SCREENSHOOTS = 'Screenshoots',
+	APPS = 'apps',
+	VISITED_SITES = 'Visited sites'
+}
+
 export enum KanbanTabs {
 	TODAY = 'TODAY',
 	YESTERDAY = 'YESTERDAY',
@@ -181,4 +188,4 @@ export enum IssuesView {
 
 export const TaskStatus = {
 	INPROGRESS: 'in-progress'
-}
+};

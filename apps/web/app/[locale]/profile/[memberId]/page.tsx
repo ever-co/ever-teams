@@ -7,22 +7,27 @@ import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
+import { Avatar, Breadcrumb, Container, Text, VerticalSeparator } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { ActivityFilters } from '@app/constants';
+import { ScreenshootTab } from 'lib/features/activity/screenshoots';
+import { AppsTab } from 'lib/features/activity/apps';
+import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 
 const Profile = ({ params }: { params: { memberId: string } }) => {
 	const profile = useUserProfilePage();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
+	const [activityFilter, setActivityFilter] = useState<ActivityFilters>(ActivityFilters.TASKS);
 
 	const hook = useTaskFilter(profile);
 
@@ -69,8 +74,37 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
+				<Container fullWidth={fullWidth} className="py-10">
+					<div className={clsxm('flex  justify-start items-center gap-4')}>
+						{Object.values(ActivityFilters).map((filter: ActivityFilters, i) => (
+							<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+								{i !== 0 && <VerticalSeparator />}
+								<div
+									className={clsxm(
+										'text-gray-500',
+										activityFilter == filter && 'text-black dark:text-white'
+									)}
+									onClick={() => setActivityFilter(filter)}
+								>
+									{filter}
+								</div>
+							</div>
+						))}
+					</div>
+				</Container>
+
 				<Container fullWidth={fullWidth} className="mb-10">
-					<UserProfileTask profile={profile} tabFiltered={hook} />
+					{activityFilter == ActivityFilters.TASKS ? (
+						<UserProfileTask profile={profile} tabFiltered={hook} />
+					) : activityFilter == ActivityFilters.SCREENSHOOTS ? (
+						<ScreenshootTab />
+					) : activityFilter == ActivityFilters.APPS ? (
+						<AppsTab />
+					) : activityFilter == ActivityFilters.VISITED_SITES ? (
+						<VisitedSitesTab />
+					) : (
+						<UserProfileTask profile={profile} tabFiltered={hook} />
+					)}
 				</Container>
 			</MainLayout>
 		</>
