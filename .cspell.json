@@ -320,7 +320,11 @@
 		"Ordereds",
 		"uidotdev",
 		"usehooks",
-		"Personnal"
+		"Personnal",
+		"SCREENSHOOTS",
+		"Screenshoot",
+		"screenshoots",
+		"tota"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
@@ -361,8 +365,8 @@
 		"apps/web/messages/*.json",
 		"apps/web/public/locales/**",
 		"apps/web/lib/i18n/*.ts",
-		"apps/web/lib/settings/timezones.js",		
-		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",		
+		"apps/web/lib/settings/timezones.js",
+		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",
 		"apps/mobile/app/i18n/*.ts",
 		"apps/mobile/android/**",
 		"apps/mobile/ios/**",
