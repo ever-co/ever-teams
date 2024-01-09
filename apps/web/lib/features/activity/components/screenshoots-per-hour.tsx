@@ -3,6 +3,7 @@ import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import { clsxm } from '@app/utils';
 import { ProgressBar } from 'lib/components';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 export const ScreenshootPerHour = ({
 	timeSlots,
@@ -35,6 +36,7 @@ export const ScreenshootPerHour = ({
 };
 
 const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShootItem) => {
+	const t = useTranslations();
 	return (
 		<div
 			className={clsxm(
@@ -50,7 +52,9 @@ const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShoot
 				</h4>
 				<p className="text-xs mb-6">{'Saturday, January 6, 2024 '}</p>
 				<ProgressBar width={'100%'} progress={percent} className="my-2 w-full" />
-				<p className="font-semibold text-sm">{percent} % of 10 Minutes</p>
+				<p className="font-semibold text-sm">
+					{percent} {t('timer.PERCENT_OF_MINUTES')}
+				</p>
 			</div>
 		</div>
 	);
