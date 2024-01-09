@@ -1,5 +1,5 @@
-import { IEmployee } from '@app/interfaces/IEmployee';
 import { serverFetch } from '../../fetch';
+import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 
 export function getEmployeeTimeSlots(
 	bearer_token: string,
@@ -21,7 +21,7 @@ export function getEmployeeTimeSlots(
 		endDate: endDate.toLocaleTimeString()
 	};
 	const query = new URLSearchParams(params);
-	return serverFetch<IEmployee>({
+	return serverFetch<ITimerSlotDataRequest>({
 		path: `/timesheet/statistics/time-slots?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
