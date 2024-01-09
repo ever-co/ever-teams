@@ -57,7 +57,14 @@ const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShoot
 				<h4 className="font-semibold text-xs">
 					{new Date(startTime).toLocaleTimeString()} - {new Date(endTime).toLocaleTimeString()}
 				</h4>
-				<p className="text-xs mb-6">{new Date(startTime).toLocaleDateString()}</p>
+				<p className="text-xs mb-6">
+					{new Date(startTime).toLocaleDateString('en-US', {
+						weekday: 'long',
+						month: 'long',
+						day: 'numeric',
+						year: 'numeric'
+					})}
+				</p>
 				<ProgressBar width={'100%'} progress={percent} className="my-2 w-full" />
 				<p className="font-semibold text-sm">
 					{percent} {t('timer.PERCENT_OF_MINUTES')}
