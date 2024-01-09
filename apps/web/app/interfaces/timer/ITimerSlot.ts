@@ -21,7 +21,7 @@ export interface ITimerSlot {
 	keyboardPercentage: number;
 	mousePercentage: number;
 
-	screenshoots: {
+	screenshots: {
 		organizationId: string;
 		id: string;
 		createdAt: Date | string;
@@ -32,6 +32,7 @@ export interface ITimerSlot {
 		tenantId: string;
 		file: string;
 		thumb: string;
+		thumbUrl: string;
 		recordedAt: Date | string;
 		isWorkRelated: true;
 		description: string;

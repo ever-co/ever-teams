@@ -25,8 +25,9 @@ export function useTimeSlots() {
 			todayEnd,
 			todayStart
 		}).then((response) => {
+			console.log(response.data);
 			if (response.data) {
-				setTimeSlots(response.data?.data?.timeSlots);
+				setTimeSlots(response.data?.data[0]?.timeSlots);
 			}
 		});
 	}, [queryCall, setTimeSlots, user]);
