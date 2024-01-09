@@ -1,4 +1,5 @@
 import { get } from '@app/services/client/axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export async function getTimerLogsRequestAPI({
 	tenantId,
@@ -21,7 +22,9 @@ export async function getTimerLogsRequestAPI({
 		todayStart: todayStart.toISOString()
 	};
 	const query = new URLSearchParams(params);
-	const endpoint = `/timesheet/statistics/time-slots?${query.toString()}`;
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/timesheet/statistics/time-slots?${query.toString()}`
+		: `/timer/slots?${query.toString()}`;
 
 	const data = await get(endpoint, true);
 

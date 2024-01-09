@@ -6,7 +6,7 @@ import { useRecoilState } from 'recoil';
 import { timeSlotsState } from '@app/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { getTimerLogsRequestAPI } from '@app/services/client/api/timesheet/statistics/time-slots/route';
+import { getTimerLogsRequestAPI } from '@app/services/client/api';
 
 export function useTimeSlots() {
 	const { user } = useAuthenticateUser();
