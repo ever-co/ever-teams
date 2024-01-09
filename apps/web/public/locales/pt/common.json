@@ -437,7 +437,11 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
 		},
-		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }]
+		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }],
+		"TIME_ACTIVITY": "Activity",
+		"TOTAL_HOURS": "Total Hours",
+		"NO_SCREENSHOOT": "No Screenshoots",
+		"PERCENT_OF_MINUTES": " % of 10 Minutes"
 	},
 
 	"task": {
