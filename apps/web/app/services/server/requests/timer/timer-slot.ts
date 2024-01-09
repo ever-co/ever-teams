@@ -1,24 +1,27 @@
 import { serverFetch } from '../../fetch';
 import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 
-export function getEmployeeTimeSlots(
-	bearer_token: string,
-	tenantId: string,
-	organizationId: string,
-	todayEnd: Date,
-	endDate: Date,
-	todayStart: Date,
-	startDate: Date,
-	employeeId: string
-) {
+export function getEmployeeTimeSlotsRequest({
+	bearer_token,
+	tenantId,
+	organizationId,
+	todayEnd,
+	todayStart,
+	employeeId
+}: {
+	bearer_token: string;
+	tenantId: string;
+	organizationId: string;
+	todayEnd: Date;
+	todayStart: Date;
+	employeeId: string;
+}) {
 	const params = {
 		tenantId: tenantId,
 		organizationId: organizationId,
 		employeeId,
 		todayEnd: todayEnd.toLocaleTimeString(),
-		todayStart: todayStart.toLocaleTimeString(),
-		startDate: startDate.toLocaleTimeString(),
-		endDate: endDate.toLocaleTimeString()
+		todayStart: todayStart.toLocaleTimeString()
 	};
 	const query = new URLSearchParams(params);
 	return serverFetch<ITimerSlotDataRequest>({
