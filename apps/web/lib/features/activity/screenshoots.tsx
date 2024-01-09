@@ -1,8 +1,12 @@
 import { ProgressBar } from 'lib/components';
 import { ScreenshootPerHour } from './components/screenshoots-per-hour';
 import { clsxm } from '@app/utils';
+import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
+import { groupDataByHour } from '@app/helpers/array-data';
 
 export function ScreenshootTab() {
+	const { timeSlots } = useTimeSlots();
+	console.log({ timeSlots });
 	const activityPercent = 65;
 	const hourPercent = 46;
 	const totaHours = '1:20:34';
@@ -25,9 +29,19 @@ export function ScreenshootTab() {
 					/>
 				</div>
 			</div>
-			<ScreenshootPerHour startTime={new Date()} endTime={new Date()} />
-			<ScreenshootPerHour startTime={new Date()} endTime={new Date()} />
-			<ScreenshootPerHour startTime={new Date()} endTime={new Date()} />
+			{groupDataByHour(timeSlots).map((hourData, i) => (
+				<ScreenshootPerHour
+					key={i}
+					timeSlots={hourData.items}
+					startedAt={hourData.startedAt}
+					stoppedAt={hourData.stoppedAt}
+				/>
+			))}
+			{timeSlots.length < 1 && (
+				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+					<h3>No screenshoots</h3>
+				</div>
+			)}
 		</div>
 	);
 }

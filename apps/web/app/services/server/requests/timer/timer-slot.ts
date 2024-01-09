@@ -20,8 +20,8 @@ export function getEmployeeTimeSlotsRequest({
 		tenantId: tenantId,
 		organizationId: organizationId,
 		employeeId,
-		todayEnd: todayEnd.toLocaleTimeString(),
-		todayStart: todayStart.toLocaleTimeString()
+		todayEnd: todayEnd.toISOString(),
+		todayStart: todayStart.toISOString()
 	};
 	const query = new URLSearchParams(params);
 	return serverFetch<ITimerSlotDataRequest>({
