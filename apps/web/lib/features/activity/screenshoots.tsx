@@ -1,6 +1,5 @@
 import { ProgressBar } from 'lib/components';
 import { ScreenshootPerHour } from './components/screenshoots-per-hour';
-import { clsxm } from '@app/utils';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
