@@ -19,9 +19,9 @@ export const ScreenshootPerHour = ({
 			<h3>
 				{startedAt.toLocaleTimeString()} - {stoppedAt.toLocaleTimeString()}
 			</h3>
-			<div className="flex justify-start items-start gap-4 my-4">
+			<div className="flex justify-start items-start flex-wrap gap-4 my-4">
 				{timeSlots.map((el, i) => (
-					<div key={i} className={clsxm('xl:w-1/6')}>
+					<div key={i} className={clsxm('min-w-[20rem] xl:w-1/6')}>
 						<ScreenShootItem
 							endTime={el.stoppedAt}
 							startTime={el.startedAt}
