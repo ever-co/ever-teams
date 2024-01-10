@@ -11,18 +11,17 @@ export const ScreenshootPerHour = ({
 	stoppedAt
 }: {
 	timeSlots: ITimerSlot[];
-	startedAt: Date;
-	stoppedAt: Date;
+	startedAt: string;
+	stoppedAt: string;
 }) => {
 	return (
 		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-			<h3>
-				{startedAt.toLocaleDateString()} &lgt; {startedAt.toLocaleTimeString()} -{' '}
-				{stoppedAt.toLocaleTimeString()}
+			<h3 className="px-4">
+				{startedAt} - {stoppedAt}
 			</h3>
-			<div className="flex justify-start items-start gap-4 my-4">
+			<div className="flex justify-start items-start flex-wrap ">
 				{timeSlots.map((el, i) => (
-					<div key={i} className={clsxm('xl:w-1/6')}>
+					<div key={i} className={clsxm('min-w-[20rem] xl:w-1/6 p-4')}>
 						<ScreenShootItem
 							endTime={el.stoppedAt}
 							startTime={el.startedAt}
@@ -41,7 +40,7 @@ const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShoot
 	return (
 		<div
 			className={clsxm(
-				'rounded-lg shadow-md border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full'
+				'rounded-lg shadow-md hover:shadow-lg cursor-pointer border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full'
 			)}
 		>
 			<div className="w-full h-1/2 object-cover bg-gray-200 dark:bg-[#26272C] relative">
@@ -65,7 +64,7 @@ const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShoot
 						year: 'numeric'
 					})}
 				</p>
-				<ProgressBar width={'100%'} progress={percent} className="my-2 w-full" />
+				<ProgressBar width={'100%'} progress={`${percent}%`} className="my-2 w-full" />
 				<p className="font-semibold text-sm">
 					{percent} {t('timer.PERCENT_OF_MINUTES')}
 				</p>
