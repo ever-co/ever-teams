@@ -17,8 +17,7 @@ export const ScreenshootPerHour = ({
 	return (
 		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
 			<h3>
-				{startedAt.toLocaleDateString()} &lgt; {startedAt.toLocaleTimeString()} -{' '}
-				{stoppedAt.toLocaleTimeString()}
+				{startedAt.toLocaleTimeString()} - {stoppedAt.toLocaleTimeString()}
 			</h3>
 			<div className="flex justify-start items-start gap-4 my-4">
 				{timeSlots.map((el, i) => (
@@ -65,7 +64,7 @@ const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShoot
 						year: 'numeric'
 					})}
 				</p>
-				<ProgressBar width={'100%'} progress={percent} className="my-2 w-full" />
+				<ProgressBar width={'100%'} progress={`${percent}%`} className="my-2 w-full" />
 				<p className="font-semibold text-sm">
 					{percent} {t('timer.PERCENT_OF_MINUTES')}
 				</p>

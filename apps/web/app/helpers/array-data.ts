@@ -4,10 +4,10 @@ export function groupDataByHour(data: ITimerSlot[]) {
 
 	data.forEach((item) => {
 		const startHour = new Date(item.startedAt).getHours();
-		const stopHour = new Date(item.stoppedAt).getHours();
+		const stopHour = new Date(item.startedAt).getHours() + 1;
 
 		const inInterval = groupedData.findIndex(
-			(el) => new Date(el.startedAt).getHours() === startHour && new Date(el.stoppedAt).getHours() === stopHour
+			(el) => new Date(el.startedAt).getHours() === startHour && new Date(el.stoppedAt).getHours() <= stopHour
 		);
 
 		if (inInterval !== -1) {
@@ -15,11 +15,11 @@ export function groupDataByHour(data: ITimerSlot[]) {
 		} else {
 			groupedData.push({
 				startedAt: new Date(item.startedAt),
-				stoppedAt: new Date(item.stoppedAt),
+				stoppedAt: new Date(new Date(item.startedAt).getTime() + 60 * 60 * 1000),
 				items: [item]
 			});
 		}
 	});
 
-	return groupedData.sort((a, b) => (new Date(a.stoppedAt) > new Date(b.stoppedAt) ? 1 : -1));
+	return groupedData.sort((a, b) => (new Date(a.stoppedAt) < new Date(b.stoppedAt) ? 1 : -1));
 }

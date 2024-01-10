@@ -15,7 +15,17 @@ export function ProgressBar({
 		<>
 			<div className={clsxm('flex justify-between items-center relative', className)} style={{ width }}>
 				<div
-					className="bg-green-600 dark:bg-green-400 h-2 rounded-full absolute z-[1]"
+					className={clsxm(
+						' h-2 rounded-full absolute z-[1] ',
+						+parseInt(progress.toString()) < 25 && 'bg-red-600 dark:bg-red-400',
+						+parseInt(progress.toString()) > 25 &&
+							+parseInt(progress.toString()) < 50 &&
+							'bg-yellow-600 dark:bg-yellow-400',
+						+parseInt(progress.toString()) > 50 &&
+							+parseInt(progress.toString()) < 80 &&
+							'bg-blue-600 dark:bg-blue-400',
+						+parseInt(progress.toString()) > 80 && 'bg-green-600 dark:bg-green-400'
+					)}
 					style={{ width: progress }}
 				/>
 				<div className="bg-[#F0F0F0] dark:bg-[#2B303B] h-2 rounded-full w-full  absolute z-[0]" />
