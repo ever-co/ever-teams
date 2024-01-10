@@ -17,7 +17,6 @@ export function useTimeSlots() {
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
-		console.log({ todayStart, todayEnd });
 		queryCall({
 			tenantId: user?.tenantId ?? '',
 			organizationId: user?.employee.organizationId ?? '',
@@ -25,7 +24,6 @@ export function useTimeSlots() {
 			todayEnd,
 			todayStart
 		}).then((response) => {
-			console.log(response.data);
 			if (response.data) {
 				setTimeSlots(response.data?.data[0]?.timeSlots);
 			}

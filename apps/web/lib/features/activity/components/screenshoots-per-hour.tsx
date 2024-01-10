@@ -15,11 +15,11 @@ export const ScreenshootPerHour = ({
 	stoppedAt: string;
 }) => {
 	return (
-		<div className="p-4 my-4 rounded-md hover:shadow-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-			<h3>
+		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+			<h3 className="px-4">
 				{startedAt} - {stoppedAt}
 			</h3>
-			<div className="flex justify-start items-start flex-wrap my-4">
+			<div className="flex justify-start items-start flex-wrap ">
 				{timeSlots.map((el, i) => (
 					<div key={i} className={clsxm('min-w-[20rem] xl:w-1/6 p-4')}>
 						<ScreenShootItem
@@ -40,7 +40,7 @@ const ScreenShootItem = ({ endTime, imageUrl, percent, startTime }: IScreenShoot
 	return (
 		<div
 			className={clsxm(
-				'rounded-lg shadow-md border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full'
+				'rounded-lg shadow-md hover:shadow-lg cursor-pointer border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full'
 			)}
 		>
 			<div className="w-full h-1/2 object-cover bg-gray-200 dark:bg-[#26272C] relative">
