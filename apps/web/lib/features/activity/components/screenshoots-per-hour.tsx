@@ -11,17 +11,17 @@ export const ScreenshootPerHour = ({
 	stoppedAt
 }: {
 	timeSlots: ITimerSlot[];
-	startedAt: Date;
-	stoppedAt: Date;
+	startedAt: string;
+	stoppedAt: string;
 }) => {
 	return (
-		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+		<div className="p-4 my-4 rounded-md hover:shadow-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
 			<h3>
-				{startedAt.toLocaleTimeString()} - {stoppedAt.toLocaleTimeString()}
+				{startedAt} - {stoppedAt}
 			</h3>
-			<div className="flex justify-start items-start flex-wrap gap-4 my-4">
+			<div className="flex justify-start items-start flex-wrap my-4">
 				{timeSlots.map((el, i) => (
-					<div key={i} className={clsxm('min-w-[20rem] xl:w-1/6')}>
+					<div key={i} className={clsxm('min-w-[20rem] xl:w-1/6 p-4')}>
 						<ScreenShootItem
 							endTime={el.stoppedAt}
 							startTime={el.startedAt}
