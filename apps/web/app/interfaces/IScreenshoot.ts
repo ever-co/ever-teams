@@ -8,4 +8,5 @@ export interface IScreenShootItem {
 	endTime: Date | string;
 	imageUrl: string;
 	percent: number | string;
+	showProgress?: boolean;
 }

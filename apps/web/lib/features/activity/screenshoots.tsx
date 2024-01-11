@@ -5,12 +5,14 @@ import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import { ScreenshootSkeleton } from './components/screenshoots-per-hour-skeleton';
 
+
 export function ScreenshootTab() {
 	const { timeSlots, loading } = useTimeSlots();
 	const t = useTranslations();
 
+
 	const hourPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
-	const activityPercent = hourPercent;
+	const activityPercent = hourPercent ?? 0;
 	const totaHours = '1:20:34';
 	return (
 		<div>
