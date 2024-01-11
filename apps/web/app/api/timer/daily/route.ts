@@ -10,10 +10,8 @@ export async function GET(req: Request) {
 	const { searchParams } = new URL(req.url);
 
 	const { endDate, startDate, type } = searchParams as unknown as {
-		todayEnd: Date;
-		endDate: Date;
-		todayStart: Date;
 		startDate: Date;
+		endDate: Date;
 		type: string;
 	};
 
