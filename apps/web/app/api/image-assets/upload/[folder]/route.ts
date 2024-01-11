@@ -3,12 +3,6 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { createImageAssetsRequest } from '@app/services/server/requests/image-assets';
 import { INextParams } from '@app/interfaces';
 
-export const config = {
-	api: {
-		bodyParser: false
-	}
-};
-
 export async function POST(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
 
