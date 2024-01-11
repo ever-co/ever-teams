@@ -26,7 +26,7 @@ export const ScreenshootPerHour = ({
 							endTime={el.stoppedAt}
 							startTime={el.startedAt}
 							percent={el.percentage}
-							imageUrl={el.screenshots[0].thumbUrl}
+							imageUrl={el.screenshots[0]?.thumbUrl}
 						/>
 					</div>
 				))}
