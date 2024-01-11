@@ -1,16 +1,17 @@
 import { IScreenShootItem } from '@app/interfaces/IScreenshoot';
 import { clsxm } from '@app/utils';
 import { ProgressBar } from 'lib/components';
+import { TrashIcon } from 'lib/components/svgs';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import React from 'react';
 
-const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = true }: IScreenShootItem) => {
+const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = true, onShow }: IScreenShootItem) => {
 	const t = useTranslations();
 	return (
 		<div
 			className={clsxm(
-				'rounded-lg shadow-md hover:shadow-lg cursor-pointer border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
+				'rounded-lg shadow-md hover:shadow-lg  border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
 				!showProgress && '!h-48 dark:!bg-[#191a20]'
 			)}
 		>
@@ -20,6 +21,9 @@ const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = 
 					!showProgress && '!h-2/3'
 				)}
 			>
+				<div className="rounded-full bg-red-200 top-1 right-1 absolute w-8 h-8 flex justify-center items-center cursor-pointer">
+					<TrashIcon className="text-white text-center" />
+				</div>
 				<Image
 					src={imageUrl}
 					alt={`${new Date(startTime).toLocaleTimeString()} - ${new Date(endTime).toLocaleTimeString()}`}
@@ -28,7 +32,7 @@ const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = 
 					className="w-full h-full"
 				/>
 			</div>
-			<div className={clsxm('w-full h-1/2 p-4', !showProgress && '!h-1/3')}>
+			<div className={clsxm('w-full h-1/2 p-4 cursor-pointer', !showProgress && '!h-1/3')} onClick={onShow}>
 				{showProgress ? (
 					<>
 						<h4 className="font-semibold text-xs">

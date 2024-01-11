@@ -9,4 +9,5 @@ export interface IScreenShootItem {
 	imageUrl: string;
 	percent: number | string;
 	showProgress?: boolean;
+	onShow: () => any;
 }

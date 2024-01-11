@@ -1,5 +1,8 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getEmployeeTimeSlotsRequest } from '@app/services/server/requests/timer/timer-slot';
+import {
+	deleteEmployeeTimeSlotsRequest,
+	getEmployeeTimeSlotsRequest
+} from '@app/services/server/requests/timer/timer-slot';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -22,6 +25,24 @@ export async function GET(req: Request) {
 		employeeId: user.employee.id,
 		todayEnd,
 		todayStart,
+		bearer_token: access_token
+	});
+
+	return $res(data);
+}
+
+export async function DELETE(req: Request) {
+	const res = new NextResponse();
+	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
+	if (!user) return $res('Unauthorized');
+
+	const { searchParams } = new URL(req.url);
+	const ids: string[] = searchParams.getAll('ids');
+
+	const { data } = await deleteEmployeeTimeSlotsRequest({
+		tenantId,
+		organizationId,
+		ids,
 		bearer_token: access_token
 	});
 
