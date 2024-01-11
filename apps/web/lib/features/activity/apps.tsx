@@ -34,7 +34,7 @@ export function AppsTab() {
 					</div>
 				))}
 			</section>
-			{visitedApps?.length < 1 && !loading && (
+			{visitedApps.length < 1 && !loading && (
 				<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
 					<p className="text-lg text-center">{t('timer.THERE_IS_NO_APPS_VISITED')}</p>
 				</div>
