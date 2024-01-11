@@ -7,7 +7,7 @@ const AppVisitedItem = ({ app, totalMilliseconds }: { app: ITimerApps; totalMill
 	const { h, m, s } = secondsToTime(+app.duration);
 	const percent = ((+app.duration * 100) / totalMilliseconds).toFixed(2);
 	return (
-		<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 rounded-md flex justify-between apps-center my-2">
+		<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] bg-gray-200 dark:bg-[#191a20] p-4 rounded-md flex justify-between apps-center my-2">
 			<p className="text-lg w-1/4">{app.title}</p>
 			<p className="text-lg text-center w-1/4">
 				{formatDateString(new Date(app.date).toISOString())} - {app.time}
