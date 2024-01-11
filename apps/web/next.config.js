@@ -27,7 +27,8 @@ const nextConfig = {
 			'cdn-icons-png.flaticon.com', // Remove this domain once the Backend Icons list is added
 			'api.gauzy.co',
 			'apistage.gauzy.co',
-			'gauzy.s3.wasabisys.com'
+			'gauzy.s3.wasabisys.com',
+			'gauzystage.s3.wasabisys.com'
 		]
 	}, // Optional build-time configuration options
 	sentry: {

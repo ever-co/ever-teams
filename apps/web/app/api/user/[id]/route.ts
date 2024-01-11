@@ -4,7 +4,7 @@ import { getTaskCreator, updateUserAvatarRequest } from '@app/services/server/re
 import { deleteUserRequest } from '@app/services/server/requests/user';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request,  { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
 
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
@@ -19,7 +19,7 @@ export async function GET(req: Request,  { params }: { params: { id: string } })
 	);
 }
 
-export async function POST(req: Request) {
+export async function PUT(req: Request) {
 	const res = new NextResponse();
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);

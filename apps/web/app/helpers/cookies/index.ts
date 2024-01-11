@@ -181,7 +181,7 @@ export function setActiveProjectIdCookie(teamIds: string, ctx?: NextCtx) {
 }
 
 // Organization Id
-export function getOrganizationIdCookie(ctx: NextCtx) {
+export function getOrganizationIdCookie(ctx?: NextCtx) {
 	return getCookie(ORGANIZATION_ID_COOKIE_NAME, { ...ctx }) as string;
 }
 
@@ -190,7 +190,7 @@ export function setOrganizationIdCookie(orgId: string, ctx?: NextCtx) {
 }
 
 // Tenant Id
-export function getTenantIdCookie(ctx: NextCtx) {
+export function getTenantIdCookie(ctx?: NextCtx) {
 	return getCookie(TENANT_ID_COOKIE_NAME, { ...ctx }) as string;
 }
 
@@ -214,9 +214,9 @@ export function setActiveUserIdCookie(userId: string, ctx?: NextCtx) {
 }
 
 export function getNoTeamPopupShowCookie(ctx?: NextCtx) {
-	return getCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, {
+	return !!getCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, {
 		...(ctx || {})
-	}) as boolean;
+	});
 }
 export function setNoTeamPopupShowCookie(show: boolean, ctx?: NextCtx) {
 	return setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, show, { ...(ctx || {}) });

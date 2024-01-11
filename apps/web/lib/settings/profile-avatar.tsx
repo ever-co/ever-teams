@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
 import { useAuthenticateUser, useImageAssets, useSettings } from '@app/hooks';
-import { IImageAssets } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, Button } from 'lib/components';
 import Image from 'next/image';
@@ -34,8 +33,8 @@ export const ProfileAvatar = () => {
 					user.tenantId as string,
 					user?.employee?.organizationId
 				)
-					.then((d: IImageAssets) => {
-						updateAvatar({ imageId: d.id, id: user.id });
+					.then((image) => {
+						updateAvatar({ imageId: image.id, id: user.id });
 					})
 					.finally(() => {
 						setAvatarBtn(false);
