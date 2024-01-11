@@ -1,61 +1,44 @@
-import { formatDateString, secondsToTime } from '@app/helpers';
 import { useTimeDailyActivity } from '@app/hooks/features/useTimeDailyActivity';
-import { ProgressBar } from 'lib/components';
+import { AppVisitedSkeletion } from './components/app-visited-skeleton';
+import { groupAppsByHour } from '@app/helpers/array-data';
+import AppVisitedItem from './components/app-visited-Item';
 
 export function AppsTab() {
 	const { visitedApps, loading } = useTimeDailyActivity('APP');
-	const totalMilliseconds = visitedApps?.reduce((acc, el) => acc + +el.duration, 0);
+	const apps = groupAppsByHour(visitedApps);
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<header className="bg-gray-200 dark:bg-[#26272C] rounded-md p-4 flex items-center justify-between">
 				<h3 className="text-lg font-semibold w-1/4">Apps</h3>
-				<h3 className="text-lg font-semibold w-1/4">Visited Dates</h3>
-				<h3 className="text-lg font-semibold w-1/4">Percent used</h3>
-				<h3 className="text-lg font-semibold w-1/4">Time spent (hours)</h3>
+				<h3 className="text-lg text-center font-semibold w-1/4">Visited Dates</h3>
+				<h3 className="text-lg text-center font-semibold w-1/4">Percent used</h3>
+				<h3 className="text-lg font-semibold w-1/4 text-end">Time spent (hours)</h3>
 			</header>
 			<section>
-				{visitedApps?.map((app, i) => {
-					const { h, m, s } = secondsToTime(+app.duration);
-					const percent = ((+app.duration * 100) / totalMilliseconds).toFixed(2);
-					return (
-						<div
-							key={i}
-							className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 rounded-md flex justify-between items-center my-2"
-						>
-							<p className="text-lg w-1/4">{app.title}</p>
-							<p className="text-lg w-1/4">
-								{formatDateString(new Date(app.date).toISOString())} - {app.time}
-							</p>
-							<div className="text-lg w-1/4 flex gap-2 px-4">
-								<p className="w-1/3">{percent}%</p>
-								<ProgressBar progress={percent + '%'} width={`75%`} />
-							</div>
-							<p className="text-lg w-1/4">{`${h}:${m}:${s}`}</p>
+				{apps.map((app, i) => (
+					<div key={i} className="border rounded-md my-4 p-4 dark:border-[#FFFFFF0D] dark:bg-[#1B1D22]">
+						<h3>{app.hour}</h3>
+						<div>
+							{app.apps?.map((item, i) => (
+								<div key={i} className="w-full">
+									<AppVisitedItem app={item} totalMilliseconds={app.totalMilliseconds} />
+								</div>
+							))}
 						</div>
-					);
-				})}
+					</div>
+				))}
 			</section>
 			{visitedApps?.length < 1 && !loading && (
 				<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
-					<p className="text-lg text-center">There is no apps visited today</p>
+					<p className="text-lg text-center">There is no Apps Visited today</p>
 				</div>
 			)}
 			{loading && visitedApps.length < 1 && (
-				<div className=" dark:bg-[#26272C]  p-4 py-6 animate-pulse rounded-md flex justify-between items-center my-2">
-					<div className="w-1/4 p-2">
-						<p className="animate-pulse py-4 rounded bg-gray-200 dark:bg-[#191a20]"></p>
-					</div>
-					<div className="w-1/4 p-2">
-						<p className="animate-pulse py-4 rounded bg-gray-200 dark:bg-[#191a20]"></p>
-					</div>
-					<div className="w-1/4 p-2">
-						<p className="animate-pulse py-4 rounded bg-gray-200 dark:bg-[#191a20]"></p>
-					</div>
-					<div className="w-1/4 p-2">
-						<p className="animate-pulse py-4 rounded bg-gray-200 dark:bg-[#191a20]"></p>
-					</div>
-				</div>
+				<>
+					<AppVisitedSkeletion />
+					<AppVisitedSkeletion />
+				</>
 			)}
 		</div>
 	);

@@ -1,4 +1,4 @@
-export interface ITimerApss {
+export interface ITimerApps {
 	sessions: string;
 	duration: string;
 	employeeId: string;
