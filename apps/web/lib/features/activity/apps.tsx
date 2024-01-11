@@ -12,16 +12,16 @@ export function AppsTab() {
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<header className="bg-gray-200 dark:bg-[#26272C] rounded-md p-4 flex items-center justify-between">
-				<h3 className="text-lg font-semibold w-1/4">{t('timer.APPS')}</h3>
-				<h3 className="text-lg text-center font-semibold w-1/4">{t('timer.VISITED_DATES')}</h3>
-				<h3 className="text-lg text-center font-semibold w-1/4">{t('timer.PERCENT_USED')}</h3>
-				<h3 className="text-lg font-semibold w-1/4 text-end">{t('timer.TIME_SPENT_IN_HOURS')}</h3>
+				<h3 className="text-lg font-semibold flex-1">{t('timer.APPS')}</h3>
+				<h3 className="text-lg text-center font-semibold  2xl:w-56 3xl:w-64">{t('timer.VISITED_DATES')}</h3>
+				<h3 className="text-lg text-center font-semibold flex-1">{t('timer.PERCENT_USED')}</h3>
+				<h3 className="text-lg font-semibold  2xl:w-52 3xl:w-64 text-end">{t('timer.TIME_SPENT_IN_HOURS')}</h3>
 			</header>
 			<section>
 				{apps.map((app, i) => (
 					<div
 						key={i}
-						className="border shadow-lg shadow-gray-200 rounded-md my-4 p-4 dark:border-[#FFFFFF0D] bg-white dark:bg-[#1B1D22]"
+						className="border shadow-lg  rounded-md my-4 p-4 dark:border-[#FFFFFF0D] bg-white dark:bg-[#1B1D22]"
 					>
 						<h3>{app.hour}</h3>
 						<div>

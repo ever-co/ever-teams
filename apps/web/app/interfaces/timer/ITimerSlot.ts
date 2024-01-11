@@ -21,26 +21,28 @@ export interface ITimerSlot {
 	keyboardPercentage: number;
 	mousePercentage: number;
 
-	screenshots: {
-		organizationId: string;
-		id: string;
-		createdAt: Date | string;
-		updatedAt: Date | string;
-		deletedAt: null;
-		isActive: true;
-		isArchived: false;
-		tenantId: string;
-		file: string;
-		thumb: string;
-		thumbUrl: string;
-		recordedAt: Date | string;
-		isWorkRelated: true;
-		description: string;
-		timeSlotId: string;
-		userId: string;
-		fullUrl: string;
-		apps: string[];
-	}[];
+	screenshots: IScreenshot[];
+}
+
+export interface IScreenshot {
+	organizationId: string;
+	id: string;
+	createdAt: Date | string;
+	updatedAt: Date | string;
+	deletedAt: null;
+	isActive: true;
+	isArchived: false;
+	tenantId: string;
+	file: string;
+	thumb: string;
+	thumbUrl: string;
+	recordedAt: Date | string;
+	isWorkRelated: true;
+	description: string;
+	timeSlotId: string;
+	userId: string;
+	fullUrl: string;
+	apps: string[];
 }
 
 export interface ITimerSlotDataRequest {
