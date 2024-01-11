@@ -44,7 +44,7 @@ export function groupAppsByHour(apps: ITimerApps[]) {
 			});
 	});
 
-	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? 1 : -1));
+	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));
 }
 
 const formatTime = (d: Date | string, addHour: boolean) => {

@@ -1,5 +1,5 @@
 import { useTimeDailyActivity } from '@app/hooks/features/useTimeDailyActivity';
-import { AppVisitedSkeletion } from './components/app-visited-skeleton';
+import { AppVisitedSkeleton } from './components/app-visited-skeleton';
 import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
@@ -21,7 +21,7 @@ export function AppsTab() {
 				{apps.map((app, i) => (
 					<div
 						key={i}
-						className="border rounded-md my-4 p-4 dark:border-[#FFFFFF0D] bg-white dark:bg-[#1B1D22]"
+						className="border shadow-lg shadow-gray-200 rounded-md my-4 p-4 dark:border-[#FFFFFF0D] bg-white dark:bg-[#1B1D22]"
 					>
 						<h3>{app.hour}</h3>
 						<div>
@@ -41,8 +41,8 @@ export function AppsTab() {
 			)}
 			{loading && visitedApps.length < 1 && (
 				<>
-					<AppVisitedSkeletion />
-					<AppVisitedSkeletion />
+					<AppVisitedSkeleton />
+					<AppVisitedSkeleton />
 				</>
 			)}
 		</div>
