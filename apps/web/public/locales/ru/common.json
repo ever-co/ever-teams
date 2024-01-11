@@ -440,7 +440,12 @@
 		"TIME_ACTIVITY": "Activity",
 		"TOTAL_HOURS": "Total Hours",
 		"NO_SCREENSHOOT": "No Screenshoots",
-		"PERCENT_OF_MINUTES": " % of 10 Minutes"
+		"PERCENT_OF_MINUTES": " % of 10 Minutes",
+		"APPS": "Apps",
+		"VISITED_DATES": "Visited Dates",
+		"PERCENT_USED": "Percent Used",
+		"TIME_SPENT_IN_HOURS": "Time spent (Hours)",
+		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited."
 	},
 
 	"task": {
