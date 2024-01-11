@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
 import { useAuthenticateUser, useImageAssets, useOrganizationTeams } from '@app/hooks';
-import { IImageAssets } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, Button } from 'lib/components';
 import { useTheme } from 'next-themes';
@@ -38,11 +37,11 @@ export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?:
 					user.tenantId as string,
 					user.employee.organizationId
 				)
-					.then((d: IImageAssets) => {
+					.then((image) => {
 						updateOrganizationTeam(activeTeam, {
 							...activeTeam,
-							imageId: d.id,
-							image: d
+							imageId: image.id,
+							image: image
 						});
 					})
 					.finally(() => {

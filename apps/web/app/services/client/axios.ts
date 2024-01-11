@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getAccessTokenCookie, getActiveTeamIdCookie } from '@app/helpers/cookies';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
 	baseURL: API_BASE_URL,
@@ -92,25 +92,26 @@ function get(
 		: api.get(endpoint);
 }
 
-function post(
-	endpoint: string,
-	data: any,
-	isDirect: boolean,
-	extras?: {
-		tenantId: string;
-	}
+function post<T>(
+	url: string,
+	data?: any,
+	config?: AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean }
 ) {
+	const { directAPI = true } = config || {};
+
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
-	return isDirect && baseURL
-		? apiDirect.post(endpoint, data, {
+	return baseURL && directAPI
+		? apiDirect.post<T>(url, data, {
 				baseURL,
+				...config,
 				headers: {
-					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
+					...(config?.tenantId ? { 'tenant-id': config?.tenantId } : {}),
+					...config?.headers
 				}
 		  })
-		: api.post(endpoint, data);
+		: api.post<T>(url, data);
 }
 
 export { get, post };

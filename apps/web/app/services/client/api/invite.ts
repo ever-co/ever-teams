@@ -39,7 +39,7 @@ export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string)
 	};
 
 	// for not direct call we need to adjust data to include name and email only
-	const fetchData = await post(endpoint, dataToInviteUser, true, { tenantId });
+	const fetchData = await post(endpoint, dataToInviteUser, { tenantId });
 
 	return GAUZY_API_BASE_SERVER_URL.value ? fetchData.data : fetchData;
 }

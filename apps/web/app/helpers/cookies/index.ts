@@ -214,9 +214,9 @@ export function setActiveUserIdCookie(userId: string, ctx?: NextCtx) {
 }
 
 export function getNoTeamPopupShowCookie(ctx?: NextCtx) {
-	return getCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, {
+	return !!getCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, {
 		...(ctx || {})
-	}) as boolean;
+	});
 }
 export function setNoTeamPopupShowCookie(show: boolean, ctx?: NextCtx) {
 	return setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, show, { ...(ctx || {}) });
