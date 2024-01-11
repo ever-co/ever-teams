@@ -5,14 +5,11 @@ import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import { ScreenshootSkeleton } from './components/screenshoots-per-hour-skeleton';
 
-
 export function ScreenshootTab() {
 	const { timeSlots, loading } = useTimeSlots();
 	const t = useTranslations();
 
-
-	const hourPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
-	const activityPercent = hourPercent ?? 0;
+	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
 	const totaHours = '1:20:34';
 	return (
 		<div>
@@ -26,7 +23,7 @@ export function ScreenshootTab() {
 				<div className="shadow rounded-md sm:w-1/2 lg:w-1/3 xl:w-1/4 p-4 h-32 bg-white dark:bg-[#26272C]">
 					<span>{t('timer.TOTAL_HOURS')}</span>
 					<h2 className="text-3xl font-bold my-3">{totaHours}</h2>
-					<ProgressBar width={'80%'} progress={`${hourPercent}%`} />
+					<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
 				</div>
 			</div>
 			{groupDataByHour(timeSlots).map((hourData, i) => (
