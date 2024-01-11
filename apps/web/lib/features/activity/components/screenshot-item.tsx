@@ -11,7 +11,7 @@ const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = 
 		<div
 			className={clsxm(
 				'rounded-lg shadow-md hover:shadow-lg cursor-pointer border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
-				!showProgress && '!h-48 dark:!bg-[#26272C]'
+				!showProgress && '!h-48 dark:!bg-[#191a20]'
 			)}
 		>
 			<div
