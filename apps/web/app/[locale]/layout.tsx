@@ -50,7 +50,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	const messages = require(`../../messages/${locale}.json`);
 	console.log({ pageProps });
 	return (
-		<html className="h-full" lang={locale}>
+		<html lang={locale}>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
