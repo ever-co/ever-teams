@@ -77,39 +77,55 @@ apiDirect.interceptors.response.use(
 	}
 );
 
-function get(
-	endpoint: string,
-	isDirect: boolean,
-	extras?: {
-		tenantId: string;
-	}
-) {
-	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
-	baseURL = baseURL ? `${baseURL}/api` : undefined;
+type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
-	return isDirect && baseURL
-		? apiDirect.get(endpoint, {
-				baseURL,
-				headers: {
-					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
-				}
-		  })
-		: api.get(endpoint);
-}
-
-function post<T>(
-	url: string,
-	data?: Record<string, any> | FormData,
-	config?: AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean }
-) {
+function apiConfig(config?: APIConfig) {
 	const bearer_token = getAccessTokenCookie();
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 
-	const { directAPI = true } = config || {};
-
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
+
+	apiDirect.defaults.baseURL = baseURL;
+
+	if (bearer_token) {
+		apiDirect.defaults.headers.common = {
+			...apiDirect.defaults.headers.common,
+			Authorization: `Bearer ${bearer_token}`
+		};
+	}
+
+	if (tenantId) {
+		apiDirect.defaults.headers.common = {
+			...apiDirect.defaults.headers.common,
+			'tenant-id': tenantId
+		};
+	}
+
+	const headers = {
+		...(config?.tenantId ? { 'tenant-id': config?.tenantId } : { 'tenant-id': tenantId }),
+		...config?.headers
+	};
+
+	return {
+		baseURL,
+		bearer_token,
+		tenantId,
+		organizationId,
+		headers
+	};
+}
+
+function get<T>(endpoint: string, config?: APIConfig) {
+	const { baseURL, headers } = apiConfig(config);
+
+	return baseURL ? apiDirect.get<T>(endpoint, { ...config, headers }) : api.get<T>(endpoint);
+}
+
+function post<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+	const { directAPI = true } = config || {};
 
 	if (baseURL && directAPI && data && !(data instanceof FormData)) {
 		if (!data.tenantId) {
@@ -121,17 +137,7 @@ function post<T>(
 		}
 	}
 
-	return baseURL && directAPI
-		? apiDirect.post<T>(url, data, {
-				baseURL,
-				...config,
-				headers: {
-					Authorization: `Bearer ${bearer_token}`,
-					...(config?.tenantId ? { 'tenant-id': config?.tenantId } : { 'tenant-id': tenantId }),
-					...config?.headers
-				}
-		  })
-		: api.post<T>(url, data);
+	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
 }
 
 export { get, post };
