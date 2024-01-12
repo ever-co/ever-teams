@@ -46,10 +46,15 @@ const apiDirect = axios.create({
 
 apiDirect.interceptors.request.use(
 	async (config: any) => {
+		const tenantId = getTenantIdCookie();
 		const cookie = getAccessTokenCookie();
 
 		if (cookie) {
 			config.headers['Authorization'] = `Bearer ${cookie}`;
+		}
+
+		if (tenantId) {
+			config.headers['tenant-id'] = tenantId;
 		}
 
 		return config;
@@ -60,12 +65,7 @@ apiDirect.interceptors.request.use(
 );
 
 apiDirect.interceptors.response.use(
-	(response: AxiosResponse) => {
-		return {
-			...response,
-			data: response
-		};
-	},
+	(response: AxiosResponse) => response,
 	async (error: { response: AxiosResponse }) => {
 		const statusCode = error.response?.status;
 
@@ -80,7 +80,6 @@ apiDirect.interceptors.response.use(
 type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
 function apiConfig(config?: APIConfig) {
-	const bearer_token = getAccessTokenCookie();
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 
@@ -89,28 +88,13 @@ function apiConfig(config?: APIConfig) {
 
 	apiDirect.defaults.baseURL = baseURL;
 
-	if (bearer_token) {
-		apiDirect.defaults.headers.common = {
-			...apiDirect.defaults.headers.common,
-			Authorization: `Bearer ${bearer_token}`
-		};
-	}
-
-	if (tenantId) {
-		apiDirect.defaults.headers.common = {
-			...apiDirect.defaults.headers.common,
-			'tenant-id': tenantId
-		};
-	}
-
 	const headers = {
-		...(config?.tenantId ? { 'tenant-id': config?.tenantId } : { 'tenant-id': tenantId }),
+		...(config?.tenantId ? { 'tenant-id': config?.tenantId } : {}),
 		...config?.headers
 	};
 
 	return {
 		baseURL,
-		bearer_token,
 		tenantId,
 		organizationId,
 		headers

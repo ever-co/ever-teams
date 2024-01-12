@@ -11,12 +11,13 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 	if (!user) return $res('Unauthorized');
 
 	const { id: userId } = params;
-	return $res(
-		await getTaskCreator({
-			userId: userId as string,
-			bearer_token: access_token
-		})
-	);
+
+	const { data } = await getTaskCreator({
+		userId: userId as string,
+		bearer_token: access_token
+	});
+
+	return $res(data);
 }
 
 export async function PUT(req: Request) {

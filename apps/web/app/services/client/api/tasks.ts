@@ -79,15 +79,16 @@ export async function tasksTimesheetStatisticsAPI(
 			defaultRange: 'false'
 		});
 
-		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
+		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
 			tenantId
 		});
 
 		const todayQueries = new URLSearchParams({
+			...commonParams,
 			defaultRange: 'true',
 			unitOfTime: 'day'
 		});
-		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
+		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
 			tenantId
 		});
 
@@ -127,12 +128,12 @@ export async function activeTaskTimesheetStatisticsAPI(
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
+		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
 			tenantId
 		});
 
 		const todayQueries = new URLSearchParams({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
+		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
 			tenantId
 		});
 

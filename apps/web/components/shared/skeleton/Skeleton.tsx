@@ -11,7 +11,6 @@ const Skeleton = ({
 	borderRadius: number;
 	className: string;
 }) => {
-	console.log({ borderRadius });
 	return (
 		<div
 			className={clsxm(
