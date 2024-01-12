@@ -32,7 +32,7 @@ export function useIssueType() {
 
 		queryCall(user?.tenantId as string, user?.employee?.organizationId as string, activeTeamId || null).then(
 			(res) => {
-				setIssueTypes(res?.data?.data?.items || []);
+				setIssueTypes(res.data?.items || []);
 				return res;
 			}
 		);
@@ -49,7 +49,7 @@ export function useIssueType() {
 								user?.employee?.organizationId as string,
 								activeTeamId || null
 							).then((res) => {
-								setIssueTypes(res?.data?.data?.items || []);
+								setIssueTypes(res?.data?.items || []);
 								return res;
 							});
 						}
@@ -72,7 +72,7 @@ export function useIssueType() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setIssueTypes(res?.data?.data?.items || []);
+						setIssueTypes(res?.data?.items || []);
 						return res;
 					});
 					return res;
@@ -93,7 +93,7 @@ export function useIssueType() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setIssueTypes(res?.data?.data?.items || []);
+						setIssueTypes(res?.data?.items || []);
 						return res;
 					});
 					return res;

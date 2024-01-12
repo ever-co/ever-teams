@@ -55,9 +55,9 @@ export function useGitHubIntegration() {
 	const metaData = useCallback(
 		(integrationId: string) => {
 			return metadataQueryCall(integrationId).then((response) => {
-				setIntegrationGithubMetadata(response.data.data);
+				setIntegrationGithubMetadata(response.data);
 
-				return response.data.data;
+				return response.data;
 			});
 		},
 		[metadataQueryCall, setIntegrationGithubMetadata]
@@ -65,9 +65,9 @@ export function useGitHubIntegration() {
 	const getRepositories = useCallback(
 		(integrationId: string) => {
 			return repositoriesQueryCall(integrationId).then((response) => {
-				setIntegrationGithubRepositories(response.data.data);
+				setIntegrationGithubRepositories(response.data);
 
-				return response.data.data;
+				return response.data;
 			});
 		},
 		[repositoriesQueryCall, setIntegrationGithubRepositories]
@@ -84,19 +84,19 @@ export function useGitHubIntegration() {
 				installationId,
 				repository
 			}).then((response) => {
-				if (response.data.data.id) {
+				if (response.data.id) {
 					editOrganizationProjectSettingAPI(
 						projectId,
 						{
 							tenantId,
 							organizationId,
-							repositoryId: response.data.data.id
+							repositoryId: response.data.id
 						},
 						tenantId
 					);
 				}
 
-				return response.data.data;
+				return response.data;
 			});
 		},
 		[syncGitHubRepositoryQueryCall]

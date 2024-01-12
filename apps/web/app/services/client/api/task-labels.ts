@@ -1,4 +1,10 @@
-import { CreateResponse, DeleteResponse, ITaskLabelsCreate } from '@app/interfaces';
+import {
+	CreateResponse,
+	DeleteResponse,
+	ITaskLabelsCreate,
+	ITaskLabelsItemList,
+	PaginationResponse
+} from '@app/interfaces';
 import api, { get } from '../axios';
 
 export function createTaskLabelsAPI(data: ITaskLabelsCreate, tenantId?: string) {
@@ -23,7 +29,6 @@ export function deleteTaskLabelsAPI(id: string) {
 
 export async function getTaskLabelsList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
 	const endpoint = `/tags/level?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
-	const data = await get(endpoint, true, { tenantId });
 
-	return data;
+	return get<PaginationResponse<ITaskLabelsItemList>>(endpoint, { tenantId });
 }

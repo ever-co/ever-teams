@@ -1,5 +1,6 @@
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
 
 export async function getTimerDailyRequestAPI({
 	tenantId,
@@ -29,7 +30,5 @@ export async function getTimerDailyRequestAPI({
 		? `/timesheet/activity/daily?${query.toString()}`
 		: `/timer/daily?${query.toString()}`;
 
-	const data = await get(endpoint, true);
-
-	return data;
+	return get<ITimerApps[]>(endpoint);
 }

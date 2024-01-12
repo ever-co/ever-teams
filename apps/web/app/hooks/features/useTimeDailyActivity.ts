@@ -29,7 +29,7 @@ export function useTimeDailyActivity(type: string) {
 			.then((response) => {
 				if (response.data) {
 					console.log(response.data);
-					setVisitedApps(response.data?.data);
+					setVisitedApps(response.data);
 				}
 			})
 			.catch((err) => console.log(err));
