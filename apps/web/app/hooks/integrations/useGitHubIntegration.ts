@@ -55,9 +55,9 @@ export function useGitHubIntegration() {
 	const metaData = useCallback(
 		(integrationId: string) => {
 			return metadataQueryCall(integrationId).then((response) => {
-				setIntegrationGithubMetadata(response.data.data);
+				setIntegrationGithubMetadata(response.data);
 
-				return response.data.data;
+				return response.data;
 			});
 		},
 		[metadataQueryCall, setIntegrationGithubMetadata]
