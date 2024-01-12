@@ -20,5 +20,5 @@ export async function GET(req: Request) {
 		access_token
 	);
 
-	return $res(response);
+	return $res(response.data);
 }

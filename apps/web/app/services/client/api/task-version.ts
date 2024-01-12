@@ -1,4 +1,10 @@
-import { CreateResponse, DeleteResponse, ITaskVersionCreate } from '@app/interfaces';
+import {
+	CreateResponse,
+	DeleteResponse,
+	ITaskVersionCreate,
+	ITaskVersionItemList,
+	PaginationResponse
+} from '@app/interfaces';
 import api, { get } from '../axios';
 
 export function createTaskVersionAPI(data: ITaskVersionCreate, tenantId?: string) {
@@ -24,7 +30,5 @@ export function deleteTaskVersionAPI(id: string) {
 export async function getTaskVersionList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
 	const endpoint = `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;
+	return get<PaginationResponse<ITaskVersionItemList>>(endpoint, { tenantId });
 }

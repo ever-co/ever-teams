@@ -43,9 +43,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 
 		useEffect(() => {
 			if (!user) {
-				queryCall().then((res) => {
-					setUser(res.data);
-				});
+				queryCall().then((res) => setUser(res.data));
 			}
 		}, [queryCall, setUser, user]);
 

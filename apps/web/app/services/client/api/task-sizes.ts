@@ -1,4 +1,10 @@
-import { CreateResponse, DeleteResponse, ITaskSizesCreate } from '@app/interfaces';
+import {
+	CreateResponse,
+	DeleteResponse,
+	ITaskSizesCreate,
+	ITaskSizesItemList,
+	PaginationResponse
+} from '@app/interfaces';
 import api, { get } from '../axios';
 
 export function createTaskSizesAPI(data: ITaskSizesCreate, tenantId?: string) {
@@ -23,5 +29,5 @@ export function deleteTaskSizesAPI(id: string) {
 
 export async function getTaskSizesList(tenantId: string, organizationId: string, activeTeamId: string | null) {
 	const endpoint = `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
-	return get(endpoint, true);
+	return get<PaginationResponse<ITaskSizesItemList>>(endpoint);
 }

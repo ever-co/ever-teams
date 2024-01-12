@@ -13,5 +13,7 @@ export async function GET(req: Request) {
 		tenantId
 	};
 
-	return $res(await getLanguageListRequest(par, access_token));
+	const { data } = await getLanguageListRequest(par, access_token);
+
+	return $res(data);
 }

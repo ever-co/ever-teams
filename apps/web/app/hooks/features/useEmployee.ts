@@ -18,9 +18,10 @@ export const useEmployee = () => {
 		if (!user?.tenantId) {
 			return;
 		}
-		getWorkingEmployeeQueryCall(user?.tenantId, user?.employee.organizationId).then((data) => {
-			if (data?.data?.items && data?.data?.items?.length) {
-				const items = data.data.items || [];
+		getWorkingEmployeeQueryCall(user?.tenantId, user?.employee.organizationId).then(({ data }) => {
+			if (data?.items && data?.items?.length) {
+				const items = data.items || [];
+
 				setWorkingEmployees(items);
 				setWorkingEmployeesEmail(items.map((item: any) => item.user?.email || ''));
 			}

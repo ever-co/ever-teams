@@ -18,5 +18,5 @@ export async function POST(req: Request) {
 		access_token
 	);
 
-	return $res(response);
+	return $res(response.data);
 }

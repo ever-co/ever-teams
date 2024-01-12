@@ -1,4 +1,10 @@
-import { CreateResponse, DeleteResponse, ITaskRelatedIssueTypeCreate } from '@app/interfaces';
+import {
+	CreateResponse,
+	DeleteResponse,
+	ITaskRelatedIssueTypeCreate,
+	ITaskRelatedIssueTypeItemList,
+	PaginationResponse
+} from '@app/interfaces';
 import api, { get } from '../axios';
 
 export function createTaskRelatedIssueTypeAPI(data: ITaskRelatedIssueTypeCreate, tenantId?: string) {
@@ -28,7 +34,5 @@ export async function getTaskRelatedIssueTypeList(
 ) {
 	const endpoint = `/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;	
+	return get<PaginationResponse<ITaskRelatedIssueTypeItemList>>(endpoint, { tenantId });
 }

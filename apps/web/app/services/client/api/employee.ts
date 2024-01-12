@@ -1,4 +1,5 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { IWorkingEmployee, PaginationResponse } from '@app/interfaces';
 import { get } from '../axios';
 
 export async function getWorkingEmployeesAPI(tenantId: string, organizationId: string) {
@@ -10,7 +11,6 @@ export async function getWorkingEmployeesAPI(tenantId: string, organizationId: s
 	const query = new URLSearchParams(params);
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/employee/pagination?${query.toString()}` : '/employee/working';
-	const data = await get(endpoint, true, { tenantId });
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<PaginationResponse<IWorkingEmployee>>(endpoint, { tenantId });
 }
