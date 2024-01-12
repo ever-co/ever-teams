@@ -65,9 +65,9 @@ export function useGitHubIntegration() {
 	const getRepositories = useCallback(
 		(integrationId: string) => {
 			return repositoriesQueryCall(integrationId).then((response) => {
-				setIntegrationGithubRepositories(response.data.data);
+				setIntegrationGithubRepositories(response.data);
 
-				return response.data.data;
+				return response.data;
 			});
 		},
 		[repositoriesQueryCall, setIntegrationGithubRepositories]
