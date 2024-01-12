@@ -2,7 +2,6 @@ import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import { IInvitation, MyInvitationActionEnum, CreateResponse, IInviteCreate, IMyInvitations } from '@app/interfaces';
 import { INVITE_CALLBACK_URL } from '@app/constants';
 import api, { get, post } from '../axios';
-import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 
 interface IIInviteRequest {
 	email: string;
@@ -40,7 +39,7 @@ export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string)
 
 	// for not direct call we need to adjust data to include name and email only
 
-	return post<ITimerSlotDataRequest>(endpoint, dataToInviteUser, { tenantId });
+	return post<PaginationResponse<IInvitation>>(endpoint, dataToInviteUser, { tenantId });
 }
 
 export async function getTeamInvitationsAPI(tenantId: string, organizationId: string, role: string, teamId: string) {
