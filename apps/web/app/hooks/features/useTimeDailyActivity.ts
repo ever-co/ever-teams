@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
 import { useRecoilState } from 'recoil';
-import { timeAppsState } from '@app/stores/time-slot';
+import { timeAppsState, timeVisitedSitesState } from '@app/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { getTimerDailyRequestAPI } from '@app/services/client/api';
@@ -11,6 +11,7 @@ import { getTimerDailyRequestAPI } from '@app/services/client/api';
 export function useTimeDailyActivity(type: string) {
 	const { user } = useAuthenticateUser();
 	const [visitedApps, setVisitedApps] = useRecoilState(timeAppsState);
+	const [visitedSites, setVisitedSites] = useRecoilState(timeVisitedSitesState);
 
 	const { loading, queryCall } = useQuery(getTimerDailyRequestAPI);
 
@@ -28,12 +29,13 @@ export function useTimeDailyActivity(type: string) {
 		})
 			.then((response) => {
 				if (response.data) {
-					console.log(response.data);
-					setVisitedApps(response.data);
+					console.log({ type }, response.data);
+					if (type == 'APP') setVisitedApps(response.data?.data);
+					else setVisitedSites(response.data?.data);
 				}
 			})
 			.catch((err) => console.log(err));
-	}, [queryCall, setVisitedApps, user, type]);
+	}, [queryCall, setVisitedApps, setVisitedSites, user, type]);
 
 	useEffect(() => {
 		getVisitedApps();
@@ -41,6 +43,7 @@ export function useTimeDailyActivity(type: string) {
 
 	return {
 		visitedApps,
+		visitedSites,
 		getVisitedApps,
 		loading
 	};

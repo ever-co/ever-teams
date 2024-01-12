@@ -1,14 +1,25 @@
 import { formatDateString, secondsToTime } from '@app/helpers';
 import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
 import { ProgressBar } from 'lib/components';
+import Link from 'next/link';
 import React from 'react';
 
-const AppVisitedItem = ({ app, totalMilliseconds }: { app: ITimerApps; totalMilliseconds: number }) => {
+const AppVisitedItem = ({
+	app,
+	totalMilliseconds,
+	type
+}: {
+	app: ITimerApps;
+	totalMilliseconds: number;
+	type: string;
+}) => {
 	const { h, m, s } = secondsToTime(+app.duration);
 	const percent = ((+app.duration * 100) / totalMilliseconds).toFixed(2);
 	return (
 		<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] bg-gray-200 dark:bg-[#191a20] p-4 rounded-md flex justify-between apps-center my-2">
-			<p className="text-lg flex-1">{app.title}</p>
+			<p className="text-lg flex-1">
+				{type == 'SITE' ? <Link href={app.title}>{app.title}</Link> : <span>{app.title}</span>}
+			</p>
 			<p className="text-lg text-center 2xl:w-56 3xl:w-64">
 				{formatDateString(new Date(app.date).toISOString())} - {app.time}
 			</p>

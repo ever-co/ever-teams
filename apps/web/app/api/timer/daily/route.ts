@@ -22,7 +22,8 @@ export async function GET(req: Request) {
 		todayEnd: endDate,
 		todayStart: startDate,
 		type,
-		bearer_token: access_token
+		bearer_token: access_token,
+		activityLevel: { start: 0, end: 100 }
 	});
 
 	return $res(data);

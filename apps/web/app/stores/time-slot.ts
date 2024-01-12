@@ -11,3 +11,8 @@ export const timeAppsState = atom<ITimerApps[]>({
 	key: 'timeAppsState',
 	default: []
 });
+
+export const timeVisitedSitesState = atom<ITimerApps[]>({
+	key: 'timeVisitedSiteState',
+	default: []
+});

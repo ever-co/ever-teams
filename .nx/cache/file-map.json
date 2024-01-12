@@ -70,6 +70,212 @@
   "pathMappings": {},
   "nxJsonPlugins": [],
   "projectFileMap": {
+    "extensions": [
+      {
+        "file": "apps/extensions/.gitignore",
+        "hash": "2091481097915355846"
+      },
+      {
+        "file": "apps/extensions/.prettierrc.cjs",
+        "hash": "14902853323255863337"
+      },
+      {
+        "file": "apps/extensions/README.md",
+        "hash": "11729157359527523633"
+      },
+      {
+        "file": "apps/extensions/assets/icon.png",
+        "hash": "14367535661019999568"
+      },
+      {
+        "file": "apps/extensions/assets/logo/ever-teams-dark.png",
+        "hash": "5915127639501610508"
+      },
+      {
+        "file": "apps/extensions/background.ts",
+        "hash": "10388597526718606245",
+        "deps": [
+          "npm:~misc/browser",
+          "npm:~typescript/enums/MessageTypesEnum",
+          "npm:~typescript/enums/TimerStateEnum",
+          "npm:~typescript/interfaces/PostMessage",
+          "npm:~typescript/types/Tasks"
+        ]
+      },
+      {
+        "file": "apps/extensions/components/popup/Header.tsx",
+        "hash": "16913209471361841419",
+        "deps": [
+          "npm:classnames",
+          "npm:data-base64:~assets/logo/ever-teams-dark.png",
+          "npm:react",
+          "npm:~components/shared/AppDropdown",
+          "npm:~misc/tailwindClasses",
+          "npm:~typescript/types/Team"
+        ]
+      },
+      {
+        "file": "apps/extensions/components/popup/Tasks.tsx",
+        "hash": "7716149086607955210",
+        "deps": [
+          "npm:classnames",
+          "npm:react",
+          "npm:react-dom",
+          "npm:~components/shared/AppDropdown",
+          "npm:~misc/tailwindClasses",
+          "npm:~typescript/enums/MessageTypesEnum",
+          "npm:~typescript/interfaces/PostMessage",
+          "npm:~typescript/interfaces/TimerUpdate",
+          "npm:~typescript/types/Tasks"
+        ]
+      },
+      {
+        "file": "apps/extensions/components/popup/TasksEstimatedInputs.tsx",
+        "hash": "10628658410007640566",
+        "deps": [
+          "npm:classnames",
+          "npm:react",
+          "npm:~misc/tailwindClasses",
+          "npm:~typescript/types/Tasks"
+        ]
+      },
+      {
+        "file": "apps/extensions/components/popup/Timer.tsx",
+        "hash": "7094452157034907149",
+        "deps": [
+          "npm:classnames",
+          "npm:react",
+          "npm:~misc/browser",
+          "npm:~typescript/enums/MessageTypesEnum",
+          "npm:~typescript/enums/TimerStateEnum",
+          "npm:~typescript/interfaces/PostMessage",
+          "npm:~typescript/interfaces/TimerUpdate"
+        ]
+      },
+      {
+        "file": "apps/extensions/components/shared/AppDropdown.tsx",
+        "hash": "5542886067252650936",
+        "deps": [
+          "npm:classnames",
+          "npm:react",
+          "npm:~hooks/useOnClickOutside",
+          "npm:~misc/tailwindClasses"
+        ]
+      },
+      {
+        "file": "apps/extensions/content.tsx",
+        "hash": "16418907547256587639",
+        "deps": [
+          "npm:data-text:~style.css",
+          "npm:plasmo",
+          "npm:react"
+        ]
+      },
+      {
+        "file": "apps/extensions/hooks/useOnClickOutside.ts",
+        "hash": "14963607140282629344",
+        "deps": [
+          "npm:react"
+        ]
+      },
+      {
+        "file": "apps/extensions/misc/browser.tsx",
+        "hash": "7942214313655016206"
+      },
+      {
+        "file": "apps/extensions/misc/tailwindClasses.ts",
+        "hash": "9725619085902144354"
+      },
+      {
+        "file": "apps/extensions/package.json",
+        "hash": "14054594033466973868",
+        "deps": [
+          "npm:@tailwindcss/typography",
+          "npm:react",
+          "npm:react-dom",
+          "npm:tailwindcss",
+          "npm:@types/node",
+          "npm:@types/react",
+          "npm:@types/react-dom",
+          "npm:postcss",
+          "npm:prettier",
+          "npm:typescript"
+        ]
+      },
+      {
+        "file": "apps/extensions/popup.tsx",
+        "hash": "9592761752795302352",
+        "deps": [
+          "npm:react",
+          "npm:~components/popup/Header",
+          "npm:~components/popup/Tasks",
+          "npm:~components/popup/Timer",
+          "npm:~misc/browser",
+          "npm:~typescript/enums/MessageTypesEnum",
+          "npm:~typescript/enums/TimerStateEnum",
+          "npm:~typescript/interfaces/PostMessage",
+          "npm:~typescript/interfaces/TimerUpdate"
+        ]
+      },
+      {
+        "file": "apps/extensions/postcss.config.js",
+        "hash": "7411369647401115815"
+      },
+      {
+        "file": "apps/extensions/project.json",
+        "hash": "14508835134777273061"
+      },
+      {
+        "file": "apps/extensions/style.css",
+        "hash": "17282879102000062120"
+      },
+      {
+        "file": "apps/extensions/tailwind.config.js",
+        "hash": "1672643460751947079",
+        "deps": [
+          "npm:@tailwindcss/forms",
+          "npm:@tailwindcss/typography"
+        ]
+      },
+      {
+        "file": "apps/extensions/tsconfig.json",
+        "hash": "123595014853319026"
+      },
+      {
+        "file": "apps/extensions/typescript/enums/MessageTypesEnum.ts",
+        "hash": "14818504351905435810"
+      },
+      {
+        "file": "apps/extensions/typescript/enums/TimerStateEnum.ts",
+        "hash": "11926805390481947037"
+      },
+      {
+        "file": "apps/extensions/typescript/interfaces/PostMessage.ts",
+        "hash": "17778128951022944019",
+        "deps": [
+          "npm:~typescript/enums/MessageTypesEnum"
+        ]
+      },
+      {
+        "file": "apps/extensions/typescript/interfaces/TimerUpdate.ts",
+        "hash": "1256967586930331156",
+        "deps": [
+          "npm:~typescript/enums/TimerStateEnum"
+        ]
+      },
+      {
+        "file": "apps/extensions/typescript/types/Tasks.ts",
+        "hash": "10919226237838586098"
+      },
+      {
+        "file": "apps/extensions/typescript/types/Team.ts",
+        "hash": "1096130161135302246"
+      },
+      {
+        "file": "apps/extensions/yarn.lock",
+        "hash": "16146260164588779297"
+      }
+    ],
     "mobile": [
       {
         "file": "apps/mobile/.env.template",
@@ -4503,11 +4709,19 @@
       },
       {
         "file": ".nx/cache/d/daemon.log",
-        "hash": "15822448351377341155"
+        "hash": "13587872428880432737"
       },
       {
         "file": ".nx/cache/d/server-process.json",
-        "hash": "3855895343535725907"
+        "hash": "13034561323356301082"
+      },
+      {
+        "file": ".nx/cache/file-map.json",
+        "hash": "2383700153812054467"
+      },
+      {
+        "file": ".nx/cache/lockfile.hash",
+        "hash": "7816398821059842794"
       },
       {
         "file": ".nx/cache/nx-console-project-graph/project-graph.html",
@@ -4550,6 +4764,14 @@
       {
         "file": ".nx/cache/nx-console-project-graph/static/styles.js",
         "hash": "13596360365094399219"
+      },
+      {
+        "file": ".nx/cache/parsed-lock-file.json",
+        "hash": "11392297267884465606"
+      },
+      {
+        "file": ".nx/cache/project-graph.json",
+        "hash": "16815705570772093510"
       },
       {
         "file": ".prettierignore",
@@ -4861,220 +5083,6 @@
       {
         "file": "yarn.lock",
         "hash": "112609521331874988"
-      },
-      {
-        "file": ".nx/cache/project-graph.json",
-        "hash": "16815705570772093510"
-      },
-      {
-        "file": ".nx/cache/file-map.json",
-        "hash": "14681052016604478615"
-      }
-    ],
-    "extensions": [
-      {
-        "file": "apps/extensions/.gitignore",
-        "hash": "2091481097915355846"
-      },
-      {
-        "file": "apps/extensions/.prettierrc.cjs",
-        "hash": "14902853323255863337"
-      },
-      {
-        "file": "apps/extensions/README.md",
-        "hash": "11729157359527523633"
-      },
-      {
-        "file": "apps/extensions/assets/icon.png",
-        "hash": "14367535661019999568"
-      },
-      {
-        "file": "apps/extensions/assets/logo/ever-teams-dark.png",
-        "hash": "5915127639501610508"
-      },
-      {
-        "file": "apps/extensions/background.ts",
-        "hash": "10388597526718606245",
-        "deps": [
-          "npm:~misc/browser",
-          "npm:~typescript/enums/MessageTypesEnum",
-          "npm:~typescript/enums/TimerStateEnum",
-          "npm:~typescript/interfaces/PostMessage",
-          "npm:~typescript/types/Tasks"
-        ]
-      },
-      {
-        "file": "apps/extensions/components/popup/Header.tsx",
-        "hash": "16913209471361841419",
-        "deps": [
-          "npm:classnames",
-          "npm:data-base64:~assets/logo/ever-teams-dark.png",
-          "npm:react",
-          "npm:~components/shared/AppDropdown",
-          "npm:~misc/tailwindClasses",
-          "npm:~typescript/types/Team"
-        ]
-      },
-      {
-        "file": "apps/extensions/components/popup/Tasks.tsx",
-        "hash": "7716149086607955210",
-        "deps": [
-          "npm:classnames",
-          "npm:react",
-          "npm:react-dom",
-          "npm:~components/shared/AppDropdown",
-          "npm:~misc/tailwindClasses",
-          "npm:~typescript/enums/MessageTypesEnum",
-          "npm:~typescript/interfaces/PostMessage",
-          "npm:~typescript/interfaces/TimerUpdate",
-          "npm:~typescript/types/Tasks"
-        ]
-      },
-      {
-        "file": "apps/extensions/components/popup/TasksEstimatedInputs.tsx",
-        "hash": "10628658410007640566",
-        "deps": [
-          "npm:classnames",
-          "npm:react",
-          "npm:~misc/tailwindClasses",
-          "npm:~typescript/types/Tasks"
-        ]
-      },
-      {
-        "file": "apps/extensions/components/popup/Timer.tsx",
-        "hash": "7094452157034907149",
-        "deps": [
-          "npm:classnames",
-          "npm:react",
-          "npm:~misc/browser",
-          "npm:~typescript/enums/MessageTypesEnum",
-          "npm:~typescript/enums/TimerStateEnum",
-          "npm:~typescript/interfaces/PostMessage",
-          "npm:~typescript/interfaces/TimerUpdate"
-        ]
-      },
-      {
-        "file": "apps/extensions/components/shared/AppDropdown.tsx",
-        "hash": "5542886067252650936",
-        "deps": [
-          "npm:classnames",
-          "npm:react",
-          "npm:~hooks/useOnClickOutside",
-          "npm:~misc/tailwindClasses"
-        ]
-      },
-      {
-        "file": "apps/extensions/content.tsx",
-        "hash": "16418907547256587639",
-        "deps": [
-          "npm:data-text:~style.css",
-          "npm:plasmo",
-          "npm:react"
-        ]
-      },
-      {
-        "file": "apps/extensions/hooks/useOnClickOutside.ts",
-        "hash": "14963607140282629344",
-        "deps": [
-          "npm:react"
-        ]
-      },
-      {
-        "file": "apps/extensions/misc/browser.tsx",
-        "hash": "7942214313655016206"
-      },
-      {
-        "file": "apps/extensions/misc/tailwindClasses.ts",
-        "hash": "9725619085902144354"
-      },
-      {
-        "file": "apps/extensions/package.json",
-        "hash": "14054594033466973868",
-        "deps": [
-          "npm:@tailwindcss/typography",
-          "npm:react",
-          "npm:react-dom",
-          "npm:tailwindcss",
-          "npm:@types/node",
-          "npm:@types/react",
-          "npm:@types/react-dom",
-          "npm:postcss",
-          "npm:prettier",
-          "npm:typescript"
-        ]
-      },
-      {
-        "file": "apps/extensions/popup.tsx",
-        "hash": "9592761752795302352",
-        "deps": [
-          "npm:react",
-          "npm:~components/popup/Header",
-          "npm:~components/popup/Tasks",
-          "npm:~components/popup/Timer",
-          "npm:~misc/browser",
-          "npm:~typescript/enums/MessageTypesEnum",
-          "npm:~typescript/enums/TimerStateEnum",
-          "npm:~typescript/interfaces/PostMessage",
-          "npm:~typescript/interfaces/TimerUpdate"
-        ]
-      },
-      {
-        "file": "apps/extensions/postcss.config.js",
-        "hash": "7411369647401115815"
-      },
-      {
-        "file": "apps/extensions/project.json",
-        "hash": "14508835134777273061"
-      },
-      {
-        "file": "apps/extensions/style.css",
-        "hash": "17282879102000062120"
-      },
-      {
-        "file": "apps/extensions/tailwind.config.js",
-        "hash": "1672643460751947079",
-        "deps": [
-          "npm:@tailwindcss/forms",
-          "npm:@tailwindcss/typography"
-        ]
-      },
-      {
-        "file": "apps/extensions/tsconfig.json",
-        "hash": "123595014853319026"
-      },
-      {
-        "file": "apps/extensions/typescript/enums/MessageTypesEnum.ts",
-        "hash": "14818504351905435810"
-      },
-      {
-        "file": "apps/extensions/typescript/enums/TimerStateEnum.ts",
-        "hash": "11926805390481947037"
-      },
-      {
-        "file": "apps/extensions/typescript/interfaces/PostMessage.ts",
-        "hash": "17778128951022944019",
-        "deps": [
-          "npm:~typescript/enums/MessageTypesEnum"
-        ]
-      },
-      {
-        "file": "apps/extensions/typescript/interfaces/TimerUpdate.ts",
-        "hash": "1256967586930331156",
-        "deps": [
-          "npm:~typescript/enums/TimerStateEnum"
-        ]
-      },
-      {
-        "file": "apps/extensions/typescript/types/Tasks.ts",
-        "hash": "10919226237838586098"
-      },
-      {
-        "file": "apps/extensions/typescript/types/Team.ts",
-        "hash": "1096130161135302246"
-      },
-      {
-        "file": "apps/extensions/yarn.lock",
-        "hash": "16146260164588779297"
       }
     ],
     "web": [
@@ -6674,7 +6682,7 @@
       },
       {
         "file": "apps/web/app/hooks/features/useTimeDailyActivity.ts",
-        "hash": "9789590976418557908",
+        "hash": "17233278221188842087",
         "deps": [
           "npm:react",
           "npm:recoil",
@@ -6685,7 +6693,7 @@
       },
       {
         "file": "apps/web/app/hooks/features/useTimeSlot.ts",
-        "hash": "9916138458109971072",
+        "hash": "15050999256580226969",
         "deps": [
           "npm:react",
           "npm:recoil",
@@ -6999,7 +7007,7 @@
       },
       {
         "file": "apps/web/app/interfaces/IScreenshoot.ts",
-        "hash": "13749382431544846294"
+        "hash": "12374112234978419604"
       },
       {
         "file": "apps/web/app/interfaces/ISmtp.ts",
@@ -7618,7 +7626,7 @@
       },
       {
         "file": "apps/web/app/services/server/requests/timer/timer-slot.ts",
-        "hash": "8205861209452684427",
+        "hash": "1643705154180254595",
         "deps": [
           "npm:@app/interfaces/timer/ITimerSlot"
         ]
@@ -9578,7 +9586,7 @@
       },
       {
         "file": "apps/web/lib/features/activity/components/screenshot-details.tsx",
-        "hash": "12153606177903971542",
+        "hash": "13896856507610265897",
         "deps": [
           "npm:react",
           "npm:lib/components",
@@ -9588,8 +9596,10 @@
       },
       {
         "file": "apps/web/lib/features/activity/components/screenshot-item.tsx",
-        "hash": "1556191926306984313",
+        "hash": "417043921732817231",
         "deps": [
+          "npm:@app/hooks",
+          "npm:@app/hooks/features/useTimeSlot",
           "npm:@app/interfaces/IScreenshoot",
           "npm:@app/utils",
           "npm:lib/components",
@@ -9611,7 +9621,12 @@
       },
       {
         "file": "apps/web/lib/features/activity/visited-sites.tsx",
-        "hash": "3754703238920671987"
+        "hash": "14543055664174046228",
+        "deps": [
+          "npm:@app/hooks/features/useTimeDailyActivity",
+          "npm:@app/helpers/array-data",
+          "npm:next-intl"
+        ]
       },
       {
         "file": "apps/web/lib/features/auth-user-task-input.tsx",
