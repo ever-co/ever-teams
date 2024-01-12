@@ -84,19 +84,19 @@ export function useGitHubIntegration() {
 				installationId,
 				repository
 			}).then((response) => {
-				if (response.data.data.id) {
+				if (response.data.id) {
 					editOrganizationProjectSettingAPI(
 						projectId,
 						{
 							tenantId,
 							organizationId,
-							repositoryId: response.data.data.id
+							repositoryId: response.data.id
 						},
 						tenantId
 					);
 				}
 
-				return response.data.data;
+				return response.data;
 			});
 		},
 		[syncGitHubRepositoryQueryCall]

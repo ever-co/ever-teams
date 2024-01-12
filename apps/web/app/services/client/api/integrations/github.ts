@@ -1,7 +1,7 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
-import api, { get, post } from '../../axios';
+import { get, post } from '../../axios';
 
 // TODO
 export function installGitHubIntegrationAPI(body: any) {
@@ -40,5 +40,5 @@ export function getGithubIntegrationRepositoriesAPI(integrationId: string) {
 }
 
 export function syncGitHubRepositoryAPI(body: any) {
-	return api.post<any>('/integration/github/repository/sync', body);
+	return post<any>('/integration/github/repository/sync', body);
 }
