@@ -45,8 +45,8 @@ export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) 
 			user?.employee?.organizationId as string,
 			activeTeamId || teamId || null
 		).then((res) => {
-			if (!isEqual(res?.data?.data?.items || [], taskVersion)) {
-				setTaskVersion(res?.data?.data?.items || []);
+			if (!isEqual(res.data?.items || [], taskVersion)) {
+				setTaskVersion(res.data?.items || []);
 			}
 			return res;
 		});
@@ -80,7 +80,7 @@ export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) 
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskVersion(res?.data?.data?.items || []);
+						setTaskVersion(res.data?.items || []);
 						return res;
 					});
 					return res;
@@ -101,7 +101,7 @@ export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) 
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskVersion(res?.data?.data?.items || []);
+						setTaskVersion(res.data?.items || []);
 						return res;
 					});
 					return res;

@@ -43,8 +43,8 @@ export function useTaskSizes() {
 			user?.employee?.organizationId as string,
 			activeTeamId || teamId || null
 		).then((res) => {
-			if (!isEqual(res?.data?.data?.items || [], taskSizes)) {
-				setTaskSizes(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.items || [], taskSizes)) {
+				setTaskSizes(res?.data?.items || []);
 			}
 
 			return res;
@@ -80,7 +80,7 @@ export function useTaskSizes() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskSizes(res?.data?.data?.items || []);
+						setTaskSizes(res?.data?.items || []);
 						return res;
 					});
 					return res;
@@ -99,7 +99,7 @@ export function useTaskSizes() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskSizes(res?.data?.data?.items || []);
+						setTaskSizes(res?.data?.items || []);
 						return res;
 					});
 					return res;

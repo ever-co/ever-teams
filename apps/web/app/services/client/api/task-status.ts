@@ -1,4 +1,10 @@
-import { CreateResponse, DeleteResponse, ITaskStatusCreate } from '@app/interfaces';
+import {
+	CreateResponse,
+	DeleteResponse,
+	ITaskStatusCreate,
+	ITaskStatusItemList,
+	PaginationResponse
+} from '@app/interfaces';
 import api, { get } from '../axios';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
@@ -24,7 +30,5 @@ export function deleteTaskStatusAPI(id: string) {
 export async function getTaskStatusList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
 	const endpoint = `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;
+	return get<PaginationResponse<ITaskStatusItemList>>(endpoint, { tenantId });
 }

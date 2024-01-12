@@ -1,5 +1,6 @@
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 
 export async function getTimerLogsRequestAPI({
 	tenantId,
@@ -26,9 +27,7 @@ export async function getTimerLogsRequestAPI({
 		? `/timesheet/statistics/time-slots?${query.toString()}`
 		: `/timer/slots?${query.toString()}`;
 
-	const data = await get(endpoint, true);
-
-	return data;
+	return get<ITimerSlotDataRequest>(endpoint);
 }
 
 export async function deleteTimerLogsRequestAPI({
@@ -53,7 +52,5 @@ export async function deleteTimerLogsRequestAPI({
 		? `/timesheet/statistics/time-slots?${query.toString()}${idParams}`
 		: `/timer/slots?${query.toString()}${idParams}`;
 
-	const data = await get(endpoint, true);
-
-	return data;
+	return get(endpoint);
 }

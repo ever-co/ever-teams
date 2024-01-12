@@ -22,7 +22,9 @@ export async function GET(req: Request) {
 		organizationTeamId: (organizationTeamId as string) || null
 	};
 
-	return $res(await getTaskRelatedIssueTypeListRequest(par, access_token));
+	const { data } = await getTaskRelatedIssueTypeListRequest(par, access_token);
+
+	return $res(data);
 }
 
 export async function POST(req: Request) {

@@ -26,23 +26,23 @@ export function useTimeSlots(ids?: string[]) {
 			todayStart
 		}).then((response) => {
 			if (response.data) {
-				setTimeSlots(response.data?.data[0]?.timeSlots);
+				setTimeSlots(response.data.timeSlots);
 			}
 		});
 	}, [queryCall, setTimeSlots, user]);
 
 	const deleteTimeSlots = useCallback(() => {
-		if(ids?.length){
+		if (ids?.length) {
 			queryDeleteCall({
-			tenantId: user?.tenantId ?? '',
-			organizationId: user?.employee.organizationId ?? '',
-			ids: ids
-		}).then(() => {
-			const updatedSlots = timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null));
-			setTimeSlots(updatedSlots);
-		});
-	}
-	}, [queryDeleteCall, setTimeSlots,ids, timeSlots, user]);
+				tenantId: user?.tenantId ?? '',
+				organizationId: user?.employee.organizationId ?? '',
+				ids: ids
+			}).then(() => {
+				const updatedSlots = timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null));
+				setTimeSlots(updatedSlots);
+			});
+		}
+	}, [queryDeleteCall, setTimeSlots, ids, timeSlots, user]);
 
 	useEffect(() => {
 		getTimeSlots();

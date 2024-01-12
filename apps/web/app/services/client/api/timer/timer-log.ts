@@ -1,3 +1,4 @@
+import { ITimerStatus } from '@app/interfaces';
 import { get } from '../../axios';
 
 export async function getTimerLogs(
@@ -8,9 +9,7 @@ export async function getTimerLogs(
 ) {
 	const endpoint = `/timer/status?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}&employeeIds[0]=${employeeId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;
+	return get<ITimerStatus>(endpoint, { tenantId });
 }
 
 // todayStart, todayEnd;

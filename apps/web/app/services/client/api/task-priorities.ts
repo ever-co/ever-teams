@@ -1,4 +1,10 @@
-import { CreateResponse, DeleteResponse, ITaskPrioritiesCreate } from '@app/interfaces';
+import {
+	CreateResponse,
+	DeleteResponse,
+	ITaskPrioritiesCreate,
+	ITaskPrioritiesItemList,
+	PaginationResponse
+} from '@app/interfaces';
 import api, { get } from '../axios';
 
 export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: string) {
@@ -28,7 +34,5 @@ export async function getTaskPrioritiesList(
 ) {
 	const endpoint = `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;
+	return get<PaginationResponse<ITaskPrioritiesItemList>>(endpoint, { tenantId });
 }

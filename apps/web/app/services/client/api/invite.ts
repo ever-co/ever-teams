@@ -1,8 +1,8 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import { IInvitation, MyInvitationActionEnum, CreateResponse, IInviteCreate, IRole } from '@app/interfaces';
-import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_URL } from '@app/constants';
+import { IInvitation, MyInvitationActionEnum, CreateResponse, IInviteCreate, IMyInvitations } from '@app/interfaces';
+import { INVITE_CALLBACK_URL } from '@app/constants';
 import api, { get, post } from '../axios';
-import { AxiosResponse } from 'axios';
+import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 
 interface IIInviteRequest {
 	email: string;
@@ -19,7 +19,7 @@ export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string)
 
 	const getRoleEndpoint = '/roles/options?name=EMPLOYEE';
 
-	const employeeRole: AxiosResponse<IRole, any> = (await get(getRoleEndpoint, true, { tenantId })).data;
+	const employeeRole = await get<any>(getRoleEndpoint, { tenantId });
 
 	const dataToInviteUser: IInviteCreate & { tenantId: string } = {
 		emailIds: [data.email],
@@ -39,9 +39,8 @@ export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string)
 	};
 
 	// for not direct call we need to adjust data to include name and email only
-	const fetchData = await post<any>(endpoint, dataToInviteUser, { tenantId });
 
-	return GAUZY_API_BASE_SERVER_URL.value ? fetchData.data : fetchData;
+	return post<ITimerSlotDataRequest>(endpoint, dataToInviteUser, { tenantId });
 }
 
 export async function getTeamInvitationsAPI(tenantId: string, organizationId: string, role: string, teamId: string) {
@@ -54,9 +53,8 @@ export async function getTeamInvitationsAPI(tenantId: string, organizationId: st
 	});
 
 	const endpoint = `/invite?${query.toString()}`;
-	const data = await get(endpoint, true, { tenantId });
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<PaginationResponse<IInvitation>>(endpoint, { tenantId });
 }
 
 export function removeTeamInvitationsAPI(invitationId: string) {
@@ -71,9 +69,8 @@ export function resendTeamInvitationsAPI(inviteId: string) {
 
 export async function getMyInvitationsAPI(tenantId: string) {
 	const endpoint = '/invite/me';
-	const data = await get(endpoint, true, { tenantId });
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<PaginationResponse<IMyInvitations>>(endpoint, { tenantId });
 }
 
 export function acceptRejectMyInvitationsAPI(invitationId: string, action: MyInvitationActionEnum) {

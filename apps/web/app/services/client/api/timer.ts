@@ -5,9 +5,8 @@ import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 export async function getTimerStatusAPI(tenantId: string, organizationId: string) {
 	const params = new URLSearchParams({ tenantId, organizationId });
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params.toString()}` : '/timer/status';
-	const data = await get(endpoint, true);
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<ITimerStatus>(endpoint);
 }
 
 export function toggleTimerAPI(body: Pick<IToggleTimerParams, 'taskId'>) {

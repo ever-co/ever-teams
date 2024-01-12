@@ -45,8 +45,8 @@ export function useTaskLabels() {
 			user?.employee?.organizationId as string,
 			activeTeamId || teamId || null
 		).then((res) => {
-			if (!isEqual(res?.data?.data?.items || [], taskLabels)) {
-				setTaskLabels(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.items || [], taskLabels)) {
+				setTaskLabels(res?.data?.items || []);
 			}
 
 			return res;
@@ -75,7 +75,7 @@ export function useTaskLabels() {
 							user?.employee?.organizationId as string,
 							activeTeamId || null
 						).then((res) => {
-							setTaskLabels(res?.data?.data?.items || []);
+							setTaskLabels(res?.data?.items || []);
 							return res;
 						});
 					}
@@ -97,7 +97,7 @@ export function useTaskLabels() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskLabels(res?.data?.data?.items || []);
+						setTaskLabels(res?.data?.items || []);
 						return res;
 					});
 					return res;
@@ -116,7 +116,7 @@ export function useTaskLabels() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskLabels(res?.data?.data?.items || []);
+						setTaskLabels(res?.data?.items || []);
 						return res;
 					});
 					return res;

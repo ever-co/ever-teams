@@ -65,7 +65,7 @@ export function useTeamInvitations() {
 				},
 				user?.tenantId as string
 			).then((res) => {
-				setTeamInvitations((prev) => [...prev, ...(res.data?.items || [])]);
+				// setTeamInvitations((prev) => [...prev, ...(res.data?.items || [])]);
 				return res;
 			});
 		},

@@ -39,9 +39,8 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 
 	const query = new URLSearchParams(obj);
 	const endpoint = `/tasks/team?${query.toString()}`;
-	const data = await get(endpoint, true, { tenantId });
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<PaginationResponse<ITeamTask>>(endpoint, { tenantId });
 }
 
 export function deleteTaskAPI(taskId: string) {
@@ -79,7 +78,8 @@ export async function tasksTimesheetStatisticsAPI(
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, true, {
+
+		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
 			tenantId
 		});
 
@@ -87,7 +87,7 @@ export async function tasksTimesheetStatisticsAPI(
 			defaultRange: 'true',
 			unitOfTime: 'day'
 		});
-		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, true, {
+		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
 			tenantId
 		});
 
@@ -127,12 +127,12 @@ export async function activeTaskTimesheetStatisticsAPI(
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, true, {
+		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
 			tenantId
 		});
 
 		const todayQueries = new URLSearchParams({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, true, {
+		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
 			tenantId
 		});
 
