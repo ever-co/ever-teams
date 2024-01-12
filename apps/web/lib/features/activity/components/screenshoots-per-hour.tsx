@@ -28,6 +28,7 @@ export const ScreenshootPerHour = ({
 							percent={el.percentage}
 							imageUrl={el.screenshots[0]?.thumbUrl}
 							onShow={() => openModal()}
+							idSlot={el.id}
 						/>
 						<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={el} />
 					</div>

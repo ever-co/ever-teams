@@ -63,6 +63,37 @@ const ScreenshotDetailsModal = ({
 						</div>
 					))}
 				</div>
+				<div>
+					<h4 className="text-lg font-semibold">Other details</h4>
+					<div className="flex gap-2">
+						<p>
+							<span className="font-semibold mx-2">Keyboard</span>
+							<span>
+								{slot.keyboard}times : {slot.keyboardPercentage}%
+							</span>
+						</p>
+						<p>
+							<span className="font-semibold mx-2">Mouse</span>
+							<span>
+								{slot.mouse}times : {slot.mousePercentage}%
+							</span>
+						</p>
+						<p className="rounded-lg px-1 mb-1 text-white ">
+							{slot.isActive ? (
+								<span className=" bg-green-600 rounded-lg px-2 m-1">Active</span>
+							) : (
+								<span className=" bg-red-600 rounded-lg px-2 m-1">Inactive</span>
+							)}
+						</p>
+						<p>
+							{slot.isArchived ? (
+								<span className=" bg-gray-600 rounded-lg px-2 m-1">Archived</span>
+							) : (
+								<span className=" bg-blue-600 rounded-lg px-2 m-1">Not archived</span>
+							)}
+						</p>
+					</div>
+				</div>
 			</div>
 		</Modal>
 	);

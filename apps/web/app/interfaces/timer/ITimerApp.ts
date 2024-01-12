@@ -9,7 +9,7 @@ export interface ITimerApps {
 	title: string;
 }
 
-export interface IDteailTimerSite {
+export interface IDetailTimerSite {
 	id: string;
 	createdAt: Date | string;
 	updatedAt: Date | string;
