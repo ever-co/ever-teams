@@ -1,5 +1,5 @@
 import { getRefreshTokenCookie } from '@app/helpers/cookies';
-import { ISuccessResponse } from '@app/interfaces';
+import { ISuccessResponse, IUser } from '@app/interfaces';
 import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
 import api, { get } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
@@ -43,9 +43,9 @@ export const getAuthenticatedUserDataAPI = async () => {
 	const query = new URLSearchParams(params);
 
 	const endpoint = `/user/me?${query.toString()}`;
-	const data = await get(endpoint, true);
+	const data = await get<IUser>(endpoint);
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return GAUZY_API_BASE_SERVER_URL.value ? data : data;
 };
 
 export const verifyUserEmailByCodeAPI = (code: string) => {

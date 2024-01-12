@@ -14,29 +14,29 @@ export function oAuthEndpointAuthorizationAPI(body: any) {
 }
 
 export function getGithubIntegrationMetadataAPI(integrationId: string) {
-	if (GAUZY_API_BASE_SERVER_URL.value) {
-		const query = new URLSearchParams({
-			tenantId: getTenantIdCookie(),
-			organizationId: getOrganizationIdCookie()
-		});
+	const query = new URLSearchParams({
+		tenantId: getTenantIdCookie(),
+		organizationId: getOrganizationIdCookie()
+	});
 
-		return get<IGithubMetadata>(`/integration/github/${integrationId}/metadata${query.toString()}`);
-	}
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/integration/github/${integrationId}/metadata${query.toString()}`
+		: `/integration/github/metadata?integrationId=${integrationId}`;
 
-	return api.get<IGithubMetadata>(`/integration/github/metadata?integrationId=${integrationId}`);
+	return get<IGithubMetadata>(endpoint);
 }
 
 export function getGithubIntegrationRepositoriesAPI(integrationId: string) {
-	if (GAUZY_API_BASE_SERVER_URL.value) {
-		const query = new URLSearchParams({
-			tenantId: getTenantIdCookie(),
-			organizationId: getOrganizationIdCookie()
-		});
+	const query = new URLSearchParams({
+		tenantId: getTenantIdCookie(),
+		organizationId: getOrganizationIdCookie()
+	});
 
-		return get<IGithubRepositories>(`/integration/github/${integrationId}/repositories${query.toString()}`);
-	}
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/integration/github/${integrationId}/repositories${query.toString()}`
+		: `/integration/github/repositories?integrationId=${integrationId}`;
 
-	return api.get<IGithubRepositories>(`/integration/github/repositories?integrationId=${integrationId}`);
+	return get<IGithubRepositories>(endpoint);
 }
 
 export function syncGitHubRepositoryAPI(body: any) {
