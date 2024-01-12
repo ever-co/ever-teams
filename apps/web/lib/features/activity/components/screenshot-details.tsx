@@ -31,9 +31,9 @@ const ScreenshotDetailsModal = ({
 				<p className="font-semibold py-1">
 					{slot.percentage} {t('timer.PERCENT_OF_MINUTES')}
 				</p>
-				<div className="my-2 flex overflow-x-auto">
+				<div className="my-2 flex w-full overflow-x-auto">
 					{slot.screenshots.map((screenshot, i) => (
-						<div key={i} className="w-1/3 p-2">
+						<div key={i} className="w-1/3 min-w-[20rem] p-2">
 							<Tooltip
 								label={screenshot.description}
 								placement="left-start"
@@ -41,6 +41,7 @@ const ScreenshotDetailsModal = ({
 								labelContainerClassName="w-full"
 							>
 								<ScreenshotItem
+									idSlot={slot.id}
 									endTime={slot.stoppedAt}
 									startTime={screenshot.recordedAt}
 									imageUrl={screenshot.thumbUrl}

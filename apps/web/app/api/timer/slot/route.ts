@@ -48,3 +48,5 @@ export async function DELETE(req: Request) {
 
 	return $res(data);
 }
+
+// https://api.gauzy.co/api/timesheet/time-slot?employeeIds[0]=ae7548dd-79ea-4db2-ada9-6a8ceb5118e3&organizationId=6c247b8d-5853-404a-b774-57d01620d9cf&tenantId=b545069e-48c8-44a2-bcb4-5699fd2013be&startDate=2024-01-10 22:00&endDate=2024-01-11 21:59&relations[0]=screenshots&relations[1]=timeLogs

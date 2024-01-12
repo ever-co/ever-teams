@@ -1,13 +1,25 @@
+import { useModal } from '@app/hooks';
+import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { IScreenShootItem } from '@app/interfaces/IScreenshoot';
 import { clsxm } from '@app/utils';
-import { ProgressBar } from 'lib/components';
+import { Button, Modal, ProgressBar } from 'lib/components';
 import { TrashIcon } from 'lib/components/svgs';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import React from 'react';
 
-const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = true, onShow }: IScreenShootItem) => {
+const ScreenshotItem = ({
+	idSlot,
+	endTime,
+	imageUrl,
+	percent,
+	startTime,
+	showProgress = true,
+	onShow
+}: IScreenShootItem) => {
 	const t = useTranslations();
+	const { deleteTimeSlots } = useTimeSlots();
+	const { isOpen, openModal, closeModal } = useModal();
 	return (
 		<div
 			className={clsxm(
@@ -21,7 +33,10 @@ const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = 
 					!showProgress && '!h-2/3'
 				)}
 			>
-				<div className="rounded-full bg-red-200 top-1 right-1 absolute w-8 h-8 flex justify-center items-center cursor-pointer">
+				<div
+					className="rounded-full bg-red-200 top-1 right-1 absolute w-8 h-8 flex justify-center items-center text-center cursor-pointer"
+					onClick={() => openModal()}
+				>
 					<TrashIcon className="text-white text-center" />
 				</div>
 				<Image
@@ -65,6 +80,21 @@ const ScreenshotItem = ({ endTime, imageUrl, percent, startTime, showProgress = 
 					</div>
 				)}
 			</div>
+			<Modal
+				isOpen={isOpen}
+				closeModal={closeModal}
+				className="bg-white dark:bg-[#343434f4] p-4 rounded-lg lg:w-[30vw] xl:w-[30vw] m-8"
+			>
+				<div>
+					<p className="py-4 text-center">Are you sure to delete this slot ?</p>
+					<div className="flex gap-2">
+						<Button onClick={closeModal}>Cancel</Button>
+						<Button onClick={() => deleteTimeSlots([idSlot])} className="bg-red-500 dark:bg-red-600">
+							Delete
+						</Button>
+					</div>
+				</div>
+			</Modal>
 		</div>
 	);
 };
