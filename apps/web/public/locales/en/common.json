@@ -450,7 +450,16 @@
 		"VISITED_DATES": "Visited Dates",
 		"PERCENT_USED": "Percent Used",
 		"TIME_SPENT_IN_HOURS": "Time spent (Hours)",
-		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited."
+		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited.",
+		"OTHER_DETAILS": "Other details",
+		"KEYBOARD": "keyboard",
+
+		"MOUSE": "Mouse",
+		"TIMES": "Times",
+		"ACTIVE": "Active",
+		"INACTIVE": "Inactive",
+		"ARCHIVED": "Archived",
+		"NOT_ARCHIVED": "Not archived"
 	},
 
 	"task": {

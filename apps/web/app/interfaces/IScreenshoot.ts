@@ -4,6 +4,7 @@ export interface IScreenshootPerHour {
 }
 
 export interface IScreenShootItem {
+	idSlot: string;
 	startTime: Date | string;
 	endTime: Date | string;
 	imageUrl: string;

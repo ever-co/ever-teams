@@ -27,7 +27,7 @@ export function AppsTab() {
 						<div>
 							{app.apps?.map((item, i) => (
 								<div key={i} className="w-full">
-									<AppVisitedItem app={item} totalMilliseconds={app.totalMilliseconds} />
+									<AppVisitedItem app={item} totalMilliseconds={app.totalMilliseconds} type="APP"/>
 								</div>
 							))}
 						</div>
