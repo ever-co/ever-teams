@@ -30,8 +30,8 @@ export function useTimeDailyActivity(type: string) {
 			.then((response) => {
 				if (response.data) {
 					console.log({ type }, response.data);
-					if (type == 'APP') setVisitedApps(response.data?.data);
-					else setVisitedSites(response.data?.data);
+					if (type == 'APP') setVisitedApps(response.data);
+					else setVisitedSites(response.data);
 				}
 			})
 			.catch((err) => console.log(err));

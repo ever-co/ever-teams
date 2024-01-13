@@ -26,7 +26,7 @@ export function useTimeSlots() {
 			todayStart
 		}).then((response) => {
 			if (response.data) {
-				setTimeSlots(response.data.timeSlots);
+				setTimeSlots(response.data[0]?.timeSlots);
 			}
 		});
 	}, [queryCall, setTimeSlots, user]);
@@ -43,6 +43,7 @@ export function useTimeSlots() {
 				const updatedSlots = timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null));
 				setTimeSlots(updatedSlots);
 			});
+
 		},
 		[queryDeleteCall, setTimeSlots, timeSlots, user]
 	);
