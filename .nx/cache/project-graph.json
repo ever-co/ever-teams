@@ -27172,11 +27172,6 @@
     ".": [
       {
         "source": ".",
-        "target": "npm:util",
-        "type": "dynamic"
-      },
-      {
-        "source": ".",
         "target": "npm:yargs",
         "type": "static"
       },

@@ -9,7 +9,7 @@ export function ScreenshootTab() {
 	const { timeSlots, loading } = useTimeSlots();
 	const t = useTranslations();
 
-	const activityPercent = timeSlots?.reduce((acc, el) => acc + el.percentage, 0) / timeSlots?.length!;
+	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
 	const totaHours = '1:20:34';
 	return (
 		<div>
@@ -34,12 +34,12 @@ export function ScreenshootTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots?.length < 1 && !loading && (
+			{timeSlots.length < 1 && !loading && (
 				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
 					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
 				</div>
 			)}
-			{loading && timeSlots?.length < 1 && <ScreenshootSkeleton />}
+			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
 }
