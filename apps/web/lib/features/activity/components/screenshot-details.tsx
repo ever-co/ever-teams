@@ -31,9 +31,9 @@ const ScreenshotDetailsModal = ({
 				<p className="font-semibold py-1">
 					{slot.percentage} {t('timer.PERCENT_OF_MINUTES')}
 				</p>
-				<div className="my-2 flex overflow-x-auto">
+				<div className="my-2 flex w-full overflow-x-auto">
 					{slot.screenshots.map((screenshot, i) => (
-						<div key={i} className="w-1/3 p-2">
+						<div key={i} className="w-1/3 min-w-[20rem] p-2">
 							<Tooltip
 								label={screenshot.description}
 								placement="left-start"
@@ -41,6 +41,7 @@ const ScreenshotDetailsModal = ({
 								labelContainerClassName="w-full"
 							>
 								<ScreenshotItem
+									idSlot={slot.id}
 									endTime={slot.stoppedAt}
 									startTime={screenshot.recordedAt}
 									imageUrl={screenshot.thumbUrl}
@@ -61,6 +62,37 @@ const ScreenshotDetailsModal = ({
 							</div>
 						</div>
 					))}
+				</div>
+				<div>
+					<h4 className="text-lg font-semibold">{t('timer.OTHER_DETAILS')}</h4>
+					<div className="flex gap-2">
+						<p>
+							<span className="font-semibold mx-2">{t('timer.KEYBOARD')}</span>
+							<span>
+								{t('timer.TIMES')} : {slot.keyboard} {slot.keyboardPercentage}%
+							</span>
+						</p>
+						<p>
+							<span className="font-semibold mx-2">{t('timer.MOUSE')}</span>
+							<span>
+								{t('timer.TIMES')} : {slot.mouse} {slot.mousePercentage}%
+							</span>
+						</p>
+						<p className="rounded-lg px-1 mb-1 text-white ">
+							{slot.isActive ? (
+								<span className=" bg-green-600 rounded-lg px-2 m-1">{t('timer.ACTIVE')}</span>
+							) : (
+								<span className=" bg-red-600 rounded-lg px-2 m-1">{t('timer.INACTIVE')}</span>
+							)}
+						</p>
+						<p>
+							{slot.isArchived ? (
+								<span className=" bg-gray-600 rounded-lg px-2 m-1">{t('timer.ARCHIVED')}</span>
+							) : (
+								<span className=" bg-blue-600 rounded-lg px-2 m-1">{t('timer.NOT_ARCHIVED')}</span>
+							)}
+						</p>
+					</div>
 				</div>
 			</div>
 		</Modal>

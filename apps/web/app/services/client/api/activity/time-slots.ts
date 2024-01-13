@@ -27,7 +27,7 @@ export async function getTimerLogsRequestAPI({
 		? `/timesheet/statistics/time-slots?${query.toString()}`
 		: `/timer/slots?${query.toString()}`;
 
-	return get<ITimerSlotDataRequest>(endpoint);
+	return get<ITimerSlotDataRequest | ITimerSlotDataRequest[]>(endpoint);
 }
 
 export async function deleteTimerLogsRequestAPI({

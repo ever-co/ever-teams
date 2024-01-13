@@ -8,7 +8,7 @@ import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { deleteTimerLogsRequestAPI, getTimerLogsRequestAPI } from '@app/services/client/api';
 
-export function useTimeSlots(ids?: string[]) {
+export function useTimeSlots() {
 	const { user } = useAuthenticateUser();
 	const [timeSlots, setTimeSlots] = useRecoilState(timeSlotsState);
 
@@ -26,13 +26,14 @@ export function useTimeSlots(ids?: string[]) {
 			todayStart
 		}).then((response) => {
 			if (response.data) {
-				setTimeSlots(response.data.timeSlots);
+				// @ts-expect-error
+				setTimeSlots(response.data[0].timeSlots);
 			}
 		});
 	}, [queryCall, setTimeSlots, user]);
 
-	const deleteTimeSlots = useCallback(() => {
-		if (ids?.length) {
+	const deleteTimeSlots = useCallback(
+		(ids: string[]) => {
 			queryDeleteCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
@@ -41,8 +42,9 @@ export function useTimeSlots(ids?: string[]) {
 				const updatedSlots = timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null));
 				setTimeSlots(updatedSlots);
 			});
-		}
-	}, [queryDeleteCall, setTimeSlots, ids, timeSlots, user]);
+		},
+		[queryDeleteCall, setTimeSlots, timeSlots, user]
+	);
 
 	useEffect(() => {
 		getTimeSlots();
