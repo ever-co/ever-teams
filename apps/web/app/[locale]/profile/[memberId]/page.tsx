@@ -31,7 +31,7 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 	const [activityFilter, setActivityFilter] = useState<ActivityFilters>(ActivityFilters.TASKS);
 
 	const hook = useTaskFilter(profile);
-	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name == 'MANAGER';
+	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
 
 	const t = useTranslations();
 	const breadcrumb = [
