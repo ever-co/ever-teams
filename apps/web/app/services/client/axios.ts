@@ -103,8 +103,16 @@ function apiConfig(config?: APIConfig) {
 
 function get<T>(endpoint: string, config?: APIConfig) {
 	const { baseURL, headers } = apiConfig(config);
+	const { directAPI = true } = config || {};
 
-	return baseURL ? apiDirect.get<T>(endpoint, { ...config, headers }) : api.get<T>(endpoint);
+	return baseURL && directAPI ? apiDirect.get<T>(endpoint, { ...config, headers }) : api.get<T>(endpoint);
+}
+
+function deleteApi<T>(endpoint: string, config?: APIConfig) {
+	const { baseURL, headers } = apiConfig(config);
+	const { directAPI = true } = config || {};
+
+	return baseURL && directAPI ? apiDirect.delete<T>(endpoint, { ...config, headers }) : api.delete<T>(endpoint);
 }
 
 function post<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
@@ -124,6 +132,6 @@ function post<T>(url: string, data?: Record<string, any> | FormData, config?: AP
 	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
 }
 
-export { get, post };
+export { get, post, deleteApi };
 
 export default api;
