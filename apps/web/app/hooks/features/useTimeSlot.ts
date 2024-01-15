@@ -20,11 +20,12 @@ export function useTimeSlots() {
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
+		const employeeId = profile.member?.employeeId ?? '';
 		if (profile.userProfile?.id === user?.id) {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
-				employeeId: user?.employee.id ?? '',
+				employeeId: employeeId,
 				todayEnd,
 				todayStart
 			}).then((response) => {
@@ -35,13 +36,13 @@ export function useTimeSlots() {
 			});
 		}
 	}, [
+		profile.member?.employeeId,
 		profile.userProfile?.id,
-		queryCall,
-		setTimeSlots,
-		user?.employee.id,
-		user?.employee.organizationId,
 		user?.id,
-		user?.tenantId
+		user?.tenantId,
+		user?.employee.organizationId,
+		queryCall,
+		setTimeSlots
 	]);
 
 	const deleteTimeSlots = useCallback(

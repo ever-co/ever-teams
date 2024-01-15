@@ -10,23 +10,24 @@ import { getTimerDailyRequestAPI } from '@app/services/client/api';
 import { useUserProfilePage } from './useUserProfilePage';
 
 export function useTimeDailyActivity(type: string) {
+	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
 	const [visitedApps, setVisitedApps] = useRecoilState(timeAppsState);
 	const [visitedAppDetail, setVisitedAppDetail] = useRecoilState(timeAppVisitedDetail);
 	const [visitedSites, setVisitedSites] = useRecoilState(timeVisitedSitesState);
-	const profile = useUserProfilePage();
 
 	const { loading, queryCall } = useQuery(getTimerDailyRequestAPI);
 
 	const getVisitedApps = useCallback(
-		({ userId, title }: { userId?: string; title?: string }) => {
+		({ title }: { title?: string }) => {
 			const todayStart = moment().startOf('day').toDate();
 			const todayEnd = moment().endOf('day').toDate();
+			const employeeId = profile.member?.employeeId ?? '';
 			if (profile.userProfile?.id === user?.id) {
 				queryCall({
 					tenantId: user?.tenantId ?? '',
 					organizationId: user?.employee.organizationId ?? '',
-					employeeId: userId ?? user?.employee.id ?? '',
+					employeeId: employeeId,
 					todayEnd,
 					type,
 					todayStart,
@@ -44,11 +45,11 @@ export function useTimeDailyActivity(type: string) {
 			}
 		},
 		[
+			profile.member?.employeeId,
 			profile.userProfile?.id,
 			user?.id,
 			user?.tenantId,
 			user?.employee.organizationId,
-			user?.employee.id,
 			queryCall,
 			type,
 			setVisitedAppDetail,
