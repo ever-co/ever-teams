@@ -4,7 +4,7 @@ import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import { ScreenshootSkeleton } from './components/screenshoots-per-hour-skeleton';
-import {useLiveTimerStatus} from '@app/hook/userTimer'
+import { useLiveTimerStatus } from '@app/hooks';
 
 export function ScreenshootTab() {
 	const { timeSlots, loading } = useTimeSlots();
@@ -12,7 +12,9 @@ export function ScreenshootTab() {
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
 	// const workedSeconds = timeSlots.reduce((acc, el) => acc + el.duration, 0);
-	const {time: { h, m }} = useLiveTimerStatus()
+	const {
+		time: { h, m }
+	} = useLiveTimerStatus();
 	return (
 		<div>
 			<div className="flex items-center gap-4">
@@ -24,7 +26,7 @@ export function ScreenshootTab() {
 				</div>
 				<div className="shadow rounded-md sm:w-1/2 lg:w-1/3 xl:w-1/4 p-4 h-32 bg-white dark:bg-[#26272C]">
 					<span>{t('timer.TOTAL_HOURS')}</span>
-					<h2 className="text-3xl font-bold my-3">{`${h}:${m}`}</h2>
+					<h2 className="text-3xl font-bold my-3">{`${h}:${m}:00`}</h2>
 					<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
 				</div>
 			</div>

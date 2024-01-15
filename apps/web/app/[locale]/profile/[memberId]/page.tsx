@@ -39,6 +39,8 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 		{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
 	];
 
+	console.log({ activityFilter });
+
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
 
@@ -97,7 +99,7 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				)}
 
 				<Container fullWidth={fullWidth} className="mb-10">
-					{hook.tab == 'worked' &&  activityFilter == ActivityFilters.TASKS ? (
+					{hook.tab == 'worked' && activityFilter == ActivityFilters.TASKS ? (
 						<UserProfileTask profile={profile} tabFiltered={hook} />
 					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.SCREENSHOOTS ? (
 						<ScreenshootTab />
