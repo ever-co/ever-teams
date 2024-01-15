@@ -26,6 +26,7 @@ export function getIntegrationRequest(
 			integrationTypeId
 		})
 	});
+
 	return serverFetch<IIntegration>({
 		path: `/integration?${query.toString()}`,
 		method: 'GET',

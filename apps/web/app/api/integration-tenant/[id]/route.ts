@@ -12,6 +12,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	if (id) {
 		const response = await deleteIntegrationTenantRequest(id as string, tenantId, organizationId, access_token);
 
-		return $res(response);
+		return $res(response.data);
 	}
 }
