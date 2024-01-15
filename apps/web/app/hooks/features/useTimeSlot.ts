@@ -21,7 +21,7 @@ export function useTimeSlots() {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
 		const employeeId = profile.member?.employeeId ?? '';
-		if (profile.userProfile?.id === user?.id) {
+		if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
@@ -39,6 +39,7 @@ export function useTimeSlots() {
 		profile.member?.employeeId,
 		profile.userProfile?.id,
 		user?.id,
+		user?.role?.name,
 		user?.tenantId,
 		user?.employee.organizationId,
 		queryCall,
