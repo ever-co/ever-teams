@@ -2,7 +2,7 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
-import { useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
@@ -25,17 +25,21 @@ import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 
 const Profile = ({ params }: { params: { memberId: string } }) => {
 	const profile = useUserProfilePage();
+	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<ActivityFilters>(ActivityFilters.TASKS);
 
 	const hook = useTaskFilter(profile);
+	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
 
 	const t = useTranslations();
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
 		{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
 	];
+
+	console.log({ activityFilter });
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
@@ -73,7 +77,7 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				</MainHeader>
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
-				{hook.tab == 'worked' && (
+				{hook.tab == 'worked' && canSeeActivity && (
 					<Container fullWidth={fullWidth} className="py-8">
 						<div className={clsxm('flex  justify-start items-center gap-4')}>
 							{Object.values(ActivityFilters).map((filter: ActivityFilters, i) => (
@@ -97,11 +101,11 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				<Container fullWidth={fullWidth} className="mb-10">
 					{hook.tab == 'worked' && activityFilter == ActivityFilters.TASKS ? (
 						<UserProfileTask profile={profile} tabFiltered={hook} />
-					) : hook.tab == 'worked' && activityFilter == ActivityFilters.SCREENSHOOTS ? (
+					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.SCREENSHOOTS ? (
 						<ScreenshootTab />
-					) : hook.tab == 'worked' && activityFilter == ActivityFilters.APPS ? (
+					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.APPS ? (
 						<AppsTab />
-					) : hook.tab == 'worked' && activityFilter == ActivityFilters.VISITED_SITES ? (
+					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.VISITED_SITES ? (
 						<VisitedSitesTab />
 					) : (
 						<UserProfileTask profile={profile} tabFiltered={hook} />

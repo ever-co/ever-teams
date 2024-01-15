@@ -8,7 +8,8 @@ export async function getTimerDailyRequestAPI({
 	employeeId,
 	todayEnd,
 	todayStart,
-	type
+	type,
+	title
 }: {
 	tenantId: string;
 	organizationId: string;
@@ -16,8 +17,17 @@ export async function getTimerDailyRequestAPI({
 	todayEnd: Date;
 	todayStart: Date;
 	type: string;
+	title?: string;
 }) {
-	const params = {
+	const params: {
+		tenantId: string;
+		organizationId: string;
+		'employeeIds[0]': string;
+		startDate: string;
+		endDate: string;
+		'types[0]': string;
+		'title[0]'?: string;
+	} = {
 		tenantId: tenantId,
 		organizationId: organizationId,
 		'employeeIds[0]': employeeId,
@@ -25,6 +35,7 @@ export async function getTimerDailyRequestAPI({
 		endDate: todayEnd.toISOString(),
 		'types[0]': type
 	};
+	if (title) params['title[0]'] = title;
 	const query = new URLSearchParams(params);
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
 		? `/timesheet/activity/daily?${query.toString()}`

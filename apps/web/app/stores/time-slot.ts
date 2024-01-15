@@ -1,4 +1,4 @@
-import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
+import { IDetailTimerSite, ITimerApps } from '@app/interfaces/timer/ITimerApp';
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import { atom } from 'recoil';
 
@@ -15,4 +15,8 @@ export const timeAppsState = atom<ITimerApps[]>({
 export const timeVisitedSitesState = atom<ITimerApps[]>({
 	key: 'timeVisitedSiteState',
 	default: []
+});
+
+export const timeAppVisitedDetail = atom<IDetailTimerSite>({
+	key: 'timeAppVisitedDetail'
 });
