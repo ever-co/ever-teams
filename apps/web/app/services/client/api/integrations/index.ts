@@ -1,8 +1,6 @@
-import { CreateResponse, IIntegration } from '@app/interfaces';
-import api from '../../axios';
+import { IIntegration } from '@app/interfaces';
+import { get } from '../../axios';
 
 export function getIntegrationAPI(integrationTypeId: string, searchQuery = '') {
-	return api.get<CreateResponse<IIntegration[]>>(
-		`/integration?integrationTypeId=${integrationTypeId}&searchQuery=${searchQuery}`
-	);
+	return get<IIntegration[]>(`/integration?integrationTypeId=${integrationTypeId}&searchQuery=${searchQuery}`);
 }
