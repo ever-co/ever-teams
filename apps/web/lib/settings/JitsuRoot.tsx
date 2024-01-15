@@ -17,8 +17,14 @@ type MyAppProps = {
 
 export function JitsuRoot({ pageProps, children }: MyAppProps) {
 	pageProps?.envs && setNextPublicEnv(pageProps?.envs);
-	const jitsuConf = pageProps?.jitsuConf;
-	const isJitsuEnvs: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
+	const jitsuConf = pageProps?.jitsuConf || {
+		host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL,
+		writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY,
+		debug: false,
+		cookieDomain: process.env.NEXT_PUBLIC_JITSU_COOKIE_DOMAIN,
+		echoEvents: false
+	};
+	const isJitsuEnvs: boolean = jitsuConf.host !== '' && jitsuConf.writeKey !== '';
 	console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 	console.log(`Jitsu: ${pageProps}`);
@@ -28,11 +34,11 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 			options={
 				isJitsuEnvs
 					? {
-							host: jitsuConf?.host ?? '',
-							writeKey: jitsuConf?.writeKey ?? undefined,
-							debug: jitsuConf?.debug,
-							cookieDomain: jitsuConf?.cookieDomain ?? undefined,
-							echoEvents: jitsuConf?.echoEvents
+							host: jitsuConf.host ?? '',
+							writeKey: jitsuConf.writeKey ?? undefined,
+							debug: jitsuConf.debug,
+							cookieDomain: jitsuConf.cookieDomain ?? undefined,
+							echoEvents: jitsuConf.echoEvents
 					  }
 					: {
 							disabled: true
