@@ -12,6 +12,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
+import UserTeamCardActivity from './user-team-card-activity';
 
 export function UserTeamCardHeader() {
 	const t = useTranslations();
@@ -172,11 +173,13 @@ export function UserTeamCard({
 				<VerticalSeparator />
 
 				{/* TodayWorkedTime */}
-				<TodayWorkedTime
-					isAuthUser={memberInfo.isAuthUser}
-					className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
-					memberInfo={memberInfo}
-				/>
+				<UserTeamCardActivity id={memberInfo.member?.employeeId}>
+					<TodayWorkedTime
+						isAuthUser={memberInfo.isAuthUser}
+						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+						memberInfo={memberInfo}
+					/>
+				</UserTeamCardActivity>
 
 				{/* Card menu */}
 				<div className="absolute right-2">{menu}</div>
