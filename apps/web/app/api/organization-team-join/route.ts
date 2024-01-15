@@ -12,10 +12,14 @@ export async function GET(req: Request) {
 		tenantId,
 		organizationId
 	});
+
 	return NextResponse.json(requestToJoinData.data);
 }
 
 export async function POST(req: Request) {
 	const body = (await req.json()) as IRequestToJoinCreate;
-	return NextResponse.json(await requestToJoinRequest(body));
+
+	const response = await requestToJoinRequest(body);
+
+	return NextResponse.json(response.data);
 }

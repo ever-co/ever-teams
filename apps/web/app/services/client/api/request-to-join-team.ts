@@ -8,10 +8,24 @@ import {
 	PaginationResponse,
 	IRequestToJoinActionEnum
 } from '@app/interfaces';
-import api from '../axios';
+import api, { get, post } from '../axios';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+
+export function getRequestToJoinAPI() {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const query = new URLSearchParams({
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	});
+
+	return get<PaginationResponse<IRequestToJoin>>(`/organization-team-join?${query.toString()}`);
+}
 
 export function requestToJoinAPI(data: IRequestToJoinCreate) {
-	return api.post<CreateResponse<IRequestToJoin>>('/organization-team-join', data);
+	const endpoint = '/organization-team-join';
+	return post<IRequestToJoin>(endpoint, data);
 }
 
 export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
@@ -23,10 +37,6 @@ export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
 
 export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
 	return api.post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
-}
-
-export function getRequestToJoinAPI() {
-	return api.get<PaginationResponse<IRequestToJoin>>('/organization-team-join');
 }
 
 export function acceptRejectRequestToJoinAPI(id: string, action: IRequestToJoinActionEnum) {
