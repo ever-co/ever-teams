@@ -12,8 +12,8 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import UserTeamCardActivity from './user-team-card-activity';
-
+import React from 'react';
+import UserTeamActivity from './user-team-card-activity';
 export function UserTeamCardHeader() {
 	const t = useTranslations();
 	return (
@@ -77,6 +77,7 @@ export function UserTeamCard({
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
@@ -128,7 +129,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[7rem]',
+					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem]',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -136,53 +137,55 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="absolute -left-0 cursor-pointer">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
-				</div>
+				<div className="flex m-0 relative items-center py-3">
+					<div className="absolute -left-0 cursor-pointer">
+						<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					</div>
 
-				{/* Show user name, email and image */}
-				<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
-				<VerticalSeparator />
+					{/* Show user name, email and image */}
+					<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+					<VerticalSeparator />
 
-				{/* Task information */}
-				<TaskInfo
-					edition={taskEdition}
-					memberInfo={memberInfo}
-					className="flex-1 lg:px-4 px-2 overflow-y-hidden"
-					publicTeam={publicTeam}
-				/>
-				<VerticalSeparator className="ml-2" />
-
-				{/* TaskTimes */}
-				<TaskTimes
-					activeAuthTask={true}
-					memberInfo={memberInfo}
-					task={memberInfo.memberTask}
-					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
-				/>
-				<VerticalSeparator />
-
-				{/* TaskEstimateInfo */}
-				<TaskEstimateInfo
-					memberInfo={memberInfo}
-					edition={taskEdition}
-					activeAuthTask={true}
-					className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
-				/>
-				<VerticalSeparator />
-
-				{/* TodayWorkedTime */}
-				<UserTeamCardActivity id={memberInfo.member?.employeeId}>
-					<TodayWorkedTime
-						isAuthUser={memberInfo.isAuthUser}
-						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+					{/* Task information */}
+					<TaskInfo
+						edition={taskEdition}
 						memberInfo={memberInfo}
+						className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+						publicTeam={publicTeam}
 					/>
-				</UserTeamCardActivity>
+					<VerticalSeparator className="ml-2" />
 
-				{/* Card menu */}
-				<div className="absolute right-2">{menu}</div>
+					{/* TaskTimes */}
+					<TaskTimes
+						activeAuthTask={true}
+						memberInfo={memberInfo}
+						task={memberInfo.memberTask}
+						isAuthUser={memberInfo.isAuthUser}
+						className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+					/>
+					<VerticalSeparator />
+
+					{/* TaskEstimateInfo */}
+					<TaskEstimateInfo
+						memberInfo={memberInfo}
+						edition={taskEdition}
+						activeAuthTask={true}
+						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+					/>
+					<VerticalSeparator />
+
+					{/* TodayWorkedTime */}
+					<div className="flex items-center cursor-pointer" onClick={() => setShowActivity((prev) => !prev)}>
+						<TodayWorkedTime
+							isAuthUser={memberInfo.isAuthUser}
+							className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+							memberInfo={memberInfo}
+						/>
+					</div>
+					{/* Card menu */}
+					<div className="absolute right-2">{menu}</div>
+				</div>
+				<UserTeamActivity member={memberInfo.member} showActivity={showActivity} />
 			</Card>
 			<Card
 				shadow="bigger"
