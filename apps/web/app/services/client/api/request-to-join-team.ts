@@ -32,7 +32,7 @@ export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
 }
 
 export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
-	return api.post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
+	return post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
 }
 
 export function acceptRejectRequestToJoinAPI(id: string, action: IRequestToJoinActionEnum) {

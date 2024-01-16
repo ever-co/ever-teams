@@ -190,7 +190,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 						organizationTeamId: requestToJoinPayload.organizationTeamId,
 						code: formValues.code
 					}).then((res) => {
-						if (res.data.email && res.data.organizationTeamId) {
+						if (res.email && res.organizationTeamId) {
 							closeModal();
 						}
 						setErrors({
