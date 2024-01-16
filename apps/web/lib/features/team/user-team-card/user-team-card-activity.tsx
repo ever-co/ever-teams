@@ -3,7 +3,6 @@ import { HorizontalSeparator, ProgressBar } from 'lib/components';
 import React from 'react';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { useTranslations } from 'next-intl';
-import { useLiveTimerStatus } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
