@@ -11,13 +11,13 @@ export async function PUT(req: Request, { params }: { params: { id: string; acti
 	const { id, action } = params;
 
 	if (id) {
-		return $res(
-			await acceptRejectRequestToJoinRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				action: action as IRequestToJoinActionEnum
-			})
-		);
+		const response = await acceptRejectRequestToJoinRequest({
+			id: id as string,
+			bearer_token: access_token,
+			tenantId,
+			action: action as IRequestToJoinActionEnum
+		});
+
+		return $res(response.data);
 	}
 }
