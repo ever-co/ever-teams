@@ -4,11 +4,10 @@ import {
 	IDataResponse,
 	ISuccessResponse,
 	IValidateRequestToJoin,
-	CreateResponse,
 	PaginationResponse,
 	IRequestToJoinActionEnum
 } from '@app/interfaces';
-import api, { get, post } from '../axios';
+import { get, post, put } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 export function getRequestToJoinAPI() {
@@ -29,16 +28,13 @@ export function requestToJoinAPI(data: IRequestToJoinCreate) {
 }
 
 export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
-	return api.post<CreateResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>(
-		'/organization-team-join/validate',
-		data
-	);
+	return post<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>('/organization-team-join/validate', data);
 }
 
 export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
-	return api.post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
+	return post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
 }
 
 export function acceptRejectRequestToJoinAPI(id: string, action: IRequestToJoinActionEnum) {
-	return api.put<PaginationResponse<IRequestToJoin>>(`/organization-team-join/${id}/${action}`);
+	return put<PaginationResponse<IRequestToJoin>>(`/organization-team-join/${id}/${action}`);
 }

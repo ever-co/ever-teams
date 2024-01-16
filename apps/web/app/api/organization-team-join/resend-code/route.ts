@@ -5,5 +5,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
 	const body = (await req.json()) as IRequestToJoinCreate;
 
-	return NextResponse.json(await resendCodeRequestToJoinRequest(body));
+	const response = await resendCodeRequestToJoinRequest(body);
+
+	return NextResponse.json(response.data);
 }
