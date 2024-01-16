@@ -2,10 +2,8 @@ import { Transition } from '@headlessui/react';
 import { HorizontalSeparator, ProgressBar } from 'lib/components';
 import React from 'react';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
-// import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import { useLiveTimerStatus } from '@app/hooks';
-import { ScreenshootSkeleton } from 'lib/features/activity/components/screenshoots-per-hour-skeleton';
 import { OT_Member } from '@app/interfaces';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
@@ -14,11 +12,10 @@ import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 
 const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefined; showActivity: boolean }) => {
 	const id = member?.employeeId ?? '';
-	const { timeSlots, loading } = useTimeSlots(id);
+	const { timeSlots } = useTimeSlots(id);
 	const t = useTranslations();
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
-	// const workedSeconds = timeSlots.reduce((acc, el) => acc + el.duration, 0);
 	const {
 		time: { h, m }
 	} = useLiveTimerStatus();
