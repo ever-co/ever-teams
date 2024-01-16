@@ -1,11 +1,5 @@
-import {
-	CreateResponse,
-	DeleteResponse,
-	ITaskPrioritiesCreate,
-	ITaskPrioritiesItemList,
-	PaginationResponse
-} from '@app/interfaces';
-import api, { get, post } from '../axios';
+import { DeleteResponse, ITaskPrioritiesCreate, ITaskPrioritiesItemList, PaginationResponse } from '@app/interfaces';
+import api, { get, post, put } from '../axios';
 
 export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: string) {
 	return post<ITaskPrioritiesCreate>('/task-priorities', data, {
@@ -14,10 +8,8 @@ export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: 
 }
 
 export function editTaskPrioritiesAPI(id: string, data: ITaskPrioritiesCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskPrioritiesCreate>>(`/task-priorities/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskPrioritiesCreate>(`/task-priorities/${id}`, data, {
+		tenantId
 	});
 }
 
