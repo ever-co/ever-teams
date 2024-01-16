@@ -132,6 +132,23 @@ function post<T>(url: string, data?: Record<string, any> | FormData, config?: AP
 	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
 }
 
-export { get, post, deleteApi };
+function put<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+	const { directAPI = true } = config || {};
+
+	if (baseURL && directAPI && data && !(data instanceof FormData)) {
+		if (!data.tenantId) {
+			data.tenantId = tenantId;
+		}
+
+		if (!data.organizationId) {
+			data.organizationId = organizationId;
+		}
+	}
+
+	return baseURL && directAPI ? apiDirect.put<T>(url, data, { ...config, headers }) : api.put<T>(url, data);
+}
+
+export { get, post, deleteApi, put };
 
 export default api;

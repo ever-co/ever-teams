@@ -96,7 +96,7 @@ export function useTaskPriorities() {
 	const editTaskPriorities = useCallback(
 		(id: string, data: ITaskPrioritiesCreate) => {
 			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+				return editQueryCall(id, data, user?.tenantId || '').then((eRes) => {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
@@ -105,7 +105,7 @@ export function useTaskPriorities() {
 						setTaskPriorities(res?.data?.items || []);
 						return res;
 					});
-					return res;
+					return eRes;
 				});
 			}
 		},

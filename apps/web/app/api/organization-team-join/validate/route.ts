@@ -5,5 +5,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
 	const body = (await req.json()) as IValidateRequestToJoin;
 
-	return NextResponse.json(await validateRequestToJoinRequest(body));
+	const response = await validateRequestToJoinRequest(body);
+
+	return NextResponse.json(response.data);
 }
