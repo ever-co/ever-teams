@@ -11,13 +11,13 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
 	const { id } = params;
 
-	return $res(
-		await deleteTaskLabelsRequest({
-			id,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+	const response = await deleteTaskLabelsRequest({
+		id,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
