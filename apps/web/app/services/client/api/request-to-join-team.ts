@@ -4,7 +4,6 @@ import {
 	IDataResponse,
 	ISuccessResponse,
 	IValidateRequestToJoin,
-	CreateResponse,
 	PaginationResponse,
 	IRequestToJoinActionEnum
 } from '@app/interfaces';
@@ -29,10 +28,7 @@ export function requestToJoinAPI(data: IRequestToJoinCreate) {
 }
 
 export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
-	return api.post<CreateResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>(
-		'/organization-team-join/validate',
-		data
-	);
+	return post<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>('/organization-team-join/validate', data);
 }
 
 export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
