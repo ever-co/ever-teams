@@ -9,7 +9,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { getTimerDailyRequestAPI } from '@app/services/client/api';
 import { useUserProfilePage } from './useUserProfilePage';
 
-export function useTimeDailyActivity(type: string) {
+export function useTimeDailyActivity(type: string, id?: string) {
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
 	const [visitedApps, setVisitedApps] = useRecoilState(timeAppsState);
@@ -22,7 +22,7 @@ export function useTimeDailyActivity(type: string) {
 		({ title }: { title?: string }) => {
 			const todayStart = moment().startOf('day').toDate();
 			const todayEnd = moment().endOf('day').toDate();
-			const employeeId = profile.member?.employeeId ?? '';
+			const employeeId = id ?? profile.member?.employeeId ?? '';
 			if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 				queryCall({
 					tenantId: user?.tenantId ?? '',
