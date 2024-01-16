@@ -30,5 +30,7 @@ export async function POST(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-	return $res(await createLabelsRequest(body, access_token, body?.tenantId));
+	const response = await createLabelsRequest(body, access_token, body?.tenantId);
+
+	return $res(response.data);
 }

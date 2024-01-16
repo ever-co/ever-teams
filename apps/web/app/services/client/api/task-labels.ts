@@ -5,10 +5,10 @@ import {
 	ITaskLabelsItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get } from '../axios';
+import api, { get, post } from '../axios';
 
 export function createTaskLabelsAPI(data: ITaskLabelsCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskLabelsCreate>>('/tags', data, {
+	return post<ITaskLabelsCreate>('/tags', data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
