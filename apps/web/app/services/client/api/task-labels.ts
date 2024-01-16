@@ -1,11 +1,5 @@
-import {
-	CreateResponse,
-	DeleteResponse,
-	ITaskLabelsCreate,
-	ITaskLabelsItemList,
-	PaginationResponse
-} from '@app/interfaces';
-import api, { get, post } from '../axios';
+import { DeleteResponse, ITaskLabelsCreate, ITaskLabelsItemList, PaginationResponse } from '@app/interfaces';
+import api, { get, post, put } from '../axios';
 
 export function createTaskLabelsAPI(data: ITaskLabelsCreate, tenantId?: string) {
 	return post<ITaskLabelsCreate>('/tags', data, {
@@ -16,10 +10,8 @@ export function createTaskLabelsAPI(data: ITaskLabelsCreate, tenantId?: string) 
 }
 
 export function editTaskLabelsAPI(id: string, data: ITaskLabelsCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskLabelsCreate>>(`/tags/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskLabelsCreate>(`/tags/${id}`, data, {
+		tenantId
 	});
 }
 
