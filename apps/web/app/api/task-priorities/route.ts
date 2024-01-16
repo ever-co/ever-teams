@@ -32,5 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskPrioritiesCreate;
 
-	return $res(await createPrioritiesRequest(body, access_token, body?.tenantId));
+	const response = await createPrioritiesRequest(body, access_token, body?.tenantId);
+
+	return $res(response.data);
 }

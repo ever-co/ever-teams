@@ -5,13 +5,11 @@ import {
 	ITaskPrioritiesItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get } from '../axios';
+import api, { get, post } from '../axios';
 
 export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskPrioritiesCreate>>('/task-priorities', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<ITaskPrioritiesCreate>('/task-priorities', data, {
+		tenantId
 	});
 }
 
