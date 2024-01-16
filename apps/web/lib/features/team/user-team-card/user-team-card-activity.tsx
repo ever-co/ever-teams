@@ -9,6 +9,8 @@ import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
 import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
+import { AppsTab } from 'lib/features/activity/apps';
+import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 
 const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefined; showActivity: boolean }) => {
 	const id = member?.employeeId ?? '';
@@ -71,10 +73,10 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 									<ScreenshootTeamTab id={id} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<div className="">Apps </div>
+									<AppsTab id={id} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<div className=""></div>
+									<VisitedSitesTab id={id}/>
 								</Tab.Panel>
 							</Tab.Panels>
 						</Tab.Group>

@@ -4,7 +4,7 @@ import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
 
-export function VisitedSitesTab() {
+export function VisitedSitesTab({ id }: { id?: string}) {
 	const { visitedSites, loading } = useTimeDailyActivity('URL');
 	const t = useTranslations();
 	const sites = groupAppsByHour(visitedSites);

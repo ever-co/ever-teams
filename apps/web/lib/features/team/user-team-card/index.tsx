@@ -110,7 +110,7 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex m-0 relative items-center py-3">
+				<div className="flex m-0 relative items-center">
 					<div className="absolute -left-0 cursor-pointer">
 						<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 					</div>

@@ -3,9 +3,9 @@ import { AppVisitedSkeleton } from './components/app-visited-skeleton';
 import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
-import { AppVisitedModal } from './components/app-visited-details';
+// import { AppVisitedModal } from './components/app-visited-details';
 
-export function AppsTab() {
+export function AppsTab({ id}: {id?: string}) {
 	const { visitedApps, loading } = useTimeDailyActivity('APP');
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
@@ -28,13 +28,13 @@ export function AppsTab() {
 						<div>
 							{app.apps?.map((item, i) => (
 								<div key={i} className="w-full">
-									<AppVisitedModal>
+									{/* <AppVisitedModal> */}
 										<AppVisitedItem
 											app={item}
 											totalMilliseconds={app.totalMilliseconds}
 											type="APP"
 										/>
-									</AppVisitedModal>
+									{/* </AppVisitedModal> */}
 								</div>
 							))}
 						</div>
