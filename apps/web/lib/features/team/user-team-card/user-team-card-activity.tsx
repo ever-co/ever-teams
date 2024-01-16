@@ -18,9 +18,6 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 	const t = useTranslations();
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
-	const {
-		time: { h, m }
-	} = useLiveTimerStatus();
 	return (
 		<Transition
 			show={!!showActivity}
@@ -37,14 +34,10 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 					<div className="w-56 ">
 						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
-							<h2 className="text-3xl font-bold my-3">{activityPercent.toFixed(2)} %</h2>
+							<h2 className="text-3xl font-bold my-3">{activityPercent ? activityPercent.toFixed(2): "00"} %</h2>
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>
-						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
-							<span>{t('timer.TOTAL_HOURS')}</span>
-							<h2 className="text-3xl font-bold my-3">{`${h}:${m}:00`}</h2>
-							<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
-						</div>
+
 					</div>
 					<div className="p-4 flex-1">
 						<Tab.Group>
@@ -60,7 +53,7 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 													' focus:outline-none focus:ring-2',
 													selected
 														? 'bg-white dark:bg-dark text-blue-700 shadow'
-														: ' hover:bg-white/[0.50'
+														: ' hover:bg-white/[0.50]'
 												)
 											}
 										>
