@@ -15,7 +15,8 @@ const ScreenshotItem = ({
 	percent,
 	startTime,
 	showProgress = true,
-	onShow
+	onShow,
+	isTeamPage = false
 }: IScreenShootItem) => {
 	const t = useTranslations();
 	const { deleteTimeSlots } = useTimeSlots();
@@ -24,7 +25,8 @@ const ScreenshotItem = ({
 		<div
 			className={clsxm(
 				'rounded-lg shadow-md hover:shadow-lg  border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
-				!showProgress && '!h-48 dark:!bg-[#191a20]'
+				!showProgress && !isTeamPage && '!h-48 dark:!bg-[#191a20]',
+				isTeamPage && '!h-32'
 			)}
 		>
 			<div
@@ -44,7 +46,7 @@ const ScreenshotItem = ({
 					alt={`${new Date(startTime).toLocaleTimeString()} - ${new Date(endTime).toLocaleTimeString()}`}
 					width={400}
 					height={400}
-					className="w-full h-full"
+					className="w-full h-full object-cover"
 				/>
 			</div>
 			<div className={clsxm('w-full h-1/2 p-4 cursor-pointer', !showProgress && '!h-1/3')} onClick={onShow}>

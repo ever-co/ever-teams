@@ -10,6 +10,7 @@ import { OT_Member } from '@app/interfaces';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
 import { clsxm } from '@app/utils';
+import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 
 const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefined; showActivity: boolean }) => {
 	const id = member?.employeeId ?? '';
@@ -35,12 +36,12 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 				<HorizontalSeparator className="my-2" />
 				<div className="flex justify-between">
 					<div className="w-56 ">
-						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-white dark:bg-[#26272C]">
+						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
 							<h2 className="text-3xl font-bold my-3">{activityPercent.toFixed(2)} %</h2>
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>
-						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-white dark:bg-[#26272C]">
+						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TOTAL_HOURS')}</span>
 							<h2 className="text-3xl font-bold my-3">{`${h}:${m}:00`}</h2>
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
@@ -70,19 +71,13 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 							</Tab.List>
 							<Tab.Panels>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<div className="">Screenshot</div>
-									{timeSlots.length < 1 && !loading && (
-										<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-											<h3>{t('timer.NO_SCREENSHOOT')}</h3>
-										</div>
-									)}
-									{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
+									<ScreenshootTeamTab id={id} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
 									<div className="">Apps </div>
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<div className="">Visited Sites</div>
+									<div className=""></div>
 								</Tab.Panel>
 							</Tab.Panels>
 						</Tab.Group>
