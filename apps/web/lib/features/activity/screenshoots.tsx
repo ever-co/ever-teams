@@ -1,5 +1,5 @@
 import { ProgressBar } from 'lib/components';
-import { ScreenshootPerHour } from './components/screenshoots-per-hour';
+import { ScreenshootPerHour, ScreenshootPerHourTeam } from './components/screenshoots-per-hour';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { groupDataByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
@@ -36,6 +36,32 @@ export function ScreenshootTab() {
 					timeSlots={hourData.items}
 					startedAt={hourData.startedAt}
 					stoppedAt={hourData.stoppedAt}
+				/>
+			))}
+			{timeSlots.length < 1 && !loading && (
+				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
+				</div>
+			)}
+			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
+		</div>
+	);
+}
+
+
+export function ScreenshootTeamTab({ id}: {id:string}) {
+	const { timeSlots, loading } = useTimeSlots(id);
+	const t = useTranslations();
+
+	return (
+		<div>
+			{groupDataByHour(timeSlots).map((hourData, i) => (
+				<ScreenshootPerHourTeam
+					key={i}
+					timeSlots={hourData.items}
+					startedAt={hourData.startedAt}
+					stoppedAt={hourData.stoppedAt}
+
 				/>
 			))}
 			{timeSlots.length < 1 && !loading && (

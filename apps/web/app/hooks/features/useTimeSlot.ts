@@ -9,7 +9,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { deleteTimerLogsRequestAPI, getTimerLogsRequestAPI } from '@app/services/client/api';
 import { useUserProfilePage } from './useUserProfilePage';
 
-export function useTimeSlots() {
+export function useTimeSlots(id?: string) {
 	const { user } = useAuthenticateUser();
 	const [timeSlots, setTimeSlots] = useRecoilState(timeSlotsState);
 	const profile = useUserProfilePage();
@@ -20,12 +20,12 @@ export function useTimeSlots() {
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
-		const employeeId = profile.member?.employeeId ?? '';
-		if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+		const employeeId = id ? id : profile.member?.employeeId ;
+		if ( profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
-				employeeId: employeeId,
+				employeeId: employeeId ?? '',
 				todayEnd,
 				todayStart
 			}).then((response) => {
@@ -36,6 +36,7 @@ export function useTimeSlots() {
 			});
 		}
 	}, [
+		id,
 		profile.member?.employeeId,
 		profile.userProfile?.id,
 		user?.id,
