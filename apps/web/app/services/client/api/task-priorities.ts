@@ -1,5 +1,5 @@
 import { DeleteResponse, ITaskPrioritiesCreate, ITaskPrioritiesItemList, PaginationResponse } from '@app/interfaces';
-import api, { get, post, put } from '../axios';
+import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: string) {
 	return post<ITaskPrioritiesCreate>('/task-priorities', data, {
@@ -14,7 +14,7 @@ export function editTaskPrioritiesAPI(id: string, data: ITaskPrioritiesCreate, t
 }
 
 export function deleteTaskPrioritiesAPI(id: string) {
-	return api.delete<DeleteResponse>(`/task-priorities/${id}`);
+	return deleteApi<DeleteResponse>(`/task-priorities/${id}`);
 }
 
 export async function getTaskPrioritiesList(
