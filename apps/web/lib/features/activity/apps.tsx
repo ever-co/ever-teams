@@ -9,6 +9,7 @@ export function AppsTab({ id}: {id?: string}) {
 	const { visitedApps, loading } = useTimeDailyActivity('APP', id);
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
+	console.log("INTO APP TAB");
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>

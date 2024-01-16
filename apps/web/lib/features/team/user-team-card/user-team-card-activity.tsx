@@ -29,7 +29,8 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 			leaveTo="opacity-0"
 		>
 			<div className="">
-				<HorizontalSeparator className="my-2" />
+				<HorizontalSeparator className="my-4" />
+				<h2 className="text-xl font-semibold py-2 px-4">Activity for Today</h2>
 				<div className="flex justify-between">
 					<div className="w-56 ">
 						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
