@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { ProgressBar } from 'lib/components';
+import { HorizontalSeparator, ProgressBar } from 'lib/components';
 import React from 'react';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 // import { groupDataByHour } from '@app/helpers/array-data';
@@ -7,6 +7,9 @@ import { useTranslations } from 'next-intl';
 import { useLiveTimerStatus } from '@app/hooks';
 import { ScreenshootSkeleton } from 'lib/features/activity/components/screenshoots-per-hour-skeleton';
 import { OT_Member } from '@app/interfaces';
+import { Tab } from '@headlessui/react';
+import { ActivityFilters } from '@app/constants';
+import { clsxm } from '@app/utils';
 
 const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefined; showActivity: boolean }) => {
 	const id = member?.employeeId ?? '';
@@ -29,6 +32,7 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 			leaveTo="opacity-0"
 		>
 			<div className="">
+				<HorizontalSeparator className="my-2" />
 				<div className="flex justify-between">
 					<div className="w-56 ">
 						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-white dark:bg-[#26272C]">
@@ -42,16 +46,48 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
 						</div>
 					</div>
-					<div className="">Sites Visited</div>
-					<div className="">Apps </div>
-				</div>
-				<div className="">Screenshot</div>
-				{timeSlots.length < 1 && !loading && (
-					<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-						<h3>{t('timer.NO_SCREENSHOOT')}</h3>
+					<div className="p-4 flex-1">
+						<Tab.Group>
+							<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2 mx-4">
+								{Object.values(ActivityFilters)
+									.filter((el) => el !== 'Tasks')
+									.map((filter: string) => (
+										<Tab
+											key={filter}
+											className={({ selected }) =>
+												clsxm(
+													'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+													' focus:outline-none focus:ring-2',
+													selected
+														? 'bg-white dark:bg-dark text-blue-700 shadow'
+														: ' hover:bg-white/[0.50'
+												)
+											}
+										>
+											{filter}
+										</Tab>
+									))}
+							</Tab.List>
+							<Tab.Panels>
+								<Tab.Panel className="w-full mx-4 p-2">
+									<div className="">Screenshot</div>
+									{timeSlots.length < 1 && !loading && (
+										<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+											<h3>{t('timer.NO_SCREENSHOOT')}</h3>
+										</div>
+									)}
+									{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
+								</Tab.Panel>
+								<Tab.Panel className="w-full mx-4 p-2">
+									<div className="">Apps </div>
+								</Tab.Panel>
+								<Tab.Panel className="w-full mx-4 p-2">
+									<div className="">Visited Sites</div>
+								</Tab.Panel>
+							</Tab.Panels>
+						</Tab.Group>
 					</div>
-				)}
-				{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
+				</div>
 			</div>
 		</Transition>
 	);

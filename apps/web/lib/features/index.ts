@@ -25,6 +25,7 @@ export * from './team/teams-dropdown';
 export * from './team/team-item';
 export * from './unverified-email';
 export * from './team/team-invitations';
+export * from './team/user-team-card/task-skeleton';
 
 export * from './auth-user-task-input';
 export * from './user-nav-menu';
