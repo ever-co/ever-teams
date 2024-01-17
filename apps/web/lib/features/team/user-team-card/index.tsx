@@ -9,7 +9,7 @@ import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from '
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslations } from 'next-intl';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
@@ -17,6 +17,7 @@ import { UserTeamCardMenu } from './user-team-card-menu';
 import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
+import { activityTypeState } from '@app/stores/activity-type';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -50,8 +51,14 @@ export function UserTeamCard({
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
 	const seconds = useRecoilValue(timerSecondsState);
+	const setActivityFilter = useSetRecoilState(activityTypeState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
+
+	const showActivityFilter = (type: 'DATE' | 'TICKET') => {
+		setShowActivity((prev) => !prev);
+		setActivityFilter(type);
+	};
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
@@ -112,8 +119,8 @@ export function UserTeamCard({
 				)}
 			>
 				<div className="flex m-0 relative items-center">
-					<div className="absolute -left-0 cursor-pointer">
-						<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					<div className="absolute left-0 cursor-pointer">
+						<DraggerIcon className="fill-[#CCCCCC] w-2 dark:fill-[#4F5662]" />
 					</div>
 
 					{/* Show user name, email and image */}
@@ -130,7 +137,7 @@ export function UserTeamCard({
 						/>
 						<p
 							className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
-							onClick={() => setShowActivity((prev) => !prev)}
+							onClick={() => showActivityFilter('TICKET')}
 						>
 							{!showActivity ? (
 								<ExpandIcon height={24} width={24} />
@@ -164,7 +171,7 @@ export function UserTeamCard({
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 3xl:w-64">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
 						<p
-							onClick={() => setShowActivity((prev) => !prev)}
+							onClick={() => showActivityFilter('DATE')}
 							className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
 						>
 							{!showActivity ? (
