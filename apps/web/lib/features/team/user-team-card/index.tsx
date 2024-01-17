@@ -16,6 +16,7 @@ import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
+import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -120,12 +121,24 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<TaskInfo
-						edition={taskEdition}
-						memberInfo={memberInfo}
-						className="flex-1 lg:px-4 px-2 overflow-y-hidden"
-						publicTeam={publicTeam}
-					/>
+					<div className="flex justify-between items-center flex-1">
+						<TaskInfo
+							edition={taskEdition}
+							memberInfo={memberInfo}
+							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+							publicTeam={publicTeam}
+						/>
+						<p
+							className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
+							onClick={() => setShowActivity((prev) => !prev)}
+						>
+							{!showActivity ? (
+								<ExpandIcon height={24} width={24} />
+							) : (
+								<CollapseUpIcon height={24} width={24} />
+							)}
+						</p>
+					</div>
 					<VerticalSeparator className="ml-2" />
 
 					{/* TaskTimes */}
@@ -148,17 +161,23 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
-					<div className="flex items-center cursor-pointer" onClick={() => setShowActivity((prev) => !prev)}>
-						<TodayWorkedTime
-							isAuthUser={memberInfo.isAuthUser}
-							className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
-							memberInfo={memberInfo}
-						/>
+					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 3xl:w-64">
+						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
+						<p
+							onClick={() => setShowActivity((prev) => !prev)}
+							className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
+						>
+							{!showActivity ? (
+								<ExpandIcon height={24} width={24} />
+							) : (
+								<CollapseUpIcon height={24} width={24} />
+							)}
+						</p>
 					</div>
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				<UserTeamActivity member={memberInfo.member} showActivity={showActivity} />
+				<UserTeamActivity member={memberInfo.memberUser} showActivity={showActivity} />
 			</Card>
 			<Card
 				shadow="bigger"

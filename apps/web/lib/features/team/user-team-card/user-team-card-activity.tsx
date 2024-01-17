@@ -3,20 +3,22 @@ import { HorizontalSeparator, ProgressBar } from 'lib/components';
 import React from 'react';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { useTranslations } from 'next-intl';
-import { OT_Member } from '@app/interfaces';
+import { IUser } from '@app/interfaces';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
 import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
+// import { UserProfileTask } from 'lib/features/user-profile-tasks';
 
-const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefined; showActivity: boolean }) => {
-	const id = member?.employeeId ?? '';
+const UserTeamActivity = ({ member, showActivity }: { member: IUser | undefined; showActivity: boolean }) => {
+	const id = member?.employee?.id ?? '';
 	const { timeSlots } = useTimeSlots(id);
 	const t = useTranslations();
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
+	console.log('ACTIVITY TEAM M.');
 	return (
 		<Transition
 			show={!!showActivity}
@@ -61,15 +63,17 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 								))}
 							</Tab.List>
 							<Tab.Panels>
-								<Tab.Panel className="w-full mx-4 p-2">Tasks</Tab.Panel>
+								<Tab.Panel className="w-full mx-4 p-2">
+									{/* <UserProfileTask profile={profile} tabFiltered={hook} /> */}
+								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
 									<ScreenshootTeamTab id={id} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<AppsTab id={id} />
+									<AppsTab id={id} userProfile={member} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<VisitedSitesTab id={id} />
+									<VisitedSitesTab id={id} userProfile={member} />
 								</Tab.Panel>
 							</Tab.Panels>
 						</Tab.Group>
