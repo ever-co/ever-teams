@@ -1,7 +1,8 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import { IInvitation, MyInvitationActionEnum, CreateResponse, IInviteCreate, IMyInvitations } from '@app/interfaces';
-import { INVITE_CALLBACK_URL } from '@app/constants';
+import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@app/constants';
 import api, { get, post } from '../axios';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 interface IIInviteRequest {
 	email: string;
@@ -61,9 +62,26 @@ export function removeTeamInvitationsAPI(invitationId: string) {
 }
 
 export function resendTeamInvitationsAPI(inviteId: string) {
-	return api.post<any>(`/invite/resend`, {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+
+	const callbackUrl = INVITE_CALLBACK_URL || `${window.location.origin}${INVITE_CALLBACK_PATH}`;
+
+	const localData = {
+		tenantId,
+		inviteId,
+		inviteType: 'TEAM',
+		organizationId,
+		callbackUrl: INVITE_CALLBACK_URL || callbackUrl
+	};
+
+	const nData = {
 		inviteId
-	});
+	};
+
+	const data = GAUZY_API_BASE_SERVER_URL.value ? localData : nData;
+
+	return post<PaginationResponse<IInvitation>>(`/invite/resend`, data);
 }
 
 export async function getMyInvitationsAPI(tenantId: string) {
