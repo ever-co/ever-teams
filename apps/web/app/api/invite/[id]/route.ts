@@ -18,8 +18,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { data: invitationData } = await getMyInvitationsRequest(tenantId, access_token);
-	return $res(invitationData);
+	const { data } = await getMyInvitationsRequest(tenantId, access_token);
+
+	return $res(data);
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {

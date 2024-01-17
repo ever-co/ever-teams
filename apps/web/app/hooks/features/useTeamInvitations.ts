@@ -88,11 +88,21 @@ export function useTeamInvitations() {
 
 	const removeTeamInvitation = useCallback(
 		(invitationId: string) => {
-			removeInviteQueryCall(invitationId).then((res) => {
+			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
+				return;
+			}
+
+			removeInviteQueryCall(
+				invitationId,
+				user.tenantId,
+				user.employee.organizationId,
+				'EMPLOYEE',
+				activeTeamId
+			).then((res) => {
 				setTeamInvitations(res.data?.items || []);
 			});
 		},
-		[removeInviteQueryCall, setTeamInvitations]
+		[removeInviteQueryCall, setTeamInvitations, activeTeamId, isTeamManager, user]
 	);
 
 	const resendTeamInvitation = useCallback(
