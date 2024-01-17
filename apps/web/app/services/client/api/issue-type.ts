@@ -1,5 +1,5 @@
 import { DeleteResponse, IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@app/interfaces';
-import api, { get, post, put } from '../axios';
+import { deleteApi, get, post, put } from '../axios';
 
 export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
 	return post<IIssueTypesCreate>('/issue-types', data, {
@@ -14,7 +14,7 @@ export function editIssueTypeAPI(id: string, data: IIssueTypesCreate, tenantId?:
 }
 
 export function deleteIssueTypeAPI(id: string) {
-	return api.delete<DeleteResponse>(`/issue-types/${id}`);
+	return deleteApi<DeleteResponse>(`/issue-types/${id}`);
 }
 
 export async function getIssueTypeList(tenantId: string, organizationId: string, activeTeamId: string | null) {

@@ -28,11 +28,12 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const { id } = params;
-	return $res(
-		await deleteIssueTypesRequest({
-			id,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+
+	const response = await deleteIssueTypesRequest({
+		id,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
