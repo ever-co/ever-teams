@@ -25,11 +25,13 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const body = (await req.json()) as IIssueTypesCreate;
 
-	return $res(await createIssueTypeRequest(body, access_token, body?.tenantId));
+	const response = await createIssueTypeRequest(body, access_token, body?.tenantId || tenantId);
+
+	return $res(response.data);
 }
