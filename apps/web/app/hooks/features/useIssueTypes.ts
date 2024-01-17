@@ -43,7 +43,7 @@ export function useIssueType() {
 			if (user?.tenantId) {
 				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
 					(res) => {
-						if (res?.data?.data && res?.data?.data?.name) {
+						if (res.data && res.data?.name) {
 							queryCall(
 								user?.tenantId as string,
 								user?.employee?.organizationId as string,

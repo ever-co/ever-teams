@@ -1,17 +1,9 @@
-import {
-	CreateResponse,
-	DeleteResponse,
-	IIssueTypesCreate,
-	IIssueTypesItemList,
-	PaginationResponse
-} from '@app/interfaces';
-import api, { get, put } from '../axios';
+import { DeleteResponse, IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@app/interfaces';
+import api, { get, post, put } from '../axios';
 
 export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
-	return api.post<CreateResponse<IIssueTypesCreate>>('/issue-types', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<IIssueTypesCreate>('/issue-types', data, {
+		tenantId
 	});
 }
 
