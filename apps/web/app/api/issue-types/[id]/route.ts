@@ -11,14 +11,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	const { id } = params;
 	const body = await req.json();
 
-	return $res(
-		await editIssueTypesRequest({
-			id,
-			datas: body,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+	const response = await editIssueTypesRequest({
+		id,
+		datas: body,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {

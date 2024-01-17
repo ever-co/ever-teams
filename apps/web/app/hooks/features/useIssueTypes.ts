@@ -84,10 +84,8 @@ export function useIssueType() {
 
 	const editIssueType = useCallback(
 		(id: string, data: IIssueTypesCreate) => {
-			console.log(user);
-
 			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+				return editQueryCall(id, data, user?.tenantId || '').then((eRes) => {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
@@ -96,7 +94,8 @@ export function useIssueType() {
 						setIssueTypes(res?.data?.items || []);
 						return res;
 					});
-					return res;
+
+					return eRes;
 				});
 			}
 		},

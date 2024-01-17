@@ -5,7 +5,7 @@ import {
 	IIssueTypesItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get } from '../axios';
+import api, { get, put } from '../axios';
 
 export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
 	return api.post<CreateResponse<IIssueTypesCreate>>('/issue-types', data, {
@@ -16,10 +16,8 @@ export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
 }
 
 export function editIssueTypeAPI(id: string, data: IIssueTypesCreate, tenantId?: string) {
-	return api.put<CreateResponse<IIssueTypesCreate>>(`/issue-types/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<IIssueTypesCreate>(`/issue-types/${id}`, data, {
+		tenantId
 	});
 }
 
