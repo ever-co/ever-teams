@@ -1,7 +1,8 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import { IInvitation, MyInvitationActionEnum, CreateResponse, IInviteCreate, IMyInvitations } from '@app/interfaces';
-import { INVITE_CALLBACK_URL } from '@app/constants';
-import api, { get, post } from '../axios';
+import { IInvitation, MyInvitationActionEnum, IInviteCreate, IMyInvitations } from '@app/interfaces';
+import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@app/constants';
+import { deleteApi, get, post, put } from '../axios';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 interface IIInviteRequest {
 	email: string;
@@ -56,14 +57,43 @@ export async function getTeamInvitationsAPI(tenantId: string, organizationId: st
 	return get<PaginationResponse<IInvitation>>(endpoint, { tenantId });
 }
 
-export function removeTeamInvitationsAPI(invitationId: string) {
-	return api.delete<PaginationResponse<IInvitation>>(`/invite/${invitationId}`);
+export async function removeTeamInvitationsAPI(
+	invitationId: string,
+	tenantId: string,
+	organizationId: string,
+	role: string,
+	teamId: string
+) {
+	let response = await deleteApi<PaginationResponse<IInvitation>>(`/invite/${invitationId}`, { tenantId });
+
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		response = await getTeamInvitationsAPI(tenantId, organizationId, role, teamId);
+	}
+
+	return response;
 }
 
 export function resendTeamInvitationsAPI(inviteId: string) {
-	return api.post<any>(`/invite/resend`, {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+
+	const callbackUrl = INVITE_CALLBACK_URL || `${window.location.origin}${INVITE_CALLBACK_PATH}`;
+
+	const localData = {
+		tenantId,
+		inviteId,
+		inviteType: 'TEAM',
+		organizationId,
+		callbackUrl: INVITE_CALLBACK_URL || callbackUrl
+	};
+
+	const nData = {
 		inviteId
-	});
+	};
+
+	const data = GAUZY_API_BASE_SERVER_URL.value ? localData : nData;
+
+	return post<PaginationResponse<IInvitation>>(`/invite/resend`, data);
 }
 
 export async function getMyInvitationsAPI(tenantId: string) {
@@ -73,5 +103,9 @@ export async function getMyInvitationsAPI(tenantId: string) {
 }
 
 export function acceptRejectMyInvitationsAPI(invitationId: string, action: MyInvitationActionEnum) {
-	return api.put<CreateResponse<IInvitation>>(`/invite/${invitationId}?action=${action}`);
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/invite/${invitationId}/${action}`
+		: `/invite/${invitationId}?action=${action}`;
+
+	return put<IInvitation & { message?: string }>(endpoint);
 }
