@@ -42,7 +42,8 @@ export function useUserProfilePage() {
 		if (employeeId) {
 			getTasksStatsData(employeeId);
 		}
-	}, [getTasksStatsData, employeeId]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [employeeId]);
 
 	const assignTask = useCallback(
 		(task: ITeamTask) => {

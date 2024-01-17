@@ -3,13 +3,14 @@ import { AppVisitedSkeleton } from './components/app-visited-skeleton';
 import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
+import { IUser } from '@app/interfaces';
 // import { AppVisitedModal } from './components/app-visited-details';
 
-export function AppsTab({ id}: {id?: string}) {
-	const { visitedApps, loading } = useTimeDailyActivity('APP', id);
+export function AppsTab({ id, userProfile }: { id?: string; userProfile?: IUser }) {
+	const { visitedApps, loading } = useTimeDailyActivity('URL', userProfile, id);
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
-	console.log("INTO APP TAB");
+	console.log('INTO APP TAB');
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
@@ -30,11 +31,7 @@ export function AppsTab({ id}: {id?: string}) {
 							{app.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									{/* <AppVisitedModal> */}
-										<AppVisitedItem
-											app={item}
-											totalMilliseconds={app.totalMilliseconds}
-											type="APP"
-										/>
+									<AppVisitedItem app={item} totalMilliseconds={app.totalMilliseconds} type="APP" />
 									{/* </AppVisitedModal> */}
 								</div>
 							))}

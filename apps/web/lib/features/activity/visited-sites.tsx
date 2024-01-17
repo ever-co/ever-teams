@@ -3,9 +3,17 @@ import { AppVisitedSkeleton } from './components/app-visited-skeleton';
 import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
+import React from 'react';
+import { IUser } from '@app/interfaces';
 
-export function VisitedSitesTab({ id }: { id?: string}) {
-	const { visitedSites, loading } = useTimeDailyActivity('URL', id);
+export const VisitedSitesTab = React.memo(function VisitedSitesT({
+	id,
+	userProfile
+}: {
+	id?: string;
+	userProfile?: IUser;
+}) {
+	const { visitedSites, loading } = useTimeDailyActivity('URL', userProfile, id);
 	const t = useTranslations();
 	const sites = groupAppsByHour(visitedSites);
 	return (
@@ -47,4 +55,4 @@ export function VisitedSitesTab({ id }: { id?: string}) {
 			)}
 		</div>
 	);
-}
+});

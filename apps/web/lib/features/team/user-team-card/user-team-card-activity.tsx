@@ -34,34 +34,34 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 					<div className="w-56 ">
 						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
-							<h2 className="text-3xl font-bold my-3">{activityPercent ? activityPercent.toFixed(2): "00"} %</h2>
+							<h2 className="text-3xl font-bold my-3">
+								{activityPercent ? activityPercent.toFixed(2) : '00'} %
+							</h2>
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>
-
 					</div>
 					<div className="p-4 flex-1">
 						<Tab.Group>
 							<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2 mx-4">
-								{Object.values(ActivityFilters)
-									.filter((el) => el !== 'Tasks')
-									.map((filter: string) => (
-										<Tab
-											key={filter}
-											className={({ selected }) =>
-												clsxm(
-													'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
-													' focus:outline-none focus:ring-2',
-													selected
-														? 'bg-white dark:bg-dark text-blue-700 shadow'
-														: ' hover:bg-white/[0.50]'
-												)
-											}
-										>
-											{filter}
-										</Tab>
-									))}
+								{Object.values(ActivityFilters).map((filter: string) => (
+									<Tab
+										key={filter}
+										className={({ selected }) =>
+											clsxm(
+												'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+												' focus:outline-none focus:ring-2',
+												selected
+													? 'bg-white dark:bg-dark text-blue-700 shadow'
+													: ' hover:bg-white/[0.50]'
+											)
+										}
+									>
+										{filter}
+									</Tab>
+								))}
 							</Tab.List>
 							<Tab.Panels>
+								<Tab.Panel className="w-full mx-4 p-2">Tasks</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
 									<ScreenshootTeamTab id={id} />
 								</Tab.Panel>
@@ -69,7 +69,7 @@ const UserTeamActivity = ({ member, showActivity }: { member: OT_Member | undefi
 									<AppsTab id={id} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<VisitedSitesTab id={id}/>
+									<VisitedSitesTab id={id} />
 								</Tab.Panel>
 							</Tab.Panels>
 						</Tab.Group>

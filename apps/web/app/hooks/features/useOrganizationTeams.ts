@@ -213,14 +213,14 @@ export function useOrganizationTeams() {
 
 	const setActiveTeam = useCallback(
 		(team: (typeof teams)[0]) => {
-			setActiveTeamIdCookie(team.id);
-			setOrganizationIdCookie(team.organizationId);
+			setActiveTeamIdCookie(team?.id);
+			setOrganizationIdCookie(team?.organizationId);
 			// This must be called at the end (Update store)
-			setActiveTeamId(team.id);
+			setActiveTeamId(team?.id);
 
 			// Set Project Id to cookie
 			// TODO: Make it dynamic when we add Dropdown in Navbar
-			if (team && team.projects && team.projects.length) {
+			if (team && team?.projects && team.projects.length) {
 				setActiveProjectIdCookie(team.projects[0].id);
 			}
 		},

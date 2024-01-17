@@ -12,23 +12,24 @@ import { ArrowLeft } from 'lib/components/svgs';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { ActivityFilters } from '@app/constants';
 import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 
-const Profile = ({ params }: { params: { memberId: string } }) => {
+type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
+
+const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
-	const [activityFilter, setActivityFilter] = useState<ActivityFilters>(ActivityFilters.TASKS);
+	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 
 	const hook = useTaskFilter(profile);
 	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
@@ -41,8 +42,22 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 
 	console.log({ activityFilter });
 
+	const activityScreens = {
+		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
+		Screenshots: <ScreenshootTab />,
+		Apps: <AppsTab id={profile.userProfile?.id} userProfile={profile.userProfile} />,
+		'Visited Sites': <VisitedSitesTab id={profile.userProfile?.id} userProfile={profile.userProfile} />
+	};
+
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
+
+	const changeActivityFilter = useCallback(
+		(filter: FilterTab) => {
+			setActivityFilter(filter);
+		},
+		[setActivityFilter]
+	);
 
 	return (
 		<>
@@ -80,7 +95,7 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				{hook.tab == 'worked' && canSeeActivity && (
 					<Container fullWidth={fullWidth} className="py-8">
 						<div className={clsxm('flex  justify-start items-center gap-4')}>
-							{Object.values(ActivityFilters).map((filter: ActivityFilters, i) => (
+							{Object.keys(activityScreens).map((filter, i) => (
 								<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
 									{i !== 0 && <VerticalSeparator />}
 									<div
@@ -88,7 +103,7 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 											'text-gray-500',
 											activityFilter == filter && 'text-black dark:text-white'
 										)}
-										onClick={() => setActivityFilter(filter)}
+										onClick={() => changeActivityFilter(filter as FilterTab)}
 									>
 										{filter}
 									</div>
@@ -99,22 +114,12 @@ const Profile = ({ params }: { params: { memberId: string } }) => {
 				)}
 
 				<Container fullWidth={fullWidth} className="mb-10">
-					{hook.tab == 'worked' && activityFilter == ActivityFilters.TASKS ? (
-						<UserProfileTask profile={profile} tabFiltered={hook} />
-					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.SCREENSHOOTS ? (
-						<ScreenshootTab />
-					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.APPS ? (
-						<AppsTab />
-					) : hook.tab == 'worked' && canSeeActivity && activityFilter == ActivityFilters.VISITED_SITES ? (
-						<VisitedSitesTab />
-					) : (
-						<UserProfileTask profile={profile} tabFiltered={hook} />
-					)}
+					{activityScreens[activityFilter] ?? null}
 				</Container>
 			</MainLayout>
 		</>
 	);
-};
+});
 
 function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);

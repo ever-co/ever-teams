@@ -20,8 +20,8 @@ export function useTimeSlots(id?: string) {
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
-		const employeeId = id ? id : profile.member?.employeeId ;
-		if ( profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+		const employeeId = id ? id : profile.member?.employeeId;
+		if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
@@ -63,7 +63,7 @@ export function useTimeSlots(id?: string) {
 
 	useEffect(() => {
 		getTimeSlots();
-	}, [user, getTimeSlots]);
+	}, [getTimeSlots]);
 
 	return {
 		timeSlots,
