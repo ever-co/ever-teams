@@ -5,11 +5,10 @@ import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
 // import { AppVisitedModal } from './components/app-visited-details';
 
-export function AppsTab({ id}: {id?: string}) {
-	const { visitedApps, loading } = useTimeDailyActivity('APP', id);
+export function AppsTab() {
+	const { visitedApps, loading } = useTimeDailyActivity();
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
-	console.log("INTO APP TAB");
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
@@ -30,11 +29,7 @@ export function AppsTab({ id}: {id?: string}) {
 							{app.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									{/* <AppVisitedModal> */}
-										<AppVisitedItem
-											app={item}
-											totalMilliseconds={app.totalMilliseconds}
-											type="APP"
-										/>
+									<AppVisitedItem app={item} totalMilliseconds={app.totalMilliseconds} type="APP" />
 									{/* </AppVisitedModal> */}
 								</div>
 							))}

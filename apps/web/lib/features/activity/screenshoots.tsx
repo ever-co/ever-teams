@@ -48,9 +48,8 @@ export function ScreenshootTab() {
 	);
 }
 
-
-export function ScreenshootTeamTab({ id}: {id:string}) {
-	const { timeSlots, loading } = useTimeSlots(id);
+export function ScreenshootTeamTab() {
+	const { timeSlots, loading } = useTimeSlots(true);
 	const t = useTranslations();
 
 	return (
@@ -61,7 +60,6 @@ export function ScreenshootTeamTab({ id}: {id:string}) {
 					timeSlots={hourData.items}
 					startedAt={hourData.startedAt}
 					stoppedAt={hourData.stoppedAt}
-
 				/>
 			))}
 			{timeSlots.length < 1 && !loading && (
