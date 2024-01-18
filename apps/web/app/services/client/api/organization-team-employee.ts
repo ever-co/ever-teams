@@ -1,7 +1,6 @@
 import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
-import { CreateResponse } from '@app/interfaces/IDataResponse';
 import { IOrganizationTeam } from '@app/interfaces/IOrganizationTeam';
-import api, { deleteApi, put } from '../axios';
+import { deleteApi, put } from '../axios';
 import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function deleteOrganizationEmployeeTeamAPI({
@@ -30,8 +29,5 @@ export function updateOrganizationTeamEmployeeActiveTaskAPI(
 	id: string,
 	data: Partial<IOrganizationTeamEmployeeUpdate>
 ) {
-	return api.put<CreateResponse<IOrganizationTeamEmployeeUpdate>>(
-		`/organization-team-employee/${id}/active-task`,
-		data
-	);
+	return put<IOrganizationTeamEmployeeUpdate>(`/organization-team-employee/${id}/active-task`, data);
 }
