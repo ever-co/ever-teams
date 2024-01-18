@@ -27,13 +27,11 @@ export async function PUT(req: Request) {
 
 	const body = await req.json();
 
-	return $res(
-		(
-			await updateRolePermissionRequest({
-				bearer_token: access_token,
-				tenantId,
-				data: body
-			})
-		).data
-	);
+	const response = await updateRolePermissionRequest({
+		bearer_token: access_token,
+		tenantId,
+		data: body
+	});
+
+	return $res(response.data);
 }

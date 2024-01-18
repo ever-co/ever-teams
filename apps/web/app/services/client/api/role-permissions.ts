@@ -1,5 +1,5 @@
 import { IRolePermissions, PaginationResponse } from '@app/interfaces/';
-import api, { get } from '../axios';
+import { get, put } from '../axios';
 import { getTenantIdCookie } from '@app/helpers';
 
 export function getRolePermissionAPI(id: string) {
@@ -19,5 +19,5 @@ export function getRolePermissionAPI(id: string) {
 }
 
 export function updateRolePermissionAPI(data: IRolePermissions) {
-	return api.put<IRolePermissions>(`/role-permissions/${data.id}`, data);
+	return put<IRolePermissions>(`/role-permissions/${data.id}`, data);
 }
