@@ -1,12 +1,12 @@
 import { IRole, PaginationResponse } from '@app/interfaces';
-import api from '../axios';
+import api, { get, post } from '../axios';
 
 export function getRolesAPI() {
-	return api.get<PaginationResponse<IRole>>('/roles');
+	return get<PaginationResponse<IRole>>('/roles');
 }
 
 export function createRoleAPI(data: IRole) {
-	return api.post<IRole>('/roles', data);
+	return post<IRole>('/roles', data);
 }
 
 export function deleteRoleAPI(id: string) {

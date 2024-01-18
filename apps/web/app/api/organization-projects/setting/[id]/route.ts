@@ -10,15 +10,13 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 	const { id } = params;
 	const body = await req.json();
-	switch (req.method) {
-		case 'PUT':
-			return $res(
-				await editOrganizationProjectsSettingsRequest({
-					bearer_token: access_token,
-					id,
-					datas: body,
-					tenantId
-				})
-			);
-	}
+
+	const response = await editOrganizationProjectsSettingsRequest({
+		bearer_token: access_token,
+		id,
+		datas: body,
+		tenantId
+	});
+
+	$res(response.data);
 }

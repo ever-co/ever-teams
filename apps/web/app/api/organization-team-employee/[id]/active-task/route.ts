@@ -12,13 +12,13 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
 
 	if (id) {
-		return $res(
-			await updateOrganizationTeamEmployeeActiveTaskRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				body
-			})
-		);
+		const response = await updateOrganizationTeamEmployeeActiveTaskRequest({
+			id: id as string,
+			bearer_token: access_token,
+			tenantId,
+			body
+		});
+
+		return $res(response.data);
 	}
 }
