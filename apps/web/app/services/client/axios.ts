@@ -120,11 +120,11 @@ function post<T>(url: string, data?: Record<string, any> | FormData, config?: AP
 	const { directAPI = true } = config || {};
 
 	if (baseURL && directAPI && data && !(data instanceof FormData)) {
-		if (!data.tenantId) {
+		if (!data.tenantId && data.tenantId !== null) {
 			data.tenantId = tenantId;
 		}
 
-		if (!data.organizationId) {
+		if (!data.organizationId && data.organizationId !== null) {
 			data.organizationId = organizationId;
 		}
 	}
