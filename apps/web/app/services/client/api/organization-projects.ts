@@ -1,5 +1,5 @@
 import { IProject } from '@app/interfaces';
-import api, { put } from '../axios';
+import { put } from '../axios';
 
 export function editOrganizationProjectSettingAPI(id: string, data: any, tenantId?: string) {
 	return put<any>(`/organization-projects/setting/${id}`, data, {
@@ -8,9 +8,7 @@ export function editOrganizationProjectSettingAPI(id: string, data: any, tenantI
 }
 
 export function editOrganizationProjectAPI(id: string, data: any, tenantId?: string) {
-	return api.put<IProject>(`/organization-projects/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<IProject>(`/organization-projects/${id}`, data, {
+		tenantId
 	});
 }
