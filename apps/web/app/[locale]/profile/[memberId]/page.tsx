@@ -40,13 +40,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
 	];
 
-	console.log({ activityFilter });
-
 	const activityScreens = {
 		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
 		Screenshots: <ScreenshootTab />,
-		Apps: <AppsTab userProfile={profile.userProfile} />,
-		'Visited Sites': <VisitedSitesTab userProfile={profile.userProfile} />
+		Apps: <AppsTab />,
+		'Visited Sites': <VisitedSitesTab />
 	};
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);

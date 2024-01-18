@@ -4,7 +4,7 @@ import { useTaskFilter } from 'lib/features/task/task-filters';
 import { UserProfileTask } from 'lib/features/user-profile-tasks';
 import { useRecoilValue } from 'recoil';
 
-export function UserWokedTaskTab() {
+export function UserWorkedTaskTab() {
 	const activityFilter = useRecoilValue(activityTypeState);
 	const profile = useUserDetails(activityFilter.member?.employeeId ?? '');
 	const hook = useTaskFilter(profile);

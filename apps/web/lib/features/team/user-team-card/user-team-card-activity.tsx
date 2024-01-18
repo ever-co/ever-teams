@@ -9,7 +9,7 @@ import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
-import { UserWokedTaskTab } from './user-worked-task';
+import { UserWorkedTaskTab } from './user-worked-task';
 // import { UserProfileTask } from 'lib/features/user-profile-tasks';
 
 const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
@@ -63,7 +63,7 @@ const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
 							<Tab.Panels>
 								<Tab.Panel className="w-full mx-4 p-2">
 									{/* <UserProfileTask profile={profile} tabFiltered={hook} /> */}
-									<UserWokedTaskTab />
+									<UserWorkedTaskTab />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
 									<ScreenshootTeamTab />
