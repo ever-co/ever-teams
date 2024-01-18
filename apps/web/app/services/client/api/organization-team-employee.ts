@@ -1,7 +1,8 @@
 import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
 import { CreateResponse } from '@app/interfaces/IDataResponse';
 import { IOrganizationTeam } from '@app/interfaces/IOrganizationTeam';
-import api, { put } from '../axios';
+import api, { deleteApi, put } from '../axios';
+import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function deleteOrganizationEmployeeTeamAPI({
 	id,
@@ -14,8 +15,10 @@ export function deleteOrganizationEmployeeTeamAPI({
 	organizationId: string;
 	tenantId: string;
 }) {
-	return api.delete<CreateResponse<IOrganizationTeam>>(
-		`/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}`
+	const teamId = getActiveTeamIdCookie();
+
+	return deleteApi<IOrganizationTeam>(
+		`/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}&organizationTeamId=${teamId}`
 	);
 }
 

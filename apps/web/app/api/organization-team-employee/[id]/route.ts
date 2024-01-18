@@ -37,16 +37,16 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	const { employeeId } = searchParams as unknown as { employeeId: string };
 	const { id } = params;
 
+	const response = await deleteOrganizationTeamEmployeeRequest({
+		id: id as string,
+		bearer_token: access_token,
+		tenantId,
+		organizationId,
+		employeeId: employeeId as string,
+		organizationTeamId: teamId
+	});
+
 	if (id) {
-		return $res(
-			await deleteOrganizationTeamEmployeeRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				organizationId,
-				employeeId: employeeId as string,
-				organizationTeamId: teamId
-			})
-		);
+		return $res(response.data);
 	}
 }
