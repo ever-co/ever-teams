@@ -2,17 +2,17 @@
 
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { timeAppsState, timeVisitedSitesState } from '@app/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { getTimerDailyRequestAPI } from '@app/services/client/api';
-import { IUser } from '@app/interfaces';
+import { activityTypeState } from '@app/stores/activity-type';
 
-export function useTimeDailyActivity(type: string, userProfile: IUser | undefined, id?: string) {
+export function useTimeDailyActivity(type: string) {
 	const { user } = useAuthenticateUser();
 	const [visitedApps, setVisitedApps] = useRecoilState(timeAppsState);
-	// const [visitedAppDetail, setVisitedAppDetail] = useRecoilState(timeAppVisitedDetail);
+	const activityFilter = useRecoilValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useRecoilState(timeVisitedSitesState);
 
 	const { loading, queryCall } = useQuery(getTimerDailyRequestAPI);
@@ -21,8 +21,8 @@ export function useTimeDailyActivity(type: string, userProfile: IUser | undefine
 		(title?: string) => {
 			const todayStart = moment().startOf('day').toDate();
 			const todayEnd = moment().endOf('day').toDate();
-			const employeeId = id ? id : userProfile?.employee?.id;
-			if (userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+			const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
+			if (activityFilter.member?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 				queryCall({
 					tenantId: user?.tenantId ?? '',
 					organizationId: user?.employee.organizationId ?? '',
@@ -44,7 +44,7 @@ export function useTimeDailyActivity(type: string, userProfile: IUser | undefine
 			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[id, userProfile, queryCall, type]
+		[queryCall, type]
 	);
 
 	useEffect(() => {

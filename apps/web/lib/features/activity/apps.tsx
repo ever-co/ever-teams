@@ -3,11 +3,10 @@ import { AppVisitedSkeleton } from './components/app-visited-skeleton';
 import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
 import AppVisitedItem from './components/app-visited-Item';
-import { IUser } from '@app/interfaces';
 // import { AppVisitedModal } from './components/app-visited-details';
 
-export function AppsTab({ id, userProfile }: { id?: string; userProfile?: IUser }) {
-	const { visitedApps, loading } = useTimeDailyActivity('URL', userProfile, id);
+export function AppsTab() {
+	const { visitedApps, loading } = useTimeDailyActivity('APPS');
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
 	console.log('INTO APP TAB');

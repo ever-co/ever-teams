@@ -45,8 +45,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const activityScreens = {
 		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
 		Screenshots: <ScreenshootTab />,
-		Apps: <AppsTab id={profile.userProfile?.id} userProfile={profile.userProfile} />,
-		'Visited Sites': <VisitedSitesTab id={profile.userProfile?.id} userProfile={profile.userProfile} />
+		Apps: <AppsTab userProfile={profile.userProfile} />,
+		'Visited Sites': <VisitedSitesTab userProfile={profile.userProfile} />
 	};
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);

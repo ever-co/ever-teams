@@ -2,7 +2,7 @@
 
 import { secondsToTime } from '@app/helpers';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
-import { IClassName, IOrganizationTeamList } from '@app/interfaces';
+import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
@@ -55,9 +55,13 @@ export function UserTeamCard({
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 
-	const showActivityFilter = (type: 'DATE' | 'TICKET') => {
+	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
 		setShowActivity((prev) => !prev);
-		setActivityFilter(type);
+		setActivityFilter((prev) => ({
+			...prev,
+			type,
+			member
+		}));
 	};
 
 	let totalWork = <></>;
@@ -137,7 +141,7 @@ export function UserTeamCard({
 						/>
 						<p
 							className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
-							onClick={() => showActivityFilter('TICKET')}
+							onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
 						>
 							{!showActivity ? (
 								<ExpandIcon height={24} width={24} />
@@ -171,7 +175,7 @@ export function UserTeamCard({
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 3xl:w-64">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
 						<p
-							onClick={() => showActivityFilter('DATE')}
+							onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
 							className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
 						>
 							{!showActivity ? (
@@ -184,7 +188,7 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				<UserTeamActivity member={memberInfo.memberUser} showActivity={showActivity} />
+				<UserTeamActivity showActivity={showActivity} />
 			</Card>
 			<Card
 				shadow="bigger"

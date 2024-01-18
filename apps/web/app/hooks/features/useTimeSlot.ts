@@ -2,16 +2,18 @@
 
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { timeSlotsState } from '@app/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { deleteTimerLogsRequestAPI, getTimerLogsRequestAPI } from '@app/services/client/api';
 import { useUserProfilePage } from './useUserProfilePage';
+import { activityTypeState } from '@app/stores/activity-type';
 
-export function useTimeSlots(id?: string) {
+export function useTimeSlots(hasFilter?: boolean) {
 	const { user } = useAuthenticateUser();
 	const [timeSlots, setTimeSlots] = useRecoilState(timeSlotsState);
+	const activityFilter = useRecoilValue(activityTypeState);
 	const profile = useUserProfilePage();
 
 	const { loading, queryCall } = useQuery(getTimerLogsRequestAPI);
@@ -20,7 +22,7 @@ export function useTimeSlots(id?: string) {
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
-		const employeeId = id ? id : profile.member?.employeeId;
+		const employeeId = hasFilter ? activityFilter.member?.employeeId : profile.member?.employeeId;
 		if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
@@ -36,7 +38,8 @@ export function useTimeSlots(id?: string) {
 			});
 		}
 	}, [
-		id,
+		hasFilter,
+		activityFilter.member?.employeeId,
 		profile.member?.employeeId,
 		profile.userProfile?.id,
 		user?.id,

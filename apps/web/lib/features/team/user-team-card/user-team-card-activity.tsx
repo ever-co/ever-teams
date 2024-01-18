@@ -3,7 +3,6 @@ import { HorizontalSeparator, ProgressBar } from 'lib/components';
 import React from 'react';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { useTranslations } from 'next-intl';
-import { IUser } from '@app/interfaces';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
 import { clsxm } from '@app/utils';
@@ -13,13 +12,11 @@ import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { UserWokedTaskTab } from './user-worked-task';
 // import { UserProfileTask } from 'lib/features/user-profile-tasks';
 
-const UserTeamActivity = ({ member, showActivity }: { member: IUser | undefined; showActivity: boolean }) => {
-	const id = member?.employee?.id ?? '';
-	const { timeSlots } = useTimeSlots(id);
+const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
+	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
-	console.log('ACTIVITY TEAM M.');
 	return (
 		<Transition
 			show={!!showActivity}
@@ -66,16 +63,16 @@ const UserTeamActivity = ({ member, showActivity }: { member: IUser | undefined;
 							<Tab.Panels>
 								<Tab.Panel className="w-full mx-4 p-2">
 									{/* <UserProfileTask profile={profile} tabFiltered={hook} /> */}
-									<UserWokedTaskTab id={id} />
+									<UserWokedTaskTab />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<ScreenshootTeamTab id={id} />
+									<ScreenshootTeamTab />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<AppsTab id={id} userProfile={member} />
+									<AppsTab />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<VisitedSitesTab id={id} userProfile={member} />
+									<VisitedSitesTab />
 								</Tab.Panel>
 							</Tab.Panels>
 						</Tab.Group>
