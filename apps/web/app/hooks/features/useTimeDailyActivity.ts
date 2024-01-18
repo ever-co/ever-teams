@@ -2,32 +2,34 @@
 
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { useRecoilState } from 'recoil';
-import { timeAppVisitedDetail, timeAppsState, timeVisitedSitesState } from '@app/stores/time-slot';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { timeAppsState, timeVisitedSitesState } from '@app/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { getTimerDailyRequestAPI } from '@app/services/client/api';
-import { useUserProfilePage } from './useUserProfilePage';
+import { activityTypeState } from '@app/stores/activity-type';
 
-export function useTimeDailyActivity(type: string, id?: string) {
-	const profile = useUserProfilePage();
+export function useTimeDailyActivity(type?: string) {
 	const { user } = useAuthenticateUser();
 	const [visitedApps, setVisitedApps] = useRecoilState(timeAppsState);
-	const [visitedAppDetail, setVisitedAppDetail] = useRecoilState(timeAppVisitedDetail);
+	const activityFilter = useRecoilValue(activityTypeState);
 	const [visitedSites, setVisitedSites] = useRecoilState(timeVisitedSitesState);
 
 	const { loading, queryCall } = useQuery(getTimerDailyRequestAPI);
 
 	const getVisitedApps = useCallback(
-		({ title }: { title?: string }) => {
+		(title?: string) => {
 			const todayStart = moment().startOf('day').toDate();
 			const todayEnd = moment().endOf('day').toDate();
-			const employeeId = id ?? profile.member?.employeeId ?? '';
-			if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+			const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
+			if (
+				activityFilter.member?.employeeId === user?.employee.id ||
+				user?.role?.name?.toUpperCase() == 'MANAGER'
+			) {
 				queryCall({
 					tenantId: user?.tenantId ?? '',
 					organizationId: user?.employee.organizationId ?? '',
-					employeeId: employeeId,
+					employeeId: employeeId ?? '',
 					todayEnd,
 					type,
 					todayStart,
@@ -36,37 +38,26 @@ export function useTimeDailyActivity(type: string, id?: string) {
 					.then((response) => {
 						if (response.data) {
 							// @ts-ignore
-							if (title) setVisitedAppDetail(response.data[0]);
-							else if (type == 'APP') setVisitedApps(response.data);
+							// if (title) setVisitedAppDetail(response.data[0]);
+							if (type == 'APP') setVisitedApps(response.data);
 							else setVisitedSites(response.data);
 						}
 					})
 					.catch((err) => console.log(err));
 			}
 		},
-		[
-			profile.member?.employeeId,
-			profile.userProfile?.id,
-			user?.id,
-			user?.role?.name,
-			user?.tenantId,
-			user?.employee.organizationId,
-			queryCall,
-			type,
-			setVisitedAppDetail,
-			setVisitedApps,
-			setVisitedSites
-		]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[queryCall, type]
 	);
 
 	useEffect(() => {
-		getVisitedApps({});
-	}, [user, getVisitedApps]);
+		getVisitedApps();
+	}, [getVisitedApps]);
 
 	return {
 		visitedApps,
 		visitedSites,
-		visitedAppDetail,
+		// visitedAppDetail,
 		getVisitedApps,
 		loading
 	};

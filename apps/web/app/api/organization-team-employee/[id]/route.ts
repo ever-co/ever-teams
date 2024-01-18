@@ -15,15 +15,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 	const { id } = params;
 
+	const response = await updateOrganizationTeamEmployeeRequest({
+		id: id as string,
+		bearer_token: access_token,
+		tenantId,
+		body: body
+	});
+
 	if (id) {
-		return $res(
-			await updateOrganizationTeamEmployeeRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				body: body
-			})
-		);
+		return $res(response.data);
 	}
 }
 
@@ -37,16 +37,16 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	const { employeeId } = searchParams as unknown as { employeeId: string };
 	const { id } = params;
 
+	const response = await deleteOrganizationTeamEmployeeRequest({
+		id: id as string,
+		bearer_token: access_token,
+		tenantId,
+		organizationId,
+		employeeId: employeeId as string,
+		organizationTeamId: teamId
+	});
+
 	if (id) {
-		return $res(
-			await deleteOrganizationTeamEmployeeRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				organizationId,
-				employeeId: employeeId as string,
-				organizationTeamId: teamId
-			})
-		);
+		return $res(response.data);
 	}
 }

@@ -9,14 +9,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const { id } = params;
+
 	const body = await req.json();
 
-	return $res(
-		await editOrganizationProjectsRequest({
-			bearer_token: access_token,
-			id,
-			datas: body,
-			tenantId
-		})
-	);
+	const response = await editOrganizationProjectsRequest({
+		bearer_token: access_token,
+		id,
+		datas: body,
+		tenantId
+	});
+
+	return $res(response.data);
 }
