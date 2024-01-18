@@ -6,10 +6,9 @@ import AppVisitedItem from './components/app-visited-Item';
 // import { AppVisitedModal } from './components/app-visited-details';
 
 export function AppsTab() {
-	const { visitedApps, loading } = useTimeDailyActivity('APPS');
+	const { visitedApps, loading } = useTimeDailyActivity();
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
-	console.log('INTO APP TAB');
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>

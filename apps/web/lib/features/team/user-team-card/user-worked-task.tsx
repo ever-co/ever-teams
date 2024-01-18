@@ -9,5 +9,7 @@ export function UserWorkedTaskTab() {
 	const profile = useUserDetails(activityFilter.member?.employeeId ?? '');
 	const hook = useTaskFilter(profile);
 
+	console.log({ hook, profile });
+
 	return <UserProfileTask profile={profile} tabFiltered={hook} />;
 }

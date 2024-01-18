@@ -22,8 +22,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const getTimeSlots = useCallback(() => {
 		const todayStart = moment().startOf('day').toDate();
 		const todayEnd = moment().endOf('day').toDate();
-		const employeeId = hasFilter ? activityFilter.member?.employeeId : profile.member?.employeeId;
-		if (profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
+		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
+		if (activityFilter.member?.employeeId === user?.employee.id || user?.role?.name?.toUpperCase() == 'MANAGER') {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
@@ -37,18 +37,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 				}
 			});
 		}
-	}, [
-		hasFilter,
-		activityFilter.member?.employeeId,
-		profile.member?.employeeId,
-		profile.userProfile?.id,
-		user?.id,
-		user?.role?.name,
-		user?.tenantId,
-		user?.employee.organizationId,
-		queryCall,
-		setTimeSlots
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [hasFilter, activityFilter.member?.employeeId, profile.member?.employeeId, user?.id, queryCall, setTimeSlots]);
 
 	const deleteTimeSlots = useCallback(
 		(ids: string[]) => {
