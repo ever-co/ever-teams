@@ -15,15 +15,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 	const { id } = params;
 
+	const response = await updateOrganizationTeamEmployeeRequest({
+		id: id as string,
+		bearer_token: access_token,
+		tenantId,
+		body: body
+	});
+
 	if (id) {
-		return $res(
-			await updateOrganizationTeamEmployeeRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				body: body
-			})
-		);
+		return $res(response.data);
 	}
 }
 
