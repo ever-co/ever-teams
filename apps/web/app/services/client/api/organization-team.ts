@@ -8,7 +8,7 @@ import {
 	OT_Member
 } from '@app/interfaces';
 import moment from 'moment';
-import api, { get, put } from '../axios';
+import api, { deleteApi, get, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
@@ -104,8 +104,11 @@ export async function updateOrganizationTeamAPI(teamId: string, data: Partial<IO
 }
 
 export function deleteOrganizationTeamAPI(id: string) {
-	return api.delete<CreateResponse<IOrganizationTeam>>(`/organization-team/${id}`);
+	const organizationId = getOrganizationIdCookie();
+
+	return deleteApi<IOrganizationTeam>(`/organization-team/${id}?organizationId=${organizationId}`);
 }
+
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }

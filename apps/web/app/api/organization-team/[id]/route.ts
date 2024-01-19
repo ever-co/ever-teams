@@ -61,13 +61,13 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	const { id } = params;
 
 	if (id) {
-		return $res(
-			await deleteOrganizationTeamRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				organizationId
-			})
-		);
+		const response = await deleteOrganizationTeamRequest({
+			id: id as string,
+			bearer_token: access_token,
+			tenantId,
+			organizationId
+		});
+
+		return $res(response.data);
 	}
 }
