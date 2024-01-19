@@ -39,14 +39,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 		return NextResponse.json({}, { status: 405 });
 	}
 
-	return $res(
-		await addEmployeeOrganizationTeamOrderRequest({
-			bearer_token: access_token,
-			tenantId,
-			employeeId: id.toString(),
-			order,
-			organizationTeamId: body.organizationTeamId,
-			organizationId: body.organizationId
-		})
-	);
+	const response = await addEmployeeOrganizationTeamOrderRequest({
+		bearer_token: access_token,
+		tenantId,
+		employeeId: id.toString(),
+		order,
+		organizationTeamId: body.organizationTeamId,
+		organizationId: body.organizationId
+	});
+
+	return $res(response.data);
 }

@@ -122,9 +122,11 @@ export function editEmployeeOrderOrganizationTeamAPI(
 	data: { order: number; organizationTeamId: string; organizationId: string },
 	tenantId?: string
 ) {
-	return api.put<CreateResponse<OT_Member>>(`/organization-team/employee/${employeeId}`, data, {
-		headers: { 'Tenant-Id': tenantId }
-	});
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/organization-team-employee/${employeeId}`
+		: `/organization-team/employee/${employeeId}`;
+
+	return put<OT_Member>(endpoint, data, { tenantId });
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {
