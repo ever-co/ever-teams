@@ -9,11 +9,15 @@ import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
-import { UserWorkedTaskTab } from './user-worked-task';
-// import { UserProfileTask } from 'lib/features/user-profile-tasks';
+// import { UserWorkedTaskTab } from './user-worked-task';
+import { useUserProfilePage } from '@app/hooks';
+import { UserProfileTask } from 'lib/features/user-profile-tasks';
+import { useTaskFilter } from 'lib/features/task/task-filters';
 
 const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
 	const { timeSlots } = useTimeSlots(true);
+	const profile = useUserProfilePage();
+	const hook = useTaskFilter(profile);
 	const t = useTranslations();
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
@@ -62,8 +66,8 @@ const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
 							</Tab.List>
 							<Tab.Panels>
 								<Tab.Panel className="w-full mx-4 p-2">
-									{/* <UserProfileTask profile={profile} tabFiltered={hook} /> */}
-									<UserWorkedTaskTab />
+									<UserProfileTask profile={profile} tabFiltered={hook} />
+									{/* <UserWorkedTaskTab profile={profile} /> */}
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">
 									<ScreenshootTeamTab />
