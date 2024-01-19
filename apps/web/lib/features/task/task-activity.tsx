@@ -4,9 +4,6 @@ import { Card } from 'lib/components';
 import { ActivityFilters } from '@app/constants';
 import React from 'react';
 
-type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
-
-
 export function TaskActivity() {
 	return (
 		<Card
@@ -38,7 +35,7 @@ const UserTaskActivity = () => {
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
 			<div className="flex items-center gap-2 my-2">
-				<h4 className="text-lg">{'Cedric karungu'}</h4>
+				<h4 className="text-lg">{'Cedric medium'}</h4>
 				<span>{'05:30'}</span>
 			</div>
 			<Tab.Group>
