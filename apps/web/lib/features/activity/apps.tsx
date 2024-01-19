@@ -6,7 +6,7 @@ import AppVisitedItem from './components/app-visited-Item';
 // import { AppVisitedModal } from './components/app-visited-details';
 
 export function AppsTab() {
-	const { visitedApps, loading } = useTimeDailyActivity();
+	const { visitedApps, loading } = useTimeDailyActivity('APP');
 	const t = useTranslations();
 	const apps = groupAppsByHour(visitedApps);
 	return (

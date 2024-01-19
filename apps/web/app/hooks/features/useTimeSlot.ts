@@ -36,7 +36,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 					setTimeSlots(response.data[0].timeSlots);
 				}
 			});
-		}
+		} else setTimeSlots([]);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [hasFilter, activityFilter.member?.employeeId, profile.member?.employeeId, user?.id, queryCall, setTimeSlots]);
 

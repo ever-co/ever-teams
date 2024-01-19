@@ -16,11 +16,12 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
+import { activityTypeState } from '@app/stores/activity-type';
 
 type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -30,6 +31,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
+	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 
 	const hook = useTaskFilter(profile);
 	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
@@ -56,6 +58,14 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		},
 		[setActivityFilter]
 	);
+
+	React.useEffect(() => {
+		setActivityTypeFilter((prev) => ({
+			...prev,
+			member: profile.member ? profile.member : null
+		}));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [profile.member]);
 
 	return (
 		<>
