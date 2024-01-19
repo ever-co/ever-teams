@@ -16,13 +16,13 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 		return NextResponse.json({}, { status: 405 });
 	}
 
-	return $res(
-		await removeEmployeeOrganizationTeamRequest({
-			bearer_token: access_token,
-			tenantId,
-			employeeId: id.toString()
-		})
-	);
+	const response = await removeEmployeeOrganizationTeamRequest({
+		bearer_token: access_token,
+		tenantId,
+		employeeId: id.toString()
+	});
+
+	return $res(response.data);
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {

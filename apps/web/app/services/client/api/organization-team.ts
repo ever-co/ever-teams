@@ -110,7 +110,11 @@ export function deleteOrganizationTeamAPI(id: string) {
 }
 
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
-	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/organization-team-employee/${employeeId}`
+		: `/organization-team/employee/${employeeId}`;
+
+	return deleteApi<boolean>(endpoint);
 }
 
 export function editEmployeeOrderOrganizationTeamAPI(
