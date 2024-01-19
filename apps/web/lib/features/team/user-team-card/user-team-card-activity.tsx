@@ -18,6 +18,7 @@ const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
 	const { timeSlots } = useTimeSlots(true);
 	const profile = useUserProfilePage();
 	const hook = useTaskFilter(profile);
+
 	const t = useTranslations();
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + el.percentage, 0) / timeSlots.length;
