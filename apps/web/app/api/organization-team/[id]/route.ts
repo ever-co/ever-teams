@@ -34,6 +34,7 @@ export async function PUT(req: Request) {
 	if (!user) return NextResponse.json({}, { status: 400 });
 
 	const body = await req.json();
+
 	const getTeamStatus = async () => {
 		const { data: team } = await getOrganizationTeamRequest(
 			{
@@ -48,6 +49,7 @@ export async function PUT(req: Request) {
 	};
 
 	await updateOrganizationTeamRequest(body, access_token);
+
 	return $res(await getTeamStatus());
 }
 

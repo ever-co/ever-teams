@@ -2,14 +2,15 @@ import { CreateResponse, DeleteResponse, ISuccessResponse, PaginationResponse } 
 
 import {
 	IOrganizationTeamList,
-	IOrganizationTeamWithMStatus,
 	IOrganizationTeamUpdate,
 	IOrganizationTeam,
 	TimerSource,
 	OT_Member
 } from '@app/interfaces';
 import moment from 'moment';
-import api, { get } from '../axios';
+import api, { get, put } from '../axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 export async function getOrganizationTeamsAPI(organizationId: string, tenantId: string) {
 	const relations = [
@@ -76,11 +77,30 @@ export async function getOrganizationTeamAPI(teamId: string, organizationId: str
 	return get<IOrganizationTeamList>(endpoint);
 }
 
-export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
-	return api.put<IOrganizationTeamList>(`/organization-team/${data.id}`, data);
+export async function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+
+	let response = await put<IOrganizationTeamList>(`/organization-team/${data.id}`, data);
+
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		response = await getOrganizationTeamAPI(data.id, organizationId, tenantId);
+	}
+
+	return response;
 }
-export function updateOrganizationTeamAPI(teamId: string, data: Partial<IOrganizationTeamUpdate>) {
-	return api.put<IOrganizationTeamWithMStatus>(`/organization-team/${teamId}`, data);
+
+export async function updateOrganizationTeamAPI(teamId: string, data: Partial<IOrganizationTeamUpdate>) {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+
+	let response = await put<IOrganizationTeamList>(`/organization-team/${teamId}`, data);
+
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		response = await getOrganizationTeamAPI(teamId, organizationId, tenantId);
+	}
+
+	return response;
 }
 
 export function deleteOrganizationTeamAPI(id: string) {
