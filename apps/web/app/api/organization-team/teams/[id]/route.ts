@@ -9,12 +9,14 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	if (!user) return NextResponse.json({}, { status: 401 });
 
 	const { id } = params;
+
 	if (!id) return NextResponse.json({}, { status: 400 });
-	return $res(
-		await removeUserFromAllTeam({
-			userId: id as string,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+
+	const response = await removeUserFromAllTeam({
+		userId: id as string,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }

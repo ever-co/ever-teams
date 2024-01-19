@@ -1,4 +1,4 @@
-import { CreateResponse, DeleteResponse, ISuccessResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 
 import {
 	IOrganizationTeamList,
@@ -130,5 +130,5 @@ export function editEmployeeOrderOrganizationTeamAPI(
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {
-	return api.delete<DeleteResponse | CreateResponse<ISuccessResponse>>(`/organization-team/teams/${userId}`);
+	return deleteApi<DeleteResponse>(`/organization-team/teams/${userId}`);
 }
