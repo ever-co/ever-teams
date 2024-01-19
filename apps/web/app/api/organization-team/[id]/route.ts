@@ -34,6 +34,7 @@ export async function PUT(req: Request) {
 	if (!user) return NextResponse.json({}, { status: 400 });
 
 	const body = await req.json();
+
 	const getTeamStatus = async () => {
 		const { data: team } = await getOrganizationTeamRequest(
 			{
@@ -48,6 +49,7 @@ export async function PUT(req: Request) {
 	};
 
 	await updateOrganizationTeamRequest(body, access_token);
+
 	return $res(await getTeamStatus());
 }
 
@@ -59,13 +61,13 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 	const { id } = params;
 
 	if (id) {
-		return $res(
-			await deleteOrganizationTeamRequest({
-				id: id as string,
-				bearer_token: access_token,
-				tenantId,
-				organizationId
-			})
-		);
+		const response = await deleteOrganizationTeamRequest({
+			id: id as string,
+			bearer_token: access_token,
+			tenantId,
+			organizationId
+		});
+
+		return $res(response.data);
 	}
 }

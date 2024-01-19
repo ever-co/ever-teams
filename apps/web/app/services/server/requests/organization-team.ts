@@ -187,7 +187,6 @@ export function addEmployeeOrganizationTeamOrderRequest({
 	organizationTeamId: string;
 	organizationId: string;
 }) {
-	console.log({ order, tenantId, employeeId });
 	const res = serverFetch({
 		path: `/organization-team-employee/${employeeId}`,
 		method: 'PUT',
@@ -195,7 +194,7 @@ export function addEmployeeOrganizationTeamOrderRequest({
 		body: { order, organizationTeamId, organizationId },
 		tenantId
 	});
-	res.then((d) => console.log(d.data));
+
 	return res;
 }
 

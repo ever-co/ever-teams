@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useRecoilValue } from 'recoil';
+import { TaskActivity } from 'lib/features/task/task-activity';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -84,7 +85,7 @@ const TaskDetails = () => {
 								{/* <IssueCard related={true} /> */}
 
 								{/* <CompletionBlock /> */}
-								{/* <TaskActivity /> */}
+								<TaskActivity />
 							</div>
 						</section>
 						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-full lg:w-[30%]">

@@ -44,6 +44,9 @@ export function useTimeDailyActivity(type?: string) {
 						}
 					})
 					.catch((err) => console.log(err));
+			} else {
+				if (type == 'APP') setVisitedApps([]);
+				else setVisitedSites([]);
 			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
