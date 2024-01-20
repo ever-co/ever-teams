@@ -25,6 +25,7 @@ export function useUserProfilePage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params]);
 
+	console.log({memberId})
 	const members = activeTeam?.members || [];
 
 	const matchUser = members.find((m) => {
