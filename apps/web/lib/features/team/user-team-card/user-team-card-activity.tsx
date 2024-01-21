@@ -9,9 +9,9 @@ import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
-import { UserProfileTask } from 'lib/features/user-profile-tasks';
+// import { UserProfileTask } from 'lib/features/user-profile-tasks';
 
-const UserTeamActivity = ({ showActivity, profile, hook }: { showActivity: boolean; profile: any; hook: any }) => {
+const UserTeamActivity = ({ showActivity }: { showActivity: boolean; profile: any; hook: any }) => {
 	const { timeSlots } = useTimeSlots(true);
 
 	const t = useTranslations();
