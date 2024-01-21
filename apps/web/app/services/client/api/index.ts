@@ -32,3 +32,4 @@ export * from './organization-projects';
 
 export * from './activity/time-slots';
 export * from './activity/activity';
+export * from './default';
