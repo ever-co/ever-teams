@@ -429,6 +429,10 @@
 		"offline": {
 			"HEADING_TITLE": "Network Disconnected!",
 			"HEADING_DESCRIPTION": "You are currently Offline, please check your internet connection..."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "We are Under Maintenance",
+			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
 		}
 	},
 

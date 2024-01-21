@@ -425,6 +425,10 @@
 		"offline": {
 			"HEADING_TITLE": "Rete Disconnessa!",
 			"HEADING_DESCRIPTION": "Attualmente sei offline, controlla la tua connessione Internet..."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "Siamo in manutenzione",
+			"HEADING_DESCRIPTION": "Stiamo attualmente aggiornando il nostro sito web per servirti meglio. Per favore controllare più tardi."
 		}
 	},
 

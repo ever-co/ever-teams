@@ -421,6 +421,10 @@
 		"offline": {
 			"HEADING_TITLE": "Réseau déconnecté !",
 			"HEADING_DESCRIPTION": "Vous êtes actuellement hors ligne, veuillez vérifier votre connexion Internet..."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "Nous sommes en cours de maintenance",
+			"HEADING_DESCRIPTION": "Nous mettons actuellement à jour notre site Web pour mieux vous servir. Veuillez revenir plus tard."
 		}
 	},
 
