@@ -423,6 +423,10 @@
 		"offline": {
 			"HEADING_TITLE": "Netwerk Verbroken!",
 			"HEADING_DESCRIPTION": "U bent momenteel offline, controleer uw internetverbinding..."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "We are Under Maintenance",
+			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
 		}
 	},
 

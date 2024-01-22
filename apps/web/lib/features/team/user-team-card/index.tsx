@@ -18,6 +18,8 @@ import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
+import { useUserProfilePage } from '@app/hooks';
+import { useTaskFilter } from 'lib/features/task/task-filters';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -47,6 +49,9 @@ export function UserTeamCard({
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+
+	const profile = useUserProfilePage();
+	const hook = useTaskFilter(profile);
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
@@ -188,7 +193,7 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				<UserTeamActivity showActivity={showActivity} />
+				<UserTeamActivity showActivity={showActivity} hook={hook} profile={profile} />
 			</Card>
 			<Card
 				shadow="bigger"

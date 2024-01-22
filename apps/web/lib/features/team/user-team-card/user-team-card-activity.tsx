@@ -9,15 +9,10 @@ import { clsxm } from '@app/utils';
 import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
-// import { UserWorkedTaskTab } from './user-worked-task';
-import { useUserProfilePage } from '@app/hooks';
-import { UserProfileTask } from 'lib/features/user-profile-tasks';
-import { useTaskFilter } from 'lib/features/task/task-filters';
+// import { UserProfileTask } from 'lib/features/user-profile-tasks';
 
-const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
+const UserTeamActivity = ({ showActivity }: { showActivity: boolean; profile: any; hook: any }) => {
 	const { timeSlots } = useTimeSlots(true);
-	const profile = useUserProfilePage();
-	const hook = useTaskFilter(profile);
 
 	const t = useTranslations();
 
@@ -67,7 +62,8 @@ const UserTeamActivity = ({ showActivity }: { showActivity: boolean }) => {
 							</Tab.List>
 							<Tab.Panels>
 								<Tab.Panel className="w-full mx-4 p-2">
-									<UserProfileTask profile={profile} tabFiltered={hook} />
+									{/* <UserProfileTask profile={profile} tabFiltered={hook} /> */}
+
 									{/* <UserWorkedTaskTab profile={profile} /> */}
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">

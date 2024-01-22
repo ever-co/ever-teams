@@ -34,3 +34,4 @@ export * from './integrations/integration-tenant';
 export * from './integrations/types';
 
 export * from './organization-projects';
+export * from './default';

@@ -1,7 +1,13 @@
 'use client';
 
+import Maintenance from '@components/pages/maintenance';
+
 const Error = () => {
-	return <>Error Page...</>;
+	return (
+		<>
+			<Maintenance />
+		</>
+	);
 };
 
 export default Error;

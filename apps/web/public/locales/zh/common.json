@@ -400,6 +400,10 @@
 		"offline": {
 			"HEADING_TITLE": "网络断开连接！",
 			"HEADING_DESCRIPTION": "您目前处于离线状态，请检查您的互联网连接..."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "我們正在維護中",
+			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
 		}
 	},
 

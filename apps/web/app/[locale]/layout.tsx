@@ -13,6 +13,8 @@ import '../../styles/globals.css';
 import { ThemeProvider } from 'next-themes';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+import { useCheckAPI } from '@app/hooks/useCheckAPI';
+import Maintenance from '@components/pages/maintenance';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
@@ -43,6 +45,7 @@ interface Props {
 const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
+	const { isApiWork } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 
@@ -70,8 +73,14 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							<AppState />
-							<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+							{isApiWork ? (
+								<>
+									<AppState />
+									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+								</>
+							) : (
+								<Maintenance />
+							)}
 						</ThemeProvider>
 					</RecoilRoot>
 				</body>
