@@ -14,9 +14,16 @@ import {
 	getTeamTasksAPI,
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
-	getTasksByIdAPI
+	getTasksByIdAPI,
+	getTasksByEmployeeIdAPI
 } from '@app/services/client/api';
-import { activeTeamState, detailedTaskState, memberActiveTaskIdState, userState } from '@app/stores';
+import {
+	activeTeamState,
+	detailedTaskState,
+	employeeTasksState,
+	memberActiveTaskIdState,
+	userState
+} from '@app/stores';
 import { activeTeamTaskState, tasksByTeamState, tasksFetchingState, teamTasksState } from '@app/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
@@ -40,6 +47,7 @@ export function useTeamTasks() {
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
+	const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
 
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
@@ -51,6 +59,8 @@ export function useTeamTasks() {
 	// Queries hooks
 	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
 	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
+	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } =
+		useQuery(getTasksByEmployeeIdAPI);
 
 	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(deleteTaskAPI);
 
@@ -69,6 +79,16 @@ export function useTeamTasks() {
 			});
 		},
 		[getTasksByIdQueryCall, setDetailedTask]
+	);
+
+	const getTasksByEmployeeId = useCallback(
+		(employeeId: string, organizationTeamId: string) => {
+			return getTasksByEmployeeIdQueryCall(employeeId, organizationTeamId).then((res) => {
+				setEmployeeState(res?.data || []);
+				return res;
+			});
+		},
+		[getTasksByEmployeeIdQueryCall, setEmployeeState]
 	);
 
 	const deepCheckAndUpdateTasks = useCallback(
@@ -398,6 +418,9 @@ export function useTeamTasks() {
 		updateDescription,
 		updatePublicity,
 		handleStatusUpdate,
+		employeeState,
+		getTasksByEmployeeId,
+		getTasksByEmployeeIdLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		setAllTasks,

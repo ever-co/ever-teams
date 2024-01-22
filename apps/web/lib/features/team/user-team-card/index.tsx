@@ -193,7 +193,7 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				<UserTeamActivity showActivity={showActivity} hook={hook} profile={profile} />
+				<UserTeamActivity showActivity={showActivity} hook={hook} profile={profile} member={member} />
 			</Card>
 			<Card
 				shadow="bigger"
