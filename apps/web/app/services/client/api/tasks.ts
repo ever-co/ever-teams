@@ -157,3 +157,7 @@ export function allTaskTimesheetStatisticsAPI() {
 export function deleteEmployeeFromTasksAPI(employeeId: string, organizationTeamId: string) {
 	return api.delete<DeleteResponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 }
+
+export function getTasksByEmployeeIdAPI(employeeId: string, organizationTeamId: string) {
+	return api.get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+}
