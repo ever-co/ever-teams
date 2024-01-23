@@ -50,9 +50,6 @@ export function UserTeamCard({
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
-	const profile = useUserProfilePage();
-	const hook = useTaskFilter(profile);
-
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
 	const seconds = useRecoilValue(timerSecondsState);
@@ -193,7 +190,7 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				<UserTeamActivity showActivity={showActivity} hook={hook} profile={profile} member={member} />
+				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card
 				shadow="bigger"

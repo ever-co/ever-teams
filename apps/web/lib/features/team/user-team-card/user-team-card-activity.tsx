@@ -18,8 +18,8 @@ const UserTeamActivity = ({
 	member
 }: {
 	showActivity: boolean;
-	profile: any;
-	hook: any;
+	profile?: any;
+	hook?: any;
 	member?: OT_Member;
 }) => {
 	const { timeSlots } = useTimeSlots(true);
