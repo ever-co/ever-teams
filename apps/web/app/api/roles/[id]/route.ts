@@ -10,29 +10,29 @@ export async function PUT(req: Request) {
 	if (!user) return $res('unauthorized');
 	const body = (await req.json()) as IRole;
 
-	return $res(
-		await updateRoleRequest({
-			bearer_token: access_token,
-			tenantId,
-			data: body
-		})
-	);
+	const response = await updateRoleRequest({
+		bearer_token: access_token,
+		tenantId,
+		data: body
+	});
+
+	return $res(response.data);
 }
 
-export async function DELETE(req: Request,  { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
 
-	const { id } = params
+	const { id } = params;
 
-	return $res(
-		await deleteRoleRequest({
-			id: id as string,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+	const response = await deleteRoleRequest({
+		id: id as string,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
