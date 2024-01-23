@@ -23,10 +23,10 @@ export const detailedTaskState = atom<ITeamTask | null>({
 	default: null
 });
 
-export const employeeTasksState = atom<ITeamTask[] | null>({
-	key: 'employeeTasksState',
-	default: null
-});
+// export const employeeTasksState = atom<ITeamTask[] | null>({
+// 	key: 'employeeTasksState',
+// 	default: null
+// });
 
 export const tasksByTeamState = selector<ITeamTask[]>({
 	key: 'tasksByTeamState',

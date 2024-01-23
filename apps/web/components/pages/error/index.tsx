@@ -1,3 +1,5 @@
+'use client';
+
 import SadCry from '@components/ui/svgs/sad-cry';
 import { Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
@@ -25,6 +27,12 @@ function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset
 					{t('pages.error.HEADING_DESCRIPTION')}
 				</Text>
 				<button onClick={() => reset()}>Try again</button>
+			</div>
+
+			<div className="p-2 flex flex-col gap-y-3 container max-w-5xl border border-red-500 rounded mt-5">
+				<h4 className="text-2xl text-red-400 font-medium">{JSON.stringify(error.cause)}</h4>
+				<p className="text-lg text-red-400 font-semibold">{error.message}</p>
+				<p className="text-sm text-red-400">{error.stack}</p>
 			</div>
 		</div>
 	);

@@ -20,7 +20,7 @@ import {
 import {
 	activeTeamState,
 	detailedTaskState,
-	employeeTasksState,
+	// employeeTasksState,
 	memberActiveTaskIdState,
 	userState
 } from '@app/stores';
@@ -47,7 +47,7 @@ export function useTeamTasks() {
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
-	const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
+	// const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
 
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
@@ -84,11 +84,11 @@ export function useTeamTasks() {
 	const getTasksByEmployeeId = useCallback(
 		(employeeId: string, organizationTeamId: string) => {
 			return getTasksByEmployeeIdQueryCall(employeeId, organizationTeamId).then((res) => {
-				setEmployeeState(res?.data || []);
-				return res;
+				// setEmployeeState(res?.data || []);
+				return res.data;
 			});
 		},
-		[getTasksByEmployeeIdQueryCall, setEmployeeState]
+		[getTasksByEmployeeIdQueryCall]
 	);
 
 	const deepCheckAndUpdateTasks = useCallback(
@@ -418,7 +418,7 @@ export function useTeamTasks() {
 		updateDescription,
 		updatePublicity,
 		handleStatusUpdate,
-		employeeState,
+		// employeeState,
 		getTasksByEmployeeId,
 		getTasksByEmployeeIdLoading,
 		activeTeam,

@@ -8,16 +8,15 @@ import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 
-export function useUserSelectedPage(id: string) {
+export function useUserSelectedPage(id?: string) {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
 
-	const memberId: string = id;
+	const memberId: string = id || '';
 
-	console.log({ memberId });
 	const members = activeTeam?.members || [];
 
 	const matchUser = members.find((m) => {
