@@ -10,8 +10,7 @@ import { ScreenshootTeamTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { OT_Member } from '@app/interfaces';
-import { UserWorkedTaskTab } from 'lib/features/activity/user-worked-task';
-// import { UserProfileTask } from 'lib/features/user-profile-tasks';
+import UserWorkedTaskTab from 'lib/features/activity/user-worked-task';
 
 const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: OT_Member }) => {
 	const { timeSlots } = useTimeSlots(true);
@@ -84,4 +83,4 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 	);
 };
 
-export default UserTeamActivity;
+export default React.memo(UserTeamActivity);

@@ -1,17 +1,14 @@
-// import { useTeamTasks } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
-// import { employeeTasksState } from '@app/stores';
-import React from 'react';
+import { memo } from 'react';
 import { TaskCard } from '../task/task-card';
 import { useUserSelectedPage } from '@app/hooks/features/useUserSelectedPage';
 import { useTaskFilter } from '../task/task-filters';
 import { Divider, Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
 
-export const UserWorkedTaskTab = React.memo(function UserWorkedTask({ member }: { member?: OT_Member }) {
+const UserWorkedTaskTab = ({ member }: { member?: OT_Member }) => {
 	const profile = useUserSelectedPage(member?.employee?.userId);
 	const hook = useTaskFilter(profile);
-	// const { getTasksByEmployeeId, getTasksByEmployeeIdLoading } = useTeamTasks();
 
 	const t = useTranslations();
 
@@ -20,11 +17,11 @@ export const UserWorkedTaskTab = React.memo(function UserWorkedTask({ member }: 
 		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
 	);
 
-	console.log({ hook, profile });
+	console.log({ hook, profile, otherTasks, r: profile.member?.timerStatus });
 
 	return (
 		<div>
-			{profile.member?.timerStatus === 'running' && (
+			{profile.activeUserTeamTask && (
 				<TaskCard
 					active
 					task={profile.activeUserTeamTask}
@@ -72,4 +69,6 @@ export const UserWorkedTaskTab = React.memo(function UserWorkedTask({ member }: 
 			</ul>
 		</div>
 	);
-});
+};
+
+export default memo(UserWorkedTaskTab);
