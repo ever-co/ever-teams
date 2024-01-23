@@ -19,26 +19,6 @@ const TaskDetailsAside = () => {
 				<div className="not-italic font-semibold text-base leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{t('common.DETAILS')}
 				</div>
-
-				{/* TODO */}
-				{/* Commented icon temporary, will be enable it in future once dynamic implementation done */}
-				{/* <div className="flex">
-					<Image
-						src="/assets/svg/printer.svg"
-						alt="printer"
-						width={16}
-						height={16}
-						className="mr-3"
-					/>
-					<Image
-						src="/assets/svg/document-download.svg"
-						alt="download"
-						width={16}
-						height={16}
-						className="mr-3"
-					/>
-					<Image src="/assets/svg/more.svg" alt="more" width={16} height={16} />
-				</div> */}
 			</div>
 			<TaskPublicity />
 

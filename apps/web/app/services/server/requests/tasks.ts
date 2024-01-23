@@ -161,3 +161,22 @@ export function deleteEmployeeFromTasksRequest({
 		tenantId
 	});
 }
+
+export function getEmployeeTasksRequest({
+	tenantId,
+	employeeId,
+	organizationTeamId,
+	bearer_token
+}: {
+	tenantId: string;
+	employeeId: string;
+	organizationTeamId: string;
+	bearer_token: string;
+}) {
+	return serverFetch<ITeamTask[]>({
+		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}

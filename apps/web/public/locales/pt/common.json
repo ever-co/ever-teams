@@ -425,6 +425,15 @@
 		"offline": {
 			"HEADING_TITLE": "Rede Desconectada!",
 			"HEADING_DESCRIPTION": "Você está atualmente offline, por favor, verifique sua conexão com a Internet..."
+		},
+		"error": {
+			"TITLE": "Erro!",
+			"HEADING_TITLE": "Algo deu errado!",
+			"HEADING_DESCRIPTION": "Se o problema persistir, envie um sinal de socorro à nossa equipe de suporte."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "Estamos em manutenção",
+			"HEADING_DESCRIPTION": "Estamos atualizando nosso site para melhor atendê-lo. Por favor, volte mais tarde."
 		}
 	},
 

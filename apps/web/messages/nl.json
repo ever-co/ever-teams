@@ -423,6 +423,15 @@
 		"offline": {
 			"HEADING_TITLE": "Netwerk Verbroken!",
 			"HEADING_DESCRIPTION": "U bent momenteel offline, controleer uw internetverbinding..."
+		},
+		"error": {
+			"TITLE": "Fout !",
+			"HEADING_TITLE": "Er is iets fout gegaan !",
+			"HEADING_DESCRIPTION": "Als het probleem aanhoudt, stuur dan een noodsignaal naar ons ondersteuningsteam."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "Wij zijn in onderhoud",
+			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
 		}
 	},
 

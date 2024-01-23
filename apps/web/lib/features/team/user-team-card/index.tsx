@@ -188,7 +188,7 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				<UserTeamActivity showActivity={showActivity} />
+				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card
 				shadow="bigger"
