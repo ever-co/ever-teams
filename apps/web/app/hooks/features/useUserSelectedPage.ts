@@ -1,26 +1,21 @@
 'use client';
 
 import { ITeamTask } from '@app/interfaces';
-import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 
-export function useUserProfilePage() {
+export function useUserSelectedPage(id: string) {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
 
-	const params = useParams();
-	const memberId: string = useMemo(() => {
-		return (params?.memberId ?? '') as string;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [params]);
+	const memberId: string = id;
 
 	console.log({ memberId });
 	const members = activeTeam?.members || [];
@@ -71,4 +66,4 @@ export function useUserProfilePage() {
 	};
 }
 
-export type I_UserProfilePage = ReturnType<typeof useUserProfilePage>;
+export type I_UserProfilePage = ReturnType<typeof useUserSelectedPage>;

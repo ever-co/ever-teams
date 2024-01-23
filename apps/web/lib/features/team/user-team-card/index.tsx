@@ -18,8 +18,6 @@ import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
-import { useUserProfilePage } from '@app/hooks';
-import { useTaskFilter } from 'lib/features/task/task-filters';
 
 type IUserTeamCard = {
 	active?: boolean;

@@ -15,7 +15,7 @@ function Maintenance() {
 				{t('pages.maintenance.HEADING_TITLE')}
 			</Text>
 
-			<Text className="text-[40px] my-4 font-bold text-center text-[#282048] dark:text-light--theme">
+			<Text className="text-[20px] font-normal text-center text-gray-400">
 				{t('pages.maintenance.HEADING_DESCRIPTION')}
 			</Text>
 		</div>

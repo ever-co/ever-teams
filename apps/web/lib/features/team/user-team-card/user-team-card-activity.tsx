@@ -13,15 +13,7 @@ import { OT_Member } from '@app/interfaces';
 import { UserWorkedTaskTab } from 'lib/features/activity/user-worked-task';
 // import { UserProfileTask } from 'lib/features/user-profile-tasks';
 
-const UserTeamActivity = ({
-	showActivity,
-	member
-}: {
-	showActivity: boolean;
-	profile?: any;
-	hook?: any;
-	member?: OT_Member;
-}) => {
+const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: OT_Member }) => {
 	const { timeSlots } = useTimeSlots(true);
 
 	const t = useTranslations();
