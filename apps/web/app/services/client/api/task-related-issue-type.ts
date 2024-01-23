@@ -4,7 +4,7 @@ import {
 	ITaskRelatedIssueTypeItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get, post, put } from '../axios';
+import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskRelatedIssueTypeAPI(data: ITaskRelatedIssueTypeCreate, tenantId?: string) {
 	return post<ITaskRelatedIssueTypeCreate>('/task-related-issue-types', data, {
@@ -19,7 +19,7 @@ export function editTaskRelatedIssueTypeAPI(id: string, data: ITaskRelatedIssueT
 }
 
 export function deleteTaskRelatedIssueTypeAPI(id: string) {
-	return api.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
+	return deleteApi<DeleteResponse>(`/task-related-issue-types/${id}`);
 }
 
 export async function getTaskRelatedIssueTypeList(
