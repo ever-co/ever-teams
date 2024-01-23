@@ -1,11 +1,5 @@
-import {
-	CreateResponse,
-	DeleteResponse,
-	ITaskSizesCreate,
-	ITaskSizesItemList,
-	PaginationResponse
-} from '@app/interfaces';
-import api, { get, post } from '../axios';
+import { DeleteResponse, ITaskSizesCreate, ITaskSizesItemList, PaginationResponse } from '@app/interfaces';
+import api, { get, post, put } from '../axios';
 
 export function createTaskSizesAPI(data: ITaskSizesCreate, tenantId?: string) {
 	return post<ITaskSizesCreate>('/task-sizes', data, {
@@ -14,10 +8,8 @@ export function createTaskSizesAPI(data: ITaskSizesCreate, tenantId?: string) {
 }
 
 export function editTaskSizesAPI(id: string, data: ITaskSizesCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskSizesCreate>>(`/task-sizes/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskSizesCreate>(`/task-sizes/${id}`, data, {
+		tenantId
 	});
 }
 
