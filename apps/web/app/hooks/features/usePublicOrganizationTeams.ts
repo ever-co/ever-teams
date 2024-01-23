@@ -36,7 +36,7 @@ export function usePublicOrganizationTeams() {
 			}
 
 			return queryCall(profileLink, teamId).then((res) => {
-				if (res.data?.data?.status === 404) {
+				if (res.data.status === 404) {
 					setTeams([]);
 					return res;
 				}
@@ -46,7 +46,7 @@ export function usePublicOrganizationTeams() {
 					const newData = [
 						{
 							...updatedTeams[0],
-							...res.data.data
+							...res.data
 						}
 					];
 
@@ -54,23 +54,23 @@ export function usePublicOrganizationTeams() {
 						setTeams([
 							{
 								...updatedTeams[0],
-								...res.data.data
+								...res.data
 							}
 						]);
 					}
 				} else {
-					setTeams([res.data.data]);
+					setTeams([res.data]);
 				}
 
 				const newPublicTeamData = {
 					...publicTeam,
-					...res.data.data
+					...res.data
 				};
 				if (!isEqual(newPublicTeamData, publicTeam)) {
 					setPublicTeam(newPublicTeamData);
 				}
 
-				let responseTasks = (res.data?.data?.tasks as ITeamTask[]) || [];
+				let responseTasks = (res.data.tasks as ITeamTask[]) || [];
 				if (responseTasks && responseTasks.length) {
 					responseTasks = responseTasks.map((task) => {
 						const clone = cloneDeep(task);
@@ -92,16 +92,16 @@ export function usePublicOrganizationTeams() {
 	const loadPublicTeamMiscData = useCallback(
 		(profileLink: string, teamId: string) => {
 			return queryCallMiscData(profileLink, teamId).then((res) => {
-				if (res.data?.data?.status === 404) {
+				if (res.data.status === 404) {
 					setTeams([]);
 					return res;
 				}
 
 				if (res.data) {
-					setTaskStatus(res.data.data?.statuses || []);
-					setTaskSizes(res.data.data?.sizes || []);
-					setTaskPriorities(res.data.data?.priorities || []);
-					setTaskLabels(res.data.data?.labels || []);
+					setTaskStatus(res.data?.statuses || []);
+					setTaskSizes(res.data?.sizes || []);
+					setTaskPriorities(res.data?.priorities || []);
+					setTaskLabels(res.data?.labels || []);
 				}
 
 				return res;
