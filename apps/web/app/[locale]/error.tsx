@@ -1,11 +1,11 @@
 'use client';
 
-import Maintenance from '@components/pages/maintenance';
+import ErrorPage from '@components/pages/error';
 
-const Error = () => {
+const Error = ({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) => {
 	return (
 		<>
-			<Maintenance />
+			<ErrorPage error={error} reset={reset} />
 		</>
 	);
 };

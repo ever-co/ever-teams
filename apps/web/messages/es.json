@@ -405,6 +405,11 @@
 			"HEADING_TITLE": "¡Red Desconectada!",
 			"HEADING_DESCRIPTION": "Actualmente estás desconectado, por favor verifica tu conexión a Internet..."
 		},
+		"error": {
+			"TITLE": "Error !",
+			"HEADING_TITLE": "Algo salió mal !",
+			"HEADING_DESCRIPTION": "Si el problema persiste, envíe una señal de socorro a nuestro equipo de soporte."
+		},
 		"maintenance": {
 			"HEADING_TITLE": "Estamos en Mantenimiento",
 			"HEADING_DESCRIPTION": "Actualmente estamos actualizando nuestro sitio web para brindarle un mejor servicio. Por favor, vuelva más tarde."

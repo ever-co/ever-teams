@@ -430,6 +430,11 @@
 			"HEADING_TITLE": "Network Disconnected!",
 			"HEADING_DESCRIPTION": "You are currently Offline, please check your internet connection..."
 		},
+		"error": {
+			"TITLE": "Error !",
+			"HEADING_TITLE": "Something went wrong !",
+			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
+		},
 		"maintenance": {
 			"HEADING_TITLE": "We are Under Maintenance",
 			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
