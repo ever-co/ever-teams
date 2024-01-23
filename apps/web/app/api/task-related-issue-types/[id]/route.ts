@@ -34,11 +34,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
 	const { id } = params;
 
-	return $res(
-		await deleteTaskRelatedIssueTypeRequest({
-			id,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+	const response = await deleteTaskRelatedIssueTypeRequest({
+		id,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
