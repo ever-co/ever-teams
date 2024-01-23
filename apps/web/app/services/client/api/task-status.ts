@@ -5,7 +5,7 @@ import {
 	ITaskStatusItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get, put } from '../axios';
+import api, { deleteApi, get, put } from '../axios';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
 	return api.post<CreateResponse<ITaskStatusCreate>>('/task-statuses', data, {
@@ -22,7 +22,7 @@ export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?
 }
 
 export function deleteTaskStatusAPI(id: string) {
-	return api.delete<DeleteResponse>(`/task-statuses/${id}`);
+	return deleteApi<DeleteResponse>(`/task-statuses/${id}`);
 }
 
 export async function getTaskStatusList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
