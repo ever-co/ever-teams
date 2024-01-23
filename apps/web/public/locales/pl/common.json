@@ -426,9 +426,14 @@
 			"HEADING_TITLE": "Rozłączono sieć!",
 			"HEADING_DESCRIPTION": "Jesteś obecnie offline, sprawdź swoje połączenie z internetem..."
 		},
+		"error": {
+			"TITLE": "Błąd !",
+			"HEADING_TITLE": "Coś poszło nie tak !",
+			"HEADING_DESCRIPTION": "Jeśli problem będzie się powtarzał, wyślij sygnał o niebezpieczeństwie do naszego zespołu wsparcia."
+		},
 		"maintenance": {
-			"HEADING_TITLE": "We are Under Maintenance",
-			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
+			"HEADING_TITLE": "Jesteśmy w trakcie konserwacji",
+			"HEADING_DESCRIPTION": "Obecnie aktualizujemy naszą stronę internetową, aby lepiej Ci służyć. Sprawdź ponownie później."
 		}
 	},
 
