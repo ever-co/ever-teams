@@ -5,13 +5,11 @@ import {
 	ITaskSizesItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get } from '../axios';
+import api, { get, post } from '../axios';
 
 export function createTaskSizesAPI(data: ITaskSizesCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskSizesCreate>>('/task-sizes', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<ITaskSizesCreate>('/task-sizes', data, {
+		tenantId
 	});
 }
 

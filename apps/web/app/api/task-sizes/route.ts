@@ -32,5 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskSizesCreate;
 
-	return $res(await createSizesRequest(body, access_token, body?.tenantId));
+	const response = await createSizesRequest(body, access_token, body?.tenantId);
+
+	return $res(response.data);
 }
