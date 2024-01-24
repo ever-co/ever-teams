@@ -28,16 +28,16 @@ export async function PUT(req: Request) {
 
 	const body = (await req.json()) as unknown as IUser;
 
-	return $res(
-		await updateUserAvatarRequest(
-			{
-				data: body,
-				id: user.id as string,
-				tenantId
-			},
-			access_token
-		)
+	const response = await updateUserAvatarRequest(
+		{
+			data: body,
+			id: user.id as string,
+			tenantId
+		},
+		access_token
 	);
+
+	return $res(response.data);
 }
 
 export async function DELETE(req: Request) {
@@ -46,11 +46,11 @@ export async function DELETE(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	return $res(
-		await deleteUserRequest({
-			id: user.id,
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+	const response = await deleteUserRequest({
+		id: user.id,
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
