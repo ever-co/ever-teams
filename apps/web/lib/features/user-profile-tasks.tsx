@@ -1,8 +1,9 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
-import { Divider, Text } from 'lib/components';
+import { Divider, Paginate, Text } from 'lib/components';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
+import { usePagination } from '@app/hooks/features/usePagination';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -28,6 +29,8 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	const otherTasks = tasks.filter((t) =>
 		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
 	);
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
+		usePagination(otherTasks);
 
 	return (
 		<div className="mt-10">
@@ -79,7 +82,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 			)}
 
 			<ul className="flex flex-col gap-6">
-				{otherTasks.map((task) => {
+				{currentItems.map((task) => {
 					return (
 						<li key={task.id}>
 							<TaskCard
@@ -98,6 +101,15 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						</li>
 					);
 				})}
+				<Paginate
+					total={total}
+					onPageChange={onPageChange}
+					pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
+					itemsPerPage={itemsPerPage}
+					itemOffset={itemOffset}
+					endOffset={endOffset}
+					setItemsPerPage={setItemsPerPage}
+				/>
 			</ul>
 		</div>
 	);
