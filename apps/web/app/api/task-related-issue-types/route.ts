@@ -35,5 +35,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskRelatedIssueTypeCreate;
 
-	return $res(await createRelatedIssueTypeRequest(body, access_token, body?.tenantId));
+	const response = await createRelatedIssueTypeRequest(body, access_token, body?.tenantId);
+
+	return $res(response.data);
 }

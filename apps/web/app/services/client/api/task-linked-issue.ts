@@ -1,10 +1,13 @@
 import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@app/interfaces';
-import api from '../axios';
+import { post, put } from '../axios';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export function createTaskLinkedIsssueAPI(data: ITaskLinkedIssue) {
-	return api.post<ITaskLinkedIssueResponse>('/tasks/task-linked-issue', data);
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/task-linked-issue' : '/tasks/task-linked-issue';
+	return post<ITaskLinkedIssueResponse>(endpoint, data);
 }
 
 export function updateTaskLinkedIssueAPI(data: LinkedTaskIssue) {
-	return api.put<any>('/tasks/task-linked-issue', data);
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/task-linked-issue/${data.id}` : '/tasks/task-linked-issue';
+	return put<any>(endpoint, data);
 }
