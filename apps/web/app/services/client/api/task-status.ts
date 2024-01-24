@@ -1,30 +1,20 @@
-import {
-	CreateResponse,
-	DeleteResponse,
-	ITaskStatusCreate,
-	ITaskStatusItemList,
-	PaginationResponse
-} from '@app/interfaces';
-import api, { get } from '../axios';
+import { DeleteResponse, ITaskStatusCreate, ITaskStatusItemList, PaginationResponse } from '@app/interfaces';
+import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskStatusCreate>>('/task-statuses', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<ITaskStatusCreate>('/task-statuses', data, {
+		tenantId
 	});
 }
 
 export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskStatusCreate>>(`/task-statuses/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskStatusCreate>(`/task-statuses/${id}`, data, {
+		tenantId
 	});
 }
 
 export function deleteTaskStatusAPI(id: string) {
-	return api.delete<DeleteResponse>(`/task-statuses/${id}`);
+	return deleteApi<DeleteResponse>(`/task-statuses/${id}`);
 }
 
 export async function getTaskStatusList(tenantId: string, organizationId: string, organizationTeamId: string | null) {

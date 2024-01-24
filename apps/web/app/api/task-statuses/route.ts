@@ -32,5 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskStatusCreate;
 
-	return $res(await createStatusRequest(body, access_token, body?.tenantId));
+	const response = await createStatusRequest(body, access_token, body?.tenantId);
+
+	return $res(response.data);
 }
