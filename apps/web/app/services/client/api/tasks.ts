@@ -1,12 +1,51 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { CreateResponse, DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
-import api, { get } from '../axios';
+import api, { deleteApi, get, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import {
+	getActiveProjectIdCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@app/helpers';
 
 export function getTasksByIdAPI(taskId: string) {
-	return api.get<CreateResponse<ITeamTask>>(`/tasks/${taskId}`);
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const relations = [
+		'tags',
+		'teams',
+		'members',
+		'members.user',
+		'creator',
+		'linkedIssues',
+		'linkedIssues.taskTo',
+		'linkedIssues.taskFrom',
+		'parent',
+		'children'
+	];
+
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId,
+		'join[alias]': 'task',
+		'join[leftJoinAndSelect][members]': 'task.members',
+		'join[leftJoinAndSelect][user]': 'members.user',
+		includeRootEpic: 'true'
+	} as Record<string, string>;
+
+	relations.forEach((rl, i) => {
+		obj[`relations[${i}]`] = rl;
+	});
+
+	const query = new URLSearchParams(obj);
+
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query.toString()}` : `/tasks/${taskId}`;
+
+	return get<ITeamTask>(endpoint);
 }
 
 export async function getTeamTasksAPI(organizationId: string, tenantId: string, projectId: string, teamId: string) {
@@ -44,11 +83,26 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 }
 
 export function deleteTaskAPI(taskId: string) {
-	return api.delete<DeleteResponse>(`/tasks/${taskId}`);
+	return deleteApi<DeleteResponse>(`/tasks/${taskId}`);
 }
 
-export function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
-	return api.put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
+export async function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+		const teamId = getActiveTeamIdCookie();
+		const projectId = getActiveProjectIdCookie();
+
+		const nBody = { ...body };
+		delete nBody.selectedTeam;
+		delete nBody.rootEpic;
+
+		await put(`/tasks/${taskId}`, nBody);
+
+		return getTeamTasksAPI(organizationId, tenantId, projectId, teamId);
+	}
+
+	return put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
 }
 
 export function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }) {

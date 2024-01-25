@@ -74,7 +74,7 @@ export function useTeamTasks() {
 	const getTaskById = useCallback(
 		(taskId: string) => {
 			return getTasksByIdQueryCall(taskId).then((res) => {
-				setDetailedTask(res?.data?.data || null);
+				setDetailedTask(res?.data || null);
 				return res;
 			});
 		},
