@@ -86,13 +86,14 @@ export function usePublicOrganizationTeams() {
 				return res;
 			});
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[queryCall, setTeams, setAllTasks, setPublicTeam, teams, publicTeam]
 	);
 
 	const loadPublicTeamMiscData = useCallback(
 		(profileLink: string, teamId: string) => {
 			return queryCallMiscData(profileLink, teamId).then((res) => {
-				if (res.data.status === 404) {
+				if (res.data?.status === 404) {
 					setTeams([]);
 					return res;
 				}

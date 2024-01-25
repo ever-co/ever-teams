@@ -32,5 +32,7 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskVersionCreate;
 
-	return $res(await createVersionRequest(body, access_token, body?.tenantId));
+	const response = await createVersionRequest(body, access_token, body?.tenantId);
+
+	return $res(response.data);
 }

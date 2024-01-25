@@ -3,6 +3,8 @@ import { Divider, Text } from 'lib/components';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
+import { ObserverComponent } from '@components/shared/Observer';
+import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -28,6 +30,9 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	const otherTasks = tasks.filter((t) =>
 		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
 	);
+	const { nextOffset, data } = useInfinityScrolling(otherTasks);
+	// const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
+	// 	usePagination(otherTasks);
 
 	return (
 		<div className="mt-10">
@@ -79,9 +84,10 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 			)}
 
 			<ul className="flex flex-col gap-6">
-				{otherTasks.map((task) => {
+				{data.map((task, index) => {
 					return (
 						<li key={task.id}>
+							<ObserverComponent isLast={index === data.length - 1} getNextData={nextOffset} />
 							<TaskCard
 								task={task}
 								isAuthUser={profile.isAuthUser}

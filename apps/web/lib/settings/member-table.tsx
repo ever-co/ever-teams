@@ -52,7 +52,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			updateAvatar({
 				firstName: editMember?.employee?.user?.firstName || '',
 				lastName: editMember?.employee?.user?.lastName || '',
-				id: editMember.employee.userId
+				id: editMember?.employee?.userId
 			}).then(() => {
 				const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
 				const tempOrganizationTeams = cloneDeep(organizationTeams);

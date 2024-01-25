@@ -1,4 +1,4 @@
-import { CreateResponse, DeleteResponse, PaginationResponse, SingleDataResponse } from '@app/interfaces';
+import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@app/interfaces';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@app/interfaces';
@@ -92,7 +92,7 @@ export function getTaskByIdRequest({
 
 	const query = new URLSearchParams(obj);
 
-	return serverFetch<CreateResponse<ITeamTask>>({
+	return serverFetch<ITeamTask>({
 		path: `/tasks/${taskId}?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
