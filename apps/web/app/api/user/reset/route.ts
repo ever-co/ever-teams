@@ -8,10 +8,10 @@ export async function DELETE(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	return $res(
-		await resetUserRequest({
-			bearer_token: access_token,
-			tenantId
-		})
-	);
+	const response = await resetUserRequest({
+		bearer_token: access_token,
+		tenantId
+	});
+
+	return $res(response.data);
 }
