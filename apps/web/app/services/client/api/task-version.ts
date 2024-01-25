@@ -5,13 +5,11 @@ import {
 	ITaskVersionItemList,
 	PaginationResponse
 } from '@app/interfaces';
-import api, { get } from '../axios';
+import api, { get, post } from '../axios';
 
 export function createTaskVersionAPI(data: ITaskVersionCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskVersionCreate>>('/task-versions', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<ITaskVersionCreate>('/task-versions', data, {
+		tenantId
 	});
 }
 
