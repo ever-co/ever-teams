@@ -437,137 +437,140 @@ function TaskCard({
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4',
-					'overflow-auto',
+					'overflow-hidden',
 					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight ? 'h-full' : 'max-h-96'
 				)}
 			>
 				{inputField}
-				{/* Create team button */}
-				<div className="flex flex-col gap-y-2">
-					{datas.hasCreateForm && (
-						<div>
-							<InputField
-								placeholder="Description"
-								onChange={(e) => {
-									if (taskDescription) {
-										taskDescription.current = e.target.value;
-									}
-								}}
-								className={'dark:bg-[#1B1D22]'}
-							/>
-
-							<div className="flex justify-start gap-2">
-								<ActiveTaskStatusDropdown
-									className="lg:min-w-[170px]"
-									taskStatusClassName="h-7 text-xs"
-									onValueChange={(v) => {
-										if (v && taskStatus) {
-											taskStatus.current = v;
+				<div className="h-2/5">
+					{/* Create team button */}
+					<div className="flex flex-col gap-y-2">
+						{datas.hasCreateForm && (
+							<div>
+								<InputField
+									placeholder="Description"
+									onChange={(e) => {
+										if (taskDescription) {
+											taskDescription.current = e.target.value;
 										}
 									}}
-									defaultValue={taskStatus?.current as ITaskStatus}
-									task={null}
+									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<ActiveTaskPropertiesDropdown
-									className="lg:min-w-[170px]"
-									taskStatusClassName="h-7 text-xs"
-									onValueChange={(v) => {
-										if (v && taskPriority) {
-											taskPriority.current = v;
-										}
-									}}
-									defaultValue={taskPriority?.current as ITaskPriority}
-									task={null}
-								/>
+								<div className="flex justify-start gap-2">
+									<ActiveTaskStatusDropdown
+										className="lg:min-w-[170px]"
+										taskStatusClassName="h-7 text-xs"
+										onValueChange={(v) => {
+											if (v && taskStatus) {
+												taskStatus.current = v;
+											}
+										}}
+										defaultValue={taskStatus?.current as ITaskStatus}
+										task={null}
+									/>
 
-								<ActiveTaskSizesDropdown
-									className="lg:min-w-[170px]"
-									taskStatusClassName="h-7 text-xs"
-									onValueChange={(v) => {
-										if (v && taskSize) {
-											taskSize.current = v;
-										}
-									}}
-									defaultValue={taskSize?.current as ITaskSize}
-									task={null}
-								/>
+									<ActiveTaskPropertiesDropdown
+										className="lg:min-w-[170px]"
+										taskStatusClassName="h-7 text-xs"
+										onValueChange={(v) => {
+											if (v && taskPriority) {
+												taskPriority.current = v;
+											}
+										}}
+										defaultValue={taskPriority?.current as ITaskPriority}
+										task={null}
+									/>
 
-								<TaskLabels
-									className="lg:min-w-[170px] text-xs"
-									forDetails={false}
-									taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
-									onValueChange={(_: any, values: string[] | undefined) => {
-										taskLabelsData.filter((tag) => (tag.name ? values?.includes(tag.name) : false));
+									<ActiveTaskSizesDropdown
+										className="lg:min-w-[170px]"
+										taskStatusClassName="h-7 text-xs"
+										onValueChange={(v) => {
+											if (v && taskSize) {
+												taskSize.current = v;
+											}
+										}}
+										defaultValue={taskSize?.current as ITaskSize}
+										task={null}
+									/>
 
-										if (taskLabels && values?.length) {
-											taskLabels.current = taskLabelsData.filter((tag) =>
+									<TaskLabels
+										className="lg:min-w-[170px] text-xs"
+										forDetails={false}
+										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+										onValueChange={(_: any, values: string[] | undefined) => {
+											taskLabelsData.filter((tag) =>
 												tag.name ? values?.includes(tag.name) : false
 											);
-										}
-									}}
-									task={datas.inputTask}
-								/>
+
+											if (taskLabels && values?.length) {
+												taskLabels.current = taskLabelsData.filter((tag) =>
+													tag.name ? values?.includes(tag.name) : false
+												);
+											}
+										}}
+										task={datas.inputTask}
+									/>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 
-					<Tooltip
-						enabled={!datas.user?.isEmailVerified}
-						label={t('common.VERIFY_ACCOUNT_MSG')}
-						placement="top-start"
-						className="inline-block"
-					>
-						<Button
-							variant="outline"
-							disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
-							loading={datas.createLoading}
-							className="font-normal text-sm rounded-xl min-w-[240px] max-w-[240px] inline-flex"
-							onClick={handleTaskCreation}
+						<Tooltip
+							enabled={!datas.user?.isEmailVerified}
+							label={t('common.VERIFY_ACCOUNT_MSG')}
+							placement="top-start"
+							className="inline-block"
 						>
-							{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}
-							{t('common.CREATE_TASK')}
-						</Button>
-					</Tooltip>
-				</div>
+							<Button
+								variant="outline"
+								disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
+								loading={datas.createLoading}
+								className="font-normal text-sm rounded-xl min-w-[240px] max-w-[240px] inline-flex"
+								onClick={handleTaskCreation}
+							>
+								{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}
+								{t('common.CREATE_TASK')}
+							</Button>
+						</Tooltip>
+					</div>
 
-				{/* Task filter buttons  */}
-				<div className="flex mt-4 space-x-3">
-					<OutlineBadge
-						className="py-2 text-xs cursor-pointer input-border"
-						onClick={() => datas.setFilter && datas.setFilter('open')}
-					>
-						<div className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')} />
-						<span
-							className={clsxm(
-								datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
-							)}
+					{/* Task filter buttons  */}
+					<div className="flex mt-4 space-x-3">
+						<OutlineBadge
+							className="py-2 text-xs cursor-pointer input-border"
+							onClick={() => datas.setFilter && datas.setFilter('open')}
 						>
-							{datas.openTaskCount || 0} {t('common.OPEN')}
-						</span>
-					</OutlineBadge>
+							<div className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')} />
+							<span
+								className={clsxm(
+									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
+								)}
+							>
+								{datas.openTaskCount || 0} {t('common.OPEN')}
+							</span>
+						</OutlineBadge>
 
-					<OutlineBadge
-						className="py-2 text-xs cursor-pointer input-border"
-						onClick={() => datas.setFilter && datas.setFilter('closed')}
-					>
-						<TickCircleIcon className="opacity-50" />
-						<span
-							className={clsxm(
-								datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
-							)}
+						<OutlineBadge
+							className="py-2 text-xs cursor-pointer input-border"
+							onClick={() => datas.setFilter && datas.setFilter('closed')}
 						>
-							{datas.closedTaskCount || 0} {t('common.CLOSED')}
-						</span>
-					</OutlineBadge>
+							<TickCircleIcon className="opacity-50" />
+							<span
+								className={clsxm(
+									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
+								)}
+							>
+								{datas.closedTaskCount || 0} {t('common.CLOSED')}
+							</span>
+						</OutlineBadge>
+					</div>
 				</div>
 
 				<Divider className="mt-4" />
-
 				{/* Task list */}
-				<ul className="my-6">
+				<ul className="py-6 max-h-56 overflow-scroll">
 					{forParentChildRelationship &&
 						updatedTaskList?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;
