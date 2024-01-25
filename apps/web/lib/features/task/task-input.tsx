@@ -26,6 +26,8 @@ import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
+import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
+import { ObserverComponent } from '@components/shared/Observer';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -419,6 +421,7 @@ function TaskCard({
 	const { taskLabels: taskLabelsData } = useTaskLabels();
 
 	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription } = datas;
+	const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -572,7 +575,7 @@ function TaskCard({
 				{/* Task list */}
 				<ul className="py-6 max-h-56 overflow-scroll">
 					{forParentChildRelationship &&
-						updatedTaskList?.map((task, i) => {
+						data?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;
 							const active = datas.inputTask === task;
 
@@ -584,7 +587,7 @@ function TaskCard({
 										onClick={onItemClick}
 										className="cursor-pointer"
 									/>
-
+									<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
 									{!last && <Divider className="my-5" />}
 								</li>
 							);
@@ -609,7 +612,7 @@ function TaskCard({
 						})}
 
 					{(forParentChildRelationship && updatedTaskList && updatedTaskList.length === 0) ||
-						(!forParentChildRelationship && datas?.filteredTasks && datas.filteredTasks.length === 0 && (
+						(!forParentChildRelationship && datas.filteredTasks && datas.filteredTasks.length === 0 && (
 							<div className="text-center">{t('common.NO_TASKS')}</div>
 						))}
 				</ul>
