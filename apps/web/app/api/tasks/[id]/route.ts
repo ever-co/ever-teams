@@ -10,14 +10,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 	const { id: taskId } = params;
 
-	return $res(
-		await getTaskByIdRequest({
-			taskId: taskId as string,
-			tenantId,
-			organizationId,
-			bearer_token: access_token
-		})
-	);
+	const response = await getTaskByIdRequest({
+		taskId: taskId as string,
+		tenantId,
+		organizationId,
+		bearer_token: access_token
+	});
+
+	return $res(response.data);
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
