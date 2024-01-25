@@ -2,9 +2,14 @@
 import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
-import api, { get } from '../axios';
+import api, { deleteApi, get, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import {
+	getActiveProjectIdCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@app/helpers';
 
 export function getTasksByIdAPI(taskId: string) {
 	const organizationId = getOrganizationIdCookie();
@@ -78,11 +83,26 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 }
 
 export function deleteTaskAPI(taskId: string) {
-	return api.delete<DeleteResponse>(`/tasks/${taskId}`);
+	return deleteApi<DeleteResponse>(`/tasks/${taskId}`);
 }
 
-export function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
-	return api.put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
+export async function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+		const teamId = getActiveTeamIdCookie();
+		const projectId = getActiveProjectIdCookie();
+
+		const nBody = { ...body };
+		delete nBody.selectedTeam;
+		delete nBody.rootEpic;
+
+		await put(`/tasks/${taskId}`, nBody);
+
+		return getTeamTasksAPI(organizationId, tenantId, projectId, teamId);
+	}
+
+	return put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
 }
 
 export function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }) {

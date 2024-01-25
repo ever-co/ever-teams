@@ -52,4 +52,3 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 	return $res(tasks);
 }
-// Unauthorized;
