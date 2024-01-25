@@ -1,11 +1,5 @@
-import {
-	CreateResponse,
-	DeleteResponse,
-	ITaskVersionCreate,
-	ITaskVersionItemList,
-	PaginationResponse
-} from '@app/interfaces';
-import api, { get, post } from '../axios';
+import { DeleteResponse, ITaskVersionCreate, ITaskVersionItemList, PaginationResponse } from '@app/interfaces';
+import api, { get, post, put } from '../axios';
 
 export function createTaskVersionAPI(data: ITaskVersionCreate, tenantId?: string) {
 	return post<ITaskVersionCreate>('/task-versions', data, {
@@ -14,10 +8,8 @@ export function createTaskVersionAPI(data: ITaskVersionCreate, tenantId?: string
 }
 
 export function editTaskVersionAPI(id: string, data: ITaskVersionCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskVersionCreate>>(`/task-versions/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskVersionCreate>(`/task-versions/${id}`, data, {
+		tenantId
 	});
 }
 
