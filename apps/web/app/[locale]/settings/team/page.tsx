@@ -37,7 +37,7 @@ const Team = () => {
 			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
-				<MainLayout className="items-start pb-1">
+				<MainLayout className="items-start pb-1 max-h-s">
 					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
 						<Container>
 							<div className="flex items-center gap-8">
