@@ -20,6 +20,7 @@ export async function POST(req: Request) {
 		if ($name.trim().length < 2) {
 			return NextResponse.json({ errors: { name: 'Invalid team name !' } }, { status: 400 });
 		}
+
 		await createOrganizationTeamRequest(
 			{
 				name: $name,
