@@ -14,14 +14,14 @@ export async function GET(req: Request, { params }: { params: { employeeId: stri
 		organizationTeamId: string;
 	};
 
-	return $res(
-		await getEmployeeTasksRequest({
-			tenantId,
-			employeeId,
-			organizationTeamId,
-			bearer_token
-		})
-	);
+	const response = await getEmployeeTasksRequest({
+		tenantId,
+		employeeId,
+		organizationTeamId,
+		bearer_token
+	});
+
+	return $res(response.data);
 }
 
 export async function DELETE(req: Request, { params }: { params: { employeeId: string } }) {

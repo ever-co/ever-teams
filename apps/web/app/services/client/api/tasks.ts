@@ -273,5 +273,5 @@ export function deleteEmployeeFromTasksAPI(employeeId: string, organizationTeamI
 }
 
 export function getTasksByEmployeeIdAPI(employeeId: string, organizationTeamId: string) {
-	return api.get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+	return get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 }
