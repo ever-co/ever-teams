@@ -94,7 +94,7 @@ export const ColorPicker = ({
 								<div className="flex mr-[0.5rem] gap-3">
 									<button
 										disabled={!isTeamManager}
-										className={`outline-none ${!isTeamManager && 'pointer-events-none'} z-50`}
+										className={`outline-none z-50`}
 										onClick={() => {
 											setDisabled(!disabled);
 										}}
@@ -107,9 +107,7 @@ export const ColorPicker = ({
 											setColor(null);
 											onChange && onChange(null);
 										}}
-										className={`outline-none ${
-											!isTeamManager ? 'pointer-events-none' : 'cursor-pointer'
-										}`}
+										className={`outline-none ${'cursor-pointer'}`}
 									>
 										<TrashIcon />
 									</span>

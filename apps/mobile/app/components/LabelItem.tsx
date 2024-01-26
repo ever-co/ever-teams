@@ -3,7 +3,7 @@
 import React, { FC, ReactNode } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { typography } from '../theme';
-import { limitTextCharaters } from '../helpers/sub-text';
+// import { limitTextCharaters } from '../helpers/sub-text';
 
 interface Props {
 	label: string;

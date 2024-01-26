@@ -85,7 +85,7 @@ export const EmojiPicker = ({
 								<div className="flex mr-[0.5rem] gap-3">
 									<button
 										disabled={!isTeamManager}
-										className={`outline-none ${!isTeamManager && 'pointer-events-none'}`}
+										className={`outline-none `}
 										onClick={() => {
 											setDisabled(!disabled);
 										}}
@@ -97,7 +97,7 @@ export const EmojiPicker = ({
 											setValue(null);
 											onChange('');
 										}}
-										className={`outline-none ${!isTeamManager && 'pointer-events-none'}`}
+										className={`outline-none `}
 									>
 										<TrashIcon />
 									</button>

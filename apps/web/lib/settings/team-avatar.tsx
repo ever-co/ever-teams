@@ -80,7 +80,7 @@ export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?:
 									)}
 									style={{
 										backgroundColor: bgColor || `${stc(activeTeam?.name || '')}80`,
-										...(bgColor ? { color: bgColor ? readableColorHex : undefined } : {})
+										...(bgColor ? { color: readableColorHex } : {})
 									}}
 								>
 									{activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl ? (

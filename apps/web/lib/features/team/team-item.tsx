@@ -122,7 +122,7 @@ export function TeamItem({
 					style={{
 						background: color || `${stc(title)}80`,
 
-						...(color ? { color: color ? readableColorHex : undefined } : {})
+						...(color ? { color: readableColorHex } : {})
 					}}
 				>
 					{logo && isValidUrl(logo) ? (

@@ -2,12 +2,12 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card } from 'react-native-paper';
 import { Skeleton } from 'react-native-skeletons';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+// import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
 import { useAppTheme } from '../../../../theme';
 
 const ProfileScreenSkeleton = () => {
 	const { colors, dark } = useAppTheme();
-	const { isTeamManager } = useOrganizationTeam();
+	// const { isTeamManager } = useOrganizationTeam();
 
 	const MemberCard = () => {
 		return (

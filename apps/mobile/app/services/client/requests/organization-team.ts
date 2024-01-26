@@ -67,7 +67,7 @@ export function getOrganizationTeamRequest(
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = new URLSearchParams(params);
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/organization-team/${teamId}?${queries.toString()}`,
 		method: 'GET',

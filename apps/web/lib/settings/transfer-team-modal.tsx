@@ -59,9 +59,9 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 									?.filter((member) => member.employee.userId !== user?.id)
 									?.map((member) => ({
 										id: member.employeeId,
-										name: member?.employee?.user?.name || '',
-										title: member?.employee?.user?.name || '',
-										userId: member?.employee?.userId
+										name: member.employee?.user?.name || '',
+										title: member.employee?.user?.name || '',
+										userId: member.employee?.userId
 									}))}
 								selectedMember={selectedMember}
 							/>
