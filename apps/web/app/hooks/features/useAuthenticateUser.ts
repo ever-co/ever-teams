@@ -57,6 +57,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	}, []);
 
 	return {
+		$user,
 		user: $user.current,
 		setUser,
 		isTeamManager,

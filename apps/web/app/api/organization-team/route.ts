@@ -20,6 +20,7 @@ export async function POST(req: Request) {
 		if ($name.trim().length < 2) {
 			return NextResponse.json({ errors: { name: 'Invalid team name !' } }, { status: 400 });
 		}
+
 		await createOrganizationTeamRequest(
 			{
 				name: $name,
@@ -30,6 +31,11 @@ export async function POST(req: Request) {
 			},
 			access_token
 		);
+	}
+
+	if (<boolean>true) {
+		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId: organizationId }, access_token);
+		return $res(teams.data);
 	}
 
 	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);

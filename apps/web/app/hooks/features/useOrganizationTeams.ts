@@ -74,7 +74,7 @@ function useCreateOrganizationTeam() {
 	const [teams, setTeams] = useRecoilState(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetRecoilState(activeTeamIdState);
-	const { refreshToken } = useAuthenticateUser();
+	const { refreshToken, $user } = useAuthenticateUser();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 
 	const createOrganizationTeam = useCallback(
@@ -83,11 +83,11 @@ function useCreateOrganizationTeam() {
 			const $name = name.trim();
 			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
 
-			if (exits || $name.length < 2) {
+			if (exits || $name.length < 2 || !$user.current) {
 				return Promise.reject(new Error('Invalid team name !'));
 			}
 
-			return queryCall($name).then(async (res) => {
+			return queryCall($name, $user.current).then(async (res) => {
 				const dt = res.data?.items || [];
 				setTeams(dt);
 				const created = dt.find((t) => t.name === $name);

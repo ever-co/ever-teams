@@ -5,12 +5,15 @@ import {
 	IOrganizationTeamUpdate,
 	IOrganizationTeam,
 	TimerSource,
-	OT_Member
+	OT_Member,
+	IOrganizationTeamCreate,
+	IUser
 } from '@app/interfaces';
 import moment from 'moment';
-import api, { deleteApi, get, put } from '../axios';
+import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import { createOrganizationProjectAPI } from './projects';
 
 export async function getOrganizationTeamsAPI(organizationId: string, tenantId: string) {
 	const relations = [
@@ -40,7 +43,36 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 	return get<PaginationResponse<IOrganizationTeamList>>(endpoint, { tenantId });
 }
 
-export function createOrganizationTeamAPI(name: string) {
+export async function createOrganizationTeamAPI(name: string, user: IUser) {
+	const $name = name.trim();
+
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+
+		const datas: IOrganizationTeamCreate = {
+			name: $name,
+			tenantId,
+			organizationId,
+			managerIds: user?.employee?.id ? [user.employee.id] : [],
+			public: true
+		};
+
+		const project = await createOrganizationProjectAPI({
+			name: $name,
+			tenantId,
+			organizationId
+		});
+
+		datas.projects = [project.data];
+
+		await post('/organization-team', datas, {
+			tenantId
+		});
+
+		return getOrganizationTeamsAPI(organizationId, tenantId);
+	}
+
 	return api.post<PaginationResponse<IOrganizationTeamList>>('/organization-team', { name });
 }
 

@@ -36,7 +36,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user } = useAuthenticateUser();
+	const { user, $user } = useAuthenticateUser();
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
@@ -230,23 +230,26 @@ export function useTeamTasks() {
 			},
 			members?: { id: string }[]
 		) => {
-			return createQueryCall({
-				title: taskName,
-				issueType,
-				status,
-				priority,
-				size,
-				tags,
-				// Set Project Id to cookie
-				// TODO: Make it dynamic when we add Dropdown in Navbar
-				...(activeTeam?.projects && activeTeam?.projects.length > 0
-					? {
-							projectId: activeTeam.projects[0].id
-					  }
-					: {}),
-				...(description ? { description: `<p>${description}</p>` } : {}),
-				...(members ? { members } : {})
-			}).then((res) => {
+			return createQueryCall(
+				{
+					title: taskName,
+					issueType,
+					status,
+					priority,
+					size,
+					tags,
+					// Set Project Id to cookie
+					// TODO: Make it dynamic when we add Dropdown in Navbar
+					...(activeTeam?.projects && activeTeam?.projects.length > 0
+						? {
+								projectId: activeTeam.projects[0].id
+						  }
+						: {}),
+					...(description ? { description: `<p>${description}</p>` } : {}),
+					...(members ? { members } : {})
+				},
+				$user.current
+			).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;
 			});

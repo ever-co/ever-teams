@@ -7,7 +7,7 @@ export async function GET(req: Request) {
 	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	const { data } = await tasksTimesheetStatisticsRequest(
+	const response = await tasksTimesheetStatisticsRequest(
 		{
 			tenantId,
 			organizationId,
@@ -17,5 +17,5 @@ export async function GET(req: Request) {
 		access_token
 	);
 
-	return $res(data);
+	return $res(response.data);
 }
