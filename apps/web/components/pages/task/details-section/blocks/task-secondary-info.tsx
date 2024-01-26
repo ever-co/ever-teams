@@ -150,7 +150,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				/>
 			</TaskRow>
-			{tags && tags.length > 0 && (
+			{tags.length > 0 && (
 				<TaskRow>
 					<div className="flex flex-row flex-wrap gap-1 max-w-[10rem]">
 						{tags.map((tag, i) => {
@@ -225,11 +225,11 @@ const TaskSecondaryInfo = () => {
 const EpicParent = ({ task }: { task: ITeamTask }) => {
 	const t = useTranslations();
 
-	if (task.issueType === 'Story') {
+	if (task?.issueType === 'Story') {
 		return <></>;
 	}
 
-	return (!task.issueType || task.issueType === 'Task' || task.issueType === 'Bug') && task?.rootEpic ? (
+	return (!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') && task?.rootEpic ? (
 		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">

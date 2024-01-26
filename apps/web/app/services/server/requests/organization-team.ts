@@ -21,6 +21,7 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 		},
 		bearer_token
 	);
+
 	datas.projects = [project];
 
 	return serverFetch<IOrganizationTeam>({

@@ -2,7 +2,7 @@
 import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
-import api, { deleteApi, get, put } from '../axios';
+import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import {
 	getActiveProjectIdCookie,
@@ -10,6 +10,8 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@app/helpers';
+import { IUser } from '@app/interfaces';
+import { TTasksTimesheetStatisticsParams } from '@app/services/server/requests';
 
 export function getTasksByIdAPI(taskId: string) {
 	const organizationId = getOrganizationIdCookie();
@@ -105,7 +107,38 @@ export async function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
 	return put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
 }
 
-export function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }) {
+export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }, user: IUser | undefined) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const organizationId = getOrganizationIdCookie();
+		const teamId = getActiveTeamIdCookie();
+		const tenantId = getTenantIdCookie();
+		const projectId = getActiveProjectIdCookie();
+
+		const title = body.title.trim() || '';
+
+		const datas: ICreateTask = {
+			description: '',
+			status: 'open',
+			members: user?.employee?.id ? [{ id: user.employee.id }] : [],
+			teams: [
+				{
+					id: teamId
+				}
+			],
+			tags: [],
+			organizationId,
+			tenantId,
+			projectId,
+			estimate: 0,
+			...body,
+			title // this must be called after ...body
+		};
+
+		await post('/tasks', datas, { tenantId });
+
+		return getTeamTasksAPI(organizationId, tenantId, projectId, teamId);
+	}
+
 	return api.post<PaginationResponse<ITeamTask>>('/tasks/team', body);
 }
 
@@ -205,13 +238,40 @@ export async function activeTaskTimesheetStatisticsAPI(
 }
 
 export function allTaskTimesheetStatisticsAPI() {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+
+		const params: TTasksTimesheetStatisticsParams = {
+			tenantId,
+			organizationId,
+			employeeIds: [],
+			defaultRange: 'false'
+		};
+
+		const { employeeIds, ...rest } = params;
+
+		const queries = new URLSearchParams({
+			...rest,
+			...employeeIds.reduce(
+				(acc, v, i) => {
+					acc[`employeeIds[${i}]`] = v;
+					return acc;
+				},
+				{} as Record<string, any>
+			)
+		});
+
+		return get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
+	}
+
 	return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);
 }
 
 export function deleteEmployeeFromTasksAPI(employeeId: string, organizationTeamId: string) {
-	return api.delete<DeleteResponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+	return deleteApi<DeleteResponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 }
 
 export function getTasksByEmployeeIdAPI(employeeId: string, organizationTeamId: string) {
-	return api.get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+	return get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 }

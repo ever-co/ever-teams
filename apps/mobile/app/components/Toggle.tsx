@@ -385,14 +385,14 @@ function Switch(props: ToggleInputProps) {
 
 		const offsetLeft = ($innerStyleOverride?.paddingStart ||
 			$innerStyleOverride?.paddingLeft ||
-			$switchInner?.paddingStart ||
-			$switchInner?.paddingLeft ||
+			$switchInner.paddingStart ||
+			$switchInner.paddingLeft ||
 			0) as number;
 
 		const offsetRight = ($innerStyleOverride?.paddingEnd ||
 			$innerStyleOverride?.paddingRight ||
-			$switchInner?.paddingEnd ||
-			$switchInner?.paddingRight ||
+			$switchInner.paddingEnd ||
+			$switchInner.paddingRight ||
 			0) as number;
 
 		const start = withTiming(on ? '100%' : '0%');

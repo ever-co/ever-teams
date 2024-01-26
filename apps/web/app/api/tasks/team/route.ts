@@ -14,9 +14,11 @@ export async function POST(req: Request) {
 	const body: Record<string, any> = (await req.json()) || {};
 
 	const title = body.title?.trim() || '';
+
 	if (title.trim().length < 2) {
 		return $res({ errors: { name: 'Invalid task name !' } });
 	}
+
 	const activeTeam = getActiveTeamIdCookie({ req, res });
 
 	await createTaskRequest({

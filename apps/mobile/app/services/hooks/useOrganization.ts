@@ -122,7 +122,7 @@ export function useOrganizationTeam() {
 		getOrganizationTeam();
 	}, [organizationTeams]);
 
-	const activeTeamManagers = members?.filter((m) => m.role?.name === 'MANAGER');
+	const activeTeamManagers = members.filter((m) => m.role?.name === 'MANAGER');
 
 	const isManager = () => {
 		if (activeTeam) {

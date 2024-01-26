@@ -92,7 +92,7 @@ const Collaborate = () => {
 							<CommandGroup className="p-2">
 								{members.map((member) => (
 									<CommandItem
-										key={member.id}
+										key={member?.id}
 										className="flex items-center px-2 cursor-pointer"
 										onSelect={() => {
 											handleMemberClick(member);
@@ -135,7 +135,7 @@ const Collaborate = () => {
 											<p className="text-sm font-medium leading-none">{member?.name}</p>
 											<p className="text-xs text-muted-foreground">{member?.email}</p>
 										</div>
-										{selectedMemberIds.includes(member.id) ? (
+										{selectedMemberIds.includes(member?.id) ? (
 											<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
 										) : null}
 									</CommandItem>
@@ -148,7 +148,7 @@ const Collaborate = () => {
 							<div className="flex -space-x-3.5 overflow-hidden">
 								{collaborativeMembers.map((member) => (
 									<div
-										key={member.id}
+										key={member?.id}
 										className={clsxm(
 											'w-[2rem] h-[2rem]',
 											'flex justify-center items-center',
