@@ -183,7 +183,7 @@ export function TaskCard(props: Props) {
 					</div>
 
 					{/* TaskCardMenu */}
-					{task && memberInfo && currentMember && (
+					{task && currentMember && (
 						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
 					)}
 				</div>
@@ -235,7 +235,7 @@ export function TaskCard(props: Props) {
 
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
 
-					{task && memberInfo && currentMember && (
+					{task && currentMember && (
 						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
 					)}
 				</div>
