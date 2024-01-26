@@ -11,6 +11,7 @@ import {
 	getTenantIdCookie
 } from '@app/helpers';
 import { IUser } from '@app/interfaces';
+import { TTasksTimesheetStatisticsParams } from '@app/services/server/requests';
 
 export function getTasksByIdAPI(taskId: string) {
 	const organizationId = getOrganizationIdCookie();
@@ -237,6 +238,33 @@ export async function activeTaskTimesheetStatisticsAPI(
 }
 
 export function allTaskTimesheetStatisticsAPI() {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+
+		const params: TTasksTimesheetStatisticsParams = {
+			tenantId,
+			organizationId,
+			employeeIds: [],
+			defaultRange: 'false'
+		};
+
+		const { employeeIds, ...rest } = params;
+
+		const queries = new URLSearchParams({
+			...rest,
+			...employeeIds.reduce(
+				(acc, v, i) => {
+					acc[`employeeIds[${i}]`] = v;
+					return acc;
+				},
+				{} as Record<string, any>
+			)
+		});
+
+		return get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
+	}
+
 	return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);
 }
 
