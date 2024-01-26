@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 		);
 	}
 
-	if (true as boolean) {
+	if (<boolean>true) {
 		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId: organizationId }, access_token);
 		return $res(teams.data);
 	}
