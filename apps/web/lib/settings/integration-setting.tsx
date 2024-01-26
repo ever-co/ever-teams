@@ -31,7 +31,7 @@ export const IntegrationSetting = () => {
 		} as { [x: string]: string };
 	}, [locale]);
 
-	const queries = new URLSearchParams(params || {});
+	const queries = new URLSearchParams(params);
 	const url = `https://github.com/apps/${GITHUB_APP_NAME.value}/installations/new?${queries.toString()}`;
 
 	const { activeTeam } = useOrganizationTeams();

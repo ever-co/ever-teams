@@ -181,9 +181,9 @@ export const IssueTypesForm = () => {
 									issueTypes.map((type) => (
 										<StatusesListCard
 											key={type.id}
-											statusTitle={type?.name ? type?.name?.split('-').join(' ') : ''}
-											bgColor={type?.color || ''}
-											statusIcon={type?.fullIconUrl || ''}
+											statusTitle={type.name ? type.name?.split('-').join(' ') : ''}
+											bgColor={type.color || ''}
+											statusIcon={type.fullIconUrl || ''}
 											onEdit={() => {
 												setCreateNew(false);
 												setEdit(type);
