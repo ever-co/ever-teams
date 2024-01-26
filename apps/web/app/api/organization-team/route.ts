@@ -33,6 +33,11 @@ export async function POST(req: Request) {
 		);
 	}
 
+	if (true as boolean) {
+		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId: organizationId }, access_token);
+		return $res(teams.data);
+	}
+
 	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);
 
 	const organizationsItems = organizations.items;
