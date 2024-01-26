@@ -36,12 +36,12 @@ export async function DELETE(req: Request, { params }: { params: { employeeId: s
 		organizationTeamId: string;
 	};
 
-	return $res(
-		await deleteEmployeeFromTasksRequest({
-			tenantId,
-			employeeId,
-			organizationTeamId,
-			bearer_token
-		})
-	);
+	const response = await deleteEmployeeFromTasksRequest({
+		tenantId,
+		employeeId,
+		organizationTeamId,
+		bearer_token
+	});
+
+	return $res(response.data);
 }
