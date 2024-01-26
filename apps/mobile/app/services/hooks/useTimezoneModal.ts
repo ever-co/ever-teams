@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export function useTimezoneModal() {
 	const [isModalOpen, setIsModalOpen] = useState(false);

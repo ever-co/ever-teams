@@ -7,7 +7,7 @@ import { useAppTheme } from '../../../../theme';
 
 const ProfileScreenSkeleton = () => {
 	const { colors, dark } = useAppTheme();
-	const { isTeamManager } = useOrganizationTeam();
+	// const { isTeamManager } = useOrganizationTeam();
 
 	const MemberCard = () => {
 		return (

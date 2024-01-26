@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Text } from 'react-native';
-import { FontAwesome, AntDesign, Entypo } from '@expo/vector-icons';
+import { View, StyleSheet, Text } from 'react-native';
+import { FontAwesome, AntDesign } from '@expo/vector-icons';
 import { typography, useAppTheme } from '../../../../theme';
 
 type ITasDisplayBox = {
