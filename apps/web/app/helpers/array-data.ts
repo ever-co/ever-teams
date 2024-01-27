@@ -1,6 +1,7 @@
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import { pad } from './number';
 import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
+import { ITaskTimesheet } from '@app/interfaces';
 export function groupDataByHour(data: ITimerSlot[]) {
 	const groupedData: { startedAt: string; stoppedAt: string; items: ITimerSlot[] }[] = [];
 
@@ -41,6 +42,26 @@ export function groupAppsByHour(apps: ITimerApps[]) {
 				hour: app.time.slice(0, 5),
 				totalMilliseconds: +app.duration,
 				apps: [app]
+			});
+	});
+
+	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));
+}
+
+export function groupByTime(data: ITaskTimesheet[]) {
+	const groupedData: { hour: string; items: ITaskTimesheet[] }[] = [];
+
+	data.forEach((item) => {
+		const time = item.time.slice(0, 5);
+
+		const hourDataIndex = groupedData.findIndex((el) => el.hour == time);
+
+		if (hourDataIndex !== -1) {
+			groupedData[hourDataIndex].items.push(item);
+		} else
+			groupedData.push({
+				hour: item.time.slice(0, 5),
+				items: [item]
 			});
 	});
 

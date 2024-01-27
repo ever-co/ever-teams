@@ -5,15 +5,14 @@ import React from 'react';
 import { UserTaskActivity } from './activity/user-task-activity';
 import { ITeamTask } from '@app/interfaces';
 import { useTaskTimeSheets } from '@app/hooks/features/useTaskActivity';
+import { groupByTime } from '@app/helpers/array-data';
 
 export function TaskActivity({ task }: { task: ITeamTask }) {
 	// get users tasks
 	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
-	const users = task ? task.members : [];
-	console.log(users, taskTimesheets);
-	// filters user Task and get This one
-	// push to activity arr
 	// order activity arr by Time
+	const groupedData = groupByTime(taskTimesheets);
+	console.log(groupedData);
 
 	React.useEffect(() => {
 		getTaskTimesheets();
