@@ -16,7 +16,6 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 	// order activity arr by Time
 
 	React.useEffect(() => {
-		console.log('FETCH TIMESHEETS');
 		getTaskTimesheets();
 	}, [task, getTaskTimesheets]);
 	return (
