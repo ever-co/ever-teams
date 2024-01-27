@@ -4,6 +4,7 @@ import { ITeamTask } from './ITask';
 import { ITimerSlot } from './timer/ITimerSlot';
 
 export interface ITaskTimesheet {
+    id: string
 	title: string;
 	description?: string;
 	metaData?: string;

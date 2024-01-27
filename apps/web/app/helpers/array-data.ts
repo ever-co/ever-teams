@@ -49,23 +49,23 @@ export function groupAppsByHour(apps: ITimerApps[]) {
 }
 
 export function groupByTime(data: ITaskTimesheet[]) {
-	const groupedData: { hour: string; items: ITaskTimesheet[] }[] = [];
+	const groupedData: { date: string; items: ITaskTimesheet[] }[] = [];
 
 	data.forEach((item) => {
-		const time = item.time.slice(0, 5);
+		const date = new Date(item.date).toDateString();
 
-		const hourDataIndex = groupedData.findIndex((el) => el.hour == time);
+		const dateDataIndex = groupedData.findIndex((el) => el.date == date);
 
-		if (hourDataIndex !== -1) {
-			groupedData[hourDataIndex].items.push(item);
+		if (dateDataIndex !== -1) {
+			groupedData[dateDataIndex].items.push(item);
 		} else
 			groupedData.push({
-				hour: item.time.slice(0, 5),
+				date,
 				items: [item]
 			});
 	});
 
-	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));
+	return groupedData.sort((a, b) => (new Date(a.date) > new Date(b.date) ? -1 : 1));
 }
 
 const formatTime = (d: Date | string, addHour: boolean) => {
