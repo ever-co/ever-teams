@@ -10,7 +10,7 @@ import { activityTypeState } from '@app/stores/activity-type';
 import { taskTimesheetState } from '@app/stores/task-timesheet';
 import { getTaskTimesheetRequestAPI } from '@app/services/client/api';
 
-export function useTaskTimeSheets() {
+export function useTaskTimeSheets(id: string) {
 	const { user } = useAuthenticateUser();
 	const [taskTimesheets, setTaskTimesheets] = useRecoilState(taskTimesheetState);
 	const activityFilter = useRecoilValue(activityTypeState);
@@ -22,8 +22,9 @@ export function useTaskTimeSheets() {
 			queryCall({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
-				taskId: ''
+				taskId: id
 			}).then((response) => {
+				console.log(response);
 				if (response.data) {
 					console.log(response.data);
 					setTaskTimesheets(response.data);
