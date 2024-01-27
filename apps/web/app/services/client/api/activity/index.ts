@@ -2,7 +2,7 @@ import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
 
-export async function getTimerDailyRequestAPI({
+export async function getTaskTimesheetRequestAPI({
 	taskId,
 	tenantId,
 	organizationId,
