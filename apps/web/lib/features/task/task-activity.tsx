@@ -5,7 +5,7 @@ import { ITeamTask } from '@app/interfaces';
 
 export function TaskActivity({ task }: { task: ITeamTask }) {
 	// get users tasks
-	const users = task.members;
+	const users = task ? task.members : [];
 	console.log(users);
 	// filters user Task and get This one
 	// push to activity arr
