@@ -36,7 +36,5 @@ const apps = {
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const app = apps[process.env.EXPO_PUBLIC_WHITE_LABEL_APP ?? 'everTeam'];
-  console.log(process.env.EXPO_PUBLIC_WHITE_LABEL_APP);
-  console.log(app);
   return merge({}, config, app);
 };
