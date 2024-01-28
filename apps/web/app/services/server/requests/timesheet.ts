@@ -32,3 +32,22 @@ export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatistic
 		tenantId: params.tenantId
 	});
 }
+
+export type TTaskActivityParams = {
+	tenantId: string;
+	organizationId: string;
+	defaultRange?: string;
+	'taskIds[0]'?: string;
+	unitOfTime?: 'day';
+};
+
+export function taskActivityRequest(params: TTaskActivityParams, bearer_token: string) {
+	const queries = new URLSearchParams(params);
+
+	return serverFetch<ITasksTimesheet[]>({
+		path: `/timesheet/activity?${queries.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: params.tenantId
+	});
+}

@@ -40,7 +40,7 @@ const TaskEstimationsInfo = () => {
 							</Disclosure.Button>
 							<Disclosure.Panel>
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
-									{task?.members.map((member) => {
+									{task?.members?.map((member) => {
 										// TODO
 										// Enable other users estimations in v2
 										return (

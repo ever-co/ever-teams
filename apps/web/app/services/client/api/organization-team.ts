@@ -102,7 +102,7 @@ export async function getOrganizationTeamAPI(teamId: string, organizationId: str
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = new URLSearchParams(params);
 
 	const endpoint = `/organization-team/${teamId}?${queries.toString()}`;
 
