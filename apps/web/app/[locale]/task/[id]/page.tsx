@@ -85,7 +85,7 @@ const TaskDetails = () => {
 								{/* <IssueCard related={true} /> */}
 
 								{/* <CompletionBlock /> */}
-								<TaskActivity />
+								{task && <TaskActivity task={task} />}
 							</div>
 						</section>
 						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-full lg:w-[30%]">

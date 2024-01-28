@@ -326,7 +326,8 @@
     "Screenshoot",
     "screenshoots",
     "tota",
-    "Intervall"
+    "Intervall",
+    "Timesheets"
   ],
   "useGitignore": true,
   "ignorePaths": [
