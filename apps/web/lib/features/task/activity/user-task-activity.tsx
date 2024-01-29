@@ -6,7 +6,7 @@ import { ITaskTimesheet } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
 
 export const UserTaskActivity = ({ timesheet }: { timesheet: ITaskTimesheet }) => {
-	const [hidden, setHidden] = React.useState(false);
+	const [hidden, setHidden] = React.useState(true);
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
