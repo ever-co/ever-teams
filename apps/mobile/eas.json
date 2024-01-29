@@ -31,8 +31,7 @@
       "channel": "production",
       "env": {
         "GAUZY_API_URL": "https://api.gauzy.co",
-        "INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode",
-        "EXPO_PUBLIC_WHITE_LABEL_APP": "everClokr"
+        "INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode"
       }
     }
   },
