@@ -4,9 +4,12 @@ import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
 import { ITaskTimesheet } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { Tooltip } from 'lib/components';
+import ScreenshotItem from 'lib/features/activity/components/screenshot-item';
 
 export const UserTaskActivity = ({ timesheet }: { timesheet: ITaskTimesheet }) => {
 	const [hidden, setHidden] = React.useState(true);
+	// TODO: fetch Apps et Sites Visited
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
@@ -48,7 +51,46 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: ITaskTimesheet }) =
 							))}
 					</Tab.List>
 					<Tab.Panels>
-						<Tab.Panel className="w-full mx-4 py-4">{'Screenshoot Team Tab'}</Tab.Panel>
+						<Tab.Panel className="w-full mx-4 py-4">
+							<div className="my-2 flex w-full overflow-x-auto">
+								{timesheet.timeSlot?.screenshots?.map((screenshot, i) => (
+									<div key={i} className="w-1/3 min-w-[20rem] p-2">
+										<Tooltip
+											label={screenshot.description}
+											placement="left-start"
+											type="VERTICAL"
+											labelContainerClassName="w-full"
+										>
+											<ScreenshotItem
+												idSlot={timesheet.timeSlot?.id ?? ''}
+												endTime={timesheet.timeSlot?.stoppedAt ?? ''}
+												startTime={screenshot.recordedAt}
+												imageUrl={screenshot.thumbUrl}
+												percent={timesheet.timeSlot?.percentage ?? 0}
+												showProgress={false}
+												onShow={() => null}
+											/>
+										</Tooltip>
+										<div className="bg-gray-100 dark:dark:bg-[#26272C] rounded-b-lg p-2">
+											<h5>Source</h5>
+											<div className="my-1 flex gap-1 flex-wrap">
+												<span className="rounded-lg px-1 mb-1 text-white bg-blue-600">
+													{timesheet.source}
+												</span>
+												{screenshot.apps?.map((app, i) => (
+													<span
+														key={i}
+														className="rounded-lg px-1 mb-1 text-white bg-blue-600"
+													>
+														{app}
+													</span>
+												))}
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						</Tab.Panel>
 						<Tab.Panel className="w-full mx-4 py-4">{'Apps Tab'}</Tab.Panel>
 						<Tab.Panel className="w-full mx-4 py-4">{'VisitedSites Tab'}</Tab.Panel>
 					</Tab.Panels>
