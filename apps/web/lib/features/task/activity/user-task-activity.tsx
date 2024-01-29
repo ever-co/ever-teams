@@ -1,44 +1,101 @@
+import React from 'react';
 import { clsxm } from '@app/utils';
 import { Tab } from '@headlessui/react';
 import { ActivityFilters } from '@app/constants';
+import { ITaskTimesheet } from '@app/interfaces';
+import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { Tooltip } from 'lib/components';
+import ScreenshotItem from 'lib/features/activity/components/screenshot-item';
 
-export const UserTaskActivity = () => {
-	// get slots related to Task Id
-	// get apps visited related to Task Id
-	// get visited Sites related to Task Id
+export const UserTaskActivity = ({ timesheet }: { timesheet: ITaskTimesheet }) => {
+	const [hidden, setHidden] = React.useState(true);
+	// TODO: fetch Apps et Sites Visited
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
-			<div className="flex items-center gap-2 my-2">
-				<h4 className="text-lg">{'Cedric medium'}</h4>
-				<span>{'05:30'}</span>
+			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
+				<div className="flex items-center gap-2 my-2">
+					<h4 className="text-base">{timesheet.employee?.fullName}</h4>
+					<span>{timesheet.duration}</span>
+				</div>
+
+				<div className="flex items-center justify-end gap-2.5">
+					<button onClick={() => setHidden((e) => !e)}>
+						{hidden ? (
+							<ChevronDownIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
+						) : (
+							<ChevronUpIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
+						)}
+					</button>
+				</div>
 			</div>
-			<Tab.Group>
-				<Tab.List className="w-full flex rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
-					{Object.values(ActivityFilters)
-						.filter((filter) => filter !== 'Tasks')
-						.map((filter: string) => (
-							<Tab
-								key={filter}
-								className={({ selected }) =>
-									clsxm(
-										'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
-										' focus:outline-none focus:ring-2',
-										selected
-											? 'bg-white dark:bg-dark text-blue-700 shadow'
-											: ' hover:bg-white/[0.50]'
-									)
-								}
-							>
-								{filter}
-							</Tab>
-						))}
-				</Tab.List>
-				<Tab.Panels>
-					<Tab.Panel className="w-full mx-4 py-4">{'Screenshoot Team Tab'}</Tab.Panel>
-					<Tab.Panel className="w-full mx-4 py-4">{'Apps Tab'}</Tab.Panel>
-					<Tab.Panel className="w-full mx-4 py-4">{'VisitedSites Tab'}</Tab.Panel>
-				</Tab.Panels>
-			</Tab.Group>
+			<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+				<Tab.Group>
+					<Tab.List className="w-full flex rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
+						{Object.values(ActivityFilters)
+							.filter((filter) => filter !== 'Tasks')
+							.map((filter: string) => (
+								<Tab
+									key={filter}
+									className={({ selected }) =>
+										clsxm(
+											'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+											' focus:outline-none focus:ring-2',
+											selected
+												? 'bg-white dark:bg-dark text-blue-700 shadow'
+												: ' hover:bg-white/[0.50]'
+										)
+									}
+								>
+									{filter}
+								</Tab>
+							))}
+					</Tab.List>
+					<Tab.Panels>
+						<Tab.Panel className="w-full mx-4 py-4">
+							<div className="my-2 flex w-full overflow-x-auto">
+								{timesheet.timeSlot?.screenshots?.map((screenshot, i) => (
+									<div key={i} className="w-1/3 min-w-[20rem] p-2">
+										<Tooltip
+											label={screenshot.description}
+											placement="left-start"
+											type="VERTICAL"
+											labelContainerClassName="w-full"
+										>
+											<ScreenshotItem
+												idSlot={timesheet.timeSlot?.id ?? ''}
+												endTime={timesheet.timeSlot?.stoppedAt ?? ''}
+												startTime={screenshot.recordedAt}
+												imageUrl={screenshot.thumbUrl}
+												percent={timesheet.timeSlot?.percentage ?? 0}
+												showProgress={false}
+												onShow={() => null}
+											/>
+										</Tooltip>
+										<div className="bg-gray-100 dark:dark:bg-[#26272C] rounded-b-lg p-2">
+											<h5>Source</h5>
+											<div className="my-1 flex gap-1 flex-wrap">
+												<span className="rounded-lg px-1 mb-1 text-white bg-blue-600">
+													{timesheet.source}
+												</span>
+												{screenshot.apps?.map((app, i) => (
+													<span
+														key={i}
+														className="rounded-lg px-1 mb-1 text-white bg-blue-600"
+													>
+														{app}
+													</span>
+												))}
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						</Tab.Panel>
+						<Tab.Panel className="w-full mx-4 py-4">{'Apps Tab'}</Tab.Panel>
+						<Tab.Panel className="w-full mx-4 py-4">{'VisitedSites Tab'}</Tab.Panel>
+					</Tab.Panels>
+				</Tab.Group>
+			</div>
 		</div>
 	);
 };

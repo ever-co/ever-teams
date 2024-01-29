@@ -110,7 +110,7 @@
 		"@types/react-dom": "18.0.6",
 		"@types/react-google-recaptcha": "^2.1.5",
 		"eslint": "^8.28.0",
-		"eslint-config-next": "^13.1.6",
+		"eslint-config-next": "^14.0.4",
 		"typescript": "^4.9.4"
 	},
 	"prettier": {
