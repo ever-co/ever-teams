@@ -1,9 +1,9 @@
 {
-  "name": "ever-teams",
-  "displayName": "Ever Teams",
+  "name": "$EXPO_PROJECT_SLUG",
+  "displayName": "$EXPO_PROJECT_NAME",
   "expo": {
-    "name": "Ever Teams",
-    "slug": "ever-teams-mobile",
+    "name": "$EXPO_PROJECT_NAME",
+    "slug": "$EXPO_PROJECT_SLUG",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/ever-teams-logo.png",
@@ -12,10 +12,10 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "owner": "everco",
+    "owner": "$EXPO_PROJECT_OWNER",
     "updates": {
       "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/2ff924e4-7a91-4b23-9db9-7453a8063bb0"
+      "url": "https://u.expo.dev/$EXPO_PROJECT_ID"
     },
     "jsEngine": "hermes",
     "assetBundlePatterns": ["**/*"],
@@ -84,7 +84,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "$EXPO_PROJECT_ID"
       }
     },
     "runtimeVersion": "exposdk:48.0.0"
