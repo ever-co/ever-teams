@@ -1,7 +1,7 @@
 import { ITimerStatus, IToggleTimerParams, TimerSource } from '@app/interfaces/ITimer';
 import api, { get, post } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import { getActiveTaskIdCookie, getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 export async function getTimerStatusAPI(tenantId: string, organizationId: string) {
 	const params = new URLSearchParams({ tenantId, organizationId });
@@ -37,7 +37,26 @@ export async function toggleTimerAPI(body: Pick<IToggleTimerParams, 'taskId'>) {
 	return api.post<ITimerStatus>('/timer/toggle', body);
 }
 
-export function startTimerAPI() {
+export async function startTimerAPI() {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	const teamId = getActiveTeamIdCookie();
+	const taskId = getActiveTaskIdCookie();
+
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		await post('/timesheet/timer/start', {
+			tenantId,
+			organizationId,
+			taskId,
+			logType: 'TRACKED',
+			source: TimerSource.TEAMS,
+			tags: [],
+			organizationTeamId: teamId
+		});
+
+		return getTimerStatusAPI(tenantId, organizationId);
+	}
+
 	return api.post<ITimerStatus>('/timer/start');
 }
 
