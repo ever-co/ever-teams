@@ -120,7 +120,7 @@ const Kanban = () => {
 									'py-0 font-medium h-11',
 									'bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal'
 								)}
-								value={sampleDropdownItem('Epic')}
+								value={sampleDropdownItem('Epic') as any}
 								onChange={(e: any) => console.log(e)}
 								items={[sampleDropdownItem] as any}
 							/>
@@ -131,7 +131,7 @@ const Kanban = () => {
 									'py-0 font-medium h-11',
 									'bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal'
 								)}
-								value={sampleDropdownItem('Label')}
+								value={sampleDropdownItem('Label') as any}
 								onChange={(e: any) => console.log(e)}
 								items={[sampleDropdownItem] as any}
 							/>
