@@ -1,4 +1,4 @@
-import { CreateResponse, ISuccessResponse } from '@app/interfaces';
+import { ISuccessResponse } from '@app/interfaces';
 import { post } from '../axios';
 
 export function emailResetRequestAPI(email: string) {
@@ -7,5 +7,5 @@ export function emailResetRequestAPI(email: string) {
 	});
 }
 export function verifyChangeEmailRequestAPI(code: string) {
-	return post<CreateResponse<ISuccessResponse>>(`/email-reset/verify-change-email`, { code });
+	return post<ISuccessResponse>(`/email-reset/verify-change-email`, { code });
 }
