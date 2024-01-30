@@ -60,7 +60,23 @@ export async function startTimerAPI() {
 	return api.post<ITimerStatus>('/timer/start');
 }
 
-export function stopTimerAPI(source: TimerSource) {
+export async function stopTimerAPI(source: TimerSource) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	const taskId = getActiveTaskIdCookie();
+
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		await post('/timesheet/timer/stop', {
+			source,
+			logType: 'TRACKED',
+			...(taskId ? { taskId } : {}),
+			tenantId,
+			organizationId
+		});
+
+		return getTimerStatusAPI(tenantId, organizationId);
+	}
+
 	return api.post<ITimerStatus>('/timer/stop', {
 		source
 	});
