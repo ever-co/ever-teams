@@ -167,17 +167,12 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
-			{/* Task inputs */}
-			{/* {showInput && ( */}
 			<AuthUserTaskInput
 				className={clsxm('mx-auto w-full md:w-1/2 2xl:w-full lg:mr-10', !showInput && '!hidden md:!flex')}
 			/>
-			{/* )}  */}
-
-			<button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
+			{/* <button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
 				{showInput ? 'hide the issue input' : 'show the issue input'}
-			</button>
-			{/* Timer  */}
+			</button> */}
 			{isTrackingEnabled ? <Timer /> : null}
 		</Card>
 	);

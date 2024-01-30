@@ -50,7 +50,7 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 	return (
 		<div className={clsxm('flex items-center space-x-1', className)} ref={targetEl}>
 			<TimeInputField
-				value={value['hours']}
+				value={value['hours'] ?? ''}
 				onChange={onChange('hours')}
 				onKeyUp={(e) => {
 					e.key === 'Enter' && handleSubmit();

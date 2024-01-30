@@ -24,9 +24,9 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				autoAssignTaskAuth={isTrackingEnabled}
 			/>
 
-			<div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+			<div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center mt-3 ml-2">
 				<div className="flex mb-4 lg:mb-0">
-					<span className="font-normal text-gray-500">{t('common.ESTIMATE')}:</span>
+					<span className="font-normal  text-gray-500">{t('common.ESTIMATE')}:</span>
 					<TaskEstimate />
 				</div>
 
