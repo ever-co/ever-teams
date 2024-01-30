@@ -6,8 +6,8 @@ function Maintenance() {
 	const t = useTranslations();
 	return (
 		<div className="mt-28 flex flex-col gap-7 items-center">
-			<RocketIcon width={200} height={200} className="text-xl text-chetwodeBlue" />
-			<div className="m-auto relative my-6 pt-12 flex justify-center items-center gap-4 text-center ">
+			<div className="m-auto relative flex justify-center items-center gap-4 text-center ">
+				<RocketIcon width={97} height={97} className="text-xl text-chetwodeBlue" />
 				<Text className="text-[78px] text-center font-semibold text-chetwodeBlue">Maintenance</Text>
 			</div>
 
