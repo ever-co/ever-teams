@@ -50,7 +50,6 @@ const Kanban = () => {
 	const Label = ({ active, selected }: { active: string; selected: string }) => (
 		<div
 			style={{
-				color: active || selected ? 'test' : 'test',
 				fontWeight: selected ? 'bold' : 'normal'
 			}}
 			className="text-left"
