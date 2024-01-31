@@ -56,6 +56,13 @@ jobs:
           sed -i 's/APPSTORE_ISSUER_ID_PLACEHOLDER/${{ secrets.APPSTORE_ISSUER_ID }}/' ./apps/mobile/eas.json
           sed -i 's/APPSTORE_API_KEY_ID_PLACEHOLDER/${{ secrets.APPSTORE_API_KEY_ID }}/' ./apps/mobile/eas.json
 
+      - name: Replace placeholders in app.json
+        run: |
+          sed -i 's/$EXPO_PROJECT_SLUG/${{ secrets.EXPO_PROJECT_SLUG }}/' ./apps/mobile/app.json
+          sed -i 's/$EXPO_PROJECT_NAME/${{ secrets.EXPO_PROJECT_NAME }}/' ./apps/mobile/app.json
+          sed -i 's/$EXPO_PROJECT_OWNER/${{ secrets.EXPO_PROJECT_OWNER }}/' ./apps/mobile/app.json
+          sed -i 's/$EXPO_PROJECT_ID/${{ secrets.EXPO_PROJECT_ID }}/' ./apps/mobile/app.json
+
       - name: Create Apple API Key File
         run: |
           echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
