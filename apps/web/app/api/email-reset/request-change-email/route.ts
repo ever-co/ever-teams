@@ -10,11 +10,11 @@ export async function POST(req: Request) {
 
 	const { email } = (await req.json()) as IEmail;
 
-	return $res(
-		await emailResetRequest({
-			email,
-			tenantId,
-			bearer_token: access_token
-		})
-	);
+	const response = await emailResetRequest({
+		email,
+		tenantId,
+		bearer_token: access_token
+	});
+
+	return $res(response.data);
 }

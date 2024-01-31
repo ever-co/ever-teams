@@ -10,11 +10,11 @@ export async function POST(req: Request) {
 
 	const { code } = (await req.json()) as ICode;
 
-	return $res(
-		await verifyChangemailRequest({
-			code,
-			tenantId,
-			bearer_token: access_token
-		})
-	);
+	const response = await verifyChangemailRequest({
+		code,
+		tenantId,
+		bearer_token: access_token
+	});
+
+	return $res(response.data);
 }
