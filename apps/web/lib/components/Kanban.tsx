@@ -18,6 +18,7 @@ import { useKanban } from '@app/hooks/features/useKanban';
 import { AddIcon } from './svgs';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button } from '@components/ui/button';
+import { useTranslations } from 'next-intl';
 
 const grid = 8;
 
@@ -261,7 +262,6 @@ const KanbanDraggableHeader = ({
 	provided: DraggableProvided;
 }) => {
 	const { toggleColumn } = useKanban();
-
 	return (
 		<>
 			{title && (
@@ -332,6 +332,8 @@ const KanbanDraggable = ({
 	items: ITeamTask[];
 	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
+	const t = useTranslations();
+
 	return (
 		<>
 			{title && (
@@ -364,7 +366,7 @@ const KanbanDraggable = ({
 										/>
 										<button className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
 											<AddIcon height={20} width={20} className="dark:stroke-white" />
-											<p>Create Task</p>
+											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>
 								</>

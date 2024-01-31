@@ -6,7 +6,8 @@
 		"REJECT": "رفض",
 		"REJECTED": "مرفوض",
 		"VERIFY": "تحقق",
-
+		"TOMORROW" : "غدا",
+		"YESTERDAY" : "أمس",
 		"INVITE": "دعوة",
 		"INVITED": "مدعو",
 		"EXPIRE": "انتهاء الصلاحية",
@@ -191,7 +192,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "هل أنت متأكد من رغبتك في قبول الدعوة؟",
 			"CONFIRM_REJECT_INVITATION": "هل أنت متأكد من رغبتك في رفض الدعوة؟"
 		},
-
+		"kanban":{
+			"KANBAN_BOARD":"لوحة كانبان"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]"
 		},

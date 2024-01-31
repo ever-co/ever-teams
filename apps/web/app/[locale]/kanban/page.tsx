@@ -26,7 +26,7 @@ const Kanban = () => {
 	const breadcrumbPath = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 		{ title: activeTeam?.name || '', href: '/' },
-		{ title: 'Kanban Board', href: `/${currentLocale}/kanban` }
+		{ title: t('pages.kanban.KANBAN_BOARD'), href: `/${currentLocale}/kanban` }
 	];
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
@@ -40,11 +40,10 @@ const Kanban = () => {
 			alt: member.employee.user.firstName
 		});
 	});
-	console.log('data-kanban', data);
 	const tabs = [
-		{ name: 'Today', value: KanbanTabs.TODAY },
-		{ name: 'Yesterday', value: KanbanTabs.YESTERDAY },
-		{ name: 'Tomorrow', value: KanbanTabs.TOMORROW }
+		{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
+		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
+		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
 	];
 	// eslint-disable-next-line react/no-unstable-nested-components
 	const Label = ({ active, selected }: { active: string; selected: string }) => (
@@ -76,7 +75,7 @@ const Kanban = () => {
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 					</div>
 					<div className="flex justify-between items-center mt-10">
-						<h1 className="text-4xl font-semibold ">Kanban Board</h1>
+						<h1 className="text-4xl font-semibold ">{t('pages.kanban.KANBAN_BOARD')}</h1>
 						<div className="flex w-fit items-center space-x-2">
 							<strong className="text-gray-400">08:00 ( UTC +04:30 )</strong>
 							<div className="mt-1">
