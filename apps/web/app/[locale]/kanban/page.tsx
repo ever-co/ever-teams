@@ -9,7 +9,7 @@ import { Breadcrumb, Button, Dropdown, InputField } from 'lib/components';
 import { AddIcon, SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import ImageOverlapper, { IImageOverlapper } from 'lib/components/image-overlapper';
