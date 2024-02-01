@@ -1,4 +1,4 @@
-import { getRefreshTokenCookie, setAccessTokenCookie } from '@app/helpers/cookies';
+import { getRefreshTokenCookie, getTenantIdCookie, setAccessTokenCookie } from '@app/helpers/cookies';
 import { ISuccessResponse, IUser } from '@app/interfaces';
 import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
 import api, { get, post } from '../axios';
@@ -59,6 +59,13 @@ export const sendAuthCodeAPI = (email: string) => {
 	});
 };
 
+export const verifyUserEmailByCodeAPI = (code: string, email: string) => {
+	const tenantId = getTenantIdCookie();
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/code' : `/auth/verify/code`;
+
+	return post<ISuccessResponse>(endpoint, { code, tenantId, email });
+};
+
 export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 	return api.post<ILoginResponse>('/auth/register', data);
 };
@@ -67,10 +74,6 @@ export const signInEmailAPI = (email: string) => {
 	return api.post<{ status: number; message: string }>(`/auth/signin-email`, {
 		email
 	});
-};
-
-export const verifyUserEmailByCodeAPI = (code: string) => {
-	return api.post<ISuccessResponse>(`/auth/verify/code`, { code });
 };
 
 export const signInEmailConfirmAPI = (email: string, code: string) => {
