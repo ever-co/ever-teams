@@ -148,5 +148,5 @@ yarn-error.log
 .expo/
 web-build/
 dist/
-/app.json
+# /app.json
 # @end expo-cli
