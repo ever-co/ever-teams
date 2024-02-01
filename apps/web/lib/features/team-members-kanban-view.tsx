@@ -142,8 +142,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 
 		if (result.type === 'COLUMN') {
 			const reorderedItem = reorderColumn(columns, source.index, destination.index);
-			console.log('resultresult', result);
-
 			//update column order in server side
 			reorderedItem.map((item: string, index: number) => {
 				return reorderStatus(item, index);

@@ -119,7 +119,6 @@ const Kanban = () => {
 									'bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal'
 								)}
 								value={sampleDropdownItem('Epic') as any}
-								onChange={(e: any) => console.log(e)}
 								items={[sampleDropdownItem] as any}
 							/>
 							<Dropdown
@@ -130,7 +129,6 @@ const Kanban = () => {
 									'bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal'
 								)}
 								value={sampleDropdownItem('Label') as any}
-								onChange={(e: any) => console.log(e)}
 								items={[sampleDropdownItem] as any}
 							/>
 							<button
@@ -159,9 +157,6 @@ const Kanban = () => {
 											<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
 										</Button>
 									}
-									onChange={(e: ChangeEvent<HTMLInputElement>) => {
-										console.log(e.target.value);
-									}}
 								/>
 							</div>
 						</div>
