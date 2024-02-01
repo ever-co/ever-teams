@@ -76,7 +76,6 @@ export function useKanban() {
 			...kanbanBoard,
 			[status]: [...kanbanBoard[status], task]
 		};
-		console.log('kanban-test-add', updatedBoard);
 		setKanbanBoard(() => updatedBoard);
 	};
 	return {

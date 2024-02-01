@@ -63,10 +63,6 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 	return (
 		<>
 			<section
-				// style={{
-				// 	minHeight: items.length < 0 && dropSnapshot.isDraggingOver ? '10px' : '10px'
-				// 	// marginTop: items.length > 0 ? '20px' : '0px'
-				// }}
 				className="flex flex-col pb-2 overflow-x-hidden"
 			>
 				{items.map((item: ITeamTask, index: number) => (
