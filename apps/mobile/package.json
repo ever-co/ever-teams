@@ -37,7 +37,7 @@
 		"expo:web": "yarn config:mobile && yarn expo start --web",
 		"expo:build:detox": "yarn config:mobile && yarn detox build -c ios.sim.expo",
 		"expo:test:detox": "yarn config:mobile && ./bin/downloadExpoApp.sh && yarn detox test --configuration ios.sim.expo",
-		"eas:build": "yarn yarn config:mobile && eas build",
+		"eas:build": "yarn config:mobile && eas build",
 		"config:mobile": "yarn ts-node ../../.scripts/configure.mobile.ts"
 	},
 	"overrides": {
