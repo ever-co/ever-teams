@@ -100,6 +100,7 @@ export async function POST(req: Request) {
 		if (!team) {
 			setNoTeamPopupShowCookie(true);
 		}
+
 		setAuthCookies(
 			{
 				access_token: loginResponse.token,

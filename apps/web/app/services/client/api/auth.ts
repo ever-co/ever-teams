@@ -55,12 +55,14 @@ export const getAuthenticatedUserDataAPI = () => {
 export const verifyUserEmailByCodeAPI = (code: string) => {
 	return api.post<ISuccessResponse>(`/auth/verify/code`, { code });
 };
+
 export const signInEmailConfirmAPI = (email: string, code: string) => {
 	return api.post<ISigninEmailConfirmResponse>(`/auth/signin-email-confirm`, {
 		email,
 		code
 	});
 };
+
 export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 		email,
