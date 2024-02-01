@@ -62,6 +62,15 @@ jobs:
         run: |
           yarn build:mobile
 
+      - name: Generate app.json and replace placeholders
+        run: |
+            cd apps/mobile && yarn config:mobile
+        env:
+          EXPO_PROJECT_SLUG: ${{ secrets.EXPO_PROJECT_SLUG }}
+          EXPO_PROJECT_NAME: ${{ secrets.EXPO_PROJECT_NAME }}
+          EXPO_PROJECT_OWNER: ${{ secrets.EXPO_PROJECT_OWNER }}
+          EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
+
       - name: Build on EAS
         run: cd apps/mobile && eas build --platform android --non-interactive
 
