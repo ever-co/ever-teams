@@ -242,7 +242,7 @@
 			"WELCOME_TEAMS": "Добре дошли в Ever Teams",
 
 			"COVER_TITLE": "Следете напредъка на работата на отборите си в реално време!",
-			"COVER_DESCRIPTION": "Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis",
+			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
@@ -435,6 +435,15 @@
 		"offline": {
 			"HEADING_TITLE": "Мрежата е прекъсната!",
 			"HEADING_DESCRIPTION": "В момента сте извън линия, моля, проверете интернет връзката си..."
+		},
+		"error": {
+			"TITLE": "грешка!",
+			"HEADING_TITLE": "Нещо се обърка !",
+			"HEADING_DESCRIPTION": "Ако проблемът продължава, изпратете сигнал за помощ до нашия екип за поддръжка."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "Ние сме в процес на поддръжка",
+			"HEADING_DESCRIPTION": "В момента актуализираме нашия уебсайт, за да ви служим по-добре. Моля, проверете отново по-късно."
 		}
 	},
 

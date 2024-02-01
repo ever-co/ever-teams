@@ -34,3 +34,5 @@ export interface ISuccessResponse {
 	status: number;
 	message: string;
 }
+
+export type INextParams = { params: Record<string, string | null> };

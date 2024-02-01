@@ -1,10 +1,23 @@
 import { IRolePermissions, PaginationResponse } from '@app/interfaces/';
-import api from '../axios';
+import { get, put } from '../axios';
+import { getTenantIdCookie } from '@app/helpers';
 
 export function getRolePermissionAPI(id: string) {
-	return api.get<PaginationResponse<IRolePermissions>>(`/role-permissions/${id}`);
+	const tenantId = getTenantIdCookie();
+
+	const params = {
+		data: JSON.stringify({
+			findInput: {
+				roleId: id,
+				tenantId
+			}
+		})
+	};
+	const query = new URLSearchParams(params);
+
+	return get<PaginationResponse<IRolePermissions>>(`/role-permissions/${id}?${query.toString()}`);
 }
 
 export function updateRolePermissionAPI(data: IRolePermissions) {
-	return api.put<IRolePermissions>(`/role-permissions/${data.id}`, data);
+	return put<IRolePermissions>(`/role-permissions/${data.id}`, data);
 }

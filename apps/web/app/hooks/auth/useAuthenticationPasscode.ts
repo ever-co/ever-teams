@@ -27,9 +27,15 @@ export function useAuthenticationPasscode() {
 	const queryTeamId = useMemo(() => {
 		return query?.get('teamId');
 	}, [query]);
+
 	const queryEmail = useMemo(() => {
-		return query?.get('email');
+		const emailQuery = query?.get('email') || '';
+		if (typeof localStorage !== 'undefined') {
+			localStorage?.setItem('ever-teams-start-email', emailQuery);
+		}
+		return emailQuery;
 	}, [query]);
+
 	const queryCode = useMemo(() => {
 		return query?.get('code');
 	}, [query]);
@@ -42,7 +48,10 @@ export function useAuthenticationPasscode() {
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
 	const [authenticated, setAuthenticated] = useState(false);
 
-	const [formValues, setFormValues] = useState({ email: '', code: '' });
+	const [formValues, setFormValues] = useState({
+		email: queryEmail,
+		code: ''
+	});
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
@@ -104,9 +113,10 @@ export function useAuthenticationPasscode() {
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
 				.then((res) => {
-					const errors = (res.data as any).errors as any;
+					const errors = (res.data as any).errors ?? {};
+
 					if (errors.email) {
-						setErrors(errors || {});
+						setErrors(errors);
 						return;
 					}
 

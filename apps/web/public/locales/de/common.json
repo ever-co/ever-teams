@@ -241,7 +241,7 @@
 			"WELCOME_TEAMS": "Willkommen bei Ever Teams",
 
 			"COVER_TITLE": "Verfolgen Sie den Arbeitsfortschritt Ihrer Teams in Echtzeit!",
-			"COVER_DESCRIPTION": "Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis",
+			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Anmelden",
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
@@ -426,6 +426,15 @@
 		"offline": {
 			"HEADING_TITLE": "Netzwerk getrennt!",
 			"HEADING_DESCRIPTION": "Sie sind derzeit offline, bitte überprüfen Sie Ihre Internetverbindung..."
+		},
+		"error": {
+			"TITLE": "Error !",
+			"HEADING_TITLE": "Something went wrong !",
+			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "我們正在維護中",
+			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
 		}
 	},
 	"timer": {

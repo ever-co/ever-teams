@@ -1,4 +1,4 @@
-import { CreateResponse, DeleteResponse, PaginationResponse, SingleDataResponse } from '@app/interfaces';
+import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@app/interfaces';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@app/interfaces';
@@ -92,7 +92,7 @@ export function getTaskByIdRequest({
 
 	const query = new URLSearchParams(obj);
 
-	return serverFetch<CreateResponse<ITeamTask>>({
+	return serverFetch<ITeamTask>({
 		path: `/tasks/${taskId}?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
@@ -157,6 +157,25 @@ export function deleteEmployeeFromTasksRequest({
 	return serverFetch<DeleteResponse>({
 		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
 		method: 'DELETE',
+		bearer_token,
+		tenantId
+	});
+}
+
+export function getEmployeeTasksRequest({
+	tenantId,
+	employeeId,
+	organizationTeamId,
+	bearer_token
+}: {
+	tenantId: string;
+	employeeId: string;
+	organizationTeamId: string;
+	bearer_token: string;
+}) {
+	return serverFetch<ITeamTask[]>({
+		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
+		method: 'GET',
 		bearer_token,
 		tenantId
 	});

@@ -1,3 +1,4 @@
+import { ILanguageItemList, PaginationResponse } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
 export function getLanguageListRequest(
@@ -5,7 +6,7 @@ export function getLanguageListRequest(
 	bearer_token: string
 ) {
 	// const init = {};
-	return serverFetch({
+	return serverFetch<PaginationResponse<ILanguageItemList>>({
 		path: `/languages?is_system=${is_system}`,
 		method: 'GET',
 		bearer_token,

@@ -151,7 +151,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: props.defaultValue ? props.defaultValue : task ? task[field] : props.defaultValue || undefined,
+		value: props.defaultValue ? props.defaultValue : task ? task[field] : undefined,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});

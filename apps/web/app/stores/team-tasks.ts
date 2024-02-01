@@ -23,6 +23,11 @@ export const detailedTaskState = atom<ITeamTask | null>({
 	default: null
 });
 
+// export const employeeTasksState = atom<ITeamTask[] | null>({
+// 	key: 'employeeTasksState',
+// 	default: null
+// });
+
 export const tasksByTeamState = selector<ITeamTask[]>({
 	key: 'tasksByTeamState',
 	get: ({ get }) => {
@@ -30,7 +35,7 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 
 		return tasks
 			.filter(() => {
-				return true
+				return true;
 			})
 			.sort((a, b) => moment(b.createdAt).diff(a.createdAt));
 	}

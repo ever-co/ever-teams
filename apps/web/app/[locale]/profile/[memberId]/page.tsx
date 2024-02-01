@@ -2,36 +2,75 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
-import { useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
+import { Avatar, Breadcrumb, Container, Text, VerticalSeparator } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
-const Profile = () => {
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
+import { ScreenshootTab } from 'lib/features/activity/screenshoots';
+import { AppsTab } from 'lib/features/activity/apps';
+import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
+import { activityTypeState } from '@app/stores/activity-type';
+
+type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
+
+const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
+	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const fullWidth = useRecoilValue(fullWidthState);
+	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
+	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 
 	const hook = useTaskFilter(profile);
+	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
 
 	const t = useTranslations();
-	const breadcrumb = [{ title: activeTeam?.name || '', href: '/' }, ...JSON.parse(t('pages.profile.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: activeTeam?.name || '', href: '/' },
+		{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
+	];
+
+	const activityScreens = {
+		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
+		Screenshots: <ScreenshootTab />,
+		Apps: <AppsTab />,
+		'Visited Sites': <VisitedSitesTab />
+	};
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
 
+	const changeActivityFilter = useCallback(
+		(filter: FilterTab) => {
+			setActivityFilter(filter);
+		},
+		[setActivityFilter]
+	);
+
+	React.useEffect(() => {
+		setActivityTypeFilter((prev) => ({
+			...prev,
+			member: profile.member ? profile.member : null
+		}));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [profile.member]);
+
 	return (
 		<>
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
+				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
@@ -61,14 +100,34 @@ const Profile = () => {
 				</MainHeader>
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
+				{hook.tab == 'worked' && canSeeActivity && (
+					<Container fullWidth={fullWidth} className="py-8">
+						<div className={clsxm('flex  justify-start items-center gap-4')}>
+							{Object.keys(activityScreens).map((filter, i) => (
+								<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+									{i !== 0 && <VerticalSeparator />}
+									<div
+										className={clsxm(
+											'text-gray-500',
+											activityFilter == filter && 'text-black dark:text-white'
+										)}
+										onClick={() => changeActivityFilter(filter as FilterTab)}
+									>
+										{filter}
+									</div>
+								</div>
+							))}
+						</div>
+					</Container>
+				)}
 
-				<Container className="mb-10">
-					<UserProfileTask profile={profile} tabFiltered={hook} />
+				<Container fullWidth={fullWidth} className="mb-10">
+					{activityScreens[activityFilter] ?? null}
 				</Container>
 			</MainLayout>
 		</>
 	);
-};
+});
 
 function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);

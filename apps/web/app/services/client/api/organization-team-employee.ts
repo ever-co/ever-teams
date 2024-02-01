@@ -1,7 +1,7 @@
 import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
-import { CreateResponse } from '@app/interfaces/IDataResponse';
 import { IOrganizationTeam } from '@app/interfaces/IOrganizationTeam';
-import api from '../axios';
+import { deleteApi, put } from '../axios';
+import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function deleteOrganizationEmployeeTeamAPI({
 	id,
@@ -14,21 +14,20 @@ export function deleteOrganizationEmployeeTeamAPI({
 	organizationId: string;
 	tenantId: string;
 }) {
-	return api.delete<CreateResponse<IOrganizationTeam>>(
-		`/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}`
+	const teamId = getActiveTeamIdCookie();
+
+	return deleteApi<IOrganizationTeam>(
+		`/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}&organizationTeamId=${teamId}`
 	);
 }
 
 export function updateOrganizationEmployeeTeamAPI(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) {
-	return api.put<CreateResponse<IOrganizationTeamEmployeeUpdate>>(`/organization-team-employee/${id}`, data);
+	return put<IOrganizationTeamEmployeeUpdate>(`/organization-team-employee/${id}`, data);
 }
 
 export function updateOrganizationTeamEmployeeActiveTaskAPI(
 	id: string,
 	data: Partial<IOrganizationTeamEmployeeUpdate>
 ) {
-	return api.put<CreateResponse<IOrganizationTeamEmployeeUpdate>>(
-		`/organization-team-employee/${id}/active-task`,
-		data
-	);
+	return put<IOrganizationTeamEmployeeUpdate>(`/organization-team-employee/${id}/active-task`, data);
 }

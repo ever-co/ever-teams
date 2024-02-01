@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 import { Pressable, PressableProps, PressableStateCallbackType, StyleProp, TextStyle, ViewStyle } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { colors, spacing } from '../theme';
 import { Text, TextProps } from './Text';
 
 type Presets = keyof typeof $viewPresets;

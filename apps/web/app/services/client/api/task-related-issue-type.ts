@@ -1,24 +1,25 @@
-import { CreateResponse, DeleteResponse, ITaskRelatedIssueTypeCreate } from '@app/interfaces';
-import api, { get } from '../axios';
+import {
+	DeleteResponse,
+	ITaskRelatedIssueTypeCreate,
+	ITaskRelatedIssueTypeItemList,
+	PaginationResponse
+} from '@app/interfaces';
+import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskRelatedIssueTypeAPI(data: ITaskRelatedIssueTypeCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskRelatedIssueTypeCreate>>('/task-related-issue-types', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<ITaskRelatedIssueTypeCreate>('/task-related-issue-types', data, {
+		tenantId
 	});
 }
 
 export function editTaskRelatedIssueTypeAPI(id: string, data: ITaskRelatedIssueTypeCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskRelatedIssueTypeCreate>>(`/task-related-issue-types/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskRelatedIssueTypeCreate>(`/task-related-issue-types/${id}`, data, {
+		tenantId
 	});
 }
 
 export function deleteTaskRelatedIssueTypeAPI(id: string) {
-	return api.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
+	return deleteApi<DeleteResponse>(`/task-related-issue-types/${id}`);
 }
 
 export async function getTaskRelatedIssueTypeList(
@@ -28,7 +29,5 @@ export async function getTaskRelatedIssueTypeList(
 ) {
 	const endpoint = `/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;	
+	return get<PaginationResponse<ITaskRelatedIssueTypeItemList>>(endpoint, { tenantId });
 }

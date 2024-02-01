@@ -11,12 +11,18 @@ import { Accordian } from 'lib/components/accordian';
 import { ArrowLeft } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
+
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Personal = () => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
-	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+		{ title: JSON.parse(t('pages.settings.BREADCRUMB')), href: '/settings/personnal' }
+	];
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
 		<>
@@ -25,7 +31,7 @@ const Personal = () => {
 			) : (
 				<MainLayout className="items-start pb-1">
 					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
-						<Container>
+						<Container fullWidth={fullWidth}>
 							<div className="flex items-center gap-8">
 								<Link href="/">
 									<ArrowLeft className="w-6 h-6" />
@@ -36,7 +42,7 @@ const Personal = () => {
 						</Container>
 					</div>
 
-					<Container className="mb-10">
+					<Container fullWidth={fullWidth} className="mb-10">
 						<div className="flex flex-col w-full sm:flex-row">
 							<LeftSideSettingMenu />
 							<div className="flex flex-col w-full mr-[20px] lg:mr-0">

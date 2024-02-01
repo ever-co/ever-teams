@@ -29,3 +29,9 @@ export * from './integrations/types';
 export * from './integrations';
 
 export * from './organization-projects';
+
+export * from './activity/time-slots';
+export * from './activity/activity';
+export * from './activity';
+export * from './default';
+export * from './projects';

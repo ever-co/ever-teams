@@ -21,6 +21,7 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 		},
 		bearer_token
 	);
+
 	datas.projects = [project];
 
 	return serverFetch<IOrganizationTeam>({
@@ -102,7 +103,7 @@ export function getOrganizationTeamRequest(
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = new URLSearchParams(params);
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/organization-team/${teamId}?${queries.toString()}`,
 		method: 'GET',
@@ -187,7 +188,6 @@ export function addEmployeeOrganizationTeamOrderRequest({
 	organizationTeamId: string;
 	organizationId: string;
 }) {
-	console.log({ order, tenantId, employeeId });
 	const res = serverFetch({
 		path: `/organization-team-employee/${employeeId}`,
 		method: 'PUT',
@@ -195,7 +195,7 @@ export function addEmployeeOrganizationTeamOrderRequest({
 		body: { order, organizationTeamId, organizationId },
 		tenantId
 	});
-	res.then((d) => console.log(d.data));
+
 	return res;
 }
 

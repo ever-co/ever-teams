@@ -13,7 +13,7 @@ import get from 'lodash/get';
 export function TaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberInfo?.memberTask);
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const publicTeam = false;
 
 	return (
@@ -43,8 +43,8 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 		<TaskTimes
 			activeAuthTask={true}
 			memberInfo={memberInfo}
-			task={memberInfo?.memberTask}
-			isAuthUser={memberInfo?.isAuthUser}
+			task={memberInfo.memberTask}
+			isAuthUser={memberInfo.isAuthUser}
 			className="2xl:w-32 3xl:w-[8rem] min-w-[15rem] w-52 lg:w-1/5  flex flex-col gap-y-[1.125rem] justify-center"
 		/>
 	);
@@ -53,7 +53,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 export function TaskEstimateInfoCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberInfo?.memberTask);
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	return (
 		<TaskEstimateInfo

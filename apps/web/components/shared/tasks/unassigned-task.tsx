@@ -50,7 +50,7 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 			<div className="flex items-center justify-between ">
 				<div
 					className={`text-black dark:text-[#FFFFFF] text-[14px] ${
-						now == true ? 'font-semibold' : 'font-semibold'
+						now == true ? 'font-semibold' : 'font-medium'
 					} w-[413px]`}
 				>
 					{`#${task && task.taskNumber} `} {task && task.title}

@@ -11,13 +11,24 @@ import { AppState } from 'lib/app/init-state';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 import { ThemeProvider } from 'next-themes';
+import { JitsuRoot } from 'lib/settings/JitsuRoot';
+import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+import { useCheckAPI } from '@app/hooks/useCheckAPI';
+import Maintenance from '@components/pages/maintenance';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
-type Props = {
+interface Props {
 	children: ReactNode;
 	params: { locale: string };
-};
+
+	pageProps: {
+		jitsuConf?: JitsuOptions;
+		jitsuHost?: string;
+		envs: Record<string, string>;
+		user?: any;
+	};
+}
 
 // export function generateStaticParams() {
 // 	return locales.map((locale: any) => ({ locale }));
@@ -31,16 +42,18 @@ type Props = {
 // 	};
 // }
 
-export default function LocaleLayout({ children, params: { locale } }: Props) {
+const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
+	const { isApiWork } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
+	console.log({ pageProps });
 	return (
-		<html className="h-full" lang={locale}>
+		<html lang={locale}>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -60,12 +73,20 @@ export default function LocaleLayout({ children, params: { locale } }: Props) {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							<AppState />
-							{children}
+							{isApiWork ? (
+								<>
+									<AppState />
+									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+								</>
+							) : (
+								<Maintenance />
+							)}
 						</ThemeProvider>
 					</RecoilRoot>
 				</body>
 			</NextIntlClientProvider>
 		</html>
 	);
-}
+};
+
+export default LocaleLayout;

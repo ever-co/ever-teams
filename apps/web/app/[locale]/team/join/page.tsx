@@ -2,9 +2,10 @@
 
 import { AuthCodeInputField, Button, Card, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
+
 import { useTranslations } from 'next-intl';
 
-export default function AuthPasscode() {
+const AuthPasscode = () => {
 	const t = useTranslations();
 
 	return (
@@ -54,4 +55,6 @@ export default function AuthPasscode() {
 			</form>
 		</AuthLayout>
 	);
-}
+};
+
+export default AuthPasscode;

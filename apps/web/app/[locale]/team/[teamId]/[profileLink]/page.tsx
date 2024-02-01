@@ -10,7 +10,9 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
+
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Team = () => {
 	const router = useRouter();
@@ -19,6 +21,7 @@ const Team = () => {
 	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
 	const t = useTranslations();
 	const [publicTeam, setPublic] = useRecoilState(publicState);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
@@ -57,7 +60,7 @@ const Team = () => {
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 	return (
 		<MainLayout publicTeam={publicTeam}>
-			<MainHeader>
+			<MainHeader fullWidth={fullWidth}>
 				<Breadcrumb paths={breadcrumb} className="text-sm" />
 
 				<UnverifiedEmail />
@@ -69,7 +72,7 @@ const Team = () => {
 			{/* Divider */}
 			<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-			<Container>
+			<Container fullWidth={fullWidth}>
 				<TeamMembers publicTeam={publicTeam} />
 			</Container>
 		</MainLayout>

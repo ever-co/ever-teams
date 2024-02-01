@@ -4,31 +4,37 @@ import {
 	IDataResponse,
 	ISuccessResponse,
 	IValidateRequestToJoin,
-	CreateResponse,
 	PaginationResponse,
 	IRequestToJoinActionEnum
 } from '@app/interfaces';
-import api from '../axios';
+import { get, post, put } from '../axios';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+
+export function getRequestToJoinAPI() {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const query = new URLSearchParams({
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	});
+
+	return get<PaginationResponse<IRequestToJoin>>(`/organization-team-join?${query.toString()}`);
+}
 
 export function requestToJoinAPI(data: IRequestToJoinCreate) {
-	return api.post<CreateResponse<IRequestToJoin>>('/organization-team-join', data);
+	const endpoint = '/organization-team-join';
+	return post<IRequestToJoin>(endpoint, data);
 }
 
 export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
-	return api.post<CreateResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>(
-		'/organization-team-join/validate',
-		data
-	);
+	return post<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>('/organization-team-join/validate', data);
 }
 
 export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
-	return api.post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
-}
-
-export function getRequestToJoinAPI() {
-	return api.get<PaginationResponse<IRequestToJoin>>('/organization-team-join');
+	return post<IDataResponse<ISuccessResponse>>('/organization-team-join/resend-code', data);
 }
 
 export function acceptRejectRequestToJoinAPI(id: string, action: IRequestToJoinActionEnum) {
-	return api.put<PaginationResponse<IRequestToJoin>>(`/organization-team-join/${id}/${action}`);
+	return put<PaginationResponse<IRequestToJoin>>(`/organization-team-join/${id}/${action}`);
 }

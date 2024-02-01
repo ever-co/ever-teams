@@ -44,8 +44,8 @@ export function useTaskStatus() {
 			user?.employee?.organizationId as string,
 			activeTeamId || teamId || null
 		).then((res) => {
-			if (!isEqual(res?.data?.data?.items || [], taskStatus)) {
-				setTaskStatus(res?.data?.data?.items || []);
+			if (!isEqual(res.data?.items || [], taskStatus)) {
+				setTaskStatus(res.data?.items || []);
 			}
 			return res;
 		});
@@ -79,7 +79,7 @@ export function useTaskStatus() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskStatus(res?.data?.data?.items || []);
+						setTaskStatus(res.data?.items || []);
 						return res;
 					});
 					return res;
@@ -98,7 +98,7 @@ export function useTaskStatus() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskStatus(res?.data?.data?.items || []);
+						setTaskStatus(res.data?.items || []);
 						return res;
 					});
 					return res;

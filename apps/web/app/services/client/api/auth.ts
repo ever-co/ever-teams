@@ -1,8 +1,14 @@
 import { getRefreshTokenCookie } from '@app/helpers/cookies';
-import { ISuccessResponse } from '@app/interfaces';
+import { ISuccessResponse, IUser } from '@app/interfaces';
 import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
-import api, { get } from '../axios';
-import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import api, { get, post } from '../axios';
+import {
+	APP_LOGO_URL,
+	APP_NAME,
+	APP_SIGNATURE,
+	VERIFY_EMAIL_CALLBACK_PATH,
+	VERIFY_EMAIL_CALLBACK_URL
+} from '@app/constants';
 
 export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
 	return api.post<ILoginResponse>(`/auth/login`, {
@@ -26,13 +32,14 @@ export const sendAuthCodeAPI = (email: string) => {
 		email
 	});
 };
+
 export const signInEmailAPI = (email: string) => {
 	return api.post<{ status: number; message: string }>(`/auth/signin-email`, {
 		email
 	});
 };
 
-export const getAuthenticatedUserDataAPI = async () => {
+export const getAuthenticatedUserDataAPI = () => {
 	const params = {} as { [x: string]: string };
 	const relations = ['employee', 'role', 'tenant'];
 
@@ -42,10 +49,7 @@ export const getAuthenticatedUserDataAPI = async () => {
 
 	const query = new URLSearchParams(params);
 
-	const endpoint = `/user/me?${query.toString()}`;
-	const data = await get(endpoint, true);
-
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<IUser>(`/user/me?${query.toString()}`);
 };
 
 export const verifyUserEmailByCodeAPI = (code: string) => {
@@ -69,6 +73,20 @@ export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
 	return api.post<ISuccessResponse>(`/auth/verify/token`, { email, token });
 };
 
-export const resentVerifyUserLinkAPI = () => {
-	return api.post<ISuccessResponse>(`/auth/verify/resend-link`);
+export const resentVerifyUserLinkAPI = (user: IUser) => {
+	const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
+	const registerDefaultValue = {
+		appName: APP_NAME,
+		appSignature: APP_SIGNATURE,
+		appLogo: APP_LOGO_URL
+	};
+
+	const body = {
+		email: user.email,
+		tenantId: user.tenantId,
+		...registerDefaultValue,
+		appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl
+	};
+
+	return post<ISuccessResponse>(`/auth/verify/resend-link`, body);
 };

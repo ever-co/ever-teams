@@ -46,8 +46,8 @@ export function useTaskPriorities() {
 			user?.employee?.organizationId as string,
 			activeTeamId || teamId || null
 		).then((res) => {
-			if (!isEqual(res?.data?.data?.items || [], taskPriorities)) {
-				setTaskPriorities(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.items || [], taskPriorities)) {
+				setTaskPriorities(res?.data?.items || []);
 			}
 
 			return res;
@@ -83,7 +83,7 @@ export function useTaskPriorities() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskPriorities(res?.data?.data?.items || []);
+						setTaskPriorities(res?.data?.items || []);
 						return res;
 					});
 					return res;
@@ -96,16 +96,16 @@ export function useTaskPriorities() {
 	const editTaskPriorities = useCallback(
 		(id: string, data: ITaskPrioritiesCreate) => {
 			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+				return editQueryCall(id, data, user?.tenantId || '').then((eRes) => {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setTaskPriorities(res?.data?.data?.items || []);
+						setTaskPriorities(res?.data?.items || []);
 						return res;
 					});
-					return res;
+					return eRes;
 				});
 			}
 		},

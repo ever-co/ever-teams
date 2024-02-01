@@ -40,7 +40,7 @@ export function useLanguageSettings() {
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
-			return queryCall(user.role.isSystem).then((res) => {				
+			return queryCall(user.role.isSystem).then((res) => {
 				setLanguages(
 					res?.data?.items.filter((item: any) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
 				);

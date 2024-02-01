@@ -88,11 +88,21 @@ export function useTeamInvitations() {
 
 	const removeTeamInvitation = useCallback(
 		(invitationId: string) => {
-			removeInviteQueryCall(invitationId).then((res) => {
+			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
+				return;
+			}
+
+			removeInviteQueryCall(
+				invitationId,
+				user.tenantId,
+				user.employee.organizationId,
+				'EMPLOYEE',
+				activeTeamId
+			).then((res) => {
 				setTeamInvitations(res.data?.items || []);
 			});
 		},
-		[removeInviteQueryCall, setTeamInvitations]
+		[removeInviteQueryCall, setTeamInvitations, activeTeamId, isTeamManager, user]
 	);
 
 	const resendTeamInvitation = useCallback(
@@ -120,9 +130,9 @@ export function useTeamInvitations() {
 	);
 	const acceptRejectMyInvitation = useCallback(
 		(id: string, action: MyInvitationActionEnum) => {
-			return acceptRejectMyInvitationsQueryCall(id, action).then((res: any) => {
-				if (res.data.data.message) {
-					return res.data.data;
+			return acceptRejectMyInvitationsQueryCall(id, action).then((res) => {
+				if (res.data.message) {
+					return res.data;
 				}
 
 				if (action === MyInvitationActionEnum.ACCEPTED) {

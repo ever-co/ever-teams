@@ -1,7 +1,12 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { getAccessTokenCookie, getActiveTeamIdCookie } from '@app/helpers/cookies';
-import axios, { AxiosResponse } from 'axios';
+import {
+	getAccessTokenCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@app/helpers/cookies';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
 	baseURL: API_BASE_URL,
@@ -41,10 +46,15 @@ const apiDirect = axios.create({
 
 apiDirect.interceptors.request.use(
 	async (config: any) => {
+		const tenantId = getTenantIdCookie();
 		const cookie = getAccessTokenCookie();
 
 		if (cookie) {
 			config.headers['Authorization'] = `Bearer ${cookie}`;
+		}
+
+		if (tenantId) {
+			config.headers['tenant-id'] = tenantId;
 		}
 
 		return config;
@@ -55,12 +65,7 @@ apiDirect.interceptors.request.use(
 );
 
 apiDirect.interceptors.response.use(
-	(response: AxiosResponse) => {
-		return {
-			...response,
-			data: response
-		};
-	},
+	(response: AxiosResponse) => response,
 	async (error: { response: AxiosResponse }) => {
 		const statusCode = error.response?.status;
 
@@ -72,47 +77,78 @@ apiDirect.interceptors.response.use(
 	}
 );
 
-function get(
-	endpoint: string,
-	isDirect: boolean,
-	extras?: {
-		tenantId: string;
-	}
-) {
+type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
+
+function apiConfig(config?: APIConfig) {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
-	return isDirect && baseURL
-		? apiDirect.get(endpoint, {
-				baseURL,
-				headers: {
-					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
-				}
-		  })
-		: api.get(endpoint);
+	apiDirect.defaults.baseURL = baseURL;
+
+	const headers = {
+		...(config?.tenantId ? { 'tenant-id': config?.tenantId } : {}),
+		...config?.headers
+	};
+
+	return {
+		baseURL,
+		tenantId,
+		organizationId,
+		headers
+	};
 }
 
-function post(
-	endpoint: string,
-	data: any,
-	isDirect: boolean,
-	extras?: {
-		tenantId: string;
+function get<T>(endpoint: string, config?: APIConfig) {
+	const { baseURL, headers } = apiConfig(config);
+	const { directAPI = true } = config || {};
+
+	return baseURL && directAPI ? apiDirect.get<T>(endpoint, { ...config, headers }) : api.get<T>(endpoint);
+}
+
+function deleteApi<T>(endpoint: string, config?: APIConfig) {
+	const { baseURL, headers } = apiConfig(config);
+	const { directAPI = true } = config || {};
+
+	return baseURL && directAPI ? apiDirect.delete<T>(endpoint, { ...config, headers }) : api.delete<T>(endpoint);
+}
+
+function post<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+	const { directAPI = true } = config || {};
+
+	if (baseURL && directAPI && data && !(data instanceof FormData)) {
+		if (!data.tenantId && data.tenantId !== null) {
+			data.tenantId = tenantId;
+		}
+
+		if (!data.organizationId && data.organizationId !== null) {
+			data.organizationId = organizationId;
+		}
 	}
-) {
-	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
-	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
-	return isDirect && baseURL
-		? apiDirect.post(endpoint, data, {
-				baseURL,
-				headers: {
-					...(extras?.tenantId ? { 'tenant-id': extras?.tenantId } : {})
-				}
-		  })
-		: api.post(endpoint, data);
+	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
 }
 
-export { get, post };
+function put<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+	const { directAPI = true } = config || {};
+
+	if (baseURL && directAPI && data && !(data instanceof FormData)) {
+		if (!data.tenantId) {
+			data.tenantId = tenantId;
+		}
+
+		if (!data.organizationId) {
+			data.organizationId = organizationId;
+		}
+	}
+
+	return baseURL && directAPI ? apiDirect.put<T>(url, data, { ...config, headers }) : api.put<T>(url, data);
+}
+
+export { get, post, deleteApi, put };
 
 export default api;

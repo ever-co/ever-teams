@@ -14,9 +14,16 @@ import {
 	getTeamTasksAPI,
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
-	getTasksByIdAPI
+	getTasksByIdAPI,
+	getTasksByEmployeeIdAPI
 } from '@app/services/client/api';
-import { activeTeamState, detailedTaskState, memberActiveTaskIdState, userState } from '@app/stores';
+import {
+	activeTeamState,
+	detailedTaskState,
+	// employeeTasksState,
+	memberActiveTaskIdState,
+	userState
+} from '@app/stores';
 import { activeTeamTaskState, tasksByTeamState, tasksFetchingState, teamTasksState } from '@app/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
@@ -29,7 +36,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user } = useAuthenticateUser();
+	const { user, $user } = useAuthenticateUser();
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
@@ -40,6 +47,7 @@ export function useTeamTasks() {
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
+	// const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
 
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
@@ -51,6 +59,8 @@ export function useTeamTasks() {
 	// Queries hooks
 	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
 	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
+	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } =
+		useQuery(getTasksByEmployeeIdAPI);
 
 	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(deleteTaskAPI);
 
@@ -64,11 +74,21 @@ export function useTeamTasks() {
 	const getTaskById = useCallback(
 		(taskId: string) => {
 			return getTasksByIdQueryCall(taskId).then((res) => {
-				setDetailedTask(res?.data?.data || null);
+				setDetailedTask(res?.data || null);
 				return res;
 			});
 		},
 		[getTasksByIdQueryCall, setDetailedTask]
+	);
+
+	const getTasksByEmployeeId = useCallback(
+		(employeeId: string, organizationTeamId: string) => {
+			return getTasksByEmployeeIdQueryCall(employeeId, organizationTeamId).then((res) => {
+				// setEmployeeState(res?.data || []);
+				return res.data;
+			});
+		},
+		[getTasksByEmployeeIdQueryCall]
 	);
 
 	const deepCheckAndUpdateTasks = useCallback(
@@ -210,23 +230,26 @@ export function useTeamTasks() {
 			},
 			members?: { id: string }[]
 		) => {
-			return createQueryCall({
-				title: taskName,
-				issueType,
-				status,
-				priority,
-				size,
-				tags,
-				// Set Project Id to cookie
-				// TODO: Make it dynamic when we add Dropdown in Navbar
-				...(activeTeam?.projects && activeTeam?.projects.length > 0
-					? {
-							projectId: activeTeam.projects[0].id
-					  }
-					: {}),
-				...(description ? { description: `<p>${description}</p>` } : {}),
-				...(members ? { members } : {})
-			}).then((res) => {
+			return createQueryCall(
+				{
+					title: taskName,
+					issueType,
+					status,
+					priority,
+					size,
+					tags,
+					// Set Project Id to cookie
+					// TODO: Make it dynamic when we add Dropdown in Navbar
+					...(activeTeam?.projects && activeTeam?.projects.length > 0
+						? {
+								projectId: activeTeam.projects[0].id
+						  }
+						: {}),
+					...(description ? { description: `<p>${description}</p>` } : {}),
+					...(members ? { members } : {})
+				},
+				$user.current
+			).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;
 			});
@@ -398,6 +421,9 @@ export function useTeamTasks() {
 		updateDescription,
 		updatePublicity,
 		handleStatusUpdate,
+		// employeeState,
+		getTasksByEmployeeId,
+		getTasksByEmployeeIdLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		setAllTasks,

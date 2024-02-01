@@ -1,47 +1,23 @@
+'use client';
+
 import { secondsToTime } from '@app/helpers';
 import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
-import { IClassName, IOrganizationTeamList } from '@app/interfaces';
+import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator, InputField, Text, Tooltip, VerticalSeparator } from 'lib/components';
+import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslations } from 'next-intl';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-
-export function UserTeamCardHeader() {
-	const t = useTranslations();
-	return (
-		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
-			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
-			<div className="2xl:w-[20.625rem] text-center">{t('common.NAME')}</div>
-			<div className="w-1"></div>
-			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
-			<div className="w-1"></div>
-			<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-				<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
-					{t('task.taskTableHead.TASK_WORK.TITLE')}
-					<br />
-					{t('common.TASK')}
-				</div>
-			</Tooltip>
-			<div className="w-1"></div>
-			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
-			<div className="w-1"></div>
-			<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-				<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
-					{t('task.taskTableHead.TOTAL_WORK.TITLE')}
-					<br />
-					{t('common.TODAY')}
-				</div>
-			</Tooltip>
-		</div>
-	);
-}
+import React from 'react';
+import UserTeamActivity from './user-team-card-activity';
+import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
+import { activityTypeState } from '@app/stores/activity-type';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -62,10 +38,10 @@ export function UserTeamCard({
 	member,
 	publicTeam = false,
 	draggable = false,
-	onDragStart,
-	onDragEnd,
-	onDragEnter,
-	onDragOver,
+	onDragStart = () => null,
+	onDragEnd = () => null,
+	onDragEnter = () => null,
+	onDragOver = () => null,
 	currentExit = false
 }: IUserTeamCard) {
 	const t = useTranslations();
@@ -75,7 +51,18 @@ export function UserTeamCard({
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
 	const seconds = useRecoilValue(timerSecondsState);
+	const setActivityFilter = useSetRecoilState(activityTypeState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const [showActivity, setShowActivity] = React.useState<boolean>(false);
+
+	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
+		setShowActivity((prev) => !prev);
+		setActivityFilter((prev) => ({
+			...prev,
+			type,
+			member
+		}));
+	};
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
@@ -127,7 +114,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[7rem]',
+					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem]',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -135,51 +122,73 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="absolute -left-0 cursor-pointer">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+				<div className="flex m-0 relative items-center">
+					<div className="absolute left-0 cursor-pointer">
+						<DraggerIcon className="fill-[#CCCCCC] w-2 dark:fill-[#4F5662]" />
+					</div>
+
+					{/* Show user name, email and image */}
+					<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+					<VerticalSeparator />
+
+					{/* Task information */}
+					<div className="flex justify-between items-center flex-1">
+						<TaskInfo
+							edition={taskEdition}
+							memberInfo={memberInfo}
+							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+							publicTeam={publicTeam}
+						/>
+						<p
+							className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
+							onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
+						>
+							{!showActivity ? (
+								<ExpandIcon height={24} width={24} />
+							) : (
+								<CollapseUpIcon height={24} width={24} />
+							)}
+						</p>
+					</div>
+					<VerticalSeparator className="ml-2" />
+
+					{/* TaskTimes */}
+					<TaskTimes
+						activeAuthTask={true}
+						memberInfo={memberInfo}
+						task={memberInfo.memberTask}
+						isAuthUser={memberInfo.isAuthUser}
+						className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+					/>
+					<VerticalSeparator />
+
+					{/* TaskEstimateInfo */}
+					<TaskEstimateInfo
+						memberInfo={memberInfo}
+						edition={taskEdition}
+						activeAuthTask={true}
+						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+					/>
+					<VerticalSeparator />
+
+					{/* TodayWorkedTime */}
+					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 3xl:w-64">
+						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
+						<p
+							onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
+							className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
+						>
+							{!showActivity ? (
+								<ExpandIcon height={24} width={24} />
+							) : (
+								<CollapseUpIcon height={24} width={24} />
+							)}
+						</p>
+					</div>
+					{/* Card menu */}
+					<div className="absolute right-2">{menu}</div>
 				</div>
-
-				{/* Show user name, email and image */}
-				<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
-				<VerticalSeparator />
-
-				{/* Task information */}
-				<TaskInfo
-					edition={taskEdition}
-					memberInfo={memberInfo}
-					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2 overflow-y-hidden"
-					publicTeam={publicTeam}
-				/>
-				<VerticalSeparator className="ml-2" />
-
-				{/* TaskTimes */}
-				<TaskTimes
-					activeAuthTask={true}
-					memberInfo={memberInfo}
-					task={memberInfo.memberTask}
-					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
-				/>
-				<VerticalSeparator />
-
-				{/* TaskEstimateInfo */}
-				<TaskEstimateInfo
-					memberInfo={memberInfo}
-					edition={taskEdition}
-					activeAuthTask={true}
-					className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
-				/>
-				<VerticalSeparator />
-
-				{/* TodayWorkedTime */}
-				<TodayWorkedTime
-					isAuthUser={memberInfo.isAuthUser}
-					className="flex-1 lg:text-base text-xs 3xl:w-[12rem]"
-					memberInfo={memberInfo}
-				/>
-
-				{/* Card menu */}
-				<div className="absolute right-2">{menu}</div>
+				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card
 				shadow="bigger"
@@ -218,45 +227,6 @@ export function UserTeamCard({
 			{currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
 			)}
-		</div>
-	);
-}
-
-export function UserTeamCardSkeleton() {
-	return (
-		<div
-			role="status"
-			className="p-4 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-		>
-			<div className="flex items-center justify-between">
-				<div className="flex items-center space-x-3">
-					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div>
-						<div className="w-32 h-3 mb-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
-					</div>
-				</div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-24"></div>
-			</div>
-		</div>
-	);
-}
-
-export function InviteUserTeamSkeleton() {
-	return (
-		<div
-			role="status"
-			className="p-4 mt-3 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-		>
-			<div className="flex items-center justify-between">
-				<div className="flex items-center space-x-3">
-					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div className="w-24 bg-gray-200 h-9 rounded-xl dark:bg-gray-700"></div>
-				</div>
-			</div>
 		</div>
 	);
 }

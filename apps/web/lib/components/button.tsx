@@ -93,11 +93,12 @@ export function RoundedButton({ children, className, ...rest }: RoundedButtonPro
 
 export function BackButton({ onClick, className }: { onClick?: () => void; className?: string }) {
 	const t = useTranslations();
-
 	return (
-		<button type="button" className={clsxm('flex items-center', className)} onClick={onClick}>
+		<button type="button" className={clsxm('flex items-center justify-start text-sm', className)}>
 			<ArrowLeft className="mr-2" />
-			<span className="text-sm">{t('common.BACK')}</span>
+			<span className="text-sm" onClick={onClick}>
+				{t('common.BACK')}
+			</span>
 		</button>
 	);
 }

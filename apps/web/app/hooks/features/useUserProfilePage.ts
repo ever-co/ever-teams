@@ -18,7 +18,8 @@ export function useUserProfilePage() {
 
 	const params = useParams();
 	const memberId: string = useMemo(() => {
-		return (params?.memberId || '') as string;
+		return (params?.memberId ?? '') as string;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params]);
 
 	const members = activeTeam?.members || [];
@@ -42,7 +43,8 @@ export function useUserProfilePage() {
 		if (employeeId) {
 			getTasksStatsData(employeeId);
 		}
-	}, [getTasksStatsData, employeeId]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [employeeId]);
 
 	const assignTask = useCallback(
 		(task: ITeamTask) => {

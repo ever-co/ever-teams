@@ -1,14 +1,57 @@
-import { IOrganizationTeamList, CreateResponse, IDataResponse } from '@app/interfaces';
-import api from '../axios';
+import { IDataResponse } from '@app/interfaces';
+import { get } from '../axios';
+import moment from 'moment';
+import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 
 export function getPublicOrganizationTeamsAPI(profile_link: string, team_id: string) {
-	return api.get<CreateResponse<IOrganizationTeamList> | IDataResponse>(
-		`/public/team/${profile_link}/${team_id}?type=team`
-	);
+	const relations = [
+		'tasks',
+		'tasks.members',
+		'tasks.teams',
+		'tasks.tags',
+		'members',
+		// 'members.role',
+		'members.employee',
+		'members.employee.user'
+	];
+
+	const params = {
+		withLaskWorkedTask: 'true',
+		startDate: moment().startOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString()
+	} as { [x: string]: string };
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
+
+	const queries = new URLSearchParams(params || {});
+
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/public/team/${profile_link}/${team_id}?${queries.toString()}`
+		: `/public/team/${profile_link}/${team_id}?type=team`;
+
+	return get<IDataResponse>(endpoint);
 }
 
 export function getPublicOrganizationTeamsMiscDataAPI(profile_link: string, team_id: string) {
-	return api.get<CreateResponse<IOrganizationTeamList> | IDataResponse>(
-		`/public/team/${profile_link}/${team_id}?type=misc`
-	);
+	const relations = ['statuses', 'priorities', 'sizes', 'labels', 'issueTypes'];
+
+	const params = {
+		withLaskWorkedTask: 'true',
+		startDate: moment().startOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString()
+	} as { [x: string]: string };
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
+
+	const queries = new URLSearchParams(params || {});
+
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? `/public/team/${profile_link}/${team_id}?${queries.toString()}`
+		: `/public/team/${profile_link}/${team_id}?type=misc`;
+
+	return get<IDataResponse>(endpoint);
 }

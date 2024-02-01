@@ -1,30 +1,24 @@
-import { CreateResponse, DeleteResponse, ITaskVersionCreate } from '@app/interfaces';
-import api, { get } from '../axios';
+import { DeleteResponse, ITaskVersionCreate, ITaskVersionItemList, PaginationResponse } from '@app/interfaces';
+import { deleteApi, get, post, put } from '../axios';
 
 export function createTaskVersionAPI(data: ITaskVersionCreate, tenantId?: string) {
-	return api.post<CreateResponse<ITaskVersionCreate>>('/task-versions', data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return post<ITaskVersionCreate>('/task-versions', data, {
+		tenantId
 	});
 }
 
 export function editTaskVersionAPI(id: string, data: ITaskVersionCreate, tenantId?: string) {
-	return api.put<CreateResponse<ITaskVersionCreate>>(`/task-versions/${id}`, data, {
-		headers: {
-			'Tenant-Id': tenantId
-		}
+	return put<ITaskVersionCreate>(`/task-versions/${id}`, data, {
+		tenantId
 	});
 }
 
 export function deleteTaskVersionAPI(id: string) {
-	return api.delete<DeleteResponse>(`/task-versions/${id}`);
+	return deleteApi<DeleteResponse>(`/task-versions/${id}`);
 }
 
 export async function getTaskVersionList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
 	const endpoint = `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`;
 
-	const data = await get(endpoint, true, { tenantId });
-
-	return data;
+	return get<PaginationResponse<ITaskVersionItemList>>(endpoint, { tenantId });
 }

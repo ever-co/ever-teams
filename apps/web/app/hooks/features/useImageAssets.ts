@@ -2,8 +2,8 @@
 
 import { getAccessTokenCookie } from '@app/helpers';
 import { useCallback, useState } from 'react';
-import axios, { AxiosResponse } from 'axios';
-import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { post } from '@app/services/client/axios';
+import { IImageAssets } from '@app/interfaces';
 
 export function useImageAssets() {
 	const [loading, setLoading] = useState(false);
@@ -17,19 +17,13 @@ export function useImageAssets() {
 			formData.append('organizationId', organizationId);
 			setLoading(true);
 
-			return axios
-				.post(GAUZY_API_BASE_SERVER_URL.value + `/api/image-assets/upload/${folder}`, formData, {
-					headers: {
-						'tenant-id': tenantId,
-						authorization: `Bearer ${bearer_token}`
-					}
-				})
-				.then(async (res: AxiosResponse) => {
-					return res.data;
-				})
-				.catch((e) => {
-					console.log(e);
-				})
+			return post<IImageAssets>(`/image-assets/upload/${folder}`, formData, {
+				headers: {
+					'tenant-id': tenantId,
+					Authorization: `Bearer ${bearer_token}`
+				}
+			})
+				.then((res) => res.data)
 				.finally(() => {
 					setLoading(false);
 				});

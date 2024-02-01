@@ -108,10 +108,8 @@ const TeamSize = ({
 							</div>
 							{isTeamManager && (
 								<button
-									className={`flex mr-[0.5rem] gap-3 outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-									disabled={!isTeamManager}
+									className={`flex mr-[0.5rem] gap-3 outline-none`}
+									disabled={false}
 									onClick={() => {
 										setDisabled(!disabled);
 									}}

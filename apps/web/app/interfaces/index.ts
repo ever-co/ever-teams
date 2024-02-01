@@ -13,6 +13,7 @@ export * from './ITaskStatus';
 export * from './ITaskVersion';
 export * from './ITaskPriorities';
 export * from './ITaskSizes';
+export * from './ITaskTimesheet';
 export * from './ITaskLabels';
 export * from './ITaskRelatedIssueType';
 export * from './IColor';

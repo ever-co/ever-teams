@@ -4,7 +4,7 @@ import { Transition } from '@headlessui/react';
 import { UserTeamBlock } from './team/user-team-block';
 import { useRecoilValue } from 'recoil';
 import { taskBlockFilterState } from '@app/stores/task-filter';
-import { UserTeamCardSkeleton } from './team/user-team-card';
+import { UserTeamCardSkeleton } from './team/user-team-card/task-skeleton';
 
 interface Props {
 	teamMembers: OT_Member[];

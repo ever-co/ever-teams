@@ -2,6 +2,7 @@ import { clsxm } from '@app/utils';
 import Link from 'next/link';
 import React from 'react';
 import { SimpleArrowRight } from './svgs';
+import Skeleton from 'react-loading-skeleton';
 
 type Props = {
 	paths: (string | { title: string; href: string })[];
@@ -42,7 +43,7 @@ export function Breadcrumb({ paths, className }: Props) {
 												: ['text-default dark:text-white']
 										)}
 									>
-										{path.title}
+										{path.title ? path.title : <Skeleton height={20} width={120} borderRadius={5} className="rounded-full dark:bg-[#353741]" />}
 									</Link>
 								)}
 							</li>

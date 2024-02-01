@@ -1,4 +1,5 @@
-import { ICreateEmployee, IEmployee } from '@app/interfaces/IEmployee';
+import { PaginationResponse } from '@app/interfaces';
+import { ICreateEmployee, IEmployee, IWorkingEmployee } from '@app/interfaces/IEmployee';
 import { serverFetch } from '../fetch';
 
 export function createEmployeeFromUser(data: ICreateEmployee, bearer_token: string) {
@@ -18,7 +19,7 @@ export function getOrganizationEmployees(bearer_token: string, tenantId: string,
 		'relations[0]': 'user'
 	};
 	const query = new URLSearchParams(params);
-	return serverFetch<IEmployee>({
+	return serverFetch<PaginationResponse<IWorkingEmployee>>({
 		path: `/employee/pagination?${query.toString()}`,
 		method: 'GET',
 		bearer_token,

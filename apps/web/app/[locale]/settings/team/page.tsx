@@ -13,25 +13,31 @@ import NoTeam from '@components/pages/main/no-team';
 import { ArrowLeft } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { Accordian } from 'lib/components/accordian';
 import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
 
+import { fullWidthState } from '@app/stores/fullWidth';
+
 const Team = () => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
-	const breadcrumb = [...JSON.parse(t('pages.settings.BREADCRUMB'))];
+	const breadcrumb = [
+		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+		{ title: JSON.parse(t('pages.settings.BREADCRUMB')), href: '/settings/team' }
+	];
+	const fullWidth = useRecoilValue(fullWidthState);
 	return (
 		<>
 			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
-				<MainLayout className="items-start pb-1">
+				<MainLayout className="items-start pb-1 max-h-s">
 					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
 						<Container>
 							<div className="flex items-center gap-8">
@@ -44,7 +50,7 @@ const Team = () => {
 						</Container>
 					</div>
 
-					<Container className="mb-10">
+					<Container fullWidth={fullWidth} className="mb-10">
 						<div className="flex flex-col w-full lg:flex-row">
 							<LeftSideSettingMenu />
 							{isTeamMember ? (

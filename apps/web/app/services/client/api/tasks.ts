@@ -1,12 +1,53 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { CreateResponse, DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
+import { DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
-import api, { get } from '../axios';
+import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import {
+	getActiveProjectIdCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@app/helpers';
+import { IUser } from '@app/interfaces';
+import { TTasksTimesheetStatisticsParams } from '@app/services/server/requests';
 
 export function getTasksByIdAPI(taskId: string) {
-	return api.get<CreateResponse<ITeamTask>>(`/tasks/${taskId}`);
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const relations = [
+		'tags',
+		'teams',
+		'members',
+		'members.user',
+		'creator',
+		'linkedIssues',
+		'linkedIssues.taskTo',
+		'linkedIssues.taskFrom',
+		'parent',
+		'children'
+	];
+
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId,
+		'join[alias]': 'task',
+		'join[leftJoinAndSelect][members]': 'task.members',
+		'join[leftJoinAndSelect][user]': 'members.user',
+		includeRootEpic: 'true'
+	} as Record<string, string>;
+
+	relations.forEach((rl, i) => {
+		obj[`relations[${i}]`] = rl;
+	});
+
+	const query = new URLSearchParams(obj);
+
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query.toString()}` : `/tasks/${taskId}`;
+
+	return get<ITeamTask>(endpoint);
 }
 
 export async function getTeamTasksAPI(organizationId: string, tenantId: string, projectId: string, teamId: string) {
@@ -39,20 +80,65 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 
 	const query = new URLSearchParams(obj);
 	const endpoint = `/tasks/team?${query.toString()}`;
-	const data = await get(endpoint, true, { tenantId });
 
-	return GAUZY_API_BASE_SERVER_URL.value ? data.data : data;
+	return get<PaginationResponse<ITeamTask>>(endpoint, { tenantId });
 }
 
 export function deleteTaskAPI(taskId: string) {
-	return api.delete<DeleteResponse>(`/tasks/${taskId}`);
+	return deleteApi<DeleteResponse>(`/tasks/${taskId}`);
 }
 
-export function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
-	return api.put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
+export async function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+		const teamId = getActiveTeamIdCookie();
+		const projectId = getActiveProjectIdCookie();
+
+		const nBody = { ...body };
+		delete nBody.selectedTeam;
+		delete nBody.rootEpic;
+
+		await put(`/tasks/${taskId}`, nBody);
+
+		return getTeamTasksAPI(organizationId, tenantId, projectId, teamId);
+	}
+
+	return put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
 }
 
-export function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }) {
+export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }, user: IUser | undefined) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const organizationId = getOrganizationIdCookie();
+		const teamId = getActiveTeamIdCookie();
+		const tenantId = getTenantIdCookie();
+		const projectId = getActiveProjectIdCookie();
+
+		const title = body.title.trim() || '';
+
+		const datas: ICreateTask = {
+			description: '',
+			status: 'open',
+			members: user?.employee?.id ? [{ id: user.employee.id }] : [],
+			teams: [
+				{
+					id: teamId
+				}
+			],
+			tags: [],
+			organizationId,
+			tenantId,
+			projectId,
+			estimate: 0,
+			...body,
+			title // this must be called after ...body
+		};
+
+		await post('/tasks', datas, { tenantId });
+
+		return getTeamTasksAPI(organizationId, tenantId, projectId, teamId);
+	}
+
 	return api.post<PaginationResponse<ITeamTask>>('/tasks/team', body);
 }
 
@@ -79,15 +165,17 @@ export async function tasksTimesheetStatisticsAPI(
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, true, {
+
+		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
 			tenantId
 		});
 
 		const todayQueries = new URLSearchParams({
+			...commonParams,
 			defaultRange: 'true',
 			unitOfTime: 'day'
 		});
-		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, true, {
+		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
 			tenantId
 		});
 
@@ -127,12 +215,12 @@ export async function activeTaskTimesheetStatisticsAPI(
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get(`/timesheet/statistics/tasks?${globalQueries.toString()}`, true, {
+		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
 			tenantId
 		});
 
 		const todayQueries = new URLSearchParams({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-		const todayData = await get(`/timesheet/statistics/tasks?${todayQueries.toString()}`, true, {
+		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
 			tenantId
 		});
 
@@ -150,9 +238,40 @@ export async function activeTaskTimesheetStatisticsAPI(
 }
 
 export function allTaskTimesheetStatisticsAPI() {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+
+		const params: TTasksTimesheetStatisticsParams = {
+			tenantId,
+			organizationId,
+			employeeIds: [],
+			defaultRange: 'false'
+		};
+
+		const { employeeIds, ...rest } = params;
+
+		const queries = new URLSearchParams({
+			...rest,
+			...employeeIds.reduce(
+				(acc, v, i) => {
+					acc[`employeeIds[${i}]`] = v;
+					return acc;
+				},
+				{} as Record<string, any>
+			)
+		});
+
+		return get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
+	}
+
 	return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);
 }
 
 export function deleteEmployeeFromTasksAPI(employeeId: string, organizationTeamId: string) {
-	return api.delete<DeleteResponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+	return deleteApi<DeleteResponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+}
+
+export function getTasksByEmployeeIdAPI(employeeId: string, organizationTeamId: string) {
+	return get<ITeamTask[]>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 }

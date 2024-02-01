@@ -32,7 +32,7 @@ export function useIssueType() {
 
 		queryCall(user?.tenantId as string, user?.employee?.organizationId as string, activeTeamId || null).then(
 			(res) => {
-				setIssueTypes(res?.data?.data?.items || []);
+				setIssueTypes(res.data?.items || []);
 				return res;
 			}
 		);
@@ -43,13 +43,13 @@ export function useIssueType() {
 			if (user?.tenantId) {
 				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
 					(res) => {
-						if (res?.data?.data && res?.data?.data?.name) {
+						if (res.data && res.data?.name) {
 							queryCall(
 								user?.tenantId as string,
 								user?.employee?.organizationId as string,
 								activeTeamId || null
 							).then((res) => {
-								setIssueTypes(res?.data?.data?.items || []);
+								setIssueTypes(res?.data?.items || []);
 								return res;
 							});
 						}
@@ -72,7 +72,7 @@ export function useIssueType() {
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setIssueTypes(res?.data?.data?.items || []);
+						setIssueTypes(res?.data?.items || []);
 						return res;
 					});
 					return res;
@@ -84,19 +84,18 @@ export function useIssueType() {
 
 	const editIssueType = useCallback(
 		(id: string, data: IIssueTypesCreate) => {
-			console.log(user);
-
 			if (user?.tenantId) {
-				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+				return editQueryCall(id, data, user?.tenantId || '').then((eRes) => {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
 						activeTeamId || null
 					).then((res) => {
-						setIssueTypes(res?.data?.data?.items || []);
+						setIssueTypes(res?.data?.items || []);
 						return res;
 					});
-					return res;
+
+					return eRes;
 				});
 			}
 		},

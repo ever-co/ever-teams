@@ -9,7 +9,7 @@ import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-export default function AuthTeam() {
+function AuthTeam() {
 	const {
 		handleSubmit,
 		step,
@@ -25,38 +25,40 @@ export default function AuthTeam() {
 	const t = useTranslations();
 
 	return (
-		<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
-			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<form onSubmit={handleSubmit} autoComplete="off">
-					<div
-						className={clsxm(
-							'w-[200%] flex flex-row transition-[transform] duration-500',
-							step !== FIRST_STEP && ['-translate-x-[50%]']
-						)}
-					>
-						<div className="w-1/2">
-							<FillTeamNameForm errors={errors} handleOnChange={handleOnChange} form={formValues} />
-						</div>
-
+		<>
+			<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
+				<div className="w-[98%] md:w-[550px] overflow-x-hidden">
+					<form onSubmit={handleSubmit} autoComplete="off">
 						<div
 							className={clsxm(
-								'w-1/2 transition-[visibility] ease-out duration-700',
-								step === FIRST_STEP && ['invisible']
+								'w-[200%] flex flex-row transition-[transform] duration-500',
+								step !== FIRST_STEP && ['-translate-x-[50%]']
 							)}
 						>
-							<FillUserDataForm
-								errors={errors}
-								handleOnChange={handleOnChange}
-								form={formValues}
-								onPreviousStep={() => setStep(FIRST_STEP)}
-								loading={loading}
-							/>
+							<div className="w-1/2">
+								<FillTeamNameForm errors={errors} handleOnChange={handleOnChange} form={formValues} />
+							</div>
+
+							<div
+								className={clsxm(
+									'w-1/2 transition-[visibility] ease-out duration-700',
+									step === FIRST_STEP && ['invisible']
+								)}
+							>
+								<FillUserDataForm
+									errors={errors}
+									handleOnChange={handleOnChange}
+									form={formValues}
+									onPreviousStep={() => setStep(FIRST_STEP)}
+									loading={loading}
+								/>
+							</div>
 						</div>
-					</div>
-				</form>
-			</div>
-			<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
-		</AuthLayout>
+					</form>
+				</div>
+				<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
+			</AuthLayout>
+		</>
 	);
 }
 
@@ -193,3 +195,5 @@ function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: an
 
 	return content || <></>;
 }
+
+export default AuthTeam;

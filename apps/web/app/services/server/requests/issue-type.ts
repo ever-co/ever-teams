@@ -1,4 +1,4 @@
-import { IIssueTypesCreate, IIssueTypesItemList } from '@app/interfaces';
+import { IIssueTypesCreate, IIssueTypesItemList, PaginationResponse } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createIssueTypeRequest(datas: IIssueTypesCreate, bearer_token: string, tenantId?: any) {
@@ -56,7 +56,7 @@ export function getIssueTypesListRequest(
 	}: { tenantId: string; organizationId: string; organizationTeamId: string | null },
 	bearer_token: string
 ) {
-	return serverFetch({
+	return serverFetch<PaginationResponse<IIssueTypesItemList>>({
 		path: `/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
 		method: 'GET',
 		bearer_token

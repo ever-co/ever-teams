@@ -139,6 +139,8 @@
 		"EXISTING_MEMBER": "Already a Member",
 		"NEW_MEMBER": "Become a Member",
 		"BACK": "Back",
+		"DONT_HAVE_ACCOUNT": "Don't have an account?",
+		"REGISTER": "Register Now!",
 		"JOIN_REQUEST": "Request To Join",
 		"PERMISSION": "Permission",
 		"SEARCH": "Search",
@@ -240,10 +242,10 @@
 			"INPUT_INVITE_CODE": "Input invitation code.",
 			"INPUT_INVITE_CODE_DESC": "Enter the invitation code we sent to your email.",
 			"INVALID_INVITE_CODE_MESSAGE": "Invalid Code",
-			"WELCOME_TEAMS": "Welcome to Ever Teams",
+			"WELCOME_TEAMS": "Real-Time Clarity, Real-Time Reality™.",
 
-			"COVER_TITLE": "Follow your teams work progress in real-time!",
-			"COVER_DESCRIPTION": "Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis",
+			"COVER_TITLE": "Open Work and Project Management Platform",
+			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Select Workspace",
 			"ENTER_EMAIL": "Enter Email",
@@ -254,8 +256,8 @@
 			"HEADING_DESCRIPTION": "Please enter email and invitation code to join existing team."
 		},
 		"authLogin": {
-			"HEADING_TITLE": "Login to the Team",
-			"HEADING_DESCRIPTION": "Please enter email and invitation code to login.",
+			"HEADING_TITLE": "Log In to Ever Teams",
+			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process.",
 
 			"WORKSPACE": "Workspace",
 			"HEADING_WORKSPACE_LINE1": "The email associated with multiple workspaces,",
@@ -427,6 +429,15 @@
 		"offline": {
 			"HEADING_TITLE": "Network Disconnected!",
 			"HEADING_DESCRIPTION": "You are currently Offline, please check your internet connection..."
+		},
+		"error": {
+			"TITLE": "Error !",
+			"HEADING_TITLE": "Something went wrong !",
+			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
+		},
+		"maintenance": {
+			"HEADING_TITLE": "We are Under Maintenance",
+			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
 		}
 	},
 
@@ -439,7 +450,25 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
 		},
-		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }]
+		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }],
+		"TIME_ACTIVITY": "Activity",
+		"TOTAL_HOURS": "Total Hours",
+		"NO_SCREENSHOOT": "No Screenshoots",
+		"PERCENT_OF_MINUTES": " % of 10 Minutes",
+		"APPS": "Apps",
+		"VISITED_DATES": "Visited Dates",
+		"PERCENT_USED": "Percent Used",
+		"TIME_SPENT_IN_HOURS": "Time spent (Hours)",
+		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited.",
+		"OTHER_DETAILS": "Other details",
+		"KEYBOARD": "keyboard",
+
+		"MOUSE": "Mouse",
+		"TIMES": "Times",
+		"ACTIVE": "Active",
+		"INACTIVE": "Inactive",
+		"ARCHIVED": "Archived",
+		"NOT_ARCHIVED": "Not archived"
 	},
 
 	"task": {

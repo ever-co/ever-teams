@@ -130,7 +130,6 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 					<input
 						type={type}
 						ref={ref}
-						defaultValue={value === undefined ? '00' : undefined}
 						value={value}
 						{...res}
 						className={clsxm('outline-none p-0 bg-transparent w-full text-center', className)}
