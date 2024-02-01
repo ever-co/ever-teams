@@ -66,40 +66,6 @@ export const verifyUserEmailByCodeAPI = (code: string, email: string) => {
 	return post<ISuccessResponse>(endpoint, { code, tenantId, email });
 };
 
-export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
-	return api.post<ILoginResponse>('/auth/register', data);
-};
-
-export const signInEmailAPI = (email: string) => {
-	const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email' : `/auth/signin-email`;
-
-	return post<{ status: number; message: string }>(endpoint, {
-		email,
-		appMagicSignUrl: callbackUrl,
-		appName: APP_NAME
-	});
-};
-
-export const signInEmailConfirmAPI = (email: string, code: string) => {
-	return api.post<ISigninEmailConfirmResponse>(`/auth/signin-email-confirm`, {
-		email,
-		code
-	});
-};
-
-export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
-	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
-		email,
-		token,
-		teamId: selectedTeam
-	});
-};
-
-export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
-	return api.post<ISuccessResponse>(`/auth/verify/token`, { email, token });
-};
-
 export const resentVerifyUserLinkAPI = (user: IUser) => {
 	const appEmailConfirmationUrl = `${location.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 	const registerDefaultValue = {
@@ -116,4 +82,40 @@ export const resentVerifyUserLinkAPI = (user: IUser) => {
 	};
 
 	return post<ISuccessResponse>(`/auth/verify/resend-link`, body);
+};
+
+export const signInEmailAPI = (email: string) => {
+	const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email' : `/auth/signin-email`;
+
+	return post<{ status: number; message: string }>(endpoint, {
+		email,
+		appMagicSignUrl: callbackUrl,
+		appName: APP_NAME
+	});
+};
+
+export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify' : `/auth/verify/token`;
+
+	return post<ISuccessResponse>(endpoint, { email, token });
+};
+
+export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
+	return api.post<ILoginResponse>('/auth/register', data);
+};
+
+export const signInEmailConfirmAPI = (email: string, code: string) => {
+	return api.post<ISigninEmailConfirmResponse>(`/auth/signin-email-confirm`, {
+		email,
+		code
+	});
+};
+
+export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
+	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
+		email,
+		token,
+		teamId: selectedTeam
+	});
 };
