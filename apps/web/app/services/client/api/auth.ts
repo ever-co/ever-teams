@@ -7,6 +7,7 @@ import {
 	APP_NAME,
 	APP_SIGNATURE,
 	GAUZY_API_BASE_SERVER_URL,
+	INVITE_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@app/constants';
@@ -22,13 +23,6 @@ export const getAuthenticatedUserDataAPI = () => {
 	const query = new URLSearchParams(params);
 
 	return get<IUser>(`/user/me?${query.toString()}`);
-};
-
-export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
-	return api.post<ILoginResponse>(`/auth/login`, {
-		email,
-		code
-	});
 };
 
 export async function refreshTokenAPI() {
@@ -49,14 +43,24 @@ export async function refreshTokenAPI() {
 	});
 }
 
-export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
-	return api.post<ILoginResponse>('/auth/register', data);
+export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
+	return api.post<ILoginResponse>(`/auth/login`, {
+		email,
+		code
+	});
 };
 
 export const sendAuthCodeAPI = (email: string) => {
-	return api.post<{ status: number; message: string }>(`/auth/send-code`, {
-		email
+	const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
+
+	return post<{ status: number; message: string }>(`/auth/send-code`, {
+		email,
+		callbackUrl
 	});
+};
+
+export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
+	return api.post<ILoginResponse>('/auth/register', data);
 };
 
 export const signInEmailAPI = (email: string) => {
