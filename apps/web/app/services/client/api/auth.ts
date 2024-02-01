@@ -71,8 +71,13 @@ export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 };
 
 export const signInEmailAPI = (email: string) => {
-	return api.post<{ status: number; message: string }>(`/auth/signin-email`, {
-		email
+	const callbackUrl = `${location.origin}${INVITE_CALLBACK_PATH}`;
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email' : `/auth/signin-email`;
+
+	return post<{ status: number; message: string }>(endpoint, {
+		email,
+		appMagicSignUrl: callbackUrl,
+		appName: APP_NAME
 	});
 };
 

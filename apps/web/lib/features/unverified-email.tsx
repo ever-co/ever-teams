@@ -89,7 +89,7 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 			e.preventDefault();
 			if (code.length < 6 || !user) return;
 
-			queryCall(code, user?.email).finally(() => {
+			queryCall(code, user.email).finally(() => {
 				window.location.reload();
 			});
 		},
