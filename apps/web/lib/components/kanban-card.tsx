@@ -8,7 +8,7 @@ import { pad } from '@app/helpers';
 import { TaskStatus } from '@app/constants';
 import { TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
-import ImageOverlapper, { IImageOverlapper } from './image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -97,7 +97,7 @@ export default function Item(props: any) {
 
 	const { hours, minutes, seconds } = useTimerView();
 
-	const taskAssignee: IImageOverlapper[] = [];
+	const taskAssignee: ImageOverlapperProps[] = [];
 
 	item.members.map((member: any) => {
 		taskAssignee.push({
@@ -182,7 +182,7 @@ export default function Item(props: any) {
 						</p>
 					</div>
 				)}
-				<ImageOverlapper images={taskAssignee} />
+				<ImageComponent images={taskAssignee} />
 			</div>
 			{item.hasComment && (
 				<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">

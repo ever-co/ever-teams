@@ -12,7 +12,7 @@ import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import ImageOverlapper, { IImageOverlapper } from 'lib/components/image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Separator from '@components/ui/separator';
 import { clsxm } from '@app/utils';
 
@@ -31,7 +31,7 @@ const Kanban = () => {
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 
-	const teamMembers: IImageOverlapper[] = [];
+	const teamMembers: ImageOverlapperProps[] = [];
 
 	activeTeamMembers.map((member: any) => {
 		teamMembers.push({
@@ -81,7 +81,7 @@ const Kanban = () => {
 							<div className="mt-1">
 								<Separator />
 							</div>
-							<ImageOverlapper images={teamMembers} />
+							<ImageComponent images={teamMembers} />
 							<div className="mt-1">
 								<Separator />
 							</div>
