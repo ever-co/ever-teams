@@ -106,6 +106,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		if (!team) {
 			setNoTeamPopupShowCookie(true);
 		}
+
 		setAuthCookies(
 			{
 				access_token: loginResponse.token,
@@ -121,6 +122,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			},
 			{ req, res }
 		);
+
 		return res.status(200).json({ team, loginResponse });
 	}
 	// Accept Invite Flow End

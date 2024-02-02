@@ -6,7 +6,8 @@ import {
 	PaginationResponse,
 	ITeamRequestParams,
 	TimerSource,
-	IOrganizationTeamList
+	IOrganizationTeamList,
+	ISigninEmailConfirmResponse
 } from '@app/interfaces';
 import { AcceptInviteParams } from '@app/services/server/requests';
 import { get, post } from '../../axios';
@@ -156,5 +157,11 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 			noTeamPopup: true,
 			userId
 		});
+
+		// const response: AxiosResponse<ISigninEmailConfirmResponse> = {
+		// 	data
+		// };
+
+		return Promise.resolve({ team, loginResponse });
 	}
 }

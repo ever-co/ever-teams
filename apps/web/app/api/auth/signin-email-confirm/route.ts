@@ -129,7 +129,7 @@ export async function POST(req: Request) {
 			{ req, res }
 		);
 
-		return NextResponse.json({ team, loginResponse }, { status: 400 });
+		return NextResponse.json({ team, loginResponse });
 	}
 	// Accept Invite Flow End
 
