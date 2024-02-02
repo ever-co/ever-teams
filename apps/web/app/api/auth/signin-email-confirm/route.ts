@@ -79,6 +79,7 @@ export async function POST(req: Request) {
 		}
 	}
 
+	// Login from Invitation
 	if (loginResponse) {
 		console.log('loginResponse>>>', loginResponse);
 
@@ -131,8 +132,8 @@ export async function POST(req: Request) {
 
 		return NextResponse.json({ team, loginResponse });
 	}
-	// Accept Invite Flow End
 
+	// Accept Invite Flow End
 	const { data } = await signInEmailConfirmRequest({
 		code: body.code,
 		email: body.email

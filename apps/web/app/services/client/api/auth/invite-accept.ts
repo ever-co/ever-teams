@@ -13,6 +13,7 @@ import { AcceptInviteParams } from '@app/services/server/requests';
 import { get, post } from '../../axios';
 import { authFormValidate, generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
 import qs from 'qs';
+import { AxiosResponse } from 'axios';
 
 export function acceptInviteAPI(params: AcceptInviteParams) {
 	return post<ILoginResponse>('/invite/accept', params)
@@ -73,6 +74,11 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 		}
 	});
 }
+
+export const signInEmailConfirmAPI = (data: { code: string; email: string }) => {
+	const { code, email } = data;
+	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm?includeTeams=true', { code, email });
+};
 
 /**
  *
@@ -158,10 +164,16 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 			userId
 		});
 
-		// const response: AxiosResponse<ISigninEmailConfirmResponse> = {
-		// 	data
-		// };
+		const response: AxiosResponse<{ loginResponse: ILoginResponse; team: IOrganizationTeamList }> = {
+			data: { team, loginResponse },
+			status: 200,
+			statusText: '',
+			headers: {},
+			config: {} as any
+		};
 
-		return Promise.resolve({ team, loginResponse });
+		return Promise.resolve(response);
 	}
+
+	return signInEmailConfirmAPI({ email, code });
 }

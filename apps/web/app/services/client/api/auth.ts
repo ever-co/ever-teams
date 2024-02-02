@@ -103,6 +103,9 @@ export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
 };
 
 export async function signInEmailConfirmAPI(email: string, code: string) {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+	}
+
 	return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
 		email,
 		code
