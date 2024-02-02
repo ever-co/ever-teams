@@ -119,8 +119,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				noTeamPopup: true,
 				userId
 			},
-			req,
-			res
+			{ req, res }
 		);
 		return res.status(200).json({ team, loginResponse });
 	}
@@ -160,8 +159,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			noTeamPopup: true,
 			userId
 		},
-		req,
-		res
+		{ req, res }
 	);
 
 	res.status(200).json({ loginResponse: data });

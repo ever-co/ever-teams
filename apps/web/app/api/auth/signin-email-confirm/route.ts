@@ -102,6 +102,7 @@ export async function POST(req: Request) {
 				{ status: 400 }
 			);
 		}
+
 		const { data: teams } = await getAllOrganizationTeamRequest(
 			{ tenantId, organizationId: organization.organizationId },
 			access_token
@@ -125,8 +126,7 @@ export async function POST(req: Request) {
 				noTeamPopup: true,
 				userId
 			},
-			req,
-			res
+			{ req, res }
 		);
 
 		return NextResponse.json({ team, loginResponse }, { status: 400 });

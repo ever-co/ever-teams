@@ -5,8 +5,9 @@ import {
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus
-} from '@app/interfaces/IOrganizationTeam';
+	IOrganizationTeamWithMStatus,
+	ITeamRequestParams
+} from '@app/interfaces';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';
@@ -87,7 +88,7 @@ export function getOrganizationTeamRequest(
 			'projects',
 			'projects.repository'
 		]
-	}: TeamRequestParams & { teamId: string },
+	}: ITeamRequestParams & { teamId: string },
 	bearer_token: string
 ) {
 	const params = {
@@ -114,12 +115,6 @@ export function getOrganizationTeamRequest(
 	});
 }
 
-type TeamRequestParams = {
-	organizationId: string;
-	tenantId: string;
-	relations?: string[];
-};
-
 export function getAllOrganizationTeamRequest(
 	{
 		organizationId,
@@ -134,7 +129,7 @@ export function getAllOrganizationTeamRequest(
 			'projects',
 			'projects.repository'
 		]
-	}: TeamRequestParams,
+	}: ITeamRequestParams,
 	bearer_token: string
 ) {
 	const params = {
