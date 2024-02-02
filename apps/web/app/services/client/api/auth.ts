@@ -101,15 +101,15 @@ export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
 	return post<ISuccessResponse>(endpoint, { email, token });
 };
 
-export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
-	return api.post<ILoginResponse>('/auth/register', data);
-};
-
-export const signInEmailConfirmAPI = (email: string, code: string) => {
-	return api.post<ISigninEmailConfirmResponse>(`/auth/signin-email-confirm`, {
+export async function signInEmailConfirmAPI(email: string, code: string) {
+	return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
 		email,
 		code
 	});
+}
+
+export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
+	return api.post<ILoginResponse>('/auth/register', data);
 };
 
 export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {

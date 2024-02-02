@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 	const { errors, valid: formValid } = authFormValidate(['email', 'code'], body as any);
 
 	if (!formValid) {
-		return NextResponse.json({ errors });
+		return NextResponse.json({ errors }, { status: 400 });
 	}
 
 	// Accept Invite Flow Start
@@ -55,22 +55,30 @@ export async function POST(req: Request) {
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes?.data as any).response?.statusCode
 		) {
-			return NextResponse.json({
-				errors: {
-					email: 'Authentication code or email address invalid'
-				}
-			});
+			return NextResponse.json(
+				{
+					errors: {
+						email: 'Authentication code or email address invalid'
+					}
+				},
+				{ status: 400 }
+			);
 		}
+
 		loginResponse = acceptInviteRes.data;
 
 		if (!loginResponse) {
-			return NextResponse.json({
-				errors: {
-					email: 'Authentication code or email address invalid'
-				}
-			});
+			return NextResponse.json(
+				{
+					errors: {
+						email: 'Authentication code or email address invalid'
+					}
+				},
+				{ status: 400 }
+			);
 		}
 	}
+
 	if (loginResponse) {
 		console.log('loginResponse>>>', loginResponse);
 
@@ -85,11 +93,14 @@ export async function POST(req: Request) {
 		const organization = organizations?.items[0];
 
 		if (!organization) {
-			return NextResponse.json({
-				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
-				}
-			});
+			return NextResponse.json(
+				{
+					errors: {
+						email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					}
+				},
+				{ status: 400 }
+			);
 		}
 		const { data: teams } = await getAllOrganizationTeamRequest(
 			{ tenantId, organizationId: organization.organizationId },
@@ -117,7 +128,8 @@ export async function POST(req: Request) {
 			req,
 			res
 		);
-		return NextResponse.json({ team, loginResponse });
+
+		return NextResponse.json({ team, loginResponse }, { status: 400 });
 	}
 	// Accept Invite Flow End
 

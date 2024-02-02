@@ -9,7 +9,7 @@ import {
 	signInWithEmailAndCodeAPI,
 	signInWorkspaceAPI
 } from '@app/services/client/api';
-import { AxiosError } from 'axios';
+import { AxiosError, isAxiosError } from 'axios';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
@@ -102,9 +102,13 @@ export function useAuthenticationPasscode() {
 					setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
 				}
 			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
+			.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
+				if (isAxiosError(err)) {
+					if (err.response?.status === 400) {
+						setErrors(err.response?.data?.errors || {});
+					}
+				} else {
+					setErrors(err.errors || {});
 				}
 			});
 	};
