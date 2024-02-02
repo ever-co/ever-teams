@@ -4,6 +4,8 @@
 		"ACCEPT": "Akzeptieren",
 		"ACCEPTED": "Akzeptiert",
 		"REJECT": "Ablehnen",
+		"TOMORROW" : "Morgen",
+		"YESTERDAY" : "Gestern",
 		"REJECTED": "Abgelehnt",
 		"VERIFY": "Verifizieren",
 		"INVITE": "Einladen",
@@ -191,10 +193,13 @@
 			"CONFIRM_ACCEPT_INVITATION": "Möchten Sie die Einladung wirklich annehmen?",
 			"CONFIRM_REJECT_INVITATION": "Möchten Sie die Einladung wirklich ablehnen?"
 		},
-
+		"kanban":{
+			"KANBAN_BOARD":"Kanban-Board"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]"
 		},
+
 
 		"taskDetails": {
 			"BREADCRUMB": "[\"Aufgabendetails\"]",

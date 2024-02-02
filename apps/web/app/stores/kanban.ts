@@ -3,5 +3,7 @@ import { atom } from "recoil";
 
 export const kanbanBoardState = atom<IKanban>({
     key: 'kanbanBoardState',
-    default: {}
+    default: {
+        
+    }
 })

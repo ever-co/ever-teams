@@ -4,6 +4,8 @@
 		"ACCEPT": "Приемам",
 		"ACCEPTED": "Приет",
 		"REJECT": "Отхвърлям",
+		"TOMORROW" : "Утре",
+		"YESTERDAY" : "Вчера",
 		"REJECTED": "Отхвърлен",
 		"VERIFY": "провери",
 		"INVITE": "Покани",
@@ -189,7 +191,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "Сигурни ли сте, че искате да приемете поканата?",
 			"CONFIRM_REJECT_INVITATION": "Сигурни ли сте, че искате да отхвърлите поканата?"
 		},
-
+		"kanban":{
+			"KANBAN_BOARD":"Канбан дъска"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]"
 		},
