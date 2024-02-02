@@ -29,7 +29,7 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 		updateLoading,
 		editableMode
 	} = useTaskEstimation(_task);
-
+	console.log('testing value', value);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 
@@ -50,7 +50,7 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 	return (
 		<div className={clsxm('flex items-center space-x-1', className)} ref={targetEl}>
 			<TimeInputField
-				value={value['hours'] ?? ''}
+				value={value['hours'] ?? '00'}
 				onChange={onChange('hours')}
 				onKeyUp={(e) => {
 					e.key === 'Enter' && handleSubmit();

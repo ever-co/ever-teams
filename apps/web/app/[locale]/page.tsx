@@ -168,12 +168,16 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 			)}
 		>
 			<AuthUserTaskInput
-				className={clsxm('mx-auto w-full md:w-1/2 2xl:w-full lg:mr-10', !showInput && '!hidden md:!flex')}
+				className={clsxm(
+					'mx-auto w-full md:w-3/4 lg:mr-10',
+					!showInput && '!hidden md:!flex',
+					!isTrackingEnabled && 'md:w-full'
+				)}
 			/>
 			{/* <button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
 				{showInput ? 'hide the issue input' : 'show the issue input'}
 			</button> */}
-			{isTrackingEnabled ? <Timer /> : null}
+			<div className="w-1/4">{isTrackingEnabled ? <Timer /> : null}</div>
 		</Card>
 	);
 }
