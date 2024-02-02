@@ -14,6 +14,7 @@ import api, { deleteApi, get, post, put } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 import { createOrganizationProjectAPI } from './projects';
+import qs from 'qs';
 
 export async function getOrganizationTeamsAPI(organizationId: string, tenantId: string) {
 	const relations = [
@@ -37,8 +38,8 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 	relations.forEach((rl, i) => {
 		params[`relations[${i}]`] = rl;
 	});
-	const query = new URLSearchParams(params);
-	const endpoint = `/organization-team?${query.toString()}`;
+	const query = qs.stringify(params);
+	const endpoint = `/organization-team?${query}`;
 
 	return get<PaginationResponse<IOrganizationTeamList>>(endpoint, { tenantId });
 }
@@ -102,9 +103,9 @@ export async function getOrganizationTeamAPI(teamId: string, organizationId: str
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params);
+	const queries = qs.stringify(params);
 
-	const endpoint = `/organization-team/${teamId}?${queries.toString()}`;
+	const endpoint = `/organization-team/${teamId}?${queries}`;
 
 	return get<IOrganizationTeamList>(endpoint);
 }

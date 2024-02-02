@@ -11,6 +11,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH,
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@app/constants';
+import qs from 'qs';
 
 export const getAuthenticatedUserDataAPI = () => {
 	const params = {} as { [x: string]: string };
@@ -20,9 +21,9 @@ export const getAuthenticatedUserDataAPI = () => {
 		params[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
 
-	return get<IUser>(`/user/me?${query.toString()}`);
+	return get<IUser>(`/user/me?${query}`);
 };
 
 export async function refreshTokenAPI() {

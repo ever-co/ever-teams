@@ -28,7 +28,7 @@ const GitHub = () => {
 	// 	state: 'http://localhost:3001/integration/github'
 	// } as { [x: string]: string };
 
-	// const queries = new URLSearchParams(params || {});
+	// const queries = qs.stringify(params || {});
 	// const url = `https://github.com/apps/badal-ever-testing-probot/installations/new?${queries.toString()}`;
 
 	const handleInstallGitHub = useCallback(() => {

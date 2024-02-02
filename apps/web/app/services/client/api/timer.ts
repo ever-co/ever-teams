@@ -3,10 +3,11 @@ import api, { get, post } from '../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getActiveTaskIdCookie, getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 import { IUser } from '@app/interfaces';
+import qs from 'qs';
 
 export async function getTimerStatusAPI(tenantId: string, organizationId: string) {
-	const params = new URLSearchParams({ tenantId, organizationId });
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params.toString()}` : '/timer/status';
+	const params = qs.stringify({ tenantId, organizationId });
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params}` : '/timer/status';
 
 	return get<ITimerStatus>(endpoint);
 }

@@ -2,6 +2,7 @@ import { IDataResponse } from '@app/interfaces';
 import { get } from '../axios';
 import moment from 'moment';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import qs from 'qs';
 
 export function getPublicOrganizationTeamsAPI(profile_link: string, team_id: string) {
 	const relations = [
@@ -25,10 +26,10 @@ export function getPublicOrganizationTeamsAPI(profile_link: string, team_id: str
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = qs.stringify(params || {});
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? `/public/team/${profile_link}/${team_id}?${queries.toString()}`
+		? `/public/team/${profile_link}/${team_id}?${queries}`
 		: `/public/team/${profile_link}/${team_id}?type=team`;
 
 	return get<IDataResponse>(endpoint);
@@ -47,10 +48,10 @@ export function getPublicOrganizationTeamsMiscDataAPI(profile_link: string, team
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = qs.stringify(params || {});
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? `/public/team/${profile_link}/${team_id}?${queries.toString()}`
+		? `/public/team/${profile_link}/${team_id}?${queries}`
 		: `/public/team/${profile_link}/${team_id}?type=misc`;
 
 	return get<IDataResponse>(endpoint);
