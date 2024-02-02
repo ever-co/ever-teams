@@ -182,7 +182,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 							<div
 								className={clsxm(
-									'flex flex-row justify-start overflow-x-auto scro w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]',
+									'flex flex-row justify-start overflow-x-auto w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]',
 									snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 								)}
 								ref={provided.innerRef}
