@@ -91,6 +91,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 
 		return selectState[0].color;
 	};
+
 	const reorderColumn = (column: any[], sourceIndex: number, destinationIndex: number) => {
 		const result = Array.from(column);
 		const [removed] = result.splice(sourceIndex, 1);
@@ -98,9 +99,10 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 
 		return result;
 	};
+
 	/**
-	 * This function handles all drag and drop logic
-	 * on the kanban board.
+	 * This function handles all drag & drop logic
+	 * on the Kanban board.
 	 * @param result
 	 * @returns
 	 */
@@ -158,7 +160,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 			destination
 		});
 
-		// setItems(data.kanbanBoard);
 		updateKanbanBoard(() => data.kanbanBoard);
 	};
 
