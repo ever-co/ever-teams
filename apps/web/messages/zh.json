@@ -4,6 +4,8 @@
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
 		"REJECT": "拒绝",
+		"TOMORROW": "明天",
+		"YESTERDAY": "昨天",
 		"REJECTED": "已拒绝",
 		"VERIFY": "验证",
 		"INVITE": "邀请",
@@ -191,7 +193,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "您确定要接受邀请吗?",
 			"CONFIRM_REJECT_INVITATION": "您确定要拒绝邀请吗?"
 		},
-
+		"kanban":{
+			"KANBAN_BOARD":"看板"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]"
 		},

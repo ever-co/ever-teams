@@ -4,6 +4,8 @@
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
 		"REJECT": "Afwijzen",
+		"TOMORROW" : "Morgen",
+		"YESTERDAY" : "Gisteren",
 		"REJECTED": "Afgewezen",
 		"VERIFY": "verifiëren",
 		"INVITE": "Uitnodigen",
@@ -191,7 +193,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "Weet u zeker dat u de uitnodiging wilt accepteren?",
 			"CONFIRM_REJECT_INVITATION": "Weet u zeker dat u de uitnodiging wilt afwijzen?"
 		},
-
+		"kanban":{
+			"KANBAN_BOARD":"Kanban-bord"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]"
 		},

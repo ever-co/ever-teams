@@ -4,6 +4,8 @@
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
+		"TOMORROW": "Tomorrow",
+		"YESTERDAY": "Yesterday",
 		"REJECTED": "Rejected",
 		"VERIFY": "verify",
 		"INVITE": "Invite",
@@ -198,6 +200,9 @@
 
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]"
+		},
+		"kanban":{
+			"KANBAN_BOARD":"Kanban Board"
 		},
 
 		"taskDetails": {

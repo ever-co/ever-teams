@@ -229,10 +229,13 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		if (form.workspaces.length === 1) {
 			setSelectedWorkspace(0);
 		}
-		if (form.workspaces.length === 1 && form.workspaces[0].current_teams.length === 1) {
-			setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
+
+		const currentTeams = form.workspaces[0]?.current_teams;
+
+		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
+			setSelectedTeam(currentTeams[0].team_id);
 		}
-		if (form.workspaces.length === 1 && form.workspaces[0].current_teams.length <= 1) {
+		if (form.workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);

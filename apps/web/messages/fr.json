@@ -4,6 +4,8 @@
 		"ACCEPT": "Accepter",
 		"ACCEPTED": "Accepté",
 		"REJECT": "Rejeter",
+		"TOMORROW" : "Demain",
+		"YESTERDAY" : "Hier",
 		"REJECTED": "Rejeté",
 		"VERIFY": "Vérifier",
 		"INVITE": "Inviter",
@@ -188,6 +190,9 @@
 			"INVITATIONS": "Vous avez été invité à rejoindre",
 			"CONFIRM_ACCEPT_INVITATION": "Êtes-vous sûr de vouloir accepter l'invitation ?",
 			"CONFIRM_REJECT_INVITATION": "Êtes-vous sûr de vouloir refuser l'invitation ?"
+		},
+		"kanban":{
+			"KANBAN_BOARD":"Tableau Kanban"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tâches du membre\"]"
