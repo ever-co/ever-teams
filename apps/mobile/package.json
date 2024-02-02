@@ -37,7 +37,7 @@
 		"expo:web": "yarn config:mobile && yarn expo start --web",
 		"expo:build:detox": "yarn config:mobile && yarn detox build -c ios.sim.expo",
 		"expo:test:detox": "yarn config:mobile && ./bin/downloadExpoApp.sh && yarn detox test --configuration ios.sim.expo",
-		"eas:build": "yarn yarn config:mobile && eas build",
+		"eas:build": "yarn config:mobile && eas build",
 		"config:mobile": "yarn ts-node ../../.scripts/configure.mobile.ts"
 	},
 	"overrides": {
@@ -112,6 +112,7 @@
 		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
 		"reanimated-color-picker": "^2.3.4",
 		"sentry-expo": "~6.2.0",
+		"ts-node": "^10.9.2",
 		"validator": "^13.11.0"
 	},
 	"devDependencies": {

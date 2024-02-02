@@ -8,7 +8,7 @@ import { pad } from '@app/helpers';
 import { TaskStatus } from '@app/constants';
 import { TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
-import ImageOverlapper, { IImageOverlapper } from './image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -73,7 +73,6 @@ function TagList({ tags }: { tags: Tag[] }) {
 	);
 }
 
-
 function Priority({ level }: { level: number }) {
 	const numberArray = Array.from({ length: level }, (_, index) => index + 1);
 
@@ -98,14 +97,14 @@ export default function Item(props: any) {
 
 	const { hours, minutes, seconds } = useTimerView();
 
-	const taskAssignee: IImageOverlapper[] = [];
+	const taskAssignee: ImageOverlapperProps[] = [];
 
-	item.members.map((member: any)=> {
+	item.members.map((member: any) => {
 		taskAssignee.push({
 			id: member.user.id,
 			url: member.user.imageUrl,
 			alt: member.user.firstName
-		})
+		});
 	});
 
 	// const handleTime = () => {
@@ -130,7 +129,7 @@ export default function Item(props: any) {
 			{...provided.draggableProps}
 			{...provided.dragHandleProps}
 			style={getStyle(provided, style)}
-			className="flex flex-col rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
+			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
 			data-is-dragging={isDragging}
 			data-testid={item.id}
 			data-index={index}
@@ -152,7 +151,10 @@ export default function Item(props: any) {
 						/>
 
 						<span className="text-grey text-normal mr-1">#{item.number}</span>
-						<Link href={`/task/${item.id}`} className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
+						<Link
+							href={`/task/${item.id}`}
+							className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2"
+						>
 							{item.title}
 						</Link>
 						<Priority level={1} />
@@ -180,8 +182,7 @@ export default function Item(props: any) {
 						</p>
 					</div>
 				)}
-				<ImageOverlapper images={taskAssignee}/>
-				
+				<ImageComponent images={taskAssignee} />
 			</div>
 			{item.hasComment && (
 				<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
