@@ -83,7 +83,7 @@ export function Timer({ className }: IClassName) {
 
 						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
 					</div>
-					<div className="">
+					<div>
 						{timerStatus && timerStatus.running && (
 							<Tooltip
 								label={`The time tracker is already running in the ${(
