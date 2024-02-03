@@ -64,7 +64,7 @@ export function Timer({ className }: IClassName) {
 				className
 			)}
 		>
-			<div className="xl:w-4/5 w-full flex justify-center items-center">
+			<div className="xl:w-4/5 space-x-2 w-full flex justify-center items-center pr-2">
 				<div className="flex items-start justify-between w-full">
 					<div className="w-full mx-auto">
 						<Text.Heading
@@ -100,6 +100,7 @@ export function Timer({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
+
 			<VerticalSeparator />
 			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
 				<Tooltip
