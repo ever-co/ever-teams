@@ -43,29 +43,23 @@ export function InviteUserTeamSkeleton() {
 export function UserTeamCardHeader() {
 	const t = useTranslations();
 	return (
-		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
-			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
-			<div className="2xl:w-[20.625rem] text-center">{t('common.NAME')}</div>
-			<div className="w-1"></div>
-			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
-			<div className="w-1"></div>
-			<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-				<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col justify-center text-center">
-					{t('task.taskTableHead.TASK_WORK.TITLE')}
-					<br />
-					{t('common.TASK')}
-				</div>
-			</Tooltip>
-			<div className="w-1"></div>
-			<div className=" text-center w-1/5 lg:px-3 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
-			<div className="w-1"></div>
-			<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-				<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 text-center">
-					{t('task.taskTableHead.TOTAL_WORK.TITLE')}
-					<br />
-					{t('common.TODAY')}
-				</div>
-			</Tooltip>
+		<div className="hidden sm:flex row font-normal justify-between  dark:text-[#7B8089] p-4 ml-2">
+			<p className="w-1/12">{t('common.STATUS')}</p>
+			<p className="w-2/12">{t('common.NAME')}</p>
+			<p className="w-3/12">{t('common.TASK')} </p>
+			<div className="w-2/12 text-right  ">
+				<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+					{t('task.taskTableHead.TASK_WORK.TITLE')} {t('common.TASK')}
+				</Tooltip>
+			</div>
+			<p className="w-2/12 text-center">{t('common.ESTIMATE')}</p>
+			<div className="w-2/12 text-center">
+				<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+					{t('task.taskTableHead.TOTAL_WORK.TITLE')} {t('common.TODAY')}
+				</Tooltip>
+			</div>
+
+
 		</div>
 	);
 }

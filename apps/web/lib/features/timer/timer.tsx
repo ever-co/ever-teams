@@ -58,69 +58,18 @@ export function Timer({ className }: IClassName) {
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
-		// <div className={clsxm('xl:flex justify-center items-center', className)}>
-		// 	<div className="flex items-start justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
-		// 		<div className="w-[11rem] mx-auto">
-		// 			<Text.Heading
-		// 				as="h3"
-		// 				className={`lg:text-4xl text-2xl tracking-wide font-normal ${
-		// 					timerStatus?.running &&
-		// 					timerStatus?.lastLog?.source &&
-		// 					timerStatus?.lastLog?.source !== TimerSource.TEAMS
-		// 						? 'text-[#888] dark:text-[#888]'
-		// 						: ''
-		// 				} `}
-		// 			>
-		// 				{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-		// 				<span className="text-sm">:{pad(ms_p)}</span>
-		// 			</Text.Heading>
-
-		// 			<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
-		// 		</div>
-		// 		<div className="w-[0.625rem]">
-		// 			{timerStatus && timerStatus.running && (
-		// 				<Tooltip
-		// 					label={`The time tracker is already running in the ${(
-		// 						timerStatus?.lastLog?.source || TimerSource.TEAMS
-		// 					)
-		// 						.split('_')
-		// 						.join(' ')
-		// 						.toLowerCase()}`}
-		// 					placement="bottom-start"
-		// 				>
-		// 					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || TimerSource.TEAMS} />
-		// 				</Tooltip>
-		// 			)}
-		// 		</div>
-		// 	</div>
-
-		// 	<div className="w-full mx-auto z-[50]">
-		// 		<Tooltip
-		// 			label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
-		// 			placement="top-start"
-		// 			// If timer is running at some other source and user may or may not have selected the task
-		// 			// enabled={
-		// 			// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
-		// 			// }
-		// 		>
-		// 			<TimerButton
-		// 				onClick={timerHanlder}
-		// 				running={timerStatus?.running}
-		// 				disabled={
-		// 					// If timer is running at some other source and user may or may not have selected the task
-		// 					!canRunTimer || (disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS)
-		// 				}
-		// 			/>
-		// 		</Tooltip>
-		// 	</div>
-		// </div>
-		<div className="xl:flex justify-center items-center  space-y-5">
-			<div className="xl:w-4/5 flex justify-center items-center">
+		<div
+			className={clsxm(
+				'flex space-x-2 lg:flex-col xl:flex-row justify-center items-center p-2 xl:space-y-0 space-y-5',
+				className
+			)}
+		>
+			<div className="xl:w-4/5 w-full flex justify-center items-center">
 				<div className="flex items-start justify-between w-full">
 					<div className="w-full mx-auto">
 						<Text.Heading
 							as="h3"
-							className={`lg:text-4xl text-2xl text-center tracking-wide font-normal ${
+							className={`text-4xl lg:text-center tracking-wide font-normal ${
 								timerStatus?.running &&
 								timerStatus?.lastLog?.source &&
 								timerStatus?.lastLog?.source !== TimerSource.TEAMS
@@ -134,7 +83,7 @@ export function Timer({ className }: IClassName) {
 
 						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
 					</div>
-					<div className="w-[0.625rem]">
+					<div className="">
 						{timerStatus && timerStatus.running && (
 							<Tooltip
 								label={`The time tracker is already running in the ${(
@@ -151,15 +100,25 @@ export function Timer({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
-			<div className="xl:w-2/5 h-fit flex justify-center items-center">
-				<TimerButton
-					onClick={timerHanlder}
-					running={timerStatus?.running}
-					disabled={
-						// If timer is running at some other source and user may or may not have selected the task
-						!canRunTimer || (disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS)
-					}
-				/>
+			<VerticalSeparator />
+			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
+				<Tooltip
+					label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
+					placement="top-start"
+					// If timer is running at some other source and user may or may not have selected the task
+					// enabled={
+					// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+					// }
+				>
+					<TimerButton
+						onClick={timerHanlder}
+						running={timerStatus?.running}
+						disabled={
+							// If timer is running at some other source and user may or may not have selected the task
+							!canRunTimer || (disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS)
+						}
+					/>
+				</Tooltip>
 			</div>
 		</div>
 	);
