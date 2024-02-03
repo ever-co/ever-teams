@@ -263,25 +263,25 @@ function WorkSpaceScreen({
     [selectedWorkspace, selectedTeam, form]
   );
 
-  // useEffect(() => {
-  //   if (form.workspaces.length === 1) {
-  //     setSelectedWorkspace(0);
-  //   }
-  //   if (
-  //     form.workspaces.length === 1 &&
-  //     form.workspaces[0].current_teams?.length === 1
-  //   ) {
-  //     setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
-  //   }
-  //   if (
-  //     form.workspaces?.length === 1 &&
-  //     form.workspaces[0]?.current_teams?.length <= 1
-  //   ) {
-  //     setTimeout(() => {
-  //       document.getElementById('continue-to-workspace')?.click();
-  //     }, 100);
-  //   }
-  // }, [form.workspaces]);
+  useEffect(() => {
+    if (form.workspaces.length === 1) {
+      setSelectedWorkspace(0);
+    }
+    if (
+      form.workspaces.length === 1 &&
+      form.workspaces[0].current_teams.length === 1
+    ) {
+      setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
+    }
+    if (
+      form.workspaces.length === 1 &&
+      form.workspaces[0].current_teams.length <= 1
+    ) {
+      setTimeout(() => {
+        document.getElementById('continue-to-workspace')?.click();
+      }, 100);
+    }
+  }, [form.workspaces]);
 
   useEffect(() => {
     if (form.authScreen.screen === 'workspace') {
@@ -341,7 +341,7 @@ function WorkSpaceScreen({
                   <span className="bg-[#E5E5E5] w-full h-[1px]"></span>
                   {/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
                   <div className="flex flex-col gap-4 px-5 py-1.5">
-                    {worksace?.current_teams?.map((team) => (
+                    {worksace.current_teams.map((team) => (
                       <div
                         key={`${index}-${team.team_id}`}
                         className="flex items-center justify-between gap-4 min-h-[2.875rem]"
