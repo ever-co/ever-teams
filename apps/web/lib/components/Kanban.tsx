@@ -63,7 +63,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 	return (
 		<>
 			<section
-				className="flex flex-col pb-2 overflow-x-hidden"
+				className="flex flex-col pb-2 "
 			>
 				{items.map((item: ITeamTask, index: number) => (
 					<Draggable key={item.id} draggableId={item.id} index={index}>
@@ -339,8 +339,8 @@ const KanbanDraggable = ({
 							ref={provided.innerRef}
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
-							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col px-2  w-[355px]"
+							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+							className="relative flex flex-col px-2 h-[1000px] w-[355px]"
 						>
 							{title ? (
 								<>
