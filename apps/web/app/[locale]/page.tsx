@@ -37,6 +37,7 @@ import '../../styles/globals.css';
 
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { ChevronDown } from 'lucide-react';
 
 function MainPage() {
 	const t = useTranslations();
@@ -67,7 +68,7 @@ function MainPage() {
 						</div>
 
 						{/* <Collaborative /> */}
-						<div className="flex w-full h-10 w-max items-center justify-center   gap-1">
+						<div className="flex h-10 w-max items-center justify-center   gap-1">
 							<Tooltip label={'Cards'} placement="top-start">
 								<button
 									className={clsxm(
@@ -170,9 +171,14 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 					!isTrackingEnabled && 'md:w-full'
 				)}
 			/>
-			{/* <button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
-				{showInput ? 'hide the issue input' : 'show the issue input'}
-			</button> */}
+			<div
+				onClick={() => setShowInput((p) => !p)}
+				className="border dark:border-[#26272C] w-full rounded p-2 md:hidden flex justify-center mt-2"
+			>
+				<ChevronDown className={clsxm('h-12  transition-all', showInput && 'rotate-180')}>
+					{showInput ? 'hide the issue input' : 'show the issue input'}
+				</ChevronDown>
+			</div>
 			{isTrackingEnabled ? (
 				<div className="w-full lg:w-1/4">
 					<Timer />
