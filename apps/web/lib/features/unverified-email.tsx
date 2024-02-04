@@ -87,13 +87,13 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {
 			e.preventDefault();
-			if (code.length < 6) return;
+			if (code.length < 6 || !user) return;
 
-			queryCall(code).finally(() => {
+			queryCall(code, user.email).finally(() => {
 				window.location.reload();
 			});
 		},
-		[code, queryCall]
+		[code, queryCall, user]
 	);
 
 	return (

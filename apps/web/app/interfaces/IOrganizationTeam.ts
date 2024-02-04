@@ -23,6 +23,12 @@ export interface IOrganizationTeamCreate {
 
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
 
+export type ITeamRequestParams = {
+	organizationId: string;
+	tenantId: string;
+	relations?: string[];
+};
+
 export interface IOrganizationTeam {
 	tenantId: string;
 	organizationId: string;

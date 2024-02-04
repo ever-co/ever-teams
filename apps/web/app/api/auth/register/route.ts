@@ -137,8 +137,7 @@ export async function POST(req: Request) {
 			languageId: 'en', // TODO: not sure what should be here
 			userId: user.id
 		},
-		req,
-		res
+		{ req, res }
 	);
 
 	return NextResponse.json({ loginRes, team, employee });

@@ -2,6 +2,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
 import { get, post } from '../../axios';
+import qs from 'qs';
 
 // TODO
 export function installGitHubIntegrationAPI(body: any) {
@@ -14,26 +15,26 @@ export function oAuthEndpointAuthorizationAPI(body: any) {
 }
 
 export function getGithubIntegrationMetadataAPI(integrationId: string) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		tenantId: getTenantIdCookie(),
 		organizationId: getOrganizationIdCookie()
 	});
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? `/integration/github/${integrationId}/metadata${query.toString()}`
+		? `/integration/github/${integrationId}/metadata${query}`
 		: `/integration/github/metadata?integrationId=${integrationId}`;
 
 	return get<IGithubMetadata>(endpoint);
 }
 
 export function getGithubIntegrationRepositoriesAPI(integrationId: string) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		tenantId: getTenantIdCookie(),
 		organizationId: getOrganizationIdCookie()
 	});
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? `/integration/github/${integrationId}/repositories${query.toString()}`
+		? `/integration/github/${integrationId}/repositories${query}`
 		: `/integration/github/repositories?integrationId=${integrationId}`;
 
 	return get<IGithubRepositories>(endpoint);

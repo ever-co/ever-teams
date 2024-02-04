@@ -3,6 +3,7 @@ import { IInvitation, MyInvitationActionEnum, IInviteCreate, IMyInvitations } fr
 import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@app/constants';
 import { deleteApi, get, post, put } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import qs from 'qs';
 
 interface IIInviteRequest {
 	email: string;
@@ -44,7 +45,7 @@ export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string)
 }
 
 export async function getTeamInvitationsAPI(tenantId: string, organizationId: string, role: string, teamId: string) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
 		'where[role][name]': role,
@@ -52,7 +53,7 @@ export async function getTeamInvitationsAPI(tenantId: string, organizationId: st
 		'where[status]': 'INVITED'
 	});
 
-	const endpoint = `/invite?${query.toString()}`;
+	const endpoint = `/invite?${query}`;
 
 	return get<PaginationResponse<IInvitation>>(endpoint, { tenantId });
 }

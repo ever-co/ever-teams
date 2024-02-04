@@ -1,8 +1,9 @@
 import { VERIFY_EMAIL_CALLBACK_URL, APP_NAME, APP_SIGNATURE, APP_LOGO_URL } from '@app/constants';
 import { ISuccessResponse } from '@app/interfaces';
-import { ILoginResponse, IRegisterDataRequest } from '@app/interfaces/IAuthentication';
+import { ILoginResponse, IRegisterDataRequest, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -39,15 +40,17 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 		body: { email, appMagicSignUrl: callbackUrl, appName: APP_NAME }
 	});
 }
+
 export const signInEmailConfirmRequest = (data: { code: string; email: string }) => {
 	const { code, email } = data;
 
-	return serverFetch<ISuccessResponse>({
+	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email/confirm?includeTeams=true',
 		method: 'POST',
 		body: { code, email }
 	});
 };
+
 export function signInWorkspaceRequest(email: string, token: string) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/signin.workspace',
@@ -99,10 +102,10 @@ export const currentAuthenticatedUserRequest = ({
 		params[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
 
 	return serverFetch<IUser>({
-		path: `/user/me?${query.toString()}`,
+		path: `/user/me?${query}`,
 		method: 'GET',
 		bearer_token
 	});
