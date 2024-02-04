@@ -1,5 +1,6 @@
 import { IGithubMetadata, IGithubRepositories, IProjectRepository } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
+import qs from 'qs';
 
 export function installGitHubIntegration(
 	data: {
@@ -41,12 +42,12 @@ export function getGithubIntegrationMetadataRequest(
 	},
 	bearer_token: string
 ) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		tenantId,
 		organizationId
 	});
 	return serverFetch<IGithubMetadata>({
-		path: `/integration/github/${integrationId}/metadata?${query.toString()}`,
+		path: `/integration/github/${integrationId}/metadata?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId
@@ -65,12 +66,12 @@ export function getGithubIntegrationRepositoriesRequest(
 	},
 	bearer_token: string
 ) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		tenantId,
 		organizationId
 	});
 	return serverFetch<IGithubRepositories>({
-		path: `/integration/github/${integrationId}/repositories?${query.toString()}`,
+		path: `/integration/github/${integrationId}/repositories?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId

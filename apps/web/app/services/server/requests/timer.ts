@@ -7,11 +7,13 @@ import {
 	TimerSource
 } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 export function getTimerStatusRequest({ tenantId, organizationId }: ITimerStatusParams, bearer_token: string) {
-	const params = new URLSearchParams({ tenantId, organizationId });
+	const params = qs.stringify({ tenantId, organizationId });
+
 	return serverFetch<ITimerStatus>({
-		path: `/timesheet/timer/status?${params.toString()}`,
+		path: `/timesheet/timer/status?${params}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

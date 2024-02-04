@@ -1,6 +1,7 @@
 import { IRolePermissions, PaginationResponse } from '@app/interfaces/';
 import { get, put } from '../axios';
 import { getTenantIdCookie } from '@app/helpers';
+import qs from 'qs';
 
 export function getRolePermissionAPI(id: string) {
 	const tenantId = getTenantIdCookie();
@@ -13,9 +14,9 @@ export function getRolePermissionAPI(id: string) {
 			}
 		})
 	};
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
 
-	return get<PaginationResponse<IRolePermissions>>(`/role-permissions/${id}?${query.toString()}`);
+	return get<PaginationResponse<IRolePermissions>>(`/role-permissions/${id}?${query}`);
 }
 
 export function updateRolePermissionAPI(data: IRolePermissions) {
