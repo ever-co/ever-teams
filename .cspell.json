@@ -328,7 +328,8 @@
     "screenshoots",
     "tota",
     "Intervall",
-    "Timesheets"
+    "Timesheets",
+    "dotenv"
   ],
   "useGitignore": true,
   "ignorePaths": [
