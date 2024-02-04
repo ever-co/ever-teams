@@ -45,7 +45,7 @@ const Personal = () => {
 					<Container fullWidth={fullWidth} className="mb-10 flex-1">
 						<div className="flex flex-col w-full h-full lg:flex-row">
 							<LeftSideSettingMenu className="h-[72vh] pb-4"/>
-							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
+							<div className="flex flex-col flex-1 h-[72vh] mr-[20px] lg:mr-0">
 								<Link href={'/settings/team'} className="w-full">
 									<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
 										Go to Team settings
@@ -53,7 +53,7 @@ const Personal = () => {
 								</Link>
 								<Accordian
 									title={t('pages.settingsPersonal.HEADING_TITLE')}
-									className=" max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
+									className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 									id="general"
 								>
 									{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
