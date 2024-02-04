@@ -78,7 +78,7 @@ export function useAuthenticationPasscode() {
 					return;
 				}
 
-				if (data && data?.workspaces && data.workspaces.length) {
+				if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
 					setWorkspaces(data.workspaces);
 
 					setScreen('workspace');
