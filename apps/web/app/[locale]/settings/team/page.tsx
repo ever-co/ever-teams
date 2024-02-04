@@ -37,7 +37,7 @@ const Team = () => {
 			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
-				<MainLayout className="items-start pb-1 h-screen " childrenClassName="overflow-hidden h-full flex flex-col items-start">
+				<MainLayout className="items-start pb-1 h-screen " childrenClassName="overflow-hidden h-full w-screen flex flex-col items-start">
 					<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
 						<Container fullWidth={fullWidth}>
 							<div className="flex flex-row items-center justify-start gap-8">
