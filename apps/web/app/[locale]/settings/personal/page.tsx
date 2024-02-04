@@ -29,10 +29,10 @@ const Personal = () => {
 			{!user ? (
 				<SettingsPersonalSkeleton />
 			) : (
-				<MainLayout className="items-start pb-1">
+				<MainLayout className="items-start pb-1 h-screen " childrenClassName="overflow-hidden h-full flex flex-col items-start">
 					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
 						<Container fullWidth={fullWidth}>
-							<div className="flex items-center gap-8">
+							<div className="flex items-center justify-center  gap-8">
 								<Link href="/">
 									<ArrowLeft className="w-6 h-6" />
 								</Link>
@@ -42,9 +42,9 @@ const Personal = () => {
 						</Container>
 					</div>
 
-					<Container fullWidth={fullWidth} className="mb-10">
+					<Container fullWidth={fullWidth} className="mb-10 flex-1">
 						<div className="flex flex-col w-full sm:flex-row">
-							<LeftSideSettingMenu />
+							<LeftSideSettingMenu className="h-[72vh] pb-4"/>
 							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
 								<Link href={'/settings/team'} className="w-full">
 									<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">

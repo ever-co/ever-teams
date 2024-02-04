@@ -39,8 +39,8 @@ const Team = () => {
 			) : (
 				<MainLayout className="items-start pb-1 h-screen " childrenClassName="overflow-hidden h-full flex flex-col items-start">
 					<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
-						<Container>
-							<div className="flex flex-row items-center gap-8">
+						<Container fullWidth={fullWidth}>
+							<div className="flex flex-row items-center justify-start gap-8">
 								<Link href="/">
 									<ArrowLeft className="w-6 h-6" />
 								</Link>
@@ -63,7 +63,7 @@ const Team = () => {
 									{/* General Settings */}
 									<Accordian
 										title={t('pages.settingsTeam.HEADING_TITLE')}
-										className="max-w-[66vw] p-4 mt-8 dark:bg-dark--theme"
+										className="w-full max-w-[66vw] p-4 mt-8 dark:bg-dark--theme"
 										id="general-settings"
 									>
 										<div className="flex flex-col">
@@ -76,7 +76,7 @@ const Team = () => {
 									{isTeamManager ? (
 										<Accordian
 											title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
-											className="max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
+											className="w-full max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
 											id="invitations"
 										>
 											<InvitationSetting />
@@ -89,7 +89,7 @@ const Team = () => {
 									{isTeamManager ? (
 										<Accordian
 											title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-											className="max-w-[66vw]  p-4 mt-4 dark:bg-dark--theme"
+											className="w-full max-w-[66vw]  p-4 mt-4 dark:bg-dark--theme"
 											id="member"
 										>
 											<MemberSetting />
@@ -101,7 +101,7 @@ const Team = () => {
 									{isTeamManager && (
 										<Accordian
 											title={t('pages.settingsTeam.INTEGRATIONS')}
-											className="max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
+											className="w-full max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
 											id="integrations"
 										>
 											<IntegrationSetting />
@@ -111,7 +111,7 @@ const Team = () => {
 									{/* Issues Settings */}
 									<Accordian
 										title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-										className="max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
+										className="w-full max-w-[66vw] overflow-y-auto p-4 mt-4 dark:bg-dark--theme"
 										id="issues-settings"
 									>
 										<IssuesSettings />
@@ -129,7 +129,7 @@ const Team = () => {
 									{/* Danger Zone */}
 									<Accordian
 										title={t('pages.settings.DANDER_ZONE')}
-										className="max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
+										className="w-full max-w-[66vw] p-4 mt-4 dark:bg-dark--theme"
 										isDanger={true}
 										id="danger-zones"
 									>
