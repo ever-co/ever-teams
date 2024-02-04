@@ -1,7 +1,7 @@
 'use client';
 
 import { authFormValidate } from '@app/helpers/validations';
-import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import {
 	sendAuthCodeAPI,
 	signInEmailAPI,
@@ -13,7 +13,6 @@ import { AxiosError, isAxiosError } from 'axios';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { useTranslations } from 'next-intl';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -39,8 +38,6 @@ export function useAuthenticationPasscode() {
 	const queryCode = useMemo(() => {
 		return query?.get('code');
 	}, [query]);
-
-	const t = useTranslations();
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
@@ -76,17 +73,22 @@ export function useAuthenticationPasscode() {
 	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
-				if (res.data?.workspaces && res.data.workspaces.length) {
-					setWorkspaces(res.data.workspaces);
+				const data = res.data as ISigninEmailConfirmResponse;
+				if (!data.workspaces) {
+					return;
+				}
+
+				if (data?.workspaces && data.workspaces.length) {
+					setWorkspaces(data.workspaces);
 
 					setScreen('workspace');
 				}
 
 				// If user tries to login from public Team Page as an Already a Member
 				// Redirect to the current team automatically
-				if (pathname === '/team/[teamId]/[profileLink]' && res.data.workspaces.length) {
+				if (pathname === '/team/[teamId]/[profileLink]' && data.workspaces.length) {
 					if (queryTeamId) {
-						const currentWorkspace = res.data.workspaces.find((workspace) =>
+						const currentWorkspace = data.workspaces.find((workspace) =>
 							workspace.current_teams.map((item) => item.team_id).includes(queryTeamId as string)
 						);
 
@@ -98,14 +100,14 @@ export function useAuthenticationPasscode() {
 					}
 				}
 
-				if (res.data?.status !== 200 && res.data?.status !== 201) {
-					setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
-				}
+				// if (res.data?.status !== 200 && res.data?.status !== 201) {
+				// 	setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
+				// }
 			})
 			.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
 				if (isAxiosError(err)) {
 					if (err.response?.status === 400) {
-						setErrors(err.response?.data?.errors || {});
+						setErrors(err.response.data?.errors || {});
 					}
 				} else {
 					setErrors(err.errors || {});

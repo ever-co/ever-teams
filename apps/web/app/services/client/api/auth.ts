@@ -12,6 +12,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@app/constants';
 import qs from 'qs';
+import { signInEmailConfirmGauzy } from './auth/invite-accept';
 
 export const getAuthenticatedUserDataAPI = () => {
 	const params = {} as { [x: string]: string };
@@ -104,6 +105,7 @@ export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
 
 export async function signInEmailConfirmAPI(email: string, code: string) {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
+		return signInEmailConfirmGauzy(email, code);
 	}
 
 	return api.post<ISigninEmailConfirmResponse>('/auth/signin-email-confirm', {
