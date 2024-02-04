@@ -89,7 +89,7 @@ export async function syncTimerAPI(source: TimerSource, user: IUser | undefined)
 	const tenantId = getTenantIdCookie();
 
 	if (GAUZY_API_BASE_SERVER_URL.value) {
-		await post('/timesheet/timer/stop', {
+		await post('/timesheet/time-slot', {
 			tenantId,
 			organizationId,
 			logType: 'TRACKED',
@@ -97,6 +97,8 @@ export async function syncTimerAPI(source: TimerSource, user: IUser | undefined)
 			employeeId: user?.employee.id,
 			duration: 5
 		});
+
+		return getTimerStatusAPI(tenantId, organizationId);
 	}
 
 	return api.post<ITimerStatus>('/timer/sync', {
