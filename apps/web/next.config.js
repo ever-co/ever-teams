@@ -55,19 +55,6 @@ const nextConfig = {
 			'gauzystage.s3.wasabisys.com'
 		]
 	},
-	// module: {
-	// 	rules: [
-	// 	{
-	// 		test: /.(otf|eot|ttf|woff|woff2|svg)(\?\S*)?$/,
-	// 		loader: "file-loader",
-	// 		options: {
-	// 		publicPath: "../../",
-	// 		name: "./[path][name].[ext]",
-	// 		emitFile: false
-	// 		}
-	// 	}
-	// 	]
-	// },
 	...sentryConfig
 };
 
