@@ -14,7 +14,7 @@ const Footer = () => {
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
 					>
-						{t('layout.footer.COPY_RIGHT3')}
+						{t('layout.footer.COPY_RIGHT4')}
 					</a>
 					<div>by</div>
 					<a
@@ -29,7 +29,7 @@ const Footer = () => {
 						<ToggleThemeContainer />
 					</div>
 				</div>
-				<div>{t('layout.footer.RIGHTS_RESERVERD')}</div>
+				<div>{t('layout.footer.RIGHTS_RESERVED')}</div>
 				<div className="hidden space-x-2 sm:flex md:hidden">
 					<ToggleThemeContainer />
 				</div>
