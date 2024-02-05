@@ -58,7 +58,7 @@ export function getPublicOrganizationTeamMiscDataRequest({
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = qs.stringify(params || {});
+	const queries = qs.stringify(params);
 
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,

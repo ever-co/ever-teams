@@ -55,7 +55,7 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 }
 
 /**
- * wrapper to ensure card is draggable
+ * wrapper to ensure the card is draggable
  * @param param0
  * @returns
  */
@@ -63,7 +63,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 	return (
 		<>
 			<section
-				className="flex flex-col pb-2 overflow-x-hidden"
+				className="flex flex-col pb-2"
 			>
 				{items.map((item: ITeamTask, index: number) => (
 					<Draggable key={item.id} draggableId={item.id} index={index}>
@@ -113,7 +113,7 @@ function InnerList(props: {
 }
 
 /**
- * wrapper to allow inner column act as
+ * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
  * @returns
@@ -154,7 +154,7 @@ export const KanbanDroppable = ({
 };
 
 /**
- * wrapper to allow inner column act as
+ * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
  * @returns
@@ -206,7 +206,7 @@ export const EmptyKanbanDroppable = ({
 										style={headerStyleChanger(snapshot, backgroundColor)}
 										data-isDragging={snapshot.isDragging}
 									>
-										<div className="flex flex-col items-center  gap-2">
+										<div className="flex flex-col items-center gap-2">
 											<button className="rotate-180" onClick={() => toggleColumn(title, false)}>
 												<LeftArrowTailessIcon />
 											</button>
@@ -339,8 +339,8 @@ const KanbanDraggable = ({
 							ref={provided.innerRef}
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
-							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col px-2  w-[355px]"
+							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+							className="relative flex flex-col px-2 h-[1000px] w-[355px]"
 						>
 							{title ? (
 								<>

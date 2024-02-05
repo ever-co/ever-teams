@@ -90,7 +90,7 @@ const Kanban = () => {
 							</button>
 						</div>
 					</div>
-					<div className="relative flex flex-row justify-between items-center mt-10">
+					<div className="relative flex flex-col lg:flex-row justify-between items-center mt-10">
 						<div className="flex flex-row">
 							{tabs.map((tab) => (
 								<div
@@ -110,7 +110,7 @@ const Kanban = () => {
 								</div>
 							))}
 						</div>
-						<div className="flex space-x-2">
+						<div className="flex space-x-2 mt-5 lg:mt-0">
 							<Dropdown
 								searchBar={false}
 								className="w-24"
