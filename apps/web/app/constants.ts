@@ -1,6 +1,7 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
+import enLanguage from '../messages/en.json';
 
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
@@ -165,7 +166,7 @@ export const APPLICATION_LANGUAGES_CODE = [
 	'ru',
 	'es'
 ];
-
+export type Languages = typeof enLanguage;
 export enum ActivityFilters {
 	TASKS = 'Tasks',
 	SCREENSHOOTS = 'Screenshots',
