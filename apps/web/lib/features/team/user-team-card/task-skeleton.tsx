@@ -43,23 +43,31 @@ export function InviteUserTeamSkeleton() {
 export function UserTeamCardHeader() {
 	const t = useTranslations();
 	return (
-		<div className="hidden sm:flex row font-normal justify-between  dark:text-[#7B8089] p-4 ml-2">
-			<p className="w-1/12">{t('common.STATUS')}</p>
-			<p className="w-2/12">{t('common.NAME')}</p>
-			<p className="w-3/12">{t('common.TASK')} </p>
-			<div className="w-2/12 text-right  ">
-				<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-					{t('task.taskTableHead.TASK_WORK.TITLE')} {t('common.TASK')}
-				</Tooltip>
-			</div>
-			<p className="w-2/12 text-center">{t('common.ESTIMATE')}</p>
-			<div className="w-2/12 text-center">
-				<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-					{t('task.taskTableHead.TOTAL_WORK.TITLE')} {t('common.TODAY')}
-				</Tooltip>
-			</div>
+		<div className=" my-6 dark:text-[#7B8089] font-normal">
+			<div className="relative m-0 flex items-center ">
+				<div className="flex w-1/4 justify-center  items-center space-x-2 lg:space-x-4 2xl:w-[20.625rem]">
+					<p>{t('common.STATUS')}</p>
+					<p>{t('common.NAME')}</p>
+				</div>
 
+				<div className="flex-grow self-stretch flex justify-end">Task</div>
 
+				<div className="flex flex-1 w-[100%-_20px] "></div>
+
+				<div className="3xl:w-[12rem] flex w-1/5 flex-col justify-center gap-y-[1.125rem]  2xl:w-48">
+					<div className="lg:text-left text-right w-full">
+						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+							{t('task.taskTableHead.TASK_WORK.TITLE')} {t('common.TASK')}
+						</Tooltip>
+					</div>
+				</div>
+				<div className="3xl:w-64 w-1/5 lg:px-3 2xl:w-52 lg:text-left text-right">{t('common.ESTIMATE')}</div>
+				<div className="3xl:w-64 flex w-1/5 cursor-pointer items-center justify-center gap-4 lg:px-3 2xl:w-52">
+					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+						{t('task.taskTableHead.TOTAL_WORK.TITLE')} {t('common.TODAY')}
+					</Tooltip>
+				</div>
+			</div>
 		</div>
 	);
 }
