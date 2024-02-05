@@ -29,7 +29,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 					<TaskEstimate />
 				</div>
 
-				<div className="flex-grow justify-end flex-1 gap-2 flex">
+				<div className="flex-grow justify-end hidden flex-1 gap-2 md:flex">
 					<ActiveTaskStatusDropdown
 						className="lg:max-w-[190px] w-full"
 						disabled={!activeTeamTask}
