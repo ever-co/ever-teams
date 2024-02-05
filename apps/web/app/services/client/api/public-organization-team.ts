@@ -26,7 +26,7 @@ export function getPublicOrganizationTeamsAPI(profile_link: string, team_id: str
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = qs.stringify(params || {});
+	const queries = qs.stringify(params);
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
 		? `/public/team/${profile_link}/${team_id}?${queries}`
@@ -48,7 +48,7 @@ export function getPublicOrganizationTeamsMiscDataAPI(profile_link: string, team
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = qs.stringify(params || {});
+	const queries = qs.stringify(params);
 
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
 		? `/public/team/${profile_link}/${team_id}?${queries}`
