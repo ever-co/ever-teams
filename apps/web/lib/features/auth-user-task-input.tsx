@@ -24,14 +24,14 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				autoAssignTaskAuth={isTrackingEnabled}
 			/>
 			<div className="flex gap-5 flex-row lg:items-center justify-between ml-2">
-				<div className="xl:flex mb-4  lg:mb-0">
-					<span className="font-normal  text-gray-500 pr-2">{t('common.ESTIMATE')}:</span>
+				<div className="xl:flex mb-4 lg:mb-0">
+					<span className="font-normal text-gray-500 pr-2">{t('common.ESTIMATE')}:</span>
 					<TaskEstimate />
 				</div>
 
-				<div className="flex-grow  justify-end flex-1 gap-2 flex">
+				<div className="flex-grow justify-end flex-1 hidden gap-2 flex">
 					<ActiveTaskStatusDropdown
-						className=" lg:max-w-[190px] w-full"
+						className="lg:max-w-[190px] w-full"
 						disabled={!activeTeamTask}
 						taskStatusClassName=" text-xs py-1.5 w-full"
 					/>
@@ -39,13 +39,13 @@ export function AuthUserTaskInput({ className }: IClassName) {
 					<ActiveTaskPropertiesDropdown
 						className="lg:max-w-[190px] w-full"
 						disabled={!activeTeamTask}
-						taskStatusClassName=" w-full py-1.5 text-xs"
+						taskStatusClassName="w-full py-1.5 text-xs"
 					/>
 
 					<ActiveTaskSizesDropdown
 						className="lg:max-w-[190px] w-full"
 						disabled={!activeTeamTask}
-						taskStatusClassName=" w-full py-1.5 text-xs"
+						taskStatusClassName="w-full py-1.5 text-xs"
 					/>
 
 					<TaskLabels
