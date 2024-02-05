@@ -17,7 +17,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 	useEffect(() => {
 		const { h, m } = secondsToTime($task?.estimate || 0);
 		setValue({
-			hours: h ? h.toString() : '00',
+			hours: h ? h.toString() : '',
 			minutes: pad(m).toString()
 		});
 	}, [$task?.estimate]);
