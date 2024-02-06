@@ -22,8 +22,8 @@ spec:
           targetPort: 3000
 
 ---
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
     name: ever-teams-dev-webapp
 spec:
