@@ -46,25 +46,33 @@ export function UserTeamCardHeader() {
 		<div className=" my-6 dark:text-[#7B8089] font-normal">
 			<div className="relative m-0 flex items-center ">
 				<div className="flex w-1/4 justify-center  items-center space-x-2 lg:space-x-4 2xl:w-[20.625rem]">
-					<p>{t('common.STATUS')}</p>
 					<p>{t('common.NAME')}</p>
 				</div>
 
-				<div className="flex-grow self-stretch flex justify-end">Task</div>
+				<div className="flex-grow self-stretch flex justify-end items-center">{t('common.TASK')}</div>
 
-				<div className="flex flex-1 w-[100%-_20px] "></div>
+				<div className="flex flex-1 w-[100%-_20px]"></div>
 
-				<div className="3xl:w-[12rem] flex w-1/5 flex-col justify-center gap-y-[1.125rem]  2xl:w-48">
-					<div className="lg:text-left text-right w-full">
-						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-							{t('task.taskTableHead.TASK_WORK.TITLE')} {t('common.TASK')}
+				<div className="3xl:w-[12rem] flex w-1/5 flex-col justify-center gap-y-[1.125rem] 2xl:w-48">
+					<div className="lg:text-center text-left w-full">
+						<Tooltip
+							label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}
+							labelContainerClassName=""
+						>
+							<div className="text-center ">
+								{t('task.taskTableHead.TASK_WORK.TITLE')}
+								<br />
+								<span className="">{t('common.TASK')}</span>
+							</div>
 						</Tooltip>
 					</div>
 				</div>
-				<div className="3xl:w-64 w-1/5 lg:px-3 2xl:w-52 lg:text-left text-right">{t('common.ESTIMATE')}</div>
+				<div className="3xl:w-80 w-1/5 lg:px-4 2xl:w-52 lg:text-center text-right">{t('common.ESTIMATE')}</div>
 				<div className="3xl:w-64 flex w-1/5 cursor-pointer items-center justify-center gap-4 lg:px-3 2xl:w-52">
 					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-						{t('task.taskTableHead.TOTAL_WORK.TITLE')} {t('common.TODAY')}
+						{t('task.taskTableHead.TOTAL_WORK.TITLE')}
+						<br />
+						<span className="ml-6">{t('common.TODAY')}</span>
 					</Tooltip>
 				</div>
 			</div>
