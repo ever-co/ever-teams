@@ -1,5 +1,6 @@
 import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 import { serverFetch } from '../../fetch';
+import qs from 'qs';
 
 export function getTimerStatusRequest({
 	bearer_token,
@@ -24,9 +25,11 @@ export function getTimerStatusRequest({
 		todayEnd: todayEnd.toISOString(),
 		'relations[0]': 'employee'
 	};
-	const query = new URLSearchParams(params);
+
+	const query = qs.stringify(params);
+
 	return serverFetch<ITimerSlotDataRequest>({
-		path: `/timesheet/timer/status?${query.toString()}`,
+		path: `/timesheet/timer/status?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

@@ -129,8 +129,7 @@ export async function POST(req: Request) {
 					noTeamPopup: true,
 					userId
 				},
-				req,
-				res
+				{ req, res }
 			);
 			return NextResponse.json({ team, loginResponse });
 		}
@@ -173,8 +172,7 @@ export async function POST(req: Request) {
 				noTeamPopup: true,
 				userId
 			},
-			req,
-			res
+			{ req, res }
 		);
 
 		return NextResponse.json({ loginResponse: data });

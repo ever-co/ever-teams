@@ -18,19 +18,10 @@ const GitHub = () => {
 
 	const installing = useRef<boolean>(false);
 
-	const { installGitHub, getRepositories } = useGitHubIntegration();
-	// const { loading: integrationLoading } = useIntegration();
+	const { installGitHub, getRepositories } = useGitHubIntegration();	
 	const { getIntegrationTenant, loading: integrationTenantLoading, integrationTenant } = useIntegrationTenant();
-
 	const { loading: loadingIntegrationTypes, integrationTypes, getIntegrationTypes } = useIntegrationTypes();
-
-	// const params = {
-	// 	state: 'http://localhost:3001/integration/github'
-	// } as { [x: string]: string };
-
-	// const queries = new URLSearchParams(params || {});
-	// const url = `https://github.com/apps/badal-ever-testing-probot/installations/new?${queries.toString()}`;
-
+	
 	const handleInstallGitHub = useCallback(() => {
 		installing.current = true;
 

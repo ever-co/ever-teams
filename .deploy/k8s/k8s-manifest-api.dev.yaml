@@ -1,0 +1,82 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+    name: ever-teams-dev-api-lb
+    annotations:
+        service.beta.kubernetes.io/do-loadbalancer-name: 'apidev.ever.team'
+        service.beta.kubernetes.io/do-loadbalancer-protocol: 'http2'
+        service.beta.kubernetes.io/do-loadbalancer-http2-ports: '443'
+        # Replace with your Certificate Id. You can get a list of Ids with 'doctl compute certificate list'
+        service.beta.kubernetes.io/do-loadbalancer-certificate-id: '0c4085c5-9692-4320-86f3-34f52b775a88'
+        service.beta.kubernetes.io/do-loadbalancer-size-slug: 'lb-small'
+        service.beta.kubernetes.io/do-loadbalancer-hostname: 'apidev.ever.team'
+spec:
+    type: LoadBalancer
+    selector:
+        app: ever-teams-dev-api
+    ports:
+        - name: http
+          protocol: TCP
+          port: 443
+          targetPort: 3000
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+    name: ever-teams-dev-api
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: ever-teams-dev-api
+    template:
+        metadata:
+            labels:
+                app: ever-teams-dev-api
+        spec:
+            containers:
+                - name: ever-teams-dev-api
+                  image: registry.digitalocean.com/ever/gauzy-api-demo:latest
+                  env:
+                      - name: API_HOST
+                        value: 0.0.0.0
+                      - name: DEMO
+                        value: 'true'
+                      - name: CLOUD_PROVIDER
+                        value: '$CLOUD_PROVIDER'
+                      - name: NODE_ENV
+                        value: 'development'
+                      - name: ADMIN_PASSWORD_RESET
+                        value: 'true'
+                      - name: LOG_LEVEL
+                        value: 'info'
+                      - name: SENTRY_DSN
+                        value: '$SENTRY_DSN'
+                      - name: SENTRY_HTTP_TRACING_ENABLED
+                        value: '$SENTRY_HTTP_TRACING_ENABLED'
+                      - name: SENTRY_PROFILING_ENABLED
+                        value: '$SENTRY_PROFILING_ENABLED'
+                      - name: SENTRY_POSTGRES_TRACKING_ENABLED
+                        value: '$SENTRY_POSTGRES_TRACKING_ENABLED'
+                      - name: API_BASE_URL
+                        value: 'https://apidev.ever.team'
+                      - name: CLIENT_BASE_URL
+                        value: 'https://demo.ever.team'
+                      - name: EXPRESS_SESSION_SECRET
+                        value: 'gauzy'
+                      - name: JWT_SECRET
+                        value: 'secretKey'
+                      - name: JWT_REFRESH_TOKEN_SECRET
+                        value: 'refreshSecretKey'
+                      - name: JWT_REFRESH_TOKEN_EXPIRATION_TIME
+                        value: '86400'
+                      - name: OTEL_ENABLED
+                        value: '$OTEL_ENABLED'
+                      - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+                        value: '$OTEL_EXPORTER_OTLP_TRACES_ENDPOINT'
+                      - name: OTEL_EXPORTER_OTLP_HEADERS
+                        value: '$OTEL_EXPORTER_OTLP_HEADERS'
+                  ports:
+                      - containerPort: 3000
+                        protocol: TCP

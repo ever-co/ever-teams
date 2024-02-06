@@ -9,17 +9,18 @@ import {
 } from '@app/interfaces';
 import { get, post, put } from '../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import qs from 'qs';
 
 export function getRequestToJoinAPI() {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId
 	});
 
-	return get<PaginationResponse<IRequestToJoin>>(`/organization-team-join?${query.toString()}`);
+	return get<PaginationResponse<IRequestToJoin>>(`/organization-team-join?${query}`);
 }
 
 export function requestToJoinAPI(data: IRequestToJoinCreate) {

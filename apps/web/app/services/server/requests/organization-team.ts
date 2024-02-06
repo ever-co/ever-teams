@@ -5,11 +5,13 @@ import {
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus
-} from '@app/interfaces/IOrganizationTeam';
+	IOrganizationTeamWithMStatus,
+	ITeamRequestParams
+} from '@app/interfaces';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';
+import qs from 'qs';
 
 export async function createOrganizationTeamRequest(datas: IOrganizationTeamCreate, bearer_token: string) {
 	// Create project
@@ -86,7 +88,7 @@ export function getOrganizationTeamRequest(
 			'projects',
 			'projects.repository'
 		]
-	}: TeamRequestParams & { teamId: string },
+	}: ITeamRequestParams & { teamId: string },
 	bearer_token: string
 ) {
 	const params = {
@@ -103,7 +105,8 @@ export function getOrganizationTeamRequest(
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = qs.stringify(params);
+
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/organization-team/${teamId}?${queries.toString()}`,
 		method: 'GET',
@@ -111,12 +114,6 @@ export function getOrganizationTeamRequest(
 		tenantId
 	});
 }
-
-type TeamRequestParams = {
-	organizationId: string;
-	tenantId: string;
-	relations?: string[];
-};
 
 export function getAllOrganizationTeamRequest(
 	{
@@ -132,7 +129,7 @@ export function getAllOrganizationTeamRequest(
 			'projects',
 			'projects.repository'
 		]
-	}: TeamRequestParams,
+	}: ITeamRequestParams,
 	bearer_token: string
 ) {
 	const params = {
@@ -146,10 +143,10 @@ export function getAllOrganizationTeamRequest(
 		params[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
 
 	return serverFetch<PaginationResponse<IOrganizationTeamList>>({
-		path: `/organization-team?${query.toString()}`,
+		path: `/organization-team?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

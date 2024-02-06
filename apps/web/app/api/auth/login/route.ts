@@ -145,8 +145,7 @@ export async function POST(req: Request) {
 			noTeamPopup: true,
 			userId
 		},
-		req,
-		res
+		{ req, res }
 	);
 
 	return NextResponse.json({ team, loginResponse });

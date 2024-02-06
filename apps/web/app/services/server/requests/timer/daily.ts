@@ -1,3 +1,4 @@
+import qs from 'qs';
 import { serverFetch } from '../../fetch';
 import { ITimerSlotDataRequest } from '@app/interfaces/timer/ITimerSlot';
 
@@ -31,9 +32,10 @@ export function getEmployeeDailyRequest({
 		'activityLevel[end]': activityLevel.end.toString()
 	};
 
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
+
 	return serverFetch<ITimerSlotDataRequest>({
-		path: `/timesheet/activity/daily?${query.toString()}`,
+		path: `/timesheet/activity/daily?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

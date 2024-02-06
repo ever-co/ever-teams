@@ -1,5 +1,6 @@
 import { IRolePermissions } from '@app/interfaces/IRolePermissions';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 export function getRolePermissionsRequest({
 	bearer_token,
@@ -18,10 +19,11 @@ export function getRolePermissionsRequest({
 			}
 		})
 	};
-	const query = new URLSearchParams(params);
+
+	const query = qs.stringify(params);
 
 	return serverFetch<IRolePermissions>({
-		path: `/role-permissions?${query.toString()}`,
+		path: `/role-permissions?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

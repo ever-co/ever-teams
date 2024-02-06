@@ -10,11 +10,15 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
+
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@app/hooks/features/useKanban';
 import { AddIcon } from './svgs';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Button } from '@components/ui/button';
+import { useTranslations } from 'next-intl';
 
 const grid = 8;
 
@@ -51,27 +55,15 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 }
 
 /**
- * wrapper to ensure card is draggable
+ * wrapper to ensure the card is draggable
  * @param param0
  * @returns
  */
-function InnerItemList({
-	items,
-	title,
-	dropSnapshot
-}: {
-	title: string;
-	items: ITeamTask[];
-	dropSnapshot: DroppableStateSnapshot;
-}) {
+function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dropSnapshot: DroppableStateSnapshot }) {
 	return (
 		<>
 			<section
-				style={{
-					minHeight: items.length < 0 && dropSnapshot.isDraggingOver ? '120px' : '20px',
-					marginTop: items.length > 0 ? '20px' : '0px'
-				}}
-				className="flex flex-col gap-2.5  overflow-x-hidden"
+				className="flex flex-col pb-2"
 			>
 				{items.map((item: ITeamTask, index: number) => (
 					<Draggable key={item.id} draggableId={item.id} index={index}>
@@ -121,7 +113,7 @@ function InnerList(props: {
 }
 
 /**
- * wrapper to allow inner column act as
+ * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
  * @returns
@@ -137,19 +129,6 @@ export const KanbanDroppable = ({
 	type: string;
 	content: ITeamTask[];
 }) => {
-	const [enabled, setEnabled] = useState(false);
-
-	useEffect(() => {
-		const animation = requestAnimationFrame(() => setEnabled(true));
-
-		return () => {
-			cancelAnimationFrame(animation);
-			setEnabled(false);
-		};
-	}, []);
-
-	if (!enabled) return null;
-
 	return (
 		<>
 			<Droppable droppableId={droppableId} type={type}>
@@ -175,7 +154,7 @@ export const KanbanDroppable = ({
 };
 
 /**
- * wrapper to allow inner column act as
+ * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
  * @returns
@@ -216,7 +195,7 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row w-fit h-full"
+							className="flex flex-row px-2 w-fit h-full"
 						>
 							{title.length > 0 ? (
 								<>
@@ -227,7 +206,7 @@ export const EmptyKanbanDroppable = ({
 										style={headerStyleChanger(snapshot, backgroundColor)}
 										data-isDragging={snapshot.isDragging}
 									>
-										<div className="flex flex-col items-center  gap-2">
+										<div className="flex flex-col items-center gap-2">
 											<button className="rotate-180" onClick={() => toggleColumn(title, false)}>
 												<LeftArrowTailessIcon />
 											</button>
@@ -279,7 +258,6 @@ const KanbanDraggableHeader = ({
 	provided: DraggableProvided;
 }) => {
 	const { toggleColumn } = useKanban();
-
 	return (
 		<>
 			{title && (
@@ -306,7 +284,23 @@ const KanbanDraggableHeader = ({
 						</div>
 					</div>
 					<div className="flex flex-row items-center gap-2">
-						<ThreeDotIcon color="black" />
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button variant="ghost" className="hover:bg-transparent p-0">
+									<ThreeDotIcon color="black" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								align="start"
+								className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
+							>
+								{['Delete', 'Archive', 'Copy'].map((v) => (
+									<p className="hover:font-medium p-1.5 text-sm cursor-pointer" key={v}>
+										{v}
+									</p>
+								))}
+							</PopoverContent>
+						</Popover>
 						<button onClick={() => toggleColumn(title, true)}>
 							<LeftArrowTailessIcon />
 						</button>
@@ -332,7 +326,10 @@ const KanbanDraggable = ({
 	title: string;
 	backgroundColor: any;
 	items: ITeamTask[];
+	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
+	const t = useTranslations();
+
 	return (
 		<>
 			{title && (
@@ -342,8 +339,8 @@ const KanbanDraggable = ({
 							ref={provided.innerRef}
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
-							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col w-[325px]"
+							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+							className="relative flex flex-col px-2 h-[1000px] w-[355px]"
 						>
 							{title ? (
 								<>
@@ -356,17 +353,17 @@ const KanbanDraggable = ({
 											backgroundColor={backgroundColor}
 										/>
 									</div>
-									<div className="flex flex-col gap-3 ">
+									<div className="flex flex-col ">
 										<KanbanDroppable
 											title={title}
 											droppableId={title}
 											type={'TASK'}
 											content={items}
 										/>
-										<div className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+										<button className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
 											<AddIcon height={20} width={20} className="dark:stroke-white" />
-											<p>Create Issues</p>
-										</div>
+											<p>{t('common.CREATE_TASK')}</p>
+										</button>
 									</div>
 								</>
 							) : null}

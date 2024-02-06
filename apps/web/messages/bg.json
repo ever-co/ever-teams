@@ -4,6 +4,8 @@
 		"ACCEPT": "Приемам",
 		"ACCEPTED": "Приет",
 		"REJECT": "Отхвърлям",
+		"TOMORROW" : "Утре",
+		"YESTERDAY" : "Вчера",
 		"REJECTED": "Отхвърлен",
 		"VERIFY": "провери",
 		"INVITE": "Покани",
@@ -175,7 +177,7 @@
 		"ALERT_DELETE_ACCOUNT": "Профилът ще бъде премахнат от всички отбори, освен където сте само мениджър",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Вашият профил ще бъде изтрит завинаги с премахване от всички отбори",
 		"ALERT_REMOVE_TEAM": "Отборът ще бъде премахнат напълно от системата и членовете на отбора ще загубят достъп",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Всички данни за профила ще бъдат премахнати от всички отбори, освен където сте само мениджър",
 		"ALERT_QUIT_TEAM": "Ще напуснете отбора"
 	},
 	"pages": {
@@ -189,7 +191,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "Сигурни ли сте, че искате да приемете поканата?",
 			"CONFIRM_REJECT_INVITATION": "Сигурни ли сте, че искате да отхвърлите поканата?"
 		},
-
+		"kanban":{
+			"KANBAN_BOARD":"Канбан дъска"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]"
 		},

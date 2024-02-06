@@ -71,7 +71,7 @@ export function usePublicOrganizationTeams() {
 				}
 
 				let responseTasks = (res.data.tasks as ITeamTask[]) || [];
-				if (responseTasks && responseTasks.length) {
+				if (Array.isArray(responseTasks) && responseTasks.length > 0) {
 					responseTasks = responseTasks.map((task) => {
 						const clone = cloneDeep(task);
 						if (task.tags && task.tags?.length) {

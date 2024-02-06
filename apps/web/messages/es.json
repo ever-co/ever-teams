@@ -4,6 +4,8 @@
 		"ACCEPT": "Aceptar",
 		"ACCEPTED": "Aceptado",
 		"REJECT": "Rechazar",
+		"TOMORROW" : "Mañana",
+		"YESTERDAY" : "Ayer",
 		"REJECTED": "Rechazado",
 		"VERIFY": "verificar",
 		"INVITE": "Invitar",
@@ -173,7 +175,7 @@
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Todos los datos de la cuenta serán eliminados de todos los equipos donde eres el único administrador existente",
 		"ALERT_QUIT_TEAM": "Estás a punto de abandonar el equipo"
 	},
 	"pages": {
@@ -186,6 +188,9 @@
 			"INVITATIONS": "Has sido invitado a unirte a",
 			"CONFIRM_ACCEPT_INVITATION": "¿Estás seguro de que deseas aceptar la invitación?",
 			"CONFIRM_REJECT_INVITATION": "¿Estás seguro de que deseas rechazar la invitación?"
+		},
+		"kanban":{
+			"KANBAN_BOARD":"tablero kanban"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tareas de miembro\"]"
@@ -231,7 +236,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Código inválido",
 			"WELCOME_TEAMS": "Bienvenido a Equipos Siempre",
 			"COVER_TITLE": "¡Sigue el progreso del trabajo de tus equipos en tiempo real!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Gestión de trabajo y fuerza laboral todo en uno, gestión del tiempo, seguimiento del tiempo, seguimiento de la actividad, seguimiento de la productividad y métricas, gestión de proyectos/tareas y problemas, organizaciones y equipos, integraciones (GitHub, JIRA, ...) y más!",
 			"LOGIN": "Iniciar sesión",
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
 			"ENTER_EMAIL": "Ingresar correo electrónico",

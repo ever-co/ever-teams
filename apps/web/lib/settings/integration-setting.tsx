@@ -13,6 +13,7 @@ import { Switch } from '@headlessui/react';
 import debounce from 'lodash/debounce';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import qs from 'qs';
 
 export const IntegrationSetting = () => {
 	const t = useTranslations();
@@ -31,7 +32,8 @@ export const IntegrationSetting = () => {
 		} as { [x: string]: string };
 	}, [locale]);
 
-	const queries = new URLSearchParams(params);
+	const queries = qs.stringify(params);
+
 	const url = `https://github.com/apps/${GITHUB_APP_NAME.value}/installations/new?${queries.toString()}`;
 
 	const { activeTeam } = useOrganizationTeams();

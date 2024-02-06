@@ -8,6 +8,7 @@ import {
 	MyInvitationActionEnum
 } from '@app/interfaces/IInvite';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 /**
  * Invite user using email request
@@ -70,15 +71,16 @@ export function getTeamInvitationsRequest(
 	{ teamId, tenantId, organizationId, role }: ITeamInvitationsRequest,
 	bearer_token: string
 ) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
 		'where[role][name]': role,
 		'where[teams][id][0]': teamId,
 		'where[status]': 'INVITED'
 	});
+
 	return serverFetch<PaginationResponse<IInvitation>>({
-		path: `/invite?${query.toString()}`,
+		path: `/invite?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId
