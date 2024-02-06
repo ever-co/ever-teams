@@ -43,9 +43,9 @@ export function InviteUserTeamSkeleton() {
 export function UserTeamCardHeader() {
 	const t = useTranslations();
 	return (
-		<div className=" my-6 dark:text-[#7B8089] font-normal">
-			<div className="relative m-0 flex items-center ">
-				<div className="flex w-1/4 justify-center  items-center space-x-2 lg:space-x-4 2xl:w-[20.625rem]">
+		<div className="my-6 dark:text-[#7B8089] font-normal">
+			<div className="relative m-0 flex items-center">
+				<div className="flex w-1/4 justify-center items-center space-x-2 lg:space-x-4 2xl:w-[20.625rem]">
 					<p>{t('common.NAME')}</p>
 				</div>
 
