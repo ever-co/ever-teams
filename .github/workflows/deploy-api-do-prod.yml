@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-api-dev:
+  deploy-api-prod:
     runs-on: buildjet-4vcpu-ubuntu-2204
 
     environment: prod
