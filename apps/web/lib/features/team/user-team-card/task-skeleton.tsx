@@ -55,14 +55,11 @@ export function UserTeamCardHeader() {
 
 				<div className="3xl:w-[12rem] flex w-1/5 flex-col justify-center gap-y-[1.125rem] 2xl:w-48">
 					<div className="lg:text-center text-left w-full">
-						<Tooltip
-							label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}
-							labelContainerClassName=""
-						>
-							<div className="text-center ">
+						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+							<div className="text-center">
 								{t('task.taskTableHead.TASK_WORK.TITLE')}
 								<br />
-								<span className="">{t('common.TASK')}</span>
+								<span>{t('common.TASK')}</span>
 							</div>
 						</Tooltip>
 					</div>
