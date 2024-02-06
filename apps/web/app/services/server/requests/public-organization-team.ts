@@ -30,7 +30,7 @@ export function getPublicOrganizationTeamRequest({
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = new URLSearchParams(params);
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
 		method: 'GET'
@@ -56,7 +56,7 @@ export function getPublicOrganizationTeamMiscDataRequest({
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = new URLSearchParams(params);
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
 		method: 'GET'
