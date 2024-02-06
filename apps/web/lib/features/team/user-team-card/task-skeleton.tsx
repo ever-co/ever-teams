@@ -54,7 +54,7 @@ export function UserTeamCardHeader() {
 				<div className="flex flex-1 w-[100%-_20px]"></div>
 
 				<div className="3xl:w-[12rem] flex w-1/5 flex-col justify-center gap-y-[1.125rem] 2xl:w-48">
-					<div className="lg:text-center text-left w-full">
+					<div className="lg:text-center text-left w-full mt-1.5">
 						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
 							<div className="text-center">
 								{t('task.taskTableHead.TASK_WORK.TITLE')}
@@ -65,7 +65,7 @@ export function UserTeamCardHeader() {
 					</div>
 				</div>
 				<div className="3xl:w-80 w-1/5 lg:px-4 2xl:w-52 lg:text-center text-right">{t('common.ESTIMATE')}</div>
-				<div className="3xl:w-64 flex w-1/5 cursor-pointer items-center justify-center gap-4 lg:px-3 2xl:w-52">
+				<div className="3xl:w-64 flex w-1/5 cursor-pointer items-center justify-center mt-1.5 gap-4 lg:px-3 2xl:w-52">
 					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
 						{t('task.taskTableHead.TOTAL_WORK.TITLE')}
 						<br />
