@@ -17,9 +17,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          repository: 'ever-co/ever-gauzy'
-          ref: develop
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
