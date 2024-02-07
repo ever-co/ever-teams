@@ -417,6 +417,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
 		},
+		"unauthorized": {
+			"TITLE": "Non autorizzato",
+			"HEADING_TITLE": "Non sei autorizzato ad accedere a questa pagina !",
+			"HEADING_DESCRIPTION": "Ci scusiamo per il disagio ma non sei autorizzato ad accedere a questa pagina. Se ritieni che questo sia un errore. Accedere prego."
+		},
 		"page404": {
 			"HEADING_TITLE": "Not Found",
 			"HEADING_DESCRIPTION": "Resource you are looking for not found!",

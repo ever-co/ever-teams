@@ -4,8 +4,8 @@
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
 		"REJECT": "Afwijzen",
-		"TOMORROW" : "Morgen",
-		"YESTERDAY" : "Gisteren",
+		"TOMORROW": "Morgen",
+		"YESTERDAY": "Gisteren",
 		"REJECTED": "Afgewezen",
 		"VERIFY": "verifiëren",
 		"INVITE": "Uitnodigen",
@@ -193,8 +193,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "Weet u zeker dat u de uitnodiging wilt accepteren?",
 			"CONFIRM_REJECT_INVITATION": "Weet u zeker dat u de uitnodiging wilt afwijzen?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"Kanban-bord"
+		"kanban": {
+			"KANBAN_BOARD": "Kanban-bord"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]"
@@ -418,8 +418,13 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Rollen selecteren"
-		  },
-		  "page404": {
+		},
+		"unauthorized": {
+			"TITLE": "Ongeautoriseerd",
+			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
+			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in"
+		},
+		"page404": {
 			"HEADING_TITLE": "Niet gevonden",
 			"HEADING_DESCRIPTION": "De bron die u zoekt is niet gevonden!",
 			"LINK_LABEL": "Naar de startpagina"

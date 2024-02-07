@@ -65,7 +65,6 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
-	console.log({ pageProps });
 	return (
 		<html lang={locale} className={`${poppins.variable} ${jakarta.variable}`}>
 			{/* <head>

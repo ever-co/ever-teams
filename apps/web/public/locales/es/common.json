@@ -402,6 +402,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Seleccionar roles"
 		},
+		"unauthorized": {
+			"TITLE": "No autorizado",
+			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
+		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",
 			"HEADING_DESCRIPTION": "¡El recurso que buscas no se encuentra!",
