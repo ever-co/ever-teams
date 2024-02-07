@@ -49,20 +49,20 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 			extramenu: true
 		},
 		{
-			name: t('task.UNASSIGN_TASK'),
+			name: t('task.taskLabel.TASK_UNASSIGNED'),
 			handleClick: () => {
 				//
 			},
 			extramenu: true
 		},
 		{
-			name: t('task.MAKE_A_MANAGER'),
+			name: t('task.taskLabel.TASK_ASSIGNED'),
 			handleClick: () => {
 				//
 			}
 		},
 		{
-			name: t('task.MAKE_A_MANAGER'),
+			name: t('task.taskLabel.WORK_LABEL'),
 			handleClick: () => {
 				//
 			}
