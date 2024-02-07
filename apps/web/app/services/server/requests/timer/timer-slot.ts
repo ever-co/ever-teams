@@ -61,5 +61,3 @@ export function deleteEmployeeTimeSlotsRequest({
 		tenantId
 	});
 }
-
-// https://apidemo.gauzy.co/api/timesheet/time-slot?ids[0]=71bde97d-f6e7-463a-90ef-c752072755ab&organizationId=0289f323-5aa5-4dc2-92c5-633f3e70ecb4&tenantId=ae69bf6c-072f-44cb-8f41-e981a3eccdb1

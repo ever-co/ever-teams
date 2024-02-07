@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
-import { act } from 'react-dom/test-utils';
+import React, { useEffect, useState } from 'react';
 
 import AppDropdown from '~components/shared/AppDropdown';
 import { roundInput, textEllipsis } from '~misc/tailwindClasses';
@@ -135,7 +134,8 @@ const Tasks: React.FC<Props> = ({ port }) => {
 							'ml-2 bg-slate-900 text-white rounded p-2',
 							isEmptyEstimate() && 'bg-slate-600'
 						)}
-						onClick={addNewTask}>
+						onClick={addNewTask}
+					>
 						Add Task
 					</button>
 				)}
