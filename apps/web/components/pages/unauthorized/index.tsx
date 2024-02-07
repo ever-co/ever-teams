@@ -21,7 +21,7 @@ function UnauthorizedPage() {
 
 			<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 				{/* {t('pages.error.HEADING_TITLE')} */}
-				This pasge can&apos;t be reached
+				This page can&apos;t be reached
 			</Text>
 			<div className="flex flex-col gap-4">
 				<Text className="text-[20px] font-normal text-center text-gray-400">

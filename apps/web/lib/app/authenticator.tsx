@@ -49,11 +49,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		}, [queryCall, setUser, user]);
 
 		if (!user || loading) {
-			return (
-				<>
-					<UnauthorizedPage />
-				</>
-			);
+			return <>{/* <UnauthorizedPage /> */}</>;
 		}
 		// if (showPageSkeleton) {
 		// 	return <TeamPageSkeleton />;
