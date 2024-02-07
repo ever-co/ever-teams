@@ -4,8 +4,8 @@
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
 		"REJECT": "דחה",
-		"TOMORROW" : "מחר",
-		"YESTERDAY" : "אתמול",
+		"TOMORROW": "מחר",
+		"YESTERDAY": "אתמול",
 		"REJECTED": "נדחה",
 		"VERIFY": "אמת",
 		"INVITE": "הזמן",
@@ -193,8 +193,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "האם אתה בטוח שברצונך לקבל את ההזמנה?",
 			"CONFIRM_REJECT_INVITATION": "האם אתה בטוח שברצונך לדחות את ההזמנה?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"לוח Kanban"
+		"kanban": {
+			"KANBAN_BOARD": "לוח Kanban"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]"
@@ -416,6 +416,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "בחר תפקידים"
+		},
+		"unauthorized": {
+			"TITLE": "לא מורשה",
+			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
+			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר"
 		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",

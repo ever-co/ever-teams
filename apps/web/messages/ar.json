@@ -6,8 +6,8 @@
 		"REJECT": "رفض",
 		"REJECTED": "مرفوض",
 		"VERIFY": "تحقق",
-		"TOMORROW" : "غدا",
-		"YESTERDAY" : "أمس",
+		"TOMORROW": "غدا",
+		"YESTERDAY": "أمس",
 		"INVITE": "دعوة",
 		"INVITED": "مدعو",
 		"EXPIRE": "انتهاء الصلاحية",
@@ -192,8 +192,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "هل أنت متأكد من رغبتك في قبول الدعوة؟",
 			"CONFIRM_REJECT_INVITATION": "هل أنت متأكد من رغبتك في رفض الدعوة؟"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"لوحة كانبان"
+		"kanban": {
+			"KANBAN_BOARD": "لوحة كانبان"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]"
@@ -425,6 +425,11 @@
 			"SELECT_ROLES": "تحديد الأدوار"
 		},
 
+		"unauthorized": {
+			"TITLE": "غير مصرح",
+			"HEADING_TITLE": "أنت غير مفوض لدخول هذه الصفحة !",
+			"HEADING_DESCRIPTION": "عتذر عن الإزعاج، لكن غير مسموح لك بالدخول إلى هذه الصفحة. إذا كنت تعتقد أن هذا خطأ. الرجاء تسجيل الدخول."
+		},
 		"page404": {
 			"HEADING_TITLE": "غير موجود",
 			"HEADING_DESCRIPTION": "المورد الذي تبحث عنه غير موجود!",

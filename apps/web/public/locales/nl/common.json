@@ -415,6 +415,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
 		},
+		"unauthorized": {
+			"TITLE": "Ongeautoriseerd",
+			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
+			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in"
+		},
 		"page404": {
 			"HEADING_TITLE": "Not Found",
 			"HEADING_DESCRIPTION": "Resource you are looking for not found!",

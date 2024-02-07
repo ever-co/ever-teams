@@ -193,8 +193,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "您确定要接受邀请吗?",
 			"CONFIRM_REJECT_INVITATION": "您确定要拒绝邀请吗?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"看板"
+		"kanban": {
+			"KANBAN_BOARD": "看板"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]"
@@ -245,7 +245,7 @@
 			"WELCOME_TEAMS": "欢迎使用永恒团队",
 
 			"COVER_TITLE": "实时跟踪您团队的工作进度!",
-			"COVER_DESCRIPTION" : "一站式工作和人力管理，时间管理，时间跟踪，活动跟踪，生产力跟踪和指标，项目/任务和问题管理，组织和团队，集成（GitHub，JIRA，...）等等！",
+			"COVER_DESCRIPTION": "一站式工作和人力管理，时间管理，时间跟踪，活动跟踪，生产力跟踪和指标，项目/任务和问题管理，组织和团队，集成（GitHub，JIRA，...）等等！",
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
@@ -400,6 +400,11 @@
 
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!"
+		},
+		"unauthorized": {
+			"TITLE": "未經授權",
+			"HEADING_TITLE": "您無權訪問此頁面 ！",
+			"HEADING_DESCRIPTION": "對於造成您的不便，我們深表歉意，但您無權造訪此頁面。 如果您認為這是一個錯誤。 請登入。"
 		},
 		"offline": {
 			"HEADING_TITLE": "网络断开连接！",

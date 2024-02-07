@@ -421,6 +421,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Selecionar Funções"
 		},
+		"unauthorized": {
+			"TITLE": "Não autorizado",
+			"HEADING_TITLE": "Você não está autorizado à acessar essa página !",
+			"HEADING_DESCRIPTION": "Pedimos desculpas pelo transtorno, mas você não está autorizado a acessar esta página. Se você acredita que isso é um erro. Por favor entre."
+		},
 		"page404": {
 			"HEADING_TITLE": "Não Encontrado",
 			"HEADING_DESCRIPTION": "Recurso que você está procurando não foi encontrado!",

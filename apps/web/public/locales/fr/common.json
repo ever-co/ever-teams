@@ -413,6 +413,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Sélectionner des rôles"
 		},
+		"unauthorized": {
+			"TITLE": "Non autorisé",
+			"HEADING_TITLE": "Vous n'êtes pas autorisé à accéder à cette page !",
+			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter."
+		},
 		"page404": {
 			"HEADING_TITLE": "Page non trouvée",
 			"HEADING_DESCRIPTION": "La ressource que vous recherchez est introuvable !",

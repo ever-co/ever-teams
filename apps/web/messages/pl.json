@@ -195,8 +195,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "Czy na pewno chcesz zaakceptować zaproszenie?",
 			"CONFIRM_REJECT_INVITATION": "Czy na pewno chcesz odrzucić zaproszenie?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"Tablica Kanbana"
+		"kanban": {
+			"KANBAN_BOARD": "Tablica Kanbana"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]"
@@ -419,6 +419,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Wybierz Role"
+		},
+		"unauthorized": {
+			"TITLE": "Nieautoryzowany",
+			"HEADING_TITLE": "Nie masz uprawnień, aby uzyskać dostęp do tej strony !",
+			"HEADING_DESCRIPTION": "Przepraszamy za niedogodności, ale nie masz uprawnień dostępu do tej strony. Jeśli uważasz, że to błąd. Proszę się zalogować."
 		},
 		"page404": {
 			"HEADING_TITLE": "Nie Znaleziono",

@@ -4,8 +4,8 @@
 		"ACCEPT": "Aceptar",
 		"ACCEPTED": "Aceptado",
 		"REJECT": "Rechazar",
-		"TOMORROW" : "Mañana",
-		"YESTERDAY" : "Ayer",
+		"TOMORROW": "Mañana",
+		"YESTERDAY": "Ayer",
 		"REJECTED": "Rechazado",
 		"VERIFY": "verificar",
 		"INVITE": "Invitar",
@@ -189,8 +189,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "¿Estás seguro de que deseas aceptar la invitación?",
 			"CONFIRM_REJECT_INVITATION": "¿Estás seguro de que deseas rechazar la invitación?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"tablero kanban"
+		"kanban": {
+			"KANBAN_BOARD": "tablero kanban"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tareas de miembro\"]"
@@ -400,6 +400,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Seleccionar roles"
+		},
+		"unauthorized": {
+			"TITLE": "No autorizado",
+			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
 		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",
