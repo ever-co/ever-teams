@@ -3,7 +3,6 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
-import UnauthorizedPage from '@components/pages/unauthorized';
 import { CreateTeamModal } from 'lib/features';
 import { JoinTeamModal } from 'lib/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
@@ -49,7 +48,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		}, [queryCall, setUser, user]);
 
 		if (!user || loading) {
-			return <>{/* <UnauthorizedPage /> */}</>;
+			return <></>;
 		}
 		// if (showPageSkeleton) {
 		// 	return <TeamPageSkeleton />;

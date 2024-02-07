@@ -67,7 +67,8 @@ export async function middleware(request: NextRequest) {
 	const url = new URL(request.url);
 
 	const deny_redirect = (defaultRoute: boolean) => {
-		response = NextResponse.redirect(url.origin + (defaultRoute ? DEFAULT_APP_PATH : '/unauthorized'));
+		const redirectToPassCode = defaultRoute || url.pathname == DEFAULT_MAIN_PATH;
+		response = NextResponse.redirect(url.origin + (redirectToPassCode ? DEFAULT_APP_PATH : '/unauthorized'));
 		cookiesKeys().forEach((key) => {
 			response.cookies.set(key, '');
 		});
