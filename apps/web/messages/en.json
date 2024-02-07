@@ -201,8 +201,8 @@
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"Kanban Board"
+		"kanban": {
+			"KANBAN_BOARD": "Kanban Board"
 		},
 
 		"taskDetails": {
@@ -425,6 +425,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
+		},
+		"unauthorized": {
+			"TITLE": "Unauthorized",
+			"HEADING_TITLE": "You are not authorized to access this page !",
+			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login."
 		},
 		"page404": {
 			"HEADING_TITLE": "Page not found !",

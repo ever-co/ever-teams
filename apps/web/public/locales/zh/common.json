@@ -397,6 +397,11 @@
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!"
 		},
+		"unauthorized": {
+			"TITLE": "未經授權",
+			"HEADING_TITLE": "您無權訪問此頁面 ！",
+			"HEADING_DESCRIPTION": "對於造成您的不便，我們深表歉意，但您無權造訪此頁面。 如果您認為這是一個錯誤。 請登入。"
+		},
 		"offline": {
 			"HEADING_TITLE": "网络断开连接！",
 			"HEADING_DESCRIPTION": "您目前处于离线状态，请检查您的互联网连接..."

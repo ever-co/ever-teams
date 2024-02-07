@@ -4,8 +4,8 @@
 		"ACCEPT": "Akzeptieren",
 		"ACCEPTED": "Akzeptiert",
 		"REJECT": "Ablehnen",
-		"TOMORROW" : "Morgen",
-		"YESTERDAY" : "Gestern",
+		"TOMORROW": "Morgen",
+		"YESTERDAY": "Gestern",
 		"REJECTED": "Abgelehnt",
 		"VERIFY": "Verifizieren",
 		"INVITE": "Einladen",
@@ -193,13 +193,12 @@
 			"CONFIRM_ACCEPT_INVITATION": "Möchten Sie die Einladung wirklich annehmen?",
 			"CONFIRM_REJECT_INVITATION": "Möchten Sie die Einladung wirklich ablehnen?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"Kanban-Board"
+		"kanban": {
+			"KANBAN_BOARD": "Kanban-Board"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]"
 		},
-
 
 		"taskDetails": {
 			"BREADCRUMB": "[\"Aufgabendetails\"]",
@@ -422,6 +421,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Rollen auswählen"
+		},
+		"unauthorized": {
+			"TITLE": "Nicht autorisiert",
+			"HEADING_TITLE": "Sie sind nicht autorisiert auf diese Seite zuzugreifen !",
+			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein."
 		},
 		"page404": {
 			"HEADING_TITLE": "Nicht gefunden",

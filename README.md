@@ -55,8 +55,8 @@ Note: Currently WIP, the screenshot is just a temporary picture :)
 
 ## 🔗 Links
 
--   **<https://app.ever.team>** - Ever® Teams™ Platform Web Application (not yet in production release).
--   **<https://demo.ever.team>** - Ever® Teams™ Platform Demo Web Application (not yet in production release).
+-   **<https://app.ever.team>** - Ever® Teams™ Platform Web Application.
+-   **<https://demo.ever.team>** - Ever® Teams™ Platform Demo Web Application.
 -   **<https://docs.ever.team>** - Ever® Teams™ Platform Documentation (WIP).
 -   **<https://ever.team>** - Check more information about the Ever® Teams™ platform at the official website (WIP).
 -   **<https://gauzy.co>** - Check more information about the Ever® Gauzy™ Platform at the official website.
