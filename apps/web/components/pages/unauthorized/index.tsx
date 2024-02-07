@@ -23,7 +23,7 @@ function UnauthorizedPage() {
 				<Text className="text-[20px] container !max-w-5xl leading-8 font-normal text-center text-gray-400">
 					{t('pages.unauthorized.HEADING_DESCRIPTION')}
 				</Text>
-				<Link href="/auth/login">
+				<Link href="/auth/passcode">
 					<Button className="m-auto mt-10 font-normal rounded-lg pl-7 pr-7">Login</Button>
 				</Link>
 			</div>
