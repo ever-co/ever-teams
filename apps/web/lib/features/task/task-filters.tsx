@@ -418,7 +418,7 @@ export function TaskNameFilter({
 	const t = useTranslations();
 
 	const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
-	const [tempValue, setTempValue] = useState<string>('');
+	const [tempValue, setTempValue] = useState<string>(value);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputValue = e.target.value;

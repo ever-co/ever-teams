@@ -202,17 +202,15 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 		},
 		[
 			activeTeam,
-			joinButtonAction,
-			setJoinButtonAction,
-			requestToJoinTeam,
-			validateRequestToJoinTeam,
-			formValues,
-			requestToJoinPayload,
 			position,
-			closeModal,
+			joinButtonAction,
+			requestToJoinTeam,
+			t,
+			requestToJoinPayload,
+			validateRequestToJoinTeam,
+			formValues.code,
 			setErrors,
-			t('pages.home.SENT_EMAIL_VERIFICATION'),
-			t('errors.ERROR_WHILE_VERIFY_CODE')
+			closeModal
 		]
 	);
 

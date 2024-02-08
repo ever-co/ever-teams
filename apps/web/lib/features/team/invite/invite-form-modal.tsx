@@ -68,6 +68,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 					}
 				});
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[selectedEmail, setErrors, closeModal, inviteUser]
 	);
 
