@@ -69,7 +69,7 @@ const Kanban = () => {
 	};
 	return (
 		<>
-			<MainLayout showTimer={true}>
+			<MainLayout showTimer={true} footerClassName="hidden">
 				<div className={' flex flex-col bg-white dark:bg-dark--theme h-auto z-10 px-[32px] mx-[0px] w-full'}>
 					<div className="flex flex-row items-center justify-between mt-[34px]">
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />

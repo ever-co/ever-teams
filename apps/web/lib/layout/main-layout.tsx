@@ -15,9 +15,19 @@ type Props = PropsWithChildren<{
 	notFound?: boolean;
 	className?: string;
 	childrenClassName?: string;
+	footerClassName?: string;
 }>;
 
-export function MainLayout({ children, title, showTimer, publicTeam, notFound, className, childrenClassName }: Props) {
+export function MainLayout({
+	children,
+	title,
+	showTimer,
+	publicTeam,
+	notFound,
+	className,
+	childrenClassName,
+	footerClassName = ''
+}: Props) {
 	const fullWidth = useRecoilValue(fullWidthState);
 	return (
 		<div>
@@ -45,7 +55,7 @@ export function MainLayout({ children, title, showTimer, publicTeam, notFound, c
 			>
 				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>{children}</div>
 
-				<Container fullWidth={fullWidth} className="w-full !mx-0 px-8">
+				<Container fullWidth={fullWidth} className={clsxm('w-full !mx-0 px-8', footerClassName)}>
 					<Divider />
 					<Footer className="justify-between px-0 w-full" />
 				</Container>
