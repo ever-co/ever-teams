@@ -13,6 +13,7 @@ import { AxiosError, isAxiosError } from 'axios';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
+import { useRouter } from 'next/navigation';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -22,7 +23,6 @@ type AuthCodeRef = {
 export function useAuthenticationPasscode() {
 	const pathname = usePathname();
 	const query = useSearchParams();
-
 	const queryTeamId = useMemo(() => {
 		return query?.get('teamId');
 	}, [query]);
@@ -51,7 +51,7 @@ export function useAuthenticationPasscode() {
 	});
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
-
+	const router = useRouter();
 	// Queries
 	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(sendAuthCodeAPI);
 
@@ -150,8 +150,8 @@ export function useAuthenticationPasscode() {
 	}) => {
 		signInWorkspaceQueryCall(email, token, selectedTeam)
 			.then(() => {
-				window.location.reload();
 				setAuthenticated(true);
+				router.push('/');
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
