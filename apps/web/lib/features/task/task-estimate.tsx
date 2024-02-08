@@ -29,7 +29,6 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 		updateLoading,
 		editableMode
 	} = useTaskEstimation(_task);
-
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 
