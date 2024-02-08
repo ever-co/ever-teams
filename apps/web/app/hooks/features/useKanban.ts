@@ -34,6 +34,7 @@ export function useKanban() {
 			setKanbanBoard(kanban);
 			setLoading(false);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [taskStatusHook.loading, tasksFetching]);
 
 	/**

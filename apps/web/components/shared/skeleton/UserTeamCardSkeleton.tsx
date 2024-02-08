@@ -58,7 +58,7 @@ const Skeleton = ({
 	width: number;
 	borderRadius: number;
 	className: string;
-}) => {	
+}) => {
 	return (
 		<div
 			className={clsxm(
@@ -67,6 +67,7 @@ const Skeleton = ({
 				width ? `w-[${width}px]` : 'w-[160px]',
 				className
 			)}
+			style={{ borderRadius }}
 		></div>
 	);
 };
