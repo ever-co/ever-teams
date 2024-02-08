@@ -51,6 +51,7 @@ export function useTaskLabels() {
 
 			return res;
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user, activeTeamId, setTaskLabels, taskLabels, queryCall]);
 
 	useEffect(() => {
