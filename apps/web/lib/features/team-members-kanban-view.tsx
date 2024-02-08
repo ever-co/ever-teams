@@ -1,8 +1,11 @@
 import { useKanban } from '@app/hooks/features/useKanban';
 import { ITaskStatus, ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
+import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
+import { Container, Divider } from 'lib/components';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
+import { Footer } from 'lib/layout';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import {
@@ -13,6 +16,7 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
+import { useRecoilValue } from 'recoil';
 
 export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) => {
 	const {
@@ -24,6 +28,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 		reorderStatus,
 		addNewTask
 	} = useKanban();
+	const fullWidth = useRecoilValue(fullWidthState);
 	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
@@ -177,40 +182,29 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 	if (!enabled) return null;
 	return (
 		<>
+			{/* <div className="flex flex-col justify-between"> */}
 			<DragDropContext onDragEnd={onDragEnd}>
 				{columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div
-								className={clsxm(
-									'flex flex-row justify-start overflow-x-auto w-full  min-h-[calc(100vh-_422px)] max-h-[calc(100vh-_422px)]  p-[32px] bg-transparent dark:bg-[#181920]',
-									snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
-								)}
-								ref={provided.innerRef}
-								{...provided.droppableProps}
-							>
-								{columns.length > 0 ? (
-									<>
-										{columns.map((column: string, index: number) => {
-											return (
-												<React.Fragment key={index}>
-													<div className="flex flex-col a" key={index}>
-														{isColumnCollapse(column) ? (
-															<EmptyKanbanDroppable
-																index={index}
-																title={column}
-																items={items[column]}
-																backgroundColor={getHeaderBackground(
-																	kanbanColumns,
-																	column
-																)}
-															/>
-														) : (
-															<>
-																<KanbanDraggable
-																	key={index}
+							<div className="flex flex-col justify-between min-h-[calc(100vh-_328px)] max-h-[calc(100vh-_328px)] overflow-x-auto w-full">
+								<div
+									className={clsxm(
+										'flex flex-row h-fit p-[32px] bg-transparent dark:bg-[#181920]',
+										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
+									)}
+									ref={provided.innerRef}
+									{...provided.droppableProps}
+								>
+									{columns.length > 0 ? (
+										<>
+											{columns.map((column: string, index: number) => {
+												return (
+													<React.Fragment key={index}>
+														<div className="flex flex-col a" key={index}>
+															{isColumnCollapse(column) ? (
+																<EmptyKanbanDroppable
 																	index={index}
-																	addNewTask={addNewTask}
 																	title={column}
 																	items={items[column]}
 																	backgroundColor={getHeaderBackground(
@@ -218,20 +212,43 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 																		column
 																	)}
 																/>
-															</>
-														)}
-													</div>
-												</React.Fragment>
-											);
-										})}
-									</>
-								) : null}
-								<>{provided.placeholder}</>
+															) : (
+																<>
+																	<KanbanDraggable
+																		key={index}
+																		index={index}
+																		addNewTask={addNewTask}
+																		title={column}
+																		items={items[column]}
+																		backgroundColor={getHeaderBackground(
+																			kanbanColumns,
+																			column
+																		)}
+																	/>
+																</>
+															)}
+														</div>
+													</React.Fragment>
+												);
+											})}
+										</>
+									) : null}
+									<>{provided.placeholder}</>
+								</div>
+								<Container fullWidth={fullWidth} className={clsxm('w-full !mx-0 px-8')}>
+									<Divider />
+									<Footer className="justify-between px-0 w-full" />
+								</Container>
 							</div>
 						)}
 					</Droppable>
 				)}
 			</DragDropContext>
+			{/* <Container fullWidth={fullWidth} className={clsxm('w-full !mx-0 px-8')}>
+					<Divider />
+					<Footer className="justify-between px-0 w-full" />
+				</Container>
+			</div> */}
 		</>
 	);
 };
