@@ -19,7 +19,7 @@ spec:
         - name: http
           protocol: TCP
           port: 443
-          targetPort: 3000
+          targetPort: 3030
 
 ---
 kind: Deployment
@@ -106,5 +106,5 @@ spec:
                         value: '$NEXT_PUBLIC_CAPTCHA_SITE_KEY'
 
                   ports:
-                      - containerPort: 3000
+                      - containerPort: 3030
                         protocol: TCP
