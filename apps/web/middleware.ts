@@ -23,7 +23,8 @@ export const config = {
 		'/task(.*)',
 		'/meet(.*)',
 		'/board(.*)',
-		'/kanban(.*)'
+		'/kanban(.*)',
+		'/unauthorized(.*)'
 	]
 };
 
@@ -65,8 +66,9 @@ export async function middleware(request: NextRequest) {
 
 	const url = new URL(request.url);
 
-	const deny_redirect = () => {
-		response = NextResponse.redirect(url.origin + DEFAULT_APP_PATH, {});
+	const deny_redirect = (defaultRoute: boolean) => {
+		const redirectToPassCode = defaultRoute || url.pathname == DEFAULT_MAIN_PATH;
+		response = NextResponse.redirect(url.origin + (redirectToPassCode ? DEFAULT_APP_PATH : '/unauthorized'));
 		cookiesKeys().forEach((key) => {
 			response.cookies.set(key, '');
 		});
@@ -78,17 +80,17 @@ export async function middleware(request: NextRequest) {
 	});
 
 	if ((protected_path && !refresh_token) || (protected_path && !access_token)) {
-		deny_redirect();
+		deny_redirect(false);
 		// Next condition, if all tokens are presents
 	} else if (protected_path && access_token) {
 		const res = await currentAuthenticatedUserRequest({
 			bearer_token: access_token
 		}).catch(() => {
-			deny_redirect();
+			deny_redirect(true);
 		});
 
 		if (!res || !res.response.ok) {
-			deny_redirect();
+			deny_redirect(true);
 		} else {
 			response.headers.set('x-user', JSON.stringify(res.data));
 		}

@@ -2,6 +2,7 @@
 
 import { getAccessTokenCookie } from '@app/helpers';
 import { useAuthenticateUser, useModal, useQuery } from '@app/hooks';
+import { IUser } from '@app/interfaces';
 import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from 'lib/components';
@@ -57,7 +58,7 @@ export function UnverifiedEmail() {
 						<button
 							type="button"
 							className="cursor-pointer text-primary dark:text-primary-light"
-							onClick={resendLinkQueryCall}
+							onClick={() => user && resendLinkQueryCall(user)}
 						>
 							{t('common.HERE')}
 						</button>
@@ -69,14 +70,14 @@ export function UnverifiedEmail() {
 					<CloseIcon />
 				</button> */}
 			</Card>
-			<ConfirmUserModal open={isOpen} closeModal={closeModal} />
+			<ConfirmUserModal open={isOpen} user={user} closeModal={closeModal} />
 		</>
 	) : (
 		<></>
 	);
 }
 
-export function ConfirmUserModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
+export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; user?: IUser; closeModal: () => void }) {
 	const { loading, queryCall } = useQuery(verifyUserEmailByCodeAPI);
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
 
@@ -86,13 +87,13 @@ export function ConfirmUserModal({ open, closeModal }: { open: boolean; closeMod
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {
 			e.preventDefault();
-			if (code.length < 6) return;
+			if (code.length < 6 || !user) return;
 
-			queryCall(code).finally(() => {
+			queryCall(code, user.email).finally(() => {
 				window.location.reload();
 			});
 		},
-		[code, queryCall]
+		[code, queryCall, user]
 	);
 
 	return (
@@ -128,7 +129,7 @@ export function ConfirmUserModal({ open, closeModal }: { open: boolean; closeMod
 									<button
 										type="button"
 										className="text-xs font-normal text-gray-500 dark:text-gray-400"
-										onClick={resendLinkQueryCall}
+										onClick={() => user && resendLinkQueryCall(user)}
 									>
 										{'Re'}
 										<span className="text-primary dark:text-primary-light">

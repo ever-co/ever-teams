@@ -1,5 +1,6 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -14,7 +15,7 @@ export type TTasksTimesheetStatisticsParams = {
 export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
 	const { employeeIds, ...rest } = params;
 
-	const queries = new URLSearchParams({
+	const queries = qs.stringify({
 		...rest,
 		...employeeIds.reduce(
 			(acc, v, i) => {
@@ -26,7 +27,7 @@ export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatistic
 	});
 
 	return serverFetch<ITasksTimesheet[]>({
-		path: `/timesheet/statistics/tasks?${queries.toString()}`,
+		path: `/timesheet/statistics/tasks?${queries}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: params.tenantId
@@ -42,7 +43,7 @@ export type TTaskActivityParams = {
 };
 
 export function taskActivityRequest(params: TTaskActivityParams, bearer_token: string) {
-	const queries = new URLSearchParams(params);
+	const queries = qs.stringify(params);
 
 	return serverFetch<ITasksTimesheet[]>({
 		path: `/timesheet/activity?${queries.toString()}`,

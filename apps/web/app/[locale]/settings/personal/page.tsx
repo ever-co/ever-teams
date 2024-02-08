@@ -29,10 +29,13 @@ const Personal = () => {
 			{!user ? (
 				<SettingsPersonalSkeleton />
 			) : (
-				<MainLayout className="items-start pb-1">
-					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
+				<MainLayout
+					className="items-start pb-1 h-screen "
+					childrenClassName="overflow-hidden h-full w-screen flex flex-col items-start"
+				>
+					<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
 						<Container fullWidth={fullWidth}>
-							<div className="flex items-center gap-8">
+							<div className="flex flex-row items-center justify-start gap-8">
 								<Link href="/">
 									<ArrowLeft className="w-6 h-6" />
 								</Link>
@@ -42,10 +45,10 @@ const Personal = () => {
 						</Container>
 					</div>
 
-					<Container fullWidth={fullWidth} className="mb-10">
-						<div className="flex flex-col w-full sm:flex-row">
-							<LeftSideSettingMenu />
-							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
+					<Container fullWidth={fullWidth} className="mb-10 flex-1">
+						<div className="flex flex-col w-full h-full lg:flex-row">
+							<LeftSideSettingMenu className="h-[72vh] pb-4" />
+							<div className="flex flex-col flex-1 h-[72vh] sm:mr-[20px] lg:mr-0 overflow-y-scroll">
 								<Link href={'/settings/team'} className="w-full">
 									<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
 										Go to Team settings
@@ -53,7 +56,7 @@ const Personal = () => {
 								</Link>
 								<Accordian
 									title={t('pages.settingsPersonal.HEADING_TITLE')}
-									className=" max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
+									className="w-full md:min-w-[50vw] lg:min-w-[60vw] xl:min-w-[75vw] max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 									id="general"
 								>
 									{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
@@ -64,7 +67,7 @@ const Personal = () => {
 								</Accordian>
 								<Accordian
 									title={t('pages.settings.DANDER_ZONE')}
-									className="p-4 mt-4 dark:bg-dark--theme"
+									className="p-4 mt-4  md:min-w-[50vw] lg:min-w-[60vw] xl:min-w-[75vw]  dark:bg-dark--theme"
 									isDanger={true}
 									id="danger-zone"
 								>

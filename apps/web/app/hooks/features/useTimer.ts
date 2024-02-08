@@ -153,7 +153,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 export function useTimer() {
 	const { updateTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user } = useAuthenticateUser();
+	const { user, $user } = useAuthenticateUser();
 
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
 
@@ -229,10 +229,10 @@ export function useTimer() {
 		if (syncTimerLoading || syncTimerLoadingRef.current) {
 			return;
 		}
-		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS).then((res) => {
+		return syncTimerQueryCall(timerStatus?.lastLog?.source || TimerSource.TEAMS, $user.current).then((res) => {
 			return res;
 		});
-	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef]);
+	}, [syncTimerQueryCall, timerStatus, syncTimerLoading, syncTimerLoadingRef, $user]);
 
 	// Loading states
 	useEffect(() => {

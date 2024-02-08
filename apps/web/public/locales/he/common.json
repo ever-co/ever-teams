@@ -413,6 +413,11 @@
 		"permissions": {
 			"SELECT_ROLES": "בחר תפקידים"
 		},
+		"unauthorized": {
+			"TITLE": "לא מורשה",
+			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
+			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר"
+		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",
 			"HEADING_DESCRIPTION": "המשאב שאתה מחפש לא נמצא!",

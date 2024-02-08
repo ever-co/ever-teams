@@ -4,6 +4,8 @@
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
 		"REJECT": "拒绝",
+		"TOMORROW": "明天",
+		"YESTERDAY": "昨天",
 		"REJECTED": "已拒绝",
 		"VERIFY": "验证",
 		"INVITE": "邀请",
@@ -177,7 +179,7 @@
 		"ALERT_DELETE_ACCOUNT": "账户将从所有团队中移除,您作为管理员的团队除外",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "您的账户将被永久删除,并从所有团队中移除",
 		"ALERT_REMOVE_TEAM": "团队将被完全移除出系统,成员也将失去访问权限",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "所有帐户数据将从您仅是一名现有经理的所有团队中删除",
 		"ALERT_QUIT_TEAM": "您将要退出团队"
 	},
 	"pages": {
@@ -191,7 +193,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "您确定要接受邀请吗?",
 			"CONFIRM_REJECT_INVITATION": "您确定要拒绝邀请吗?"
 		},
-
+		"kanban": {
+			"KANBAN_BOARD": "看板"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]"
 		},
@@ -241,7 +245,7 @@
 			"WELCOME_TEAMS": "欢迎使用永恒团队",
 
 			"COVER_TITLE": "实时跟踪您团队的工作进度!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "一站式工作和人力管理，时间管理，时间跟踪，活动跟踪，生产力跟踪和指标，项目/任务和问题管理，组织和团队，集成（GitHub，JIRA，...）等等！",
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
@@ -396,6 +400,11 @@
 
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!"
+		},
+		"unauthorized": {
+			"TITLE": "未經授權",
+			"HEADING_TITLE": "您無權訪問此頁面 ！",
+			"HEADING_DESCRIPTION": "對於造成您的不便，我們深表歉意，但您無權造訪此頁面。 如果您認為這是一個錯誤。 請登入。"
 		},
 		"offline": {
 			"HEADING_TITLE": "网络断开连接！",

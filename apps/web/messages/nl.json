@@ -4,6 +4,8 @@
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
 		"REJECT": "Afwijzen",
+		"TOMORROW": "Morgen",
+		"YESTERDAY": "Gisteren",
 		"REJECTED": "Afgewezen",
 		"VERIFY": "verifiëren",
 		"INVITE": "Uitnodigen",
@@ -191,7 +193,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "Weet u zeker dat u de uitnodiging wilt accepteren?",
 			"CONFIRM_REJECT_INVITATION": "Weet u zeker dat u de uitnodiging wilt afwijzen?"
 		},
-
+		"kanban": {
+			"KANBAN_BOARD": "Kanban-bord"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]"
 		},
@@ -401,24 +405,29 @@
 			"HEADING_DESCRIPTION": "Send invitation to a team member by email",
 			"TEAM_MEMBER_EMAIL": "Team Member's Email",
 			"TEAM_MEMBER_FULLNAME": "Team Member's Full Name",
-			"SEND_INVITE": "Send Invitation",
-			"ERROR_WHILE_ACCEPTING_INVITATION": "Error while accepting invitation",
-			"ERROR_WHILE_REJECTING_INVITATION": "Error while rejecting invitation",
-			"INVITE_LABEL_SEND": "Send Invite",
+			"SEND_INVITE": "Verstuur uitnodiging",
+			"ERROR_WHILE_ACCEPTING_INVITATION": "Fout tijdens het accepteren van de uitnodiging",
+			"ERROR_WHILE_REJECTING_INVITATION": "Fout tijdens het weigeren van de uitnodiging",
+			"INVITE_LABEL_SEND": "Verstuur uitnodiging",
 			"invitationTable": {
-				"NAME_AND_EMAIL": "Name & Email",
-				"POSITION": "Position",
-				"DATE_AND_TIME_REQUEST": "Date & Time Request",
-				"CV_OR_ATTACHMENT": "CV / Attachement"
+				"NAME_AND_EMAIL": "Naam & E-mail",
+				"POSITION": "Positie",
+				"DATE_AND_TIME_REQUEST": "Datum & Tijd Aanvraag",
+				"CV_OR_ATTACHMENT": "CV / Bijlage"
 			}
 		},
 		"permissions": {
-			"SELECT_ROLES": "Select Roles"
+			"SELECT_ROLES": "Rollen selecteren"
+		},
+		"unauthorized": {
+			"TITLE": "Ongeautoriseerd",
+			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
+			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in"
 		},
 		"page404": {
-			"HEADING_TITLE": "Not Found",
-			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
-			"LINK_LABEL": "Go to homepage"
+			"HEADING_TITLE": "Niet gevonden",
+			"HEADING_DESCRIPTION": "De bron die u zoekt is niet gevonden!",
+			"LINK_LABEL": "Naar de startpagina"
 		},
 		"offline": {
 			"HEADING_TITLE": "Netwerk Verbroken!",

@@ -4,14 +4,12 @@ import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { useTeamTasks } from './useTeamTasks';
+import { IKanban } from '@app/interfaces/IKanban';
 
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
-
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
-
 	const taskStatusHook = useTaskStatus();
-
 	const { tasks, tasksFetching, updateTask } = useTeamTasks();
 
 	/**
@@ -73,14 +71,22 @@ export function useKanban() {
 			});
 	};
 
+	const addNewTask = (task: ITeamTask, status: string) => {
+		const updatedBoard = {
+			...kanbanBoard,
+			[status]: [...kanbanBoard[status], task]
+		};
+		setKanbanBoard(() => updatedBoard);
+	};
 	return {
-		data: kanbanBoard,
+		data: kanbanBoard as IKanban,
 		isLoading: loading,
 		columns: taskStatusHook.taskStatus,
 		updateKanbanBoard: setKanbanBoard,
 		updateTaskStatus: updateTask,
 		toggleColumn,
 		isColumnCollapse,
-		reorderStatus
+		reorderStatus,
+		addNewTask
 	};
 }

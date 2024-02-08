@@ -30,6 +30,20 @@ interface Props {
 	};
 }
 
+import { Plus_Jakarta_Sans, Poppins } from 'next/font/google';
+
+const jakarta = Plus_Jakarta_Sans({
+	subsets: ['latin'],
+	variable: '--font-jakarta',
+	display: 'swap'
+});
+
+const poppins = Poppins({
+	subsets: ['latin'],
+	weight: '500',
+	variable: '--font-poppins',
+	display: 'swap'
+});
 // export function generateStaticParams() {
 // 	return locales.map((locale: any) => ({ locale }));
 // }
@@ -51,9 +65,8 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
-	console.log({ pageProps });
 	return (
-		<html lang={locale}>
+		<html lang={locale} className={`${poppins.variable} ${jakarta.variable}`}>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

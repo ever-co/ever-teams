@@ -16,31 +16,21 @@ import {
 
 export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) => {
 	const {
+		data: items,
 		columns: kanbanColumns,
 		updateKanbanBoard,
 		updateTaskStatus,
 		isColumnCollapse,
-		reorderStatus
+		reorderStatus,
+		addNewTask
 	} = useKanban();
-
-	const [items, setItems] = useState<IKanban>(kanbanBoardTasks);
-
 	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
-
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
 		tasks.splice(endIndex, 0, removedTask);
 		return tasks;
 	};
-
-	const reorderColumn = (list: IKanban, startIndex: number, endIndex: number) => {
-		const columns = Object.keys(list);
-		const [removedColumn] = columns.splice(startIndex, 1);
-		columns.splice(endIndex, 0, removedColumn);
-		return columns;
-	};
-
 	const reorderKanbanTasks = ({
 		kanbanTasks,
 		source,
@@ -102,9 +92,17 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 		return selectState[0].color;
 	};
 
+	const reorderColumn = (column: any[], sourceIndex: number, destinationIndex: number) => {
+		const result = Array.from(column);
+		const [removed] = result.splice(sourceIndex, 1);
+		result.splice(destinationIndex, 0, removed);
+
+		return result;
+	};
+
 	/**
-	 * This function handles all drag and drop logic
-	 * on the kanban board.
+	 * This function handles all drag & drop logic
+	 * on the Kanban board.
 	 * @param result
 	 * @returns
 	 */
@@ -126,7 +124,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 				...items,
 				[result.source.droppableId]: withItemRemoved
 			};
-			setItems(orderedItems);
+			updateKanbanBoard(orderedItems);
 
 			return;
 		}
@@ -145,8 +143,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 		}
 
 		if (result.type === 'COLUMN') {
-			const reorderedItem = reorderColumn(items, source.index, destination.index);
-
+			const reorderedItem = reorderColumn(columns, source.index, destination.index);
 			//update column order in server side
 			reorderedItem.map((item: string, index: number) => {
 				return reorderStatus(item, index);
@@ -163,7 +160,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 			destination
 		});
 
-		setItems(data.kanbanBoard);
 		updateKanbanBoard(() => data.kanbanBoard);
 	};
 
@@ -179,7 +175,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 	}, []);
 
 	if (!enabled) return null;
-
 	return (
 		<>
 			<DragDropContext onDragEnd={onDragEnd}>
@@ -188,7 +183,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 							<div
 								className={clsxm(
-									'flex flex-row justify-start overflow-x-auto gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]',
+									'flex flex-row justify-start overflow-x-auto w-full  min-h-[calc(100vh-_422px)] max-h-[calc(100vh-_422px)]  p-[32px] bg-transparent dark:bg-[#181920]',
 									snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 								)}
 								ref={provided.innerRef}
@@ -199,8 +194,8 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 										{columns.map((column: string, index: number) => {
 											return (
 												<React.Fragment key={index}>
-													<div className="flex flex-col" key={index}>
-													{isColumnCollapse(column) ? (
+													<div className="flex flex-col a" key={index}>
+														{isColumnCollapse(column) ? (
 															<EmptyKanbanDroppable
 																index={index}
 																title={column}
@@ -210,20 +205,21 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 																	column
 																)}
 															/>
-													) : (
-														<>
-															<KanbanDraggable
-																key={index}
-																index={index}
-																title={column}
-																items={items[column]}
-																backgroundColor={getHeaderBackground(
-																	kanbanColumns,
-																	column
-																)}
-															/>
-														</>
-													)}
+														) : (
+															<>
+																<KanbanDraggable
+																	key={index}
+																	index={index}
+																	addNewTask={addNewTask}
+																	title={column}
+																	items={items[column]}
+																	backgroundColor={getHeaderBackground(
+																		kanbanColumns,
+																		column
+																	)}
+																/>
+															</>
+														)}
 													</div>
 												</React.Fragment>
 											);

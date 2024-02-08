@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 
-import browser from '~misc/browser';
 import { MessageTypesFromBackgroundEnum, MessageTypesToBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
 import { TimerStateEnum } from '~typescript/enums/TimerStateEnum';
 import type { IPostMessage } from '~typescript/interfaces/PostMessage';

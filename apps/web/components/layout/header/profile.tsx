@@ -23,7 +23,7 @@ const Profile = () => {
 		},
 		{ name: t('links.common.TEAM'), icon: '/assets/svg/teams-icon.svg', link: '' },
 		{
-			name: t('links.common.Settings'),
+			name: t('links.common.SETTINGS'),
 			icon: '/assets/svg/settings-icon.svg',
 			link: ''
 		}

@@ -7,10 +7,7 @@ import Timer from '~components/popup/Timer';
 import './style.css';
 
 import browser from '~misc/browser';
-import { MessageTypesFromBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
-import { TimerStateEnum } from '~typescript/enums/TimerStateEnum';
-import { IPostMessage } from '~typescript/interfaces/PostMessage';
-import { ITimerUpdate } from '~typescript/interfaces/TimerUpdate';
+
 
 function IndexPopup() {
 	const [port, setPort] = useState<chrome.runtime.Port | null>(null);

@@ -15,16 +15,16 @@ export function getUserOrganizationsRequest(
 	{ tenantId, userId }: { tenantId: string; userId: string },
 	bearer_token: string
 ) {
-	const query = new URLSearchParams({
-		relations: new URLSearchParams([]).toString(),
-		findInput: new URLSearchParams({
+	const query = JSON.stringify({
+		relations: [],
+		findInput: {
 			userId,
 			tenantId
-		}).toString()
+		}
 	});
 
 	return serverFetch<PaginationResponse<IUserOrganization>>({
-		path: `/user-organization?data=${query.toString()}`,
+		path: `/user-organization?data=${encodeURIComponent(query)}`,
 		method: 'GET',
 		bearer_token,
 		tenantId
