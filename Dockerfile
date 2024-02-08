@@ -104,8 +104,8 @@ COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=build /app/apps/web/public ./apps/web/public
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 3030
 
-ENV PORT=3000
+ENV PORT=3030
 
 CMD [ "node", "./apps/web/server.js" ]
