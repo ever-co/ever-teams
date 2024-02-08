@@ -37,6 +37,7 @@ import '../../styles/globals.css';
 
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { ChevronDown } from 'lucide-react';
 
 function MainPage() {
 	const t = useTranslations();
@@ -60,14 +61,14 @@ function MainPage() {
 			<MainLayout>
 				<ChatwootWidget />
 				<MainHeader className="pb-1" fullWidth={fullWidth}>
-					<div className="flex flex-col md:flex-row items-start justify-between h-12 md:h-5">
-						<div className="flex  items-center gap-8">
+					<div className="flex flex-row items-start justify-between ">
+						<div className="flex justify-center items-center gap-8 h-10">
 							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
 
 						{/* <Collaborative /> */}
-						<div className="flex w-full md:w-max items-center justify-center py-4 md:py-0 gap-1">
+						<div className="flex h-10 w-max items-center justify-center   gap-1">
 							<Tooltip label={'Cards'} placement="top-start">
 								<button
 									className={clsxm(
@@ -127,11 +128,7 @@ function MainPage() {
 					<TeamInvitations />
 				</MainHeader>
 
-				<div
-					className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
-						view !== IssuesView.CARDS ? 'pb-7' : ''
-					}`}
-				>
+				<div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view !== IssuesView.CARDS ? 'pb-7' : ''}`}>
 					<Container fullWidth={fullWidth}>
 						{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 						{view === IssuesView.CARDS && isTeamMember ? (
@@ -163,22 +160,30 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex md:flex-row flex-col-reverse justify-center md:justify-between items-center py-4',
+				'w-full flex lg:flex-row flex-col-reverse justify-center md:justify-between items-center py-4',
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
-			{/* Task inputs */}
-			{/* {showInput && ( */}
 			<AuthUserTaskInput
-				className={clsxm('mx-auto w-full md:w-1/2 2xl:w-full lg:mr-10', !showInput && '!hidden md:!flex')}
+				className={clsxm(
+					'mx-auto w-full lg:w-3/4 lg:mr-10',
+					!showInput && '!hidden md:!flex',
+					!isTrackingEnabled && 'md:w-full'
+				)}
 			/>
-			{/* )}  */}
-
-			<button className="border rounded py-1 px-2 md:hidden" onClick={() => setShowInput((p) => !p)}>
-				{showInput ? 'hide the issue input' : 'show the issue input'}
-			</button>
-			{/* Timer  */}
-			{isTrackingEnabled ? <Timer /> : null}
+			<div
+				onClick={() => setShowInput((p) => !p)}
+				className="border dark:border-[#26272C] w-full rounded p-2 md:hidden flex justify-center mt-2"
+			>
+				<ChevronDown className={clsxm('h-12  transition-all', showInput && 'rotate-180')}>
+					{showInput ? 'hide the issue input' : 'show the issue input'}
+				</ChevronDown>
+			</div>
+			{isTrackingEnabled ? (
+				<div className="w-full lg:w-1/4">
+					<Timer />
+				</div>
+			) : null}
 		</Card>
 	);
 }

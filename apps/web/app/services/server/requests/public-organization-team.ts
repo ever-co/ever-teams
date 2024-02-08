@@ -31,6 +31,7 @@ export function getPublicOrganizationTeamRequest({
 		params[`relations[${i}]`] = rl;
 	});
 
+
 	const queries = qs.stringify(params || {});
 
 	return serverFetch<IOrganizationTeamWithMStatus>({
