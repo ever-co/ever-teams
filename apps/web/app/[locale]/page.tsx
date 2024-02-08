@@ -145,7 +145,7 @@ function MainPage() {
 				</div>
 
 				<Container className="" fullWidth={fullWidth}>
-					{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
+					{!isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 				</Container>
 			</MainLayout>
 
