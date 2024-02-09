@@ -53,6 +53,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 											src={`/assets/cover/${image}`}
 											layout="responsive"
 											objectFit="fill"
+											priority
 											width={2880}
 											height={2840}
 											alt={t('TITLE')}

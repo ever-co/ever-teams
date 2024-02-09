@@ -91,25 +91,25 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
 
 <https://app.ever.team>
 
-### Quick Start with our live APIs
+### Quick Start with our public live APIs
 
 1. Clone this repo
 2. Run `yarn install`
-3. Run `yarn build:web`
-4. Run `yarn start:web`
+3. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
+4. Open in <http://localhost:3030> in your Browser
 
 Notes:
 
--   by default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team/api>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see below how to run with a Self-hosted Backend.
+-   by default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see below how to run with a Self-hosted Backend.
 
 ### Run with a Self-hosted Backend
 
 1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting starting instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
 2. Clone this repo
-3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample> for example).
+3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy API running on that host & port.
 4. Run `yarn install`
-5. Run `yarn build:web`
-6. Run `yarn start:web`
+5. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
+6. Open in <http://localhost:3030> in your Browser
 
 #### Notes
 
@@ -159,7 +159,7 @@ WIP
 
 ### Koyeb
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=ever-teams&type=docker&builder=dockerfile&image=ghcr.io/ever-co/ever-teams-webapp:latest&env[PORT]=3000&ports=3000;http;/)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=ever-teams&type=docker&builder=dockerfile&image=ghcr.io/ever-co/ever-teams-webapp:latest&env[PORT]=3030&ports=3030;http;/)
 
 ### Northflank
 

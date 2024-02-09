@@ -105,12 +105,12 @@ const Header = () => {
 				<div></div>
 				<div className="w-[334px]  text-center">{t('task.TITLE')}</div>
 				<div></div>
-				<div className="w-[122px]  text-center">{t('task.TASK_WORK.LABEL')}</div>
+				<div className="w-[122px]  text-center">{t('task.taskTableHead.TASK_WORK.LABEL')}</div>
 				<div></div>
-				<div className="w-[245px]  text-center">{t('task.TASK_TIME')}</div>
+				<div className="w-[245px]  text-center">{t('task.taskTableHead.TASK_TIME')}</div>
 				<div></div>
 				<div className="w-[184px]  text-center flex items-center justify-center">
-					<span className="w-[104px]">{t('task.TOTAL_WORK.LABEL')}</span>
+					<span className="w-[104px]">{t('task.taskTableHead.TOTAL_WORK.LABEL')}</span>
 				</div>
 			</div>
 		</li>

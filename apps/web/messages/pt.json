@@ -39,12 +39,13 @@
 		"ASSIGN_TASK_TO": "Atribuir Tarefa a",
 		"REMOVE_ACCOUNT": "Remover Conta",
 		"REMOVE_EVERYWHERE": "Remover de Todas as Equipes",
+		"DELETE_ALL_DATA": "Excluir Todos os Dados",
 		"DELETE_ACCOUNT": "Excluir Esta Conta",
 		"UNASSIGN_TASK": "Desatribuir Tarefa",
 		"MAKE_A_MANAGER": "Tornar um Gerente",
 		"UNMAKE_A_MANAGER": "Desfazer Gerente",
-		"TRANSFER_OWNERSHIP": "Transferir Propriedade",
-		"TRANSFER_OWNERSHIP_TO": "Transferir a propriedade completa da equipe para outro usuário",
+		"TRANSFERT_OWNERSHIP": "Transferir Propriedade",
+		"TRANSFERT_OWNERSHIP_TO": "Transferir a propriedade completa da equipe para outro usuário",
 		"REMOVE": "Remover",
 		"REMOVE_TEAM": "Remover Equipe",
 		"DISPOSE_TEAM": "Dispor da Equipe",
@@ -71,7 +72,7 @@
 		"CLOSED": "Fechado",
 		"CLOSE": "Fechar",
 		"USER_NOT_FOUND": "Nenhum usuário encontrado.",
-		"TASK_TITLE": "Título da Tarefa",
+		"TASK_TITTLE": "Título da Tarefa",
 		"PUBLIC_TASK": "Esta tarefa é Pública",
 		"PRIVATE_TASK": "Esta tarefa é Privada",
 		"PUBLIC_TASK_LABEL": "Tornar Pública",
@@ -159,7 +160,6 @@
 		"REOPEN": "Reabrir",
 		"NO_TASKS": "Sem Tarefas",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar a Tarefa",
-
 		"COLLABORATE_DIALOG_TITLE": "Iniciar Colaboração",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Convide membro(s) e comece a colaborar",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Iniciar Reunião ou Colaboração de Quadro",
@@ -171,7 +171,7 @@
 		"FILTER_UNSUBSCRIBE": "Cancelar Inscrição",
 
 		"KEYBOARD_SHORTCUTS": "Atalhos do Teclado",
-
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Ative a integração do GitHub para sincronização de projetos e repositórios",
 		"GITHUB_LOADING_TEXT": "Estamos agora a instalar a sua integração do GitHub, aguarde...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronize automaticamente tarefas em seu aplicativo para atualizações sem interrupções e eficientes.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronize tarefas seletivamente associando-as a uma etiqueta específica.",
@@ -285,11 +285,13 @@
 			"HEADING_TITLE": "Configurações Gerais",
 			"emailNotValid": "Por favor, forneça um e-mail válido",
 			"phoneNotValid": "Por favor, forneça um número de telefone válido",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Você está prestes a excluir sua conta e todos os seus dados?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Você está prestes a ser removido de todas as equipes, a menos que seja o único gerente?",
 			"WORK_SCHEDULE": "Horário de Trabalho",
 			"SUBSCRIPTION": "Assinatura",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Seu Fuso Horário",
 			"ABOUT_TO_CHANGE_EMAIL": "Você está prestes a mudar o e-mail",
-			"ABOUT_TO_DELETE_ACCOUNT": "Você está prestes a excluir sua conta?",
-			"ABOUT_TO_REMOVE_ACCOUNT": "Você está prestes a remover sua conta?"
+			"ABOUT_TO_DELETE_ACCOUNT": "Você está prestes a excluir sua conta?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Configurações Gerais",
@@ -420,6 +422,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Selecionar Funções"
+		},
+		"unauthorized": {
+			"TITLE": "Não autorizado",
+			"HEADING_TITLE": "Você não está autorizado à acessar essa página !",
+			"HEADING_DESCRIPTION": "Pedimos desculpas pelo transtorno, mas você não está autorizado a acessar esta página. Se você acredita que isso é um erro. Por favor entre."
 		},
 		"page404": {
 			"HEADING_TITLE": "Não Encontrado",

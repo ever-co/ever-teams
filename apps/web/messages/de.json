@@ -4,8 +4,8 @@
 		"ACCEPT": "Akzeptieren",
 		"ACCEPTED": "Akzeptiert",
 		"REJECT": "Ablehnen",
-		"TOMORROW" : "Morgen",
-		"YESTERDAY" : "Gestern",
+		"TOMORROW": "Morgen",
+		"YESTERDAY": "Gestern",
 		"REJECTED": "Abgelehnt",
 		"VERIFY": "Verifizieren",
 		"INVITE": "Einladen",
@@ -40,6 +40,7 @@
 		"REMOVE_ACCOUNT": "Konto entfernen",
 		"REMOVE_EVERYWHERE": "Überall entfernen",
 		"DELETE_ACCOUNT": "Dieses Konto löschen",
+		"DELETE_ALL_DATA": "Delete All Data",
 		"UNASSIGN_TASK": "Aufgabe entziehen",
 		"MAKE_A_MANAGER": "Manager erstellen",
 		"UNMAKE_A_MANAGER": "Manager entfernen",
@@ -140,6 +141,8 @@
 		"EXISTING_MEMBER": "Bereits Mitglied",
 		"NEW_MEMBER": "Mitglied werden",
 		"BACK": "Zurück",
+		"DONT_HAVE_ACCOUNT": "Don't have an account?",
+		"REGISTER": "Register Now!",
 		"JOIN_REQUEST": "Beitrittsanfrage",
 		"PERMISSION": "Berechtigung",
 		"SEARCH": "Suchen",
@@ -171,11 +174,13 @@
 		"KEYBOARD_SHORTCUTS": "Tastenkombinationen",
 
 		"GITHUB_LOADING_TEXT": "Wir installieren jetzt Ihre GitHub-Integration, warten Sie...",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisieren Sie Aufgaben in Ihrer Anwendung automatisch für nahtlose und effiziente Aktualisierungen.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisieren Sie Aufgaben selektiv, indem Sie sie mit einem bestimmten Label verknüpfen.",
 		"GITHUB_AUTO_SYNC_LABEL": "Auto-Sync-Label auswählen"
 	},
 	"alerts": {
+
 		"ALERT_DELETE_ACCOUNT": "Das Konto wird von allen Teams entfernt, außer wo Sie nur Manager sind",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",
@@ -193,13 +198,12 @@
 			"CONFIRM_ACCEPT_INVITATION": "Möchten Sie die Einladung wirklich annehmen?",
 			"CONFIRM_REJECT_INVITATION": "Möchten Sie die Einladung wirklich ablehnen?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"Kanban-Board"
+		"kanban": {
+			"KANBAN_BOARD": "Kanban-Board"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]"
 		},
-
 
 		"taskDetails": {
 			"BREADCRUMB": "[\"Aufgabendetails\"]",
@@ -289,7 +293,6 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Ihre Zeitzone",
 			"ABOUT_TO_CHANGE_EMAIL": "Sie sind im Begriff, die E-Mail zu ändern",
 			"ABOUT_TO_DELETE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu löschen?",
-			"ABOUT_TO_REMOVE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu entfernen?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
@@ -423,6 +426,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Rollen auswählen"
 		},
+		"unauthorized": {
+			"TITLE": "Nicht autorisiert",
+			"HEADING_TITLE": "Sie sind nicht autorisiert auf diese Seite zuzugreifen !",
+			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein."
+		},
 		"page404": {
 			"HEADING_TITLE": "Nicht gefunden",
 			"HEADING_DESCRIPTION": "Die gesuchte Ressource wurde nicht gefunden!",
@@ -443,6 +451,9 @@
 		}
 	},
 	"timer": {
+		"ACTIVE": "Aktiv",
+		"APPS": "Apps",
+		"ARCHIVED": "Archiviert",
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
@@ -451,6 +462,20 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schätzen"
 		},
+		"INACTIVE": "Inaktiv",
+		"KEYBOARD": "Tastatur",
+		"MOUSE": "Maus",
+		"NO_SCREENSHOOT": "Keine Screenshots",
+		"NOT_ARCHIVED": "Nicht archiviert",
+		"OTHER_DETAILS": "Andere Details",
+		"PERCENT_OF_MINUTES": " % von 10 Minuten",
+		"PERCENT_USED": "Prozent verwendet",
+		"THERE_IS_NO_APPS_VISITED" : "Es gibt keine besuchten Apps.",
+		"TIME_ACTIVITY" : "Aktivität",
+		"TIME_SPENT_IN_HOURS" : "Verbrachte Zeit (Stunden)",
+		"TIMES" : "Mal",
+		"TOTAL_HOURS" : "Gesamtstunden",
+		"VISITED_DATES" : "Besuchte Daten",
 		"DAY_LIST": [{ "title": "7 Tage" }, { "title": "14 Tage" }]
 	},
 

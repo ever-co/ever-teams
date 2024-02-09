@@ -4,8 +4,8 @@
 		"ACCEPT": "Accepter",
 		"ACCEPTED": "Accepté",
 		"REJECT": "Rejeter",
-		"TOMORROW" : "Demain",
-		"YESTERDAY" : "Hier",
+		"TOMORROW": "Demain",
+		"YESTERDAY": "Hier",
 		"REJECTED": "Rejeté",
 		"VERIFY": "Vérifier",
 		"INVITE": "Inviter",
@@ -28,6 +28,8 @@
 		"YES": "Oui",
 		"BASIC": "Basique",
 		"DELETE": "Supprimer",
+		"DELETE_ALL_DATA": "Supprimer toutes les données",
+		"DONT_HAVE_ACCOUNT": "Vous n'avez pas de compte ?",
 		"MEET": "Rencontrer",
 		"BOARD": "Tableau",
 		"SECURITY_CODE": "Code de sécurité",
@@ -156,7 +158,7 @@
 		"REOPEN": "Rouvrir",
 		"NO_TASKS": "Aucune tâche",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de modifier la tâche",
-
+		"REGISTER": "S'inscrire",
 		"COLLABORATE_DIALOG_TITLE": "Démarrer la collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Inviter des membres et commencer la collaboration",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Démarrer la collaboration avec une réunion ou un tableau",
@@ -171,7 +173,9 @@
 		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisez automatiquement les tâches dans votre application pour des mises à jour fluides et efficaces.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
-		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique"
+		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activez l'intégration GitHub pour la synchronisation des projets et des dépôts"
+
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",
@@ -191,8 +195,8 @@
 			"CONFIRM_ACCEPT_INVITATION": "Êtes-vous sûr de vouloir accepter l'invitation ?",
 			"CONFIRM_REJECT_INVITATION": "Êtes-vous sûr de vouloir refuser l'invitation ?"
 		},
-		"kanban":{
-			"KANBAN_BOARD":"Tableau Kanban"
+		"kanban": {
+			"KANBAN_BOARD": "Tableau Kanban"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tâches du membre\"]"
@@ -283,7 +287,6 @@
 			"SUBSCRIPTION": "Abonnement",
 			"ABOUT_TO_CHANGE_EMAIL": "Vous êtes sur le point de changer d'e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
-			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Votre fuseau horaire",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
@@ -418,6 +421,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Sélectionner des rôles"
 		},
+		"unauthorized": {
+			"TITLE": "Non autorisé",
+			"HEADING_TITLE": "Vous n'êtes pas autorisé à accéder à cette page !",
+			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter."
+		},
 		"page404": {
 			"HEADING_TITLE": "Page non trouvée",
 			"HEADING_DESCRIPTION": "La ressource que vous recherchez est introuvable !",
@@ -545,14 +553,14 @@
 		"ERROR_WHILE_VERIFY_CODE": "Erreur lors de la vérification du code.",
 		"LENGTH_NUMBER_ERROR": "La longueur doit être un nombre et supérieure à 0",
 		"INVALID_ALLOWED_CHARACTER": "Valeur invalide pour allowedCharacters. Utilisez alpha, numérique ou alumérique",
-		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide",
-		"placeholders": { "ENTER_TO_VALIDATE": "Appuyez sur Entrée pour valider" },
-		"team": {
-			"BACK_LABEL": "Retour à l'équipe",
-			"PUBLIC_TEAM": "Équipe publique",
-			"PRIVATE_TEAM": "Équipe privée",
-			"creation": { "NEW": "Créer une nouvelle équipe" }
-		},
-		"links": { "common": { "TASKS": "Tâches", "TEAM": "Équipe", "SETTINGS": "Paramètres" } }
-	}
+		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide"
+	},
+	"team": {
+		"BACK_LABEL": "Retour à l'équipe",
+		"PUBLIC_TEAM": "Équipe publique",
+		"PRIVATE_TEAM": "Équipe privée",
+		"creation": { "NEW": "Créer une nouvelle équipe" }
+	},
+	"placeholders": { "ENTER_TO_VALIDATE": "Appuyez sur Entrée pour valider" },
+	"links": { "common": { "TASKS": "Tâches", "TEAM": "Équipe", "SETTINGS": "Paramètres" } }
 }

@@ -416,6 +416,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
 		},
+		"unauthorized": {
+			"TITLE": "Несанкционированный",
+			"HEADING_TITLE": "Вы не авторизованы для просмотра этой страницы !",
+			"HEADING_DESCRIPTION": "Приносим извинения за неудобства, но у вас нет прав доступа к этой странице. Если вы считаете, что это ошибка. Пожалуйста, войдите."
+		},
 		"page404": {
 			"HEADING_TITLE": "Not Found",
 			"HEADING_DESCRIPTION": "Resource you are looking for not found!",

@@ -9,9 +9,9 @@
 	},
 	"private": true,
 	"scripts": {
-		"dev": "yarn next dev",
+		"dev": "yarn node env.js && yarn next dev -p 3030",
 		"build": "yarn next build",
-		"start": "yarn next start",
+		"start": "yarn node env.js && yarn next start -p 3030",
 		"lint": "yarn next lint"
 	},
 	"dependencies": {
@@ -112,6 +112,7 @@
 		"@types/react-google-recaptcha": "^2.1.5",
 		"eslint": "^8.28.0",
 		"eslint-config-next": "^14.0.4",
+		"dotenv": "^16.4.1",
 		"typescript": "^4.9.4"
 	},
 	"prettier": {
