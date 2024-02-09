@@ -38,6 +38,8 @@
 		"ASSIGN_TASK": "Taak toewijzen",
 		"ASSIGN_TASK_TO": "Taak toewijzen",
 		"REMOVE_ACCOUNT": "Account verwijderen",
+		"DELETE_ALL_DATA": "Alle gegevens verwijderen",
+		"DONT_HAVE_ACCOUNT": "Heb je geen account?",
 		"REMOVE_EVERYWHERE": "Overal verwijderen",
 		"DELETE_ACCOUNT": "Dit account verwijderen",
 		"UNASSIGN_TASK": "Taak intrekken",
@@ -167,9 +169,10 @@
 		"FILTER_COMMENTS": "Reacties",
 		"FILTER_HISTORY": "Geschiedenis",
 		"FILTER_UNSUBSCRIBE": "Afmelden",
+		"REGISTER" : "Registreren",
 
 		"KEYBOARD_SHORTCUTS": "Sneltoetsen",
-
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activeer GitHub-integratie voor project- en repository-synchronisatie",
 		"GITHUB_LOADING_TEXT": "We zijn nu uw GitHub-integratie aan het installeren, even geduld...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchroniseer taken automatisch in uw applicatie voor naadloze en efficiënte updates.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchroniseer taken selectief door ze te koppelen aan een specifiek label.",
@@ -282,6 +285,9 @@
 			"HEADING_TITLE": "Algemene instellingen",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "U staat op het punt uit alle teams te worden verwijderd, tenzij u de enige manager bent?",
+
 			"WORK_SCHEDULE": "Werkschema",
 			"SUBSCRIPTION": "Abonnement",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Uw tijdzone",
@@ -445,14 +451,31 @@
 	},
 
 	"timer": {
+		"ACTIVE": "Actief",
+		"APPS": "Apps",
+		"ARCHIVED": "Gearchiveerd",
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
 		},
+		"INACTIVE": "Inactief",
+		"KEYBOARD": "toetsenbord",
+		"MOUSE": "muis",
+		"NO_SCREENSHOOT": "Geen schermafbeeldingen",
+		"NOT_ARCHIVED": "Niet gearchiveerd",
+		"OTHER_DETAILS": "Andere details",
+		"PERCENT_OF_MINUTES": " % van 10 minuten",
+		"PERCENT_USED": "Gebruikt percentage",
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schatten"
 		},
+		"THERE_IS_NO_APPS_VISITED": "Er zijn geen apps bezocht.",
+		"TIME_ACTIVITY": "Activiteit",
+		"TIME_SPENT_IN_HOURS": "Tijd besteed (Uren)",
+		"TIMES": "Keer",
+		"TOTAL_HOURS": "Totaal uren",
+		"VISITED_DATES": "Bezochte data",
 		"DAY_LIST": [{ "title": "7 dagen" }, { "title": "14 dagen" }]
 	},
 
