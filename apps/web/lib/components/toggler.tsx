@@ -5,6 +5,7 @@ import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
 import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
+import { LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
 
 type Props = {
 	className?: string;
@@ -75,6 +76,17 @@ export function TreeModeToggler({ className }: IClassName) {
 		<Toggler className={className} firstBtnClassName="dark:bg-[#3B4454]" secondBtnClassName="dark:bg-transparent">
 			<StopIcon className="dark:stroke-white" />
 			<BoxIcon className="stroke-[#7E7991] dark:stroke-[#969CA6]" />
+		</Toggler>
+	);
+}
+
+export function DataSyncToggler({ className }: IClassName) {
+	const { setTheme } = useTheme();
+
+	return (
+		<Toggler className={className} onClickOne={() => setTheme('light')} onClickTwo={() => setTheme('dark')}>
+			<LightningBoltIcon />
+			<UpdateIcon />
 		</Toggler>
 	);
 }

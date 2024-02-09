@@ -14,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { fullWidthState } from '@app/stores/fullWidth';
+import { SyncZone } from 'lib/settings/sync.zone';
 
 const Personal = () => {
 	const t = useTranslations();
@@ -64,6 +65,13 @@ const Personal = () => {
 									</Text> */}
 									<ProfileAvatar />
 									<PersonalSettingForm />
+								</Accordian>
+								<Accordian
+									title={'Data Synchronization'}
+									className="p-4 mt-4  md:min-w-[50vw] lg:min-w-[60vw] xl:min-w-[75vw]  dark:bg-dark--theme"
+									id="sync-zone"
+								>
+									<SyncZone />
 								</Accordian>
 								<Accordian
 									title={t('pages.settings.DANDER_ZONE')}
