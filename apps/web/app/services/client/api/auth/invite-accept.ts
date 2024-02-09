@@ -88,13 +88,14 @@ export const signInEmailConfirmAPI = (data: { code: string; email: string }) => 
  */
 export async function signInEmailConfirmGauzy(email: string, code: string) {
 	let loginResponse: ILoginResponse | null = null;
-	const inviteReq = await verifyInviteCodeAPI({ email, code });
 
 	const { errors, valid: formValid } = authFormValidate(['email', 'code'], { email, code } as any);
 
 	if (!formValid) {
 		return Promise.reject({ errors });
 	}
+
+	const inviteReq = await verifyInviteCodeAPI({ email, code });
 
 	if (inviteReq && inviteReq.fullName) {
 		const password = generateToken(8);
@@ -176,4 +177,98 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 	}
 
 	return signInEmailConfirmAPI({ email, code });
+}
+
+/**
+ * @param params
+ */
+export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code: string }) {
+	let loginResponse: ILoginResponse | null = null;
+
+	const { errors, valid: formValid } = authFormValidate(['email'], params as any);
+
+	if (!formValid) {
+		return Promise.reject({ errors });
+	}
+
+	const inviteReq = await verifyInviteCodeAPI({ email: params.email, code: params.code });
+
+	if (inviteReq && inviteReq.fullName) {
+		const password = generateToken(8);
+		const names = inviteReq.fullName.split(' ');
+
+		const acceptInviteRes = await acceptInviteAPI({
+			code: params.code,
+			email: params.email,
+			password,
+			user: {
+				firstName: names[0],
+				lastName: names[1] || '',
+				email: params.email
+			}
+		});
+
+		if (!acceptInviteRes) {
+			return Promise.reject({
+				errors: {
+					email: 'Authentication code or email address invalid'
+				}
+			});
+		}
+
+		loginResponse = acceptInviteRes;
+	}
+
+	if (loginResponse) {
+		/**
+		 * Get the first team from first organization
+		 */
+		const tenantId = loginResponse.user?.tenantId || '';
+		const access_token = loginResponse.token;
+		const userId = loginResponse.user?.id;
+
+		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId, token: access_token });
+		const organization = organizations?.items[0];
+
+		if (!organization) {
+			return Promise.reject({
+				errors: {
+					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+				}
+			});
+		}
+
+		const { data: teams } = await getAllOrganizationTeamAPI(
+			{ tenantId, organizationId: organization.organizationId },
+			access_token
+		);
+
+		const team = teams.items[0];
+		if (!team) {
+			setNoTeamPopupShowCookie(true);
+		}
+
+		setAuthCookies({
+			access_token: loginResponse.token,
+			refresh_token: {
+				token: loginResponse.refresh_token
+			},
+			teamId: team?.id,
+			tenantId,
+			organizationId: organization?.organizationId,
+			languageId: 'en', // TODO: not sure what should be here
+			noTeamPopup: true,
+			userId
+		});
+
+		const response: AxiosResponse<{ loginResponse: ILoginResponse; team: IOrganizationTeamList }> = {
+			data: { team, loginResponse },
+			status: 200,
+			statusText: '',
+			headers: {},
+			config: {} as any
+		};
+
+		return Promise.resolve(response);
+	}
 }

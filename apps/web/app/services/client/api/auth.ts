@@ -114,14 +114,17 @@ export async function signInEmailConfirmAPI(email: string, code: string) {
 	});
 }
 
-export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
-	return api.post<ILoginResponse>('/auth/register', data);
-};
-
 export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
+	if (GAUZY_API_BASE_SERVER_URL.value) {
+	}
+
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 		email,
 		token,
 		teamId: selectedTeam
 	});
+};
+
+export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
+	return api.post<ILoginResponse>('/auth/register', data);
 };
