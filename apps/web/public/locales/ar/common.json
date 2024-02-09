@@ -122,6 +122,8 @@
 		"FULL_NAME": "الاسم الكامل",
 		"USER_AVATAR": "صورة المستخدم",
 		"CONTACT": "جهة الاتصال",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 		"THEME": "الموضوع",
 		"TIME_ZONE": "المنطقة الزمنية",
 		"EDIT": "تعديل",

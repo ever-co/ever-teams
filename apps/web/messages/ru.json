@@ -123,6 +123,8 @@
 		"FULL_NAME": "Полное имя",
 		"USER_AVATAR": "Аватар пользователя",
 		"CONTACT": "Контакт",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 
 		"THEME": "Тема",
 		"TIME_ZONE": "Часовой пояс",

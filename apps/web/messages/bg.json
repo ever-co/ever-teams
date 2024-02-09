@@ -123,6 +123,8 @@
 		"FULL_NAME": "Пълно име",
 		"USER_AVATAR": "Потребителски аватар",
 		"CONTACT": "Контакт",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 		"THEME": "Тема",
 		"TIME_ZONE": "Часова зона",
 		"EDIT": "Редактиране",

@@ -120,6 +120,8 @@
 		"FULL_NAME": "全名",
 		"USER_AVATAR": "用户头像",
 		"CONTACT": "联系",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 
 		"THEME": "主题",
 		"TIME_ZONE": "时区",

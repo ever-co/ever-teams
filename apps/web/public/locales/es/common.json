@@ -120,6 +120,9 @@
 		"FULL_NAME": "Nombre completo",
 		"USER_AVATAR": "Avatar de usuario",
 		"CONTACT": "Contacto",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
+
 		"THEME": "Tema",
 		"TIME_ZONE": "Zona horaria",
 		"EDIT": "Editar",

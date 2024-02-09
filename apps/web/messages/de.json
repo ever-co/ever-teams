@@ -123,6 +123,8 @@
 		"FULL_NAME": "Voller Name",
 		"USER_AVATAR": "Benutzeravatar",
 		"CONTACT": "Kontakt",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Zeitzone",
