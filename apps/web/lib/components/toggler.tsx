@@ -109,7 +109,7 @@ export function DataSyncToggler({ className }: IClassName) {
 					!dataSync && 'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
 				)}
 			>
-				<Cross2Icon className="text-white" />
+				<Cross2Icon className={clsxm(!dataSync && 'text-white')} />
 			</button>
 		</div>
 	);
