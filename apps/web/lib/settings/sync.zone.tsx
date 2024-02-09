@@ -40,15 +40,14 @@ export function SyncZone() {
 }
 
 export const RealTimePopup = ({ closeModal, open }: { closeModal: () => void; open: boolean }) => {
+	const t = useTranslations();
 	const setDataSyncMode = useSetRecoilState(dataSyncModeState);
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<div className="sm:w-[530px] w-[330px]">
 				<Card className="w-full" shadow="custom">
 					<div>
-						<p className="py-4 text-center">
-							{'We are working on Real-Time Sync at the moment, please check on this feature later.'}
-						</p>
+						<p className="py-4 text-center">{t('alerts.ALERT_REMOVE_TEAM')}</p>
 						<div className="flex justify-center gap-2">
 							<Button
 								onClick={() => {

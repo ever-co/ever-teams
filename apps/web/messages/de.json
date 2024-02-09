@@ -180,6 +180,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Auto-Sync-Label auswählen"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Wir arbeiten derzeit an der Echtzeitsynchronisierung. Bitte überprüfen Sie diese Funktion später.",
 		"ALERT_DELETE_ACCOUNT": "Das Konto wird von allen Teams entfernt, außer wo Sie nur Manager sind",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",

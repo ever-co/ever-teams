@@ -172,6 +172,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Nous travaillons actuellement sur la synchronisation en temps réel, veuillez vérifier cette fonctionnalité plus tard.",
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Votre compte sera supprimé définitivement avec suppression de toutes les équipes",
 		"ALERT_REMOVE_TEAM": "L'équipe sera complètement supprimée du système et les membres de l'équipe perdront l'accès",
@@ -282,7 +283,6 @@
 			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {

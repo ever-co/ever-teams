@@ -175,6 +175,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Выберите метку автосинхронизации"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "В настоящее время мы работаем над синхронизацией в реальном времени, пожалуйста, проверьте эту функцию позже.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",

@@ -179,6 +179,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
 		"ALERT_DELETE_ACCOUNT": "Zostaniesz usunięty z wszystkich zespołów, z wyjątkiem sytuacji, gdy jesteś jedynym menedżerem w zespole",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Twoje Konto zostanie trwale usunięte wraz z usunięciem z wszystkich zespołów",
 		"ALERT_REMOVE_ALL_DATA": "Wszystkie dane konta zostaną usunięte z zespołów, w których jesteś jedynym istniejącym menedżerem",

@@ -178,6 +178,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",
 		"ALERT_DELETE_ACCOUNT": "Você será removido de todas as equipes, exceto onde você é o único gerente na equipe",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Sua conta será excluída permanentemente com a remoção de todas as equipes",
 		"ALERT_REMOVE_TEAM": "A equipe será completamente removida do sistema e os membros da equipe perderão o acesso",

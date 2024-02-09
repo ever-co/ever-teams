@@ -172,6 +172,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Изберете етикет за автоматична синхронизация"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "В момента работим върху синхронизирането в реално време, моля, проверете тази функция по-късно.",
 		"ALERT_DELETE_ACCOUNT": "Профилът ще бъде премахнат от всички отбори, освен където сте само мениджър",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Вашият профил ще бъде изтрит завинаги с премахване от всички отбори",
 		"ALERT_REMOVE_TEAM": "Отборът ще бъде премахнат напълно от системата и членовете на отбора ще загубят достъп",
@@ -290,7 +291,6 @@
 			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Ще премахнете профила си?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {

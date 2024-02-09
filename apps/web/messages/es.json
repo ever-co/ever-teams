@@ -176,6 +176,7 @@
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activa la integración de GitHub para la sincronización de proyectos y repositorios"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
