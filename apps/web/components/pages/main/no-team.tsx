@@ -17,8 +17,8 @@ const NoTeam = ({ className, ...rest }: Props) => {
 
 	React.useEffect(() => {
 		closeModal();
-		if (teams.length < 1) openModal();
-	}, [closeModal, openModal, teams.length]);
+		if (teams.length < 1 && user?.isEmailVerified == true) openModal();
+	}, [closeModal, openModal, teams.length, user?.isEmailVerified]);
 
 	return (
 		<div className={clsxm('flex justify-center items-center flex-col xs:mt-32 mt-8 mx-auto', className)} {...rest}>
