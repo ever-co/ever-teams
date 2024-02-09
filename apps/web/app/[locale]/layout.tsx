@@ -30,13 +30,7 @@ interface Props {
 	};
 }
 
-import { Plus_Jakarta_Sans, Poppins } from 'next/font/google';
-
-const jakarta = Plus_Jakarta_Sans({
-	subsets: ['latin'],
-	variable: '--font-jakarta',
-	display: 'swap'
-});
+import { Poppins } from 'next/font/google';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -66,7 +60,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
 	return (
-		<html lang={locale} className={`${poppins.variable} ${jakarta.variable}`}>
+		<html lang={locale} className={poppins.variable}>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
