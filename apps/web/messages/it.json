@@ -59,7 +59,7 @@
 		"STATUS": "Stato",
 		"NAME": "Nome",
 		"TASK": "Compito",
-		"DELETE_ALL_DATA" : "Elimina tutti i dati",
+		"DELETE_ALL_DATA": "Elimina tutti i dati",
 		"MY_TASKS": "I Miei Compiti",
 		"WORKED_ON_TASK": "Lavorato sul Compito",
 		"TOTAL_WORKED_TODAY": "Totale Lavorato Oggi",
@@ -292,7 +292,10 @@
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Stai per eliminare il tuo account e tutti i tuoi dati?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Stai per essere rimosso da tutti i team, a meno che tu non sia l'unico manager?",
 			"ABOUT_TO_CHANGE_EMAIL": "Stai per cambiare l'email",
-			"ABOUT_TO_DELETE_ACCOUNT": "Stai per eliminare il tuo account?"		},
+			"ABOUT_TO_DELETE_ACCOUNT": "Stai per eliminare il tuo account?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Stai per rimuovere il tuo account?"
+		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Impostazioni Generali",
 			"MEMBER_HEADING_TITLE": "Membri",

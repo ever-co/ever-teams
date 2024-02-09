@@ -278,9 +278,11 @@
 			"SUBSCRIPTION": "Suscripción",
 			"ABOUT_TO_CHANGE_EMAIL": "Estás a punto de cambiar el Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {

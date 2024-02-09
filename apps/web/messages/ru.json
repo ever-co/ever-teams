@@ -293,7 +293,9 @@
 			"SUBSCRIPTION": "Подписка",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Ваш часовой пояс",
 			"ABOUT_TO_CHANGE_EMAIL": "Вы собираетесь изменить адрес электронной почты",
-			"ABOUT_TO_DELETE_ACCOUNT": "Вы собираетесь удалить свой аккаунт?"
+			"ABOUT_TO_DELETE_ACCOUNT": "Вы собираетесь удалить свой аккаунт?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Вы собираетесь удалить свой аккаунт?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Общие настройки",

@@ -287,11 +287,18 @@
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
 			"SUBSCRIPTION": "מנוי",
+<<<<<<< HEAD
 			"ABOUT_TO_DELETE_ACCOUNT" : "אתה עומד למחוק את החשבון שלך?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "אתה עומד למחוק את החשבון שלך ואת כל הנתונים שלך?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "אתה עומד להיסיר מכל הצוותים, אלא אם אתה המנהל היחיד?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "איזור זמן שלך",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל"
+=======
+			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
+			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
+>>>>>>> 354e21ef (fix: translation)
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "הגדרות כלליות",

@@ -281,6 +281,7 @@
 			"SUBSCRIPTION": "מנוי",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
 		},
 		"settingsTeam": {

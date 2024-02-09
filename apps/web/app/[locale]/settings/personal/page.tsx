@@ -67,7 +67,7 @@ const Personal = () => {
 									<PersonalSettingForm />
 								</Accordian>
 								<Accordian
-									title={'Data Synchronization'}
+									title={t('pages.settings.DATA_SYNCHRONIZATION')}
 									className="p-4 mt-4  md:min-w-[50vw] lg:min-w-[60vw] xl:min-w-[75vw]  dark:bg-dark--theme"
 									id="sync-zone"
 								>

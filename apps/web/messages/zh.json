@@ -290,7 +290,9 @@
 			"SUBSCRIPTION": "订阅",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "您的时区",
 			"ABOUT_TO_CHANGE_EMAIL": "您即将更改电子邮箱",
-			"ABOUT_TO_DELETE_ACCOUNT": "您即将删除账户?"
+			"ABOUT_TO_DELETE_ACCOUNT": "您即将删除账户?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "您即将移除账户?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "常规设置",
@@ -431,7 +433,7 @@
 		"permissions": {
 			"SELECT_ROLES": "选择角色"
 		},
-		"page404" : {
+		"page404": {
 			"HEADING_TITLE": "页面未找到 ！",
 			"HEADING_DESCRIPTION": "我们找了，但找不到它....",
 			"LINK_LABEL": "主页"

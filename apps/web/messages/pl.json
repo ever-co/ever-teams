@@ -27,7 +27,7 @@
 		"ONLY_ME": "Tylko ja",
 		"YES": "Tak",
 		"BASIC": "Podstawowy",
-		"DELETE_ALL_DATA":  "Usuń wszystkie dane",
+		"DELETE_ALL_DATA": "Usuń wszystkie dane",
 		"DELETE": "Usuń",
 		"MEET": "Spotkaj się",
 		"BOARD": "Tablica",
@@ -291,7 +291,9 @@
 			"WORK_SCHEDULE": "Harmonogram Pracy",
 			"SUBSCRIPTION": "Subskrypcja",
 			"ABOUT_TO_CHANGE_EMAIL": "Zamierzasz zmienić adres e-mail",
-			"ABOUT_TO_DELETE_ACCOUNT": "Zamierzasz usunąć swoje konto?"
+			"ABOUT_TO_DELETE_ACCOUNT": "Zamierzasz usunąć swoje konto?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Zamierzasz usunąć swoje konto?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Ustawienia Ogólne",

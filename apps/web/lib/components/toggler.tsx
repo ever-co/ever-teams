@@ -96,7 +96,7 @@ export function DataSyncToggler({ className }: IClassName) {
 				onClick={() => setDataSync(true)}
 				className={clsxm(
 					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
-					dataSync && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					dataSync && 'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
 				)}
 			>
 				<UpdateIcon className="dark:text-white" />
@@ -130,7 +130,8 @@ export function DataSyncModeToggler({ className }: IClassName) {
 					onClick={() => setDataSyncMode('REAL_TIME')}
 					className={clsxm(
 						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
-						dataSyncMode == 'REAL_TIME' && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+						dataSyncMode == 'REAL_TIME' &&
+							'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
 					)}
 				>
 					<LightningBoltIcon className="dark:text-white" />

@@ -292,6 +292,7 @@
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {
