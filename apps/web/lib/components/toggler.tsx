@@ -6,8 +6,10 @@ import React, { PropsWithChildren } from 'react';
 import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
 import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
-import { useSetRecoilState, useRecoilState } from 'recoil';
+import {  useRecoilState } from 'recoil';
 import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
+import { useModal } from '@app/hooks';
+import { RealTimePopup } from 'lib/settings/sync.zone';
 
 type Props = {
 	className?: string;
@@ -117,6 +119,7 @@ export function DataSyncToggler({ className }: IClassName) {
 
 export function DataSyncModeToggler({ className }: IClassName) {
 	const [dataSyncMode, setDataSyncMode] = useRecoilState(dataSyncModeState);
+	const { isOpen, closeModal, openModal } = useModal();
 
 	return (
 		<>
@@ -127,7 +130,10 @@ export function DataSyncModeToggler({ className }: IClassName) {
 				)}
 			>
 				<button
-					onClick={() => setDataSyncMode('REAL_TIME')}
+					onClick={() =>
+						// setDataSyncMode('REAL_TIME')
+						openModal()
+					}
 					className={clsxm(
 						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
 						dataSyncMode == 'REAL_TIME' &&
@@ -147,6 +153,7 @@ export function DataSyncModeToggler({ className }: IClassName) {
 					<UpdateIcon className="dark:text-white" />
 				</button>
 			</div>
+			<RealTimePopup open={isOpen} closeModal={closeModal} />
 		</>
 	);
 }

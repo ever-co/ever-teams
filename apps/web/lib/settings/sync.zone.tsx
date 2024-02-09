@@ -1,7 +1,7 @@
 import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
-import { DataSyncModeToggler, DataSyncToggler, Text } from 'lib/components';
+import { Button, Card, DataSyncModeToggler, DataSyncToggler, Modal, Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
 export function SyncZone() {
 	const t = useTranslations();
@@ -38,3 +38,30 @@ export function SyncZone() {
 		</div>
 	);
 }
+
+export const RealTimePopup = ({ closeModal, open }: { closeModal: () => void; open: boolean }) => {
+	const setDataSyncMode = useSetRecoilState(dataSyncModeState);
+	return (
+		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
+			<div className="sm:w-[530px] w-[330px]">
+				<Card className="w-full" shadow="custom">
+					<div>
+						<p className="py-4 text-center">
+							{'We are working on Real-Time Sync at the moment, please check on this feature later.'}
+						</p>
+						<div className="flex justify-center gap-2">
+							<Button
+								onClick={() => {
+									setDataSyncMode('PULL');
+									closeModal();
+								}}
+							>
+								OK
+							</Button>
+						</div>
+					</div>
+				</Card>
+			</div>
+		</Modal>
+	);
+};
