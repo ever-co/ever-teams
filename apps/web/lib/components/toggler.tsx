@@ -5,7 +5,9 @@ import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
 import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
-import { LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { useSetRecoilState, useRecoilState } from 'recoil';
+import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 
 type Props = {
 	className?: string;
@@ -81,13 +83,70 @@ export function TreeModeToggler({ className }: IClassName) {
 }
 
 export function DataSyncToggler({ className }: IClassName) {
-	const { setTheme } = useTheme();
+	const [dataSync, setDataSync] = useRecoilState(isDataSyncState);
 
 	return (
-		<Toggler className={className} onClickOne={() => setTheme('light')} onClickTwo={() => setTheme('dark')}>
-			<LightningBoltIcon />
-			<UpdateIcon />
-		</Toggler>
+		<div
+			className={clsxm(
+				'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+				className
+			)}
+		>
+			<button
+				onClick={() => setDataSync(true)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+					dataSync && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+				)}
+			>
+				<UpdateIcon className="dark:text-white" />
+			</button>
+
+			<button
+				onClick={() => setDataSync(false)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+					!dataSync && 'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
+				)}
+			>
+				<Cross2Icon className="text-white" />
+			</button>
+		</div>
+	);
+}
+
+export function DataSyncModeToggler({ className }: IClassName) {
+	const [dataSyncMode, setDataSyncMode] = useRecoilState(dataSyncModeState);
+
+	return (
+		<>
+			<div
+				className={clsxm(
+					'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+					className
+				)}
+			>
+				<button
+					onClick={() => setDataSyncMode('REAL_TIME')}
+					className={clsxm(
+						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+						dataSyncMode == 'REAL_TIME' && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					)}
+				>
+					<LightningBoltIcon className="dark:text-white" />
+				</button>
+
+				<button
+					onClick={() => setDataSyncMode('PULL')}
+					className={clsxm(
+						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+						dataSyncMode == 'PULL' && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					)}
+				>
+					<UpdateIcon className="dark:text-white" />
+				</button>
+			</div>
+		</>
 	);
 }
 
