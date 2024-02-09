@@ -1,8 +1,10 @@
-import { useAuthenticateUser, useModal } from '@app/hooks';
+'use client';
+
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Avatar, Button, Text, Tooltip } from 'lib/components';
 import { CreateTeamModal } from 'lib/features';
-import { PropsWithChildren } from 'react';
+import React, { PropsWithChildren } from 'react';
 import noTeamImg from '../../../public/assets/svg/no-team.svg';
 import { useTranslations } from 'next-intl';
 
@@ -11,6 +13,12 @@ const NoTeam = ({ className, ...rest }: Props) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { user } = useAuthenticateUser();
+	const { teams } = useOrganizationTeams();
+
+	React.useEffect(() => {
+		closeModal();
+		if (teams.length < 1 && user?.isEmailVerified == true) openModal();
+	}, [closeModal, openModal, teams.length, user?.isEmailVerified]);
 
 	return (
 		<div className={clsxm('flex justify-center items-center flex-col xs:mt-32 mt-8 mx-auto', className)} {...rest}>
@@ -24,11 +32,11 @@ const NoTeam = ({ className, ...rest }: Props) => {
 				</p>
 			</div>
 
-			<Tooltip placement="auto" label={t('common.NO_TEAM_TOOLTIP')} enabled={!user?.isEmailVerified}>
+			<Tooltip placement="auto" label={t('common.NO_TEAM_TOOLTIP')} enabled={user?.isEmailVerified == false}>
 				<Button
 					className="mt-10 text-base font-medium capitalize"
 					onClick={openModal}
-					disabled={!user?.isEmailVerified}
+					disabled={user?.isEmailVerified == false}
 				>
 					{t('common.CREATE_TEAM')}
 				</Button>
