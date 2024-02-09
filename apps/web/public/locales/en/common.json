@@ -121,6 +121,8 @@
 		"FULL_NAME": "Full Name",
 		"USER_AVATAR": "User Avatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",

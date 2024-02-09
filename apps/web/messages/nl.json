@@ -124,6 +124,8 @@
 		"FULL_NAME": "Volledige naam",
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",
@@ -169,7 +171,7 @@
 		"FILTER_COMMENTS": "Reacties",
 		"FILTER_HISTORY": "Geschiedenis",
 		"FILTER_UNSUBSCRIBE": "Afmelden",
-		"REGISTER" : "Registreren",
+		"REGISTER": "Registreren",
 
 		"KEYBOARD_SHORTCUTS": "Sneltoetsen",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activeer GitHub-integratie voor project- en repository-synchronisatie",

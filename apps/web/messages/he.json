@@ -177,7 +177,6 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "הפעל אינטגרציה של GitHub עבור סנכרון פרויקטים ומאגרים"
-
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
@@ -288,18 +287,13 @@
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
 			"SUBSCRIPTION": "מנוי",
-<<<<<<< HEAD
-			"ABOUT_TO_DELETE_ACCOUNT" : "אתה עומד למחוק את החשבון שלך?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "אתה עומד למחוק את החשבון שלך ואת כל הנתונים שלך?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "אתה עומד להיסיר מכל הצוותים, אלא אם אתה המנהל היחיד?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "איזור זמן שלך",
-			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל"
-=======
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
 			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
->>>>>>> 354e21ef (fix: translation)
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "הגדרות כלליות",
@@ -456,9 +450,9 @@
 		}
 	},
 	"timer": {
-		"ACTIVE" : "פעיל",
-		"APPS" : "אפליקציות",
-		"ARCHIVED" : "ארכיון",
+		"ACTIVE": "פעיל",
+		"APPS": "אפליקציות",
+		"ARCHIVED": "ארכיון",
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",

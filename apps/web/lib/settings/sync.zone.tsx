@@ -16,7 +16,7 @@ export function SyncZone() {
 						<div className="flex items-center w-full">
 							<DataSyncToggler />
 							<Text className="flex items-center ml-5 text-sm font-normal text-gray-400">
-								{isDataSync ? 'Enabled' : 'Desabled'}
+								{isDataSync ? t('common.ENABLED') : t('common.DISABLED')}
 							</Text>
 						</div>
 					</div>
