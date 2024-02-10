@@ -12,7 +12,7 @@ import { useRecoilState } from 'recoil';
 import Link from 'next/link';
 import { clsxm } from '@app/utils';
 
-export const LeftSideSettingMenu = ({ className}: { className?: string}) => {
+export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const pathname = usePathname();
@@ -66,7 +66,12 @@ export const LeftSideSettingMenu = ({ className}: { className?: string}) => {
 
 	return (
 		<>
-			<div className={clsxm("hidden lg:block lg:w-[320px] mt-[36px] sm:mr-[56px] mx-auto h-full overflow-y-auto", className)}>
+			<div
+				className={clsxm(
+					'hidden lg:block lg:w-[320px] mt-[36px] sm:mr-[56px] mx-auto h-full overflow-y-auto',
+					className
+				)}
+			>
 				<Text className="text-4xl font-normal mb-[40px] text-center sm:text-left">{t('common.SETTINGS')}</Text>
 				<div className="flex sm:block">
 					<SidebarAccordian
