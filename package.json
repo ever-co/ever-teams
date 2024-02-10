@@ -44,6 +44,7 @@
     "lint": "lerna run lint",
     "lint-fix": "cd apps/web && eslint . --fix",
     "lint-fix:scss": "cd apps/web && stylelint **/*.{scss,css} --fix",
+    "lint-staged": "lint-staged",
     "e2e": "yarn run postinstall.web && yarn run config:dev && yarn ng e2e --browser chrome",
     "e2e:ci": "yarn run postinstall.web && yarn run config:prod && yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci e2e -c=production --prod --headless",
     "prettier": "yarn prettier:web && yarn prettier:mobile && yarn prettier:extensions",
@@ -95,7 +96,12 @@
       "pre-commit": "pretty-quick --no-verify --staged"
     }
   },
-  "lint-staged": {},
+  "lint-staged": {
+    "./apps/web/**/*.{ts,js,jsx,tsx}": [
+      "eslint ",
+      "prettier --ignore-path .gitignore --write"
+    ]
+  },
   "release": {
     "verifyConditions": [
       "@semantic-release/changelog",
