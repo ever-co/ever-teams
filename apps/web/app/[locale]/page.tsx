@@ -31,11 +31,12 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
+import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 
 function MainPage() {
 	const t = useTranslations();
@@ -43,6 +44,20 @@ function MainPage() {
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const view = useRecoilValue(headerTabs);
+
+	const setDataSync = useSetRecoilState(isDataSyncState);
+	const setDataSyncMode = useSetRecoilState(dataSyncModeState);
+
+	React.useEffect(() => {
+		try {
+			if (typeof window !== 'undefined') {
+				setDataSync(JSON.parse(window.localStorage.getItem('conf-is-data-sync') || 'true'));
+				setDataSyncMode(JSON.parse(window.localStorage.getItem('conf-data-sync-mode') || 'PULL'));
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	}, [setDataSync, setDataSyncMode]);
 
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },

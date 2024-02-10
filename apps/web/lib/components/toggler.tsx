@@ -6,7 +6,7 @@ import React, { PropsWithChildren } from 'react';
 import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
 import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
-import {  useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 import { useModal } from '@app/hooks';
 import { RealTimePopup } from 'lib/settings/sync.zone';
@@ -87,6 +87,10 @@ export function TreeModeToggler({ className }: IClassName) {
 export function DataSyncToggler({ className }: IClassName) {
 	const [dataSync, setDataSync] = useRecoilState(isDataSyncState);
 
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-is-data-sync', JSON.stringify(dataSync));
+	}, [dataSync]);
+
 	return (
 		<div
 			className={clsxm(
@@ -120,6 +124,10 @@ export function DataSyncToggler({ className }: IClassName) {
 export function DataSyncModeToggler({ className }: IClassName) {
 	const [dataSyncMode, setDataSyncMode] = useRecoilState(dataSyncModeState);
 	const { isOpen, closeModal, openModal } = useModal();
+
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-data-sync', JSON.stringify(dataSyncMode));
+	}, [dataSyncMode]);
 
 	return (
 		<>

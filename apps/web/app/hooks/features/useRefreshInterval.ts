@@ -41,7 +41,7 @@ export function useRefreshIntervalV2(callback: any, delay: number, ...params: an
 
 		// Start the loop only if dataSyncMode is 'PULL'
 		if (delay !== null && isDataSync && dataSyncMode === 'PULL') {
-			console.log('___[LOAD AGAIN] SYNC == PULL ___');
+			console.log('__LOAD AGAIN__ [BY SYNC MODE]');
 			const timeoutId = setTimeout(tick, delay);
 			// Cleanup function to clear the timeout when the component unmounts
 			return () => clearTimeout(timeoutId);
