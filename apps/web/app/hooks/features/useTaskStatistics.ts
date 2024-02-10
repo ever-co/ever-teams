@@ -21,7 +21,7 @@ import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { useSyncRef } from '../useSyncRef';
 import { Nullable } from '@app/interfaces';
-import { useRefreshInterval } from './useRefreshInterval';
+import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';
 
@@ -202,5 +202,5 @@ export function useTaskStatistics(addSeconds = 0) {
 export function useAllTaskStatistics() {
 	const { getAllTasksStatsData } = useTaskStatistics();
 
-	useRefreshInterval(getAllTasksStatsData, 5000);
+	useRefreshIntervalV2(getAllTasksStatsData, 5000);
 }

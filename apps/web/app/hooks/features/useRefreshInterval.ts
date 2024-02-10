@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import { useCallbackRef } from '../useCallbackRef';
+import { useRecoilValue } from 'recoil';
+import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 
 export function useRefreshInterval(callback: any, delay: number, ...params: any[]) {
 	// Remember the latest callback.
@@ -23,3 +25,31 @@ export function useRefreshInterval(callback: any, delay: number, ...params: any[
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [delay]);
 }
+
+export function useRefreshIntervalV2(callback: any, delay: number, ...params: any[]) {
+	const dataSyncMode = useRecoilValue(dataSyncModeState);
+	const isDataSync = useRecoilValue(isDataSyncState);
+	// Remember the latest callback.
+	const callbackRef = useCallbackRef(callback);
+
+	useEffect(() => {
+		console.log('__LOAD ONCE__');
+		// Define the function that will be executed
+		const tick = () => {
+			callbackRef.current(...params);
+		};
+
+		// Start the loop only if dataSyncMode is 'PULL'
+		if (delay !== null && isDataSync && dataSyncMode === 'PULL') {
+			console.log('___[LOAD AGAIN] SYNC == PULL ___');
+			const timeoutId = setTimeout(tick, delay);
+			// Cleanup function to clear the timeout when the component unmounts
+			return () => clearTimeout(timeoutId);
+		} else {
+			// If dataSyncMode is not 'PULL', execute the callback once immediately
+			tick();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [delay, isDataSync, dataSyncMode, ...params]); // Depend on `delay`, `isDataSync`, `dataSyncMode`, and `params` to restart the loop if any of these change
+}
+//  NodeJS.Timeout;
