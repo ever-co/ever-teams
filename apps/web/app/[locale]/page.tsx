@@ -7,7 +7,7 @@ import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, Container, Tooltip } from 'lib/components';
+import { Breadcrumb, Card, Container } from 'lib/components';
 import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
@@ -19,15 +19,11 @@ import {
 	UserTeamBlockHeader
 } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useState } from 'react';
 import { IssuesView } from '@app/constants';
-import { TableCellsIcon, QueueListIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNetworkState } from '@uidotdev/usehooks';
-import KanbanIcon from '@components/ui/svgs/kanban';
 import Offline from '@components/pages/offline';
 import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 
 import { Analytics } from '@vercel/analytics/react';
 import ChatwootWidget from 'lib/features/integrations/chatwoot';
@@ -38,7 +34,6 @@ import '../../styles/globals.css';
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
-import LinkWrapper from '@components/pages/kanban/link-wrapper';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
 
@@ -53,7 +48,7 @@ function MainPage() {
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 		{ title: activeTeam?.name || '', href: '/' }
 	];
- 	const { online } = useNetworkState();
+	const { online } = useNetworkState();
 
 	if (!online) {
 		return <Offline />;
@@ -69,7 +64,7 @@ function MainPage() {
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
-						<HeaderTabs linkAll={false}/>
+							<HeaderTabs linkAll={false} />
 						</div>
 					</div>
 
