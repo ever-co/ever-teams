@@ -3,4 +3,4 @@
 
 # npm test
 
-yarn lint-staged
+npx lint-staged
