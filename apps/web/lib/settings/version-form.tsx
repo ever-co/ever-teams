@@ -1,4 +1,3 @@
-// /* eslint-disable no-misdxed-spaces-and-tabs */
 import { Button, InputField, Text } from 'lib/components';
 import { StatusesListCard } from './list-card';
 
