@@ -120,6 +120,8 @@
 		"FULL_NAME": "Volledige naam",
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Inschakelen",
+		"DISABLED": "Uitzetten",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",
@@ -174,6 +176,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
 		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
@@ -283,6 +286,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Uw tijdzone",
 			"ABOUT_TO_CHANGE_EMAIL": "U staat op het punt het e-mailadres te wijzigen",
 			"ABOUT_TO_DELETE_ACCOUNT": "U staat op het punt uw account te verwijderen?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "U staat op het punt uw account te verwijderen?"
 		},
 		"settingsTeam": {

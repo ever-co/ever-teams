@@ -123,6 +123,8 @@
 		"FULL_NAME": "Full Name",
 		"USER_AVATAR": "User Avatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",
@@ -180,6 +182,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "We are working on Real-Time Sync at the moment, please check on this feature later.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
 		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
@@ -292,6 +295,7 @@
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {

@@ -125,6 +125,8 @@
 		"USER_AVATAR": "صورة المستخدم",
 		"REGISTER": "سجل الآن!",
 		"CONTACT": "جهة الاتصال",
+		"ENABLED": "يُمكَِن",
+		"DISABLED": "إبطال",
 		"THEME": "الموضوع",
 		"TIME_ZONE": "المنطقة الزمنية",
 		"EDIT": "تعديل",
@@ -178,6 +180,7 @@
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "نحن نعمل على المزامنة في الوقت الحقيقي في الوقت الحالي، يرجى التحقق من هذه الميزة لاحقًا",
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "سيتم حذف حسابك نهائياً مع إزالته من جميع الفرق",
 		"ALERT_REMOVE_TEAM": "سيتم إزالة الفريق بالكامل من النظام وفقدان أعضاء الفريق للوصول",
@@ -292,6 +295,8 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "المنطقة الزمنية الخاصة بك",
 			"ABOUT_TO_CHANGE_EMAIL": "أنت على وشك تغيير البريد الإلكتروني",
 			"ABOUT_TO_DELETE_ACCOUNT": "أنت على وشك حذف حسابك؟",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "أنت على وشك إزالة حسابك؟",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
@@ -453,9 +458,9 @@
 	},
 
 	"timer": {
-		"ACTIVE" : "نشط",
-		"APPS" : "تطبيقات",
-		"ARCHIVED" : "مؤرشف",
+		"ACTIVE": "نشط",
+		"APPS": "تطبيقات",
+		"ARCHIVED": "مؤرشف",
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",

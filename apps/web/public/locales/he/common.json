@@ -120,6 +120,8 @@
 		"FULL_NAME": "שם מלא",
 		"USER_AVATAR": "אווטר משתמש",
 		"CONTACT": "איש קשר",
+		"ENABLED": "לְאַפשֵׁר",
+		"DISABLED": "השבת",
 
 		"THEME": "ערכת עיצוב",
 		"TIME_ZONE": "אזור זמן",
@@ -174,6 +176,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
 		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
@@ -281,6 +284,7 @@
 			"SUBSCRIPTION": "מנוי",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
 		},
 		"settingsTeam": {
