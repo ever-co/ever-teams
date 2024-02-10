@@ -187,7 +187,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 				{columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col justify-between min-h-[calc(100vh-_328px)] max-h-[calc(100vh-_328px)] overflow-x-auto w-full">
+							<div className="flex flex-col justify-between min-h-[calc(100vh-_358px)] max-h-[calc(100vh-_358px)] overflow-x-auto w-full">
 								<div
 									className={clsxm(
 										'flex flex-row h-fit p-[32px] bg-transparent dark:bg-[#181920]',

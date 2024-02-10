@@ -38,24 +38,26 @@ import '../../styles/globals.css';
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
+import LinkWrapper from '@components/pages/kanban/link-wrapper';
+import HeaderTabs from '@components/pages/main/header-tabs';
+import { headerTabs } from '@app/stores/header-tabs';
 
 function MainPage() {
 	const t = useTranslations();
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
+	const view = useRecoilValue(headerTabs);
 
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 		{ title: activeTeam?.name || '', href: '/' }
 	];
-	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
-	const { online } = useNetworkState();
+ 	const { online } = useNetworkState();
 
 	if (!online) {
 		return <Offline />;
 	}
-
 	return (
 		<>
 			<MainLayout>
@@ -66,61 +68,8 @@ function MainPage() {
 							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
-
-						{/* <Collaborative /> */}
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
-							<Tooltip label={'Cards'} placement="top-start">
-								<button
-									className={clsxm(
-										'rounded-md px-3 py-1 text-sm font-medium',
-										view === IssuesView.CARDS
-											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-											: 'text-gray-700 dark:text-gray-300'
-									)}
-									onClick={() => setView(IssuesView.CARDS)}
-								>
-									<QueueListIcon className="w-5 h-5 inline" />
-								</button>
-							</Tooltip>
-							<Tooltip label={'Table'} placement="top-start">
-								<button
-									className={clsxm(
-										'rounded-md px-3 py-1 text-sm font-medium',
-										view === IssuesView.TABLE
-											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-											: 'text-gray-700 dark:text-gray-300'
-									)}
-									onClick={() => setView(IssuesView.TABLE)}
-								>
-									<TableCellsIcon className="w-5 h-5 inline" />
-								</button>
-							</Tooltip>
-							<Tooltip label={'Blocks'} placement="top-start">
-								<button
-									className={clsxm(
-										'rounded-md px-3 py-1 text-sm font-medium',
-										view === IssuesView.BLOCKS
-											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-											: 'text-gray-700 dark:text-gray-300'
-									)}
-									onClick={() => setView(IssuesView.BLOCKS)}
-								>
-									<Squares2X2Icon className="w-5 h-5 inline" />
-								</button>
-							</Tooltip>
-							<Tooltip label={'Kanban'} placement="top-start">
-								<Link
-									href={'/kanban'}
-									className={clsxm(
-										'rounded-md px-3 py-1 text-sm font-medium',
-										view === IssuesView.KANBAN
-											? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
-											: 'text-gray-700 dark:text-gray-300'
-									)}
-								>
-									<KanbanIcon />
-								</Link>
-							</Tooltip>
+						<HeaderTabs linkAll={false}/>
 						</div>
 					</div>
 
