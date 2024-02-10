@@ -1,8 +1,7 @@
 {
+	"plugins": ["unused-imports"],
 	"extends": "next/core-web-vitals",
 	"rules": {
-		"react/no-unstable-nested-components": [
-			"error"
-		]
+		"unused-imports/no-unused-imports": "error"
 	}
 }
