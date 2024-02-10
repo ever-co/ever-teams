@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCallbackRef } from '../useCallbackRef';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 
 export function useRefreshInterval(callback: any, delay: number, ...params: any[]) {
@@ -26,11 +26,29 @@ export function useRefreshInterval(callback: any, delay: number, ...params: any[
 	}, [delay]);
 }
 
+enum ESyncMode {
+	PULL = 'PULL',
+	REAL_TIME = 'REAL_TIME'
+}
+
 export function useRefreshIntervalV2(callback: any, delay: number, ...params: any[]) {
-	const dataSyncMode = useRecoilValue(dataSyncModeState);
-	const isDataSync = useRecoilValue(isDataSyncState);
+	const [dataSyncMode, setDataSyncMode] = useRecoilState(dataSyncModeState);
+	const [isDataSync, setDataSync] = useRecoilState(isDataSyncState);
 	// Remember the latest callback.
 	const callbackRef = useCallbackRef(callback);
+
+	//  get Sync Mode from Local Storage
+	useEffect(() => {
+		try {
+			if (typeof window !== 'undefined') {
+				setDataSync(JSON.parse(window.localStorage.getItem('conf-is-data-sync') || 'true'));
+				setDataSyncMode((window.localStorage.getItem('conf-data-sync-mode') as ESyncMode) ?? 'PULL');
+			}
+		} catch (error) {
+			console.log(error);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	useEffect(() => {
 		console.log('__LOAD ONCE__');
@@ -45,7 +63,7 @@ export function useRefreshIntervalV2(callback: any, delay: number, ...params: an
 			const timeoutId = setTimeout(tick, delay);
 			// Cleanup function to clear the timeout when the component unmounts
 			return () => clearTimeout(timeoutId);
-		} else {
+		} else if (isDataSync == true) {
 			// If dataSyncMode is not 'PULL', execute the callback once immediately
 			tick();
 		}
