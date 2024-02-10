@@ -1,12 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# select_folder() {
-    printf "Select a folder:\n"
-    printf "1. web\n"
-    printf "2. mobile\n"
-    printf "3. extensions\n"
-    printf "Enter your choice (1/2/3): "
-    read -r choice
-
-    echo "$folder"
+cd "apps/web"
+yarn format
+yarn tsc
