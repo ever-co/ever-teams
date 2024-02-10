@@ -31,12 +31,11 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
-import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 
 function MainPage() {
 	const t = useTranslations();
