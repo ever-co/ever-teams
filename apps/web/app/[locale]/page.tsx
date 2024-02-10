@@ -31,7 +31,7 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, AtomEffect } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
@@ -39,8 +39,6 @@ import { headerTabs } from '@app/stores/header-tabs';
 
 function MainPage() {
 	const t = useTranslations();
-	const w = tata;
-	alert('by');
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const view = useRecoilValue(headerTabs);
