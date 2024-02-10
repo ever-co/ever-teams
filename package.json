@@ -93,14 +93,11 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "pretty-quick --no-verify --staged"
+      "pre-commit": "lint-staged pretty-quick --no-verify --staged"
     }
   },
   "lint-staged": {
-    "./apps/web/**/*.{ts,js,jsx,tsx}": [
-      "eslint ",
-      "prettier --ignore-path .gitignore --write"
-    ]
+    "./apps/web/**/*.tsx": "eslint --fix"
   },
   "release": {
     "verifyConditions": [
