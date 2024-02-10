@@ -6,7 +6,7 @@ import React, { PropsWithChildren } from 'react';
 import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
 import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
-import {  useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
 import { useModal } from '@app/hooks';
 import { RealTimePopup } from 'lib/settings/sync.zone';

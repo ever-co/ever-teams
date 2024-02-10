@@ -10,6 +10,6 @@ export interface IScreenShootItem {
 	imageUrl: string;
 	percent: number | string;
 	showProgress?: boolean;
-	isTeamPage?: boolean
+	isTeamPage?: boolean;
 	onShow: () => any;
 }

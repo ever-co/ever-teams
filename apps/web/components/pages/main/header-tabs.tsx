@@ -17,10 +17,10 @@ const HeaderTabs = ({ linkAll }: { linkAll: boolean }) => {
 	];
 	const links = linkAll ? ['/', '/', '/', '/kanban'] : [undefined, undefined, undefined, '/kanban'];
 	const [view, setView] = useRecoilState(headerTabs);
-    
+
 	return (
 		<>
-			{options.map(({ label, icon: Icon, view: optionView },index) => (
+			{options.map(({ label, icon: Icon, view: optionView }, index) => (
 				<Tooltip key={label} label={label} placement="top-start">
 					<LinkWrapper isRoute={!!links[index]} href={links[index]}>
 						<button

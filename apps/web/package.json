@@ -12,7 +12,9 @@
 		"dev": "yarn node env.js && yarn next dev -p 3030",
 		"build": "yarn next build",
 		"start": "yarn node env.js && yarn next start -p 3030",
-		"lint": "yarn next lint"
+		"lint": "yarn next lint",
+		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write"
+
 	},
 	"dependencies": {
 		"@emoji-mart/data": "^1.1.2",
@@ -124,7 +126,6 @@
 		"arrowParens": "always",
 		"trailingComma": "none",
 		"quoteProps": "as-needed",
-		"trimTrailingWhitespace": true,
 		"overrides": [
 			{
 				"files": "*.scss",
