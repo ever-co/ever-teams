@@ -120,8 +120,8 @@
 		"FULL_NAME": "Volledige naam",
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
-		"ENABLED": "Enabled",
-		"DISABLED": "Disabled",
+		"ENABLED": "Inschakelen",
+		"DISABLED": "Uitzetten",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",

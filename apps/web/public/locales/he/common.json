@@ -120,8 +120,8 @@
 		"FULL_NAME": "שם מלא",
 		"USER_AVATAR": "אווטר משתמש",
 		"CONTACT": "איש קשר",
-		"ENABLED": "Enabled",
-		"DISABLED": "Disabled",
+		"ENABLED": "לְאַפשֵׁר",
+		"DISABLED": "השבת",
 
 		"THEME": "ערכת עיצוב",
 		"TIME_ZONE": "אזור זמן",

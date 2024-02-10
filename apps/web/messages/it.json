@@ -123,8 +123,8 @@
 		"FULL_NAME": "Nome Completo",
 		"USER_AVATAR": "Avatar Utente",
 		"CONTACT": "Contatto",
-		"ENABLED": "Enabled",
-		"DISABLED": "Disabled",
+		"ENABLED": "Abilitare",
+		"DISABLED": "disattivare",
 
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Orario",

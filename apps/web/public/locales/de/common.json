@@ -120,8 +120,8 @@
 		"FULL_NAME": "Voller Name",
 		"USER_AVATAR": "Benutzeravatar",
 		"CONTACT": "Kontakt",
-		"ENABLED": "Enabled",
-		"DISABLED": "Disabled",
+		"ENABLED": "aktivieren",
+		"DISABLED": "deaktivieren",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Zeitzone",
