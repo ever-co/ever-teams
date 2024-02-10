@@ -1,51 +1,12 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# npm test
+# select_folder() {
+    printf "Select a folder:\n"
+    printf "1. web\n"
+    printf "2. mobile\n"
+    printf "3. extensions\n"
+    printf "Enter your choice (1/2/3): "
+    read -r choice
 
-if ! command -v husky &> /dev/null; then
-  echo "Husky is not installed. Please install Husky before proceeding."
-  exit 1
-fi
-
-# Function to handle folder selection
-select_folder() {
-  # Use a clearer prompt message
-  PS3="Select a folder to run checks on: "
-
-  # Enumerate options with meaningful descriptions
-  options=("web (Frontend application)" "mobile (Mobile app)" "extensions (Browser extensions)")
-
-  # Validate user input with clear error messages
-  select opt in "${options[@]}"; do
-    case $opt in
-      "web")
-        folder="web"
-        break
-        ;;
-      "mobile")
-        folder="mobile"
-        break
-        ;;
-      "extensions")
-        folder="extensions"
-        break
-        ;;
-      *) echo "Invalid option. Please choose a valid folder.";;
-    esac
-  done
-}
-
-# Prompt user for folder selection
-select_folder
-
-# Move to the selected folder
-cd "apps/$folder" || { echo "Folder '$folder' not found. Exiting."; exit 1; }
-
-# Run checks in the selected folder using 'npx husky' for better compatibility
-npx husky run || { echo "Pre-commit checks failed. Please fix the issues and try again."; exit 1; }
-
-# Run additional commands if needed (e.g., yarn tsc, yarn format)
-# ...
-
-echo "Pre-commit checks passed successfully for '$folder'."
+    echo "$folder"
