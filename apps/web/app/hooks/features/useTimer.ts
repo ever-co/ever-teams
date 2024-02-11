@@ -23,7 +23,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
-import { useRefreshInterval } from './useRefreshInterval';
+import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 import isEqual from 'lodash/isEqual';
@@ -438,5 +438,5 @@ export function useSyncTimer() {
 	const { syncTimer } = useTimer();
 	const timerStatus = useRecoilValue(timerStatusState);
 
-	useRefreshInterval(timerStatus?.running ? syncTimer : () => void 0, 5000);
+	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, 5000);
 }

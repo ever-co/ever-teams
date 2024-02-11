@@ -6,7 +6,7 @@ import {
 	useLanguageSettings,
 	useOTRefreshInterval,
 	useOrganizationTeams,
-	useRefreshInterval,
+	useRefreshIntervalV2,
 	useSyncTimer,
 	useTaskLabels,
 	useTaskPriorities,
@@ -87,7 +87,7 @@ function InitState() {
 			 * Refresh Timer Running status,
 			 * This will sync timer in all the open tabs
 			 */
-			useRefreshInterval(getTimerStatus, five_seconds);
+			useRefreshIntervalV2(getTimerStatus, five_seconds);
 
 			/**
 			 * Refresh Teams data every 5 seconds.
@@ -96,23 +96,23 @@ function InitState() {
 			 */
 			useOTRefreshInterval(loadTeamsData, five_seconds, publicTeam);
 			// Refresh tasks with a deep compare
-			useRefreshInterval(loadTeamTasksData, five_seconds, true /* used as loadTeamTasksData deepCheck param */);
+			useRefreshIntervalV2(loadTeamTasksData, five_seconds, true /* used as loadTeamTasksData deepCheck param */);
 
 			// Timer status
-			// useRefreshInterval(
+			// useRefreshIntervalV2(
 			// 	getTimerStatus,
 			// 	5000,
 			// 	true /* used as getTimerStatus deepCheck param */
 			// );
 
-			useRefreshInterval(myInvitations, 10 * 1000, true /* used as loadTeamTasksData deepCheck param */);
+			useRefreshIntervalV2(myInvitations, 10 * 1000, true /* used as loadTeamTasksData deepCheck param */);
 
-			useRefreshInterval(loadTaskStatusData, sixty_two_seconds, true);
-			useRefreshInterval(loadTaskPriorities, sixty_two_seconds, true);
-			useRefreshInterval(loadTaskSizes, sixty_two_seconds, true);
-			useRefreshInterval(loadTaskLabels, sixty_two_seconds, true);
-			useRefreshInterval(loadTaskRelatedIssueTypeData, sixty_two_seconds, true);
-			useRefreshInterval(loadTaskVersionData, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskStatusData, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskPriorities, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskSizes, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskLabels, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskRelatedIssueTypeData, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskVersionData, sixty_two_seconds, true);
 
 			return <></>;
 		};
