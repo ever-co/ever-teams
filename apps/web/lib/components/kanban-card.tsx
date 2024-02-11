@@ -29,23 +29,23 @@ function getStyle(provided: DraggableProvided, style: any) {
 	};
 }
 
-function setCommentIconColor(commentType: 'tagged' | 'untagged') {
-	let style;
+// function setCommentIconColor(commentType: 'tagged' | 'untagged') {
+// 	let style;
 
-	if (commentType === 'tagged') {
-		style = {
-			backgroundColor: '#D95F5F'
-		};
-	} else if (commentType === 'untagged') {
-		style = {
-			backgroundColor: '#27AE60'
-		};
-	} else {
-		style = {};
-	}
+// 	if (commentType === 'tagged') {
+// 		style = {
+// 			backgroundColor: '#D95F5F'
+// 		};
+// 	} else if (commentType === 'untagged') {
+// 		style = {
+// 			backgroundColor: '#27AE60'
+// 		};
+// 	} else {
+// 		style = {};
+// 	}
 
-	return style;
-}
+// 	return style;
+// }
 
 function TagCard({ title, backgroundColor, color }: { title: string; backgroundColor: string; color: string }) {
 	return (
@@ -149,16 +149,7 @@ export default function Item(props: ItemProps) {
 		>
 			<div className=" w-full justify-between h-40">
 				<div className="w-full flex justify-between">
-					<span>
-						{
-							<TagList
-								tags={[
-									{ name: 'Hello', color: '#6755c9' },
-									{ name: 'Hello', color: '#67c5c9' }
-								]}
-							/>
-						}
-					</span>
+					<span>{<TagList tags={[]} />}</span>
 					{menu}
 				</div>
 				<div className="w-full flex justify-between my-3">
@@ -177,6 +168,7 @@ export default function Item(props: ItemProps) {
 								>
 									{item.title}
 								</Link>
+								<Priority level={1} />
 							</>
 						) : (
 							<div className="w-56">
@@ -230,59 +222,7 @@ export default function Item(props: ItemProps) {
 						</div>
 					)} */}
 				</div>
-				{/* <div className="col-span-3 flex flex-col gap-5 grow w-full">
-					{item.tags && <TagList tags={item.tags} />} */}
-
-				{/* <div className="flex flex-row flex-wrap text-wrap items-center text-sm not-italic font-semibold"> */}
-				{/* <TaskIssueStatus
-							showIssueLabels={false}
-							task={item}
-							className={`${
-								item.issueType === 'Bug'
-									? '!px-[0.3312rem] py-[0.2875rem]'
-									: '!px-[0.375rem] py-[0.375rem]'
-							} rounded-sm mr-1`}
-						/> */}
-
-				{/* <span className="text-grey text-normal mr-1">#{item.number}</span> */}
-				{/* <Link
-							href={`/task/${item.id}`}
-							className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2"
-						>
-							{item.title}
-						</Link> */}
-				{/* <Priority level={2} /> */}
-				{/* </div> */}
-				{/* </div> */}
-				{/* <div className="flex flex-col justify-between items-end"> */}
-				{/* <VerticalThreeDot /> */}
-
-				{/* <CircularProgress percentage={10} /> */}
-				{/* </div> */}
 			</div>
-			{/* <div className="flex flex-row justify-between items-center h-fit">
-				{item.status === TaskStatus.INPROGRESS ? (
-					<div className="flex flex-row items-center gap-2">
-						<small className="text-grey text-xs text-normal">Live:</small>
-						<p className="text-[#219653] font-medium text-sm">
-							{pad(hours)}:{pad(minutes)}:{pad(seconds)}{' '}
-						</p>
-					</div>
-				) : (
-					<div className="flex flex-row items-center gap-2">
-						<small className="text-grey text-xs text-normal">Worked:</small>
-						<p className="text-black dark:text-white font-medium text-sm">
-							{pad(hours)}:{pad(minutes)}:{pad(seconds)}{' '}
-						</p>
-					</div>
-				)}
-			</div> */}
-			{/* <ImageComponent images={taskAssignee} /> */}
-			{/* {item.hasComment && (
-				<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
-					<div className="w-3.5 h-3.5 rounded-full" style={setCommentIconColor(item.hasComment)}></div>
-				</div>
-			)} */}
 		</section>
 	);
 }
