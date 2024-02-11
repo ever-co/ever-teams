@@ -78,7 +78,7 @@ const Kanban = () => {
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
-							<HeaderTabs linkAll={true}/>
+							<HeaderTabs linkAll={true} />
 						</div>
 					</div>
 					<div className="flex justify-between items-center mt-10">

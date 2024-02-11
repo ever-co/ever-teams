@@ -20,7 +20,7 @@ const HeaderTabs = ({ linkAll }: { linkAll: boolean }) => {
 
 	return (
 		<>
-			{options.map(({ label, icon: Icon, view: optionView },index) => (
+			{options.map(({ label, icon: Icon, view: optionView }, index) => (
 				<Tooltip key={label} label={label} placement="top-start">
 					<LinkWrapper isRoute={!!links[index]} href={links[index]}>
 						<button

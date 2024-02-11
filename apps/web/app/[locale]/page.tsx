@@ -39,7 +39,6 @@ import { headerTabs } from '@app/stores/header-tabs';
 
 function MainPage() {
 	const t = useTranslations();
-
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const view = useRecoilValue(headerTabs);
