@@ -132,11 +132,8 @@ export default function Item(props: ItemProps) {
 	const menu = <>{!collaborativeSelect && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}</>;
 
 	return (
-		<section
-			href={``}
-			isDragging={isDragging}
-			isGroupedOver={isGroupedOver}
-			isClone={isClone}
+		<div
+			draggable={isDragging}
 			ref={provided.innerRef}
 			{...provided.draggableProps}
 			{...provided.dragHandleProps}
@@ -145,7 +142,7 @@ export default function Item(props: ItemProps) {
 			data-is-dragging={isDragging}
 			data-testid={item.id}
 			data-index={index}
-			aria-label={`${item.status.name} ${item.content}`}
+			aria-label={item.label}
 		>
 			<div className=" w-full justify-between h-40">
 				<div className="w-full flex justify-between">
@@ -223,6 +220,6 @@ export default function Item(props: ItemProps) {
 					)} */}
 				</div>
 			</div>
-		</section>
+		</div>
 	);
 }
