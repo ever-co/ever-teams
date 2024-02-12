@@ -23,7 +23,6 @@ export const useInfinityScrolling = <T>(arr: T[], lim?: number) => {
 	}, [limit, offset]);
 
 	React.useEffect(() => {
-		console.log({ offset });
 		getSomeTasks(offset);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [offset]);
