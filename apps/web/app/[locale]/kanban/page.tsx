@@ -27,7 +27,7 @@ const Kanban = () => {
 	const breadcrumbPath = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 		{ title: activeTeam?.name || '', href: '/' },
-		{ title: t('pages.kanban.KANBAN_BOARD'), href: `/${currentLocale}/kanban` }
+		{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
 	];
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
@@ -78,11 +78,11 @@ const Kanban = () => {
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
-							<HeaderTabs linkAll={true} />
+							<HeaderTabs kanban={true} linkAll={true} />
 						</div>
 					</div>
 					<div className="flex justify-between items-center mt-10">
-						<h1 className="text-4xl font-semibold ">{t('pages.kanban.KANBAN_BOARD')}</h1>
+						<h1 className="text-4xl font-semibold ">{t('common.KANBAN')} {t('common.BOARD')}</h1>
 						<div className="flex w-fit items-center space-x-2">
 							<strong className="text-gray-400">08:00 ( UTC +04:30 )</strong>
 							<div className="mt-1">
