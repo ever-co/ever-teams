@@ -59,6 +59,7 @@
 		"STATUS": "Stato",
 		"NAME": "Nome",
 		"TASK": "Compito",
+		"DELETE_ALL_DATA": "Elimina tutti i dati",
 		"MY_TASKS": "I Miei Compiti",
 		"WORKED_ON_TASK": "Lavorato sul Compito",
 		"TOTAL_WORKED_TODAY": "Totale Lavorato Oggi",
@@ -122,6 +123,8 @@
 		"FULL_NAME": "Nome Completo",
 		"USER_AVATAR": "Avatar Utente",
 		"CONTACT": "Contatto",
+		"ENABLED": "Abilitare",
+		"DISABLED": "disattivare",
 
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Orario",
@@ -171,13 +174,14 @@
 		"FILTER_UNSUBSCRIBE": "Annulla Iscrizione",
 
 		"KEYBOARD_SHORTCUTS": "Scorciatoie da Tastiera",
-
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Attiva l'integrazione di GitHub per la sincronizzazione del progetto e del repository",
 		"GITHUB_LOADING_TEXT": "Stiamo installando la tua integrazione GitHub, attendi...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronizza automaticamente le attività nella tua applicazione per aggiornamenti senza intoppi ed efficienti.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronizza le attività in modo selettivo associandole a un'etichetta specifica.",
 		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Stiamo lavorando alla sincronizzazione in tempo reale al momento, controlla questa funzionalità più tardi.",
 		"ALERT_DELETE_ACCOUNT": "Sarai rimosso da tutti i team, tranne quelli in cui sei l'unico responsabile del team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Il tuo account verrà eliminato definitivamente e sarai rimosso da tutti i team",
 		"ALERT_REMOVE_ALL_DATA": "Tutti i dati dell'account saranno rimossi dai team in cui sei l'unico responsabile esistente",
@@ -286,9 +290,13 @@
 			"emailNotValid": "Fornisci un indirizzo email valido",
 			"phoneNotValid": "Fornisci un numero di telefono valido",
 			"WORK_SCHEDULE": "Orario di Lavoro",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Il tuo Fuso Orario",
 			"SUBSCRIPTION": "Abbonamento",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Stai per eliminare il tuo account e tutti i tuoi dati?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Stai per essere rimosso da tutti i team, a meno che tu non sia l'unico manager?",
 			"ABOUT_TO_CHANGE_EMAIL": "Stai per cambiare l'email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Stai per eliminare il tuo account?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Stai per rimuovere il tuo account?"
 		},
 		"settingsTeam": {

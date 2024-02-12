@@ -28,6 +28,8 @@
 		"YES": "Oui",
 		"BASIC": "Basique",
 		"DELETE": "Supprimer",
+		"DELETE_ALL_DATA": "Supprimer toutes les données",
+		"DONT_HAVE_ACCOUNT": "Vous n'avez pas de compte ?",
 		"MEET": "Rencontrer",
 		"BOARD": "Tableau",
 		"SECURITY_CODE": "Code de sécurité",
@@ -122,6 +124,8 @@
 		"FULL_NAME": "Nom complet",
 		"USER_AVATAR": "Avatar utilisateur",
 		"CONTACT": "Contact",
+		"ENABLED": "Activer",
+		"DISABLED": "Désactiver",
 		"THEME": "Thème",
 		"TIME_ZONE": "Fuseau horaire",
 		"EDIT": "Modifier",
@@ -156,7 +160,7 @@
 		"REOPEN": "Rouvrir",
 		"NO_TASKS": "Aucune tâche",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de modifier la tâche",
-
+		"REGISTER": "S'inscrire",
 		"COLLABORATE_DIALOG_TITLE": "Démarrer la collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Inviter des membres et commencer la collaboration",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Démarrer la collaboration avec une réunion ou un tableau",
@@ -171,9 +175,11 @@
 		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisez automatiquement les tâches dans votre application pour des mises à jour fluides et efficaces.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
-		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique"
+		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activez l'intégration GitHub pour la synchronisation des projets et des dépôts"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Nous travaillons actuellement sur la synchronisation en temps réel, veuillez vérifier cette fonctionnalité plus tard.",
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Votre compte sera supprimé définitivement avec suppression de toutes les équipes",
 		"ALERT_REMOVE_TEAM": "L'équipe sera complètement supprimée du système et les membres de l'équipe perdront l'accès",
@@ -283,6 +289,7 @@
 			"SUBSCRIPTION": "Abonnement",
 			"ABOUT_TO_CHANGE_EMAIL": "Vous êtes sur le point de changer d'e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Votre fuseau horaire",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
@@ -550,14 +557,14 @@
 		"ERROR_WHILE_VERIFY_CODE": "Erreur lors de la vérification du code.",
 		"LENGTH_NUMBER_ERROR": "La longueur doit être un nombre et supérieure à 0",
 		"INVALID_ALLOWED_CHARACTER": "Valeur invalide pour allowedCharacters. Utilisez alpha, numérique ou alumérique",
-		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide",
-		"placeholders": { "ENTER_TO_VALIDATE": "Appuyez sur Entrée pour valider" },
-		"team": {
-			"BACK_LABEL": "Retour à l'équipe",
-			"PUBLIC_TEAM": "Équipe publique",
-			"PRIVATE_TEAM": "Équipe privée",
-			"creation": { "NEW": "Créer une nouvelle équipe" }
-		},
-		"links": { "common": { "TASKS": "Tâches", "TEAM": "Équipe", "SETTINGS": "Paramètres" } }
-	}
+		"VALID_EMAIL": "Veuillez entrer une adresse e-mail valide"
+	},
+	"team": {
+		"BACK_LABEL": "Retour à l'équipe",
+		"PUBLIC_TEAM": "Équipe publique",
+		"PRIVATE_TEAM": "Équipe privée",
+		"creation": { "NEW": "Créer une nouvelle équipe" }
+	},
+	"placeholders": { "ENTER_TO_VALIDATE": "Appuyez sur Entrée pour valider" },
+	"links": { "common": { "TASKS": "Tâches", "TEAM": "Équipe", "SETTINGS": "Paramètres" } }
 }

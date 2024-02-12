@@ -21,7 +21,7 @@
 			"options": {
 				"buildTarget": "web:build",
 				"dev": true,
-				"port": 3000,
+				"port": 3030,
 				"hostname": "localhost"
 			},
 			"configurations": {

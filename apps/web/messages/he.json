@@ -122,7 +122,11 @@
 		"FULL_NAME": "שם מלא",
 		"USER_AVATAR": "אווטר משתמש",
 		"CONTACT": "איש קשר",
-
+		"ENABLED": "לְאַפשֵׁר",
+		"DISABLED": "השבת",
+		"DONT_HAVE_ACCOUNT": "אין לך חשבון?",
+		"DELETE_ALL_DATA": "מחק את כל הנתונים",
+		"REGISTER": "הרשם עכשיו!",
 		"THEME": "ערכת עיצוב",
 		"TIME_ZONE": "אזור זמן",
 		"EDIT": "ערוך",
@@ -173,9 +177,11 @@
 		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו.",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "סנכרן משימות באופן אוטומטי באפליקציה שלך לעדכונים חלקים ויעילים.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
-		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון"
+		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "הפעל אינטגרציה של GitHub עבור סנכרון פרויקטים ומאגרים"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
 		"ALERT_REMOVE_ALL_DATA": "כל נתוני החשבון יוסרו מכל הצוותים שבהם אתה רק מנהל קיים אחד",
@@ -283,8 +289,12 @@
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
 			"SUBSCRIPTION": "מנוי",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "אתה עומד למחוק את החשבון שלך ואת כל הנתונים שלך?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "אתה עומד להיסיר מכל הצוותים, אלא אם אתה המנהל היחיד?",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "איזור זמן שלך",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
 		},
 		"settingsTeam": {
@@ -442,11 +452,30 @@
 		}
 	},
 	"timer": {
+		"ACTIVE": "פעיל",
+		"APPS": "אפליקציות",
+		"ARCHIVED": "ארכיון",
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"
 		},
+
+		"INACTIVE": "לא פעיל",
+		"KEYBOARD": "מקלדת",
+		"MOUSE": "עכבר",
+		"NO_SCREENSHOOT": "אין צילומי מסך",
+		"NOT_ARCHIVED": "לא בארכיון",
+		"OTHER_DETAILS": "פרטים נוספים",
+		"PERCENT_OF_MINUTES": " % מ-10 דקות",
+		"PERCENT_USED": "אחוז שנוצל",
+		"THERE_IS_NO_APPS_VISITED": "אין יישומים שבוקרים.",
+		"TIME_ACTIVITY": "פעילות",
+		"TIME_SPENT_IN_HOURS": "זמן שנוצל (שעות)",
+		"TIMES": "פעמים",
+		"TOTAL_HOURS": "סך הכל שעות",
+		"VISITED_DATES": "תאריכים שבוקרים",
+
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "הערך"
 		},

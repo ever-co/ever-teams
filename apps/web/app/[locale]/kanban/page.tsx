@@ -6,7 +6,7 @@ import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Button, Dropdown, InputField } from 'lib/components';
-import { AddIcon, SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
+import { AddIcon, PeopleIcon, SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
@@ -15,6 +15,7 @@ import { useParams } from 'next/navigation';
 import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Separator from '@components/ui/separator';
 import { clsxm } from '@app/utils';
+import HeaderTabs from '@components/pages/main/header-tabs';
 
 const Kanban = () => {
 	const { data } = useKanban();
@@ -69,10 +70,16 @@ const Kanban = () => {
 	};
 	return (
 		<>
-			<MainLayout showTimer={true}>
+			<MainLayout showTimer={true} footerClassName="hidden">
 				<div className={' flex flex-col bg-white dark:bg-dark--theme h-auto z-10 px-[32px] mx-[0px] w-full'}>
-					<div className="flex flex-row items-center justify-between mt-[34px]">
-						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
+					<div className="flex flex-row items-start justify-between mt-12">
+						<div className="flex justify-center items-center gap-8 h-10">
+							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
+						</div>
+						<div className="flex h-10 w-max items-center justify-center   gap-1">
+							<HeaderTabs linkAll={true} />
+						</div>
 					</div>
 					<div className="flex justify-between items-center mt-10">
 						<h1 className="text-4xl font-semibold ">{t('pages.kanban.KANBAN_BOARD')}</h1>

@@ -43,7 +43,16 @@ export function Breadcrumb({ paths, className }: Props) {
 												: ['text-default dark:text-white']
 										)}
 									>
-										{path.title ? path.title : <Skeleton height={20} width={120} borderRadius={5} className="rounded-full dark:bg-[#353741]" />}
+										{path.title ? (
+											path.title
+										) : (
+											<Skeleton
+												height={20}
+												width={120}
+												borderRadius={5}
+												className="rounded-full dark:bg-[#353741]"
+											/>
+										)}
 									</Link>
 								)}
 							</li>

@@ -19,6 +19,7 @@ const Skeleton = ({
 				width ? `w-[${width}px]` : 'w-[160px]',
 				className
 			)}
+			style={{ borderRadius }}
 		/>
 	);
 };

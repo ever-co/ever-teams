@@ -27,6 +27,7 @@
 		"ONLY_ME": "Tylko ja",
 		"YES": "Tak",
 		"BASIC": "Podstawowy",
+		"DELETE_ALL_DATA": "Usuń wszystkie dane",
 		"DELETE": "Usuń",
 		"MEET": "Spotkaj się",
 		"BOARD": "Tablica",
@@ -122,6 +123,8 @@
 		"FULL_NAME": "Imię i nazwisko",
 		"USER_AVATAR": "Awatar użytkownika",
 		"CONTACT": "Kontakt",
+		"ENABLED": "Włączać",
+		"DISABLED": "Wyłączyć",
 
 		"THEME": "Motyw",
 		"TIME_ZONE": "Strefa Czasowa",
@@ -171,13 +174,14 @@
 		"FILTER_UNSUBSCRIBE": "Wyrejestruj się",
 
 		"KEYBOARD_SHORTCUTS": "Skróty klawiszowe",
-
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Aktywuj integrację GitHub dla synchronizacji projektu i repozytorium",
 		"GITHUB_LOADING_TEXT": "Aktualnie instalujemy integrację GitHub, proszę czekać...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatycznie synchronizuj zadania w swojej aplikacji, aby uzyskać płynne i efektywne aktualizacje.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronizuj zadania selektywnie, łącząc je z konkretną etykietą.",
 		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
 		"ALERT_DELETE_ACCOUNT": "Zostaniesz usunięty z wszystkich zespołów, z wyjątkiem sytuacji, gdy jesteś jedynym menedżerem w zespole",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Twoje Konto zostanie trwale usunięte wraz z usunięciem z wszystkich zespołów",
 		"ALERT_REMOVE_ALL_DATA": "Wszystkie dane konta zostaną usunięte z zespołów, w których jesteś jedynym istniejącym menedżerem",
@@ -284,10 +288,14 @@
 			"HEADING_TITLE": "Ustawienia Ogólne",
 			"emailNotValid": "Proszę podać poprawny adres e-mail",
 			"phoneNotValid": "Proszę podać poprawny numer telefonu",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Zamierzasz usunąć swoje konto i wszystkie swoje dane?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Zamierzasz zostać usunięty ze wszystkich zespołów, chyba że jesteś jedynym menedżerem?",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Twoja Strefa Czasowa",
 			"WORK_SCHEDULE": "Harmonogram Pracy",
 			"SUBSCRIPTION": "Subskrypcja",
 			"ABOUT_TO_CHANGE_EMAIL": "Zamierzasz zmienić adres e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Zamierzasz usunąć swoje konto?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Zamierzasz usunąć swoje konto?"
 		},
 		"settingsTeam": {

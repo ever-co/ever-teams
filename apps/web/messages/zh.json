@@ -39,6 +39,9 @@
 		"ASSIGN_TASK_TO": "分配任务给",
 		"REMOVE_ACCOUNT": "移除账户",
 		"REMOVE_EVERYWHERE": "完全移除",
+		"DELETE_ALL_DATA": "删除所有数据",
+		"DONT_HAVE_ACCOUNT": "没有账户?",
+
 		"DELETE_ACCOUNT": "删除此账户",
 		"UNASSIGN_TASK": "取消分配任务",
 		"MAKE_A_MANAGER": "设为管理员",
@@ -122,7 +125,9 @@
 		"FULL_NAME": "全名",
 		"USER_AVATAR": "用户头像",
 		"CONTACT": "联系",
-
+		"ENABLED": "使能夠",
+		"DISABLED": "停用",
+		"REGISTER": "注册",
 		"THEME": "主题",
 		"TIME_ZONE": "时区",
 		"EDIT": "编辑",
@@ -169,13 +174,14 @@
 		"FILTER_UNSUBSCRIBE": "取消订阅",
 
 		"KEYBOARD_SHORTCUTS": "快捷键",
-
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "激活 GitHub 集成以进行项目和仓库同步",
 		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "在您的应用程序中自动同步任务，实现无缝和高效的更新。",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
 		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "我們目前正在開發即時同步功能，請稍後查看此功能。",
 		"ALERT_DELETE_ACCOUNT": "账户将从所有团队中移除,您作为管理员的团队除外",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "您的账户将被永久删除,并从所有团队中移除",
 		"ALERT_REMOVE_TEAM": "团队将被完全移除出系统,成员也将失去访问权限",
@@ -199,7 +205,6 @@
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]"
 		},
-
 		"taskDetails": {
 			"BREADCRUMB": "[\"任务详情\"]",
 			"DESCRIPTION": "描述",
@@ -233,7 +238,6 @@
 			"TASK_IS_ALREADY_EPIC": "史诗类型任务无法更改。",
 			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。"
 		},
-
 		"auth": {
 			"SEND_CODE": "发送验证码",
 			"JOIN": "加入",
@@ -284,10 +288,13 @@
 			"emailNotValid": "请输入有效的电子邮箱",
 			"phoneNotValid": "请输入有效的手机号码",
 			"WORK_SCHEDULE": "工作时间表",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "您即将删除您的账户和所有数据?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "您即将从所有团队中移除,除非您是唯一的管理员?",
 			"SUBSCRIPTION": "订阅",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "您的时区",
 			"ABOUT_TO_CHANGE_EMAIL": "您即将更改电子邮箱",
 			"ABOUT_TO_DELETE_ACCOUNT": "您即将删除账户?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "您即将移除账户?"
 		},
 		"settingsTeam": {
@@ -410,6 +417,30 @@
 			"HEADING_TITLE": "网络断开连接！",
 			"HEADING_DESCRIPTION": "您目前处于离线状态，请检查您的互联网连接..."
 		},
+		"invite": {
+			"HEADING_TITLE": "邀请成员加入您的团队",
+			"HEADING_DESCRIPTION": "通过电子邮件向团队成员发送邀请",
+			"TEAM_MEMBER_EMAIL": "团队成员的电子邮箱",
+			"TEAM_MEMBER_FULLNAME": "团队成员的全名",
+			"SEND_INVITE": "发送邀请",
+			"ERROR_WHILE_ACCEPTING_INVITATION": "接受邀请时出错",
+			"ERROR_WHILE_REJECTING_INVITATION": "拒绝邀请时出错",
+			"INVITE_LABEL_SEND": "发送邀请",
+			"invitationTable": {
+				"NAME_AND_EMAIL": "姓名和电子邮箱",
+				"POSITION": "职位",
+				"DATE_AND_TIME_REQUEST": "日期和时间请求",
+				"CV_OR_ATTACHMENT": "简历/附件"
+			}
+		},
+		"permissions": {
+			"SELECT_ROLES": "选择角色"
+		},
+		"page404": {
+			"HEADING_TITLE": "页面未找到 ！",
+			"HEADING_DESCRIPTION": "我们找了，但找不到它....",
+			"LINK_LABEL": "主页"
+		},
 		"error": {
 			"TITLE": "錯誤 !",
 			"HEADING_TITLE": "出了點問題 ！",
@@ -422,14 +453,31 @@
 	},
 
 	"timer": {
+		"ACTIVE": "活跃",
+		"APPS": "应用",
+		"ARCHIVED": "已归档",
 		"START_TIMER": "请选择或创建新任务以开始计时",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
 		},
+		"INACTIVE": "不活跃",
+		"KEYBOARD": "键盘",
+		"MOUSE": "鼠标",
+		"NO_SCREENSHOOT": "无截图",
+		"NOT_ARCHIVED": "未归档",
+		"OTHER_DETAILS": "其他详情",
+		"PERCENT_OF_MINUTES": " % of 10 Minutes",
+		"PERCENT_USED": "使用百分比",
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "估计"
 		},
+		"THERE_IS_NO_APPS_VISITED": "没有访问的应用。",
+		"TIME_ACTIVITY": "活动",
+		"TIME_SPENT_IN_HOURS": "时间花费（小时）",
+		"TIMES": "次数",
+		"TOTAL_HOURS": "总共小时",
+		"VISITED_DATES": "访问日期",
 		"DAY_LIST": [{ "title": "7天" }, { "title": "14天" }]
 	},
 

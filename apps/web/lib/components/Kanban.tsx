@@ -62,9 +62,7 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dropSnapshot: DroppableStateSnapshot }) {
 	return (
 		<>
-			<section
-				className="flex flex-col pb-2"
-			>
+			<section className="flex flex-col pb-2">
 				{items.map((item: ITeamTask, index: number) => (
 					<Draggable key={item.id} draggableId={item.id} index={index}>
 						{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
@@ -340,7 +338,7 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col px-2 h-[1000px] w-[355px]"
+							className="relative flex flex-col px-2 h-fit w-[355px]"
 						>
 							{title ? (
 								<>

@@ -109,6 +109,7 @@ function useCreateOrganizationTeam() {
 				return res;
 			});
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[isTeamMember, queryCall, refreshToken, setActiveTeamId, setIsTeamMember, setTeams, teamsRef]
 	);
 

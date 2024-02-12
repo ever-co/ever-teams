@@ -254,6 +254,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[createQueryCall, deepCheckAndUpdateTasks, activeTeam]
 	);
 

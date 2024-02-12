@@ -33,7 +33,7 @@ export function serverFetch<T>({
 		datas['body'] = JSON.stringify(body);
 	}
 
-	return fetch((GAUZY_API_SERVER_URL || '') + path, {
+	return fetch(GAUZY_API_SERVER_URL + path, {
 		...datas,
 		...(init || {}),
 		headers: {

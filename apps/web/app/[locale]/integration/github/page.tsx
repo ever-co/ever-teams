@@ -18,10 +18,10 @@ const GitHub = () => {
 
 	const installing = useRef<boolean>(false);
 
-	const { installGitHub, getRepositories } = useGitHubIntegration();	
+	const { installGitHub, getRepositories } = useGitHubIntegration();
 	const { getIntegrationTenant, loading: integrationTenantLoading, integrationTenant } = useIntegrationTenant();
 	const { loading: loadingIntegrationTypes, integrationTypes, getIntegrationTypes } = useIntegrationTypes();
-	
+
 	const handleInstallGitHub = useCallback(() => {
 		installing.current = true;
 

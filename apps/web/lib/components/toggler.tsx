@@ -5,6 +5,11 @@ import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
 import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
+import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { useRecoilState } from 'recoil';
+import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
+import { useModal } from '@app/hooks';
+import { RealTimePopup } from 'lib/settings/sync.zone';
 
 type Props = {
 	className?: string;
@@ -76,6 +81,88 @@ export function TreeModeToggler({ className }: IClassName) {
 			<StopIcon className="dark:stroke-white" />
 			<BoxIcon className="stroke-[#7E7991] dark:stroke-[#969CA6]" />
 		</Toggler>
+	);
+}
+
+export function DataSyncToggler({ className }: IClassName) {
+	const [dataSync, setDataSync] = useRecoilState(isDataSyncState);
+
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-is-data-sync', JSON.stringify(dataSync));
+	}, [dataSync]);
+
+	return (
+		<div
+			className={clsxm(
+				'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+				className
+			)}
+		>
+			<button
+				onClick={() => setDataSync(true)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+					dataSync && 'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+				)}
+			>
+				<UpdateIcon className="dark:text-white" />
+			</button>
+
+			<button
+				onClick={() => setDataSync(false)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+					!dataSync && 'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
+				)}
+			>
+				<Cross2Icon className={clsxm(!dataSync && 'text-white')} />
+			</button>
+		</div>
+	);
+}
+
+export function DataSyncModeToggler({ className }: IClassName) {
+	const [dataSyncMode, setDataSyncMode] = useRecoilState(dataSyncModeState);
+	const { isOpen, closeModal, openModal } = useModal();
+
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-data-sync', JSON.stringify(dataSyncMode));
+	}, [dataSyncMode]);
+
+	return (
+		<>
+			<div
+				className={clsxm(
+					'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+					className
+				)}
+			>
+				<button
+					onClick={() =>
+						// setDataSyncMode('REAL_TIME')
+						openModal()
+					}
+					className={clsxm(
+						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+						dataSyncMode == 'REAL_TIME' &&
+							'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					)}
+				>
+					<LightningBoltIcon className="dark:text-white" />
+				</button>
+
+				<button
+					onClick={() => setDataSyncMode('PULL')}
+					className={clsxm(
+						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+						dataSyncMode == 'PULL' && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					)}
+				>
+					<UpdateIcon className="dark:text-white" />
+				</button>
+			</div>
+			<RealTimePopup open={isOpen} closeModal={closeModal} />
+		</>
 	);
 }
 
