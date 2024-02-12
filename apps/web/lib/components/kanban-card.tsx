@@ -109,7 +109,7 @@ type ItemProps = {
  * @returns
  */
 export default function Item(props: ItemProps) {
-	const { item, isDragging, isGroupedOver, provided, style, isClone, index } = props;
+	const { item, isDragging, provided, style, index } = props;
 
 	const { hours, minutes, seconds } = useTimerView();
 	const { activeTeam } = useOrganizationTeams();
