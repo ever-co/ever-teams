@@ -122,7 +122,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				)}
 
 				<Container fullWidth={fullWidth} className="mb-10">
-					{activityScreens[activityFilter] ?? null}
+					{hook.tab !== 'worked' ? (
+						<UserProfileTask profile={profile} tabFiltered={hook} />
+					) : (
+						activityScreens[activityFilter] ?? null
+					)}
 				</Container>
 			</MainLayout>
 		</>
