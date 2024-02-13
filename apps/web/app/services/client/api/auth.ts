@@ -12,7 +12,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL
 } from '@app/constants';
 import qs from 'qs';
-import { signInEmailConfirmGauzy } from './auth/invite-accept';
+import { signInEmailConfirmGauzy, signInWorkspaceGauzy } from './auth/invite-accept';
 
 export const getAuthenticatedUserDataAPI = () => {
 	const params = {} as { [x: string]: string };
@@ -116,6 +116,7 @@ export async function signInEmailConfirmAPI(email: string, code: string) {
 
 export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
+		return signInWorkspaceGauzy({ email, token, teamId: selectedTeam, code: 'sign-in-workspace' });
 	}
 
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {

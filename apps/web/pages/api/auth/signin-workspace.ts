@@ -21,6 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		teamId: string;
 		code: string;
 	};
+
 	let loginResponse: ILoginResponse | null = null;
 
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
@@ -125,8 +126,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 		return res.status(200).json({ team, loginResponse });
 	}
-	// Accept Invite Flow End
 
+	// Accept Invite Flow End
 	const { data } = await signInWorkspaceRequest(body.email, body.token);
 
 	/**
