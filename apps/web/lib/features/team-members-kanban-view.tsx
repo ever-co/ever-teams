@@ -3,9 +3,7 @@ import { ITaskStatus, ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
-import { Container, Divider } from 'lib/components';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
-import { Footer } from 'lib/layout';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import {
@@ -187,10 +185,10 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 				{columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col justify-between min-h-[calc(100vh-_358px)] max-h-[calc(100vh-_358px)] overflow-x-auto w-full">
+							<div className="flex flex-col !h-[100vh-_300px] justify-between w-full">
 								<div
 									className={clsxm(
-										'flex flex-row h-fit p-[32px] bg-transparent dark:bg-[#181920]',
+										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
 										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 									)}
 									ref={provided.innerRef}
@@ -235,20 +233,12 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 									) : null}
 									<>{provided.placeholder}</>
 								</div>
-								<Container fullWidth={fullWidth} className={clsxm('w-full !mx-0 px-8')}>
-									<Divider />
-									<Footer className="justify-between px-0 w-full" />
-								</Container>
+
 							</div>
 						)}
 					</Droppable>
 				)}
 			</DragDropContext>
-			{/* <Container fullWidth={fullWidth} className={clsxm('w-full !mx-0 px-8')}>
-					<Divider />
-					<Footer className="justify-between px-0 w-full" />
-				</Container>
-			</div> */}
 		</>
 	);
 };
