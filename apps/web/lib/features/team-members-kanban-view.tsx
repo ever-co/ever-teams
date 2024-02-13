@@ -1,7 +1,6 @@
 import { useKanban } from '@app/hooks/features/useKanban';
 import { ITaskStatus, ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
-import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
 import React from 'react';
@@ -14,7 +13,6 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
-import { useRecoilValue } from 'recoil';
 
 export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) => {
 	const {
@@ -26,7 +24,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 		reorderStatus,
 		addNewTask
 	} = useKanban();
-	const fullWidth = useRecoilValue(fullWidthState);
 	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
