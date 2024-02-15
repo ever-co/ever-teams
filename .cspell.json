@@ -321,7 +321,16 @@
 		"xlcard",
 		"xlight",
 		"yellowbox",
-		"Desabled"
+		"Desabled",
+		"keyrings",
+		"dearmor",
+		"dpkg",
+		"containerd",
+		"nodistro",
+		"nodesource",
+		"Koyeb",
+		"Northflank",
+		"prebuild"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
