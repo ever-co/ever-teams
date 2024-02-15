@@ -17,7 +17,7 @@ type EnTYPE = typeof en;
 type ObjectLocale = {
 	[key in Locale]: EnTYPE;
 };
-
+// it will throw error if the en.json is not the same as the other json files
 export const ObjectTypes: ObjectLocale = {
 	en,
 	de,
