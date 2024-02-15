@@ -177,8 +177,6 @@ export function useAuthenticationPasscode() {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(['email', 'code'], formValues as any);
-
-		console.log('validvalid', valid, errors);
 		if (!valid) {
 			setErrors(errors);
 			return;
