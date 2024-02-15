@@ -89,10 +89,6 @@ export async function signInEmailCodeConfirmGauzy(email: string, code: string) {
 		return Promise.reject({ errors });
 	}
 
-	if (!formValid) {
-		return Promise.reject({ errors });
-	}
-
 	const inviteReq = await verifyInviteCodeAPI({ email, code });
 
 	if (inviteReq && inviteReq.fullName) {
