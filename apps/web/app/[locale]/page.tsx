@@ -2,7 +2,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
@@ -31,24 +31,32 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
+import { usePathname } from 'next/navigation';
 
 function MainPage() {
 	const t = useTranslations();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
-	const view = useRecoilValue(headerTabs);
-
+	const [view, setView] = useRecoilState(headerTabs);
+	const path = usePathname();
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-		{ title: activeTeam?.name || '', href: '/' }
+		{ title: activeTeam?.name || '', href: '/' },
+		{ title: t(`common.${view}`), href: `/` }
 	];
 	const { online } = useNetworkState();
-
+	console.log(path, 'path');
+	useEffect(() => {
+		if (view == IssuesView.KANBAN && path == '/') {
+			setView(IssuesView.CARDS);
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [path, setView]);
 	if (!online) {
 		return <Offline />;
 	}
