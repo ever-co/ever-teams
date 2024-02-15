@@ -76,7 +76,7 @@ export function useAuthenticationPasscode() {
 				const checkError: {
 					message: string;
 				} = res.data as any;
-				const isError = checkError?.message === 'Unauthorized';
+				const isError = checkError.message === 'Unauthorized';
 				if (isError) {
 					setErrors({
 						code: 'Invalid code. Please try again.'
