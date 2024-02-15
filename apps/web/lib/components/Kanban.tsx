@@ -67,6 +67,8 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 					<Draggable key={item.id} draggableId={item.id} index={index}>
 						{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 							<Item
+								isClone={false}
+								index={index}
 								key={item.id}
 								item={item}
 								isDragging={dragSnapshot.isDragging}
