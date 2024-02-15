@@ -73,6 +73,17 @@ export function useAuthenticationPasscode() {
 	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
+				const checkError: {
+					message: string;
+				} = res.data as any;
+				const isError = checkError?.message === 'Unauthorized';
+				if (isError) {
+					setErrors({
+						code: 'Invalid code. Please try again.'
+					});
+				} else {
+					setErrors({});
+				}
 				const data = res.data as ISigninEmailConfirmResponse;
 				if (!data.workspaces) {
 					return;
@@ -167,11 +178,11 @@ export function useAuthenticationPasscode() {
 		setErrors({});
 		const { errors, valid } = authFormValidate(['email', 'code'], formValues as any);
 
+		console.log('validvalid', valid, errors);
 		if (!valid) {
 			setErrors(errors);
 			return;
 		}
-
 		infiniteLoading.current = true;
 
 		verifySignInEmailConfirmRequest({
@@ -244,7 +255,7 @@ export function useAuthenticationPasscode() {
 				setErrors((err.response?.data as any)?.errors || {});
 			}
 		});
-
+		console.log('promise', formValues);
 		return promise;
 	}, [formValues, signInEmailQueryCall]);
 
