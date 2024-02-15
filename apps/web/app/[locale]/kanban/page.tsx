@@ -70,8 +70,12 @@ const Kanban = () => {
 	};
 	return (
 		<>
-			<MainLayout showTimer={true} footerClassName="hidden">
-				<div className={' flex flex-col bg-white dark:bg-dark--theme h-auto z-10 px-[32px] mx-[0px] w-full'}>
+			<MainLayout showTimer={true}>
+				<div
+					className={
+						' overflow-auto fixed flex flex-col bg-white dark:bg-dark--theme  z-10 px-[32px] mx-[0px] w-full'
+					}
+				>
 					<div className="flex flex-row items-start justify-between mt-12">
 						<div className="flex justify-center items-center gap-8 h-10">
 							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
@@ -172,13 +176,13 @@ const Kanban = () => {
 				<div>
 					{/** TODO:fetch teamtask based on days */}
 					{activeTab && ( // add filter for today, yesterday and tomorrow
-						<>
+						<div className="mt-72">
 							{Object.keys(data).length > 0 ? (
 								<KanbanView kanbanBoardTasks={data} />
 							) : (
 								<KanbanBoardSkeleton />
 							)}
-						</>
+						</div>
 					)}
 				</div>
 			</MainLayout>
