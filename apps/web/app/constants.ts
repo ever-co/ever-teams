@@ -37,7 +37,7 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
 const basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
-export const GAUZY_API_SERVER_URL = basePath;
+export const GAUZY_API_SERVER_URL = basePath + '/api';
 
 export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	'NEXT_PUBLIC_GAUZY_API_SERVER_URL',
