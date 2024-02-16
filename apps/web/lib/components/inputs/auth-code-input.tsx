@@ -1,13 +1,14 @@
 'use client';
 
 import { clsxm } from '@app/utils';
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { InputField } from './input';
 import { useTranslations } from 'next-intl';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
 export type AuthCodeProps = {
+	inputsRef: React.MutableRefObject<Array<HTMLInputElement>>;
 	allowedCharacters?: (typeof allowedCharactersValues)[number];
 	ariaLabel?: string;
 	autoFocus?: boolean;
@@ -64,6 +65,7 @@ const propsMap: { [key: string]: InputProps } = {
 export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 	(
 		{
+			inputsRef,
 			allowedCharacters = 'alphanumeric',
 			ariaLabel,
 			autoFocus = true,
@@ -88,8 +90,10 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			throw new Error(t('errors.INVALID_ALLOWED_CHARACTER'));
 		}
 
-		const inputsRef = useRef<Array<HTMLInputElement>>([]);
+		// const inputsRef = useRef<Array<HTMLInputElement>>([]);
 		const inputProps = propsMap[allowedCharacters];
+		console.log('formaaaa', JSON.stringify(inputsRef.current.map((input) => input.value).join('')));
+		
 		const validDefaultValue =
 			defaultValue && defaultValue.length === length && defaultValue.match(inputProps.pattern) ? true : false;
 
@@ -122,7 +126,6 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			const res = inputsRef.current.map((input) => input.value).join('');
 			onChange && onChange(res);
 		};
-
 		const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 			const {
 				target: { value, nextElementSibling }
@@ -132,6 +135,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 
 			if (value.length > 1) {
 				e.target.value = value.charAt(0);
+
 				if (nextElementSibling !== null) {
 					(nextElementSibling as HTMLInputElement).focus();
 				}
