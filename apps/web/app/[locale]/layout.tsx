@@ -53,7 +53,7 @@ const poppins = Poppins({
 const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
-	const { isApiWork } = useCheckAPI();
+	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 
@@ -80,7 +80,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							{isApiWork ? (
+							{isApiWork || loading ? (
 								<>
 									<AppState />
 									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
