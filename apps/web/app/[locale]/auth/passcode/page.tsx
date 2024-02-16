@@ -122,7 +122,6 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
-	console.log(form.authScreen.screen);
 	const inputsRef = useRef<Array<HTMLInputElement>>([]);
 	const resetForm = () => {
 		if (inputsRef.current) {

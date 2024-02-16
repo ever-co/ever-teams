@@ -90,10 +90,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			throw new Error(t('errors.INVALID_ALLOWED_CHARACTER'));
 		}
 
-		// const inputsRef = useRef<Array<HTMLInputElement>>([]);
 		const inputProps = propsMap[allowedCharacters];
-		console.log('formaaaa', JSON.stringify(inputsRef.current.map((input) => input.value).join('')));
-		
 		const validDefaultValue =
 			defaultValue && defaultValue.length === length && defaultValue.match(inputProps.pattern) ? true : false;
 
