@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
 export type AuthCodeProps = {
-	inputsRef: React.MutableRefObject<Array<HTMLInputElement>>;
+	inputsRef: MutableRefObject<HTMLInputElement[]>;
 	allowedCharacters?: (typeof allowedCharactersValues)[number];
 	ariaLabel?: string;
 	autoFocus?: boolean;
