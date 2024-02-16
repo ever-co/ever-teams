@@ -4,9 +4,11 @@ import { AuthCodeInputField, Button, Card, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
 
 import { useTranslations } from 'next-intl';
+import { useRef } from 'react';
 
 const AuthPasscode = () => {
 	const t = useTranslations();
+	const inputsRef = useRef<Array<HTMLInputElement>>([]);
 
 	return (
 		<AuthLayout title={t('pages.auth.JOIN_TEAM')} description={t('pages.auth.INPUT_INVITE_CODE_DESC')}>
@@ -20,6 +22,7 @@ const AuthPasscode = () => {
 						{/* Auth code input */}
 						<div className="w-full mt-5">
 							<AuthCodeInputField
+								inputsRef={inputsRef}
 								allowedCharacters="alphanumeric"
 								length={6}
 								containerClassName="mt-[21px] w-full flex justify-between"
