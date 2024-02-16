@@ -1,14 +1,14 @@
 'use client';
 
 import { clsxm } from '@app/utils';
-import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import React, { MutableRefObject, forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { InputField } from './input';
 import { useTranslations } from 'next-intl';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
 export type AuthCodeProps = {
-	inputsRef: MutableRefObject<HTMLInputElement[]>;
+	inputReference?: MutableRefObject<HTMLInputElement[]>;
 	allowedCharacters?: (typeof allowedCharactersValues)[number];
 	ariaLabel?: string;
 	autoFocus?: boolean;
@@ -65,7 +65,7 @@ const propsMap: { [key: string]: InputProps } = {
 export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 	(
 		{
-			inputsRef,
+			inputReference = null,
 			allowedCharacters = 'alphanumeric',
 			ariaLabel,
 			autoFocus = true,
@@ -89,7 +89,8 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		if (!allowedCharactersValues.some((value) => value === allowedCharacters)) {
 			throw new Error(t('errors.INVALID_ALLOWED_CHARACTER'));
 		}
-
+		const reference = useRef<HTMLInputElement[]>([]);
+		const inputsRef = inputReference || reference;
 		const inputProps = propsMap[allowedCharacters];
 		const validDefaultValue =
 			defaultValue && defaultValue.length === length && defaultValue.match(inputProps.pattern) ? true : false;

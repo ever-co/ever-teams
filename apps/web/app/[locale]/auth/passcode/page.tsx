@@ -154,7 +154,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						</div>
 
 						<AuthCodeInputField
-							inputsRef={inputsRef}
+							inputReference={inputsRef}
 							key={form.authScreen.screen}
 							allowedCharacters="alphanumeric"
 							length={6}
