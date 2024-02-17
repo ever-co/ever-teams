@@ -11,12 +11,12 @@ import {
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskInput, TaskIssueStatus } from 'lib/features';
+import Link from 'next/link';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
 import { pad } from '@app/helpers';
 import { TaskStatus } from '@app/constants';
 import { UserTeamCardMenu } from 'lib/features/team/user-team-card/user-team-card-menu';
-import Link from 'next/link';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -159,7 +159,7 @@ export default function Item(props: ItemProps) {
 			data-index={index}
 			aria-label={item.label}
 		>
-			<div className=" w-full justify-between h-fit">
+			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
 					<span>{<TagList tags={item.tags} />}</span>
 					{menu}
@@ -222,7 +222,7 @@ export default function Item(props: ItemProps) {
 					<HorizontalSeparator />
 				</div>
 				<div className="w-full flex items-center justify-between">
-					<div className="mt-1 ">
+					<div className="mt-1">
 						{item.status === TaskStatus.INPROGRESS ? (
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Live:</small>
