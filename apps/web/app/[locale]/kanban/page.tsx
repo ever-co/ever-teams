@@ -71,12 +71,8 @@ const Kanban = () => {
 	return (
 		<>
 			<MainLayout showTimer={true}>
-				<div
-					className={
-						' overflow-auto fixed flex flex-col bg-white dark:bg-dark--theme  z-10 px-[32px] mx-[0px] w-full'
-					}
-				>
-					<div className="flex flex-row items-start justify-between mt-12">
+				<div className={'overflow-auto fixed flex flex-col z-10  mx-[0px] w-full'}>
+					<div className="flex flex-row items-start justify-between px-8 pt-12 bg-white dark:bg-dark--theme">
 						<div className="flex justify-center items-center gap-8 h-10">
 							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
@@ -85,8 +81,10 @@ const Kanban = () => {
 							<HeaderTabs kanban={true} linkAll={true} />
 						</div>
 					</div>
-					<div className="flex justify-between items-center mt-10">
-						<h1 className="text-4xl font-semibold ">{t('common.KANBAN')} {t('common.BOARD')}</h1>
+					<div className="flex justify-between items-center px-8 pt-10 bg-white dark:bg-dark--theme">
+						<h1 className="text-4xl font-semibold ">
+							{t('common.KANBAN')} {t('common.BOARD')}
+						</h1>
 						<div className="flex w-fit items-center space-x-2">
 							<strong className="text-gray-400">08:00 ( UTC +04:30 )</strong>
 							<div className="mt-1">
@@ -101,7 +99,7 @@ const Kanban = () => {
 							</button>
 						</div>
 					</div>
-					<div className="relative flex flex-col lg:flex-row justify-between items-center mt-10">
+					<div className="relative flex flex-col lg:flex-row justify-between items-center px-8 pt-10 bg-white dark:bg-dark--theme">
 						<div className="flex flex-row">
 							{tabs.map((tab) => (
 								<div
@@ -172,6 +170,7 @@ const Kanban = () => {
 							</div>
 						</div>
 					</div>
+					<div className="h-64"></div>
 				</div>
 				<div>
 					{/** TODO:fetch teamtask based on days */}
