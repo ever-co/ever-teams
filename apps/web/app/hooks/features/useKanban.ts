@@ -11,7 +11,6 @@ export function useKanban() {
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks, tasksFetching, updateTask } = useTeamTasks();
-	console.log('taskStatusHook', kanbanBoard);
 	/**
 	 * format data for kanban board
 	 */
