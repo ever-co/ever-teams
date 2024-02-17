@@ -175,7 +175,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 	}, []);
 
 	if (!enabled) return null;
-	console.log("show-list",items,columns)
 	return (
 		<>
 			{/* <div className="flex flex-col justify-between"> */}
@@ -231,7 +230,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 									) : null}
 									<>{provided.placeholder}</>
 								</div>
-
 							</div>
 						)}
 					</Droppable>
