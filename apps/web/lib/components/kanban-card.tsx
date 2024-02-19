@@ -86,9 +86,24 @@ function Priority({ level }: { level: number }) {
 
 	return (
 		<>
-			<div className="flex flex-col">
+			<div
+				style={{
+					marginTop: -4.5 * level
+				}}
+				className="flex flex-col relative "
+			>
 				{numberArray.map((item: any, index: number) => {
-					return <PriorityIcon key={index} />;
+					return (
+						<span
+							key={index}
+							style={{
+								top: `${index * 4}px`
+							}}
+							className="absolute"
+						>
+							<PriorityIcon />
+						</span>
+					);
 				})}
 			</div>
 		</>
@@ -144,28 +159,43 @@ export default function Item(props: ItemProps) {
 			data-index={index}
 			aria-label={item.label}
 		>
-			<div className=" w-full justify-between h-40">
+			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
-					<span>{<TagList tags={[]} />}</span>
+					<span>{<TagList tags={item.tags} />}</span>
 					{menu}
 				</div>
 				<div className="w-full flex justify-between my-3">
-					<div className="flex items-center ">
+					<div className="flex items-center w-64">
 						{!taskEdition.editMode ? (
 							<>
-								<TaskIssueStatus
-									showIssueLabels={false}
-									task={item}
-									className="rounded-sm mr-1 h-6 w-6"
-								/>
-								<span className="text-grey text-normal mr-1">#{item.number}</span>
-								<Link
-									href={`/task/${item.id}`}
-									className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2"
-								>
-									{item.title}
+								<Link href={`/task/${item.id}`}>
+									<div className="w-64 relative overflow-hidden">
+										<span className="h-5 w-6 inline-block ">
+											<span className="absolute top-1">
+												<TaskIssueStatus
+													showIssueLabels={true}
+													task={item}
+													className="rounded-sm mr-1 h-6 w-6"
+												/>
+											</span>
+										</span>
+										<span className="text-grey text-normal mx-1">#{item.number}</span>
+										{item.title}
+										<span className="inline-block ml-1">
+											<Priority
+												level={
+													item.priority == 'Low'
+														? 1
+														: item.priority == 'Medium'
+														? 2
+														: item.priority == 'High'
+														? 3
+														: 4
+												}
+											/>
+										</span>
+									</div>
 								</Link>
-								<Priority level={1} />
 							</>
 						) : (
 							<div className="w-56">
@@ -209,7 +239,9 @@ export default function Item(props: ItemProps) {
 							</div>
 						)}
 					</div>
-					<ImageComponent images={taskAssignee} />
+					<div className="w-56 flex justify-end">
+						<ImageComponent radius={30} images={taskAssignee} />
+					</div>
 					{item.issueType && (
 						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div

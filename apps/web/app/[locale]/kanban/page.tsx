@@ -71,8 +71,13 @@ const Kanban = () => {
 	return (
 		<>
 			<MainLayout showTimer={true}>
-				<div className={'overflow-auto fixed flex flex-col z-10  mx-[0px] w-full'}>
-					<div className="flex flex-row items-start justify-between px-8 pt-12 bg-white dark:bg-dark--theme">
+				<div
+					className={
+						'overflow-auto fixed flex flex-col bg-white dark:bg-dark--theme  z-10 px-[32px] mx-[0px] w-full'
+					}
+				>
+					<div className="flex flex-row items-start justify-between mt-12">
+
 						<div className="flex justify-center items-center gap-8 h-10">
 							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />

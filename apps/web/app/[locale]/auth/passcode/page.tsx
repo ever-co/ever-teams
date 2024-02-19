@@ -10,7 +10,7 @@ import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 import stc from 'string-to-color';
 
@@ -122,7 +122,15 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
-
+	const inputsRef = useRef<Array<HTMLInputElement>>([]);
+	const resetForm = () => {
+		if (inputsRef.current) {
+			for (let i = 0; i < inputsRef.current.length; i++) {
+				inputsRef.current[i].value = '';
+			}
+			inputsRef.current[0].focus();
+		}
+	};
 	return (
 		<form className={className} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
@@ -133,15 +141,26 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 
 					{/* Auth code input */}
 					<div className="w-full mt-5">
-						<Text className="text-xs font-normal text-gray-400">{t('pages.auth.INPUT_INVITE_CODE')}</Text>
+						<div className="flex justify-between">
+							<Text className="text-xs font-normal text-gray-400">
+								{t('pages.auth.INPUT_INVITE_CODE')}
+							</Text>
+							<Text
+								onClick={() => resetForm()}
+								className="text-xs font-normal cursor-pointer hover:underline text-gray-400"
+							>
+								{t('common.RESET')}
+							</Text>
+						</div>
 
 						<AuthCodeInputField
+							inputReference={inputsRef}
 							key={form.authScreen.screen}
 							allowedCharacters="alphanumeric"
 							length={6}
 							ref={form.inputCodeRef}
 							containerClassName="mt-[21px] w-full flex justify-between dark:bg-[#25272D]"
-							inputClassName="w-[40px] xs:w-[50px] dark:bg-[#25272D]"
+							inputClassName="w-[40px] xs:w-[50px] pl-[21px] dark:bg-[#25272D]"
 							defaultValue={form.formValues.code}
 							onChange={(code) => {
 								form.setFormValues((v) => ({ ...v, code }));
