@@ -230,7 +230,6 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 									) : null}
 									<>{provided.placeholder}</>
 								</div>
-
 							</div>
 						)}
 					</Droppable>

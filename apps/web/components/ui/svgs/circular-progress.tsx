@@ -15,7 +15,7 @@ export default function CircularProgress({
 		<>
 			<div
 				x-data="scrollProgress"
-				className="relative -rotate-90 inline-flex items-center justify-center overflow-hidden rounded-full"
+				className="relative max-h-12 h-12 w-12 max-w-12 min-w-12 max-w-12 -rotate-90 inline-flex items-center justify-center overflow-hidden rounded-full"
 			>
 				<svg className="w-12 h-12">
 					<circle

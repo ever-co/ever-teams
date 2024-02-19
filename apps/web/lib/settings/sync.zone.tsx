@@ -47,7 +47,7 @@ export const RealTimePopup = ({ closeModal, open }: { closeModal: () => void; op
 			<div className="sm:w-[530px] w-[330px]">
 				<Card className="w-full" shadow="custom">
 					<div>
-						<p className="py-4 text-center">{t('alerts.ALERT_REMOVE_TEAM')}</p>
+						<p className="py-4 text-center">{t('alerts.REAL_TIME_ON_WORKING')}</p>
 						<div className="flex justify-center gap-2">
 							<Button
 								onClick={() => {

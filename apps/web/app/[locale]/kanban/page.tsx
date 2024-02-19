@@ -73,7 +73,7 @@ const Kanban = () => {
 			<MainLayout showTimer={true}>
 				<div
 					className={
-						' overflow-auto fixed flex flex-col bg-white dark:bg-dark--theme  z-10 px-[32px] mx-[0px] w-full'
+						'overflow-auto fixed flex flex-col bg-white dark:bg-dark--theme  z-10 px-[32px] mx-[0px] w-full'
 					}
 				>
 					<div className="flex flex-row items-start justify-between mt-12">
