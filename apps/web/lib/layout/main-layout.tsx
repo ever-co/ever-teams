@@ -30,7 +30,7 @@ export function MainLayout({
 }: Props) {
 	const fullWidth = useRecoilValue(fullWidthState);
 	return (
-		<div>
+		<div className='w-full'>
 			<style jsx global>
 				{`
 					:root {
