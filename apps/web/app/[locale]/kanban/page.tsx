@@ -5,8 +5,10 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Button, Dropdown, InputField } from 'lib/components';
+import { Breadcrumb, Button, InputField } from 'lib/components';
 import { AddIcon, PeopleIcon, SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
+
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
@@ -16,9 +18,11 @@ import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overl
 import Separator from '@components/ui/separator';
 import { clsxm } from '@app/utils';
 import HeaderTabs from '@components/pages/main/header-tabs';
+import { Select, SelectContent, SelectItem } from '@components/ui/select';
+import { SelectTrigger } from '@radix-ui/react-select';
 
 const Kanban = () => {
-	const { data, } = useKanban();
+	const { data } = useKanban();
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -46,31 +50,11 @@ const Kanban = () => {
 		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
 		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
 	];
-	// eslint-disable-next-line react/no-unstable-nested-components
-	const Label = ({ active, selected }: { active: string; selected: string }) => (
-		<div
-			style={{
-				fontWeight: selected ? 'bold' : 'normal'
-			}}
-			className="text-left"
-		>
-			{active}
-		</div>
-	);
 
-	const sampleDropdownItem = (key: string) => {
-		const data = {
-			key: '1',
-			Label: Label,
-			selectedLabel: <strong>{key}</strong>,
-			itemTitle: key
-			// other properties can be added as needed
-		};
-		return data;
-	};
 	return (
 		<>
 			<MainLayout showTimer={true}>
+				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
 				<div className={'sticky top-16 flex flex-col  z-10 mx-[0px] w-full'}>
 					<div className="flex bg-white dark:bg-dark--theme px-8  flex-row items-start justify-between pt-12">
 						<div className="flex justify-center items-center gap-8 h-10">
@@ -120,26 +104,40 @@ const Kanban = () => {
 							))}
 						</div>
 						<div className="flex space-x-2 mt-5 lg:mt-0">
-							<Dropdown
-								searchBar={false}
-								className="w-24"
-								buttonClassName={clsxm(
-									'py-0 font-medium h-11',
-									'bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal'
-								)}
-								value={sampleDropdownItem('Epic') as any}
-								items={[sampleDropdownItem] as any}
-							/>
-							<Dropdown
-								searchBar={false}
-								className="w-24"
-								buttonClassName={clsxm(
-									'py-0 font-medium h-11',
-									'bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal'
-								)}
-								value={sampleDropdownItem('Label') as any}
-								items={[sampleDropdownItem] as any}
-							/>
+							<Select>
+								<SelectTrigger className="py-0 flex text-sm font-semibold px-4 w-24  justify-between items-center rounded-xl h-11 border-[1px] input-border bg-light--theme-light dark:bg-dark--theme-light dark:text-white ">
+									<p>{t('pages.taskDetails.EPIC')}</p>
+									<ChevronDownIcon className={clsxm(' h-4 w-4 dark:text-white ')} />
+								</SelectTrigger>
+								<SelectContent className="bg-light--theme-light border-[1px] input-border dark:bg-dark--theme-light dark:text-white font-normal focus:ring-0 ">
+									{Array.from({ length: 3 }).map((_, index) => (
+										<SelectItem
+											className="hover:dark:bg-dark--theme-light hover:bg-white hover:font-bold"
+											key={index}
+											value={index.toString()}
+										>
+											{t('pages.taskDetails.EPIC')} {index + 1}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<Select>
+								<SelectTrigger className="py-0 flex text-sm font-semibold px-4 w-24  justify-between items-center rounded-xl h-11 border-[1px] input-border bg-light--theme-light dark:bg-dark--theme-light dark:text-white ">
+									<p>{t('common.LABEL')}</p>
+									<ChevronDownIcon className={clsxm(' h-4 w-4 dark:text-white ')} />
+								</SelectTrigger>
+								<SelectContent className="bg-light--theme-light border-[1px] input-border dark:bg-dark--theme-light dark:text-white font-normal focus:ring-0 ">
+									{Array.from({ length: 3 }).map((_, index) => (
+										<SelectItem
+											className="hover:dark:bg-dark--theme-light hover:bg-white hover:font-bold"
+											key={index}
+											value={index.toString()}
+										>
+											{t('common.LABEL')} {index + 1}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 							<button
 								className={clsxm(
 									'p-3 px-5 flex space-x-2 input-border rounded-xl items-center text-sm',

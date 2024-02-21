@@ -55,7 +55,7 @@ function MainPage() {
 		if (view == IssuesView.KANBAN && path == '/') {
 			setView(IssuesView.CARDS);
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
 	if (!online) {
 		return <Offline />;
