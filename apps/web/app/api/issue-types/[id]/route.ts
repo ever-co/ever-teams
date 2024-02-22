@@ -25,19 +25,25 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+	if (!params.id) {
+		return;
+	}
+
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-	const { id } = params;
-
 	const response = await deleteIssueTypesRequest({
-		id,
+		id: params.id,
 		bearer_token: access_token,
 		tenantId
 	});
 
 	return $res(response.data);
+}
+
+export async function generateStaticParams() {
+	return [{ id: '' }];
 }

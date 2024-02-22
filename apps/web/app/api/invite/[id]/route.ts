@@ -25,14 +25,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
-
 	const invitationId = params.id;
 
 	if (!invitationId) {
 		return NextResponse.json({}, { status: 400 });
 	}
+
+	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: 401 });
 
 	await removeTeamInvitationsRequest({
 		bearer_token: access_token,
