@@ -11,6 +11,7 @@ export async function PUT(req: Request, { params }: INextParams) {
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+
 	if (!user) return $res('unauthorized');
 
 	const response = await acceptRejectRequestToJoinRequest({
