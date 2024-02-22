@@ -11,12 +11,12 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
-
-	if (params.id) {
+	if (!params.id) {
 		return NextResponse.json({}, { status: 400 });
 	}
+
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: 401 });
 
 	const { data } = await getMyInvitationsRequest(tenantId, access_token);
 
@@ -30,7 +30,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
 	const invitationId = params.id;
 
-	if (params.id) {
+	if (!invitationId) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
@@ -63,7 +63,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	const { searchParams } = new URL(req.url);
 	const { action } = searchParams as unknown as { action: string };
 
-	if (params.id) {
+	if (!invitationId) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
@@ -79,4 +79,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	);
 
 	return $res(response.data);
+}
+
+export async function generateStaticParams() {
+	return [{ id: '' }];
 }

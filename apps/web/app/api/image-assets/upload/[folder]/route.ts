@@ -5,12 +5,15 @@ import { INextParams } from '@app/interfaces';
 
 export async function POST(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+	const folderParam = params.folder;
+
+	if (!folderParam) {
+		return;
+	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return NextResponse.json({}, { status: 401 });
-
-	const folderParam = params.folder as string;
 
 	const form = await req.formData();
 
@@ -25,4 +28,8 @@ export async function POST(req: Request, { params }: INextParams) {
 	);
 
 	return $res(response.data);
+}
+
+export async function generateStaticParams() {
+	return [{ folder: '' }];
 }
