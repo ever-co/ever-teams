@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+
 	if (!params.id) {
 		return;
 	}

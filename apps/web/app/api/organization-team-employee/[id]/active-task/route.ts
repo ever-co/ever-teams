@@ -5,11 +5,13 @@ import { NextResponse } from 'next/server';
 
 export async function PUT(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+
 	if (!params.id) {
 		return;
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+
 	if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
 	const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
