@@ -1,21 +1,46 @@
-import { ITaskStatusCreate } from '@app/interfaces';
+import { INextParams, ITaskStatusCreate } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { deleteTaskStatusRequest, editTaskStatusRequest } from '@app/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+
+	if (!params.id) {
+		return;
+	}
+
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('Unauthorized');
 
-	const { id } = params;
-
-	const datas = (await req.json()) as unknown as ITaskStatusCreate;
+	const datas = (await req.json()) as ITaskStatusCreate;
 
 	const response = await editTaskStatusRequest({
-		id,
+		id: params.id,
+		bearer_token: access_token,
 		datas,
+		tenantId
+	});
+
+	return $res(response.data);
+}
+
+export async function DELETE(req: Request, { params }: INextParams) {
+	const res = new NextResponse();
+
+	if (!params.id) {
+		return;
+	}
+
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+
+	if (!user) {
+		return $res('Unauthorized');
+	}
+
+	const response = await deleteTaskStatusRequest({
+		id: params.id,
 		bearer_token: access_token,
 		tenantId
 	});
@@ -23,19 +48,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-
-	if (!user) return $res('Unauthorized');
-
-	const { id } = params;
-
-	const response = await deleteTaskStatusRequest({
-		id,
-		bearer_token: access_token,
-		tenantId
-	});
-
-	return $res(response.data);
+export async function generateStaticParams() {
+	return [{ id: '' }];
 }
