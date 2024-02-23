@@ -5,7 +5,5 @@ export async function generateStaticParams() {
 }
 
 export default function Page() {
-	console.log('FFFFFFFF.........');
-
 	return <AuthTeam />;
 }
