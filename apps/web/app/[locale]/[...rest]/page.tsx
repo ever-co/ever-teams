@@ -1,3 +1,4 @@
+import { APPLICATION_DEFAULT_LANGUAGE } from '@app/constants';
 import { notFound } from 'next/navigation';
 
 export default function CatchAllPage() {
@@ -5,5 +6,5 @@ export default function CatchAllPage() {
 }
 
 export async function generateStaticParams() {
-	return [{ locale: 'en', rest: [] }];
+	return [{ locale: APPLICATION_DEFAULT_LANGUAGE, rest: [] }];
 }

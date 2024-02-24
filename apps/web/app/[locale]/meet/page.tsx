@@ -1,3 +1,4 @@
+import { APPLICATION_DEFAULT_LANGUAGE } from '@app/constants';
 import { MeetPageComponent } from './component';
 
 export default function Page() {
@@ -5,5 +6,5 @@ export default function Page() {
 }
 
 export async function generateStaticParams() {
-	return [{ locale: 'en' }];
+	return [{ locale: APPLICATION_DEFAULT_LANGUAGE }];
 }
