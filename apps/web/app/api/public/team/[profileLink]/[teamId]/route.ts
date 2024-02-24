@@ -30,7 +30,3 @@ export async function GET(req: Request, { params }: INextParams) {
 
 	return NextResponse.json(response.data);
 }
-
-export async function generateStaticParams() {
-	return [{ profileLink: '', teamId: '' }];
-}

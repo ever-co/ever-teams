@@ -65,9 +65,7 @@ function MeetPage() {
 	);
 }
 
-const MeetPageComponent = withAuthentication(MeetPage, {
+export default withAuthentication(MeetPage, {
 	displayName: 'MeetPage',
 	showPageSkeleton: false
 });
-
-export { MeetPageComponent };

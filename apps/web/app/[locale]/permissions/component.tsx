@@ -288,8 +288,6 @@ function SelectRole() {
 	);
 }
 
-const PermissionPage = withAuthentication(Permissions, {
+export default withAuthentication(Permissions, {
 	displayName: 'PermissionPage'
 });
-
-export { PermissionPage };

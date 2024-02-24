@@ -139,6 +139,4 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 	);
 }
 
-const MainPageComponent = withAuthentication(MainPage, { displayName: 'MainPage' });
-
-export { MainPageComponent };
+export default withAuthentication(MainPage, { displayName: 'MainPage' });

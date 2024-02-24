@@ -20,8 +20,6 @@ function BoardPage() {
 	);
 }
 
-const BoardPageComponent = withAuthentication(BoardPage, {
+export default withAuthentication(BoardPage, {
 	displayName: 'BoardIntegrationPage'
 });
-
-export { BoardPageComponent };

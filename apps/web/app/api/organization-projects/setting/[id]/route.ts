@@ -25,7 +25,3 @@ export async function PUT(req: Request, { params }: INextParams) {
 
 	$res(response.data);
 }
-
-export async function generateStaticParams() {
-	return [{ id: '' }];
-}

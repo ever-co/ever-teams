@@ -1,8 +1,8 @@
 import { APPLICATION_DEFAULT_LANGUAGE } from '@app/constants';
-import { MeetPageComponent } from './component';
+import MeetPage from './component';
 
 export default function Page() {
-	return <MeetPageComponent />;
+	return <MeetPage />;
 }
 
 export async function generateStaticParams() {

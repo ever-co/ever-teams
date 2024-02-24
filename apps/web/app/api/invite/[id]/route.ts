@@ -80,7 +80,3 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 	return $res(response.data);
 }
-
-export async function generateStaticParams() {
-	return [{ id: '' }];
-}

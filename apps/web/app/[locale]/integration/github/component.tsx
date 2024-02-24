@@ -66,8 +66,6 @@ const GitHub = () => {
 	);
 };
 
-const GitHubPage = withAuthentication(GitHub, {
+export default withAuthentication(GitHub, {
 	displayName: 'GitHubIntegrationPage'
 });
-
-export { GitHubPage };

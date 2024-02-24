@@ -196,4 +196,4 @@ function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: an
 	return content || <></>;
 }
 
-export { AuthTeam };
+export default AuthTeam;

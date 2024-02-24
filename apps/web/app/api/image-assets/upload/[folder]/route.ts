@@ -29,7 +29,3 @@ export async function POST(req: Request, { params }: INextParams) {
 
 	return $res(response.data);
 }
-
-export async function generateStaticParams() {
-	return [{ folder: '' }];
-}

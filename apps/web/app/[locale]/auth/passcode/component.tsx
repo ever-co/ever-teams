@@ -385,4 +385,4 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 	);
 }
 
-export { AuthPasscode };
+export default AuthPasscode;

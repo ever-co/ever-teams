@@ -60,7 +60,3 @@ export async function PUT(req: Request, { params }: INextParams) {
 
 	return $res(tasks);
 }
-
-export async function generateStaticParams() {
-	return [{ id: '' }];
-}
