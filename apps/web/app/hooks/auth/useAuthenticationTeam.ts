@@ -31,17 +31,10 @@ const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY
 			email: '',
 			team: ''
 	  };
-
 export function useAuthenticationTeam() {
 	const query = useSearchParams();
 	const queryEmail = useMemo(() => {
-		let localEmail: null | string = null;
-
-		if (typeof localStorage !== 'undefined') {
-			localEmail = localStorage?.getItem('ever-teams-start-email');
-		}
-
-		const emailQuery = query?.get('email') || localEmail || '';
+		const emailQuery = query?.get('email') || localStorage?.getItem('ever-teams-start-email') || '';
 		return emailQuery;
 	}, [query]);
 	initialValues.email = queryEmail;
