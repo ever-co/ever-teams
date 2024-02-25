@@ -1,35 +1,26 @@
-import { INextParams } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { getRolePermissionsRequest, updateRolePermissionRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: INextParams) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return NextResponse.json({}, { status: 400 });
-	}
-
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
 
+	const { id } = params;
+
 	const response = await getRolePermissionsRequest({
-		roleId: params.id,
 		bearer_token: access_token,
-		tenantId
+		tenantId,
+		roleId: id as string
 	});
 
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return NextResponse.json({}, { status: 400 });
-	}
-
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
