@@ -1,4 +1,4 @@
-import { INextParams, IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
+import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import {
 	deleteOrganizationTeamEmployeeRequest,
@@ -6,52 +6,47 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return;
-	}
-
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-
 	if (!user) return $res('Unauthorized');
 
 	const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
 
+	const { id } = params;
+
 	const response = await updateOrganizationTeamEmployeeRequest({
-		id: params.id,
+		id: id as string,
 		bearer_token: access_token,
 		tenantId,
 		body: body
 	});
 
-	return $res(response.data);
+	if (id) {
+		return $res(response.data);
+	}
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return;
-	}
-
 	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
-
 	if (!user) return $res('Unauthorized');
 
 	const { searchParams } = new URL(req.url);
 
-	const employeeId = searchParams.get('employeeId') as string;
+	const { employeeId } = searchParams as unknown as { employeeId: string };
+	const { id } = params;
 
 	const response = await deleteOrganizationTeamEmployeeRequest({
-		id: params.id,
+		id: id as string,
 		bearer_token: access_token,
 		tenantId,
 		organizationId,
-		employeeId: employeeId,
+		employeeId: employeeId as string,
 		organizationTeamId: teamId
 	});
 
-	return $res(response.data);
+	if (id) {
+		return $res(response.data);
+	}
 }

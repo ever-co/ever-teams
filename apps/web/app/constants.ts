@@ -152,9 +152,6 @@ export const APPLICATION_LANGUAGES = [
 	'Russian',
 	'Spanish'
 ];
-
-export const APPLICATION_DEFAULT_LANGUAGE = 'en';
-
 export const APPLICATION_LANGUAGES_CODE = [
 	'en',
 	'fr',

@@ -1,4 +1,3 @@
-import { INextParams } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 
 import {
@@ -8,73 +7,67 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: INextParams) {
+export async function GET(req: Request) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return;
-	}
-
 	const { $res, user, organizationId, access_token, tenantId, teamId } = await authenticatedGuard(req, res);
-
 	if (!user) return NextResponse.json({}, { status: 400 });
 
-	const { data } = await getOrganizationTeamRequest(
-		{
-			organizationId,
-			tenantId,
-			teamId: teamId
-		},
-		access_token
-	);
+	const getTeamStatus = async () => {
+		const { data: team } = await getOrganizationTeamRequest(
+			{
+				organizationId,
+				tenantId,
+				teamId: teamId
+			},
+			access_token
+		);
 
-	return $res(data);
+		return team;
+	};
+
+	return $res(await getTeamStatus());
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return;
-	}
-
 	const { $res, user, organizationId, access_token, tenantId, teamId } = await authenticatedGuard(req, res);
-
 	if (!user) return NextResponse.json({}, { status: 400 });
 
 	const body = await req.json();
 
-	const { data } = await getOrganizationTeamRequest(
-		{
-			organizationId,
-			tenantId,
-			teamId: teamId
-		},
-		access_token
-	);
+	const getTeamStatus = async () => {
+		const { data: team } = await getOrganizationTeamRequest(
+			{
+				organizationId,
+				tenantId,
+				teamId: teamId
+			},
+			access_token
+		);
+
+		return team;
+	};
 
 	await updateOrganizationTeamRequest(body, access_token);
 
-	return $res(data);
+	return $res(await getTeamStatus());
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return;
-	}
-
 	const { $res, user, organizationId, access_token, tenantId } = await authenticatedGuard(req, res);
-
 	if (!user) return NextResponse.json({}, { status: 400 });
 
-	const response = await deleteOrganizationTeamRequest({
-		id: params.id,
-		bearer_token: access_token,
-		tenantId,
-		organizationId
-	});
+	const { id } = params;
 
-	return $res(response.data);
+	if (id) {
+		const response = await deleteOrganizationTeamRequest({
+			id: id as string,
+			bearer_token: access_token,
+			tenantId,
+			organizationId
+		});
+
+		return $res(response.data);
+	}
 }

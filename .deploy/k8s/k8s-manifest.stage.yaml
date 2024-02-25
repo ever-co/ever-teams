@@ -2,19 +2,19 @@
 kind: Service
 apiVersion: v1
 metadata:
-    name: ever-teams-prod-lb
+    name: ever-teams-state-lb
     annotations:
-        service.beta.kubernetes.io/do-loadbalancer-name: 'app.ever.team'
+        service.beta.kubernetes.io/do-loadbalancer-name: 'stage.ever.team'
         service.beta.kubernetes.io/do-loadbalancer-protocol: 'http2'
         service.beta.kubernetes.io/do-loadbalancer-http2-ports: '443'
         # Replace with your Certificate Id. You can get a list of Ids with 'doctl compute certificate list'
         service.beta.kubernetes.io/do-loadbalancer-certificate-id: '0c4085c5-9692-4320-86f3-34f52b775a88'
         service.beta.kubernetes.io/do-loadbalancer-size-slug: 'lb-small'
-        service.beta.kubernetes.io/do-loadbalancer-hostname: 'app.ever.team'
+        service.beta.kubernetes.io/do-loadbalancer-hostname: 'stage.ever.team'
 spec:
     type: LoadBalancer
     selector:
-        app: ever-teams-prod-webapp
+        app: ever-teams-stage-webapp
     ports:
         - name: http
           protocol: TCP
@@ -25,20 +25,20 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-    name: ever-teams-prod-webapp
+    name: ever-teams-stage-webapp
 spec:
-    replicas: 8
+    replicas: 2
     selector:
         matchLabels:
-            app: ever-teams-prod-webapp
+            app: ever-teams-stage-webapp
     template:
         metadata:
             labels:
-                app: ever-teams-prod-webapp
+                app: ever-teams-stage-webapp
         spec:
             containers:
-                - name: ever-teams-prod-webapp
-                  image: registry.digitalocean.com/ever/ever-teams-webapp:latest
+                - name: ever-teams-stage-webapp
+                  image: registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
                   env:
                       - name: DEMO
                         value: 'false'

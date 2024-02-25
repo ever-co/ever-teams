@@ -29,7 +29,6 @@ export function useAuthenticationPasscode() {
 
 	const queryEmail = useMemo(() => {
 		const emailQuery = query?.get('email') || '';
-
 		if (typeof localStorage !== 'undefined') {
 			localStorage?.setItem('ever-teams-start-email', emailQuery);
 		}
