@@ -42,7 +42,7 @@ jobs:
           cache-to: type=inline
           build-args: |
             NODE_ENV=production
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL='https://apistage.ever.team'
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL=https://apistage.ever.team
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
             NEXT_PUBLIC_CAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}
             NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
