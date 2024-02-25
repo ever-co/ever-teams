@@ -1,4 +1,3 @@
-import { INextParams } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import {
 	addEmployeeOrganizationTeamOrderRequest,
@@ -6,45 +5,44 @@ import {
 } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: 401 });
 
-	if (!params.id) {
+	const { id } = params;
+
+	if (!id) {
 		return NextResponse.json({}, { status: 405 });
 	}
-
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-
-	if (!user) return NextResponse.json({}, { status: 401 });
 
 	const response = await removeEmployeeOrganizationTeamRequest({
 		bearer_token: access_token,
 		tenantId,
-		employeeId: params.id
+		employeeId: id.toString()
 	});
 
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return NextResponse.json({}, { status: 405 });
-	}
-
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-
 	if (!user) return NextResponse.json({}, { status: 401 });
 
 	const body = await req.json();
 
+	const { id } = params;
 	const order = body.order;
+
+	if (!id) {
+		return NextResponse.json({}, { status: 405 });
+	}
 
 	const response = await addEmployeeOrganizationTeamOrderRequest({
 		bearer_token: access_token,
-		employeeId: params.id,
 		tenantId,
+		employeeId: id.toString(),
 		order,
 		organizationTeamId: body.organizationTeamId,
 		organizationId: body.organizationId

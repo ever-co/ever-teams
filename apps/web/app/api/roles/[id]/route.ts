@@ -1,15 +1,10 @@
-import { INextParams, IRole } from '@app/interfaces';
+import { IRole } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { deleteRoleRequest, updateRoleRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function PUT(req: Request, { params }: INextParams) {
+export async function PUT(req: Request) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return NextResponse.json({}, { status: 400 });
-	}
-
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
@@ -24,19 +19,17 @@ export async function PUT(req: Request, { params }: INextParams) {
 	return $res(response.data);
 }
 
-export async function DELETE(req: Request, { params }: INextParams) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
 	const res = new NextResponse();
-
-	if (!params.id) {
-		return NextResponse.json({}, { status: 400 });
-	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('unauthorized');
 
+	const { id } = params;
+
 	const response = await deleteRoleRequest({
-		id: params.id,
+		id: id as string,
 		bearer_token: access_token,
 		tenantId
 	});
