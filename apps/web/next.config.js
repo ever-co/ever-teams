@@ -8,7 +8,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const isSentryEnabled = isProduction && process.env.SENTRY_DSN;
 
-const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
+let BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
+BUILD_OUTPUT_MODE = ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined;
 
 const sentryConfig = isSentryEnabled && {
 	sentry: {
@@ -30,10 +31,11 @@ const sentryConfig = isSentryEnabled && {
 		disableLogger: true
 	}
 };
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
+	output: BUILD_OUTPUT_MODE || undefined,
 	reactStrictMode: false,
 	swcMinify: true,
 	webpack: (config, { isServer }) => {
