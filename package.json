@@ -27,7 +27,7 @@
     "start": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web\"",
     "start:prod": "yarn build && yarn concurrently --raw --kill-others \"yarn start:web:prod\"",
     "start:web": "cd apps/web && yarn run start",
-	"start:web:dev": "cd apps/web && yarn run dev",
+	  "start:web:dev": "cd apps/web && yarn run dev",
     "start:web:forever": "yarn run config:dev && forever start ng serve web --disable-host-check --host 0.0.0.0",
     "start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:web && yarn ts-node ./apps/web/src/pm2bootstrap.ts",
     "start:web:prod": "yarn run config:prod && yarn ng serve web --configuration production --disable-host-check --host 0.0.0.0 --prod",
@@ -44,6 +44,7 @@
     "lint": "lerna run lint",
     "lint-fix": "cd apps/web && eslint . --fix",
     "lint-fix:scss": "cd apps/web && stylelint **/*.{scss,css} --fix",
+    "lint-staged": "lint-staged",
     "e2e": "yarn run postinstall.web && yarn run config:dev && yarn ng e2e --browser chrome",
     "e2e:ci": "yarn run postinstall.web && yarn run config:prod && yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci e2e -c=production --prod --headless",
     "prettier": "yarn prettier:web && yarn prettier:mobile && yarn prettier:extensions",
@@ -92,10 +93,12 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "pretty-quick --no-verify --staged"
+      "pre-commit": "lint-staged pretty-quick --no-verify --staged"
     }
   },
-  "lint-staged": {},
+  "lint-staged": {
+    "./apps/web/**/*.tsx": "eslint --fix"
+  },
   "release": {
     "verifyConditions": [
       "@semantic-release/changelog",

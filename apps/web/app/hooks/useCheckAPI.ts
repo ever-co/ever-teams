@@ -5,7 +5,7 @@ import { useQuery } from './useQuery';
 import { getDefaultAPI } from '@app/services/client/api';
 
 export function useCheckAPI() {
-	const { queryCall } = useQuery(getDefaultAPI);
+	const { queryCall, loading } = useQuery(getDefaultAPI);
 	const [isApiWork, setIsApiWork] = React.useState(true);
 
 	const checkAPI = useCallback(() => {
@@ -23,6 +23,7 @@ export function useCheckAPI() {
 	}, [checkAPI]);
 
 	return {
-		isApiWork
+		isApiWork,
+		loading
 	};
 }

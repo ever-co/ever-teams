@@ -8,7 +8,7 @@ on:
       - completed
 
 jobs:
-  deploy-demo:
+  deploy-render:
     runs-on: ubuntu-latest
 
     environment: dev

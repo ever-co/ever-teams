@@ -80,21 +80,16 @@ export const signInEmailConfirmAPI = (data: { code: string; email: string }) => 
 	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm?includeTeams=true', { code, email });
 };
 
-/**
- *
- * @param email
- * @param code
- * @returns
- */
-export async function signInEmailConfirmGauzy(email: string, code: string) {
+export async function signInEmailCodeConfirmGauzy(email: string, code: string) {
 	let loginResponse: ILoginResponse | null = null;
-	const inviteReq = await verifyInviteCodeAPI({ email, code });
 
 	const { errors, valid: formValid } = authFormValidate(['email', 'code'], { email, code } as any);
 
 	if (!formValid) {
 		return Promise.reject({ errors });
 	}
+
+	const inviteReq = await verifyInviteCodeAPI({ email, code });
 
 	if (inviteReq && inviteReq.fullName) {
 		const password = generateToken(8);
@@ -175,5 +170,83 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 		return Promise.resolve(response);
 	}
 
+	return loginResponse;
+}
+
+export function signInWorkspaceAPI(email: string, token: string) {
+	return post<ILoginResponse>('/auth/signin.workspace', {
+		email,
+		token
+	}).then((res) => res.data);
+}
+
+/**
+ *
+ * @param email
+ * @param code
+ * @returns
+ */
+export async function signInEmailConfirmGauzy(email: string, code: string) {
+	const loginResponse = await signInEmailCodeConfirmGauzy(email, code);
+
+	if (loginResponse) {
+		return loginResponse;
+	}
+
 	return signInEmailConfirmAPI({ email, code });
+}
+
+/**
+ * @param params
+ */
+export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code: string }) {
+	const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+
+	if (loginResponse) {
+		return loginResponse;
+	}
+
+	const data = await signInWorkspaceAPI(params.email, params.token);
+
+	/**
+	 * Get the first team from first organization
+	 */
+	const tenantId = data.user?.tenantId || '';
+	const access_token = data.token;
+	const userId = data.user?.id;
+
+	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId, token: access_token });
+
+	const organization = organizations?.items[0];
+
+	if (!organization) {
+		return Promise.reject({
+			errors: {
+				email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+			}
+		});
+	}
+
+	setAuthCookies({
+		access_token: data.token,
+		refresh_token: {
+			token: data.refresh_token
+		},
+		teamId: params.teamId,
+		tenantId,
+		organizationId: organization?.organizationId,
+		languageId: 'en', // TODO: not sure what should be here
+		noTeamPopup: true,
+		userId
+	});
+
+	const response: AxiosResponse<{ loginResponse: ILoginResponse }> = {
+		data: { loginResponse: data },
+		status: 200,
+		statusText: '',
+		headers: {},
+		config: {} as any
+	};
+
+	return Promise.resolve(response);
 }

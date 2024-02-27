@@ -9,6 +9,9 @@
 		"REJECTED": "Odrzucone",
 		"VERIFY": "weryfikuj",
 		"INVITE": "Zaproś",
+		"CARDS": "Karty",
+		"KANBAN": "Kanban",
+		"TABLE": "Tabela",
 		"INVITED": "Zaproszony",
 		"EXPIRE": "Wygasa",
 		"EXPIRED": "Wygasło",
@@ -27,7 +30,7 @@
 		"ONLY_ME": "Tylko ja",
 		"YES": "Tak",
 		"BASIC": "Podstawowy",
-		"DELETE_ALL_DATA":  "Usuń wszystkie dane",
+		"DELETE_ALL_DATA": "Usuń wszystkie dane",
 		"DELETE": "Usuń",
 		"MEET": "Spotkaj się",
 		"BOARD": "Tablica",
@@ -123,6 +126,8 @@
 		"FULL_NAME": "Imię i nazwisko",
 		"USER_AVATAR": "Awatar użytkownika",
 		"CONTACT": "Kontakt",
+		"ENABLED": "Włączać",
+		"DISABLED": "Wyłączyć",
 
 		"THEME": "Motyw",
 		"TIME_ZONE": "Strefa Czasowa",
@@ -179,6 +184,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
 		"ALERT_DELETE_ACCOUNT": "Zostaniesz usunięty z wszystkich zespołów, z wyjątkiem sytuacji, gdy jesteś jedynym menedżerem w zespole",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Twoje Konto zostanie trwale usunięte wraz z usunięciem z wszystkich zespołów",
 		"ALERT_REMOVE_ALL_DATA": "Wszystkie dane konta zostaną usunięte z zespołów, w których jesteś jedynym istniejącym menedżerem",
@@ -291,7 +297,9 @@
 			"WORK_SCHEDULE": "Harmonogram Pracy",
 			"SUBSCRIPTION": "Subskrypcja",
 			"ABOUT_TO_CHANGE_EMAIL": "Zamierzasz zmienić adres e-mail",
-			"ABOUT_TO_DELETE_ACCOUNT": "Zamierzasz usunąć swoje konto?"
+			"ABOUT_TO_DELETE_ACCOUNT": "Zamierzasz usunąć swoje konto?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Zamierzasz usunąć swoje konto?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Ustawienia Ogólne",

@@ -30,13 +30,7 @@ interface Props {
 	};
 }
 
-import { Plus_Jakarta_Sans, Poppins } from 'next/font/google';
-
-const jakarta = Plus_Jakarta_Sans({
-	subsets: ['latin'],
-	variable: '--font-jakarta',
-	display: 'swap'
-});
+import { Poppins } from 'next/font/google';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -59,14 +53,14 @@ const poppins = Poppins({
 const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
-	const { isApiWork } = useCheckAPI();
+	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
 	return (
-		<html lang={locale} className={`${poppins.variable} ${jakarta.variable}`}>
+		<html lang={locale} className={poppins.variable}>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -86,7 +80,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							{isApiWork ? (
+							{isApiWork || loading ? (
 								<>
 									<AppState />
 									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>

@@ -1,7 +1,7 @@
 'use client';
 
 import { getActiveUserIdCookie } from '@app/helpers';
-import { useRefreshInterval } from '@app/hooks';
+import { useRefreshIntervalV2 } from '@app/hooks';
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
@@ -54,8 +54,8 @@ const Team = () => {
 		loadMicsData();
 	}, [loadMicsData]);
 
-	useRefreshInterval(loadData, 10 * 1000, true);
-	useRefreshInterval(loadMicsData, 30 * 1000, true);
+	useRefreshIntervalV2(loadData, 10 * 1000, true);
+	useRefreshIntervalV2(loadMicsData, 30 * 1000, true);
 
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 	return (

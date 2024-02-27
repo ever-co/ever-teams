@@ -26,8 +26,8 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 			shadow="bigger"
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
-				<div className="flex items-center gap-2 my-2">
-					<h4 className="text-base">{'Timesheet'}</h4>
+				<div className="flex items-center gap-2 mb-2">
+					<h4 className="text-base font-semibold">{'Timesheet'}</h4>
 				</div>
 
 				<div className="flex items-center justify-end gap-2.5">
@@ -41,7 +41,9 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 				</div>
 			</div>
 			<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
-				{groupedData.map((timesheet, i) => (
+				{groupedData.length < 1 ?
+					<p className="mx-auto ">There is no Activity</p> :
+				groupedData.map((timesheet, i) => (
 					<div
 						key={i}
 						className="shadow-lg rounded-lg p-4 bg-light dark:bg-dark border border-[#00000014] dark:border-[#26272C]"

@@ -58,6 +58,8 @@
 		"NAME": "Име",
 		"TASK": "Задача",
 		"MY_TASKS": "Моите задачи",
+		"ENABLED": "активирайте",
+		"DISABLED": "деактивирайте",
 		"WORKED_ON_TASK": "Работено по задача",
 		"TOTAL_WORKED_TODAY": "Общо работено днес",
 		"TOTAL_WORK": "Работа днес",
@@ -172,6 +174,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Изберете етикет за автоматична синхронизация"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "В момента работим върху синхронизирането в реално време, моля, проверете тази функция по-късно.",
 		"ALERT_DELETE_ACCOUNT": "Профилът ще бъде премахнат от всички отбори, освен където сте само мениджър",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Вашият профил ще бъде изтрит завинаги с премахване от всички отбори",
 		"ALERT_REMOVE_TEAM": "Отборът ще бъде премахнат напълно от системата и членовете на отбора ще загубят достъп",
@@ -287,6 +290,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Вашата часова зона",
 			"ABOUT_TO_CHANGE_EMAIL": "Ще промените имейл",
 			"ABOUT_TO_DELETE_ACCOUNT": "Ще изтриете профила си?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Ще премахнете профила си?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"

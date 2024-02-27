@@ -1,4 +1,5 @@
 import {
+	APPLICATION_DEFAULT_LANGUAGE,
 	DEFAULT_APP_PATH,
 	DEFAULT_MAIN_PATH,
 	PROTECTED_APP_URL_PATHS,
@@ -30,7 +31,7 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
 	const nextIntlMiddleware = createMiddleware({
-		defaultLocale: 'en',
+		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
 		locales: ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'],
 		// pathnames,
 		localePrefix: 'as-needed'

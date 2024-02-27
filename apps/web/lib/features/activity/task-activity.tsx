@@ -1,5 +1,3 @@
-export function TaskActivity(){
-    return (
-        <div></div>
-    )
+export function TaskActivity() {
+	return <div></div>;
 }

@@ -8,6 +8,9 @@
 		"YESTERDAY": "Ayer",
 		"REJECTED": "Rechazado",
 		"VERIFY": "verificar",
+		"CARDS": "Tarjetas",
+		"TABLE": "Tabla",
+		"KANBAN": "Kanban",
 		"INVITE": "Invitar",
 		"INVITED": "Invitado",
 		"EXPIRE": "Expira",
@@ -125,6 +128,8 @@
 		"FULL_NAME": "Nombre completo",
 		"USER_AVATAR": "Avatar de usuario",
 		"CONTACT": "Contacto",
+		"ENABLED": "permitir",
+		"DISABLED": "desactivar",
 		"THEME": "Tema",
 		"TIME_ZONE": "Zona horaria",
 		"EDIT": "Editar",
@@ -174,9 +179,9 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronice tareas de manera selectiva asociándolas con una etiqueta específica.",
 		"GITHUB_AUTO_SYNC_LABEL": "Seleccionar etiqueta de sincronización automática",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activa la integración de GitHub para la sincronización de proyectos y repositorios"
-
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
@@ -282,6 +287,8 @@
 			"SUBSCRIPTION": "Suscripción",
 			"ABOUT_TO_CHANGE_EMAIL": "Estás a punto de cambiar el Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
@@ -442,14 +449,14 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimar"
 		},
-		"INACTIVE" : "Inactivo",
-		"KEYBOARD" : "Teclado",
-		"MOUSE" : "Ratón",
-		"NO_SCREENSHOOT" : "Sin capturas de pantalla",
-		"NOT_ARCHIVED" : "No archivado",
-		"OTHER_DETAILS" : "Otros detalles",
-		"PERCENT_OF_MINUTES" : " % de 10 minutos",
-		"PERCENT_USED" : "Porcentaje utilizado",
+		"INACTIVE": "Inactivo",
+		"KEYBOARD": "Teclado",
+		"MOUSE": "Ratón",
+		"NO_SCREENSHOOT": "Sin capturas de pantalla",
+		"NOT_ARCHIVED": "No archivado",
+		"OTHER_DETAILS": "Otros detalles",
+		"PERCENT_OF_MINUTES": " % de 10 minutos",
+		"PERCENT_USED": "Porcentaje utilizado",
 		"DAY_LIST": [
 			{
 				"title": "7 días"

@@ -7,6 +7,9 @@
 		"TOMORROW": "明天",
 		"YESTERDAY": "昨天",
 		"REJECTED": "已拒绝",
+		"CARDS": "卡片",
+		"TABLE": "表格",
+		"KANBAN": "看板",
 		"VERIFY": "验证",
 		"INVITE": "邀请",
 		"INVITED": "已邀请",
@@ -125,6 +128,8 @@
 		"FULL_NAME": "全名",
 		"USER_AVATAR": "用户头像",
 		"CONTACT": "联系",
+		"ENABLED": "使能夠",
+		"DISABLED": "停用",
 		"REGISTER": "注册",
 		"THEME": "主题",
 		"TIME_ZONE": "时区",
@@ -179,6 +184,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "我們目前正在開發即時同步功能，請稍後查看此功能。",
 		"ALERT_DELETE_ACCOUNT": "账户将从所有团队中移除,您作为管理员的团队除外",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "您的账户将被永久删除,并从所有团队中移除",
 		"ALERT_REMOVE_TEAM": "团队将被完全移除出系统,成员也将失去访问权限",
@@ -290,7 +296,9 @@
 			"SUBSCRIPTION": "订阅",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "您的时区",
 			"ABOUT_TO_CHANGE_EMAIL": "您即将更改电子邮箱",
-			"ABOUT_TO_DELETE_ACCOUNT": "您即将删除账户?"
+			"ABOUT_TO_DELETE_ACCOUNT": "您即将删除账户?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "您即将移除账户?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "常规设置",
@@ -431,7 +439,7 @@
 		"permissions": {
 			"SELECT_ROLES": "选择角色"
 		},
-		"page404" : {
+		"page404": {
 			"HEADING_TITLE": "页面未找到 ！",
 			"HEADING_DESCRIPTION": "我们找了，但找不到它....",
 			"LINK_LABEL": "主页"

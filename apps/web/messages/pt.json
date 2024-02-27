@@ -11,6 +11,9 @@
 		"INVITE": "Convidar",
 		"INVITED": "Convidado",
 		"EXPIRE": "Expirar",
+		"CARDS": "Cartões",
+		"KANBAN": "Kanban",
+		"TABLE": "Tabela",
 		"EXPIRED": "Expirado",
 		"REQUEST": "Solicitar",
 		"REQUESTED": "Solicitado",
@@ -123,6 +126,8 @@
 		"FULL_NAME": "Nome Completo",
 		"USER_AVATAR": "Avatar do Usuário",
 		"CONTACT": "Contato",
+		"ENABLED": "Habilitar",
+		"DISABLED": "Desativar",
 
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Horário",
@@ -178,6 +183,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",
 		"ALERT_DELETE_ACCOUNT": "Você será removido de todas as equipes, exceto onde você é o único gerente na equipe",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Sua conta será excluída permanentemente com a remoção de todas as equipes",
 		"ALERT_REMOVE_TEAM": "A equipe será completamente removida do sistema e os membros da equipe perderão o acesso",
@@ -291,7 +297,9 @@
 			"SUBSCRIPTION": "Assinatura",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Seu Fuso Horário",
 			"ABOUT_TO_CHANGE_EMAIL": "Você está prestes a mudar o e-mail",
-			"ABOUT_TO_DELETE_ACCOUNT": "Você está prestes a excluir sua conta?"
+			"ABOUT_TO_DELETE_ACCOUNT": "Você está prestes a excluir sua conta?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"ABOUT_TO_REMOVE_ACCOUNT": "Você está prestes a remover sua conta?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Configurações Gerais",
