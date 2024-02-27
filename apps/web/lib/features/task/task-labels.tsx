@@ -3,11 +3,11 @@
 import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { Button, Card, Modal } from 'lib/components';
-import { PlusIcon } from 'lib/components/svgs';
 import { TaskLabelForm } from 'lib/settings';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';
 import { useCallback, useMemo, useRef } from 'react';
+import { AddIcon } from 'assets/svg';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -69,7 +69,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 					variant="outline"
 					onClick={modal.openModal}
 				>
-					<PlusIcon className="w-6 h-6 stroke-dark dark:stroke-white" />
+					<AddIcon className="w-6 h-6 text-dark dark:text-white" />
 				</Button>
 			</TaskLabelsDropdown>
 

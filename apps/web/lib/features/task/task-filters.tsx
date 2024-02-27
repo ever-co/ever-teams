@@ -6,12 +6,13 @@ import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
-import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
+import { SearchNormalIcon } from 'lib/components/svgs';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
+import { SettingFilterIcon } from 'assets/svg';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -262,7 +263,7 @@ function InputFilters({ hook, profile }: Props) {
 				)}
 				onClick={() => hook.toggleFilterType('status')}
 			>
-				<Settings4Icon className="dark:stroke-white" />
+				<SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
 				<span>{t('common.FILTER')}</span>
 			</button>
 

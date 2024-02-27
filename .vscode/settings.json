@@ -27,15 +27,24 @@
     "**/.git": true,
     "**/.DS_Store": true,
     "**/node_modules": false,
-    "**/public/**/*.png": true,
-    "**/public/**/*.jpg": true,
-    "**/public/**/*.pdf": true
+    "**/public/**/*.png": false,
+    "**/public/**/*.jpg": false,
+    "**/public/**/*.pdf": false
   },
   "search.exclude": {
     "**/node_modules": true,
+    "**/apps/mobile": true,
+    "**/*.cjs": true,
+    "**/*.json": true,
+    "**/*.lock": true,
+    "**/*.svg": true,
+    "**/apps/desktop": true,
+    "**/apps/extensions": true,
+    "**/apps/server-api": true,
+    "**/apps/server-web": true,
     "**/bower_components": true,
     "**/*.code-search": true,
-    "**/web/components/**": true
+    "**/web/components/**": false
   },
   "docwriter.style": "Auto-detect"
 }

@@ -2,6 +2,7 @@ import { useTeamInvitations } from '@app/hooks';
 import { IClassName, IInvitation } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
+import { SixSqureGridIcon } from 'assets/svg';
 import {
 	Avatar,
 	Button,
@@ -13,9 +14,10 @@ import {
 	Tooltip,
 	VerticalSeparator
 } from 'lib/components';
-import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
+import { MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
 import { useTranslations } from 'next-intl';
+import { MailIcon } from 'assets/svg'
 
 type Props = IClassName & { invitation: IInvitation };
 
@@ -32,7 +34,8 @@ export function InvitedCard({ invitation, className }: Props) {
 				)}
 			>
 				<div className="absolute -left-0 opacity-40">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					<SixSqureGridIcon className="w-6 h-6 text-[#CCCCCC] text:fill-[#4F5662]"  />
+
 				</div>
 
 				{/* User info */}
@@ -57,7 +60,7 @@ export function InvitedCard({ invitation, className }: Props) {
 							{invitation.fullName}
 						</Text.Heading>
 						<Text className="flex items-center space-x-1 text-sm text-gray-400">
-							<MailIcon />{' '}
+							<MailIcon className="h-4 w-4" />{' '}
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
 								{invitation.email}
 							</span>
@@ -106,7 +109,7 @@ export function InvitedCard({ invitation, className }: Props) {
 							{invitation.fullName}
 						</Text.Heading>
 						<Text className="flex items-center space-x-1 text-sm text-gray-400">
-							<MailIcon />{' '}
+							<MailIcon className="h-4 w-4" />{' '}
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap">{invitation.email}</span>
 						</Text>
 					</div>
@@ -222,7 +225,7 @@ export function InviteUserTeamCard({
 				)}
 			>
 				<div className="absolute opacity-40 -left-0">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					<SixSqureGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]"  />
 				</div>
 
 				{/* Show user name, email and image */}

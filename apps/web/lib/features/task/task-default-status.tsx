@@ -1,36 +1,36 @@
 import { ITaskLabel, ITaskPriority, ITaskSize, ITaskStatus } from '@app/interfaces';
 import { ClockIcon } from '@heroicons/react/20/solid';
 import {
-	LoginIcon,
-	TimerIcon,
-	SearchStatusIcon,
-	TickCircleIcon,
-	CloseCircleIcon,
+	XXLTextIcon as XlargeIcon,
+	XLTextIcon as LargeIcon,
+	XSTextIcon as TinySizeIcon,
+	STextIcon as SmallSizeIcon,
+	MTextIcon as MediumSizeIcon,
+	ChevronUpDoubleIcon,
+	ChevronUpIcon,
+	IsEqualIcon,
+	ChevronDownIcon,
+	CheckCircleTickIcon as TickCircleIcon,
 	CircleIcon,
-	HighestIcon,
-	HighIcon,
-	LowestIcon,
-	LowIcon,
-	MediumIcon,
-	LargeIcon,
-	MediumSizeIcon,
-	SmallSizeIcon,
-	TinySizeIcon,
-	XlargeIcon
-} from 'lib/components/svgs';
+	CrossCircleIcon as CloseCircleIcon,
+	SearchStatusIcon,
+	TrakingIcon as TimerIcon,
+	LoginIcon
+} from 'assets/svg';
 import { TStatus } from './task-status';
 
 export const taskStatus: TStatus<ITaskStatus> = {
+
 	todo: {
-		icon: <LoginIcon />,
+		icon: <LoginIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: '#D6E4F9'
 	},
 	'in-progress': {
-		icon: <TimerIcon />,
+		icon: <TimerIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: '#ECE8FC'
 	},
 	'in review': {
-		icon: <SearchStatusIcon />,
+		icon: <SearchStatusIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: ' #F3D8B0'
 	},
 	ready: {
@@ -38,19 +38,19 @@ export const taskStatus: TStatus<ITaskStatus> = {
 		bgColor: '#F5F1CB'
 	},
 	completed: {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
+		icon: <TickCircleIcon className="w-full max-w-[17px]" />,
 		bgColor: '#D4EFDF'
 	},
 	blocked: {
-		icon: <CloseCircleIcon />,
+		icon: <CloseCircleIcon className="text-[#292D32] w-full max-w-[18px]" />,
 		bgColor: '#F5B8B8'
 	},
 	backlog: {
-		icon: <CircleIcon />,
+		icon: <CircleIcon className="w-full max-w-[14px]" />,
 		bgColor: '#F2F2F2'
 	},
 	closed: {
-		icon: <TickCircleIcon className="stroke-[#acacac]" />,
+		icon: <TickCircleIcon className="w-full max-w-[17px]" />,
 		bgColor: '#eaeaea'
 	},
 	open: {}
@@ -58,27 +58,27 @@ export const taskStatus: TStatus<ITaskStatus> = {
 
 export const taskPriorities: TStatus<ITaskPriority> = {
 	Highest: {
-		icon: <HighestIcon />,
+		icon: <ChevronUpDoubleIcon className="w-full max-w-[16px] text-[#EE6C4D]" strokeWidth="1.8" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	High: {
-		icon: <HighIcon />,
+		icon: <ChevronUpIcon className="w-full max-w-[16px] text-[#EE6C4D]" strokeWidth="1.6" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Medium: {
-		icon: <MediumIcon />,
+		icon: <IsEqualIcon className="w-full max-w-[16px]" strokeWidth="1.8" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Low: {
-		icon: <LowIcon />,
+		icon: <ChevronDownIcon className="w-full max-w-[16px] text-[#2F80ED]" strokeWidth="1.6" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Lowest: {
-		icon: <LowestIcon />,
+		icon: <ChevronUpDoubleIcon className="w-full rotate-180 max-w-[16px] text-[#2F80ED]" strokeWidth="1.8" />,
 		bgColor: 'transparent',
 		bordered: true
 	}
@@ -86,27 +86,27 @@ export const taskPriorities: TStatus<ITaskPriority> = {
 
 export const taskSizes: TStatus<ITaskSize> = {
 	'X-Large': {
-		icon: <XlargeIcon />,
+		icon: <XlargeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Large: {
-		icon: <LargeIcon />,
+		icon: <LargeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Medium: {
-		icon: <MediumSizeIcon />,
+		icon: <MediumSizeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Small: {
-		icon: <SmallSizeIcon />,
+		icon: <SmallSizeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',
 		bordered: true
 	},
 	Tiny: {
-		icon: <TinySizeIcon />,
+		icon: <TinySizeIcon className="w-full max-w-[28px]" />,
 		bgColor: 'transparent',
 		bordered: true
 	}

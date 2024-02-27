@@ -3,14 +3,14 @@ import { I_TeamMemberCardHook, useTimer } from '@app/hooks';
 import { IClassName, ITimerStatusEnum } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, Text, Tooltip } from 'lib/components';
-// import { MailIcon } from 'lib/components/svgs';
 import { getTimerStatusValue, TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
-import { MailIcon, UserManagerIcon } from 'lib/components/svgs';
+import { MailIcon } from 'assets/svg';
+import { UserManagerIcon } from 'assets/svg';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -84,7 +84,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 									member?.role?.name === 'ADMIN'
 								}
 							>
-								<UserManagerIcon className="w-4" />
+								<UserManagerIcon strokeWidth="2" className="w-4" />
 							</Tooltip>
 						)}
 					</Text.Heading>
@@ -97,7 +97,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						enabled={`${memberUser?.email || ''} `.trim().length > CHARACTER_LIMIT_TO_SHOW}
 					>
 						<Text className="text-gray-400 flex items-center text-sm space-x-1">
-							<MailIcon />{' '}
+							<MailIcon className="h-4 w-4"/>
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
 								{memberUser?.email}
 							</span>

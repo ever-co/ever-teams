@@ -15,12 +15,12 @@ import {
 import { useJitsu } from '@jitsu/jitsu-react';
 import { Avatar } from 'lib/components';
 import { Button } from 'lib/components/button';
-import { BrushSquareLinearIcon, CallOutGoingLinearIcon, Profile2UserLinearIcon } from 'lib/components/svgs';
 import { Check } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
 import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
 import { useTranslations } from 'next-intl';
+import { BrushSqureIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -77,7 +77,7 @@ const Collaborate = () => {
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
 				>
-					<Profile2UserLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
+					<UserLinearIcon className="text-white w-4 h-4 " />
 					{t('common.COLLABORATE')}
 				</DialogTrigger>
 				<DialogContent className="gap-0 p-0 outline-none border-[#0000001A] dark:border-[#26272C]">
@@ -188,7 +188,7 @@ const Collaborate = () => {
 							</p>
 						)}
 
-						<div className="flex space-x-3">
+						<div className="flex space-x-3 ">
 							<Button
 								onClick={() => {
 									closeModal();
@@ -197,7 +197,7 @@ const Collaborate = () => {
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"
 							>
-								<CallOutGoingLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
+								<PhoneUpArrowIcon className="h-4 w-4" />
 								{t('common.MEET')}
 							</Button>
 
@@ -208,7 +208,7 @@ const Collaborate = () => {
 								}}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 							>
-								<BrushSquareLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
+								<BrushSqureIcon className="w-4 h-4"/>
 								{t('common.BOARD')}
 							</Button>
 						</div>

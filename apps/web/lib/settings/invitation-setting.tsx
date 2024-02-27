@@ -73,7 +73,7 @@ export const InvitationSetting = () => {
 						<Text className="flex-none font-normal text-[#7E7991] dark:text-white flex-grow-0 text-lg md-2">
 							{t('pages.settingsTeam.INVITATION_EXPIRATION')}
 						</Text>
-						<SettingSimpleGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
+						<SettingGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
 					</div>
 					<div className="flex items-center ">
 						<div className="flex gap-4 items-center flex-col sm:flex-row w-[29.7rem]">

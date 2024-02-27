@@ -1,6 +1,6 @@
 import Skeleton from 'react-loading-skeleton';
 import { Card, VerticalSeparator } from 'lib/components';
-import { DraggerIcon } from 'lib/components/svgs';
+import { SixSqureGridIcon } from 'assets/svg';
 
 const TaskCardSkeleton = () => {
 	return (
@@ -9,7 +9,7 @@ const TaskCardSkeleton = () => {
 			className="relative flex items-center justify-between py-8 my-4 border border-[#F0F0F0] dark:border-0"
 		>
 			<div className="absolute -left-0">
-				<DraggerIcon />
+			<SixSqureGridIcon className="w-6 h-6 "  />
 			</div>
 			<div>
 				<Skeleton width={260} height={15} borderRadius={20} className="dark:bg-[#353741]" />

@@ -5,7 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { IInvite, IInviteProps } from '../../../app/interfaces/hooks';
-import UserIcon from '../../ui/svgs/user-icon';
+import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 
 const initalValues: IInvite = {
@@ -70,7 +70,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 						>
 							<Dialog.Panel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
 								<div className="flex items-center justify-center w-full">
-									<UserIcon />
+									<UserOutlineIcon className="w-6" />
 								</div>
 								<div className="text-primary dark:text-white mt-[22px] text-center font-bold text-[22px]">
 									{t('pages.invite.HEADING_TITLE')}

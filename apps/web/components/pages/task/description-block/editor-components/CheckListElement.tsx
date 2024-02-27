@@ -1,8 +1,7 @@
 import { Transforms, Element as SlateElement } from 'slate';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
-import { CheckBoxIcon, UncheckedBoxIcon } from 'lib/components/svgs';
 import { useRef } from 'react';
-
+import { SqureBoxIcon as UncheckedBoxIcon, CheckSqureRoundIcon as CheckBoxIcon } from 'assets/svg';
 const CheckListElement = ({ attributes, children, element }: any) => {
 	const editor = useSlateStatic();
 	const readOnly = useReadOnly();
@@ -50,11 +49,11 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 				/>
 				{checked ? (
 					<button onClick={toggleCheck} className="absolute z-10 top-0 left-0">
-						<CheckBoxIcon />
+						<CheckBoxIcon className="h-4 w-4 m-0.5 text-[#34AC6B] " />
 					</button>
 				) : (
 					<button onClick={toggleCheck} className="absolute z-10 top-0 left-0">
-						<UncheckedBoxIcon />
+						<UncheckedBoxIcon className="h-4 w-4 m-0.5" fill="white" />
 					</button>
 				)}
 			</span>

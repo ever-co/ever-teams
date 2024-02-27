@@ -6,7 +6,6 @@ import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Button, Dropdown, InputField } from 'lib/components';
-import { AddIcon, PeopleIcon, SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
@@ -16,6 +15,7 @@ import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overl
 import Separator from '@components/ui/separator';
 import { clsxm } from '@app/utils';
 import HeaderTabs from '@components/pages/main/header-tabs';
+import { AddIcon, SearchNormalIcon, SettingFilterIcon, PeoplesIcon } from 'assets/svg';
 
 const Kanban = () => {
 	const { data } = useKanban();
@@ -77,9 +77,8 @@ const Kanban = () => {
 					}
 				>
 					<div className="flex flex-row items-start justify-between mt-12">
-
 						<div className="flex justify-center items-center gap-8 h-10">
-							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+							<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
@@ -99,8 +98,10 @@ const Kanban = () => {
 							<div className="mt-1">
 								<Separator />
 							</div>
+
 							<button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white">
-								<AddIcon width={24} height={24} className={'dark:stroke-white'} />
+								{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
+								<AddIcon className="w-6 h-6 text-foreground" />
 							</button>
 						</div>
 					</div>
@@ -151,7 +152,7 @@ const Kanban = () => {
 									'h-[2.75rem]'
 								)}
 							>
-								<Settings4Icon className="dark:stroke-white" />
+								<SettingFilterIcon />
 								<span>{t('common.FILTER')}</span>
 							</button>
 							<div className="mt-1">
@@ -168,14 +169,14 @@ const Kanban = () => {
 											className="p-0 m-0 ml-[0.9rem] min-w-0 absolute right-3"
 											type="submit"
 										>
-											<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
+											<SearchNormalIcon />
 										</Button>
 									}
 								/>
 							</div>
 						</div>
 					</div>
-					<div className="h-64"></div>
+					{/* <div className="h-64"></div> */}
 				</div>
 				<div>
 					{/** TODO:fetch teamtask based on days */}

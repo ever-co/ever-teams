@@ -4,9 +4,11 @@ import { detailedTaskState } from '@app/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@components/ui/hover-card';
 import { useToast } from '@components/ui/use-toast';
 import { Button, Tooltip } from 'lib/components';
-import { CloseAlternateIcon, CopyIconRounded, TickIcon } from 'lib/components/svgs';
+import { CloseAlternateIcon, TickIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import Image from 'next/image';
+import { CopyRoundIcon } from 'assets/svg';
+
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -225,7 +227,7 @@ const TaskTitleBlock = () => {
 					className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem] 3xl:text-xs 3xl:py-2"
 					onClick={copyTaskNumber}
 				>
-					<CopyIconRounded className="stroke-[#B1AEBC]" />
+					<CopyRoundIcon className="text-[#B1AEBC] w-2.5 h-2.5" />
 					{t('pages.settingsTeam.COPY_NUMBER')}
 				</button>
 			</div>

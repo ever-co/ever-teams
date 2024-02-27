@@ -4,7 +4,8 @@ import { useModal, useTeamInvitations } from '@app/hooks';
 import { MyInvitationActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { CloseCircleIcon, CloseIcon, TickCircleIcon } from 'lib/components/svgs';
+import { CloseCircleIcon, CloseIcon } from 'lib/components/svgs';
+import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -85,7 +86,7 @@ export function TeamInvitations() {
 									handleOpenModal(invitation.id, MyInvitationActionEnum.ACCEPTED);
 								}}
 							>
-								<TickCircleIcon className="stroke-white" />
+								<TickCircleIcon className="text-white w-full max-w-[17px]" />
 								{t('common.ACCEPT')}
 							</Button>
 							<Button

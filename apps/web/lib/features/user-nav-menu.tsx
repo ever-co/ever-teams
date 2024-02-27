@@ -8,14 +8,10 @@ import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Avatar, Card, Divider, Text, ThemeToggler, Tooltip } from 'lib/components';
-import {
-	BriefcaseIcon,
-	DevicesIcon,
-	LogoutIcon2,
-	MoonIcon,
-	PeopleIcon,
-	SettingsOutlineIcon
-} from 'lib/components/svgs';
+import { DevicesIcon, LogoutIcon2, SettingsOutlineIcon } from 'lib/components/svgs';
+
+import { MoonLightOutlineIcon as MoonIcon, PeoplesIcon } from 'assets/svg';
+import { BriefCaseIcon } from 'assets/svg';
 import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
@@ -226,13 +222,13 @@ function UserNavMenu() {
 							href={`/profile/${user?.id}`}
 							className="flex items-center space-x-3 font-normal text-center"
 						>
-							<BriefcaseIcon className="w-5 h-5" /> <span>{t('common.MY_TASKS')}</span>
+							<BriefCaseIcon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.MY_TASKS')}</span>
 						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex items-center space-x-3 font-normal">
-							<PeopleIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
+							<PeoplesIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
 							<span>{t('common.MY_TEAM')}</span>
 						</Link>
 					</li>
