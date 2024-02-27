@@ -31,9 +31,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 				todayEnd,
 				todayStart
 			}).then((response) => {
-				if (response.data) {
-					// @ts-expect-error
-					setTimeSlots(response.data[0].timeSlots);
+				if (response.data && Array.isArray(response.data)) {
+					setTimeSlots(response.data[0]?.timeSlots || []);
 				}
 			});
 		} else setTimeSlots([]);
