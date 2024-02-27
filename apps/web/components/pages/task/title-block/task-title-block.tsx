@@ -4,10 +4,9 @@ import { detailedTaskState } from '@app/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@components/ui/hover-card';
 import { useToast } from '@components/ui/use-toast';
 import { Button, Tooltip } from 'lib/components';
-import { CloseAlternateIcon, TickIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import Image from 'next/image';
-import { CopyRoundIcon } from 'assets/svg';
+import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
 
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
@@ -15,6 +14,7 @@ import { useRecoilState } from 'recoil';
 import CreateParentTask from '../ParentTask';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -133,14 +133,14 @@ const TaskTitleBlock = () => {
 								onClick={() => saveTitle(title)}
 								className="border-2 dark:border-[#464242] rounded-md"
 							>
-								<TickIcon />
+								<CheckSimpleIcon className="w-full max-w-[26px] text-[#7E7991]" strokeWidth="1.6" />
 							</button>
 							<button
 								ref={cancelButton}
 								onClick={cancelEdit}
 								className="border-2 dark:border-[#464242] rounded-md"
 							>
-								<CloseAlternateIcon />
+								<XMarkIcon />
 							</button>
 						</div>
 					) : (

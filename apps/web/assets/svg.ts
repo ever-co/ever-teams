@@ -7,6 +7,7 @@ export { default as PauseIcon } from './colored/pause.svg';
 export { default as TrashIcon } from './colored/trash.svg';
 export { default as UserOnlineTrackingTimerIcon } from './colored/user-online-tracking-timer.svg';
 export { default as UserOnlineIcon } from './colored/user-online.svg';
+export { default as StopCircleIcon } from './colored/stop-circle.svg';
 
 // common
 export { default as AddIcon } from './common/add.svg';
@@ -17,7 +18,7 @@ export { default as ChevronLeftIcon } from './common/arrows/chevron-left.svg';
 export { default as ChevronUpDoubleIcon } from './common/arrows/chevron-up-double.svg';
 export { default as ChevronRightIcon } from './common/arrows/chevron-right.svg';
 export { default as ChevronUpIcon } from './common/arrows/chevron-up.svg';
-export { default as RoundLeftIcon } from './common/arrows/round-left.svg';
+export { default as RefreshIcon } from './common/arrows/refresh.svg';
 export { default as BugIcon } from './common/bug.svg';
 export { default as CrossCircleIcon } from './common/cross-circle.svg';
 export { default as CrossIcon } from './common/cross.svg';
@@ -31,6 +32,7 @@ export { default as SearchStatusIcon } from './common/search-status.svg';
 export { default as SettingFilterIcon } from './common/setting-filter.svg';
 export { default as SettingGearIcon } from './common/setting-gear.svg';
 export { default as SettingOutlineIcon } from './common/setting-outline.svg';
+
 // checkbox
 export { default as CheckCircleOutlineIcon } from './common/tick/circle-outline.svg';
 export { default as CheckCircleTickIcon } from './common/tick/circle.svg';
@@ -88,10 +90,10 @@ export { default as SunFillIcon } from './theme/sun-fill.svg';
 export { default as SunOutlineIcon } from './theme/sun-outline.svg';
 
 // timer
-export { default as ClockIcon } from './timer/clock.svg';
-export { default as PlayIcon } from './timer/play.svg';
-export { default as RecordIcon } from './timer/record.svg';
-export { default as StopIcon } from './timer/stop.svg';
+export { default as TimerClockIcon } from './timer/clock.svg';
+export { default as TimerPlayIcon } from './timer/play.svg';
+export { default as TimerRecordIcon } from './timer/record.svg';
+export { default as TimerStopIcon } from './timer/stop.svg';
 export { default as TrakingIcon } from './timer/traking.svg';
 
 // unique
@@ -102,7 +104,7 @@ export { default as DevicesIcon } from './unique/devices.svg';
 export { default as EditPenBoxIcon } from './unique/edit-pen-box.svg';
 export { default as EditPenUnderlineIcon } from './unique/edit-pen-underline.svg';
 export { default as LiveShareIcon } from './unique/live-share.svg';
-export { default as LoginRoundIcon } from './unique/login-round.svg';
+export { default as LogoutRoundIcon } from './unique/login-round.svg';
 export { default as LoginIcon } from './unique/login.svg';
 export { default as LogoutIcon } from './unique/logout.svg';
 export { default as MailIcon } from './unique/mail.svg';

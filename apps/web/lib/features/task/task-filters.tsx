@@ -6,7 +6,7 @@ import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
-import { SearchNormalIcon } from 'lib/components/svgs';
+import { SearchNormalIcon } from 'assets/svg';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
@@ -246,7 +246,7 @@ function InputFilters({ hook, profile }: Props) {
 			>
 				<SearchNormalIcon
 					className={clsxm(
-						'dark:stroke-white',
+						'dark:stroke-white w-4 h-4',
 						hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
 					)}
 				/>

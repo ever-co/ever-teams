@@ -4,7 +4,6 @@ import MarkButton from './editor-components/MarkButton';
 import { insertLink } from './editor-components/TextEditorService';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button, InputField } from 'lib/components';
-import { ArrowDown } from 'lib/components/svgs';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';
 import { useTranslations } from 'next-intl';
@@ -25,7 +24,8 @@ import {
 	BTextIcon as BoldIcon,
 	CheckSqureRoundIcon as CheckBoxIcon,
 	CopyRoundIcon as CopyIconRounded,
-	AlignFullIcon
+	AlignFullIcon,
+	ChevronDownIcon
 } from 'assets/svg';
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -245,7 +245,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				>
 					<span className="flex items-center gap-1 my-0 text-black dark:text-white">
 						More
-						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
+						<ChevronDownIcon className={`${showDropdown && 'rotate-180'}`} />
 					</span>
 				</Button>
 				{/* {showDropdown && (

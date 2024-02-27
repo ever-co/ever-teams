@@ -169,7 +169,7 @@ const Kanban = () => {
 											className="p-0 m-0 ml-[0.9rem] min-w-0 absolute right-3"
 											type="submit"
 										>
-											<SearchNormalIcon />
+											<SearchNormalIcon className="w-4 h-4" />
 										</Button>
 									}
 								/>

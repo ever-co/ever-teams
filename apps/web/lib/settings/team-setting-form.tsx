@@ -3,7 +3,6 @@ import { RoleNameEnum } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Button, ColorPicker, InputField, Text, Tooltip } from 'lib/components';
 import { EmojiPicker } from 'lib/components/emoji-picker';
-import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
 import TimeTrackingToggle from 'lib/components/switch';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
@@ -13,6 +12,7 @@ import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import TeamSize from './team-size-popover';
 import { useParams } from 'next/navigation';
+import { CheckSqureOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -184,7 +184,7 @@ export const TeamSettingForm = () => {
 														disabled={!isTeamManager}
 														onClick={() => setDisabled(false)}
 													>
-														<Edit2Icon />
+														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 													</Button>
 												) : (
 													<Button
@@ -194,7 +194,10 @@ export const TeamSettingForm = () => {
 														disabled={!isTeamManager}
 														onClick={() => setDisabled(true)}
 													>
-														<TickSquareIcon />
+														<CheckSqureOutlineIcon
+															className="w-[18px] h-[18px]"
+															strokeWidth="1.4"
+														/>
 													</Button>
 												)
 											) : (

@@ -2,7 +2,7 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button } from 'lib/components';
-import { TimerPlayIcon, TimerStopIcon } from 'lib/components/svgs';
+import { TimerPlayIcon, TimerStopIcon } from 'assets/svg';
 import { MouseEventHandler } from 'react';
 
 type Props = {

@@ -23,7 +23,6 @@ import {
 	Text,
 	VerticalSeparator
 } from 'lib/components';
-import { MoreIcon } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';

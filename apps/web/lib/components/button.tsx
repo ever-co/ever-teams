@@ -1,8 +1,8 @@
 import { clsxm } from '@app/utils';
 import { PropsWithChildren } from 'react';
 import { SpinnerLoader } from './loader';
-import { ArrowLeft } from './svgs';
 import { useTranslations } from 'next-intl';
+import { ArrowLeftIcon } from 'assets/svg';
 
 type Props = {
 	variant?:
@@ -95,7 +95,7 @@ export function BackButton({ onClick, className }: { onClick?: () => void; class
 	const t = useTranslations();
 	return (
 		<button type="button" className={clsxm('flex items-center justify-start text-sm', className)}>
-			<ArrowLeft className="mr-2" />
+			<ArrowLeftIcon className="w-full max-w-[20px]" />
 			<span className="text-sm" onClick={onClick}>
 				{t('common.BACK')}
 			</span>

@@ -2,7 +2,7 @@ import { useTeamInvitations } from '@app/hooks';
 import { IClassName, IInvitation } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { SixSqureGridIcon } from 'assets/svg';
+import { SixSqureGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import {
 	Avatar,
 	Button,
@@ -14,7 +14,6 @@ import {
 	Tooltip,
 	VerticalSeparator
 } from 'lib/components';
-import { MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
 import { useTranslations } from 'next-intl';
 import { MailIcon } from 'assets/svg'
@@ -153,7 +152,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 		<Popover className="relative">
 			{!loading && (
 				<Popover.Button className="outline-none">
-					<MoreIcon />
+			<ThreeCircleOutlineVerticalIcon className="w-6" strokeWidth="1.4" />
 				</Popover.Button>
 			)}
 			{loading && <SpinnerLoader size={20} />}

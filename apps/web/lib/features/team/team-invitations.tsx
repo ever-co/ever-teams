@@ -4,8 +4,8 @@ import { useModal, useTeamInvitations } from '@app/hooks';
 import { MyInvitationActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { CloseCircleIcon, CloseIcon } from 'lib/components/svgs';
-import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
+import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
+import { CrossIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -96,7 +96,7 @@ export function TeamInvitations() {
 									handleOpenModal(invitation.id, MyInvitationActionEnum.REJECTED);
 								}}
 							>
-								<CloseCircleIcon className="stroke-primary dark:stroke-white" />
+								<CloseCircleIcon className="text-primary dark:text-white w-[18px]" />
 								{t('common.REJECT')}
 							</Button>
 						</div>
@@ -106,7 +106,7 @@ export function TeamInvitations() {
 								handleCloseInvitation(invitation.id);
 							}}
 						>
-							<CloseIcon />
+							<CrossIcon className="w-5 h-5"/>
 						</button>
 					</Card>
 				))}

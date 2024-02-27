@@ -4,7 +4,7 @@ import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components';
-import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
+import { CrossIcon, RefreshIcon } from 'assets/svg';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import stc from 'string-to-color';
@@ -88,7 +88,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					{task?.status !== 'closed' && (
 						<Tooltip label={`${t('common.CLOSE')} ${t('common.TASK')}`} enabled placement="left">
 							<ConfirmDropdown onConfirm={() => handleChange('closed')} confirmText={'Confirm'}>
-								{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
+								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="w-5 h-5" />}
 							</ConfirmDropdown>
 						</Tooltip>
 					)}
@@ -105,7 +105,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 									className="min-w-10"
 								>
 									<button onClick={() => handleChange('todo')}>
-										<RefreshIcon />
+										<RefreshIcon className="w-6 text-[#7E7991]" />
 									</button>
 								</Tooltip>
 							)}
