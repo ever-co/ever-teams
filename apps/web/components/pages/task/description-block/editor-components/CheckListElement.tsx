@@ -1,7 +1,7 @@
 import { Transforms, Element as SlateElement } from 'slate';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import { useRef } from 'react';
-import { SqureBoxIcon as UncheckedBoxIcon, CheckSqureRoundIcon as CheckBoxIcon } from 'assets/svg';
+import { SquareBoxIcon as UncheckedBoxIcon, CheckSquareRoundIcon as CheckBoxIcon } from 'assets/svg';
 const CheckListElement = ({ attributes, children, element }: any) => {
 	const editor = useSlateStatic();
 	const readOnly = useReadOnly();

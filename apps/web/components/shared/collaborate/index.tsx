@@ -20,7 +20,7 @@ import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
 import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
 import { useTranslations } from 'next-intl';
-import { BrushSqureIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
+import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -208,7 +208,7 @@ const Collaborate = () => {
 								}}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 							>
-								<BrushSqureIcon className="w-4 h-4"/>
+								<BrushSquareIcon className="w-4 h-4" />
 								{t('common.BOARD')}
 							</Button>
 						</div>

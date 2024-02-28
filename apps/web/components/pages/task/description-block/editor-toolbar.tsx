@@ -22,7 +22,7 @@ import {
 	UnderlineTextIcon as UnderlineIcon,
 	ItalicTextIcon as ItalicIcon,
 	BTextIcon as BoldIcon,
-	CheckSqureRoundIcon as CheckBoxIcon,
+	CheckSquareRoundIcon as CheckBoxIcon,
 	CopyRoundIcon as CopyIconRounded,
 	AlignFullIcon,
 	ChevronDownIcon
