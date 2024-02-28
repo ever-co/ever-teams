@@ -36,7 +36,7 @@ import { TaskAvatars } from './task-item';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useTranslations } from 'next-intl';
-import { SixSqureGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 
 type Props = {
 	active?: boolean;
@@ -115,7 +115,7 @@ export function TaskCard(props: Props) {
 				)}
 			>
 				<div className="absolute -left-0">
-					<SixSqureGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
+					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
 				<div className="flex-1 flex flex-row justify-between">

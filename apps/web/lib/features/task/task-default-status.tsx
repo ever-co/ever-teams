@@ -14,13 +14,12 @@ import {
 	CircleIcon,
 	CrossCircleIcon as CloseCircleIcon,
 	SearchStatusIcon,
-	TrakingIcon as TimerIcon,
+	TrackingIcon as TimerIcon,
 	LoginIcon
 } from 'assets/svg';
 import { TStatus } from './task-status';
 
 export const taskStatus: TStatus<ITaskStatus> = {
-
 	todo: {
 		icon: <LoginIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: '#D6E4F9'

@@ -2,7 +2,7 @@ import { useTeamInvitations } from '@app/hooks';
 import { IClassName, IInvitation } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { SixSqureGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import {
 	Avatar,
 	Button,
@@ -16,7 +16,7 @@ import {
 } from 'lib/components';
 import { TimerStatus } from 'lib/features/timer/timer-status';
 import { useTranslations } from 'next-intl';
-import { MailIcon } from 'assets/svg'
+import { MailIcon } from 'assets/svg';
 
 type Props = IClassName & { invitation: IInvitation };
 
@@ -33,8 +33,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				)}
 			>
 				<div className="absolute -left-0 opacity-40">
-					<SixSqureGridIcon className="w-6 h-6 text-[#CCCCCC] text:fill-[#4F5662]"  />
-
+					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] text:fill-[#4F5662]" />
 				</div>
 
 				{/* User info */}
@@ -152,7 +151,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 		<Popover className="relative">
 			{!loading && (
 				<Popover.Button className="outline-none">
-			<ThreeCircleOutlineVerticalIcon className="w-6" strokeWidth="1.4" />
+					<ThreeCircleOutlineVerticalIcon className="w-6" strokeWidth="1.4" />
 				</Popover.Button>
 			)}
 			{loading && <SpinnerLoader size={20} />}
@@ -224,7 +223,7 @@ export function InviteUserTeamCard({
 				)}
 			>
 				<div className="absolute opacity-40 -left-0">
-					<SixSqureGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]"  />
+					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
 				{/* Show user name, email and image */}

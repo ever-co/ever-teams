@@ -17,7 +17,7 @@ import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
-import { SixSqureGridIcon } from 'assets/svg';
+import { SixSquareGridIcon } from 'assets/svg';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -124,7 +124,7 @@ export function UserTeamCard({
 			>
 				<div className="flex m-0 relative items-center">
 					<div className="absolute left-0 cursor-pointer">
-						<SixSqureGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
+						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
 
 					{/* Show user name, email and image */}

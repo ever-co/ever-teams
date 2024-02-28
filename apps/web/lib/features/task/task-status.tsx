@@ -31,7 +31,7 @@ import capitalize from 'lodash/capitalize';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
-import { Squre4OutlineIcon, CircleIcon } from 'assets/svg';
+import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 
 export type TStatusItem = {
 	id?: string;
@@ -433,7 +433,7 @@ export function EpicPropertiesDropdown({
 					value: task.id,
 					icon: (
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-							<Squre4OutlineIcon className="w-full max-w-[10px] text-white" />,
+							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />,
 						</div>
 					)
 				};

@@ -9,7 +9,7 @@ import {
 	SunFillIcon as SunIcon,
 	SunOutlineIcon as SunDarkIcon,
 	CubeIcon as BoxIcon,
-	StopIcon
+	TimerStopIcon
 } from 'assets/svg';
 import { Text } from './typography';
 import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
@@ -85,7 +85,7 @@ export function ThemeToggler({ className }: IClassName) {
 export function TreeModeToggler({ className }: IClassName) {
 	return (
 		<Toggler className={className} firstBtnClassName="dark:bg-[#3B4454]" secondBtnClassName="dark:bg-transparent">
-			<StopIcon className="dark:text-white" />
+			<TimerStopIcon className="dark:text-white w-full max-w-[20px]" />
 			<BoxIcon className="h-6 w-6 text-[#7E7991] dark:text-[#969CA6]" strokeWidth="1.7" />
 		</Toggler>
 	);

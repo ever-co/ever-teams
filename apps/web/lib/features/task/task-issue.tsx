@@ -2,7 +2,7 @@ import { useModal } from '@app/hooks';
 import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { NoteIcon, BugIcon, Squre4StackIcon, Squre4OutlineIcon } from 'assets/svg';
+import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
 import {
 	IActiveTaskStatuses,
 	StatusDropdown,
@@ -22,7 +22,7 @@ export const taskIssues: TStatus<ITaskIssue> = {
 		bgColor: '#923535'
 	},
 	Task: {
-		icon: <Squre4StackIcon className="w-full max-w-[10px] text-white" />,
+		icon: <Square4StackIcon className="w-full max-w-[10px] text-white" />,
 		name: 'Task',
 		bgColor: '#5483BA'
 	},
@@ -32,7 +32,7 @@ export const taskIssues: TStatus<ITaskIssue> = {
 		bgColor: '#66BB97'
 	},
 	Epic: {
-		icon: <Squre4OutlineIcon className="w-full max-w-[10px] text-white" />,
+		icon: <Square4OutlineIcon className="w-full max-w-[10px] text-white" />,
 		name: 'Custom',
 		bgColor: '#8154BA'
 	}

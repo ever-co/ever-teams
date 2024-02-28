@@ -12,7 +12,7 @@ import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import TeamSize from './team-size-popover';
 import { useParams } from 'next/navigation';
-import { CheckSqureOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
+import { CheckSquareOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -194,7 +194,7 @@ export const TeamSettingForm = () => {
 														disabled={!isTeamManager}
 														onClick={() => setDisabled(true)}
 													>
-														<CheckSqureOutlineIcon
+														<CheckSquareOutlineIcon
 															className="w-[18px] h-[18px]"
 															strokeWidth="1.4"
 														/>

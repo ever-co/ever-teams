@@ -37,22 +37,22 @@ export { default as SettingOutlineIcon } from './common/setting-outline.svg';
 export { default as CheckCircleOutlineIcon } from './common/tick/circle-outline.svg';
 export { default as CheckCircleTickIcon } from './common/tick/circle.svg';
 export { default as CheckSimpleIcon } from './common/tick/simple.svg';
-export { default as CheckSqureOutlineIcon } from './common/tick/squre-outline.svg';
-export { default as CheckSqureRoundIcon } from './common/tick/squre-round.svg';
+export { default as CheckSquareOutlineIcon } from './common/tick/square-outline.svg';
+export { default as CheckSquareRoundIcon } from './common/tick/square-round.svg';
 export { default as UserOutlineIcon } from './common/user-icon-outline.svg';
 export { default as UserLinearIcon } from './common/user-linear.svg';
 export { default as UserManagerIcon } from './common/user-manager.svg';
 
 // dnd
-export { default as SixSqureGridIcon } from './dnd/six-squre-grid.svg';
+export { default as SixSquareGridIcon } from './dnd/six-square-grid.svg';
 
 // kanban
 export { default as BoardIcon } from './kanban/board.svg';
 
 // menu
 export { default as LineDotBoxIcon } from './menu/line-dot-box.svg'; // keyboard shortcut icon
-export { default as Squre4OutlineIcon } from './menu/squre-4-outline.svg';
-export { default as Squre4StackIcon } from './menu/squre-4-stack.svg';
+export { default as Square4OutlineIcon } from './menu/square-4-outline.svg';
+export { default as Square4StackIcon } from './menu/square-4-stack.svg';
 export { default as ThreeCircleOutlineHorizontalIcon } from './menu/three-circle-outline-horizontal.svg';
 export { default as ThreeCircleOutlineVerticalIcon } from './menu/three-circle-outline-vertical.svg';
 export { default as ThreeDotLineIcon } from './menu/three-dot-line.svg';
@@ -94,11 +94,11 @@ export { default as TimerClockIcon } from './timer/clock.svg';
 export { default as TimerPlayIcon } from './timer/play.svg';
 export { default as TimerRecordIcon } from './timer/record.svg';
 export { default as TimerStopIcon } from './timer/stop.svg';
-export { default as TrakingIcon } from './timer/traking.svg';
+export { default as TrackingIcon } from './timer/tracking.svg';
 
 // unique
 export { default as BriefCaseIcon } from './unique/brief-case.svg';
-export { default as BrushSqureIcon } from './unique/brush-squre.svg';
+export { default as BrushSquareIcon } from './unique/brush-square.svg';
 export { default as CircleIcon } from './unique/circle.svg';
 export { default as DevicesIcon } from './unique/devices.svg';
 export { default as EditPenBoxIcon } from './unique/edit-pen-box.svg';
@@ -109,5 +109,5 @@ export { default as LoginIcon } from './unique/login.svg';
 export { default as LogoutIcon } from './unique/logout.svg';
 export { default as MailIcon } from './unique/mail.svg';
 export { default as PhoneUpArrowIcon } from './unique/phone-up-arrow.svg';
-export { default as SqureBoxIcon } from './unique/squre-box.svg';
+export { default as SquareBoxIcon } from './unique/square-box.svg';
 export { default as CubeIcon } from './unique/cube.svg';
