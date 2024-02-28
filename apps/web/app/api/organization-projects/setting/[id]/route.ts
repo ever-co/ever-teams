@@ -12,7 +12,10 @@ export async function PUT(req: Request, { params }: INextParams) {
 	}
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+	if (!user) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	}
 
 	const body = await req.json();
 
@@ -23,5 +26,5 @@ export async function PUT(req: Request, { params }: INextParams) {
 		tenantId
 	});
 
-	$res(response.data);
+	return $res(response.data);
 }
