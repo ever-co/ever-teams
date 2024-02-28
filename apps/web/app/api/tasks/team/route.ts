@@ -1,6 +1,6 @@
 import { getActiveTeamIdCookie } from '@app/helpers/cookies';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { createTaskRequest, getTeamTasksRequest } from '@app/services/server/requests';
+import { createTaskRequest, getTeamTasksIRequest, getTeamTasksRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -48,6 +48,25 @@ export async function POST(req: Request) {
 		projectId,
 		teamId,
 		bearer_token: access_token
+	});
+
+	return $res(tasks);
+}
+
+export async function GET(req: Request) {
+	const res = new NextResponse();
+	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, res);
+
+	const query = new URL(req.url);
+
+	if (!user) {
+		return $res('Unauthorized');
+	}
+
+	const { data: tasks } = await getTeamTasksIRequest({
+		tenantId,
+		bearer_token: access_token,
+		query: query.searchParams.toString()
 	});
 
 	return $res(tasks);
