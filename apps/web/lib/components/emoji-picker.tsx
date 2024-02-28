@@ -99,7 +99,7 @@ export const EmojiPicker = ({
 										}}
 										className={`outline-none `}
 									>
-										<TrashIcon  className='w-3.5'  />
+										<TrashIcon  className='w-5'  />
 									</button>
 								</div>
 							)}

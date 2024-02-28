@@ -109,7 +109,7 @@ export const ColorPicker = ({
 										}}
 										className={`outline-none ${'cursor-pointer'}`}
 									>
-										<TrashIcon className="w-3.5" />
+										<TrashIcon className="w-5" />
 									</span>
 								</div>
 							)}

@@ -5,7 +5,7 @@ on:
       - develop
     paths:
       - '.deploy/web/**'
-      - '.github/workflows/web.dev.yml'
+      - '.github/workflows/**'
       - 'apps/web/**'
       - 'package.json'
       - 'yarn.lock'

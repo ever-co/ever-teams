@@ -71,11 +71,11 @@ export function ThemeToggler({ className }: IClassName) {
 	return (
 		<Toggler className={className} onClickOne={() => setTheme('light')} onClickTwo={() => setTheme('dark')}>
 			<>
-				<SunDarkIcon className="hidden dark:inline-block h-[18px] w-[18px] text-white" />
+				<SunDarkIcon className="hidden dark:inline-block h-[18px] w-[18px]" />
 				<SunIcon className="dark:hidden inline-block h-[18px] w-[18px] text-[#382686]" />
 			</>
 			<>
-				<MoonDarkIcon className="h-[18px] w-[18px] hidden dark:inline-block " />
+				<MoonDarkIcon className="h-[18px] w-[18px] hidden text-white dark:inline-block " />
 				<MoonIcon className="dark:hidden inline-block h-[18px] w-[18px]" />
 			</>
 		</Toggler>

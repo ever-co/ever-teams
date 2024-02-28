@@ -54,6 +54,23 @@ export function getTeamTasksRequest({
 	});
 }
 
+export function getTeamTasksIRequest({
+	tenantId,
+	bearer_token,
+	query
+}: {
+	tenantId: string;
+	bearer_token: string;
+	query: string;
+}) {
+	return serverFetch<PaginationResponse<ITeamTask>>({
+		path: `/tasks/team?${query}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
 export function getTaskByIdRequest({
 	tenantId,
 	organizationId,

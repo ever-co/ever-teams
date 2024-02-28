@@ -15,5 +15,5 @@ export async function POST(req: Request) {
 
 	const { data } = await verifyInviteCodeRequest(body);
 
-	NextResponse.json(data, { status: 200 });
+	return NextResponse.json(data, { status: 200 });
 }

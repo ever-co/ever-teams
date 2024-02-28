@@ -83,7 +83,9 @@ export const resentVerifyUserLinkAPI = (user: IUser) => {
 		appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl
 	};
 
-	return post<ISuccessResponse>(`/auth/verify/resend-link`, body);
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/resend-link' : `/auth/verify/resend-link`;
+
+	return post<ISuccessResponse>(endpoint, body);
 };
 
 export const signInEmailAPI = (email: string) => {

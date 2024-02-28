@@ -1137,7 +1137,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		bgColor: undefined,
 		icon: (
 			<span>
-				<CircleIcon />
+				<CircleIcon className="h-4 w-4" />
 			</span>
 		),
 		name: defaultItem

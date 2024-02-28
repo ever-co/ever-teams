@@ -1,17 +1,21 @@
+import { INextParams } from '@app/interfaces';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+	if (!params.id) {
+		return;
+	}
+
 	const { $res, user, tenantId, access_token, organizationId } = await authenticatedGuard(req, res);
+
 	if (!user) return $res('Unauthorized');
 
-	const { id: taskId } = params;
-
 	const response = await getTaskByIdRequest({
-		taskId: taskId as string,
+		taskId: params.id,
 		tenantId,
 		organizationId,
 		bearer_token: access_token
@@ -20,16 +24,20 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 	return $res(response.data);
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
+	if (!params.id) {
+		return;
+	}
+
 	const { $res, user, tenantId, access_token, organizationId, projectId, teamId } = await authenticatedGuard(
 		req,
 		res
 	);
+
 	if (!user) return $res('Unauthorized');
 
-	const { id: taskId } = params;
-	const body = (await req.json()) as unknown as ITeamTask;
+	const body = (await req.json()) as ITeamTask;
 
 	delete body.selectedTeam;
 	delete body.rootEpic;
@@ -37,7 +45,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 	await updateTaskRequest(
 		{
 			data: body,
-			id: taskId as string
+			id: params.id
 		},
 		access_token
 	);

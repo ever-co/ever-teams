@@ -93,7 +93,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute max-h-[calc(100vh-_60px)] overflow-y-auto right-0 z-50 mt-5 xl:-right-5">
+				<Popover.Panel className="absolute  right-0 z-50 mt-5 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>

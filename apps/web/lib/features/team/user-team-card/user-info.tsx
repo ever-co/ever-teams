@@ -84,7 +84,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 									member?.role?.name === 'ADMIN'
 								}
 							>
-								<UserManagerIcon strokeWidth="2" className="w-4" />
+								<UserManagerIcon strokeWidth="2" className="w-4 mt-1" />
 							</Tooltip>
 						)}
 					</Text.Heading>
@@ -97,7 +97,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						enabled={`${memberUser?.email || ''} `.trim().length > CHARACTER_LIMIT_TO_SHOW}
 					>
 						<Text className="text-gray-400 flex items-center text-sm space-x-1">
-							<MailIcon className="h-4 w-4"/>
+							<MailIcon className="h-4 w-4" />
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
 								{memberUser?.email}
 							</span>

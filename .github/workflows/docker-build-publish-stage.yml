@@ -1,8 +1,8 @@
-name: Build and Publish Docker Images Prod
+name: Build and Publish Docker Images Stage
 
 on:
   push:
-    branches: [main]
+    branches: [stage]
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -34,15 +34,15 @@ jobs:
           file: ./Dockerfile
           load: true
           tags: |
-            ghcr.io/ever-co/ever-teams-webapp:latest
-            everco/ever-teams-webapp:latest
-            registry.digitalocean.com/ever/ever-teams-webapp:latest
-            ${{ secrets.CW_DOCKER_REGISTRY }}/ever-co/ever-teams-webapp:latest
-          cache-from: type=registry,ref=everco/ever-teams-webapp:latest
+            ghcr.io/ever-co/ever-teams-webapp-stage:latest
+            everco/ever-teams-webapp-stage:latest
+            registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
+            ${{ secrets.CW_DOCKER_REGISTRY }}/ever-co/ever-teams-webapp-stage:latest
+          cache-from: type=registry,ref=everco/ever-teams-webapp-stage:latest
           cache-to: type=inline
           build-args: |
             NODE_ENV=production
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL=https://apistage.ever.team
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
             NEXT_PUBLIC_CAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}
             NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
@@ -66,7 +66,7 @@ jobs:
 
       - name: Push to Docker Hub Registry
         run: |
-          docker push everco/ever-teams-webapp:latest
+          docker push everco/ever-teams-webapp-stage:latest
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -78,7 +78,7 @@ jobs:
 
       - name: Push to DigitalOcean Registry
         run: |
-          docker push registry.digitalocean.com/ever/ever-teams-webapp:latest
+          docker push registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -89,7 +89,7 @@ jobs:
 
       - name: Push to Github Registry
         run: |
-          docker push ghcr.io/ever-co/ever-teams-webapp:latest
+          docker push ghcr.io/ever-co/ever-teams-webapp-stage:latest
 
       - name: Login to CW Container Registry
         uses: docker/login-action@v3
@@ -100,4 +100,4 @@ jobs:
 
       - name: Push to CW Registry
         run: |
-          docker push ${{ secrets.CW_DOCKER_REGISTRY }}/ever-co/ever-teams-webapp:latest
+          docker push ${{ secrets.CW_DOCKER_REGISTRY }}/ever-co/ever-teams-webapp-stage:latest

@@ -11,7 +11,9 @@ export async function POST(req: Request) {
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
-	if (!user) return $res('Unauthorized');
+	if (!user) {
+		return $res('Unauthorized');
+	}
 
 	const { data } = await resentVerifyUserLinkRequest({
 		bearer_token: access_token,
