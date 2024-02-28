@@ -19,7 +19,5 @@ export async function GET(req: Request) {
 		access_token
 	);
 
-	console.log(data);
-
 	return $res(data);
 }
