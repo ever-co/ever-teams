@@ -32,5 +32,5 @@ export async function POST(req: Request) {
 		access_token
 	);
 
-	$res(data);
+	return $res(data);
 }
