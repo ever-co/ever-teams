@@ -4,7 +4,7 @@ import { getEmojiDataFromNative } from 'emoji-mart';
 import { useTheme } from 'next-themes';
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { Edit2Icon, TrashIcon } from './svgs';
+import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg'
 import { init } from 'emoji-mart';
 
 // init has to be called on page load to load the emojis, otherwise it won't show it in Picker
@@ -90,7 +90,7 @@ export const EmojiPicker = ({
 											setDisabled(!disabled);
 										}}
 									>
-										<Edit2Icon className="cursor-pointer" />
+										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
 									</button>
 									<button
 										onClick={() => {
@@ -99,7 +99,7 @@ export const EmojiPicker = ({
 										}}
 										className={`outline-none `}
 									>
-										<TrashIcon />
+										<TrashIcon  className='w-5'  />
 									</button>
 								</div>
 							)}

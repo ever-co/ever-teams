@@ -1,6 +1,6 @@
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { Button, InputField, NoData, Text } from 'lib/components';
-import { SearchNormalIcon } from 'lib/components/svgs';
+import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { ChangeEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';

@@ -3,7 +3,6 @@ import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { detailedTaskState, taskVersionListState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Modal, Tooltip } from 'lib/components';
-import { CategoryIcon } from 'lib/components/svgs';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
@@ -22,6 +21,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
+import { Square4OutlineIcon } from 'assets/svg';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -235,7 +235,7 @@ const EpicParent = ({ task }: { task: ITeamTask }) => {
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
 					<div className="flex items-center w-32">
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-							<CategoryIcon />
+							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />,
 						</div>
 						<div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
 					</div>

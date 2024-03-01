@@ -15,10 +15,10 @@ import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@app/hooks/features/useKanban';
-import { AddIcon } from './svgs';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
+import { AddIcon } from 'assets/svg';
 
 const grid = 8;
 
@@ -361,7 +361,7 @@ const KanbanDraggable = ({
 											content={items}
 										/>
 										<button className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
-											<AddIcon height={20} width={20} className="dark:stroke-white" />
+											<AddIcon className=" h-5 w-5" />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>

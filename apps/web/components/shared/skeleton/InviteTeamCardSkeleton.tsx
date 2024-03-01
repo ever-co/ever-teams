@@ -1,12 +1,12 @@
+import { SixSquareGridIcon } from 'assets/svg';
 import Skeleton from './Skeleton';
 import { Card, VerticalSeparator } from 'lib/components';
-import { DraggerIcon } from 'lib/components/svgs';
 
 const InviteUserTeamCardSkeleton = () => {
 	return (
 		<Card shadow="bigger" className="relative flex items-center py-4 my-6">
 			<div className="opacity-40 absolute -left-0">
-				<DraggerIcon />
+				<SixSquareGridIcon className="w-6 h-6 " />
 			</div>
 			<div className="w-[330px] px-4 flex space-x-3 items-center">
 				<div className="opacity-40 w-8 h-8 bg-slate-400 dark:bg-[#353741] rounded-full" />
