@@ -5,7 +5,7 @@ import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
-import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
+import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -308,7 +308,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 											}}
 										>
 											{selectedWorkspace === index ? (
-												<TickCircleIconV2 className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
+												<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
 											) : (
 												<CircleIcon className="w-6 h-6" />
 											)}
@@ -345,7 +345,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 													}}
 												>
 													{selectedTeam === team.team_id ? (
-														<TickCircleIconV2 className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
+														<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
 													) : (
 														<CircleIcon className="w-5 h-5" />
 													)}

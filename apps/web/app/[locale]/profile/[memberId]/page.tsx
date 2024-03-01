@@ -8,7 +8,7 @@ import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text, VerticalSeparator } from 'lib/components';
-import { ArrowLeft } from 'lib/components/svgs';
+import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
@@ -74,7 +74,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
-							<ArrowLeft className="w-6 h-6" />
+							<ArrowLeftIcon className="w-6 h-6" />
 						</Link>
 
 						<Breadcrumb paths={breadcrumb} className="text-sm" />

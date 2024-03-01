@@ -1,0 +1,19 @@
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="14"
+			height="14"
+			viewBox="0 0 14 14"
+			fill="none"
+			style="transform: rotate(90deg)"
+
+		>
+			<path
+
+				d="M11.6209 9.27917L7.81753 5.47584C7.36836 5.02667 6.63336 5.02667 6.18419 5.47584L2.38086 9.27917"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				stroke="currentColor"
+			/>
+		</svg>

@@ -9,7 +9,7 @@ import TaskDetailsAside from '@components/pages/task/task-details-aside';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
-import { ArrowLeft } from 'lib/components/svgs';
+import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from 'lib/layout';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
@@ -62,7 +62,7 @@ const TaskDetails = () => {
 								router.replace('/');
 							}}
 						>
-							<ArrowLeft className="w-6 h-6" />
+							<ArrowLeftIcon className="w-6 h-6" />
 						</span>
 
 						<Breadcrumb paths={breadcrumb} className="text-sm" />

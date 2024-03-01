@@ -4,10 +4,11 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Card, InputField } from 'lib/components';
-import { ArrowDown, Edit2Icon, TrashIcon } from 'lib/components/svgs';
+import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { PermissonItem } from './permission-item';
 import { useTranslations } from 'next-intl';
+import { ChevronDownIcon } from 'assets/svg';
 
 export const PermissionDropDown = ({
 	selectedRole,
@@ -89,7 +90,7 @@ export const PermissionDropDown = ({
 			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
 				<Popover.Button className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 					{selectedRole ? selectedRole.name : t('pages.permissions.SELECT_ROLES')}
-					<ArrowDown />
+					<ChevronDownIcon />
 				</Popover.Button>
 
 				<Transition
@@ -154,7 +155,8 @@ export const PermissionDropDown = ({
 													handleEdit(role);
 												}}
 											>
-												<Edit2Icon className="cursor-pointer stroke-[#888F97]" />
+												<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer text-[#888F97]" />
+
 											</span>
 
 											<span
@@ -162,7 +164,7 @@ export const PermissionDropDown = ({
 													role.id && deleteRole(role.id);
 												}}
 											>
-												<TrashIcon className="cursor-pointer" />
+												<TrashIcon className="cursor-pointer w-3.5" />
 											</span>
 										</div>
 									</div>

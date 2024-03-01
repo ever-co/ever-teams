@@ -18,7 +18,7 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
-import { TickCircleIcon } from 'lib/components/svgs';
+import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
@@ -559,7 +559,7 @@ function TaskCard({
 							className="py-2 text-xs cursor-pointer input-border"
 							onClick={() => datas.setFilter && datas.setFilter('closed')}
 						>
-							<TickCircleIcon className="opacity-50" />
+							<TickCircleIcon className="opacity-50 w-full max-w-[17px]" />
 							<span
 								className={clsxm(
 									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']

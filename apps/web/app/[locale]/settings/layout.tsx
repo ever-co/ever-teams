@@ -3,7 +3,7 @@ import { userState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
 import SettingsPersonalSkeleton from '@components/shared/skeleton/SettingsPersonalSkeleton';
 import { Breadcrumb, Container } from 'lib/components';
-import { ArrowLeft } from 'lib/components/svgs';
+import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from 'lib/layout';
 import { LeftSideSettingMenu } from 'lib/settings';
 import { useTranslations } from 'next-intl';
@@ -33,7 +33,7 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 						<Container fullWidth={fullWidth}>
 							<div className="flex flex-row items-center justify-start gap-8">
 								<Link href="/">
-									<ArrowLeft className="w-6 h-6" />
+									<ArrowLeftIcon className="w-6 h-6" />
 								</Link>
 
 								<Breadcrumb paths={breadcrumb} className="text-sm" />

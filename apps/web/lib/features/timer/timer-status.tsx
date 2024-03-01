@@ -2,7 +2,7 @@
 import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
-import { PauseIcon, StopCircleIcon, TimerPlayIcon, UserOnlineAndTrackingTimeIcon } from 'lib/components/svgs';
+import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { capitalize } from 'lodash';
 import moment from 'moment';
 
@@ -35,16 +35,14 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 				)}
 			>
 				{status === 'running' && showIcon && <TimerPlayIcon className="w-5 h-5 p-1 fill-green-700" />}
-				{status === 'pause' && showIcon && <PauseIcon className="w-5 h-5 p-1 fill-[#B87B1E]" />}
-				{status === 'idle' && showIcon && <StopCircleIcon className="w-5 h-5 p-1 fill-[#E65B5B]" />}
+				{status === 'pause' && showIcon && <PauseIcon className="w-5 h-5 p-1 text-[#B87B1E]" />}
+				{status === 'idle' && showIcon && <StopCircleIcon className="w-5 h-5 p-1 text-[#E65B5B]" />}
 
 				{/* For now until we have realtime we will saw UserOnlineAndTrackingTimeIcon insted of UserOnlineIcon*/}
-				{status === 'online' && showIcon && (
-					<UserOnlineAndTrackingTimeIcon className="w-5 h-5 p-1 fill-green-700" />
-				)}
+				{status === 'online' && showIcon && <TimerPlayIcon className="w-5 h-5 p-1 text-green-700" />}
 				{/* <UserOnlineIcon className="w-5 h-5 p-1 fill-green-700" /> */}
 
-				{status === 'suspended' && showIcon && <StopCircleIcon className="w-5 h-5 p-1 fill-white" />}
+				{status === 'suspended' && showIcon && <StopCircleIcon className="w-5 h-5 p-1 text-white" />}
 			</div>
 		</Tooltip>
 	);

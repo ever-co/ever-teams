@@ -8,14 +8,9 @@ import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Avatar, Card, Divider, Text, ThemeToggler, Tooltip } from 'lib/components';
-import {
-	BriefcaseIcon,
-	DevicesIcon,
-	LogoutIcon2,
-	MoonIcon,
-	PeopleIcon,
-	SettingsOutlineIcon
-} from 'lib/components/svgs';
+
+import { DevicesIcon, LogoutRoundIcon, MoonLightOutlineIcon as MoonIcon, PeoplesIcon } from 'assets/svg';
+import { BriefCaseIcon, SettingOutlineIcon } from 'assets/svg';
 import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
@@ -98,7 +93,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute max-h-[calc(100vh-_60px)] overflow-y-auto right-0 z-50 mt-5 xl:-right-5">
+				<Popover.Panel className="absolute  right-0 z-50 mt-5 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>
@@ -226,13 +221,13 @@ function UserNavMenu() {
 							href={`/profile/${user?.id}`}
 							className="flex items-center space-x-3 font-normal text-center"
 						>
-							<BriefcaseIcon className="w-5 h-5" /> <span>{t('common.MY_TASKS')}</span>
+							<BriefCaseIcon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.MY_TASKS')}</span>
 						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex items-center space-x-3 font-normal">
-							<PeopleIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
+							<PeoplesIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
 							<span>{t('common.MY_TEAM')}</span>
 						</Link>
 					</li>
@@ -240,7 +235,7 @@ function UserNavMenu() {
 
 					<li className="mb-3">
 						<Link href={'/settings/personal'} className="flex items-center space-x-3 font-normal">
-							<SettingsOutlineIcon className="w-5 h-5" /> <span>{t('common.SETTINGS')}</span>
+							<SettingOutlineIcon className="w-5 h-5" /> <span>{t('common.SETTINGS')}</span>
 						</Link>
 					</li>
 
@@ -288,7 +283,7 @@ function UserNavMenu() {
 							className="flex space-x-3 items-center font-normal mb-3 text-[#DE437B]"
 							onClick={logOut}
 						>
-							<LogoutIcon2 className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>
+							<LogoutRoundIcon className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>
 						</button>
 					</li>
 				</ul>

@@ -8,7 +8,6 @@ import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
-import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
 	TeamInvitations,
@@ -37,6 +36,7 @@ import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
+import { PeoplesIcon } from 'assets/svg';
 
 function MainPage() {
 	const t = useTranslations();
@@ -66,7 +66,7 @@ function MainPage() {
 				<MainHeader className="pb-1" fullWidth={fullWidth}>
 					<div className="flex flex-row items-start justify-between ">
 						<div className="flex justify-center items-center gap-8 h-10">
-							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+							<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
