@@ -2,33 +2,31 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
 import { insertLink } from './editor-components/TextEditorService';
-
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button, InputField } from 'lib/components';
-import {
-	AlignCenterIcon,
-	AlignJustifyIcon,
-	AlignLeftIcon,
-	AlignRightIcon,
-	ArrowDown,
-	BoldIcon,
-	CheckBoxIcon,
-	CodeBlockIcon,
-	CopyIconRounded,
-	ExternalLinkIcon,
-	HeaderOneIcon,
-	HeaderTwoIcon,
-	ItalicIcon,
-	LinkIcon,
-	OrderedListIcon,
-	QuoteBlockIcon,
-	UnderlineIcon,
-	UnorderedListIcon
-} from 'lib/components/svgs';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';
 import { useTranslations } from 'next-intl';
-
+import {
+	AlignQuoteIcon,
+	CodeIcon as CodeBlockIcon,
+	ExternalLinkIcon,
+	LinkRoundIcon,
+	AlignCenterIcon,
+	AlignLeftIcon,
+	AlignRightIcon,
+	H1TextIcon as HeaderOneIcon,
+	H2TextIcon as HeaderTwoIcon,
+	ThreeNumberLineIcon as OrderedListIcon,
+	ThreeDotLineIcon as UnorderedListIcon,
+	UnderlineTextIcon as UnderlineIcon,
+	ItalicTextIcon as ItalicIcon,
+	BTextIcon as BoldIcon,
+	CheckSquareRoundIcon as CheckBoxIcon,
+	CopyRoundIcon as CopyIconRounded,
+	AlignFullIcon,
+	ChevronDownIcon
+} from 'assets/svg';
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
 	isBlockActive?: (editor: any, format: any, blockType?: string) => boolean;
@@ -167,7 +165,6 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{t('pages.taskDetails.DESCRIPTION')}
 			</p>
-
 			<MarkButton
 				format="bold"
 				icon={BoldIcon}
@@ -183,13 +180,11 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				icon={UnderlineIcon}
 				isMarkActive={isMarkActive as (editor: any, format: string) => boolean}
 			/>
-
 			<MarkButton
 				format="code"
 				icon={CodeBlockIcon}
 				isMarkActive={isMarkActive as (editor: any, format: string) => boolean}
 			/>
-
 			<BlockButton
 				className="hidden md:block"
 				format="h1"
@@ -204,7 +199,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			/>
 			<BlockButton
 				format="blockquote"
-				icon={QuoteBlockIcon}
+				icon={AlignQuoteIcon}
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
@@ -219,7 +214,6 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				icon={UnorderedListIcon}
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
-
 			<BlockButton
 				className="hidden md:block"
 				format="left"
@@ -241,7 +235,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			<BlockButton
 				className="hidden md:block"
 				format="justify"
-				icon={AlignJustifyIcon}
+				icon={AlignFullIcon}
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<div className="relative md:hidden" ref={dropdownRef}>
@@ -251,7 +245,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				>
 					<span className="flex items-center gap-1 my-0 text-black dark:text-white">
 						More
-						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
+						<ChevronDownIcon className={`${showDropdown && 'rotate-180'}`} />
 					</span>
 				</Button>
 				{/* {showDropdown && (
@@ -298,10 +292,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			{/* <button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
 			</button> */}
-
 			<Popover>
 				<PopoverTrigger>
-					<LinkIcon />
+					<LinkRoundIcon className="h-5 w-5" />
 				</PopoverTrigger>
 				<PopoverContent className="flex flex-row items-center">
 					<InputField
@@ -313,12 +306,11 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						ref={inputRef}
 					/>
 					<Button onClick={handleInsertLink} variant="ghost" className="h-10 min-w-0">
-						<LinkIcon />
+						<LinkRoundIcon className="h-5 w-5" />
 					</Button>
 				</PopoverContent>
 			</Popover>
-
-			{showLinkPopup && (
+			{showLinkPopup && ( // this block of code is not working because onclick function is commented out
 				<div
 					onKeyDown={handleInsertLinkOnEnter}
 					ref={popupRef}
@@ -328,16 +320,16 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						top: linkPopupPosition.top + 3
 					}}
 				>
-					<ExternalLinkIcon />
+					<ExternalLinkIcon className="h-4 w-4" />
 					<input
 						type="text"
 						className="outline-none font-[500] text-xs text-[#5000B9] dark:text-primary-light border-r dark:bg-dark--theme-light pr-2"
 						onChange={(e) => setLink(e.target.value)}
-						value={link}
+						value={'new'}
 						ref={inputRef}
 					/>
 					<button className="ml-0 bg-transparent border-none hover:cursor-pointer" onClick={handleInsertLink}>
-						<LinkIcon />
+						<LinkRoundIcon className="h-5 w-5" />
 					</button>
 				</div>
 			)}
@@ -355,7 +347,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</div>
 				)}
 			</button>
-			{/* <MoreIcon2 /> */}
+			{/* <ThreeCircleOutlineVerticalIcon className="w-full max-w-[24px]" /> */}
 		</div>
 	);
 };

@@ -3,7 +3,7 @@ import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, DropdownItem, Tooltip } from 'lib/components';
-import { SettingsOutlineIcon } from 'lib/components/svgs';
+import { SettingOutlineIcon } from 'assets/svg';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { readableColor } from 'polished';
@@ -40,7 +40,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam:
 							}}
 							href="/settings/team"
 						>
-							<SettingsOutlineIcon className="cursor-pointer" />
+							<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
 						</Link>
 					</div>
 				</Tooltip>

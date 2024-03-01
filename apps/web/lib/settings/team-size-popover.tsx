@@ -1,8 +1,8 @@
 import { Popover, Transition } from '@headlessui/react';
 import { Button } from 'lib/components';
-import { Edit2Icon } from 'lib/components/svgs';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { EditPenUnderlineIcon } from 'assets/svg';
 
 const sizeOption = [
 	{
@@ -114,7 +114,7 @@ const TeamSize = ({
 										setDisabled(!disabled);
 									}}
 								>
-									<Edit2Icon />
+									<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 								</button>
 							)}
 						</div>

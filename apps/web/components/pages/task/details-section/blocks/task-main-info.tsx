@@ -5,7 +5,7 @@ import { ITeamTask, OT_Member } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { TrashIcon } from 'lib/components/svgs';
+import { TrashIcon } from 'assets/svg';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import { Fragment, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -297,7 +297,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 												names={member.employee?.fullName}
 											/>
 
-											<TrashIcon />
+											<TrashIcon className="w-5 " />
 										</div>
 									))}
 									{unassignedMembers.map((member, index) => (

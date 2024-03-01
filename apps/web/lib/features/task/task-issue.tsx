@@ -2,7 +2,7 @@ import { useModal } from '@app/hooks';
 import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { BugReportIcon, CategoryIcon, NoteIcon, TaskSquareIcon } from 'lib/components/svgs';
+import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
 import {
 	IActiveTaskStatuses,
 	StatusDropdown,
@@ -17,22 +17,22 @@ import { useTranslations } from 'next-intl';
 
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
-		icon: <BugReportIcon />,
+		icon: <BugIcon className="w-full max-w-[10px] text-white" />,
 		name: 'Bug',
 		bgColor: '#923535'
 	},
 	Task: {
-		icon: <TaskSquareIcon />,
+		icon: <Square4StackIcon className="w-full max-w-[10px] text-white" />,
 		name: 'Task',
 		bgColor: '#5483BA'
 	},
 	Story: {
-		icon: <NoteIcon />,
+		icon: <NoteIcon className="w-full max-w-[10px] text-white" />,
 		name: 'Story',
 		bgColor: '#66BB97'
 	},
 	Epic: {
-		icon: <CategoryIcon />,
+		icon: <Square4OutlineIcon className="w-full max-w-[10px] text-white" />,
 		name: 'Custom',
 		bgColor: '#8154BA'
 	}

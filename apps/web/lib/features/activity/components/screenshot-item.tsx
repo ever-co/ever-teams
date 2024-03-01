@@ -3,7 +3,7 @@ import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { IScreenShootItem } from '@app/interfaces/IScreenshoot';
 import { clsxm } from '@app/utils';
 import { Button, Modal, ProgressBar } from 'lib/components';
-import { TrashIcon } from 'lib/components/svgs';
+import { TrashIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import React from 'react';
@@ -39,7 +39,7 @@ const ScreenshotItem = ({
 					className="rounded-full bg-red-200 top-1 right-1 absolute w-8 h-8 flex justify-center items-center text-center cursor-pointer"
 					onClick={() => openModal()}
 				>
-					<TrashIcon className="text-white text-center" />
+					<TrashIcon className="text-white text-center w-3.5" />
 				</div>
 				<Image
 					src={imageUrl}
