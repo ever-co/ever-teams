@@ -3,14 +3,8 @@ import { useOrganizationTeams, useAuthenticateUser, useModal, useUserProfilePage
 import { clsxm } from '@app/utils';
 import { InviteFormModal } from '../invite/invite-form-modal';
 import { taskBlockFilterState } from '@app/stores/task-filter';
-import {
-	PauseIcon,
-	SearchNormalIcon,
-	TimerPlayIcon,
-	StopCircleIcon,
-	NotWorkingIcon,
-	OnlineIcon
-} from 'lib/components/svgs';
+import { SearchNormalIcon, TimerPlayIcon } from 'assets/svg';
+import { CheckCircleTickIcon, CrossCircleIcon, StopCircleIcon, PauseIcon } from 'assets/svg';
 import { Button, VerticalSeparator } from 'lib/components';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { useRecoilState } from 'recoil';
@@ -62,9 +56,8 @@ export function UserTeamBlockHeader() {
 					>
 						<StopCircleIcon
 							className={clsxm(
-								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
-								activeFilter == 'all' &&
-									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
+								'w-7 h-7 p-1 !text-gray-300 dark:!text-white',
+								activeFilter == 'all' && 'text-primary dark:text-white'
 							)}
 						/>
 						<p>All members </p>
@@ -84,7 +77,7 @@ export function UserTeamBlockHeader() {
 						)}
 						onClick={() => setActiveFilter('idle')}
 					>
-						<NotWorkingIcon
+						<CrossCircleIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-300  dark:!text-white',
 								activeFilter == 'idle' && '!text-primary !fill-white  dark:!text-white dark:!fill-white'
@@ -134,9 +127,9 @@ export function UserTeamBlockHeader() {
 					>
 						<PauseIcon
 							className={clsxm(
-								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
+								'w-7 h-7 p-1 text-gray-400 dark:text-white',
 								activeFilter == 'pause' &&
-									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
+									'text-primary dark:text-white'
 							)}
 						/>
 						<p>Paused </p>
@@ -156,7 +149,7 @@ export function UserTeamBlockHeader() {
 						)}
 						onClick={() => setActiveFilter('online')}
 					>
-						<OnlineIcon
+						<CheckCircleTickIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-400  dark:!text-white',
 								activeFilter == 'online' &&
@@ -195,7 +188,7 @@ export function UserTeamBlockHeader() {
 							>
 								<SearchNormalIcon
 									className={clsxm(
-										'dark:stroke-white'
+										'dark:stroke-white w-4'
 										// hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
 									)}
 								/>

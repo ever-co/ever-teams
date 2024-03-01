@@ -8,7 +8,7 @@ import { useTaskTimeSheets } from '@app/hooks/features/useTaskActivity';
 import { groupByTime } from '@app/helpers/array-data';
 
 import { clsxm } from '@app/utils';
-import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 
 export function TaskActivity({ task }: { task: ITeamTask }) {
 	const { getTaskTimesheets, taskTimesheets } = useTaskTimeSheets(task?.id);
@@ -32,10 +32,10 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 
 				<div className="flex items-center justify-end gap-2.5">
 					<button onClick={() => setHidden((e) => !e)}>
-						{hidden ? (
-							<ChevronDownIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
+					{hidden ? (
+							<ChevronDownIcon className="h-4 w-4 text-[#293241] dark:text-white cursor-pointer" />
 						) : (
-							<ChevronUpIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
+							<ChevronUpIcon className="h-4 w-4 text-[#293241] dark:text-white cursor-pointer" />
 						)}
 					</button>
 				</div>

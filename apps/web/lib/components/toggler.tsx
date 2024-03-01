@@ -3,7 +3,14 @@ import { clsxm } from '@app/utils';
 import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
-import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
+import {
+	MoonLightFillIcon as MoonDarkIcon,
+	MoonLightOutlineIcon as MoonIcon,
+	SunFillIcon as SunIcon,
+	SunOutlineIcon as SunDarkIcon,
+	CubeIcon as BoxIcon,
+	TimerStopIcon
+} from 'assets/svg';
 import { Text } from './typography';
 import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useRecoilState } from 'recoil';
@@ -64,12 +71,12 @@ export function ThemeToggler({ className }: IClassName) {
 	return (
 		<Toggler className={className} onClickOne={() => setTheme('light')} onClickTwo={() => setTheme('dark')}>
 			<>
-				<SunDarkIcon className="hidden dark:inline-block" />
-				<SunIcon className="dark:hidden inline-block" />
+				<SunDarkIcon className="hidden dark:inline-block h-[18px] w-[18px]" />
+				<SunIcon className="dark:hidden inline-block h-[18px] w-[18px] text-[#382686]" />
 			</>
 			<>
-				<MoonDarkIcon className="hidden dark:inline-block" />
-				<MoonIcon className="dark:hidden inline-block" />
+				<MoonDarkIcon className="h-[18px] w-[18px] hidden text-white dark:inline-block " />
+				<MoonIcon className="dark:hidden inline-block h-[18px] w-[18px]" />
 			</>
 		</Toggler>
 	);
@@ -78,8 +85,8 @@ export function ThemeToggler({ className }: IClassName) {
 export function TreeModeToggler({ className }: IClassName) {
 	return (
 		<Toggler className={className} firstBtnClassName="dark:bg-[#3B4454]" secondBtnClassName="dark:bg-transparent">
-			<StopIcon className="dark:stroke-white" />
-			<BoxIcon className="stroke-[#7E7991] dark:stroke-[#969CA6]" />
+			<TimerStopIcon className="dark:text-white w-full max-w-[20px]" />
+			<BoxIcon className="h-6 w-6 text-[#7E7991] dark:text-[#969CA6]" strokeWidth="1.7" />
 		</Toggler>
 	);
 }

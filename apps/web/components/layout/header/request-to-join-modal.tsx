@@ -4,10 +4,10 @@ import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam }
 import { IRequestToJoinCreate } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
-import { ArrowLeft } from 'lib/components/svgs';
 import { useCallback, useState } from 'react';
 import { PositionDropDown } from './position-dropdown';
 import { useTranslations } from 'next-intl';
+import { ArrowLeftIcon } from 'assets/svg';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
@@ -123,7 +123,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 
 					<div className="flex items-center justify-between w-full mt-5">
 						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
-							<ArrowLeft /> <p className="ml-5">{t('common.BACK')}</p>
+							<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
 
 						<Button
@@ -306,7 +306,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 
 					<div className="flex items-center justify-between w-full mt-5">
 						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
-							<ArrowLeft /> <p className="ml-5">{t('common.BACK')}</p>
+						<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
 
 						<Button

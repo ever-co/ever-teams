@@ -1,8 +1,8 @@
 import { useSelected, useFocused, useSlateStatic } from 'slate-react';
-import { ExternalLinkIcon, UnlinkIcon } from 'lib/components/svgs';
 
 import { removeLink } from '../editor-components/TextEditorService';
 import { useEffect, useRef, useState } from 'react';
+import { ExternalLinkIcon, UnlinkRoundIcon } from 'assets/svg';
 
 const LinkElement = ({ attributes, element, children }: any) => {
 	const editor = useSlateStatic();
@@ -48,7 +48,7 @@ const LinkElement = ({ attributes, element, children }: any) => {
 					contentEditable="false"
 				>
 					<div className="flex items-center pr-2 text-xs border-r dark:bg-dark--theme-light border-gray-300">
-						<ExternalLinkIcon className="mr-1" />
+						<ExternalLinkIcon className="h-[18px]  w-[18px] mr-1" />
 						<a
 							href={href}
 							rel="noreferrer"
@@ -63,7 +63,7 @@ const LinkElement = ({ attributes, element, children }: any) => {
 						onClick={() => removeLink(editor)}
 						className="border-none bg-transparent hover:cursor-pointer ml-0 "
 					>
-						<UnlinkIcon />
+						<UnlinkRoundIcon className="h-4 w-4 text-black dark:text-white" />
 					</button>
 				</div>
 			)}

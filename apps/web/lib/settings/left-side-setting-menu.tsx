@@ -4,7 +4,7 @@ import { userState } from '@app/stores';
 import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
-import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
+import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
 import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -72,9 +72,12 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 					title={
 						<>
 							{activePage === '/settings/personal' ? (
-								<UserIconFilled className="w-6 h-6 fill-primary dark:fill-white strock-primary" />
+								<UserOutlineIcon
+									className="w-6 h-6 fill-primary dark:fill-white strock-primary"
+									fill="white"
+								/>
 							) : (
-								<UserIcon className="w-6 h-6 fill-" />
+								<UserOutlineIcon className="w-6 h-6 fill-" />
 							)}
 							{t('common.PERSONAL')}
 						</>
@@ -117,9 +120,9 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 					title={
 						<>
 							{activePage === '/settings/team' ? (
-								<PeopleIconFilled className="w-[24px] h-[24px] fill-primary dark:fill-white strock-primary" />
+								<PeoplesIcon className="w-6 h-6 dark:fill-white" fill="#3826A6" />
 							) : (
-								<PeopleIcon className="w-[24px] h-[24px] stroke-[#7E7991]" />
+								<PeoplesIcon className="w-6 h-6 text-[#7E7991]" />
 							)}
 							{t('common.TEAM')}
 						</>

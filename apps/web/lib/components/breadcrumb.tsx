@@ -1,8 +1,8 @@
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
 import React from 'react';
-import { SimpleArrowRight } from './svgs';
 import Skeleton from 'react-loading-skeleton';
+import { ChevronRightIcon } from 'assets/svg';
 
 type Props = {
 	paths: (string | { title: string; href: string })[];
@@ -18,7 +18,7 @@ export function Breadcrumb({ paths, className }: Props) {
 						<React.Fragment key={i}>
 							{i !== 0 && (
 								<li key={i + 'arrow-right'} className="font-normal">
-									<SimpleArrowRight className="w-4 h-4 stroke-[#B1AEBC]" />
+									<ChevronRightIcon className="w-4 h-4 stroke-[#B1AEBC]" />
 								</li>
 							)}
 							<li key={i} className="font-normal">

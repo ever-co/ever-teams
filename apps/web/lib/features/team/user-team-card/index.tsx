@@ -6,7 +6,6 @@ import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
-import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslations } from 'next-intl';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -18,6 +17,7 @@ import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
+import { SixSquareGridIcon } from 'assets/svg';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -124,7 +124,7 @@ export function UserTeamCard({
 			>
 				<div className="flex m-0 relative items-center">
 					<div className="absolute left-0 cursor-pointer">
-						<DraggerIcon className="fill-[#CCCCCC] w-2 dark:fill-[#4F5662]" />
+						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
 
 					{/* Show user name, email and image */}

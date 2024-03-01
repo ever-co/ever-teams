@@ -5,7 +5,7 @@ import { useSlate } from 'slate-react';
 
 interface IMarkButtonProps {
 	format: string;
-	icon: React.ComponentType;
+	icon: any;
 	isMarkActive: (editor: any, format: string) => boolean;
 }
 
@@ -23,7 +23,7 @@ const MarkButton = ({ format, icon: Icon, isMarkActive }: IMarkButtonProps) => {
 				TextEditorService.toggleMark(editor, format, isMarkActive);
 			}}
 		>
-			<Icon />
+			<Icon className="h-5 w-5" />
 		</button>
 	);
 };

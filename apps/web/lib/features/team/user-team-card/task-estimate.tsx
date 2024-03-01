@@ -5,7 +5,7 @@ import { I_TMCardTaskEditHook, I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
-import { EditIcon, TickSaveIcon } from 'lib/components/svgs';
+import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
@@ -90,7 +90,7 @@ function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'a
 						])}
 						onClick={() => task && edition.setEstimateEditMode(true)}
 					>
-						<EditIcon
+						<EditPenBoxIcon
 							className={clsxm(
 								'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
 								!task && ['opacity-40 cursor-default'],

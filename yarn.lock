@@ -6206,7 +6206,7 @@
     deepmerge "^4.3.1"
     svgo "^3.0.2"
 
-"@svgr/webpack@^8.0.1":
+"@svgr/webpack@^8.0.1", "@svgr/webpack@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@svgr/webpack/-/webpack-8.1.0.tgz#16f1b5346f102f89fda6ec7338b96a701d8be0c2"
   integrity sha512-LnhVjMWyMQV9ZmeEy26maJk+8HTIbd59cH4F2MJ439k9DqejRisfFNGAPvRYlKETuh9LrImlS8aKsBgKjMA8WA==

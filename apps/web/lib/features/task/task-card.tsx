@@ -23,7 +23,6 @@ import {
 	Text,
 	VerticalSeparator
 } from 'lib/components';
-import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -37,6 +36,7 @@ import { TaskAvatars } from './task-item';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useTranslations } from 'next-intl';
+import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 
 type Props = {
 	active?: boolean;
@@ -115,7 +115,7 @@ export function TaskCard(props: Props) {
 				)}
 			>
 				<div className="absolute -left-0">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
 				<div className="flex-1 flex flex-row justify-between">
@@ -435,7 +435,7 @@ function TaskCardMenu({
 	return (
 		<Popover>
 			<Popover.Button className="flex items-center border-none outline-none">
-				{!loading && <MoreIcon className="dark:stroke-[#B1AEBC]" />}
+				{!loading && <ThreeCircleOutlineVerticalIcon className="w-full max-w-[24px] dark:text-[#B1AEBC]" />}
 				{loading && <SpinnerLoader size={20} />}
 			</Popover.Button>
 

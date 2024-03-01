@@ -1,7 +1,7 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button } from 'lib/components';
-import { ArrowRight } from 'lib/components/svgs';
+import { ArrowRightIcon } from 'assets/svg';
 import { MouseEventHandler } from 'react';
 
 type Props = {
@@ -22,7 +22,7 @@ export function TaskAssignButton({ onClick, disabled, className }: Props) {
 				className
 			)}
 		>
-			<ArrowRight className={clsxm('w-[60%] h-[60%] ')} />
+			<ArrowRightIcon className="w-[60%] h-[60%]"/>
 		</Button>
 	);
 }
