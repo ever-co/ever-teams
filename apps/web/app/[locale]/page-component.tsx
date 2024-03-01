@@ -50,7 +50,6 @@ function MainPage() {
 		{ title: t(`common.${view}`), href: `/` }
 	];
 	const { online } = useNetworkState();
-	console.log(path, 'path');
 	useEffect(() => {
 		if (view == IssuesView.KANBAN && path == '/') {
 			setView(IssuesView.CARDS);
