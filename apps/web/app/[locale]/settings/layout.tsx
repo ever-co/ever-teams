@@ -26,9 +26,9 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 		return (
 			<MainLayout
 				className="items-start pb-1 overflow-hidden w-full"
-				childrenClassName="flex h-[calc(100vh-_300px)] flex w-full items-start"
+				childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full"
 			>
-				<div className="flex flex-col">
+				<div>
 					<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
 						<Container fullWidth={fullWidth}>
 							<div className="flex flex-row items-center justify-start gap-8">
@@ -44,9 +44,9 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 						<div className="w-96 ml-8">
 							<LeftSideSettingMenu />
 						</div>
+						<div className="h-[calc(100vh-_186px)] mt-3 p-10 overflow-y-auto  w-full">{children}</div>
 					</div>
 				</div>
-				<div className="h-[calc(100vh-_186px)] mt-3 p-10 overflow-y-auto  w-full">{children}</div>
 			</MainLayout>
 		);
 	}
