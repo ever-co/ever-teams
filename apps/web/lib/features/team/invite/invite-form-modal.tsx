@@ -1,14 +1,14 @@
 'use client';
 
-import { useTeamInvitations } from '@app/hooks';
-// import { useEmployee } from '@app/hooks/features/useEmployee';
-// import { IInviteEmail } from '@app/interfaces';
-import { isEmail } from 'class-validator';
-import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { useCallback, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useOrganizationTeams, useTeamInvitations } from '@app/hooks';
+import { useEmployee } from '@app/hooks/features/useEmployee';
+import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
-// import { InviteEmailDropdown } from './invite-email-dropdown';
+import { isEmail, isNotEmpty } from 'class-validator';
+import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { InviteEmailDropdown } from './invite-email-dropdown';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
@@ -17,35 +17,30 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		email?: string;
 		name?: string;
 	}>({});
-	const [inputData, setInputData] = useState({ email: '', name: '' });
-	// const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
-	// const { workingEmployees } = useEmployee();
-	// const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
-	// const { activeTeam } = useOrganizationTeams();
+	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
+	const { workingEmployees } = useEmployee();
+	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
+	const { activeTeam } = useOrganizationTeams();
 
-	// useEffect(() => {
-	// 	if (activeTeam?.members) {
-	// 		const activeTeamMemberEmails = activeTeam?.members.map((member) => member.employee.user?.email);
+	useEffect(() => {
+		if (activeTeam?.members) {
+			const activeTeamMemberEmails = activeTeam?.members.map((member) => member.employee.user?.email);
 
-	// 		setCurrentOrgEmails(
-	// 			workingEmployees
-	// 				.map((item) => ({
-	// 					title: item.user?.email || '',
-	// 					name: item.fullName || ''
-	// 				}))
-	// 				.filter((item) => !activeTeamMemberEmails.includes(item.title))
-	// 		);
-	// 	}
-	// }, [workingEmployees, workingEmployees.length, activeTeam]);
+			setCurrentOrgEmails(
+				workingEmployees
+					.map((item) => ({
+						title: item.user?.email || '',
+						name: item.fullName || ''
+					}))
+					.filter((item) => !activeTeamMemberEmails.includes(item.title))
+			);
+		}
+	}, [workingEmployees, workingEmployees.length, activeTeam]);
 
-	// const handleAddNew = (email: string) => {
-	// 	const newItem = { title: email, name: '' };
-	// 	setSelectedEmail(newItem);
-	// 	setCurrentOrgEmails([...currentOrgEmails, newItem]);
-	// };
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setInputData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+	const handleAddNew = (email: string) => {
+		const newItem = { title: email, name: '' };
+		setSelectedEmail(newItem);
+		setCurrentOrgEmails([...currentOrgEmails, newItem]);
 	};
 
 	const handleSubmit = useCallback(
@@ -54,14 +49,14 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 
 			const form = new FormData(e.currentTarget);
 
-			if (!inputData.email || (inputData.email && !isEmail(inputData.email))) {
+			if (!selectedEmail?.title || (selectedEmail?.title && !isEmail(selectedEmail.title))) {
 				setErrors({
 					email: t('errors.VALID_EMAIL')
 				});
 				return;
 			}
 
-			inviteUser(inputData.email, form.get('name')?.toString() || inputData.name || '')
+			inviteUser(selectedEmail.title, form.get('name')?.toString() || selectedEmail.name || '')
 				.then(() => {
 					closeModal();
 
@@ -73,7 +68,8 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 					}
 				});
 		},
-		[inputData, inviteUser, t, closeModal]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[selectedEmail, setErrors, closeModal, inviteUser]
 	);
 
 	return (
@@ -92,7 +88,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 						</div>
 
 						<div className="flex flex-col w-full gap-3">
-							{/* <InviteEmailDropdown
+							<InviteEmailDropdown
 								emails={currentOrgEmails}
 								setSelectedEmail={setSelectedEmail}
 								selectedEmail={selectedEmail}
@@ -100,18 +96,6 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 									(isNotEmpty(errors) && Object.keys(errors).includes('email') && errors.email) || ''
 								}
 								handleAddNew={handleAddNew}
-
-							/> */}
-
-							<InputField
-								type="email"
-								name="email"
-								placeholder={'Team member email address'}
-								errors={errors}
-								setErrors={setErrors}
-								required
-								defaultValue={inputData.email || ''}
-								onChange={handleChange}
 							/>
 
 							<InputField
@@ -121,8 +105,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 								errors={errors}
 								setErrors={setErrors}
 								required
-								defaultValue={inputData.name || ''}
-								onChange={handleChange}
+								defaultValue={selectedEmail?.name || ''}
 							/>
 						</div>
 
