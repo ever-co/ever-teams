@@ -330,7 +330,8 @@
 		"nodesource",
 		"Koyeb",
 		"Northflank",
-		"prebuild"
+		"prebuild",
+		"dataToDisplay"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

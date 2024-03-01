@@ -31,7 +31,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
 	);
 	const { nextOffset, data } = useInfinityScrolling(otherTasks);
-	const dataTodisplay = otherTasks.length < 10 ? otherTasks : data;
+	const dataToDisplay = otherTasks.length < 10 ? otherTasks : data;
 
 	// const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 	// 	usePagination(otherTasks);
@@ -86,7 +86,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 			)}
 
 			<ul className="flex flex-col gap-6">
-				{dataTodisplay.map((task, index) => {
+				{dataToDisplay.map((task, index) => {
 					return (
 						<li key={task.id}>
 							<ObserverComponent isLast={index === data.length - 1} getNextData={nextOffset} />
