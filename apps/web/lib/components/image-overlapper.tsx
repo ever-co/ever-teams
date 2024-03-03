@@ -2,7 +2,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import Image from 'next/image';
 import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
-
+import { Tooltip } from './tooltip';
 export interface ImageOverlapperProps {
 	id: string;
 	url: string;
@@ -42,14 +42,16 @@ export default function ImageOverlapper({
 						className="absolute hover:!z-20 transition-all hover:scale-110"
 						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
 					>
-						<Image
-							src={image.url}
-							alt={`${image.alt} avatar`}
-							width={80}
-							height={80}
-							style={{ borderRadius: radius }}
-							className="!h-10 !w-10 border-2 border-white"
-						/>
+						<Tooltip label={image.alt} placement="top">
+							<Image
+								src={image.url}
+								alt={`${image.alt} avatar`}
+								width={80}
+								height={80}
+								style={{ borderRadius: radius }}
+								className="!h-10 !w-10 border-2 border-white"
+							/>
+						</Tooltip>
 					</div>
 				</Link>
 			))}
