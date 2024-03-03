@@ -159,11 +159,11 @@ export default function Item(props: ItemProps) {
 		null,
 		item,
 		/*addSeconds || */ totalWorkedTasksTimer || 1,
-		item?.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
+		item.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	);
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id || item?.id);
+	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
 
-	const { h, m } = secondsToTime(
+	const { h, m, s } = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
@@ -253,19 +253,19 @@ export default function Item(props: ItemProps) {
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
-									{h}h: {m}:m
+									{h}h: {m}:m {s}:s
 								</p>
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Worked:</small>
 								<p className="text-black dark:text-white font-medium w-20 text-sm">
-									{h}h: {m}:m
+									{h}h: {m}:m {s}:s
 								</p>
 							</div>
 						)}
 					</div>
-					<ImageComponent radius={30} images={[...taskAssignee, ...taskAssignee]} />
+					<ImageComponent radius={30} images={taskAssignee} />
 					{item.issueType && (
 						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div
