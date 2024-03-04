@@ -27,7 +27,7 @@ export function UserInfoCell({ cell }: { cell: any }) {
 	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
 	const memberInfo = useTeamMemberCard(member);
 
-	return <UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />;
+	return <UserInfo memberInfo={memberInfo} className="2xl:w-[20rem] w-1/4" publicTeam={publicTeam} />;
 }
 
 export function WorkedOnTaskCell({ row }: { row: any }) {
