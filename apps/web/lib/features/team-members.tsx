@@ -27,9 +27,9 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const blockViewMembers =
 		activeFilter == 'all'
 			? orderedMembers
-			: orderedMembers.filter(
-					(m) => m.timerStatus === activeFilter || (activeFilter == 'idle' && m.timerStatus === undefined)
-			  );
+			: activeFilter == 'idle'
+			? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
+			: orderedMembers.filter((m) => m.timerStatus === activeFilter);
 
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members
