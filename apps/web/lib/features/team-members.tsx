@@ -25,7 +25,11 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const orderedMembers = [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
 
 	const blockViewMembers =
-		activeFilter == 'all' ? orderedMembers : orderedMembers.filter((m) => m.timerStatus === activeFilter);
+		activeFilter == 'all'
+			? orderedMembers
+			: orderedMembers.filter(
+					(m) => m.timerStatus === activeFilter || (activeFilter == 'idle' && m.timerStatus === undefined)
+			  );
 
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members
@@ -112,7 +116,8 @@ const sortByWorkStatus = (user_a: OT_Member, user_b: OT_Member) => {
 	return user_a.timerStatus == 'running' ||
 		(user_a.timerStatus == 'online' && user_b.timerStatus != 'running') ||
 		(user_a.timerStatus == 'pause' && user_b.timerStatus !== 'running' && user_b.timerStatus !== 'online') ||
-		(user_a.timerStatus == 'idle' && user_b.timerStatus == 'suspended')
+		(user_a.timerStatus == 'idle' && user_b.timerStatus == 'suspended') ||
+		(user_a.timerStatus === undefined && user_b.timerStatus == 'suspended')
 		? true
 		: false;
 };
