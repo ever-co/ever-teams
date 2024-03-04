@@ -6,7 +6,6 @@ import { Accordian } from 'lib/components/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { SyncZone } from 'lib/settings/sync.zone';
-import { Text } from 'lib/components';
 
 const Personal = () => {
 	const t = useTranslations();
@@ -23,9 +22,9 @@ const Personal = () => {
 				className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 				id="general"
 			>
-				<Text className="text-base font-normal text-center text-gray-400 sm:text-left">
+				{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
 					{t('pages.settings.HEADING_DESCRIPTION')}
-				</Text>
+				</Text> */}
 				<ProfileAvatar />
 				<PersonalSettingForm />
 			</Accordian>

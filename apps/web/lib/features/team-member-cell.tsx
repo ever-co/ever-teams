@@ -55,7 +55,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className="lw-1/5 lg:px-3 2xl:w-52 3xl:w-64"
+			className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 		/>
 	);
 }
