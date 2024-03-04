@@ -17,12 +17,7 @@ export function TaskCell({ row }: { row: any }) {
 	const publicTeam = false;
 
 	return (
-		<TaskInfo
-			edition={taskEdition}
-			memberInfo={memberInfo}
-			className="2xl:w-80 3xl:w-[32rem] !w-full lg:w-1/5 lg:px-4 px-2"
-			publicTeam={publicTeam}
-		/>
+		<TaskInfo edition={taskEdition} memberInfo={memberInfo} className="max-w-[40vw] px-2" publicTeam={publicTeam} />
 	);
 }
 
@@ -32,7 +27,7 @@ export function UserInfoCell({ cell }: { cell: any }) {
 	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
 	const memberInfo = useTeamMemberCard(member);
 
-	return <UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-full lg:w-1/4" publicTeam={publicTeam} />;
+	return <UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />;
 }
 
 export function WorkedOnTaskCell({ row }: { row: any }) {
@@ -45,7 +40,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			task={memberInfo.memberTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className="2xl:w-32 3xl:w-[8rem] min-w-[15rem] w-52 lg:w-1/5  flex flex-col gap-y-[1.125rem] justify-center"
+			className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4  flex flex-col gap-y-[1.125rem] justify-center"
 		/>
 	);
 }
@@ -60,7 +55,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className="lg:px-3 2xl:w-52 3xl:w-64  min-w-[15rem] w-52 lg:w-1/5"
+			className="lw-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 		/>
 	);
 }

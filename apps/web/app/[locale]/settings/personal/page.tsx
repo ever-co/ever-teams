@@ -6,12 +6,13 @@ import { Accordian } from 'lib/components/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { SyncZone } from 'lib/settings/sync.zone';
+import { Text } from 'lib/components';
 
 const Personal = () => {
 	const t = useTranslations();
 
 	return (
-		<>
+		<div className="overflow-auto pb-16">
 			<Link href={'/settings/team'} className="w-full">
 				<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
 					Go to Team settings
@@ -22,9 +23,9 @@ const Personal = () => {
 				className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 				id="general"
 			>
-				{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
+				<Text className="text-base font-normal text-center text-gray-400 sm:text-left">
 					{t('pages.settings.HEADING_DESCRIPTION')}
-				</Text> */}
+				</Text>
 				<ProfileAvatar />
 				<PersonalSettingForm />
 			</Accordian>
@@ -43,7 +44,7 @@ const Personal = () => {
 			>
 				<DangerZone />
 			</Accordian>
-		</>
+		</div>
 	);
 };
 export default withAuthentication(Personal, { displayName: 'Personal' });

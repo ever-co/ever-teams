@@ -23,7 +23,7 @@ const Team = () => {
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
 	return (
-		<>
+		<div className="overflow-auto pb-16">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
@@ -110,7 +110,7 @@ const Team = () => {
 					</Card>
 				</div>
 			)}
-		</>
+		</div>
 	);
 };
 
