@@ -30,7 +30,7 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
@@ -41,7 +41,7 @@ import { PeoplesIcon } from 'assets/svg';
 function MainPage() {
 	const t = useTranslations();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const fullWidth = useRecoilValue(fullWidthState);
+	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 	const [view, setView] = useRecoilState(headerTabs);
 	const path = usePathname();
 	const breadcrumb = [
@@ -56,6 +56,12 @@ function MainPage() {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
+
+	React.useEffect(() => {
+		window && window?.localStorage.getItem('conf-fullwidth-mode');
+		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullwidth-mode') || 'true'));
+	}, [fullWidth, setFullWidth]);
+
 	if (!online) {
 		return <Offline />;
 	}
