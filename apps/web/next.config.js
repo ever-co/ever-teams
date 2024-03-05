@@ -86,6 +86,14 @@ const nextConfig = {
 			'gauzystage.s3.wasabisys.com'
 		]
 	},
+	async rewrites() {
+		return [
+			{
+				source: '/fonts/:path*',
+				destination: '/assets/fonts/:path*'
+			}
+		];
+	},
 	...sentryConfig
 };
 
