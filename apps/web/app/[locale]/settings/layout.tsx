@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import { clsxm } from '@app/utils';
 
 const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 	const t = useTranslations();
@@ -28,18 +29,23 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 				className="items-start pb-1 overflow-hidden w-full"
 				childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full"
 			>
-				<Container fullWidth={fullWidth}>
-					<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
-						<div className="flex flex-row items-center justify-start gap-8">
-							<Link href="/">
-								<ArrowLeftIcon className="w-6 h-6" />
-							</Link>
+				<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
+					<Container
+						fullWidth={fullWidth}
+						className={clsxm('w-full flex flex-row items-center justify-start gap-8')}
+					>
+						{/* <div className=""> */}
+						<Link href="/">
+							<ArrowLeftIcon className="w-6 h-6" />
+						</Link>
 
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
-						</div>
-					</div>
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
+						{/* </div> */}
+					</Container>
+				</div>
+				<Container fullWidth={fullWidth} className={clsxm('!p-0')}>
 					<div className="flex">
-						<div className="h-[calc(100vh-_186px)] mt-3 p-10">
+						<div className="h-[calc(100vh-_186px)]">
 							<LeftSideSettingMenu />
 						</div>
 						<div className="h-[calc(100vh-_186px)] mt-3 p-10 overflow-y-auto  w-full">{children}</div>
