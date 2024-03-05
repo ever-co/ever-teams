@@ -68,18 +68,18 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator />
 
 				{/* Task information */}
-				<Text className="w-1/5 px-4 text-center opacity-40 2xl:w-80">{t('common.TASK_TITTLE')}</Text>
+				<Text className="flex-1 px-4 text-center opacity-40 ">{t('common.TASK_TITTLE')}</Text>
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="flex items-center w-1/5 px-2 mb-2 space-x-2 font-normal text-center opacity-40 2xl:w-48 lg:px-4">
+				<div className="flex items-center 2xl:w-48 3xl:w-52 px-2 mb-2 space-x-2 font-normal text-center opacity-40  lg:px-4">
 					<span>{t('common.TODAY')}:</span>
 					<Text>0h : 0m</Text>
 				</div>
 				<VerticalSeparator />
 
 				{/* TaskEstimateInfo */}
-				<div className="relative flex items-center justify-center w-1/5 space-x-1 opacity-40 2xl:w-52">
+				<div className="relative flex items-center justify-center 2xl:w-48 3xl:w-64 space-x-1 opacity-40 ">
 					{/* <TimeInputField defaultValue="00" label="h" />
 					<span>:</span>
 					<TimeInputField defaultValue="00" label="m" />
@@ -89,7 +89,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator />
 
 				{/* Card menu */}
-				<div className="flex-1 font-normal text-center opacity-40">
+				<div className="2xl:w-52 3xl:w-64 font-normal text-center opacity-40">
 					<Text>0h : 0m</Text>
 				</div>
 

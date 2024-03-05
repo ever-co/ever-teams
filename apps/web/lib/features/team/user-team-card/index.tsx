@@ -132,7 +132,7 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1">
+					<div className="flex justify-between items-center flex-1 max-w-[40%]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}

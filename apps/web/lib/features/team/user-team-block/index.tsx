@@ -83,7 +83,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 				shadow="bigger"
 				className={clsxm(
 					'relative items-center py-3 !px-4 dark:bg-[#1E2025] min-h-[7rem]',
-					['dark:border border-t-[6px] ', cardColorType[timerStatusValue]],
+					['dark:border border-t-[6px] dark:border-t-[6px]', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
