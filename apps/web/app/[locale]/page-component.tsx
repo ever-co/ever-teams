@@ -58,8 +58,8 @@ function MainPage() {
 	}, [path, setView]);
 
 	React.useEffect(() => {
-		window && window?.localStorage.getItem('conf-fullwidth-mode');
-		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullwidth-mode') || 'true'));
+		window && window?.localStorage.getItem('conf-fullWidth-mode');
+		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [fullWidth, setFullWidth]);
 
 	if (!online) {

@@ -213,7 +213,7 @@ export function FullWidthToggler({ className }: IClassName) {
 	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 
 	React.useEffect(() => {
-		window && window.localStorage.setItem('conf-fullwidth-mode', JSON.stringify(fullWidth));
+		window && window.localStorage.setItem('conf-fullWidth-mode', JSON.stringify(fullWidth));
 	}, [fullWidth]);
 
 	return (
