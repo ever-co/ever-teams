@@ -1,8 +1,8 @@
-import Link from 'next/link';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import Image from 'next/image';
-import { Tooltip } from 'lib/components';
+import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
-
+import { Tooltip } from './tooltip';
 export interface ImageOverlapperProps {
 	id: string;
 	url: string;
@@ -18,56 +18,81 @@ export default function ImageOverlapper({
 	radius?: number;
 	displayImageCount?: number;
 }) {
-	const imageRadius = radius;
+	// Split the array into two arrays based on the display number
+	const firstArray = images.slice(0, displayImageCount);
+	const widthCalculate = images.slice(0, 5);
+	const secondArray = images.slice(displayImageCount);
+	const isMoreThanDisplay = images.length > displayImageCount;
 	const imageLength = images.length;
-	const numberOfImagesDisplayed = displayImageCount;
-	const totalLength = (imageLength + 1) * imageRadius;
 
-	const stackImages = (index: number, length: number) => {
-		const total_length = (length + 1) * imageRadius;
-		return {
-			zIndex: (index + 1).toString(),
-			right: `calc(${total_length - imageRadius * (index + 2)}px)`
-		};
-	};
-
+	if (imageLength == 0) {
+		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
+	}
 	return (
-		<div className="relative ">
-			{imageLength > 0 ? (
-				<div
-					className="flex h-fit flex-row justify-end items-center relative"
-					style={{
-						width: `${totalLength}px`
-					}}
-				>
-					{images.map((image: ImageOverlapperProps, index: number) => {
-						if (index < numberOfImagesDisplayed) {
-							return (
-								<Link href={`/profile/${image.id}`} className="relative w-[40px] h-[40px]" key={index}>
-									<Tooltip label={image.alt}>
-										<Image
-											src={image.url}
-											alt={`${image.alt} avatar`}
-											fill={true}
-											className="absolute rounded-full border-2 border-white"
-											style={stackImages(index, imageLength)}
-										/>
-									</Tooltip>
-								</Link>
-							);
-						}
-					})}
-					{images.length > numberOfImagesDisplayed && (
+		<div
+			style={{
+				width:
+					imageLength == 1 ? 40 : isMoreThanDisplay ? widthCalculate.length * 33 : widthCalculate.length * 35
+			}}
+			className="relative "
+		>
+			{firstArray.map((image, index) => (
+				<Link key={index} href={`/profile/${image.id}`}>
+					<div
+						className="absolute hover:!z-20 transition-all hover:scale-110"
+						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
+					>
+						<Tooltip label={image.alt} placement="top">
+							<Image
+								src={image.url}
+								alt={`${image.alt} avatar`}
+								width={80}
+								height={80}
+								style={{ borderRadius: radius }}
+								className="!h-10 !w-10 border-2 border-white"
+							/>
+						</Tooltip>
+					</div>
+				</Link>
+			))}
+			{secondArray.length > 0 && (
+				<Popover>
+					<PopoverTrigger>
 						<div
-							className="flex flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center absolute h-[40px] w-[40px] rounded-full border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
-							style={stackImages(numberOfImagesDisplayed, imageLength)}
+							style={{
+								top: isMoreThanDisplay ? -8 : -16,
+								borderRadius: radius
+							}}
+							className="flex absolute left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]"
 						>
-							{imageLength - numberOfImagesDisplayed < 100 ? imageLength - numberOfImagesDisplayed : 99}+
+							{secondArray.length < 100 ? secondArray.length : 99}+
 						</div>
-					)}
-				</div>
-			) : (
-				<Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />
+					</PopoverTrigger>
+					<PopoverContent className="!p-0 bg-white dark:bg-dark--theme max-h-40 overflow-y-auto ">
+						<div className="flex flex-col space-y-2 m-2">
+							{secondArray.map((image: ImageOverlapperProps, index: number) => {
+								return (
+									<Link
+										href={`/profile/${image.id}`}
+										className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
+										key={index}
+									>
+										<div className="flex items-center">
+											<Image
+												src={image.url}
+												alt={`${image.alt} avatar`}
+												width={80}
+												height={80}
+												className="!h-10 !w-10 rounded-full border-2 border-white"
+											/>
+											<p className="ml-2">{image.alt}</p>
+										</div>
+									</Link>
+								);
+							})}
+						</div>
+					</PopoverContent>
+				</Popover>
 			)}
 		</div>
 	);
