@@ -6,17 +6,17 @@ import {
 	useCollaborative,
 	useOrganizationTeams,
 	useTMCardTaskEdit,
-	useTeamMemberCard,
-	useTimerView
+	useTaskStatistics,
+	useTeamMemberCard
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
-import { pad } from '@app/helpers';
-import { TaskStatus } from '@app/constants';
+import { secondsToTime } from '@app/helpers';
 import { UserTeamCardMenu } from 'lib/features/team/user-team-card/user-team-card-menu';
+import { TaskStatus } from '@app/constants';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -118,23 +118,31 @@ type ItemProps = {
 	isClone: boolean;
 	index: number;
 };
+
 /**
- * card that represent each task
+ * Card that represents each task
  * @param props
  * @returns
  */
 export default function Item(props: ItemProps) {
-	const { item, isDragging, provided, style, index } = props;
-
-	const { hours, minutes, seconds } = useTimerView();
+	const { item, isDragging, provided, style, index } = props;	
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
+	const { getEstimation } = useTaskStatistics(0);
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
+	let totalWorkedTasksTimer = 0;
+	activeTeam?.members?.forEach((member) => {
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i) => i.id === item?.id) || null;
+		if (totalWorkedTasks) {
+			totalWorkedTasksTimer += totalWorkedTasks.duration;
+		}
+	});
 
 	const memberInfo = useTeamMemberCard(currentUser);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+
 	const taskAssignee: ImageOverlapperProps[] = item.members.map((member: any) => {
 		return {
 			id: member.user.id,
@@ -145,7 +153,22 @@ export default function Item(props: ItemProps) {
 	const { collaborativeSelect } = useCollaborative(memberInfo.memberUser);
 
 	const menu = <>{!collaborativeSelect && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}</>;
+	const progress = getEstimation(
+		null,
+		item,
+		totalWorkedTasksTimer || 1,
+		item.estimate || 0
+	);
+	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
 
+	const { h, m, s } = secondsToTime(
+		(currentMember?.totalWorkedTasks &&
+			currentMember?.totalWorkedTasks?.length &&
+			currentMember?.totalWorkedTasks
+				.filter((t) => t.id === item?.id)
+				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+			0
+	);
 	return (
 		<div
 			draggable={isDragging}
@@ -207,6 +230,7 @@ export default function Item(props: ItemProps) {
 									autoFocus={true}
 									autoInputSelectText={true}
 									onTaskClick={(e) => {
+										// TODO: implement
 										console.log(e);
 									}}
 									onEnterKey={() => {
@@ -216,32 +240,31 @@ export default function Item(props: ItemProps) {
 							</div>
 						)}
 					</div>
-					<CircularProgress percentage={10} />
+
+					<CircularProgress percentage={progress} />
 				</div>
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="w-full flex items-center justify-between">
-					<div className="mt-1">
+				<div className="w-full h-10 flex items-center justify-between">
+					<div>
 						{item.status === TaskStatus.INPROGRESS ? (
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
-									{pad(hours)}:{pad(minutes)}:{pad(seconds)}{' '}
+									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Worked:</small>
-								<p className="text-black dark:text-white font-medium text-sm">
-									{pad(hours)}:{pad(minutes)}:{pad(seconds)}{' '}
+								<p className="text-black dark:text-white font-medium w-20 text-sm">
+									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						)}
 					</div>
-					<div className="w-56 flex justify-end">
-						<ImageComponent radius={30} images={taskAssignee} />
-					</div>
+					<ImageComponent radius={30} images={taskAssignee} />
 					{item.issueType && (
 						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div

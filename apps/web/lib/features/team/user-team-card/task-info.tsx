@@ -14,7 +14,7 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 	return (
 		<div
 			className={clsxm(
-				'h-full flex flex-col items-start justify-between gap-[1.0620rem] max-h-full overflow-hidden',
+				'h-full w-full flex flex-col items-start justify-between gap-[1.0620rem] max-h-full overflow-hidden',
 				className
 			)}
 		>

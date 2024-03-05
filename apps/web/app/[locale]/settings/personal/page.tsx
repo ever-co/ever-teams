@@ -11,7 +11,7 @@ const Personal = () => {
 	const t = useTranslations();
 
 	return (
-		<>
+		<div className="overflow-auto pb-16">
 			<Link href={'/settings/team'} className="w-full">
 				<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
 					Go to Team settings
@@ -43,7 +43,7 @@ const Personal = () => {
 			>
 				<DangerZone />
 			</Accordian>
-		</>
+		</div>
 	);
 };
 export default withAuthentication(Personal, { displayName: 'Personal' });

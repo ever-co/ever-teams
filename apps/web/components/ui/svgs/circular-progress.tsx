@@ -44,7 +44,7 @@ export default function CircularProgress({
 					className="absolute text-xs font-normal text-black dark:text-white rotate-90"
 					x-text={`${percentage}%`}
 				>
-					{percentage}H
+					{percentage}%{' '}
 				</span>
 			</div>
 		</>
