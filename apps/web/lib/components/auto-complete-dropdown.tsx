@@ -59,6 +59,10 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 			if (event.key === 'Enter' && handleAddNew && useHandleKeyUp) {
 				handleAddNew(query);
 			}
+
+			if (event.key === 'Escape') {
+				handleAddNew(query);
+			}
 		},
 		[query, handleAddNew, useHandleKeyUp]
 	);
@@ -70,7 +74,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					placeholder={placeholder}
 					onChange={(event) => setQuery(event.target.value)}
 					className={clsxm(
-						'input-border',
+						'input-border ',
 						'w-full flex justify-between rounded-[0.625rem] px-3 py-2 text-sm items-center bg-transparent',
 						'bg-light--theme-light dark:bg-dark--theme-light outline-none',
 						'font-normal',
@@ -97,9 +101,9 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 						)}
 					>
 						<Card
-							shadow="custom"
+							shadow="bigger"
 							className="md:px-4 py-4 rounded-[12px]"
-							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
+							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.15)' }}
 						>
 							{/* This should only show when New item needs to be created */}
 							{query && handleAddNew && (

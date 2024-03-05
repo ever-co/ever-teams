@@ -50,7 +50,6 @@ function MainPage() {
 		{ title: t(`common.${view}`), href: `/` }
 	];
 	const { online } = useNetworkState();
-	console.log(path, 'path');
 	useEffect(() => {
 		if (view == IssuesView.KANBAN && path == '/') {
 			setView(IssuesView.CARDS);
@@ -79,7 +78,7 @@ function MainPage() {
 					<TeamInvitations />
 				</MainHeader>
 
-				<div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view !== IssuesView.CARDS ? 'pb-7' : ''}`}>
+				<div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view == IssuesView.TABLE ? 'pb-7' : ''}`}>
 					<Container fullWidth={fullWidth}>
 						{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 						{view === IssuesView.CARDS && isTeamMember ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import { KanbanTabs } from '@app/constants';
-import { useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -17,9 +17,12 @@ import { clsxm } from '@app/utils';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { AddIcon, SearchNormalIcon, SettingFilterIcon, PeoplesIcon } from 'assets/svg';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@components/ui/select';
+import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
+import { userTimezone } from '@app/helpers';
 
 const Kanban = () => {
 	const { data } = useKanban();
+
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -47,6 +50,9 @@ const Kanban = () => {
 		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
 		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
 	];
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+	const timezone = userTimezone();
 
 	return (
 		<>
@@ -67,7 +73,10 @@ const Kanban = () => {
 							{t('common.KANBAN')} {t('common.BOARD')}
 						</h1>
 						<div className="flex w-fit items-center space-x-2">
-							<strong className="text-gray-400">08:00 ( UTC +04:30 )</strong>
+							<strong className="text-gray-400">
+								{`(`}
+								{timezone.split('(')[1]}
+							</strong>
 							<div className="mt-1">
 								<Separator />
 							</div>
@@ -76,7 +85,10 @@ const Kanban = () => {
 								<Separator />
 							</div>
 
-							<button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white">
+							<button
+								onClick={openModal}
+								className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white"
+							>
 								{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
 								<AddIcon className="w-6 h-6 text-foreground" />
 							</button>
@@ -180,6 +192,7 @@ const Kanban = () => {
 					)}
 				</div>
 			</MainLayout>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
 };

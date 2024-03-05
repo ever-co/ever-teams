@@ -41,6 +41,7 @@ export function UserTeamBlockHeader() {
 	members?.map((item) => {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		membersStatusNumber[item.timerStatus!]++;
+		if (item.timerStatus === undefined) membersStatusNumber.idle += 1;
 	});
 
 	return (
@@ -128,8 +129,7 @@ export function UserTeamBlockHeader() {
 						<PauseIcon
 							className={clsxm(
 								'w-7 h-7 p-1 text-gray-400 dark:text-white',
-								activeFilter == 'pause' &&
-									'text-primary dark:text-white'
+								activeFilter == 'pause' && 'text-primary dark:text-white'
 							)}
 						/>
 						<p>Paused </p>
@@ -203,30 +203,6 @@ export function UserTeamBlockHeader() {
 					)}
 				</div>
 			</div>
-			{/* <div className="hidden sm:flex w-1/2 row font-normal  justify-end hidde dark:text-[#7B8089]">
-				<Transition
-					show={hook.filterType !== undefined}
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0 ease-out"
-					// className="pb-3"
-					ref={hook.outclickFilterCard.targetEl}
-				>
-					{hook.filterType === 'search' && (
-						<TaskNameFilter
-							fullWidth={true}
-							value={hook.taskName}
-							setValue={hook.setTaskName}
-							close={() => {
-								hook.toggleFilterType('search');
-							}}
-						/>
-					)}
-				</Transition>
-			</div> */}
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
