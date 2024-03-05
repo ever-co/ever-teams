@@ -241,7 +241,7 @@ function UserNavMenu() {
 						</Link>
 					</li>
 
-					{/* FullWidth menu */}
+					{/* fullWidth menu */}
 					<li className="flex items-center justify-between space-x-3 font-normal">
 						<div className="flex items-center flex-1 space-x-3">
 							<AllSidesIcon className="w-5 h-5" /> <span>{'Full width'}</span>
