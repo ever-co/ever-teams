@@ -7,7 +7,7 @@ import { publicState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Avatar, Card, Divider, Text, ThemeToggler, Tooltip } from 'lib/components';
+import { Avatar, Card, Divider, FullWidthToggler, Text, ThemeToggler, Tooltip } from 'lib/components';
 
 import { DevicesIcon, LogoutRoundIcon, MoonLightOutlineIcon as MoonIcon, PeoplesIcon } from 'assets/svg';
 import { BriefCaseIcon, SettingOutlineIcon } from 'assets/svg';
@@ -25,6 +25,7 @@ import { TeamsDropDown } from './team/teams-dropdown';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { AllSidesIcon } from '@radix-ui/react-icons';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -126,6 +127,7 @@ function UserNavMenu() {
 	const { timerStatus } = useTimer();
 	const { activeTeam, isTeamMember } = useOrganizationTeams();
 	const publicTeam = useRecoilValue(publicState);
+
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
 		return m.employee.userId === user?.id;
@@ -237,6 +239,14 @@ function UserNavMenu() {
 						<Link href={'/settings/personal'} className="flex items-center space-x-3 font-normal">
 							<SettingOutlineIcon className="w-5 h-5" /> <span>{t('common.SETTINGS')}</span>
 						</Link>
+					</li>
+
+					{/* Fullwidth menu */}
+					<li className="flex items-center justify-between space-x-3 font-normal">
+						<div className="flex items-center flex-1 space-x-3">
+							<AllSidesIcon className="w-5 h-5" /> <span>{'Full width'}</span>
+						</div>
+						<FullWidthToggler className="scale-75" />
 					</li>
 
 					{/* Darkmode menu */}
