@@ -132,7 +132,7 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1 max-w-[40%]">
+					<div className="flex justify-between items-center flex-1 min-w-[40%]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
@@ -172,7 +172,7 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
-					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 3xl:w-64">
+					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
 						<p
 							onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
