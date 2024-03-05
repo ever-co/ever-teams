@@ -118,19 +118,17 @@ type ItemProps = {
 	isClone: boolean;
 	index: number;
 };
+
 /**
- * card that represent each task
+ * Card that represents each task
  * @param props
  * @returns
  */
 export default function Item(props: ItemProps) {
-	const { item, isDragging, provided, style, index } = props;
-	// const seconds = useRecoilValue(timerSecondsState);
-
-	// const { hours, minutes, seconds } = useTimerView();
+	const { item, isDragging, provided, style, index } = props;	
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(0);
+	const { getEstimation } = useTaskStatistics(0);
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
@@ -158,8 +156,8 @@ export default function Item(props: ItemProps) {
 	const progress = getEstimation(
 		null,
 		item,
-		/*addSeconds || */ totalWorkedTasksTimer || 1,
-		item.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
+		totalWorkedTasksTimer || 1,
+		item.estimate || 0
 	);
 	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
 
@@ -232,6 +230,7 @@ export default function Item(props: ItemProps) {
 									autoFocus={true}
 									autoInputSelectText={true}
 									onTaskClick={(e) => {
+										// TODO: implement
 										console.log(e);
 									}}
 									onEnterKey={() => {
@@ -253,14 +252,14 @@ export default function Item(props: ItemProps) {
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
-									{h}h: {m}:m {s}:s
+									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
 							<div className="flex items-center gap-2">
 								<small className="text-grey text-xs text-normal">Worked:</small>
 								<p className="text-black dark:text-white font-medium w-20 text-sm">
-									{h}h: {m}:m {s}:s
+									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						)}
