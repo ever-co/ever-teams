@@ -66,7 +66,9 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 
 	return (
 		<div className={clsxm(' ', className)}>
-			<Text className="text-4xl font-normal my-10 text-center sm:text-left">{t('common.SETTINGS')}</Text>
+			<Text className="text-4xl font-normal my-10 min-w-[16rem] text-center sm:text-left">
+				{t('common.SETTINGS')}
+			</Text>
 			<div className="flex sm:block h-[calc(100vh-_382px)] overflow-y-auto">
 				<SidebarAccordian
 					title={

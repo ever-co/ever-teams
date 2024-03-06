@@ -85,7 +85,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			<ul className="flex flex-col gap-6">
+			<ul className="flex flex-col gap-4">
 				{dataToDisplay.map((task, index) => {
 					return (
 						<li key={task.id}>
