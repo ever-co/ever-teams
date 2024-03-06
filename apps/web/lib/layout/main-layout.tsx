@@ -30,7 +30,7 @@ export function MainLayout({
 }: Props) {
 	const fullWidth = useRecoilValue(fullWidthState);
 	return (
-		<div className='w-full'>
+		<div className="w-full">
 			<style jsx global>
 				{`
 					:root {
@@ -55,9 +55,12 @@ export function MainLayout({
 			>
 				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>{children}</div>
 
-				<Container fullWidth={fullWidth} className={clsxm('w-full !mx-0 px-8', footerClassName)}>
+				<Container
+					fullWidth={fullWidth}
+					className={clsxm('w-full px-8', fullWidth && '!mx-0', footerClassName)}
+				>
 					<Divider />
-					<Footer className="justify-between px-0 w-full" />
+					<Footer className="justify-between px-0 w-full mx-auto" />
 				</Container>
 			</div>
 			<Toaster />
