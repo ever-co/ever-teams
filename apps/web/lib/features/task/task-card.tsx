@@ -118,7 +118,7 @@ export function TaskCard(props: Props) {
 					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
-				<div className="flex-1 min-w-[40%] max-w-[40%] flex flex-row justify-between">
+				<div className="flex-1 min-w-[35%] max-w-[40%] flex flex-row justify-between">
 					{/* Task information */}
 					<TaskInfo
 						task={task}
