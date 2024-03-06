@@ -5,7 +5,7 @@ import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCa
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslations } from 'next-intl';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -114,7 +114,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem]',
+					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem] !py-4',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -224,9 +224,9 @@ export function UserTeamCard({
 				{/* Card menu */}
 				<div className="absolute right-2">{menu}</div>
 			</Card>
-			{currentExit && (
+			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
-			)}
+			)} */}
 		</div>
 	);
 }
