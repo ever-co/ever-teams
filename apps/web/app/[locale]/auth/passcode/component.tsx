@@ -98,11 +98,17 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 					/>
 
 					<div className="flex items-center justify-between w-full mt-6">
-						{/* Send code */}
 						<div className="flex flex-col items-start gap-2">
 							<div className="flex items-center justify-start gap-2 text-sm">
+								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
+								<Link href="/auth/password" className="text-primary dark:text-primary-light">
+									{t('pages.authLogin.LOGIN_WITH_PASSWORD')}.
+								</Link>
+							</div>
+
+							<div className="flex items-center justify-start gap-2 text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-								<Link href="/auth/team" className="text-primary">
+								<Link href="/auth/team" className="text-primary dark:text-primary-light">
 									<span>{t('common.REGISTER')}</span>
 								</Link>
 							</div>
