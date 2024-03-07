@@ -293,11 +293,11 @@
 			"SUBSCRIPTION": "Abonnement",
 			"ABOUT_TO_CHANGE_EMAIL": "Vous êtes sur le point de changer d'e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Synchronisation des données",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Votre fuseau horaire",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Vous êtes sur le point d'être retiré de toutes les équipes, à moins que vous ne soyez le seul manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Vous êtes sur le point de supprimer votre compte et toutes vos données ?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Paramètres généraux",

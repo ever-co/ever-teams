@@ -299,10 +299,10 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "المنطقة الزمنية الخاصة بك",
 			"ABOUT_TO_CHANGE_EMAIL": "أنت على وشك تغيير البريد الإلكتروني",
 			"ABOUT_TO_DELETE_ACCOUNT": "أنت على وشك حذف حسابك؟",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "مزامنة البيانات",
 			"ABOUT_TO_REMOVE_ACCOUNT": "أنت على وشك إزالة حسابك؟",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "أنت على وشك الإزالة من جميع الفرق، إلا إذا كنت المدير الوحيد ؟",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "أنت على وشك حذف حسابك وجميع بياناتك"
 		},
 
 		"settingsTeam": {
