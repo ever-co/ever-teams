@@ -18,7 +18,7 @@ export default function AuthPassword() {
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 				<Card className={clsxm('w-full dark:bg-[#25272D]')} shadow="bigger">
-					<div className="flex flex-col items-center justify-between h-full">
+					<form onSubmit={form.handleSubmit} className="flex flex-col items-center justify-between h-full">
 						<Text.Heading as="h3" className="mb-10 text-center">
 							{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
 						</Text.Heading>
@@ -38,10 +38,10 @@ export default function AuthPassword() {
 
 							<InputField
 								type="password"
+								name="password"
 								placeholder={t('form.PASSWORD_PLACEHOLDER')}
 								className="dark:bg-[#25272D]"
 								wrapperClassName="mb-5 dark:bg-[#25272D]"
-								name="password"
 								value={form.formValues.password}
 								errors={form.errors}
 								onChange={form.handleChange}
@@ -65,11 +65,11 @@ export default function AuthPassword() {
 								</div>
 							</div>
 
-							<Button type="submit" disabled={false}>
+							<Button type="submit" loading={form.signInLoading} disabled={form.signInLoading}>
 								{t('common.CONTINUE')}
 							</Button>
 						</div>
-					</div>
+					</form>
 				</Card>
 			</div>
 		</AuthLayout>

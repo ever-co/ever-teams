@@ -1,8 +1,10 @@
 'use client';
 
-import { authFormValidate } from '@app/helpers/validations';
+import { validateForm } from '@app/helpers';
 import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import { useRef, useState } from 'react';
+import { useQuery } from '../useQuery';
+import { signInEmailPasswordAPI } from '@app/services/client/api';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -18,16 +20,14 @@ export function useAuthenticationPassword() {
 
 	const [authenticated, setAuthenticated] = useState(false);
 
-	const [formValues, setFormValues] = useState({
-		email: '',
-		password: ''
-	});
+	const [formValues, setFormValues] = useState({ email: '', password: '' });
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
+	const { queryCall: signInQueryCall, loading: signInLoading } = useQuery(signInEmailPasswordAPI);
+
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
-
 		setFormValues((prevState) => ({ ...prevState, [name]: value }));
 	};
 
@@ -36,26 +36,30 @@ export function useAuthenticationPassword() {
 
 		setErrors({});
 
-		const { errors, valid } = authFormValidate(['email', 'password'], formValues as any);
+		const { errors, isValid } = validateForm(['email', 'password'], formValues);
 
-		if (!valid) {
+		if (!isValid) {
 			setErrors(errors);
 			return;
 		}
+
+		signInQueryCall(formValues.email, formValues.password).then(({ data }) => {
+			console.log(data);
+		});
 	};
 
 	return {
 		errors,
+		setErrors,
 		handleSubmit,
 		handleChange,
 		formValues,
 		setFormValues,
 		inputCodeRef,
-		setErrors,
 		authScreen: { screen, setScreen },
-		authenticated,
-		setAuthenticated,
-		workspaces
+		workspaces,
+		signInQueryCall,
+		signInLoading
 	};
 }
 
