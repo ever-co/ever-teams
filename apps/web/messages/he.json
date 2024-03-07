@@ -163,7 +163,7 @@
 		"CHILD_ISSUES": "בעיות ילדות",
 		"REOPEN": "פתח מחדש",
 		"NO_TASKS": "אין משימות",
-		"FULL_WIDTH": "Full width",
+		"FULL_WIDTH": "רוחב מלא",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני שינוי המשימה",
 
 		"COLLABORATE_DIALOG_TITLE": "התחל שיתוף פעולה",
@@ -253,7 +253,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "קוד לאתקין",
 			"WELCOME_TEAMS": "ברוך הבא ל-Ever צוותים",
 			"COVER_TITLE": "עקוב אחר התקדמות העבודה של הצוותים שלך בזמן אמת!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "ניהול עבודה וכוח עבודה הכל-באחד, ניהול זמן, מעקב אחר זמן, מעקב אחר פעילות, מעקב ומדדים של פרודוקטיביות, ניהול פרויקטים/משימות ובעיות, ארגונים וצוותים, אינטגרציות (GitHub, JIRA,...) ועוד!",
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
@@ -298,7 +298,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "איזור זמן שלך",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "סנכרון נתונים",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
 		},
 		"settingsTeam": {

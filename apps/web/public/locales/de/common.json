@@ -443,8 +443,8 @@
 			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
 		},
 		"maintenance": {
-			"HEADING_TITLE": "我們正在維護中",
-			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
+			"HEADING_TITLE": "Wir halten es instand.",
+			"HEADING_DESCRIPTION": "Wir aktualisieren derzeit unsere Website, um Sie besser bedienen zu können. Bitte schauen Sie später wieder vorbei."
 		}
 	},
 	"timer": {

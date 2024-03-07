@@ -236,7 +236,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Código inválido",
 			"WELCOME_TEAMS": "Bienvenido a Equipos Siempre",
 			"COVER_TITLE": "¡Sigue el progreso del trabajo de tus equipos en tiempo real!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Gestión todo en uno del trabajo y la fuerza laboral, gestión del tiempo, seguimiento del tiempo, seguimiento de actividades, seguimiento y métricas de productividad, gestión de proyectos/tareas y problemas, organizaciones y equipos, integraciones (GitHub, JIRA,...) ¡y más!",
 			"LOGIN": "Iniciar sesión",
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
 			"ENTER_EMAIL": "Ingresar correo electrónico",
@@ -285,9 +285,9 @@
 			"ABOUT_TO_DELETE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
 			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
-			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Tu zona horaria",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "¿Estás a punto de ser eliminado de todos los equipos, a menos que seas el único entrenador?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "¿Estás a punto de eliminar tu cuenta y todos tus datos?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Ajustes generales",
