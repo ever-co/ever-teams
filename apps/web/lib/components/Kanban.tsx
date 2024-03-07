@@ -19,6 +19,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
+import { useModal } from '@app/hooks';
+import { Modal } from './modal';
+import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 
 const grid = 8;
 
@@ -329,6 +332,8 @@ const KanbanDraggable = ({
 	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
 	const t = useTranslations();
+	const { isOpen, closeModal, openModal } = useModal();
+	//
 
 	return (
 		<>
@@ -360,7 +365,10 @@ const KanbanDraggable = ({
 											type={'TASK'}
 											content={items}
 										/>
-										<button className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+										<button
+											onClick={() => openModal()}
+											className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+										>
 											<AddIcon className=" h-5 w-5" />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
@@ -371,6 +379,9 @@ const KanbanDraggable = ({
 					)}
 				</Draggable>
 			)}
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+			</Modal>
 		</>
 	);
 };
