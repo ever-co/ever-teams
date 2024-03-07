@@ -155,6 +155,7 @@
 		"CHILD_ISSUES": "Problèmes enfants",
 		"REOPEN": "Rouvrir",
 		"NO_TASKS": "Aucune tâche",
+		"FULL_WIDTH": "Pleine largeur",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de modifier la tâche",
 
 		"COLLABORATE_DIALOG_TITLE": "Démarrer la collaboration",

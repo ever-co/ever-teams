@@ -11,7 +11,7 @@
 		"INVITE": "Покани",
 		"KANBAN": "Канбан",
 		"CARDS": "Карти",
-    	"TABLE": "Таблица",
+		"TABLE": "Таблица",
 		"INVITED": "Поканен",
 		"EXPIRE": "Изтича",
 		"EXPIRED": "Изтекъл",
@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "Детски проблеми",
 		"REOPEN": "Отваряне отново",
 		"NO_TASKS": "Няма задачи",
+		"FULL_WIDTH": "Пълна ширина",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да промените задачата",
 
 		"COLLABORATE_DIALOG_TITLE": "Стартиране на сътрудничество",

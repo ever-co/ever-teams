@@ -164,6 +164,7 @@
 		"CHILD_ISSUES": "Problemas Filhos",
 		"REOPEN": "Reabrir",
 		"NO_TASKS": "Sem Tarefas",
+		"FULL_WIDTH": "Largura total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar a Tarefa",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar Colaboração",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Convide membro(s) e comece a colaborar",

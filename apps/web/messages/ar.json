@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "القضايا الفرعية",
 		"REOPEN": "إعادة فتح",
 		"NO_TASKS": "لا توجد مهام",
+		"FULL_WIDTH": "العرض الكاملh",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
 
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",

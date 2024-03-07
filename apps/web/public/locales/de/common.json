@@ -156,6 +156,7 @@
 		"CHILD_ISSUES": "Untergeordnete Tickets",
 		"REOPEN": "Wieder öffnen",
 		"NO_TASKS": "Keine Aufgaben",
+		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
 
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",

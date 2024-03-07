@@ -156,6 +156,7 @@
 		"CHILD_ISSUES": "子议题",
 		"REOPEN": "重新开启",
 		"NO_TASKS": "无任务",
+		"FULL_WIDTH": "全螢幕寬度",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "改变任务前请先停止计时器",
 
 		"COLLABORATE_DIALOG_TITLE": "开始协作",

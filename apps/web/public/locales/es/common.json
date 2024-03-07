@@ -156,6 +156,7 @@
 		"CHILD_ISSUES": "Problemas secundarios",
 		"REOPEN": "Reabrir",
 		"NO_TASKS": "Sin tareas",
+		"FULL_WIDTH": "Ancho total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de cambiar la tarea",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar colaboración",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invitar miembro(s) y empezar a colaborar",
