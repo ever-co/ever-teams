@@ -178,7 +178,7 @@
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Se eliminarán todos los datos de las cuentas de todos los equipos en los que usted sea SÓLO uno de los gestores existentes",
 		"ALERT_QUIT_TEAM": "Estás a punto de abandonar el equipo"
 	},
 	"pages": {

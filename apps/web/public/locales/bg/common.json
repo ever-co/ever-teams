@@ -179,7 +179,7 @@
 		"ALERT_DELETE_ACCOUNT": "Профилът ще бъде премахнат от всички отбори, освен където сте само мениджър",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Вашият профил ще бъде изтрит завинаги с премахване от всички отбори",
 		"ALERT_REMOVE_TEAM": "Отборът ще бъде премахнат напълно от системата и членовете на отбора ще загубят достъп",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Всички данни за акаунти ще бъдат премахнати от всички екипи, в които сте САМО един съществуващ мениджър.",
 		"ALERT_QUIT_TEAM": "Ще напуснете отбора"
 	},
 	"pages": {

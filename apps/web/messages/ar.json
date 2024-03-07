@@ -188,7 +188,7 @@
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "سيتم حذف حسابك نهائياً مع إزالته من جميع الفرق",
 		"ALERT_REMOVE_TEAM": "سيتم إزالة الفريق بالكامل من النظام وفقدان أعضاء الفريق للوصول",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "ستتم إزالة جميع بيانات الحساب من جميع الفرق التي تكون فيها مديرًا موجودًا واحدًا فقط",
 		"ALERT_QUIT_TEAM": "أنت على وشك مغادرة الفريق"
 	},
 	"pages": {
