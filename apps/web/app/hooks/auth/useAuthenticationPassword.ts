@@ -58,9 +58,9 @@ export function useAuthenticationPassword() {
 					return;
 				}
 
-				if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
-					setWorkspaces(data.workspaces);
+				if (Array.isArray(data.workspaces) && data.workspaces.length > 0) {
 					setScreen('workspace');
+					setWorkspaces(data.workspaces);
 				}
 			})
 			.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {

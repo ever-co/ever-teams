@@ -258,7 +258,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Log In to Ever Teams",
-			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process..",
+			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process.",
 			"WORKSPACE": "Workspace",
 			"HEADING_WORKSPACE_LINE1": "The email associated with multiple workspaces,",
 			"HEADING_WORKSPACE_LINE2": "please select one to continue",
