@@ -41,6 +41,14 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 	});
 }
 
+export function signInEmailPasswordRequest(email: string, password: string) {
+	return serverFetch<ISigninEmailConfirmResponse>({
+		path: '/auth/signin.email.password?includeTeams=true',
+		method: 'POST',
+		body: { email, password }
+	});
+}
+
 export const signInEmailConfirmRequest = (data: { code: string; email: string }) => {
 	const { code, email } = data;
 

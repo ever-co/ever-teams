@@ -244,7 +244,7 @@ function UserNavMenu() {
 					{/* fullWidth menu */}
 					<li className="flex items-center justify-between space-x-3 font-normal">
 						<div className="flex items-center flex-1 space-x-3">
-							<AllSidesIcon className="w-5 h-5" /> <span>{'Full width'}</span>
+							<AllSidesIcon className="w-5 h-5" /> <span>{t('common.FULL_WIDTH')}</span>
 						</div>
 						<FullWidthToggler className="scale-75" />
 					</li>

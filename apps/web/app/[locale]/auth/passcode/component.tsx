@@ -2,7 +2,7 @@
 
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
+import { IClassName, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
@@ -10,7 +10,7 @@ import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
 import stc from 'string-to-color';
 
@@ -98,11 +98,17 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 					/>
 
 					<div className="flex items-center justify-between w-full mt-6">
-						{/* Send code */}
 						<div className="flex flex-col items-start gap-2">
 							<div className="flex items-center justify-start gap-2 text-sm">
+								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
+								<Link href="/auth/password" className="text-primary dark:text-primary-light">
+									{t('pages.authLogin.LOGIN_WITH_PASSWORD')}.
+								</Link>
+							</div>
+
+							<div className="flex items-center justify-start gap-2 text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-								<Link href="/auth/team" className="text-primary">
+								<Link href="/auth/team" className="text-primary dark:text-primary-light">
 									<span>{t('common.REGISTER')}</span>
 								</Link>
 							</div>
@@ -227,8 +233,6 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 }
 
 function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
-	const t = useTranslations();
-
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
 	const router = useRouter();
@@ -252,6 +256,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
 			setSelectedTeam(currentTeams[0].team_id);
 		}
+
 		if (form.workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
@@ -268,12 +273,43 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		}
 	}, [form.authScreen, router]);
 
-	console.log(form);
+	return (
+		<WorkSpaceComponent
+			className={className}
+			workspaces={form.workspaces}
+			onSubmit={signInToWorkspace}
+			onBackButtonClick={() => {
+				form.authScreen.setScreen('email');
+				form.setErrors({});
+			}}
+			selectedWorkspace={selectedWorkspace}
+			setSelectedWorkspace={setSelectedWorkspace}
+			setSelectedTeam={setSelectedTeam}
+			selectedTeam={selectedTeam}
+			signInWorkspaceLoading={form.signInWorkspaceLoading}
+		/>
+	);
+}
+
+type IWorkSpace = {
+	className?: string;
+	workspaces: ISigninEmailConfirmWorkspaces[];
+	onSubmit?: FormEventHandler<HTMLFormElement>;
+	onBackButtonClick?: () => void;
+	selectedWorkspace: number;
+	setSelectedWorkspace: Dispatch<SetStateAction<number>>;
+	signInWorkspaceLoading?: boolean;
+	setSelectedTeam: Dispatch<SetStateAction<string>>;
+	selectedTeam: string;
+};
+
+export function WorkSpaceComponent(props: IWorkSpace) {
+	const t = useTranslations();
 
 	return (
 		<form
-			className={clsxm(className, 'flex justify-center w-full')}
-			onSubmit={signInToWorkspace}
+			className={clsxm(props.className, 'flex justify-center w-full')}
+			onSubmit={props.onSubmit}
 			autoComplete="off"
 		>
 			<Card className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
@@ -283,11 +319,11 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					</Text.Heading>
 
 					<div className="flex flex-col w-full gap-4 max-h-[16.9375rem] overflow-scroll scrollbar-hide">
-						{form.workspaces?.map((worksace, index) => (
+						{props.workspaces?.map((worksace, index) => (
 							<div
 								key={index}
 								className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-									selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
+									props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
 								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 							>
 								<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
@@ -296,18 +332,18 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 										<span
 											className="hover:cursor-pointer"
 											onClick={() => {
-												setSelectedWorkspace(index);
+												props.setSelectedWorkspace(index);
 												if (
-													selectedTeam &&
+													props.selectedTeam &&
 													!worksace.current_teams
 														?.map((team) => team.team_id)
-														.includes(selectedTeam)
+														.includes(props.selectedTeam)
 												) {
-													setSelectedTeam(worksace.current_teams[0].team_id);
+													props.setSelectedTeam(worksace.current_teams[0].team_id);
 												}
 											}}
 										>
-											{selectedWorkspace === index ? (
+											{props.selectedWorkspace === index ? (
 												<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
 											) : (
 												<CircleIcon className="w-6 h-6" />
@@ -338,13 +374,13 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 												<span
 													className="hover:cursor-pointer"
 													onClick={() => {
-														setSelectedTeam(team.team_id);
-														if (selectedWorkspace !== index) {
-															setSelectedWorkspace(index);
+														props.setSelectedTeam(team.team_id);
+														if (props.selectedWorkspace !== index) {
+															props.setSelectedWorkspace(index);
 														}
 													}}
 												>
-													{selectedTeam === team.team_id ? (
+													{props.selectedTeam === team.team_id ? (
 														<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
 													) : (
 														<CircleIcon className="w-5 h-5" />
@@ -361,19 +397,17 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					<div className="flex items-center justify-between w-full">
 						<div className="flex flex-col space-y-2">
 							<div>
-								<BackButton
-									onClick={() => {
-										form.authScreen.setScreen('email');
-										form.setErrors({});
-									}}
-								/>
+								<BackButton onClick={props.onBackButtonClick} />
 							</div>
 						</div>
 
 						<Button
 							type="submit"
-							loading={form.signInWorkspaceLoading}
-							disabled={form.signInWorkspaceLoading || (!selectedWorkspace && selectedWorkspace !== 0)}
+							loading={props.signInWorkspaceLoading}
+							disabled={
+								props.signInWorkspaceLoading ||
+								(!props.selectedWorkspace && props.selectedWorkspace !== 0)
+							}
 							id="continue-to-workspace"
 						>
 							{t('common.CONTINUE')}

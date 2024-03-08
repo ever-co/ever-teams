@@ -10,6 +10,7 @@ type Ks = { [x: string]: string };
 
 export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegisterDataAPI) => {
 	const err = {} as Err;
+
 	keys.forEach((key) => {
 		switch (key) {
 			case 'email':
