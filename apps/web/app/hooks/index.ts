@@ -16,6 +16,7 @@ export * from './useModal';
 export * from './auth/useAuthenticationPasscode';
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useEmailVerifyToken';
+export * from './auth/useAuthenticationPassword';
 
 export * from './features/useAuthTeamTasks';
 export * from './features/useAuthenticateUser';

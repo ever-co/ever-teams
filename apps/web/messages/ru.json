@@ -128,7 +128,6 @@
 		"CONTACT": "Контакт",
 		"ENABLED": "Давать возможность",
 		"DISABLED": "Запрещать",
-
 		"THEME": "Тема",
 		"TIME_ZONE": "Часовой пояс",
 		"EDIT": "Редактировать",
@@ -165,7 +164,6 @@
 		"REOPEN": "Возобновить",
 		"NO_TASKS": "Нет задач",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед изменением задачи",
-
 		"COLLABORATE_DIALOG_TITLE": "Начать сотрудничество",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Пригласите участников и начните сотрудничество",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Начать совещание или совместную работу на доске",
@@ -175,7 +173,6 @@
 		"FILTER_COMMENTS": "Комментарии",
 		"FILTER_HISTORY": "История",
 		"FILTER_UNSUBSCRIBE": "Отписаться",
-
 		"KEYBOARD_SHORTCUTS": "Горячие клавиши",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Активируйте интеграцию GitHub для синхронизации проекта и репозитория",
 		"GITHUB_LOADING_TEXT": "Мы сейчас устанавливаем вашу интеграцию GitHub, подождите...",
@@ -208,7 +205,6 @@
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]"
 		},
-
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",
 			"DESCRIPTION": "Описания",
@@ -235,14 +231,11 @@
 			"CREATED": "Создано",
 			"UPDATED": "Обновлено",
 			"RESOLVED": "Решено",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Мы не смогли обновить заголовок задачи.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Заголовок задачи не может превышать 255 символов.",
-
 			"TASK_IS_ALREADY_EPIC": "Тип задачи 'Epic' не может быть изменен.",
 			"TASK_HAS_PARENT": "Тип задачи не может быть изменен, так как у задачи уже есть родитель."
 		},
-
 		"auth": {
 			"SEND_CODE": "отправить код",
 			"JOIN": "Присоединиться",
@@ -252,7 +245,6 @@
 			"INPUT_INVITE_CODE_DESC": "Введите код приглашения, который мы отправили на вашу электронную почту.",
 			"INVALID_INVITE_CODE_MESSAGE": "Неверный код",
 			"WELCOME_TEAMS": "Реальная ясность в реальном времени™.",
-
 			"COVER_TITLE": "Открытая платформа для управления работой и проектами",
 			"COVER_DESCRIPTION": "Все в одной платформе для управления работой и персоналом, управления временем, отслеживания времени, отслеживания активности, отслеживания производительности и метрик, управления проектами/задачами и проблемами, управления организациями и командами, интеграций (GitHub, JIRA, ...) и многое другое!",
 			"LOGIN": "Войти",
@@ -267,10 +259,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "Вход в команду",
 			"HEADING_DESCRIPTION": "Введите электронную почту и код приглашения для входа.",
-
 			"WORKSPACE": "Рабочее пространство",
 			"HEADING_WORKSPACE_LINE1": "Электронная почта связана с несколькими рабочими пространствами,",
-			"HEADING_WORKSPACE_LINE2": "выберите одно для продолжения"
+			"HEADING_WORKSPACE_LINE2": "выберите одно для продолжения",
+			"HAVE_PASSWORD": "Есть пароль?",
+			"LOGIN_WITH_PASSWORD": "Войти с паролем",
+			"LOGIN_WITH_MAGIC_CODE": "Войдите с помощью магического кода"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Пожалуйста введите ваш логин."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Создать новую команду",
@@ -285,7 +282,6 @@
 		"settings": {
 			"BREADCRUMB": "[\"Панель управления\", \"Настройки\"]",
 			"DANDER_ZONE": "Опасная зона",
-
 			"HEADING_DESCRIPTION": "Настройки и управление вашей персональной панелью управления здесь",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Вы уверены, что хотите удалить этого пользователя?"
 		},
@@ -312,7 +308,6 @@
 			"TEAM_NAME": "Название команды",
 			"TEAM_TYPE": "Тип команды",
 			"TIME_TRACKING": "Отслеживание времени",
-
 			"ADD_NEW_MEMBER": "Добавить нового участника",
 			"MANAGE_ASSIGNEES": "Управление назначенными",
 			"SEARCH_MEMBER": "Поиск участника",
@@ -322,7 +317,6 @@
 			"TASK_LABELS": "Метки задачи",
 			"ISSUE_TYPES": "Типы задачи",
 			"RELATED_TYPE": "Связанный тип",
-
 			"INVITATION_HEADING_TITLE": "Приглашения",
 			"CREATE_NEW_STATUSES": "Создать новые статусы",
 			"CREATE_NEW_STATUS": "Создать новый статус",
@@ -334,7 +328,6 @@
 			"CREATE_NEW_LABELS": "Создать новые метки",
 			"CREATE_NEW_LABEL": "Создать новую метку",
 			"CREATE_NEW_ISSUE_TYPES": "Создать новые типы задач",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "Скрыть личную информацию участников",
 			"POSITION_CUSTOM": "Пользовательские должности",
 			"INVITATION_EXPIRATION": "Срок действия приглашения",
@@ -344,19 +337,15 @@
 			"MEMBER_AND_ROLES": "Участники и роли",
 			"INTEGRATIONS": "Интеграции",
 			"DANDER_ZONES": "Зона риска",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "Подключитесь к GitHub и начните синхронизацию задач GitHub с вашей командой",
 			"SELECT_REPOSITORY": "Выберите репозиторий",
-
 			"INSTALL": "Установить",
-
 			"LIST_OF_STATUSES": "Список статусов",
 			"LIST_OF_PRIORITIES": "Список приоритетов",
 			"LIST_OF_SIZES": "Список размеров",
 			"LIST_OF_LABELS": "Список меток",
 			"LIST_OF_ISSUES_TYPE": "Список типов задач",
-
 			"GENERAL": "Общие",
 			"SOUND": "Звук",
 			"EMAIL": "Эл. почта",
@@ -367,7 +356,6 @@
 			"INAPP": "В приложении",
 			"NOTIFICATION_HEADING_TITLE": "Настройки уведомлений",
 			"ISSUE_HEADING_TITLE": "Настройки задач",
-
 			"TASK_PRIVACY": "Конфиденциальность задачи",
 			"MULTIPLE_ASSIGNEES": "Несколько исполнителей",
 			"MANUAL_TIME": "Ручное время",
@@ -399,7 +387,6 @@
 			"TEAM_SIZE": "Размер команды",
 			"EMOJI": "Эмодзи",
 			"ISSUES_HEADING_TITLE": "Настройки задач",
-
 			"TRACK_TIME": "Отслеживание времени",
 			"ESTIMATE_ISSUE": "Оценка задачи",
 			"EPICS_CREATE_CLOSE": "Создание/Закрытие эпика",
@@ -410,7 +397,6 @@
 			"HANDLE_REQUESTS": "Обработка запросов",
 			"ROLES_POSITIONS_CHANGE": "Изменение ролей/позиций",
 			"VIEW_DETAILS": "Просмотр деталей",
-
 			"NO_INVITATIONS": "На данный момент нет приглашений!",
 			"NO_MEMBERS": "На данный момент нет участников!"
 		},
@@ -457,7 +443,6 @@
 			"HEADING_DESCRIPTION": "В настоящее время мы обновляем наш веб-сайт, чтобы лучше обслуживать вас. Пожалуйста, зайдите позже."
 		}
 	},
-
 	"timer": {
 		"START_TIMER": "Пожалуйста, выберите или создайте новую задачу, чтобы начать отслеживание времени",
 		"TEAM_SWITCH": {
@@ -467,7 +452,14 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Оценка"
 		},
-		"DAY_LIST": [{ "title": "7 дней" }, { "title": "14 дней" }],
+		"DAY_LIST": [
+			{
+				"title": "7 дней"
+			},
+			{
+				"title": "14 дней"
+			}
+		],
 		"TIME_ACTIVITY": "Активность",
 		"TOTAL_HOURS": "Всего часов",
 		"NO_SCREENSHOOT": "Нет снимков экрана",
@@ -479,7 +471,6 @@
 		"THERE_IS_NO_APPS_VISITED": "Нет посещенных приложений.",
 		"OTHER_DETAILS": "Другие детали",
 		"KEYBOARD": "Клавиатура",
-
 		"MOUSE": "Мышь",
 		"TIMES": "Раз",
 		"ACTIVE": "Активно",
@@ -487,7 +478,6 @@
 		"ARCHIVED": "Архивировано",
 		"NOT_ARCHIVED": "Не архивировано"
 	},
-
 	"task": {
 		"TITLE": "Задача",
 		"ASSIGN_NEW_TASK": "Назначить новую задачу",
@@ -528,19 +518,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Пожалуйста, подтвердите, что вы хотите закрыть задачу"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "Введите ваше имя",
 		"FIRST_NAME_PLACEHOLDER": "Имя",
 		"LAST_NAME_PLACEHOLDER": "Фамилия",
 		"EMAIL_PLACEHOLDER": "Введите ваш адрес электронной почты",
+		"PASSWORD_PLACEHOLDER": "Введите ваш пароль",
 		"PHONE_PLACEHOLDER": "Номер телефона",
-
 		"ISSUE_NAME_PLACEHOLDER": "Название задачи",
-
 		"TEAM_NAME_PLACEHOLDER": "Введите название вашей команды",
 		"TASK_INPUT_PLACEHOLDER": "Над чем вы работаете?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Имя участника команды",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Адрес электронной почты участника команды",
 		"COMPLETION_DESCRIPTION": "Напишите описание",
@@ -552,7 +539,6 @@
 		"SELECT_TEAM_SIZE": "Выберите размер команды",
 		"INVALID_ALLOWED_CHARACTER": "Недопустимое значение для allowedCharacters. Используйте буквы, цифры или буквенно-цифровые символы"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Все права защищены.",
@@ -566,7 +552,6 @@
 			"BY": "От"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "Проблема с сетью, пожалуйста, попробуйте еще раз позже",
 		"ERROR_WHILE_VERIFY_CODE": "Ошибка при проверке кода.",

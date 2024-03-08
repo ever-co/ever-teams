@@ -128,7 +128,6 @@
 		"CONTACT": "Contatto",
 		"ENABLED": "Abilitare",
 		"DISABLED": "disattivare",
-
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Orario",
 		"EDIT": "Modifica",
@@ -165,7 +164,6 @@
 		"REOPEN": "Riapri",
 		"NO_TASKS": "Nessun Compito",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Si prega di fermare il Timer prima di cambiare il Compito",
-
 		"COLLABORATE_DIALOG_TITLE": "Inizia Collaborazione",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invita membro(i) e inizia a collaborare",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Inizia la Riunione o la Collaborazione sulla Bacheca",
@@ -175,7 +173,6 @@
 		"FILTER_COMMENTS": "Commenti",
 		"FILTER_HISTORY": "Cronologia",
 		"FILTER_UNSUBSCRIBE": "Annulla Iscrizione",
-
 		"KEYBOARD_SHORTCUTS": "Scorciatoie da Tastiera",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Attiva l'integrazione di GitHub per la sincronizzazione del progetto e del repository",
 		"GITHUB_LOADING_TEXT": "Stiamo installando la tua integrazione GitHub, attendi...",
@@ -208,7 +205,6 @@
 		"profile": {
 			"BREADCRUMB": "[\"Compiti dei membri\"]"
 		},
-
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",
 			"DESCRIPTION": "Descrizioni",
@@ -235,14 +231,11 @@
 			"CREATED": "Creato",
 			"UPDATED": "Aggiornato",
 			"RESOLVED": "Risolto",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Non è stato possibile aggiornare il Titolo del Compito.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Il Titolo del Compito non può superare i 255 caratteri.",
-
 			"TASK_IS_ALREADY_EPIC": "Il tipo di Compito Epico non può essere cambiato.",
 			"TASK_HAS_PARENT": "Il tipo di Compito non può essere cambiato poiché il Compito ha già un Genitore."
 		},
-
 		"auth": {
 			"SEND_CODE": "Invia Codice",
 			"JOIN": "Unisciti",
@@ -252,7 +245,6 @@
 			"INPUT_INVITE_CODE_DESC": "Inserisci il codice di invito che abbiamo inviato alla tua email.",
 			"INVALID_INVITE_CODE_MESSAGE": "Codice non valido",
 			"WELCOME_TEAMS": "Chiarezza in tempo reale, Realtà in tempo reale™.",
-
 			"COVER_TITLE": "Piattaforma di Gestione del Lavoro e dei Progetti Aperta",
 			"COVER_DESCRIPTION": "Gestione del Lavoro e della Forza Lavoro, Gestione del Tempo, Tracciamento del Tempo, Tracciamento dell'Attività, Tracciamento della Produttività e Metriche, Gestione di Progetti/Compiti e Problemi, Organizzazioni e Team, Integrazioni (GitHub, JIRA, ...) e Altro!",
 			"LOGIN": "Accesso",
@@ -267,10 +259,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "Accedi al Team",
 			"HEADING_DESCRIPTION": "Inserisci l'email e il codice di invito per accedere.",
-
 			"WORKSPACE": "Spazio di Lavoro",
 			"HEADING_WORKSPACE_LINE1": "L'email è associata a più spazi di lavoro,",
-			"HEADING_WORKSPACE_LINE2": "seleziona uno per continuare"
+			"HEADING_WORKSPACE_LINE2": "seleziona uno per continuare",
+			"HAVE_PASSWORD": "Hai la password?",
+			"LOGIN_WITH_PASSWORD": "Accedi con la password",
+			"LOGIN_WITH_MAGIC_CODE": "Accedi con un codice magico"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Si prega di inserire le informazioni di accesso."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Crea un Nuovo Team",
@@ -311,7 +308,6 @@
 			"TEAM_NAME": "Nome del Team",
 			"TEAM_TYPE": "Tipo di Team",
 			"TIME_TRACKING": "Tracciamento del Tempo",
-
 			"ADD_NEW_MEMBER": "Aggiungi nuovo membro",
 			"MANAGE_ASSIGNEES": "Gestisci Assegnatari",
 			"SEARCH_MEMBER": "Cerca Membro",
@@ -321,7 +317,6 @@
 			"TASK_LABELS": "Etichette del Compito",
 			"ISSUE_TYPES": "Tipi di Problema",
 			"RELATED_TYPE": "Tipo Correlato",
-
 			"INVITATION_HEADING_TITLE": "Inviti",
 			"CREATE_NEW_STATUSES": "Crea nuovi Stati",
 			"CREATE_NEW_STATUS": "Crea nuovo Stato",
@@ -333,7 +328,6 @@
 			"CREATE_NEW_LABELS": "Crea nuove Etichette",
 			"CREATE_NEW_LABEL": "Crea nuova Etichetta",
 			"CREATE_NEW_ISSUE_TYPES": "Crea nuovi Tipi di Problema",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "Nascondi le Informazioni Personali dei Membri",
 			"POSITION_CUSTOM": "Posizioni personalizzate",
 			"INVITATION_EXPIRATION": "Scadenza Invito",
@@ -343,19 +337,15 @@
 			"MEMBER_AND_ROLES": "Membri e Ruoli",
 			"INTEGRATIONS": "Integrazioni",
 			"DANDER_ZONES": "Zona Pericolosa",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "Collegati a GitHub e inizia a sincronizzare i problemi di GitHub con il tuo Team",
 			"SELECT_REPOSITORY": "Seleziona Repository",
-
 			"INSTALL": "Installa",
-
 			"LIST_OF_STATUSES": "Elenco degli Stati",
 			"LIST_OF_PRIORITIES": "Elenco delle Priorità",
 			"LIST_OF_SIZES": "Elenco delle Dimensioni",
 			"LIST_OF_LABELS": "Elenco delle Etichette",
 			"LIST_OF_ISSUES_TYPE": "Elenco dei Tipi di Problema",
-
 			"GENERAL": "Generale",
 			"SOUND": "Suono",
 			"EMAIL": "Email",
@@ -366,7 +356,6 @@
 			"INAPP": "In App",
 			"NOTIFICATION_HEADING_TITLE": "Impostazioni delle Notifiche",
 			"ISSUE_HEADING_TITLE": "Impostazioni Problema",
-
 			"TASK_PRIVACY": "Privacy del Compito",
 			"MULTIPLE_ASSIGNEES": "Assegnatari Multipli",
 			"MANUAL_TIME": "Tempo Manuale",
@@ -398,7 +387,6 @@
 			"TEAM_SIZE": "Dimensione del Team",
 			"EMOJI": "Emoji",
 			"ISSUES_HEADING_TITLE": "Impostazioni Problemi",
-
 			"TRACK_TIME": "Registra Tempo",
 			"ESTIMATE_ISSUE": "Stima Problema",
 			"EPICS_CREATE_CLOSE": "Creazione/Chiusura Epics",
@@ -409,7 +397,6 @@
 			"HANDLE_REQUESTS": "Gestisci Richieste",
 			"ROLES_POSITIONS_CHANGE": "Cambio Ruoli/Posizioni",
 			"VIEW_DETAILS": "Visualizza Dettagli",
-
 			"NO_INVITATIONS": "Al momento non ci sono inviti!",
 			"NO_MEMBERS": "Al momento non ci sono membri!"
 		},
@@ -456,7 +443,6 @@
 			"HEADING_DESCRIPTION": "Stiamo attualmente aggiornando il nostro sito web per servirti meglio. Per favore controllare più tardi."
 		}
 	},
-
 	"timer": {
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo",
 		"TEAM_SWITCH": {
@@ -466,7 +452,14 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Stima"
 		},
-		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }],
+		"DAY_LIST": [
+			{
+				"title": "7 days"
+			},
+			{
+				"title": "14 days"
+			}
+		],
 		"TIME_ACTIVITY": "Attività",
 		"TOTAL_HOURS": "Ore Totali",
 		"NO_SCREENSHOOT": "Nessuna Schermata",
@@ -478,7 +471,6 @@
 		"THERE_IS_NO_APPS_VISITED": "Non ci sono App Visitate.",
 		"OTHER_DETAILS": "Altri Dettagli",
 		"KEYBOARD": "Tastiera",
-
 		"MOUSE": "Mouse",
 		"TIMES": "Volte",
 		"ACTIVE": "Attivo",
@@ -486,7 +478,6 @@
 		"ARCHIVED": "Archiviato",
 		"NOT_ARCHIVED": "Non archiviato"
 	},
-
 	"task": {
 		"TITLE": "Compito",
 		"ASSIGN_NEW_TASK": "Assegna nuovo compito",
@@ -527,19 +518,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "Inserisci il tuo nome",
 		"FIRST_NAME_PLACEHOLDER": "Nome",
 		"LAST_NAME_PLACEHOLDER": "Cognome",
 		"EMAIL_PLACEHOLDER": "Inserisci il tuo indirizzo email",
+		"PASSWORD_PLACEHOLDER": "Inserisci la tua password",
 		"PHONE_PLACEHOLDER": "Numero di telefono",
-
 		"ISSUE_NAME_PLACEHOLDER": "Nome del problema",
-
 		"TEAM_NAME_PLACEHOLDER": "Inserisci il nome del tuo team",
 		"TASK_INPUT_PLACEHOLDER": "Su cosa stai lavorando?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Nome del membro del team",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Indirizzo email del membro del team",
 		"COMPLETION_DESCRIPTION": "Scrivi la descrizione",
@@ -551,7 +539,6 @@
 		"SELECT_TEAM_SIZE": "Seleziona la Dimensione del Team",
 		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Utilizza caratteri alfabetici, numerici o alfanumerici"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Tutti i diritti riservati.",
@@ -565,7 +552,6 @@
 			"BY": "Di"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "Problema di rete, riprova più tardi",
 		"ERROR_WHILE_VERIFY_CODE": "Errore durante la verifica del codice.",

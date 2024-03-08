@@ -128,7 +128,6 @@
 		"CONTACT": "Contato",
 		"ENABLED": "Habilitar",
 		"DISABLED": "Desativar",
-
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Horário",
 		"EDIT": "Editar",
@@ -174,7 +173,6 @@
 		"FILTER_COMMENTS": "Comentários",
 		"FILTER_HISTORY": "Histórico",
 		"FILTER_UNSUBSCRIBE": "Cancelar Inscrição",
-
 		"KEYBOARD_SHORTCUTS": "Atalhos do Teclado",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Ative a integração do GitHub para sincronização de projetos e repositórios",
 		"GITHUB_LOADING_TEXT": "Estamos agora a instalar a sua integração do GitHub, aguarde...",
@@ -207,7 +205,6 @@
 		"profile": {
 			"BREADCRUMB": "[\"Tarefas do Membro\"]"
 		},
-
 		"taskDetails": {
 			"BREADCRUMB": "[\"Detalhes da Tarefa\"]",
 			"DESCRIPTION": "Descrições",
@@ -234,14 +231,11 @@
 			"CREATED": "Criado",
 			"UPDATED": "Atualizado",
 			"RESOLVED": "Resolvido",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Não foi possível atualizar o Título da Tarefa.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "O Título da Tarefa não pode exceder 255 caracteres.",
-
 			"TASK_IS_ALREADY_EPIC": "O Tipo de Tarefa Épica não pode ser alterado.",
 			"TASK_HAS_PARENT": "O Tipo de Tarefa não pode ser alterado, pois a Tarefa já possui um Pai."
 		},
-
 		"auth": {
 			"SEND_CODE": "enviar código",
 			"JOIN": "Participar",
@@ -251,7 +245,6 @@
 			"INPUT_INVITE_CODE_DESC": "Insira o código de convite que enviamos para o seu e-mail.",
 			"INVALID_INVITE_CODE_MESSAGE": "Código Inválido",
 			"WELCOME_TEAMS": "Clareza em Tempo Real, Realidade em Tempo Real™.",
-
 			"COVER_TITLE": "Plataforma Aberta de Gestão de Trabalho e Projetos",
 			"COVER_DESCRIPTION": "Gestão Abrangente de Trabalho e da Força de Trabalho, Gestão de Tempo, Rastreamento de Tempo, Rastreamento de Atividades, Rastreamento de Produtividade e Métricas, Gestão de Projetos / Tarefas e Problemas, Organizações e Equipes, Integrações (GitHub, JIRA, ...) e Mais!",
 			"LOGIN": "Login",
@@ -266,10 +259,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "Login na Equipe",
 			"HEADING_DESCRIPTION": "Por favor, insira o e-mail e o código de convite para fazer login.",
-
 			"WORKSPACE": "Espaço de Trabalho",
 			"HEADING_WORKSPACE_LINE1": "O e-mail está associado a vários espaços de trabalho,",
-			"HEADING_WORKSPACE_LINE2": "por favor, selecione um para continuar"
+			"HEADING_WORKSPACE_LINE2": "por favor, selecione um para continuar",
+			"HAVE_PASSWORD": "Tem senha?",
+			"LOGIN_WITH_PASSWORD": "Faça login com a senha",
+			"LOGIN_WITH_MAGIC_CODE": "Faça login com um código mágico"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Por favor digite suas informações de login."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Criar Nova Equipe",
@@ -310,7 +308,6 @@
 			"TEAM_NAME": "Nome da Equipe",
 			"TEAM_TYPE": "Tipo de Equipe",
 			"TIME_TRACKING": "Rastreamento de Tempo",
-
 			"ADD_NEW_MEMBER": "Adicionar novo membro",
 			"MANAGE_ASSIGNEES": "Gerenciar Designados",
 			"SEARCH_MEMBER": "Procurar Membro",
@@ -320,7 +317,6 @@
 			"TASK_LABELS": "Etiquetas de Tarefa",
 			"ISSUE_TYPES": "Tipos de Problema",
 			"RELATED_TYPE": "Tipo Relacionado",
-
 			"INVITATION_HEADING_TITLE": "Convites",
 			"CREATE_NEW_STATUSES": "Criar novos Status",
 			"CREATE_NEW_STATUS": "Criar novo Status",
@@ -332,7 +328,6 @@
 			"CREATE_NEW_LABELS": "Criar novas Etiquetas",
 			"CREATE_NEW_LABEL": "Criar nova Etiqueta",
 			"CREATE_NEW_ISSUE_TYPES": "Criar novos Tipos de Problema",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "Ocultar Informações Pessoais dos Membros",
 			"POSITION_CUSTOM": "Posições personalizadas",
 			"INVITATION_EXPIRATION": "Validade do Convite",
@@ -342,19 +337,15 @@
 			"MEMBER_AND_ROLES": "Membros e Funções",
 			"INTEGRATIONS": "Integrações",
 			"DANDER_ZONES": "Zona de Perigo",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "Conecte-se ao GitHub e comece a sincronizar problemas do GitHub com sua Equipe",
 			"SELECT_REPOSITORY": "Selecionar Repositório",
-
 			"INSTALL": "Instalar",
-
 			"LIST_OF_STATUSES": "Lista de Status",
 			"LIST_OF_PRIORITIES": "Lista de Prioridades",
 			"LIST_OF_SIZES": "Lista de Tamanhos",
 			"LIST_OF_LABELS": "Lista de Etiquetas",
 			"LIST_OF_ISSUES_TYPE": "Lista de Tipos de Problema",
-
 			"GENERAL": "Geral",
 			"SOUND": "Som",
 			"EMAIL": "E-mail",
@@ -365,7 +356,6 @@
 			"INAPP": "No Aplicativo",
 			"NOTIFICATION_HEADING_TITLE": "Configurações de Notificação",
 			"ISSUE_HEADING_TITLE": "Configurações de Problema",
-
 			"TASK_PRIVACY": "Privacidade da Tarefa",
 			"MULTIPLE_ASSIGNEES": "Designados Múltiplos",
 			"MANUAL_TIME": "Tempo Manual",
@@ -397,7 +387,6 @@
 			"TEAM_SIZE": "Tamanho da Equipe",
 			"EMOJI": "Emoji",
 			"ISSUES_HEADING_TITLE": "Configurações de Problemas",
-
 			"TRACK_TIME": "Rastrear Tempo",
 			"ESTIMATE_ISSUE": "Estimar problema",
 			"EPICS_CREATE_CLOSE": "Criar/Fechar Épicos",
@@ -408,7 +397,6 @@
 			"HANDLE_REQUESTS": "Gerenciar solicitações",
 			"ROLES_POSITIONS_CHANGE": "Alterar Funções/Posições",
 			"VIEW_DETAILS": "Ver Detalhes",
-
 			"NO_INVITATIONS": "Não há convites no momento!",
 			"NO_MEMBERS": "Não há membros no momento!"
 		},
@@ -455,7 +443,6 @@
 			"HEADING_DESCRIPTION": "Estamos atualizando nosso site para melhor atendê-lo. Por favor, volte mais tarde."
 		}
 	},
-
 	"timer": {
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo",
 		"TEAM_SWITCH": {
@@ -465,7 +452,14 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimativa"
 		},
-		"DAY_LIST": [{ "title": "7 dias" }, { "title": "14 dias" }],
+		"DAY_LIST": [
+			{
+				"title": "7 dias"
+			},
+			{
+				"title": "14 dias"
+			}
+		],
 		"TIME_ACTIVITY": "Atividade",
 		"TOTAL_HOURS": "Total de Horas",
 		"NO_SCREENSHOOT": "Sem Capturas de Tela",
@@ -477,7 +471,6 @@
 		"THERE_IS_NO_APPS_VISITED": "Não há Aplicativos Visitados.",
 		"OTHER_DETAILS": "Outros detalhes",
 		"KEYBOARD": "Teclado",
-
 		"MOUSE": "Mouse",
 		"TIMES": "Vezes",
 		"ACTIVE": "Ativo",
@@ -485,7 +478,6 @@
 		"ARCHIVED": "Arquivado",
 		"NOT_ARCHIVED": "Não arquivado"
 	},
-
 	"task": {
 		"TITLE": "Tarefa",
 		"ASSIGN_NEW_TASK": "Atribuir nova tarefa",
@@ -526,19 +518,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Por favor, confirme se deseja fechar a tarefa"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "Digite seu nome",
 		"FIRST_NAME_PLACEHOLDER": "Primeiro Nome",
 		"LAST_NAME_PLACEHOLDER": "Sobrenome",
 		"EMAIL_PLACEHOLDER": "Digite seu endereço de e-mail",
+		"PASSWORD_PLACEHOLDER": "Coloque sua senha",
 		"PHONE_PLACEHOLDER": "Número de telefone",
-
 		"ISSUE_NAME_PLACEHOLDER": "Nome da tarefa",
-
 		"TEAM_NAME_PLACEHOLDER": "Por favor, digite o nome da sua equipe",
 		"TASK_INPUT_PLACEHOLDER": "No que você está trabalhando?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Nome do membro da equipe",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Endereço de e-mail do membro da equipe",
 		"COMPLETION_DESCRIPTION": "Escreva a descrição",
@@ -550,7 +539,6 @@
 		"SELECT_TEAM_SIZE": "Selecionar Tamanho da Equipe",
 		"INVALID_ALLOWED_CHARACTER": "Valor inválido para allowedCharacters. Use alfabético, numérico ou alfanumérico"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Todos os direitos reservados.",
@@ -564,7 +552,6 @@
 			"BY": "Por"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "problema de rede, por favor, tente novamente mais tarde",
 		"ERROR_WHILE_VERIFY_CODE": "Erro ao verificar o código.",
