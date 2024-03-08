@@ -2,7 +2,7 @@ import { serverFetch } from '../fetch';
 
 export function getDefaultRequest() {
 	return serverFetch({
-		path: `/health`,
+		path: `/`,
 		method: 'GET'
 	});
 }
