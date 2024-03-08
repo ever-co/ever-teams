@@ -4,7 +4,7 @@ import { Navbar } from 'lib/layout';
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 
-const GlobalKkeleton = () => {
+const GlobalSkeleton = () => {
 	const fullWidth = useRecoilValue(fullWidthState);
 	return (
 		<div className="h-screen">
@@ -43,4 +43,4 @@ const GlobalKkeleton = () => {
 	);
 };
 
-export default GlobalKkeleton;
+export default GlobalSkeleton;

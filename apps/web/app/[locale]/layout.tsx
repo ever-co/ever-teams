@@ -30,7 +30,7 @@ interface Props {
 }
 
 import { Poppins } from 'next/font/google';
-import GlobalKkeleton from '@components/ui/global-skeleton';
+import GlobalSkeleton from '@components/ui/global-skeleton';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -86,7 +86,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 							{loading ? (
-								<GlobalKkeleton />
+								<GlobalSkeleton />
 							) : (
 								<>
 									<AppState />

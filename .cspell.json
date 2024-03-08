@@ -332,7 +332,8 @@
 		"Koyeb",
 		"Northflank",
 		"prebuild",
-		"dataToDisplay"
+		"dataToDisplay",
+		"GlobalSkeleton"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
