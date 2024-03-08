@@ -4,6 +4,7 @@
 import clsx from 'clsx';
 import { notFound, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { RecoilRoot } from 'recoil';
 import { AppState } from 'lib/app/init-state';
@@ -54,6 +55,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
 	const router = useRouter();
+	const pathname = usePathname();
 	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
@@ -62,8 +64,8 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	const messages = require(`../../messages/${locale}.json`);
 
 	useEffect(() => {
-		if (!isApiWork) router.replace('maintenance');
-	}, [isApiWork, router]);
+		if (!isApiWork && !loading) router.replace(`maintenance/${pathname}`);
+	}, [isApiWork, loading, router, pathname]);
 	return (
 		<html lang={locale} className={poppins.variable}>
 			{/* <head>
