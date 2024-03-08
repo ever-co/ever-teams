@@ -44,7 +44,6 @@
 		"REMOVE_EVERYWHERE": "完全移除",
 		"DELETE_ALL_DATA": "删除所有数据",
 		"DONT_HAVE_ACCOUNT": "没有账户?",
-
 		"DELETE_ACCOUNT": "删除此账户",
 		"UNASSIGN_TASK": "取消分配任务",
 		"MAKE_A_MANAGER": "设为管理员",
@@ -165,7 +164,6 @@
 		"REOPEN": "重新开启",
 		"NO_TASKS": "无任务",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "改变任务前请先停止计时器",
-
 		"COLLABORATE_DIALOG_TITLE": "开始协作",
 		"COLLABORATE_DIALOG_SUB_TITLE": "邀请成员并开始协作",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "开始会议或看板协作",
@@ -175,7 +173,6 @@
 		"FILTER_COMMENTS": "评论",
 		"FILTER_HISTORY": "历史",
 		"FILTER_UNSUBSCRIBE": "取消订阅",
-
 		"KEYBOARD_SHORTCUTS": "快捷键",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "激活 GitHub 集成以进行项目和仓库同步",
 		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等...",
@@ -234,10 +231,8 @@
 			"CREATED": "创建时间",
 			"UPDATED": "更新时间",
 			"RESOLVED": "解决时间",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "无法更新任务标题。",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "任务标题不能超过255个字符。",
-
 			"TASK_IS_ALREADY_EPIC": "史诗类型任务无法更改。",
 			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。"
 		},
@@ -250,7 +245,6 @@
 			"INPUT_INVITE_CODE_DESC": "输入我们发送到您电子邮件的邀请码。",
 			"INVALID_INVITE_CODE_MESSAGE": "无效的邀请码",
 			"WELCOME_TEAMS": "欢迎使用永恒团队",
-
 			"COVER_TITLE": "实时跟踪您团队的工作进度!",
 			"COVER_DESCRIPTION": "一站式工作和人力管理，时间管理，时间跟踪，活动跟踪，生产力跟踪和指标，项目/任务和问题管理，组织和团队，集成（GitHub，JIRA，...）等等！",
 			"LOGIN": "登录",
@@ -265,10 +259,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "登录团队",
 			"HEADING_DESCRIPTION": "请输入电子邮箱和邀请码进行登录。",
-
 			"WORKSPACE": "工作区",
 			"HEADING_WORKSPACE_LINE1": "此电子邮箱关联了多个工作区,",
-			"HEADING_WORKSPACE_LINE2": "请选择一个以继续"
+			"HEADING_WORKSPACE_LINE2": "请选择一个以继续",
+			"HAVE_PASSWORD": "有密码吗？",
+			"LOGIN_WITH_PASSWORD": "使用密码登录",
+			"LOGIN_WITH_MAGIC_CODE": "使用魔法码登录"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "请输入您的登录信息。"
 		},
 		"authTeam": {
 			"HEADING_TITLE": "创建新团队",
@@ -309,7 +308,6 @@
 			"TEAM_NAME": "团队名称",
 			"TEAM_TYPE": "团队类型",
 			"TIME_TRACKING": "时间跟踪",
-
 			"ADD_NEW_MEMBER": "添加新成员",
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",
@@ -319,7 +317,6 @@
 			"TASK_LABELS": "任务标签",
 			"ISSUE_TYPES": "议题类型",
 			"RELATED_TYPE": "相关类型",
-
 			"INVITATION_HEADING_TITLE": "邀请",
 			"CREATE_NEW_STATUSES": "创建新状态",
 			"CREATE_NEW_STATUS": "创建新状态",
@@ -331,7 +328,6 @@
 			"CREATE_NEW_LABELS": "创建新标签",
 			"CREATE_NEW_LABEL": "创建新标签",
 			"CREATE_NEW_ISSUE_TYPES": "创建新议题",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "隐藏成员个人信息",
 			"POSITION_CUSTOM": "自定义职位",
 			"INVITATION_EXPIRATION": "邀请过期",
@@ -341,19 +337,15 @@
 			"MEMBER_AND_ROLES": "成员与角色",
 			"INTEGRATIONS": "集成",
 			"DANDER_ZONES": "危险区域",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "与GitHub集成并开始与团队同步GitHub议题",
 			"SELECT_REPOSITORY": "选择仓库",
-
 			"INSTALL": "安装",
-
 			"LIST_OF_STATUSES": "状态列表",
 			"LIST_OF_PRIORITIES": "优先级列表",
 			"LIST_OF_SIZES": "大小列表",
 			"LIST_OF_LABELS": "标签列表",
 			"LIST_OF_ISSUES_TYPE": "议题列表",
-
 			"GENERAL": "常规",
 			"SOUND": "声音",
 			"EMAIL": "电子邮箱",
@@ -364,7 +356,6 @@
 			"INAPP": "应用内",
 			"NOTIFICATION_HEADING_TITLE": "通知设置",
 			"ISSUE_HEADING_TITLE": "议题设置",
-
 			"TASK_PRIVACY": "任务隐私",
 			"MULTIPLE_ASSIGNEES": "多重受分配者",
 			"MANUAL_TIME": "手动计时",
@@ -396,7 +387,6 @@
 			"TEAM_SIZE": "团队大小",
 			"EMOJI": "表情",
 			"ISSUES_HEADING_TITLE": "议题设置",
-
 			"TRACK_TIME": "跟踪时间",
 			"ESTIMATE_ISSUE": "估算议题",
 			"EPICS_CREATE_CLOSE": "史诗创建/关闭",
@@ -407,7 +397,6 @@
 			"HANDLE_REQUESTS": "处理请求",
 			"ROLES_POSITIONS_CHANGE": "角色/职位更改",
 			"VIEW_DETAILS": "查看详情",
-
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!"
 		},
@@ -454,7 +443,6 @@
 			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
 		}
 	},
-
 	"timer": {
 		"ACTIVE": "活跃",
 		"APPS": "应用",
@@ -481,9 +469,15 @@
 		"TIMES": "次数",
 		"TOTAL_HOURS": "总共小时",
 		"VISITED_DATES": "访问日期",
-		"DAY_LIST": [{ "title": "7天" }, { "title": "14天" }]
+		"DAY_LIST": [
+			{
+				"title": "7天"
+			},
+			{
+				"title": "14天"
+			}
+		]
 	},
-
 	"task": {
 		"TITLE": "任务",
 		"ASSIGN_NEW_TASK": "分配新任务",
@@ -524,19 +518,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",
 		"FIRST_NAME_PLACEHOLDER": "名",
 		"LAST_NAME_PLACEHOLDER": "姓",
 		"EMAIL_PLACEHOLDER": "输入您的电子邮箱",
+		"PASSWORD_PLACEHOLDER": "输入您的密码",
 		"PHONE_PLACEHOLDER": "电话号码",
-
 		"ISSUE_NAME_PLACEHOLDER": "议题名称",
-
 		"TEAM_NAME_PLACEHOLDER": "请输入您的团队名称",
 		"TASK_INPUT_PLACEHOLDER": "您在做什么?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "团队成员姓名",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "团队成员电子邮箱",
 		"COMPLETION_DESCRIPTION": "编写描述",
@@ -548,7 +539,6 @@
 		"SELECT_TEAM_SIZE": "选择团队规模",
 		"INVALID_ALLOWED_CHARACTER": "的值无效。请使用字母、数字或字母数字"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "版权所有。",
@@ -562,7 +552,6 @@
 			"BY": "by"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "网络问题,请稍后再试",
 		"ERROR_WHILE_VERIFY_CODE": "验证码验证时出错。",

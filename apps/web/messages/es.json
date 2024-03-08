@@ -261,7 +261,13 @@
 			"HEADING_DESCRIPTION": "Por favor ingrese el correo electrónico y el código de invitación para iniciar sesión.",
 			"WORKSPACE": "Espacio de trabajo",
 			"HEADING_WORKSPACE_LINE1": "El correo electrónico asociado con múltiples espacios de trabajo,",
-			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar"
+			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar",
+			"HAVE_PASSWORD": "¿Tiene contraseña?",
+			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
+			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Crear nuevo equipo",
@@ -517,6 +523,7 @@
 		"FIRST_NAME_PLACEHOLDER": "Nombre",
 		"LAST_NAME_PLACEHOLDER": "Apellido",
 		"EMAIL_PLACEHOLDER": "Ingresa tu dirección de correo electrónico",
+		"PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
 		"PHONE_PLACEHOLDER": "Número de teléfono",
 		"ISSUE_NAME_PLACEHOLDER": "Nombre del problema",
 		"TEAM_NAME_PLACEHOLDER": "Ingresa el nombre de tu equipo",
