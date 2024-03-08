@@ -158,6 +158,7 @@
 		"CHILD_ISSUES": "Child Issues",
 		"REOPEN": "Reopen",
 		"NO_TASKS": "No Tasks",
+		"FULL_WIDTH": "Full width",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Task",
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invite member(s) and start collaborating",

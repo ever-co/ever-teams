@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "Dziecięce Problemy",
 		"REOPEN": "Ponownie Otwórz",
 		"NO_TASKS": "Brak Zadań",
+		"FULL_WIDTH": "Pełna szerokość",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed zmianą Zadania",
 		"COLLABORATE_DIALOG_TITLE": "Rozpocznij Współpracę",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Zaproś członka(-ów) i rozpocznij współpracę",
@@ -296,7 +297,7 @@
 			"SUBSCRIPTION": "Subskrypcja",
 			"ABOUT_TO_CHANGE_EMAIL": "Zamierzasz zmienić adres e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Zamierzasz usunąć swoje konto?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Synchronizacja danych",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Zamierzasz usunąć swoje konto?"
 		},
 		"settingsTeam": {

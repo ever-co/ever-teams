@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "Untergeordnete Tickets",
 		"REOPEN": "Wieder öffnen",
 		"NO_TASKS": "Keine Aufgaben",
+		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Mitglied(er) einladen und zusammenarbeiten",
@@ -294,10 +295,10 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Ihre Zeitzone",
 			"ABOUT_TO_CHANGE_EMAIL": "Sie sind im Begriff, die E-Mail zu ändern",
 			"ABOUT_TO_DELETE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu löschen?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Daten-Synchronisation",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu entfernen?",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Sie werden bald aus allen Teams gestrichen, es sei denn, Sie sind der einzige Manager?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Sie sind dabei, Ihr Konto und alle Ihre Daten zu löschen?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Allgemeine Einstellungen",

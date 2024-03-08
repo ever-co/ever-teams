@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "Problemi Figlio",
 		"REOPEN": "Riapri",
 		"NO_TASKS": "Nessun Compito",
+		"FULL_WIDTH": "A tutta larghezza",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Si prega di fermare il Timer prima di cambiare il Compito",
 		"COLLABORATE_DIALOG_TITLE": "Inizia Collaborazione",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invita membro(i) e inizia a collaborare",
@@ -296,7 +297,7 @@
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Stai per essere rimosso da tutti i team, a meno che tu non sia l'unico manager?",
 			"ABOUT_TO_CHANGE_EMAIL": "Stai per cambiare l'email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Stai per eliminare il tuo account?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Sincronizzazione dei dati",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Stai per rimuovere il tuo account?"
 		},
 		"settingsTeam": {

@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "Детски проблеми",
 		"REOPEN": "Отваряне отново",
 		"NO_TASKS": "Няма задачи",
+		"FULL_WIDTH": "Пълна ширина",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да промените задачата",
 		"COLLABORATE_DIALOG_TITLE": "Стартиране на сътрудничество",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Поканете член(ове) и започнете да си сътрудничите",
@@ -294,10 +295,10 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Вашата часова зона",
 			"ABOUT_TO_CHANGE_EMAIL": "Ще промените имейл",
 			"ABOUT_TO_DELETE_ACCOUNT": "Ще изтриете профила си?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Синхронизиране на данни",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Ще премахнете профила си?",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Скоро ще бъдете отстранени от всички отбори, освен ако не сте единственият мениджър?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Предстои да изтриете профила си и всичките си данни ?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Основни настройки",

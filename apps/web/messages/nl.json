@@ -162,6 +162,7 @@
 		"CHILD_ISSUES": "Onderliggende problemen",
 		"REOPEN": "Heropenen",
 		"NO_TASKS": "Geen taken",
+		"FULL_WIDTH": "Volledige breedte",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u de taak wijzigt",
 		"COLLABORATE_DIALOG_TITLE": "Samenwerking starten",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Nodig teamleden uit en begin samen te werken",
@@ -184,7 +185,7 @@
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Alle accountgegevens worden verwijderd uit alle teams waar je ALLEEN een bestaande manager bent.",
 		"ALERT_REMOVE_TEAM": "Team wordt volledig verwijderd uit het systeem en teamleden verliezen toegang",
 		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten"
 	},
@@ -296,7 +297,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Uw tijdzone",
 			"ABOUT_TO_CHANGE_EMAIL": "U staat op het punt het e-mailadres te wijzigen",
 			"ABOUT_TO_DELETE_ACCOUNT": "U staat op het punt uw account te verwijderen?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Gegevenssynchronisatie",
 			"ABOUT_TO_REMOVE_ACCOUNT": "U staat op het punt uw account te verwijderen?"
 		},
 		"settingsTeam": {

@@ -158,6 +158,7 @@
 		"CHILD_ISSUES": "Child Issues",
 		"REOPEN": "Reopen",
 		"NO_TASKS": "No Tasks",
+		"FULL_WIDTH": "Largura total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Task",
 
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
@@ -182,7 +183,7 @@
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Todos os dados da conta serão removidos de todas as equipas em que exista APENAS um gestor",
 		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},
 	"pages": {
@@ -288,7 +289,7 @@
 			"SUBSCRIPTION": "Subscription",
 			"ABOUT_TO_CHANGE_EMAIL": "You are about to change Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Sincronização de dados",
 			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to Remove your account ?"
 		},
 		"settingsTeam": {
