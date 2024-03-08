@@ -2,8 +2,8 @@
 'use client';
 
 import clsx from 'clsx';
-import { notFound } from 'next/navigation';
-import { ReactNode } from 'react';
+import { notFound, useRouter } from 'next/navigation';
+import { ReactNode, useEffect } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { RecoilRoot } from 'recoil';
 import { AppState } from 'lib/app/init-state';
@@ -14,7 +14,6 @@ import { ThemeProvider } from 'next-themes';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
-import Maintenance from '@components/pages/maintenance';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
@@ -31,6 +30,7 @@ interface Props {
 }
 
 import { Poppins } from 'next/font/google';
+import GlobalKkeleton from '@components/ui/global-skeleton';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -53,12 +53,17 @@ const poppins = Poppins({
 const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
+	const router = useRouter();
 	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
+
+	useEffect(() => {
+		if (!isApiWork) router.replace('maintenance');
+	}, [isApiWork, router]);
 	return (
 		<html lang={locale} className={poppins.variable}>
 			{/* <head>
@@ -80,13 +85,13 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							{isApiWork || loading ? (
+							{loading ? (
+								<GlobalKkeleton />
+							) : (
 								<>
 									<AppState />
 									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
 								</>
-							) : (
-								<Maintenance />
 							)}
 						</ThemeProvider>
 					</RecoilRoot>

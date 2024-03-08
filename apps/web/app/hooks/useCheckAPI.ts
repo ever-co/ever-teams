@@ -8,14 +8,9 @@ export function useCheckAPI() {
 	const { queryCall, loading } = useQuery(getDefaultAPI);
 	const [isApiWork, setIsApiWork] = React.useState(true);
 
-	const checkAPI = useCallback(() => {
-		queryCall()
-			.then(() => {
-				setIsApiWork(true);
-			})
-			.catch(() => {
-				setIsApiWork(false);
-			});
+	const checkAPI = useCallback(async () => {
+		const response = await queryCall();
+		setIsApiWork(response.status == 200);
 	}, [queryCall]);
 
 	useEffect(() => {
