@@ -104,7 +104,7 @@ export function signInEmailPasswordAPI(email: string, password: string) {
 		? '/auth/signin.email.password?includeTeams=true'
 		: `/auth/signin-email-password`;
 
-	return post<ILoginResponse>(endpoint, { email, password });
+	return post<ISigninEmailConfirmResponse>(endpoint, { email, password });
 }
 
 export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
