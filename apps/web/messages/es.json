@@ -163,6 +163,7 @@
 		"CHILD_ISSUES": "Problemas secundarios",
 		"REOPEN": "Reabrir",
 		"NO_TASKS": "Sin tareas",
+		"FULL_WIDTH": "Ancho total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de cambiar la tarea",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar colaboración",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invitar miembro(s) y empezar a colaborar",
@@ -261,7 +262,13 @@
 			"HEADING_DESCRIPTION": "Por favor ingrese el correo electrónico y el código de invitación para iniciar sesión.",
 			"WORKSPACE": "Espacio de trabajo",
 			"HEADING_WORKSPACE_LINE1": "El correo electrónico asociado con múltiples espacios de trabajo,",
-			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar"
+			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar",
+			"HAVE_PASSWORD": "¿Tiene contraseña?",
+			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
+			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Crear nuevo equipo",
@@ -287,11 +294,11 @@
 			"SUBSCRIPTION": "Suscripción",
 			"ABOUT_TO_CHANGE_EMAIL": "Estás a punto de cambiar el Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Sincronización de datos",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
-			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Tu zona horaria",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "¿Estás a punto de ser eliminado de todos los equipos, a menos que seas el único entrenador?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "¿Estás a punto de eliminar tu cuenta y todos tus datos?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Ajustes generales",
@@ -517,6 +524,7 @@
 		"FIRST_NAME_PLACEHOLDER": "Nombre",
 		"LAST_NAME_PLACEHOLDER": "Apellido",
 		"EMAIL_PLACEHOLDER": "Ingresa tu dirección de correo electrónico",
+		"PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
 		"PHONE_PLACEHOLDER": "Número de teléfono",
 		"ISSUE_NAME_PLACEHOLDER": "Nombre del problema",
 		"TEAM_NAME_PLACEHOLDER": "Ingresa el nombre de tu equipo",

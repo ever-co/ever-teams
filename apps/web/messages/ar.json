@@ -163,8 +163,8 @@
 		"CHILD_ISSUES": "القضايا الفرعية",
 		"REOPEN": "إعادة فتح",
 		"NO_TASKS": "لا توجد مهام",
+		"FULL_WIDTH": "العرض الكاملh",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
-
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
 		"COLLABORATE_DIALOG_SUB_TITLE": "ادعُ عضوًا (أعضاء) وابدأ التعاون",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "بدء اجتماع أو تعاون لوحة",
@@ -174,7 +174,6 @@
 		"FILTER_COMMENTS": "التعليقات",
 		"FILTER_HISTORY": "التاريخ",
 		"FILTER_UNSUBSCRIBE": "إلغاء الاشتراك",
-
 		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح",
 		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل.",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "قم بمزامنة المهام تلقائيًا في تطبيقك لتحديثات سلسة وفعّالة.",
@@ -187,7 +186,7 @@
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "سيتم حذف حسابك نهائياً مع إزالته من جميع الفرق",
 		"ALERT_REMOVE_TEAM": "سيتم إزالة الفريق بالكامل من النظام وفقدان أعضاء الفريق للوصول",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "ستتم إزالة جميع بيانات الحساب من جميع الفرق التي تكون فيها مديرًا موجودًا واحدًا فقط",
 		"ALERT_QUIT_TEAM": "أنت على وشك مغادرة الفريق"
 	},
 	"pages": {
@@ -207,7 +206,6 @@
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]"
 		},
-
 		"taskDetails": {
 			"BREADCRUMB": "[\"تفاصيل المهمة\"]",
 			"DESCRIPTION": "الوصف",
@@ -234,14 +232,11 @@
 			"CREATED": "تم الإنشاء",
 			"UPDATED": "تم التحديث",
 			"RESOLVED": "تم الحل",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "تعذر علينا تحديث عنوان المهمة.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
-
 			"TASK_IS_ALREADY_EPIC": "لا يمكن تغيير نوع المهمة الملحمية.",
 			"TASK_HAS_PARENT": "لا يمكن تغيير نوع المهمة حيث أن لديها بالفعل والد."
 		},
-
 		"auth": {
 			"SEND_CODE": "إرسال الرمز",
 			"JOIN": "انضمام",
@@ -251,7 +246,6 @@
 			"INPUT_INVITE_CODE_DESC": "أدخل رمز الدعوة الذي أرسلناه إلى بريدك الإلكتروني.",
 			"INVALID_INVITE_CODE_MESSAGE": "رمز غير صالح",
 			"WELCOME_TEAMS": "مرحبًا بك في إيفر تيمز",
-
 			"COVER_TITLE": "تابع تقدم عمل فرقك في الوقت الفعلي!",
 			"COVER_DESCRIPTION": "نص تجريبي هنا",
 			"LOGIN": "تسجيل الدخول",
@@ -266,10 +260,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "تسجيل الدخول إلى الفريق",
 			"HEADING_DESCRIPTION": "يرجى إدخال البريد الإلكتروني ورمز الدعوة لتسجيل الدخول.",
-
 			"WORKSPACE": "مساحة العمل",
 			"HEADING_WORKSPACE_LINE1": "البريد الإلكتروني المرتبط بمساحات عمل متعددة،",
-			"HEADING_WORKSPACE_LINE2": "يرجى تحديد واحدة للمتابعة"
+			"HEADING_WORKSPACE_LINE2": "يرجى تحديد واحدة للمتابعة",
+			"HAVE_PASSWORD": "هل لديك كلمة مرور؟",
+			"LOGIN_WITH_PASSWORD": "تسجيل الدخول باستخدام كلمة المرور",
+			"LOGIN_WITH_MAGIC_CODE": "قم بتسجيل الدخول باستخدام الرمز السحري"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "يرجى إدخال معلومات تسجيل الدخول الخاصة بك."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "إنشاء فريق جديد",
@@ -281,14 +280,12 @@
 			"CREATE_FIRST_TEAM": "أنشئ أول فريق لك",
 			"CREATE_TEAM": "إنشاء فريق"
 		},
-
 		"settings": {
 			"BREADCRUMB": "[\"لوحة التحكم\", \"الإعدادات\"]",
 			"DANDER_ZONE": "منطقة الخطر",
 			"HEADING_DESCRIPTION": "ضبط وإدارة لوحة التحكم الشخصية هنا",
 			"ARE_YOU_SURE_TO_DELETE_USER": "هل أنت متأكد من رغبتك في حذف هذا المستخدم؟"
 		},
-
 		"settingsPersonal": {
 			"HEADING_TITLE": "الإعدادات العامة",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
@@ -298,12 +295,11 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "المنطقة الزمنية الخاصة بك",
 			"ABOUT_TO_CHANGE_EMAIL": "أنت على وشك تغيير البريد الإلكتروني",
 			"ABOUT_TO_DELETE_ACCOUNT": "أنت على وشك حذف حسابك؟",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "مزامنة البيانات",
 			"ABOUT_TO_REMOVE_ACCOUNT": "أنت على وشك إزالة حسابك؟",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "أنت على وشك الإزالة من جميع الفرق، إلا إذا كنت المدير الوحيد ؟",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "أنت على وشك حذف حسابك وجميع بياناتك"
 		},
-
 		"settingsTeam": {
 			"HEADING_TITLE": "الإعدادات العامة",
 			"MEMBER_HEADING_TITLE": "الأعضاء",
@@ -313,7 +309,6 @@
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
 			"TIME_TRACKING": "تتبع الوقت",
-
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
@@ -323,7 +318,6 @@
 			"TASK_LABELS": "تصنيفات المهام",
 			"ISSUE_TYPES": "أنواع القضايا",
 			"RELATED_TYPE": "النوع ذو الصلة",
-
 			"INVITATION_HEADING_TITLE": "الدعوات",
 			"CREATE_NEW_STATUSES": "إنشاء حالات جديدة",
 			"CREATE_NEW_STATUS": "إنشاء حالة جديدة",
@@ -335,7 +329,6 @@
 			"CREATE_NEW_LABELS": "إنشاء تصنيفات جديدة",
 			"CREATE_NEW_LABEL": "إنشاء تصنيف جديد",
 			"CREATE_NEW_ISSUE_TYPES": "إنشاء قضايا جديدة",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "إخفاء معلومات الأعضاء الشخصية",
 			"POSITION_CUSTOM": "المناصب المخصصة",
 			"INVITATION_EXPIRATION": "انتهاء صلاحية الدعوة",
@@ -345,19 +338,15 @@
 			"MEMBER_AND_ROLES": "الأعضاء والأدوار",
 			"INTEGRATIONS": "التكاملات",
 			"DANDER_ZONES": "مناطق الخطر",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "قم بالاتصال بـ GitHub وابدأ مزامنة قضايا GitHub مع فريقك",
 			"SELECT_REPOSITORY": "تحديد المستودع",
-
 			"INSTALL": "تثبيت",
-
 			"LIST_OF_STATUSES": "قائمة الحالات",
 			"LIST_OF_PRIORITIES": "قائمة الأولويات",
 			"LIST_OF_SIZES": "قائمة الأحجام",
 			"LIST_OF_LABELS": "قائمة التصنيفات",
 			"LIST_OF_ISSUES_TYPE": "قائمة القضايا",
-
 			"GENERAL": "عام",
 			"SOUND": "الصوت",
 			"EMAIL": "البريد الإلكتروني",
@@ -368,7 +357,6 @@
 			"INAPP": "داخل التطبيق",
 			"NOTIFICATION_HEADING_TITLE": "إعدادات الإشعارات",
 			"ISSUE_HEADING_TITLE": "إعدادات القضايا",
-
 			"TASK_PRIVACY": "خصوصية المهمة",
 			"MULTIPLE_ASSIGNEES": "متعدد المعينين",
 			"MANUAL_TIME": "الوقت اليدوي",
@@ -400,7 +388,6 @@
 			"TEAM_SIZE": "حجم الفريق",
 			"EMOJI": "الإيموجي",
 			"ISSUES_HEADING_TITLE": "إعدادات القضايا",
-
 			"TRACK_TIME": "تتبع الوقت",
 			"ESTIMATE_ISSUE": "تقدير القضية",
 			"EPICS_CREATE_CLOSE": "إنشاء/إغلاق الملاحم",
@@ -411,7 +398,6 @@
 			"HANDLE_REQUESTS": "التعامل مع الطلبات",
 			"ROLES_POSITIONS_CHANGE": "تغيير الأدوار/المناصب",
 			"VIEW_DETAILS": "عرض التفاصيل",
-
 			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
 			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!"
 		},
@@ -434,7 +420,6 @@
 		"permissions": {
 			"SELECT_ROLES": "تحديد الأدوار"
 		},
-
 		"unauthorized": {
 			"TITLE": "غير مصرح",
 			"HEADING_TITLE": "أنت غير مفوض لدخول هذه الصفحة !",
@@ -459,7 +444,6 @@
 			"HEADING_DESCRIPTION": "نقوم حاليًا بتحديث موقعنا الإلكتروني لخدمتك بشكل أفضل. يرجى التحقق مرة أخرى في وقت لاحق."
 		}
 	},
-
 	"timer": {
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
@@ -486,9 +470,15 @@
 		"OTHER_DETAILS": "تفاصيل أخرى",
 		"PERCENT_OF_MINUTES": " % من 10 دقائق",
 		"PERCENT_USED": "النسبة المئوية المستخدمة",
-		"DAY_LIST": [{ "title": "7 أيام" }, { "title": "14 يوم" }]
+		"DAY_LIST": [
+			{
+				"title": "7 أيام"
+			},
+			{
+				"title": "14 يوم"
+			}
+		]
 	},
-
 	"task": {
 		"TITLE": "المهمة",
 		"ASSIGN_NEW_TASK": "تعيين مهمة جديدة",
@@ -529,19 +519,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",
 		"FIRST_NAME_PLACEHOLDER": "الاسم الأول",
 		"LAST_NAME_PLACEHOLDER": "اسم العائلة",
 		"EMAIL_PLACEHOLDER": "أدخل عنوان بريدك الإلكتروني",
+		"PASSWORD_PLACEHOLDER": "ادخل رقمك السري",
 		"PHONE_PLACEHOLDER": "رقم الهاتف",
-
 		"ISSUE_NAME_PLACEHOLDER": "اسم القضية",
-
 		"TEAM_NAME_PLACEHOLDER": "يرجى إدخال اسم فريقك",
 		"TASK_INPUT_PLACEHOLDER": "على ماذا تعمل؟",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "اسم عضو الفريق",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "عنوان بريد عضو الفريق الإلكتروني",
 		"COMPLETION_DESCRIPTION": "اكتب الوصف",
@@ -553,7 +540,6 @@
 		"SELECT_TEAM_SIZE": "حدد حجم الفريق",
 		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "جميع الحقوق محفوظة.",
@@ -567,7 +553,6 @@
 			"BY": "من طرف"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "مشكلة في الشبكة، يرجى إعادة المحاولة لاحقًا",
 		"ERROR_WHILE_VERIFY_CODE": "حدث خطأ أثناء التحقق من الرمز.",

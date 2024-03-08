@@ -44,7 +44,9 @@ export function useAuthenticationTeam() {
 		const emailQuery = query?.get('email') || localEmail || '';
 		return emailQuery;
 	}, [query]);
+
 	initialValues.email = queryEmail;
+
 	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);

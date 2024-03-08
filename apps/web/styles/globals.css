@@ -143,7 +143,7 @@ html.dark {
 
 	/* ------------------- Input ----------------------- */
 	.input-border {
-		@apply border-[#00000021] dark:border-[#34353D] border-solid border;
+		@apply border-[#00000021] dark:border-[#3b3c44] border-solid border;
 		@apply dark:bg-[#1B1D22];
 	}
 

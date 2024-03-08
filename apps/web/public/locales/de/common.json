@@ -156,6 +156,7 @@
 		"CHILD_ISSUES": "Untergeordnete Tickets",
 		"REOPEN": "Wieder öffnen",
 		"NO_TASKS": "Keine Aufgaben",
+		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
 
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",
@@ -180,7 +181,7 @@
 		"ALERT_DELETE_ACCOUNT": "Das Konto wird von allen Teams entfernt, außer wo Sie nur Manager sind",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Alle Kontodaten werden aus allen Teams entfernt, in denen Sie NUR ein bestehender Manager sind.",
 		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen"
 	},
 	"pages": {
@@ -442,8 +443,8 @@
 			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
 		},
 		"maintenance": {
-			"HEADING_TITLE": "我們正在維護中",
-			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
+			"HEADING_TITLE": "Wir halten es instand.",
+			"HEADING_DESCRIPTION": "Wir aktualisieren derzeit unsere Website, um Sie besser bedienen zu können. Bitte schauen Sie später wieder vorbei."
 		}
 	},
 	"timer": {
