@@ -65,6 +65,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 
 	useEffect(() => {
 		if (!isApiWork && !loading) router.replace(`maintenance/${pathname}`);
+		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 	return (
 		<html lang={locale} className={poppins.variable}>
