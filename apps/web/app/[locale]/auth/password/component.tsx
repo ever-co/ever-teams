@@ -1,5 +1,6 @@
 'use client';
 
+import { getAccessTokenCookie } from '@app/helpers';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -7,6 +8,9 @@ import { Button, Card, InputField, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { WorkSpaceComponent } from '../passcode/component';
 
 export default function AuthPassword() {
 	const t = useTranslations();
@@ -90,5 +94,60 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 }
 
 function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } & IClassName) {
-	return <></>;
+	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
+	const [selectedTeam, setSelectedTeam] = useState('');
+	const router = useRouter();
+
+	const signInToWorkspace = useCallback(
+		(e: any) => {
+			if (typeof selectedWorkspace !== 'undefined') {
+				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
+			}
+		},
+		[selectedWorkspace, selectedTeam, form]
+	);
+
+	useEffect(() => {
+		if (form.workspaces.length === 1) {
+			setSelectedWorkspace(0);
+		}
+
+		const currentTeams = form.workspaces[0]?.current_teams;
+
+		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
+			setSelectedTeam(currentTeams[0].team_id);
+		}
+
+		if (form.workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
+			setTimeout(() => {
+				document.getElementById('continue-to-workspace')?.click();
+			}, 100);
+		}
+	}, [form.workspaces]);
+
+	useEffect(() => {
+		if (form.authScreen.screen === 'workspace') {
+			const accessToken = getAccessTokenCookie();
+			if (accessToken && accessToken.length > 100) {
+				router.refresh();
+			}
+		}
+	}, [form.authScreen, router]);
+
+	return (
+		<WorkSpaceComponent
+			className={className}
+			workspaces={form.workspaces}
+			onSubmit={signInToWorkspace}
+			onBackButtonClick={() => {
+				form.authScreen.setScreen('login');
+				form.setErrors({});
+			}}
+			selectedWorkspace={selectedWorkspace}
+			setSelectedWorkspace={setSelectedWorkspace}
+			setSelectedTeam={setSelectedTeam}
+			selectedTeam={selectedTeam}
+			signInWorkspaceLoading={form.signInWorkspaceLoading}
+		/>
+	);
 }

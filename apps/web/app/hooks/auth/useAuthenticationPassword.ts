@@ -30,7 +30,11 @@ export function useAuthenticationPassword() {
 
 	const { queryCall: signInQueryCall, loading: signInLoading } = useQuery(signInEmailPasswordAPI);
 
-	const { queryCall: signInWorkspaceQueryCall, loading: signInWorkspaceLoading } = useQuery(signInWorkspaceAPI);
+	const {
+		queryCall: signInWorkspaceQueryCall,
+		loading: signInWorkspaceLoading,
+		infiniteLoading
+	} = useQuery(signInWorkspaceAPI);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
@@ -74,7 +78,7 @@ export function useAuthenticationPassword() {
 			});
 	};
 
-	const handleSignInToWorkspace = ({
+	const signInToWorkspaceRequest = ({
 		email,
 		token,
 		selectedTeam
@@ -97,11 +101,30 @@ export function useAuthenticationPassword() {
 			});
 	};
 
+	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string) => {
+		e.preventDefault();
+		setErrors({});
+		const { errors, isValid } = validateForm(['email'], formValues);
+
+		if (!isValid) {
+			setErrors(errors);
+			return;
+		}
+
+		infiniteLoading.current = true;
+
+		signInToWorkspaceRequest({
+			email: formValues.email,
+			token,
+			selectedTeam
+		});
+	};
+
 	return {
 		errors,
 		setErrors,
 		handleSubmit,
-		handleSignInToWorkspace,
+		handleWorkspaceSubmit,
 		handleChange,
 		formValues,
 		setFormValues,
