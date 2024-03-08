@@ -59,7 +59,11 @@ export function useAuthenticationPasscode() {
 	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(signInEmailAPI);
 	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } =
 		useQuery(signInEmailConfirmAPI);
-	const { queryCall: signInWorkspaceQueryCall, loading: signInWorkspaceLoading } = useQuery(signInWorkspaceAPI);
+	const {
+		queryCall: signInWorkspaceQueryCall,
+		loading: signInWorkspaceLoading,
+		infiniteLoading: infiniteWLoading
+	} = useQuery(signInWorkspaceAPI);
 
 	const { queryCall, loading, infiniteLoading } = useQuery(signInWithEmailAndCodeAPI);
 
@@ -219,7 +223,7 @@ export function useAuthenticationPasscode() {
 			return;
 		}
 
-		infiniteLoading.current = true;
+		infiniteWLoading.current = true;
 
 		signInToWorkspaceRequest({
 			email: formValues.email,
