@@ -42,7 +42,11 @@ export default function ImageOverlapper({
 						className="absolute hover:!z-20 transition-all hover:scale-110"
 						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
 					>
-						<Tooltip label={image.alt} placement="top">
+						<Tooltip
+							label={image.alt ?? 'untitled'}
+							labelClassName={image.alt ? '' : 'text-gray-500'}
+							placement="top"
+						>
 							<Image
 								src={image.url}
 								alt={`${image.alt} avatar`}

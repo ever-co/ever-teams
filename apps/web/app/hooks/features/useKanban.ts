@@ -10,7 +10,7 @@ export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
-	const { tasks, tasksFetching, updateTask } = useTeamTasks();
+	const { tasks, tasksFetching, updateTask, } = useTeamTasks();
 	/**
 	 * format data for kanban board
 	 */
