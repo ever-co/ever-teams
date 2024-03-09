@@ -327,7 +327,7 @@ export function TaskInputKanban(props: Props) {
 			inputField={viewType ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
 			fullHeight={props.fullHeightCombobox}
-			kanbanTitle={props?.kanbanTitle ?? 'open'}
+			kanbanTitle={props.kanbanTitle ?? 'open'}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
 			updatedTaskList={updatedTaskList}
