@@ -23,7 +23,6 @@ import { TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { useTeamTasksMutate } from '@app/hooks/features/useTeamKanbanUpdate';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -64,7 +63,7 @@ type Props = {
 export function TaskInputKanban(props: Props) {
 	const t = useTranslations();
 
-	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
+	const { viewType = 'input-trigger', showTaskNumber = false } = props;
 
 	const datas = useTaskInput({
 		task: props.task,
@@ -363,14 +362,13 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const { loadTeamTasksData } = useTeamTasksMutate();
 
 	const { taskStatus, taskPriority, taskSize, taskDescription } = datas;
 	useEffect(() => {
 		if (taskStatus) {
 			taskStatus.current = kanbanTitle ?? 'open';
 		}
-	}, [taskStatus, datas.hasCreateForm]);
+	}, [taskStatus, datas.hasCreateForm, kanbanTitle]);
 	useEffect(() => {
 		if (datas.editMode) {
 			window.setTimeout(() => {
