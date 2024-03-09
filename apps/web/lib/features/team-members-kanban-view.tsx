@@ -185,7 +185,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 							<div className="flex flex-col !h-[100vh-_300px] justify-between w-full">
 								<div
 									className={clsxm(
-										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
+										'flex flex-row  h-full bg-transparent dark:bg-[#181920]',
 										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 									)}
 									ref={provided.innerRef}
