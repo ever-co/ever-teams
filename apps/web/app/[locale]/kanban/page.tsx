@@ -21,7 +21,7 @@ import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
 
 const Kanban = () => {
-	const { data } = useKanban();
+	const { data, } = useKanban();
 
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
