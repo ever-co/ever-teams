@@ -125,7 +125,7 @@ type ItemProps = {
  * @returns
  */
 export default function Item(props: ItemProps) {
-	const { item, isDragging, provided, style, index } = props;	
+	const { item, isDragging, provided, style } = props;
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
@@ -177,9 +177,6 @@ export default function Item(props: ItemProps) {
 			{...provided.dragHandleProps}
 			style={getStyle(provided, style)}
 			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
-			data-is-dragging={isDragging}
-			data-testid={item.id}
-			data-index={index}
 			aria-label={item.label}
 		>
 			<div className="w-full justify-between h-fit">
@@ -266,7 +263,7 @@ export default function Item(props: ItemProps) {
 					</div>
 					<ImageComponent radius={30} images={taskAssignee} />
 					{item.issueType && (
-						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
+						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div
 								className="w-3.5 h-3.5 rounded-full"
 								style={setCommentIconColor(item.issueType as any)}
