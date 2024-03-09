@@ -262,14 +262,14 @@ export default function Item(props: ItemProps) {
 						)}
 					</div>
 					<ImageComponent radius={30} images={taskAssignee} />
-					{/* {item.issueType && (
-						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
+					{item.issueType && (
+						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div
 								className="w-3.5 h-3.5 rounded-full"
 								style={setCommentIconColor(item.issueType as any)}
 							></div>
 						</div>
-					)} */}
+					)}
 				</div>
 			</div>
 		</div>
