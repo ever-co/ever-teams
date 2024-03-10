@@ -1,6 +1,6 @@
 import { Excalidraw, THEME } from '@excalidraw/excalidraw';
 import { useTheme } from 'next-themes';
-import { EverTeamsLogo, LiveShareIcon } from 'lib/components/svgs';
+import { EverTeamsLogo } from 'lib/components/svgs';
 import debounce from 'lodash/debounce';
 import { useBoard } from './hooks';
 import { useEffect, useState } from 'react';
@@ -8,6 +8,7 @@ import { SpinnerLoader } from 'lib/components';
 import { LOCAL_STORAGE_THEME } from './constants';
 import { clsxm } from '@app/utils';
 import { AppMainMenu } from './AppMainMenu';
+import { LiveShareIcon } from 'assets/svg';
 
 export default function ExcalidrawComponent() {
 	const { theme, resolvedTheme } = useTheme();

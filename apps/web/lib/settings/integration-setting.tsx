@@ -6,7 +6,7 @@ import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrg
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { GITHUB_APP_NAME } from '@app/constants';
 import { useOrganizationProjects } from '@app/hooks';
-import { TrashIcon } from 'lib/components/svgs';
+import { TrashIcon } from 'assets/svg';
 import { Button, InputField } from 'lib/components';
 import { getActiveProjectIdCookie } from '@app/helpers';
 import { Switch } from '@headlessui/react';
@@ -307,7 +307,7 @@ export const IntegrationSetting = () => {
 
 								{selectedRepo && (
 									<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
-										<TrashIcon />
+										<TrashIcon  className='w-3.5'  />
 									</Button>
 								)}
 							</div>

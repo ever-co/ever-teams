@@ -43,6 +43,31 @@ const nextConfig = {
 		config.resolve.alias['app'] = path.join(__dirname, 'app');
 		config.resolve.alias['components'] = path.join(__dirname, 'components');
 		config.resolve.alias['lib'] = path.join(__dirname, 'lib');
+
+		const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.('.svg'));
+
+		config.module.rules.push(
+			{
+				...fileLoaderRule,
+				type: 'javascript/auto',
+				test: /\.svg$/i,
+				resourceQuery: /url/ // *.svg?url
+			},
+			{
+				test: /\.svg$/i,
+				type: 'javascript/auto',
+				issuer: fileLoaderRule.issuer,
+				resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+				use: [
+					{
+						loader: '@svgr/webpack',
+						options: {
+							dimensions: false
+						}
+					}
+				]
+			}
+		);
 		return config;
 	},
 	images: {
@@ -60,6 +85,14 @@ const nextConfig = {
 			'gauzy.s3.wasabisys.com',
 			'gauzystage.s3.wasabisys.com'
 		]
+	},
+	async rewrites() {
+		return [
+			{
+				source: '/fonts/:path*',
+				destination: '/assets/fonts/:path*'
+			}
+		];
 	},
 	...sentryConfig
 };

@@ -1,4 +1,4 @@
-import { Edit2Icon, TrashIcon } from 'lib/components/svgs';
+import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { Button, Text, Tooltip } from 'lib/components';
 import Image from 'next/image';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
@@ -65,10 +65,10 @@ export const StatusesListCard = ({
 			</div>
 			<div className="flex items-center gap-x-[12PX] mr-[4px]">
 				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onEdit}>
-					<Edit2Icon />
+					<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 				</Button>
 				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onDelete}>
-					<TrashIcon />
+					<TrashIcon className="h-5 w-5" />
 				</Button>
 			</div>
 		</div>

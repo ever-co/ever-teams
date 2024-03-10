@@ -155,6 +155,7 @@
 		"CHILD_ISSUES": "Problèmes enfants",
 		"REOPEN": "Rouvrir",
 		"NO_TASKS": "Aucune tâche",
+		"FULL_WIDTH": "Pleine largeur",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de modifier la tâche",
 
 		"COLLABORATE_DIALOG_TITLE": "Démarrer la collaboration",
@@ -178,7 +179,7 @@
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Votre compte sera supprimé définitivement avec suppression de toutes les équipes",
 		"ALERT_REMOVE_TEAM": "L'équipe sera complètement supprimée du système et les membres de l'équipe perdront l'accès",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Toutes les données de compte seront supprimées de toutes les équipes dans lesquelles vous n'êtes qu'un seul gestionnaire existant.",
 		"ALERT_QUIT_TEAM": "Vous êtes sur le point de quitter l'équipe"
 	},
 	"pages": {
@@ -281,11 +282,11 @@
 			"SUBSCRIPTION": "Abonnement",
 			"ABOUT_TO_CHANGE_EMAIL": "Vous êtes sur le point de changer d'e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "Synchronisation des données",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
-			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Votre fuseau horaire",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "Vous êtes sur le point d'être retiré de toutes les équipes, à moins que vous ne soyez le seul manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Vous êtes sur le point de supprimer votre compte et toutes vos données ?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Paramètres généraux",
@@ -443,33 +444,33 @@
 	},
 
 	"timer": {
-		"START_TIMER": "Please, select or create a new task to start tracking the time",
+		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer à suivre le temps.",
 		"TEAM_SWITCH": {
-			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
-			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"
+			"STOPPED_TIMER_TOAST_TITLE": "Minuterie arrêtée",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "La minuterie s'est arrêtée en raison de l'interrupteur d'équipe"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
 		},
-		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }],
-		"TIME_ACTIVITY": "Activity",
-		"TOTAL_HOURS": "Total Hours",
-		"NO_SCREENSHOOT": "No Screenshoots",
-		"PERCENT_OF_MINUTES": " % of 10 Minutes",
+		"DAY_LIST": [{ "title": "7 jours" }, { "title": "14 jours" }],
+		"TIME_ACTIVITY": "Activité",
+		"TOTAL_HOURS": "Nombre total d'heures",
+		"NO_SCREENSHOOT": "Pas de captures d'écran",
+		"PERCENT_OF_MINUTES": " % de 10 minutes",
 		"APPS": "Apps",
-		"VISITED_DATES": "Visited Dates",
-		"PERCENT_USED": "Percent Used",
-		"TIME_SPENT_IN_HOURS": "Time spent (Hours)",
-		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited.",
-		"OTHER_DETAILS": "Other details",
-		"KEYBOARD": "keyboard",
+		"VISITED_DATES": "Dates de visite",
+		"PERCENT_USED": "Pourcentage d'utilisation",
+		"TIME_SPENT_IN_HOURS": "Temps passé (heures)",
+		"THERE_IS_NO_APPS_VISITED": "Il n'y a pas d'application visitée.",
+		"OTHER_DETAILS": "Autres détails",
+		"KEYBOARD": "clavier",
 
-		"MOUSE": "Mouse",
-		"TIMES": "Times",
-		"ACTIVE": "Active",
-		"INACTIVE": "Inactive",
-		"ARCHIVED": "Archived",
-		"NOT_ARCHIVED": "Not archived"
+		"MOUSE": "Souris",
+		"TIMES": "Temps",
+		"ACTIVE": "Actif",
+		"INACTIVE": "Inactif",
+		"ARCHIVED": "Archivé",
+		"NOT_ARCHIVED": "Not archivé"
 	},
 	"task": {
 		"TITLE": "Tâche",

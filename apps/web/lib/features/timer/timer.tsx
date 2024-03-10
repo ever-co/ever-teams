@@ -60,7 +60,7 @@ export function Timer({ className }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'flex space-x-2 lg:flex-col xl:flex-row justify-center items-center p-2 xl:space-y-0 space-y-5',
+				'flex space-x-2 lg:flex-col xl:flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
 				className
 			)}
 		>
@@ -69,7 +69,7 @@ export function Timer({ className }: IClassName) {
 					<div className="w-full mx-auto">
 						<Text.Heading
 							as="h3"
-							className={`text-4xl lg:text-center tracking-wide font-normal ${
+							className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
 								timerStatus?.running &&
 								timerStatus?.lastLog?.source &&
 								timerStatus?.lastLog?.source !== TimerSource.TEAMS

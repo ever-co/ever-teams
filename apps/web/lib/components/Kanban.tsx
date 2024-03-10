@@ -15,10 +15,13 @@ import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@app/hooks/features/useKanban';
-import { AddIcon } from './svgs';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
+import { AddIcon } from 'assets/svg';
+import { useModal } from '@app/hooks';
+import { Modal } from './modal';
+import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 
 const grid = 8;
 
@@ -135,9 +138,6 @@ export const KanbanDroppable = ({
 				{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
 					<div
 						style={getBackgroundColor(dropSnapshot)}
-						data-isdragging={dropSnapshot.isDraggingOver}
-						data-isdropdisabled={false}
-						data-isdraggingfrom={Boolean(dropSnapshot.draggingFromThisWith)}
 						{...dropProvided.droppableProps}
 					>
 						<InnerList
@@ -204,7 +204,6 @@ export const EmptyKanbanDroppable = ({
 											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed'
 										}
 										style={headerStyleChanger(snapshot, backgroundColor)}
-										data-isDragging={snapshot.isDragging}
 									>
 										<div className="flex flex-col items-center gap-2">
 											<button className="rotate-180" onClick={() => toggleColumn(title, false)}>
@@ -224,7 +223,6 @@ export const EmptyKanbanDroppable = ({
 												<div>
 													<h2
 														className="flex flex-row font-semibold text-sm not-italic h-full text-black capitalize font-poppins"
-														data-isDragging={snapshot.isDragging}
 														{...provided.dragHandleProps}
 														aria-label={`${title}`}
 													>
@@ -264,12 +262,10 @@ const KanbanDraggableHeader = ({
 				<header
 					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px] z-[500]'}
 					style={headerStyleChanger(snapshot, backgroundColor)}
-					data-isDragging={snapshot.isDragging}
 				>
 					<div className="flex flex-row gap-2.5 items-center">
 						<h2
 							className="text-sm font-semibold not-italic text-black font-poppins capitalize"
-							data-isDragging={snapshot.isDragging}
 							{...provided.dragHandleProps}
 							aria-label={`${title} quote list`}
 						>
@@ -329,6 +325,8 @@ const KanbanDraggable = ({
 	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
 	const t = useTranslations();
+	const { isOpen, closeModal, openModal } = useModal();
+	//
 
 	return (
 		<>
@@ -360,8 +358,11 @@ const KanbanDraggable = ({
 											type={'TASK'}
 											content={items}
 										/>
-										<button className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
-											<AddIcon height={20} width={20} className="dark:stroke-white" />
+										<button
+											onClick={() => openModal()}
+											className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+										>
+											<AddIcon className=" h-5 w-5" />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>
@@ -371,6 +372,9 @@ const KanbanDraggable = ({
 					)}
 				</Draggable>
 			)}
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+			</Modal>
 		</>
 	);
 };

@@ -8,7 +8,6 @@ import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
-import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
 	TeamInvitations,
@@ -31,17 +30,18 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
+import { PeoplesIcon } from 'assets/svg';
 
 function MainPage() {
 	const t = useTranslations();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const fullWidth = useRecoilValue(fullWidthState);
+	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 	const [view, setView] = useRecoilState(headerTabs);
 	const path = usePathname();
 	const breadcrumb = [
@@ -50,13 +50,18 @@ function MainPage() {
 		{ title: t(`common.${view}`), href: `/` }
 	];
 	const { online } = useNetworkState();
-	console.log(path, 'path');
 	useEffect(() => {
 		if (view == IssuesView.KANBAN && path == '/') {
 			setView(IssuesView.CARDS);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
+
+	React.useEffect(() => {
+		window && window?.localStorage.getItem('conf-fullWidth-mode');
+		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
+	}, [fullWidth, setFullWidth]);
+
 	if (!online) {
 		return <Offline />;
 	}
@@ -67,7 +72,7 @@ function MainPage() {
 				<MainHeader className="pb-1" fullWidth={fullWidth}>
 					<div className="flex flex-row items-start justify-between ">
 						<div className="flex justify-center items-center gap-8 h-10">
-							<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+							<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
 						<div className="flex h-10 w-max items-center justify-center   gap-1">
@@ -79,7 +84,7 @@ function MainPage() {
 					<TeamInvitations />
 				</MainHeader>
 
-				<div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view !== IssuesView.CARDS ? 'pb-7' : ''}`}>
+				<div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view == IssuesView.TABLE ? 'pb-7' : ''}`}>
 					<Container fullWidth={fullWidth}>
 						{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 						{view === IssuesView.CARDS && isTeamMember ? (

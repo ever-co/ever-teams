@@ -1,6 +1,6 @@
 import { detailedTaskState } from '@app/stores';
 import { Disclosure } from '@headlessui/react';
-import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { TaskEstimate } from 'lib/features';
 import { useRecoilState } from 'recoil';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
@@ -33,9 +33,9 @@ const TaskEstimationsInfo = () => {
 								/>
 
 								{!open ? (
-									<ChevronUpIcon className="stroke-[#292D32] dark:stroke-white w-4 h-4" />
+									<ChevronUpIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 								) : (
-									<ChevronDownIcon className="stroke-[#292D32] dark:stroke-white w-4 h-4" />
+									<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 								)}
 							</Disclosure.Button>
 							<Disclosure.Panel>

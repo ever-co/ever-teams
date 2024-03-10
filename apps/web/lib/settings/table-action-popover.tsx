@@ -2,11 +2,11 @@ import { useAuthenticateUser, useModal, useTMCardTaskEdit, useTeamMemberCard } f
 import { useRoles } from '@app/hooks/features/useRoles';
 import { OT_Member } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
-import { MenuIcon } from 'lib/components/svgs';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
 import { Fragment, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
+import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
 
 type Props = {
 	member: OT_Member;
@@ -93,7 +93,7 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 						</Popover.Panel>
 					</Transition>
 					<Popover.Button className="w-full mt-2 outline-none">
-						<MenuIcon className="stroke-[#292D32] dark:stroke-white" />
+						<ThreeCircleOutlineHorizontalIcon className="w-6 text-[#292D32] dark:text-white" strokeWidth="2.5" />
 					</Popover.Button>
 					<ConfirmationModal
 						open={isOpen}

@@ -183,6 +183,9 @@ export const en = {
 			HEADING_TITLE: 'Join existing Team',
 			HEADING_DESCRIPTION: 'Please enter email and invitation code to join existing team.'
 		},
+		authPassword: {
+			HEADING_DESCRIPTION: 'Please enter your login information.'
+		},
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
 			HEADING_DESCRIPTION: 'Please enter email and invitation code to login.',

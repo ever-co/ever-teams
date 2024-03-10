@@ -156,6 +156,7 @@
 		"CHILD_ISSUES": "בעיות ילדות",
 		"REOPEN": "פתח מחדש",
 		"NO_TASKS": "אין משימות",
+		"FULL_WIDTH": "רוחב מלא",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני שינוי המשימה",
 
 		"COLLABORATE_DIALOG_TITLE": "התחל שיתוף פעולה",
@@ -179,7 +180,7 @@
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "כל נתוני החשבון יוסרו מכל הצוותים שבהם אתה רק מנהל קיים אחד",
 		"ALERT_REMOVE_TEAM": "הצוות יוסר לחלוטין מהמערכת וחברי הצוות יאבדו גישה",
 		"ALERT_QUIT_TEAM": "אתה עומד לעזוב את הצוות"
 	},
@@ -242,7 +243,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "קוד לאתקין",
 			"WELCOME_TEAMS": "ברוך הבא ל-Ever צוותים",
 			"COVER_TITLE": "עקוב אחר התקדמות העבודה של הצוותים שלך בזמן אמת!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "ניהול עבודה וכוח עבודה הכל-באחד, ניהול זמן, מעקב אחר זמן, מעקב אחר פעילות, מעקב ומדדים של פרודוקטיביות, ניהול פרויקטים/משימות ובעיות, ארגונים וצוותים, אינטגרציות (GitHub, JIRA,...) ועוד!",
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
@@ -284,7 +285,7 @@
 			"SUBSCRIPTION": "מנוי",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "סנכרון נתונים",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
 		},
 		"settingsTeam": {

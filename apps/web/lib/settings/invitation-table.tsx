@@ -19,7 +19,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 
 	return (
 		<div>
-			<div className="overflow-x-auto sm:rounded-lg">
+			<div className=" sm:rounded-lg">
 				<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
@@ -31,31 +31,31 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 							</th>
 							<th
 								scope="col"
-								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
 							>
 								{t('pages.invite.invitationTable.POSITION')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
 							>
 								{t('pages.invite.invitationTable.DATE_AND_TIME_REQUEST')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
 							>
 								{t('pages.invite.invitationTable.CV_OR_ATTACHMENT')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
 							>
 								{t('common.LINK')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm min-w-[15rem] font-normal capitalize py-3 text-[#B1AEBC]"
+								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
 							>
 								{t('common.STATUS')}
 							</th>
@@ -64,7 +64,7 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 					</thead>
 					<tbody className="dark:bg-dark--theme-light">
 						{currentItems.map((invitation, index) => (
-							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700" key={index}>
+							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700 max-w-" key={index}>
 								<th
 									scope="row"
 									className="flex items-center  py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"

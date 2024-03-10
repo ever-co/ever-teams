@@ -3,9 +3,9 @@ import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@a
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/ui/dialog';
 import { useCallback } from 'react';
 import { Button } from './button';
-import { KeyboardLinearIcon } from './svgs';
 import { Tooltip } from './tooltip';
 import { useTranslations } from 'next-intl';
+import { LineDotBoxIcon } from 'assets/svg';
 
 export function KeyboardShortcuts() {
 	const t = useTranslations();
@@ -28,7 +28,7 @@ export function KeyboardShortcuts() {
 		<>
 			<Tooltip label={t('common.KEYBOARD_SHORTCUTS')} placement="auto">
 				<Button variant="ghost" className="min-w-0 p-0 m-0" onClick={toggle}>
-					<KeyboardLinearIcon className="stroke-dark--theme-light dark:stroke-white w-7 h-7" />
+					<LineDotBoxIcon className="h-7 w-7 " />
 				</Button>
 			</Tooltip>
 

@@ -143,7 +143,7 @@ html.dark {
 
 	/* ------------------- Input ----------------------- */
 	.input-border {
-		@apply border-[#00000021] dark:border-[#34353D] border-solid border;
+		@apply border-[#00000021] dark:border-[#3b3c44] border-solid border;
 		@apply dark:bg-[#1B1D22];
 	}
 
@@ -217,27 +217,27 @@ html.dark {
 
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
-	src: url('../public/assets/fonts/PlusJakartaSans-VariableFont_wght.ttf');
+	src: url('/fonts/PlusJakartaSans-VariableFont_wght.ttf');
 }
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-Regular';
-	src: url('../public/assets/fonts/PlusJakartaSans-Regular.ttf');
+	src: url('/fonts/PlusJakartaSans-Regular.ttf');
 }
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-Bold';
-	src: url('../public/assets/fonts/PlusJakartaSans-Bold.ttf');
+	src: url('/fonts/PlusJakartaSans-Bold.ttf');
 }
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-Light';
-	src: url('../public/assets/fonts/PlusJakartaSans-Light.ttf');
+	src: url('/fonts/PlusJakartaSans-Light.ttf');
 }
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-Medium';
-	src: url('../public/assets/fonts/PlusJakartaSans-Medium.ttf');
+	src: url('/fonts/PlusJakartaSans-Medium.ttf');
 }
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-SemiBold';
-	src: url('../public/assets/fonts/PlusJakartaSans-SemiBold.ttf');
+	src: url('/fonts/PlusJakartaSans-SemiBold.ttf');
 }
 
 .search-class {

@@ -1,4 +1,5 @@
-import { CheckIcon, CloseIcon } from 'lib/components/svgs';
+import { CheckIcon } from '@heroicons/react/20/solid';
+import { CrossIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 interface isProps {
 	status: string | undefined;
@@ -50,7 +51,7 @@ export const InvitationTableStatus = ({ status, acceptJoinRequest, rejectJoinReq
 							className="bg-[#EE6C4D] w-10 h-7 rounded-lg flex items-center justify-center cursor-pointer"
 							onClick={rejectJoinRequest}
 						>
-							<CloseIcon className="stroke-white" />
+							<CrossIcon className="text-white w-5 h-5" />
 						</div>
 					</div>
 				);

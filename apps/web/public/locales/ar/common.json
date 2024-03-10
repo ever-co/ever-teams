@@ -157,6 +157,7 @@
 		"CHILD_ISSUES": "القضايا الفرعية",
 		"REOPEN": "إعادة فتح",
 		"NO_TASKS": "لا توجد مهام",
+		"FULL_WIDTH": "العرض الكامل",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
 
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
@@ -180,7 +181,7 @@
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "سيتم حذف حسابك نهائياً مع إزالته من جميع الفرق",
 		"ALERT_REMOVE_TEAM": "سيتم إزالة الفريق بالكامل من النظام وفقدان أعضاء الفريق للوصول",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "ستتم إزالة جميع بيانات الحساب من جميع الفرق التي تكون فيها مديرًا موجودًا واحدًا فقط",
 		"ALERT_QUIT_TEAM": "أنت على وشك مغادرة الفريق"
 	},
 	"pages": {
@@ -289,7 +290,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "المنطقة الزمنية الخاصة بك",
 			"ABOUT_TO_CHANGE_EMAIL": "أنت على وشك تغيير البريد الإلكتروني",
 			"ABOUT_TO_DELETE_ACCOUNT": "أنت على وشك حذف حسابك؟",
-			"DATA_SYNCHRONIZATION": "Data Synchronization",
+			"DATA_SYNCHRONIZATION": "مزامنة البيانات",
 			"ABOUT_TO_REMOVE_ACCOUNT": "أنت على وشك إزالة حسابك؟",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
