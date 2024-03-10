@@ -58,8 +58,8 @@ const Kanban = () => {
 		<>
 			<MainLayout showTimer={true}>
 				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
-				<div className={'sticky top-16 flex flex-col  z-10 mx-[0px] w-full'}>
-					<div className="flex bg-white dark:bg-dark--theme px-8  flex-row items-start justify-between pt-12">
+				<div className={'fixed top-16 flex flex-col  z-10 mx-[0px] w-full'}>
+					<div className="flex bg-white dark:bg-dark--theme mx-8  flex-row items-start justify-between mt-12">
 						<div className="flex justify-center items-center gap-8 h-10">
 							<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
@@ -68,7 +68,7 @@ const Kanban = () => {
 							<HeaderTabs kanban={true} linkAll={true} />
 						</div>
 					</div>
-					<div className="flex justify-between items-center px-8 pt-10 bg-white dark:bg-dark--theme">
+					<div className="flex justify-between items-center mx-8 mt-10 bg-white dark:bg-dark--theme">
 						<h1 className="text-4xl font-semibold ">
 							{t('common.KANBAN')} {t('common.BOARD')}
 						</h1>
@@ -179,7 +179,7 @@ const Kanban = () => {
 					</div>
 					{/* <div className="h-20 w-full bg-red-500/50"></div> */}
 				</div>
-				<div>
+				<div className="mt-[236px]">
 					{/** TODO:fetch teamtask based on days */}
 					{activeTab && ( // add filter for today, yesterday and tomorrow
 						<div>
