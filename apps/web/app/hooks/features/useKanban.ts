@@ -16,14 +16,13 @@ export function useKanban() {
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks: newTa, tasksFetching, updateTask } = useTeamTasks();
-	console.log('sss', newTa);
 
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
 			let kanban = {};
 			setLoading(true);
-			const priority = hook.statusFilter.priority;
-			const status = hook.statusFilter.status;
+			// const priority = hook.statusFilter.priority;
+			// const status = hook.statusFilter.status;
 			const tasks = newTa
 				.filter((task: ITeamTask) => {
 					return task.title.toLowerCase().includes(searchTasks.toLowerCase());
