@@ -57,7 +57,7 @@ export function useTeamTasks() {
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// Queries hooks
-	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
+	const { queryCall, loading, loadingRef, } = useQuery(getTeamTasksAPI);
 	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
 	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } =
 		useQuery(getTasksByEmployeeIdAPI);
