@@ -1,7 +1,11 @@
 'use client';
 
 import { KanbanTabs } from '@app/constants';
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
+import {
+  useAuthenticateUser,
+  useModal,
+  useOrganizationTeams
+} from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -11,7 +15,9 @@ import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
+import ImageComponent, {
+  ImageOverlapperProps
+} from 'lib/components/image-overlapper';
 import Separator from '@components/ui/separator';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
@@ -33,25 +39,25 @@ const Kanban = () => {
 		{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
 	];
 
-	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
+  const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 
-	const teamMembers: ImageOverlapperProps[] = [];
+  const teamMembers: ImageOverlapperProps[] = [];
 
-	activeTeamMembers.map((member: any) => {
-		teamMembers.push({
-			id: member.employee.user.id,
-			url: member.employee.user.imageUrl,
-			alt: member.employee.user.firstName
-		});
-	});
-	const tabs = [
-		{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
-		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
-		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
-	];
-	const { user } = useAuthenticateUser();
-	const { openModal, isOpen, closeModal } = useModal();
-	const timezone = userTimezone();
+  activeTeamMembers.map((member: any) => {
+    teamMembers.push({
+      id: member.employee.user.id,
+      url: member.employee.user.imageUrl,
+      alt: member.employee.user.firstName
+    });
+  });
+  const tabs = [
+    { name: t('common.TODAY'), value: KanbanTabs.TODAY },
+    { name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
+    { name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
+  ];
+  const { user } = useAuthenticateUser();
+  const { openModal, isOpen, closeModal } = useModal();
+  const timezone = userTimezone();
 
 	return (
 		<>
@@ -153,6 +159,7 @@ const Kanban = () => {
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
+
 };
 
 export default withAuthentication(Kanban, { displayName: 'Kanban' });

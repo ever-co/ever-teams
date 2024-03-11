@@ -15,7 +15,7 @@ export function useKanban() {
 	const [searchTasks, setSearchTasks] = useState('');
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
-	const { tasks: newTa, tasksFetching, updateTask } = useTeamTasks();
+	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
 
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
@@ -23,18 +23,10 @@ export function useKanban() {
 			setLoading(true);
 			// const priority = hook.statusFilter.priority;
 			// const status = hook.statusFilter.status;
-			const tasks = newTa
+			const tasks = newTask
 				.filter((task: ITeamTask) => {
 					return task.title.toLowerCase().includes(searchTasks.toLowerCase());
 				})
-			// if (Array.isArray(priority) && priority.length > 0) {
-
-			// }
-			// if (Array.isArray(status) && status.length > 0) {
-			// 	tasks.filter((task: ITeamTask) => {
-			// 		return status.includes(task.status);
-			// 	});
-			// }
 			const getTasksByStatus = (status: string | undefined) => {
 				return tasks.filter((task: ITeamTask) => {
 					return task.status === status;
@@ -51,7 +43,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching, newTa, searchTasks, hook.statusFilter]);
+	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, hook.statusFilter]);
 
 	/**
 	 * collapse or show kanban column
