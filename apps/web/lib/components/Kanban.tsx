@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
+import Skeleton from 'react-loading-skeleton';
 
 const grid = 8;
 
@@ -122,33 +123,39 @@ export const KanbanDroppable = ({
 	title,
 	droppableId,
 	type,
+	isLoading,
 	content
 }: {
 	title: string;
+	isLoading: boolean;
 	droppableId: string;
 	type: string;
 	content: ITeamTask[];
 }) => {
 	return (
 		<>
-			<Droppable droppableId={droppableId} type={type}>
-				{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
-					<div
-						style={getBackgroundColor(dropSnapshot)}
-						data-isdragging={dropSnapshot.isDraggingOver}
-						data-isdropdisabled={false}
-						data-isdraggingfrom={Boolean(dropSnapshot.draggingFromThisWith)}
-						{...dropProvided.droppableProps}
-					>
-						<InnerList
-							items={content}
-							title={title}
-							dropProvided={dropProvided}
-							dropSnapshot={dropSnapshot}
-						/>
-					</div>
-				)}
-			</Droppable>
+			{content.length > 0 ? (
+				<Droppable droppableId={droppableId} type={type}>
+					{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
+						<div style={getBackgroundColor(dropSnapshot)} {...dropProvided.droppableProps}>
+							<InnerList
+								items={content}
+								title={title}
+								dropProvided={dropProvided}
+								dropSnapshot={dropSnapshot}
+							/>
+						</div>
+					)}
+				</Droppable>
+			) : (
+				<div className="h-44 input-border flex justify-center items-center my-4 rounded-xl">
+					{isLoading ? (
+						<Skeleton width={337} height={176} className="mb-3" borderRadius={13} />
+					) : (
+						'not found!'
+					)}
+				</div>
+			)}
 		</>
 	);
 };
@@ -319,11 +326,13 @@ const KanbanDraggableHeader = ({
 const KanbanDraggable = ({
 	index,
 	title,
+	isLoading,
 	items,
 	backgroundColor
 }: {
 	index: number;
 	title: string;
+	isLoading: boolean;
 	backgroundColor: any;
 	items: ITeamTask[];
 	addNewTask: (value: ITeamTask, status: string) => void;
@@ -355,6 +364,7 @@ const KanbanDraggable = ({
 									</div>
 									<div className="flex flex-col ">
 										<KanbanDroppable
+											isLoading={isLoading}
 											title={title}
 											droppableId={title}
 											type={'TASK'}

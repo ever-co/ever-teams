@@ -5,19 +5,37 @@ import { useEffect, useState } from 'react';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { useTeamTasks } from './useTeamTasks';
 import { IKanban } from '@app/interfaces/IKanban';
+import { useUserProfilePage } from './useUserProfilePage';
+import { useTaskFilter } from 'lib/features';
 
 export function useKanban() {
+	const profile = useUserProfilePage();
+	const hook = useTaskFilter(profile);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [searchTasks, setSearchTasks] = useState('');
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
-	const { tasks, tasksFetching, updateTask } = useTeamTasks();
-	/**
-	 * format data for kanban board
-	 */
+	const { tasks: newTa, tasksFetching, updateTask } = useTeamTasks();
+	console.log('sss', newTa);
+
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
 			let kanban = {};
+			setLoading(true);
+			const priority = hook.statusFilter.priority;
+			const status = hook.statusFilter.status;
+			const tasks = newTa
+				.filter((task: ITeamTask) => {
+					return task.title.toLowerCase().includes(searchTasks.toLowerCase());
+				})
+			// if (Array.isArray(priority) && priority.length > 0) {
 
+			// }
+			// if (Array.isArray(status) && status.length > 0) {
+			// 	tasks.filter((task: ITeamTask) => {
+			// 		return status.includes(task.status);
+			// 	});
+			// }
 			const getTasksByStatus = (status: string | undefined) => {
 				return tasks.filter((task: ITeamTask) => {
 					return task.status === status;
@@ -34,7 +52,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching]);
+	}, [taskStatusHook.loading, tasksFetching, newTa, searchTasks, hook.statusFilter]);
 
 	/**
 	 * collapse or show kanban column
@@ -81,12 +99,15 @@ export function useKanban() {
 	return {
 		data: kanbanBoard as IKanban,
 		isLoading: loading,
+		hook,
 		columns: taskStatusHook.taskStatus,
+		searchTasks,
 		updateKanbanBoard: setKanbanBoard,
 		updateTaskStatus: updateTask,
 		toggleColumn,
 		isColumnCollapse,
 		reorderStatus,
-		addNewTask
+		addNewTask,
+		setSearchTasks
 	};
 }

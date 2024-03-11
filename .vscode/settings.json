@@ -35,6 +35,12 @@
     "**/node_modules": true,
     "**/bower_components": true,
     "**/*.code-search": true,
+    "**/apps/mobile/**":true,
+    "**/apps/desktop/**":true,
+    "**/apps/extensions/**":true,
+    "**/apps/server-api/**":true,
+    "**/apps/server-web/**":true,
+
     "**/web/components/**": true
   },
   "docwriter.style": "Auto-detect"
