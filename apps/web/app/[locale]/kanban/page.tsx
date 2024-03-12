@@ -1,11 +1,7 @@
 'use client';
 
 import { KanbanTabs } from '@app/constants';
-import {
-  useAuthenticateUser,
-  useModal,
-  useOrganizationTeams
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -15,19 +11,18 @@ import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import ImageComponent, {
-  ImageOverlapperProps
-} from 'lib/components/image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Separator from '@components/ui/separator';
 import HeaderTabs from '@components/pages/main/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
 import KanbanSearch from '@components/pages/kanban/search-bar';
-// import { TaskPropertiesDropdown, TaskSizesDropdown } from 'lib/features';
+import { TaskPropertiesDropdown, TaskSizesDropdown } from 'lib/features';
 
 const Kanban = () => {
-	const { data, setSearchTasks, searchTasks, isLoading } = useKanban();
+	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes } = useKanban();
+
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -39,26 +34,25 @@ const Kanban = () => {
 		{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
 	];
 
-  const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
+	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 
-  const teamMembers: ImageOverlapperProps[] = [];
+	const teamMembers: ImageOverlapperProps[] = [];
 
-  activeTeamMembers.map((member: any) => {
-    teamMembers.push({
-      id: member.employee.user.id,
-      url: member.employee.user.imageUrl,
-      alt: member.employee.user.firstName
-    });
-  });
-  const tabs = [
-    { name: t('common.TODAY'), value: KanbanTabs.TODAY },
-    { name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
-    { name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
-  ];
-  const { user } = useAuthenticateUser();
-  const { openModal, isOpen, closeModal } = useModal();
-  const timezone = userTimezone();
-
+	activeTeamMembers.map((member: any) => {
+		teamMembers.push({
+			id: member.employee.user.id,
+			url: member.employee.user.imageUrl,
+			alt: member.employee.user.firstName
+		});
+	});
+	const tabs = [
+		{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
+		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
+		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
+	];
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+	const timezone = userTimezone();
 	return (
 		<>
 			<MainLayout showTimer={true}>
@@ -120,23 +114,23 @@ const Kanban = () => {
 							))}
 						</div>
 						<div className="flex space-x-2 mt-5 lg:mt-0">
-							{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 								<TaskPropertiesDropdown
-									onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
+									onValueChange={(_, values) => setPriority(values || [])}
 									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
 									multiple={true}
 								/>
 							</div>
 							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 								<TaskSizesDropdown
-									onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
+									onValueChange={(_, values) => setSizes(values || [])}
 									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
 									multiple={true}
 								/>
 							</div>
 							<div className="mt-1">
 								<Separator />
-							</div> */}
+							</div>
 
 							<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
 						</div>
@@ -159,7 +153,6 @@ const Kanban = () => {
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
-
 };
 
 export default withAuthentication(Kanban, { displayName: 'Kanban' });
