@@ -5,21 +5,23 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { useState, useEffect, Fragment, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Dropdown } from './dropdown';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
 
 export const ColorPicker = ({
 	defaultColor,
 	onChange,
 	fullWidthInput,
 	isTeamManager,
-	disabled: disableButton
+	disabled: disableButton,
+	className
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | null) => void;
 	fullWidthInput?: boolean;
 	isTeamManager?: boolean;
 	disabled?: boolean;
+	className?: string;
 }) => {
 	const [color, setColor] = useState(defaultColor || null);
 	const onChangeRef = useCallbackRef(onChange);
@@ -65,8 +67,14 @@ export const ColorPicker = ({
 		};
 	}, []);
 
-	return fullWidthInput ? (
-		<Popover className="relative border-none no-underline w-full mt-3">
+	return (
+		<Popover
+			className={clsxm(
+				'relative border-none no-underline mt-3 w-[10rem]',
+				className,
+				fullWidthInput && '!w-full '
+			)}
+		>
 			{() => (
 				<>
 					<Popover.Button
@@ -81,7 +89,7 @@ export const ColorPicker = ({
 								disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
 							}  dark:bg-dark--theme-light`}
 						>
-							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
+							<div className={`flex gap-[8px] h-[40px] items-center justify-between px-[15px] py-5`}>
 								<div
 									className={`w-5 h-5 rounded-xl`}
 									style={{
@@ -89,6 +97,7 @@ export const ColorPicker = ({
 									}}
 								></div>
 								<div className="uppercase dark:text-white">{color || ''}</div>
+								<ChevronDownIcon />
 							</div>
 							{isTeamManager && (
 								<div className="flex mr-[0.5rem] gap-3">
@@ -135,24 +144,25 @@ export const ColorPicker = ({
 				</>
 			)}
 		</Popover>
-	) : (
-		<Dropdown
-			className={`min-w-[150px] max-w-sm z-50`}
-			buttonClassName={clsxm(`py-0 font-medium h-[54px] w-[150px] dark:bg-dark--theme-light`)}
-			value={{
-				key: color || '',
-				// eslint-disable-next-line react/no-unstable-nested-components
-				Label: () => (
-					<div className="flex items-center space-x-2">
-						<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
-						<span className="font-normal">{color || 'Color'}</span>
-					</div>
-				)
-			}}
-			items={[]}
-			closeOnChildrenClick={false}
-		>
-			<HexColorPicker color={color || undefined} onChange={setColor} />
-		</Dropdown>
 	);
+	// : (
+	// 	<Dropdown
+	// 		className={`min-w-[150px] max-w-sm z-50`}
+	// 		buttonClassName={clsxm(`py-0 font-medium h-[54px] w-[150px] dark:bg-dark--theme-light`)}
+	// 		value={{
+	// 			key: color || '',
+	// 			// eslint-disable-next-line react/no-unstable-nested-components
+	// 			Label: () => (
+	// 				<div className="flex items-center space-x-2">
+	// 					<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
+	// 					<span className="font-normal">{color || 'Color'}</span>
+	// 				</div>
+	// 			)
+	// 		}}
+	// 		items={[]}
+	// 		closeOnChildrenClick={false}
+	// 	>
+	// 		<HexColorPicker color={color || undefined} onChange={setColor} />
+	// 	</Dropdown>
+	// );
 };
