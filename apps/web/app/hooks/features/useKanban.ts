@@ -5,19 +5,28 @@ import { useEffect, useState } from 'react';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { useTeamTasks } from './useTeamTasks';
 import { IKanban } from '@app/interfaces/IKanban';
-
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
+	const [searchTasks, setSearchTasks] = useState('');
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
-	const { tasks, tasksFetching, updateTask, } = useTeamTasks();
-	/**
-	 * format data for kanban board
-	 */
+	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
+	const [priority, setPriority] = useState<string[]>([]);
+	const [sizes, setSizes] = useState<string[]>([]);
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
 			let kanban = {};
-
+			setLoading(true);
+			const tasks = newTask
+				.filter((task: ITeamTask) => {
+					return task.title.toLowerCase().includes(searchTasks.toLowerCase());
+				})
+				.filter((task: ITeamTask) => {
+					return priority.length ? priority.includes(task.priority) : true;
+				})
+				.filter((task: ITeamTask) => {
+					return sizes.length ? sizes.includes(task.size) : true;
+				});
 			const getTasksByStatus = (status: string | undefined) => {
 				return tasks.filter((task: ITeamTask) => {
 					return task.status === status;
@@ -34,7 +43,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching]);
+	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes]);
 
 	/**
 	 * collapse or show kanban column
@@ -82,11 +91,15 @@ export function useKanban() {
 		data: kanbanBoard as IKanban,
 		isLoading: loading,
 		columns: taskStatusHook.taskStatus,
+		searchTasks,
+		setPriority,
+		setSizes,
 		updateKanbanBoard: setKanbanBoard,
 		updateTaskStatus: updateTask,
 		toggleColumn,
 		isColumnCollapse,
 		reorderStatus,
-		addNewTask
+		addNewTask,
+		setSearchTasks
 	};
 }
