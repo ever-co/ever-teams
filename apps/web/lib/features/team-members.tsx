@@ -15,7 +15,21 @@ type TeamMembersProps = {
 	publicTeam?: boolean;
 	kanbanView?: IssuesView;
 };
+{/* <div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view == IssuesView.TABLE ? 'pb-7' : ''}`}>
+<Container fullWidth={fullWidth}>
+	{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+	{view === IssuesView.CARDS && isTeamMember ? (
+		<UserTeamCardHeader />
+	) : view === IssuesView.BLOCKS ? (
+		<UserTeamBlockHeader />
+	) : view === IssuesView.TABLE ? (
+		<UserTeamTableHeader />
+	) : null}
+</Container>
 
+
+<div className="h-0.5 bg-[#FFFFFF14]"></div>
+</div> */}
 export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const activeFilter = useRecoilValue(taskBlockFilterState);

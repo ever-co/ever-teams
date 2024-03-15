@@ -6,6 +6,7 @@ import { UserInfoCell, TaskCell, WorkedOnTaskCell, TaskEstimateInfoCell, ActionM
 import { useAuthenticateUser, useModal } from '@app/hooks';
 import { InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteFormModal } from './team/invite/invite-form-modal';
+import { useTranslations } from 'next-intl';
 
 const TeamMembersTableView = ({
 	teamMembers,
@@ -18,11 +19,14 @@ const TeamMembersTableView = ({
 	publicTeam?: boolean;
 	active?: boolean;
 }) => {
+	const t = useTranslations();
+
 	const columns = React.useMemo<ColumnDef<OT_Member>[]>(
 		() => [
 			{
 				id: 'name',
 				header: 'Name',
+				tooltip: '',
 				cell: UserInfoCell,
 				meta: {
 					publicTeam
@@ -31,21 +35,25 @@ const TeamMembersTableView = ({
 			{
 				id: 'task',
 				header: 'Task',
+				tooltip: '',
 				cell: TaskCell
 			},
 			{
 				id: 'workedOnTask',
 				header: 'Worked on task',
+				tooltip: t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP'),
 				cell: WorkedOnTaskCell
 			},
 			{
 				id: 'estimate',
 				header: 'Estimate',
+				tooltip: '',
 				cell: TaskEstimateInfoCell
 			},
 			{
 				id: 'action',
 				header: 'Action',
+				tooltip: '',
 				cell: ActionMenuCell,
 				meta: {
 					active
@@ -65,6 +73,7 @@ const TeamMembersTableView = ({
 	return (
 		<>
 			<DataTable
+				isHeader={true}
 				columns={columns as Column<OT_Member>[]}
 				data={sortedTeamMembers}
 				noResultsMessage={{

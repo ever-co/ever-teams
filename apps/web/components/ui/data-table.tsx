@@ -15,6 +15,7 @@ import {
 } from '@tanstack/react-table';
 
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
+import { Tooltip } from 'lib/components';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -43,6 +44,10 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 			rowSelection,
 			columnFilters
 		},
+		defaultColumn: {
+			// Let's set up our default column filter UI
+			size: 20
+		},
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
@@ -55,19 +60,29 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues()
 	});
-
+	console.log('table', Array.isArray(table.getRowModel().rows) && table.getRowModel().rows[0].getVisibleCells());
 	return (
-		<Table className="border-transparent bg-light--theme-light dark:bg-dark--theme-light mt-8 w-full rounded-2xl">
+		<Table className="border-transparent mt-8 w-full rounded-2xl">
 			{isHeader && (
 				<TableHeader>
 					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow key={headerGroup.id}>
-							{headerGroup.headers.map((header) => {
+						<TableRow className="hover:bg-transparent h-20" key={headerGroup.id}>
+							{headerGroup.headers.map((header, index) => {
+								const tooltip: any = header.column.columnDef;
+								const isTooltip: any = flexRender(tooltip.tooltip, header.getContext());
 								return (
-									<TableHead key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(header.column.columnDef.header, header.getContext())}
+									<TableHead
+										style={{
+											textAlign: index === 0 ? 'left' : 'center'
+										}}
+										className="!w-40"
+										key={header.id}
+									>
+										<Tooltip label={isTooltip as string} enabled={!!isTooltip}>
+											{header.isPlaceholder
+												? null
+												: flexRender(header.column.columnDef.header, header.getContext())}
+										</Tooltip>
 									</TableHead>
 								);
 							})}
@@ -76,12 +91,23 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 				</TableHeader>
 			)}
 
-			<TableBody className="divide-y divide-gray-200">
+			<TableBody className="divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (
-						<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="my-4">
-							{row.getVisibleCells().map((cell) => (
-								<TableCell key={cell.id} className="rounded-[16px] my-4">
+						<TableRow
+							key={row.id}
+							data-state={row.getIsSelected() && 'selected'}
+							className="my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40"
+						>
+							{row.getVisibleCells().map((cell, index) => (
+								<TableCell
+									key={cell.id}
+									style={{
+										textAlign: index === 0 ? 'left' : 'center'
+									}}
+									// className="!w-36"
+									className="my-4 !w-fit xl:!w-fit border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C] "
+								>
 									{flexRender(cell.column.columnDef.cell, cell.getContext())}
 								</TableCell>
 							))}
