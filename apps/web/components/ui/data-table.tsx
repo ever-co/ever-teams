@@ -60,7 +60,6 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues()
 	});
-	console.log('table', Array.isArray(table.getRowModel().rows) && table.getRowModel().rows[0].getVisibleCells());
 	return (
 		<Table className="border-transparent mt-8 w-full rounded-2xl">
 			{isHeader && (
