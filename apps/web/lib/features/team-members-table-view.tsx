@@ -25,7 +25,7 @@ const TeamMembersTableView = ({
 		() => [
 			{
 				id: 'name',
-				header: 'Name',
+				header: 'Team Member',
 				tooltip: '',
 				cell: UserInfoCell,
 				meta: {

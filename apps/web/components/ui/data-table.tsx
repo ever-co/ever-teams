@@ -63,9 +63,9 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 	return (
 		<Table className="border-transparent mt-8 w-full rounded-2xl">
 			{isHeader && (
-				<TableHeader>
+				<TableHeader className=" border-b-[3px] border-b-[#FFFFFF14] ">
 					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow className="hover:bg-transparent h-20" key={headerGroup.id}>
+						<TableRow className="hover:bg-transparent h-20 border-none" key={headerGroup.id}>
 							{headerGroup.headers.map((header, index) => {
 								const tooltip: any = header.column.columnDef;
 								const isTooltip: any = flexRender(tooltip.tooltip, header.getContext());
@@ -74,7 +74,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 										style={{
 											textAlign: index === 0 ? 'left' : 'center'
 										}}
-										className="!w-40"
+										className="!w-40 text-base"
 										key={header.id}
 									>
 										<Tooltip label={isTooltip as string} enabled={!!isTooltip}>
@@ -89,7 +89,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 					))}
 				</TableHeader>
 			)}
-
+			<div className="mt-4"></div>
 			<TableBody className="divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (
