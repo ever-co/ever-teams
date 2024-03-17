@@ -29,7 +29,11 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 								activeView === optionView &&
 									'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
 							)}
-							onClick={() => setView(optionView)}
+							onClick={() => {
+								if (links[index] !== '/kanban') {
+									setView(optionView);
+								}
+							}}
 						>
 							<Icon
 								className={clsxm(
