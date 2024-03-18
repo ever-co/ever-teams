@@ -14,7 +14,7 @@ import {
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
 
-export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) => {
+export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
 		data: items,
 		columns: kanbanColumns,
@@ -211,6 +211,7 @@ export const KanbanView = ({ kanbanBoardTasks }: { kanbanBoardTasks: IKanban }) 
 																<>
 																	<KanbanDraggable
 																		key={index}
+																		isLoading={isLoading}
 																		index={index}
 																		addNewTask={addNewTask}
 																		title={column}

@@ -341,7 +341,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
  */
-function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
+export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 
