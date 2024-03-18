@@ -8,6 +8,8 @@ import { IKanban } from '@app/interfaces/IKanban';
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchTasks, setSearchTasks] = useState('');
+	const [labels, setLabels] = useState<string[]>([]);
+	const [epics, setEpics] = useState<string[]>([]);
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
@@ -26,7 +28,14 @@ export function useKanban() {
 				})
 				.filter((task: ITeamTask) => {
 					return sizes.length ? sizes.includes(task.size) : true;
+				})
+				.filter((task: ITeamTask) => {
+					return labels.length ? labels.some((label) => task.tags.some((tag) => tag.name === label)) : true;
+				})
+				.filter((task: ITeamTask) => {
+					return epics.length ? epics.includes(task.id) : true;
 				});
+
 			const getTasksByStatus = (status: string | undefined) => {
 				return tasks.filter((task: ITeamTask) => {
 					return task.status === status;
@@ -43,7 +52,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes]);
+	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics]);
 
 	/**
 	 * collapse or show kanban column
@@ -79,7 +88,6 @@ export function useKanban() {
 				});
 			});
 	};
-
 	const addNewTask = (task: ITeamTask, status: string) => {
 		const updatedBoard = {
 			...kanbanBoard,
@@ -93,7 +101,9 @@ export function useKanban() {
 		columns: taskStatusHook.taskStatus,
 		searchTasks,
 		setPriority,
+		setLabels,
 		setSizes,
+		setEpics,
 		updateKanbanBoard: setKanbanBoard,
 		updateTaskStatus: updateTask,
 		toggleColumn,
