@@ -18,10 +18,10 @@ import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
 import KanbanSearch from '@components/pages/kanban/search-bar';
-import { TaskPropertiesDropdown, TaskSizesDropdown } from 'lib/features';
+import { EpicPropertiesDropdown, TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown } from 'lib/features';
 
 const Kanban = () => {
-	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes } = useKanban();
+	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes, setLabels, setEpics } = useKanban();
 
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
@@ -53,6 +53,7 @@ const Kanban = () => {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 	const timezone = userTimezone();
+	console.log('datadata', data);
 	return (
 		<>
 			<MainLayout showTimer={true}>
@@ -114,6 +115,21 @@ const Kanban = () => {
 							))}
 						</div>
 						<div className="flex space-x-2 mt-5 lg:mt-0">
+							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+								<EpicPropertiesDropdown
+									onValueChange={(_, values) => setEpics(values || [])}
+									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+									multiple={true}
+								/>
+							</div>
+
+							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+								<TaskLabelsDropdown
+									onValueChange={(_, values) => setLabels(values || [])}
+									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+									multiple={true}
+								/>
+							</div>
 							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 								<TaskPropertiesDropdown
 									onValueChange={(_, values) => setPriority(values || [])}
