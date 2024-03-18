@@ -180,7 +180,7 @@ export default function Item(props: ItemProps) {
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
 					<span>{<TagList tags={item.tags} />}</span>
-					{menu}
+					<span className="">{menu}</span>
 				</div>
 				<div className="w-full flex justify-between my-3">
 					<div className="flex items-center w-64">

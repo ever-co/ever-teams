@@ -8,20 +8,11 @@ import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
-import {
-	AuthUserTaskInput,
-	TeamInvitations,
-	TeamMembers,
-	Timer,
-	UnverifiedEmail,
-	UserTeamCardHeader,
-	UserTeamBlockHeader
-} from 'lib/features';
+import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { IssuesView } from '@app/constants';
 import { useNetworkState } from '@uidotdev/usehooks';
 import Offline from '@components/pages/offline';
-import UserTeamTableHeader from 'lib/features/team/user-team-table/user-team-table-header';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
@@ -84,25 +75,12 @@ function MainPage() {
 					<TeamInvitations />
 				</MainHeader>
 
-				<div className={`z-50 bg-white dark:bg-[#191A20] pt-5 ${view == IssuesView.TABLE ? 'pb-7' : ''}`}>
+				{/* <div className={`z-50 bg-white dark:bg-[#191A20] `}> */}
 					<Container fullWidth={fullWidth}>
-						{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
-						{view === IssuesView.CARDS && isTeamMember ? (
-							<UserTeamCardHeader />
-						) : view === IssuesView.BLOCKS ? (
-							<UserTeamBlockHeader />
-						) : view === IssuesView.TABLE ? (
-							<UserTeamTableHeader />
-						) : null}
+					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+					{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 					</Container>
 
-					{/* Divider */}
-					<div className="h-0.5 bg-[#FFFFFF14]"></div>
-				</div>
-
-				<Container className="" fullWidth={fullWidth}>
-					{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-				</Container>
 			</MainLayout>
 
 			<Analytics />

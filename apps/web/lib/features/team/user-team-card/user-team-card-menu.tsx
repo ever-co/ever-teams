@@ -77,7 +77,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 	return (
 		<Popover
-			className="relative"
+			className="relative w-full flex flex-col items-center justify-center"
 			ref={mergeRefs([
 				edition.estimateEditIgnoreElement.ignoreElementRef,
 				edition.taskEditIgnoreElement.ignoreElementRef
