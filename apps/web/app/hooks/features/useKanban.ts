@@ -29,11 +29,9 @@ export function useKanban() {
 				.filter((task: ITeamTask) => {
 					return sizes.length ? sizes.includes(task.size) : true;
 				})
-				// filter labels in task.tags[{label}]
 				.filter((task: ITeamTask) => {
 					return labels.length ? labels.some((label) => task.tags.some((tag) => tag.name === label)) : true;
 				})
-				// filter epics as id now filter data
 				.filter((task: ITeamTask) => {
 					return epics.length ? epics.includes(task.id) : true;
 				});
@@ -90,7 +88,6 @@ export function useKanban() {
 				});
 			});
 	};
-	console.log('kanbanBoard-l', epics);
 	const addNewTask = (task: ITeamTask, status: string) => {
 		const updatedBoard = {
 			...kanbanBoard,
