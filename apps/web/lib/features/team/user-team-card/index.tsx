@@ -41,8 +41,7 @@ export function UserTeamCard({
 	onDragStart = () => null,
 	onDragEnd = () => null,
 	onDragEnter = () => null,
-	onDragOver = () => null,
-	currentExit = false
+	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
