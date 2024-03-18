@@ -53,7 +53,6 @@ const Kanban = () => {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 	const timezone = userTimezone();
-	console.log('datadata', data);
 	return (
 		<>
 			<MainLayout showTimer={true}>
