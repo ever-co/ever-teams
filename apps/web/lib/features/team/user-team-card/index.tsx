@@ -18,6 +18,9 @@ import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
+import { Column, ColumnDef } from '@tanstack/react-table';
+import { TaskEstimateInfoCell, WorkedOnTaskCell } from 'lib/features/team-member-cell';
+import DataTable from '@components/ui/data-table-cards';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -101,6 +104,87 @@ export function UserTeamCard({
 		</>
 	);
 
+	const columns = React.useMemo<ColumnDef<OT_Member>[]>(
+		() => [
+			{
+				id: 'name',
+				header: 'Team Member',
+				tooltip: '',
+				class: '!w-24 border-r-[#00000008] border-r-[0.125rem] dark:border-r-[#26272C]',
+				cell: () => <UserInfo memberInfo={memberInfo} className="!w-40 " publicTeam={publicTeam} />,
+				meta: {
+					publicTeam
+				}
+			},
+			{
+				id: 'task',
+				header: 'Task',
+				class: '!min-w-[13rem] !w-52 !max-w-[13rem]  border-r-[#00000008] border-r-[0.125rem] dark:border-r-[#26272C]',
+				tooltip: '',
+				cell: () => (
+					<span className="flex justify-center items-center">
+						<TaskInfo
+							edition={taskEdition}
+							memberInfo={memberInfo}
+							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+							publicTeam={publicTeam}
+						/>
+						<p
+							className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
+							onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
+						>
+							{!showActivity ? (
+								<ExpandIcon height={24} width={24} />
+							) : (
+								<CollapseUpIcon height={24} width={24} />
+							)}
+						</p>
+					</span>
+				)
+			},
+			{
+				id: 'workedOnTask',
+				header: 'Worked on task',
+				class: '!w-36 border-r-[#00000008] border-r-[0.125rem] dark:border-r-[#26272C]',
+				tooltip: t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP'),
+				cell: WorkedOnTaskCell
+			},
+			{
+				id: 'estimate',
+				header: 'Estimate',
+				class: '!w-28 border-r-[#00000008] border-r-[0.125rem] dark:border-r-[#26272C]',
+				tooltip: '',
+				cell: TaskEstimateInfoCell
+			},
+			{
+				id: 'action',
+				header: 'Total Worked Today',
+				class: '!w-14',
+				tooltip: '',
+				cell: (info) => (
+					<div className="flex justify-between items-center cursor-pointer ">
+						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
+						<p
+							onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
+							className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
+						>
+							{!showActivity ? (
+								<ExpandIcon height={24} width={24} />
+							) : (
+								<CollapseUpIcon height={24} width={24} />
+							)}
+						</p>
+						<div className="w-4">{menu}</div>
+					</div>
+				),
+				meta: {
+					active
+				}
+			}
+		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
+	);
 	return (
 		<div
 			className={clsxm(!active && 'border-2 border-transparent')}
@@ -121,7 +205,7 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex m-0 relative items-center">
+				<div className=" hidden m-0 relative items-center">
 					<div className="absolute left-0 cursor-pointer">
 						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
@@ -187,6 +271,15 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
+				<DataTable
+					isHeader={false}
+					columns={columns as Column<OT_Member>[]}
+					data={[member]}
+					noResultsMessage={{
+						heading: 'No team members found',
+						content: 'Try adjusting your search or filter to find what you’re looking for.'
+					}}
+				/>
 				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card

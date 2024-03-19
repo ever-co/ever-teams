@@ -41,7 +41,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>
 					</div>
-					<div className="p-4 flex-1">
+					<div className="p-4 flex-1 w-96">
 						<Tab.Group>
 							<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2 mx-4">
 								{Object.values(ActivityFilters).map((filter: string) => (

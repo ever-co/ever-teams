@@ -16,6 +16,7 @@ import {
 
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
 import { Tooltip } from 'lib/components';
+import { clsxm } from '@app/utils';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -44,6 +45,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 			rowSelection,
 			columnFilters
 		},
+
 		defaultColumn: {
 			// Let's set up our default column filter UI
 			size: 20
@@ -61,9 +63,9 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 		getFacetedUniqueValues: getFacetedUniqueValues()
 	});
 	return (
-		<Table className="border-transparent mt-8 w-full rounded-2xl">
+		<Table className="border-transparent w-full rounded-2xl">
 			{isHeader && (
-				<TableHeader className=" border-b-[3px] border-b-[#FFFFFF14] ">
+				<TableHeader className="border-b-[3px] border-b-[#FFFFFF14] ">
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow className="hover:bg-transparent h-[74px] border-none" key={headerGroup.id}>
 							{headerGroup.headers.map((header, index) => {
@@ -89,14 +91,13 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 					))}
 				</TableHeader>
 			)}
-			<div className="mt-8"></div>
 			<TableBody className="divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (
 						<TableRow
 							key={row.id}
 							data-state={row.getIsSelected() && 'selected'}
-							className="my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40 border-transparent"
+							className="my-4 hover:bg-transparent"
 						>
 							{row.getVisibleCells().map((cell, index) => (
 								<TableCell
@@ -105,7 +106,10 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 										textAlign: index === 0 ? 'left' : 'center'
 									}}
 									// className="!w-36"
-									className="my-4 !w-fit xl:!w-fit border-r border-transparent"
+									className={clsxm(
+										'my-4  ',
+										flexRender(cell.column.columnDef.class, cell.getContext())
+									)}
 								>
 									{flexRender(cell.column.columnDef.cell, cell.getContext())}
 								</TableCell>

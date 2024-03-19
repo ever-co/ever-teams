@@ -20,7 +20,7 @@ export function TaskCell({ row }: { row: any }) {
 		<TaskInfo
 			edition={taskEdition}
 			memberInfo={memberInfo}
-			className="flex justify-center items-center w-full px-2"
+			className="flex justify-center items-center w-full px-2 border-transparent"
 			publicTeam={publicTeam}
 		/>
 	);
@@ -80,7 +80,7 @@ export function ActionMenuCell({ cell }: { cell: any }) {
 
 			{collaborativeSelect && !active && (
 				<InputField
-					type="checkbox"
+					type="checkbox"	
 					checked={user_selected()}
 					className={clsxm(
 						'border-none w-4 h-4 mr-1 accent-primary-light',
