@@ -152,6 +152,7 @@ export function TaskIssueStatus({
 			{...taskIssues[task?.issueType || 'Task']}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
+			
 			className={clsxm('rounded-md px-2 text-white', className)}
 		/>
 	);
