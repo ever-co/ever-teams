@@ -69,7 +69,7 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 	);
 }
 // TODO: remove this component, it is using only in kanban and now we uses the previous component
-// added export to remove deepscan error
+// added export to remove lint error
 export function TagList({ tags }: { tags: Tag[] }) {
 	return (
 		<>
