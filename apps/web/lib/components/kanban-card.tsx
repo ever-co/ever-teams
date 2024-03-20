@@ -68,7 +68,7 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 		</>
 	);
 }
-
+// TODO: remove this beacuse it is using only in kanban previously and now we uses the previous component
 function TagList({ tags }: { tags: Tag[] }) {
 	return (
 		<>
