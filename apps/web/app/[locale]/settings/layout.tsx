@@ -29,7 +29,7 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 				className="items-start pb-1 overflow-hidden w-full"
 				childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full"
 			>
-				<div className="pt-12 w-full pb-4 bg-white dark:bg-dark--theme">
+				<div className="py-10 w-full bg-white dark:bg-dark--theme">
 					<Container
 						fullWidth={fullWidth}
 						className={clsxm('w-full flex flex-row items-center justify-start gap-8')}

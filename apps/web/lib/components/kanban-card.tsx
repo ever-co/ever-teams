@@ -10,7 +10,7 @@ import {
 	useTeamMemberCard
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
-import { TaskInput, TaskIssueStatus } from 'lib/features';
+import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
@@ -68,8 +68,9 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 		</>
 	);
 }
-
-function TagList({ tags }: { tags: Tag[] }) {
+// TODO: remove this component, it is using only in kanban and now we uses the previous component
+// added export to remove lint error
+export function TagList({ tags }: { tags: Tag[] }) {
 	return (
 		<>
 			<div className="flex flex-wrap gap-1 items-center">
@@ -179,8 +180,10 @@ export default function Item(props: ItemProps) {
 		>
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
-					<span>{<TagList tags={item.tags} />}</span>
-					<span className="">{menu}</span>
+					<span className="!w-64">
+						<TaskAllStatusTypes className="justify-start" task={item} showStatus={false} />
+					</span>
+					<span>{menu}</span>
 				</div>
 				<div className="w-full flex justify-between my-3">
 					<div className="flex items-center w-64">
@@ -191,7 +194,7 @@ export default function Item(props: ItemProps) {
 										<span className="h-5 w-6 inline-block ">
 											<span className="absolute top-1">
 												<TaskIssueStatus
-													showIssueLabels={true}
+													showIssueLabels={false}
 													task={item}
 													className="rounded-sm mr-1 h-6 w-6"
 												/>

@@ -1,4 +1,3 @@
-import LeftArrowTailessIcon from '@components/ui/svgs/left-arrow-tailess';
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React from 'react';
 import { useEffect, useState } from 'react';
@@ -18,7 +17,7 @@ import { useKanban } from '@app/hooks/features/useKanban';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
-import { AddIcon } from 'assets/svg';
+import { AddIcon, ChevronLeftIcon } from 'assets/svg';
 import Skeleton from 'react-loading-skeleton';
 
 import { useModal } from '@app/hooks';
@@ -160,7 +159,6 @@ export const KanbanDroppable = ({
 					)}
 				</div>
 			)}
-
 		</>
 	);
 };
@@ -213,15 +211,40 @@ export const EmptyKanbanDroppable = ({
 								<>
 									<header
 										className={
-											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed'
+											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed min-h-[20rem]'
 										}
 										style={headerStyleChanger(snapshot, backgroundColor)}
 									>
-										<div className="flex flex-col items-center gap-2">
-											<button className="rotate-180" onClick={() => toggleColumn(title, false)}>
-												<LeftArrowTailessIcon />
+										<div className="flex flex-col items-center space-2">
+											<button
+												className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md rotate-180"
+												onClick={() => toggleColumn(title, false)}
+											>
+												<ChevronLeftIcon className="text-[#1B1D22]" />
 											</button>
-											<ThreeDotIcon color="black" />
+											<Popover>
+												<PopoverTrigger className="mt-1" asChild>
+													<Button
+														variant="ghost"
+														className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md"
+													>
+														<ThreeDotIcon color="black" />
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent
+													align="start"
+													className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
+												>
+													{['Delete', 'Archive', 'Copy'].map((v) => (
+														<p
+															className="hover:font-medium p-1.5 text-sm cursor-pointer"
+															key={v}
+														>
+															{v}
+														</p>
+													))}
+												</PopoverContent>
+											</Popover>
 										</div>
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
@@ -294,7 +317,7 @@ const KanbanDraggableHeader = ({
 					<div className="flex flex-row items-center gap-2">
 						<Popover>
 							<PopoverTrigger asChild>
-								<Button variant="ghost" className="hover:bg-transparent p-0">
+								<Button variant="ghost" className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md">
 									<ThreeDotIcon color="black" />
 								</Button>
 							</PopoverTrigger>
@@ -309,8 +332,11 @@ const KanbanDraggableHeader = ({
 								))}
 							</PopoverContent>
 						</Popover>
-						<button onClick={() => toggleColumn(title, true)}>
-							<LeftArrowTailessIcon />
+						<button
+							className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md"
+							onClick={() => toggleColumn(title, true)}
+						>
+							<ChevronLeftIcon className="text-[#1B1D22]" />
 						</button>
 					</div>
 				</header>
