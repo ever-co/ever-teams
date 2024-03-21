@@ -160,7 +160,6 @@ export const KanbanDroppable = ({
 					)}
 				</div>
 			)}
-
 		</>
 	);
 };
@@ -213,7 +212,7 @@ export const EmptyKanbanDroppable = ({
 								<>
 									<header
 										className={
-											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed'
+											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed min-h-[20rem]'
 										}
 										style={headerStyleChanger(snapshot, backgroundColor)}
 									>
