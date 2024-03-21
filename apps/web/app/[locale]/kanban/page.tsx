@@ -25,7 +25,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 const Kanban = () => {
 	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes, setLabels, setEpics } = useKanban();
 
-	const { activeTeam } = useOrganizationTeams();
+	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useRecoilValue(fullWidthState);
@@ -58,7 +58,7 @@ const Kanban = () => {
 	const timezone = userTimezone();
 	return (
 		<>
-			<MainLayout showTimer={true}>
+			<MainLayout showTimer={isTrackingEnabled}>
 				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
 				<div className={'fixed top-20 flex flex-col  z-10 mx-[0px] w-full bg-white dark:bg-dark--theme'}>
 					<Container fullWidth={fullWidth}>
