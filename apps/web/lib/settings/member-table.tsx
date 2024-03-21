@@ -123,7 +123,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								>
 									{member.employee.user?.imageId ? (
 										<Avatar
-											size={20}
+											size={35}
 											className="relative cursor-pointer"
 											imageUrl={
 												member.employee.user?.image?.thumbUrl ||
@@ -135,7 +135,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									) : member.employee.user?.name ? (
 										<div
 											className={clsxm(
-												'w-[20px] h-[20px]',
+												'w-[35px] h-[35px]',
 												'flex justify-center items-center',
 												'rounded-full text-xs text-default dark:text-white',
 												'shadow-md font-normal'
