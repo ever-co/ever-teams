@@ -5,7 +5,7 @@ import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks'
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb } from 'lib/components';
+import { Breadcrumb, Container } from 'lib/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
@@ -19,6 +19,8 @@ import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
 import KanbanSearch from '@components/pages/kanban/search-bar';
 import { EpicPropertiesDropdown, TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown } from 'lib/features';
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 const Kanban = () => {
 	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes, setLabels, setEpics } = useKanban();
@@ -26,6 +28,7 @@ const Kanban = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
+	const fullWidth = useRecoilValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 	const breadcrumbPath = [
@@ -57,100 +60,102 @@ const Kanban = () => {
 		<>
 			<MainLayout showTimer={true}>
 				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
-				<div className={'fixed top-20 flex flex-col  z-10 mx-[0px] w-full'}>
-					<div className="flex bg-white dark:bg-dark--theme mx-8  flex-row items-start justify-between mt-12">
-						<div className="flex justify-center items-center gap-8 h-10">
-							<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
-						</div>
-						<div className="flex h-10 w-max items-center justify-center   gap-1">
-							<HeaderTabs kanban={true} linkAll={true} />
-						</div>
-					</div>
-					<div className="flex justify-between items-center mx-8 mt-10 bg-white dark:bg-dark--theme">
-						<h1 className="text-4xl font-semibold ">
-							{t('common.KANBAN')} {t('common.BOARD')}
-						</h1>
-						<div className="flex w-fit items-center space-x-2">
-							<strong className="text-gray-400">
-								{`(`}
-								{timezone.split('(')[1]}
-							</strong>
-							<div className="mt-1">
-								<Separator />
+				<div className={'fixed top-20 flex flex-col  z-10 mx-[0px] w-full bg-white dark:bg-dark--theme'}>
+					<Container fullWidth={fullWidth}>
+						<div className="flex bg-white dark:bg-dark--theme   flex-row items-start justify-between mt-12">
+							<div className="flex justify-center items-center gap-8 h-10">
+								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 							</div>
-							<ImageComponent images={teamMembers} />
-							<div className="mt-1">
-								<Separator />
+							<div className="flex h-10 w-max items-center justify-center   gap-1">
+								<HeaderTabs kanban={true} linkAll={true} />
 							</div>
-
-							<button
-								onClick={openModal}
-								className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white"
-							>
-								{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
-								<AddIcon className="w-6 h-6 text-foreground" />
-							</button>
 						</div>
-					</div>
-					<div className="relative flex flex-col lg:flex-row justify-between items-center px-8 pt-10 bg-white dark:bg-dark--theme">
-						<div className="flex flex-row">
-							{tabs.map((tab) => (
-								<div
-									key={tab.name}
-									onClick={() => setActiveTab(tab.value)}
-									className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
-										activeTab === tab.value
-											? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-											: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-									}`}
-									style={{
-										borderBottomWidth: '3px',
-										borderBottomStyle: 'solid'
-									}}
-								>
-									{tab.name}
+						<div className="flex justify-between items-center  mt-10 bg-white dark:bg-dark--theme">
+							<h1 className="text-4xl font-semibold ">
+								{t('common.KANBAN')} {t('common.BOARD')}
+							</h1>
+							<div className="flex w-fit items-center space-x-2">
+								<strong className="text-gray-400">
+									{`(`}
+									{timezone.split('(')[1]}
+								</strong>
+								<div className="mt-1">
+									<Separator />
 								</div>
-							))}
-						</div>
-						<div className="flex space-x-2 mt-5 lg:mt-0">
-							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-								<EpicPropertiesDropdown
-									onValueChange={(_, values) => setEpics(values || [])}
-									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-									multiple={true}
-								/>
-							</div>
+								<ImageComponent images={teamMembers} />
+								<div className="mt-1">
+									<Separator />
+								</div>
 
-							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-								<TaskLabelsDropdown
-									onValueChange={(_, values) => setLabels(values || [])}
-									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-									multiple={true}
-								/>
+								<button
+									onClick={openModal}
+									className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white"
+								>
+									{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
+									<AddIcon className="w-6 h-6 text-foreground" />
+								</button>
 							</div>
-							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-								<TaskPropertiesDropdown
-									onValueChange={(_, values) => setPriority(values || [])}
-									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-									multiple={true}
-								/>
-							</div>
-							<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-								<TaskSizesDropdown
-									onValueChange={(_, values) => setSizes(values || [])}
-									className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-									multiple={true}
-								/>
-							</div>
-							<div className="mt-1">
-								<Separator />
-							</div>
-
-							<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
 						</div>
-					</div>
-					{/* <div className="h-20 w-full bg-red-500/50"></div> */}
+						<div className="relative flex flex-col lg:flex-row justify-between items-center  pt-10 bg-white dark:bg-dark--theme">
+							<div className="flex flex-row">
+								{tabs.map((tab) => (
+									<div
+										key={tab.name}
+										onClick={() => setActiveTab(tab.value)}
+										className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
+											activeTab === tab.value
+												? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
+												: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
+										}`}
+										style={{
+											borderBottomWidth: '3px',
+											borderBottomStyle: 'solid'
+										}}
+									>
+										{tab.name}
+									</div>
+								))}
+							</div>
+							<div className="flex space-x-2 mt-5 lg:mt-0">
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<EpicPropertiesDropdown
+										onValueChange={(_, values) => setEpics(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskLabelsDropdown
+										onValueChange={(_, values) => setLabels(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskPropertiesDropdown
+										onValueChange={(_, values) => setPriority(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskSizesDropdown
+										onValueChange={(_, values) => setSizes(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="mt-1">
+									<Separator />
+								</div>
+
+								<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
+							</div>
+						</div>
+						{/* <div className="h-20 w-full bg-red-500/50"></div> */}
+					</Container>
 				</div>
 				<div className="mt-[256px]">
 					{/** TODO:fetch teamtask based on days */}
