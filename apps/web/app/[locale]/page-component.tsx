@@ -28,6 +28,7 @@ import HeaderTabs from '@components/pages/main/header-tabs';
 import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
+import TeamMemberHeader from 'lib/features/team-member-header';
 
 function MainPage() {
 	const t = useTranslations();
@@ -60,7 +61,7 @@ function MainPage() {
 		<>
 			<MainLayout>
 				<ChatwootWidget />
-				<MainHeader className="pb-1" fullWidth={fullWidth}>
+				<MainHeader className="!pb-0" fullWidth={fullWidth}>
 					<div className="flex flex-row items-start justify-between ">
 						<div className="flex justify-center items-center gap-8 h-10">
 							<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -73,14 +74,14 @@ function MainPage() {
 
 					<UnverifiedEmail />
 					<TeamInvitations />
+					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+					<TeamMemberHeader view={view} />
 				</MainHeader>
 
 				{/* <div className={`z-50 bg-white dark:bg-[#191A20] `}> */}
-					<Container fullWidth={fullWidth}>
-					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+				<Container fullWidth={fullWidth}>
 					{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-					</Container>
-
+				</Container>
 			</MainLayout>
 
 			<Analytics />
