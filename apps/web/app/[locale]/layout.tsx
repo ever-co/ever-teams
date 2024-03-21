@@ -64,7 +64,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	const messages = require(`../../messages/${locale}.json`);
 
 	useEffect(() => {
-		if (!isApiWork && !loading) router.replace(`maintenance/${pathname}`);
+		if (!isApiWork && !loading) router.push(`/maintenance`);
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 	return (
