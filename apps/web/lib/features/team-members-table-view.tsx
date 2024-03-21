@@ -73,7 +73,7 @@ const TeamMembersTableView = ({
 	return (
 		<>
 			<DataTable
-				isHeader={true}
+				isHeader={false}
 				columns={columns as Column<OT_Member>[]}
 				data={sortedTeamMembers}
 				noResultsMessage={{

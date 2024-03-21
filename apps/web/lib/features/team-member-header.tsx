@@ -5,6 +5,7 @@ import { UserTeamBlockHeader } from './team/user-team-block/user-team-block-head
 import { Container } from 'lib/components';
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
+import UserTeamTableHeader from './team/user-team-table/user-team-table-header';
 
 function TeamMemberHeader({ view }: { view: IssuesView }) {
 	const fullWidth = useRecoilValue(fullWidthState);
@@ -14,7 +15,7 @@ function TeamMemberHeader({ view }: { view: IssuesView }) {
 			header = <UserTeamCardHeader />;
 			break;
 		case view == IssuesView.TABLE:
-			header = <></>;
+			header = <UserTeamTableHeader />;
 			break;
 		case view == IssuesView.BLOCKS:
 			header = <UserTeamBlockHeader />;
@@ -24,7 +25,7 @@ function TeamMemberHeader({ view }: { view: IssuesView }) {
 			break;
 	}
 	return (
-		<Container fullWidth={fullWidth} className="!pb-0">
+		<Container fullWidth={fullWidth} className="!p-0">
 			{header}
 		</Container>
 	);

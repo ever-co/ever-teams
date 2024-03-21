@@ -7,7 +7,7 @@ import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, Container } from 'lib/components';
+import { Breadcrumb, Card } from 'lib/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { IssuesView } from '@app/constants';
@@ -79,9 +79,7 @@ function MainPage() {
 				</MainHeader>
 
 				{/* <div className={`z-50 bg-white dark:bg-[#191A20] `}> */}
-				<Container fullWidth={fullWidth}>
-					{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-				</Container>
+				{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 			</MainLayout>
 
 			<Analytics />
