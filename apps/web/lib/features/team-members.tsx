@@ -10,6 +10,8 @@ import TeamMembersBlockView from './team-members-block-view';
 import { useRecoilValue } from 'recoil';
 import { taskBlockFilterState } from '@app/stores/task-filter';
 import { OT_Member } from '@app/interfaces';
+import { Container } from 'lib/components';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -19,6 +21,7 @@ type TeamMembersProps = {
 export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const activeFilter = useRecoilValue(taskBlockFilterState);
+	const fullWidth = useRecoilValue(fullWidthState);
 	const { activeTeam } = useOrganizationTeams();
 	const { teamsFetching } = useOrganizationTeams();
 	const members = activeTeam?.members || [];
@@ -45,7 +48,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	switch (true) {
 		case members.length === 0:
 			teamMembersView = (
-				<div className="">
+				<Container fullWidth={fullWidth}>
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
 						<InviteUserTeamCardSkeleton />
@@ -55,58 +58,66 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 						<UserCard />
 						<UserCard />
 					</div>
-				</div>
+				</Container>
 			);
 			break;
 		case view === IssuesView.CARDS:
 			teamMembersView = (
-				<TeamMembersCardView
-					teamMembers={$members}
-					currentUser={currentUser}
-					publicTeam={publicTeam}
-					teamsFetching={$teamsFetching}
-				/>
+				<Container fullWidth={fullWidth}>
+					<TeamMembersCardView
+						teamMembers={$members}
+						currentUser={currentUser}
+						publicTeam={publicTeam}
+						teamsFetching={$teamsFetching}
+					/>
+				</Container>
 			);
 			break;
 		case view === IssuesView.TABLE:
 			teamMembersView = (
-				<Transition
-					show={!!currentUser}
-					enter="transition-opacity duration-75"
-					enterFrom="opacity-0"
-					enterTo="opacity-100"
-					leave="transition-opacity duration-150"
-					leaveFrom="opacity-100"
-					leaveTo="opacity-0"
-				>
-					<TeamMembersTableView
-						teamMembers={$members}
-						currentUser={currentUser}
-						publicTeam={publicTeam}
-						active={user?.isEmailVerified}
-					/>
-				</Transition>
+				<Container fullWidth={fullWidth}>
+					<Transition
+						show={!!currentUser}
+						enter="transition-opacity duration-75"
+						enterFrom="opacity-0"
+						enterTo="opacity-100"
+						leave="transition-opacity duration-150"
+						leaveFrom="opacity-100"
+						leaveTo="opacity-0"
+					>
+						<TeamMembersTableView
+							teamMembers={$members}
+							currentUser={currentUser}
+							publicTeam={publicTeam}
+							active={user?.isEmailVerified}
+						/>
+					</Transition>
+				</Container>
 			);
 			break;
 
 		case view == IssuesView.BLOCKS:
 			teamMembersView = (
-				<TeamMembersBlockView
-					teamMembers={blockViewMembers}
-					currentUser={currentUser}
-					publicTeam={publicTeam}
-					teamsFetching={$teamsFetching}
-				/>
+				<Container fullWidth={fullWidth}>
+					<TeamMembersBlockView
+						teamMembers={blockViewMembers}
+						currentUser={currentUser}
+						publicTeam={publicTeam}
+						teamsFetching={$teamsFetching}
+					/>
+				</Container>
 			);
 			break;
 		default:
 			teamMembersView = (
-				<TeamMembersCardView
-					teamMembers={$members}
-					currentUser={currentUser}
-					publicTeam={publicTeam}
-					teamsFetching={$teamsFetching}
-				/>
+				<Container fullWidth={fullWidth}>
+					<TeamMembersCardView
+						teamMembers={$members}
+						currentUser={currentUser}
+						publicTeam={publicTeam}
+						teamsFetching={$teamsFetching}
+					/>
+				</Container>
 			);
 	}
 	return teamMembersView;

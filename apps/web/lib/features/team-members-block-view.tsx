@@ -5,7 +5,6 @@ import { UserTeamBlock } from './team/user-team-block';
 import { useRecoilValue } from 'recoil';
 import { taskBlockFilterState } from '@app/stores/task-filter';
 import { UserTeamCardSkeleton } from './team/user-team-card/task-skeleton';
-import { UserTeamBlockHeader } from './team/user-team-block/user-team-block-header';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -41,9 +40,6 @@ const TeamMembersBlockView: React.FC<Props> = ({
 
 	return (
 		<>
-			<UserTeamBlockHeader />
-			<div className="h-0.5 bg-[#FFFFFF14]"></div>
-
 			<div className="mt-7">
 				{/* Current authenticated user members */}
 				<Transition
