@@ -10,6 +10,7 @@ import {
 	useOrganizationTeams,
 	useOutsideClick,
 	useTaskInput,
+	useTaskLabels,
 	useTaskStatus
 } from '@app/hooks';
 import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@app/interfaces';
@@ -23,6 +24,7 @@ import { TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
+import { TaskLabels } from './task-labels';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -362,8 +364,9 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
+	const { taskLabels: taskLabelsData } = useTaskLabels();
 
-	const { taskStatus, taskPriority, taskSize, taskDescription } = datas;
+	const { taskStatus, taskPriority, taskSize, taskDescription, taskLabels } = datas;
 	useEffect(() => {
 		if (taskStatus) {
 			taskStatus.current = kanbanTitle ?? 'open';
@@ -424,6 +427,23 @@ function TaskCard({
 										}}
 										defaultValue={taskSize?.current as ITaskSize}
 										task={null}
+									/>
+									<TaskLabels
+										className="lg:min-w-[170px] text-xs"
+										forDetails={false}
+										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+										onValueChange={(_: any, values: string[] | undefined) => {
+											taskLabelsData.filter((tag) =>
+												tag.name ? values?.includes(tag.name) : false
+											);
+
+											if (taskLabels && values?.length) {
+												taskLabels.current = taskLabelsData.filter((tag) =>
+													tag.name ? values?.includes(tag.name) : false
+												);
+											}
+										}}
+										task={datas.inputTask}
 									/>
 								</div>
 							</div>
