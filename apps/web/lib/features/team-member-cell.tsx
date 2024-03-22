@@ -64,7 +64,6 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const fullWitdh = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskEstimateInfo
@@ -73,7 +72,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			activeAuthTask={true}
 			className={clsxm(
 				'flex flex-col justify-center items-center',
-				 '2xl:w-[7rem]  3xl:w-[10rem]'
+				'2xl:w-[7rem]  3xl:w-[10rem]'
 			)}
 		/>
 	);
