@@ -2,7 +2,7 @@ import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInv
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
-import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardHeader, UserTeamCardSkeleton } from '.';
+import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
 import React from 'react';
 
@@ -47,10 +47,6 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
-			<div className={`z-50 bg-white dark:bg-[#191A20] `}>
-				<UserTeamCardHeader />
-				<div className="h-0.5 bg-[#FFFFFF14]"></div>
-			</div>
 			<ul className="mt-7">
 				{/* Current authenticated user members */}
 				<Transition
