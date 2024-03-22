@@ -71,8 +71,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			edition={taskEdition}
 			activeAuthTask={true}
 			className={clsxm(
-				'flex flex-col justify-center items-center',
-				'2xl:w-[7rem]  3xl:w-[10rem]'
+				'flex flex-col justify-center items-center 2xl:w-[7rem]  3xl:w-[10rem]'
 			)}
 		/>
 	);
