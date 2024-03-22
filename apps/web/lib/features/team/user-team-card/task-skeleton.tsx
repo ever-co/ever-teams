@@ -1,5 +1,8 @@
+import { fullWidthState } from '@app/stores/fullWidth';
+import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
+import { useRecoilValue } from 'recoil';
 
 export function UserTeamCardSkeleton() {
 	return (
@@ -41,9 +44,10 @@ export function InviteUserTeamSkeleton() {
 }
 
 export function UserTeamCardHeader() {
+	const fullWidth = useRecoilValue(fullWidthState);
 	const t = useTranslations();
 	return (
-		<div className="my-6 dark:text-[#7B8089] font-normal">
+		<div className="my-6 dark:text-[#7B8089] font-normal pb-4">
 			<div className="relative m-0 flex items-center">
 				<div className="flex 2xl:w-[20.625rem] w-1/4 justify-center items-center space-x-2 lg:space-x-4">
 					<p>{t('common.NAME')}</p>
@@ -53,7 +57,12 @@ export function UserTeamCardHeader() {
 
 				{/* <div className="flex w-[100%-_20px]"></div> */}
 
-				<div className="w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] flex flex-col justify-center gap-y-[1.125rem]">
+				<div
+					className={clsxm(
+						'w-1/5 lg:px-3  lg:text-center text-right',
+						fullWidth ? '2xl:w-52 3xl:w-64' : '2xl:w-36 3xl:w-44'
+					)}
+				>
 					<div className="lg:text-center text-left w-full mt-1.5">
 						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
 							<div className="text-center">
@@ -64,7 +73,14 @@ export function UserTeamCardHeader() {
 						</Tooltip>
 					</div>
 				</div>
-				<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 lg:text-center text-right">{t('common.ESTIMATE')}</div>
+				<div
+					className={clsxm(
+						'w-1/5 lg:px-3  lg:text-center text-right',
+						fullWidth ? '2xl:w-52 3xl:w-64' : '2xl:w-40 3xl:w-48'
+					)}
+				>
+					{t('common.ESTIMATE')}
+				</div>
 				<div className="w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] flex cursor-pointer items-center justify-center mt-1.5 ">
 					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
 						{t('task.taskTableHead.TOTAL_WORK.TITLE')}
