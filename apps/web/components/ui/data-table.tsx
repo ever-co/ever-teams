@@ -61,9 +61,9 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 		getFacetedUniqueValues: getFacetedUniqueValues()
 	});
 	return (
-		<Table className="border-transparent mt-8 w-full rounded-2xl">
+		<Table className="border-transparent mt-0 w-full rounded-2xl">
 			{isHeader && (
-				<TableHeader className=" border-b-[3px] border-b-[#FFFFFF14] ">
+				<TableHeader className=" border-b-[3px] bg-white border-b-[#FFFFFF14] ">
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow className="hover:bg-transparent h-[74px] border-none" key={headerGroup.id}>
 							{headerGroup.headers.map((header, index) => {
