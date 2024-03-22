@@ -17,7 +17,7 @@ export function TaskCell({ row }: { row: any }) {
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const publicTeam = false;
-	const fullWitdh = useRecoilValue(fullWidthState);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskInfo
@@ -25,7 +25,7 @@ export function TaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			className={clsxm(
 				'flex-1 flex justify-center items-center  w-full px-2',
-				fullWitdh ? 'max-w-[40vw]' : 'max-w-[30vw]'
+				fullWidth ? 'max-w-[40vw]' : 'max-w-[30vw]'
 			)}
 			publicTeam={publicTeam}
 		/>
@@ -44,7 +44,7 @@ export function UserInfoCell({ cell }: { cell: any }) {
 export function WorkedOnTaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
-	const fullWitdh = useRecoilValue(fullWidthState);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskTimes
@@ -54,7 +54,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			isAuthUser={memberInfo.isAuthUser}
 			className={clsxm(
 				'flex flex-col justify-center items-center mx-auto',
-				fullWitdh ? '2xl:w-[7rem] 3xl:w-[11rem]' : '2xl:w-[7rem]  3xl:w-[10rem]'
+				fullWidth ? '2xl:w-[7rem] 3xl:w-[11rem]' : '2xl:w-[7rem]  3xl:w-[10rem]'
 			)}
 		/>
 	);
