@@ -9,18 +9,24 @@ import { UserInfo } from './team/user-team-card/user-info';
 import { UserTeamCardMenu } from './team/user-team-card/user-team-card-menu';
 import React from 'react';
 import get from 'lodash/get';
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 export function TaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const publicTeam = false;
+	const fullWitdh = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskInfo
 			edition={taskEdition}
 			memberInfo={memberInfo}
-			className="flex justify-center items-center w-full px-2"
+			className={clsxm(
+				'flex-1 flex justify-center items-center  w-full px-2',
+				fullWitdh ? 'max-w-[40vw]' : 'max-w-[30vw]'
+			)}
 			publicTeam={publicTeam}
 		/>
 	);
@@ -38,6 +44,7 @@ export function UserInfoCell({ cell }: { cell: any }) {
 export function WorkedOnTaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
+	const fullWitdh = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskTimes
@@ -45,7 +52,10 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			task={memberInfo.memberTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className="items-center lg:px-4  flex flex-col gap-y-[1.125rem] justify-center"
+			className={clsxm(
+				'flex flex-col justify-center items-center mx-auto',
+				fullWitdh ? '2xl:w-[7rem] 3xl:w-[11rem]' : '2xl:w-[7rem]  3xl:w-[10rem]'
+			)}
 		/>
 	);
 }
@@ -54,13 +64,17 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+	const fullWitdh = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskEstimateInfo
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className="flex flex-col justify-center "
+			className={clsxm(
+				'flex flex-col justify-center items-center',
+				 '2xl:w-[7rem]  3xl:w-[10rem]'
+			)}
 		/>
 	);
 }
