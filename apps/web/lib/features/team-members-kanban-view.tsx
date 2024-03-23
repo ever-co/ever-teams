@@ -1,5 +1,6 @@
+import { useTaskStatus } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
-import { ITaskStatus, ITaskStatusItemList, ITeamTask } from '@app/interfaces';
+import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
 import { clsxm } from '@app/utils';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
@@ -24,6 +25,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		reorderStatus,
 		addNewTask
 	} = useKanban();
+	const { taskStatus: ts } = useTaskStatus();
 	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
@@ -63,10 +65,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		// remove from original
 		currentTaskStatus.splice(sourceIndex, 1);
 
-		const taskstatus = destinationDroppableID as ITaskStatus;
-
-		const updateTaskStatusData = { ...targetStatus, status: taskstatus };
-
+		const taskstatus = destinationDroppableID as any;
+		const updateTaskStatusData = {
+			...targetStatus,
+			status: taskstatus,
+			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
+		};
+		console.log('090090909', updateTaskStatusData);
 		// update task status on server
 		updateTaskStatus(updateTaskStatusData);
 
@@ -109,6 +114,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	const onDragEnd = (result: DropResult) => {
 		if (result.combine) {
 			if (result.type === 'COLUMN') {
+				console.log('re-order-column');
 				const shallow = [...columns];
 				shallow.splice(result.source.index, 1);
 				setColumn(shallow);
@@ -116,6 +122,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			}
 
 			const item = items[result.source.droppableId];
+
 			const withItemRemoved = [...item];
 
 			withItemRemoved.splice(result.source.index, 1);
@@ -128,7 +135,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 
 			return;
 		}
-
 		// dropped nowhere
 		if (!result.destination) {
 			return;
@@ -143,6 +149,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		}
 
 		if (result.type === 'COLUMN') {
+			console.log('re-order-column');
 			const reorderedItem = reorderColumn(columns, source.index, destination.index);
 			//update column order in server side
 			reorderedItem.map((item: string, index: number) => {
@@ -174,7 +181,22 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 	}, []);
 
-	if (!enabled) return null;
+	// const [editStatus, setEditStatus] = useState(); // used for status
+	// const { refetch } = useRefetchData();
+	// const { editTaskStatus, taskStatus } = useTaskStatus();
+	// const openEdit = async (column: any) => {
+	// 	const editId = taskStatus.find((v) => v.name === column);
+	// 	editTaskStatus(editId?.id, {
+	// 		name: 'open',
+	// 		color: editId?.color,
+	// 		icon: editId?.icon
+	// 	})?.then(() => {
+	// 		// setEdit(null);
+	// 		// refetch();
+	// 	});
+	// };
+
+	if (!enabled) return null; // ['open','close']
 	return (
 		<>
 			{/* <div className="flex flex-col justify-between"> */}

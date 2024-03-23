@@ -13,6 +13,7 @@ export function useKanban() {
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
+	console.log('filter-tasks', newTask.filter(v => v.taskStatusId));
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
 	useEffect(() => {
@@ -38,14 +39,14 @@ export function useKanban() {
 
 			const getTasksByStatus = (status: string | undefined) => {
 				return tasks.filter((task: ITeamTask) => {
-					return task.status === status;
+					return task.taskStatusId === status;
 				});
 			};
 
 			taskStatusHook.taskStatus.map((taskStatus: ITaskStatusItemList) => {
 				kanban = {
 					...kanban,
-					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.name)
+					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
 				};
 			});
 			setKanbanBoard(kanban);
@@ -80,7 +81,7 @@ export function useKanban() {
 	const reorderStatus = (itemStatus: string, index: number) => {
 		taskStatusHook.taskStatus
 			.filter((status: ITaskStatusItemList) => {
-				return status.name === itemStatus;
+				return status.id === itemStatus;
 			})
 			.map((status: ITaskStatusItemList) => {
 				taskStatusHook.editTaskStatus(status.id, {
