@@ -63,7 +63,7 @@ export function UserTeamCard({
 	const { activeTeamManagers } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
-	const isMamanagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
 
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
 		setShowActivity((prev) => !prev);
@@ -149,7 +149,7 @@ export function UserTeamCard({
 							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 							publicTeam={publicTeam}
 						/>
-						{isMamanagerConnectedUser != 1 ? (
+						{isManagerConnectedUser != 1 ? (
 							<p
 								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
 								onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
@@ -186,7 +186,7 @@ export function UserTeamCard({
 					{/* TodayWorkedTime */}
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
-						{isMamanagerConnectedUser != -1 ? (
+						{isManagerConnectedUser != -1 ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
 								className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"

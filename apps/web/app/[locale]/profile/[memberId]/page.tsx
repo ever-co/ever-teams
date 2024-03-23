@@ -35,8 +35,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const hook = useTaskFilter(profile);
 
-	const isMamanagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
-	const canSeeActivity = profile.userProfile?.id === user?.id || isMamanagerConnectedUser != -1;
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	const t = useTranslations();
 	const breadcrumb = [
