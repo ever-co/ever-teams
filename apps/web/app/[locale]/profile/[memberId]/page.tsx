@@ -34,7 +34,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 
 	const hook = useTaskFilter(profile);
-	let userRole = null;
 
 	const isMamanagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
 	const canSeeActivity = profile.userProfile?.id === user?.id || isMamanagerConnectedUser != -1;
