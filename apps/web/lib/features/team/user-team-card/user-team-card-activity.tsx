@@ -27,11 +27,12 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 			leave="transition-opacity duration-150"
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
+			className="w-full"
 		>
-			<div className="">
+			<div className="transition-all">
 				<HorizontalSeparator className="my-4" />
 				<h2 className="text-xl font-semibold py-2 px-4">Activity for Today</h2>
-				<div className="flex justify-between">
+				<div className="flex justify-between overflow-hidden">
 					<div className="w-56 ">
 						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
@@ -41,7 +42,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>
 					</div>
-					<div className="p-4 flex-1">
+					<div className="p-4 flex-1 overflow-hidden">
 						<Tab.Group>
 							<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2 mx-4">
 								{Object.values(ActivityFilters).map((filter: string) => (
@@ -62,7 +63,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 								))}
 							</Tab.List>
 							<Tab.Panels>
-								<Tab.Panel className="w-full mx-4 p-2">
+								<Tab.Panel className="w-full mx-4 p-2 overflow-hidden">
 									<UserWorkedTaskTab member={member} />
 								</Tab.Panel>
 								<Tab.Panel className="w-full mx-4 p-2">

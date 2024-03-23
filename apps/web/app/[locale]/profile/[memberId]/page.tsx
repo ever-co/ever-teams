@@ -28,13 +28,15 @@ type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 
 	const hook = useTaskFilter(profile);
-	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	const t = useTranslations();
 	const breadcrumb = [
@@ -69,7 +71,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	return (
 		<>
-			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
+			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
