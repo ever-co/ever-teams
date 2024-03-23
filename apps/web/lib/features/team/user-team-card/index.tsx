@@ -63,7 +63,7 @@ export function UserTeamCard({
 	const { activeTeamManagers } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
 		setShowActivity((prev) => !prev);
