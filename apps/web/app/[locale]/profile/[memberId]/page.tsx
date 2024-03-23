@@ -35,7 +35,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const hook = useTaskFilter(profile);
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	const t = useTranslations();
