@@ -193,6 +193,8 @@ export const EmptyKanbanDroppable = ({
 		};
 	}, []);
 
+	const { isOpen, closeModal, openModal } = useModal();
+
 	if (!enabled) return null;
 
 	return (
@@ -235,14 +237,19 @@ export const EmptyKanbanDroppable = ({
 													align="start"
 													className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
 												>
-													{['Delete', 'Archive', 'Copy'].map((v) => (
-														<p
-															className="hover:font-medium p-1.5 text-sm cursor-pointer"
-															key={v}
-														>
-															{v}
-														</p>
-													))}
+													<div
+														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+														onClick={() => openModal()}
+													>
+														Create Task
+													</div>
+													<div
+														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+														onClick={() => toggleColumn(title, false)}
+													>
+														Collapse Column
+													</div>
+
 												</PopoverContent>
 											</Popover>
 										</div>
@@ -273,6 +280,9 @@ export const EmptyKanbanDroppable = ({
 					)}
 				</Draggable>
 			)}
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+			</Modal>
 		</>
 	);
 };
@@ -281,11 +291,13 @@ const KanbanDraggableHeader = ({
 	title,
 	items,
 	snapshot,
+	createTask,
 	provided,
 	backgroundColor
 }: {
 	title: string;
 	items: any;
+	createTask: () => void;
 	snapshot: DraggableStateSnapshot;
 	backgroundColor: string;
 	provided: DraggableProvided;
@@ -325,11 +337,24 @@ const KanbanDraggableHeader = ({
 								align="start"
 								className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
 							>
-								{['Delete', 'Archive', 'Copy'].map((v) => (
-									<p className="hover:font-medium p-1.5 text-sm cursor-pointer" key={v}>
-										{v}
-									</p>
-								))}
+								<div
+									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+									onClick={() => createTask()}
+								>
+									Create Task
+								</div>
+								<div
+									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+									onClick={() => toggleColumn(title, true)}
+								>
+									Collapse Column
+								</div>
+								{/* <div
+									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+									onClick={() => toggleColumn(title, true)}
+								>
+									Edit Status
+								</div> */}
 							</PopoverContent>
 						</Popover>
 						<button
@@ -388,6 +413,7 @@ const KanbanDraggable = ({
 											items={items}
 											snapshot={snapshot}
 											provided={provided}
+											createTask={openModal}
 											backgroundColor={backgroundColor}
 										/>
 									</div>

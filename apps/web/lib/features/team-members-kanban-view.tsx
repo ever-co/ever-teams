@@ -174,7 +174,22 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 	}, []);
 
-	if (!enabled) return null;
+	// const [editStatus, setEditStatus] = useState(); // used for status
+	// const { refetch } = useRefetchData();
+	// const { editTaskStatus, taskStatus } = useTaskStatus();
+	// const openEdit = async (column: any) => {
+	// 	const editId = taskStatus.find((v) => v.name === column);
+	// 	editTaskStatus(editId?.id, {
+	// 		name: 'open',
+	// 		color: editId?.color,
+	// 		icon: editId?.icon
+	// 	})?.then(() => {
+	// 		// setEdit(null);
+	// 		// refetch();
+	// 	});
+	// };
+
+	if (!enabled) return null; // ['open','close']
 	return (
 		<>
 			{/* <div className="flex flex-col justify-between"> */}
