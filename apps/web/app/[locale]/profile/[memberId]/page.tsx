@@ -28,7 +28,7 @@ type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
-	const { isTrackingEnabled, activeTeam, teams, activeTeamManagers } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
@@ -72,7 +72,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	return (
 		<>
-			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
+			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
