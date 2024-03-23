@@ -28,13 +28,16 @@ type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam, teams, activeTeamManagers } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 
 	const hook = useTaskFilter(profile);
-	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
+	let userRole = null;
+
+	const isMamanagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user.id);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isMamanagerConnectedUser != -1;
 
 	const t = useTranslations();
 	const breadcrumb = [
