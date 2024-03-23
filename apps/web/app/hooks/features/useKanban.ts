@@ -13,7 +13,6 @@ export function useKanban() {
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
-	console.log('filter-tasks', newTask.filter(v => v.taskStatusId));
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
 	useEffect(() => {

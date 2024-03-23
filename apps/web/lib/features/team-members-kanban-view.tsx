@@ -71,7 +71,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			status: taskstatus,
 			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
 		};
-		console.log('090090909', updateTaskStatusData);
 		// update task status on server
 		updateTaskStatus(updateTaskStatusData);
 
