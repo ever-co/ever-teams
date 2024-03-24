@@ -15,7 +15,7 @@ export const useInfinityScrolling = <T>(arr: T[], lim?: number) => {
 
 	const getSomeTasks = React.useCallback(
 		(offset: number) => {
-			setData((prevData) => {
+			setData(() => {
 				const newData = getPartData({ arr, limit, offset });
 				return newData;
 			});
