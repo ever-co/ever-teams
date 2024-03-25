@@ -10,11 +10,13 @@ export function useKanban() {
 	const [searchTasks, setSearchTasks] = useState('');
 	const [labels, setLabels] = useState<string[]>([]);
 	const [epics, setEpics] = useState<string[]>([]);
+	const [issues, setIssues] = useState<string>('');
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
+	console.log('issuesissues', kanbanBoard);
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
 			let kanban = {};
@@ -25,6 +27,9 @@ export function useKanban() {
 				})
 				.filter((task: ITeamTask) => {
 					return priority.length ? priority.includes(task.priority) : true;
+				})
+				.filter((task: ITeamTask) => {
+					return issues ? task.issueType === issues : true;
 				})
 				.filter((task: ITeamTask) => {
 					return sizes.length ? sizes.includes(task.size) : true;
@@ -52,7 +57,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics]);
+	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics, issues]);
 
 	/**
 	 * collapse or show kanban column
@@ -103,6 +108,7 @@ export function useKanban() {
 		setPriority,
 		setLabels,
 		setSizes,
+		setIssues,
 		setEpics,
 		updateKanbanBoard: setKanbanBoard,
 		updateTaskStatus: updateTask,

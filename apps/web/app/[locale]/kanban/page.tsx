@@ -18,18 +18,26 @@ import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { userTimezone } from '@app/helpers';
 import KanbanSearch from '@components/pages/kanban/search-bar';
-import { EpicPropertiesDropdown, TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown } from 'lib/features';
+import {
+	EpicPropertiesDropdown,
+	TaskIssuesDropdown,
+	TaskLabelsDropdown,
+	TaskPropertiesDropdown,
+	TaskSizesDropdown
+} from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Kanban = () => {
-	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes, setLabels, setEpics } = useKanban();
+	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes, setLabels, setEpics, setIssues } =
+		useKanban();
 
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
+	const [filter, setFilter] = useState(false);
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 	const breadcrumbPath = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -118,34 +126,57 @@ const Kanban = () => {
 								))}
 							</div>
 							<div className="flex space-x-2 mt-5 lg:mt-0">
-								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-									<EpicPropertiesDropdown
-										onValueChange={(_, values) => setEpics(values || [])}
-										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-										multiple={true}
-									/>
-								</div>
+								{!filter && (
+									<>
+										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+											<EpicPropertiesDropdown
+												onValueChange={(_, values) => setEpics(values || [])}
+												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+												multiple={true}
+											/>
+										</div>
 
-								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-									<TaskLabelsDropdown
-										onValueChange={(_, values) => setLabels(values || [])}
-										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-										multiple={true}
-									/>
-								</div>
-								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-									<TaskPropertiesDropdown
-										onValueChange={(_, values) => setPriority(values || [])}
-										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-										multiple={true}
-									/>
-								</div>
-								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-									<TaskSizesDropdown
-										onValueChange={(_, values) => setSizes(values || [])}
-										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-										multiple={true}
-									/>
+										{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"> */}
+										<TaskIssuesDropdown
+											onValueChange={(v) => {
+												setIssues(v);
+											}}
+											className="lg:min-w-[140px] pt-[4px] mt-4 mb-2 lg:mt-0"
+										/>
+										{/* </div> */}
+										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+											<TaskLabelsDropdown
+												onValueChange={(_, values) => setLabels(values || [])}
+												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+												multiple={true}
+											/>
+										</div>
+									</>
+								)}
+
+								{filter && (
+									<>
+										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+											<TaskPropertiesDropdown
+												onValueChange={(_, values) => setPriority(values || [])}
+												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+												multiple={true}
+											/>
+										</div>
+										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+											<TaskSizesDropdown
+												onValueChange={(_, values) => setSizes(values || [])}
+												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+												multiple={true}
+											/>
+										</div>
+									</>
+								)}
+								<div
+									onClick={() => setFilter(!filter)}
+									className="input-border cursor-pointer rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light !px-2 pt-1"
+								>
+									Filter
 								</div>
 								<div className="mt-1">
 									<Separator />
