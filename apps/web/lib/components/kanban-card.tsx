@@ -1,6 +1,6 @@
 import { DraggableProvided } from 'react-beautiful-dnd';
 import PriorityIcon from '@components/ui/svgs/priority-icon';
-import { ITeamTask, Tag } from '@app/interfaces';
+import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
 import {
 	useAuthenticateUser,
 	useCollaborative,
@@ -10,7 +10,7 @@ import {
 	useTeamMemberCard
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
-import { TaskInput, TaskIssueStatus } from 'lib/features';
+import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
@@ -68,8 +68,9 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 		</>
 	);
 }
-
-function TagList({ tags }: { tags: Tag[] }) {
+// TODO: remove this component, it is using only in kanban and now we uses the previous component
+// added export to remove lint error
+export function TagList({ tags }: { tags: Tag[] }) {
 	return (
 		<>
 			<div className="flex flex-wrap gap-1 items-center">
@@ -81,14 +82,17 @@ function TagList({ tags }: { tags: Tag[] }) {
 	);
 }
 
-function Priority({ level }: { level: number }) {
-	const numberArray = Array.from({ length: level }, (_, index) => index + 1);
+function Priority({ level }: { level: ITaskPriority }) {
+	const levelSmallCase = level.toString().toLowerCase();
+	const levelIntoNumber =
+		levelSmallCase === 'low' ? 1 : levelSmallCase === 'medium' ? 2 : levelSmallCase === 'high' ? 3 : 4;
+	const numberArray = Array.from({ length: levelIntoNumber }, (_, index) => index + 1);
 
 	return (
 		<>
 			<div
 				style={{
-					marginTop: -4.5 * level
+					marginTop: -4.5 * levelIntoNumber
 				}}
 				className="flex flex-col relative "
 			>
@@ -153,12 +157,7 @@ export default function Item(props: ItemProps) {
 	const { collaborativeSelect } = useCollaborative(memberInfo.memberUser);
 
 	const menu = <>{!collaborativeSelect && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}</>;
-	const progress = getEstimation(
-		null,
-		item,
-		totalWorkedTasksTimer || 1,
-		item.estimate || 0
-	);
+	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
 	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
 
 	const { h, m, s } = secondsToTime(
@@ -181,8 +180,10 @@ export default function Item(props: ItemProps) {
 		>
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
-					<span>{<TagList tags={item.tags} />}</span>
-					{menu}
+					<span className="!w-64">
+						<TaskAllStatusTypes className="justify-start" task={item} showStatus={false} />
+					</span>
+					<span>{menu}</span>
 				</div>
 				<div className="w-full flex justify-between my-3">
 					<div className="flex items-center w-64">
@@ -193,7 +194,7 @@ export default function Item(props: ItemProps) {
 										<span className="h-5 w-6 inline-block ">
 											<span className="absolute top-1">
 												<TaskIssueStatus
-													showIssueLabels={true}
+													showIssueLabels={false}
 													task={item}
 													className="rounded-sm mr-1 h-6 w-6"
 												/>
@@ -202,17 +203,7 @@ export default function Item(props: ItemProps) {
 										<span className="text-grey text-normal mx-1">#{item.number}</span>
 										{item.title}
 										<span className="inline-block ml-1">
-											<Priority
-												level={
-													item.priority == 'Low'
-														? 1
-														: item.priority == 'Medium'
-														? 2
-														: item.priority == 'High'
-														? 3
-														: 4
-												}
-											/>
+											{item.priority && <Priority level={item.priority} />}
 										</span>
 									</div>
 								</Link>

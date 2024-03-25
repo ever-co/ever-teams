@@ -86,13 +86,13 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-40"
+								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-40"
 							>
 								{t('common.POSITION')}
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-44"
+								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-44"
 							>
 								{t('common.ROLES')}
 							</th>
@@ -104,7 +104,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-32"
+								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-32"
 							>
 								{t('common.STATUS')}
 							</th>
@@ -123,7 +123,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								>
 									{member.employee.user?.imageId ? (
 										<Avatar
-											size={20}
+											size={35}
 											className="relative cursor-pointer"
 											imageUrl={
 												member.employee.user?.image?.thumbUrl ||
@@ -135,7 +135,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									) : member.employee.user?.name ? (
 										<div
 											className={clsxm(
-												'w-[20px] h-[20px]',
+												'w-[35px] h-[35px]',
 												'flex justify-center items-center',
 												'rounded-full text-xs text-default dark:text-white',
 												'shadow-md font-normal'

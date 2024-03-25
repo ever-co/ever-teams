@@ -25,7 +25,7 @@ export default function ImageOverlapper({
 	const isMoreThanDisplay = images.length > displayImageCount;
 	const imageLength = images.length;
 
-	if (imageLength == 0) {
+	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
 	return (
