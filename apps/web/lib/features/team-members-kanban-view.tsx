@@ -24,7 +24,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		reorderStatus,
 		addNewTask
 	} = useKanban();
-	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
+
+	const [columns, setColumn] = useState<any[]>(
+		Object.keys(kanbanBoardTasks).map((key) => {
+			const columnInfo = kanbanColumns.find((item) => item.name === key);
+			return { name: key, icon: columnInfo ? columnInfo.fullIconUrl : '' };
+		})
+	);
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
@@ -188,7 +194,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	// 		// refetch();
 	// 	});
 	// };
-
+	console.log('datadata', items);
 	if (!enabled) return null; // ['open','close']
 	return (
 		<>
@@ -208,15 +214,15 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 								>
 									{columns.length > 0 ? (
 										<>
-											{columns.map((column: string, index: number) => {
+											{columns.map((column: any, index: number) => {
 												return (
 													<React.Fragment key={index}>
 														<div className="flex flex-col a" key={index}>
-															{isColumnCollapse(column) ? (
+															{isColumnCollapse(column.name) ? (
 																<EmptyKanbanDroppable
 																	index={index}
-																	title={column}
-																	items={items[column]}
+																	title={column.name}
+																	items={items[column.name]}
 																	backgroundColor={getHeaderBackground(
 																		kanbanColumns,
 																		column
@@ -228,12 +234,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																		key={index}
 																		isLoading={isLoading}
 																		index={index}
+																		icon={column.icon}
 																		addNewTask={addNewTask}
-																		title={column}
-																		items={items[column]}
+																		title={column.name}
+																		items={items[column.name]}
 																		backgroundColor={getHeaderBackground(
 																			kanbanColumns,
-																			column
+																			column.name
 																		)}
 																	/>
 																</>
