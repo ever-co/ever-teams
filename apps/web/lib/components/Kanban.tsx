@@ -249,7 +249,6 @@ export const EmptyKanbanDroppable = ({
 													>
 														Collapse Column
 													</div>
-
 												</PopoverContent>
 											</Popover>
 										</div>
