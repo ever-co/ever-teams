@@ -114,12 +114,10 @@ export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: st
 		const teamId = getActiveTeamIdCookie();
 		const tenantId = getTenantIdCookie();
 		const projectId = getActiveProjectIdCookie();
-
 		const title = body.title.trim() || '';
 
 		const datas: ICreateTask = {
 			description: '',
-			status: 'open',
 			members: user?.employee?.id ? [{ id: user.employee.id }] : [],
 			teams: [
 				{

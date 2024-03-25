@@ -20,6 +20,7 @@ export type ITeamTask = {
 	startDate?: string | null;
 	projectId: string;
 	public: boolean;
+	taskStatusId?: string;
 	resolvedAt?: string;
 	creatorId: string;
 	members: IEmployee[];
@@ -149,6 +150,7 @@ export interface ICreateTask {
 	status?: string;
 	size?: string;
 	priority?: string;
+	taskStatusId?: string;
 	issueType?: string;
 	members?: { id: string; [x: string]: any }[];
 	estimateDays?: number;
