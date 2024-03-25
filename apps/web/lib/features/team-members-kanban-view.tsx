@@ -26,10 +26,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		addNewTask
 	} = useKanban();
 
+	const [columns, setColumn] = useState<any[]>(
+		Object.keys(kanbanBoardTasks).map((key) => {
+			const columnInfo = kanbanColumns.find((item) => item.name === key);
+			return { name: key, icon: columnInfo ? columnInfo.fullIconUrl : '' };
+		})
+	);
 	const { taskStatus: ts } = useTaskStatus();
-
-	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
-
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
@@ -70,14 +73,12 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		currentTaskStatus.splice(sourceIndex, 1);
 
 		const taskstatus = destinationDroppableID as any;
-
 		const updateTaskStatusData = {
 			...targetStatus,
 			status: taskstatus,
 			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
 		};
-
-		// update task status on the server
+		// update task status on server
 		updateTaskStatus(updateTaskStatusData);
 
 		// insert into next
@@ -141,7 +142,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 
 			return;
 		}
-
 		// dropped nowhere
 		if (!result.destination) {
 			return;
@@ -156,8 +156,9 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		}
 
 		if (result.type === 'COLUMN') {
+			console.log('re-order-column');
 			const reorderedItem = reorderColumn(columns, source.index, destination.index);
-			
+
 			// Update column order on the server side
 			reorderedItem.map((item: string, index: number) => {
 				return reorderStatus(item, index);
@@ -202,7 +203,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	// 		// refetch();
 	// 	});
 	// };
-
+	console.log('datadata', items);
 	if (!enabled) return null; // ['open','close']
 
 	return (
@@ -223,15 +224,15 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 								>
 									{columns.length > 0 ? (
 										<>
-											{columns.map((column: string, index: number) => {
+											{columns.map((column: any, index: number) => {
 												return (
 													<React.Fragment key={index}>
 														<div className="flex flex-col a" key={index}>
-															{isColumnCollapse(column) ? (
+															{isColumnCollapse(column.name) ? (
 																<EmptyKanbanDroppable
 																	index={index}
-																	title={column}
-																	items={items[column]}
+																	title={column.name}
+																	items={items[column.name]}
 																	backgroundColor={getHeaderBackground(
 																		kanbanColumns,
 																		column
@@ -243,12 +244,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																		key={index}
 																		isLoading={isLoading}
 																		index={index}
+																		icon={column.icon}
 																		addNewTask={addNewTask}
-																		title={column}
-																		items={items[column]}
+																		title={column.name}
+																		items={items[column.name]}
 																		backgroundColor={getHeaderBackground(
 																			kanbanColumns,
-																			column
+																			column.name
 																		)}
 																	/>
 																</>
