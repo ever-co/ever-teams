@@ -144,7 +144,7 @@ export function useTaskInput({
 		return createTask(
 			{
 				taskName: query.trim(),
-				issueType: taskIssue.current || undefined,
+				issueType: taskIssue.current || 'Bug',
 				status: taskStatus.current || undefined,
 				priority: taskPriority.current || undefined,
 				size: taskSize.current || undefined,
