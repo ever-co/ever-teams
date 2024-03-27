@@ -22,7 +22,6 @@ export function useKanban() {
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
-	console.log('issuesissues', issues);
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
 			let kanban = {};

@@ -78,12 +78,11 @@ const Kanban = () => {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 	const timezone = userTimezone();
-	const { item, items } = useStatusValue<'issueType'>({
+	const { items } = useStatusValue<'issueType'>({
 		status: taskIssues,
 		value: issues as any,
 		onValueChange: setIssues as any
 	});
-	console.log('itemitem', item);
 	return (
 		<>
 			<MainLayout showTimer={isTrackingEnabled}>

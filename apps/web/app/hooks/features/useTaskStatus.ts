@@ -91,7 +91,6 @@ export function useTaskStatus() {
 
 	const editTaskStatus = useCallback(
 		(id: string, data: ITaskStatusCreate) => {
-			console.log("datadata",data)
 			if (user?.tenantId) {
 				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
 					queryCall(
