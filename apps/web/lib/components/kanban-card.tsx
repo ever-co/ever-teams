@@ -191,15 +191,18 @@ export default function Item(props: ItemProps) {
 							<>
 								<Link href={`/task/${item.id}`}>
 									<div className="w-64 relative overflow-hidden">
-										<span className="h-5 w-6 inline-block ">
-											<span className="absolute top-1">
-												<TaskIssueStatus
-													showIssueLabels={false}
-													task={item}
-													className="rounded-sm mr-1 h-6 w-6"
-												/>
+										{item.issueType && (
+											<span className="h-5 w-6 inline-block ">
+												<span className="absolute top-1">
+													<TaskIssueStatus
+														showIssueLabels={false}
+														type="HORIZONTAL"
+														task={item}
+														className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
+													/>
+												</span>
 											</span>
-										</span>
+										)}
 										<span className="text-grey text-normal mx-1">#{item.number}</span>
 										{item.title}
 										<span className="inline-block ml-1">

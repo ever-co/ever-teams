@@ -20,24 +20,38 @@ import { userTimezone } from '@app/helpers';
 import KanbanSearch from '@components/pages/kanban/search-bar';
 import {
 	EpicPropertiesDropdown,
-	TaskIssuesDropdown,
+	StatusDropdown,
+	TStatusItem,
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
-	TaskSizesDropdown
+	TaskSizesDropdown,
+	taskIssues,
+	useStatusValue
 } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { CircleIcon } from 'lucide-react';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 const Kanban = () => {
-	const { data, setSearchTasks, searchTasks, isLoading, setPriority, setSizes, setLabels, setEpics, setIssues } =
-		useKanban();
+	const {
+		data,
+		setSearchTasks,
+		searchTasks,
+		isLoading,
+		setPriority,
+		setSizes,
+		setLabels,
+		setEpics,
+		setIssues,
+		issues
+	} = useKanban();
 
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
-	const [filter, setFilter] = useState(false);
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
 	const breadcrumbPath = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -64,6 +78,12 @@ const Kanban = () => {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 	const timezone = userTimezone();
+	const { item, items } = useStatusValue<'issueType'>({
+		status: taskIssues,
+		value: issues as any,
+		onValueChange: setIssues as any
+	});
+	console.log('itemitem', item);
 	return (
 		<>
 			<MainLayout showTimer={isTrackingEnabled}>
@@ -126,62 +146,80 @@ const Kanban = () => {
 								))}
 							</div>
 							<div className="flex space-x-2 mt-5 lg:mt-0">
-								{!filter && (
-									<>
-										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-											<EpicPropertiesDropdown
-												onValueChange={(_, values) => setEpics(values || [])}
-												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-												multiple={true}
-											/>
-										</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<EpicPropertiesDropdown
+										onValueChange={(_, values) => setEpics(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"> */}
+								<div className="relative">
+									<div className="bg-[#F2F2F2] dark:bg-dark--theme-light absolute flex items-center p-2 justify-between w-40 h-11 border input-border rounded-xl">
+										<span className="flex">
+											<div
+												className="h-6 w-6 p-1.5 rounded-md mr-1"
+												style={{
+													backgroundColor: issues.bgColor ?? 'transparent'
+												}}
+											>
+												{issues?.icon ?? <CircleIcon className="h-3 w-3" />}
+											</div>
+											<p>{issues?.name}</p>
+										</span>
+										{issues?.value && (
+											<div
+												onClick={() =>
+													setIssues({
+														name: 'Issues',
+														icon: null,
+														bgColor: '',
+														value: ''
+													})
+												}
+												className="w-5 h-5 z-50 p-0.5 cursor-pointer"
+											>
+												<XMarkIcon className="h-4 w-4  dark:text-white" />
+											</div>
+										)}
+									</div>
 
-										{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"> */}
-										<TaskIssuesDropdown
-											onValueChange={(v) => {
-												setIssues(v);
-											}}
-											className="lg:min-w-[140px] pt-[4px] mt-4 mb-2 lg:mt-0"
-										/>
-										{/* </div> */}
-										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-											<TaskLabelsDropdown
-												onValueChange={(_, values) => setLabels(values || [])}
-												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-												multiple={true}
-											/>
-										</div>
-									</>
-								)}
-
-								{filter && (
-									<>
-										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-											<TaskPropertiesDropdown
-												onValueChange={(_, values) => setPriority(values || [])}
-												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-												multiple={true}
-											/>
-										</div>
-										<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
-											<TaskSizesDropdown
-												onValueChange={(_, values) => setSizes(values || [])}
-												className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
-												multiple={true}
-											/>
-										</div>
-									</>
-								)}
-								<div
-									onClick={() => setFilter(!filter)}
-									className="input-border cursor-pointer rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light !px-2 pt-1"
-								>
-									Filter
+									<StatusDropdown
+										taskStatusClassName={'w-40 bg-red-500 h-10 opacity-0'}
+										showIssueLabels={true}
+										items={items}
+										value={issues}
+										onChange={(e) => {
+											setIssues(items.find((v) => v.name == e) as TStatusItem);
+										}}
+										issueType="issue"
+									/>
+								</div>
+								{/* </div> */}
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskLabelsDropdown
+										onValueChange={(_, values) => setLabels(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskPropertiesDropdown
+										onValueChange={(_, values) => setPriority(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskSizesDropdown
+										onValueChange={(_, values) => setSizes(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
 								</div>
 								<div className="mt-1">
 									<Separator />
 								</div>
-
 								<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
 							</div>
 						</div>
