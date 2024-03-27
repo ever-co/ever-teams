@@ -34,7 +34,7 @@ export function useKanban() {
 					return priority.length ? priority.includes(task.priority) : true;
 				})
 				.filter((task: ITeamTask) => {
-					return issues.value ? task.issueType === issues?.value : true;
+					return issues.value ? task.issueType === issues.value : true;
 				})
 				.filter((task: ITeamTask) => {
 					return sizes.length ? sizes.includes(task.size) : true;

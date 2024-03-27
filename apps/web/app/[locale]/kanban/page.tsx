@@ -162,11 +162,11 @@ const Kanban = () => {
 													backgroundColor: issues.bgColor ?? 'transparent'
 												}}
 											>
-												{issues?.icon ?? <CircleIcon className="h-3 w-3" />}
+												{issues.icon ?? <CircleIcon className="h-3 w-3" />}
 											</div>
-											<p>{issues?.name}</p>
+											<p>{issues.name}</p>
 										</span>
-										{issues?.value && (
+										{issues.value && (
 											<div
 												onClick={() =>
 													setIssues({
