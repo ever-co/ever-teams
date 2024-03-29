@@ -73,7 +73,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		currentTaskStatus.splice(sourceIndex, 1);
 
 		const taskstatus = destinationDroppableID as any;
-
+    
 		const updateTaskStatusData = {
 			...targetStatus,
 			status: taskstatus,
@@ -157,7 +157,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			return;
 		}
 
-		if (result.type === 'COLUMN') {			      
+		if (result.type === 'COLUMN') {
 			const reorderedItem = reorderColumn(columns, source.index, destination.index);
 
       // Update column order on the server side
@@ -189,7 +189,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			setEnabled(false);
 		};
 	}, []);
-	
+
 	if (!enabled) return null; // ['open','close']
 
 	return (

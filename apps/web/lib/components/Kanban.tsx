@@ -18,7 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
 import { AddIcon, ChevronLeftIcon } from 'assets/svg';
-import Skeleton from 'react-loading-skeleton';
 
 import { useModal } from '@app/hooks';
 import { Modal } from './modal';
@@ -65,9 +64,12 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
  * @returns
  */
 function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dropSnapshot: DroppableStateSnapshot }) {
+	const t = useTranslations();
+	const { isOpen, closeModal, openModal } = useModal();
+
 	return (
 		<>
-			<section className="flex flex-col pb-2">
+			<section className="flex flex-col pb-2 relative">
 				{items.map((item: ITeamTask, index: number) => (
 					<Draggable key={item.id} draggableId={item.id} index={index}>
 						{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
@@ -90,6 +92,23 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 						)}
 					</Draggable>
 				))}
+				{items.length == 0 && (
+					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute">
+						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
+							not found!
+						</div>
+						<div
+							onClick={openModal}
+							className="h-[52px] mt-4 w-[340px] flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+						>
+							<AddIcon className=" h-5 w-5" />
+							<p>{t('common.CREATE_TASK')}</p>
+						</div>
+					</div>
+				)}
+				<Modal isOpen={isOpen} closeModal={closeModal}>
+					<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+				</Modal>
 			</section>
 		</>
 	);
@@ -138,28 +157,18 @@ export const KanbanDroppable = ({
 }) => {
 	return (
 		<>
-			{content.length > 0 ? (
-				<Droppable droppableId={droppableId} type={type}>
-					{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
-						<div style={getBackgroundColor(dropSnapshot)} {...dropProvided.droppableProps}>
-							<InnerList
-								items={content}
-								title={title}
-								dropProvided={dropProvided}
-								dropSnapshot={dropSnapshot}
-							/>
-						</div>
-					)}
-				</Droppable>
-			) : (
-				<div className="h-44 input-border flex justify-center items-center my-4 rounded-xl">
-					{isLoading ? (
-						<Skeleton width={337} height={176} className="mb-3" borderRadius={13} />
-					) : (
-						'not found!'
-					)}
-				</div>
-			)}
+			<Droppable droppableId={droppableId} type={type}>
+				{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
+					<div style={getBackgroundColor(dropSnapshot)} {...dropProvided.droppableProps}>
+						<InnerList
+							items={content}
+							title={title}
+							dropProvided={dropProvided}
+							dropSnapshot={dropSnapshot}
+						/>
+					</div>
+				)}
+			</Droppable>
 		</>
 	);
 };
