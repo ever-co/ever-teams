@@ -73,11 +73,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		currentTaskStatus.splice(sourceIndex, 1);
 
 		const taskstatus = destinationDroppableID as any;
+
 		const updateTaskStatusData = {
 			...targetStatus,
 			status: taskstatus,
 			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
 		};
+
 		// update task status on server
 		updateTaskStatus(updateTaskStatusData);
 
@@ -188,27 +190,11 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			setEnabled(false);
 		};
 	}, []);
-
-	// const [editStatus, setEditStatus] = useState(); // used for status
-	// const { refetch } = useRefetchData();
-	// const { editTaskStatus, taskStatus } = useTaskStatus();
-	// const openEdit = async (column: any) => {
-	// 	const editId = taskStatus.find((v) => v.name === column);
-	// 	editTaskStatus(editId?.id, {
-	// 		name: 'open',
-	// 		color: editId?.color,
-	// 		icon: editId?.icon
-	// 	})?.then(() => {
-	// 		// setEdit(null);
-	// 		// refetch();
-	// 	});
-	// };
-	console.log('datadata', items);
+	
 	if (!enabled) return null; // ['open','close']
 
 	return (
-		<>
-			{/* <div className="flex flex-col justify-between"> */}
+		<>			
 			<DragDropContext onDragEnd={onDragEnd}>
 				{columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
