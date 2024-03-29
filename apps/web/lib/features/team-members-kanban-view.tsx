@@ -26,10 +26,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		addNewTask
 	} = useKanban();
 
+	const [columns, setColumn] = useState<any[]>(
+		Object.keys(kanbanBoardTasks).map((key) => {
+			const columnInfo = kanbanColumns.find((item) => item.name === key);
+			return { name: key, icon: columnInfo ? columnInfo.fullIconUrl : '' };
+		})
+	);
 	const { taskStatus: ts } = useTaskStatus();
-
-	const [columns, setColumn] = useState<string[]>(Object.keys(kanbanBoardTasks));
-
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
@@ -75,9 +78,9 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			...targetStatus,
 			status: taskstatus,
 			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
-
 		};
-		// update task status on the server
+
+    // update task status on the server
 		updateTaskStatus(updateTaskStatusData);
 
 		// insert into next
@@ -141,7 +144,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 
 			return;
 		}
-
 		// dropped nowhere
 		if (!result.destination) {
 			return;
@@ -155,9 +157,10 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			return;
 		}
 
-		if (result.type === 'COLUMN') {
+		if (result.type === 'COLUMN') {			      
 			const reorderedItem = reorderColumn(columns, source.index, destination.index);
-			// Update column order on the server side
+
+      // Update column order on the server side
 			reorderedItem.map((item: string, index: number) => {
 				return reorderStatus(item, index);
 			});
@@ -186,27 +189,11 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			setEnabled(false);
 		};
 	}, []);
-
-	// const [editStatus, setEditStatus] = useState(); // used for status
-	// const { refetch } = useRefetchData();
-	// const { editTaskStatus, taskStatus } = useTaskStatus();
-	// const openEdit = async (column: any) => {
-	// 	const editId = taskStatus.find((v) => v.name === column);
-	// 	editTaskStatus(editId?.id, {
-	// 		name: 'open',
-	// 		color: editId?.color,
-	// 		icon: editId?.icon
-	// 	})?.then(() => {
-	// 		// setEdit(null);
-	// 		// refetch();
-	// 	});
-	// };
-
+	
 	if (!enabled) return null; // ['open','close']
 
 	return (
-		<>
-			{/* <div className="flex flex-col justify-between"> */}
+		<>			
 			<DragDropContext onDragEnd={onDragEnd}>
 				{columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
@@ -222,15 +209,15 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 								>
 									{columns.length > 0 ? (
 										<>
-											{columns.map((column: string, index: number) => {
+											{columns.map((column: any, index: number) => {
 												return (
 													<React.Fragment key={index}>
 														<div className="flex flex-col a" key={index}>
-															{isColumnCollapse(column) ? (
+															{isColumnCollapse(column.name) ? (
 																<EmptyKanbanDroppable
 																	index={index}
-																	title={column}
-																	items={items[column]}
+																	title={column.name}
+																	items={items[column.name]}
 																	backgroundColor={getHeaderBackground(
 																		kanbanColumns,
 																		column
@@ -242,12 +229,13 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																		key={index}
 																		isLoading={isLoading}
 																		index={index}
+																		icon={column.icon}
 																		addNewTask={addNewTask}
-																		title={column}
-																		items={items[column]}
+																		title={column.name}
+																		items={items[column.name]}
 																		backgroundColor={getHeaderBackground(
 																			kanbanColumns,
-																			column
+																			column.name
 																		)}
 																	/>
 																</>

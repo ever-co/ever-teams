@@ -23,6 +23,7 @@ import Skeleton from 'react-loading-skeleton';
 import { useModal } from '@app/hooks';
 import { Modal } from './modal';
 import CreateTaskModal from '@components/pages/kanban/create-task-modal';
+import Image from 'next/image';
 
 const grid = 8;
 
@@ -288,6 +289,7 @@ export const EmptyKanbanDroppable = ({
 
 const KanbanDraggableHeader = ({
 	title,
+	icon,
 	items,
 	snapshot,
 	createTask,
@@ -296,6 +298,7 @@ const KanbanDraggableHeader = ({
 }: {
 	title: string;
 	items: any;
+	icon: string;
 	createTask: () => void;
 	snapshot: DraggableStateSnapshot;
 	backgroundColor: string;
@@ -310,6 +313,7 @@ const KanbanDraggableHeader = ({
 					style={headerStyleChanger(snapshot, backgroundColor)}
 				>
 					<div className="flex flex-row gap-2.5 items-center">
+						<Image alt={title} src={icon} width={20} height={20} />
 						<h2
 							className="text-sm font-semibold not-italic text-black font-poppins capitalize"
 							{...provided.dragHandleProps}
@@ -378,11 +382,13 @@ const KanbanDraggable = ({
 	index,
 	title,
 	isLoading,
+	icon,
 	items,
 	backgroundColor
 }: {
 	index: number;
 	title: string;
+	icon: string;
 	isLoading: boolean;
 	backgroundColor: any;
 	items: ITeamTask[];
@@ -409,6 +415,7 @@ const KanbanDraggable = ({
 									<div>
 										<KanbanDraggableHeader
 											title={title}
+											icon={icon}
 											items={items}
 											snapshot={snapshot}
 											provided={provided}
