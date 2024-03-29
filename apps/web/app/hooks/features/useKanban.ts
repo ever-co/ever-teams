@@ -5,11 +5,18 @@ import { useEffect, useState } from 'react';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { useTeamTasks } from './useTeamTasks';
 import { IKanban } from '@app/interfaces/IKanban';
+import { TStatusItem } from 'lib/features';
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchTasks, setSearchTasks] = useState('');
 	const [labels, setLabels] = useState<string[]>([]);
 	const [epics, setEpics] = useState<string[]>([]);
+	const [issues, setIssues] = useState<TStatusItem>({
+		name: 'Issues',
+		icon: null,
+		bgColor: '',
+		value: ''
+	});
 	const [kanbanBoard, setKanbanBoard] = useRecoilState(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
@@ -25,6 +32,9 @@ export function useKanban() {
 				})
 				.filter((task: ITeamTask) => {
 					return priority.length ? priority.includes(task.priority) : true;
+				})
+				.filter((task: ITeamTask) => {
+					return issues.value ? task.issueType === issues.value : true;
 				})
 				.filter((task: ITeamTask) => {
 					return sizes.length ? sizes.includes(task.size) : true;
@@ -52,7 +62,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics]);
+	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics, issues]);
 
 	/**
 	 * collapse or show kanban column
@@ -100,9 +110,11 @@ export function useKanban() {
 		isLoading: loading,
 		columns: taskStatusHook.taskStatus,
 		searchTasks,
+		issues,
 		setPriority,
 		setLabels,
 		setSizes,
+		setIssues,
 		setEpics,
 		updateKanbanBoard: setKanbanBoard,
 		updateTaskStatus: updateTask,

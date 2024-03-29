@@ -80,7 +80,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
 		};
 
-		// update task status on server
+    // update task status on the server
 		updateTaskStatus(updateTaskStatusData);
 
 		// insert into next
@@ -157,11 +157,10 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			return;
 		}
 
-		if (result.type === 'COLUMN') {
-			console.log('re-order-column');
+		if (result.type === 'COLUMN') {			      
 			const reorderedItem = reorderColumn(columns, source.index, destination.index);
 
-			// Update column order on the server side
+      // Update column order on the server side
 			reorderedItem.map((item: string, index: number) => {
 				return reorderStatus(item, index);
 			});
