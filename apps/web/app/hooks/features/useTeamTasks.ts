@@ -33,6 +33,7 @@ import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { useTaskStatus } from './useTaskStatus';
 
 export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
@@ -48,7 +49,7 @@ export function useTeamTasks() {
 	const authUser = useSyncRef(useRecoilValue(userState));
 	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
 	// const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
-
+	const { taskStatus } = useTaskStatus();
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 
@@ -57,7 +58,7 @@ export function useTeamTasks() {
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// Queries hooks
-	const { queryCall, loading, loadingRef, } = useQuery(getTeamTasksAPI);
+	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
 	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
 	const { queryCall: getTasksByEmployeeIdQueryCall, loading: getTasksByEmployeeIdLoading } =
 		useQuery(getTasksByEmployeeIdAPI);
@@ -214,7 +215,7 @@ export function useTeamTasks() {
 			{
 				taskName,
 				issueType,
-				status,
+				status = taskStatus[0]?.name,
 				priority,
 				size,
 				tags,
@@ -230,11 +231,13 @@ export function useTeamTasks() {
 			},
 			members?: { id: string }[]
 		) => {
+			const activeStatus = taskStatus.find((ts) => ts.name == status);
 			return createQueryCall(
 				{
 					title: taskName,
 					issueType,
 					status,
+					taskStatusId: activeStatus?.id,
 					priority,
 					size,
 					tags,

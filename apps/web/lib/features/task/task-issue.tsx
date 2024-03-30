@@ -17,22 +17,22 @@ import { useTranslations } from 'next-intl';
 
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
-		icon: <BugIcon className="w-full max-w-[10px] text-white" />,
+		icon: <BugIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Bug',
 		bgColor: '#923535'
 	},
 	Task: {
-		icon: <Square4StackIcon className="w-full max-w-[10px] text-white" />,
+		icon: <Square4StackIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Task',
 		bgColor: '#5483BA'
 	},
 	Story: {
-		icon: <NoteIcon className="w-full max-w-[10px] text-white" />,
+		icon: <NoteIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Story',
 		bgColor: '#66BB97'
 	},
 	Epic: {
-		icon: <Square4OutlineIcon className="w-full max-w-[10px] text-white" />,
+		icon: <Square4OutlineIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Custom',
 		bgColor: '#8154BA'
 	}
