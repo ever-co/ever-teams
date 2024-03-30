@@ -34,7 +34,7 @@ const Team = () => {
 					{/* General Settings */}
 					<Accordian
 						title={t('pages.settingsTeam.HEADING_TITLE')}
-						className="w-full p-4 mt-8 dark:bg-dark--theme"
+						className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 						id="general-settings"
 					>
 						<div className="flex flex-col">
@@ -47,7 +47,7 @@ const Team = () => {
 					{isTeamManager ? (
 						<Accordian
 							title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
-							className="w-full p-4 mt-4 dark:bg-dark--theme"
+							className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 							id="invitations"
 						>
 							<InvitationSetting />
@@ -58,7 +58,7 @@ const Team = () => {
 					{isTeamManager ? (
 						<Accordian
 							title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-							className="w-full p-4 mt-4 dark:bg-dark--theme"
+							className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 							id="member"
 						>
 							<MemberSetting />
@@ -68,7 +68,7 @@ const Team = () => {
 					{isTeamManager && (
 						<Accordian
 							title={t('pages.settingsTeam.INTEGRATIONS')}
-							className="w-full p-4 mt-4 dark:bg-dark--theme"
+							className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 							id="integrations"
 						>
 							<IntegrationSetting />
@@ -78,7 +78,7 @@ const Team = () => {
 					{/* Issues Settings */}
 					<Accordian
 						title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-						className="w-full p-4 mt-4 dark:bg-dark--theme"
+						className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 						id="issues-settings"
 					>
 						<IssuesSettings />
@@ -96,7 +96,7 @@ const Team = () => {
 					{/* Danger Zone */}
 					<Accordian
 						title={t('pages.settings.DANDER_ZONE')}
-						className="w-full p-4 mt-4 dark:bg-dark--theme"
+						className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
 						isDanger={true}
 						id="danger-zones"
 					>
