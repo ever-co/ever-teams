@@ -49,7 +49,7 @@ export const ScreenshootPerHourTeam = ({
 }) => {
 	const { isOpen, closeModal, openModal } = useModal();
 	return (
-		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] bg-light--theme dark:border-[#FFFFFF0D]">
 			<h3 className="px-4">
 				{startedAt} - {stoppedAt}
 			</h3>

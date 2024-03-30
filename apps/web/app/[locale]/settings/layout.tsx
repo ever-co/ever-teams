@@ -11,6 +11,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { clsxm } from '@app/utils';
+import { withAuthentication } from 'lib/app/authenticator';
 
 const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 	const t = useTranslations();
@@ -43,7 +44,7 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 						{/* </div> */}
 					</Container>
 				</div>
-				<Container fullWidth={fullWidth} className={clsxm('!p-0')}>
+				<Container fullWidth={fullWidth} className={clsxm('!p-0 !mr-0')}>
 					<div className="flex">
 						<div className="h-[calc(100vh-_186px)]">
 							<LeftSideSettingMenu />
@@ -56,4 +57,4 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 	}
 };
 
-export default SettingsLayout;
+export default withAuthentication(SettingsLayout, { displayName: 'Settings' });
