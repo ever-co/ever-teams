@@ -32,10 +32,10 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.x
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20.11.1'
           cache: 'yarn'
 
       - name: Setup EAS
@@ -64,7 +64,7 @@ jobs:
 
       - name: Generate app.json and replace placeholders
         run: |
-            cd apps/mobile && yarn config:mobile
+          cd apps/mobile && yarn config:mobile
         env:
           EXPO_PROJECT_SLUG: ${{ secrets.EXPO_PROJECT_SLUG }}
           EXPO_PROJECT_NAME: ${{ secrets.EXPO_PROJECT_NAME }}
