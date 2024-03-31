@@ -14,7 +14,6 @@
 		"start": "yarn node env.js && yarn next start -p 3030",
 		"lint": "yarn next lint",
 		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write"
-
 	},
 	"dependencies": {
 		"@emoji-mart/data": "^1.1.2",
@@ -106,7 +105,7 @@
 		"@types/cookie": "^0.5.1",
 		"@types/js-cookie": "^3.0.2",
 		"@types/jsonwebtoken": "^9.0.2",
-		"@types/node": "18.8.4",
+		"@types/node": "^20.12.2",
 		"@types/pako": "^2.0.0",
 		"@types/react": "18.0.21",
 		"@types/react-beautiful-dnd": "^13.1.6",
@@ -151,5 +150,5 @@
 	},
 	"exclude": [
 		"/app/[locale]/layout.tsx"
-	  ]
+	]
 }
