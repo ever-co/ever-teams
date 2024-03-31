@@ -9,7 +9,6 @@
 		"labels": {}
 	},
 	"packages": ["libs/*", "apps/*", "packages/*"],
-	"useWorkspaces": true,
 	"stream": true,
 	"npmClientArgs": ["--no-package-lock"]
 }

@@ -13,23 +13,24 @@
 	"dependencies": {
 		"@tailwindcss/forms": "^0.5.3",
 		"@tailwindcss/typography": "^0.5.8",
-		"classnames": "^2.3.2",
-		"plasmo": "^0.59.1",
+		"classnames": "^2.5.1",
+		"plasmo": "^0.85.2",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-timer-hook": "^3.0.5",
 		"tailwindcss": "^3.2.4"
 	},
 	"devDependencies": {
-		"@plasmohq/prettier-plugin-sort-imports": "^3.6.0",
+		"@plasmohq/prettier-plugin-sort-imports": "^4.0.1",
 		"@types/chrome": "^0.0.203",
-		"@types/node": "18.8.3",
+		"@types/node": "^20.12.2",
 		"@types/react": "18.0.21",
 		"@types/react-dom": "18.0.6",
 		"postcss": "^8.4.19",
-		"prettier": "^2.8.0",
-		"typescript": "4.8.4"
-	},"prettier": {
+		"prettier": "^3.2.5",
+		"typescript": "^4.9.4"
+	},
+	"prettier": {
 		"printWidth": 120,
 		"singleQuote": true,
 		"semi": true,

@@ -77,10 +77,29 @@ const nextConfig = {
 			'localhost',
 			'127.0.0.1',
 			'cdn-icons-png.flaticon.com', // Remove this domain once the Backend Icons list is added
+
 			'api.gauzy.co',
+			'apida.gauzy.co',
+			'apicw.gauzy.co',
+			'apicivo.gauzy.co',
+
 			'apidev.gauzy.co',
+			'apidemo.gauzy.co',
+			'apidemocw.gauzy.co',
+			'apidemodt.gauzy.co',
+			'apidemodts.gauzy.co',
+			'apidemocivo.gauzy.co',
+			'apidemoda.gauzy.co',
+
 			'apistage.gauzy.co',
+			'apistagecivo.gauzy.co',
+			'apistagecw.gauzy.co',
+			'apistageda.gauzy.co',
+			'apistagedt.gauzy.co',
+			'apistagedts.gauzy.co',
+
 			'api.ever.team',
+
 			'apidev.ever.team',
 			'gauzy.s3.wasabisys.com',
 			'gauzystage.s3.wasabisys.com'
