@@ -1,11 +1,11 @@
 import { useTeamTasks } from '@app/hooks';
 import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { GlobIcon, LockIcon } from 'lib/components/svgs';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { useTranslations } from 'next-intl';
+import { GlobeIcon,LockIcon } from 'assets/svg';
 
 const TaskPublicity = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -39,7 +39,7 @@ const TaskPublicity = () => {
 			{isTaskPublic ? (
 				<>
 					<div className="text-[#293241] dark:text-white flex items-center gap-2">
-						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] w-3 3xl:w-4" />
+						<GlobeIcon className="text-black dark:text-[#a6a2b2] w-3 3xl:w-4" strokeWidth="2" />
 						<p className="text-[0.625rem] 3xl:text-[0.700rem]">{t('common.PUBLIC_TASK')}</p>
 					</div>
 					<div
@@ -52,7 +52,7 @@ const TaskPublicity = () => {
 			) : (
 				<>
 					<div className="text-[#293241] dark:text-white flex items-center gap-2">
-						<LockIcon className="stroke-black dark:stroke-[#a6a2b2] w-3" />
+						<LockIcon className="text-black dark:text-[#a6a2b2] w-3" />
 						<p className="text-[0.625rem]">{t('common.PRIVATE_TASK')}</p>
 					</div>
 					<div

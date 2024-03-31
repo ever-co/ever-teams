@@ -6,13 +6,14 @@ import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrg
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { GITHUB_APP_NAME } from '@app/constants';
 import { useOrganizationProjects } from '@app/hooks';
-import { TrashIcon } from 'lib/components/svgs';
+import { TrashIcon } from 'assets/svg';
 import { Button, InputField } from 'lib/components';
 import { getActiveProjectIdCookie } from '@app/helpers';
 import { Switch } from '@headlessui/react';
 import debounce from 'lodash/debounce';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import qs from 'qs';
 
 export const IntegrationSetting = () => {
 	const t = useTranslations();
@@ -31,7 +32,8 @@ export const IntegrationSetting = () => {
 		} as { [x: string]: string };
 	}, [locale]);
 
-	const queries = new URLSearchParams(params);
+	const queries = qs.stringify(params);
+
 	const url = `https://github.com/apps/${GITHUB_APP_NAME.value}/installations/new?${queries.toString()}`;
 
 	const { activeTeam } = useOrganizationTeams();
@@ -305,7 +307,7 @@ export const IntegrationSetting = () => {
 
 								{selectedRepo && (
 									<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
-										<TrashIcon />
+										<TrashIcon  className='w-3.5'  />
 									</Button>
 								)}
 							</div>

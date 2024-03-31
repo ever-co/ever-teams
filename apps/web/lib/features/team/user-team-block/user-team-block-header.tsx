@@ -3,14 +3,8 @@ import { useOrganizationTeams, useAuthenticateUser, useModal, useUserProfilePage
 import { clsxm } from '@app/utils';
 import { InviteFormModal } from '../invite/invite-form-modal';
 import { taskBlockFilterState } from '@app/stores/task-filter';
-import {
-	PauseIcon,
-	SearchNormalIcon,
-	TimerPlayIcon,
-	StopCircleIcon,
-	NotWorkingIcon,
-	OnlineIcon
-} from 'lib/components/svgs';
+import { SearchNormalIcon, TimerPlayIcon } from 'assets/svg';
+import { CheckCircleTickIcon, CrossCircleIcon, StopCircleIcon, PauseIcon } from 'assets/svg';
 import { Button, VerticalSeparator } from 'lib/components';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { useRecoilState } from 'recoil';
@@ -47,11 +41,12 @@ export function UserTeamBlockHeader() {
 	members?.map((item) => {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		membersStatusNumber[item.timerStatus!]++;
+		if (item.timerStatus === undefined) membersStatusNumber.idle += 1;
 	});
 
 	return (
 		<>
-			<div className="hidden sm:flex row font-normal pt-4 justify-between hidde dark:text-[#7B8089]">
+			<div className="hidden sm:flex row font-normal pt-4 mt-4 justify-between hidde dark:text-[#7B8089]">
 				<div className="flex items-center w-9/12">
 					<div
 						className={clsxm(
@@ -62,9 +57,8 @@ export function UserTeamBlockHeader() {
 					>
 						<StopCircleIcon
 							className={clsxm(
-								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
-								activeFilter == 'all' &&
-									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
+								'w-7 h-7 p-1 !text-gray-300 dark:!text-white',
+								activeFilter == 'all' && 'text-primary dark:text-white'
 							)}
 						/>
 						<p>All members </p>
@@ -84,7 +78,7 @@ export function UserTeamBlockHeader() {
 						)}
 						onClick={() => setActiveFilter('idle')}
 					>
-						<NotWorkingIcon
+						<CrossCircleIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-300  dark:!text-white',
 								activeFilter == 'idle' && '!text-primary !fill-white  dark:!text-white dark:!fill-white'
@@ -134,9 +128,8 @@ export function UserTeamBlockHeader() {
 					>
 						<PauseIcon
 							className={clsxm(
-								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
-								activeFilter == 'pause' &&
-									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
+								'w-7 h-7 p-1 text-gray-400 dark:text-white',
+								activeFilter == 'pause' && 'text-primary dark:text-white'
 							)}
 						/>
 						<p>Paused </p>
@@ -156,7 +149,7 @@ export function UserTeamBlockHeader() {
 						)}
 						onClick={() => setActiveFilter('online')}
 					>
-						<OnlineIcon
+						<CheckCircleTickIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-400  dark:!text-white',
 								activeFilter == 'online' &&
@@ -195,7 +188,7 @@ export function UserTeamBlockHeader() {
 							>
 								<SearchNormalIcon
 									className={clsxm(
-										'dark:stroke-white'
+										'dark:stroke-white w-4'
 										// hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
 									)}
 								/>
@@ -210,30 +203,6 @@ export function UserTeamBlockHeader() {
 					)}
 				</div>
 			</div>
-			{/* <div className="hidden sm:flex w-1/2 row font-normal  justify-end hidde dark:text-[#7B8089]">
-				<Transition
-					show={hook.filterType !== undefined}
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0 ease-out"
-					// className="pb-3"
-					ref={hook.outclickFilterCard.targetEl}
-				>
-					{hook.filterType === 'search' && (
-						<TaskNameFilter
-							fullWidth={true}
-							value={hook.taskName}
-							setValue={hook.setTaskName}
-							close={() => {
-								hook.toggleFilterType('search');
-							}}
-						/>
-					)}
-				</Transition>
-			</div> */}
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);

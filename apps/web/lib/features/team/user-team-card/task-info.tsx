@@ -14,12 +14,17 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 	return (
 		<div
 			className={clsxm(
-				'h-full flex flex-col items-start justify-between gap-[1.0620rem] max-h-full overflow-hidden',
+				'h-full w-full flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
 				className
 			)}
 		>
 			{/* task */}
-			<div className={clsxm('w-full h-10', edition.editMode ? [''] : ['overflow-hidden'])}>
+			<div
+				className={clsxm(
+					'w-full h-10 flex justify-start items-center',
+					edition.editMode ? [''] : ['overflow-hidden']
+				)}
+			>
 				{edition.task && (
 					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
 				)}

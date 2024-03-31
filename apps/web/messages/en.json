@@ -4,8 +4,13 @@
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
+		"TOMORROW": "Tomorrow",
+		"YESTERDAY": "Yesterday",
 		"REJECTED": "Rejected",
 		"VERIFY": "verify",
+		"CARDS": "Cards",
+		"TABLE": "Table",
+		"KANBAN": "Kanban",
 		"INVITE": "Invite",
 		"INVITED": "Invited",
 		"EXPIRE": "Expire",
@@ -121,7 +126,8 @@
 		"FULL_NAME": "Full Name",
 		"USER_AVATAR": "User Avatar",
 		"CONTACT": "Contact",
-
+		"ENABLED": "Enabled",
+		"DISABLED": "Disabled",
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",
 		"EDIT": "Edit",
@@ -157,8 +163,8 @@
 		"CHILD_ISSUES": "Child Issues",
 		"REOPEN": "Reopen",
 		"NO_TASKS": "No Tasks",
+		"FULL_WIDTH": "Full width",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Task",
-
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invite member(s) and start collaborating",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Start Meeting or Board Collaboration",
@@ -168,9 +174,7 @@
 		"FILTER_COMMENTS": "Comments",
 		"FILTER_HISTORY": "History",
 		"FILTER_UNSUBSCRIBE": "Unsubscribe",
-
 		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts",
-
 		"GITHUB_LOADING_TEXT": "We are now installing your GitHub Integration, hold on...",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatically synchronize tasks in your application for seamless and efficient updates.",
@@ -178,6 +182,7 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "We are working on Real-Time Sync at the moment, please check on this feature later.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
 		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
@@ -195,11 +200,12 @@
 			"CONFIRM_ACCEPT_INVITATION": "Are you sure you want to accept the invitation?",
 			"CONFIRM_REJECT_INVITATION": "Are you sure you want to reject the invitation?"
 		},
-
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]"
 		},
-
+		"kanban": {
+			"KANBAN_BOARD": "Kanban Board"
+		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",
 			"DESCRIPTION": "Descriptions",
@@ -226,14 +232,11 @@
 			"CREATED": "Created",
 			"UPDATED": "Updated",
 			"RESOLVED": "Resolved",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "We couldn't update Task Title.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Task Title can't exceed 255 characters.",
-
 			"TASK_IS_ALREADY_EPIC": "Epic Task Type can not be changed.",
 			"TASK_HAS_PARENT": "Task Type can not be changed as Task has already Parent."
 		},
-
 		"auth": {
 			"SEND_CODE": "send code",
 			"JOIN": "Join",
@@ -243,7 +246,6 @@
 			"INPUT_INVITE_CODE_DESC": "Enter the invitation code we sent to your email.",
 			"INVALID_INVITE_CODE_MESSAGE": "Invalid Code",
 			"WELCOME_TEAMS": "Real-Time Clarity, Real-Time Reality™.",
-
 			"COVER_TITLE": "Open Work and Project Management Platform",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Login",
@@ -257,11 +259,16 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Log In to Ever Teams",
-			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process..",
-
+			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process.",
 			"WORKSPACE": "Workspace",
 			"HEADING_WORKSPACE_LINE1": "The email associated with multiple workspaces,",
-			"HEADING_WORKSPACE_LINE2": "please select one to continue"
+			"HEADING_WORKSPACE_LINE2": "please select one to continue",
+			"HAVE_PASSWORD": "Have Password?",
+			"LOGIN_WITH_PASSWORD": "Login with the Password",
+			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Please enter your login information."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Create New Team",
@@ -289,6 +296,7 @@
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {
@@ -300,7 +308,6 @@
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
 			"TIME_TRACKING": "Time Tracking",
-
 			"ADD_NEW_MEMBER": "Add new member",
 			"MANAGE_ASSIGNEES": "Manage Assignees",
 			"SEARCH_MEMBER": "Search Member",
@@ -310,7 +317,6 @@
 			"TASK_LABELS": "Task Labels",
 			"ISSUE_TYPES": "Issue Types",
 			"RELATED_TYPE": "Related Type",
-
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Create new Statuses",
 			"CREATE_NEW_STATUS": "Create new Status",
@@ -322,7 +328,6 @@
 			"CREATE_NEW_LABELS": "Create new Labels",
 			"CREATE_NEW_LABEL": "Create new Label",
 			"CREATE_NEW_ISSUE_TYPES": "Create new Issues",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "Hide Personal Members Information",
 			"POSITION_CUSTOM": "Positions custom",
 			"INVITATION_EXPIRATION": "Invitation Expiration",
@@ -332,19 +337,15 @@
 			"MEMBER_AND_ROLES": "Members & Roles",
 			"INTEGRATIONS": "Integrations",
 			"DANDER_ZONES": "Danger Zone",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "Connect with GitHub and start Syncing GitHub issues with your Team",
 			"SELECT_REPOSITORY": "Select Repository",
-
 			"INSTALL": "Install",
-
 			"LIST_OF_STATUSES": "List of Statuses",
 			"LIST_OF_PRIORITIES": "List of Priorities",
 			"LIST_OF_SIZES": "List of Sizes",
 			"LIST_OF_LABELS": "List of Labels",
 			"LIST_OF_ISSUES_TYPE": "List of Issues",
-
 			"GENERAL": "General",
 			"SOUND": "Sound",
 			"EMAIL": "Email",
@@ -355,7 +356,6 @@
 			"INAPP": "In App",
 			"NOTIFICATION_HEADING_TITLE": "Notification Settings",
 			"ISSUE_HEADING_TITLE": "Issue Settings",
-
 			"TASK_PRIVACY": "Task Privacy",
 			"MULTIPLE_ASSIGNEES": "Multiple Assignees",
 			"MANUAL_TIME": "Manual Time",
@@ -387,7 +387,6 @@
 			"TEAM_SIZE": "Team Size",
 			"EMOJI": "Emoji",
 			"ISSUES_HEADING_TITLE": "Issues Settings",
-
 			"TRACK_TIME": "Track Time",
 			"ESTIMATE_ISSUE": "Estimate issue",
 			"EPICS_CREATE_CLOSE": "Epics Create/Close",
@@ -398,7 +397,6 @@
 			"HANDLE_REQUESTS": "Handle requests",
 			"ROLES_POSITIONS_CHANGE": "Roles/Positions change",
 			"VIEW_DETAILS": "View Details",
-
 			"NO_INVITATIONS": "There are no Invitations at the moment!",
 			"NO_MEMBERS": "There are no Members at the moment!"
 		},
@@ -421,6 +419,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
 		},
+		"unauthorized": {
+			"TITLE": "Unauthorized",
+			"HEADING_TITLE": "You are not authorized to access this page !",
+			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login."
+		},
 		"page404": {
 			"HEADING_TITLE": "Page not found !",
 			"HEADING_DESCRIPTION": "We looked, but can't find it .... ",
@@ -440,7 +443,6 @@
 			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
 		}
 	},
-
 	"timer": {
 		"START_TIMER": "Please, select or create a new task to start tracking the time",
 		"TEAM_SWITCH": {
@@ -450,7 +452,14 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
 		},
-		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }],
+		"DAY_LIST": [
+			{
+				"title": "7 days"
+			},
+			{
+				"title": "14 days"
+			}
+		],
 		"TIME_ACTIVITY": "Activity",
 		"TOTAL_HOURS": "Total Hours",
 		"NO_SCREENSHOOT": "No Screenshoots",
@@ -462,7 +471,6 @@
 		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited.",
 		"OTHER_DETAILS": "Other details",
 		"KEYBOARD": "keyboard",
-
 		"MOUSE": "Mouse",
 		"TIMES": "Times",
 		"ACTIVE": "Active",
@@ -470,7 +478,6 @@
 		"ARCHIVED": "Archived",
 		"NOT_ARCHIVED": "Not archived"
 	},
-
 	"task": {
 		"TITLE": "Task",
 		"ASSIGN_NEW_TASK": "Assign new task",
@@ -511,19 +518,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "Enter your name",
 		"FIRST_NAME_PLACEHOLDER": "First Name",
 		"LAST_NAME_PLACEHOLDER": "Last Name",
 		"EMAIL_PLACEHOLDER": "Enter your email address",
+		"PASSWORD_PLACEHOLDER": "Enter your password",
 		"PHONE_PLACEHOLDER": "Phone Number",
-
 		"ISSUE_NAME_PLACEHOLDER": "Issue name",
-
 		"TEAM_NAME_PLACEHOLDER": "Please Enter your team name",
 		"TASK_INPUT_PLACEHOLDER": "What you working on?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Team member name",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Team member email address",
 		"COMPLETION_DESCRIPTION": "Write the description",
@@ -535,7 +539,6 @@
 		"SELECT_TEAM_SIZE": "Select Team Size",
 		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "All rights reserved.",
@@ -549,7 +552,6 @@
 			"BY": "By"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "network issue, please try again later",
 		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code.",

@@ -21,6 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		teamId: string;
 		code: string;
 	};
+
 	let loginResponse: ILoginResponse | null = null;
 
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
@@ -106,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		if (!team) {
 			setNoTeamPopupShowCookie(true);
 		}
+
 		setAuthCookies(
 			{
 				access_token: loginResponse.token,
@@ -119,13 +121,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				noTeamPopup: true,
 				userId
 			},
-			req,
-			res
+			{ req, res }
 		);
+
 		return res.status(200).json({ team, loginResponse });
 	}
-	// Accept Invite Flow End
 
+	// Accept Invite Flow End
 	const { data } = await signInWorkspaceRequest(body.email, body.token);
 
 	/**
@@ -160,8 +162,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			noTeamPopup: true,
 			userId
 		},
-		req,
-		res
+		{ req, res }
 	);
 
 	res.status(200).json({ loginResponse: data });

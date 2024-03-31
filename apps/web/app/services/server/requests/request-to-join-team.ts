@@ -8,6 +8,7 @@ import {
 	IRequestToJoinActionEnum
 } from '@app/interfaces';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 /**
  * Request to Join Team request
@@ -70,10 +71,10 @@ export function getRequestToJoinRequest({
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId
 	} as { [x: string]: string };
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
 
 	return serverFetch<PaginationResponse<IRequestToJoin>>({
-		path: `/organization-team-join?${query.toString()}`,
+		path: `/organization-team-join?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

@@ -120,6 +120,8 @@
 		"FULL_NAME": "Full Name",
 		"USER_AVATAR": "User Avatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Давать возможность",
+		"DISABLED": "Запрещать",
 
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",
@@ -155,6 +157,7 @@
 		"CHILD_ISSUES": "Child Issues",
 		"REOPEN": "Reopen",
 		"NO_TASKS": "No Tasks",
+		"FULL_WIDTH": "Полная ширинаh",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Task",
 
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
@@ -175,10 +178,11 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Выберите метку автосинхронизации"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "В настоящее время мы работаем над синхронизацией в реальном времени, пожалуйста, проверьте эту функцию позже.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Все данные учетной записи будут удалены из всех команд, в которых вы являетесь только одним существующим менеджером",
 		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},
 	"pages": {
@@ -284,6 +288,7 @@
 			"SUBSCRIPTION": "Subscription",
 			"ABOUT_TO_CHANGE_EMAIL": "You are about to change Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
+			"DATA_SYNCHRONIZATION": "Синхронизация данных",
 			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to Remove your account ?"
 		},
 		"settingsTeam": {
@@ -415,6 +420,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
+		},
+		"unauthorized": {
+			"TITLE": "Несанкционированный",
+			"HEADING_TITLE": "Вы не авторизованы для просмотра этой страницы !",
+			"HEADING_DESCRIPTION": "Приносим извинения за неудобства, но у вас нет прав доступа к этой странице. Если вы считаете, что это ошибка. Пожалуйста, войдите."
 		},
 		"page404": {
 			"HEADING_TITLE": "Not Found",

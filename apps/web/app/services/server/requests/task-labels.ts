@@ -1,5 +1,6 @@
 import { ITaskLabelsCreate, ITaskLabelsItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 export function createLabelsRequest(datas: ITaskLabelsCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskLabelsItemList>({
@@ -56,7 +57,7 @@ export function getTaskLabelsListRequest(
 	}: { tenantId: string; organizationId: string; organizationTeamId: string | null },
 	bearer_token: string
 ) {
-	const params = new URLSearchParams({
+	const params = qs.stringify({
 		tenantId,
 		organizationId,
 		organizationTeamId: organizationTeamId || ''

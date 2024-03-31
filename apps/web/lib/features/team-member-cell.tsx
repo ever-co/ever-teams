@@ -9,18 +9,24 @@ import { UserInfo } from './team/user-team-card/user-info';
 import { UserTeamCardMenu } from './team/user-team-card/user-team-card-menu';
 import React from 'react';
 import get from 'lodash/get';
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 export function TaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const publicTeam = false;
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskInfo
 			edition={taskEdition}
 			memberInfo={memberInfo}
-			className="2xl:w-80 3xl:w-[32rem] !w-full lg:w-1/5 lg:px-4 px-2"
+			className={clsxm(
+				'flex-1 flex justify-center items-center  w-full px-2',
+				fullWidth ? 'max-w-[40vw]' : 'max-w-[30vw]'
+			)}
 			publicTeam={publicTeam}
 		/>
 	);
@@ -32,12 +38,13 @@ export function UserInfoCell({ cell }: { cell: any }) {
 	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
 	const memberInfo = useTeamMemberCard(member);
 
-	return <UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-full lg:w-1/4" publicTeam={publicTeam} />;
+	return <UserInfo memberInfo={memberInfo} className="" publicTeam={publicTeam} />;
 }
 
 export function WorkedOnTaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskTimes
@@ -45,7 +52,10 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			task={memberInfo.memberTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className="2xl:w-32 3xl:w-[8rem] min-w-[15rem] w-52 lg:w-1/5  flex flex-col gap-y-[1.125rem] justify-center"
+			className={clsxm(
+				'flex flex-col justify-center items-center mx-auto',
+				fullWidth ? '2xl:w-[7rem] 3xl:w-[11rem]' : '2xl:w-[7rem]  3xl:w-[10rem]'
+			)}
 		/>
 	);
 }
@@ -60,7 +70,9 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className="lg:px-3 2xl:w-52 3xl:w-64  min-w-[15rem] w-52 lg:w-1/5"
+			className={clsxm(
+				'flex flex-col justify-center items-center 2xl:w-[7rem]  3xl:w-[10rem]'
+			)}
 		/>
 	);
 }

@@ -120,7 +120,9 @@ export const en = {
 			CONFIRM_ACCEPT_INVITATION: 'Are you sure you want to accept the invitation?',
 			CONFIRM_REJECT_INVITATION: 'Are you sure you want to reject the invitation?'
 		},
-
+		kanban: {
+			KANBAN_BOARD: 'Kanban Board'
+		},
 		profile: {
 			BREADCRUMB: ['Member Tasks']
 		},
@@ -180,6 +182,9 @@ export const en = {
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
 			HEADING_DESCRIPTION: 'Please enter email and invitation code to join existing team.'
+		},
+		authPassword: {
+			HEADING_DESCRIPTION: 'Please enter your login information.'
 		},
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',

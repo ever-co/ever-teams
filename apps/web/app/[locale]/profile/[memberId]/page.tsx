@@ -8,7 +8,7 @@ import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text, VerticalSeparator } from 'lib/components';
-import { ArrowLeft } from 'lib/components/svgs';
+import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
@@ -28,13 +28,15 @@ type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 
 	const hook = useTaskFilter(profile);
-	const canSeeActivity = profile.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER';
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	const t = useTranslations();
 	const breadcrumb = [
@@ -69,12 +71,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	return (
 		<>
-			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
+			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
-							<ArrowLeft className="w-6 h-6" />
+							<ArrowLeftIcon className="w-6 h-6" />
 						</Link>
 
 						<Breadcrumb paths={breadcrumb} className="text-sm" />
@@ -122,7 +124,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				)}
 
 				<Container fullWidth={fullWidth} className="mb-10">
-					{activityScreens[activityFilter] ?? null}
+					{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
+						<UserProfileTask profile={profile} tabFiltered={hook} />
+					) : (
+						activityScreens[activityFilter] ?? null
+					)}
 				</Container>
 			</MainLayout>
 		</>

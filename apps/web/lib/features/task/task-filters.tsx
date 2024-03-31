@@ -6,12 +6,13 @@ import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
-import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
+import { SearchNormalIcon } from 'assets/svg';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
+import { SettingFilterIcon } from 'assets/svg';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -245,7 +246,7 @@ function InputFilters({ hook, profile }: Props) {
 			>
 				<SearchNormalIcon
 					className={clsxm(
-						'dark:stroke-white',
+						'dark:stroke-white w-4 h-4',
 						hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
 					)}
 				/>
@@ -262,7 +263,7 @@ function InputFilters({ hook, profile }: Props) {
 				)}
 				onClick={() => hook.toggleFilterType('status')}
 			>
-				<Settings4Icon className="dark:stroke-white" />
+				<SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
 				<span>{t('common.FILTER')}</span>
 			</button>
 
@@ -340,7 +341,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
  */
-function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
+export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 
@@ -418,7 +419,7 @@ export function TaskNameFilter({
 	const t = useTranslations();
 
 	const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
-	const [tempValue, setTempValue] = useState<string>('');
+	const [tempValue, setTempValue] = useState<string>(value);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputValue = e.target.value;

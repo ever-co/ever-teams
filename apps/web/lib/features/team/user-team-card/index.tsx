@@ -1,12 +1,18 @@
 'use client';
 
 import { secondsToTime } from '@app/helpers';
-import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
+import {
+	useCollaborative,
+	useTMCardTaskEdit,
+	useTaskStatistics,
+	useOrganizationTeams,
+	useAuthenticateUser,
+	useTeamMemberCard
+} from '@app/hooks';
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, HorizontalSeparator, InputField, Text, VerticalSeparator } from 'lib/components';
-import { DraggerIcon } from 'lib/components/svgs';
+import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslations } from 'next-intl';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -18,6 +24,7 @@ import React from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
+import { SixSquareGridIcon } from 'assets/svg';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -41,8 +48,7 @@ export function UserTeamCard({
 	onDragStart = () => null,
 	onDragEnd = () => null,
 	onDragEnter = () => null,
-	onDragOver = () => null,
-	currentExit = false
+	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
@@ -54,6 +60,10 @@ export function UserTeamCard({
 	const setActivityFilter = useSetRecoilState(activityTypeState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
+	const { activeTeamManagers } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
 		setShowActivity((prev) => !prev);
@@ -114,7 +124,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem]',
+					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem] !py-4',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -124,7 +134,7 @@ export function UserTeamCard({
 			>
 				<div className="flex m-0 relative items-center">
 					<div className="absolute left-0 cursor-pointer">
-						<DraggerIcon className="fill-[#CCCCCC] w-2 dark:fill-[#4F5662]" />
+						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
 
 					{/* Show user name, email and image */}
@@ -132,23 +142,25 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1">
+					<div className="flex justify-between items-center flex-1 min-w-[40%]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
 							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 							publicTeam={publicTeam}
 						/>
-						<p
-							className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
-							onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
-						>
-							{!showActivity ? (
-								<ExpandIcon height={24} width={24} />
-							) : (
-								<CollapseUpIcon height={24} width={24} />
-							)}
-						</p>
+						{isManagerConnectedUser != 1 ? (
+							<p
+								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
+								onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
+							>
+								{!showActivity ? (
+									<ExpandIcon height={24} width={24} />
+								) : (
+									<CollapseUpIcon height={24} width={24} />
+								)}
+							</p>
+						) : null}
 					</div>
 					<VerticalSeparator className="ml-2" />
 
@@ -172,18 +184,20 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
-					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 3xl:w-64">
+					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
-						<p
-							onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-							className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
-						>
-							{!showActivity ? (
-								<ExpandIcon height={24} width={24} />
-							) : (
-								<CollapseUpIcon height={24} width={24} />
-							)}
-						</p>
+						{isManagerConnectedUser != -1 ? (
+							<p
+								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
+								className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
+							>
+								{!showActivity ? (
+									<ExpandIcon height={24} width={24} />
+								) : (
+									<CollapseUpIcon height={24} width={24} />
+								)}
+							</p>
+						) : null}
 					</div>
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
@@ -224,9 +238,9 @@ export function UserTeamCard({
 				{/* Card menu */}
 				<div className="absolute right-2">{menu}</div>
 			</Card>
-			{currentExit && (
+			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
-			)}
+			)} */}
 		</div>
 	);
 }

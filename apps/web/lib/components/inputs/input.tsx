@@ -136,7 +136,7 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 					/>
 					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">{dash}</span>
 				</div>
-				<span className="pl-1">{!loading ? label : <SpinnerLoader size={15} />}</span>
+				<span className="">{!loading ? label : <SpinnerLoader size={15} />}</span>
 			</div>
 		);
 	}

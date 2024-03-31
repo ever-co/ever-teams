@@ -2,8 +2,9 @@
 'use client';
 
 import clsx from 'clsx';
-import { notFound } from 'next/navigation';
-import { ReactNode } from 'react';
+import { notFound, useRouter } from 'next/navigation';
+import { ReactNode, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { RecoilRoot } from 'recoil';
 import { AppState } from 'lib/app/init-state';
@@ -14,7 +15,6 @@ import { ThemeProvider } from 'next-themes';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
-import Maintenance from '@components/pages/maintenance';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 
@@ -30,6 +30,15 @@ interface Props {
 	};
 }
 
+import { Poppins } from 'next/font/google';
+import GlobalSkeleton from '@components/ui/global-skeleton';
+
+const poppins = Poppins({
+	subsets: ['latin'],
+	weight: '500',
+	variable: '--font-poppins',
+	display: 'swap'
+});
 // export function generateStaticParams() {
 // 	return locales.map((locale: any) => ({ locale }));
 // }
@@ -45,15 +54,21 @@ interface Props {
 const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	// Validate that the incoming `locale` parameter is valid
 	if (!locales.includes(locale as any)) notFound();
-	const { isApiWork } = useCheckAPI();
+	const router = useRouter();
+	const pathname = usePathname();
+	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
-	console.log({ pageProps });
+
+	useEffect(() => {
+		if (!isApiWork && !loading) router.push(`/maintenance`);
+		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
+	}, [isApiWork, loading, router, pathname]);
 	return (
-		<html lang={locale}>
+		<html lang={locale} className={poppins.variable}>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -73,13 +88,13 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							{isApiWork ? (
+							{loading ? (
+								<GlobalSkeleton />
+							) : (
 								<>
 									<AppState />
 									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
 								</>
-							) : (
-								<Maintenance />
 							)}
 						</ThemeProvider>
 					</RecoilRoot>

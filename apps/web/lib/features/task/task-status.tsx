@@ -28,10 +28,10 @@ import {
 } from '@app/hooks';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
-import { CategoryIcon, CircleIcon } from 'lib/components/svgs';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
+import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
 
 export type TStatusItem = {
 	id?: string;
@@ -433,7 +433,7 @@ export function EpicPropertiesDropdown({
 					value: task.id,
 					icon: (
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-							<CategoryIcon />
+							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
 						</div>
 					)
 				};
@@ -896,7 +896,7 @@ export function StatusDropdown<T extends TStatusItem>({
 		bgColor: undefined,
 		icon: (
 			<span>
-				<CircleIcon />
+				<CircleIcon className="h-4 w-4" />
 			</span>
 		),
 		name: defaultItem
@@ -1137,7 +1137,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		bgColor: undefined,
 		icon: (
 			<span>
-				<CircleIcon />
+				<CircleIcon className="h-4 w-4" />
 			</span>
 		),
 		name: defaultItem

@@ -4,8 +4,13 @@
 		"ACCEPT": "Aceptar",
 		"ACCEPTED": "Aceptado",
 		"REJECT": "Rechazar",
+		"TOMORROW": "Mañana",
+		"YESTERDAY": "Ayer",
 		"REJECTED": "Rechazado",
 		"VERIFY": "verificar",
+		"CARDS": "Tarjetas",
+		"TABLE": "Tabla",
+		"KANBAN": "Kanban",
 		"INVITE": "Invitar",
 		"INVITED": "Invitado",
 		"EXPIRE": "Expira",
@@ -25,6 +30,7 @@
 		"ONLY_ME": "Sólo yo",
 		"YES": "Sí",
 		"BASIC": "Básico",
+		"REGISTER": "Registrarse",
 		"DELETE": "Eliminar",
 		"MEET": "Reunirse",
 		"BOARD": "Tablero",
@@ -39,6 +45,7 @@
 		"REMOVE_EVERYWHERE": "Eliminar en todas partes",
 		"DELETE_ACCOUNT": "Eliminar esta cuenta",
 		"UNASSIGN_TASK": "Desasignar tarea",
+		"DELETE_ALL_DATA": "Eliminar todos los datos",
 		"MAKE_A_MANAGER": "Hacer administrador",
 		"UNMAKE_A_MANAGER": "Quitar como administrador",
 		"TRANSFERT_OWNERSHIP": "Transferir propiedad",
@@ -50,6 +57,7 @@
 		"QUIT": "Abandonar",
 		"STATUSES": "Estados",
 		"RESEND_INVITATION": "Reenviar invitación",
+		"DONT_HAVE_ACCOUNT": "¿No tienes una cuenta?",
 		"TODAY": "Hoy",
 		"TOTAL": "Total",
 		"ESTIMATED": "Estimado",
@@ -120,6 +128,8 @@
 		"FULL_NAME": "Nombre completo",
 		"USER_AVATAR": "Avatar de usuario",
 		"CONTACT": "Contacto",
+		"ENABLED": "permitir",
+		"DISABLED": "desactivar",
 		"THEME": "Tema",
 		"TIME_ZONE": "Zona horaria",
 		"EDIT": "Editar",
@@ -153,6 +163,7 @@
 		"CHILD_ISSUES": "Problemas secundarios",
 		"REOPEN": "Reabrir",
 		"NO_TASKS": "Sin tareas",
+		"FULL_WIDTH": "Ancho total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de cambiar la tarea",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar colaboración",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invitar miembro(s) y empezar a colaborar",
@@ -167,13 +178,15 @@
 		"GITHUB_LOADING_TEXT": "Estamos instalando su integración de GitHub, espere...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronice automáticamente tareas en su aplicación para actualizaciones fluidas y eficientes.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronice tareas de manera selectiva asociándolas con una etiqueta específica.",
-		"GITHUB_AUTO_SYNC_LABEL": "Seleccionar etiqueta de sincronización automática"
+		"GITHUB_AUTO_SYNC_LABEL": "Seleccionar etiqueta de sincronización automática",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activa la integración de GitHub para la sincronización de proyectos y repositorios"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Todos los datos de la cuenta serán eliminados de todos los equipos donde eres el único administrador existente",
 		"ALERT_QUIT_TEAM": "Estás a punto de abandonar el equipo"
 	},
 	"pages": {
@@ -186,6 +199,9 @@
 			"INVITATIONS": "Has sido invitado a unirte a",
 			"CONFIRM_ACCEPT_INVITATION": "¿Estás seguro de que deseas aceptar la invitación?",
 			"CONFIRM_REJECT_INVITATION": "¿Estás seguro de que deseas rechazar la invitación?"
+		},
+		"kanban": {
+			"KANBAN_BOARD": "tablero kanban"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tareas de miembro\"]"
@@ -231,7 +247,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Código inválido",
 			"WELCOME_TEAMS": "Bienvenido a Equipos Siempre",
 			"COVER_TITLE": "¡Sigue el progreso del trabajo de tus equipos en tiempo real!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Gestión de trabajo y fuerza laboral todo en uno, gestión del tiempo, seguimiento del tiempo, seguimiento de la actividad, seguimiento de la productividad y métricas, gestión de proyectos/tareas y problemas, organizaciones y equipos, integraciones (GitHub, JIRA, ...) y más!",
 			"LOGIN": "Iniciar sesión",
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
 			"ENTER_EMAIL": "Ingresar correo electrónico",
@@ -246,7 +262,13 @@
 			"HEADING_DESCRIPTION": "Por favor ingrese el correo electrónico y el código de invitación para iniciar sesión.",
 			"WORKSPACE": "Espacio de trabajo",
 			"HEADING_WORKSPACE_LINE1": "El correo electrónico asociado con múltiples espacios de trabajo,",
-			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar"
+			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar",
+			"HAVE_PASSWORD": "¿Tiene contraseña?",
+			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
+			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Crear nuevo equipo",
@@ -272,10 +294,11 @@
 			"SUBSCRIPTION": "Suscripción",
 			"ABOUT_TO_CHANGE_EMAIL": "Estás a punto de cambiar el Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
+			"DATA_SYNCHRONIZATION": "Sincronización de datos",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
-			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Tu zona horaria",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "¿Estás a punto de ser eliminado de todos los equipos, a menos que seas el único entrenador?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "¿Estás a punto de eliminar tu cuenta y todos tus datos?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Ajustes generales",
@@ -302,6 +325,7 @@
 			"CREATE_NEW_PRIORITIES": "Crear nuevas prioridades",
 			"CREATE_NEW_PRIORITY": "Crear nueva prioridad",
 			"CREATE_NEW_SIZE": "Crear nuevo tamaño",
+			"CREATE_NEW_SIZES": "Crear nuevos tamaños",
 			"CREATE_NEW_LABELS": "Crear nuevas etiquetas",
 			"CREATE_NEW_LABEL": "Crear nueva etiqueta",
 			"CREATE_NEW_ISSUE_TYPES": "Crear nuevos tipos de problemas",
@@ -396,6 +420,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Seleccionar roles"
 		},
+		"unauthorized": {
+			"TITLE": "No autorizado",
+			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
+		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",
 			"HEADING_DESCRIPTION": "¡El recurso que buscas no se encuentra!",
@@ -416,6 +445,9 @@
 		}
 	},
 	"timer": {
+		"ACTIVE": "Activo",
+		"APPS": "Aplicaciones",
+		"ARCHIVED": "Archivado",
 		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
@@ -424,6 +456,14 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimar"
 		},
+		"INACTIVE": "Inactivo",
+		"KEYBOARD": "Teclado",
+		"MOUSE": "Ratón",
+		"NO_SCREENSHOOT": "Sin capturas de pantalla",
+		"NOT_ARCHIVED": "No archivado",
+		"OTHER_DETAILS": "Otros detalles",
+		"PERCENT_OF_MINUTES": " % de 10 minutos",
+		"PERCENT_USED": "Porcentaje utilizado",
 		"DAY_LIST": [
 			{
 				"title": "7 días"
@@ -431,7 +471,13 @@
 			{
 				"title": "14 días"
 			}
-		]
+		],
+		"THERE_IS_NO_APPS_VISITED": "No hay aplicaciones visitadas.",
+		"TIME_ACTIVITY": "Actividad",
+		"TIME_SPENT_IN_HOURS": "Tiempo gastado (Horas)",
+		"TIMES": "Veces",
+		"TOTAL_HOURS": "Horas totales",
+		"VISITED_DATES": "Fechas visitadas"
 	},
 	"task": {
 		"TITLE": "Tarea",
@@ -478,6 +524,7 @@
 		"FIRST_NAME_PLACEHOLDER": "Nombre",
 		"LAST_NAME_PLACEHOLDER": "Apellido",
 		"EMAIL_PLACEHOLDER": "Ingresa tu dirección de correo electrónico",
+		"PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
 		"PHONE_PLACEHOLDER": "Número de teléfono",
 		"ISSUE_NAME_PLACEHOLDER": "Nombre del problema",
 		"TEAM_NAME_PLACEHOLDER": "Ingresa el nombre de tu equipo",

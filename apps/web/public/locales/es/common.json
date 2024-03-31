@@ -120,6 +120,9 @@
 		"FULL_NAME": "Nombre completo",
 		"USER_AVATAR": "Avatar de usuario",
 		"CONTACT": "Contacto",
+		"ENABLED": "permitir",
+		"DISABLED": "desactivar",
+
 		"THEME": "Tema",
 		"TIME_ZONE": "Zona horaria",
 		"EDIT": "Editar",
@@ -153,6 +156,7 @@
 		"CHILD_ISSUES": "Problemas secundarios",
 		"REOPEN": "Reabrir",
 		"NO_TASKS": "Sin tareas",
+		"FULL_WIDTH": "Ancho total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de cambiar la tarea",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar colaboración",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invitar miembro(s) y empezar a colaborar",
@@ -170,10 +174,11 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Seleccionar etiqueta de sincronización automática"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Se eliminarán todos los datos de las cuentas de todos los equipos en los que usted sea SÓLO uno de los gestores existentes",
 		"ALERT_QUIT_TEAM": "Estás a punto de abandonar el equipo"
 	},
 	"pages": {
@@ -231,7 +236,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Código inválido",
 			"WELCOME_TEAMS": "Bienvenido a Equipos Siempre",
 			"COVER_TITLE": "¡Sigue el progreso del trabajo de tus equipos en tiempo real!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Gestión todo en uno del trabajo y la fuerza laboral, gestión del tiempo, seguimiento del tiempo, seguimiento de actividades, seguimiento y métricas de productividad, gestión de proyectos/tareas y problemas, organizaciones y equipos, integraciones (GitHub, JIRA,...) ¡y más!",
 			"LOGIN": "Iniciar sesión",
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
 			"ENTER_EMAIL": "Ingresar correo electrónico",
@@ -278,10 +283,11 @@
 			"SUBSCRIPTION": "Suscripción",
 			"ABOUT_TO_CHANGE_EMAIL": "Estás a punto de cambiar el Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
+			"DATA_SYNCHRONIZATION": "Sincronización de datos",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Estás a punto de Eliminar tu cuenta ?",
-			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Tu zona horaria",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "¿Estás a punto de ser eliminado de todos los equipos, a menos que seas el único entrenador?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "¿Estás a punto de eliminar tu cuenta y todos tus datos?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Ajustes generales",
@@ -401,6 +407,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Seleccionar roles"
+		},
+		"unauthorized": {
+			"TITLE": "No autorizado",
+			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
 		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",

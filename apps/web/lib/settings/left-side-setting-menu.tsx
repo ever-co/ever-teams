@@ -4,14 +4,15 @@ import { userState } from '@app/stores';
 import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
-import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
+import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
 import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRecoilState } from 'recoil';
 import Link from 'next/link';
+import { clsxm } from '@app/utils';
 
-export const LeftSideSettingMenu = () => {
+export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const pathname = usePathname();
@@ -64,30 +65,34 @@ export const LeftSideSettingMenu = () => {
 	);
 
 	return (
-		<>
-			<div className="hidden lg:block lg:w-[320px] mt-[36px] sm:mr-[56px] mx-auto">
-				<Text className="text-4xl font-normal mb-[40px] text-center sm:text-left">{t('common.SETTINGS')}</Text>
-				<div className="flex sm:block">
-					<SidebarAccordian
-						title={
-							<>
-								{activePage === '/settings/personal' ? (
-									<UserIconFilled className="w-[24px] h-[24px] fill-primary dark:fill-white strock-primary" />
-								) : (
-									<UserIcon className="w-[24px] h-[24px]" />
-								)}
-								{t('common.PERSONAL')}
-							</>
-						}
-						className="bg-[transparent]"
-						textClassName={`
+		<div className={clsxm(' ', className)}>
+			<Text className="text-4xl font-normal my-10 min-w-[16rem] text-center sm:text-left">
+				{t('common.SETTINGS')}
+			</Text>
+			<div className="flex sm:block h-[calc(100vh-_382px)] overflow-y-auto">
+				<SidebarAccordian
+					title={
+						<>
+							{activePage === '/settings/personal' ? (
+								<UserOutlineIcon
+									className="w-6 h-6 fill-primary dark:fill-white strock-primary"
+									fill="white"
+								/>
+							) : (
+								<UserOutlineIcon className="w-6 h-6 fill-" />
+							)}
+							{t('common.PERSONAL')}
+						</>
+					}
+					className="bg-transparent"
+					textClassName={`
 						${
 							activePage === '/settings/personal'
 								? `text-[#3826a6] font-semibold`
 								: 'border-l-transparent font-normal dark:text-[#7E7991]'
 						}
 						`}
-						wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
+					wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
                 font-normal text-[#7e7991] justify-start  pt-[24px] pb-[24px] pl-[24px]
 				border-l-[5px] ${
 					activePage === '/settings/personal'
@@ -95,15 +100,55 @@ export const LeftSideSettingMenu = () => {
 						: 'border-l-transparent'
 				}
                 `}
-					>
-						<div className="flex flex-col">
-							{PersonalAccordianData.map((ad, index) => {
-								return (
-									<Link
-										onClick={onLinkClick}
-										href={`/${locale}/settings/personal${ad.href}`}
+				>
+					<div className="flex flex-col">
+						{PersonalAccordianData.map((ad, index) => {
+							return (
+								<Link onClick={onLinkClick} href={`/${locale}/settings/personal${ad.href}`} key={index}>
+									<Text
+										className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 										key={index}
+										style={{ color: ad.color }}
 									>
+										{ad.title}
+									</Text>
+								</Link>
+							);
+						})}
+					</div>
+				</SidebarAccordian>
+
+				<SidebarAccordian
+					title={
+						<>
+							{activePage === '/settings/team' ? (
+								<PeoplesIcon className="w-6 h-6 dark:fill-white" fill="#3826A6" />
+							) : (
+								<PeoplesIcon className="w-6 h-6 text-[#7E7991]" />
+							)}
+							{t('common.TEAM')}
+						</>
+					}
+					className="bg-[transparent]"
+					textClassName={`${
+						activePage === '/settings/team'
+							? ' text-[#3826a6] text-primary font-semibold'
+							: ' border-l-transparent font-normal dark:text-[#7E7991]'
+					}`}
+					wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
+						font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
+	border-l-[5px] ${
+		activePage === '/settings/team'
+			? ' text-[#3826a6] border-l-solid border-l-primary bg-primary/5 text-primary dark:bg-[#6755C9]'
+			: ' border-l-transparent'
+	}
+						`}
+				>
+					<div className="flex flex-col">
+						{TeamAccordianData.filter((ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager).map(
+							(ad, index) => {
+								return (
+									<Link onClick={onLinkClick} href={`/${locale}/settings/team${ad.href}`} key={index}>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -113,60 +158,11 @@ export const LeftSideSettingMenu = () => {
 										</Text>
 									</Link>
 								);
-							})}
-						</div>
-					</SidebarAccordian>
-
-					<SidebarAccordian
-						title={
-							<>
-								{activePage === '/settings/team' ? (
-									<PeopleIconFilled className="w-[24px] h-[24px] fill-primary dark:fill-white strock-primary" />
-								) : (
-									<PeopleIcon className="w-[24px] h-[24px] stroke-[#7E7991]" />
-								)}
-								{t('common.TEAM')}
-							</>
-						}
-						className="bg-[transparent]"
-						textClassName={`${
-							activePage === '/settings/team'
-								? ' text-[#3826a6] text-primary font-semibold'
-								: ' border-l-transparent font-normal dark:text-[#7E7991]'
-						}`}
-						wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
-						font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
-	border-l-[5px] ${
-		activePage === '/settings/team'
-			? ' text-[#3826a6] border-l-solid border-l-primary bg-primary/5 text-primary dark:bg-[#6755C9]'
-			: ' border-l-transparent'
-	}
-						`}
-					>
-						<div className="flex flex-col">
-							{TeamAccordianData.filter((ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager).map(
-								(ad, index) => {
-									return (
-										<Link
-											onClick={onLinkClick}
-											href={`/${locale}/settings/team${ad.href}`}
-											key={index}
-										>
-											<Text
-												className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
-												key={index}
-												style={{ color: ad.color }}
-											>
-												{ad.title}
-											</Text>
-										</Link>
-									);
-								}
-							)}
-						</div>
-					</SidebarAccordian>
-				</div>
+							}
+						)}
+					</div>
+				</SidebarAccordian>
 			</div>
-		</>
+		</div>
 	);
 };

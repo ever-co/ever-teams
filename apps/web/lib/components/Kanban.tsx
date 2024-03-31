@@ -1,4 +1,3 @@
-import LeftArrowTailessIcon from '@components/ui/svgs/left-arrow-tailess';
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React from 'react';
 import { useEffect, useState } from 'react';
@@ -10,11 +9,20 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
+
 import Item from './kanban-card';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatus } from '@app/constants';
 import { useKanban } from '@app/hooks/features/useKanban';
-import { AddIcon } from './svgs';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Button } from '@components/ui/button';
+import { useTranslations } from 'next-intl';
+import { AddIcon, ChevronLeftIcon } from 'assets/svg';
+
+import { useModal } from '@app/hooks';
+import { Modal } from './modal';
+import CreateTaskModal from '@components/pages/kanban/create-task-modal';
+import Image from 'next/image';
 
 const grid = 8;
 
@@ -51,32 +59,23 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 }
 
 /**
- * wrapper to ensure card is draggable
+ * wrapper to ensure the card is draggable
  * @param param0
  * @returns
  */
-function InnerItemList({
-	items,
-	title,
-	dropSnapshot
-}: {
-	title: string;
-	items: ITeamTask[];
-	dropSnapshot: DroppableStateSnapshot;
-}) {
+function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dropSnapshot: DroppableStateSnapshot }) {
+	const t = useTranslations();
+	const { isOpen, closeModal, openModal } = useModal();
+
 	return (
 		<>
-			<section
-				style={{
-					minHeight: items.length < 0 && dropSnapshot.isDraggingOver ? '120px' : '20px',
-					marginTop: items.length > 0 ? '20px' : '0px'
-				}}
-				className="flex flex-col gap-2.5  overflow-x-hidden"
-			>
+			<section className="flex flex-col pb-2 relative">
 				{items.map((item: ITeamTask, index: number) => (
 					<Draggable key={item.id} draggableId={item.id} index={index}>
 						{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
 							<Item
+								isClone={false}
+								index={index}
 								key={item.id}
 								item={item}
 								isDragging={dragSnapshot.isDragging}
@@ -93,6 +92,23 @@ function InnerItemList({
 						)}
 					</Draggable>
 				))}
+				{items.length == 0 && (
+					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute">
+						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
+							not found!
+						</div>
+						<div
+							onClick={openModal}
+							className="h-[52px] mt-4 w-[340px] flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+						>
+							<AddIcon className=" h-5 w-5" />
+							<p>{t('common.CREATE_TASK')}</p>
+						</div>
+					</div>
+				)}
+				<Modal isOpen={isOpen} closeModal={closeModal}>
+					<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+				</Modal>
 			</section>
 		</>
 	);
@@ -121,7 +137,7 @@ function InnerList(props: {
 }
 
 /**
- * wrapper to allow inner column act as
+ * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
  * @returns
@@ -130,37 +146,20 @@ export const KanbanDroppable = ({
 	title,
 	droppableId,
 	type,
+	isLoading,
 	content
 }: {
 	title: string;
+	isLoading: boolean;
 	droppableId: string;
 	type: string;
 	content: ITeamTask[];
 }) => {
-	const [enabled, setEnabled] = useState(false);
-
-	useEffect(() => {
-		const animation = requestAnimationFrame(() => setEnabled(true));
-
-		return () => {
-			cancelAnimationFrame(animation);
-			setEnabled(false);
-		};
-	}, []);
-
-	if (!enabled) return null;
-
 	return (
 		<>
 			<Droppable droppableId={droppableId} type={type}>
 				{(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
-					<div
-						style={getBackgroundColor(dropSnapshot)}
-						data-isdragging={dropSnapshot.isDraggingOver}
-						data-isdropdisabled={false}
-						data-isdraggingfrom={Boolean(dropSnapshot.draggingFromThisWith)}
-						{...dropProvided.droppableProps}
-					>
+					<div style={getBackgroundColor(dropSnapshot)} {...dropProvided.droppableProps}>
 						<InnerList
 							items={content}
 							title={title}
@@ -175,7 +174,7 @@ export const KanbanDroppable = ({
 };
 
 /**
- * wrapper to allow inner column act as
+ * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
  * @returns
@@ -204,6 +203,8 @@ export const EmptyKanbanDroppable = ({
 		};
 	}, []);
 
+	const { isOpen, closeModal, openModal } = useModal();
+
 	if (!enabled) return null;
 
 	return (
@@ -216,22 +217,50 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row w-fit h-full"
+							className="flex flex-row px-2 w-fit h-full"
 						>
 							{title.length > 0 ? (
 								<>
 									<header
 										className={
-											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed'
+											'relative flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed min-h-[20rem]'
 										}
 										style={headerStyleChanger(snapshot, backgroundColor)}
-										data-isDragging={snapshot.isDragging}
 									>
-										<div className="flex flex-col items-center  gap-2">
-											<button className="rotate-180" onClick={() => toggleColumn(title, false)}>
-												<LeftArrowTailessIcon />
+										<div className="flex flex-col items-center space-2">
+											<button
+												className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md rotate-180"
+												onClick={() => toggleColumn(title, false)}
+											>
+												<ChevronLeftIcon className="text-[#1B1D22]" />
 											</button>
-											<ThreeDotIcon color="black" />
+											<Popover>
+												<PopoverTrigger className="mt-1" asChild>
+													<Button
+														variant="ghost"
+														className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md"
+													>
+														<ThreeDotIcon color="black" />
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent
+													align="start"
+													className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
+												>
+													<div
+														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+														onClick={() => openModal()}
+													>
+														Create Task
+													</div>
+													<div
+														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+														onClick={() => toggleColumn(title, false)}
+													>
+														Collapse Column
+													</div>
+												</PopoverContent>
+											</Popover>
 										</div>
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
@@ -245,7 +274,6 @@ export const EmptyKanbanDroppable = ({
 												<div>
 													<h2
 														className="flex flex-row font-semibold text-sm not-italic h-full text-black capitalize font-poppins"
-														data-isDragging={snapshot.isDragging}
 														{...provided.dragHandleProps}
 														aria-label={`${title}`}
 													>
@@ -261,37 +289,42 @@ export const EmptyKanbanDroppable = ({
 					)}
 				</Draggable>
 			)}
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+			</Modal>
 		</>
 	);
 };
 
 const KanbanDraggableHeader = ({
 	title,
+	icon,
 	items,
 	snapshot,
+	createTask,
 	provided,
 	backgroundColor
 }: {
 	title: string;
 	items: any;
+	icon: string;
+	createTask: () => void;
 	snapshot: DraggableStateSnapshot;
 	backgroundColor: string;
 	provided: DraggableProvided;
 }) => {
 	const { toggleColumn } = useKanban();
-
 	return (
 		<>
 			{title && (
 				<header
-					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px] z-40'}
+					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px] z-[500]'}
 					style={headerStyleChanger(snapshot, backgroundColor)}
-					data-isDragging={snapshot.isDragging}
 				>
 					<div className="flex flex-row gap-2.5 items-center">
+						<Image alt={title} src={icon} width={20} height={20} />
 						<h2
 							className="text-sm font-semibold not-italic text-black font-poppins capitalize"
-							data-isDragging={snapshot.isDragging}
 							{...provided.dragHandleProps}
 							aria-label={`${title} quote list`}
 						>
@@ -306,9 +339,41 @@ const KanbanDraggableHeader = ({
 						</div>
 					</div>
 					<div className="flex flex-row items-center gap-2">
-						<ThreeDotIcon color="black" />
-						<button onClick={() => toggleColumn(title, true)}>
-							<LeftArrowTailessIcon />
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button variant="ghost" className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md">
+									<ThreeDotIcon color="black" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								align="start"
+								className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
+							>
+								<div
+									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+									onClick={() => createTask()}
+								>
+									Create Task
+								</div>
+								<div
+									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+									onClick={() => toggleColumn(title, true)}
+								>
+									Collapse Column
+								</div>
+								{/* <div
+									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+									onClick={() => toggleColumn(title, true)}
+								>
+									Edit Status
+								</div> */}
+							</PopoverContent>
+						</Popover>
+						<button
+							className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md"
+							onClick={() => toggleColumn(title, true)}
+						>
+							<ChevronLeftIcon className="text-[#1B1D22]" />
 						</button>
 					</div>
 				</header>
@@ -325,14 +390,23 @@ const KanbanDraggableHeader = ({
 const KanbanDraggable = ({
 	index,
 	title,
+	isLoading,
+	icon,
 	items,
 	backgroundColor
 }: {
 	index: number;
 	title: string;
+	icon: string;
+	isLoading: boolean;
 	backgroundColor: any;
 	items: ITeamTask[];
+	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
+	const t = useTranslations();
+	const { isOpen, closeModal, openModal } = useModal();
+	//
+
 	return (
 		<>
 			{title && (
@@ -342,31 +416,37 @@ const KanbanDraggable = ({
 							ref={provided.innerRef}
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
-							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col w-[325px]"
+							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+							className="relative flex flex-col px-2 h-fit w-[355px]"
 						>
 							{title ? (
 								<>
 									<div>
 										<KanbanDraggableHeader
 											title={title}
+											icon={icon}
 											items={items}
 											snapshot={snapshot}
 											provided={provided}
+											createTask={openModal}
 											backgroundColor={backgroundColor}
 										/>
 									</div>
-									<div className="flex flex-col gap-3 ">
+									<div className="flex flex-col ">
 										<KanbanDroppable
+											isLoading={isLoading}
 											title={title}
 											droppableId={title}
 											type={'TASK'}
 											content={items}
 										/>
-										<div className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
-											<AddIcon height={20} width={20} className="dark:stroke-white" />
-											<p>Create Issues</p>
-										</div>
+										<button
+											onClick={() => openModal()}
+											className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+										>
+											<AddIcon className=" h-5 w-5" />
+											<p>{t('common.CREATE_TASK')}</p>
+										</button>
 									</div>
 								</>
 							) : null}
@@ -374,6 +454,9 @@ const KanbanDraggable = ({
 					)}
 				</Draggable>
 			)}
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+			</Modal>
 		</>
 	);
 };

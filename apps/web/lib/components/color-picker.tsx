@@ -6,7 +6,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { useState, useEffect, Fragment, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Dropdown } from './dropdown';
-import { Edit2Icon, TrashIcon } from './svgs';
+import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 
 export const ColorPicker = ({
 	defaultColor,
@@ -99,7 +99,7 @@ export const ColorPicker = ({
 											setDisabled(!disabled);
 										}}
 									>
-										<Edit2Icon className="cursor-pointer" />
+										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
 									</button>
 
 									<span
@@ -109,7 +109,7 @@ export const ColorPicker = ({
 										}}
 										className={`outline-none ${'cursor-pointer'}`}
 									>
-										<TrashIcon />
+										<TrashIcon className="w-5" />
 									</span>
 								</div>
 							)}

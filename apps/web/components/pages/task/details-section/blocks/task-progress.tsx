@@ -8,7 +8,7 @@ import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
-import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 
 const TaskProgress = () => {
@@ -137,9 +137,9 @@ const TaskProgress = () => {
 									</div>
 
 									{!open ? (
-										<ChevronUpIcon className="stroke-[#292D32] dark:stroke-white w-4 h-4" />
+										<ChevronUpIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 									) : (
-										<ChevronDownIcon className="stroke-[#292D32] dark:stroke-white w-4 h-4" />
+										<ChevronDownIcon className="text-[#292D32] dark:text-white w-4 h-4" />
 									)}
 								</Disclosure.Button>
 							) : (

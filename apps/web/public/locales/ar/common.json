@@ -122,6 +122,8 @@
 		"FULL_NAME": "الاسم الكامل",
 		"USER_AVATAR": "صورة المستخدم",
 		"CONTACT": "جهة الاتصال",
+		"ENABLED": "يُمكَِن",
+		"DISABLED": "إبطال",
 		"THEME": "الموضوع",
 		"TIME_ZONE": "المنطقة الزمنية",
 		"EDIT": "تعديل",
@@ -155,6 +157,7 @@
 		"CHILD_ISSUES": "القضايا الفرعية",
 		"REOPEN": "إعادة فتح",
 		"NO_TASKS": "لا توجد مهام",
+		"FULL_WIDTH": "العرض الكامل",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
 
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
@@ -174,10 +177,11 @@
 		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "نحن نعمل على المزامنة في الوقت الحقيقي في الوقت الحالي، يرجى التحقق من هذه الميزة لاحقًا.",
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "سيتم حذف حسابك نهائياً مع إزالته من جميع الفرق",
 		"ALERT_REMOVE_TEAM": "سيتم إزالة الفريق بالكامل من النظام وفقدان أعضاء الفريق للوصول",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "ستتم إزالة جميع بيانات الحساب من جميع الفرق التي تكون فيها مديرًا موجودًا واحدًا فقط",
 		"ALERT_QUIT_TEAM": "أنت على وشك مغادرة الفريق"
 	},
 	"pages": {
@@ -286,6 +290,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "المنطقة الزمنية الخاصة بك",
 			"ABOUT_TO_CHANGE_EMAIL": "أنت على وشك تغيير البريد الإلكتروني",
 			"ABOUT_TO_DELETE_ACCOUNT": "أنت على وشك حذف حسابك؟",
+			"DATA_SYNCHRONIZATION": "مزامنة البيانات",
 			"ABOUT_TO_REMOVE_ACCOUNT": "أنت على وشك إزالة حسابك؟",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
@@ -422,6 +427,11 @@
 			"SELECT_ROLES": "تحديد الأدوار"
 		},
 
+		"unauthorized": {
+			"TITLE": "غير مصرح",
+			"HEADING_TITLE": "أنت غير مفوض لدخول هذه الصفحة",
+			"HEADING_DESCRIPTION": "نعتذر عن الإزعاج، لكن غير مسموح لك بالدخول إلى هذه الصفحة. إذا كنت تعتقد أن هذا خطأ. الرجاء تسجيل الدخول."
+		},
 		"page404": {
 			"HEADING_TITLE": "غير موجود",
 			"HEADING_DESCRIPTION": "المورد الذي تبحث عنه غير موجود!",

@@ -2,6 +2,7 @@ import { DeleteResponse, PaginationResponse, SingleDataResponse } from '@app/int
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@app/interfaces';
+import qs from 'qs';
 
 export function getTeamTasksRequest({
 	tenantId,
@@ -43,10 +44,27 @@ export function getTeamTasksRequest({
 		obj[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(obj);
+	const query = qs.stringify(obj);
 
 	return serverFetch<PaginationResponse<ITeamTask>>({
-		path: `/tasks/team?${query.toString()}`,
+		path: `/tasks/team?${query}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
+export function getTeamTasksIRequest({
+	tenantId,
+	bearer_token,
+	query
+}: {
+	tenantId: string;
+	bearer_token: string;
+	query: string;
+}) {
+	return serverFetch<PaginationResponse<ITeamTask>>({
+		path: `/tasks/team?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId
@@ -90,10 +108,10 @@ export function getTaskByIdRequest({
 		obj[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(obj);
+	const query = qs.stringify(obj);
 
 	return serverFetch<ITeamTask>({
-		path: `/tasks/${taskId}?${query.toString()}`,
+		path: `/tasks/${taskId}?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

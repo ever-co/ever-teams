@@ -4,6 +4,11 @@
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
 		"REJECT": "Afwijzen",
+		"TOMORROW": "Morgen",
+		"YESTERDAY": "Gisteren",
+		"CARDS": "Kaarten",
+		"TABLE": "Tafel",
+		"KANBAN": "Kanban",
 		"REJECTED": "Afgewezen",
 		"VERIFY": "verifiëren",
 		"INVITE": "Uitnodigen",
@@ -36,6 +41,8 @@
 		"ASSIGN_TASK": "Taak toewijzen",
 		"ASSIGN_TASK_TO": "Taak toewijzen",
 		"REMOVE_ACCOUNT": "Account verwijderen",
+		"DELETE_ALL_DATA": "Alle gegevens verwijderen",
+		"DONT_HAVE_ACCOUNT": "Heb je geen account?",
 		"REMOVE_EVERYWHERE": "Overal verwijderen",
 		"DELETE_ACCOUNT": "Dit account verwijderen",
 		"UNASSIGN_TASK": "Taak intrekken",
@@ -120,7 +127,8 @@
 		"FULL_NAME": "Volledige naam",
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
-
+		"ENABLED": "Inschakelen",
+		"DISABLED": "Uitzetten",
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",
 		"EDIT": "Bewerken",
@@ -154,8 +162,8 @@
 		"CHILD_ISSUES": "Onderliggende problemen",
 		"REOPEN": "Heropenen",
 		"NO_TASKS": "Geen taken",
+		"FULL_WIDTH": "Volledige breedte",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u de taak wijzigt",
-
 		"COLLABORATE_DIALOG_TITLE": "Samenwerking starten",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Nodig teamleden uit en begin samen te werken",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Vergadering of bord samenwerking starten",
@@ -165,18 +173,19 @@
 		"FILTER_COMMENTS": "Reacties",
 		"FILTER_HISTORY": "Geschiedenis",
 		"FILTER_UNSUBSCRIBE": "Afmelden",
-
+		"REGISTER": "Registreren",
 		"KEYBOARD_SHORTCUTS": "Sneltoetsen",
-
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activeer GitHub-integratie voor project- en repository-synchronisatie",
 		"GITHUB_LOADING_TEXT": "We zijn nu uw GitHub-integratie aan het installeren, even geduld...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchroniseer taken automatisch in uw applicatie voor naadloze en efficiënte updates.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchroniseer taken selectief door ze te koppelen aan een specifiek label.",
 		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Alle accountgegevens worden verwijderd uit alle teams waar je ALLEEN een bestaande manager bent.",
 		"ALERT_REMOVE_TEAM": "Team wordt volledig verwijderd uit het systeem en teamleden verliezen toegang",
 		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten"
 	},
@@ -191,7 +200,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "Weet u zeker dat u de uitnodiging wilt accepteren?",
 			"CONFIRM_REJECT_INVITATION": "Weet u zeker dat u de uitnodiging wilt afwijzen?"
 		},
-
+		"kanban": {
+			"KANBAN_BOARD": "Kanban-bord"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]"
 		},
@@ -221,14 +232,11 @@
 			"CREATED": "Gemaakt",
 			"UPDATED": "Bijgewerkt",
 			"RESOLVED": "Opgelost",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "We konden de taaktitel niet bijwerken.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "De taaktitel kan niet langer zijn dan 255 tekens.",
-
 			"TASK_IS_ALREADY_EPIC": "Epic taaktype kan niet worden gewijzigd.",
 			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft."
 		},
-
 		"auth": {
 			"SEND_CODE": "code verzenden",
 			"JOIN": "Word lid",
@@ -238,7 +246,6 @@
 			"INPUT_INVITE_CODE_DESC": "Voer de uitnodigingscode in die we naar uw e-mail hebben gestuurd.",
 			"INVALID_INVITE_CODE_MESSAGE": "Ongeldige code",
 			"WELCOME_TEAMS": "Welkom bij Ever Teams",
-
 			"COVER_TITLE": "Volg de werkvoortgang van uw teams in realtime!",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Inloggen",
@@ -253,10 +260,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "Login bij het team",
 			"HEADING_DESCRIPTION": "Voer e-mail en uitnodigingscode in om in te loggen.",
-
 			"WORKSPACE": "Werkruimte",
 			"HEADING_WORKSPACE_LINE1": "Het e-mailadres is gekoppeld aan meerdere werkruimtes,",
-			"HEADING_WORKSPACE_LINE2": "selecteer er een om door te gaan"
+			"HEADING_WORKSPACE_LINE2": "selecteer er een om door te gaan",
+			"HAVE_PASSWORD": "Wachtwoord hebben?",
+			"LOGIN_WITH_PASSWORD": "Log in met het wachtwoord",
+			"LOGIN_WITH_MAGIC_CODE": "Log in met een magische code"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "Voer uw inloggegevens in."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Nieuw team maken",
@@ -278,11 +290,14 @@
 			"HEADING_TITLE": "Algemene instellingen",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "U staat op het punt uit alle teams te worden verwijderd, tenzij u de enige manager bent?",
 			"WORK_SCHEDULE": "Werkschema",
 			"SUBSCRIPTION": "Abonnement",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Uw tijdzone",
 			"ABOUT_TO_CHANGE_EMAIL": "U staat op het punt het e-mailadres te wijzigen",
 			"ABOUT_TO_DELETE_ACCOUNT": "U staat op het punt uw account te verwijderen?",
+			"DATA_SYNCHRONIZATION": "Gegevenssynchronisatie",
 			"ABOUT_TO_REMOVE_ACCOUNT": "U staat op het punt uw account te verwijderen?"
 		},
 		"settingsTeam": {
@@ -294,7 +309,6 @@
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
 			"TIME_TRACKING": "Tijd bijhouden",
-
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",
@@ -304,7 +318,6 @@
 			"TASK_LABELS": "Taaklabels",
 			"ISSUE_TYPES": "Probleemtypen",
 			"RELATED_TYPE": "Gerelateerd type",
-
 			"INVITATION_HEADING_TITLE": "Uitnodigingen",
 			"CREATE_NEW_STATUSES": "Nieuwe statussen maken",
 			"CREATE_NEW_STATUS": "Nieuwe status maken",
@@ -316,7 +329,6 @@
 			"CREATE_NEW_LABELS": "Nieuwe labels maken",
 			"CREATE_NEW_LABEL": "Nieuw label maken",
 			"CREATE_NEW_ISSUE_TYPES": "Nieuwe problemen maken",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "Persoonlijke ledeninformatie verbergen",
 			"POSITION_CUSTOM": "Posities aanpassen",
 			"INVITATION_EXPIRATION": "Verloop uitnodiging",
@@ -326,19 +338,15 @@
 			"MEMBER_AND_ROLES": "Leden & rollen",
 			"INTEGRATIONS": "Integraties",
 			"DANDER_ZONES": "Gevaarlijke zone",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "Verbind met GitHub en begin GitHub-issues te synchroniseren met uw team",
 			"SELECT_REPOSITORY": "Selecteer opslagplaats",
-
 			"INSTALL": "Installeren",
-
 			"LIST_OF_STATUSES": "Lijst met statussen",
 			"LIST_OF_PRIORITIES": "Lijst met prioriteiten",
 			"LIST_OF_SIZES": "Lijst met formaten",
 			"LIST_OF_LABELS": "Lijst met labels",
 			"LIST_OF_ISSUES_TYPE": "Lijst met problemen",
-
 			"GENERAL": "Algemeen",
 			"SOUND": "Geluid",
 			"EMAIL": "E-mail",
@@ -349,7 +357,6 @@
 			"INAPP": "In app",
 			"NOTIFICATION_HEADING_TITLE": "Meldingen instellen",
 			"ISSUE_HEADING_TITLE": "Probleeminstellingen",
-
 			"TASK_PRIVACY": "Taakprivacy",
 			"MULTIPLE_ASSIGNEES": "Meerdere toegewezenen",
 			"MANUAL_TIME": "Handmatige tijd",
@@ -381,7 +388,6 @@
 			"TEAM_SIZE": "Teamgrootte",
 			"EMOJI": "Emoji",
 			"ISSUES_HEADING_TITLE": "Probleeminstellingen",
-
 			"TRACK_TIME": "Tijd bijhouden",
 			"ESTIMATE_ISSUE": "Probleem schatten",
 			"EPICS_CREATE_CLOSE": "Epics maken/sluiten",
@@ -392,7 +398,6 @@
 			"HANDLE_REQUESTS": "Verzoeken behandelen",
 			"ROLES_POSITIONS_CHANGE": "Rollen/posities wijzigen",
 			"VIEW_DETAILS": "Details bekijken",
-
 			"NO_INVITATIONS": "Er zijn op dit moment geen uitnodigingen!",
 			"NO_MEMBERS": "Er zijn op dit moment geen leden!"
 		},
@@ -401,24 +406,29 @@
 			"HEADING_DESCRIPTION": "Send invitation to a team member by email",
 			"TEAM_MEMBER_EMAIL": "Team Member's Email",
 			"TEAM_MEMBER_FULLNAME": "Team Member's Full Name",
-			"SEND_INVITE": "Send Invitation",
-			"ERROR_WHILE_ACCEPTING_INVITATION": "Error while accepting invitation",
-			"ERROR_WHILE_REJECTING_INVITATION": "Error while rejecting invitation",
-			"INVITE_LABEL_SEND": "Send Invite",
+			"SEND_INVITE": "Verstuur uitnodiging",
+			"ERROR_WHILE_ACCEPTING_INVITATION": "Fout tijdens het accepteren van de uitnodiging",
+			"ERROR_WHILE_REJECTING_INVITATION": "Fout tijdens het weigeren van de uitnodiging",
+			"INVITE_LABEL_SEND": "Verstuur uitnodiging",
 			"invitationTable": {
-				"NAME_AND_EMAIL": "Name & Email",
-				"POSITION": "Position",
-				"DATE_AND_TIME_REQUEST": "Date & Time Request",
-				"CV_OR_ATTACHMENT": "CV / Attachement"
+				"NAME_AND_EMAIL": "Naam & E-mail",
+				"POSITION": "Positie",
+				"DATE_AND_TIME_REQUEST": "Datum & Tijd Aanvraag",
+				"CV_OR_ATTACHMENT": "CV / Bijlage"
 			}
 		},
 		"permissions": {
-			"SELECT_ROLES": "Select Roles"
+			"SELECT_ROLES": "Rollen selecteren"
+		},
+		"unauthorized": {
+			"TITLE": "Ongeautoriseerd",
+			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
+			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in"
 		},
 		"page404": {
-			"HEADING_TITLE": "Not Found",
-			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
-			"LINK_LABEL": "Go to homepage"
+			"HEADING_TITLE": "Niet gevonden",
+			"HEADING_DESCRIPTION": "De bron die u zoekt is niet gevonden!",
+			"LINK_LABEL": "Naar de startpagina"
 		},
 		"offline": {
 			"HEADING_TITLE": "Netwerk Verbroken!",
@@ -434,19 +444,41 @@
 			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
 		}
 	},
-
 	"timer": {
+		"ACTIVE": "Actief",
+		"APPS": "Apps",
+		"ARCHIVED": "Gearchiveerd",
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
 		},
+		"INACTIVE": "Inactief",
+		"KEYBOARD": "toetsenbord",
+		"MOUSE": "muis",
+		"NO_SCREENSHOOT": "Geen schermafbeeldingen",
+		"NOT_ARCHIVED": "Niet gearchiveerd",
+		"OTHER_DETAILS": "Andere details",
+		"PERCENT_OF_MINUTES": " % van 10 minuten",
+		"PERCENT_USED": "Gebruikt percentage",
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schatten"
 		},
-		"DAY_LIST": [{ "title": "7 dagen" }, { "title": "14 dagen" }]
+		"THERE_IS_NO_APPS_VISITED": "Er zijn geen apps bezocht.",
+		"TIME_ACTIVITY": "Activiteit",
+		"TIME_SPENT_IN_HOURS": "Tijd besteed (Uren)",
+		"TIMES": "Keer",
+		"TOTAL_HOURS": "Totaal uren",
+		"VISITED_DATES": "Bezochte data",
+		"DAY_LIST": [
+			{
+				"title": "7 dagen"
+			},
+			{
+				"title": "14 dagen"
+			}
+		]
 	},
-
 	"task": {
 		"TITLE": "Taak",
 		"ASSIGN_NEW_TASK": "Nieuwe taak toewijzen",
@@ -487,19 +519,16 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten"
 	},
-
 	"form": {
 		"NAME_PLACEHOLDER": "Voer uw naam in",
 		"FIRST_NAME_PLACEHOLDER": "Voornaam",
 		"LAST_NAME_PLACEHOLDER": "Achternaam",
 		"EMAIL_PLACEHOLDER": "Voer uw e-mailadres in",
+		"PASSWORD_PLACEHOLDER": "Voer uw wachtwoord in",
 		"PHONE_PLACEHOLDER": "Telefoonnummer",
-
 		"ISSUE_NAME_PLACEHOLDER": "Probleemnaam",
-
 		"TEAM_NAME_PLACEHOLDER": "Voer uw teamnaam in",
 		"TASK_INPUT_PLACEHOLDER": "Waar werk je aan?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Teamlidnaam",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "E-mailadres teamlid",
 		"COMPLETION_DESCRIPTION": "Schrijf de omschrijving",
@@ -511,7 +540,6 @@
 		"SELECT_TEAM_SIZE": "Selecteer teamgrootte",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Alle rechten voorbehouden.",
@@ -525,7 +553,6 @@
 			"BY": "Door"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "netwerkprobleem, probeer het later nog eens",
 		"ERROR_WHILE_VERIFY_CODE": "Fout tijdens verificatiecode.",

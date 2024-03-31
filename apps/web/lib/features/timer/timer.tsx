@@ -58,43 +58,51 @@ export function Timer({ className }: IClassName) {
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
-		<div className={clsxm('flex flex-row mb-6 md:mb-12 2xl:mb-0', className)}>
-			<div className="flex items-start justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
-				<div className="w-[11rem]">
-					<Text.Heading
-						as="h3"
-						className={`lg:text-4xl text-2xl tracking-wide font-normal ${
-							timerStatus?.running &&
-							timerStatus?.lastLog?.source &&
-							timerStatus?.lastLog?.source !== TimerSource.TEAMS
-								? 'text-[#888] dark:text-[#888]'
-								: ''
-						} `}
-					>
-						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-						<span className="text-sm">:{pad(ms_p)}</span>
-					</Text.Heading>
-
-					<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
-				</div>
-				<div className="w-[0.625rem]">
-					{timerStatus && timerStatus.running && (
-						<Tooltip
-							label={`The time tracker is already running in the ${(
-								timerStatus?.lastLog?.source || TimerSource.TEAMS
-							)
-								.split('_')
-								.join(' ')
-								.toLowerCase()}`}
-							placement="bottom-start"
+		<div
+			className={clsxm(
+				'flex space-x-2 lg:flex-col xl:flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
+				className
+			)}
+		>
+			<div className="xl:w-4/5 space-x-2 w-full flex justify-center items-center pr-2">
+				<div className="flex items-start justify-between w-full">
+					<div className="w-full mx-auto">
+						<Text.Heading
+							as="h3"
+							className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
+								timerStatus?.running &&
+								timerStatus?.lastLog?.source &&
+								timerStatus?.lastLog?.source !== TimerSource.TEAMS
+									? 'text-[#888] dark:text-[#888]'
+									: ''
+							} `}
 						>
-							<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || TimerSource.TEAMS} />
-						</Tooltip>
-					)}
+							{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+							<span className="text-sm">:{pad(ms_p)}</span>
+						</Text.Heading>
+
+						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
+					</div>
+					<div>
+						{timerStatus && timerStatus.running && (
+							<Tooltip
+								label={`The time tracker is already running in the ${(
+									timerStatus?.lastLog?.source || TimerSource.TEAMS
+								)
+									.split('_')
+									.join(' ')
+									.toLowerCase()}`}
+								placement="bottom-start"
+							>
+								<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || TimerSource.TEAMS} />
+							</Tooltip>
+						)}
+					</div>
 				</div>
 			</div>
 
-			<div className="ml-5 z-[50]">
+			<VerticalSeparator />
+			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
 				<Tooltip
 					label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 					placement="top-start"

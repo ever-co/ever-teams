@@ -120,6 +120,8 @@
 		"FULL_NAME": "Voller Name",
 		"USER_AVATAR": "Benutzeravatar",
 		"CONTACT": "Kontakt",
+		"ENABLED": "aktivieren",
+		"DISABLED": "deaktivieren",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Zeitzone",
@@ -154,6 +156,7 @@
 		"CHILD_ISSUES": "Untergeordnete Tickets",
 		"REOPEN": "Wieder öffnen",
 		"NO_TASKS": "Keine Aufgaben",
+		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
 
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",
@@ -174,10 +177,11 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Auto-Sync-Label auswählen"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Wir arbeiten derzeit an der Echtzeitsynchronisierung. Bitte überprüfen Sie diese Funktion später.",
 		"ALERT_DELETE_ACCOUNT": "Das Konto wird von allen Teams entfernt, außer wo Sie nur Manager sind",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Alle Kontodaten werden aus allen Teams entfernt, in denen Sie NUR ein bestehender Manager sind.",
 		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen"
 	},
 	"pages": {
@@ -284,6 +288,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Ihre Zeitzone",
 			"ABOUT_TO_CHANGE_EMAIL": "Sie sind im Begriff, die E-Mail zu ändern",
 			"ABOUT_TO_DELETE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu löschen?",
+			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_REMOVE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu entfernen?",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
@@ -418,6 +423,11 @@
 		"permissions": {
 			"SELECT_ROLES": "Rollen auswählen"
 		},
+		"unauthorized": {
+			"TITLE": "Nicht autorisiert",
+			"HEADING_TITLE": "Sie sind nicht autorisiert auf diese Seite zuzugreifen !",
+			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein."
+		},
 		"page404": {
 			"HEADING_TITLE": "Nicht gefunden",
 			"HEADING_DESCRIPTION": "Die gesuchte Ressource wurde nicht gefunden!",
@@ -433,8 +443,8 @@
 			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
 		},
 		"maintenance": {
-			"HEADING_TITLE": "我們正在維護中",
-			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
+			"HEADING_TITLE": "Wir halten es instand.",
+			"HEADING_DESCRIPTION": "Wir aktualisieren derzeit unsere Website, um Sie besser bedienen zu können. Bitte schauen Sie später wieder vorbei."
 		}
 	},
 	"timer": {

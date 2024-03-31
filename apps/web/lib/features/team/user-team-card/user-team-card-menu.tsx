@@ -4,10 +4,10 @@ import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
-import { MoreIcon } from 'lib/components/svgs';
 import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -77,7 +77,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 	return (
 		<Popover
-			className="relative"
+			className="relative w-full flex flex-col items-center justify-center"
 			ref={mergeRefs([
 				edition.estimateEditIgnoreElement.ignoreElementRef,
 				edition.taskEditIgnoreElement.ignoreElementRef
@@ -91,7 +91,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 						menu.length === 0 && ['opacity-50 hidden']
 					)}
 				>
-					<MoreIcon className="dark:stroke-[#B1AEBC]" />
+					<ThreeCircleOutlineVerticalIcon className="w-6 dark:text-[#B1AEBC]" strokeWidth="1.4" />
 				</Popover.Button>
 			)}
 			{loading && <SpinnerLoader size={20} />}

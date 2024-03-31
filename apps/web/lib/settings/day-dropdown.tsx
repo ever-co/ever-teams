@@ -9,7 +9,7 @@ import { DayItem, mapDayItems } from './day-items';
 
 export const DayDropdown = ({ setValue, active }: { setValue: UseFormSetValue<FieldValues>; active?: IDay | null }) => {
 	const t = useTranslations();
-	const [DayList, setDay] = useState<IDay[]>(JSON.parse(t('timer.DAY_LIST')));
+	const [DayList, setDay] = useState<IDay[]>(JSON.parse(t('pages.taskDetails.DAYS_REMAINING')));
 
 	const items: any = useMemo(() => mapDayItems(DayList), [DayList]);
 

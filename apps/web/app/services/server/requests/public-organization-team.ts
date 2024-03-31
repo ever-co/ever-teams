@@ -1,6 +1,7 @@
 import { IOrganizationTeamWithMStatus } from '@app/interfaces';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
+import qs from 'qs';
 
 export function getPublicOrganizationTeamRequest({
 	profileLink,
@@ -30,7 +31,8 @@ export function getPublicOrganizationTeamRequest({
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = qs.stringify(params);
+
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
 		method: 'GET'
@@ -56,7 +58,8 @@ export function getPublicOrganizationTeamMiscDataRequest({
 		params[`relations[${i}]`] = rl;
 	});
 
-	const queries = new URLSearchParams(params || {});
+	const queries = qs.stringify(params);
+
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
 		method: 'GET'

@@ -15,99 +15,101 @@ const FIRST_STEP = 'STEP1' as const;
 const SECOND_STEP = 'STEP2' as const;
 
 export interface IStepProps {
-  handleOnChange: any;
-  form: IRegisterDataAPI;
+	handleOnChange: any;
+	form: IRegisterDataAPI;
 }
 
 const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY
-  ? {
-      name: '',
-      email: '',
-      team: '',
-      recaptcha: ''
-    }
-  : {
-      name: '',
-      email: '',
-      team: ''
-    };
+	? {
+			name: '',
+			email: '',
+			team: '',
+			recaptcha: ''
+	  }
+	: {
+			name: '',
+			email: '',
+			team: ''
+	  };
+
 export function useAuthenticationTeam() {
-  const query = useSearchParams();
-  const queryEmail = useMemo(() => {
-    const emailQuery =
-      query?.get('email') ||
-      localStorage?.getItem('ever-teams-start-email') ||
-      '';
-    return emailQuery;
-  }, [query]);
-  initialValues.email = queryEmail;
-  const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(
-    FIRST_STEP
-  );
-  const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
-  const [errors, setErrors] = useState(initialValues);
-  const { queryCall, loading, infiniteLoading } = useQuery(registerUserTeamAPI);
+	const query = useSearchParams();
+	const queryEmail = useMemo(() => {
+		let localEmail: null | string = null;
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    if (step === FIRST_STEP) {
-      const { errors, valid } = authFormValidate(['team'], formValues);
-      setErrors(errors as any);
-      valid && setStep(SECOND_STEP);
-      return;
-    }
+		if (typeof localStorage !== 'undefined') {
+			localEmail = localStorage?.getItem('ever-teams-start-email');
+		}
 
-    const noRecaptchaArray = ['email', 'name'];
+		const emailQuery = query?.get('email') || localEmail || '';
+		return emailQuery;
+	}, [query]);
 
-    const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
+	initialValues.email = queryEmail;
 
-    const validationFields = RECAPTCHA_SITE_KEY
-      ? withRecaptchaArray
-      : noRecaptchaArray;
+	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
+	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
+	const [errors, setErrors] = useState(initialValues);
+	const { queryCall, loading, infiniteLoading } = useQuery(registerUserTeamAPI);
 
-    const { errors, valid } = authFormValidate(validationFields, formValues);
+	const handleSubmit = (e: any) => {
+		e.preventDefault();
+		if (step === FIRST_STEP) {
+			const { errors, valid } = authFormValidate(['team'], formValues);
+			setErrors(errors as any);
+			valid && setStep(SECOND_STEP);
+			return;
+		}
 
-    if (!valid) {
-      setErrors(errors as any);
-      return;
-    }
+		const noRecaptchaArray = ['email', 'name'];
 
-    formValues['timezone'] = userTimezone();
-    infiniteLoading.current = true;
+		const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
 
-    queryCall(formValues)
-      .then(() => window.location.reload())
-      .catch((err: AxiosError) => {
-        if (err.response?.status === 400) {
-          setErrors((err.response?.data as any)?.errors || {});
-        }
-      });
-  };
+		const validationFields = RECAPTCHA_SITE_KEY ? withRecaptchaArray : noRecaptchaArray;
 
-  const handleOnChange = useCallback(
-    (e: any) => {
-      const { name, value } = e.target;
-      const key = name as keyof IRegisterDataAPI;
-      if (errors[key]) {
-        errors[key] = '';
-      }
-      setFormValues((prevState) => ({
-        ...prevState,
-        [name]: value
-      }));
-    },
-    [errors]
-  );
+		const { errors, valid } = authFormValidate(validationFields, formValues);
 
-  return {
-    handleSubmit,
-    handleOnChange,
-    loading,
-    FIRST_STEP,
-    step,
-    SECOND_STEP,
-    setStep,
-    errors,
-    formValues
-  };
+		if (!valid) {
+			setErrors(errors as any);
+			return;
+		}
+
+		formValues['timezone'] = userTimezone();
+		infiniteLoading.current = true;
+
+		queryCall(formValues)
+			.then(() => window.location.reload())
+			.catch((err: AxiosError) => {
+				if (err.response?.status === 400) {
+					setErrors((err.response?.data as any)?.errors || {});
+				}
+			});
+	};
+
+	const handleOnChange = useCallback(
+		(e: any) => {
+			const { name, value } = e.target;
+			const key = name as keyof IRegisterDataAPI;
+			if (errors[key]) {
+				errors[key] = '';
+			}
+			setFormValues((prevState) => ({
+				...prevState,
+				[name]: value
+			}));
+		},
+		[errors]
+	);
+
+	return {
+		handleSubmit,
+		handleOnChange,
+		loading,
+		FIRST_STEP,
+		step,
+		SECOND_STEP,
+		setStep,
+		errors,
+		formValues
+	};
 }

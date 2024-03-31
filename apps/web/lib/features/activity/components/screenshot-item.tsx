@@ -3,7 +3,7 @@ import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { IScreenShootItem } from '@app/interfaces/IScreenshoot';
 import { clsxm } from '@app/utils';
 import { Button, Modal, ProgressBar } from 'lib/components';
-import { TrashIcon } from 'lib/components/svgs';
+import { TrashIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import React from 'react';
@@ -24,7 +24,7 @@ const ScreenshotItem = ({
 	return (
 		<div
 			className={clsxm(
-				'rounded-lg shadow-md hover:shadow-lg  border dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
+				'rounded-lg shadow-md hover:shadow-lg  dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
 				!showProgress && !isTeamPage && '!h-48 dark:!bg-[#191a20]',
 				isTeamPage && '!h-32'
 			)}
@@ -39,7 +39,7 @@ const ScreenshotItem = ({
 					className="rounded-full bg-red-200 top-1 right-1 absolute w-8 h-8 flex justify-center items-center text-center cursor-pointer"
 					onClick={() => openModal()}
 				>
-					<TrashIcon className="text-white text-center" />
+					<TrashIcon className="text-white text-center w-3.5" />
 				</div>
 				<Image
 					src={imageUrl}
@@ -49,7 +49,10 @@ const ScreenshotItem = ({
 					className="w-full h-full object-cover"
 				/>
 			</div>
-			<div className={clsxm('w-full h-1/2 p-4 cursor-pointer', !showProgress && '!h-1/3')} onClick={onShow}>
+			<div
+				className={clsxm('w-full h-1/2 p-4 cursor-pointer bg-white', !showProgress && '!h-1/3')}
+				onClick={onShow}
+			>
 				{showProgress ? (
 					<>
 						<h4 className="font-semibold text-xs">

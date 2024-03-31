@@ -7,7 +7,8 @@ import { ITeamTask } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lib/components/svgs';
+import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
+import { AddIcon } from 'assets/svg';
 
 export const ChildIssueCard = () => {
 	const { trans } = useTranslation();
@@ -36,19 +37,18 @@ export const ChildIssueCard = () => {
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
 				<p className="text-base font-semibold">{trans.common.CHILD_ISSUES}</p>
-
 				<div className="flex items-center justify-end gap-2.5">
 					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
 						<span onClick={modal.openModal}>
-							<PlusIcon className="h-7 w-7 stroke-[#B1AEBC] dark:stroke-white cursor-pointer" />
+							<AddIcon className="h-4 w-4 text-[#B1AEBC] dark:text-white cursor-pointer mr-1.5" />
 						</span>
 					</div>
 
 					<button onClick={() => setHidden((e) => !e)}>
 						{hidden ? (
-							<ChevronDownIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
+							<ChevronDownIcon className="h-4 w-4 text-[#293241] dark:text-white cursor-pointer" />
 						) : (
-							<ChevronUpIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
+							<ChevronUpIcon className="h-4 w-4 text-[#293241] dark:text-white cursor-pointer" />
 						)}
 					</button>
 				</div>

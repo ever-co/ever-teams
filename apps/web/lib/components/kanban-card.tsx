@@ -1,14 +1,22 @@
-import VerticalThreeDot from '@components/ui/svgs/vertical-three-dot';
 import { DraggableProvided } from 'react-beautiful-dnd';
-import CircularProgress from '@components/ui/svgs/circular-progress';
 import PriorityIcon from '@components/ui/svgs/priority-icon';
-import { Tag } from '@app/interfaces';
-import { useTimerView } from '@app/hooks';
-import { pad } from '@app/helpers';
-import { TaskStatus } from '@app/constants';
-import { TaskIssueStatus } from 'lib/features';
+import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
+import {
+	useAuthenticateUser,
+	useCollaborative,
+	useOrganizationTeams,
+	useTMCardTaskEdit,
+	useTaskStatistics,
+	useTeamMemberCard
+} from '@app/hooks';
+import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
+import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
-import ImageOverlapper, { IImageOverlapper } from './image-overlapper';
+import CircularProgress from '@components/ui/svgs/circular-progress';
+import { HorizontalSeparator } from './separator';
+import { secondsToTime } from '@app/helpers';
+import { UserTeamCardMenu } from 'lib/features/team/user-team-card/user-team-card-menu';
+import { TaskStatus } from '@app/constants';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -60,8 +68,9 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 		</>
 	);
 }
-
-function TagList({ tags }: { tags: Tag[] }) {
+// TODO: remove this component, it is using only in kanban and now we uses the previous component
+// added export to remove lint error
+export function TagList({ tags }: { tags: Tag[] }) {
 	return (
 		<>
 			<div className="flex flex-wrap gap-1 items-center">
@@ -73,121 +82,190 @@ function TagList({ tags }: { tags: Tag[] }) {
 	);
 }
 
-
-function Priority({ level }: { level: number }) {
-	const numberArray = Array.from({ length: level }, (_, index) => index + 1);
+function Priority({ level }: { level: ITaskPriority }) {
+	const levelSmallCase = level.toString().toLowerCase();
+	const levelIntoNumber =
+		levelSmallCase === 'low' ? 1 : levelSmallCase === 'medium' ? 2 : levelSmallCase === 'high' ? 3 : 4;
+	const numberArray = Array.from({ length: levelIntoNumber }, (_, index) => index + 1);
 
 	return (
 		<>
-			<div className="flex flex-col">
+			<div
+				style={{
+					marginTop: -4.5 * levelIntoNumber
+				}}
+				className="flex flex-col relative "
+			>
 				{numberArray.map((item: any, index: number) => {
-					return <PriorityIcon key={index} />;
+					return (
+						<span
+							key={index}
+							style={{
+								top: `${index * 4}px`
+							}}
+							className="absolute"
+						>
+							<PriorityIcon />
+						</span>
+					);
 				})}
 			</div>
 		</>
 	);
 }
+type ItemProps = {
+	item: ITeamTask;
+	isDragging: boolean;
+	isGroupedOver: boolean;
+	provided: DraggableProvided;
+	style: any;
+	isClone: boolean;
+	index: number;
+};
 
 /**
- * card that represent each task
+ * Card that represents each task
  * @param props
  * @returns
  */
-export default function Item(props: any) {
-	const { item, isDragging, isGroupedOver, provided, style, isClone, index } = props;
+export default function Item(props: ItemProps) {
+	const { item, isDragging, provided, style } = props;
+	const { activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+	const { getEstimation } = useTaskStatistics(0);
 
-	const { hours, minutes, seconds } = useTimerView();
+	const members = activeTeam?.members || [];
+	const currentUser = members.find((m) => m.employee.userId === user?.id);
+	let totalWorkedTasksTimer = 0;
+	activeTeam?.members?.forEach((member) => {
+		const totalWorkedTasks = member?.totalWorkedTasks?.find((i) => i.id === item?.id) || null;
+		if (totalWorkedTasks) {
+			totalWorkedTasksTimer += totalWorkedTasks.duration;
+		}
+	});
 
-	const taskAssignee: IImageOverlapper[] = [];
+	const memberInfo = useTeamMemberCard(currentUser);
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
-	item.members.map((member: any)=> {
-		taskAssignee.push({
+	const taskAssignee: ImageOverlapperProps[] = item.members.map((member: any) => {
+		return {
 			id: member.user.id,
 			url: member.user.imageUrl,
 			alt: member.user.firstName
-		})
+		};
 	});
+	const { collaborativeSelect } = useCollaborative(memberInfo.memberUser);
 
-	// const handleTime = () => {
-	// 	if (item.status === TaskStatus.INPROGRESS) {
-	// 		startTimer();
-	// 	} else {
-	// 		stopTimer();
-	// 	}
-	// };
+	const menu = <>{!collaborativeSelect && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}</>;
+	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
+	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
 
-	// useEffect(() => {
-	// 	handleTime();
-	// }, [timerStatus?.running]);
-
+	const { h, m, s } = secondsToTime(
+		(currentMember?.totalWorkedTasks &&
+			currentMember?.totalWorkedTasks?.length &&
+			currentMember?.totalWorkedTasks
+				.filter((t) => t.id === item?.id)
+				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+			0
+	);
 	return (
-		<section
-			href={``}
-			isDragging={isDragging}
-			isGroupedOver={isGroupedOver}
-			isClone={isClone}
+		<div
+			draggable={isDragging}
 			ref={provided.innerRef}
 			{...provided.draggableProps}
 			{...provided.dragHandleProps}
 			style={getStyle(provided, style)}
-			className="flex flex-col rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
-			data-is-dragging={isDragging}
-			data-testid={item.id}
-			data-index={index}
-			aria-label={`${item.status.name} ${item.content}`}
+			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
+			aria-label={item.label}
 		>
-			<div className="grid grid-cols-4 w-full justify-between border-b border-b-gray-200 pb-4">
-				<div className="col-span-3 flex flex-col gap-5 grow w-full">
-					{item.tags && <TagList tags={item.tags} />}
-
-					<div className="flex flex-row flex-wrap text-wrap items-center text-sm not-italic font-semibold">
-						<TaskIssueStatus
-							showIssueLabels={false}
-							task={item}
-							className={`${
-								item.issueType === 'Bug'
-									? '!px-[0.3312rem] py-[0.2875rem]'
-									: '!px-[0.375rem] py-[0.375rem]'
-							} rounded-sm mr-1`}
-						/>
-
-						<span className="text-grey text-normal mr-1">#{item.number}</span>
-						<Link href={`/task/${item.id}`} className="text-black dark:text-white text-normal capitalize mr-2 bg-blue line-clamp-2">
-							{item.title}
-						</Link>
-						<Priority level={1} />
-					</div>
+			<div className="w-full justify-between h-fit">
+				<div className="w-full flex justify-between">
+					<span className="!w-64">
+						<TaskAllStatusTypes className="justify-start" task={item} showStatus={false} />
+					</span>
+					<span>{menu}</span>
 				</div>
-				<div className="flex flex-col justify-between items-end">
-					<VerticalThreeDot />
+				<div className="w-full flex justify-between my-3">
+					<div className="flex items-center w-64">
+						{!taskEdition.editMode ? (
+							<>
+								<Link href={`/task/${item.id}`}>
+									<div className="w-64 relative overflow-hidden">
+										{item.issueType && (
+											<span className="h-5 w-6 inline-block ">
+												<span className="absolute top-1">
+													<TaskIssueStatus
+														showIssueLabels={false}
+														type="HORIZONTAL"
+														task={item}
+														className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
+													/>
+												</span>
+											</span>
+										)}
+										<span className="text-grey text-normal mx-1">#{item.number}</span>
+										{item.title}
+										<span className="inline-block ml-1">
+											{item.priority && <Priority level={item.priority} />}
+										</span>
+									</div>
+								</Link>
+							</>
+						) : (
+							<div className="w-56">
+								<TaskInput
+									task={taskEdition.task}
+									initEditMode={true}
+									keepOpen={true}
+									showCombobox={false}
+									autoFocus={true}
+									autoInputSelectText={true}
+									onTaskClick={(e) => {
+										// TODO: implement
+										console.log(e);
+									}}
+									onEnterKey={() => {
+										taskEdition.setEditMode(false);
+									}}
+								/>
+							</div>
+						)}
+					</div>
 
-					<CircularProgress percentage={10} />
+					<CircularProgress percentage={progress} />
+				</div>
+				<div className="my-2">
+					<HorizontalSeparator />
+				</div>
+				<div className="w-full h-10 flex items-center justify-between">
+					<div>
+						{item.status === TaskStatus.INPROGRESS ? (
+							<div className="flex items-center gap-2">
+								<small className="text-grey text-xs text-normal">Live:</small>
+								<p className="text-[#219653] font-medium text-sm">
+									{h}h : {m}m : {s}s
+								</p>
+							</div>
+						) : (
+							<div className="flex items-center gap-2">
+								<small className="text-grey text-xs text-normal">Worked:</small>
+								<p className="text-black dark:text-white font-medium w-20 text-sm">
+									{h}h : {m}m : {s}s
+								</p>
+							</div>
+						)}
+					</div>
+					<ImageComponent radius={30} images={taskAssignee} />
+					{item.issueType && (
+						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
+							<div
+								className="w-3.5 h-3.5 rounded-full"
+								style={setCommentIconColor(item.issueType as any)}
+							></div>
+						</div>
+					)}
 				</div>
 			</div>
-			<div className="flex flex-row justify-between items-center pt-4 h-fit">
-				{item.status === TaskStatus.INPROGRESS ? (
-					<div className="flex flex-row items-center gap-2">
-						<small className="text-grey text-xs text-normal">Live:</small>
-						<p className="text-[#219653] font-medium text-sm">
-							{pad(hours)}:{pad(minutes)}:{pad(seconds)}{' '}
-						</p>
-					</div>
-				) : (
-					<div className="flex flex-row items-center gap-2">
-						<small className="text-grey text-xs text-normal">Worked:</small>
-						<p className="text-black dark:text-white font-medium text-sm">
-							{pad(hours)}:{pad(minutes)}:{pad(seconds)}{' '}
-						</p>
-					</div>
-				)}
-				<ImageOverlapper images={taskAssignee}/>
-				
-			</div>
-			{item.hasComment && (
-				<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-10 bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
-					<div className="w-3.5 h-3.5 rounded-full" style={setCommentIconColor(item.hasComment)}></div>
-				</div>
-			)}
-		</section>
+		</div>
 	);
 }

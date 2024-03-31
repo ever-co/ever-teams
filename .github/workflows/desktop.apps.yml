@@ -24,12 +24,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'ever-co/ever-gauzy'
-          ref: develop
+          ref: master
 
       - name: Install Node.js, NPM and Yarn
         uses: buildjet/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20.11.1'
           cache: 'yarn'
 
       - name: Change permissions
@@ -108,12 +108,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'ever-co/ever-gauzy'
-          ref: develop
+          ref: master
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20.11.1'
           cache: 'yarn'
 
       - name: Fix node-gyp and Python
@@ -186,12 +186,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'ever-co/ever-gauzy'
-          ref: develop
+          ref: master
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20.11.1'
           cache: 'yarn'
 
       - name: Fix node-gyp and Python

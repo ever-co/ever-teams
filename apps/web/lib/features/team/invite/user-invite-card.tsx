@@ -2,6 +2,7 @@ import { useTeamInvitations } from '@app/hooks';
 import { IClassName, IInvitation } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
+import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import {
 	Avatar,
 	Button,
@@ -13,9 +14,9 @@ import {
 	Tooltip,
 	VerticalSeparator
 } from 'lib/components';
-import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
 import { useTranslations } from 'next-intl';
+import { MailIcon } from 'assets/svg';
 
 type Props = IClassName & { invitation: IInvitation };
 
@@ -32,7 +33,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				)}
 			>
 				<div className="absolute -left-0 opacity-40">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] text:fill-[#4F5662]" />
 				</div>
 
 				{/* User info */}
@@ -57,7 +58,7 @@ export function InvitedCard({ invitation, className }: Props) {
 							{invitation.fullName}
 						</Text.Heading>
 						<Text className="flex items-center space-x-1 text-sm text-gray-400">
-							<MailIcon />{' '}
+							<MailIcon className="h-4 w-4" />{' '}
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
 								{invitation.email}
 							</span>
@@ -67,18 +68,18 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator />
 
 				{/* Task information */}
-				<Text className="w-1/5 px-4 text-center opacity-40 2xl:w-80">{t('common.TASK_TITTLE')}</Text>
+				<Text className="flex-1 px-4 text-center opacity-40 ">{t('common.TASK_TITTLE')}</Text>
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="flex items-center w-1/5 px-2 mb-2 space-x-2 font-normal text-center opacity-40 2xl:w-48 lg:px-4">
+				<div className="flex items-center 2xl:w-48 3xl:w-52 px-2 mb-2 space-x-2 font-normal text-center opacity-40  lg:px-4">
 					<span>{t('common.TODAY')}:</span>
 					<Text>0h : 0m</Text>
 				</div>
 				<VerticalSeparator />
 
 				{/* TaskEstimateInfo */}
-				<div className="relative flex items-center justify-center w-1/5 space-x-1 opacity-40 2xl:w-52">
+				<div className="relative flex items-center justify-center 2xl:w-48 3xl:w-64 space-x-1 opacity-40 ">
 					{/* <TimeInputField defaultValue="00" label="h" />
 					<span>:</span>
 					<TimeInputField defaultValue="00" label="m" />
@@ -88,7 +89,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator />
 
 				{/* Card menu */}
-				<div className="flex-1 font-normal text-center opacity-40">
+				<div className="2xl:w-52 3xl:w-64 font-normal text-center opacity-40">
 					<Text>0h : 0m</Text>
 				</div>
 
@@ -106,7 +107,7 @@ export function InvitedCard({ invitation, className }: Props) {
 							{invitation.fullName}
 						</Text.Heading>
 						<Text className="flex items-center space-x-1 text-sm text-gray-400">
-							<MailIcon />{' '}
+							<MailIcon className="h-4 w-4" />{' '}
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap">{invitation.email}</span>
 						</Text>
 					</div>
@@ -150,7 +151,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 		<Popover className="relative">
 			{!loading && (
 				<Popover.Button className="outline-none">
-					<MoreIcon />
+					<ThreeCircleOutlineVerticalIcon className="w-6" strokeWidth="1.4" />
 				</Popover.Button>
 			)}
 			{loading && <SpinnerLoader size={20} />}
@@ -222,7 +223,7 @@ export function InviteUserTeamCard({
 				)}
 			>
 				<div className="absolute opacity-40 -left-0">
-					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
+					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
 				{/* Show user name, email and image */}

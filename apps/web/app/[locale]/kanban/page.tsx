@@ -1,161 +1,244 @@
 'use client';
 
 import { KanbanTabs } from '@app/constants';
-import { useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
-import VerticalLine from '@components/ui/svgs/vertificalline';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb } from 'lib/components';
-import { AddIcon } from 'lib/components/svgs';
+import { Breadcrumb, Container } from 'lib/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import Skeleton from 'react-loading-skeleton';
-import ImageOverlapper, { IImageOverlapper } from 'lib/components/image-overlapper';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
+import Separator from '@components/ui/separator';
+import HeaderTabs from '@components/pages/main/header-tabs';
+import { AddIcon, PeoplesIcon } from 'assets/svg';
+import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
+import { userTimezone } from '@app/helpers';
+import KanbanSearch from '@components/pages/kanban/search-bar';
+import {
+	EpicPropertiesDropdown,
+	StatusDropdown,
+	TStatusItem,
+	TaskLabelsDropdown,
+	TaskPropertiesDropdown,
+	TaskSizesDropdown,
+	taskIssues,
+	useStatusValue
+} from 'lib/features';
+import { useRecoilValue } from 'recoil';
+import { fullWidthState } from '@app/stores/fullWidth';
+import { CircleIcon } from 'lucide-react';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 const Kanban = () => {
-	const { data } = useKanban();
-	const { activeTeam } = useOrganizationTeams();
+	const {
+		data,
+		setSearchTasks,
+		searchTasks,
+		isLoading,
+		setPriority,
+		setSizes,
+		setLabels,
+		setEpics,
+		setIssues,
+		issues
+	} = useKanban();
+
+	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
-
+	const fullWidth = useRecoilValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
-
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
-
 	const breadcrumbPath = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 		{ title: activeTeam?.name || '', href: '/' },
-		{ title: 'Kanban Board', href: `/${currentLocale}/kanban` }
+		{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
 	];
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 
-	const teamMembers: IImageOverlapper[] = [];
+	const teamMembers: ImageOverlapperProps[] = [];
 
-	activeTeamMembers.map((member: any)=> {
+	activeTeamMembers.map((member: any) => {
 		teamMembers.push({
 			id: member.employee.user.id,
 			url: member.employee.user.imageUrl,
 			alt: member.employee.user.firstName
-		})
+		});
 	});
-
+	const tabs = [
+		{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
+		{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
+		{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
+	];
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+	const timezone = userTimezone();
+	const { items } = useStatusValue<'issueType'>({
+		status: taskIssues,
+		value: issues as any,
+		onValueChange: setIssues as any
+	});
 	return (
 		<>
-			<MainLayout
-				showTimer={true}
-			>
-				<div className={'fixed flex flex-col bg-white dark:bg-dark--theme h-auto z-10 px-[32px] mx-[0px] w-full'}>
-					<div className="flex flex-row items-center justify-between mt-[34px]">
-						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
-						<div className="flex flex-row items-center gap-[12px]">
-							{activeTeamMembers.length > 0 ? 
-								<p>08:00 ( UTC +04:30 )</p>
-							:
-								<Skeleton height={20} width={120} borderRadius={5} className="rounded-full dark:bg-[#353741]" />
-							}
-							<VerticalLine /> 
-								<ImageOverlapper images={teamMembers}/>
-							<VerticalLine />
-							<button className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white">
-								<AddIcon width={24} height={24} className={'dark:stroke-white'} />
-							</button>
-						</div>
-					</div>
-					<div className="relative flex flex-row justify-between items-center ">
-						<div className="flex flex-row">
-							<div
-								onClick={() => {
-									setActiveTab(KanbanTabs.TODAY);
-								}}
-								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
-									activeTab === KanbanTabs.TODAY
-										? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-										: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-								}`}
-								style={{
-									borderBottomWidth: '3px',
-									borderBottomStyle: 'solid'
-								}}
-							>
-								Today
+			<MainLayout showTimer={isTrackingEnabled}>
+				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
+				<div className={'fixed top-20 flex flex-col  z-10 mx-[0px] w-full bg-white dark:bg-dark--theme'}>
+					<Container fullWidth={fullWidth}>
+						<div className="flex bg-white dark:bg-dark--theme   flex-row items-start justify-between mt-12">
+							<div className="flex justify-center items-center gap-8 h-10">
+								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 							</div>
-							<div
-								onClick={() => {
-									setActiveTab(KanbanTabs.YESTERDAY);
-								}}
-								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
-									activeTab === KanbanTabs.YESTERDAY
-										? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-										: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-								}`}
-								style={{
-									borderBottomWidth: '3px',
-									borderBottomStyle: 'solid'
-								}}
-							>
-								Yesterday
-							</div>
-							<div
-								onClick={() => {
-									setActiveTab(KanbanTabs.TOMORROW);
-								}}
-								className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
-									activeTab === KanbanTabs.TOMORROW
-										? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-										: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-								}`}
-								style={{
-									borderBottomWidth: '3px',
-									borderBottomStyle: 'solid'
-								}}
-							>
-								Tomorrow
+							<div className="flex h-10 w-max items-center justify-center   gap-1">
+								<HeaderTabs kanban={true} linkAll={true} />
 							</div>
 						</div>
-						<div></div>
-					</div>
+						<div className="flex justify-between items-center  mt-10 bg-white dark:bg-dark--theme">
+							<h1 className="text-4xl font-semibold ">
+								{t('common.KANBAN')} {t('common.BOARD')}
+							</h1>
+							<div className="flex w-fit items-center space-x-2">
+								<strong className="text-gray-400">
+									{`(`}
+									{timezone.split('(')[1]}
+								</strong>
+								<div className="mt-1">
+									<Separator />
+								</div>
+								<ImageComponent images={teamMembers} />
+								<div className="mt-1">
+									<Separator />
+								</div>
+
+								<button
+									onClick={openModal}
+									className="p-2 rounded-full border-2 border-[#0000001a] dark:border-white"
+								>
+									{/* <AddIcon width={24} height={24} className={'dark:stroke-white'} /> */}
+									<AddIcon className="w-6 h-6 text-foreground" />
+								</button>
+							</div>
+						</div>
+						<div className="relative flex flex-col lg:flex-row justify-between items-center  pt-10 bg-white dark:bg-dark--theme">
+							<div className="flex flex-row">
+								{tabs.map((tab) => (
+									<div
+										key={tab.name}
+										onClick={() => setActiveTab(tab.value)}
+										className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
+											activeTab === tab.value
+												? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
+												: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
+										}`}
+										style={{
+											borderBottomWidth: '3px',
+											borderBottomStyle: 'solid'
+										}}
+									>
+										{tab.name}
+									</div>
+								))}
+							</div>
+							<div className="flex space-x-2 mt-5 lg:mt-0">
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<EpicPropertiesDropdown
+										onValueChange={(_, values) => setEpics(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"> */}
+								<div className="relative">
+									<div className="bg-[#F2F2F2] dark:bg-dark--theme-light absolute flex items-center p-2 justify-between w-40 h-11 border input-border rounded-xl">
+										<span className="flex">
+											<div
+												className="h-6 w-6 p-1.5 rounded-md mr-1"
+												style={{
+													backgroundColor: issues.bgColor ?? 'transparent'
+												}}
+											>
+												{issues.icon ?? <CircleIcon className="h-3 w-3" />}
+											</div>
+											<p>{issues.name}</p>
+										</span>
+										{issues.value && (
+											<div
+												onClick={() =>
+													setIssues({
+														name: 'Issues',
+														icon: null,
+														bgColor: '',
+														value: ''
+													})
+												}
+												className="w-5 h-5 z-50 p-0.5 cursor-pointer"
+											>
+												<XMarkIcon className="h-4 w-4  dark:text-white" />
+											</div>
+										)}
+									</div>
+
+									<StatusDropdown
+										taskStatusClassName={'w-40 bg-red-500 h-10 opacity-0'}
+										showIssueLabels={true}
+										items={items}
+										value={issues}
+										onChange={(e) => {
+											setIssues(items.find((v) => v.name == e) as TStatusItem);
+										}}
+										issueType="issue"
+									/>
+								</div>
+								{/* </div> */}
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskLabelsDropdown
+										onValueChange={(_, values) => setLabels(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskPropertiesDropdown
+										onValueChange={(_, values) => setPriority(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<TaskSizesDropdown
+										onValueChange={(_, values) => setSizes(values || [])}
+										className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+										multiple={true}
+									/>
+								</div>
+								<div className="mt-1">
+									<Separator />
+								</div>
+								<KanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
+							</div>
+						</div>
+						{/* <div className="h-20 w-full bg-red-500/50"></div> */}
+					</Container>
 				</div>
-				<div className="mt-[15vh] z-0">
+				<div className="mt-[256px]">
 					{/** TODO:fetch teamtask based on days */}
-					{/** Kanbanboard for today tasks */}
-					{activeTab === KanbanTabs.TODAY && (
-						<>
+					{activeTab && ( // add filter for today, yesterday and tomorrow
+						<div>
 							{Object.keys(data).length > 0 ? (
-								<KanbanView kanbanBoardTasks={data} />
+								<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
 							) : (
 								<KanbanBoardSkeleton />
 							)}
-						</>
-					)}
-
-					{/** Kanbanboard for yesterday tasks */}
-					{activeTab === KanbanTabs.YESTERDAY && (
-						<>
-							{Object.keys(data).length > 0 ? (
-								<KanbanView kanbanBoardTasks={data} />
-							) : (
-								<KanbanBoardSkeleton />
-							)}
-						</>
-					)}
-
-					{/** Kanbanboard for tomorrow tasks */}
-					{activeTab === KanbanTabs.TOMORROW && (
-						<>
-							{Object.keys(data).length > 0 ? (
-								<KanbanView kanbanBoardTasks={data} />
-							) : (
-								<KanbanBoardSkeleton />
-							)}
-						</>
+						</div>
 					)}
 				</div>
 			</MainLayout>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
 };

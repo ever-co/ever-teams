@@ -3,8 +3,21 @@ import { clsxm } from '@app/utils';
 import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
-import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
+import {
+	MoonLightFillIcon as MoonDarkIcon,
+	MoonLightOutlineIcon as MoonIcon,
+	SunFillIcon as SunIcon,
+	SunOutlineIcon as SunDarkIcon,
+	CubeIcon as BoxIcon,
+	TimerStopIcon
+} from 'assets/svg';
 import { Text } from './typography';
+import { AllSidesIcon, Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { useRecoilState } from 'recoil';
+import { dataSyncModeState, isDataSyncState } from '@app/stores/data-sync';
+import { useModal } from '@app/hooks';
+import { RealTimePopup } from 'lib/settings/sync.zone';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 type Props = {
 	className?: string;
@@ -59,12 +72,12 @@ export function ThemeToggler({ className }: IClassName) {
 	return (
 		<Toggler className={className} onClickOne={() => setTheme('light')} onClickTwo={() => setTheme('dark')}>
 			<>
-				<SunDarkIcon className="hidden dark:inline-block" />
-				<SunIcon className="dark:hidden inline-block" />
+				<SunDarkIcon className="hidden dark:inline-block h-[18px] w-[18px]" />
+				<SunIcon className="dark:hidden inline-block h-[18px] w-[18px] text-[#382686]" />
 			</>
 			<>
-				<MoonDarkIcon className="hidden dark:inline-block" />
-				<MoonIcon className="dark:hidden inline-block" />
+				<MoonDarkIcon className="h-[18px] w-[18px] hidden text-white dark:inline-block " />
+				<MoonIcon className="dark:hidden inline-block h-[18px] w-[18px]" />
 			</>
 		</Toggler>
 	);
@@ -73,9 +86,91 @@ export function ThemeToggler({ className }: IClassName) {
 export function TreeModeToggler({ className }: IClassName) {
 	return (
 		<Toggler className={className} firstBtnClassName="dark:bg-[#3B4454]" secondBtnClassName="dark:bg-transparent">
-			<StopIcon className="dark:stroke-white" />
-			<BoxIcon className="stroke-[#7E7991] dark:stroke-[#969CA6]" />
+			<TimerStopIcon className="dark:text-white w-full max-w-[20px]" />
+			<BoxIcon className="h-6 w-6 text-[#7E7991] dark:text-[#969CA6]" strokeWidth="1.7" />
 		</Toggler>
+	);
+}
+
+export function DataSyncToggler({ className }: IClassName) {
+	const [dataSync, setDataSync] = useRecoilState(isDataSyncState);
+
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-is-data-sync', JSON.stringify(dataSync));
+	}, [dataSync]);
+
+	return (
+		<div
+			className={clsxm(
+				'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+				className
+			)}
+		>
+			<button
+				onClick={() => setDataSync(true)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+					dataSync && 'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+				)}
+			>
+				<UpdateIcon className="dark:text-white" />
+			</button>
+
+			<button
+				onClick={() => setDataSync(false)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+					!dataSync && 'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
+				)}
+			>
+				<Cross2Icon className={clsxm(!dataSync && 'text-white')} />
+			</button>
+		</div>
+	);
+}
+
+export function DataSyncModeToggler({ className }: IClassName) {
+	const [dataSyncMode, setDataSyncMode] = useRecoilState(dataSyncModeState);
+	const { isOpen, closeModal, openModal } = useModal();
+
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-data-sync', JSON.stringify(dataSyncMode));
+	}, [dataSyncMode]);
+
+	return (
+		<>
+			<div
+				className={clsxm(
+					'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+					className
+				)}
+			>
+				<button
+					onClick={() =>
+						// setDataSyncMode('REAL_TIME')
+						openModal()
+					}
+					className={clsxm(
+						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+						dataSyncMode == 'REAL_TIME' &&
+							'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					)}
+				>
+					<LightningBoltIcon className="dark:text-white" />
+				</button>
+
+				<button
+					onClick={() => setDataSyncMode('PULL')}
+					className={clsxm(
+						'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+						dataSyncMode == 'PULL' && 'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+					)}
+				>
+					<UpdateIcon className="dark:text-white" />
+				</button>
+			</div>
+			<RealTimePopup open={isOpen} closeModal={closeModal} />
+		</>
 	);
 }
 
@@ -110,6 +205,43 @@ export function CommonToggle({
 				/>
 			</Switch>
 			<Text className="text-gray-400 text-md font-normal">{enabled ? enabledText : disabledText}</Text>
+		</div>
+	);
+}
+
+export function FullWidthToggler({ className }: IClassName) {
+	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
+
+	React.useEffect(() => {
+		window && window.localStorage.setItem('conf-fullWidth-mode', JSON.stringify(fullWidth));
+	}, [fullWidth]);
+
+	return (
+		<div
+			className={clsxm(
+				'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
+				className
+			)}
+		>
+			<button
+				onClick={() => setFullWidth(true)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
+					fullWidth && 'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+				)}
+			>
+				<AllSidesIcon className="dark:text-white" />
+			</button>
+
+			<button
+				onClick={() => setFullWidth(false)}
+				className={clsxm(
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
+					!fullWidth && 'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
+				)}
+			>
+				<Cross2Icon className={clsxm(!fullWidth && 'text-white')} />
+			</button>
 		</div>
 	);
 }

@@ -12,6 +12,7 @@ import {
 } from '@app/helpers';
 import { IUser } from '@app/interfaces';
 import { TTasksTimesheetStatisticsParams } from '@app/services/server/requests';
+import qs from 'qs';
 
 export function getTasksByIdAPI(taskId: string) {
 	const organizationId = getOrganizationIdCookie();
@@ -43,9 +44,9 @@ export function getTasksByIdAPI(taskId: string) {
 		obj[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(obj);
+	const query = qs.stringify(obj);
 
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query.toString()}` : `/tasks/${taskId}`;
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 
 	return get<ITeamTask>(endpoint);
 }
@@ -78,8 +79,8 @@ export async function getTeamTasksAPI(organizationId: string, tenantId: string, 
 		obj[`relations[${i}]`] = rl;
 	});
 
-	const query = new URLSearchParams(obj);
-	const endpoint = `/tasks/team?${query.toString()}`;
+	const query = qs.stringify(obj);
+	const endpoint = `/tasks/team?${query}`;
 
 	return get<PaginationResponse<ITeamTask>>(endpoint, { tenantId });
 }
@@ -113,12 +114,10 @@ export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: st
 		const teamId = getActiveTeamIdCookie();
 		const tenantId = getTenantIdCookie();
 		const projectId = getActiveProjectIdCookie();
-
 		const title = body.title.trim() || '';
 
 		const datas: ICreateTask = {
 			description: '',
-			status: 'open',
 			members: user?.employee?.id ? [{ id: user.employee.id }] : [],
 			teams: [
 				{
@@ -161,21 +160,21 @@ export async function tasksTimesheetStatisticsAPI(
 			// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
 			...employeesParams
 		};
-		const globalQueries = new URLSearchParams({
+		const globalQueries = qs.stringify({
 			...commonParams,
 			defaultRange: 'false'
 		});
 
-		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
+		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
 			tenantId
 		});
 
-		const todayQueries = new URLSearchParams({
+		const todayQueries = qs.stringify({
 			...commonParams,
 			defaultRange: 'true',
 			unitOfTime: 'day'
 		});
-		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
+		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
 			tenantId
 		});
 
@@ -211,16 +210,16 @@ export async function activeTaskTimesheetStatisticsAPI(
 			...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
 			...employeesParams
 		};
-		const globalQueries = new URLSearchParams({
+		const globalQueries = qs.stringify({
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries.toString()}`, {
+		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
 			tenantId
 		});
 
-		const todayQueries = new URLSearchParams({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries.toString()}`, {
+		const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
+		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
 			tenantId
 		});
 
@@ -251,7 +250,7 @@ export function allTaskTimesheetStatisticsAPI() {
 
 		const { employeeIds, ...rest } = params;
 
-		const queries = new URLSearchParams({
+		const queries = qs.stringify({
 			...rest,
 			...employeeIds.reduce(
 				(acc, v, i) => {

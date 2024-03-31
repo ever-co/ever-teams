@@ -120,6 +120,8 @@
 		"FULL_NAME": "Volledige naam",
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Inschakelen",
+		"DISABLED": "Uitzetten",
 
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",
@@ -154,6 +156,7 @@
 		"CHILD_ISSUES": "Onderliggende problemen",
 		"REOPEN": "Heropenen",
 		"NO_TASKS": "Geen taken",
+		"FULL_WIDTH": "Volledige breedte",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u de taak wijzigt",
 
 		"COLLABORATE_DIALOG_TITLE": "Samenwerking starten",
@@ -174,9 +177,10 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Alle accountgegevens worden verwijderd uit alle teams waar je ALLEEN een bestaande manager bent.",
 		"ALERT_REMOVE_TEAM": "Team wordt volledig verwijderd uit het systeem en teamleden verliezen toegang",
 		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten"
 	},
@@ -283,6 +287,7 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Uw tijdzone",
 			"ABOUT_TO_CHANGE_EMAIL": "U staat op het punt het e-mailadres te wijzigen",
 			"ABOUT_TO_DELETE_ACCOUNT": "U staat op het punt uw account te verwijderen?",
+			"DATA_SYNCHRONIZATION": "Gegevenssynchronisatie",
 			"ABOUT_TO_REMOVE_ACCOUNT": "U staat op het punt uw account te verwijderen?"
 		},
 		"settingsTeam": {
@@ -414,6 +419,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
+		},
+		"unauthorized": {
+			"TITLE": "Ongeautoriseerd",
+			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
+			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in"
 		},
 		"page404": {
 			"HEADING_TITLE": "Not Found",

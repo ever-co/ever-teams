@@ -4,7 +4,12 @@
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
 		"REJECT": "דחה",
+		"TOMORROW": "מחר",
+		"YESTERDAY": "אתמול",
 		"REJECTED": "נדחה",
+		"CARDS": "כרטיסים",
+		"KANBAN": "קאנבאן",
+		"TABLE": "טבלה",
 		"VERIFY": "אמת",
 		"INVITE": "הזמן",
 		"INVITED": "הוזמן",
@@ -120,7 +125,11 @@
 		"FULL_NAME": "שם מלא",
 		"USER_AVATAR": "אווטר משתמש",
 		"CONTACT": "איש קשר",
-
+		"ENABLED": "לְאַפשֵׁר",
+		"DISABLED": "השבת",
+		"DONT_HAVE_ACCOUNT": "אין לך חשבון?",
+		"DELETE_ALL_DATA": "מחק את כל הנתונים",
+		"REGISTER": "הרשם עכשיו!",
 		"THEME": "ערכת עיצוב",
 		"TIME_ZONE": "אזור זמן",
 		"EDIT": "ערוך",
@@ -154,8 +163,8 @@
 		"CHILD_ISSUES": "בעיות ילדות",
 		"REOPEN": "פתח מחדש",
 		"NO_TASKS": "אין משימות",
+		"FULL_WIDTH": "רוחב מלא",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני שינוי המשימה",
-
 		"COLLABORATE_DIALOG_TITLE": "התחל שיתוף פעולה",
 		"COLLABORATE_DIALOG_SUB_TITLE": "הזמן חבר/ים והתחל לשתף פעולה",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "התחל פגישה או שיתוף פעולה בלוח",
@@ -165,18 +174,18 @@
 		"FILTER_COMMENTS": "הערות",
 		"FILTER_HISTORY": "היסטוריה",
 		"FILTER_UNSUBSCRIBE": "בטל מנוי",
-
 		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת",
-
 		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו.",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "סנכרן משימות באופן אוטומטי באפליקציה שלך לעדכונים חלקים ויעילים.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
-		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון"
+		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "הפעל אינטגרציה של GitHub עבור סנכרון פרויקטים ומאגרים"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "כל נתוני החשבון יוסרו מכל הצוותים שבהם אתה רק מנהל קיים אחד",
 		"ALERT_REMOVE_TEAM": "הצוות יוסר לחלוטין מהמערכת וחברי הצוות יאבדו גישה",
 		"ALERT_QUIT_TEAM": "אתה עומד לעזוב את הצוות"
 	},
@@ -191,7 +200,9 @@
 			"CONFIRM_ACCEPT_INVITATION": "האם אתה בטוח שברצונך לקבל את ההזמנה?",
 			"CONFIRM_REJECT_INVITATION": "האם אתה בטוח שברצונך לדחות את ההזמנה?"
 		},
-
+		"kanban": {
+			"KANBAN_BOARD": "לוח Kanban"
+		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]"
 		},
@@ -221,14 +232,11 @@
 			"CREATED": "נוצר",
 			"UPDATED": "עודכן",
 			"RESOLVED": "נפתר",
-
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "לא יכולנו לעדכן את כותרת המשימה.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "כותרת משימה לא יכולה לעלות על 255 תווים.",
-
 			"TASK_IS_ALREADY_EPIC": "לא ניתן לשנות סוג משימה אפית.",
 			"TASK_HAS_PARENT": "לא ניתן לשנות סוג משימה מכיוון שלמשימה כבר יש הורה."
 		},
-
 		"auth": {
 			"SEND_CODE": "שלח קוד",
 			"JOIN": "הצטרף",
@@ -239,7 +247,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "קוד לאתקין",
 			"WELCOME_TEAMS": "ברוך הבא ל-Ever צוותים",
 			"COVER_TITLE": "עקוב אחר התקדמות העבודה של הצוותים שלך בזמן אמת!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "ניהול עבודה וכוח עבודה הכל-באחד, ניהול זמן, מעקב אחר זמן, מעקב אחר פעילות, מעקב ומדדים של פרודוקטיביות, ניהול פרויקטים/משימות ובעיות, ארגונים וצוותים, אינטגרציות (GitHub, JIRA,...) ועוד!",
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
@@ -252,10 +260,15 @@
 		"authLogin": {
 			"HEADING_TITLE": "התחבר לצוות",
 			"HEADING_DESCRIPTION": "אנא הכנס אימייל וקוד הזמנה כדי להתחבר.",
-
 			"WORKSPACE": "סביבת עבודה",
 			"HEADING_WORKSPACE_LINE1": "האימייל משויך למספר סביבות עבודה,",
-			"HEADING_WORKSPACE_LINE2": "אנא בחר אחת כדי להמשיך"
+			"HEADING_WORKSPACE_LINE2": "אנא בחר אחת כדי להמשיך",
+			"HAVE_PASSWORD": "יש לך סיסמא?",
+			"LOGIN_WITH_PASSWORD": "התחבר עם הסיסמה",
+			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם"
+		},
+		"authPassword": {
+			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."
 		},
 		"authTeam": {
 			"HEADING_TITLE": "צור צוות חדש",
@@ -279,8 +292,12 @@
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
 			"SUBSCRIPTION": "מנוי",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "אתה עומד למחוק את החשבון שלך ואת כל הנתונים שלך?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "אתה עומד להיסיר מכל הצוותים, אלא אם אתה המנהל היחיד?",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "איזור זמן שלך",
 			"ABOUT_TO_CHANGE_EMAIL": "אתה עומד לשנות אימייל",
 			"ABOUT_TO_DELETE_ACCOUNT": "אתה עומד למחוק את החשבון שלך?",
+			"DATA_SYNCHRONIZATION": "סנכרון נתונים",
 			"ABOUT_TO_REMOVE_ACCOUNT": "אתה עומד להסיר את החשבון שלך?"
 		},
 		"settingsTeam": {
@@ -292,7 +309,6 @@
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
 			"TIME_TRACKING": "מעקב זמן",
-
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",
 			"MANAGE_ASSIGNEES": "נהל מוקצים",
 			"SEARCH_MEMBER": "חפש חבר",
@@ -302,7 +318,6 @@
 			"TASK_LABELS": "תוויות משימה",
 			"ISSUE_TYPES": "סוגי בעיות",
 			"RELATED_TYPE": "סוגים קשורים",
-
 			"INVITATION_HEADING_TITLE": "הזמנות",
 			"CREATE_NEW_STATUSES": "צור סטטוסים חדשים",
 			"CREATE_NEW_STATUS": "צור סטטוס חדש",
@@ -314,7 +329,6 @@
 			"CREATE_NEW_LABELS": "צור תוויות חדשות",
 			"CREATE_NEW_LABEL": "צור תווית חדשה",
 			"CREATE_NEW_ISSUE_TYPES": "צור בעיות חדשות",
-
 			"HIDE_PERSONAL_MEMBERS_INFOTMATION": "הסתר מידע אישי על חברים",
 			"POSITION_CUSTOM": "תפקידים מותאמים",
 			"INVITATION_EXPIRATION": "פקיעת הזמנה",
@@ -324,19 +338,15 @@
 			"MEMBER_AND_ROLES": "חברים ותפקידים",
 			"INTEGRATIONS": "אינטגרציות",
 			"DANDER_ZONES": "אזורי סיכון",
-
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "התחבר ל-GitHub והתחל לסנכרן בעיות GitHub עם הצוות שלך",
 			"SELECT_REPOSITORY": "בחר מאגר",
-
 			"INSTALL": "התקן",
-
 			"LIST_OF_STATUSES": "רשימת סטטוסים",
 			"LIST_OF_PRIORITIES": "רשימת עדיפויות",
 			"LIST_OF_SIZES": "רשימת גדלים",
 			"LIST_OF_LABELS": "רשימת תוויות",
 			"LIST_OF_ISSUES_TYPE": "רשימת בעיות",
-
 			"GENERAL": "כללי",
 			"SOUND": "קול",
 			"EMAIL": "אימייל",
@@ -347,7 +357,6 @@
 			"INAPP": "באפליקציה",
 			"NOTIFICATION_HEADING_TITLE": "הגדרות התראות",
 			"ISSUE_HEADING_TITLE": "הגדרות בעיה",
-
 			"TASK_PRIVACY": "פרטיות משימה",
 			"MULTIPLE_ASSIGNEES": "מוקצים מרובים",
 			"MANUAL_TIME": "זמן ידני",
@@ -379,7 +388,6 @@
 			"TEAM_SIZE": "גודל צוות",
 			"EMOJI": "אימוג'י",
 			"ISSUES_HEADING_TITLE": "הגדרות בעיה",
-
 			"TRACK_TIME": "עקוב אחר זמן",
 			"ESTIMATE_ISSUE": "הערך בעיה",
 			"EPICS_CREATE_CLOSE": "יצירה/סגירת אפוסים",
@@ -390,7 +398,6 @@
 			"HANDLE_REQUESTS": "טפל בבקשות",
 			"ROLES_POSITIONS_CHANGE": "שינוי תפקידים/תחנות",
 			"VIEW_DETAILS": "צפה בפרטים",
-
 			"NO_INVITATIONS": "אין הזמנות כרגע!",
 			"NO_MEMBERS": "אין חברים כרגע!"
 		},
@@ -413,6 +420,11 @@
 		"permissions": {
 			"SELECT_ROLES": "בחר תפקידים"
 		},
+		"unauthorized": {
+			"TITLE": "לא מורשה",
+			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
+			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר"
+		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",
 			"HEADING_DESCRIPTION": "המשאב שאתה מחפש לא נמצא!",
@@ -433,17 +445,40 @@
 		}
 	},
 	"timer": {
+		"ACTIVE": "פעיל",
+		"APPS": "אפליקציות",
+		"ARCHIVED": "ארכיון",
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"
 		},
+		"INACTIVE": "לא פעיל",
+		"KEYBOARD": "מקלדת",
+		"MOUSE": "עכבר",
+		"NO_SCREENSHOOT": "אין צילומי מסך",
+		"NOT_ARCHIVED": "לא בארכיון",
+		"OTHER_DETAILS": "פרטים נוספים",
+		"PERCENT_OF_MINUTES": " % מ-10 דקות",
+		"PERCENT_USED": "אחוז שנוצל",
+		"THERE_IS_NO_APPS_VISITED": "אין יישומים שבוקרים.",
+		"TIME_ACTIVITY": "פעילות",
+		"TIME_SPENT_IN_HOURS": "זמן שנוצל (שעות)",
+		"TIMES": "פעמים",
+		"TOTAL_HOURS": "סך הכל שעות",
+		"VISITED_DATES": "תאריכים שבוקרים",
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "הערך"
 		},
-		"DAY_LIST": [{ "title": "7 ימים" }, { "title": "14 ימים" }]
+		"DAY_LIST": [
+			{
+				"title": "7 ימים"
+			},
+			{
+				"title": "14 ימים"
+			}
+		]
 	},
-
 	"task": {
 		"TITLE": "משימה",
 		"ASSIGN_NEW_TASK": "הקצה משימה חדשה",
@@ -489,13 +524,11 @@
 		"FIRST_NAME_PLACEHOLDER": "שם פרטי",
 		"LAST_NAME_PLACEHOLDER": "שם משפחה",
 		"EMAIL_PLACEHOLDER": "הכנס כתובת אימייל",
+		"PASSWORD_PLACEHOLDER": "הכנס את הסיסמה שלך",
 		"PHONE_PLACEHOLDER": "מספר טלפון",
-
 		"ISSUE_NAME_PLACEHOLDER": "שם בעיה",
-
 		"TEAM_NAME_PLACEHOLDER": "אנא הכנס את שם הצוות שלך",
 		"TASK_INPUT_PLACEHOLDER": "על מה אתה עובד?",
-
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "שם חבר צוות",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "כתובת אימייל של חבר צוות",
 		"COMPLETION_DESCRIPTION": "כתוב תיאור",
@@ -507,7 +540,6 @@
 		"SELECT_TEAM_SIZE": "בחר גודל צוות",
 		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric"
 	},
-
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "כל הזכויות שמורות.",
@@ -521,7 +553,6 @@
 			"BY": "על ידי"
 		}
 	},
-
 	"errors": {
 		"NETWORK_ISSUE": "בעיית רשת, נסה שוב מאוחר יותר",
 		"ERROR_WHILE_VERIFY_CODE": "שגיאה באימות קוד.",

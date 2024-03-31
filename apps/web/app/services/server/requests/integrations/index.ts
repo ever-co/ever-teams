@@ -1,5 +1,6 @@
 import { IIntegration } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
+import qs from 'qs';
 
 /**
  * Get integration
@@ -20,7 +21,7 @@ export function getIntegrationRequest(
 	},
 	bearer_token: string
 ) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		filters: JSON.stringify({
 			searchQuery,
 			integrationTypeId
@@ -28,7 +29,7 @@ export function getIntegrationRequest(
 	});
 
 	return serverFetch<IIntegration>({
-		path: `/integration?${query.toString()}`,
+		path: `/integration?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId

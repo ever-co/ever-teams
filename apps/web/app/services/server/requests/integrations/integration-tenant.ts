@@ -1,5 +1,6 @@
 import { IIntegrationTenant } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
+import qs from 'qs';
 
 /**
  * Get integration tenant request
@@ -12,13 +13,13 @@ export function getIntegrationTenantRequest(
 	{ tenantId, organizationId, name }: { tenantId: string; organizationId: string; name: string },
 	bearer_token: string
 ) {
-	const query = new URLSearchParams({
+	const query = qs.stringify({
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
 		'where[name]': name
 	});
 	return serverFetch<IIntegrationTenant>({
-		path: `/integration-tenant?${query.toString()}`,
+		path: `/integration-tenant?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId

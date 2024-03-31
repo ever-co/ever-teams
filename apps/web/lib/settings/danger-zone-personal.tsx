@@ -4,7 +4,6 @@ import { Button, Text } from 'lib/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import dangerZoneImage from '../../public/assets/svg/danger-zones.svg';
 import { RemoveModal } from './remove-modal';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => void;
@@ -48,7 +47,7 @@ export const DangerZone = () => {
 					<div className="">
 						<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-6">
 							<div className="flex items-center justify-center flex-auto opacity-50 sm:w-32">
-								<Image alt="Danger zone" src={dangerZoneImage} width={150} height={150} />
+								<Image alt="Danger zone" src="/assets/svg/danger-zones.svg" width={150} height={150} />
 							</div>
 							<div className="flex-auto sm:w-96">
 								<div className="flex flex-col items-center justify-between w-full gap-6 sm:flex-row">

@@ -1,6 +1,7 @@
 import { ITaskTimesheet } from '@app/interfaces';
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import qs from 'qs';
 
 export async function getTaskTimesheetRequestAPI({
 	taskId,
@@ -28,10 +29,9 @@ export async function getTaskTimesheetRequestAPI({
 		defaultRange,
 		unitOfTime
 	};
-	const query = new URLSearchParams(params);
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? `/timesheet/activity?${query.toString()}`
-		: `/timer/timesheet?${query.toString()}`;
+	const query = qs.stringify(params);
+
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/activity?${query}` : `/timer/timesheet?${query}`;
 
 	return get<ITaskTimesheet[]>(endpoint);
 }

@@ -15,12 +15,22 @@ type Props = PropsWithChildren<{
 	notFound?: boolean;
 	className?: string;
 	childrenClassName?: string;
+	footerClassName?: string;
 }>;
 
-export function MainLayout({ children, title, showTimer, publicTeam, notFound, className, childrenClassName }: Props) {
+export function MainLayout({
+	children,
+	title,
+	showTimer,
+	publicTeam,
+	notFound,
+	className,
+	childrenClassName,
+	footerClassName = ''
+}: Props) {
 	const fullWidth = useRecoilValue(fullWidthState);
 	return (
-		<div>
+		<div className="w-full ">
 			<style jsx global>
 				{`
 					:root {
@@ -39,15 +49,18 @@ export function MainLayout({ children, title, showTimer, publicTeam, notFound, c
 
 			<div
 				className={clsxm(
-					'w-full flex flex-col  lg:items-start justify-between h-screen min-h-[500px] pt-20',
+					'w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px] pt-20',
 					className
 				)}
 			>
-				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>{children}</div>
+				<div className={clsxm('lg:flex-1 lg:w-full ', childrenClassName)}>{children}</div>
 
-				<Container fullWidth={fullWidth} className="w-full !mx-0 px-8">
+				<Container
+					fullWidth={fullWidth}
+					className={clsxm('w-full px-8', fullWidth && '!mx-0', footerClassName)}
+				>
 					<Divider />
-					<Footer className="justify-between px-0 w-full" />
+					<Footer className="justify-between w-full px-0 mx-auto" />
 				</Container>
 			</div>
 			<Toaster />

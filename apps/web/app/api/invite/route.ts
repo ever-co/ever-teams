@@ -5,7 +5,9 @@ import { NextResponse } from 'next/server';
 export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ error: 'Unauthorized' });
+	if (!user) {
+		return NextResponse.json({ error: 'Unauthorized' });
+	}
 
 	const { data } = await getTeamInvitationsRequest(
 		{
@@ -17,5 +19,5 @@ export async function GET(req: Request) {
 		access_token
 	);
 
-	$res(data);
+	return $res(data);
 }

@@ -30,7 +30,7 @@
 			"autoIncrement": true,
 			"channel": "production",
 			"env": {
-				"GAUZY_API_URL": "https://api.gauzy.co",
+				"GAUZY_API_URL": "https://api.ever.team",
 				"INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode"
 			}
 		}

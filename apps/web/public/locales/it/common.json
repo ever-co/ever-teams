@@ -1,10 +1,10 @@
 {
 	"TITLE": "Ever Teams",
 	"common": {
-		"ACCEPT": "Accept",
-		"ACCEPTED": "Accepted",
-		"REJECT": "Reject",
-		"REJECTED": "Rejected",
+		"ACCEPT": "Accettare",
+		"ACCEPTED": "Accettato",
+		"REJECT": "Rifiuto",
+		"REJECTED": "Rifiutato",
 		"VERIFY": "verify",
 		"INVITE": "Invite",
 		"INVITED": "Invited",
@@ -120,6 +120,8 @@
 		"FULL_NAME": "Full Name",
 		"USER_AVATAR": "User Avatar",
 		"CONTACT": "Contact",
+		"ENABLED": "Abilitare",
+		"DISABLED": "disattivare",
 
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",
@@ -156,6 +158,7 @@
 		"CHILD_ISSUES": "Child Issues",
 		"REOPEN": "Reopen",
 		"NO_TASKS": "No Tasks",
+		"FULL_WIDTH": "A tutta larghezza",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Task",
 
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
@@ -176,9 +179,10 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica"
 	},
 	"alerts": {
+		"REAL_TIME_ON_WORKING": "Stiamo lavorando alla sincronizzazione in tempo reale al momento, controlla questa funzionalità più tardi.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
+		"ALERT_REMOVE_ALL_DATA": "Tutti i dati dell'account verranno rimossi da tutti i team in cui si è SOLO un manager esistente",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
 		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},
@@ -285,6 +289,7 @@
 			"SUBSCRIPTION": "Subscription",
 			"ABOUT_TO_CHANGE_EMAIL": "You are about to change Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
+			"DATA_SYNCHRONIZATION": "Sincronizzazione dei dati",
 			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to Remove your account ?"
 		},
 		"settingsTeam": {
@@ -416,6 +421,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
+		},
+		"unauthorized": {
+			"TITLE": "Non autorizzato",
+			"HEADING_TITLE": "Non sei autorizzato ad accedere a questa pagina !",
+			"HEADING_DESCRIPTION": "Ci scusiamo per il disagio ma non sei autorizzato ad accedere a questa pagina. Se ritieni che questo sia un errore. Accedere prego."
 		},
 		"page404": {
 			"HEADING_TITLE": "Not Found",

@@ -12,9 +12,9 @@ services:
           - key: RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED
             value: false
           - key: NEXT_PUBLIC_GAUZY_API_SERVER_URL
-            value: https://api.gauzy.co
+            value: https://api.ever.team
           - key: GAUZY_API_SERVER_URL
-            value: https://api.gauzy.co/api
+            value: https://api.ever.team
           - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
             sync: false
           - key: NEXT_PUBLIC_CAPTCHA_SITE_KEY

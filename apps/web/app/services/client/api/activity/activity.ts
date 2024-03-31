@@ -1,6 +1,7 @@
 import { get } from '@app/services/client/axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
+import qs from 'qs';
 
 export async function getTimerDailyRequestAPI({
 	tenantId,
@@ -36,11 +37,10 @@ export async function getTimerDailyRequestAPI({
 	};
 	if (type) params['types[0]'] = type;
 	if (title) params['title[0]'] = title;
-	const query = new URLSearchParams(params);
+	const query = qs.stringify(params);
 	console.log('QUERY', query);
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? `/timesheet/activity/daily?${query.toString()}`
-		: `/timer/daily?${query.toString()}`;
+
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/activity/daily?${query}` : `/timer/daily?${query}`;
 
 	return get<ITimerApps[]>(endpoint);
 }
