@@ -85,7 +85,11 @@ const Kanban = () => {
 	});
 	return (
 		<>
-			<MainLayout showTimer={isTrackingEnabled}>
+			<MainLayout
+				showTimer={isTrackingEnabled}
+				footerClassName="fixed bottom-0 z-50 bg-white dark:bg-dark--theme"
+				className="h-[calc(100vh-_22px)]"
+			>
 				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
 				<div className={'fixed top-20 flex flex-col  z-10 mx-[0px] w-full bg-white dark:bg-dark--theme'}>
 					<Container fullWidth={fullWidth}>
@@ -225,7 +229,7 @@ const Kanban = () => {
 						{/* <div className="h-20 w-full bg-red-500/50"></div> */}
 					</Container>
 				</div>
-				<div className="mt-[256px]">
+				<div className="mt-[256px] mb-52">
 					{/** TODO:fetch teamtask based on days */}
 					{activeTab && ( // add filter for today, yesterday and tomorrow
 						<div>
