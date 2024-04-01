@@ -217,7 +217,7 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row px-2 w-fit h-full"
+							className="flex flex-row px-2 w-fit h-40"
 						>
 							{title.length > 0 ? (
 								<>
