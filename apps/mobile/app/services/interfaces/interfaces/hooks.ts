@@ -80,23 +80,23 @@ export interface IStepProps {
 	values: IRegisterDataAPI;
 }
 
-//Login button props
+// Login button props
 export interface IButtonProps {
 	value: string;
 }
 
-//Login button props
+// Login button props
 export interface IButtonProps {
 	value: string;
 }
 
-//Start and Pause button props
+// Start and Pause button props
 export interface IIconProps {
 	width: number;
 	height: number;
 }
 
-//Start section props
+// Start section props
 export interface IStartSection {
 	started: boolean;
 	setStarted: React.Dispatch<React.SetStateAction<boolean>>;
