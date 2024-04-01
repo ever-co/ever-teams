@@ -236,7 +236,7 @@ export function UserTeamCard({
 				</div>
 
 				{/* Card menu */}
-				{/* <div className="absolute right-2">{menu}</div> */}
+				<div className="absolute right-2">{menu}</div>
 			</Card>
 			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />

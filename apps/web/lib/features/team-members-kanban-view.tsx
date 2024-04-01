@@ -201,7 +201,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 								<div
 									className={clsxm(
 										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
-										snapshot.isDraggingOver ? 'pink' : '#F7F7F8'
+										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 									)}
 									ref={provided.innerRef}
 									{...provided.droppableProps}
@@ -211,7 +211,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 											{columns.map((column: any, index: number) => {
 												return (
 													<React.Fragment key={index}>
-														<div className={clsxm('')} key={index}>
+														<div key={index}>
 															{isColumnCollapse(column.name) ? (
 																<EmptyKanbanDroppable
 																	index={index}
