@@ -4,4 +4,3 @@
 cd "apps/web"
 
 yarn lint
-
