@@ -111,7 +111,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 				sendResult();
 			}
 		}));
-
+		const faklfj = 'sdfjk';
 		useEffect(() => {
 			if (autoFocus) {
 				setTimeout(() => {
