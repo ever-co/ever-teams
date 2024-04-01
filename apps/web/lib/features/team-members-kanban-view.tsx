@@ -101,7 +101,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			return item.name === column;
 		});
 
-		return selectState?.color ?? 'red';
+		return selectState?.color ?? 'white';
 	};
 
 	const reorderColumn = (column: any[], sourceIndex: number, destinationIndex: number) => {
