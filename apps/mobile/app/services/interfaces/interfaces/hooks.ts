@@ -1,14 +1,14 @@
 import { ChangeEventHandler, ReactNode } from 'react';
 import { IRegisterDataAPI } from './IAuthentication';
 import { ITeamTask } from './ITask';
-//Dropdown props interface
+// Dropdown props interface
 export interface IDropDownProps {
 	data: string[];
 	selectedData: string;
 	handleSelectData: any;
 }
 
-//Input props interface
+// Input props interface
 export interface IInputProps {
 	label: string;
 	name: string;
@@ -21,12 +21,12 @@ export interface IInputProps {
 	errors?: { [x: string]: any };
 }
 
-//Header props interface
+// Header props interface
 export interface IHeader {
 	style: any;
 }
 
-//Members interface
+// Members interface
 export interface IMembers {
 	name: string;
 	status: string;
@@ -38,7 +38,7 @@ export interface IMembers {
 	admin?: boolean;
 }
 
-//Invite props interface
+// Invite props interface
 export interface IInviteProps {
 	isOpen: boolean;
 	Fragment: any;
@@ -46,26 +46,26 @@ export interface IInviteProps {
 	task: ITeamTask | null;
 }
 
-//Invite interface
+// Invite interface
 export interface IInvite {
 	email: string;
 	name: string;
 }
 
-//AppLayout Props interface
+// AppLayout Props interface
 export interface AppLayoutProps {
 	children: ReactNode;
 	additionalClass?: string;
 }
 
-//Meta props interface
+// Meta props interface
 export interface MetaProps {
 	title: string;
 	keywords: string;
 	description: string;
 }
 
-//Input Email interface
+// Input Email interface
 export interface IInputEmail {
 	name: string;
 	type: string;
@@ -74,7 +74,7 @@ export interface IInputEmail {
 	onChange: any;
 }
 
-//Step props interface
+// Step props interface
 export interface IStepProps {
 	handleOnChange: any;
 	values: IRegisterDataAPI;
@@ -101,7 +101,7 @@ export interface IStartSection {
 	started: boolean;
 	setStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
-//Dropdown Data props
+// Dropdown Data props
 export interface IDrowDownData {
 	name: string;
 	color: string;
