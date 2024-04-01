@@ -60,7 +60,7 @@ type IUEmployeeParam = {
  * @param {IUEmployeeParam} The employee parameters, including bearer token and optional relations.
  * @returns A Promise resolving to the IUser object with the desired relations and employee details.
  */
-export const fetchCurrentAuthenticatedUser = ({
+export const currentAuthenticatedUserRequest = ({
 	bearer_token,
 	relations = ['role', 'tenant']
 }: IUEmployeeParam) => {
