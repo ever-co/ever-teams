@@ -146,7 +146,6 @@ export const KanbanDroppable = ({
 	title,
 	droppableId,
 	type,
-	isLoading,
 	content
 }: {
 	title: string;
