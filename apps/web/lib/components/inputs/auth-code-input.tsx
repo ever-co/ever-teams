@@ -111,14 +111,13 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 				sendResult();
 			}
 		}));
-
 		useEffect(() => {
 			if (autoFocus) {
 				setTimeout(() => {
 					inputsRef.current[0].focus();
 				}, 100);
 			}
-		}, [autoFocus]);
+		}, [autoFocus, inputsRef]);
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
