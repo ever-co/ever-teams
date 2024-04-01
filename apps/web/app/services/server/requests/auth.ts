@@ -100,18 +100,23 @@ type IUEmployeeParam = {
 	relations?: string[];
 };
 
+/**
+ * Fetches details of the currently authenticated user, including specified relations.
+ *
+ * @param {IUEmployeeParam} employeeParams - The employee parameters, including bearer token and optional relations.
+ * @returns A Promise resolving to the IUser object with the desired relations.
+ */
 export const currentAuthenticatedUserRequest = ({
 	bearer_token,
-	relations = ['employee', 'role', 'tenant']
+	relations = ['role', 'tenant']
 }: IUEmployeeParam) => {
-	const params = {} as { [x: string]: string };
-
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
+	// Construct the query string with 'qs', including the includeEmployee parameter
+	const query = qs.stringify({
+		relations: relations,
+		includeEmployee: true  // Append includeEmployee parameter set to true
 	});
 
-	const query = qs.stringify(params);
-
+	// Construct and return the server fetch request
 	return serverFetch<IUser>({
 		path: `/user/me?${query}`,
 		method: 'GET',
