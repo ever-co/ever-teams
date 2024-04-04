@@ -28,9 +28,10 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
 			const columnInfo = kanbanColumns.find((item) => item.name === key);
-			return { name: key, icon: columnInfo ? columnInfo.fullIconUrl : '' };
+			return { id: columnInfo?.id, name: key, icon: columnInfo ? columnInfo.fullIconUrl : '',color: columnInfo?.color };
 		})
 	);
+	console.log("columnscolumnsaa",columns)
 	const { taskStatus: ts } = useTaskStatus();
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
@@ -194,10 +195,10 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	return (
 		<>
 			<DragDropContext onDragEnd={onDragEnd}>
-				{columns.length > 0 && (
+				{Array.isArray(columns) && columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col h-[270px] justify-between w-full">
+							<div className="flex flex-col h-[470px] justify-between w-full">
 								<div
 									className={clsxm(
 										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
@@ -216,6 +217,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																<EmptyKanbanDroppable
 																	index={index}
 																	title={column.name}
+																	status={column}
+																	setColumn={setColumn}
 																	items={items[column.name]}
 																	backgroundColor={getHeaderBackground(
 																		kanbanColumns,
@@ -226,6 +229,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 																<>
 																	<KanbanDraggable
 																		key={index}
+																		status={column}
+																		setColumn={setColumn}
 																		isLoading={isLoading}
 																		index={index}
 																		icon={column.icon}
