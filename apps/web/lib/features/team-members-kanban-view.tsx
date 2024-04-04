@@ -31,7 +31,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			return { id: columnInfo?.id, name: key, icon: columnInfo ? columnInfo.fullIconUrl : '',color: columnInfo?.color };
 		})
 	);
-	console.log("columnscolumnsaa",columns)
 	const { taskStatus: ts } = useTaskStatus();
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
@@ -122,7 +121,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	const onDragEnd = (result: DropResult) => {
 		if (result.combine) {
 			if (result.type === 'COLUMN') {
-				console.log('re-order-column');
 				const shallow = [...columns];
 				shallow.splice(result.source.index, 1);
 				setColumn(shallow);
