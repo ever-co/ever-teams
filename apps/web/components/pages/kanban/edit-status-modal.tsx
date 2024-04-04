@@ -20,9 +20,9 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 	const t = useTranslations();
 	const { register, handleSubmit, setValue, getValues } = useForm({
 		defaultValues: {
-			name: status?.name || '',
-			color: status?.color || '',
-			icon: status?.icon || ''
+			name: status.name || '',
+			color: status.color || '',
+			icon: status.icon || ''
 		}
 	});
 	const renameProperty = (newProp: string, icon: string) => {
