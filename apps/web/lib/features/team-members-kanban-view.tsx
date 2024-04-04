@@ -196,7 +196,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 				{Array.isArray(columns) && columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col h-[470px] justify-between w-full">
+							<div className="flex flex-col h-auto justify-between w-full">
 								<div
 									className={clsxm(
 										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
