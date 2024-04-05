@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
+import { useAuthenticateUser, useModal, useSyncRef, useTaskStatus } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskLabelsItemList, Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
@@ -36,7 +36,7 @@ export function useTaskInput({
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(null);
-
+	const { taskStatus: taskStatusList } = useTaskStatus();
 	const {
 		tasks: teamTasks,
 		activeTeamTask,
@@ -140,11 +140,13 @@ export function useTaskInput({
 		}[];
 	} = {}) => {
 		if (query.trim().length < 2 || inputTask?.title === query.trim() || !userRef.current?.isEmailVerified) return;
-
+		const openId = taskStatusList.find((item) => item.value === 'open')?.id;
+		const statusId = taskStatusList.find((item) => item.name === taskStatus.current)?.id;
 		return createTask(
 			{
 				taskName: query.trim(),
 				issueType: taskIssue.current || 'Bug',
+				taskStatusId: statusId || openId as string,
 				status: taskStatus.current || undefined,
 				priority: taskPriority.current || undefined,
 				size: taskSize.current || undefined,
