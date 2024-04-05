@@ -215,6 +215,7 @@ export function useTeamTasks() {
 			{
 				taskName,
 				issueType,
+				taskStatusId,
 				status = taskStatus[0]?.name,
 				priority,
 				size,
@@ -224,6 +225,7 @@ export function useTeamTasks() {
 				taskName: string;
 				issueType?: string;
 				status?: string;
+				taskStatusId: string;
 				priority?: string;
 				size?: string;
 				tags?: ITaskLabelsItemList[];
@@ -231,13 +233,11 @@ export function useTeamTasks() {
 			},
 			members?: { id: string }[]
 		) => {
-			const activeStatus = taskStatus.find((ts) => ts.name == status);
 			return createQueryCall(
 				{
 					title: taskName,
 					issueType,
 					status,
-					taskStatusId: activeStatus?.id,
 					priority,
 					size,
 					tags,
@@ -249,7 +249,8 @@ export function useTeamTasks() {
 						  }
 						: {}),
 					...(description ? { description: `<p>${description}</p>` } : {}),
-					...(members ? { members } : {})
+					...(members ? { members } : {}),
+					taskStatusId: taskStatusId,
 				},
 				$user.current
 			).then((res) => {
