@@ -14,16 +14,22 @@ import {
 import qs from 'qs';
 import { signInEmailConfirmGauzy, signInWorkspaceGauzy } from './auth/invite-accept';
 
+/**
+ * Fetches data of the authenticated user with specified relations and the option to include employee details.
+ *
+ * @returns A Promise resolving to the IUser object.
+ */
 export const getAuthenticatedUserDataAPI = () => {
-	const params = {} as { [x: string]: string };
-	const relations = ['employee', 'role', 'tenant'];
+	// Define the relations to be included in the request
+	const relations = ['role', 'tenant'];
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
+	// Construct the query string with 'qs', including the includeEmployee parameter
+	const query = qs.stringify({
+		relations: relations,
+		includeEmployee: true  // Append includeEmployee parameter set to true
 	});
 
-	const query = qs.stringify(params);
-
+	// Execute the GET request to fetch the user data
 	return get<IUser>(`/user/me?${query}`);
 };
 
