@@ -229,7 +229,7 @@ const Kanban = () => {
 						{/* <div className="h-20 w-full bg-red-500/50"></div> */}
 					</Container>
 				</div>
-				<div className="mt-[256px] mb-52">
+				<div className="mt-[256px] mb-24">
 					{/** TODO:fetch teamtask based on days */}
 					{activeTab && ( // add filter for today, yesterday and tomorrow
 						<div>
