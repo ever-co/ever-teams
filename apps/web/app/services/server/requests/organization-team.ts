@@ -73,6 +73,13 @@ export function deleteOrganizationTeamRequest({
 	});
 }
 
+/**
+ * Fetches detailed information for a specific team within an organization.
+ *
+ * @param {ITeamRequestParams & { teamId: string }} params Contains team, organization, tenant IDs, and optional relations.
+ * @param {string} bearer_token Token for authenticating the request.
+ * @returns A Promise resolving to the detailed information of the organization team with additional status.
+ */
 export function getOrganizationTeamRequest(
 	{
 		organizationId,
@@ -84,37 +91,43 @@ export function getOrganizationTeamRequest(
 			'members.employee',
 			'members.employee.user',
 			'createdBy',
-			'createdBy.employee',
 			'projects',
 			'projects.repository'
 		]
 	}: ITeamRequestParams & { teamId: string },
 	bearer_token: string
 ) {
-	const params = {
-		organizationId: organizationId,
-		tenantId: tenantId,
+	// Define base query parameters
+	const queryParams = {
+		organizationId,
+		tenantId,
 		// source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true', // Corrected typo
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString(),
-		includeOrganizationTeamId: 'false'
-	} as { [x: string]: string };
+		includeOrganizationTeamId: 'false',
+		...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
+	};
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
+	// Serialize parameters into a query string
+	const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
-	const queries = qs.stringify(params);
-
+	// Fetch and return team details
 	return serverFetch<IOrganizationTeamWithMStatus>({
-		path: `/organization-team/${teamId}?${queries.toString()}`,
+		path: `/organization-team/${teamId}?${queryString}`,
 		method: 'GET',
 		bearer_token,
 		tenantId
 	});
 }
 
+/**
+ * Fetches team details for a specified organization from the server.
+ *
+ * @param {TeamRequestParams} params Contains organizationId, tenantId, and optional relationship specifications.
+ * @param {string} bearer_token Token for request authentication.
+ * @returns A Promise resolving to a paginated list of organization team data.
+ */
 export function getAllOrganizationTeamRequest(
 	{
 		organizationId,
@@ -125,26 +138,25 @@ export function getAllOrganizationTeamRequest(
 			'members.employee',
 			'members.employee.user',
 			'createdBy',
-			'createdBy.employee',
 			'projects',
 			'projects.repository'
 		]
 	}: ITeamRequestParams,
 	bearer_token: string
 ) {
+	// Consolidate all parameters into a single object
 	const params = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
 		source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true'
-	} as { [x: string]: string };
+		withLastWorkedTask: 'true',
+		relations
+	};
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
+	// Serialize parameters into a query string
+	const query = qs.stringify(params, { arrayFormat: 'brackets' });
 
-	const query = qs.stringify(params);
-
+	// Construct and return the server fetch request
 	return serverFetch<PaginationResponse<IOrganizationTeamList>>({
 		path: `/organization-team?${query}`,
 		method: 'GET',

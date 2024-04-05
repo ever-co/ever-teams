@@ -16,6 +16,13 @@ import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from
 import { createOrganizationProjectAPI } from './projects';
 import qs from 'qs';
 
+/**
+ * Fetches a list of teams for a specified organization.
+ *
+ * @param {string} organizationId The unique identifier for the organization.
+ * @param {string} tenantId The tenant identifier.
+ * @returns A Promise resolving to a paginated response containing the list of organization teams.
+ */
 export async function getOrganizationTeamsAPI(organizationId: string, tenantId: string) {
 	const relations = [
 		'members',
@@ -23,22 +30,21 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'createdBy.employee',
 		'projects',
 		'projects.repository'
 	];
-
-	const params = {
+	// Construct the query parameters including relations
+	const queryParameters = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
 		source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true'
-	} as { [x: string]: string };
+		withLastWorkedTask: 'true', // Corrected the typo here
+		relations
+	};
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
-	const query = qs.stringify(params);
+	// Serialize parameters into a query string
+	const query = qs.stringify(queryParameters, { arrayFormat: 'brackets' });
+
 	const endpoint = `/organization-team?${query}`;
 
 	return get<PaginationResponse<IOrganizationTeamList>>(endpoint, { tenantId });
@@ -84,36 +90,43 @@ export async function createOrganizationTeamAPI(name: string, user: IUser) {
 	return api.post<PaginationResponse<IOrganizationTeamList>>('/organization-team', { name });
 }
 
+/**
+ * Fetches details of a specific team within an organization.
+ *
+ * @param {string} teamId The unique identifier of the team.
+ * @param {string} organizationId The unique identifier of the organization.
+ * @param {string} tenantId The tenant identifier.
+ * @returns A Promise resolving to the details of the specified organization team.
+ */
 export async function getOrganizationTeamAPI(teamId: string, organizationId: string, tenantId: string) {
-	const params = {
-		organizationId: organizationId,
-		tenantId: tenantId,
-		// source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true',
-		startDate: moment().startOf('day').toISOString(),
-		endDate: moment().endOf('day').toISOString(),
-		includeOrganizationTeamId: 'false'
-	} as { [x: string]: string };
-
 	const relations = [
 		'members',
 		'members.role',
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'createdBy.employee',
 		'projects',
 		'projects.repository'
 	];
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
+	// Define base parameters including organization and tenant IDs, and date range
+	const queryParams = {
+		organizationId,
+		tenantId,
+		withLastWorkedTask: 'true', // Corrected the typo here
+		startDate: moment().startOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString(),
+		includeOrganizationTeamId: 'false',
+		relations
+	};
 
-	const queries = qs.stringify(params);
+	// Serialize parameters into a query string using 'qs'
+	const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
-	const endpoint = `/organization-team/${teamId}?${queries}`;
+	// Construct the endpoint URL
+	const endpoint = `/organization-team/${teamId}?${queryString}`;
 
+	// Fetch and return the team details
 	return get<IOrganizationTeamList>(endpoint);
 }
 
