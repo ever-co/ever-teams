@@ -80,11 +80,11 @@ export function useKanban() {
 	};
 
 	const isColumnCollapse = (column: string) => {
-		const columnData = taskStatusHook.taskStatus.filter((taskStatus: ITaskStatusItemList) => {
+		const columnData = taskStatusHook.taskStatus.find((taskStatus: ITaskStatusItemList) => {
 			return taskStatus.name === column;
 		});
 
-		return columnData[0].isCollapsed;
+		return columnData?.isCollapsed;
 	};
 
 	const reorderStatus = (itemStatus: string, index: number) => {

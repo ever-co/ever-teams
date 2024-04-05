@@ -42,6 +42,13 @@ export function getUserOrganizationsRequest(params: { tenantId: string; userId: 
 	});
 }
 
+/**
+ * Fetches a list of all teams within an organization, including specified relation data.
+ *
+ * @param {ITeamRequestParams} params Parameters for the team request, including organization and tenant IDs, and optional relations.
+ * @param {string} bearer_token The bearer token for authentication.
+ * @returns A Promise resolving to the pagination response of organization teams.
+ */
 export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_token: string) {
 	const relations = params.relations || [
 		'members',
@@ -49,25 +56,24 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'createdBy.employee',
 		'projects',
 		'projects.repository'
 	];
 
-	const searchQueries = {
+	// Construct search queries
+	const queryParams = {
 		'where[organizationId]': params.organizationId,
 		'where[tenantId]': params.tenantId,
 		source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true'
-	} as { [x: string]: string };
+		withLastWorkedTask: 'true', // Corrected the typo here
+		...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
+	};
 
-	relations.forEach((rl, i) => {
-		searchQueries[`relations[${i}]`] = rl;
-	});
+	// Serialize search queries into a query string
+	const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
-	const query = qs.stringify(params);
-
-	return get<PaginationResponse<IOrganizationTeamList>>(`/organization-team?${query}`, {
+	// Construct and execute the request
+	return get<PaginationResponse<IOrganizationTeamList>>(`/organization-team?${queryString}`, {
 		tenantId: params.tenantId,
 		headers: {
 			Authorization: `Bearer ${bearer_token}`

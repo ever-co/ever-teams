@@ -27,7 +27,7 @@ apiVersion: apps/v1
 metadata:
     name: ever-teams-prod-webapp
 spec:
-    replicas: 8
+    replicas: 4
     selector:
         matchLabels:
             app: ever-teams-prod-webapp

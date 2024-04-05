@@ -23,6 +23,7 @@ import { useModal } from '@app/hooks';
 import { Modal } from './modal';
 import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 import Image from 'next/image';
+import EditStatusModal from '@components/pages/kanban/edit-status-modal';
 
 const grid = 8;
 
@@ -70,29 +71,31 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 	return (
 		<>
 			<section className="flex flex-col pb-2 relative">
-				{items.map((item: ITeamTask, index: number) => (
-					<Draggable key={item.id} draggableId={item.id} index={index}>
-						{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
-							<Item
-								isClone={false}
-								index={index}
-								key={item.id}
-								item={item}
-								isDragging={dragSnapshot.isDragging}
-								isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
-								provided={dragProvided}
-								style={
-									title === TaskStatus.INPROGRESS && {
-										borderWidth: '2px',
-										borderColor: '#6FCF97',
-										borderStyle: 'solid'
+				{Array.isArray(items) &&
+					items.length > 0 &&
+					items.map((item: ITeamTask, index: number) => (
+						<Draggable key={item.id} draggableId={item.id} index={index}>
+							{(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
+								<Item
+									isClone={false}
+									index={index}
+									key={item.id}
+									item={item}
+									isDragging={dragSnapshot.isDragging}
+									isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
+									provided={dragProvided}
+									style={
+										title === TaskStatus.INPROGRESS && {
+											borderWidth: '2px',
+											borderColor: '#6FCF97',
+											borderStyle: 'solid'
+										}
 									}
-								}
-							/>
-						)}
-					</Draggable>
-				))}
-				{items.length == 0 && (
+								/>
+							)}
+						</Draggable>
+					))}
+				{Array.isArray(items) && items?.length == 0 && (
 					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute">
 						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
 							not found!
@@ -181,11 +184,15 @@ export const KanbanDroppable = ({
 export const EmptyKanbanDroppable = ({
 	index,
 	title,
+	status,
+	setColumn,
 	items,
 	backgroundColor
 }: {
 	index: number;
 	title: string;
+	status: any;
+	setColumn: any;
 	backgroundColor: any;
 	items: ITeamTask[];
 }) => {
@@ -203,6 +210,7 @@ export const EmptyKanbanDroppable = ({
 	}, []);
 
 	const { isOpen, closeModal, openModal } = useModal();
+	const { isOpen:editIsOpen, closeModal:editCloseModal, openModal:editOpenModal } = useModal();
 
 	if (!enabled) return null;
 
@@ -258,9 +266,22 @@ export const EmptyKanbanDroppable = ({
 													>
 														Collapse Column
 													</div>
+													<div
+														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+														onClick={editOpenModal}
+													>
+														Edit Status
+													</div>
 												</PopoverContent>
 											</Popover>
 										</div>
+										<Modal isOpen={isOpen} closeModal={closeModal}>
+											<EditStatusModal
+												status={status}
+												onClose={closeModal}
+												setColumn={setColumn}
+											/>
+										</Modal>
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
 												<div
@@ -291,6 +312,9 @@ export const EmptyKanbanDroppable = ({
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
+			<Modal isOpen={editIsOpen} closeModal={editCloseModal}>
+				<EditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
+			</Modal>
 		</>
 	);
 };
@@ -298,6 +322,8 @@ export const EmptyKanbanDroppable = ({
 const KanbanDraggableHeader = ({
 	title,
 	icon,
+	setColumn,
+	status,
 	items,
 	snapshot,
 	createTask,
@@ -306,6 +332,8 @@ const KanbanDraggableHeader = ({
 }: {
 	title: string;
 	items: any;
+	setColumn: any;
+	status: any;
 	icon: string;
 	createTask: () => void;
 	snapshot: DraggableStateSnapshot;
@@ -313,6 +341,8 @@ const KanbanDraggableHeader = ({
 	provided: DraggableProvided;
 }) => {
 	const { toggleColumn } = useKanban();
+	const { isOpen, closeModal, openModal } = useModal();
+
 	return (
 		<>
 			{title && (
@@ -334,7 +364,7 @@ const KanbanDraggableHeader = ({
                         flex flex-col items-center justify-center px-2.5 text-xs py-1 text-black
                         bg-transparentWhite rounded-xl"
 						>
-							{items.length}
+							{items?.length ?? '0'}
 						</div>
 					</div>
 					<div className="flex flex-row items-center gap-2">
@@ -360,12 +390,9 @@ const KanbanDraggableHeader = ({
 								>
 									Collapse Column
 								</div>
-								{/* <div
-									className="hover:font-medium p-1.5 text-sm cursor-pointer"
-									onClick={() => toggleColumn(title, true)}
-								>
+								<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={openModal}>
 									Edit Status
-								</div> */}
+								</div>
 							</PopoverContent>
 						</Popover>
 						<button
@@ -377,6 +404,9 @@ const KanbanDraggableHeader = ({
 					</div>
 				</header>
 			)}
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<EditStatusModal status={status} onClose={closeModal} setColumn={setColumn} />
+			</Modal>
 		</>
 	);
 };
@@ -389,13 +419,17 @@ const KanbanDraggableHeader = ({
 const KanbanDraggable = ({
 	index,
 	title,
+	setColumn,
+	status,
 	isLoading,
 	icon,
 	items,
 	backgroundColor
 }: {
 	index: number;
+	setColumn: any;
 	title: string;
+	status: any;
 	icon: string;
 	isLoading: boolean;
 	backgroundColor: any;
@@ -424,6 +458,8 @@ const KanbanDraggable = ({
 										<KanbanDraggableHeader
 											title={title}
 											icon={icon}
+											setColumn={setColumn}
+											status={status}
 											items={items}
 											snapshot={snapshot}
 											provided={provided}
