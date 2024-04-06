@@ -59,7 +59,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
-	const formatTitle = (url) => {
+	const formatTitle = (url: string) => {
 		// Separate the URL into pathname and query parts
 		const [pathname, queryString] = url.split('?');
 
@@ -74,18 +74,15 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				}
 				return seg.charAt(0).toUpperCase() + seg.slice(1).toLowerCase(); // Capitalize non-ID segments
 			})
-			.filter((seg) => seg); // Remove empty strings resulting from ID exclusion
+			.filter((seg: string) => seg); // Remove empty strings resulting from ID exclusion
 
 		// Process query parameters, specifically looking for 'name'
 		let namePart = '';
 		if (queryString) {
 			const params = new URLSearchParams(queryString);
-			if (params.has('name')) {
-				const nameValue = params
-					.get('name')
-					.split('-')
-					.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-					.join(' ');
+			if (params?.get('name')) {
+				const name = params.get('name') ?? '';
+				const nameValue = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 				namePart = nameValue;
 			}
 		}
@@ -96,20 +93,20 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 		return title;
 	};
 
-	// Example usage
+	const name = searchParams?.get('name');
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
-	const name = searchParams?.get('name');
+
 	useEffect(() => {
 		if (!isApiWork && !loading) router.push(`/maintenance`);
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 	return (
 		<html lang={locale} className={poppins.variable}>
-			{/* <head>
+			<head>
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
-			</head> */}
+			</head>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -127,7 +124,6 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
-					{pathname}
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 							{loading ? (

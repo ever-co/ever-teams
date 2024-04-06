@@ -75,6 +75,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const $user = useMemo(() => profile.member?.employee.user, [profile.member?.employee.user]);
 	const userName = `${$user?.firstName || ''} ${$user?.lastName || ''}`;
+		// Example usage
+
 	// useEffect(() => {
 	// 	const updatedSearchParams = new URLSearchParams(currentSearchParams?.toString());
 	// 	updatedSearchParams.set('name', 'Anish');

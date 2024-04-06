@@ -37,7 +37,7 @@ export default function ImageOverlapper({
 			className="relative "
 		>
 			{firstArray.map((image, index) => (
-				<Link key={index} href={`/profile/${image.id}`}>
+				<Link key={index} href={`/profile/${image.id}?name=${image.alt}`}>
 					<div
 						className="absolute hover:!z-20 transition-all hover:scale-110"
 						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
@@ -77,7 +77,7 @@ export default function ImageOverlapper({
 							{secondArray.map((image: ImageOverlapperProps, index: number) => {
 								return (
 									<Link
-										href={`/profile/${image.id}`}
+										href={`/profile/${image.id}?name=${image.alt}`}
 										className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
 										key={index}
 									>
