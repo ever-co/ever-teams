@@ -69,7 +69,7 @@ export function useTeamInvitations() {
 				return res;
 			});
 		},
-		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee?.organizationId]
+		[inviteQueryCall, setTeamInvitations, user?.tenantId, activeTeamId, user?.employee.organizationId]
 	);
 
 	useEffect(() => {
