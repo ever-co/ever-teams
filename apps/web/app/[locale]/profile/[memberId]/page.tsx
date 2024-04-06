@@ -12,7 +12,7 @@ import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
@@ -22,7 +22,6 @@ import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -33,10 +32,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
-	const currentSearchParams = useSearchParams();
-	const pathname = usePathname();
-	const router = useRouter();
-
 	const hook = useTaskFilter(profile);
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
@@ -73,8 +68,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	const $user = useMemo(() => profile.member?.employee.user, [profile.member?.employee.user]);
-	const userName = `${$user?.firstName || ''} ${$user?.lastName || ''}`;
 		// Example usage
 
 	// useEffect(() => {
@@ -85,7 +78,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	// }, [currentSearchParams, userName, router, pathname]);
 	return (
 		<>
-			<button onClick={() => router.push(pathname + '?' + 'name=Anish')}>Roite</button>
 			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
@@ -155,20 +147,12 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
-	const currentSearchParams = useSearchParams();
-	const pathname = usePathname();
-	const router = useRouter();
 	const size = 100;
 	const { timerStatus } = useTimer();
 	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, false);
 	}, [timerStatus, member]);
-	useEffect(() => {
-		const updatedSearchParams = new URLSearchParams(currentSearchParams?.toString());
-		updatedSearchParams.set('query', imgTitle(userName).charAt(0));
 
-		router.push(pathname + '?' + updatedSearchParams.toString());
-	}, [currentSearchParams, userName, router]);
 	return (
 		<div className="flex items-center mb-4 space-x-4 md:mb-0">
 			<div
