@@ -196,7 +196,7 @@ export function useTimer() {
 			if (loadingRef.current || !user?.tenantId) {
 				return;
 			}
-			return queryCall(user?.tenantId, user?.employee.organizationId).then((res) => {
+			return queryCall(user?.tenantId, user?.employee?.organizationId).then((res) => {
 				if (res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t) => {
 						if (deepCheck) {

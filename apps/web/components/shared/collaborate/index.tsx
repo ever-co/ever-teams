@@ -21,6 +21,7 @@ import stc from 'string-to-color';
 import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
 import { useTranslations } from 'next-intl';
 import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
+import { ScrollArea } from '@components/ui/scroll-bar';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -89,58 +90,64 @@ const Collaborate = () => {
 						<CommandInput placeholder="Search member..." />
 						<CommandList>
 							<CommandEmpty>{t('common.USER_NOT_FOUND')}</CommandEmpty>
-							<CommandGroup className="p-2">
-								{members.map((member) => (
-									<CommandItem
-										key={member?.id}
-										className="flex items-center px-2 cursor-pointer"
-										onSelect={() => {
-											handleMemberClick(member);
-										}}
-									>
-										<div
-											className={clsxm(
-												'w-[2.25rem] h-[2.25rem]',
-												'flex justify-center items-center',
-												'rounded-full text-xs text-default dark:text-white',
-												'shadow-md text-lg font-normal'
-											)}
-											style={{
-												backgroundColor: `${stc(member?.name || '')}80`
+							<ScrollArea className="h-[15rem]">
+								<CommandGroup className="p-2">
+									{members.map((member) => (
+										<CommandItem
+											key={member?.id}
+											className="flex items-center px-2 cursor-pointer"
+											onSelect={() => {
+												handleMemberClick(member);
 											}}
 										>
-											{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
-											isValidUrl(
-												member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
-											) ? (
-												<Avatar
-													size={36}
-													className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
-													imageUrl={
-														member?.image?.thumbUrl ||
+											<div
+												className={clsxm(
+													'w-[2.25rem] h-[2.25rem]',
+													'flex justify-center items-center',
+													'rounded-full text-xs text-default dark:text-white',
+													'shadow-md text-lg font-normal'
+												)}
+												style={{
+													backgroundColor: `${stc(member?.name || '')}80`
+												}}
+											>
+												{(member?.image?.thumbUrl ||
+													member?.image?.fullUrl ||
+													member?.imageUrl) &&
+												isValidUrl(
+													member?.image?.thumbUrl ||
 														member?.image?.fullUrl ||
 														member?.imageUrl
-													}
-													alt="Team Avatar"
-													imageTitle={member?.name || ''}
-												></Avatar>
-											) : member?.name ? (
-												imgTitle(member?.name || ' ').charAt(0)
-											) : (
-												''
-											)}
-										</div>
+												) ? (
+													<Avatar
+														size={36}
+														className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
+														imageUrl={
+															member?.image?.thumbUrl ||
+															member?.image?.fullUrl ||
+															member?.imageUrl
+														}
+														alt="Team Avatar"
+														imageTitle={member?.name || ''}
+													></Avatar>
+												) : member?.name ? (
+													imgTitle(member?.name || ' ').charAt(0)
+												) : (
+													''
+												)}
+											</div>
 
-										<div className="ml-2">
-											<p className="text-sm font-medium leading-none">{member?.name}</p>
-											<p className="text-xs text-muted-foreground">{member?.email}</p>
-										</div>
-										{selectedMemberIds.includes(member?.id) ? (
-											<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
-										) : null}
-									</CommandItem>
-								))}
-							</CommandGroup>
+											<div className="ml-2">
+												<p className="text-sm font-medium leading-none">{member?.name}</p>
+												<p className="text-xs text-muted-foreground">{member?.email}</p>
+											</div>
+											{selectedMemberIds.includes(member?.id) ? (
+												<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
+											) : null}
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</ScrollArea>
 						</CommandList>
 					</Command>
 					<DialogFooter className="flex items-center border-t border-[#0000001A] dark:border-[#26272C] p-4 sm:justify-between">

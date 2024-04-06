@@ -61,7 +61,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				}
 			);
 		},
-		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
+		[setStatTasks, user?.employee?.organizationId, user?.employee?.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
 		allTaskTimesheetStatisticsAPI().then(({ data }) => {
@@ -111,7 +111,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			setTasksFetching(false);
 		});
 		return promise;
-	}, [setStatActiveTask, setTasksFetching, user?.employee.organizationId, user?.employee.tenantId]);
+	}, [setStatActiveTask, setTasksFetching, user?.employee?.organizationId, user?.employee?.tenantId]);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), []);
@@ -125,7 +125,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				initialLoad.current = true;
 			});
 		}
-	}, [firstLoad, getActiveTaskStatData, user?.employee.organizationId, user?.employee.tenantId]);
+	}, [firstLoad, getActiveTaskStatData, user?.employee?.organizationId, user?.employee?.tenantId]);
 
 	/**
 	 * Get fresh statistic of the active task
