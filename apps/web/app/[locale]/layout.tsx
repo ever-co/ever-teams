@@ -4,7 +4,7 @@
 import clsx from 'clsx';
 import { notFound, useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { RecoilRoot } from 'recoil';
 import { AppState } from 'lib/app/init-state';
@@ -17,7 +17,6 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
-
 interface Props {
 	children: ReactNode;
 	params: { locale: string };
@@ -56,9 +55,45 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	if (!locales.includes(locale as any)) notFound();
 	const router = useRouter();
 	const pathname = usePathname();
+	const searchParams = useSearchParams();
 	const { isApiWork, loading } = useCheckAPI();
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
+	const formatTitle = (url: string) => {
+		// Separate the URL into pathname and query parts
+		const [pathname, queryString] = url.split('?');
+
+		// Ignore language codes or any initial two-letter or specific codes like 'ru', 'ur'
+		const segments = pathname
+			.split('/')
+			.filter((seg) => seg && seg.length > 2)
+			.map((seg) => {
+				// Replace dashes with spaces in the segment if it looks like a UUID or has digits (likely an ID)
+				if (seg.includes('-') || /\d/.test(seg)) {
+					return ''; // Exclude IDs from title
+				}
+				return seg.charAt(0).toUpperCase() + seg.slice(1).toLowerCase(); // Capitalize non-ID segments
+			})
+			.filter((seg: string) => seg); // Remove empty strings resulting from ID exclusion
+
+		// Process query parameters, specifically looking for 'name'
+		let namePart = '';
+		if (queryString) {
+			const params = new URLSearchParams(queryString);
+			if (params?.get('name')) {
+				const name = params.get('name') ?? '';
+				const nameValue = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+				namePart = nameValue;
+			}
+		}
+
+		// Combine the pathname segments with the name part, if present
+		const title = [...segments, namePart].filter((part) => part).join(' | ');
+
+		return title;
+	};
+
+	const name = searchParams?.get('name');
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const messages = require(`../../messages/${locale}.json`);
@@ -69,6 +104,9 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	}, [isApiWork, loading, router, pathname]);
 	return (
 		<html lang={locale} className={poppins.variable}>
+			<head>
+				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
+			</head>
 			{/* <head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

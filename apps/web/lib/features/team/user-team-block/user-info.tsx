@@ -30,7 +30,7 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 
 	return (
 		<Link
-			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
+			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
 			<div

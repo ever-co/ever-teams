@@ -32,6 +32,7 @@ import { useRecoilValue } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import Head from 'next/head';
 
 const Kanban = () => {
 	const {
@@ -85,6 +86,11 @@ const Kanban = () => {
 	});
 	return (
 		<>
+			<Head>
+				<title>
+					{t('common.KANBAN')} {t('common.BOARD')}
+				</title>
+			</Head>
 			<MainLayout
 				showTimer={isTrackingEnabled}
 				footerClassName="fixed bottom-0 z-50 bg-white dark:bg-dark--theme"

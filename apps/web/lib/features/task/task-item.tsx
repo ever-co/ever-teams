@@ -129,7 +129,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: numb
 				const size = 30;
 
 				return (
-					<Link key={i} title={userName} href={`/profile/${member.userId}`}>
+					<Link key={i} title={userName} href={`/profile/${member.userId}?name=${userName}`}>
 						<div
 							className={clsx(
 								`w-[${size}px] h-[${size}px]`,
