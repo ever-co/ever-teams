@@ -70,12 +70,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 		// Example usage
 
-	// useEffect(() => {
-	// 	const updatedSearchParams = new URLSearchParams(currentSearchParams?.toString());
-	// 	updatedSearchParams.set('name', 'Anish');
-	// 	console.log('updatedSearchParams', updatedSearchParams);
-	// 	router.push('/');
-	// }, [currentSearchParams, userName, router, pathname]);
 	return (
 		<>
 			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
