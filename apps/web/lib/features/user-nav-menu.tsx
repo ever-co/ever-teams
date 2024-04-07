@@ -220,7 +220,7 @@ function UserNavMenu() {
 					{/* Task menu */}
 					<li className="mb-3 ">
 						<Link
-							href={`/profile/${user?.id}`}
+							href={`/profile/${user?.id}?name=${name || ''}`}
 							className="flex items-center space-x-3 font-normal text-center"
 						>
 							<BriefCaseIcon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.MY_TASKS')}</span>

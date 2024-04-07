@@ -38,7 +38,7 @@ export default function ImageOverlapper({
 			className="relative "
 		>
 			{firstArray.map((image, index) => (
-				<Link key={index} href={`/profile/${image.id}`}>
+				<Link key={index} href={`/profile/${image.id}?name=${image.alt}`}>
 					<div
 						className="absolute hover:!z-20 transition-all hover:scale-110"
 						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
@@ -79,21 +79,21 @@ export default function ImageOverlapper({
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link
-											href={`/profile/${image.id}`}
-											className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
-											key={index}
-										>
-											<div className="flex items-center">
-												<Image
-													src={image.url}
-													alt={`${image.alt} avatar`}
-													width={80}
-													height={80}
-													className="!h-10 !w-10 rounded-full border-2 border-white"
-												/>
-												<p className="ml-2">{image.alt}</p>
-											</div>
-										</Link>
+										href={`/profile/${image.id}?name=${image.alt}`}
+										className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
+										key={index}
+									>
+										<div className="flex items-center">
+											<Image
+												src={image.url}
+												alt={`${image.alt} avatar`}
+												width={80}
+												height={80}
+												className="!h-10 !w-10 rounded-full border-2 border-white"
+											/>
+											<p className="ml-2">{image.alt}</p>
+										</div>
+									</Link>
 									);
 								})}
 							</div>
