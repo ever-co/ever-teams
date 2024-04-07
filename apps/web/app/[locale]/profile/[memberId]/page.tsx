@@ -32,7 +32,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
-
 	const hook = useTaskFilter(profile);
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
@@ -68,6 +67,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		}));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
+
+		// Example usage
 
 	return (
 		<>
