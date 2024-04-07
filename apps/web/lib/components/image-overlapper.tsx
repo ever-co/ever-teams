@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
+import { ScrollArea } from '@components/ui/scroll-bar';
 export interface ImageOverlapperProps {
 	id: string;
 	url: string;
@@ -72,11 +73,12 @@ export default function ImageOverlapper({
 							{secondArray.length < 100 ? secondArray.length : 99}+
 						</div>
 					</PopoverTrigger>
-					<PopoverContent className="!p-0 bg-white dark:bg-dark--theme max-h-40 overflow-y-auto ">
-						<div className="flex flex-col space-y-2 m-2">
-							{secondArray.map((image: ImageOverlapperProps, index: number) => {
-								return (
-									<Link
+					<PopoverContent className="!p-0 bg-white dark:bg-dark--theme input-border">
+						<ScrollArea  className="h-40 ">
+							<div className="flex flex-col space-y-2 m-2">
+								{secondArray.map((image: ImageOverlapperProps, index: number) => {
+									return (
+										<Link
 										href={`/profile/${image.id}?name=${image.alt}`}
 										className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
 										key={index}
@@ -92,9 +94,10 @@ export default function ImageOverlapper({
 											<p className="ml-2">{image.alt}</p>
 										</div>
 									</Link>
-								);
-							})}
-						</div>
+									);
+								})}
+							</div>
+						</ScrollArea>
 					</PopoverContent>
 				</Popover>
 			)}
