@@ -6,7 +6,7 @@ import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
-import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { ScrollArea } from '@components/ui/scroll-bar';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -114,7 +114,7 @@ export function Dropdown<T extends DropdownItem>({
 									/>
 								</div>
 							)}
-							<ScrollArea >
+							<ScrollArea>
 								<section className={'h-96 min-w-[100px] '}>
 									{items.map((Item, index) => (
 										<Listbox.Option
