@@ -46,7 +46,7 @@ export const MemberSetting = () => {
 			</div>
 
 			{members.length > 0 ? (
-				<div className="mb-8 mt-7 overflow-y-auto">
+				<div className="mb-8 mt-7 ">
 					<MemberTable members={members} />
 				</div>
 			) : (

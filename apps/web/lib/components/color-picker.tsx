@@ -1,12 +1,11 @@
 'use client';
 
 import { useCallbackRef } from '@app/hooks';
-import { clsxm } from '@app/utils';
-import { Popover, Transition } from '@headlessui/react';
+import { Transition, Popover } from '@headlessui/react';
 import { useState, useEffect, Fragment, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Dropdown } from './dropdown';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { PopoverTrigger, PopoverContent, Popover as RedixPopover } from '@components/ui/popover';
 
 export const ColorPicker = ({
 	defaultColor,
@@ -125,10 +124,7 @@ export const ColorPicker = ({
 						leaveTo="opacity-0 translate-y-1"
 						show={!disabled}
 					>
-						<Popover.Panel
-							ref={panelRef}
-							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow"
-						>
+						<Popover.Panel ref={panelRef} className="h-10">
 							<HexColorPicker color={color || undefined} onChange={setColor} />
 						</Popover.Panel>
 					</Transition>
@@ -136,23 +132,16 @@ export const ColorPicker = ({
 			)}
 		</Popover>
 	) : (
-		<Dropdown
-			className={`min-w-[150px] max-w-sm z-50`}
-			buttonClassName={clsxm(`py-0 font-medium h-[54px] w-[150px] dark:bg-dark--theme-light`)}
-			value={{
-				key: color || '',
-				// eslint-disable-next-line react/no-unstable-nested-components
-				Label: () => (
-					<div className="flex items-center space-x-2">
-						<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
-						<span className="font-normal">{color || 'Color'}</span>
-					</div>
-				)
-			}}
-			items={[]}
-			closeOnChildrenClick={false}
-		>
-			<HexColorPicker color={color || undefined} onChange={setColor} />
-		</Dropdown>
+		<RedixPopover>
+			<PopoverTrigger asChild>
+				<div className="flex items-center space-x-2 dark:bg-dark--theme-light input-border rounded-xl cursor-pointer h-14 px-2">
+					<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
+					<span className="font-normal">{color || 'Color'}</span>
+				</div>
+			</PopoverTrigger>
+			<PopoverContent align="end" side="bottom" className="w-fit dark:bg-dark--theme-light input-border">
+				<HexColorPicker className="relative h-10" color={color || undefined} onChange={setColor} />
+			</PopoverContent>
+		</RedixPopover>
 	);
 };
