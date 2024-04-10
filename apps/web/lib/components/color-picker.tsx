@@ -5,7 +5,7 @@ import { Transition, Popover } from '@headlessui/react';
 import { useState, useEffect, Fragment, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
-import { PopoverTrigger, PopoverContent, Popover as RedixPopover } from '@components/ui/popover';
+import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@components/ui/popover';
 
 export const ColorPicker = ({
 	defaultColor,
@@ -132,7 +132,7 @@ export const ColorPicker = ({
 			)}
 		</Popover>
 	) : (
-		<RedixPopover>
+		<PopoverDropdown>
 			<PopoverTrigger asChild>
 				<div className="flex items-center space-x-2 dark:bg-dark--theme-light input-border rounded-xl cursor-pointer h-14 px-2">
 					<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
@@ -142,6 +142,6 @@ export const ColorPicker = ({
 			<PopoverContent align="end" side="bottom" className="w-fit dark:bg-dark--theme-light input-border">
 				<HexColorPicker className="relative h-10" color={color || undefined} onChange={setColor} />
 			</PopoverContent>
-		</RedixPopover>
+		</PopoverDropdown>
 	);
 };
