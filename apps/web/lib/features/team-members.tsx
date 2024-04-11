@@ -12,6 +12,9 @@ import { taskBlockFilterState } from '@app/stores/task-filter';
 import { OT_Member } from '@app/interfaces';
 import { Container } from 'lib/components';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { UserTeamCardHeader } from './team/user-team-card/task-skeleton';
+import { UserTeamBlockHeader } from './team/user-team-block/user-team-block-header';
+import UserTeamTableHeader from './team/user-team-table/user-team-table-header';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -31,8 +34,8 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 		activeFilter == 'all'
 			? orderedMembers
 			: activeFilter == 'idle'
-			? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
-			: orderedMembers.filter((m) => m.timerStatus === activeFilter);
+				? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
+				: orderedMembers.filter((m) => m.timerStatus === activeFilter);
 
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members
@@ -63,19 +66,22 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 			break;
 		case view === IssuesView.CARDS:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
-					<TeamMembersCardView
-						teamMembers={$members}
-						currentUser={currentUser}
-						publicTeam={publicTeam}
-						teamsFetching={$teamsFetching}
-					/>
-				</Container>
+				<>
+					{/* <UserTeamCardHeader /> */}
+					<Container fullWidth={fullWidth}>
+						<TeamMembersCardView
+							teamMembers={$members}
+							currentUser={currentUser}
+							publicTeam={publicTeam}
+							teamsFetching={$teamsFetching}
+						/>
+					</Container>
+				</>
 			);
 			break;
 		case view === IssuesView.TABLE:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container className='!mx-auto' fullWidth={fullWidth}>
 					<Transition
 						show={!!currentUser}
 						enter="transition-opacity duration-75"
@@ -98,7 +104,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 
 		case view == IssuesView.BLOCKS:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container  fullWidth={fullWidth}>
 					<TeamMembersBlockView
 						teamMembers={blockViewMembers}
 						currentUser={currentUser}

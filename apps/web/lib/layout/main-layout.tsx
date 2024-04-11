@@ -54,14 +54,15 @@ export function MainLayout({
 				)}
 			>
 				<div className={clsxm('lg:flex-1 lg:w-full ', childrenClassName)}>{children}</div>
-
-				<Container
-					fullWidth={fullWidth}
-					className={clsxm('w-full px-8', fullWidth && '!mx-0', footerClassName)}
-				>
-					<Divider />
-					<Footer className="justify-between w-full px-0 mx-auto" />
-				</Container>
+				<div className="bg-white dark:bg-dark-high w-full nav-items--shadow dark:border-t-[0.125rem] dark:border-t-[#26272C] fixed z-[999]">
+					{/* <Container
+						fullWidth={fullWidth}
+						className={clsxm('w-full  px-8', fullWidth && '!px-0', footerClassName)}
+					> */}
+						<Divider />
+						<Footer className="justify-between w-full px-0 mx-auto" />
+					{/* </Container> */}
+				</div>
 			</div>
 			<Toaster />
 		</div>

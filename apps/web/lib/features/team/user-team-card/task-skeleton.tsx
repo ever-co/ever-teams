@@ -1,9 +1,3 @@
-import { fullWidthState } from '@app/stores/fullWidth';
-import { clsxm } from '@app/utils';
-import { Tooltip } from 'lib/components';
-import { useTranslations } from 'next-intl';
-import { useRecoilValue } from 'recoil';
-
 export function UserTeamCardSkeleton() {
 	return (
 		<div
@@ -44,49 +38,28 @@ export function InviteUserTeamSkeleton() {
 }
 
 export function UserTeamCardHeader() {
-	const fullWidth = useRecoilValue(fullWidthState);
-	const t = useTranslations();
 	return (
-		<div className="my-6 dark:text-[#7B8089] font-normal pb-4">
-			<div className="relative m-0 flex items-center">
-				<div className="flex 2xl:w-[20.625rem] w-1/4 justify-center items-center space-x-2 lg:space-x-4">
-					<p>{t('common.NAME')}</p>
-				</div>
-
-				<div className="flex-grow self-stretch flex flex-1 justify-center items-center">{t('common.TASK')}</div>
-
-				{/* <div className="flex w-[100%-_20px]"></div> */}
-
-				<div
-					className={clsxm(
-						'w-1/5 lg:px-3  lg:text-center text-right',
-						fullWidth ? '2xl:w-52 3xl:w-64' : '2xl:w-36 3xl:w-44'
-					)}
-				>
-					<div className="lg:text-center text-left w-full mt-1.5">
-						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-							<div className="text-center">
-								{t('task.taskTableHead.TASK_WORK.TITLE')}
-								<br />
-								<span>{t('common.TASK')}</span>
-							</div>
-						</Tooltip>
+		<div className="w-full bg-white h-24  dark:text-[#7B8089] font-normal  -mt-1 z-50 dark:bg-dark-high px-8 m-0">
+			<div className="px-4 md:px-8 ml-4  min-h-[7rem] !py-4 ">
+				<div className="flex m-0 relative items-center">
+					<a className="flex items-center space-x-2 2xl:w-[20.625rem] w-1/4">
+						<div className="w-[50px] h-[50px] flex justify-center items-center"></div>
+						<div className="lg:w-64 w-1/2 flex flex-col gap-1.5">Team Member</div>
+					</a>
+					<div className="w-1 self-stretch border-l-[0.125rem] dark:border-l-transparent" />
+					<div className="flex justify-between items-center flex-1 min-w-[40%]">
+						<div className="h-full w-full flex flex-col items-center justify-center gap-[1.0620rem] max-h-full overflow-hidden flex-1 lg:px-4 px-2 overflow-y-hidden">
+							Task
+						</div>
 					</div>
-				</div>
-				<div
-					className={clsxm(
-						'w-1/5 lg:px-3  lg:text-center text-right',
-						fullWidth ? '2xl:w-52 3xl:w-64' : '2xl:w-40 3xl:w-48'
-					)}
-				>
-					{t('common.ESTIMATE')}
-				</div>
-				<div className="w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] flex cursor-pointer items-center justify-center mt-1.5 ">
-					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-						{t('task.taskTableHead.TOTAL_WORK.TITLE')}
-						<br />
-						<span className="ml-6">{t('common.TODAY')}</span>
-					</Tooltip>
+					<div className="w-4 self-stretch border-l-[0.125rem] dark:border-l-transparent " />
+					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 !pl-6 lg:!pl-14  flex flex-col items-center text-center  justify-center">
+						Worked on <br /> Task
+					</div>
+					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
+					<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 !pl-14 text-center">Estimates</div>
+					<div className="w-1 self-stretch border-l-[0.125rem] dark:border-l-transparent" />
+					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] !pl-14 text-center">Worked on <br /> Task</div>
 				</div>
 			</div>
 		</div>

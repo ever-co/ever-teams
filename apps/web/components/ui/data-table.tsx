@@ -48,6 +48,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 			// Let's set up our default column filter UI
 			size: 20
 		},
+
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
@@ -60,10 +61,13 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues()
 	});
+
 	return (
+		<>
+
 		<Table className="border-transparent mt-0 w-full rounded-2xl">
 			{isHeader && (
-				<TableHeader className=" border-b-[3px] bg-white border-b-[#FFFFFF14] ">
+				<TableHeader className="">
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow className="hover:bg-transparent h-[74px] border-none" key={headerGroup.id}>
 							{headerGroup.headers.map((header, index) => {
@@ -74,13 +78,15 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 										style={{
 											textAlign: index === 0 ? 'left' : 'center'
 										}}
-										className="!w-40 text-base"
+										className="!w-40  text-base"
 										key={header.id}
 									>
-										<Tooltip label={isTooltip as string} enabled={!!isTooltip}>
-											{header.isPlaceholder
-												? null
-												: flexRender(header.column.columnDef.header, header.getContext())}
+										<Tooltip label={isTooltip as string} className="" enabled={!!isTooltip}>
+											<div className="">
+												{header.isPlaceholder
+													? null
+													: flexRender(header.column.columnDef.header, header.getContext())}
+											</div>
 										</Tooltip>
 									</TableHead>
 								);
@@ -89,8 +95,8 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 					))}
 				</TableHeader>
 			)}
-			<div className="mt-8"></div>
-			<TableBody className="divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
+			<div className="mt-8 "></div>
+			<TableBody className="divide-y h-40 overflow-y-auto divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (
 						<TableRow
@@ -128,6 +134,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 				</TableFooter>
 			)}
 		</Table>
+		</>
 	);
 }
 

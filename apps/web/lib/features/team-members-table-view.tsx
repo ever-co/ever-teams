@@ -7,6 +7,7 @@ import { useAuthenticateUser, useModal } from '@app/hooks';
 import { InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { useTranslations } from 'next-intl';
+import UserTeamTableHeader from './team/user-team-table/user-team-table-header';
 
 const TeamMembersTableView = ({
 	teamMembers,
@@ -40,7 +41,7 @@ const TeamMembersTableView = ({
 			},
 			{
 				id: 'workedOnTask',
-				header: 'Worked on task',
+				header: 'Worked on \n task',
 				tooltip: t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP'),
 				cell: WorkedOnTaskCell
 			},
@@ -72,15 +73,16 @@ const TeamMembersTableView = ({
 
 	return (
 		<>
-			<DataTable
-				isHeader={false}
-				columns={columns as Column<OT_Member>[]}
-				data={sortedTeamMembers}
-				noResultsMessage={{
-					heading: 'No team members found',
-					content: 'Try adjusting your search or filter to find what you’re looking for.'
-				}}
-			/>
+
+				<DataTable
+					isHeader={false}
+					columns={columns as Column<OT_Member>[]}
+					data={sortedTeamMembers}
+					noResultsMessage={{
+						heading: 'No team members found',
+						content: 'Try adjusting your search or filter to find what you’re looking for.'
+					}}
+				/>
 			<Invite />
 		</>
 	);

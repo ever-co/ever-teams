@@ -33,6 +33,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import Head from 'next/head';
+import { clsxm } from '@app/utils';
 
 const Kanban = () => {
 	const {
@@ -93,7 +94,7 @@ const Kanban = () => {
 			</Head>
 			<MainLayout
 				showTimer={isTrackingEnabled}
-				footerClassName="fixed bottom-0 z-50 bg-white dark:bg-dark--theme"
+				footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark--theme",!fullWidth && 'left-0 right-0')}
 				className="h-[calc(100vh-_22px)]"
 			>
 				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
@@ -235,7 +236,7 @@ const Kanban = () => {
 						{/* <div className="h-20 w-full bg-red-500/50"></div> */}
 					</Container>
 				</div>
-				<div className="mt-[256px] mb-24">
+				<div className="mt-[256px] mb-24 ">
 					{/** TODO:fetch teamtask based on days */}
 					{activeTab && ( // add filter for today, yesterday and tomorrow
 						<div>
