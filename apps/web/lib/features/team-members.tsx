@@ -81,7 +81,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 			break;
 		case view === IssuesView.TABLE:
 			teamMembersView = (
-				<Container className='!mx-auto' fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth}>
 					<Transition
 						show={!!currentUser}
 						enter="transition-opacity duration-75"

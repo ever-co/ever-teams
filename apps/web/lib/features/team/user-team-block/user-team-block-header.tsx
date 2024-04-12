@@ -46,7 +46,7 @@ export function UserTeamBlockHeader() {
 
 	return (
 		<>
-			<div className="hidden sm:flex bg-white  dark:bg-dark-high  font-normal pt-7 justify-between dark:text-[#7B8089]">
+			<div className="hidden sm:flex  dark:bg-dark-high  font-normal pt-7 justify-between dark:text-[#7B8089]">
 				<div className="flex items-center w-9/12">
 					<div
 						className={clsxm(

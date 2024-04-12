@@ -5,9 +5,9 @@ import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks'
 import { useKanban } from '@app/hooks/features/useKanban';
 import KanbanBoardSkeleton from '@components/shared/skeleton/KanbanBoardSkeleton';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container } from 'lib/components';
+import { Breadcrumb, Container, Divider } from 'lib/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
-import { MainLayout } from 'lib/layout';
+import { Footer, MainLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
@@ -94,13 +94,14 @@ const Kanban = () => {
 			</Head>
 			<MainLayout
 				showTimer={isTrackingEnabled}
-				footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark--theme",!fullWidth && 'left-0 right-0')}
+				footerClassName="hidden"
+				// footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark-high",!fullWidth && 'left-0 right-0')}
 				className="h-[calc(100vh-_22px)]"
 			>
-				<div className="h-[263.4px] z-10 bg-white dark:bg-dark--theme fixed w-full"></div>
-				<div className={'fixed top-20 flex flex-col  z-10 mx-[0px] w-full bg-white dark:bg-dark--theme'}>
+				<div className="h-[263.4px] z-10 bg-white  dark:bg-dark-high fixed w-full"></div>
+				<div className={'fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C]  z-10 mx-[0px] w-full bg-white dark:bg-dark-high'}>
 					<Container fullWidth={fullWidth}>
-						<div className="flex bg-white dark:bg-dark--theme   flex-row items-start justify-between mt-12">
+						<div className="flex bg-white dark:bg-dark-high flex-row items-start justify-between mt-12">
 							<div className="flex justify-center items-center gap-8 h-10">
 								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
@@ -109,7 +110,7 @@ const Kanban = () => {
 								<HeaderTabs kanban={true} linkAll={true} />
 							</div>
 						</div>
-						<div className="flex justify-between items-center  mt-10 bg-white dark:bg-dark--theme">
+						<div className="flex justify-between items-center  mt-10 bg-white dark:bg-dark-high">
 							<h1 className="text-4xl font-semibold ">
 								{t('common.KANBAN')} {t('common.BOARD')}
 							</h1>
@@ -135,7 +136,7 @@ const Kanban = () => {
 								</button>
 							</div>
 						</div>
-						<div className="relative flex flex-col lg:flex-row justify-between items-center  pt-10 bg-white dark:bg-dark--theme">
+						<div className="relative flex flex-col lg:flex-row justify-between items-center  pt-10 bg-white dark:bg-dark-high">
 							<div className="flex flex-row">
 								{tabs.map((tab) => (
 									<div
@@ -249,6 +250,11 @@ const Kanban = () => {
 					)}
 				</div>
 			</MainLayout>
+			<div className='bg-white dark:bg-[#1e2025]  w-screen z-[5000] fixed bottom-0'>
+
+					<Divider />
+					<Footer className={clsxm(' justify-between w-full px-0  mx-auto', fullWidth ? 'px-8' : 'x-container')} />
+				</div>
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);

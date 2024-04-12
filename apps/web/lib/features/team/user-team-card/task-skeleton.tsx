@@ -39,26 +39,26 @@ export function InviteUserTeamSkeleton() {
 
 export function UserTeamCardHeader() {
 	return (
-		<div className="w-full bg-white h-24  dark:text-[#7B8089] font-normal  -mt-1 z-50 dark:bg-dark-high px-8 m-0">
+		<div className="w-full  h-24  dark:text-[#7B8089] font-normal  -mt-1 z-50 dark:bg-dark-high px-8 m-0">
 			<div className="px-4 md:px-8 ml-4  min-h-[7rem] !py-4 ">
 				<div className="flex m-0 relative items-center">
 					<a className="flex items-center space-x-2 2xl:w-[20.625rem] w-1/4">
 						<div className="w-[50px] h-[50px] flex justify-center items-center"></div>
 						<div className="lg:w-64 w-1/2 flex flex-col gap-1.5">Team Member</div>
 					</a>
-					<div className="w-1 self-stretch border-l-[0.125rem] dark:border-l-transparent" />
+					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 					<div className="flex justify-between items-center flex-1 min-w-[40%]">
 						<div className="h-full w-full flex flex-col items-center justify-center gap-[1.0620rem] max-h-full overflow-hidden flex-1 lg:px-4 px-2 overflow-y-hidden">
 							Task
 						</div>
 					</div>
-					<div className="w-4 self-stretch border-l-[0.125rem] dark:border-l-transparent " />
-					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 !pl-6 lg:!pl-14  flex flex-col items-center text-center  justify-center">
+					<div className="w-4 self-stretch border-l-[0.125rem] border-l-transparent " />
+					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 !pl-6 lg:!pl-8  flex flex-col items-center text-center  justify-center">
 						Worked on <br /> Task
 					</div>
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 					<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 !pl-14 text-center">Estimates</div>
-					<div className="w-1 self-stretch border-l-[0.125rem] dark:border-l-transparent" />
+					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] !pl-14 text-center">Worked on <br /> Task</div>
 				</div>
 			</div>
