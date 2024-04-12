@@ -7,7 +7,6 @@ import { useAuthenticateUser, useModal } from '@app/hooks';
 import { InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { useTranslations } from 'next-intl';
-import UserTeamTableHeader from './team/user-team-table/user-team-table-header';
 
 const TeamMembersTableView = ({
 	teamMembers,

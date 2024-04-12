@@ -12,9 +12,6 @@ import { taskBlockFilterState } from '@app/stores/task-filter';
 import { OT_Member } from '@app/interfaces';
 import { Container } from 'lib/components';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { UserTeamCardHeader } from './team/user-team-card/task-skeleton';
-import { UserTeamBlockHeader } from './team/user-team-block/user-team-block-header';
-import UserTeamTableHeader from './team/user-team-table/user-team-table-header';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -104,7 +101,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 
 		case view == IssuesView.BLOCKS:
 			teamMembersView = (
-				<Container  fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth}>
 					<TeamMembersBlockView
 						teamMembers={blockViewMembers}
 						currentUser={currentUser}
