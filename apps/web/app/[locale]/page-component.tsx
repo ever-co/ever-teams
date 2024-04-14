@@ -61,44 +61,41 @@ function MainPage() {
 		<>
 			<div className="flex flex-col h-screen justify-between">
 				<div className="flex-grow">
-				<MainLayout className="h-auto" footerClassName={clsxm(' hidden')}>
-					<ChatwootWidget />
-					<div className="pt-3 pb-4 ">
-
-						{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
-						<div className="bg-white sticky z-50 border-b-[0.125rem] dark:border-[#26272C] top-[92px] dark:bg-dark-high">
-						<div
-							className={clsxm(
-								'bg-white dark:bg-dark-high ',
-								!fullWidth && 'x-container'
-							)}
-						>
-							<div className="mx-8-container pt-9 !px-0 flex flex-row items-start justify-between ">
-								<div className="flex justify-center items-center gap-8 h-10">
-									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-									<Breadcrumb paths={breadcrumb} className="text-sm" />
-								</div>
-								<div className="flex h-10 w-max items-center justify-center   gap-1">
-									<HeaderTabs linkAll={false} />
+					<MainLayout className="h-auto" footerClassName={clsxm(' hidden')}>
+						<ChatwootWidget />
+						<div className="pt-3 pb-4 ">
+							{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
+							<div className="bg-white sticky z-50 border-b-[0.125rem] dark:border-[#26272C] top-[91px] dark:bg-dark-high">
+								<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
+									<div className="mx-8-container pt-9 !px-0 flex flex-row items-start justify-between ">
+										<div className="flex justify-center items-center gap-8 h-10">
+											<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+											<Breadcrumb paths={breadcrumb} className="text-sm" />
+										</div>
+										<div className="flex h-10 w-max items-center justify-center   gap-1">
+											<HeaderTabs linkAll={false} />
+										</div>
+									</div>
+									<div className="mx-8-container mb-1">
+										<UnverifiedEmail />
+										<TeamInvitations />
+										{isTeamMember ? (
+											<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
+										) : null}
+									</div>
+									<TeamMemberHeader view={view} />
 								</div>
 							</div>
-							<div className="mx-8-container mb-1">
-								<UnverifiedEmail />
-								<TeamInvitations />
-								{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
-							</div>
-							<TeamMemberHeader view={view} />
+							{/* </Container> */}
+							{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 						</div>
-						</div>
-						{/* </Container> */}
-						{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-					</div>
-				</MainLayout>
+					</MainLayout>
 				</div>
-				<div className='bg-white dark:bg-transparent '>
-
+				<div className="bg-white dark:bg-transparent ">
 					<Divider />
-					<Footer className={clsxm('justify-between w-full px-0  mx-auto', fullWidth ? 'px-8' : 'x-container')} />
+					<Footer
+						className={clsxm('justify-between w-full px-0  mx-auto', fullWidth ? 'px-8' : 'x-container')}
+					/>
 				</div>
 			</div>
 			<Analytics />

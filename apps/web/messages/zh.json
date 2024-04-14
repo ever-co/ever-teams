@@ -4,6 +4,8 @@
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
 		"REJECT": "拒绝",
+		"ACTION": "操作",
+		"MEMBER": "成员",
 		"TOMORROW": "明天",
 		"YESTERDAY": "昨天",
 		"REJECTED": "已拒绝",
