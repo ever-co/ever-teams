@@ -74,6 +74,7 @@ const nextConfig = {
 		domains: [
 			'dummyimage.com',
 			'res.cloudinary.com',
+			'gauzy.sfo2.digitaloceanspaces.com',
 			'localhost',
 			'127.0.0.1',
 			'cdn-icons-png.flaticon.com', // Remove this domain once the Backend Icons list is added
