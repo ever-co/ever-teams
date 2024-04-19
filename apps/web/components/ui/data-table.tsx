@@ -16,6 +16,7 @@ import {
 
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
 import { Tooltip } from 'lib/components';
+import { clsxm } from '@app/utils';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -48,6 +49,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 			// Let's set up our default column filter UI
 			size: 20
 		},
+
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
@@ -60,74 +62,85 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues()
 	});
+
 	return (
-		<Table className="border-transparent mt-0 w-full rounded-2xl">
-			{isHeader && (
-				<TableHeader className=" border-b-[3px] bg-white border-b-[#FFFFFF14] ">
-					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow className="hover:bg-transparent h-[74px] border-none" key={headerGroup.id}>
-							{headerGroup.headers.map((header, index) => {
-								const tooltip: any = header.column.columnDef;
-								const isTooltip: any = flexRender(tooltip.tooltip, header.getContext());
-								return (
-									<TableHead
+		<>
+			<Table className="border-transparent mt-0 w-full rounded-2xl">
+				{isHeader && (
+					<TableHeader className="">
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow className="hover:bg-transparent h-[74px] border-none" key={headerGroup.id}>
+								{headerGroup.headers.map((header, index) => {
+									const tooltip: any = header.column.columnDef;
+									const isTooltip: any = flexRender(tooltip.tooltip, header.getContext());
+									return (
+										<TableHead
+											style={{
+												textAlign: index === 0 ? 'left' : 'center'
+											}}
+											className="!w-40  text-base"
+											key={header.id}
+										>
+											<Tooltip label={isTooltip as string} className="" enabled={!!isTooltip}>
+												<div className="">
+													{header.isPlaceholder
+														? null
+														: flexRender(
+																header.column.columnDef.header,
+																header.getContext()
+															)}
+												</div>
+											</Tooltip>
+										</TableHead>
+									);
+								})}
+							</TableRow>
+						))}
+					</TableHeader>
+				)}
+				<div className="mt-8 "></div>
+				<TableBody className="divide-y h-40 overflow-y-auto divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
+					{table.getRowModel().rows?.length ? (
+						table.getRowModel().rows.map((row, i) => (
+							<TableRow
+								key={row.id}
+								data-state={row.getIsSelected() && 'selected'}
+								className={clsxm(
+									'my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40',
+									i == 1 && 'max-w-[615px]'
+								)}
+							>
+								{row.getVisibleCells().map((cell, index) => (
+									<TableCell
+										key={cell.id}
 										style={{
 											textAlign: index === 0 ? 'left' : 'center'
 										}}
-										className="!w-40 text-base"
-										key={header.id}
+										// className="!w-36"
+										className="my-4 !w-fit xl:!w-fit border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C] "
 									>
-										<Tooltip label={isTooltip as string} enabled={!!isTooltip}>
-											{header.isPlaceholder
-												? null
-												: flexRender(header.column.columnDef.header, header.getContext())}
-										</Tooltip>
-									</TableHead>
-								);
-							})}
+										{flexRender(cell.column.columnDef.cell, cell.getContext())}
+									</TableCell>
+								))}
+							</TableRow>
+						))
+					) : (
+						<TableRow>
+							<TableCell colSpan={columns.length} className="h-24 text-center">
+								No results.
+							</TableCell>
 						</TableRow>
-					))}
-				</TableHeader>
-			)}
-			<div className="mt-8"></div>
-			<TableBody className="divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
-				{table.getRowModel().rows?.length ? (
-					table.getRowModel().rows.map((row) => (
-						<TableRow
-							key={row.id}
-							data-state={row.getIsSelected() && 'selected'}
-							className="my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40"
-						>
-							{row.getVisibleCells().map((cell, index) => (
-								<TableCell
-									key={cell.id}
-									style={{
-										textAlign: index === 0 ? 'left' : 'center'
-									}}
-									// className="!w-36"
-									className="my-4 !w-fit xl:!w-fit border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C] "
-								>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</TableCell>
-							))}
-						</TableRow>
-					))
-				) : (
-					<TableRow>
-						<TableCell colSpan={columns.length} className="h-24 text-center">
-							No results.
-						</TableCell>
-					</TableRow>
+					)}
+				</TableBody>
+				{footerRows && footerRows?.length > 0 && (
+					<TableFooter className="bg-gray-50 dark:bg-gray-800">
+						{footerRows.map((row, index) => (
+							<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
+						))}
+					</TableFooter>
 				)}
-			</TableBody>
-			{footerRows && footerRows?.length > 0 && (
-				<TableFooter className="bg-gray-50 dark:bg-gray-800">
-					{footerRows.map((row, index) => (
-						<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
-					))}
-				</TableFooter>
-			)}
-		</Table>
+			</Table>
+		</>
 	);
 }
 

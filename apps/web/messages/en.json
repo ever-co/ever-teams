@@ -4,6 +4,8 @@
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
+		"MEMBER": "Member",
+		"ACTION": "Action",
 		"TOMORROW": "Tomorrow",
 		"YESTERDAY": "Yesterday",
 		"REJECTED": "Rejected",

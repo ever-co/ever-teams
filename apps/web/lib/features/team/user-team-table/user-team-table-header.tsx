@@ -1,20 +1,25 @@
-import { fullWidthState } from '@app/stores/fullWidth';
-import { clsxm } from '@app/utils';
+import { Tooltip } from 'lib/components';
+import { useTranslations } from 'next-intl';
 import React from 'react';
-import { useRecoilValue } from 'recoil';
 
 function UserTeamTableHeader() {
-	const fullWidth = useRecoilValue(fullWidthState);
+	const t = useTranslations();
 	return (
-		<div className="flex overflow-y-auto px-0 pb-4 mt-10 text-center items-center pt-4">
-			<p className="min-w-[8rem] 2xl:w-[20.625rem] w-1/4">Name</p>
-			<p className="min-w-[8rem] flex-1 ">Task</p>
-			<p className={clsxm('min-w-[8rem] w-1/5', fullWidth ? '2xl:w-52 3xl:w-[17rem]' : '2xl:w-48 3xl:w-[12rem]')}>
-				Worked on Task
-			</p>
-			<p className="min-w-[8rem] w-1/5 2xl:w-48 3xl:w-[12rem] text-center">Estimate</p>
-			<p className="self-end text-end">Action</p>
-		</div>
+		<thead className="font-normal h-[92px] w-full dark:text-[#7B8089] bg-dark-high px-8 pb-[18px] mb-[11px] pt-3">
+			<tr className="text-center w-full items-center">
+				<th className="w-[32%] 2xl:!w-[28%] pl-10 font-normal text-left">
+					{t('common.TEAM')} {t('common.MEMBER')}
+				</th>
+				<th className="!w-[39%] font-normal">{t('common.TASK')}</th>
+				<th className={`!w-[16%] font-normal`}>
+					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+						{t('task.taskTableHead.TASK_WORK.TITLE')} <br /> {t('common.TASK')}
+					</Tooltip>
+				</th>
+				<th className="!w-[16%] font-normal">{t('common.ESTIMATE')}</th>
+				<th className="!w-[50%] font-normal">{t('common.ACTION')}</th>
+			</tr>
+		</thead>
 	);
 }
 

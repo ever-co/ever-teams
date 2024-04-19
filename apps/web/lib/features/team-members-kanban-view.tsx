@@ -2,6 +2,7 @@ import { useTaskStatus } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
+import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
 import React from 'react';
@@ -14,6 +15,7 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
+import { useRecoilValue } from 'recoil';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -31,6 +33,8 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			return { id: columnInfo?.id, name: key, icon: columnInfo ? columnInfo.fullIconUrl : '',color: columnInfo?.color };
 		})
 	);
+	const fullWidth = useRecoilValue(fullWidthState);
+
 	const { taskStatus: ts } = useTaskStatus();
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
@@ -196,11 +200,12 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 				{Array.isArray(columns) && columns.length > 0 && (
 					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col h-auto justify-between w-full">
+							<div className="flex flex-col h-auto justify-between w-full ">
 								<div
 									className={clsxm(
 										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
-										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
+										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8',
+										!fullWidth && 'x-container pl-0'
 									)}
 									ref={provided.innerRef}
 									{...provided.droppableProps}
