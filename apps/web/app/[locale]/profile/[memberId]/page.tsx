@@ -68,12 +68,15 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-		// Example usage
+	// Example usage
 
 	return (
 		<>
 			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
+				<MainHeader
+					fullWidth={fullWidth}
+					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
+				>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
@@ -97,7 +100,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							/>
 						)}
 					</div>
-
 					{/* TaskFilter */}
 					<TaskFilter profile={profile} hook={hook} />
 				</MainHeader>
