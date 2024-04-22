@@ -490,7 +490,7 @@ const KanbanDraggable = ({
 				</Draggable>
 			)}
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
 		</>
 	);
