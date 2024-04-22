@@ -47,7 +47,6 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						<Divider className="flex-1" />
 						<div className="flex items-center space-x-4">
 							<Text className="text-xs font-normal text-gray-500">{t('common.TOTAL_TIME')}:</Text>
-
 							{profile.isAuthUser ? (
 								<Text className="font-normal">
 									{time.h}h : {time.m}m
@@ -96,7 +95,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 								activeAuthTask={false}
 								viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
 								profile={profile}
-								taskBadgeClassName={`	${
+								taskBadgeClassName={`${
 									task.issueType === 'Bug'
 										? '!px-[0.3312rem] py-[0.2875rem]'
 										: '!px-[0.375rem] py-[0.375rem]'
