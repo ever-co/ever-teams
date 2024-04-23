@@ -80,12 +80,12 @@ export const useLeftSettingData = () => {
 			href: '#labels',
 			managerOnly: false
 		},
-		{
-			title: t('pages.settingsTeam.RELATED_ISSUE_TYPE'),
-			color: '#7E7991',
-			href: '#related-issue-types',
-			managerOnly: true
-		},
+		// {
+		// 	title: t('pages.settingsTeam.RELATED_ISSUE_TYPE'),
+		// 	color: '#7E7991',
+		// 	href: '#related-issue-types',
+		// 	managerOnly: true
+		// },
 		// {
 		// 	title: t('pages.settingsTeam.NOTIFICATION_HEADING'),
 		// 	color: '#7E7991',

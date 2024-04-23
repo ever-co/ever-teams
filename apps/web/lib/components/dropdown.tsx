@@ -6,6 +6,7 @@ import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
+import { ScrollArea } from '@components/ui/scroll-bar';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -113,24 +114,26 @@ export function Dropdown<T extends DropdownItem>({
 									/>
 								</div>
 							)}
-							<section className={'max-h-[80vh] overflow-y-auto'}>
-								{items.map((Item, index) => (
-									<Listbox.Option
-										key={Item.key ? Item.key : index}
-										value={Item}
-										disabled={!!Item.disabled}
-									>
-										{({ active, selected }) => {
-											return Item.Label ? (
-												<Item.Label active={active} selected={selected} />
-											) : (
-												<></>
-											);
-										}}
-									</Listbox.Option>
-								))}
-							</section>
-
+							<ScrollArea>
+								<section className={'h-96 min-w-[100px] '}>
+									{items.map((Item, index) => (
+										<Listbox.Option
+											key={Item.key ? Item.key : index}
+											value={Item}
+											disabled={!!Item.disabled}
+										>
+											{({ active, selected }) => {
+												return Item.Label ? (
+													<Item.Label active={active} selected={selected} />
+												) : (
+													<></>
+												);
+											}}
+										</Listbox.Option>
+									))}
+								</section>
+								{/* <ScrollBar className="mr-20" /> */}
+							</ScrollArea>
 							{/* Additional content */}
 							{closeOnChildrenClick && <Listbox.Button as="div">{children}</Listbox.Button>}
 							{!closeOnChildrenClick && children}

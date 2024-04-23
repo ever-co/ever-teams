@@ -40,7 +40,7 @@ const TeamMembersTableView = ({
 			},
 			{
 				id: 'workedOnTask',
-				header: 'Worked on task',
+				header: 'Worked on \n task',
 				tooltip: t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP'),
 				cell: WorkedOnTaskCell
 			},
@@ -72,15 +72,16 @@ const TeamMembersTableView = ({
 
 	return (
 		<>
-			<DataTable
-				isHeader={false}
-				columns={columns as Column<OT_Member>[]}
-				data={sortedTeamMembers}
-				noResultsMessage={{
-					heading: 'No team members found',
-					content: 'Try adjusting your search or filter to find what you’re looking for.'
-				}}
-			/>
+
+				<DataTable
+					isHeader={false}
+					columns={columns as Column<OT_Member>[]}
+					data={sortedTeamMembers}
+					noResultsMessage={{
+						heading: 'No team members found',
+						content: 'Try adjusting your search or filter to find what you’re looking for.'
+					}}
+				/>
 			<Invite />
 		</>
 	);

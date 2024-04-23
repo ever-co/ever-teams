@@ -308,7 +308,7 @@ export const PersonalSettingForm = () => {
 									</Text>
 									<div className="flex items-center lg:items-start w-full">
 										<ThemeToggler />
-										<Text className="flex items-center ml-5 text-sm font-normal text-gray-400">
+										<Text className="flex items-center ml-5 mt-2.5 text-sm font-normal text-gray-400">
 											{theme === 'light' ? 'Light' : 'Dark'} Mode
 										</Text>
 									</div>
@@ -320,7 +320,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.LANGUAGE')}
 									</Text>
-									<div className="flex flex-col lg:flex-row w-full">
+									<div className="flex flex-col relative lg:flex-row w-full">
 										<LanguageDropDown
 											currentLanguage={currentLanguage}
 											onChangeLanguage={(t: string) => {
@@ -336,7 +336,7 @@ export const PersonalSettingForm = () => {
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{t('common.TIME_ZONE')}
 									</Text>
-									<div className="flex flex-col lg:flex-row gap-2 w-full">
+									<div className="flex flex-col relative lg:flex-row gap-2 w-full">
 										<TimezoneDropDown
 											currentTimezone={currentTimezone}
 											onChangeTimezone={(t: string) => {

@@ -44,12 +44,10 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 						{/* </div> */}
 					</Container>
 				</div>
-				<Container fullWidth={fullWidth} className={clsxm('!p-0 !mr-0')}>
+				<Container fullWidth={fullWidth} className={clsxm('!p-0')}>
 					<div className="flex">
-						<div className="h-[calc(100vh-_186px)]">
-							<LeftSideSettingMenu />
-						</div>
-						<div className="h-[calc(100vh-_186px)] mt-3 p-10 overflow-y-auto  w-full">{children}</div>
+						<LeftSideSettingMenu />
+						<div className="h-[calc(100vh-_291px)] mt-3 p-10 overflow-y-auto  w-full">{children}</div>
 					</div>
 				</Container>
 			</MainLayout>
