@@ -110,7 +110,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 					</div>
 				)}
 				<Modal isOpen={isOpen} closeModal={closeModal}>
-					<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+					<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 				</Modal>
 			</section>
 		</>
@@ -310,7 +310,7 @@ export const EmptyKanbanDroppable = ({
 				</Draggable>
 			)}
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
 			<Modal isOpen={editIsOpen} closeModal={editCloseModal}>
 				<EditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
@@ -490,7 +490,7 @@ const KanbanDraggable = ({
 				</Draggable>
 			)}
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<CreateTaskModal title={title} initEditMode={false} task={null} tasks={[]} />
+				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
 		</>
 	);
