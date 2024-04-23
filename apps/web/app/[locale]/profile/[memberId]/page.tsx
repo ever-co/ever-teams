@@ -68,12 +68,15 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-		// Example usage
+	// Example usage
 
 	return (
 		<>
 			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
+				<MainHeader
+					fullWidth={fullWidth}
+					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
+				>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
@@ -97,7 +100,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							/>
 						)}
 					</div>
-
 					{/* TaskFilter */}
 					<TaskFilter profile={profile} hook={hook} />
 				</MainHeader>
@@ -105,7 +107,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 				{hook.tab == 'worked' && canSeeActivity && (
 					<Container fullWidth={fullWidth} className="py-8">
-						<div className={clsxm('flex  justify-start items-center gap-4')}>
+						<div className={clsxm('flex justify-start items-center gap-4')}>
 							{Object.keys(activityScreens).map((filter, i) => (
 								<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
 									{i !== 0 && <VerticalSeparator />}
@@ -151,7 +153,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		<div className="flex items-center mb-4 space-x-4 md:mb-0">
 			<div
 				className={clsx(
-					` w-[100px] h-[100px]`, // removed the size variable from width and height, as passing variables is not supported by tailwind
+					`w-[100px] h-[100px]`, // removed the size variable from width and height, as passing variables is not supported by tailwind
 					'flex justify-center items-center relative',
 					'rounded-full text-white',
 					'shadow-md text-7xl dark:text-6xl font-thin font-PlusJakartaSans ',

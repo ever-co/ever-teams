@@ -17,7 +17,7 @@ export function Paginate({ total, itemsPerPage = 10, onPageChange, itemOffset, e
 
 	return (
 		<div
-			className="flex flex-col md:flex-row gap-2 items-center justify-between pt-4"
+			className="flex flex-col md:flex-row gap-2 items-center justify-between pt-4 relative"
 			aria-label="Table navigation"
 		>
 			<ReactPaginate
@@ -68,7 +68,7 @@ export function Paginate({ total, itemsPerPage = 10, onPageChange, itemOffset, e
 				breakClassName={'pl-5 pr-5 pt-1 pb-2'}
 			/>
 
-			<div className="flex items-center gap-x-5">
+			<div className="flex items-center relative gap-x-5">
 				<PaginationDropdown setValue={setItemsPerPage} />
 				<span className="text-sm font-normal text-gray-500 dark:text-gray-400">
 					{`Showing ${itemOffset + 1} to ${endOffset} of ${total} entries`}

@@ -31,8 +31,8 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 		activeFilter == 'all'
 			? orderedMembers
 			: activeFilter == 'idle'
-			? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
-			: orderedMembers.filter((m) => m.timerStatus === activeFilter);
+				? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
+				: orderedMembers.filter((m) => m.timerStatus === activeFilter);
 
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members
@@ -63,14 +63,17 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 			break;
 		case view === IssuesView.CARDS:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
-					<TeamMembersCardView
-						teamMembers={$members}
-						currentUser={currentUser}
-						publicTeam={publicTeam}
-						teamsFetching={$teamsFetching}
-					/>
-				</Container>
+				<>
+					{/* <UserTeamCardHeader /> */}
+					<Container fullWidth={fullWidth}>
+						<TeamMembersCardView
+							teamMembers={$members}
+							currentUser={currentUser}
+							publicTeam={publicTeam}
+							teamsFetching={$teamsFetching}
+						/>
+					</Container>
+				</>
 			);
 			break;
 		case view === IssuesView.TABLE:
