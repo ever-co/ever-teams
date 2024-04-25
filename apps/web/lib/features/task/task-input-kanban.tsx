@@ -84,8 +84,17 @@ export function TaskInputKanban(props: Props) {
 		[$onTaskCreated]
 	);
 
-	const { inputTask, editMode, setEditMode, setQuery, updateLoading, updateTaskTitleHandler, setFilter, taskIssue } =
-		datas;
+	const {
+		inputTask,
+		setTaskIssue,
+		editMode,
+		setEditMode,
+		setQuery,
+		updateLoading,
+		updateTaskTitleHandler,
+		setFilter,
+		taskIssue
+	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
@@ -152,16 +161,17 @@ export function TaskInputKanban(props: Props) {
 			datas.hasCreateForm &&
 			datas
 				.handleTaskCreation({
-					autoActiveTask,
+					autoActiveTask: true,
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then(onTaskCreated)
 				.finally(async () => {
 					setTaskName('');
+
 					props.onClose && props.onClose();
 				});
-	}, [datas, autoActiveTask, props.autoAssignTaskAuth, props.usersTaskCreatedAssignTo, onTaskCreated]);
+	}, [datas, taskIssue, autoActiveTask, props.autoAssignTaskAuth, props.usersTaskCreatedAssignTo, onTaskCreated]);
 
 	let updatedTaskList: ITeamTask[] = [];
 	if (props.forParentChildRelationship) {
@@ -193,7 +203,6 @@ export function TaskInputKanban(props: Props) {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
-				// console.log('func active');
 			}
 		};
 
@@ -275,9 +284,7 @@ export function TaskInputKanban(props: Props) {
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
-						onValueChange={(v) => {
-							taskIssue.current = v;
-						}}
+						onValueChange={(v) => setTaskIssue(v)}
 					/>
 				</div>
 			}
@@ -339,7 +346,6 @@ function TaskCard({
 		}
 	}, [datas.editMode]);
 	const taskStatusHook = useTaskStatus();
-
 	return (
 		<>
 			<Card shadow="custom">

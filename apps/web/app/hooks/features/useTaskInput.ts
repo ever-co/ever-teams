@@ -5,7 +5,7 @@ import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskLabelsItemList, Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { memberActiveTaskIdState } from '@app/stores';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
@@ -50,8 +50,7 @@ export function useTaskInput({
 
 	const { user } = useAuthenticateUser();
 	const userRef = useSyncRef(user);
-
-	const taskIssue = useRef<null | string>(null);
+	const [taskIssue, setTaskIssue] = useState('');
 	const taskStatus = useRef<null | string>(null);
 	const taskPriority = useRef<null | string>(null);
 	const taskSize = useRef<null | string>(null);
@@ -125,7 +124,6 @@ export function useTaskInput({
 				.startsWith(query.toLowerCase().replace(/\s+/g, ''));
 		});
 	}, [query, tasks]);
-
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = ({
@@ -145,8 +143,8 @@ export function useTaskInput({
 		return createTask(
 			{
 				taskName: query.trim(),
-				issueType: taskIssue.current || 'Bug',
-				taskStatusId: statusId || openId as string,
+				issueType: taskIssue || 'Bug',
+				taskStatusId: statusId || (openId as string),
 				status: taskStatus.current || undefined,
 				priority: taskPriority.current || undefined,
 				size: taskSize.current || undefined,
@@ -156,6 +154,7 @@ export function useTaskInput({
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
 			setQuery('');
+			setTaskIssue('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
 			if (created && autoActiveTask) setActiveTask(created);
@@ -184,9 +183,9 @@ export function useTaskInput({
 		return f_task.status !== 'closed';
 	}).length;
 
-	useEffect(() => {
-		taskIssue.current = null;
-	}, [hasCreateForm]);
+	// useEffect(() => {
+	// 	setTaskIssue('');
+	// }, [hasCreateForm]);
 
 	return {
 		closedTaskCount,
@@ -211,6 +210,7 @@ export function useTaskInput({
 		filter,
 		updateTaskTitleHandler,
 		taskIssue,
+		setTaskIssue,
 		taskStatus,
 		taskPriority,
 		taskSize,
