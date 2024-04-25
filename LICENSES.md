@@ -19,11 +19,11 @@ We support the open-source community. If you're building awesome non-profit/open
 
 ### _Ever Teams Platform Community Edition_ License
 
-Ever Gauzy™ Platform Community Edition available at https://github.com/ever-co/ever-teams released under [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.txt).
+Ever Teams™ Platform Community Edition available at https://github.com/ever-co/ever-teams released under [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.txt).
 
 If you decide to choose the Ever Teams™ Platform Community Edition License, you must comply with the following terms:
 
-This program is free software: you can redistribute it and/or modify it under the terms of the corresponding licenses described in the LICENSE.md files located in software sub-folders and under the terms of licenses described in individual files.
+This program is free software: you can redistribute it and/or modify it under the terms of the corresponding licenses described in the LICENSE / LICENSE.md files located in software sub-folders and under the terms of licenses described in individual files.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -56,8 +56,9 @@ Please see [CREDITS.md](CREDITS.md) files for a list of libraries and software i
 ## Trademarks
 
 **Ever**® is a registered trademark of [Ever Co. LTD](https://ever.co).
-**Gauzy**™ is a trademark of [Ever Co. LTD](https://ever.co).
 **Ever Teams**™ is a trademark of [Ever Co. LTD](https://ever.co).
+**Gauzy**™ is a trademark of [Ever Co. LTD](https://ever.co).
+**Ever® Demand Platform™**, **Ever® Demand Platform Community™**, **Ever® Demand Platform Small Business™** and **Ever® Demand Platform Enterprise™** are all trademarks of [Ever Co. LTD](https://ever.co).
 
 The trademarks and logos may only be used with the written permission of Ever Co. LTD. and may not be used to promote or otherwise market competitive products or services. If you wish to use these trademarks and logos you should contact our licensing department at <mailto:legal@ever.co> to determine the necessary steps you must take.
 
