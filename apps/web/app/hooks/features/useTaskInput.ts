@@ -5,7 +5,7 @@ import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskLabelsItemList, Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { memberActiveTaskIdState } from '@app/stores';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
@@ -183,9 +183,9 @@ export function useTaskInput({
 		return f_task.status !== 'closed';
 	}).length;
 
-	// useEffect(() => {
-	// 	setTaskIssue('');
-	// }, [hasCreateForm]);
+	useEffect(() => {
+		setTaskIssue('');
+	}, [hasCreateForm]);
 
 	return {
 		closedTaskCount,
