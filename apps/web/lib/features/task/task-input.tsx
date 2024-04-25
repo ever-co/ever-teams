@@ -99,8 +99,16 @@ export function TaskInput(props: Props) {
 		[$onTaskClick]
 	);
 
-	const { inputTask, editMode, setEditMode, setQuery, updateLoading, updateTaskTitleHandler, setFilter, taskIssue } =
-		datas;
+	const {
+		inputTask,
+		setTaskIssue,
+		editMode,
+		setEditMode,
+		setQuery,
+		updateLoading,
+		updateTaskTitleHandler,
+		setFilter,
+	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
@@ -186,7 +194,6 @@ export function TaskInput(props: Props) {
 		after task creation
 	 */
 	const autoActiveTask = props.task !== undefined ? false : true;
-
 	const handleTaskCreation = useCallback(() => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas &&
@@ -331,9 +338,7 @@ export function TaskInput(props: Props) {
 						<TaskIssuesDropdown
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
-							onValueChange={(v) => {
-								taskIssue.current = v;
-							}}
+							onValueChange={(v) => setTaskIssue(v)}
 						/>
 					)}
 
