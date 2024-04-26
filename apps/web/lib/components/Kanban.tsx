@@ -210,7 +210,7 @@ export const EmptyKanbanDroppable = ({
 	}, []);
 
 	const { isOpen, closeModal, openModal } = useModal();
-	const { isOpen:editIsOpen, closeModal:editCloseModal, openModal:editOpenModal } = useModal();
+	const { isOpen: editIsOpen, closeModal: editCloseModal, openModal: editOpenModal } = useModal();
 
 	if (!enabled) return null;
 
@@ -312,7 +312,7 @@ export const EmptyKanbanDroppable = ({
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
-			<Modal isOpen={editIsOpen} closeModal={editCloseModal}>
+			<Modal className="z-[5000]" isOpen={editIsOpen} closeModal={editCloseModal}>
 				<EditStatusModal status={status} onClose={editCloseModal} setColumn={setColumn} />
 			</Modal>
 		</>
