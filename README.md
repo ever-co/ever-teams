@@ -202,13 +202,13 @@ If you discover any issue regarding security, please disclose the information re
 
 This software is available under the following licenses:
 
--   [Ever® Teams™ Platform Community Edition](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md##ever-teams-platform-community-edition-license)
+-   [Ever® Teams™ Platform Community Edition](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md#ever-teams-platform-community-edition-license)
 -   [Ever® Teams™ Platform Small Business](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md#ever-teams-platform-small-business-license)
 -   [Ever® Teams™ Platform Enterprise](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md#ever-teams-platform-enterprise-license)
 
 #### The default Ever® Teams™ Platform license, without a valid Ever® Teams™ Platform Enterprise or Ever® Teams™ Platform Small Business License agreement, is the Ever® Teams™ Platform Community Edition License
 
-We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details are explained in our [Wiki](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
+We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-teams/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details are explained in our [Wiki](https://github.com/ever-co/ever-teams/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
 
 #### Please see [LICENSES](LICENSES.md) for more information on licenses
 
