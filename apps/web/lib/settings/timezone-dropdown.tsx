@@ -72,7 +72,7 @@ export const TimezoneDropDown = ({
 		<Dropdown
 			searchBar={true}
 			setSearchText={handleSearchChange}
-			className="md:w-[469px] h-40"
+			className="md:w-[469px]"
 			buttonClassName={clsxm(
 				'py-0 font-medium h-[54px]',
 				items.length === 0 && ['py-2'],
