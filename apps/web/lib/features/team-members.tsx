@@ -24,7 +24,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const fullWidth = useRecoilValue(fullWidthState);
 	const { activeTeam } = useOrganizationTeams();
 	const { teamsFetching } = useOrganizationTeams();
-	const members = activeTeam?.members || [];
+	const members = (activeTeam?.members || []).filter(member => member.employee !== null);
 	const orderedMembers = [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
 
 	const blockViewMembers =
