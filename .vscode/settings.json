@@ -33,6 +33,12 @@
   },
   "search.exclude": {
     "**/node_modules": true,
+    "**/.idea": true,
+    "**/.idea/**/*.{xml,iml}": true,
+    "**/.iml": true,
+    "**/.yarn": true,
+    "**/yarn.lock": true
   },
   "docwriter.style": "Auto-detect"
 }
+// exclude search for specific folder with all files
