@@ -4,6 +4,7 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
@@ -29,6 +30,7 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 }
 
 export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Props) {
+	const t = useTranslations();
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
@@ -38,7 +40,7 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Pr
 				)}
 				{!edition.task && (
 					<div className="text-center">
-						<p>There is no task assigned </p>
+						<p>{t('common.THERE_IS_NO_TASK_ASSIGNED')}</p>
 					</div>
 				)}
 			</div>
