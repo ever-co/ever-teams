@@ -19,7 +19,7 @@ const Personal = () => {
 			</Link>
 			<Accordian
 				title={t('pages.settingsPersonal.HEADING_TITLE')}
-				className="w-full max-w-[96vw] overflow-y-hidden p-4 mt-8 dark:bg-dark--theme"
+				className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 				id="general"
 			>
 				{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">

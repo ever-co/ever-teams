@@ -7,7 +7,6 @@ import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@components/ui/scroll-bar';
-
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
@@ -49,9 +48,23 @@ export function Dropdown<T extends DropdownItem>({
 	setSearchText
 }: Props<T>) {
 	const t = useTranslations();
+	const [open, setOpen] = React.useState(false);
 	return (
 		<div className={clsxm('rounded-xl', className)}>
-			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
+			{open && (
+				<div
+					onClick={() => setOpen(false)}
+					className="h-screen w-screen absolute bg-transparent top-0 left-0"
+				></div>
+			)}
+			<Listbox
+				value={Value}
+				onChange={(e: T) => {
+					onChange && onChange(e);
+					setOpen(false);
+				}}
+				disabled={publicTeam}
+			>
 				<Listbox.Button
 					className={clsxm(
 						'input-border',
@@ -59,6 +72,7 @@ export function Dropdown<T extends DropdownItem>({
 						'font-normal outline-none',
 						buttonClassName
 					)}
+					onClick={() => setOpen(!open)}
 					style={buttonStyle}
 				>
 					<div title={Value?.itemTitle} className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
@@ -72,7 +86,8 @@ export function Dropdown<T extends DropdownItem>({
 					) : !publicTeam ? (
 						<ChevronDownIcon
 							className={clsxm(
-								'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+								'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80',
+								open && 'transform rotate-180'
 							)}
 							aria-hidden="true"
 						/>
@@ -89,6 +104,7 @@ export function Dropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 					className={clsxm('absolute z-40')}
+					show={open}
 				>
 					<Listbox.Options
 						className={clsxm(
