@@ -4,7 +4,7 @@ import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -29,6 +29,8 @@ const TeamMembersCardView: React.FC<Props> = ({
 	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
 	const dragTeamMember = React.useRef<number>(0);
 	const draggedOverTeamMember = React.useRef<number>(0);
+
+	useEffect(() => setMemberOrdereds(members), [members]);
 
 	function handleSort() {
 		const peopleClone = [...memberOrdereds];

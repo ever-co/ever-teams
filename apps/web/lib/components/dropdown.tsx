@@ -115,7 +115,7 @@ export function Dropdown<T extends DropdownItem>({
 								</div>
 							)}
 							<ScrollArea>
-								<section className={'min-w-[100px]'}>
+								<section className={'max-h-96 min-w-[100px]'}>
 									{items.map((Item, index) => (
 										<Listbox.Option
 											key={Item.key ? Item.key : index}

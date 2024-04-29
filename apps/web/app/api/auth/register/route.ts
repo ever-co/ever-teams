@@ -8,8 +8,8 @@ import {
 	createTenantRequest,
 	createTenantSmtpRequest,
 	loginUserRequest,
-	registerUserRequest,
-	refreshTokenRequest
+	refreshTokenRequest,
+	registerUserRequest
 } from '@app/services/server/requests';
 import { setAuthCookies } from '@app/helpers/cookies';
 import { recaptchaVerification } from '@app/services/server/recaptcha';
@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
 	const url = new URL(req.url);
-	const res = new NextResponse();
+	const response = new NextResponse();
 
 	const appEmailConfirmationUrl = `${url.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 
@@ -137,8 +137,8 @@ export async function POST(req: Request) {
 			languageId: 'en', // TODO: not sure what should be here
 			userId: user.id
 		},
-		{ req, res }
+		{ req, res: response }
 	);
 
-	return NextResponse.json({ loginRes, team, employee });
+	return response;
 }
