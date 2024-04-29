@@ -128,6 +128,29 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
 	const inputsRef = useRef<Array<HTMLInputElement>>([]);
+
+	const [timer, setTimer] = useState(60);
+	const [disabled, setDisabled] = useState(true);
+
+	useEffect(() => {
+			let interval: NodeJS.Timeout | undefined = undefined;
+			if (timer > 0) {
+				interval = setInterval(() => {
+					setTimer((prevTimer) => prevTimer - 1);
+				}, 1000);
+			} else {
+				setDisabled(false);
+				clearInterval(interval);
+			}
+
+			return () => clearInterval(interval);
+		}, [timer]);
+
+		const handleResendClick = () => {
+			setDisabled(true);
+			setTimer(60);
+		};
+
 	const resetForm = () => {
 		if (inputsRef.current) {
 			for (let i = 0; i < inputsRef.current.length; i++) {
@@ -193,20 +216,33 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 								<Text className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{t('pages.auth.UNRECEIVED_CODE')}
 								</Text>
-
-								{!form.sendCodeLoading && (
+								{!form.sendCodeLoading ? (
 									<button
 										type="button"
 										className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
-										onClick={form.sendAuthCodeHandler}
+										onClick={() => {
+											if (!disabled) {
+												form.sendAuthCodeHandler();
+												handleResendClick();
+											}
+										}}
 									>
-										{'Re'}
-										<span className="text-primary dark:text-primary-light">
-											{t('pages.auth.SEND_CODE')}
-										</span>
+										{!disabled ? (
+											<span className="text-primary dark:text-primary-light">
+												{'Re'}
+												{t('pages.auth.SEND_CODE')}
+											</span>
+										) : (
+											<span className=" dark:text-primary-light">
+												{'Re'}
+												{t('pages.auth.SEND_CODE')} {' in 00:'}
+												{timer}
+											</span>
+										)}
 									</button>
+								) : (
+									<SpinnerLoader size={15} className="self-center" />
 								)}
-								{form.sendCodeLoading && <SpinnerLoader size={15} className="self-center" />}
 							</div>
 
 							<div>
