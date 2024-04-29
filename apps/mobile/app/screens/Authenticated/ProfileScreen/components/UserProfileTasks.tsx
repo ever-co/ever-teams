@@ -41,7 +41,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 				>
 					{content.tab === 'worked' &&
 					profile.activeUserTeamTask &&
-					(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) ? (
+					(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) ? (
 						<>
 							<View
 								style={{

@@ -53,20 +53,33 @@ export function getTimerStatusValue(
 	member: OT_Member | undefined,
 	publicTeam?: boolean
 ): ITimerStatusEnum {
-	return !member?.employee?.isActive && !publicTeam
-		? 'suspended'
-		: member?.timerStatus === 'pause'
-		? 'pause'
-		: !timerStatus?.running &&
-		  timerStatus?.lastLog &&
-		  timerStatus?.lastLog?.startedAt &&
-		  timerStatus?.lastLog?.employeeId === member?.employeeId &&
-		  moment().diff(moment(timerStatus?.lastLog?.startedAt), 'hours') < 24 &&
-		  timerStatus?.lastLog?.source !== 'TEAMS'
-		? 'pause'
-		: member?.employee?.isOnline && member?.timerStatus === 'running'
-		? 'online'
-		: !member?.totalTodayTasks?.length
-		? 'idle'
-		: member?.timerStatus || 'idle';
+	const isSuspended = () => !member?.employee?.isActive && !publicTeam;
+	const isPaused = () => member?.timerStatus === 'pause';
+	const shouldPauseDueToTimerStatus = () => {
+		return (
+			!timerStatus?.running &&
+			timerStatus?.lastLog?.startedAt &&
+			timerStatus?.lastLog?.employeeId === member?.employeeId &&
+			moment().diff(moment(timerStatus?.lastLog?.startedAt), 'hours') < 24 &&
+			timerStatus?.lastLog?.source !== 'TEAMS'
+		);
+	};
+	const isOnline = () => member?.employee?.isOnline && member?.employee?.isTrackingTime;
+	const isIdle = () => !member?.totalTodayTasks?.length;
+
+	let status: ITimerStatusEnum;
+
+	if (isOnline()) {
+		status = 'online';
+	} else if (isIdle()) {
+		status = 'idle';
+	} else if (isPaused() || shouldPauseDueToTimerStatus()) {
+		status = 'pause';
+	} else if (isSuspended()) {
+		status = 'suspended';
+	} else {
+		status = member?.timerStatus || 'idle';
+	}
+
+	return status;
 }
