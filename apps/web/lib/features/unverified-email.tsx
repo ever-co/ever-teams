@@ -45,7 +45,7 @@ export function UnverifiedEmail() {
 					'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]'
 				)}
 			>
-				<Text>
+				<Text className="flex items-center gap-1">
 					{t('pages.home.SENT_EMAIL_VERIFICATION_YOU_NEED_TO')}
 					<span className="cursor-pointer text-primary dark:text-primary-light" onClick={openModal}>
 						{t('common.VERIFY')}

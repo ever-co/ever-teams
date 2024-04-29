@@ -11,6 +11,7 @@ export interface IEmployee {
 	short_description: any;
 	description: any;
 	startedWorkOn: any;
+	isTrackingTime?: boolean;
 	endWork: any;
 	payPeriod: string;
 	billRateValue: number;

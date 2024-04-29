@@ -1,11 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import {
-	getAccessTokenCookie,
-	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie
-} from '@app/helpers/cookies';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers/cookies';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
@@ -13,9 +8,10 @@ const api = axios.create({
 	withCredentials: true,
 	timeout: 60 * 1000
 });
+
 api.interceptors.request.use(
 	async (config: any) => {
-		const cookie = getActiveTeamIdCookie();
+		const cookie = getAccessTokenCookie();
 
 		if (cookie) {
 			config.headers['Authorization'] = `Bearer ${cookie}`;
@@ -27,6 +23,7 @@ api.interceptors.request.use(
 		Promise.reject(error);
 	}
 );
+
 api.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	async (error: { response: AxiosResponse }) => {
