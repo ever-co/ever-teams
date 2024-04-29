@@ -68,7 +68,7 @@ export function Dropdown<T extends DropdownItem>({
 				<Listbox.Button
 					className={clsxm(
 						'input-border',
-						'w-full flex !z-[10000000] justify-between rounded-xl px-3 py-2 text-sm items-center',
+						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
 						'font-normal outline-none',
 						buttonClassName
 					)}
