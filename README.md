@@ -107,14 +107,14 @@ Notes:
 
 1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting starting instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
 2. Clone this repo
-3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy API running on that host & port.
+3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy API is running on that host & port.
 4. Run `yarn install`
 5. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
 6. Open in <http://localhost:3030> in your Browser
 
 #### Notes
 
-Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you might be interested in the `apps/api` and `apps/server` folders of the mono-repo for the code of Gauzy API & Gauzy Server.
+Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you might be interested in the `apps/api` and `apps/server` folders of the mono-repo for the Gauzy API & Gauzy Server code.
 
 ### Run in Gitpod
 
@@ -173,7 +173,7 @@ WIP
 -   `/apps/desktop` - Electron-based Desktop Application (customized build from [Ever Gauzy Desktop Timer App](https://github.com/ever-co/ever-gauzy/tree/develop/apps/desktop-timer))
 -   `/apps/extensions` - Browser Extensions (powered by <https://github.com/PlasmoHQ/plasmo>)
 -   `/apps/server-api` - Ever Teams API Server (customized build from [Ever Gauzy API Server](https://github.com/ever-co/ever-gauzy/tree/develop/apps/server-api))
--   `/apps/server-web` - Electron-based Ever Teams Web Server that serve Ever Teams NextJs frontend (wraps `apps/web` folder)
+-   `/apps/server-web` - Electron-based Ever Teams Web Server that serves Ever Teams NextJs frontend (wraps `apps/web` folder)
 
 ## 💌 Contact Us
 
@@ -192,25 +192,25 @@ WIP
 
 **Ever Teams Platform** follows good security practices, but 100% security cannot be guaranteed in any software!
 **Ever Teams Platform** is provided AS IS without any warranty. Use at your own risk!
-See more details in the [LICENSE.md](LICENSE.md).
+See more details in the [LICENSES.md](LICENSES.md).
 
 In a production setup, all client-side to server-side (backend, APIs) communications should be encrypted using HTTPS/WSS/SSL (REST APIs, GraphQL endpoint, Socket.io WebSockets, etc.).
 
-If you discover any issue regarding security, please disclose the information responsibly by sending an email to <mailto:security@ever.co> or on [![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev) and not by creating a GitHub issue.
+If you discover any issue regarding security, please disclose the information responsibly by emailing <mailto:security@ever.co> and not by creating a GitHub issue.
 
 ## 🛡️ License
 
 This software is available under the following licenses:
 
--   [Ever® Teams™ Platform Community Edition](https://github.com/ever-co/ever-teams/blob/master/LICENSE.md##ever-teams-platform-community-edition-license)
--   [Ever® Teams™ Platform Small Business](https://github.com/ever-co/ever-teams/blob/master/LICENSE.md#ever-teams-platform-small-business-license)
--   [Ever® Teams™ Platform Enterprise](https://github.com/ever-co/ever-teams/blob/master/LICENSE.md#ever-teams-platform-enterprise-license)
+-   [Ever® Teams™ Platform Community Edition](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md#ever-teams-platform-community-edition-license)
+-   [Ever® Teams™ Platform Small Business](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md#ever-teams-platform-small-business-license)
+-   [Ever® Teams™ Platform Enterprise](https://github.com/ever-co/ever-teams/blob/master/LICENSES.md#ever-teams-platform-enterprise-license)
 
 #### The default Ever® Teams™ Platform license, without a valid Ever® Teams™ Platform Enterprise or Ever® Teams™ Platform Small Business License agreement, is the Ever® Teams™ Platform Community Edition License
 
-We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details are explained in our [Wiki](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
+We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-teams/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details are explained in our [Wiki](https://github.com/ever-co/ever-teams/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
 
-#### Please see [LICENSE](LICENSE.md) for more information on licenses
+#### Please see [LICENSES](LICENSES.md) for more information on licenses
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fever-co%2Fever-teams.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fever-co%2Fever-teams?ref=badge_large)
 
@@ -261,7 +261,6 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 ---
 
 ![visitors](https://visitor-badge.laobi.icu/badge?page_id=ever-co.ever-teams-platform)
-[![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev)
 [![Circle CI](https://circleci.com/gh/ever-co/ever-teams.svg?style=svg)](https://circleci.com/gh/ever-co/ever-teams)
 [![codecov](https://codecov.io/gh/ever-co/ever-teams/branch/master/graph/badge.svg)](https://codecov.io/gh/ever-co/ever-teams)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8c46f9eb9df64aa9859dea4d572059ac)](https://www.codacy.com/gh/ever-co/ever-teams/dashboard?utm_source=github.com&utm_medium=referral&utm_content=ever-co/ever-teams&utm_campaign=Badge_Grade)
