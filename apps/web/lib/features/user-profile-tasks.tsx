@@ -35,7 +35,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) &&
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 				otherTasks.length > 0 && (
 					/* Displaying the current time. */
 					<div className="flex items-center mb-3 space-x-2">
@@ -55,7 +55,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				)}
 
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) && (
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) && (
 					<TaskCard
 						active
 						task={profile.activeUserTeamTask}

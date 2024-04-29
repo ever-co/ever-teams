@@ -49,7 +49,6 @@ export function Dropdown<T extends DropdownItem>({
 }: Props<T>) {
 	const t = useTranslations();
 	const [open, setOpen] = React.useState(false);
-	// onClick={() => setOpen(false)}
 	return (
 		<div className={clsxm('rounded-xl', className)}>
 			{open && (
@@ -80,7 +79,7 @@ export function Dropdown<T extends DropdownItem>({
 					</div>
 
 					{loading ? (
-						<div className="h-[20px] w-[20px]">
+						<div className="h-5 w-5">
 							<SpinnerLoader size={20} variant="primary" className="w-full h-full" />
 						</div>
 					) : !publicTeam ? (
@@ -116,7 +115,7 @@ export function Dropdown<T extends DropdownItem>({
 						<Card
 							shadow="custom"
 							className={clsxm(
-								' md:px-4 py-4 rounded-x  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+								'md:px-4 py-4 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
 								searchBar && 'w-96'
 							)}
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
@@ -131,7 +130,7 @@ export function Dropdown<T extends DropdownItem>({
 								</div>
 							)}
 							<ScrollArea>
-								<section className={'min-w-[100px]'}>
+								<section className={'max-h-96 min-w-[100px]'}>
 									{items.map((Item, index) => (
 										<Listbox.Option
 											key={Item.key ? Item.key : index}
