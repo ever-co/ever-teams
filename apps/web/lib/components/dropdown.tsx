@@ -68,7 +68,7 @@ export function Dropdown<T extends DropdownItem>({
 				<Listbox.Button
 					className={clsxm(
 						'input-border',
-						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
+						'w-full flex !z-[10000000] justify-between rounded-xl px-3 py-2 text-sm items-center',
 						'font-normal outline-none',
 						buttonClassName
 					)}
@@ -95,7 +95,7 @@ export function Dropdown<T extends DropdownItem>({
 						<></>
 					)}
 				</Listbox.Button>
-				{/* {({})} */}
+
 				<Transition
 					enter="transition duration-100 ease-out"
 					enterFrom="transform scale-95 opacity-0"
@@ -131,7 +131,7 @@ export function Dropdown<T extends DropdownItem>({
 								</div>
 							)}
 							<ScrollArea>
-								<section className={'h-96 min-w-[100px] '}>
+								<section className={'min-w-[100px]'}>
 									{items.map((Item, index) => (
 										<Listbox.Option
 											key={Item.key ? Item.key : index}
