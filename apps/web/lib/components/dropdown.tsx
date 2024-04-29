@@ -63,6 +63,7 @@ export function Dropdown<T extends DropdownItem>({
 					onChange && onChange(e);
 					setOpen(false);
 				}}
+				disabled={publicTeam}
 			>
 				<Listbox.Button
 					className={clsxm(
