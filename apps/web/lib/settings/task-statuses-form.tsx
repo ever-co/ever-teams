@@ -113,7 +113,9 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		},
 		[edit, createNew, formOnly, editTaskStatus, onCreated, user, reset, createTaskStatus, refetch]
 	);
-
+	const updateArray = taskStatus.slice();
+	const sortedArray =
+		Array.isArray(updateArray) && updateArray.length > 0 && updateArray.sort((a: any, b: any) => a.order - b.order);
 	return (
 		<>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
@@ -126,20 +128,24 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 						)}
 
 						<div className="flex flex-col items-center sm:items-start">
-							{!createNew && !edit && (
-								<Button
-									variant="outline"
-									className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
-									onClick={() => {
-										setEdit(null);
-										setCreateNew(true);
-									}}
-								>
-									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									{t('pages.settingsTeam.CREATE_NEW_STATUS')}
+							<div className="flex">
+								{!createNew && !edit && (
+									<Button
+										variant="outline"
+										className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
+										onClick={() => {
+											setEdit(null);
+											setCreateNew(true);
+										}}
+									>
+										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
+										{t('pages.settingsTeam.CREATE_NEW_STATUS')}
+									</Button>
+								)}
+								<Button variant="outline" className="mx-2 rounded-[10px]">
+									Sort
 								</Button>
-							)}
-
+							</div>
 							{(createNew || edit) && (
 								<>
 									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
@@ -204,12 +210,12 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 							{!formOnly && taskStatus?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{t('pages.settingsTeam.LIST_OF_STATUSES')}
+										{t('pages.settingsTeam.LIST_OF_STATUSES')}s
 									</Text>
 									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-										{loading && !taskStatus?.length && <Spinner dark={false} />}
-										{taskStatus && taskStatus?.length ? (
-											taskStatus.map((status) => (
+										{loading && !taskStatus.length && <Spinner dark={false} />}
+										{sortedArray ? (
+											sortedArray.map((status) => (
 												<StatusesListCard
 													key={status.id}
 													statusTitle={status.name ? status.name?.split('-').join(' ') : ''}
