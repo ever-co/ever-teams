@@ -152,7 +152,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 							? intersection(
 									statusFilters[k],
 									task['tags'].map((item) => item.name)
-							  ).length === statusFilters[k].length
+								).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
@@ -346,7 +346,7 @@ export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const t = useTranslations();
 
 	return (
-		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row">
+		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2">
 			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
