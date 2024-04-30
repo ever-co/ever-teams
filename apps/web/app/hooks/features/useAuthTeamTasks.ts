@@ -24,6 +24,13 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 		});
 	}, [tasks, user]);
 
+	const dailyplan = useMemo(() => {
+		if (!user) return [];
+		return tasks.filter((task) => {
+			return !task?.members.some((m) => m.userId === user.id);
+		});
+	}, [tasks, user]);
+
 	const totalTodayTasks = useMemo(
 		() =>
 			currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
@@ -41,6 +48,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 	return {
 		assignedTasks,
 		unassignedTasks,
-		workedTasks
+		workedTasks,
+		dailyplan
 	};
 }
