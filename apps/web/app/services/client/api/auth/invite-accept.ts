@@ -34,7 +34,7 @@ export function verifyInviteCodeAPI(params: IInviteVerifyCode) {
 export function getUserOrganizationsRequest(params: {
 	tenantId: string;
 	userId: string;
-	bearerToken: string
+	token: string
 }) {
 	// Create a new instance of URLSearchParams for query string construction
 	const query = new URLSearchParams();
@@ -53,7 +53,7 @@ export function getUserOrganizationsRequest(params: {
 	return get<PaginationResponse<IUserOrganization>>(`/user-organization?${query.toString()}`, {
 		tenantId: params.tenantId,
 		headers: {
-			Authorization: `Bearer ${params.bearerToken}`
+			Authorization: `Bearer ${params.token}`
 		},
 	});
 }
