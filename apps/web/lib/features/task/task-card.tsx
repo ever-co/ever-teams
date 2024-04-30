@@ -18,6 +18,7 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
 	Card,
+	Divider,
 	// ConfirmDropdown,
 	SpinnerLoader,
 	Text,
@@ -43,7 +44,7 @@ type Props = {
 	task?: Nullable<ITeamTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	viewType?: 'default' | 'unassign';
+	viewType?: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	editTaskId?: string | null;
 	setEditTaskId?: SetterOrUpdater<string | null>;
@@ -421,7 +422,7 @@ function TaskCardMenu({
 	task: ITeamTask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
-	viewType: 'default' | 'unassign';
+	viewType: 'default' | 'unassign' | 'dailyplan';
 }) {
 	const t = useTranslations();
 	const handleAssignment = useCallback(() => {
@@ -451,7 +452,7 @@ function TaskCardMenu({
 				<Popover.Panel>
 					{() => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+							<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
 								<ul className="min-w-[124px]">
 									<li className="mb-2">
 										<Link
@@ -464,7 +465,7 @@ function TaskCardMenu({
 											{t('common.TASK_DETAILS')}
 										</Link>
 									</li>
-									<li className="mb-2">
+									<li className="mb-3">
 										<span
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
@@ -477,6 +478,47 @@ function TaskCardMenu({
 												: t('common.UNASSIGN_TASK')}
 										</span>
 									</li>
+
+									{viewType == 'default' && (
+										<>
+											<Divider type="HORIZONTAL" />
+											<div className="mt-3">
+												<li className="mb-2">
+													<span
+														className={clsxm(
+															'font-normal whitespace-nowrap transition-all',
+															'hover:font-semibold hover:transition-all cursor-pointer'
+														)}
+														onClick={handleAssignment}
+													>
+														Plan for today
+													</span>
+												</li>
+												<li className="mb-2">
+													<span
+														className={clsxm(
+															'font-normal whitespace-nowrap transition-all',
+															'hover:font-semibold hover:transition-all cursor-pointer'
+														)}
+														onClick={handleAssignment}
+													>
+														Plan for tomorrow
+													</span>
+												</li>
+												<li className="mb-2">
+													<span
+														className={clsxm(
+															'font-normal whitespace-nowrap transition-all',
+															'hover:font-semibold hover:transition-all cursor-pointer'
+														)}
+														onClick={handleAssignment}
+													>
+														Plan for some day
+													</span>
+												</li>
+											</div>
+										</>
+									)}
 
 									{/* <li>
 										<ConfirmDropdown

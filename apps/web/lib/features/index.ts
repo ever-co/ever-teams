@@ -29,6 +29,7 @@ export * from './team/user-team-card/task-skeleton';
 
 export * from './auth-user-task-input';
 export * from './user-nav-menu';
+export * from './user-profile-plans';
 export * from './user-profile-tasks';
 
 // custom exports
