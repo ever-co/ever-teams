@@ -176,7 +176,10 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
 		"THERE_IS_NO_TASK_ASSIGNED": "אין משימות מוקצות",
-		"NO_USERS_ONLINE": "אין משתמשים מחוברים"
+		"NO_USERS_ONLINE": "אין משתמשים מחוברים",
+		"NO_USERS_WORKING": "כרגע אין משתמשים פעילים",
+		"NO_USERS_PAUSED_wORK": "כרגע אין משתמשים שהפסיקו את עבודתם",
+		"NO_USERS_IDLE": "כרגע אין משתמשים לא פעילים"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
