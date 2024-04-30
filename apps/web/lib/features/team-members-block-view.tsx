@@ -5,6 +5,7 @@ import { UserTeamBlock } from './team/user-team-block';
 import { useRecoilValue } from 'recoil';
 import { taskBlockFilterState } from '@app/stores/task-filter';
 import { UserTeamCardSkeleton } from './team/user-team-card/task-skeleton';
+import { useTranslations } from 'next-intl';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -22,10 +23,11 @@ const TeamMembersBlockView: React.FC<Props> = ({
 	const activeFilter = useRecoilValue(taskBlockFilterState);
 
 	let emptyMessage = '';
+	const t = useTranslations();
 
 	switch (activeFilter) {
 		case 'online':
-			emptyMessage = 'There are no users online.';
+			emptyMessage = t('common.NO_USERS_ONLINE');
 			break;
 		case 'running':
 			emptyMessage = 'No users are currently working.';

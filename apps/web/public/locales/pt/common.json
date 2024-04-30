@@ -177,7 +177,8 @@
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronize automaticamente tarefas em seu aplicativo para atualizações sem interrupções e eficientes.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronize tarefas seletivamente associando-as a uma etiqueta específica.",
 		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática",
-		"THERE_IS_NO_TASK_ASSIGNED": "Não há tarefa atribuída"
+		"THERE_IS_NO_TASK_ASSIGNED": "Não há tarefa atribuída",
+		"NO_USERS_ONLINE": "Não há usuários online"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",

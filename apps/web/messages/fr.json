@@ -182,7 +182,8 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
 		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activez l'intégration GitHub pour la synchronisation des projets et des dépôts",
-		"THERE_IS_NO_TASK_ASSIGNED": "Aucune tâche n'est assignée"
+		"THERE_IS_NO_TASK_ASSIGNED": "Aucune tâche n'est assignée",
+		"NO_USERS_ONLINE": "Aucun utilisateur en ligne"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Nous travaillons actuellement sur la synchronisation en temps réel, veuillez vérifier cette fonctionnalité plus tard.",
