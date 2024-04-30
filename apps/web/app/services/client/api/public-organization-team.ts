@@ -17,7 +17,7 @@ export function getPublicOrganizationTeamsAPI(profile_link: string, team_id: str
 	];
 
 	const params = {
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
@@ -39,7 +39,7 @@ export function getPublicOrganizationTeamsMiscDataAPI(profile_link: string, team
 	const relations = ['statuses', 'priorities', 'sizes', 'labels', 'issueTypes'];
 
 	const params = {
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
