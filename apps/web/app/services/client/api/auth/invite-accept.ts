@@ -25,20 +25,36 @@ export function verifyInviteCodeAPI(params: IInviteVerifyCode) {
 	return post<IInviteVerified>('/invite/validate-by-code', params).then((res) => res.data);
 }
 
-export function getUserOrganizationsRequest(params: { tenantId: string; userId: string; token: string }) {
-	const query = JSON.stringify({
-		relations: [],
-		findInput: {
-			userId: params.userId,
-			tenantId: params.tenantId
-		}
+/**
+ * Constructs a request to fetch user organizations with tenant and user ID.
+ *
+ * @param params - Parameters including tenantId, userId, and token for authentication.
+ * @returns A promise that resolves to a pagination response of user organizations.
+ */
+export function getUserOrganizationsRequest(params: {
+	tenantId: string;
+	userId: string;
+	bearerToken: string
+}) {
+	// Create a new instance of URLSearchParams for query string construction
+	const query = new URLSearchParams();
+
+	// Add user and tenant IDs to the query
+	query.append('where[userId]', params.userId);
+	query.append('where[tenantId]', params.tenantId);
+
+	// If there are relations, add them to the query
+	const relations: string[] = [];
+	// Append each relation to the query string
+	relations.forEach((relation, index) => {
+		query.append(`relations[${index}]`, relation);
 	});
 
-	return get<PaginationResponse<IUserOrganization>>(`/user-organization?data=${encodeURIComponent(query)}`, {
+	return get<PaginationResponse<IUserOrganization>>(`/user-organization?${query.toString()}`, {
 		tenantId: params.tenantId,
 		headers: {
-			Authorization: `Bearer ${params.token}`
-		}
+			Authorization: `Bearer ${params.bearerToken}`
+		},
 	});
 }
 
