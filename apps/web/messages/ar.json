@@ -182,7 +182,8 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "تزامن المهام بشكل انتقائي عن طريق ربطها بتصنيف معين.",
 		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع",
-		"THERE_IS_NO_TASK_ASSIGNED": "لا توجد مهام معينة"
+		"THERE_IS_NO_TASK_ASSIGNED": "لا توجد مهام معينة",
+		"NO_USERS_ONLINE": "لا يوجد مستخدمين على الانترنت"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "نحن نعمل على المزامنة في الوقت الحقيقي في الوقت الحالي، يرجى التحقق من هذه الميزة لاحقًا",
