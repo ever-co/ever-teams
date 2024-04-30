@@ -22,7 +22,7 @@ export function getPublicOrganizationTeamRequest({
 	relations?: string[];
 }) {
 	const params = {
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
@@ -49,7 +49,7 @@ export function getPublicOrganizationTeamMiscDataRequest({
 	relations?: string[];
 }) {
 	const params = {
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
