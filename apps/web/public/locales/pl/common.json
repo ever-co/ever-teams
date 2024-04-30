@@ -176,7 +176,8 @@
 		"GITHUB_LOADING_TEXT": "Aktualnie instalujemy integrację GitHub, proszę czekać...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatycznie synchronizuj zadania w swojej aplikacji, aby uzyskać płynne i efektywne aktualizacje.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronizuj zadania selektywnie, łącząc je z konkretną etykietą.",
-		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji"
+		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji",
+		"THERE_IS_NO_TASK_ASSIGNED": "Nie ma przypisanego zadania"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",

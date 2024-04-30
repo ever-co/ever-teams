@@ -174,7 +174,8 @@
 		"GITHUB_LOADING_TEXT": "Wir installieren jetzt Ihre GitHub-Integration, warten Sie...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisieren Sie Aufgaben in Ihrer Anwendung automatisch für nahtlose und effiziente Aktualisierungen.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisieren Sie Aufgaben selektiv, indem Sie sie mit einem bestimmten Label verknüpfen.",
-		"GITHUB_AUTO_SYNC_LABEL": "Auto-Sync-Label auswählen"
+		"GITHUB_AUTO_SYNC_LABEL": "Auto-Sync-Label auswählen",
+		"THERE_IS_NO_TASK_ASSIGNED": "Es ist keine Aufgabe zugewiesen"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Wir arbeiten derzeit an der Echtzeitsynchronisierung. Bitte überprüfen Sie diese Funktion später.",

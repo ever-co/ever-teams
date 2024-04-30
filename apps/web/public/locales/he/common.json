@@ -174,7 +174,8 @@
 		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו.",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "סנכרן משימות באופן אוטומטי באפליקציה שלך לעדכונים חלקים ויעילים.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
-		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון"
+		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
+		"THERE_IS_NO_TASK_ASSIGNED": "אין משימות מוקצות"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
