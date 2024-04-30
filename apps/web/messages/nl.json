@@ -181,7 +181,8 @@
 		"GITHUB_LOADING_TEXT": "We zijn nu uw GitHub-integratie aan het installeren, even geduld...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchroniseer taken automatisch in uw applicatie voor naadloze en efficiënte updates.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchroniseer taken selectief door ze te koppelen aan een specifiek label.",
-		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label"
+		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label",
+		"THERE_IS_NO_TASK_ASSIGNED": "Er is geen taak toegewezen"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",

@@ -175,7 +175,7 @@
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatically synchronize tasks in your application for seamless and efficient updates.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronize tasks selectively by associating them with specific label.",
 		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label",
-		"THERE_IS_NO_TASK_ASSIGNED":"There is no task assigned"
+		"THERE_IS_NO_TASK_ASSIGNED": "There is no task assigned"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We are working on Real-Time Sync at the moment, please check on this feature later.",
