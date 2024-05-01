@@ -174,7 +174,9 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
 		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
 		"THERE_IS_NO_TASK_ASSIGNED": "Il n'y a pas de tâche assignée",
-		"NO_USERS_ONLINE": "Aucun utilisateur en ligne"
+		"NO_USERS_ONLINE": "Aucun utilisateur en ligne",
+		"NOT_FOUND": "Non trouvé",
+		"PAGE_NOT_FOUND": "Page non trouvée"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Nous travaillons actuellement sur la synchronisation en temps réel, veuillez vérifier cette fonctionnalité plus tard.",

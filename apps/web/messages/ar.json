@@ -183,7 +183,9 @@
 		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع",
 		"THERE_IS_NO_TASK_ASSIGNED": "لا توجد مهام معينة",
-		"NO_USERS_ONLINE": "لا يوجد مستخدمين على الانترنت"
+		"NO_USERS_ONLINE": "لا يوجد مستخدمين على الانترنت",
+		"NOT_FOUND": "الصفحة غير موجودة",
+		"PAGE_NOT_FOUND": "غير معثور عليه"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "نحن نعمل على المزامنة في الوقت الحقيقي في الوقت الحالي، يرجى التحقق من هذه الميزة لاحقًا",

@@ -183,7 +183,9 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronizza le attività in modo selettivo associandole a un'etichetta specifica.",
 		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica",
 		"THERE_IS_NO_TASK_ASSIGNED": "Non è stato assegnato alcun compito",
-		"NO_USERS_ONLINE": "Nessun utente online"
+		"NO_USERS_ONLINE": "Nessun utente online",
+		"NOT_FOUND": "Non Trovato",
+		"PAGE_NOT_FOUND": "Pagina non trovata"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Stiamo lavorando alla sincronizzazione in tempo reale al momento, controlla questa funzionalità più tardi.",

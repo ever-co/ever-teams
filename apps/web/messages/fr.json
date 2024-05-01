@@ -183,7 +183,9 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activez l'intégration GitHub pour la synchronisation des projets et des dépôts",
 		"THERE_IS_NO_TASK_ASSIGNED": "Aucune tâche n'est assignée",
-		"NO_USERS_ONLINE": "Aucun utilisateur en ligne"
+		"NO_USERS_ONLINE": "Aucun utilisateur en ligne",
+		"NOT_FOUND": "Non trouvé",
+		"PAGE_NOT_FOUND": "Page non trouvée"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Nous travaillons actuellement sur la synchronisation en temps réel, veuillez vérifier cette fonctionnalité plus tard.",

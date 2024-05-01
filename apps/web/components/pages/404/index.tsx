@@ -2,8 +2,10 @@
 import SadCry from '@components/ui/svgs/sad-cry';
 import { Button, Text } from 'lib/components';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 function NotFound() {
+	const t = useTranslations();
 	return (
 		<div className="mt-28 flex flex-col gap-7 items-center">
 			<div className="m-auto relative flex justify-center items-center gap-4 text-center ">
@@ -12,6 +14,7 @@ function NotFound() {
 			</div>
 
 			<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
+			{$t('common.PAGE_NOT_FOUND')}
 				Page not found !
 			</Text>
 			<div className="flex flex-col gap-4">

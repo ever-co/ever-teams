@@ -183,7 +183,9 @@
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "הפעל אינטגרציה של GitHub עבור סנכרון פרויקטים ומאגרים",
 		"THERE_IS_NO_TASK_ASSIGNED": "אין משימות מוקצות",
-		"NO_USERS_ONLINE": "אין משתמשים מחוברים"
+		"NO_USERS_ONLINE": "אין משתמשים מחוברים",
+		"NOT_FOUND": "לא נמצא",
+		"PAGE_NOT_FOUND": "הדף לא נמצא"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
