@@ -50,7 +50,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		unassigned: profile.tasksGrouped.unassignedTasks,
 		assigned: profile.tasksGrouped.assignedTasks,
 		worked: profile.tasksGrouped.workedTasks,
-		dailyplan: profile.tasksGrouped.dailyplan
+		dailyplan: [] // Change this soon
 	};
 
 	const tasks = tasksFiltered[tab];

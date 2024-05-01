@@ -1,11 +1,12 @@
 import { IUser } from '@app/interfaces';
-import { tasksByTeamState } from '@app/stores';
+import { dailyPlanListState, tasksByTeamState } from '@app/stores';
 import { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useOrganizationTeams } from './useOrganizationTeams';
 
 export function useAuthTeamTasks(user: IUser | undefined) {
 	const tasks = useRecoilValue(tasksByTeamState);
+	const plans = useRecoilValue(dailyPlanListState);
 
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === user?.id);
@@ -26,10 +27,8 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 
 	const dailyplan = useMemo(() => {
 		if (!user) return [];
-		return tasks.filter((task) => {
-			return !task?.members.some((m) => m.userId === user.id);
-		});
-	}, [tasks, user]);
+		return plans.items;
+	}, [plans, user]);
 
 	const totalTodayTasks = useMemo(
 		() =>

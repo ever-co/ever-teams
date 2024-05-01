@@ -1,5 +1,37 @@
+import qs from 'qs';
 import { ICreateDailyPlan, IDailyPlan } from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
+
+export function getDayPlansByEmployee({
+	employeeId,
+	organizationId,
+	tenantId,
+	bearer_token,
+	relations = ['employee', 'tasks']
+}: {
+	employeeId: string;
+	organizationId: string;
+	tenantId: string;
+	bearer_token: string;
+	relations?: string[];
+}) {
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	relations.forEach((relation, i) => {
+		obj[`relations[${i}]`] = relation;
+	});
+
+	const query = qs.stringify(obj);
+
+	return serverFetch<IDailyPlan>({
+		path: `/daily-plan/employee/${employeeId}?${query}`,
+		method: 'GET',
+		bearer_token
+	});
+}
 
 export function createPlanRequest({
 	data,

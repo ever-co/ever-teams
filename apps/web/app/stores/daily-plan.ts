@@ -1,9 +1,9 @@
 import { atom, selector } from 'recoil';
-import { IDailyPlan } from '@app/interfaces/IDailyPlan';
+import { IDailyPlan, PaginationResponse } from '@app/interfaces';
 
-export const dailyPlanListState = atom<IDailyPlan[]>({
+export const dailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	key: 'dailyPlanListState',
-	default: []
+	default: { items: [], total: 0 }
 });
 
 export const activeDailyPlanIdState = atom<string | null>({
@@ -21,6 +21,6 @@ export const activeDailyPlanState = selector<IDailyPlan | null>({
 	get: ({ get }) => {
 		const dailyPlans = get(dailyPlanListState);
 		const activeId = get(activeDailyPlanIdState);
-		return dailyPlans.find((plan) => plan.id === activeId) || dailyPlans[0] || null;
+		return dailyPlans.items.find((plan) => plan.id === activeId) || dailyPlans.items[0] || null;
 	}
 });

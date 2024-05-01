@@ -36,6 +36,7 @@ export function CreateDailyPlanFormModal({
 			}).then(() => {
 				refetch();
 				reset();
+				closeModal();
 			});
 		},
 		[
@@ -46,7 +47,8 @@ export function CreateDailyPlanFormModal({
 			user?.employee.id,
 			user?.employee.organizationId,
 			refetch,
-			reset
+			reset,
+			closeModal
 		]
 	);
 	return (
@@ -70,7 +72,8 @@ export function CreateDailyPlanFormModal({
 								placeholder="Working time to plan"
 								className="mb-0 min-w-[350px]"
 								wrapperClassName="mb-0 rounded-lg"
-								{...register('workTimePlanned')}
+								required
+								// {...register('workTimePlanned')}
 							/>
 							<Button
 								variant="primary"
