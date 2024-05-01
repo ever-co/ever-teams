@@ -107,7 +107,7 @@ export function TaskInput(props: Props) {
 		setQuery,
 		updateLoading,
 		updateTaskTitleHandler,
-		setFilter,
+		setFilter
 	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
@@ -452,7 +452,7 @@ function TaskCard({
 				)}
 			>
 				{inputField}
-				<div className="h-2/5">
+				<div>
 					{/* Create team button */}
 					<div className="flex flex-col gap-y-2">
 						{datas.hasCreateForm && (
