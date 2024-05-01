@@ -14,8 +14,7 @@ function NotFound() {
 			</div>
 
 			<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
-			{$t('common.PAGE_NOT_FOUND')}
-				Page not found !
+			{t('common.PAGE_NOT_FOUND')}
 			</Text>
 			<div className="flex flex-col gap-4">
 				<Text className="text-[20px] font-normal text-center text-gray-400">
