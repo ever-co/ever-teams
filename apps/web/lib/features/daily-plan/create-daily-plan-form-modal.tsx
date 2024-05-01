@@ -26,7 +26,7 @@ export function CreateDailyPlanFormModal({
 		async (values: any) => {
 			const toDay = new Date();
 			createDailyPlan({
-				workTimePlanned: values.workTimePlanned,
+				workTimePlanned: parseInt(values.workTimePlanned),
 				taskId,
 				date: planMode == 'today' ? toDay : new Date(toDay.getDate() + 1),
 				status: DailyPlanStatusEnum.OPEN,

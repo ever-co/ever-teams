@@ -8,7 +8,7 @@ export function createPlanRequest({
 }: {
 	data: ICreateDailyPlan;
 	bearer_token: string;
-	tenantId: string;
+	tenantId?: any;
 }) {
 	return serverFetch<IDailyPlan>({
 		method: 'POST',

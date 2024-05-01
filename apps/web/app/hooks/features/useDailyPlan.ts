@@ -25,8 +25,10 @@ export function useDailyPlan() {
 
 	const createDailyPlan = useCallback(
 		async (data: ICreateDailyPlan) => {
-			const res = await createQueryCall(data, user?.tenantId || '');
-			return res;
+			if (user?.tenantId) {
+				const res = await createQueryCall(data, user?.tenantId || '');
+				return res;
+			}
 		},
 		[createQueryCall, user]
 	);
