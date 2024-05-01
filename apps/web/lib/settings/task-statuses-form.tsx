@@ -122,7 +122,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	return (
 		<>
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-			<SortTasksStatusSettings/>
+			<SortTasksStatusSettings arr={sortedArray}/>
 			</Modal>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
