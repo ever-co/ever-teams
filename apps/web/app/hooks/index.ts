@@ -59,6 +59,9 @@ export * from './features/useTaskSizes';
 export * from './features/useTaskStatus';
 export * from './features/useTaskVersion';
 
+// Daily plam
+export * from './features/useDailyPlan';
+
 export * from './features/useRefetchData';
 export * from './features/useRolePermissions';
 

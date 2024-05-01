@@ -22,12 +22,14 @@ export interface ICreateDailyPlan {
 	status: DailyPlanStatusEnum;
 	employeeId?: IEmployee['id'];
 	taskId?: ITeamTask['id'];
-	organizationId: string;
-	tenantId: string;
+	organizationId?: string;
+	tenantId?: string | null;
 }
 
-export declare enum DailyPlanStatusEnum {
+export enum DailyPlanStatusEnum {
 	OPEN = 'open',
 	IN_PROGRESS = 'in-progress',
 	COMPLETED = 'completed'
 }
+
+export type IDailyPlanMode = 'today' | 'tomorow' | 'custom';
