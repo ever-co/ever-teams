@@ -22,6 +22,8 @@ export interface ICreateDailyPlan {
 	status: DailyPlanStatusEnum;
 	employeeId?: IEmployee['id'];
 	taskId?: ITeamTask['id'];
+	organizationId: string;
+	tenantId: string;
 }
 
 export declare enum DailyPlanStatusEnum {

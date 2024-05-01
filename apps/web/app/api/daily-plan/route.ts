@@ -5,13 +5,13 @@ import { createPlanRequest } from '@app/services/server/requests/daily-plan';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token } = await authenticatedGuard(req, res);
+	const { $res, user, access_token: bearer_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('Unauthorized');
 
 	const body = (await req.json()) as unknown as ICreateDailyPlan;
 
-	const response = await createPlanRequest({ data: body, bearer_token: access_token });
+	const response = await createPlanRequest({ data: body, bearer_token, tenantId });
 
 	return $res(response.data);
 }
