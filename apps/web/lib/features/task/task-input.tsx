@@ -265,6 +265,7 @@ export function TaskInput(props: Props) {
 			setEditMode(false);
 		}
 	}, [setEditMode, editMode, targetEl]);
+
 	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
 
 	useEffect(() => {
@@ -367,7 +368,7 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover className="relative z-30 w-full" ref={inputRef}>
+		<Popover className="relative z-20 w-full" ref={inputRef}>
 			<Tooltip
 				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
