@@ -280,7 +280,7 @@ export function TaskInput(props: Props) {
 			ref={targetEl}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
-			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
+			placeholder={props.placeholder || 'your task should be here!'}
 			onFocus={(e) => {
 				setEditMode(true);
 				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);

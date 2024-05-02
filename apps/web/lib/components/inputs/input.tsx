@@ -6,6 +6,9 @@ import { clsxm } from '@app/utils';
 import { Dispatch, forwardRef, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
+import { BsEmojiSmile } from "react-icons/bs";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 type Props = {
 	readonly errors?: Record<string, string>;
@@ -38,6 +41,17 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 	) => {
 		const [error, setError] = useState<string | undefined>(undefined);
 		const inputRef = useRef<HTMLInputElement>(null);
+		const [showEmoji, setShowEmoji] = useState<boolean>(false);
+
+		const addEmoji = (emoji: { native: string }) => {
+			const input =  inputRef.current as HTMLInputElement | null;
+			if (input) {
+				const currentValue = input.value || '';
+				const newValue = currentValue + emoji.native;
+				input.value = newValue;
+				input.focus();
+			}
+		};
 
 		useEffect(() => {
 			if (errors && name && errors[name]) {
@@ -65,6 +79,11 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		}, [inputRef, autoCustomFocus]);
 
 		const inputElement = (
+			<div
+			className={clsxm(
+				'flex items-center'
+			)}
+			>
 			<input
 				type={type}
 				name={name}
@@ -79,8 +98,27 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					className
 				)}
 				onKeyUp={onKeyUp}
+				onMouseOut={()=>{
+					if(showEmoji==true){
+					setShowEmoji(false)}}}
 				{...res}
-			/>
+				/>
+				<BsEmojiSmile
+					onClick={() => setShowEmoji(!showEmoji)}
+					className={clsxm('mr-3')}
+					/>
+				{showEmoji && (
+              <div className="absolute top-[100%] right-2">
+                <Picker
+                  data={data}
+                  emojiSize={20}
+                  emojiButtonSize={28}
+                  onEmojiSelect={addEmoji}
+                  maxFrequentRows={0}
+                />
+              </div>
+            )}
+				</div>
 		);
 
 		return noWrapper ? (
