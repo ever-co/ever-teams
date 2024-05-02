@@ -29,7 +29,7 @@ export default function MenuKanbanCard({ member, item }: { item: any; member: an
 			closable: true,
 			action: 'estimate',
 			onClick: () => {
-				// TODO: Implement estimate task after fixing the time estimatation issue
+				// TODO: Implement estimate task after fixing the time estimate issue
 			},
 			active: true
 		},
