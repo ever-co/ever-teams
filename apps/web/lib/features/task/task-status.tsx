@@ -42,6 +42,7 @@ export type TStatusItem = {
 	value?: string;
 	bordered?: boolean;
 	showIcon?: boolean;
+	className?: string;
 };
 
 export type TStatus<T extends string> = {
@@ -828,7 +829,7 @@ export function TaskStatus({
 							isVersion || isEpic
 								? {
 										color: theme === 'light' ? '#000' : '#FFF'
-								  }
+									}
 								: {}
 						}
 					>
@@ -924,7 +925,8 @@ export function StatusDropdown<T extends TStatusItem>({
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
-				isVersion && 'dark:text-white'
+				isVersion && 'dark:text-white',
+				currentValue.className
 			)}
 			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
 			isVersion={isVersion}
@@ -985,8 +987,7 @@ export function StatusDropdown<T extends TStatusItem>({
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
 													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-												taskStatusClassName,
-												'max-w-10'
+												taskStatusClassName
 											)}
 											name={
 												values.length > 0
@@ -1023,6 +1024,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										>
 											{items.map((item, i) => {
 												const item_value = item.value || item.name;
+
 												return (
 													<Listbox.Option
 														key={i}
@@ -1041,9 +1043,10 @@ export function StatusDropdown<T extends TStatusItem>({
 																	issueType === 'issue' && [
 																		'rounded-md px-2 text-white'
 																	],
-																	`${sidebarUI ? 'rounded-[4px]' : ''}`,
-																	`${bordered ? 'input-border' : ''}`,
-																	(isVersion || isEpic) && 'dark:text-white'
+																	sidebarUI && 'rounded-[4px]',
+																	bordered && 'input-border',
+																	(isVersion || isEpic) && 'dark:text-white',
+																	item?.className
 																)}
 															/>
 
