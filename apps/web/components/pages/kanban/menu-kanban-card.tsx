@@ -28,7 +28,9 @@ export default function MenuKanbanCard({ member, item }: { item: any; member: an
 			name: t('common.ESTIMATE'),
 			closable: true,
 			action: 'estimate',
-			onClick: () => {},
+			onClick: () => {
+				// TODO: Implement estimate task after fixing the time estimatation issue
+			},
 			active: true
 		},
 		{
