@@ -171,7 +171,7 @@ export function TaskInputKanban(props: Props) {
 
 					props.onClose && props.onClose();
 				});
-	}, [datas, taskIssue, autoActiveTask, props.autoAssignTaskAuth, props.usersTaskCreatedAssignTo, onTaskCreated]);
+	}, [datas, props, onTaskCreated]);
 
 	let updatedTaskList: ITeamTask[] = [];
 	if (props.forParentChildRelationship) {
