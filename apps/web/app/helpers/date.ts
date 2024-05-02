@@ -115,3 +115,17 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 
 	return moment(endDate).diff(startDate, 'days');
 };
+
+export const tomorrowDate = moment().add(1, 'days').toDate();
+
+export const formatDayPlanDate = (dateString: string | Date) => {
+	if (dateString.toString().length > 10) {
+		dateString = dateString.toString().split('T')[0];
+	}
+	const date = moment(dateString, 'YYYY-MM-DD');
+
+	if (date.isSame(moment(), 'day')) return 'Today';
+	if (date.isSame(moment().add(1, 'day'), 'day')) return 'Tomorrow';
+	if (date.isSame(moment().subtract(1, 'day'), 'day')) return 'Yesterday';
+	return date.format('dddd, MMMM DD, YYYY');
+};

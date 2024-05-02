@@ -2,9 +2,10 @@ import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
 import { DailyPlanStatusEnum, IDailyPlanMode } from '@app/interfaces';
-import { useDailyPlan, useRefetchData } from '@app/hooks';
+import { useDailyPlan } from '@app/hooks';
 import { userState } from '@app/stores';
 import { Button, Card, InputField, Modal, Text } from 'lib/components';
+import { tomorrowDate } from '@app/helpers';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -20,7 +21,6 @@ export function CreateDailyPlanFormModal({
 	const [user] = useRecoilState(userState);
 	const { handleSubmit, reset, register } = useForm();
 	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
-	const { refetch } = useRefetchData();
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -28,13 +28,12 @@ export function CreateDailyPlanFormModal({
 			createDailyPlan({
 				workTimePlanned: parseInt(values.workTimePlanned),
 				taskId,
-				date: planMode == 'today' ? toDay : new Date(toDay.getDate() + 1),
+				date: planMode == 'today' ? toDay : tomorrowDate,
 				status: DailyPlanStatusEnum.OPEN,
 				tenantId: user?.tenantId,
 				employeeId: user?.employee.id,
 				organizationId: user?.employee.organizationId
 			}).then(() => {
-				refetch();
 				reset();
 				closeModal();
 			});
@@ -46,14 +45,13 @@ export function CreateDailyPlanFormModal({
 			user?.tenantId,
 			user?.employee.id,
 			user?.employee.organizationId,
-			refetch,
 			reset,
 			closeModal
 		]
 	);
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onClick={handleSubmit(onSubmit)}>
+			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						{/* Form header */}
@@ -73,7 +71,7 @@ export function CreateDailyPlanFormModal({
 								className="mb-0 min-w-[350px]"
 								wrapperClassName="mb-0 rounded-lg"
 								required
-								// {...register('workTimePlanned')}
+								{...register('workTimePlanned')}
 							/>
 							<Button
 								variant="primary"

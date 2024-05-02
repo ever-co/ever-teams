@@ -22,7 +22,7 @@ export function useDailyPlan() {
 		if (firstLoad) {
 			setDailyPlanFetching(loading);
 		}
-	}, [loading, firstLoad, setDailyPlanFetching, user?.employee.id]);
+	}, [loading, firstLoad, setDailyPlanFetching]);
 
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
