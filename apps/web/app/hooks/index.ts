@@ -59,7 +59,7 @@ export * from './features/useTaskSizes';
 export * from './features/useTaskStatus';
 export * from './features/useTaskVersion';
 
-// Daily plam
+// Daily plan
 export * from './features/useDailyPlan';
 
 export * from './features/useRefetchData';

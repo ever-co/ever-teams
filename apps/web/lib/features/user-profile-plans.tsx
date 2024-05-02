@@ -75,7 +75,7 @@ function AllPlans({
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
 
-	filteredPlans = filteredPlans = [...plans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	filteredPlans = [...plans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	if (currentTab === 'Future Tasks')
 		filteredPlans = ascSortedPlans.filter((plan) => new Date(plan.date).getTime() > new Date().getTime());

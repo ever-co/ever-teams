@@ -83,7 +83,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			{!(tabFiltered.tab === 'dailyplan') && (
+			{tabFiltered.tab !== 'dailyplan' && (
 				<ul className="flex flex-col gap-4">
 					{otherTasks.map((task) => {
 						return (
