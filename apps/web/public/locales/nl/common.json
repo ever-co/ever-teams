@@ -178,7 +178,7 @@
 		"THERE_IS_NO_TASK_ASSIGNED": "Er is geen taak toegewezen",
 		"NO_USERS_ONLINE": "Er zijn geen gebruikers online",
 		"NO_USERS_WORKING": "Er zijn momenteel geen actieve gebruikers",
-		"NO_USERS_PAUSED_wORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
+		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
 		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers"
 	},
 	"alerts": {

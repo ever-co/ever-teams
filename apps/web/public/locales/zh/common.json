@@ -178,7 +178,7 @@
 		"THERE_IS_NO_TASK_ASSIGNED": "没有分配任务",
 		"NO_USERS_ONLINE": "没有在线用户",
 		"NO_USERS_WORKING": "目前没有活跃用户",
-		"NO_USERS_PAUSED_wORK": "目前还没有用户停止工作",
+		"NO_USERS_PAUSED_WORK": "目前还没有用户停止工作",
 		"NO_USERS_IDLE": "目前没有不活跃用户"
 	},
 	"alerts": {

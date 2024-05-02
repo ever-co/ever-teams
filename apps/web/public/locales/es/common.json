@@ -175,7 +175,7 @@
 		"THERE_IS_NO_TASK_ASSIGNED": "No hay tareas asignadas",
 		"NO_USERS_ONLINE": "No hay usuarios en línea",
 		"NO_USERS_WORKING": "Actualmente no hay usuarios activos",
-		"NO_USERS_PAUSED_wORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
+		"NO_USERS_PAUSED_WORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
 		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos"
 	},
 	"alerts": {
