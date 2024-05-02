@@ -64,7 +64,7 @@ export default function MenuKanbanCard({ member, item }: { item: any; member: an
 				className="w-40 border-[0.125rem] dark:border-[#26272C] bg-white dark:bg-dark--theme-light p-0"
 			>
 				<ul>
-					{menu.map((item, i) => {
+					{menu.map((item) => {
 						return (
 							<li key={item.name} onClick={() => item?.onClick()}>
 								<button className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all p-2">
