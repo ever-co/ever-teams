@@ -825,6 +825,7 @@ export function TaskStatus({
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
 						className={`capitalize text-ellipsis overflow-hidden`}
+						title={realName || name}
 						style={
 							isVersion || isEpic
 								? {

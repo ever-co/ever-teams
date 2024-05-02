@@ -125,7 +125,7 @@ type ITimeProps = {
 export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 	({ className, type = 'text', label, dash = '__', wrapperClassName, value, loading, ...res }, ref) => {
 		return (
-			<div className="flex items-center">
+			<div className={clsxm('flex items-center', loading && 'gap-1')}>
 				<div className={clsxm('relative isolate w-7', wrapperClassName)}>
 					<input
 						type={type}
@@ -136,7 +136,9 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 					/>
 					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">{dash}</span>
 				</div>
-				<span className="">{!loading ? label : <SpinnerLoader size={15} />}</span>
+
+				{loading && <SpinnerLoader size={15} />}
+				{!loading && <span>{label} </span>}
 			</div>
 		);
 	}
