@@ -925,8 +925,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
-				isVersion && 'dark:text-white',
-				currentValue.className
+				isVersion && 'dark:text-white'
 			)}
 			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
 			isVersion={isVersion}
