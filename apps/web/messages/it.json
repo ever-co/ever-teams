@@ -243,6 +243,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "Invia Codice",
+			"RESEND_CODE": "Reinvia Codice",
+			"RESEND_CODE_DESC": "Non hai ricevuto il codice?",
 			"JOIN": "Unisciti",
 			"UNRECEIVED_CODE": "Non hai ricevuto il codice?",
 			"JOIN_TEAM": "Unisciti al Team",

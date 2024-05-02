@@ -238,6 +238,8 @@
 
 		"auth": {
 			"SEND_CODE": "Code senden",
+			"RESEND_CODE": "Code erneut senden",
+			"RESEND_CODE_IN": "Code erneut einsenden",
 			"JOIN": "Beitreten",
 			"UNRECEIVED_CODE": "Keinen Code erhalten?",
 			"JOIN_TEAM": "Team beitreten",

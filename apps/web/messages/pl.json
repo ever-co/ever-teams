@@ -243,6 +243,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",
+			"RESEND_CODE": "Wyślij ponownie kod",
+			"RESEND_CODE_IN": "Wyślij ponownie kod w",
 			"JOIN": "Dołącz",
 			"UNRECEIVED_CODE": "Nie otrzymałeś kodu?",
 			"JOIN_TEAM": "Dołącz do Zespołu",

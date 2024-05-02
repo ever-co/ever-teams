@@ -240,6 +240,8 @@
 
 		"auth": {
 			"SEND_CODE": "send code",
+			"RESEND_CODE": "Wyślij kod ponownie",
+			"RESEND_CODE_IN": "Wyślij kod ponownie w",
 			"JOIN": "Join",
 			"UNRECEIVED_CODE": "Didn't receive code ?",
 			"JOIN_TEAM": "Join Team",

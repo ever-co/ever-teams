@@ -238,6 +238,8 @@
 
 		"auth": {
 			"SEND_CODE": "إرسال الرمز",
+			"RESEND_CODE": "إعادة إرسال الرمز",
+			"RESEND_CODE_IN": "إعادة إرسال الرمز في",
 			"JOIN": "انضمام",
 			"UNRECEIVED_CODE": "لم تتلقى الرمز؟",
 			"JOIN_TEAM": "انضمام للفريق",
