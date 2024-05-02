@@ -33,7 +33,7 @@ const TeamMembersBlockView: React.FC<Props> = ({
 			emptyMessage = t('common.NO_USERS_WORKING');
 			break;
 		case 'pause':
-			emptyMessage = t('common.NO_USERS_PAUSED_wORK');
+			emptyMessage = t('common.NO_USERS_PAUSED_WORK');
 			break;
 		case 'idle':
 			emptyMessage = t('common.NO_USERS_IDLE');
