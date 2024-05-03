@@ -163,6 +163,8 @@ export const en = {
 
 		auth: {
 			SEND_CODE: 'send code',
+			RESEND_CODE: 'Resend Code',
+			RESEND_CODE_IN: 'Resend Code in',
 			JOIN: 'Join',
 			UNRECEIVED_CODE: "Didn't receive code ?",
 			JOIN_TEAM: 'Join Team',

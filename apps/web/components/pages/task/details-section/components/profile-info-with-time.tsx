@@ -15,6 +15,7 @@ const ProfileInfoWithTime = ({ profilePicSrc, names, profileInfoWrapperClassName
 			<Link href={`/profile/${userId}`} target="_blank">
 				<ProfileInfo
 					profilePicSrc={profilePicSrc}
+					fullName={names}
 					names={names?.slice(0, 10) + '...'}
 					wrapperClassName={profileInfoWrapperClassName}
 				/>

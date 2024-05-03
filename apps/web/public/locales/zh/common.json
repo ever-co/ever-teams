@@ -176,7 +176,12 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
 		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签",
 		"THERE_IS_NO_TASK_ASSIGNED": "没有分配任务",
-		"NO_USERS_ONLINE": "没有在线用户"
+		"NO_USERS_ONLINE": "没有在线用户",
+		"NOT_FOUND": "未找到",
+		"PAGE_NOT_FOUND": "页面未找到",
+		"NO_USERS_WORKING": "目前没有活跃用户",
+		"NO_USERS_PAUSED_WORK": "目前还没有用户停止工作",
+		"NO_USERS_IDLE": "目前没有不活跃用户"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "我們目前正在開發即時同步功能，請稍後查看此功能。",
@@ -238,6 +243,8 @@
 
 		"auth": {
 			"SEND_CODE": "发送验证码",
+			"RESEND_CODE": "重新发送验证码",
+			"ENTER_CODE": "输入验证码",
 			"JOIN": "加入",
 			"UNRECEIVED_CODE": "未收到验证码?",
 			"JOIN_TEAM": "加入团队",

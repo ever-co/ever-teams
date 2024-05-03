@@ -26,7 +26,7 @@ export const getAuthenticatedUserDataAPI = () => {
 	// Construct the query string with 'qs', including the includeEmployee parameter
 	const query = qs.stringify({
 		relations: relations,
-		includeEmployee: true  // Append includeEmployee parameter set to true
+		includeEmployee: true // Append includeEmployee parameter set to true
 	});
 
 	// Execute the GET request to fetch the user data
@@ -130,15 +130,20 @@ export async function signInEmailConfirmAPI(email: string, code: string) {
 	});
 }
 
-export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
+export const signInWorkspaceAPI = (params: { email: string; token: string; selectedTeam: string; code: string }) => {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
-		return signInWorkspaceGauzy({ email, token, teamId: selectedTeam, code: 'sign-in-workspace' });
+		return signInWorkspaceGauzy({
+			email: params.email,
+			token: params.token,
+			teamId: params.selectedTeam,
+			code: params.code
+		});
 	}
 
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
-		email,
-		token,
-		teamId: selectedTeam
+		email: params.email,
+		token: params.token,
+		teamId: params.selectedTeam
 	});
 };
 

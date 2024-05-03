@@ -334,7 +334,11 @@
 		"Northflank",
 		"prebuild",
 		"dataToDisplay",
-		"GlobalSkeleton"
+		"GlobalSkeleton",
+		"dailyplan",
+		"tomorow",
+		"comparization",
+		"plan"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

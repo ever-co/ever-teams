@@ -129,6 +129,12 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	const t = useTranslations();
 	const inputsRef = useRef<Array<HTMLInputElement>>([]);
 
+	const formatTime = (seconds: number) => {
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+	};
+
 	const [timer, setTimer] = useState(60);
 	const [disabled, setDisabled] = useState(true);
 
@@ -229,14 +235,12 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 									>
 										{!disabled ? (
 											<span className="text-primary dark:text-primary-light">
-												{'Re'}
-												{t('pages.auth.SEND_CODE')}
+												{t('pages.auth.RESEND_CODE')}
 											</span>
 										) : (
 											<span className=" dark:text-primary-light">
-												{'Re'}
-												{t('pages.auth.SEND_CODE')} {' in 00:'}
-												{timer}
+												{t('pages.auth.RESEND_CODE_IN')} {' '}
+												{formatTime(timer)}
 											</span>
 										)}
 									</button>

@@ -21,7 +21,9 @@ export function ScreenshootTab() {
 				{/* Stats cards */}
 				<div className="shadow rounded-md sm:w-1/2 lg:w-1/3 xl:w-1/4 p-4 h-32 bg-white dark:bg-[#26272C]">
 					<span>{t('timer.TIME_ACTIVITY')}</span>
-					<h2 className="text-3xl font-bold my-3">{activityPercent.toFixed(2)} %</h2>
+					<h2 className="text-3xl font-bold my-3">
+						{isNaN(parseFloat(activityPercent.toFixed(2))) ? '00' : activityPercent.toFixed(2)} %
+					</h2>
 					<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 				</div>
 				<div className="shadow rounded-md sm:w-1/2 lg:w-1/3 xl:w-1/4 p-4 h-32 bg-white dark:bg-[#26272C]">

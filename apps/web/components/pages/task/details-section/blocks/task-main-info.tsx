@@ -15,6 +15,7 @@ import TaskRow from '../components/task-row';
 import { DatePicker } from 'components/ui/DatePicker';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { PencilSquareIcon } from '@heroicons/react/20/solid';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -115,11 +116,13 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{startDate
-								? formatDateString(startDate.toISOString())
-								: task?.startDate
-								? formatDateString(task?.startDate)
-								: 'Set Start Date'}
+							{startDate ? (
+								formatDateString(startDate.toISOString())
+							) : task?.startDate ? (
+								formatDateString(task?.startDate)
+							) : (
+								<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
+							)}
 						</div>
 					}
 					selected={$startDate.current ? (new Date($startDate.current) as Date) : undefined}
@@ -161,11 +164,13 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{dueDate
-								? formatDateString(dueDate.toISOString())
-								: task?.dueDate
-								? formatDateString(task?.dueDate)
-								: 'Set Due Date'}
+							{dueDate ? (
+								formatDateString(dueDate.toISOString())
+							) : task?.dueDate ? (
+								formatDateString(task?.dueDate)
+							) : (
+								<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
+							)}
 						</div>
 					}
 					selected={$dueDate.current ? (new Date($dueDate.current) as Date) : undefined}
@@ -220,7 +225,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			memberList.filter((member) =>
 				member.employee
 					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
-					  member.employee?.isActive
+						member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -231,7 +236,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			memberList.filter((member) =>
 				member.employee
 					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
-					  member.employee?.isActive
+						member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]

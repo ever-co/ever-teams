@@ -1,7 +1,7 @@
 import { Button, InputField, Text } from 'lib/components';
 import { StatusesListCard } from './list-card';
 
-import { useTaskVersion } from '@app/hooks';
+import { useCallbackRef, useTaskVersion } from '@app/hooks';
 import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Spinner } from '@components/ui/loaders/spinner';
@@ -27,6 +27,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskVersionItemList | null>(null);
+	const $onVersionCreated = useCallbackRef(onVersionCreated);
 
 	const {
 		loading,
@@ -36,7 +37,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 		editTaskVersion,
 		createTaskVersionLoading,
 		editTaskVersionLoading
-	} = useTaskVersion(onVersionCreated);
+	} = useTaskVersion();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -64,10 +65,11 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 					tenantId: user?.tenantId
 					// icon: values.icon,
 					// projectId: '',
-				})?.then(() => {
+				})?.then(({ data }) => {
 					!formOnly && setCreateNew(false);
 
 					onCreated && onCreated();
+					$onVersionCreated.current && $onVersionCreated.current(data);
 					refetch();
 					reset();
 				});

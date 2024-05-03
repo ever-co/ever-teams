@@ -50,9 +50,7 @@ const TaskSecondaryInfo = () => {
 
 	const onVersionCreated = useCallback(
 		(version: ITaskVersionCreate) => {
-			if ($taskVersion.current.length === 0) {
-				handleStatusUpdate(version.value || version.name, 'version', task);
-			}
+			handleStatusUpdate(version.value || version.name, 'version', task);
 		},
 		[$taskVersion, task, handleStatusUpdate]
 	);
@@ -72,6 +70,7 @@ const TaskSecondaryInfo = () => {
 	);
 
 	const taskLabels = useTaskLabelsValue();
+
 	const tags = useMemo(() => {
 		return (
 			task?.tags
@@ -120,6 +119,7 @@ const TaskSecondaryInfo = () => {
 					/>
 				</TaskRow>
 			)}
+
 			{task && <EpicParent task={task} />}
 
 			{/* Task Status */}
@@ -235,7 +235,7 @@ const EpicParent = ({ task }: { task: ITeamTask }) => {
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
 					<div className="flex items-center w-32">
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />,
+							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
 						</div>
 						<div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
 					</div>
