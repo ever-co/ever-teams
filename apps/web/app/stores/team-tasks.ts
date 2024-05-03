@@ -12,7 +12,12 @@ export const activeTeamTaskState = atom<ITeamTask | null>({
 	key: 'activeTeamTaskState',
 	default: null
 });
-
+export const activeTeamTaskId = atom<{ id: string }>({
+	key: 'activeTeamTaskId',
+	default: {
+		id: ''
+	}
+});
 export const tasksFetchingState = atom<boolean>({
 	key: 'tasksFetchingState',
 	default: false
