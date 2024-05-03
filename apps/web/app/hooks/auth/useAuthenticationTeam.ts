@@ -72,6 +72,7 @@ export function useAuthenticationTeam() {
 		const { errors, valid } = authFormValidate(validationFields, formValues);
 
 		if (!valid) {
+			console.log({ errors });
 			setErrors(errors as any);
 			return;
 		}

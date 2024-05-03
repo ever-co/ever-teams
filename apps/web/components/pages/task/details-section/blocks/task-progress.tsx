@@ -70,8 +70,8 @@ const TaskProgress = () => {
 	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
-		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
-			(member) => task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
+			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
 		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
@@ -181,12 +181,12 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: nu
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
-	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
-		(member) => task?.members.some((taskMember) => taskMember.id === member.employeeId)
+	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
+		task?.members.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
 	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
-		return user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0;
+		return user?.totalWorkedTasks?.find((task: any) => task?.id === id)?.duration || 0;
 	};
 
 	return (

@@ -178,7 +178,12 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronizza le attività in modo selettivo associandole a un'etichetta specifica.",
 		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica",
 		"THERE_IS_NO_TASK_ASSIGNED": "Non è stato assegnato alcun compito",
-		"NO_USERS_ONLINE": "Nessun utente online"
+		"NO_USERS_ONLINE": "Nessun utente online",
+		"NOT_FOUND": "Non trovato",
+		"PAGE_NOT_FOUND": "Pagina non trovata",
+		"NO_USERS_WORKING": "Al momento non ci sono utenti attivi",
+		"NO_USERS_PAUSED_WORK": "Al momento non ci sono utenti che hanno interrotto il proprio lavoro",
+		"NO_USERS_IDLE": "Al momento non ci sono utenti inattivi"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Stiamo lavorando alla sincronizzazione in tempo reale al momento, controlla questa funzionalità più tardi.",
@@ -240,6 +245,8 @@
 
 		"auth": {
 			"SEND_CODE": "send code",
+			"RESEND_CODE": "Codice di rispedizione",
+			"RESEND_CODE_IN": "Invia nuovamente il codice",
 			"JOIN": "Join",
 			"UNRECEIVED_CODE": "Didn't receive code ?",
 			"JOIN_TEAM": "Join Team",

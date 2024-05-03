@@ -107,7 +107,7 @@ export function TaskInput(props: Props) {
 		setQuery,
 		updateLoading,
 		updateTaskTitleHandler,
-		setFilter,
+		setFilter
 	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
@@ -265,6 +265,7 @@ export function TaskInput(props: Props) {
 			setEditMode(false);
 		}
 	}, [setEditMode, editMode, targetEl]);
+
 	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
 
 	useEffect(() => {
@@ -367,7 +368,7 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover className="relative z-30 w-full" ref={inputRef}>
+		<Popover className="relative z-20 w-full" ref={inputRef}>
 			<Tooltip
 				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
@@ -452,7 +453,7 @@ function TaskCard({
 				)}
 			>
 				{inputField}
-				<div className="h-2/5">
+				<div>
 					{/* Create team button */}
 					<div className="flex flex-col gap-y-2">
 						{datas.hasCreateForm && (

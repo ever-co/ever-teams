@@ -14,7 +14,7 @@ import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStat
 import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 
-type ITab = 'worked' | 'assigned' | 'unassigned';
+type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
 	tab: ITab;
 	name: string;
@@ -49,7 +49,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
 		unassigned: profile.tasksGrouped.unassignedTasks,
 		assigned: profile.tasksGrouped.assignedTasks,
-		worked: profile.tasksGrouped.workedTasks
+		worked: profile.tasksGrouped.workedTasks,
+		dailyplan: [] // Change this soon
 	};
 
 	const tasks = tasksFiltered[tab];
@@ -83,6 +84,12 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			name: t('common.UNASSIGNED'),
 			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.unassignedTasks.length
+		},
+		{
+			tab: 'dailyplan',
+			name: 'Daily Plan',
+			description: 'This tab shows all yours tasks planned',
+			count: profile.tasksGrouped.dailyplan.length
 		}
 	];
 

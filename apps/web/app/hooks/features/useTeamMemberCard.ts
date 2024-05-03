@@ -22,7 +22,8 @@ import cloneDeep from 'lodash/cloneDeep';
  */
 export function useTeamMemberCard(member: IOrganizationTeamList['members'][number] | undefined) {
 	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks } = useTeamTasks();
-
+	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
+	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
 	const publicTeam = useRecoilValue(getPublicState);
 	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 
@@ -167,7 +168,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
-
+			setAssignTaskLoading(true);
 			return updateTask({
 				...task,
 				members: [...task.members, (member?.employeeId ? { id: member?.employeeId } : {}) as any]
@@ -175,6 +176,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);
 				}
+				setAssignTaskLoading(false);
 			});
 		},
 		[updateTask, member, isAuthUser, setActiveTask, activeTeamTask]
@@ -185,12 +187,14 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 			if (!member?.employeeId) {
 				return Promise.resolve();
 			}
+			setUnAssignTaskLoading(true);
 
 			return updateTask({
 				...task,
 				members: task.members.filter((m) => m.id !== member.employeeId)
 			}).finally(() => {
 				isAuthUser && setActiveTask(null);
+				setUnAssignTaskLoading(false);
 			});
 		},
 		[updateTask, member, isAuthUser, setActiveTask]
@@ -201,6 +205,8 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 		memberUnassignTasks,
 		isTeamManager,
 		memberUser,
+		assignTaskLoading,
+		unAssignTaskLoading,
 		member,
 		memberTask: memberTaskRef.current,
 		isAuthUser,
