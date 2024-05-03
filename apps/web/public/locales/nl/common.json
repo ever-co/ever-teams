@@ -176,7 +176,10 @@
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchroniseer taken selectief door ze te koppelen aan een specifiek label.",
 		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label",
 		"THERE_IS_NO_TASK_ASSIGNED": "Er is geen taak toegewezen",
-		"NO_USERS_ONLINE": "Er zijn geen gebruikers online"
+		"NO_USERS_ONLINE": "Er zijn geen gebruikers online",
+		"NO_USERS_WORKING": "Er zijn momenteel geen actieve gebruikers",
+		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
+		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",

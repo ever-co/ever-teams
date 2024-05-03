@@ -30,13 +30,13 @@ const TeamMembersBlockView: React.FC<Props> = ({
 			emptyMessage = t('common.NO_USERS_ONLINE');
 			break;
 		case 'running':
-			emptyMessage = 'No users are currently working.';
+			emptyMessage = t('common.NO_USERS_WORKING');
 			break;
 		case 'pause':
-			emptyMessage = 'No users are paused work at the moment.';
+			emptyMessage = t('common.NO_USERS_PAUSED_WORK');
 			break;
 		case 'idle':
-			emptyMessage = 'No users are idle right now.';
+			emptyMessage = t('common.NO_USERS_IDLE');
 			break;
 	}
 
