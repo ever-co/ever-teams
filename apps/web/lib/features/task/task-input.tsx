@@ -107,7 +107,7 @@ export function TaskInput(props: Props) {
 		setQuery,
 		updateLoading,
 		updateTaskTitleHandler,
-		setFilter
+		setFilter,
 	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
