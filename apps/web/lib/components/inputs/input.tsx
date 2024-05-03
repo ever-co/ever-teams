@@ -19,7 +19,7 @@ type Props = {
 	leadingNode?: ReactNode;
 	autoCustomFocus?: boolean;
 	notValidBorder?: boolean;
-	emojies?: boolean;
+	emojis?: boolean;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -36,7 +36,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			leadingNode,
 			autoCustomFocus,
 			notValidBorder,
-			emojies,
+			emojis,
 			...res
 		},
 		ref
@@ -105,7 +105,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					setShowEmoji(false)}}}
 				{...res}
 				/>{
-					emojies?<div><BsEmojiSmile
+					emojis?<div><BsEmojiSmile
 					onClick={() => setShowEmoji(!showEmoji)}
 					className={clsxm('mr-3')}
 					/>
