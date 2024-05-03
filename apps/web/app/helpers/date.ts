@@ -130,3 +130,21 @@ export const formatDayPlanDate = (dateString: string | Date, format?: string) =>
 	if (format === 'DD MMM YYYY') return formatDateString(dateString.toString());
 	return date.format('dddd, MMMM DD, YYYY');
 };
+
+// Formats a given number into hours
+export const formatIntegerToHour = (number: number) => {
+	// Separate decimal and in parts
+	const integerPart = Math.floor(number);
+	const decimalPart = number - integerPart;
+
+	// Format int part with 'h'
+	let formattedHour = `${integerPart}h`;
+
+	// Si la partie décimale est différente de zéro, ajouter les minutes
+	if (decimalPart !== 0) {
+		const minutes = Math.round(decimalPart * 60);
+		formattedHour += `${minutes < 10 ? '0' : ''}${minutes}m`;
+	}
+
+	return formattedHour;
+};

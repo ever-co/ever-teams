@@ -24,7 +24,7 @@ export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegi
 				}
 				break;
 			case 'recaptcha':
-				if (RECAPTCHA_SITE_KEY.value) {
+				if (RECAPTCHA_SITE_KEY?.value) {
 					if (!values['recaptcha'] || values['recaptcha'].trim().length < 2) {
 						err['recaptcha'] = 'Please check the ReCaptcha checkbox before continue';
 					}
