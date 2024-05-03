@@ -178,7 +178,10 @@
 		"THERE_IS_NO_TASK_ASSIGNED": "Es ist keine Aufgabe zugewiesen",
 		"NO_USERS_ONLINE": "Es sind keine Benutzer online",
 		"NOT_FOUND": "Nicht gefunden",
-		"PAGE_NOT_FOUND": "Seite nicht gefunden"
+		"PAGE_NOT_FOUND": "Seite nicht gefunden",
+		"NO_USERS_WORKING": "Derzeit gibt es keine aktiven Benutzer",
+		"NO_USERS_PAUSED_WORK": "Derzeit gibt es keine Benutzer, die ihre Arbeit eingestellt haben",
+		"NO_USERS_IDLE": "Derzeit gibt es keine inaktiven Benutzer"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Wir arbeiten derzeit an der Echtzeitsynchronisierung. Bitte überprüfen Sie diese Funktion später.",
@@ -240,6 +243,8 @@
 
 		"auth": {
 			"SEND_CODE": "Code senden",
+			"RESEND_CODE": "Code erneut senden",
+			"RESEND_CODE_IN": "Code erneut einsenden",
 			"JOIN": "Beitreten",
 			"UNRECEIVED_CODE": "Keinen Code erhalten?",
 			"JOIN_TEAM": "Team beitreten",

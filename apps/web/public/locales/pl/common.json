@@ -180,7 +180,10 @@
 		"THERE_IS_NO_TASK_ASSIGNED": "Nie ma przypisanego zadania",
 		"NO_USERS_ONLINE": "Brak użytkowników online",
 		"NOT_FOUND": "Nie znaleziono",
-		"PAGE_NOT_FOUND": "Strona nie znaleziona"
+		"PAGE_NOT_FOUND": "Strona nie znaleziona",
+		"NO_USERS_WORKING": "Obecnie nie ma aktywnych użytkowników",
+		"NO_USERS_PAUSED_WORK": "Obecnie nie ma użytkowników, którzy przerwali pracę",
+		"NO_USERS_IDLE": "Obecnie nie ma nieaktywnych użytkowników"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
@@ -242,6 +245,8 @@
 
 		"auth": {
 			"SEND_CODE": "send code",
+			"RESEND_CODE": "Wyślij kod ponownie",
+			"RESEND_CODE_IN": "Wyślij kod ponownie w",
 			"JOIN": "Join",
 			"UNRECEIVED_CODE": "Didn't receive code ?",
 			"JOIN_TEAM": "Join Team",

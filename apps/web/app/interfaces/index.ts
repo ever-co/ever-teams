@@ -16,6 +16,7 @@ export * from './ITaskSizes';
 export * from './ITaskTimesheet';
 export * from './ITaskLabels';
 export * from './ITaskRelatedIssueType';
+export * from './IDailyPlan';
 export * from './IColor';
 export * from './hooks';
 export * from './IIcon';

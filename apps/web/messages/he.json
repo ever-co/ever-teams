@@ -185,7 +185,10 @@
 		"THERE_IS_NO_TASK_ASSIGNED": "אין משימות מוקצות",
 		"NO_USERS_ONLINE": "אין משתמשים מחוברים",
 		"NOT_FOUND": "לא נמצא",
-		"PAGE_NOT_FOUND": "הדף לא נמצא"
+		"PAGE_NOT_FOUND": "הדף לא נמצא",
+		"NO_USERS_WORKING": "כרגע אין משתמשים פעילים",
+		"NO_USERS_PAUSED_WORK": "כרגע אין משתמשים שהפסיקו את עבודתם",
+		"NO_USERS_IDLE": "כרגע אין משתמשים לא פעילים"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",
@@ -245,6 +248,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "שלח קוד",
+			"RESEND_CODE": "שלח קוד מחדש",
+			"RESEND_CODE_IN": "שלח קוד מחדש ב-",
 			"JOIN": "הצטרף",
 			"UNRECEIVED_CODE": "לא קיבלת קוד?",
 			"JOIN_TEAM": "הצטרף לצוות",

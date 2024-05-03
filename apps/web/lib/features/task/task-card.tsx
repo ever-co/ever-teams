@@ -4,6 +4,7 @@ import { secondsToTime } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useModal,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useTMCardTaskEdit,
@@ -12,12 +13,13 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import { IClassName, IOrganizationTeamList, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
+import { IClassName, IDailyPlanMode, IOrganizationTeamList, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
 	Card,
+	Divider,
 	// ConfirmDropdown,
 	SpinnerLoader,
 	Text,
@@ -37,13 +39,14 @@ import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
 
 type Props = {
 	active?: boolean;
 	task?: Nullable<ITeamTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	viewType?: 'default' | 'unassign';
+	viewType?: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	editTaskId?: string | null;
 	setEditTaskId?: SetterOrUpdater<string | null>;
@@ -421,7 +424,7 @@ function TaskCardMenu({
 	task: ITeamTask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
-	viewType: 'default' | 'unassign';
+	viewType: 'default' | 'unassign' | 'dailyplan';
 }) {
 	const t = useTranslations();
 	const handleAssignment = useCallback(() => {
@@ -451,7 +454,7 @@ function TaskCardMenu({
 				<Popover.Panel>
 					{() => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+							<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
 								<ul className="min-w-[124px]">
 									<li className="mb-2">
 										<Link
@@ -464,7 +467,7 @@ function TaskCardMenu({
 											{t('common.TASK_DETAILS')}
 										</Link>
 									</li>
-									<li className="mb-2">
+									<li className="mb-3">
 										<span
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
@@ -477,6 +480,23 @@ function TaskCardMenu({
 												: t('common.UNASSIGN_TASK')}
 										</span>
 									</li>
+
+									{viewType == 'default' && (
+										<>
+											<Divider type="HORIZONTAL" />
+											<div className="mt-3">
+												<li className="mb-2">
+													<PlanTask planMode="today" taskId={task.id} />
+												</li>
+												<li className="mb-2">
+													<PlanTask planMode="tomorow" taskId={task.id} />
+												</li>
+												<li className="mb-2">
+													<PlanTask planMode="custom" taskId={task.id} />
+												</li>
+											</div>
+										</>
+									)}
 
 									{/* <li>
 										<ConfirmDropdown
@@ -502,5 +522,26 @@ function TaskCardMenu({
 				</Popover.Panel>
 			</Transition>
 		</Popover>
+	);
+}
+
+function PlanTask({ planMode, taskId }: { taskId: string; planMode: IDailyPlanMode }) {
+	const { closeModal, isOpen, openModal } = useModal();
+
+	return (
+		<>
+			<span
+				className={clsxm(
+					'font-normal whitespace-nowrap transition-all',
+					'hover:font-semibold hover:transition-all cursor-pointer'
+				)}
+				onClick={openModal}
+			>
+				<CreateDailyPlanFormModal open={isOpen} closeModal={closeModal} taskId={taskId} planMode={planMode} />
+				{planMode === 'today' && 'Plan for today'}
+				{planMode === 'tomorow' && 'Plan for tomorow'}
+				{planMode === 'custom' && 'Plan for some day'}
+			</span>
+		</>
 	);
 }

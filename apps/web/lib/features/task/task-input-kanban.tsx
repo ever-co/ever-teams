@@ -92,8 +92,7 @@ export function TaskInputKanban(props: Props) {
 		setQuery,
 		updateLoading,
 		updateTaskTitleHandler,
-		setFilter,
-		taskIssue
+		setFilter
 	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
@@ -153,7 +152,6 @@ export function TaskInputKanban(props: Props) {
 		If task is passed then we don't want to set the active task for the authenticated user.
 		after task creation
 	 */
-	const autoActiveTask = props.task !== undefined ? false : true;
 	const handleTaskCreation = useCallback(async () => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas &&
@@ -171,7 +169,7 @@ export function TaskInputKanban(props: Props) {
 
 					props.onClose && props.onClose();
 				});
-	}, [datas, taskIssue, autoActiveTask, props.autoAssignTaskAuth, props.usersTaskCreatedAssignTo, onTaskCreated]);
+	}, [datas, props, onTaskCreated]);
 
 	let updatedTaskList: ITeamTask[] = [];
 	if (props.forParentChildRelationship) {

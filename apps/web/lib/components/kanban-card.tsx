@@ -1,22 +1,17 @@
 import { DraggableProvided } from 'react-beautiful-dnd';
 import PriorityIcon from '@components/ui/svgs/priority-icon';
 import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
-import {
-	useAuthenticateUser,
-	useCollaborative,
-	useOrganizationTeams,
-	useTMCardTaskEdit,
-	useTaskStatistics,
-	useTeamMemberCard
-} from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
 import { secondsToTime } from '@app/helpers';
-import { UserTeamCardMenu } from 'lib/features/team/user-team-card/user-team-card-menu';
 import { TaskStatus } from '@app/constants';
+import MenuKanbanCard from '@components/pages/kanban/menu-kanban-card';
+import { activeTeamTaskId } from '@app/stores';
+import { useRecoilState } from 'recoil';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -133,6 +128,7 @@ export default function Item(props: ItemProps) {
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
+	const [activeTask, setActiveTask] = useRecoilState(activeTeamTaskId);
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
@@ -145,7 +141,6 @@ export default function Item(props: ItemProps) {
 	});
 
 	const memberInfo = useTeamMemberCard(currentUser);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	const taskAssignee: ImageOverlapperProps[] = item.members.map((member: any) => {
 		return {
@@ -154,9 +149,7 @@ export default function Item(props: ItemProps) {
 			alt: member.user.firstName
 		};
 	});
-	const { collaborativeSelect } = useCollaborative(memberInfo.memberUser);
 
-	const menu = <>{!collaborativeSelect && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}</>;
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
 	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo.member?.id || item?.id);
 
@@ -183,11 +176,13 @@ export default function Item(props: ItemProps) {
 					<span className="!w-64">
 						<TaskAllStatusTypes className="justify-start" task={item} showStatus={false} />
 					</span>
-					<span>{menu}</span>
+					<span>
+						<MenuKanbanCard member={currentMember} item={props.item} />
+					</span>
 				</div>
 				<div className="w-full flex justify-between my-3">
 					<div className="flex items-center w-64">
-						{!taskEdition.editMode ? (
+						{activeTask?.id !== item.id ? (
 							<>
 								<Link href={`/task/${item.id}`}>
 									<div className="w-64 relative overflow-hidden">
@@ -214,7 +209,7 @@ export default function Item(props: ItemProps) {
 						) : (
 							<div className="w-56">
 								<TaskInput
-									task={taskEdition.task}
+									task={item}
 									initEditMode={true}
 									keepOpen={true}
 									showCombobox={false}
@@ -225,7 +220,7 @@ export default function Item(props: ItemProps) {
 										console.log(e);
 									}}
 									onEnterKey={() => {
-										taskEdition.setEditMode(false);
+										setActiveTask({ id: '' });
 									}}
 								/>
 							</div>

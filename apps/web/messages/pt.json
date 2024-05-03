@@ -184,6 +184,9 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática",
 		"THERE_IS_NO_TASK_ASSIGNED": "Não há tarefas atribuídas",
 		"NO_USERS_ONLINE": "Nenhum usuário online",
+		"NO_USERS_WORKING": "Atualmente não há usuários ativos",
+		"NO_USERS_PAUSED_WORK": "Atualmente não há usuários que interromperam seu trabalho",
+		"NO_USERS_IDLE": "Atualmente não há usuários inativos",
 		"NOT_FOUND": "Não encontrado",
 		"PAGE_NOT_FOUND": "Página não encontrada"
 	},
@@ -245,6 +248,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "enviar código",
+			"RESEND_CODE": "Reenviar Código",
+			"RESEND_CODE_IN": "Reenviar Código em",
 			"JOIN": "Participar",
 			"UNRECEIVED_CODE": "Não recebeu o código?",
 			"JOIN_TEAM": "Participar da Equipe",

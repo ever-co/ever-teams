@@ -23,9 +23,8 @@ type AuthCodeRef = {
 export function useAuthenticationPasscode() {
 	const pathname = usePathname();
 	const query = useSearchParams();
-	const queryTeamId = useMemo(() => {
-		return query?.get('teamId');
-	}, [query]);
+
+	const queryTeamId = query?.get('teamId');
 
 	const queryEmail = useMemo(() => {
 		const emailQuery = query?.get('email') || '';
@@ -110,6 +109,7 @@ export function useAuthenticationPasscode() {
 
 						signInToWorkspaceRequest({
 							email: email,
+							code: code,
 							token: currentWorkspace?.token as string,
 							selectedTeam: queryTeamId as string
 						});
@@ -156,16 +156,8 @@ export function useAuthenticationPasscode() {
 		[queryCall]
 	);
 
-	const signInToWorkspaceRequest = ({
-		email,
-		token,
-		selectedTeam
-	}: {
-		email: string;
-		token: string;
-		selectedTeam: string;
-	}) => {
-		signInWorkspaceQueryCall(email, token, selectedTeam)
+	const signInToWorkspaceRequest = (params: { email: string; token: string; selectedTeam: string; code: string }) => {
+		signInWorkspaceQueryCall(params)
 			.then(() => {
 				setAuthenticated(true);
 				router.push('/');
@@ -227,6 +219,7 @@ export function useAuthenticationPasscode() {
 
 		signInToWorkspaceRequest({
 			email: formValues.email,
+			code: formValues.code,
 			token,
 			selectedTeam
 		});

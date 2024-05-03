@@ -8,3 +8,4 @@ export * from './regex';
 export * from './validations';
 export * from './colors';
 export * from './strings';
+export * from './plan-day-badge';

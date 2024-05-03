@@ -5,6 +5,7 @@ export * from './organization-team-employee';
 export * from './tenant';
 export * from './timer';
 export * from './tasks';
+export * from './daily-plan';
 export * from './employee';
 export * from './invite';
 export * from './timesheet';
