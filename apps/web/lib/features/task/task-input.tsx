@@ -278,6 +278,7 @@ export function TaskInput(props: Props) {
 			value={taskName}
 			disabled={timerRunningStatus}
 			ref={targetEl}
+			emojies={true}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
@@ -459,6 +460,7 @@ function TaskCard({
 							<div>
 								<InputField
 									placeholder="Description"
+									emojies={true}
 									onChange={(e) => {
 										if (taskDescription) {
 											taskDescription.current = e.target.value;

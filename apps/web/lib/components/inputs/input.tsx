@@ -19,6 +19,7 @@ type Props = {
 	leadingNode?: ReactNode;
 	autoCustomFocus?: boolean;
 	notValidBorder?: boolean;
+	emojies?: boolean;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -35,6 +36,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			leadingNode,
 			autoCustomFocus,
 			notValidBorder,
+			emojies,
 			...res
 		},
 		ref
@@ -102,8 +104,8 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					if(showEmoji==true){
 					setShowEmoji(false)}}}
 				{...res}
-				/>
-				<BsEmojiSmile
+				/>{
+					emojies?<div><BsEmojiSmile
 					onClick={() => setShowEmoji(!showEmoji)}
 					className={clsxm('mr-3')}
 					/>
@@ -117,7 +119,8 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
                   maxFrequentRows={0}
                 />
               </div>
-            )}
+            )}</div>:''
+				}
 				</div>
 		);
 
