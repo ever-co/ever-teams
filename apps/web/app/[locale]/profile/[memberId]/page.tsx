@@ -2,7 +2,7 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
-import { useAuthenticateUser, useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
@@ -29,6 +29,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
+	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
@@ -67,6 +68,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		}));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
+
+	React.useEffect(() => {
+		getEmployeeDayPlans(params.memberId);
+	}, [getEmployeeDayPlans, params.memberId]);
 
 	// Example usage
 

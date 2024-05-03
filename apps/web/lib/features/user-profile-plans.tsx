@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import { useDailyPlan, useUserProfilePage } from '@app/hooks';
-import { userState } from '@app/stores';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
 import { Container, VerticalSeparator } from 'lib/components';
@@ -16,8 +15,7 @@ type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 
 
 export function UserProfilePlans() {
 	const profile = useUserProfilePage();
-	const { dailyPlan, getEmployeeDayPlans } = useDailyPlan();
-	const [user] = useRecoilState(userState);
+	const { dailyPlan } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>('Today Tasks');
@@ -29,10 +27,6 @@ export function UserProfilePlans() {
 		'All Tasks': <AllPlans plans={dailyPlan.items} profile={profile} />,
 		Outstanding: <></>
 	};
-
-	useEffect(() => {
-		getEmployeeDayPlans(user?.employee.id ?? '');
-	}, [getEmployeeDayPlans, user?.employee.id]);
 
 	return (
 		<div className="">

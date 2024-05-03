@@ -28,7 +28,7 @@ export function CreateDailyPlanFormModal({
 	const { handleSubmit, reset, register } = useForm();
 	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 
-	const [date, setDate] = useState<Date>(new Date());
+	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -101,8 +101,10 @@ export function CreateDailyPlanFormModal({
 										<Calendar
 											mode="single"
 											selected={date}
-											onSelect={(day) => setDate(day ?? new Date())}
+											onSelect={(day) => setDate(day ?? new Date(tomorrowDate))}
 											initialFocus
+											disabled={{ from: new Date(1970, 1, 1), to: new Date() }}
+											// de
 										/>
 									</PopoverContent>
 								</Popover>

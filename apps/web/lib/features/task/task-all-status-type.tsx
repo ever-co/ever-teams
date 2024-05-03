@@ -94,10 +94,12 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-					<div className="rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 bg-[#D9EBD7] text-[#4D6194] font-medium">
-						<CalendarIcon />
-						<span className="text-[10px]">{planBadgeContent(dailyPlan.items, task?.id ?? '')}</span>
-					</div>
+					{planBadgeContent(dailyPlan.items, task?.id ?? '') && (
+						<div className="rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 bg-[#D9EBD7] text-[#4D6194] font-medium">
+							<CalendarIcon />
+							<span className="text-[10px]">{planBadgeContent(dailyPlan.items, task?.id ?? '')}</span>
+						</div>
+					)}
 					{tags.map((tag, i) => {
 						return (
 							<TaskStatus
