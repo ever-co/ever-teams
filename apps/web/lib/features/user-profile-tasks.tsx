@@ -1,5 +1,6 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
+import { UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
@@ -71,6 +72,8 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					/>
 				)}
 
+			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans />}
+
 			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 				<div className="flex items-center my-6 space-x-2">
 					<Text className="font-normal">
@@ -80,27 +83,29 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			<ul className="flex flex-col gap-4">
-				{otherTasks.map((task) => {
-					return (
-						<li key={task.id}>
-							<TaskCard
-								task={task}
-								isAuthUser={profile.isAuthUser}
-								activeAuthTask={false}
-								viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
-								profile={profile}
-								taskBadgeClassName={`${
-									task.issueType === 'Bug'
-										? '!px-[0.3312rem] py-[0.2875rem]'
-										: '!px-[0.375rem] py-[0.375rem]'
-								} rounded-sm`}
-								taskTitleClassName="mt-[0.0625rem]"
-							/>
-						</li>
-					);
-				})}
-			</ul>
+			{tabFiltered.tab !== 'dailyplan' && (
+				<ul className="flex flex-col gap-4">
+					{otherTasks.map((task) => {
+						return (
+							<li key={task.id}>
+								<TaskCard
+									task={task}
+									isAuthUser={profile.isAuthUser}
+									activeAuthTask={false}
+									viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
+									profile={profile}
+									taskBadgeClassName={`${
+										task.issueType === 'Bug'
+											? '!px-[0.3312rem] py-[0.2875rem]'
+											: '!px-[0.375rem] py-[0.375rem]'
+									} rounded-sm`}
+									taskTitleClassName="mt-[0.0625rem]"
+								/>
+							</li>
+						);
+					})}
+				</ul>
+			)}
 		</div>
 	);
 }
