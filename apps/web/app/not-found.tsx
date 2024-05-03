@@ -3,13 +3,7 @@
 import NotFound from '@components/pages/404';
 
 const NotFoundPage = () => {
-	return (
-		<html>
-			<body>
-				<NotFound />
-			</body>
-		</html>
-	);
+	return <NotFound />;
 };
 
 export default NotFoundPage;
