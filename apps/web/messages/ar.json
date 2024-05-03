@@ -184,6 +184,8 @@
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع",
 		"THERE_IS_NO_TASK_ASSIGNED": "لا توجد مهام معينة",
 		"NO_USERS_ONLINE": "لا يوجد مستخدمين على الانترنت",
+		"NOT_FOUND": "الصفحة غير موجودة",
+		"PAGE_NOT_FOUND": "غير معثور عليه",
 		"NO_USERS_WORKING": "لا يوجد مستخدمين يعملون حاليا",
 		"NO_USERS_PAUSED_WORK": "لم يتم إيقاف أي مستخدم مؤقتًا عن العمل في الوقت الحالي",
 		"NO_USERS_IDLE": "لا يوجد مستخدمين خاملين في الوقت الحالي"

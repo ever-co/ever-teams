@@ -177,6 +177,8 @@
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
 		"THERE_IS_NO_TASK_ASSIGNED": "אין משימות מוקצות",
 		"NO_USERS_ONLINE": "אין משתמשים מחוברים",
+		"NOT_FOUND": "לא נמצא",
+		"PAGE_NOT_FOUND": "הדף לא נמצא",
 		"NO_USERS_WORKING": "כרגע אין משתמשים פעילים",
 		"NO_USERS_PAUSED_WORK": "כרגע אין משתמשים שהפסיקו את עבודתם",
 		"NO_USERS_IDLE": "כרגע אין משתמשים לא פעילים"

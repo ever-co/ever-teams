@@ -184,6 +184,8 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label",
 		"THERE_IS_NO_TASK_ASSIGNED": "There is no task assigned",
 		"NO_USERS_ONLINE": "There are no users online",
+		"NOT_FOUND": "Not Found",
+		"PAGE_NOT_FOUND": "Page not found",
 		"NO_USERS_WORKING": "There are currently no active users",
 		"NO_USERS_PAUSED_WORK": "There are currently no users who have paused their work",
 		"NO_USERS_IDLE": "There are currently no inactive users"
