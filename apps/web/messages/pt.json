@@ -246,6 +246,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "enviar código",
+			"RESEND_CODE": "Reenviar Código",
+			"RESEND_CODE_IN": "Reenviar Código em",
 			"JOIN": "Participar",
 			"UNRECEIVED_CODE": "Não recebeu o código?",
 			"JOIN_TEAM": "Participar da Equipe",

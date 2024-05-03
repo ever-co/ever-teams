@@ -240,6 +240,8 @@
 
 		"auth": {
 			"SEND_CODE": "שלח קוד",
+			"RESEND_CODE": "שלח קוד מחדש",
+			"RESEND_CODE_IN": "שלח קוד מחדש בעוד",
 			"JOIN": "הצטרף",
 			"UNRECEIVED_CODE": "לא קיבלת קוד?",
 			"JOIN_TEAM": "הצטרף לצוות",

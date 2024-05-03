@@ -240,6 +240,8 @@
 
 		"auth": {
 			"SEND_CODE": "code verzenden",
+			"RESEND_CODE": "Code opnieuw verzenden",
+			"RESEND_CODE_IN": "Code opnieuw verzenden in",
 			"JOIN": "Word lid",
 			"UNRECEIVED_CODE": "Geen code ontvangen?",
 			"JOIN_TEAM": "Word lid van team",

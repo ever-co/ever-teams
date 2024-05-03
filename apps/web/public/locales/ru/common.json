@@ -242,6 +242,8 @@
 
 		"auth": {
 			"SEND_CODE": "send code",
+			"RESEND_CODE": "Отправить код еще раз",
+			"RESEND_CODE_IN": "Повторно отправить код в",
 			"JOIN": "Join",
 			"UNRECEIVED_CODE": "Didn't receive code ?",
 			"JOIN_TEAM": "Join Team",
