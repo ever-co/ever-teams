@@ -2,6 +2,7 @@
 // import SadCry from '@components/ui/svgs/sad-cry';
 import { Button, Text } from 'lib/components';
 import Link from 'next/link';
+// import { useTranslations } from 'next-intl';
 
 function NotFound() {
 	// const t = useTranslations();

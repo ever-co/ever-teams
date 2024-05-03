@@ -175,6 +175,8 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
 		"THERE_IS_NO_TASK_ASSIGNED": "Il n'y a pas de tâche assignée",
 		"NO_USERS_ONLINE": "Aucun utilisateur en ligne",
+		"NOT_FOUND": "Non trouvé",
+		"PAGE_NOT_FOUND": "Page non trouvée",
 		"NO_USERS_WORKING": "Il n'y a actuellement aucun utilisateur actif",
 		"NO_USERS_PAUSED_WORK": "Il n'y a actuellement aucun utilisateur qui a mis en pause son travail",
 		"NO_USERS_IDLE": "Il n'y a actuellement aucun utilisateur inactif"

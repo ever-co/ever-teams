@@ -184,6 +184,8 @@
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activez l'intégration GitHub pour la synchronisation des projets et des dépôts",
 		"THERE_IS_NO_TASK_ASSIGNED": "Aucune tâche n'est assignée",
 		"NO_USERS_ONLINE": "Aucun utilisateur en ligne",
+		"NOT_FOUND": "Non trouvé",
+		"PAGE_NOT_FOUND": "Page non trouvée",
 		"NO_USERS_WORKING": "Il n'y a actuellement aucun utilisateur actif",
 		"NO_USERS_PAUSED_WORK": "Il n'y a actuellement aucun utilisateur qui a mis en pause son travail",
 		"NO_USERS_IDLE": "Il n'y a actuellement aucun utilisateur inactif"
