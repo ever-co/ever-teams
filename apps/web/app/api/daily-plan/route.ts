@@ -1,8 +1,7 @@
-import { NextResponse } from 'next/server';
-import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { ICreateDailyPlan } from '@app/interfaces';
-import { createPlanRequest, getDayPlansByEmployee } from '@app/services/server/requests';
-import { INextParams } from '@app/interfaces';
+import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
+import { createPlanRequest, getAllDayPlans } from '@app/services/server/requests';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
@@ -17,19 +16,14 @@ export async function POST(req: Request) {
 	return $res(response.data);
 }
 
-export async function GET(req: Request, { params }: INextParams) {
+export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { id } = params;
-	if (!id) {
-		return;
-	}
 
 	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	const response = await getDayPlansByEmployee({
+	const response = await getAllDayPlans({
 		bearer_token: access_token,
-		employeeId: id,
 		organizationId,
 		tenantId
 	});

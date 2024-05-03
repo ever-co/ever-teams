@@ -78,7 +78,12 @@ function AllPlans({
 	filteredPlans = [...plans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	if (currentTab === 'Future Tasks')
-		filteredPlans = ascSortedPlans.filter((plan) => new Date(plan.date).getTime() > new Date().getTime());
+		filteredPlans = ascSortedPlans.filter((plan) => {
+			const planDate = new Date(plan.date);
+			const today = new Date();
+			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+			return planDate.getTime() >= today.getTime();
+		});
 
 	if (currentTab === 'Past Tasks')
 		filteredPlans = descSortedPlans.filter((plan) => {

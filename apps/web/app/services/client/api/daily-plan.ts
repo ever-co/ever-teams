@@ -3,6 +3,25 @@ import { get, post } from '../axios';
 import { ICreateDailyPlan, IDailyPlan, PaginationResponse } from '@app/interfaces';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
+export function getAllDayPlansAPI() {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const relations = ['employee', 'tasks'];
+
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	relations.forEach((relation, i) => {
+		obj[`relations[${i}]`] = relation;
+	});
+
+	const query = qs.stringify(obj);
+	return get<PaginationResponse<IDailyPlan>>(`/daily-plan?${query}`, { tenantId });
+}
+
 export function getDayPlansByEmployeeAPI(employeeId?: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();

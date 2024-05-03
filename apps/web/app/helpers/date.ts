@@ -118,7 +118,7 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
-export const formatDayPlanDate = (dateString: string | Date) => {
+export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	if (dateString.toString().length > 10) {
 		dateString = dateString.toString().split('T')[0];
 	}
@@ -127,5 +127,6 @@ export const formatDayPlanDate = (dateString: string | Date) => {
 	if (date.isSame(moment(), 'day')) return 'Today';
 	if (date.isSame(moment().add(1, 'day'), 'day')) return 'Tomorrow';
 	if (date.isSame(moment().subtract(1, 'day'), 'day')) return 'Yesterday';
+	if (format === 'DD MMM YYYY') return formatDateString(dateString.toString());
 	return date.format('dddd, MMMM DD, YYYY');
 };
