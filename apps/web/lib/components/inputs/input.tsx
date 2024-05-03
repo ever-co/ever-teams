@@ -105,10 +105,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					setShowEmoji(false)}}}
 				{...res}
 				/>{
-					emojis?<div><BsEmojiSmile
-					onClick={() => setShowEmoji(!showEmoji)}
-					className={clsxm('mr-3')}
-					/>
+				emojis && <div><BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 				{showEmoji && (
               <div className="absolute top-[100%] right-2">
                 <Picker
@@ -119,7 +116,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
                   maxFrequentRows={0}
                 />
               </div>
-            )}</div>:''
+            )}</div>
 				}
 				</div>
 		);
