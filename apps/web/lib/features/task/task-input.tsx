@@ -280,7 +280,7 @@ export function TaskInput(props: Props) {
 			ref={targetEl}
 			emojis={true}
 			setTaskName={setTaskName}
-			ignoreElementRefForTitle={ignoreElementRef}
+			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
