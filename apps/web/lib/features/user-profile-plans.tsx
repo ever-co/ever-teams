@@ -5,13 +5,13 @@ import { useRecoilValue } from 'recoil';
 import { useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
-import { Container, ProgressBar, VerticalSeparator } from 'lib/components';
+import { Container, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -33,23 +33,31 @@ export function UserProfilePlans() {
 	return (
 		<div className="">
 			<Container fullWidth={fullWidth} className="pb-8 mb-5">
-				<div className={clsxm('flex justify-start items-center gap-4 mt-14 mb-5')}>
-					{Object.keys(tabsScreens).map((filter, i) => (
-						<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
-							{i !== 0 && <VerticalSeparator className="border-slate-400" />}
-							<div
-								className={clsxm(
-									'text-gray-500',
-									currentTab == filter && 'text-blue-600 dark:text-white font-medium'
-								)}
-								onClick={() => setCurrentTab(filter as FilterTabs)}
-							>
-								{filter}
+				<>
+					{dailyPlan.items.length > 0 ? (
+						<div>
+							<div className={clsxm('flex justify-start items-center gap-4 mt-14 mb-5')}>
+								{Object.keys(tabsScreens).map((filter, i) => (
+									<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+										{i !== 0 && <VerticalSeparator className="border-slate-400" />}
+										<div
+											className={clsxm(
+												'text-gray-500',
+												currentTab == filter && 'text-blue-600 dark:text-white font-medium'
+											)}
+											onClick={() => setCurrentTab(filter as FilterTabs)}
+										>
+											{filter}
+										</div>
+									</div>
+								))}
 							</div>
+							{tabsScreens[currentTab]}
 						</div>
-					))}
-				</div>
-				{tabsScreens[currentTab]}
+					) : (
+						<EmptyPlans />
+					)}
+				</>
 			</Container>
 		</div>
 	);
@@ -95,44 +103,48 @@ function AllPlans({
 		);
 
 	return (
-		<ul className="flex flex-col gap-6">
-			<Accordion type="multiple" className="text-sm" defaultValue={[new Date().toISOString().split('T')[0]]}>
-				{filteredPlans.map((plan) => (
-					<AccordionItem
-						value={plan.date.toString().split('T')[0]}
-						key={plan.id}
-						className="dark:border-slate-600"
-					>
-						<AccordionTrigger className="hover:no-underline">
-							<div className="text-lg">
-								{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
-							</div>
-						</AccordionTrigger>
-						<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme z-[9999]">
-							{/* Plan header */}
-							<PlanHeader plan={plan} planMode={currentTab} />
+		<div className="flex flex-col gap-6">
+			{filteredPlans.length > 0 ? (
+				<Accordion type="multiple" className="text-sm" defaultValue={[new Date().toISOString().split('T')[0]]}>
+					{filteredPlans.map((plan) => (
+						<AccordionItem
+							value={plan.date.toString().split('T')[0]}
+							key={plan.id}
+							className="dark:border-slate-600"
+						>
+							<AccordionTrigger className="hover:no-underline">
+								<div className="text-lg">
+									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+								</div>
+							</AccordionTrigger>
+							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-12">
+								{/* Plan header */}
+								<PlanHeader plan={plan} planMode={currentTab} />
 
-							{/* Plan tasks list */}
-							<ul className="flex flex-col gap-2">
-								{plan.tasks?.map((task) => (
-									<TaskCard
-										key={`${task.id}${plan.id}`}
-										isAuthUser={true}
-										activeAuthTask={true}
-										viewType={'dailyplan'}
-										task={task}
-										profile={profile}
-										type="HORIZONTAL"
-										taskBadgeClassName={`rounded-sm`}
-										taskTitleClassName="mt-[0.0625rem]"
-									/>
-								))}
-							</ul>
-						</AccordionContent>
-					</AccordionItem>
-				))}
-			</Accordion>
-		</ul>
+								{/* Plan tasks list */}
+								<ul className="flex flex-col gap-2">
+									{plan.tasks?.map((task) => (
+										<TaskCard
+											key={`${task.id}${plan.id}`}
+											isAuthUser={true}
+											activeAuthTask={true}
+											viewType={'dailyplan'}
+											task={task}
+											profile={profile}
+											type="HORIZONTAL"
+											taskBadgeClassName={`rounded-sm`}
+											taskTitleClassName="mt-[0.0625rem]"
+										/>
+									))}
+								</ul>
+							</AccordionContent>
+						</AccordionItem>
+					))}
+				</Accordion>
+			) : (
+				<EmptyPlans planMode={currentTab} />
+			)}
+		</div>
 	);
 }
 
@@ -145,12 +157,12 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 	// Get all tasks's estimations time
 	const times = plan.tasks?.map((task) => task.estimate).filter((time) => typeof time === 'number');
 	let estimatedTime = 0;
-	if (times) estimatedTime = times.reduce((acc, cur) => acc + cur, 0);
+	if (times) estimatedTime = times.reduce((acc, cur) => acc + cur, 0) ?? 0;
 
 	// Get all tasks's worked time
 	const workedTimes = plan.tasks?.map((task) => task.totalWorkedTime).filter((time) => typeof time === 'number');
 	let totalWorkTime = 0;
-	if (workedTimes) totalWorkTime = workedTimes.reduce((acc, cur) => acc + cur, 0);
+	if (workedTimes) totalWorkTime = workedTimes.reduce((acc, cur) => acc + cur, 0) ?? 0;
 
 	// Get completed tasks from a plan
 	const completedTasks = plan.tasks?.filter((task) => task.status === 'completed' && task.status).length ?? 0;
@@ -159,13 +171,15 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 	const readyTasks = plan.tasks?.filter((task) => task.status === 'ready').length ?? 0;
 
 	// Total tasks for plan
-	const totalTasks = plan.tasks?.length;
+	const totalTasks = plan.tasks?.length ?? 0;
 
 	// Completion percent
-	const completionPercent = totalTasks && ((completedTasks * 100) / totalTasks).toFixed(2);
+	const completionPercent = ((completedTasks * 100) / totalTasks).toFixed(2);
 
 	return (
-		<div className="mb-8 flex justify-around items-center gap-5">
+		<div
+			className={`mb-8 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'}  items-center gap-5`}
+		>
 			{/* Planned Time */}
 
 			<div className="flex items-center gap-2">
@@ -208,50 +222,77 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 				)}
 			</div>
 
-			{/* Total estomated time  based on tasks */}
-			<VerticalSeparator />
+			{/* Total estimated time  based on tasks */}
+			<VerticalSeparator className="h-10" />
 
 			<div className="flex items-center gap-2">
 				<span className="font-medium">Estimated time: </span>
 				<span className="font-semibold">{formatIntegerToHour(estimatedTime / 3600)}</span>
 			</div>
 
-			<VerticalSeparator />
+			{planMode !== 'Future Tasks' && <VerticalSeparator />}
 
 			{/* Total worked time for the plan */}
-			<div className="flex items-center gap-2">
-				<span className="font-medium">Total time worked: </span>
-				<span className="font-semibold">{formatIntegerToHour(totalWorkTime / 3600)}</span>
-			</div>
+			{planMode !== 'Future Tasks' && (
+				<div className="flex items-center gap-2">
+					<span className="font-medium">Total time worked: </span>
+					<span className="font-semibold">{formatIntegerToHour(totalWorkTime / 3600)}</span>
+				</div>
+			)}
 
-			<VerticalSeparator />
+			{planMode !== 'Future Tasks' && <VerticalSeparator />}
 
 			{/*  Completed tasks */}
-			<div>
-				<div className="flex items-center gap-2">
-					<span className="font-medium">Completed tasks: </span>
-					<span className="font-medium">{completedTasks}</span>
+			{planMode !== 'Future Tasks' && (
+				<div>
+					<div className="flex items-center gap-2">
+						<span className="font-medium">Completed tasks: </span>
+						<span className="font-medium">{completedTasks}</span>
+					</div>
+					<div className="flex items-center gap-2">
+						<span className="font-medium">Ready: </span>
+						<span className="font-medium">{readyTasks}</span>
+					</div>
+					<div className="flex items-center gap-2">
+						<span className="font-medium">Left: </span>
+						<span className="font-semibold">{totalTasks - completedTasks - readyTasks}</span>
+					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					<span className="font-medium">Ready: </span>
-					<span className="font-medium">{readyTasks}</span>
-				</div>
-				<div className="flex items-center gap-2">
-					<span className="font-medium">Left: </span>
-					<span className="font-semibold">{totalTasks && totalTasks - completedTasks - readyTasks}</span>
-				</div>
-			</div>
+			)}
 
 			<VerticalSeparator />
 
 			{/*  Completion progress */}
-			<div className="flex flex-col gap-3">
-				<div className="flex items-center gap-2">
-					<span className="font-medium">Completion: </span>
-					<span className="font-semibold">{completionPercent}%</span>
+			{planMode !== 'Future Tasks' && (
+				<div className="flex flex-col gap-3">
+					<div className="flex items-center gap-2">
+						<span className="font-medium">Completion: </span>
+						<span className="font-semibold">{completionPercent}%</span>
+					</div>
+					<ProgressBar progress={`${completionPercent || 0}%`} showPercents={false} width="100%" />
 				</div>
-				<ProgressBar progress={`${completionPercent || 0}%`} showPercents={false} width="100%" />
-			</div>
+			)}
+
+			{/* Future tasks total plan */}
+			{planMode === 'Future Tasks' && (
+				<div>
+					<div className="flex items-center gap-2">
+						<span className="font-medium">Planned tasks: </span>
+						<span className="font-semibold">{totalTasks}</span>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+}
+
+function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
+	return (
+		<div className="xl:mt-20">
+			<NoData
+				text={`No task planned ${planMode === 'Today Tasks' ? 'today' : ''}`}
+				component={<ReaderIcon className="w-14 h-14" />}
+			/>
 		</div>
 	);
 }
