@@ -197,7 +197,7 @@
 		"START_TIMER": "开始计时",
 		"STOP_TIMER": "停止计时",
 		"TASK": "任务",
-		"ASSING_TASK": "分配任务",
+		"ASSIGN_TASK": "分配任务",
 		"CREATE_TASK": "创建任务"
 	},
 	"alerts": {

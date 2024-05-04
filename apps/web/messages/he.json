@@ -197,7 +197,7 @@
 		"START_TIMER": "התחל טיימר",
 		"STOP_TIMER": "עצור טיימר",
 		"TASK": "משימה",
-		"ASSING_TASK": "הקצה משימה",
+		"ASSIGN_TASK": "הקצה משימה",
 		"CREATE_TASK": "צור משימה"
 	},
 	"alerts": {

@@ -192,7 +192,7 @@
 		"START_TIMER": "Avvia il timer",
 		"STOP_TIMER": "Ferma il timer",
 		"TASK": "Compito",
-		"ASSING_TASK": "Assegna il compito",
+		"ASSIGN_TASK": "Assegna il compito",
 		"CREATE_TASK": "Crea un nuovo compito"
 	},
 	"alerts": {

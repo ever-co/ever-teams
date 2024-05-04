@@ -192,7 +192,7 @@
 		"START_TIMER": "Iniciar temporizador",
 		"STOP_TIMER": "Parar temporizador",
 		"TASK": "Tarefa",
-		"ASSING_TASK": "Atribuir tarefa",
+		"ASSIGN_TASK": "Atribuir tarefa",
 		"CREATE_TASK": "Criar tarefa"
 	},
 	"alerts": {

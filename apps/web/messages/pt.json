@@ -197,7 +197,7 @@
 		"START_TIMER": "Iniciar Temporizador",
 		"STOP_TIMER": "Parar Temporizador",
 		"TASK": "Tarefa",
-		"ASSING_TASK": "Atribuir Tarefa",
+		"ASSIGN_TASK": "Atribuir Tarefa",
 		"CREATE_TASK": "Criar Tarefa"
 	},
 	"alerts": {

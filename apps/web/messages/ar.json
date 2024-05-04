@@ -197,7 +197,7 @@
 		"START_TIMER": "بدء المؤقت",
 		"STOP_TIMER": "إيقاف المؤقت",
 		"TASK": "المهمة",
-		"ASSING_TASK": "تعيين المهمة",
+		"ASSIGN_TASK": "تعيين المهمة",
 		"CREATE_TASK": "إنشاء مهمة"
 	},
 	"alerts": {

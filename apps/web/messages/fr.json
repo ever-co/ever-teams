@@ -197,7 +197,7 @@
 		"START_TIMER": "Démarrer le chronomètre",
 		"STOP_TIMER": "Arrêter le chronomètre",
 		"TASK": "Tâche",
-		"ASSING_TASK": "Assigner la tâche",
+		"ASSIGN_TASK": "Assigner la tâche",
 		"CREATE_TASK": "Créer une tâche"
 	},
 	"alerts": {

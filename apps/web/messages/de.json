@@ -198,7 +198,7 @@
 		"START_TIMER": "Timer starten",
 		"STOP_TIMER": "Timer stoppen",
 		"TASK": "Aufgabe",
-		"ASSING_TASK": "Aufgabe zuweisen",
+		"ASSIGN_TASK": "Aufgabe zuweisen",
 		"CREATE_TASK": "Neue Aufgabe erstellen"
 	},
 	"alerts": {

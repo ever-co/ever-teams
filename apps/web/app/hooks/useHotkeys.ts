@@ -59,7 +59,7 @@ export const HostKeysMapping = [
 		heading: 'TASK',
 		keySequence: [
 			{
-				label: 'ASSING_TASK',
+				label: 'ASSIGN_TASK',
 				sequence: {
 					MAC: ['A'],
 					OTHER: ['A']

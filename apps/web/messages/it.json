@@ -197,7 +197,7 @@
 		"START_TIMER": "Avvia Timer",
 		"STOP_TIMER": "Ferma Timer",
 		"TASK": "Compito",
-		"ASSING_TASK": "Assegna Compito",
+		"ASSIGN_TASK": "Assegna Compito",
 		"CREATE_TASK": "Crea Compito"
 	},
 	"alerts": {

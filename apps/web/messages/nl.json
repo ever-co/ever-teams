@@ -197,7 +197,7 @@
 		"START_TIMER": "Start de timer",
 		"STOP_TIMER": "Stop de timer",
 		"TASK": "Taak",
-		"ASSING_TASK": "Taak toewijzen",
+		"ASSIGN_TASK": "Taak toewijzen",
 		"CREATE_TASK": "Nieuwe taak maken"
 	},
 	"alerts": {

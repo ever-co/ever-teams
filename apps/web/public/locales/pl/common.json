@@ -192,7 +192,7 @@
 		"START_TIMER": "Rozpocznij timer",
 		"STOP_TIMER": "Zatrzymaj timer",
 		"TASK": "Zadanie",
-		"ASSING_TASK": "Przypisz zadanie",
+		"ASSIGN_TASK": "Przypisz zadanie",
 		"CREATE_TASK": "Utwórz zadanie"
 	},
 	"alerts": {

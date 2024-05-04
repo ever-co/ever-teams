@@ -190,7 +190,7 @@
 		"START_TIMER": "Start Timer",
 		"STOP_TIMER": "Stop Timer",
 		"TASK": "Task",
-		"ASSING_TASK": "Assign Task",
+		"ASSIGN_TASK": "Assign Task",
 		"CREATE_TASK": "Create Task"
 	},
 	"alerts": {

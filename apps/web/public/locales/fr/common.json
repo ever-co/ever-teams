@@ -188,7 +188,7 @@
 		"START_TIMER": "Démarrer la minuterie",
 		"STOP_TIMER": "Arrêter la minuterie",
 		"TASK": "Tâche",
-		"ASSING_TASK": "Assigner la tâche",
+		"ASSIGN_TASK": "Assigner la tâche",
 		"CREATE_TASK": "Créer une tâche"
 	},
 	"alerts": {
