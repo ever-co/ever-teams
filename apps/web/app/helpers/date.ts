@@ -140,7 +140,7 @@ export const formatIntegerToHour = (number: number) => {
 	// Format int part with 'h'
 	let formattedHour = `${integerPart}h`;
 
-	// Si la partie décimale est différente de zéro, ajouter les minutes
+	// if the decimal part is not zero, add minutes
 	if (decimalPart !== 0) {
 		const minutes = Math.round(decimalPart * 60);
 		formattedHour += `${minutes < 10 ? '0' : ''}${minutes}m`;
