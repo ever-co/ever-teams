@@ -14,10 +14,9 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
-import { useCallbackRef } from '../useCallbackRef';
 import { getActiveTeamIdCookie } from '@app/helpers';
 
-export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) => void) {
+export function useTaskVersion() {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
@@ -27,7 +26,6 @@ export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) 
 	const { loading: editTaskVersionLoading, queryCall: editQueryCall } = useQuery(editTaskVersionAPI);
 
 	const [taskVersion, setTaskVersion] = useRecoilState(taskVersionListState);
-	const $onVersionCreated = useCallbackRef(onVersionCreated);
 
 	const [taskVersionFetching, setTaskVersionFetching] = useRecoilState(taskVersionFetchingState);
 	const { firstLoadData: firstLoadTaskVersionData, firstLoad } = useFirstLoad();
@@ -68,7 +66,7 @@ export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) 
 			}
 		},
 
-		[$onVersionCreated, createQueryCall, createTaskVersionLoading, deleteTaskVersionLoading, activeTeamId]
+		[createQueryCall, createTaskVersionLoading, deleteTaskVersionLoading, activeTeamId]
 	);
 
 	const deleteTaskVersion = useCallback(

@@ -98,7 +98,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 				{Array.isArray(items) && items?.length == 0 && (
 					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute">
 						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
-							not found!
+							{t('common.NOT_FOUND')}!
 						</div>
 						<div
 							onClick={openModal}

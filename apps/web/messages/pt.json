@@ -186,7 +186,19 @@
 		"NO_USERS_ONLINE": "Nenhum usuário online",
 		"NO_USERS_WORKING": "Atualmente não há usuários ativos",
 		"NO_USERS_PAUSED_WORK": "Atualmente não há usuários que interromperam seu trabalho",
-		"NO_USERS_IDLE": "Atualmente não há usuários inativos"
+		"NO_USERS_IDLE": "Atualmente não há usuários inativos",
+		"NOT_FOUND": "Não encontrado",
+		"PAGE_NOT_FOUND": "Página não encontrada"
+	},
+	"hotkeys":{
+		"HELP": "Ajuda",
+		"TO_OPEN_SHORTCUT_LIST": "Para abrir a lista de atalhos",
+		"TIMER": "Temporizador",
+		"START_TIMER": "Iniciar Temporizador",
+		"STOP_TIMER": "Parar Temporizador",
+		"TASK": "Tarefa",
+		"ASSIGN_TASK": "Atribuir Tarefa",
+		"CREATE_TASK": "Criar Tarefa"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",

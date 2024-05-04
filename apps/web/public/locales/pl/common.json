@@ -179,9 +179,21 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji",
 		"THERE_IS_NO_TASK_ASSIGNED": "Nie ma przypisanego zadania",
 		"NO_USERS_ONLINE": "Brak użytkowników online",
+		"NOT_FOUND": "Nie znaleziono",
+		"PAGE_NOT_FOUND": "Strona nie znaleziona",
 		"NO_USERS_WORKING": "Obecnie nie ma aktywnych użytkowników",
 		"NO_USERS_PAUSED_WORK": "Obecnie nie ma użytkowników, którzy przerwali pracę",
 		"NO_USERS_IDLE": "Obecnie nie ma nieaktywnych użytkowników"
+	},
+	"hotkeys":{
+		"HELP": "Pomoc",
+		"TO_OPEN_SHORTCUT_LIST": "Aby otworzyć listę skrótów",
+		"TIMER": "Timer",
+		"START_TIMER": "Rozpocznij timer",
+		"STOP_TIMER": "Zatrzymaj timer",
+		"TASK": "Zadanie",
+		"ASSIGN_TASK": "Przypisz zadanie",
+		"CREATE_TASK": "Utwórz zadanie"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",

@@ -74,6 +74,12 @@ export function useTeamTasks() {
 
 	const getTaskById = useCallback(
 		(taskId: string) => {
+			tasksRef.current.forEach((task) => {
+				if (task.id === taskId) {
+					setDetailedTask(task);
+				}
+			});
+
 			return getTasksByIdQueryCall(taskId).then((res) => {
 				setDetailedTask(res?.data || null);
 				return res;
@@ -246,11 +252,11 @@ export function useTeamTasks() {
 					...(activeTeam?.projects && activeTeam?.projects.length > 0
 						? {
 								projectId: activeTeam.projects[0].id
-						  }
+							}
 						: {}),
 					...(description ? { description: `<p>${description}</p>` } : {}),
 					...(members ? { members } : {}),
-					taskStatusId: taskStatusId,
+					taskStatusId: taskStatusId
 				},
 				$user.current
 			).then((res) => {

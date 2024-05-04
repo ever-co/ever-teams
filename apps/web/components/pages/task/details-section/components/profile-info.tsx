@@ -8,15 +8,16 @@ import stc from 'string-to-color';
 type Props = {
 	profilePicSrc?: string;
 	names?: string;
+	fullName?: string;
 	wrapperClassName?: string;
 	profilePicSize?: number;
 };
 
-const ProfileInfo = ({ profilePicSrc, names, wrapperClassName, profilePicSize }: Props) => {
+const ProfileInfo = ({ profilePicSrc, fullName, names, wrapperClassName, profilePicSize }: Props) => {
 	const size = profilePicSize || 20;
 
 	return (
-		<div className={clsx('flex flex-nowrap whitespace-nowrap', wrapperClassName)}>
+		<div title={fullName} className={clsx('flex flex-nowrap whitespace-nowrap', wrapperClassName)}>
 			<div
 				className={clsx(
 					`w-[${size}px] h-[${size}px]`,

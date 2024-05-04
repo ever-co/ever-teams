@@ -184,9 +184,21 @@
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activa la integración de GitHub para la sincronización de proyectos y repositorios",
 		"THERE_IS_NO_TASK_ASSIGNED": "No hay tareas asignadas",
 		"NO_USERS_ONLINE": "No hay usuarios en línea",
+		"NOT_FOUND": "No encontrado",
+		"PAGE_NOT_FOUND": "Página no encontrada",
 		"NO_USERS_WORKING": "Actualmente no hay usuarios activos",
 		"NO_USERS_PAUSED_WORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
 		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos"
+	},
+	"hotkeys":{
+		"HELP": "Ayuda",
+		"TO_OPEN_SHORTCUT_LIST": "Para abrir la lista de atajos",
+		"TIMER": "Temporizador",
+		"START_TIMER": "Iniciar temporizador",
+		"STOP_TIMER": "Detener temporizador",
+		"TASK": "Tarea",
+		"ASSIGN_TASK": "Asignar tarea",
+		"CREATE_TASK": "Crear tarea"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
