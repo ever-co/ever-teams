@@ -12,6 +12,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { Outstanding, PastTasks } from './task/daily-plan';
+import { FutureTasks } from './task/daily-plan/future-tasks';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -24,10 +26,10 @@ export function UserProfilePlans() {
 
 	const tabsScreens = {
 		'Today Tasks': <AllPlans plans={dailyPlan.items} profile={profile} currentTab={currentTab} />,
-		'Future Tasks': <AllPlans plans={dailyPlan.items} profile={profile} currentTab={currentTab} />,
-		'Past Tasks': <AllPlans plans={dailyPlan.items} profile={profile} currentTab={currentTab} />,
+		'Future Tasks': <FutureTasks dayPlans={dailyPlan.items} profile={profile} />,
+		'Past Tasks': <PastTasks dayPlans={dailyPlan.items} profile={profile} />,
 		'All Tasks': <AllPlans plans={dailyPlan.items} profile={profile} />,
-		Outstanding: <></>
+		Outstanding: <Outstanding dayPlans={dailyPlan.items} profile={profile} />
 	};
 
 	return (
@@ -73,29 +75,11 @@ function AllPlans({
 	currentTab?: FilterTabs;
 }) {
 	// Sort plans
-	const ascSortedPlans = [...plans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-	const descSortedPlans = [...plans].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
 
 	filteredPlans = [...plans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-	if (currentTab === 'Future Tasks')
-		filteredPlans = ascSortedPlans.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-			return planDate.getTime() >= today.getTime();
-		});
-
-	if (currentTab === 'Past Tasks')
-		filteredPlans = descSortedPlans.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
-			return planDate.getTime() < today.getTime();
-		});
 
 	if (currentTab === 'Today Tasks')
 		filteredPlans = [...plans].filter((plan) =>
@@ -105,7 +89,15 @@ function AllPlans({
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredPlans.length > 0 ? (
-				<Accordion type="multiple" className="text-sm" defaultValue={[new Date().toISOString().split('T')[0]]}>
+				<Accordion
+					type="multiple"
+					className="text-sm"
+					defaultValue={
+						currentTab === 'Today Tasks'
+							? [new Date().toISOString().split('T')[0]]
+							: [filteredPlans.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+					}
+				>
 					{filteredPlans.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
@@ -148,7 +140,7 @@ function AllPlans({
 	);
 }
 
-function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs }) {
+export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0);
 
@@ -289,7 +281,7 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 	);
 }
 
-function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
+export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
 	return (
 		<div className="xl:mt-20">
 			<NoData

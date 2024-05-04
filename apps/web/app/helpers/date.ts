@@ -118,6 +118,8 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
+export const yesterdayDate = moment().subtract(1, 'days').toDate();
+
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	if (dateString.toString().length > 10) {
 		dateString = dateString.toString().split('T')[0];
