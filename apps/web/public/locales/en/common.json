@@ -183,6 +183,16 @@
 		"NO_USERS_PAUSED_WORK": "There are currently no users who have paused their work",
 		"NO_USERS_IDLE": "There are currently no inactive users"
 	},
+	"hotkeys":{
+		"HELP": "Help",
+		"TO_OPEN_SHORTCUT_LIST": "To open the shortcut list",
+		"TIMER": "Timer",
+		"START_TIMER": "Start Timer",
+		"STOP_TIMER": "Stop Timer",
+		"TASK": "Task",
+		"ASSING_TASK": "Assign Task",
+		"CREATE_TASK": "Create Task"
+	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We are working on Real-Time Sync at the moment, please check on this feature later.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",

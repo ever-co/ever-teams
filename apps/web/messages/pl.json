@@ -190,6 +190,16 @@
 		"NO_USERS_PAUSED_WORK": "Obecnie nie ma użytkowników, którzy przerwali pracę",
 		"NO_USERS_IDLE": "Obecnie nie ma nieaktywnych użytkowników"
 	},
+	"hotkeys":{
+		"HELP": "Pomoc",
+		"TO_OPEN_SHORTCUT_LIST": "Aby otworzyć listę skrótów",
+		"TIMER": "Timer",
+		"START_TIMER": "Rozpocznij Timer",
+		"STOP_TIMER": "Zatrzymaj Timer",
+		"TASK": "Zadanie",
+		"ASSING_TASK": "Przypisz Zadanie",
+		"CREATE_TASK": "Utwórz Zadanie"
+	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
 		"ALERT_DELETE_ACCOUNT": "Zostaniesz usunięty z wszystkich zespołów, z wyjątkiem sytuacji, gdy jesteś jedynym menedżerem w zespole",

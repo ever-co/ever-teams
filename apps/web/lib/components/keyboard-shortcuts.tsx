@@ -40,7 +40,7 @@ export function KeyboardShortcuts() {
 							{HostKeysMapping.map((item, index) => (
 								<div key={index} className="flex flex-col gap-2">
 									<p className="text-base font-normal text-black dark:text-light--theme-light">
-										{item.heading}
+										{t(`hotkeys.${item.heading}`)}
 									</p>
 
 									{item.keySequence.map((keySeq, keySeqIndex) => (
@@ -49,7 +49,7 @@ export function KeyboardShortcuts() {
 											key={`key-seq-${keySeqIndex}`}
 										>
 											<div>
-												<p className="text-sm font-normal">{keySeq.label}</p>
+												<p className="text-sm font-normal">{t(`hotkeys.${keySeq.label}`)}</p>
 											</div>
 											<div className="flex flex-row gap-2">
 												{[...(os === 'Mac' ? keySeq.sequence.MAC : keySeq.sequence.OTHER)].map(

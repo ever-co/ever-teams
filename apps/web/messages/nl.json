@@ -190,6 +190,16 @@
 		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
 		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers"
 	},
+	"hotkeys":{
+		"HELP": "Help",
+		"TO_OPEN_SHORTCUT_LIST": "Om de sneltoetsenlijst te openen",
+		"TIMER": "Timer",
+		"START_TIMER": "Start de timer",
+		"STOP_TIMER": "Stop de timer",
+		"TASK": "Taak",
+		"ASSING_TASK": "Taak toewijzen",
+		"CREATE_TASK": "Nieuwe taak maken"
+	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",

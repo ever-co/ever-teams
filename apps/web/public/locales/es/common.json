@@ -180,6 +180,16 @@
 		"NO_USERS_PAUSED_WORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
 		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos"
 	},
+	"hotkeys":{
+		"HELP": "Ayuda",
+		"TO_OPEN_SHORTCUT_LIST": "Para abrir la lista de atajos",
+		"TIMER": "Cronómetro",
+		"START_TIMER": "Iniciar cronómetro",
+		"STOP_TIMER": "Detener cronómetro",
+		"TASK": "Tarea",
+		"ASSING_TASK": "Asignar tarea",
+		"CREATE_TASK": "Crear tarea"
+	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",

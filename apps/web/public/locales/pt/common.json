@@ -185,6 +185,16 @@
 		"NO_USERS_PAUSED_WORK": "Atualmente não há usuários que interromperam seu trabalho",
 		"NO_USERS_IDLE": "Atualmente não há usuários inativos"
 	},
+	"hotkeys":{
+		"HELP": "Ajuda",
+		"TO_OPEN_SHORTCUT_LIST": "Para abrir a lista de atalhos",
+		"TIMER": "Temporizador",
+		"START_TIMER": "Iniciar temporizador",
+		"STOP_TIMER": "Parar temporizador",
+		"TASK": "Tarefa",
+		"ASSING_TASK": "Atribuir tarefa",
+		"CREATE_TASK": "Criar tarefa"
+	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
