@@ -279,6 +279,8 @@ export function TaskInput(props: Props) {
 			disabled={timerRunningStatus}
 			ref={targetEl}
 			emojis={true}
+			setTaskName={setTaskName}
+			ignoreElementRefForTitle={ignoreElementRef}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
