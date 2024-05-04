@@ -155,14 +155,17 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
 
 	// Get all tasks's estimations time
-	const times = plan.tasks?.map((task) => task.estimate).filter((time) => typeof time === 'number');
+	const times =
+		plan.tasks?.map((task) => task.estimate).filter((time): time is number => typeof time === 'number') ?? [];
 	let estimatedTime = 0;
-	if (times) estimatedTime = times.reduce((acc, cur) => acc + cur, 0) ?? 0;
+	if (times.length > 0) estimatedTime = times.reduce((acc, cur) => acc + cur, 0) ?? 0;
 
 	// Get all tasks's worked time
-	const workedTimes = plan.tasks?.map((task) => task.totalWorkedTime).filter((time) => typeof time === 'number');
+	const workedTimes =
+		plan.tasks?.map((task) => task.totalWorkedTime).filter((time): time is number => typeof time === 'number') ??
+		[];
 	let totalWorkTime = 0;
-	if (workedTimes) totalWorkTime = workedTimes.reduce((acc, cur) => acc + cur, 0) ?? 0;
+	if (workedTimes.length > 0) totalWorkTime = workedTimes.reduce((acc, cur) => acc + cur, 0) ?? 0;
 
 	// Get completed tasks from a plan
 	const completedTasks = plan.tasks?.filter((task) => task.status === 'completed' && task.status).length ?? 0;
