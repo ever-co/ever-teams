@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { get, post } from '../axios';
+import { get, post, put } from '../axios';
 import { ICreateDailyPlan, IDailyPlan, PaginationResponse } from '@app/interfaces';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
@@ -45,4 +45,8 @@ export function createDailyPlanAPI(data: ICreateDailyPlan, tenantId?: string) {
 	return post<ICreateDailyPlan>('/daily-plan', data, {
 		tenantId
 	});
+}
+
+export function updateDailyPlanAPI(data: Partial<ICreateDailyPlan>, planId: string) {
+	return put<IDailyPlan>(`/daily-plan/${planId}`, data, {});
 }

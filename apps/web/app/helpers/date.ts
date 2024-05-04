@@ -118,6 +118,8 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
+export const yesterdayDate = moment().subtract(1, 'days').toDate();
+
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	if (dateString.toString().length > 10) {
 		dateString = dateString.toString().split('T')[0];
@@ -129,4 +131,22 @@ export const formatDayPlanDate = (dateString: string | Date, format?: string) =>
 	if (date.isSame(moment().subtract(1, 'day'), 'day')) return 'Yesterday';
 	if (format === 'DD MMM YYYY') return formatDateString(dateString.toString());
 	return date.format('dddd, MMMM DD, YYYY');
+};
+
+// Formats a given number into hours
+export const formatIntegerToHour = (number: number) => {
+	// Separate decimal and in parts
+	const integerPart = Math.floor(number);
+	const decimalPart = number - integerPart;
+
+	// Format int part with 'h'
+	let formattedHour = `${integerPart}h`;
+
+	// if the decimal part is not zero, add minutes
+	if (decimalPart !== 0) {
+		const minutes = Math.round(decimalPart * 60);
+		formattedHour += `${minutes < 10 ? '0' : ''}${minutes}m`;
+	}
+
+	return formattedHour;
 };

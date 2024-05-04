@@ -79,3 +79,23 @@ export function createPlanRequest({
 		tenantId
 	});
 }
+
+export function updatePlanRequest({
+	planId,
+	data,
+	bearer_token,
+	tenantId
+}: {
+	planId: string;
+	data: Partial<ICreateDailyPlan>;
+	bearer_token?: string;
+	tenantId?: any;
+}) {
+	return serverFetch<IDailyPlan>({
+		method: 'PUT',
+		path: `/daily-plan/${planId}`,
+		body: data,
+		bearer_token,
+		tenantId
+	});
+}

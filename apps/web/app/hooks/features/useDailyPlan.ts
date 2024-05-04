@@ -4,7 +4,12 @@ import { useRecoilState } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
 import { dailyPlanFetchingState, dailyPlanListState, userState } from '@app/stores';
-import { createDailyPlanAPI, getAllDayPlansAPI, getDayPlansByEmployeeAPI } from '@app/services/client/api';
+import {
+	createDailyPlanAPI,
+	getAllDayPlansAPI,
+	getDayPlansByEmployeeAPI,
+	updateDailyPlanAPI
+} from '@app/services/client/api';
 import { ICreateDailyPlan } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
@@ -14,6 +19,7 @@ export function useDailyPlan() {
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
+	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
@@ -56,6 +62,16 @@ export function useDailyPlan() {
 		[createQueryCall, user]
 	);
 
+	const updateDailyPlan = useCallback(
+		async (data: Partial<ICreateDailyPlan>, planId: string) => {
+			const updated = dailyPlan.items.filter((plan) => plan.id != planId);
+			const res = await updateQueryCall(data, planId);
+			setDailyPlan({ total: dailyPlan.total, items: [...updated, res.data] });
+			return res;
+		},
+		[dailyPlan.items, dailyPlan.total, setDailyPlan, updateQueryCall]
+	);
+
 	return {
 		dailyPlan,
 		setDailyPlan,
@@ -69,6 +85,9 @@ export function useDailyPlan() {
 		loading,
 
 		createDailyPlan,
-		createDailyPlanLoading
+		createDailyPlanLoading,
+
+		updateDailyPlan,
+		updateDailyPlanLoading
 	};
 }
