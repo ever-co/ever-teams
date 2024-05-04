@@ -5,7 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
-import { Container, VerticalSeparator } from 'lib/components';
+import { Container, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
@@ -117,8 +117,8 @@ function AllPlans({
 								{plan.tasks?.map((task) => (
 									<TaskCard
 										key={`${task.id}${plan.id}`}
-										isAuthUser={profile.isAuthUser}
-										activeAuthTask={false}
+										isAuthUser={true}
+										activeAuthTask={true}
 										viewType={'dailyplan'}
 										task={task}
 										profile={profile}
@@ -157,6 +157,12 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 
 	// Get ready tasks from a plan
 	const readyTasks = plan.tasks?.filter((task) => task.status === 'ready').length ?? 0;
+
+	// Total tasks for plan
+	const totalTasks = plan.tasks?.length;
+
+	// Completion percent
+	const completionPercent = totalTasks && ((completedTasks * 100) / totalTasks).toFixed(2);
 
 	return (
 		<div className="mb-8 flex justify-around items-center gap-5">
@@ -232,21 +238,19 @@ function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs
 				</div>
 				<div className="flex items-center gap-2">
 					<span className="font-medium">Left: </span>
-					<span className="font-semibold">
-						{plan.tasks?.length && plan.tasks.length - completedTasks - readyTasks}
-					</span>
+					<span className="font-semibold">{totalTasks && totalTasks - completedTasks - readyTasks}</span>
 				</div>
 			</div>
 
 			<VerticalSeparator />
 
 			{/*  Completion progress */}
-			<div>
+			<div className="flex flex-col gap-3">
 				<div className="flex items-center gap-2">
 					<span className="font-medium">Completion: </span>
-					{/* <span className="font-semibold">{estimatedTimeSum}</span> */}
+					<span className="font-semibold">{completionPercent}%</span>
 				</div>
-				{/* Tasks progress here */}
+				<ProgressBar progress={`${completionPercent || 0}%`} showPercents={false} width="100%" />
 			</div>
 		</div>
 	);
