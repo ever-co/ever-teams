@@ -131,7 +131,7 @@ export function TaskCard(props: Props) {
 					/>
 				</div>
 				<VerticalSeparator />
-				{viewType === 'default' && (
+				{(viewType === 'default' || viewType === 'dailyplan') && (
 					<>
 						{/* TaskEstimateInfo */}
 						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
