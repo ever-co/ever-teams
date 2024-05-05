@@ -45,7 +45,7 @@ export function useDailyPlan() {
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
 			queryCall(employeeId).then((response) => {
-				if (response.data.items.length) {
+				if (response.data?.items?.length) {
 					const { items, total } = response.data;
 					setDailyPlan({ items, total });
 				}
@@ -55,9 +55,9 @@ export function useDailyPlan() {
 	);
 
 	const getPlansByTask = useCallback(
-		(taskId: string) => {
+		(taskId?: string) => {
 			getPlansByTaskQueryCall(taskId).then((response) => {
-				if (response.data.items.length) {
+				if (response.data?.items?.length) {
 					const { items, total } = response.data;
 					setDailyPlan({ items, total });
 				}

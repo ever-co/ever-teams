@@ -41,7 +41,7 @@ export function getDayPlansByEmployeeAPI(employeeId?: string) {
 	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/employee/${employeeId}?${query}`, { tenantId });
 }
 
-export function getPlansByTaskAPI(taskId: string) {
+export function getPlansByTaskAPI(taskId?: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
