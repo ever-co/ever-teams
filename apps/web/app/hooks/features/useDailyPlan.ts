@@ -8,6 +8,7 @@ import {
 	createDailyPlanAPI,
 	getAllDayPlansAPI,
 	getDayPlansByEmployeeAPI,
+	getPlansByTaskAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
 import { ICreateDailyPlan } from '@app/interfaces';
@@ -20,6 +21,7 @@ export function useDailyPlan() {
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
 	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
+	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
@@ -50,6 +52,18 @@ export function useDailyPlan() {
 			});
 		},
 		[queryCall, setDailyPlan]
+	);
+
+	const getPlansByTask = useCallback(
+		(taskId: string) => {
+			getPlansByTaskQueryCall(taskId).then((response) => {
+				if (response.data.items.length) {
+					const { items, total } = response.data;
+					setDailyPlan({ items, total });
+				}
+			});
+		},
+		[getPlansByTaskQueryCall, setDailyPlan]
 	);
 
 	const createDailyPlan = useCallback(
@@ -83,6 +97,9 @@ export function useDailyPlan() {
 
 		getEmployeeDayPlans,
 		loading,
+
+		getPlansByTask,
+		getPlansByTaskLoading,
 
 		createDailyPlan,
 		createDailyPlanLoading,

@@ -41,6 +41,20 @@ export function getDayPlansByEmployeeAPI(employeeId?: string) {
 	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/employee/${employeeId}?${query}`, { tenantId });
 }
 
+export function getPlansByTaskAPI(taskId: string) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	const query = qs.stringify(obj);
+
+	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/task/${taskId}?${query}`, { tenantId });
+}
+
 export function createDailyPlanAPI(data: ICreateDailyPlan, tenantId?: string) {
 	return post<ICreateDailyPlan>('/daily-plan', data, {
 		tenantId
