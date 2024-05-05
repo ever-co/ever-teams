@@ -7,7 +7,7 @@ import { formatDayPlanDate } from '@app/helpers';
 
 export function TaskPlans() {
 	const [task] = useRecoilState(detailedTaskState);
-	const { dailyPlan, getPlansByTask } = useDailyPlan();
+	const { taskPlanList, getPlansByTask } = useDailyPlan();
 
 	useEffect(() => {
 		getPlansByTask(task?.id);
@@ -20,11 +20,21 @@ export function TaskPlans() {
 					Daily Plans
 				</div>
 			</div>
-			{dailyPlan.items.map((plan) => (
-				<TaskRow key={plan.id} labelIconPath="/assets/svg/profile.svg" labelTitle={plan.employee?.fullName}>
-					<span className="text-xs font-semibold">{formatDayPlanDate(plan.date)}</span>
-				</TaskRow>
-			))}
+			<div className="flex flex-col gap-4 pb-[0.9375rem]">
+				{taskPlanList.length > 0 ? (
+					taskPlanList?.map((plan) => (
+						<TaskRow
+							key={plan.id}
+							labelIconPath="/assets/svg/profile.svg"
+							labelTitle={plan.employee?.fullName}
+						>
+							<span className="text-xs font-semibold">{formatDayPlanDate(plan.date)}</span>
+						</TaskRow>
+					))
+				) : (
+					<div className="text-center text-xs font-normal">Task not planned</div>
+				)}
+			</div>
 		</section>
 	);
 }
