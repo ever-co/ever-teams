@@ -188,7 +188,12 @@
 		"PAGE_NOT_FOUND": "Pagina niet gevonden",
 		"NO_USERS_WORKING": "Er zijn momenteel geen actieve gebruikers",
 		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
-		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers"
+		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers",
+		"ALL_MEMBERS": "Alle leden",
+		"NOT_WORKING": "Niet aan het werk",
+		"WORKING": "Aan het werk",
+		"PAUSED": "Gepauzeerd",
+		"ONLINE": "Online"
 	},
 	"hotkeys":{
 		"HELP": "Help",
