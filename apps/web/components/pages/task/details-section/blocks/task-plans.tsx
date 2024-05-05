@@ -21,7 +21,7 @@ export function TaskPlans() {
 				</div>
 			</div>
 			<div className="flex flex-col gap-4 pb-[0.9375rem]">
-				{taskPlanList.length > 0 ? (
+				{taskPlanList?.length > 0 ? (
 					taskPlanList?.map((plan) => (
 						<TaskRow
 							key={plan.id}
