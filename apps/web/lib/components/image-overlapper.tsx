@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
+import { CircleIcon } from 'assets/svg';
 export interface ImageOverlapperProps {
 	id: string;
 	url: string;
@@ -13,11 +14,15 @@ export interface ImageOverlapperProps {
 export default function ImageOverlapper({
 	images,
 	radius = 20,
-	displayImageCount = 4
+	displayImageCount = 4,
+	hasMembers = false,
+	isTask = false
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
 	displayImageCount?: number;
+	hasMembers?: boolean,
+	isTask?: boolean
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -28,6 +33,11 @@ export default function ImageOverlapper({
 
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
+	}
+	if (hasMembers == false && isTask == true) {
+		return <CircleIcon className="w-6 h-6 cursor-pointer"
+		style={{ width:50, height:50 }}
+		/>;
 	}
 	return (
 		<div
