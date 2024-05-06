@@ -21,6 +21,7 @@ export interface ITaskStatusCreate {
 	name?: string;
 	description?: string;
 	icon?: string;
+	value?: string;
 	color?: string;
 	projectId?: string;
 	organizationId?: string;
