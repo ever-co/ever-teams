@@ -12,13 +12,15 @@ export const ColorPicker = ({
 	onChange,
 	fullWidthInput,
 	isTeamManager,
-	disabled: disableButton
+	disabled: disableButton,
+	className
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | null) => void;
 	fullWidthInput?: boolean;
 	isTeamManager?: boolean;
 	disabled?: boolean;
+	className?: string;
 }) => {
 	const [color, setColor] = useState(defaultColor || null);
 	const onChangeRef = useCallbackRef(onChange);
@@ -65,7 +67,7 @@ export const ColorPicker = ({
 	}, []);
 
 	return fullWidthInput ? (
-		<Popover className="relative border-none no-underline w-full mt-3">
+		<Popover className={' relative border-none no-underline w-full mt-3' + className}>
 			{() => (
 				<>
 					<Popover.Button
