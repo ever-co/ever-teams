@@ -67,7 +67,7 @@ export const ColorPicker = ({
 	}, []);
 
 	return fullWidthInput ? (
-		<Popover className={' relative border-none no-underline w-full mt-3' + className}>
+		<Popover className={'z-[9999] relative border-none no-underline w-full mt-3' + className}>
 			{() => (
 				<>
 					<Popover.Button
