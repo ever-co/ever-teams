@@ -46,7 +46,7 @@ export default function ImageOverlapper({
 	if (!hasMembers && item) {
 		return (
 			<div>
-				<CircleIcon className="w-6 h-6 cursor-pointer" onClick={openModal} style={{ width: 50, height: 50 }} />
+				<CircleIcon className="w-6 h-6 cursor-pointer  stroke-[#27AE60]" onClick={openModal} style={{ width: 50, height: 50 }} />
 				<div>
 					<Modal
 						isOpen={isOpen}
