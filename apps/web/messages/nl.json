@@ -184,9 +184,26 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label",
 		"THERE_IS_NO_TASK_ASSIGNED": "Er is geen taak toegewezen",
 		"NO_USERS_ONLINE": "Geen gebruiker online",
+		"NOT_FOUND": "Niet gevonden",
+		"PAGE_NOT_FOUND": "Pagina niet gevonden",
 		"NO_USERS_WORKING": "Er zijn momenteel geen actieve gebruikers",
 		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
-		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers"
+		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers",
+		"ALL_MEMBERS": "Alle leden",
+		"NOT_WORKING": "Niet aan het werk",
+		"WORKING": "Aan het werk",
+		"PAUSED": "Gepauzeerd",
+		"ONLINE": "Online"
+	},
+	"hotkeys":{
+		"HELP": "Help",
+		"TO_OPEN_SHORTCUT_LIST": "Om de sneltoetsenlijst te openen",
+		"TIMER": "Timer",
+		"START_TIMER": "Start de timer",
+		"STOP_TIMER": "Stop de timer",
+		"TASK": "Taak",
+		"ASSIGN_TASK": "Taak toewijzen",
+		"CREATE_TASK": "Nieuwe taak maken"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",

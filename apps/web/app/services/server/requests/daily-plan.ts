@@ -62,6 +62,31 @@ export function getDayPlansByEmployee({
 	});
 }
 
+export function getPlansByTask({
+	taskId,
+	organizationId,
+	tenantId,
+	bearer_token
+}: {
+	taskId: string;
+	organizationId: string;
+	tenantId: string;
+	bearer_token: string;
+}) {
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	const query = qs.stringify(obj);
+
+	return serverFetch<IDailyPlan>({
+		path: `/daily-plan/task/${taskId}?${query}`,
+		method: 'GET',
+		bearer_token
+	});
+}
+
 export function createPlanRequest({
 	data,
 	bearer_token,
@@ -74,6 +99,26 @@ export function createPlanRequest({
 	return serverFetch<IDailyPlan>({
 		method: 'POST',
 		path: '/daily-plan',
+		body: data,
+		bearer_token,
+		tenantId
+	});
+}
+
+export function updatePlanRequest({
+	planId,
+	data,
+	bearer_token,
+	tenantId
+}: {
+	planId: string;
+	data: Partial<ICreateDailyPlan>;
+	bearer_token?: string;
+	tenantId?: any;
+}) {
+	return serverFetch<IDailyPlan>({
+		method: 'PUT',
+		path: `/daily-plan/${planId}`,
 		body: data,
 		bearer_token,
 		tenantId

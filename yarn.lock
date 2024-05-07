@@ -18761,6 +18761,11 @@ react-i18next@^13.3.1:
     "@babel/runtime" "^7.22.5"
     html-parse-stringify "^3.0.1"
 
+react-icons@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-5.2.0.tgz#790c92d5f1888ef2dbbd3468c553fd4bb5c8bf7e"
+  integrity sha512-n52Y7Eb4MgQZHsSZOhSXv1zs2668/hBYKfSRIvKh42yExjyhZu0d1IK2CLLZ3BZB1oo13lDfwx2vOh2z9FTV6Q==
+
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
