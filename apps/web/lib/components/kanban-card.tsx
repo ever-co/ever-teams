@@ -250,7 +250,7 @@ export default function Item(props: ItemProps) {
 							</div>
 						)}
 					</div>
-					<ImageComponent radius={30} images={taskAssignee} hasMembers={item.members.length > 0} isTask={true}/>
+					<ImageComponent radius={30} images={taskAssignee} item={item} />
 					{item.issueType && (
 						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
 							<div
