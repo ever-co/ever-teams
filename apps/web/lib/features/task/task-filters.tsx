@@ -228,7 +228,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 						}}
 					/>
 				)}
-				{hook.filterType === 'activities' && <div>Activities Filter</div>}
+				{hook.filterType === 'activities' && <ActivitiesFilter />}
 			</Transition>
 		</div>
 	);
@@ -268,11 +268,7 @@ function InputFilters({ hook, profile }: Props) {
 			>
 				<button
 					ref={hook.outclickFilterCard.ignoreElementRef}
-					className={clsxm(
-						'flex items-center justify-center',
-						hook.filterType === 'activities' && ['bg-gray-lighter'],
-						'h-[2.75rem]'
-					)}
+					className={clsxm('flex items-center justify-center')}
 					onClick={() => hook.toggleFilterType('activities')}
 				>
 					<Stat
@@ -482,4 +478,8 @@ export function TaskNameFilter({
 			</Button>
 		</div>
 	);
+}
+
+export function ActivitiesFilter() {
+	return <div>Activities Filter</div>;
 }
