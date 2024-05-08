@@ -132,7 +132,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: numb
 
 
 	if(!members.length) {
-		return <div className="avatars flex -space-x-2 min-w-[59px] justify-center"><ImageComponent radius={30} images={taskAssignee} item={task} /></div>
+		return <div className="avatars flex -space-x-2 min-w-[59px] justify-center"><ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} /></div>
 	}
 
 	return (

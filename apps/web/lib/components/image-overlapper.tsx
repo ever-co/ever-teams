@@ -22,12 +22,14 @@ export default function ImageOverlapper({
 	images,
 	radius = 20,
 	displayImageCount = 4,
-	item = null
+	item = null,
+	diameter = 40
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
 	displayImageCount?: number;
 	item?: any;
+	diameter?: number;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -49,7 +51,7 @@ export default function ImageOverlapper({
 	if (!hasMembers && item) {
 		return (
 			<div>
-				<CircleIcon className="w-6 h-6 cursor-pointer  stroke-[#27AE60]" onClick={openModal} style={{ width: 50, height: 50 }} />
+				<CircleIcon className="w-6 h-6 cursor-pointer  stroke-[#d3d3d3]" onClick={openModal} style={{ width: diameter, height: diameter }} />
 				<div>
 					<Modal
 						isOpen={isOpen}
