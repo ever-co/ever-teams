@@ -7,13 +7,15 @@ import KanbanIcon from '@components/ui/svgs/kanban';
 import { IssuesView } from '@app/constants';
 import { useRecoilState } from 'recoil';
 import { headerTabs } from '@app/stores/header-tabs';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 
 const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: boolean }) => {
+	const t = useTranslations();
 	const options = [
-		{ label: 'Cards', icon: QueueListIcon, view: IssuesView.CARDS },
-		{ label: 'Table', icon: TableCellsIcon, view: IssuesView.TABLE },
-		{ label: 'Blocks', icon: Squares2X2Icon, view: IssuesView.BLOCKS },
-		{ label: 'Kanban', icon: KanbanIcon, view: IssuesView.KANBAN }
+		{ label: 'CARDS', icon: QueueListIcon, view: IssuesView.CARDS },
+		{ label: 'TABLE', icon: TableCellsIcon, view: IssuesView.TABLE },
+		{ label: 'BLOCKS', icon: Squares2X2Icon, view: IssuesView.BLOCKS },
+		{ label: 'KANBAN', icon: KanbanIcon, view: IssuesView.KANBAN }
 	];
 	const links = linkAll ? ['/', '/', '/', '/kanban'] : [undefined, undefined, undefined, '/kanban'];
 	const [view, setView] = useRecoilState(headerTabs);
@@ -21,7 +23,7 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 	return (
 		<>
 			{options.map(({ label, icon: Icon, view: optionView }, index) => (
-				<Tooltip key={label} label={label} placement="top-start">
+				<Tooltip key={label} label={t(`common.${label}` as DottedLanguageObjectStringPaths)} placement="top-start">
 					<LinkWrapper isRoute={!!links[index]} href={links[index]}>
 						<button
 							className={clsxm(

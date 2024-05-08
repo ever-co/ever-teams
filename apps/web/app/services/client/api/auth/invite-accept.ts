@@ -31,11 +31,7 @@ export function verifyInviteCodeAPI(params: IInviteVerifyCode) {
  * @param params - Parameters including tenantId, userId, and token for authentication.
  * @returns A promise that resolves to a pagination response of user organizations.
  */
-export function getUserOrganizationsRequest(params: {
-	tenantId: string;
-	userId: string;
-	token: string
-}) {
+export function getUserOrganizationsRequest(params: { tenantId: string; userId: string; token: string }) {
 	// Create a new instance of URLSearchParams for query string construction
 	const query = new URLSearchParams();
 
@@ -54,7 +50,7 @@ export function getUserOrganizationsRequest(params: {
 		tenantId: params.tenantId,
 		headers: {
 			Authorization: `Bearer ${params.token}`
-		},
+		}
 	});
 }
 
@@ -221,11 +217,13 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 /**
  * @param params
  */
-export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code: string }) {
-	const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code?: string }) {
+	if (params.code) {
+		const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
 
-	if (loginResponse) {
-		return loginResponse;
+		if (loginResponse) {
+			return loginResponse;
+		}
 	}
 
 	const data = await signInWorkspaceAPI(params.email, params.token);
