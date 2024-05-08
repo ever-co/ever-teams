@@ -3,7 +3,13 @@
 import { useRecoilState } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { dailyPlanFetchingState, dailyPlanListState, taskPlans, userState } from '@app/stores';
+import {
+	dailyPlanFetchingState,
+	dailyPlanListState,
+	profileDailyPlanListState,
+	taskPlans,
+	userState
+} from '@app/stores';
 import {
 	createDailyPlanAPI,
 	getAllDayPlansAPI,
@@ -24,6 +30,7 @@ export function useDailyPlan() {
 	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
+	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
 	const [taskPlanList, setTaskPlans] = useRecoilState(taskPlans);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
 	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
@@ -46,13 +53,11 @@ export function useDailyPlan() {
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
 			queryCall(employeeId).then((response) => {
-				if (response.data?.items?.length) {
-					const { items, total } = response.data;
-					setDailyPlan({ items, total });
-				}
+				const { items, total } = response.data;
+				setProfileDailyPlans({ items, total });
 			});
 		},
-		[queryCall, setDailyPlan]
+		[queryCall, setProfileDailyPlans]
 	);
 
 	const getPlansByTask = useCallback(
@@ -86,6 +91,7 @@ export function useDailyPlan() {
 
 	return {
 		dailyPlan,
+		profileDailyPlans,
 		setDailyPlan,
 		dailyPlanFetching,
 

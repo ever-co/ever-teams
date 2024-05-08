@@ -187,7 +187,13 @@ export function TaskCard(props: Props) {
 
 					{/* TaskCardMenu */}
 					{task && currentMember && (
-						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+							profile={profile}
+						/>
 					)}
 				</div>
 			</Card>
@@ -419,12 +425,14 @@ function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,
-	viewType
+	viewType,
+	profile
 }: {
 	task: ITeamTask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
+	profile?: I_UserProfilePage;
 }) {
 	const t = useTranslations();
 	const handleAssignment = useCallback(() => {
@@ -486,13 +494,25 @@ function TaskCardMenu({
 											<Divider type="HORIZONTAL" />
 											<div className="mt-3">
 												<li className="mb-2">
-													<PlanTask planMode="today" taskId={task.id} />
+													<PlanTask
+														planMode="today"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
 												</li>
 												<li className="mb-2">
-													<PlanTask planMode="tomorow" taskId={task.id} />
+													<PlanTask
+														planMode="tomorow"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
 												</li>
 												<li className="mb-2">
-													<PlanTask planMode="custom" taskId={task.id} />
+													<PlanTask
+														planMode="custom"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
 												</li>
 											</div>
 										</>
@@ -525,7 +545,17 @@ function TaskCardMenu({
 	);
 }
 
-function PlanTask({ planMode, taskId }: { taskId: string; planMode: IDailyPlanMode }) {
+export function PlanTask({
+	planMode,
+	taskId,
+	employeeId,
+	chooseMember
+}: {
+	taskId: string;
+	planMode: IDailyPlanMode;
+	employeeId?: string;
+	chooseMember?: boolean;
+}) {
 	const { closeModal, isOpen, openModal } = useModal();
 
 	return (
@@ -537,7 +567,14 @@ function PlanTask({ planMode, taskId }: { taskId: string; planMode: IDailyPlanMo
 				)}
 				onClick={openModal}
 			>
-				<CreateDailyPlanFormModal open={isOpen} closeModal={closeModal} taskId={taskId} planMode={planMode} />
+				<CreateDailyPlanFormModal
+					open={isOpen}
+					closeModal={closeModal}
+					taskId={taskId}
+					planMode={planMode}
+					employeeId={employeeId}
+					chooseMember={chooseMember}
+				/>
 				{planMode === 'today' && 'Plan for today'}
 				{planMode === 'tomorow' && 'Plan for tomorow'}
 				{planMode === 'custom' && 'Plan for some day'}
