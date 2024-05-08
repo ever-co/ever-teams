@@ -130,7 +130,7 @@ export async function signInEmailConfirmAPI(email: string, code: string) {
 	});
 }
 
-export const signInWorkspaceAPI = (params: { email: string; token: string; selectedTeam: string; code: string }) => {
+export const signInWorkspaceAPI = (params: { email: string; token: string; selectedTeam: string; code?: string }) => {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
 		return signInWorkspaceGauzy({
 			email: params.email,

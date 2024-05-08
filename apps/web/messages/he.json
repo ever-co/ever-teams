@@ -188,7 +188,12 @@
 		"PAGE_NOT_FOUND": "הדף לא נמצא",
 		"NO_USERS_WORKING": "כרגע אין משתמשים פעילים",
 		"NO_USERS_PAUSED_WORK": "כרגע אין משתמשים שהפסיקו את עבודתם",
-		"NO_USERS_IDLE": "כרגע אין משתמשים לא פעילים"
+		"NO_USERS_IDLE": "כרגע אין משתמשים לא פעילים",
+		"ALL_MEMBERS": "כל החברים",
+		"NOT_WORKING": "לא עובד",
+		"WORKING": "עובד",
+		"PAUSED": "מושהה",
+		"ONLINE": "מחובר"
 	},
 	"hotkeys":{
 		"HELP": "עזרה",

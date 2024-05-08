@@ -188,7 +188,12 @@
 		"PAGE_NOT_FOUND": "页面未找到",
 		"NO_USERS_WORKING": "目前没有活跃用户",
 		"NO_USERS_PAUSED_WORK": "目前还没有用户停止工作",
-		"NO_USERS_IDLE": "目前没有不活跃用户"
+		"NO_USERS_IDLE": "目前没有不活跃用户",
+		"ALL_MEMBERS": "所有成员",
+		"NOT_WORKING": "不工作",
+		"WORKING": "工作",
+		"PAUSED": "暂停",
+		"ONLINE": "在线"
 	},
 	"hotkeys":{
 		"HELP": "帮助",
