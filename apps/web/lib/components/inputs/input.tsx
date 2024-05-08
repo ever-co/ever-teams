@@ -3,9 +3,12 @@
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Dispatch, forwardRef, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, forwardRef, MutableRefObject, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
+import { BsEmojiSmile } from "react-icons/bs";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 type Props = {
 	readonly errors?: Record<string, string>;
@@ -16,6 +19,9 @@ type Props = {
 	leadingNode?: ReactNode;
 	autoCustomFocus?: boolean;
 	notValidBorder?: boolean;
+	emojis?: boolean;
+	setTaskName?:  (taskName: string) => void;
+	ignoreElementRefForTitle?: MutableRefObject<HTMLDivElement | null>;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -32,12 +38,29 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			leadingNode,
 			autoCustomFocus,
 			notValidBorder,
+			emojis,
+			setTaskName,
+			ignoreElementRefForTitle,
 			...res
 		},
 		ref
 	) => {
 		const [error, setError] = useState<string | undefined>(undefined);
 		const inputRef = useRef<HTMLInputElement>(null);
+		const [showEmoji, setShowEmoji] = useState<boolean>(false);
+
+		const addEmoji = (emoji: { native: string }) => {
+			const input =  inputRef.current as HTMLInputElement | null;
+			if (input) {
+				const currentValue = input.value || '';
+				const newValue = currentValue + emoji.native;
+				if(setTaskName){
+				setTaskName(newValue)
+				}
+				input.value = newValue;
+				input.focus();
+			}
+		};
 
 		useEffect(() => {
 			if (errors && name && errors[name]) {
@@ -79,8 +102,11 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					className
 				)}
 				onKeyUp={onKeyUp}
+				onMouseOut={()=>{
+					if(showEmoji==true){
+					setShowEmoji(false)}}}
 				{...res}
-			/>
+				/>
 		);
 
 		return noWrapper ? (
@@ -95,13 +121,27 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				<div
 					className={`${
 						notValidBorder ? 'border border-red-500' : 'input-border'
-					} rounded-[10px] flex justify-between h-auto bg-light--theme-light dark:bg-transparent`}
+					} rounded-[10px] flex justify-between h-auto items-center bg-light--theme-light dark:bg-transparent`}
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
+					{
+				emojis && <div><BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+				{showEmoji && (
+              <div ref={ignoreElementRefForTitle} className="absolute  right-1 z-50">
+                <Picker
+                  data={data}
+                  emojiSize={20}
+                  emojiButtonSize={28}
+                  onEmojiSelect={addEmoji}
+                  maxFrequentRows={0}
+
+                />
+              </div>
+            )}</div>
+				}
 					{trailingNode && <div className="flex items-center">{trailingNode}</div>}
 				</div>
-
 				{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
 			</div>
 		);

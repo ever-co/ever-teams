@@ -3,9 +3,22 @@
 import { useRecoilState } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { dailyPlanFetchingState, dailyPlanListState, userState } from '@app/stores';
-import { createDailyPlanAPI, getAllDayPlansAPI, getDayPlansByEmployeeAPI } from '@app/services/client/api';
-import { ICreateDailyPlan } from '@app/interfaces';
+import {
+	dailyPlanFetchingState,
+	dailyPlanListState,
+	profileDailyPlanListState,
+	taskPlans,
+	userState
+} from '@app/stores';
+import {
+	addTaskToPlanAPI,
+	createDailyPlanAPI,
+	getAllDayPlansAPI,
+	getDayPlansByEmployeeAPI,
+	getPlansByTaskAPI,
+	updateDailyPlanAPI
+} from '@app/services/client/api';
+import { ICreateDailyPlan, IDailyPlan, IEmployee, ITeamTask } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
 export function useDailyPlan() {
@@ -14,8 +27,13 @@ export function useDailyPlan() {
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
+	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
+	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
+	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
+	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
+	const [taskPlanList, setTaskPlans] = useRecoilState(taskPlans);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
 	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
 
@@ -37,29 +55,64 @@ export function useDailyPlan() {
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
 			queryCall(employeeId).then((response) => {
-				if (response.data.items.length) {
-					const { items, total } = response.data;
-					setDailyPlan({ items, total });
-				}
+				const { items, total } = response.data;
+				setProfileDailyPlans({ items, total });
 			});
 		},
-		[queryCall, setDailyPlan]
+		[queryCall, setProfileDailyPlans]
+	);
+
+	const getPlansByTask = useCallback(
+		(taskId?: string) => {
+			getPlansByTaskQueryCall(taskId).then((response) => {
+				setTaskPlans(response.data.items);
+			});
+		},
+		[getPlansByTaskQueryCall, setTaskPlans]
 	);
 
 	const createDailyPlan = useCallback(
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(data, user?.tenantId || '');
+				setProfileDailyPlans({
+					total: profileDailyPlans.total + 1,
+					items: [...profileDailyPlans.items, res.data]
+				});
 				return res;
 			}
 		},
-		[createQueryCall, user]
+		[createQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans, user?.tenantId]
+	);
+
+	const updateDailyPlan = useCallback(
+		async (data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) => {
+			const updated = dailyPlan.items.filter((plan) => plan.id != planId);
+			const res = await updateQueryCall(data, planId);
+			setDailyPlan({ total: dailyPlan.total, items: [...updated, res.data] });
+			return res;
+		},
+		[dailyPlan.items, dailyPlan.total, setDailyPlan, updateQueryCall]
+	);
+
+	const addTaskToPlan = useCallback(
+		async (data: { employeeId: IEmployee['id']; taskId: ITeamTask['id'] }, planId: IDailyPlan['id']) => {
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const res = await addTaskToPlanQueryCall(data, planId);
+			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			return res;
+		},
+		[addTaskToPlanQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans]
 	);
 
 	return {
 		dailyPlan,
+		profileDailyPlans,
 		setDailyPlan,
 		dailyPlanFetching,
+
+		taskPlanList,
+
 		firstLoadDailyPlanData,
 
 		getAllDayPlans,
@@ -68,7 +121,16 @@ export function useDailyPlan() {
 		getEmployeeDayPlans,
 		loading,
 
+		getPlansByTask,
+		getPlansByTaskLoading,
+
 		createDailyPlan,
-		createDailyPlanLoading
+		createDailyPlanLoading,
+
+		updateDailyPlan,
+		updateDailyPlanLoading,
+
+		addTaskToPlan,
+		addTaskToPlanLoading
 	};
 }

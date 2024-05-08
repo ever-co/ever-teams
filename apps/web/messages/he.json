@@ -189,7 +189,22 @@
 		"NO_USERS_WORKING": "כרגע אין משתמשים פעילים",
 		"NO_USERS_PAUSED_WORK": "כרגע אין משתמשים שהפסיקו את עבודתם",
 		"NO_USERS_IDLE": "כרגע אין משתמשים לא פעילים",
-		"SELECT_TEAM_MEMBER": "בחר חבר צוות"
+		"SELECT_TEAM_MEMBER": "בחר חבר צוות",
+		"ALL_MEMBERS": "כל החברים",
+		"NOT_WORKING": "לא עובד",
+		"WORKING": "עובד",
+		"PAUSED": "מושהה",
+		"ONLINE": "מחובר"
+	},
+	"hotkeys":{
+		"HELP": "עזרה",
+		"TO_OPEN_SHORTCUT_LIST": "כדי לפתוח את רשימת הקיצורים",
+		"TIMER": "טיימר",
+		"START_TIMER": "התחל טיימר",
+		"STOP_TIMER": "עצור טיימר",
+		"TASK": "משימה",
+		"ASSIGN_TASK": "הקצה משימה",
+		"CREATE_TASK": "צור משימה"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "אנחנו עובדים על סנכרון בזמן אמת כרגע, אנא בדוק את התכונה הזו מאוחר יותר.",

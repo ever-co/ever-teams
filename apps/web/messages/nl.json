@@ -189,7 +189,22 @@
 		"NO_USERS_WORKING": "Er zijn momenteel geen actieve gebruikers",
 		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
 		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers",
-		"SELECT_TEAM_MEMBER": "Selecteer teamlid"
+		"SELECT_TEAM_MEMBER": "Selecteer teamlid",
+		"ALL_MEMBERS": "Alle leden",
+		"NOT_WORKING": "Niet aan het werk",
+		"WORKING": "Aan het werk",
+		"PAUSED": "Gepauzeerd",
+		"ONLINE": "Online"
+	},
+	"hotkeys":{
+		"HELP": "Help",
+		"TO_OPEN_SHORTCUT_LIST": "Om de sneltoetsenlijst te openen",
+		"TIMER": "Timer",
+		"START_TIMER": "Start de timer",
+		"STOP_TIMER": "Stop de timer",
+		"TASK": "Taak",
+		"ASSIGN_TASK": "Taak toewijzen",
+		"CREATE_TASK": "Nieuwe taak maken"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",

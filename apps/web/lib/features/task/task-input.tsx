@@ -279,6 +279,9 @@ export function TaskInput(props: Props) {
 			value={taskName}
 			disabled={timerRunningStatus}
 			ref={targetEl}
+			emojis={true}
+			setTaskName={setTaskName}
+			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
@@ -327,11 +330,9 @@ export function TaskInput(props: Props) {
 							task={inputTask}
 							forParentChildRelationship={true}
 							taskStatusClassName={clsxm(
-								`${
-									inputTask && inputTask.issueType === 'Bug'
-										? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-										: '!px-[0.375rem] py-[0.375rem] rounded-sm'
-								} `,
+								inputTask && inputTask.issueType === 'Bug'
+									? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
+									: '!px-[0.375rem] py-[0.375rem] rounded-sm',
 								'border-none'
 							)}
 						/>
@@ -422,6 +423,7 @@ function TaskCard({
 	forParentChildRelationship?: boolean;
 	updatedTaskList?: ITeamTask[];
 }) {
+	const [, setCount] = useState(0);
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const { taskLabels: taskLabelsData } = useTaskLabels();
@@ -460,6 +462,7 @@ function TaskCard({
 							<div>
 								<InputField
 									placeholder="Description"
+									emojis={true}
 									onChange={(e) => {
 										if (taskDescription) {
 											taskDescription.current = e.target.value;
@@ -476,6 +479,7 @@ function TaskCard({
 											if (v && taskStatus) {
 												taskStatus.current = v;
 											}
+											setCount((c) => c + 1);
 										}}
 										defaultValue={taskStatus?.current as ITaskStatus}
 										task={null}
@@ -488,6 +492,7 @@ function TaskCard({
 											if (v && taskPriority) {
 												taskPriority.current = v;
 											}
+											setCount((c) => c + 1);
 										}}
 										defaultValue={taskPriority?.current as ITaskPriority}
 										task={null}
@@ -500,6 +505,7 @@ function TaskCard({
 											if (v && taskSize) {
 												taskSize.current = v;
 											}
+											setCount((c) => c + 1);
 										}}
 										defaultValue={taskSize?.current as ITaskSize}
 										task={null}

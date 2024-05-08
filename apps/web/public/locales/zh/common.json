@@ -181,7 +181,22 @@
 		"PAGE_NOT_FOUND": "页面未找到",
 		"NO_USERS_WORKING": "目前没有活跃用户",
 		"NO_USERS_PAUSED_WORK": "目前还没有用户停止工作",
-		"NO_USERS_IDLE": "目前没有不活跃用户"
+		"NO_USERS_IDLE": "目前没有不活跃用户",
+		"ALL_MEMBERS": "所有成员",
+		"NOT_WORKING": "不工作",
+		"WORKING": "工作",
+		"PAUSED": "暂停",
+		"ONLINE": "在线"
+	},
+	"hotkeys":{
+		"HELP": "帮助",
+		"TO_OPEN_SHORTCUT_LIST": "打开快捷键列表",
+		"TIMER": "计时器",
+		"START_TIMER": "开始计时",
+		"STOP_TIMER": "停止计时",
+		"TASK": "任务",
+		"ASSIGN_TASK": "分配任务",
+		"CREATE_TASK": "创建任务"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "我們目前正在開發即時同步功能，請稍後查看此功能。",

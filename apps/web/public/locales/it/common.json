@@ -183,7 +183,22 @@
 		"PAGE_NOT_FOUND": "Pagina non trovata",
 		"NO_USERS_WORKING": "Al momento non ci sono utenti attivi",
 		"NO_USERS_PAUSED_WORK": "Al momento non ci sono utenti che hanno interrotto il proprio lavoro",
-		"NO_USERS_IDLE": "Al momento non ci sono utenti inattivi"
+		"NO_USERS_IDLE": "Al momento non ci sono utenti inattivi",
+		"ALL_MEMBERS": "Tutti i membri",
+		"NOT_WORKING": "Non lavorare",
+		"WORKING": "Lavoro",
+		"PAUSED": "In pausa",
+		"ONLINE": "Online"
+	},
+	"hotkeys":{
+		"HELP": "Aiuto",
+		"TO_OPEN_SHORTCUT_LIST": "Per aprire l'elenco dei tasti di scelta rapida",
+		"TIMER": "Timer",
+		"START_TIMER": "Avvia il timer",
+		"STOP_TIMER": "Ferma il timer",
+		"TASK": "Compito",
+		"ASSIGN_TASK": "Assegna il compito",
+		"CREATE_TASK": "Crea un nuovo compito"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Stiamo lavorando alla sincronizzazione in tempo reale al momento, controlla questa funzionalità più tardi.",

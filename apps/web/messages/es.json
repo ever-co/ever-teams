@@ -189,7 +189,22 @@
 		"NO_USERS_WORKING": "Actualmente no hay usuarios activos",
 		"NO_USERS_PAUSED_WORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
 		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos",
-		"SELECT_TEAM_MEMBER": "seleccionar miembro del equipo"
+		"SELECT_TEAM_MEMBER": "seleccionar miembro del equipo",
+		"ALL_MEMBERS": "Todos los miembros",
+		"NOT_WORKING": "No trabajando",
+		"WORKING": "Trabajando",
+		"PAUSED": "Pausado",
+		"ONLINE": "En línea"
+	},
+	"hotkeys":{
+		"HELP": "Ayuda",
+		"TO_OPEN_SHORTCUT_LIST": "Para abrir la lista de atajos",
+		"TIMER": "Temporizador",
+		"START_TIMER": "Iniciar temporizador",
+		"STOP_TIMER": "Detener temporizador",
+		"TASK": "Tarea",
+		"ASSIGN_TASK": "Asignar tarea",
+		"CREATE_TASK": "Crear tarea"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",

@@ -181,7 +181,22 @@
 		"PAGE_NOT_FOUND": "Seite nicht gefunden",
 		"NO_USERS_WORKING": "Derzeit gibt es keine aktiven Benutzer",
 		"NO_USERS_PAUSED_WORK": "Derzeit gibt es keine Benutzer, die ihre Arbeit eingestellt haben",
-		"NO_USERS_IDLE": "Derzeit gibt es keine inaktiven Benutzer"
+		"NO_USERS_IDLE": "Derzeit gibt es keine inaktiven Benutzer",
+		"ALL_MEMBERS": "Alle Mitglieder",
+		"NOT_WORKING": "Nicht arbeiten",
+		"WORKING": "Arbeiten",
+		"PAUSED": "Pausiert",
+		"ONLINE": "Online"
+	},
+	"hotkeys":{
+		"HELP": "Hilfe",
+		"TO_OPEN_SHORTCUT_LIST": "Um die Liste der Tastenkombinationen zu öffnen",
+		"TIMER": "Timer",
+		"START_TIMER": "Timer starten",
+		"STOP_TIMER": "Timer stoppen",
+		"TASK": "Aufgabe",
+		"ASSIGN_TASK": "Aufgabe zuweisen",
+		"CREATE_TASK": "Neue Aufgabe erstellen"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Wir arbeiten derzeit an der Echtzeitsynchronisierung. Bitte überprüfen Sie diese Funktion später.",
