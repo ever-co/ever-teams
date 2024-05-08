@@ -188,7 +188,8 @@
 		"PAGE_NOT_FOUND": "Pagina niet gevonden",
 		"NO_USERS_WORKING": "Er zijn momenteel geen actieve gebruikers",
 		"NO_USERS_PAUSED_WORK": "Er zijn momenteel geen gebruikers die hun werk hebben stopgezet",
-		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers"
+		"NO_USERS_IDLE": "Er zijn momenteel geen inactieve gebruikers",
+		"SELECT_TEAM_MEMBER": "Selecteer teamlid"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",

@@ -8,6 +8,7 @@ import { CircleIcon } from 'assets/svg';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
 import { useOrganizationTeams } from '@app/hooks';
+import { useTranslations } from 'next-intl';
 
 import TeamMember from 'lib/components/team-member';
 
@@ -38,6 +39,8 @@ export default function ImageOverlapper({
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
 
+	const t = useTranslations();
+
 	const hasMembers = item?.members.length > 0;
 
 	if (imageLength == undefined) {
@@ -51,7 +54,7 @@ export default function ImageOverlapper({
 					<Modal
 						isOpen={isOpen}
 						closeModal={closeModal}
-						title={'SELECT TEAM MEMBER'}
+						title={t('common.SELECT_TEAM_MEMBER')}
 						className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[20vw] h-[70vh] justify-start"
 						titleClass="font-normal"
 					>

@@ -149,7 +149,7 @@ export function TaskCard(props: Props) {
 				)}
 
 				{viewType === 'unassign' && (
-					<div className="w-[20%] flex justify-center">
+					<div className="w-[20%] flex justify-around">
 						<UsersTaskAssigned task={task} /><ImageComponent radius={30} images={taskAssignee} item={task} />
 					</div>
 				)}

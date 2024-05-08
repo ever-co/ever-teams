@@ -188,7 +188,8 @@
 		"PAGE_NOT_FOUND": "Página no encontrada",
 		"NO_USERS_WORKING": "Actualmente no hay usuarios activos",
 		"NO_USERS_PAUSED_WORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
-		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos"
+		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos",
+		"SELECT_TEAM_MEMBER": "seleccionar miembro del equipo"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",

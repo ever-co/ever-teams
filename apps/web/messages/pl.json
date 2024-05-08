@@ -188,7 +188,8 @@
 		"PAGE_NOT_FOUND": "Strona nie znaleziona",
 		"NO_USERS_WORKING": "Obecnie nie ma aktywnych użytkowników",
 		"NO_USERS_PAUSED_WORK": "Obecnie nie ma użytkowników, którzy przerwali pracę",
-		"NO_USERS_IDLE": "Obecnie nie ma nieaktywnych użytkowników"
+		"NO_USERS_IDLE": "Obecnie nie ma nieaktywnych użytkowników",
+		"SELECT_TEAM_MEMBER": "Wybierz członka zespołu"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
