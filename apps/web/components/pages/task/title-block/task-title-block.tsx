@@ -3,7 +3,7 @@ import { ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@components/ui/hover-card';
 import { useToast } from '@components/ui/use-toast';
-import { Button, Tooltip } from 'lib/components';
+import { Button, CopyTooltip } from 'lib/components';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import Image from 'next/image';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
@@ -30,7 +30,6 @@ const TaskTitleBlock = () => {
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
-	const [copied, setCopied] = useState<boolean>(false);
 	const [task] = useRecoilState(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
@@ -97,16 +96,6 @@ const TaskTitleBlock = () => {
 		titleDOM.current?.style.setProperty('height', titleDOM.current.scrollHeight + 'px');
 	};
 
-	const copyTitle = () => {
-		navigator.clipboard.writeText(title);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 1500);
-	};
-
-	const copyTaskNumber = () => {
-		task && navigator.clipboard.writeText(task?.taskNumber);
-	};
-
 	const handleTaskTitleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
 		setTitle(event.target.value);
 	};
@@ -124,7 +113,7 @@ const TaskTitleBlock = () => {
 						value={title}
 						disabled={!edit}
 						ref={titleDOM}
-					></textarea>
+					/>
 
 					{edit ? (
 						<div className="flex flex-col justify-start gap-1 transition-all">
@@ -144,7 +133,7 @@ const TaskTitleBlock = () => {
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col justify-start gap-1">
+						<div className="flex flex-col justify-start items-center gap-2">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
@@ -156,8 +145,8 @@ const TaskTitleBlock = () => {
 								/>
 							</button>
 
-							<button className="text-[#B1AEBC]" onClick={copyTitle}>
-								<Tooltip label={copied ? 'Copied' : 'Copy Title'} enabled>
+							<CopyTooltip text={title} defaultTooltipText="Copy Title">
+								<button className="text-[#B1AEBC]">
 									<Image
 										src="/assets/svg/copy.svg"
 										alt="edit header"
@@ -166,8 +155,8 @@ const TaskTitleBlock = () => {
 										style={{ height: '17px' }}
 										className="mr-1 cursor-pointer"
 									/>
-								</Tooltip>
-							</button>
+								</button>
+							</CopyTooltip>
 						</div>
 					)}
 				</div>
@@ -223,13 +212,12 @@ const TaskTitleBlock = () => {
 					</div>
 				</div>
 
-				<button
-					className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem] 3xl:text-xs 3xl:py-2"
-					onClick={copyTaskNumber}
-				>
-					<CopyRoundIcon className="text-[#B1AEBC] w-2.5 h-2.5" />
-					{t('pages.settingsTeam.COPY_NUMBER')}
-				</button>
+				<CopyTooltip text={task?.taskNumber || ''}>
+					<button className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem] 3xl:text-xs 3xl:py-2">
+						<CopyRoundIcon className="text-[#B1AEBC] w-2.5 h-2.5" />
+						{t('pages.settingsTeam.COPY_NUMBER')}
+					</button>
+				</CopyTooltip>
 			</div>
 		</div>
 	);

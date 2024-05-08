@@ -62,6 +62,8 @@ export async function POST(req: Request) {
 	const password = generateToken(8);
 	const names = body.name.split(' ');
 
+	console.log('Random password: ', password);
+
 	// Register user
 	const { data: user } = await registerUserRequest({
 		password: password,

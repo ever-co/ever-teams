@@ -11,7 +11,6 @@ export function getPublicOrganizationTeamsAPI(profile_link: string, team_id: str
 		'tasks.teams',
 		'tasks.tags',
 		'members',
-		// 'members.role',
 		'members.employee',
 		'members.employee.user'
 	];

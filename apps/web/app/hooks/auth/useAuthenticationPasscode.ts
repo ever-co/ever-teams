@@ -156,7 +156,12 @@ export function useAuthenticationPasscode() {
 		[queryCall]
 	);
 
-	const signInToWorkspaceRequest = (params: { email: string; token: string; selectedTeam: string; code: string }) => {
+	const signInToWorkspaceRequest = (params: {
+		email: string;
+		token: string;
+		selectedTeam: string;
+		code?: string;
+	}) => {
 		signInWorkspaceQueryCall(params)
 			.then(() => {
 				setAuthenticated(true);

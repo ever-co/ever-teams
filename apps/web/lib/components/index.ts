@@ -26,3 +26,4 @@ export * from './inputs/input';
 export * from './inputs/auth-code-input';
 
 export * from './services/recaptcha';
+export * from './copy-tooltip';

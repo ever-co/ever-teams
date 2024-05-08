@@ -124,6 +124,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		if (updateLoading || !editableMode) return;
 		handleSubmit();
 	}, [updateLoading, editableMode, handleSubmit]);
+
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 
 	return {

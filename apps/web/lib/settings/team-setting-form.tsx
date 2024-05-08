@@ -211,11 +211,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Team Color */}
-							<div className="z-50 flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
+							<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
 								<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
+								<div className="z-50 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 									<ColorPicker
 										defaultColor={activeTeam?.color}
 										onChange={(color: any | null) => {
