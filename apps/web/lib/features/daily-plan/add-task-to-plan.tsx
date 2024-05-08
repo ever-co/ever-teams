@@ -169,7 +169,7 @@ function PlansList({
 					<CommandGroup className="p-2">
 						{plans
 							.filter((plan) => {
-								const planDate = new Date(plan.date);
+								const planDate = new Date(plan?.date);
 								const today = new Date();
 								today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
 								return planDate.getTime() > today.getTime();
@@ -185,13 +185,13 @@ function PlansList({
 								>
 									<div className="ml-2">
 										<p className="text-sm font-medium leading-none">
-											{formatDayPlanDate(plan?.date)} ({plan?.tasks?.length})
+											{formatDayPlanDate(plan.date)} ({plan?.tasks?.length})
 										</p>
 										<p className="text-xs text-muted-foreground">
 											Planned time : {plan?.workTimePlanned}
 										</p>
 									</div>
-									{selectedPlan?.id == plan.id && (
+									{selectedPlan?.id == plan?.id && (
 										<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
 									)}
 								</CommandItem>
