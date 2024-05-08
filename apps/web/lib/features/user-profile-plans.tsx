@@ -36,7 +36,7 @@ export function UserProfilePlans() {
 		<div className="">
 			<Container fullWidth={fullWidth} className="pb-8 mb-5">
 				<>
-					{profileDailyPlans.items.length > 0 ? (
+					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
 							<div className={clsxm('flex justify-start items-center gap-4 mt-14 mb-5')}>
 								{Object.keys(tabsScreens).map((filter, i) => (

@@ -15,6 +15,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { ScrollArea } from '@components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
 import stc from 'string-to-color';
+import { Check } from 'lucide-react';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -96,7 +97,11 @@ export function CreateDailyPlanFormModal({
 						{/* Form Fields */}
 						<div className="flex flex-col w-full gap-3">
 							{chooseMember && isManagerConnectedUser && (
-								<MembersList activeTeam={activeTeam} handleMemberClick={handleMemberClick} />
+								<MembersList
+									activeTeam={activeTeam}
+									selectedMember={selectedEmployee}
+									handleMemberClick={handleMemberClick}
+								/>
 							)}
 
 							<InputField
@@ -153,9 +158,11 @@ export function CreateDailyPlanFormModal({
 
 function MembersList({
 	activeTeam,
-	handleMemberClick
+	handleMemberClick,
+	selectedMember
 }: {
 	activeTeam: IOrganizationTeamList | null;
+	selectedMember?: OT_Member;
 	handleMemberClick: (member: OT_Member) => void;
 }) {
 	return (
@@ -215,6 +222,9 @@ function MembersList({
 									<p className="text-sm font-medium leading-none">{member?.employee.fullName}</p>
 									<p className="text-xs text-muted-foreground">{member?.employee.user?.email}</p>
 								</div>
+								{selectedMember?.id == member.id && (
+									<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
+								)}
 							</CommandItem>
 						))}
 					</CommandGroup>

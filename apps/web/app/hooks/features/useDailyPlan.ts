@@ -11,13 +11,14 @@ import {
 	userState
 } from '@app/stores';
 import {
+	addTaskToPlanAPI,
 	createDailyPlanAPI,
 	getAllDayPlansAPI,
 	getDayPlansByEmployeeAPI,
 	getPlansByTaskAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
-import { ICreateDailyPlan } from '@app/interfaces';
+import { ICreateDailyPlan, IDailyPlan, IEmployee, ITeamTask } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
 export function useDailyPlan() {
@@ -28,6 +29,7 @@ export function useDailyPlan() {
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
 	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
 	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
+	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
 	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
@@ -73,20 +75,34 @@ export function useDailyPlan() {
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(data, user?.tenantId || '');
+				setProfileDailyPlans({
+					total: profileDailyPlans.total + 1,
+					items: [...profileDailyPlans.items, res.data]
+				});
 				return res;
 			}
 		},
-		[createQueryCall, user]
+		[createQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans, user?.tenantId]
 	);
 
 	const updateDailyPlan = useCallback(
-		async (data: Partial<ICreateDailyPlan>, planId: string) => {
+		async (data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) => {
 			const updated = dailyPlan.items.filter((plan) => plan.id != planId);
 			const res = await updateQueryCall(data, planId);
 			setDailyPlan({ total: dailyPlan.total, items: [...updated, res.data] });
 			return res;
 		},
 		[dailyPlan.items, dailyPlan.total, setDailyPlan, updateQueryCall]
+	);
+
+	const addTaskToPlan = useCallback(
+		async (data: { employeeId: IEmployee['id']; taskId: ITeamTask['id'] }, planId: IDailyPlan['id']) => {
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const res = await addTaskToPlanQueryCall(data, planId);
+			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			return res;
+		},
+		[addTaskToPlanQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans]
 	);
 
 	return {
@@ -112,6 +128,9 @@ export function useDailyPlan() {
 		createDailyPlanLoading,
 
 		updateDailyPlan,
-		updateDailyPlanLoading
+		updateDailyPlanLoading,
+
+		addTaskToPlan,
+		addTaskToPlanLoading
 	};
 }

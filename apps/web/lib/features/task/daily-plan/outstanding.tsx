@@ -6,9 +6,20 @@ import { TaskCard } from '../task-card';
 
 export function Outstanding({ dayPlans, profile }: { dayPlans: IDailyPlan[]; profile: any }) {
 	const filteredPlans = [...dayPlans]
+		// Exclude today plans
+		.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+
+		// Exclude future plans
+		.filter((plan) => {
+			const planDate = new Date(plan.date);
+			const today = new Date();
+			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+			return planDate.getTime() <= today.getTime();
+		})
 		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 		.map((plan) => ({
 			...plan,
+			// Include only no completed tasks
 			tasks: plan.tasks?.filter((task) => task.status !== 'completed')
 		}));
 	return (
@@ -47,6 +58,7 @@ export function Outstanding({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 											type="HORIZONTAL"
 											taskBadgeClassName={`rounded-sm`}
 											taskTitleClassName="mt-[0.0625rem]"
+											planMode="Outstanding"
 										/>
 									))}
 								</ul>
