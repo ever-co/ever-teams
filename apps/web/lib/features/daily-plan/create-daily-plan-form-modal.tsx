@@ -222,7 +222,7 @@ function MembersList({
 									<p className="text-sm font-medium leading-none">{member?.employee.fullName}</p>
 									<p className="text-xs text-muted-foreground">{member?.employee.user?.email}</p>
 								</div>
-								{selectedMember?.id == member.id && (
+								{selectedMember?.id == member?.id && (
 									<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
 								)}
 							</CommandItem>

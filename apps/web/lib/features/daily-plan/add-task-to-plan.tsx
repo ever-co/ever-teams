@@ -185,10 +185,10 @@ function PlansList({
 								>
 									<div className="ml-2">
 										<p className="text-sm font-medium leading-none">
-											{formatDayPlanDate(plan.date)} ({plan.tasks?.length})
+											{formatDayPlanDate(plan?.date)} ({plan?.tasks?.length})
 										</p>
 										<p className="text-xs text-muted-foreground">
-											Planned time : {plan.workTimePlanned}
+											Planned time : {plan?.workTimePlanned}
 										</p>
 									</div>
 									{selectedPlan?.id == plan.id && (

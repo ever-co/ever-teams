@@ -338,7 +338,9 @@
 		"dailyplan",
 		"tomorow",
 		"comparization",
-		"plan"
+		"plan",
+		"setwork",
+		"Clik"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

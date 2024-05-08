@@ -25,11 +25,11 @@ export function UserProfilePlans() {
 	const [currentTab, setCurrentTab] = useState<FilterTabs>('Today Tasks');
 
 	const tabsScreens = {
-		'Today Tasks': <AllPlans plans={profileDailyPlans.items} profile={profile} currentTab={currentTab} />,
-		'Future Tasks': <FutureTasks dayPlans={profileDailyPlans.items} profile={profile} />,
-		'Past Tasks': <PastTasks dayPlans={profileDailyPlans.items} profile={profile} />,
-		'All Tasks': <AllPlans plans={profileDailyPlans.items} profile={profile} />,
-		Outstanding: <Outstanding dayPlans={profileDailyPlans.items} profile={profile} />
+		'Today Tasks': <AllPlans plans={profileDailyPlans?.items} profile={profile} currentTab={currentTab} />,
+		'Future Tasks': <FutureTasks dayPlans={profileDailyPlans?.items} profile={profile} />,
+		'Past Tasks': <PastTasks dayPlans={profileDailyPlans?.items} profile={profile} />,
+		'All Tasks': <AllPlans plans={profileDailyPlans?.items} profile={profile} />,
+		Outstanding: <Outstanding dayPlans={profileDailyPlans?.items} profile={profile} />
 	};
 
 	return (
