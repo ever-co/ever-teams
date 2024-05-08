@@ -178,7 +178,12 @@
 		"PAGE_NOT_FOUND": "Página no encontrada",
 		"NO_USERS_WORKING": "Actualmente no hay usuarios activos",
 		"NO_USERS_PAUSED_WORK": "Actualmente no hay usuarios que hayan dejado de trabajar",
-		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos"
+		"NO_USERS_IDLE": "Actualmente no hay usuarios inactivos",
+		"ALL_MEMBERS": "Todos los miembros",
+		"NOT_WORKING": "No trabajando",
+		"WORKING": "Trabajando",
+		"PAUSED": "Pausado",
+		"ONLINE": "En línea"
 	},
 	"hotkeys":{
 		"HELP": "Ayuda",

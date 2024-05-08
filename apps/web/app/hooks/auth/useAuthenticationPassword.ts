@@ -87,7 +87,7 @@ export function useAuthenticationPassword() {
 		token: string;
 		selectedTeam: string;
 	}) => {
-		signInWorkspaceQueryCall({ email, token, selectedTeam, code: '' })
+		signInWorkspaceQueryCall({ email, token, selectedTeam })
 			.then(() => {
 				setAuthenticated(true);
 				router.push('/');
