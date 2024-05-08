@@ -6,13 +6,12 @@ import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
-import { SearchNormalIcon } from 'assets/svg';
+import { SearchNormalIcon, SettingFilterIcon, Stat } from 'assets/svg';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { SettingFilterIcon } from 'assets/svg';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -22,7 +21,7 @@ type ITabs = {
 	description: string;
 };
 
-type FilterType = 'status' | 'search' | undefined;
+type FilterType = 'status' | 'search' | 'activities' | undefined;
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type StatusFilter = { [x in IStatusType]: string[] };
 
@@ -229,6 +228,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 						}}
 					/>
 				)}
+				{hook.filterType === 'activities' && <div>Activities Filter</div>}
 			</Transition>
 		</div>
 	);
@@ -258,6 +258,31 @@ function InputFilters({ hook, profile }: Props) {
 					)}
 				/>
 			</button>
+
+			<VerticalSeparator />
+
+			<Tooltip
+				placement="top-end"
+				labelContainerClassName="mb-3"
+				label={`View work activities of ${profile?.userProfile?.firstName} in ${new Date().getFullYear()}`}
+			>
+				<button
+					ref={hook.outclickFilterCard.ignoreElementRef}
+					className={clsxm(
+						'flex items-center justify-center',
+						hook.filterType === 'activities' && ['bg-gray-lighter'],
+						'h-[2.75rem]'
+					)}
+					onClick={() => hook.toggleFilterType('activities')}
+				>
+					<Stat
+						className={clsxm(
+							'dark:stroke-white w-5 h-5',
+							hook.filterType === 'activities' && ['stroke-primary-light dark:stroke-primary-light']
+						)}
+					/>
+				</button>
+			</Tooltip>
 
 			<VerticalSeparator />
 
