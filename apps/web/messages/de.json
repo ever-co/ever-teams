@@ -189,6 +189,7 @@
 		"NO_USERS_WORKING": "Derzeit gibt es keine aktiven Benutzer",
 		"NO_USERS_PAUSED_WORK": "Derzeit gibt es keine Benutzer, die ihre Arbeit eingestellt haben",
 		"NO_USERS_IDLE": "Derzeit gibt es keine inaktiven Benutzer.",
+		"SELECT_TEAM_MEMBER": "Teammitglied auswählen",
 		"ALL_MEMBERS": "Alle Mitglieder",
 		"NOT_WORKING": "Nicht arbeiten",
 		"WORKING": "Arbeiten",
