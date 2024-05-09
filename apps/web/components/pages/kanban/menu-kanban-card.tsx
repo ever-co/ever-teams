@@ -2,7 +2,8 @@ import { useTeamMemberCard } from '@app/hooks';
 import { activeTeamTaskId } from '@app/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { SpinnerLoader } from 'lib/components';
+import { HorizontalSeparator, SpinnerLoader } from 'lib/components';
+import { PlanTask } from 'lib/features/task/task-card';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
@@ -80,6 +81,20 @@ export default function MenuKanbanCard({ member, item }: { item: any; member: an
 						);
 					})}
 				</ul>
+				<HorizontalSeparator />
+				<div className="mt-3 text-xs p-2">
+					<ul className="list-none">
+						<li className="mb-2">
+							<PlanTask planMode="today" taskId={item.id} chooseMember={true} />
+						</li>
+						<li className="mb-2">
+							<PlanTask planMode="tomorow" taskId={item.id} chooseMember={true} />
+						</li>
+						<li className="mb-2">
+							<PlanTask planMode="custom" taskId={item.id} chooseMember={true} />
+						</li>
+					</ul>
+				</div>
 			</PopoverContent>
 		</Popover>
 	);

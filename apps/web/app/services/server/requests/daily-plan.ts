@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { ICreateDailyPlan, IDailyPlan } from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
+import { IEmployee, ITeamTask } from '@app/interfaces';
 
 export function getAllDayPlans({
 	organizationId,
@@ -119,6 +120,34 @@ export function updatePlanRequest({
 	return serverFetch<IDailyPlan>({
 		method: 'PUT',
 		path: `/daily-plan/${planId}`,
+		body: data,
+		bearer_token,
+		tenantId
+	});
+}
+
+export function addTaskToDailyPlanRequest({
+	planId,
+	data,
+	bearer_token,
+	tenantId,
+	organizationId
+}: {
+	planId: string;
+	data: { employeeId: IEmployee['id']; taskId: ITeamTask['id'] };
+	bearer_token?: string;
+	tenantId: any;
+	organizationId: string;
+}) {
+	const obj = {
+		'where[organizationId]': organizationId
+	} as Record<string, string>;
+
+	const query = qs.stringify(obj);
+
+	return serverFetch<IDailyPlan>({
+		method: 'PUT',
+		path: `/daily-plan/add-task/${planId}?${query}`,
 		body: data,
 		bearer_token,
 		tenantId
