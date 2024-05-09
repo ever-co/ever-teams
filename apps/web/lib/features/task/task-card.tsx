@@ -4,6 +4,7 @@ import { secondsToTime } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useDailyPlan,
 	useModal,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
@@ -13,7 +14,16 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import { IClassName, IDailyPlanMode, IOrganizationTeamList, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
+import {
+	IClassName,
+	ICreateDailyPlan,
+	IDailyPlan,
+	IDailyPlanMode,
+	IOrganizationTeamList,
+	ITeamTask,
+	Nullable,
+	OT_Member
+} from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -54,6 +64,7 @@ type Props = {
 	setEditTaskId?: SetterOrUpdater<string | null>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
+	plan?: IDailyPlan;
 	planMode?: FilterTabs;
 } & IClassName;
 
@@ -70,6 +81,7 @@ export function TaskCard(props: Props) {
 		profile,
 		taskBadgeClassName,
 		taskTitleClassName,
+		plan,
 		planMode
 	} = props;
 	const t = useTranslations();
@@ -206,6 +218,7 @@ export function TaskCard(props: Props) {
 							memberInfo={memberInfo}
 							viewType={viewType}
 							profile={profile}
+							plan={plan}
 							planMode={planMode}
 						/>
 					)}
@@ -259,7 +272,13 @@ export function TaskCard(props: Props) {
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
 
 					{task && currentMember && (
-						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+							plan={plan}
+						/>
 					)}
 				</div>
 			</Card>
@@ -441,6 +460,7 @@ function TaskCardMenu({
 	memberInfo,
 	viewType,
 	profile,
+	plan,
 	planMode
 }: {
 	task: ITeamTask;
@@ -448,6 +468,7 @@ function TaskCardMenu({
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
+	plan?: IDailyPlan;
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
@@ -537,6 +558,16 @@ function TaskCardMenu({
 									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
 										<AddTaskToPlanComponent employee={profile?.member} task={task} />
 									)}
+
+									{viewType === 'dailyplan' &&
+										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
+											<div>
+												<Divider type="HORIZONTAL" />
+												<div className="mt-2">
+													<RemoveTaskFromPlan task={task} plan={plan} />
+												</div>
+											</div>
+										)}
 									{/* <li>
 										<ConfirmDropdown
 											className="right-[110%] top-0"
@@ -614,6 +645,25 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 		>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
 			Add this task to a plan
+		</span>
+	);
+}
+
+export function RemoveTaskFromPlan({ task, plan }: { task: ITeamTask; plan?: IDailyPlan }) {
+	const { removeTaskFromPlan } = useDailyPlan();
+	const data: Partial<ICreateDailyPlan> = { taskId: task.id };
+	const onClick = () => {
+		removeTaskFromPlan(data, plan?.id ?? '');
+	};
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all text-red-600',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={onClick}
+		>
+			Remove from this plan
 		</span>
 	);
 }
