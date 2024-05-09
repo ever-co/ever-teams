@@ -16,6 +16,7 @@ import {
 	getAllDayPlansAPI,
 	getDayPlansByEmployeeAPI,
 	getPlansByTaskAPI,
+	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
 import { ICreateDailyPlan, IDailyPlan, IEmployee, ITeamTask } from '@app/interfaces';
@@ -30,6 +31,8 @@ export function useDailyPlan() {
 	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
 	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
 	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
+	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } =
+		useQuery(removeTaskFromPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
 	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
@@ -105,6 +108,16 @@ export function useDailyPlan() {
 		[addTaskToPlanQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans]
 	);
 
+	const removeTaskFromPlan = useCallback(
+		async (data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) => {
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const res = await removeTAskFromPlanQueryCall(data, planId);
+			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			return res;
+		},
+		[profileDailyPlans.items, profileDailyPlans.total, removeTAskFromPlanQueryCall, setProfileDailyPlans]
+	);
+
 	return {
 		dailyPlan,
 		profileDailyPlans,
@@ -131,6 +144,9 @@ export function useDailyPlan() {
 		updateDailyPlanLoading,
 
 		addTaskToPlan,
-		addTaskToPlanLoading
+		addTaskToPlanLoading,
+
+		removeTaskFromPlan,
+		removeTaskFromPlanLoading
 	};
 }

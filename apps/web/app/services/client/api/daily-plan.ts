@@ -77,3 +77,16 @@ export function addTaskToPlanAPI(data: { employeeId: IEmployee['id']; taskId: IT
 
 	return put<IDailyPlan>(`/daily-plan/add-task/${planId}?${query}`, data, { tenantId });
 }
+
+export function removeTaskFromPlanAPI(data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const obj = {
+		'where[organizationId]': organizationId
+	} as Record<string, string>;
+
+	const query = qs.stringify(obj);
+
+	return put<IDailyPlan>(`/daily-plan/task/${planId}?${query}`, data, { tenantId });
+}
