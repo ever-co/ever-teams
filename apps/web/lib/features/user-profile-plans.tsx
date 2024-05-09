@@ -126,6 +126,8 @@ function AllPlans({
 											type="HORIZONTAL"
 											taskBadgeClassName={`rounded-sm`}
 											taskTitleClassName="mt-[0.0625rem]"
+											planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
+											plan={plan}
 										/>
 									))}
 								</ul>
