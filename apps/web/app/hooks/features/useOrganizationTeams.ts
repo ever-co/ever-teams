@@ -184,13 +184,13 @@ export function useOrganizationTeams() {
 	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
 
 	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
+
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
-	const isTrackingEnabled = activeTeam?.members?.find(
+
+	const isTrackingEnabled = !!activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
-	)
-		? true
-		: false;
+	);
 
 	useEffect(() => {
 		setMemberActiveTaskId(memberActiveTaskId);

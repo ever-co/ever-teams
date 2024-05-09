@@ -181,7 +181,7 @@ export function UserTeamCard({
 						activeAuthTask={true}
 						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 					/>
-					
+
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
