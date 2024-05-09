@@ -25,6 +25,7 @@ import {
 	Text,
 	VerticalSeparator
 } from 'lib/components';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -40,6 +41,7 @@ import { TaskTimes } from './task-times';
 import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
+import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 
 type Props = {
 	active?: boolean;
@@ -52,7 +54,10 @@ type Props = {
 	setEditTaskId?: SetterOrUpdater<string | null>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
+	planMode?: FilterTabs;
 } & IClassName;
+
+type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export function TaskCard(props: Props) {
 	const {
@@ -64,7 +69,8 @@ export function TaskCard(props: Props) {
 		viewType = 'default',
 		profile,
 		taskBadgeClassName,
-		taskTitleClassName
+		taskTitleClassName,
+		planMode
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
@@ -105,6 +111,13 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
+	const taskAssignee: ImageOverlapperProps[] = task?.members.map((member: any) => {
+		return {
+			id: member.user.id,
+			url: member.user.imageUrl,
+			alt: member.user.firstName
+		};
+	}) || [];
 
 	return (
 		<>
@@ -141,8 +154,8 @@ export function TaskCard(props: Props) {
 				)}
 
 				{viewType === 'unassign' && (
-					<div className="w-[20%] flex justify-center">
-						<UsersTaskAssigned task={task} />
+					<div className="w-[20%] flex justify-around">
+						<UsersTaskAssigned task={task} /><ImageComponent radius={30} images={taskAssignee} item={task} />
 					</div>
 				)}
 				<VerticalSeparator />
@@ -187,7 +200,14 @@ export function TaskCard(props: Props) {
 
 					{/* TaskCardMenu */}
 					{task && currentMember && (
-						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+							profile={profile}
+							planMode={planMode}
+						/>
 					)}
 				</div>
 			</Card>
@@ -419,12 +439,16 @@ function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,
-	viewType
+	viewType,
+	profile,
+	planMode
 }: {
 	task: ITeamTask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
+	profile?: I_UserProfilePage;
+	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
 	const handleAssignment = useCallback(() => {
@@ -486,18 +510,33 @@ function TaskCardMenu({
 											<Divider type="HORIZONTAL" />
 											<div className="mt-3">
 												<li className="mb-2">
-													<PlanTask planMode="today" taskId={task.id} />
+													<PlanTask
+														planMode="today"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
 												</li>
 												<li className="mb-2">
-													<PlanTask planMode="tomorow" taskId={task.id} />
+													<PlanTask
+														planMode="tomorow"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
 												</li>
 												<li className="mb-2">
-													<PlanTask planMode="custom" taskId={task.id} />
+													<PlanTask
+														planMode="custom"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
 												</li>
 											</div>
 										</>
 									)}
 
+									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
+										<AddTaskToPlanComponent employee={profile?.member} task={task} />
+									)}
 									{/* <li>
 										<ConfirmDropdown
 											className="right-[110%] top-0"
@@ -525,7 +564,17 @@ function TaskCardMenu({
 	);
 }
 
-function PlanTask({ planMode, taskId }: { taskId: string; planMode: IDailyPlanMode }) {
+export function PlanTask({
+	planMode,
+	taskId,
+	employeeId,
+	chooseMember
+}: {
+	taskId: string;
+	planMode: IDailyPlanMode;
+	employeeId?: string;
+	chooseMember?: boolean;
+}) {
 	const { closeModal, isOpen, openModal } = useModal();
 
 	return (
@@ -537,11 +586,34 @@ function PlanTask({ planMode, taskId }: { taskId: string; planMode: IDailyPlanMo
 				)}
 				onClick={openModal}
 			>
-				<CreateDailyPlanFormModal open={isOpen} closeModal={closeModal} taskId={taskId} planMode={planMode} />
+				<CreateDailyPlanFormModal
+					open={isOpen}
+					closeModal={closeModal}
+					taskId={taskId}
+					planMode={planMode}
+					employeeId={employeeId}
+					chooseMember={chooseMember}
+				/>
 				{planMode === 'today' && 'Plan for today'}
 				{planMode === 'tomorow' && 'Plan for tomorow'}
 				{planMode === 'custom' && 'Plan for some day'}
 			</span>
 		</>
+	);
+}
+
+export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; employee?: OT_Member }) {
+	const { closeModal, isOpen, openModal } = useModal();
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={openModal}
+		>
+			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
+			Add this task to a plan
+		</span>
 	);
 }

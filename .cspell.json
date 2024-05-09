@@ -338,7 +338,9 @@
 		"dailyplan",
 		"tomorow",
 		"comparization",
-		"plan"
+		"plan",
+		"setwork",
+		"Clik"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
@@ -377,7 +379,6 @@
 		"Chatwoot",
 		"CHATWOOT",
 		"apps/web/messages/*.json",
-		"apps/web/public/locales/**",
 		"apps/web/lib/i18n/*.ts",
 		"apps/web/lib/settings/timezones.js",
 		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",
