@@ -66,9 +66,10 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			>
 				<TaskNameInfoDisplay
 					task={task}
-					className={`${
-						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
-					} rounded-sm`}
+					className={clsxm(
+						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]',
+						'rounded-sm'
+					)}
 					taskTitleClassName="mt-[0.0625rem]"
 				/>
 			</div>
@@ -82,6 +83,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 						keepOpen={true}
 						showCombobox={false}
 						autoFocus={true}
+						showEmoji={false}
 						autoInputSelectText={true}
 						onTaskClick={(e) => {
 							console.log(e);

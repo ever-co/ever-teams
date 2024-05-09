@@ -44,6 +44,7 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
+	showEmoji?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
 	fullHeightCombobox?: boolean;
@@ -117,6 +118,8 @@ export function TaskInput(props: Props) {
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
 		() => !props.keepOpen && setEditMode(false)
 	);
+
+	console.log(inputTask);
 
 	useEffect(() => {
 		setQuery(taskName === inputTask?.title ? '' : taskName);
@@ -279,7 +282,7 @@ export function TaskInput(props: Props) {
 			value={taskName}
 			disabled={timerRunningStatus}
 			ref={targetEl}
-			emojis={true}
+			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
 			setTaskName={setTaskName}
 			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
