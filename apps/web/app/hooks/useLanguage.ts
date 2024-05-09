@@ -4,11 +4,9 @@
 import { currentLanguageState } from '@app/stores';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 
 export function useLanguage() {
-	const { i18n } = useTranslation();
 	const router = useRouter();
 	const [currentLanguage, setCurrentLanguage] = useRecoilState(currentLanguageState);
 
@@ -30,7 +28,7 @@ export function useLanguage() {
 			}
 			// router.refresh();
 		},
-		[router, i18n]
+		[router]
 	);
-	return { currentLanguage, changeLanguage, i18n };
+	return { currentLanguage, changeLanguage,};
 }

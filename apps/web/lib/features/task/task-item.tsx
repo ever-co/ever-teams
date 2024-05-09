@@ -4,6 +4,7 @@ import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import { CrossIcon, RefreshIcon } from 'assets/svg';
 import Link from 'next/link';
 import { useCallback } from 'react';
@@ -120,6 +121,20 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: number }) {
 	const members = task.members;
 
+	const taskAssignee: ImageOverlapperProps[] = members.map((member: any) => {
+		return {
+			id: member.user.id,
+			url: member.user.imageUrl,
+			alt: member.user.firstName
+		};
+	});
+
+
+
+	if(!members.length) {
+		return <div className="avatars flex -space-x-2 min-w-[59px] justify-center"><ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} /></div>
+	}
+
 	return (
 		<div className="avatars flex -space-x-2 min-w-[59px] justify-center" onClick={(e) => e.stopPropagation()}>
 			{members.slice(0, limit).map((member, i) => {
@@ -127,6 +142,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: numb
 				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 				const userImageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';
 				const size = 30;
+
 
 				return (
 					<Link key={i} title={userName} href={`/profile/${member.userId}?name=${userName}`}>
