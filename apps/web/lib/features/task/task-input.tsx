@@ -20,7 +20,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
@@ -258,7 +258,7 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
+	}, [inputTask, taskName, setActiveTask,updateTaskNameHandler, editMode]);
 
 	// Handling Hotkeys
 	const handleCommandKeySequence = useCallback(() => {
