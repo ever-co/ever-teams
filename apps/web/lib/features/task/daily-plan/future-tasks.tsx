@@ -31,7 +31,7 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 								</div>
 							</AccordionTrigger>
-							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-12">
+							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-[5rem]">
 								{/* Plan header */}
 								<PlanHeader plan={plan} planMode="Outstanding" />
 
@@ -48,6 +48,8 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 											type="HORIZONTAL"
 											taskBadgeClassName={`rounded-sm`}
 											taskTitleClassName="mt-[0.0625rem]"
+											plan={plan}
+											planMode="Future Tasks"
 										/>
 									))}
 								</ul>

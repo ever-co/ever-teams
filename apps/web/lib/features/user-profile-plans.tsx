@@ -19,24 +19,24 @@ type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 
 
 export function UserProfilePlans() {
 	const profile = useUserProfilePage();
-	const { dailyPlan } = useDailyPlan();
+	const { profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>('Today Tasks');
 
 	const tabsScreens = {
-		'Today Tasks': <AllPlans plans={dailyPlan.items} profile={profile} currentTab={currentTab} />,
-		'Future Tasks': <FutureTasks dayPlans={dailyPlan.items} profile={profile} />,
-		'Past Tasks': <PastTasks dayPlans={dailyPlan.items} profile={profile} />,
-		'All Tasks': <AllPlans plans={dailyPlan.items} profile={profile} />,
-		Outstanding: <Outstanding dayPlans={dailyPlan.items} profile={profile} />
+		'Today Tasks': <AllPlans plans={profileDailyPlans?.items} profile={profile} currentTab={currentTab} />,
+		'Future Tasks': <FutureTasks dayPlans={profileDailyPlans?.items} profile={profile} />,
+		'Past Tasks': <PastTasks dayPlans={profileDailyPlans?.items} profile={profile} />,
+		'All Tasks': <AllPlans plans={profileDailyPlans?.items} profile={profile} />,
+		Outstanding: <Outstanding dayPlans={profileDailyPlans?.items} profile={profile} />
 	};
 
 	return (
 		<div className="">
 			<Container fullWidth={fullWidth} className="pb-8 mb-5">
 				<>
-					{dailyPlan.items.length > 0 ? (
+					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
 							<div className={clsxm('flex justify-start items-center gap-4 mt-14 mb-5')}>
 								{Object.keys(tabsScreens).map((filter, i) => (
@@ -126,6 +126,8 @@ function AllPlans({
 											type="HORIZONTAL"
 											taskBadgeClassName={`rounded-sm`}
 											taskTitleClassName="mt-[0.0625rem]"
+											planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
+											plan={plan}
 										/>
 									))}
 								</ul>

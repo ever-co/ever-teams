@@ -3,15 +3,23 @@
 import { useRecoilState } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { dailyPlanFetchingState, dailyPlanListState, taskPlans, userState } from '@app/stores';
 import {
+	dailyPlanFetchingState,
+	dailyPlanListState,
+	profileDailyPlanListState,
+	taskPlans,
+	userState
+} from '@app/stores';
+import {
+	addTaskToPlanAPI,
 	createDailyPlanAPI,
 	getAllDayPlansAPI,
 	getDayPlansByEmployeeAPI,
 	getPlansByTaskAPI,
+	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
-import { ICreateDailyPlan } from '@app/interfaces';
+import { ICreateDailyPlan, IDailyPlan, IEmployee, ITeamTask } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
 export function useDailyPlan() {
@@ -22,8 +30,12 @@ export function useDailyPlan() {
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
 	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
 	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
+	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
+	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } =
+		useQuery(removeTaskFromPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
+	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
 	const [taskPlanList, setTaskPlans] = useRecoilState(taskPlans);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
 	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
@@ -46,13 +58,11 @@ export function useDailyPlan() {
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
 			queryCall(employeeId).then((response) => {
-				if (response.data?.items?.length) {
-					const { items, total } = response.data;
-					setDailyPlan({ items, total });
-				}
+				const { items, total } = response.data;
+				setProfileDailyPlans({ items, total });
 			});
 		},
-		[queryCall, setDailyPlan]
+		[queryCall, setProfileDailyPlans]
 	);
 
 	const getPlansByTask = useCallback(
@@ -68,14 +78,18 @@ export function useDailyPlan() {
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(data, user?.tenantId || '');
+				setProfileDailyPlans({
+					total: profileDailyPlans.total + 1,
+					items: [...profileDailyPlans.items, res.data]
+				});
 				return res;
 			}
 		},
-		[createQueryCall, user]
+		[createQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans, user?.tenantId]
 	);
 
 	const updateDailyPlan = useCallback(
-		async (data: Partial<ICreateDailyPlan>, planId: string) => {
+		async (data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) => {
 			const updated = dailyPlan.items.filter((plan) => plan.id != planId);
 			const res = await updateQueryCall(data, planId);
 			setDailyPlan({ total: dailyPlan.total, items: [...updated, res.data] });
@@ -84,8 +98,29 @@ export function useDailyPlan() {
 		[dailyPlan.items, dailyPlan.total, setDailyPlan, updateQueryCall]
 	);
 
+	const addTaskToPlan = useCallback(
+		async (data: { employeeId: IEmployee['id']; taskId: ITeamTask['id'] }, planId: IDailyPlan['id']) => {
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const res = await addTaskToPlanQueryCall(data, planId);
+			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			return res;
+		},
+		[addTaskToPlanQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans]
+	);
+
+	const removeTaskFromPlan = useCallback(
+		async (data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) => {
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const res = await removeTAskFromPlanQueryCall(data, planId);
+			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			return res;
+		},
+		[profileDailyPlans.items, profileDailyPlans.total, removeTAskFromPlanQueryCall, setProfileDailyPlans]
+	);
+
 	return {
 		dailyPlan,
+		profileDailyPlans,
 		setDailyPlan,
 		dailyPlanFetching,
 
@@ -106,6 +141,12 @@ export function useDailyPlan() {
 		createDailyPlanLoading,
 
 		updateDailyPlan,
-		updateDailyPlanLoading
+		updateDailyPlanLoading,
+
+		addTaskToPlan,
+		addTaskToPlanLoading,
+
+		removeTaskFromPlan,
+		removeTaskFromPlanLoading
 	};
 }
