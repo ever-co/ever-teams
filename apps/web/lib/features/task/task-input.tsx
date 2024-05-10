@@ -258,7 +258,7 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, setActiveTask,updateTaskNameHandler, editMode]);
+	}, [inputTask, taskName, setActiveTask, updateTaskNameHandler, editMode, inputTaskTitle, setEditMode]);
 
 	// Handling Hotkeys
 	const handleCommandKeySequence = useCallback(() => {
