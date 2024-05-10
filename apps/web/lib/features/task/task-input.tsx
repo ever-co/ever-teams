@@ -20,7 +20,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
@@ -109,6 +109,7 @@ export function TaskInput(props: Props) {
 		updateTaskTitleHandler,
 		setFilter
 	} = datas;
+	const [activeTask, setActiveTask] = useRecoilState(activeTeamTaskId);
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
@@ -236,14 +237,17 @@ export function TaskInput(props: Props) {
 			updatedTaskList = updatedTaskList.filter((item) => !childrenTaskIds.includes(item.id));
 		}
 	}
-	const setActiveTask = useSetRecoilState(activeTeamTaskId);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
-				setActiveTask(null);
-				// console.log('func active');
+				if (taskName == inputTaskTitle) {
+					setEditMode(false);
+					setActiveTask({
+						id: ''
+					});
+				}
 			}
 		};
 

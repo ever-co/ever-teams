@@ -1,7 +1,13 @@
 import { DraggableProvided } from 'react-beautiful-dnd';
 import PriorityIcon from '@components/ui/svgs/priority-icon';
 import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
-import { useAuthenticateUser, useOrganizationTeams, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useOrganizationTeams,
+	useTaskInput,
+	useTaskStatistics,
+	useTeamMemberCard
+} from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
@@ -129,7 +135,10 @@ export default function Item(props: ItemProps) {
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useRecoilState(activeTeamTaskId);
-
+	const { editMode } = useTaskInput({
+		task: props.item,
+		initEditMode: true
+	});
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	let totalWorkedTasksTimer = 0;
@@ -182,48 +191,48 @@ export default function Item(props: ItemProps) {
 				</div>
 				<div className="w-full flex justify-between my-3">
 					<div className="flex items-center w-64">
-						{activeTask?.id !== item.id ? (
+						{activeTask?.id == item.id ? (
 							<>
-								<Link href={`/task/${item.id}`}>
-									<div className="w-64 relative overflow-hidden">
-										{item.issueType && (
-											<span className="h-5 w-6 inline-block ">
-												<span className="absolute top-1">
-													<TaskIssueStatus
-														showIssueLabels={false}
-														type="HORIZONTAL"
-														task={item}
-														className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
-													/>
-												</span>
-											</span>
-										)}
-										<span className="text-grey text-normal mx-1">#{item.number}</span>
-										{item.title}
-										<span className="inline-block ml-1">
-											{item.priority && <Priority level={item.priority} />}
-										</span>
-									</div>
-								</Link>
+								<div className="w-56">
+									<TaskInput
+										task={item}
+										initEditMode={true}
+										keepOpen={true}
+										showCombobox={false}
+										autoFocus={true}
+										autoInputSelectText={true}
+										onTaskClick={(e) => {
+											// TODO: implement
+											console.log(e);
+										}}
+										onEnterKey={() => {
+											setActiveTask({ id: '' });
+										}}
+									/>
+								</div>
 							</>
 						) : (
-							<div className="w-56">
-								<TaskInput
-									task={item}
-									initEditMode={true}
-									keepOpen={true}
-									showCombobox={false}
-									autoFocus={true}
-									autoInputSelectText={true}
-									onTaskClick={(e) => {
-										// TODO: implement
-										console.log(e);
-									}}
-									onEnterKey={() => {
-										setActiveTask({ id: '' });
-									}}
-								/>
-							</div>
+							<Link href={`/task/${item.id}`}>
+								<div className="w-64 relative overflow-hidden">
+									{item.issueType && (
+										<span className="h-5 w-6 inline-block ">
+											<span className="absolute top-1">
+												<TaskIssueStatus
+													showIssueLabels={false}
+													type="HORIZONTAL"
+													task={item}
+													className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
+												/>
+											</span>
+										</span>
+									)}
+									<span className="text-grey text-normal mx-1">#{item.number}</span>
+									{item.title}
+									<span className="inline-block ml-1">
+										{item.priority && <Priority level={item.priority} />}
+									</span>
+								</div>
+							</Link>
 						)}
 					</div>
 
