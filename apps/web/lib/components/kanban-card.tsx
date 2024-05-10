@@ -1,13 +1,7 @@
 import { DraggableProvided } from 'react-beautiful-dnd';
 import PriorityIcon from '@components/ui/svgs/priority-icon';
 import { ITaskPriority, ITeamTask, Tag } from '@app/interfaces';
-import {
-	useAuthenticateUser,
-	useOrganizationTeams,
-	useTaskInput,
-	useTaskStatistics,
-	useTeamMemberCard
-} from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
 import Link from 'next/link';
@@ -135,10 +129,7 @@ export default function Item(props: ItemProps) {
 	const { user } = useAuthenticateUser();
 	const { getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useRecoilState(activeTeamTaskId);
-	const { editMode } = useTaskInput({
-		task: props.item,
-		initEditMode: true
-	});
+
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	let totalWorkedTasksTimer = 0;
