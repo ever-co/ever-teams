@@ -7,8 +7,8 @@ export interface IBaseDelete {
 
 export interface IBaseEntity extends IBaseDelete {
 	id?: string;
-	readonly createdAt: Date;
-	readonly updatedAt: Date;
+	readonly createdAt?: Date;
+	readonly updatedAt?: Date;
 	isActive?: boolean;
 	isArchived?: boolean;
 }

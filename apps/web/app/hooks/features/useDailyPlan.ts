@@ -19,7 +19,7 @@ import {
 	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
-import { ICreateDailyPlan, IDailyPlan, IEmployee, ITeamTask } from '@app/interfaces';
+import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
 export function useDailyPlan() {
@@ -89,7 +89,7 @@ export function useDailyPlan() {
 	);
 
 	const updateDailyPlan = useCallback(
-		async (data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) => {
+		async (data: Partial<ICreateDailyPlan>, planId: string) => {
 			const updated = dailyPlan.items.filter((plan) => plan.id != planId);
 			const res = await updateQueryCall(data, planId);
 			setDailyPlan({ total: dailyPlan.total, items: [...updated, res.data] });
@@ -99,7 +99,7 @@ export function useDailyPlan() {
 	);
 
 	const addTaskToPlan = useCallback(
-		async (data: { employeeId: IEmployee['id']; taskId: ITeamTask['id'] }, planId: IDailyPlan['id']) => {
+		async (data: IDailyPlanTasksUpdate, planId: string) => {
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			const res = await addTaskToPlanQueryCall(data, planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
