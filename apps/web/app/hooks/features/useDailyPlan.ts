@@ -20,7 +20,7 @@ import {
 	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
-import { ICreateDailyPlan, IDailyPlanTasksUpdate } from '@app/interfaces';
+import { ICreateDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 
 export function useDailyPlan() {
@@ -91,13 +91,13 @@ export function useDailyPlan() {
 	);
 
 	const updateDailyPlan = useCallback(
-		async (data: Partial<ICreateDailyPlan>, planId: string) => {
-			const updated = dailyPlan.items.filter((plan) => plan.id != planId);
+		async (data: IUpdateDailyPlan, planId: string) => {
 			const res = await updateQueryCall(data, planId);
-			setDailyPlan({ total: dailyPlan.total, items: [...updated, res.data] });
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
 			return res;
 		},
-		[dailyPlan.items, dailyPlan.total, setDailyPlan, updateQueryCall]
+		[profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans, updateQueryCall]
 	);
 
 	const addTaskToPlan = useCallback(

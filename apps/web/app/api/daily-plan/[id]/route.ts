@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@app/services/server/requests';
-import { ICreateDailyPlan, INextParams } from '@app/interfaces';
+import { INextParams, IUpdateDailyPlan } from '@app/interfaces';
 
 export async function GET(req: Request, { params }: INextParams) {
 	const res = new NextResponse();
@@ -34,7 +34,7 @@ export async function PUT(req: Request, { params }: INextParams) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = (await req.json()) as unknown as Partial<ICreateDailyPlan>;
+	const body = (await req.json()) as unknown as IUpdateDailyPlan;
 
 	const response = await updatePlanRequest({
 		bearer_token: access_token,

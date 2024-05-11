@@ -5,6 +5,7 @@ import {
 	ICreateDailyPlan,
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
+	IUpdateDailyPlan,
 	PaginationResponse
 } from '@app/interfaces';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
@@ -67,7 +68,7 @@ export function createDailyPlanAPI(data: ICreateDailyPlan, tenantId?: string) {
 	});
 }
 
-export function updateDailyPlanAPI(data: Partial<ICreateDailyPlan>, planId: string) {
+export function updateDailyPlanAPI(data: IUpdateDailyPlan, planId: string) {
 	return put<IDailyPlan>(`/daily-plan/${planId}`, data, {});
 }
 

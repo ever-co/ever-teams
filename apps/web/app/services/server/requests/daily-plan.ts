@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate } from '@app/interfaces/IDailyPlan';
+import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
 import { DeleteResponse } from '@app/interfaces';
 
@@ -113,7 +113,7 @@ export function updatePlanRequest({
 	tenantId
 }: {
 	planId: string;
-	data: Partial<ICreateDailyPlan>;
+	data: IUpdateDailyPlan;
 	bearer_token?: string;
 	tenantId?: any;
 }) {

@@ -16,8 +16,7 @@ export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
 	taskId?: ITeamTask['id'];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface IUpdateDailyPlan extends Partial<IDailyPlanBase> {}
+export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> {}
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
