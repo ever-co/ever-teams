@@ -3,6 +3,9 @@ import { IDailyPlan } from '@app/interfaces';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
+import { Button } from '@components/ui/button';
+import { useDailyPlan } from '@app/hooks';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; profile: any }) {
 	const ascSortedPlans = [...dayPlans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -12,6 +15,8 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 		today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
 		return planDate.getTime() >= today.getTime();
 	});
+	const { deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
+
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredPlans.length > 0 ? (
@@ -31,12 +36,12 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 								</div>
 							</AccordionTrigger>
-							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-[5rem]">
+							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
 								{/* Plan header */}
 								<PlanHeader plan={plan} planMode="Outstanding" />
 
 								{/* Plan tasks list */}
-								<ul className="flex flex-col gap-2">
+								<ul className="flex flex-col gap-2 pb-[1.5rem]">
 									{plan.tasks?.map((task) => (
 										<TaskCard
 											key={`${task.id}${plan.id}`}
@@ -53,6 +58,19 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 										/>
 									))}
 								</ul>
+
+								{/* Delete Plan */}
+								<div className="flex justify-end">
+									<Button
+										disabled={deleteDailyPlanLoading}
+										onClick={() => deleteDailyPlan(plan.id ?? '')}
+										variant="destructive"
+										className="p-7 py-6 font-normal rounded-xl text-md"
+									>
+										{deleteDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
+										Delete this plan
+									</Button>
+								</div>
 							</AccordionContent>
 						</AccordionItem>
 					))}

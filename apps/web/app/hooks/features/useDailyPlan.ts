@@ -13,6 +13,7 @@ import {
 import {
 	addTaskToPlanAPI,
 	createDailyPlanAPI,
+	deleteDailyPlanAPI,
 	getAllDayPlansAPI,
 	getDayPlansByEmployeeAPI,
 	getPlansByTaskAPI,
@@ -33,6 +34,7 @@ export function useDailyPlan() {
 	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
 	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } =
 		useQuery(removeTaskFromPlanAPI);
+	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(deleteDailyPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
 	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
@@ -100,8 +102,8 @@ export function useDailyPlan() {
 
 	const addTaskToPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			const res = await addTaskToPlanQueryCall(data, planId);
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
 			return res;
 		},
@@ -110,12 +112,22 @@ export function useDailyPlan() {
 
 	const removeTaskFromPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			const res = await removeTAskFromPlanQueryCall(data, planId);
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
 			return res;
 		},
 		[profileDailyPlans.items, profileDailyPlans.total, removeTAskFromPlanQueryCall, setProfileDailyPlans]
+	);
+
+	const deleteDailyPlan = useCallback(
+		async (planId: string) => {
+			const res = await deleteDailyPlanQueryCall(planId);
+			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			setProfileDailyPlans({ total: updated.length, items: [...updated] });
+			return res;
+		},
+		[deleteDailyPlanQueryCall, profileDailyPlans.items, setProfileDailyPlans]
 	);
 
 	return {
@@ -147,6 +159,9 @@ export function useDailyPlan() {
 		addTaskToPlanLoading,
 
 		removeTaskFromPlan,
-		removeTaskFromPlanLoading
+		removeTaskFromPlanLoading,
+
+		deleteDailyPlan,
+		deleteDailyPlanLoading
 	};
 }

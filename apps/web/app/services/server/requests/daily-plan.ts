@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate } from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
+import { DeleteResponse } from '@app/interfaces';
 
 export function getAllDayPlans({
 	organizationId,
@@ -162,5 +163,13 @@ export function removeTaskFromPlanRequest({
 		body: data,
 		bearer_token,
 		tenantId
+	});
+}
+
+export function deleteDailyPlanRequest({ planId, bearer_token }: { planId: string; bearer_token?: string }) {
+	return serverFetch<DeleteResponse>({
+		method: 'DELETE',
+		path: `/daily-plan/${planId}`,
+		bearer_token
 	});
 }

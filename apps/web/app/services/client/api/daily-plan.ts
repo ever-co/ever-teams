@@ -1,6 +1,12 @@
 import qs from 'qs';
-import { get, post, put } from '../axios';
-import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate, PaginationResponse } from '@app/interfaces';
+import { deleteApi, get, post, put } from '../axios';
+import {
+	DeleteResponse,
+	ICreateDailyPlan,
+	IDailyPlan,
+	IDailyPlanTasksUpdate,
+	PaginationResponse
+} from '@app/interfaces';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 export function getAllDayPlansAPI() {
@@ -77,4 +83,8 @@ export function removeTaskFromPlanAPI(data: IDailyPlanTasksUpdate, planId: strin
 	const tenantId = getTenantIdCookie();
 
 	return put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
+}
+
+export function deleteDailyPlanAPI(planId: string) {
+	return deleteApi<DeleteResponse>(`/daily-plan/${planId}`);
 }

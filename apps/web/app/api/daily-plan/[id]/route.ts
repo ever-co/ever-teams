@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
-import { getDayPlansByEmployee, updatePlanRequest } from '@app/services/server/requests';
+import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@app/services/server/requests';
 import { ICreateDailyPlan, INextParams } from '@app/interfaces';
 
 export async function GET(req: Request, { params }: INextParams) {
@@ -30,7 +30,10 @@ export async function PUT(req: Request, { params }: INextParams) {
 		return;
 	}
 
-	const { $res, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+
+	if (!user) return $res('Unauthorized');
+
 	const body = (await req.json()) as unknown as Partial<ICreateDailyPlan>;
 
 	const response = await updatePlanRequest({
@@ -38,6 +41,24 @@ export async function PUT(req: Request, { params }: INextParams) {
 		data: body,
 		planId: id,
 		tenantId
+	});
+
+	return $res(response.data);
+}
+
+export async function DELETE(req: Request, { params }: INextParams) {
+	const res = new NextResponse();
+	const { id } = params;
+	if (!id) {
+		return;
+	}
+
+	const { $res, user, access_token } = await authenticatedGuard(req, res);
+	if (!user) return $res('Unauthorized');
+
+	const response = await deleteDailyPlanRequest({
+		planId: id,
+		bearer_token: access_token
 	});
 
 	return $res(response.data);
