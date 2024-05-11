@@ -83,3 +83,8 @@ export type IWorkingEmployee = Pick<
 	| 'user'
 	| 'fullName'
 >;
+
+export interface IRelationnalEmployee {
+	readonly employee?: IEmployee;
+	readonly employeeId?: IEmployee['id'];
+}
