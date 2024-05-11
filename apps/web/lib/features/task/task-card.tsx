@@ -16,9 +16,9 @@ import {
 } from '@app/hooks';
 import {
 	IClassName,
-	ICreateDailyPlan,
 	IDailyPlan,
 	IDailyPlanMode,
+	IDailyPlanTasksUpdate,
 	IOrganizationTeamList,
 	ITeamTask,
 	Nullable,
@@ -566,7 +566,11 @@ function TaskCardMenu({
 											<div>
 												<Divider type="HORIZONTAL" />
 												<div className="mt-2">
-													<RemoveTaskFromPlan task={task} plan={plan} />
+													<RemoveTaskFromPlan
+														member={profile?.member}
+														task={task}
+														plan={plan}
+													/>
 												</div>
 											</div>
 										)}
@@ -651,9 +655,9 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 	);
 }
 
-export function RemoveTaskFromPlan({ task, plan }: { task: ITeamTask; plan?: IDailyPlan }) {
+export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
 	const { removeTaskFromPlan } = useDailyPlan();
-	const data: Partial<ICreateDailyPlan> = { taskId: task.id };
+	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
 	const onClick = () => {
 		removeTaskFromPlan(data, plan?.id ?? '');
 	};

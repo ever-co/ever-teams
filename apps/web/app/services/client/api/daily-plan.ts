@@ -72,15 +72,9 @@ export function addTaskToPlanAPI(data: IDailyPlanTasksUpdate, planId: string) {
 	return post<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 }
 
-export function removeTaskFromPlanAPI(data: Partial<ICreateDailyPlan>, planId: IDailyPlan['id']) {
+export function removeTaskFromPlanAPI(data: IDailyPlanTasksUpdate, planId: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
-	const obj = {
-		'where[organizationId]': organizationId
-	} as Record<string, string>;
-
-	const query = qs.stringify(obj);
-
-	return put<IDailyPlan>(`/daily-plan/task/${planId}?${query}`, data, { tenantId });
+	return put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 }
