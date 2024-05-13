@@ -4,6 +4,7 @@ import { secondsToTime } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useDailyPlan,
 	useModal,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
@@ -13,7 +14,16 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import { IClassName, IDailyPlanMode, IOrganizationTeamList, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
+import {
+	IClassName,
+	IDailyPlan,
+	IDailyPlanMode,
+	IDailyPlanTasksUpdate,
+	IOrganizationTeamList,
+	ITeamTask,
+	Nullable,
+	OT_Member
+} from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -54,6 +64,7 @@ type Props = {
 	setEditTaskId?: SetterOrUpdater<string | null>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
+	plan?: IDailyPlan;
 	planMode?: FilterTabs;
 } & IClassName;
 
@@ -70,6 +81,7 @@ export function TaskCard(props: Props) {
 		profile,
 		taskBadgeClassName,
 		taskTitleClassName,
+		plan,
 		planMode
 	} = props;
 	const t = useTranslations();
@@ -111,13 +123,14 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
-	const taskAssignee: ImageOverlapperProps[] = task?.members.map((member: any) => {
-		return {
-			id: member.user.id,
-			url: member.user.imageUrl,
-			alt: member.user.firstName
-		};
-	}) || [];
+	const taskAssignee: ImageOverlapperProps[] =
+		task?.members?.map((member: any) => {
+			return {
+				id: member.user.id,
+				url: member.user.imageUrl,
+				alt: member.user.firstName
+			};
+		}) || [];
 
 	return (
 		<>
@@ -155,7 +168,8 @@ export function TaskCard(props: Props) {
 
 				{viewType === 'unassign' && (
 					<div className="w-[20%] flex justify-around">
-						<UsersTaskAssigned task={task} /><ImageComponent radius={30} images={taskAssignee} item={task} />
+						<UsersTaskAssigned task={task} />
+						<ImageComponent radius={30} images={taskAssignee} item={task} />
 					</div>
 				)}
 				<VerticalSeparator />
@@ -206,6 +220,7 @@ export function TaskCard(props: Props) {
 							memberInfo={memberInfo}
 							viewType={viewType}
 							profile={profile}
+							plan={plan}
 							planMode={planMode}
 						/>
 					)}
@@ -259,7 +274,13 @@ export function TaskCard(props: Props) {
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
 
 					{task && currentMember && (
-						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+							plan={plan}
+						/>
 					)}
 				</div>
 			</Card>
@@ -441,6 +462,7 @@ function TaskCardMenu({
 	memberInfo,
 	viewType,
 	profile,
+	plan,
 	planMode
 }: {
 	task: ITeamTask;
@@ -448,6 +470,7 @@ function TaskCardMenu({
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
+	plan?: IDailyPlan;
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
@@ -537,6 +560,20 @@ function TaskCardMenu({
 									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
 										<AddTaskToPlanComponent employee={profile?.member} task={task} />
 									)}
+
+									{viewType === 'dailyplan' &&
+										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
+											<div>
+												<Divider type="HORIZONTAL" />
+												<div className="mt-2">
+													<RemoveTaskFromPlan
+														member={profile?.member}
+														task={task}
+														plan={plan}
+													/>
+												</div>
+											</div>
+										)}
 									{/* <li>
 										<ConfirmDropdown
 											className="right-[110%] top-0"
@@ -614,6 +651,25 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 		>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
 			Add this task to a plan
+		</span>
+	);
+}
+
+export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+	const { removeTaskFromPlan } = useDailyPlan();
+	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
+	const onClick = () => {
+		removeTaskFromPlan(data, plan?.id ?? '');
+	};
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all text-red-600',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={onClick}
+		>
+			Remove from this plan
 		</span>
 	);
 }
