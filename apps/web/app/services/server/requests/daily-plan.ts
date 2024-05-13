@@ -1,7 +1,7 @@
 import qs from 'qs';
-import { ICreateDailyPlan, IDailyPlan } from '@app/interfaces/IDailyPlan';
+import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
-import { IEmployee, IOrganization, ITeamTask } from '@app/interfaces';
+import { DeleteResponse } from '@app/interfaces';
 
 export function getAllDayPlans({
 	organizationId,
@@ -113,7 +113,7 @@ export function updatePlanRequest({
 	tenantId
 }: {
 	planId: string;
-	data: Partial<ICreateDailyPlan>;
+	data: IUpdateDailyPlan;
 	bearer_token?: string;
 	tenantId?: any;
 }) {
@@ -130,24 +130,16 @@ export function addTaskToDailyPlanRequest({
 	planId,
 	data,
 	bearer_token,
-	tenantId,
-	organizationId
+	tenantId
 }: {
 	planId: string;
-	data: { employeeId: IEmployee['id']; taskId: ITeamTask['id'] };
+	data: IDailyPlanTasksUpdate;
 	bearer_token?: string;
 	tenantId: any;
-	organizationId: string;
 }) {
-	const obj = {
-		'where[organizationId]': organizationId
-	} as Record<string, string>;
-
-	const query = qs.stringify(obj);
-
 	return serverFetch<IDailyPlan>({
-		method: 'PUT',
-		path: `/daily-plan/add-task/${planId}?${query}`,
+		method: 'POST',
+		path: `/daily-plan/${planId}/task`,
 		body: data,
 		bearer_token,
 		tenantId
@@ -158,26 +150,26 @@ export function removeTaskFromPlanRequest({
 	planId,
 	data,
 	bearer_token,
-	tenantId,
-	organizationId
+	tenantId
 }: {
-	planId: IDailyPlan['id'];
-	data: Partial<ICreateDailyPlan>;
+	planId: string;
+	data: IDailyPlanTasksUpdate;
 	bearer_token?: string;
 	tenantId: any;
-	organizationId: IOrganization['id'];
 }) {
-	const obj = {
-		'where[organizationId]': organizationId
-	} as Record<string, string>;
-
-	const query = qs.stringify(obj);
-
 	return serverFetch<IDailyPlan>({
 		method: 'PUT',
-		path: `/daily-plan/task/${planId}?${query}`,
+		path: `/daily-plan/${planId}/task`,
 		body: data,
 		bearer_token,
 		tenantId
+	});
+}
+
+export function deleteDailyPlanRequest({ planId, bearer_token }: { planId: string; bearer_token?: string }) {
+	return serverFetch<DeleteResponse>({
+		method: 'DELETE',
+		path: `/daily-plan/${planId}`,
+		bearer_token
 	});
 }

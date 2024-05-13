@@ -14,6 +14,7 @@ import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg'
 import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Outstanding, PastTasks } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
+import { Button } from '@components/ui/button';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -74,8 +75,6 @@ function AllPlans({
 	profile: any;
 	currentTab?: FilterTabs;
 }) {
-	// Sort plans
-
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
 
@@ -85,6 +84,8 @@ function AllPlans({
 		filteredPlans = [...plans].filter((plan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
 		);
+
+	const { deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -109,12 +110,12 @@ function AllPlans({
 									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 								</div>
 							</AccordionTrigger>
-							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-12">
+							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
 								{/* Plan header */}
 								<PlanHeader plan={plan} planMode={currentTab} />
 
 								{/* Plan tasks list */}
-								<ul className="flex flex-col gap-2">
+								<ul className="flex flex-col gap-2 pb-[1.5rem]">
 									{plan.tasks?.map((task) => (
 										<TaskCard
 											key={`${task.id}${plan.id}`}
@@ -131,6 +132,23 @@ function AllPlans({
 										/>
 									))}
 								</ul>
+
+								{/* Delete Plan */}
+								{currentTab === 'Today Tasks' && (
+									<div className="flex justify-end">
+										<Button
+											disabled={deleteDailyPlanLoading}
+											onClick={() => deleteDailyPlan(plan.id ?? '')}
+											variant="destructive"
+											className="p-7 py-6 font-normal rounded-xl text-md"
+										>
+											{deleteDailyPlanLoading && (
+												<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+											)}
+											Delete this plan
+										</Button>
+									</div>
+								)}
 							</AccordionContent>
 						</AccordionItem>
 					))}
@@ -209,7 +227,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 								<TickSaveIcon
 									className="w-5 cursor-pointer"
 									onClick={() => {
-										updateDailyPlan({ workTimePlanned: time }, plan.id);
+										updateDailyPlan({ workTimePlanned: time }, plan.id ?? '');
 										setEditTime(false);
 									}}
 								/>
