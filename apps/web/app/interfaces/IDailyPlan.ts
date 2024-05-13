@@ -1,30 +1,26 @@
-import { IEmployee } from './IEmployee';
-import { IOrganization } from './IOrganization';
+import { IBasePerTenantAndOrganizationEntity } from './IBaseModel';
+import { IRelationnalEmployee } from './IEmployee';
 import { ITeamTask } from './ITask';
 
-export type IDailyPlan = {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
+export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
 	date: Date;
 	workTimePlanned: number;
 	status: DailyPlanStatusEnum;
-	employee?: IEmployee;
-	employeeId?: IEmployee['id'];
-	organizationId?: IOrganization['id'];
-	organization?: IOrganization;
-	tasks?: ITeamTask[];
-};
-
-export interface ICreateDailyPlan {
-	date: Date;
-	workTimePlanned: number;
-	status: DailyPlanStatusEnum;
-	employeeId?: IEmployee['id'];
-	taskId?: ITeamTask['id'];
-	organizationId?: string;
-	tenantId?: string | null;
 }
+
+export interface IDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
+	tasks?: ITeamTask[];
+}
+
+export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
+	taskId?: ITeamTask['id'];
+}
+
+export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> {}
+
+export interface IDailyPlanTasksUpdate
+	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
+		IBasePerTenantAndOrganizationEntity {}
 
 export enum DailyPlanStatusEnum {
 	OPEN = 'open',

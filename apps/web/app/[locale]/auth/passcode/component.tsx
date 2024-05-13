@@ -139,23 +139,23 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	const [disabled, setDisabled] = useState(true);
 
 	useEffect(() => {
-			let interval: NodeJS.Timeout | undefined = undefined;
-			if (timer > 0) {
-				interval = setInterval(() => {
-					setTimer((prevTimer) => prevTimer - 1);
-				}, 1000);
-			} else {
-				setDisabled(false);
-				clearInterval(interval);
-			}
+		let interval: NodeJS.Timeout | undefined = undefined;
+		if (timer > 0) {
+			interval = setInterval(() => {
+				setTimer((prevTimer) => prevTimer - 1);
+			}, 1000);
+		} else {
+			setDisabled(false);
+			clearInterval(interval);
+		}
 
-			return () => clearInterval(interval);
-		}, [timer]);
+		return () => clearInterval(interval);
+	}, [timer]);
 
-		const handleResendClick = () => {
-			setDisabled(true);
-			setTimer(60);
-		};
+	const handleResendClick = () => {
+		setDisabled(true);
+		setTimer(60);
+	};
 
 	const resetForm = () => {
 		if (inputsRef.current) {
@@ -239,8 +239,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 											</span>
 										) : (
 											<span className=" dark:text-primary-light">
-												{t('pages.auth.RESEND_CODE_IN')} {' '}
-												{formatTime(timer)}
+												{t('pages.auth.RESEND_CODE_IN')} {formatTime(timer)}
 											</span>
 										)}
 									</button>
@@ -358,7 +357,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
-					<ScrollArea  className='h-64 relative w-full pr-2 '>
+					<ScrollArea className="h-64 relative w-full pr-2 ">
 						<div className="flex flex-col gap-y-4 ">
 							{props.workspaces?.map((worksace, index) => (
 								<div
@@ -434,7 +433,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 								</div>
 							))}
 						</div>
-<ScrollBar className='-pr-20'/>
+						<ScrollBar className="-pr-20" />
 					</ScrollArea>
 					<div className="flex items-center justify-between w-full">
 						<div className="flex flex-col space-y-2">

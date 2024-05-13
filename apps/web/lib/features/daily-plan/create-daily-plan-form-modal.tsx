@@ -59,7 +59,7 @@ export function CreateDailyPlanFormModal({
 							? tomorrowDate
 							: new Date(moment(date).format('YYYY-MM-DD')),
 				status: DailyPlanStatusEnum.OPEN,
-				tenantId: user?.tenantId,
+				tenantId: user?.tenantId ?? '',
 				employeeId: employeeId ?? selectedEmployee?.employeeId,
 				organizationId: user?.employee.organizationId
 			}).then(() => {
