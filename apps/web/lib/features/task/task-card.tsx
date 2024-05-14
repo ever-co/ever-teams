@@ -35,7 +35,6 @@ import {
 	Text,
 	VerticalSeparator
 } from 'lib/components';
-import  { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -123,14 +122,6 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
-	const taskAssignee: ImageOverlapperProps[] =
-		task?.members?.map((member: any) => {
-			return {
-				id: member.user.id,
-				url: member.user.imageUrl,
-				alt: member.user.firstName
-			};
-		}) || [];
 
 	return (
 		<>
@@ -169,7 +160,6 @@ export function TaskCard(props: Props) {
 				{viewType === 'unassign' && (
 					<div className="w-[20%] flex justify-around">
 						<UsersTaskAssigned task={task} />
-						{/* <ImageComponent radius={30} images={taskAssignee} item={task} /> */}
 					</div>
 				)}
 				<VerticalSeparator />
