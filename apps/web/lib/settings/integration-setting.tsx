@@ -85,16 +85,16 @@ export const IntegrationSetting = () => {
 		}
 	}, [integrationTenantLoading, integrationTenant, getRepositories]);
 
-	// useEffect(() => {
-	// 	if (!loadingIntegrationTypes && integrationTypes.length === 0) {
-	// 		getIntegrationTypes().then((types) => {
-	// 			const allIntegrations = types.find((item: any) => item.name === 'All Integrations');
-	// 			if (allIntegrations && allIntegrations?.id) {
-	// 				getIntegrationTenant('Github');
-	// 			}
-	// 		});
-	// 	}
-	// }, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
+	useEffect(() => {
+		if (!loadingIntegrationTypes && integrationTypes.length === 0) {
+			getIntegrationTypes().then((types) => {
+				const allIntegrations = types.find((item: any) => item.name === 'All Integrations');
+				if (allIntegrations && allIntegrations?.id) {
+					getIntegrationTenant('Github');
+				}
+			});
+		}
+	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
 
 	const handleSelectRepo = useCallback(
 		(value: string) => {
