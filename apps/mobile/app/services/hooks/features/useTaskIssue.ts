@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllIssues from '../../client/queries/task/task-issue';
 import {
@@ -37,7 +37,7 @@ export const useTaskIssue = () => {
 			tenantId,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('issues');
+		queryClient.invalidateQueries({ queryKey: ['issues'] });
 	}, []);
 
 	// Update the issue
@@ -49,7 +49,7 @@ export const useTaskIssue = () => {
 			datas: data,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('issues');
+		queryClient.invalidateQueries({ queryKey: ['issues'] });
 	}, []);
 
 	// Create the issue
@@ -60,7 +60,7 @@ export const useTaskIssue = () => {
 			tenantId,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('issues');
+		queryClient.invalidateQueries({ queryKey: ['issues'] });
 	}, []);
 
 	useEffect(() => {
