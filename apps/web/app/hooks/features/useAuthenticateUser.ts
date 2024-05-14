@@ -71,6 +71,13 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	};
 };
 
+/**
+ * A hook to check if the current user is a manager or whom the current profile belongs to
+ *
+ * @description  We need, especially for the user profile page, to know if the current user can see some activities, or interact with data
+ * @returns a boolean that defines in the user is authorized
+ */
+
 export const useCanSeeActivityScreen = () => {
 	const { user } = useAuthenticateUser();
 	const { activeTeamManagers } = useOrganizationTeams();
