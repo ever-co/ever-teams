@@ -35,7 +35,7 @@ import {
 	Text,
 	VerticalSeparator
 } from 'lib/components';
-import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
+import  { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -169,7 +169,7 @@ export function TaskCard(props: Props) {
 				{viewType === 'unassign' && (
 					<div className="w-[20%] flex justify-around">
 						<UsersTaskAssigned task={task} />
-						<ImageComponent radius={30} images={taskAssignee} item={task} />
+						{/* <ImageComponent radius={30} images={taskAssignee} item={task} /> */}
 					</div>
 				)}
 				<VerticalSeparator />
@@ -197,6 +197,7 @@ export function TaskCard(props: Props) {
 							task={task}
 							assignTask={memberInfo.assignTask}
 							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
+							iconClassName='text-primary dark:text-white'
 						/>
 					)}
 				</div>
@@ -385,11 +386,13 @@ function TimerButtonCall({
 function AssignTaskButtonCall({
 	task,
 	assignTask,
-	className
+	className,
+	iconClassName
 }: {
 	task: ITeamTask;
 	assignTask: (task: ITeamTask) => Promise<void>;
 	className?: string;
+	iconClassName?: string;
 }) {
 	const {
 		disabled,
@@ -407,6 +410,7 @@ function AssignTaskButtonCall({
 			}}
 			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
 			className={clsxm('h-9 w-9', className)}
+			iconClassName={iconClassName}
 		/>
 	);
 }
