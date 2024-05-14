@@ -33,11 +33,10 @@ type StatusFilter = { [x in IStatusType]: string[] };
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
-
 	const defaultValue =
 		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
 
-	const { activeTeamManagers } = useOrganizationTeams();
+	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
@@ -88,7 +87,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	];
 
 	// For tabs on profile page, display "Worked" and "Daily Plan" only for the logged in user or managers
-	if (canSeeActivity) {
+	if (activeTeam?.shareProfileView || canSeeActivity) {
 		tabs.push({
 			tab: 'dailyplan',
 			name: 'Daily Plan',

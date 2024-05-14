@@ -10,6 +10,8 @@ import { useRecoilState } from 'recoil';
 
 import { useQuery } from '../useQuery';
 import { useIsMemberManager } from './useTeamMember';
+import { useOrganizationTeams } from './useOrganizationTeams';
+import { useUserProfilePage } from './useUserProfilePage';
 
 export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const [user, setUser] = useRecoilState(userState);
@@ -67,4 +69,13 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		timeToTimeRefreshToken,
 		refreshToken
 	};
+};
+
+export const useCanSeeActivityScreen = () => {
+	const { user } = useAuthenticateUser();
+	const { activeTeamManagers } = useOrganizationTeams();
+	const profile = useUserProfilePage();
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	return profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 };
