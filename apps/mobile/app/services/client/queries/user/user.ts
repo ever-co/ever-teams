@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { currentAuthenticatedUserRequest } from '../../requests/auth';
 import { getAllUsersRequest } from '../../requests/user';
 
@@ -14,7 +14,10 @@ const fetchCurrentUserData = async (params: IGetUserDataParams) => {
 };
 
 export const useFetchCurrentUserData = (IGetUserDataParams) =>
-	useQuery(['user', IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams), {});
+	useQuery({
+		queryKey: ['user'],
+		queryFn: () => fetchCurrentUserData(IGetUserDataParams)
+	});
 // removed refetchOnMount: 5000
 interface IGetOrganizationUsers {
 	authToken: string;
@@ -32,7 +35,9 @@ const fetchOrganizationUsers = async (params: IGetOrganizationUsers) => {
 };
 
 export const useFetchOrganizationUsers = (IGetOrganizationUsers) =>
-	useQuery(['users', IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers), {
+	useQuery({
+		queryKey: ['users', IGetOrganizationUsers],
+		queryFn: () => fetchOrganizationUsers(IGetOrganizationUsers),
 		refetchInterval: 5000,
 		refetchOnMount: true,
 		notifyOnChangeProps: ['data'] // Re-render only when data changes

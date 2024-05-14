@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getIssueTypesListRequest } from '../../requests/issue-type';
 
 interface IGetTaskIssuesParams {
@@ -21,7 +21,9 @@ const fetchAllIssues = async (params: IGetTaskIssuesParams) => {
 };
 
 const useFetchAllIssues = (IGetTaskIssuesParams) =>
-	useQuery(['issues', IGetTaskIssuesParams], () => fetchAllIssues(IGetTaskIssuesParams), {
+	useQuery({
+		queryKey: ['issues'],
+		queryFn: () => fetchAllIssues(IGetTaskIssuesParams),
 		refetchInterval: 62000
 	});
 export default useFetchAllIssues;

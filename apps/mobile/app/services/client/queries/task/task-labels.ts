@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getAllTaskLabelsRequest } from '../../requests/task-label';
 
 interface IGetTaskLabelParams {
@@ -19,7 +19,9 @@ const fetchAllLabels = async (params: IGetTaskLabelParams) => {
 };
 
 const useFetchAllLabels = (IGetTaskLabelParams) =>
-	useQuery(['labels', IGetTaskLabelParams], () => fetchAllLabels(IGetTaskLabelParams), {
+	useQuery({
+		queryKey: ['labels'],
+		queryFn: () => fetchAllLabels(IGetTaskLabelParams),
 		refetchInterval: 62000
 	});
 export default useFetchAllLabels;

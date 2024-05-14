@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllSizes from '../../client/queries/task/task-sizes';
 import { createSizeRequest, deleteTaskSizeRequest, updateTaskSizesRequest } from '../../client/requests/task-size';
@@ -26,7 +26,7 @@ export function useTaskSizes() {
 			tenantId,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('sizes');
+		queryClient.invalidateQueries({ queryKey: ['sizes'] });
 	}, []);
 
 	// Update the size
@@ -38,7 +38,7 @@ export function useTaskSizes() {
 			datas: data,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('sizes');
+		queryClient.invalidateQueries({ queryKey: ['sizes'] });
 	}, []);
 
 	// Create the size
@@ -49,7 +49,7 @@ export function useTaskSizes() {
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('sizes');
+		queryClient.invalidateQueries({ queryKey: ['sizes'] });
 	}, []);
 
 	useEffect(() => {
