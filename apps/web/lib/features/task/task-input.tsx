@@ -12,7 +12,7 @@ import {
 	useTaskInput,
 	useTaskLabels
 } from '@app/hooks';
-import { ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
+import { ITaskIssue, ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
