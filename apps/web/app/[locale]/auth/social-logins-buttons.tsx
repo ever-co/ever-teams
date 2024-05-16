@@ -8,7 +8,7 @@ export default function SocialLogins() {
 		<FaFacebook key="facebook-icon" />,
 		<FaGoogle key="google-icon" />,
 		<FaGithub key="github-icon" />,
-		<FaTwitter key="twitter-icom" />
+		<FaTwitter key="twitter-icon" />
 	];
 	return (
 		<div className="flex flex-col gap-4">
