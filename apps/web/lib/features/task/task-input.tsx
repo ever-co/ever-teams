@@ -349,6 +349,7 @@ export function TaskInput(props: Props) {
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
 							onValueChange={(v) => setTaskIssue(v)}
+							// defaultValue={(localStorage.getItem('lastTaskIssue') as ITaskIssue) || null}
 						/>
 					)}
 
