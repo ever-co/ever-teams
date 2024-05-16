@@ -4,7 +4,17 @@ import { getAccessTokenCookie, getActiveUserIdCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
 import { IClassName, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
+import {
+	AuthCodeInputField,
+	Avatar,
+	BackButton,
+	Button,
+	Card,
+	Divider,
+	InputField,
+	SpinnerLoader,
+	Text
+} from 'lib/components';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
@@ -14,6 +24,8 @@ import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, use
 
 import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { mappedProviders } from '../../../../auth';
+import { signInFunction } from './social-logins';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -42,7 +54,34 @@ function AuthPasscode() {
 						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
 					</>
 				) : (
-					t('pages.authLogin.HEADING_DESCRIPTION')
+					<div>
+						{t('pages.authLogin.HEADING_DESCRIPTION')}
+						{/* Socila logins */}
+						<div className="flex flex-col mt-4 gap-4">
+							<div className="flex flex-row justify-center items-center gap-2">
+								<Divider className="w-56" />
+								<div className="min-w-min text-sm">Or login with</div>
+								<Divider className="w-56" />
+							</div>
+							<div>
+								<div className="flex flex-col gap-2">
+									{Object.values(mappedProviders).map((provider) => (
+										<form
+											key={provider.id}
+											onSubmit={(e) => {
+												e.preventDefault();
+												signInFunction(provider);
+											}}
+										>
+											<button type="submit" className="text-sm">
+												<span>Sign in with {provider.name}</span>
+											</button>
+										</form>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
 				)
 			}
 		>

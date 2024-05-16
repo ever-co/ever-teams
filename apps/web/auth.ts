@@ -1,9 +1,10 @@
 import NextAuth from 'next-auth';
 import type { Provider } from 'next-auth/providers';
+import Facebook from 'next-auth/providers/facebook';
 import Google from 'next-auth/providers/google';
 import Github from 'next-auth/providers/github';
 
-const providers: Provider[] = [Google, Github];
+const providers: Provider[] = [Facebook, Google, Github];
 
 export const mappedProviders = providers.map((provider) => {
 	if (typeof provider === 'function') {
@@ -15,7 +16,7 @@ export const mappedProviders = providers.map((provider) => {
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: providers,
 	pages: {
-		signIn: '/auth/passcode'
+		signIn: '/[locale]/auth/passcode'
 	},
 	callbacks: {
 		async signIn({ account, profile }) {
@@ -23,6 +24,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				return !!(profile?.email_verified && profile.email?.endsWith('@gmail.com'));
 			}
 			return true; // We gonna add other validations for other providers
+		}
+	},
+	debug: true,
+	logger: {
+		error(code, ...message) {
+			console.error(code, message);
+		},
+		warn(code, ...message) {
+			console.warn(code, message);
+		},
+		debug(code, ...message) {
+			console.debug(code, message);
 		}
 	}
 });
