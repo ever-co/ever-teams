@@ -280,6 +280,8 @@ export function TaskInput(props: Props) {
 		}
 	}, [props.autoFocus, targetEl]);
 
+	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
+
 	const inputField = (
 		<InputField
 			value={taskName}
@@ -325,7 +327,7 @@ export function TaskInput(props: Props) {
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
-			/* Showing the task number. */
+			/* Showing the task number and issue type */
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
