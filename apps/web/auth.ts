@@ -3,8 +3,9 @@ import type { Provider } from 'next-auth/providers';
 import Facebook from 'next-auth/providers/facebook';
 import Google from 'next-auth/providers/google';
 import Github from 'next-auth/providers/github';
+import Twitter from 'next-auth/providers/twitter';
 
-const providers: Provider[] = [Facebook, Google, Github];
+const providers: Provider[] = [Facebook, Google, Github, Twitter];
 
 export const mappedProviders = providers.map((provider) => {
 	if (typeof provider === 'function') {
@@ -15,9 +16,9 @@ export const mappedProviders = providers.map((provider) => {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: providers,
-	pages: {
-		signIn: '/[locale]/auth/passcode'
-	},
+	// pages: {
+	// 	signIn: '/auth/passcode'
+	// },
 	callbacks: {
 		async signIn({ account, profile }) {
 			if (account?.provider === 'google') {
