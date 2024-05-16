@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getTaskStatusesRequest } from '../../requests/task-status';
 
 interface IGetTaskStatusesParams {
@@ -21,7 +21,9 @@ const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
 };
 
 const useFetchAllStatuses = (IGetTaskStatusesParams) =>
-	useQuery(['statuses', IGetTaskStatusesParams], () => fetchAllStatuses(IGetTaskStatusesParams), {
+	useQuery({
+		queryKey: ['statuses'],
+		queryFn: () => fetchAllStatuses(IGetTaskStatusesParams),
 		refetchInterval: 62000
 	});
 export default useFetchAllStatuses;

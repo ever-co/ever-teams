@@ -456,7 +456,6 @@ function TaskCard({
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4',
-					'overflow-hidden',
 					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight ? 'h-full' : 'max-h-96'
@@ -593,7 +592,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className="py-6 max-h-56 overflow-auto">
+				<ul className="py-6 max-h-56 overflow-y-auto">
 					{forParentChildRelationship &&
 						data?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;
