@@ -182,48 +182,48 @@ export default function Item(props: ItemProps) {
 				</div>
 				<div className="w-full flex justify-between my-3">
 					<div className="flex items-center w-64">
-						{activeTask?.id !== item.id ? (
+						{activeTask?.id == item.id ? (
 							<>
-								<Link href={`/task/${item.id}`}>
-									<div className="w-64 relative overflow-hidden">
-										{item.issueType && (
-											<span className="h-5 w-6 inline-block ">
-												<span className="absolute top-1">
-													<TaskIssueStatus
-														showIssueLabels={false}
-														type="HORIZONTAL"
-														task={item}
-														className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
-													/>
-												</span>
-											</span>
-										)}
-										<span className="text-grey text-normal mx-1">#{item.number}</span>
-										{item.title}
-										<span className="inline-block ml-1">
-											{item.priority && <Priority level={item.priority} />}
-										</span>
-									</div>
-								</Link>
+								<div className="w-56">
+									<TaskInput
+										task={item}
+										initEditMode={true}
+										keepOpen={true}
+										showCombobox={false}
+										autoFocus={true}
+										autoInputSelectText={true}
+										onTaskClick={(e) => {
+											// TODO: implement
+											console.log(e);
+										}}
+										onEnterKey={() => {
+											setActiveTask({ id: '' });
+										}}
+									/>
+								</div>
 							</>
 						) : (
-							<div className="w-56">
-								<TaskInput
-									task={item}
-									initEditMode={true}
-									keepOpen={true}
-									showCombobox={false}
-									autoFocus={true}
-									autoInputSelectText={true}
-									onTaskClick={(e) => {
-										// TODO: implement
-										console.log(e);
-									}}
-									onEnterKey={() => {
-										setActiveTask({ id: '' });
-									}}
-								/>
-							</div>
+							<Link href={`/task/${item.id}`}>
+								<div className="w-64 relative overflow-hidden">
+									{item.issueType && (
+										<span className="h-5 w-6 inline-block ">
+											<span className="absolute top-1">
+												<TaskIssueStatus
+													showIssueLabels={false}
+													type="HORIZONTAL"
+													task={item}
+													className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
+												/>
+											</span>
+										</span>
+									)}
+									<span className="text-grey text-normal mx-1">#{item.number}</span>
+									{item.title}
+									<span className="inline-block ml-1">
+										{item.priority && <Priority level={item.priority} />}
+									</span>
+								</div>
+							</Link>
 						)}
 					</div>
 

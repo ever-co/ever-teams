@@ -13,14 +13,14 @@ import {
 	useTaskLabels
 } from '@app/hooks';
 import { ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
-import { timerStatusState } from '@app/stores';
+import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
@@ -110,6 +110,7 @@ export function TaskInput(props: Props) {
 		updateTaskTitleHandler,
 		setFilter
 	} = datas;
+	const setActiveTask = useSetRecoilState(activeTeamTaskId);
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
@@ -242,7 +243,12 @@ export function TaskInput(props: Props) {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
-				// console.log('func active');
+				if (taskName == inputTaskTitle) {
+					setEditMode(false);
+					setActiveTask({
+						id: ''
+					});
+				}
 			}
 		};
 
@@ -253,7 +259,7 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
+	}, [inputTask, taskName, setActiveTask, updateTaskNameHandler, editMode, inputTaskTitle, setEditMode]);
 
 	// Handling Hotkeys
 	const handleCommandKeySequence = useCallback(() => {
@@ -449,7 +455,6 @@ function TaskCard({
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4',
-					'overflow-hidden',
 					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight ? 'h-full' : 'max-h-96'
@@ -586,7 +591,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className="py-6 max-h-56 overflow-auto">
+				<ul className="py-6 max-h-56 overflow-y-auto">
 					{forParentChildRelationship &&
 						data?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;

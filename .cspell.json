@@ -340,7 +340,8 @@
 		"comparization",
 		"plan",
 		"setwork",
-		"Clik"
+		"Clik",
+		"Relationnal"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

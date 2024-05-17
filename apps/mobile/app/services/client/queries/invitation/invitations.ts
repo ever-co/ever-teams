@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getMyInvitationsRequest, getTeamInvitationsRequest } from '../../requests/invite';
 
 interface IGetTeamInvitationParams {
@@ -24,7 +24,9 @@ export const fetchAllTeamInvitations = async (params: IGetTeamInvitationParams) 
 };
 
 export const useFetchTeamInvitations = (IGetTeamInvitationParams) =>
-	useQuery(['invitations', IGetTeamInvitationParams], () => fetchAllTeamInvitations(IGetTeamInvitationParams), {
+	useQuery({
+		queryKey: ['invitations'],
+		queryFn: () => fetchAllTeamInvitations(IGetTeamInvitationParams),
 		refetchInterval: 10000
 	});
 
@@ -38,6 +40,8 @@ const fetchAllMyInvitations = async ({ tenantId, authToken }: IMyInvitationsPara
 };
 
 export const useFetchMyInvitations = (IMyInvitationsParams) =>
-	useQuery(['myInvitations', IMyInvitationsParams], () => fetchAllMyInvitations(IMyInvitationsParams), {
+	useQuery({
+		queryKey: ['myInvitations'],
+		queryFn: () => fetchAllMyInvitations(IMyInvitationsParams),
 		refetchInterval: 10000
 	});

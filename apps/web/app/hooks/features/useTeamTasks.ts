@@ -19,6 +19,7 @@ import {
 } from '@app/services/client/api';
 import {
 	activeTeamState,
+	activeTeamTaskId,
 	detailedTaskState,
 	// employeeTasksState,
 	memberActiveTaskIdState,
@@ -187,6 +188,7 @@ export function useTeamTasks() {
 			loadTeamTasksData();
 		}
 	}, [activeTeam?.id, firstLoad, loadTeamTasksData]);
+	const setActive = useSetRecoilState(activeTeamTaskId);
 
 	// Get the active task from cookie and put on global store
 	useEffect(() => {
@@ -272,6 +274,9 @@ export function useTeamTasks() {
 	const updateTask = useCallback(
 		(task: Partial<ITeamTask> & { id: string }) => {
 			return updateQueryCall(task.id, task).then((res) => {
+				setActive({
+					id: ''
+				});
 				const updatedTasks = res?.data?.items || [];
 				deepCheckAndUpdateTasks(updatedTasks, true);
 
@@ -282,7 +287,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[updateQueryCall, deepCheckAndUpdateTasks, detailedTask, getTaskById]
+		[updateQueryCall, setActive, deepCheckAndUpdateTasks, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(
