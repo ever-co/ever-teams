@@ -20,11 +20,11 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 	const fullWidth = useRecoilValue(fullWidthState);
 	const pathName = usePathname();
 	const getEndPath: any = pathName?.split('settings/')[1];
-	const endCapitlizeWord: 'TEAM' | 'PERSONAL' = getEndPath?.toUpperCase();
+	const endWord: 'TEAM' | 'PERSONAL' = getEndPath?.toUpperCase();
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 		{ title: t('common.SETTINGS'), href: pathName as string },
-		{ title: t(`common.${endCapitlizeWord}`), href: pathName as string }
+		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
 	console.log('breadcrumb', breadcrumb);
 	if (!user) {
