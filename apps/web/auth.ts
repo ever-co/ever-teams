@@ -16,9 +16,7 @@ export const mappedProviders = providers.map((provider) => {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: providers,
-	// pages: {
-	// 	signIn: '/auth/passcode'
-	// },
+
 	callbacks: {
 		async signIn({ account, profile }) {
 			console.log({ account, profile });
@@ -26,6 +24,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				return !!(profile?.email_verified && profile.email?.endsWith('@gmail.com'));
 			}
 			return true; // We gonna add other validations for other providers
+		},
+
+		async jwt({ token, account }) {
+			if (account?.access_token) {
+				token.accessToken = account.access_token;
+			}
+			return Promise.resolve(token);
+		},
+		async session({ session, token }) {
+			if (token?.accessToken) {
+				session.sessionToken = token.accessToken.toString();
+			}
+			return Promise.resolve(session);
 		}
 	},
 	debug: true,
