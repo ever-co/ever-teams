@@ -119,8 +119,6 @@ export function TaskInput(props: Props) {
 		() => !props.keepOpen && setEditMode(false)
 	);
 
-	console.log(inputTask);
-
 	useEffect(() => {
 		setQuery(taskName === inputTask?.title ? '' : taskName);
 	}, [taskName, inputTask, setQuery]);

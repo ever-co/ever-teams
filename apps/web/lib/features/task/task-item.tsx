@@ -129,10 +129,12 @@ export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: numb
 		};
 	});
 
-
-
-	if(!members.length) {
-		return <div className="avatars flex -space-x-2 min-w-[59px] justify-center"><ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} /></div>
+	if (!members.length) {
+		return (
+			<div className="avatars flex -space-x-2 min-w-[59px] justify-center">
+				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
+			</div>
+		);
 	}
 
 	return (
@@ -142,7 +144,6 @@ export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: numb
 				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 				const userImageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';
 				const size = 30;
-
 
 				return (
 					<Link key={i} title={userName} href={`/profile/${member.userId}?name=${userName}`}>
