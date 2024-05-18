@@ -26,7 +26,7 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 		{ title: t('common.SETTINGS'), href: pathName as string },
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
-	console.log('breadcrumb', breadcrumb);
+	
 	if (!user) {
 		return <SettingsPersonalSkeleton />;
 	} else {
@@ -39,14 +39,12 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 					<Container
 						fullWidth={fullWidth}
 						className={clsxm('w-full mt-4 flex flex-row items-center justify-start gap-8')}
-					>
-						{/* <div className=""> */}
+					>						
 						<Link href="/">
 							<ArrowLeftIcon className="w-6 h-6" />
 						</Link>
 
-						<Breadcrumb paths={breadcrumb} className="text-sm" />
-						{/* </div> */}
+						<Breadcrumb paths={breadcrumb} className="text-sm" />					
 					</Container>
 				</div>
 				<Container fullWidth={fullWidth} className={clsxm('!p-0')}>
