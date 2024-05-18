@@ -3,7 +3,7 @@
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Dispatch, forwardRef, MutableRefObject, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, forwardRef, MutableRefObject, ReactNode, Ref, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
@@ -140,7 +140,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 							{showEmoji && (
 								<div
-								ref={mergeRefs(filteredRefs as (LegacyRef<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[])}
+								ref={mergeRefs(filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[])}
 								className="absolute  right-1 z-50">
 									<Picker
 										data={data}
