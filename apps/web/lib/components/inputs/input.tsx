@@ -60,6 +60,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				input.value = newValue;
 				input.focus();
 			}
+			setShowEmoji(false);
 		};
 
 		useEffect(() => {
