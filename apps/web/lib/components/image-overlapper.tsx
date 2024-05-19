@@ -1,7 +1,7 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask, ITimerStatus } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
@@ -22,12 +22,13 @@ export interface ImageOverlapperProps {
 }
 
 interface ArrowDataProps {
-	activeTaskStatus: boolean;
+	activeTaskStatus: ITimerStatus  | null | undefined;
 	disabled: boolean;
 	task: ITeamTask;
-	className: string;
-	iconClassName: string;
+	className: string  | undefined;
+	iconClassName: string  | undefined;
 }
+
 
 export default function ImageOverlapper({
 	images,
@@ -36,7 +37,8 @@ export default function ImageOverlapper({
 	item = null,
 	diameter = 40,
 	iconType = false,
-	arrowData
+	arrowData = null,
+	hasActiveMembers = false
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -44,7 +46,8 @@ export default function ImageOverlapper({
 	item?: any;
 	diameter?: number;
 	iconType?: boolean;
-	arrowData: ArrowDataProps[] | null;
+	arrowData?: ArrowDataProps | null;
+	hasActiveMembers?: boolean;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -59,21 +62,20 @@ export default function ImageOverlapper({
 	const t = useTranslations();
 
 	const hasMembers = item?.members.length > 0;
-	console.log("arrowData =>", arrowData);
 
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
-	if (!hasMembers && item) {
+	if ((!hasMembers && item) || hasActiveMembers) {
 		return (
 			<div>
 				{
 					iconType ? (
 						<TaskAssignButton
 							onClick={openModal}
-							disabled={arrowData.activeTaskStatus ? arrowData.disabled : arrowData.task.status === 'closed'}
-							className={clsxm('h-9 w-9', arrowData.className)}
-							iconClassName={arrowData.iconClassName}
+							disabled={arrowData?.activeTaskStatus ? arrowData?.disabled : arrowData?.task.status === 'closed'}
+							className={clsxm('h-9 w-9', arrowData?.className)}
+							iconClassName={arrowData?.iconClassName}
 						/>
 
 					) : (
@@ -86,19 +88,19 @@ export default function ImageOverlapper({
 						isOpen={isOpen}
 						closeModal={closeModal}
 						title={t('common.SELECT_TEAM_MEMBER')}
-						className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[20vw] h-[70vh] justify-start"
+						className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[20vw] h-[45vh] justify-start"
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="py-6 max-h-56 overflow-auto">
+						<ul className="py-6 overflow-auto">
 							{allMembers?.map((member: any) => {
 								return (
 									<li
-										key={member.employee}
-										className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
-									>
-										<TeamMember member={member} item={item} />
-									</li>
+									key={member.employee}
+									className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
+								>
+									<TeamMember member={member} item={item} />
+								</li>
 								);
 							})}
 						</ul>

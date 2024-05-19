@@ -122,6 +122,7 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
+	const activeMembers = task != null && task.members.length > 0;
 	const taskAssignee: ImageOverlapperProps[] = task?.members.map((member: any) => {
 		return {
 			id: member.user.id,
@@ -166,10 +167,9 @@ export function TaskCard(props: Props) {
 				)}
 
 				{viewType === 'unassign' && (
-					<div className="w-[20%] flex justify-around">
+					<div className="w-[20%] flex justify-around items-center">
 						<UsersTaskAssigned task={task} />
-						<ImageComponent radius={40} images={taskAssignee} item={task} />
-
+						<ImageComponent radius={40} images={taskAssignee} item={task} hasActiveMembers={activeMembers} />
 					</div>
 				)}
 				<VerticalSeparator />
@@ -195,7 +195,6 @@ export function TaskCard(props: Props) {
 					{!isAuthUser && task && viewType === 'unassign' && (
 						<AssignTaskButtonCall
 							task={task}
-							assignTask={() => { console.log("assign") }}
 							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
 							iconClassName='text-primary dark:text-white'
 							taskAssignee={taskAssignee}
@@ -386,13 +385,11 @@ function TimerButtonCall({
 
 function AssignTaskButtonCall({
 	task,
-	assignTask,
 	className,
 	iconClassName,
 	taskAssignee,
 }: {
 	task: ITeamTask;
-	assignTask: () => Promise<void>;
 	className?: string;
 	iconClassName?: string;
 	taskAssignee: ImageOverlapperProps[];
