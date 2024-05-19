@@ -1,14 +1,17 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ITeamTask } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
-import { CircleIcon } from 'assets/svg';
+import { CircleIcon, ArrowRightIcon } from 'assets/svg';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams, useTimerView } from '@app/hooks';
 import { useTranslations } from 'next-intl';
+import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
+import { clsxm } from '@app/utils';
 
 import TeamMember from 'lib/components/team-member';
 
@@ -18,18 +21,30 @@ export interface ImageOverlapperProps {
 	alt: string;
 }
 
+interface ArrowDataProps {
+	activeTaskStatus: boolean;
+	disabled: boolean;
+	task: ITeamTask;
+	className: string;
+	iconClassName: string;
+}
+
 export default function ImageOverlapper({
 	images,
 	radius = 20,
 	displayImageCount = 4,
 	item = null,
-	diameter = 40
+	diameter = 40,
+	iconType = false,
+	arrowData
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
 	displayImageCount?: number;
 	item?: any;
 	diameter?: number;
+	iconType?: boolean;
+	arrowData: ArrowDataProps[] | null;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -44,6 +59,7 @@ export default function ImageOverlapper({
 	const t = useTranslations();
 
 	const hasMembers = item?.members.length > 0;
+	console.log("arrowData =>", arrowData);
 
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
@@ -51,7 +67,20 @@ export default function ImageOverlapper({
 	if (!hasMembers && item) {
 		return (
 			<div>
-				<CircleIcon className="w-6 h-6 cursor-pointer  stroke-[#d3d3d3]" onClick={openModal} style={{ width: diameter, height: diameter }} />
+				{
+					iconType ? (
+						<TaskAssignButton
+							onClick={openModal}
+							disabled={arrowData.activeTaskStatus ? arrowData.disabled : arrowData?.task.status === 'closed'}
+							className={clsxm('h-9 w-9', arrowData.className)}
+							iconClassName={arrowData.iconClassName}
+						/>
+
+					) : (
+						<CircleIcon className="w-6 h-6 cursor-pointer  stroke-[#d3d3d3]" onClick={openModal} style={{ width: diameter, height: diameter }} />
+					)
+				}
+
 				<div>
 					<Modal
 						isOpen={isOpen}
