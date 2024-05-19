@@ -5,10 +5,10 @@ import { ITeamTask } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
-import { CircleIcon, ArrowRightIcon } from 'assets/svg';
+import { CircleIcon } from 'assets/svg';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
-import { useOrganizationTeams, useTimerView } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
@@ -71,7 +71,7 @@ export default function ImageOverlapper({
 					iconType ? (
 						<TaskAssignButton
 							onClick={openModal}
-							disabled={arrowData.activeTaskStatus ? arrowData.disabled : arrowData?.task.status === 'closed'}
+							disabled={arrowData.activeTaskStatus ? arrowData.disabled : arrowData.task.status === 'closed'}
 							className={clsxm('h-9 w-9', arrowData.className)}
 							iconClassName={arrowData.iconClassName}
 						/>
