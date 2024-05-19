@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getAllTaskSizesRequest } from '../../requests/task-size';
 
 interface IGetTaskSizeParams {
@@ -21,7 +21,9 @@ const fetchAllSizes = async (params: IGetTaskSizeParams) => {
 };
 
 const useFetchAllSizes = (IGetTaskSizeParams) =>
-	useQuery(['sizes', IGetTaskSizeParams], () => fetchAllSizes(IGetTaskSizeParams), {
+	useQuery({
+		queryKey: ['sizes'],
+		queryFn: () => fetchAllSizes(IGetTaskSizeParams),
 		refetchInterval: 62000
 	});
 export default useFetchAllSizes;

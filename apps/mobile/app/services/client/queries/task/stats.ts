@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { tasksStatistics } from '../../api/timer/tasksStatistics';
 
 interface IGetAllTasksParams {
@@ -21,7 +21,10 @@ const fetchAllTasksStats = async (params: IGetAllTasksParams) => {
 };
 
 export const useFetchAllTasksStats = (IGetAllTasksParams) =>
-	useQuery(['tasks', IGetAllTasksParams], () => fetchAllTasksStats(IGetAllTasksParams), {
+	useQuery({
+		queryKey: ['tasks'],
+		queryFn: () => fetchAllTasksStats(IGetAllTasksParams),
 		refetchInterval: 5000,
-		notifyOnChangeProps: ['data'] // Re-render only when data changes
+		refetchOnMount: true,
+		notifyOnChangeProps: ['data']
 	});

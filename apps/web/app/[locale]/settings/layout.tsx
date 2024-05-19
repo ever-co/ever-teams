@@ -12,16 +12,21 @@ import React from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
+import { usePathname } from 'next/navigation';
 
 const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const fullWidth = useRecoilValue(fullWidthState);
-
+	const pathName = usePathname();
+	const getEndPath: any = pathName?.split('settings/')[1];
+	const endWord: 'TEAM' | 'PERSONAL' = getEndPath?.toUpperCase();
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-		{ title: JSON.parse(t('pages.settings.BREADCRUMB')), href: '/settings/personnal' }
+		{ title: t('common.SETTINGS'), href: pathName as string },
+		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
+	
 	if (!user) {
 		return <SettingsPersonalSkeleton />;
 	} else {
@@ -33,15 +38,13 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 				<div className="py-10 w-full bg-white dark:bg-dark--theme">
 					<Container
 						fullWidth={fullWidth}
-						className={clsxm('w-full flex flex-row items-center justify-start gap-8')}
-					>
-						{/* <div className=""> */}
+						className={clsxm('w-full mt-4 flex flex-row items-center justify-start gap-8')}
+					>						
 						<Link href="/">
 							<ArrowLeftIcon className="w-6 h-6" />
 						</Link>
 
-						<Breadcrumb paths={breadcrumb} className="text-sm" />
-						{/* </div> */}
+						<Breadcrumb paths={breadcrumb} className="text-sm" />					
 					</Container>
 				</div>
 				<Container fullWidth={fullWidth} className={clsxm('!p-0')}>

@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getLanguageListRequest } from '../../requests/languages';
 
 interface IGetAllLanguagesParams {
@@ -19,5 +19,8 @@ const fetchAllLanguages = async (params: IGetAllLanguagesParams) => {
 };
 
 const useFetchAllLanguages = (IGetAllLanguagesParams) =>
-	useQuery(['Languages', IGetAllLanguagesParams], () => fetchAllLanguages(IGetAllLanguagesParams));
+	useQuery({
+		queryKey: ['Languages'],
+		queryFn: () => fetchAllLanguages(IGetAllLanguagesParams)
+	});
 export default useFetchAllLanguages;

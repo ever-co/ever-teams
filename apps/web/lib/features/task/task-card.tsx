@@ -4,6 +4,7 @@ import { secondsToTime } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useCanSeeActivityScreen,
 	useDailyPlan,
 	useModal,
 	useOrganizationEmployeeTeams,
@@ -35,7 +36,6 @@ import {
 	Text,
 	VerticalSeparator
 } from 'lib/components';
-import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -123,14 +123,6 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
-	const taskAssignee: ImageOverlapperProps[] =
-		task?.members?.map((member: any) => {
-			return {
-				id: member.user.id,
-				url: member.user.imageUrl,
-				alt: member.user.firstName
-			};
-		}) || [];
 
 	return (
 		<>
@@ -169,7 +161,6 @@ export function TaskCard(props: Props) {
 				{viewType === 'unassign' && (
 					<div className="w-[20%] flex justify-around">
 						<UsersTaskAssigned task={task} />
-						<ImageComponent radius={30} images={taskAssignee} item={task} />
 					</div>
 				)}
 				<VerticalSeparator />
@@ -197,6 +188,7 @@ export function TaskCard(props: Props) {
 							task={task}
 							assignTask={memberInfo.assignTask}
 							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
+							iconClassName='text-primary dark:text-white'
 						/>
 					)}
 				</div>
@@ -385,11 +377,13 @@ function TimerButtonCall({
 function AssignTaskButtonCall({
 	task,
 	assignTask,
-	className
+	className,
+	iconClassName
 }: {
 	task: ITeamTask;
 	assignTask: (task: ITeamTask) => Promise<void>;
 	className?: string;
+	iconClassName?: string;
 }) {
 	const {
 		disabled,
@@ -407,6 +401,7 @@ function AssignTaskButtonCall({
 			}}
 			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
 			className={clsxm('h-9 w-9', className)}
+			iconClassName={iconClassName}
 		/>
 	);
 }
@@ -481,6 +476,8 @@ function TaskCardMenu({
 			memberInfo?.unassignTask(task);
 		}
 	}, [memberInfo, task, viewType]);
+
+	const canSeeActivity = useCanSeeActivityScreen();
 
 	return (
 		<Popover>
@@ -558,21 +555,33 @@ function TaskCardMenu({
 									)}
 
 									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
-										<AddTaskToPlanComponent employee={profile?.member} task={task} />
+										<>
+											{canSeeActivity ? (
+												<AddTaskToPlanComponent employee={profile?.member} task={task} />
+											) : (
+												<></>
+											)}
+										</>
 									)}
 
 									{viewType === 'dailyplan' &&
 										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
-											<div>
-												<Divider type="HORIZONTAL" />
-												<div className="mt-2">
-													<RemoveTaskFromPlan
-														member={profile?.member}
-														task={task}
-														plan={plan}
-													/>
-												</div>
-											</div>
+											<>
+												{canSeeActivity ? (
+													<div>
+														<Divider type="HORIZONTAL" />
+														<div className="mt-2">
+															<RemoveTaskFromPlan
+																member={profile?.member}
+																task={task}
+																plan={plan}
+															/>
+														</div>
+													</div>
+												) : (
+													<></>
+												)}
+											</>
 										)}
 									{/* <li>
 										<ConfirmDropdown
