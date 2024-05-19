@@ -14,7 +14,6 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import { CircleIcon } from 'assets/svg';
 import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import {
 	IClassName,
