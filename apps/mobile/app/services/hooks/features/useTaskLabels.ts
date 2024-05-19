@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllLabels from '../../client/queries/task/task-labels';
 import { createLabelRequest, deleteTaskLabelRequest, updateTaskLabelsRequest } from '../../client/requests/task-label';
@@ -28,7 +28,7 @@ export function useTaskLabels() {
 			tenantId,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('labels');
+		queryClient.invalidateQueries({ queryKey: ['labels'] });
 	}, []);
 
 	// Update the label
@@ -39,7 +39,7 @@ export function useTaskLabels() {
 			datas: data,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('labels');
+		queryClient.invalidateQueries({ queryKey: ['labels'] });
 	}, []);
 
 	// Create the label
@@ -49,7 +49,7 @@ export function useTaskLabels() {
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('labels');
+		queryClient.invalidateQueries({ queryKey: ['labels'] });
 	}, []);
 
 	useEffect(() => {

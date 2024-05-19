@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllStatuses from '../../client/queries/task/task-status';
 import {
@@ -32,7 +32,7 @@ export function useTaskStatus() {
 			tenantId,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('statuses');
+		queryClient.invalidateQueries({ queryKey: ['statuses'] });
 	}, []);
 
 	// Update the status
@@ -44,7 +44,7 @@ export function useTaskStatus() {
 			datas: data,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('statuses');
+		queryClient.invalidateQueries({ queryKey: ['statuses'] });
 	}, []);
 
 	// Create the status
@@ -55,7 +55,7 @@ export function useTaskStatus() {
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('statuses');
+		queryClient.invalidateQueries({ queryKey: ['statuses'] });
 	}, []);
 
 	useEffect(() => {

@@ -7,9 +7,10 @@ import { MouseEventHandler } from 'react';
 type Props = {
 	onClick?: MouseEventHandler<HTMLButtonElement>;
 	disabled: boolean;
+	iconClassName?: string
 } & IClassName;
 
-export function TaskAssignButton({ onClick, disabled, className }: Props) {
+export function TaskAssignButton({ onClick, disabled, className, iconClassName }: Props) {
 	return (
 		<Button
 			onClick={onClick}
@@ -22,7 +23,7 @@ export function TaskAssignButton({ onClick, disabled, className }: Props) {
 				className
 			)}
 		>
-			<ArrowRightIcon className="w-[60%] h-[60%]"/>
+			<ArrowRightIcon className={clsxm("w-[60%] h-[60%]", iconClassName)} />
 		</Button>
 	);
 }

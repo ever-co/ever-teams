@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
-import { useDailyPlan } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
 export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; profile: any }) {
@@ -16,6 +16,7 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 		return planDate.getTime() >= today.getTime();
 	});
 	const { deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
+	const canSeeActivity = useCanSeeActivityScreen();
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -60,17 +61,23 @@ export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 								</ul>
 
 								{/* Delete Plan */}
-								<div className="flex justify-end">
-									<Button
-										disabled={deleteDailyPlanLoading}
-										onClick={() => deleteDailyPlan(plan.id ?? '')}
-										variant="destructive"
-										className="p-7 py-6 font-normal rounded-xl text-md"
-									>
-										{deleteDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
-										Delete this plan
-									</Button>
-								</div>
+								{canSeeActivity ? (
+									<div className="flex justify-end">
+										<Button
+											disabled={deleteDailyPlanLoading}
+											onClick={() => deleteDailyPlan(plan.id ?? '')}
+											variant="destructive"
+											className="p-7 py-6 font-normal rounded-xl text-md"
+										>
+											{deleteDailyPlanLoading && (
+												<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+											)}
+											Delete this plan
+										</Button>
+									</div>
+								) : (
+									<></>
+								)}
 							</AccordionContent>
 						</AccordionItem>
 					))}

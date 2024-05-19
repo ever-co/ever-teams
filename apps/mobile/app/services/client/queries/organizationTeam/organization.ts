@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { ITeamsOut } from '../../../../models/team/Team';
 import { IUserOrganization } from '../../../interfaces/IOrganization';
 import { IOrganizationTeamList } from '../../../interfaces/IOrganizationTeam';
@@ -51,10 +51,11 @@ const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
 };
 
 const useFetchUserOrganization = (IGetUserOrganizationParams) =>
-	useQuery(['teams', IGetUserOrganizationParams], () => fetchUserOrganization(IGetUserOrganizationParams), {
+	useQuery({
+		queryKey: ['teams'],
+		queryFn: () => fetchUserOrganization(IGetUserOrganizationParams),
 		refetchInterval: 5000,
 		refetchOnMount: true,
-		notifyOnChangeProps: ['data', 'isSuccess'],
-		notifyOnChangePropsExclusions: ['isFetching']
+		notifyOnChangeProps: ['data', 'isSuccess']
 	});
 export default useFetchUserOrganization;

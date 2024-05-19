@@ -307,7 +307,7 @@ export const IntegrationSetting = () => {
 
 								{selectedRepo && (
 									<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
-										<TrashIcon  className='w-3.5'  />
+										<TrashIcon className="w-3.5" />
 									</Button>
 								)}
 							</div>
