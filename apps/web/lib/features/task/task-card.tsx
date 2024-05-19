@@ -4,6 +4,7 @@ import { secondsToTime } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useCanSeeActivityScreen,
 	useDailyPlan,
 	useModal,
 	useOrganizationEmployeeTeams,
@@ -476,6 +477,8 @@ function TaskCardMenu({
 		}
 	}, [memberInfo, task, viewType]);
 
+	const canSeeActivity = useCanSeeActivityScreen();
+
 	return (
 		<Popover>
 			<Popover.Button className="flex items-center border-none outline-none">
@@ -552,21 +555,33 @@ function TaskCardMenu({
 									)}
 
 									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
-										<AddTaskToPlanComponent employee={profile?.member} task={task} />
+										<>
+											{canSeeActivity ? (
+												<AddTaskToPlanComponent employee={profile?.member} task={task} />
+											) : (
+												<></>
+											)}
+										</>
 									)}
 
 									{viewType === 'dailyplan' &&
 										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
-											<div>
-												<Divider type="HORIZONTAL" />
-												<div className="mt-2">
-													<RemoveTaskFromPlan
-														member={profile?.member}
-														task={task}
-														plan={plan}
-													/>
-												</div>
-											</div>
+											<>
+												{canSeeActivity ? (
+													<div>
+														<Divider type="HORIZONTAL" />
+														<div className="mt-2">
+															<RemoveTaskFromPlan
+																member={profile?.member}
+																task={task}
+																plan={plan}
+															/>
+														</div>
+													</div>
+												) : (
+													<></>
+												)}
+											</>
 										)}
 									{/* <li>
 										<ConfirmDropdown
