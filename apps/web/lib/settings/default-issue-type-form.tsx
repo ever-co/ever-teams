@@ -13,8 +13,7 @@ export const DefaultIssueTypeForm = () => {
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
 						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-							{/* {t('pages.settingsTeam.ISSUETYPE')} */}
-							Default Issue Type
+							{t('pages.settingsTeam.DEFAULT_ISSUE_TYPE')}
 						</Text>
 
 						<div className="flex flex-col w-full">
@@ -43,14 +42,11 @@ export const DefaultIssueTypeForm = () => {
 									</Button>
 								</div>
 							</> */}
-							{/* <Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
-								{t('pages.settingsTeam.LIST_OF_ISSUES')}
-							</Text> */}
+
 							<div className="flex flex-wrap w-full gap-3">
 								<StatusesListCard
 									statusTitle={'Story'}
 									bgColor={'#54BA95'}
-									// textColor="white"
 									statusIcon={''}
 									showDeleteButton={false}
 									onEdit={() => {
