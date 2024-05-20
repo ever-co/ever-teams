@@ -3,7 +3,18 @@
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Dispatch, forwardRef, MutableRefObject, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+	Dispatch,
+	forwardRef,
+	MutableRefObject,
+	ReactNode,
+	Ref,
+	SetStateAction,
+	useEffect,
+	useRef,
+	useState
+} from 'react';
+import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
 import { BsEmojiSmile } from 'react-icons/bs';
@@ -60,8 +71,13 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				input.value = newValue;
 				input.focus();
 			}
+			setShowEmoji(false);
+		};
+		const handleOutsideClick = () => {
+			setShowEmoji(false);
 		};
 
+		const { targetEl } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 		useEffect(() => {
 			if (errors && name && errors[name]) {
 				setError(errors[name]);
@@ -111,6 +127,8 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			/>
 		);
 
+		const filteredRefs = [targetEl, ignoreElementRefForTitle].filter(Boolean);
+
 		return noWrapper ? (
 			inputElement
 		) : (
@@ -131,7 +149,12 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 						<div>
 							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 							{showEmoji && (
-								<div ref={ignoreElementRefForTitle} className="absolute  right-1 z-50">
+								<div
+									ref={mergeRefs(
+										filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[]
+									)}
+									className="absolute  right-1 z-50"
+								>
 									<Picker
 										data={data}
 										emojiSize={20}
