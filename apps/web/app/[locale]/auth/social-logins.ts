@@ -1,7 +1,8 @@
 'use server';
 
-import { signIn } from '../../../auth';
+import { signIn, auth } from '../../../auth';
 
 export async function signInFunction(provider: any) {
-	return await signIn(provider.id);
+	auth().then((session) => console.log(session));
+	return await signIn(provider.id, { redirectTo: '/' });
 }

@@ -4,6 +4,7 @@ import Facebook from 'next-auth/providers/facebook';
 import Google from 'next-auth/providers/google';
 import Github from 'next-auth/providers/github';
 import Twitter from 'next-auth/providers/twitter';
+import { signWithSocialLoginsRequest } from '@app/services/server/requests';
 
 const providers: Provider[] = [Facebook, Google, Github, Twitter];
 
@@ -18,37 +19,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: providers,
 
 	callbacks: {
-		async signIn({ account, profile }) {
-			console.log({ account, profile });
-			if (account?.provider === 'google') {
-				return !!(profile?.email_verified && profile.email?.endsWith('@gmail.com'));
+		async signIn({ user, account, profile }) {
+			// console.log({ user, account, profile });
+			try {
+				const { email } = user;
+				const gauzyConnectedUser = await signWithSocialLoginsRequest(email ?? '');
+				// console.log(
+				// 	'============================',
+				// 	gauzyConnectedUser.data,
+				// 	gauzyConnectedUser.data.workspaces
+				// );
+				return !!gauzyConnectedUser;
+			} catch (error) {
+				return false;
 			}
-			return true; // We gonna add other validations for other providers
 		},
 
-		async jwt({ token, account }) {
-			if (account?.access_token) {
-				token.accessToken = account.access_token;
+		async jwt({ token, user }) {
+			if (user) {
+				const { email } = user;
+				const gauzyConnectedUser = await signWithSocialLoginsRequest(email ?? '');
+				token.custom = gauzyConnectedUser;
+				token.id = user.id;
 			}
-			return Promise.resolve(token);
+			return token;
 		},
-		async session({ session, token }) {
-			if (token?.accessToken) {
-				session.sessionToken = token.accessToken.toString();
-			}
-			return Promise.resolve(session);
-		}
-	},
-	debug: true,
-	logger: {
-		error(code, ...message) {
-			console.error(code, message);
-		},
-		warn(code, ...message) {
-			console.warn(code, message);
-		},
-		debug(code, ...message) {
-			console.debug(code, message);
+		session({ session, token }) {
+			session.user.id = token.id as string;
+			session.user = token.custom as any;
+			console.log(session);
+			return session;
 		}
 	}
+	// debug: true,
+	// logger: {
+	// 	error(code, ...message) {
+	// 		console.error(code, message);
+	// 	},
+	// 	warn(code, ...message) {
+	// 		console.warn(code, message);
+	// 	},
+	// 	debug(code, ...message) {
+	// 		console.debug(code, message);
+	// 	}
+	// }
 });

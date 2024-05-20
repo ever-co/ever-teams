@@ -113,6 +113,14 @@ export function signInEmailPasswordAPI(email: string, password: string) {
 	return post<ISigninEmailConfirmResponse>(endpoint, { email, password });
 }
 
+export function signInEmailSocialLoginAPI(email: string, password: string) {
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value
+		? '/auth/signin.email.social?includeTeams=true'
+		: `/auth/signin-email-social`;
+
+	return post<ISigninEmailConfirmResponse>(endpoint, { email, password });
+}
+
 export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify' : `/auth/verify/token`;
 
