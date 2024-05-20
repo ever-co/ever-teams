@@ -126,7 +126,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
 					<RecoilRoot>
 						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							{loading ? (
+							{loading && !pathname?.startsWith('/auth') ? (
 								<GlobalSkeleton />
 							) : (
 								<>
