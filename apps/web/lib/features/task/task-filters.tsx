@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
+import { I_UserProfilePage, useAuthenticateUser, useOrganizationTeams, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -33,9 +33,14 @@ type StatusFilter = { [x in IStatusType]: string[] };
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
-
 	const defaultValue =
 		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
+
+	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
@@ -68,12 +73,6 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const tabs: ITabs[] = [
 		{
-			tab: 'worked',
-			name: t('common.WORKED'),
-			description: t('task.tabFilter.WORKED_DESCRIPTION'),
-			count: profile.tasksGrouped.workedTasks.length
-		},
-		{
 			tab: 'assigned',
 			name: t('common.ASSIGNED'),
 			description: t('task.tabFilter.ASSIGNED_DESCRIPTION'),
@@ -84,14 +83,24 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			name: t('common.UNASSIGNED'),
 			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.unassignedTasks.length
-		},
-		{
+		}
+	];
+
+	// For tabs on profile page, display "Worked" and "Daily Plan" only for the logged in user or managers
+	if (activeTeam?.shareProfileView || canSeeActivity) {
+		tabs.push({
 			tab: 'dailyplan',
 			name: 'Daily Plan',
 			description: 'This tab shows all yours tasks planned',
 			count: profile.tasksGrouped.dailyplan?.length
-		}
-	];
+		});
+		tabs.unshift({
+			tab: 'worked',
+			name: t('common.WORKED'),
+			description: t('task.tabFilter.WORKED_DESCRIPTION'),
+			count: profile.tasksGrouped.workedTasks.length
+		});
+	}
 
 	useEffect(() => {
 		window.localStorage.setItem('task-tab', tab);

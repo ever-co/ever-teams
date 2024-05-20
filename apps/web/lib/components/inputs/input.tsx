@@ -3,12 +3,13 @@
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Dispatch, forwardRef, MutableRefObject, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, forwardRef, MutableRefObject, ReactNode, Ref, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
-import { BsEmojiSmile } from "react-icons/bs";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import { BsEmojiSmile } from 'react-icons/bs';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 type Props = {
 	readonly errors?: Record<string, string>;
@@ -20,7 +21,7 @@ type Props = {
 	autoCustomFocus?: boolean;
 	notValidBorder?: boolean;
 	emojis?: boolean;
-	setTaskName?:  (taskName: string) => void;
+	setTaskName?: (taskName: string) => void;
 	ignoreElementRefForTitle?: MutableRefObject<HTMLDivElement | null>;
 } & React.ComponentPropsWithRef<'input'>;
 
@@ -50,18 +51,23 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		const [showEmoji, setShowEmoji] = useState<boolean>(false);
 
 		const addEmoji = (emoji: { native: string }) => {
-			const input =  inputRef.current as HTMLInputElement | null;
+			const input = inputRef.current as HTMLInputElement | null;
 			if (input) {
 				const currentValue = input.value || '';
 				const newValue = currentValue + emoji.native;
-				if(setTaskName){
-				setTaskName(newValue)
+				if (setTaskName) {
+					setTaskName(newValue);
 				}
 				input.value = newValue;
 				input.focus();
 			}
+			setShowEmoji(false);
+		};
+		const handleOutsideClick = () => {
+			setShowEmoji(false);
 		};
 
+		const { targetEl } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 		useEffect(() => {
 			if (errors && name && errors[name]) {
 				setError(errors[name]);
@@ -102,12 +108,16 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					className
 				)}
 				onKeyUp={onKeyUp}
-				onMouseOut={()=>{
-					if(showEmoji==true){
-					setShowEmoji(false)}}}
+				onMouseOut={() => {
+					if (showEmoji == true) {
+						setShowEmoji(false);
+					}
+				}}
 				{...res}
-				/>
+			/>
 		);
+
+		const filteredRefs = [targetEl, ignoreElementRefForTitle].filter(Boolean);
 
 		return noWrapper ? (
 			inputElement
@@ -125,21 +135,24 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
-					{
-				emojis && <div><BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
-				{showEmoji && (
-              <div ref={ignoreElementRefForTitle} className="absolute  right-1 z-50">
-                <Picker
-                  data={data}
-                  emojiSize={20}
-                  emojiButtonSize={28}
-                  onEmojiSelect={addEmoji}
-                  maxFrequentRows={0}
-
-                />
-              </div>
-            )}</div>
-				}
+					{emojis && (
+						<div>
+							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+							{showEmoji && (
+								<div
+								ref={mergeRefs(filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[])}
+								className="absolute  right-1 z-50">
+									<Picker
+										data={data}
+										emojiSize={20}
+										emojiButtonSize={28}
+										onEmojiSelect={addEmoji}
+										maxFrequentRows={0}
+									/>
+								</div>
+							)}
+						</div>
+					)}
 					{trailingNode && <div className="flex items-center">{trailingNode}</div>}
 				</div>
 				{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}

@@ -1,10 +1,22 @@
+import { CHATWOOT_API_KEY } from '@app/constants';
 import { IClassName } from '@app/interfaces';
+import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import { Text, ThemeToggler } from 'lib/components';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 
 export function Footer({ className }: IClassName) {
 	const t = useTranslations();
+	const [showChatwoot, setShowChatwoot] = useState(false);
+	const fullWidth = useRecoilValue(fullWidthState);
+	useEffect(() => {
+		const websiteToken = CHATWOOT_API_KEY.value;
+		if (websiteToken) {
+			setShowChatwoot(true);
+		}
+	}, []);
 
 	return (
 		<footer className={clsxm('flex flex-col xs:flex-row justify-around items-center w-full py-6 px-3', className)}>
@@ -15,7 +27,7 @@ export function Footer({ className }: IClassName) {
 				{t('layout.footer.RIGHTS_RESERVED')}
 			</p>
 
-			<div className="">
+			<div style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
 				<ThemeToggler />
 			</div>
 		</footer>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { useDailyPlan, useUserProfilePage } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
 import { Container, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
@@ -87,6 +87,8 @@ function AllPlans({
 
 	const { deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
 
+	const canSeeActivity = useCanSeeActivityScreen();
+
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredPlans.length > 0 ? (
@@ -135,19 +137,25 @@ function AllPlans({
 
 								{/* Delete Plan */}
 								{currentTab === 'Today Tasks' && (
-									<div className="flex justify-end">
-										<Button
-											disabled={deleteDailyPlanLoading}
-											onClick={() => deleteDailyPlan(plan.id ?? '')}
-											variant="destructive"
-											className="p-7 py-6 font-normal rounded-xl text-md"
-										>
-											{deleteDailyPlanLoading && (
-												<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-											)}
-											Delete this plan
-										</Button>
-									</div>
+									<>
+										{canSeeActivity ? (
+											<div className="flex justify-end">
+												<Button
+													disabled={deleteDailyPlanLoading}
+													onClick={() => deleteDailyPlan(plan.id ?? '')}
+													variant="destructive"
+													className="p-7 py-6 font-normal rounded-xl text-md"
+												>
+													{deleteDailyPlanLoading && (
+														<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+													)}
+													Delete this plan
+												</Button>
+											</div>
+										) : (
+											<></>
+										)}
+									</>
 								)}
 							</AccordionContent>
 						</AccordionItem>
