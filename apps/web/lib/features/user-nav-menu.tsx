@@ -26,6 +26,8 @@ import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { AllSidesIcon } from '@radix-ui/react-icons';
+import { Globe2Icon } from 'lucide-react';
+import { LanguageDropDownWithFlags } from 'lib/settings/language-dropdown-flags';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -189,7 +191,6 @@ function UserNavMenu() {
 						)}
 					</div>
 				</Link>
-
 				<Link href={`/settings/personal`} className="w-full text-center">
 					<Tooltip
 						label={`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''}
@@ -213,9 +214,7 @@ function UserNavMenu() {
 						</Text>
 					</Tooltip>
 				</Link>
-
 				<Divider className="mt-6" />
-
 				<ul className="w-full mt-4">
 					{/* Task menu */}
 					<li className="mb-3 ">
@@ -250,11 +249,17 @@ function UserNavMenu() {
 					</li>
 
 					{/* Darkmode menu */}
-					<li className="flex items-center justify-between mb-3 space-x-3 font-normal">
+					<li className="flex items-center justify-between mb-1 space-x-3 font-normal">
 						<div className="flex items-center flex-1 space-x-3">
 							<MoonIcon className="w-5 h-5" /> <span>{t('common.DARK_MODE')}</span>
 						</div>
 						<ThemeToggler className="scale-75" />
+					</li>
+					<li className="flex items-center justify-between mb-3 space-x-3 font-normal">
+						<div className="flex items-center flex-1 space-x-3">
+							<Globe2Icon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.LANGUAGE')}</span>
+						</div>
+						<LanguageDropDownWithFlags btnClassName="dark:bg-transparent w-[120px]" />
 					</li>
 
 					{/* 3D Mode menu */}

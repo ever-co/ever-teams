@@ -194,3 +194,71 @@ export enum IssuesView {
 export const TaskStatus = {
 	INPROGRESS: 'in-progress'
 };
+
+export const languagesFlags = [
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ec-1f1e7.svg',
+		country: 'United Kingdom',
+		code: 'en'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1e8-1f1f3.svg',
+		country: 'China',
+		code: 'zh'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ea-1f1f8.svg',
+		country: 'Spain',
+		code: 'es'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg',
+		country: 'Russia',
+		code: 'ru'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f5-1f1f9.svg',
+		country: 'Portugal',
+		code: 'pt'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ee-1f1f9.svg',
+		country: 'Italy',
+		code: 'it'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1e9-1f1ea.svg',
+		country: 'Germany',
+		code: 'de'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1e7-1f1ec.svg',
+		country: 'Bulgaria',
+		code: 'bg'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f8-1f1e6.svg',
+		country: 'Saudi Arabia',
+		code: 'ar'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f3-1f1f1.svg',
+		country: 'Netherlands',
+		code: 'nl'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg',
+		country: 'France',
+		code: 'fr'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f5-1f1f1.svg',
+		country: 'Poland',
+		code: 'pl'
+	},
+	{
+		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ee-1f1f1.svg',
+		country: 'Israel',
+		code: 'he'
+	}
+];
