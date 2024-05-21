@@ -87,14 +87,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					organizationId: organization?.organizationId,
 					languageId: 'en', // TODO: not sure what should be here
 					noTeamPopup: true,
-					userId
+					userId,
+					workspaces: gauzyLoginUser?.data.workspaces,
+					confirmed_mail: gauzyLoginUser?.data.confirmed_email
 				};
 			}
 			return token;
 		},
 		session({ session, token }) {
 			session.user = token.authCookie as any;
-			console.log(session);
 			return session;
 		}
 	}
