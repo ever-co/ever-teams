@@ -5,6 +5,7 @@ import Google from 'next-auth/providers/google';
 import Github from 'next-auth/providers/github';
 import Twitter from 'next-auth/providers/twitter';
 import { signWithSocialLoginsRequest } from '@app/services/server/requests';
+import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
 
 const providers: Provider[] = [Facebook, Google, Github, Twitter];
 
@@ -17,19 +18,32 @@ export const mappedProviders = providers.map((provider) => {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: providers,
-
 	callbacks: {
-		async signIn({ user, account, profile }) {
-			// console.log({ user, account, profile });
+		async signIn({ user }) {
 			try {
 				const { email } = user;
-				const gauzyConnectedUser = await signWithSocialLoginsRequest(email ?? '');
-				// console.log(
-				// 	'============================',
-				// 	gauzyConnectedUser.data,
-				// 	gauzyConnectedUser.data.workspaces
-				// );
-				return !!gauzyConnectedUser;
+				const gauzyLoginUser = await signWithSocialLoginsRequest(email ?? '');
+				const data = await signInWorkspaceAPI(
+					gauzyLoginUser?.data.confirmed_email,
+					gauzyLoginUser?.data.workspaces[0].token
+				);
+				const tenantId = data.user?.tenantId || '';
+				const access_token = data.token;
+				const userId = data.user?.id;
+
+				const { data: organizations } = await getUserOrganizationsRequest({
+					tenantId,
+					userId,
+					token: access_token
+				});
+
+				const organization = organizations?.items[0];
+
+				if (!organization) {
+					return false;
+				}
+
+				return !!gauzyLoginUser && !!organization;
 			} catch (error) {
 				return false;
 			}
@@ -38,15 +52,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		async jwt({ token, user }) {
 			if (user) {
 				const { email } = user;
-				const gauzyConnectedUser = await signWithSocialLoginsRequest(email ?? '');
-				token.custom = gauzyConnectedUser;
-				token.id = user.id;
+				const gauzyLoginUser = await signWithSocialLoginsRequest(email ?? '');
+				const data = await signInWorkspaceAPI(
+					gauzyLoginUser?.data.confirmed_email,
+					gauzyLoginUser?.data.workspaces[0].token
+				);
+				const tenantId = data.user?.tenantId || '';
+				const access_token = data.token;
+				const userId = data.user?.id;
+
+				const { data: organizations } = await getUserOrganizationsRequest({
+					tenantId,
+					userId,
+					token: access_token
+				});
+
+				const organization = organizations?.items[0];
+
+				if (!organization) {
+					return Promise.reject({
+						errors: {
+							email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+						}
+					});
+				}
+
+				token.authCookie = {
+					access_token: data.token,
+					refresh_token: {
+						token: data.refresh_token
+					},
+					teamId: gauzyLoginUser?.data.workspaces[0].current_teams[0].team_id,
+					tenantId,
+					organizationId: organization?.organizationId,
+					languageId: 'en', // TODO: not sure what should be here
+					noTeamPopup: true,
+					userId
+				};
 			}
 			return token;
 		},
 		session({ session, token }) {
-			session.user.id = token.id as string;
-			session.user = token.custom as any;
+			session.user = token.authCookie as any;
 			console.log(session);
 			return session;
 		}

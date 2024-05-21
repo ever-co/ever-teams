@@ -9,6 +9,7 @@ import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { getSession } from 'next-auth/react';
 
 type Params = {
 	displayName: string;
@@ -17,6 +18,8 @@ type Params = {
 };
 
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
+	const session = getSession();
+	console.log(session);
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useRecoilState(userState);
