@@ -46,7 +46,7 @@ export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: str
 	return (
 		<Select
 			onValueChange={(e: any) => {
-				handleChangeLanguage(e?.code);
+				handleChangeLanguage(e.code);
 				setActiveLanguage(e);
 			}}
 		>
