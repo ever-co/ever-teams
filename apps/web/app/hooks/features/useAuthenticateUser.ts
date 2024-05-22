@@ -10,6 +10,8 @@ import { useRecoilState } from 'recoil';
 
 import { useQuery } from '../useQuery';
 import { useIsMemberManager } from './useTeamMember';
+import { useOrganizationTeams } from './useOrganizationTeams';
+import { useUserProfilePage } from './useUserProfilePage';
 
 export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const [user, setUser] = useRecoilState(userState);
@@ -67,4 +69,20 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		timeToTimeRefreshToken,
 		refreshToken
 	};
+};
+
+/**
+ * A hook to check if the current user is a manager or whom the current profile belongs to
+ *
+ * @description  We need, especially for the user profile page, to know if the current user can see some activities, or interact with data
+ * @returns a boolean that defines in the user is authorized
+ */
+
+export const useCanSeeActivityScreen = () => {
+	const { user } = useAuthenticateUser();
+	const { activeTeamManagers } = useOrganizationTeams();
+	const profile = useUserProfilePage();
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	return profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 };
