@@ -19,4 +19,5 @@ export interface IIssueTypesItemList extends IIssueTypesCreate {
 	fullIconUrl?: string;
 	is_system?: boolean;
 	isSystem?: boolean;
+	isDefault: boolean;
 }

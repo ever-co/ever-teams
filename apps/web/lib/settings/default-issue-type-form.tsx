@@ -1,11 +1,16 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Text } from 'lib/components';
-import { StatusesListCard } from './list-card';
 
 import { useTranslations } from 'next-intl';
+import { useIssueType } from '@app/hooks';
+import { IIssueTypesItemList } from '@app/interfaces';
+import { StatusDropdown } from 'lib/features';
+import { StatusesListCard } from './list-card';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
+	const { issueTypes, editIssueType } = useIssueType();
+	const defaultIssueType: IIssueTypesItemList = issueTypes.find((issue) => !issue.isDefault) as IIssueTypesItemList;
 
 	return (
 		<>
@@ -44,13 +49,26 @@ export const DefaultIssueTypeForm = () => {
 							</> */}
 
 							<div className="flex flex-wrap w-full gap-3">
+								<StatusDropdown
+									// sidebarUI={props.sidebarUI}
+									// className={props.className}
+									// items={props.forParentChildRelationship ? updatedItemsBasedOnTaskIssueType : items}
+									// value={item || (taskIssues['Task'] as Required<TStatusItem>)}
+									defaultItem={undefined}
+									onChange={() => {
+										console.log('On change');
+									}}
+									// issueType="issue"
+									items={issueTypes}
+									value={issueTypes[0]}
+								/>
 								<StatusesListCard
-									statusTitle={'Story'}
-									bgColor={'#54BA95'}
-									statusIcon={''}
+									statusTitle={defaultIssueType?.name || 'No Default Issue Type'}
+									bgColor={defaultIssueType.color as string}
+									statusIcon={defaultIssueType.icon as string}
 									showDeleteButton={false}
 									onEdit={() => {
-										console.log('Click Edit');
+										// await editIssueType(defaultIssueType.id);
 									}}
 									onDelete={() => {
 										console.log('click delete');
