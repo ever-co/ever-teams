@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { clsxm } from '@app/utils';
 
 const CompletionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
@@ -40,9 +41,12 @@ const CompletionBlock = () => {
 					</button>
 				</div>
 				<textarea
-					className="items-start w-full h-auto pb-4 mt-2 mr-1 text-sm not-italic text-black bg-transparent border border-transparent rounded-md resize-none dark:text-white outline-1 outline-0 scrollbar-hide"
+					className={clsxm(
+						'items-start w-full h-auto pb-4 mt-2 mr-1 text-sm not-italic text-black bg-transparent',
+						'border border-transparent rounded-md resize-none dark:text-white outline-0 scrollbar-hide'
+					)}
 					placeholder={`${t('form.COMPLETION_DESCRIPTION')}....`}
-				></textarea>
+				/>
 			</div>
 			<hr />
 			<div className="my-4">
