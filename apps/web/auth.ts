@@ -85,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					teamId: gauzyLoginUser?.data.workspaces[0].current_teams[0].team_id,
 					tenantId,
 					organizationId: organization?.organizationId,
-					languageId: 'en', // TODO: not sure what should be here
+					languageId: 'en',
 					noTeamPopup: true,
 					userId,
 					workspaces: gauzyLoginUser?.data.workspaces,

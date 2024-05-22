@@ -1,15 +1,16 @@
 'use client';
 
-import { getAccessTokenCookie } from '@app/helpers';
+import { getAccessTokenCookie, setAuthCookies } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
 import { useAuthenticationSocialLogin } from '@app/hooks/auth/useAuthenticationSocialLogin';
 import { getSession } from 'next-auth/react';
 import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import Cookies from 'js-cookie';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -29,45 +30,52 @@ function WorkSpaceScreen() {
 	const [selectedTeam, setSelectedTeam] = useState('');
 	const router = useRouter();
 	const form = useAuthenticationSocialLogin();
+	const [signinResult, setSigninResult] = useState({
+		access_token: '',
+		organizationId: '',
+		refresh_token: {
+			token: '',
+			decoded: undefined
+		},
+		tenantId: '',
+		userId: ''
+	});
+	// const [organizations, setOrganizations] = useState<PaginationResponse<IUserOrganization>>();
 
-	const [oAuthSession, setOAuthSession] = useState();
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
-	const [email, setEmail] = useState('');
-
-	const loadOAuthSession = async () => {
-		const session: any = await getSession();
-		if (session) {
-			// const {
-			// 	// access_token,
-			// 	// languageId,
-			// 	// noTeamPopup,
-			// 	// organizationId,
-			// 	// refresh_token,
-			// 	// teamId,
-			// 	// tenantId,
-			// 	// userId,
-			// 	// workspaces: sessionWorkspaces
-			// } = session.user;
-			setOAuthSession(session.user);
-			setWorkspaces(session.user.workspaces);
-			setEmail(session.user.confirmed_mail);
-		} else {
-			return;
-		}
-	};
 
 	useEffect(() => {
+		const loadOAuthSession = async () => {
+			const session: any = await getSession();
+			if (session) {
+				const { access_token, organizationId, refresh_token, tenantId, userId } = session.user;
+				setSigninResult({ access_token, organizationId, refresh_token, tenantId, userId });
+				setWorkspaces(session.user.workspaces);
+			} else {
+				return;
+			}
+		};
 		loadOAuthSession();
 	}, []);
 
-	const signInToWorkspace = useCallback(
-		(e: any) => {
-			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleWorkspaceSubmit(e, workspaces[selectedWorkspace].token, selectedTeam, email);
-			}
-		},
-		[selectedWorkspace, form, workspaces, selectedTeam, email]
-	);
+	const signInToWorkspace = (e: any) => {
+		e.preventDefault();
+
+		setAuthCookies({
+			access_token: signinResult.access_token,
+			refresh_token: signinResult.refresh_token,
+			teamId: selectedTeam,
+			tenantId: signinResult.tenantId,
+			organizationId: signinResult.organizationId,
+			languageId: 'en',
+			noTeamPopup: undefined,
+			userId: signinResult.userId
+		});
+		router.push('/');
+		new Array(3).fill('').forEach((_, i) => {
+			Cookies.remove(`authjs.session-token.${i}`);
+		});
+	};
 
 	useEffect(() => {
 		if (workspaces.length === 1) {
@@ -80,12 +88,13 @@ function WorkSpaceScreen() {
 			setSelectedTeam(currentTeams[0].team_id);
 		}
 
-		if (workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
+		if (workspaces.length === 1 && currentTeams?.length === 1) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
-			}, 10000);
+				router.push('/');
+			}, 100);
 		}
-	}, [workspaces]);
+	}, [router, workspaces]);
 
 	useEffect(() => {
 		const accessToken = getAccessTokenCookie();

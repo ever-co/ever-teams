@@ -2,11 +2,9 @@ import { clsxm } from '@app/utils';
 import { Meta, Text } from 'lib/components';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import Image from 'next/legacy/image';
-import { PropsWithChildren, ReactNode, useEffect } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Footer } from './footer';
-import { getSession } from 'next-auth/react';
-import { setAuthCookies } from '@app/helpers';
 
 type Props = {
 	title?: string;
@@ -16,29 +14,6 @@ type Props = {
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
 	const t = useTranslations();
-	const loadCookiesFromNextAuth = async () => {
-		const oauth_session: any = await getSession();
-		if (oauth_session) {
-			const { access_token, languageId, noTeamPopup, organizationId, refresh_token, teamId, tenantId, userId } =
-				oauth_session.user;
-
-			setAuthCookies({
-				access_token,
-				languageId,
-				organizationId,
-				refresh_token: refresh_token.token,
-				teamId,
-				tenantId,
-				userId,
-				noTeamPopup
-			});
-		} else {
-			return;
-		}
-	};
-	useEffect(() => {
-		loadCookiesFromNextAuth();
-	}, []);
 
 	return (
 		<>
