@@ -1,17 +1,20 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Text } from 'lib/components';
+import { Button, Text, Tooltip } from 'lib/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@app/hooks';
 import { IIssueTypesItemList } from '@app/interfaces';
 import { StatusDropdown } from 'lib/features';
-import { StatusesListCard } from './list-card';
+import { EditPenUnderlineIcon } from 'assets/svg';
+import { clsxm } from '@app/utils';
+import Image from 'next/image';
+import { getTextColor } from '@app/helpers';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
 	const { issueTypes, editIssueType } = useIssueType();
 	const defaultIssueType: IIssueTypesItemList = issueTypes.find((issue) => !issue.isDefault) as IIssueTypesItemList;
-
+	const textColor = getTextColor(defaultIssueType.color as string);
 	return (
 		<>
 			<form className="w-full" autoComplete="off">
@@ -62,7 +65,7 @@ export const DefaultIssueTypeForm = () => {
 									items={issueTypes}
 									value={issueTypes[0]}
 								/>
-								<StatusesListCard
+								{/* <StatusesListCard
 									statusTitle={defaultIssueType?.name || 'No Default Issue Type'}
 									bgColor={defaultIssueType.color as string}
 									statusIcon={defaultIssueType.icon as string}
@@ -73,7 +76,68 @@ export const DefaultIssueTypeForm = () => {
 									onDelete={() => {
 										console.log('click delete');
 									}}
-								/>
+								/> */}
+								<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
+									<div
+										className={clsxm(
+											'rounded-xl',
+											'w-2/3',
+											'flex items-center p-3 gap-x-2 overflow-hidden mr-1'
+										)}
+										style={{
+											backgroundColor:
+												(defaultIssueType.color as string) === ''
+													? undefined
+													: (defaultIssueType.color as string)
+										}}
+									>
+										{defaultIssueType.icon && (
+											<Image
+												src={defaultIssueType.fullIconUrl as string}
+												alt={defaultIssueType.name}
+												width={20}
+												height={20}
+												decoding="async"
+												data-nimg="1"
+												loading="lazy"
+												className="min-h-[20px]"
+											/>
+										)}
+										<Tooltip
+											label={defaultIssueType.name as string}
+											// enabled={defaultIssueType.description.length >= CHARACTER_LIMIT_TO_SHOW}
+											placement="auto"
+											className={clsxm('overflow-hidden text-ellipsis whitespace-nowrap w-full')}
+										>
+											<Text.Label
+												className={clsxm(
+													'flex-none flex-grow-0 !w-40 max-w-[190px] font-normal',
+													'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
+													defaultIssueType.color === '' && ['dark:text-[#cdd1d8]'],
+													defaultIssueType.icon && 'max-w-[135px]'
+												)}
+												style={{
+													color: defaultIssueType.color === '' ? undefined : textColor
+												}}
+											>
+												{defaultIssueType.name}
+											</Text.Label>
+										</Tooltip>
+									</div>
+									<div className="flex items-center gap-x-[12PX] mr-[4px]">
+										<Tooltip label={t('common.EDIT')}>
+											<Button
+												variant="ghost"
+												className="p-0 m-0 min-w-0"
+												onClick={() => {
+													console.log('Edit');
+												}}
+											>
+												<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+											</Button>
+										</Tooltip>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
