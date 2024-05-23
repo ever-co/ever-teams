@@ -10,7 +10,6 @@
 		"aliqua",
 		"tblr",
 		"conver",
-		"Langauge",
 		"amet",
 		"Andross",
 		"animatable",
@@ -343,7 +342,8 @@
 		"plan",
 		"setwork",
 		"Clik",
-		"Relationnal"
+		"Relationnal",
+		"authjs"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

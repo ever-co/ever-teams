@@ -16,7 +16,7 @@ export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: str
 	const path: any = usePathname();
 	const items = useMemo(() => mapLanguageItems(languages), [languages]);
 	const pathArray = path?.split('/');
-	const isLangaugeNotEn = Array.isArray(pathArray) && pathArray[1].length == 2;
+	const isLanguageNotEn = Array.isArray(pathArray) && pathArray[1].length == 2;
 
 	useEffect(() => {
 		loadLanguagesData();
@@ -29,8 +29,8 @@ export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: str
 			setValue('preferredLanguage', newLanguage);
 			const pathArray = path?.split('/');
 			const pathWithoutLanguage = path?.replace(`/${pathArray[1]}`, '');
-			const isLangaugeNotEn = pathArray && pathArray[1].length == 2;
-			if (isLangaugeNotEn) {
+			const isLanguageNotEn = pathArray && pathArray[1].length == 2;
+			if (isLanguageNotEn) {
 				router.replace(`/${newLanguage}/${pathWithoutLanguage}`);
 			} else if (newLanguage !== 'en') {
 				router.replace(`/${newLanguage}/${path}`);
@@ -42,7 +42,7 @@ export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: str
 		acc[obj.code] = obj;
 		return acc;
 	}, {});
-	const ActiveFlag = converLanguageToObject[isLangaugeNotEn ? pathArray[1] : 'en'].Flag;
+	const ActiveFlag = converLanguageToObject[isLanguageNotEn ? pathArray[1] : 'en'].Flag;
 	return (
 		<Select
 			onValueChange={(e: any) => {

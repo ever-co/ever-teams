@@ -302,6 +302,7 @@ export const en = {
 			VERSIONS: 'Versions',
 			LIST_OF_VERSONS: 'List of Versions',
 			ISSUETYPE: 'Issue Types',
+			DEFAULT_ISSUE_TYPE: 'Default Issue Type',
 			LIST_OF_ISSUES: 'List of Issues',
 			RELATED_ISSUE_TYPE: 'Related Issue Types',
 			LIST_OF_RELATED_TYPE: 'List of Related Types',

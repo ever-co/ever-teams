@@ -49,6 +49,14 @@ export function signInEmailPasswordRequest(email: string, password: string) {
 	});
 }
 
+export function signWithSocialLoginsRequest(email: string) {
+	return serverFetch<ISigninEmailConfirmResponse>({
+		path: '/auth/signin.email.social?includeTeams=true',
+		method: 'POST',
+		body: { email }
+	});
+}
+
 export const signInEmailConfirmRequest = (data: { code: string; email: string }) => {
 	const { code, email } = data;
 
@@ -106,14 +114,11 @@ type IUEmployeeParam = {
  * @param {IUEmployeeParam} employeeParams - The employee parameters, including bearer token and optional relations.
  * @returns A Promise resolving to the IUser object with the desired relations.
  */
-export const currentAuthenticatedUserRequest = ({
-	bearer_token,
-	relations = ['role', 'tenant']
-}: IUEmployeeParam) => {
+export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['role', 'tenant'] }: IUEmployeeParam) => {
 	// Construct the query string with 'qs', including the includeEmployee parameter
 	const query = qs.stringify({
 		relations: relations,
-		includeEmployee: true  // Append includeEmployee parameter set to true
+		includeEmployee: true // Append includeEmployee parameter set to true
 	});
 
 	// Construct and return the server fetch request
