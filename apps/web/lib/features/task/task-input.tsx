@@ -242,6 +242,7 @@ export function TaskInput(props: Props) {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
+				// inputTask && updateTaskNameHandler(inputTask, taskName);
 				if (taskName == inputTaskTitle) {
 					setEditMode(false);
 					setActiveTask({
