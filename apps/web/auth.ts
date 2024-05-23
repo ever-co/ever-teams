@@ -49,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			}
 		},
 
-		async jwt({ token, user }) {
+		async jwt({ token, user, trigger, session }) {
 			if (user) {
 				const { email } = user;
 				const gauzyLoginUser = await signWithSocialLoginsRequest(email ?? '');
@@ -92,6 +92,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					confirmed_mail: gauzyLoginUser?.data.confirmed_email
 				};
 			}
+
+			if (trigger === 'update' && session) {
+				token = { ...token, authCookie: session };
+			}
+
 			return token;
 		},
 		session({ session, token }) {

@@ -1,81 +1,96 @@
 'use client';
 
-import { validateForm } from '@app/helpers';
-import { useRef, useState } from 'react';
-import { useQuery } from '../useQuery';
-import { signInWorkspaceAPI } from '@app/services/client/api';
-import { AxiosError } from 'axios';
+import { setAuthCookies } from '@app/helpers';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-type AuthCodeRef = {
-	focus: () => void;
-	clear: () => void;
+import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
+import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { useSession } from 'next-auth/react';
+type SigninResult = {
+	access_token: string;
+	confirmed_mail: string;
+	organizationId: string;
+	refresh_token: {
+		token: string;
+		decoded: any;
+	};
+	tenantId: string;
+	userId: string;
 };
 
 export function useAuthenticationSocialLogin() {
 	const router = useRouter();
+	const [signInWorkspaceLoading, setSignInWorkspaceLoading] = useState(false);
 
-	const inputCodeRef = useRef<AuthCodeRef | null>(null);
+	const { update }: any = useSession();
 
-	const [authenticated, setAuthenticated] = useState(false);
+	const updateOAuthSession = useCallback(
+		(
+			signinResult: SigninResult,
+			workspaces: ISigninEmailConfirmWorkspaces[],
+			selectedWorkspace: number,
+			selectedTeam: string
+		) => {
+			setSignInWorkspaceLoading(true);
+			signInWorkspaceAPI(signinResult.confirmed_mail, workspaces[selectedWorkspace].token)
+				.then(async (result) => {
+					const tenantId = result.user?.tenantId || '';
+					const access_token = result.token;
+					const userId = result.user?.id;
 
-	const [errors, setErrors] = useState({} as { [x: string]: any });
+					const organizations = await getUserOrganizationsRequest({
+						tenantId,
+						userId,
+						token: access_token
+					});
+					const organization = organizations?.data.items[0];
+					if (!organization) {
+						return Promise.reject({
+							errors: {
+								email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+							}
+						});
+					}
 
-	const {
-		queryCall: signInWorkspaceQueryCall,
-		loading: signInWorkspaceLoading,
-		infiniteLoading
-	} = useQuery(signInWorkspaceAPI);
+					update({
+						access_token,
+						refresh_token: {
+							token: result.refresh_token
+						},
+						teamId: selectedTeam,
+						tenantId,
+						organizationId: organization?.organizationId,
+						languageId: 'en',
+						noTeamPopup: true,
 
-	const signInToWorkspaceRequest = ({
-		email,
-		token,
-		selectedTeam
-	}: {
-		email: string;
-		token: string;
-		selectedTeam: string;
-	}) => {
-		signInWorkspaceQueryCall({ email, token, selectedTeam })
-			.then(() => {
-				setAuthenticated(true);
-				router.push('/');
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
+						userId,
+						workspaces: workspaces,
+						confirmed_mail: signinResult.confirmed_mail
+					});
 
-				inputCodeRef.current?.clear();
-			});
-	};
-
-	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string, email: string) => {
-		e.preventDefault();
-		setErrors({});
-		const { errors, isValid } = validateForm(['email'], { email });
-
-		if (!isValid) {
-			setErrors(errors);
-			return;
-		}
-
-		infiniteLoading.current = true;
-
-		signInToWorkspaceRequest({
-			email,
-			token,
-			selectedTeam
-		});
-	};
+					setAuthCookies({
+						access_token,
+						refresh_token: {
+							token: result.refresh_token
+						},
+						teamId: selectedTeam,
+						tenantId,
+						organizationId: organization?.organizationId,
+						languageId: 'en',
+						noTeamPopup: undefined,
+						userId
+					});
+					setSignInWorkspaceLoading(false);
+					router.push('/');
+				})
+				.catch((err) => console.log(err));
+		},
+		[router, update]
+	);
 
 	return {
-		errors,
-		setErrors,
-		handleWorkspaceSubmit,
-		inputCodeRef,
-		signInWorkspaceLoading,
-		authenticated
+		updateOAuthSession,
+		signInWorkspaceLoading
 	};
 }
 
