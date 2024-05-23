@@ -9,7 +9,12 @@ import { StatusesListCard } from './list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
 import { clsxm } from '@app/utils';
 import Image from 'next/image';
-import { TaskIssuesDropdown } from 'lib/features';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger
+} from '../../components/ui/dropdown-menu';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
@@ -104,26 +109,56 @@ export const DefaultIssueTypeForm = () => {
 												</Text.Label>
 											</Tooltip>
 										</div>
-										<TaskIssuesDropdown
+										{/* <TaskIssuesDropdown
+											type="HORIZONTAL"
 											taskStatusClassName="!px-1 py-1 rounded-sm"
 											showIssueLabels={true}
 											onValueChange={(v) => console.log(v)}
 											defaultValue={defaultIssueType.name}
 											className="h-10 w-2/3 rounded-lg"
 											fullWidth={true}
-										/>
+										/> */}
 
 										<div className="flex h-10 items-center gap-x-[12PX] mr-[4px]">
 											<Tooltip label={t('common.EDIT')}>
-												<Button
-													variant="ghost"
-													className="p-0 m-0 min-w-0"
-													onClick={() => {
-														console.log('Edit');
-													}}
-												>
-													<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-												</Button>
+												<DropdownMenu>
+													<DropdownMenuTrigger className={'rounded-lg'}>
+														<Button
+															variant="ghost"
+															className="p-0 m-0 min-w-0"
+															onClick={() => {
+																console.log('Edit');
+															}}
+														>
+															<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent className="dark:bg-[#1E2025] bg-white w-10/12 flex flex-col gap-3 p-4 rounded-2xl dark:border-gray-500 border-gray-200 border-[1px] shadow-2xl shadow-black/20">
+														{issueTypes.map((issue, index) => {
+															return (
+																<DropdownMenuItem
+																	className={clsxm(
+																		'flex gap-2 rounded-lg cursor-pointer p-2 text-black/70 hover:text-black/70'
+																	)}
+																	style={{ background: issue.color }}
+																	key={index}
+																>
+																	<Image
+																		src={issue.fullIconUrl as string}
+																		alt={issue.name}
+																		width={10}
+																		height={10}
+																		decoding="async"
+																		data-nimg="1"
+																		loading="lazy"
+																		className="min-h-[20px]"
+																	/>
+																	<div>{issue.name}</div>
+																</DropdownMenuItem>
+															);
+														})}
+													</DropdownMenuContent>
+												</DropdownMenu>
 											</Tooltip>
 											{/* <StatusDropdown
 											// sidebarUI={props.sidebarUI}
