@@ -2,7 +2,8 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
 import enLanguage from '../messages/en.json';
-
+// import {  } from 'country-flag-icons/react/3x2'
+import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
@@ -197,67 +198,67 @@ export const TaskStatus = {
 
 export const languagesFlags = [
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ec-1f1e7.svg',
+		Flag: US,
 		country: 'United Kingdom',
 		code: 'en'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1e8-1f1f3.svg',
+		Flag: CN,
 		country: 'China',
 		code: 'zh'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ea-1f1f8.svg',
+		Flag: ES,
 		country: 'Spain',
 		code: 'es'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg',
+		Flag: RU,
 		country: 'Russia',
 		code: 'ru'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f5-1f1f9.svg',
+		Flag: PT,
 		country: 'Portugal',
 		code: 'pt'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ee-1f1f9.svg',
+		Flag: IT,
 		country: 'Italy',
 		code: 'it'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1e9-1f1ea.svg',
+		Flag: DE,
 		country: 'Germany',
 		code: 'de'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1e7-1f1ec.svg',
+		Flag: BG,
 		country: 'Bulgaria',
 		code: 'bg'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f8-1f1e6.svg',
+		Flag: SA,
 		country: 'Saudi Arabia',
 		code: 'ar'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f3-1f1f1.svg',
+		Flag: NL,
 		country: 'Netherlands',
 		code: 'nl'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg',
+		Flag: FR,
 		country: 'France',
 		code: 'fr'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1f5-1f1f1.svg',
+		Flag: PL,
 		country: 'Poland',
 		code: 'pl'
 	},
 	{
-		flag: 'https://twemoji.maxcdn.com/2/svg/1f1ee-1f1f1.svg',
+		Flag: IS,
 		country: 'Israel',
 		code: 'he'
 	}
