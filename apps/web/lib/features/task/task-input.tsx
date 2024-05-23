@@ -239,28 +239,6 @@ export function TaskInput(props: Props) {
 		}
 	}
 
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
-				inputTask && updateTaskNameHandler(inputTask, taskName);
-				if (taskName == inputTaskTitle) {
-					setEditMode(false);
-					setActiveTask({
-						id: ''
-					});
-				}
-			}
-		};
-
-		// Attach the event listener
-		document.addEventListener('mousedown', handleClickOutside);
-
-		// Clean up the event listener on component unmount
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [inputTask, taskName, setActiveTask, updateTaskNameHandler, editMode, inputTaskTitle, setEditMode]);
-
 	// Handling Hotkeys
 	const handleCommandKeySequence = useCallback(() => {
 		if (!editMode) {

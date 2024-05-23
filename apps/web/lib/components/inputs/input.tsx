@@ -139,9 +139,10 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				)}
 			>
 				<div
-					className={`${
-						notValidBorder ? 'border border-red-500' : 'input-border'
-					} rounded-[10px] flex justify-between h-auto items-center bg-light--theme-light dark:bg-transparent`}
+					className={clsxm(
+						notValidBorder ? 'border border-red-500' : 'input-border',
+						'rounded-[10px] flex justify-between h-auto items-center bg-light--theme-light dark:bg-transparent'
+					)}
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
