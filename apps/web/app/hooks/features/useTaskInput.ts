@@ -154,6 +154,7 @@ export function useTaskInput({
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
 			setQuery('');
+			localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
 			setTaskIssue('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());

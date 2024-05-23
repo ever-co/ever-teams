@@ -182,7 +182,7 @@
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "在您的应用程序中自动同步任务，实现无缝和高效的更新。",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
 		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签",
-		"THERE_IS_NO_TASK_ASSIGNED":  "没有分配任务",
+		"THERE_IS_NO_TASK_ASSIGNED": "没有分配任务",
 		"NO_USERS_ONLINE": "没有在线用户",
 		"NOT_FOUND": "未找到",
 		"PAGE_NOT_FOUND": "页面未找到",
@@ -196,7 +196,7 @@
 		"PAUSED": "暂停",
 		"ONLINE": "在线"
 	},
-	"hotkeys":{
+	"hotkeys": {
 		"HELP": "帮助",
 		"TO_OPEN_SHORTCUT_LIST": "打开快捷键列表",
 		"TIMER": "计时器",
@@ -402,6 +402,7 @@
 			"VERSIONS": "版本",
 			"LIST_OF_VERSONS": "版本列表",
 			"ISSUETYPE": "议题类型",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "议题列表",
 			"RELATED_ISSUE_TYPE": "相关议题类型",
 			"LIST_OF_RELATED_TYPE": "相关类型列表",
