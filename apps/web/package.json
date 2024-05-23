@@ -71,6 +71,7 @@
 		"moment-timezone": "^0.5.42",
 		"nanoid": "5.0.1",
 		"next": "^14.2.3",
+		"next-auth": "^5.0.0-beta.18",
 		"next-intl": "^3.3.2",
 		"next-themes": "^0.2.1",
 		"ni18n": "^1.1.0",
