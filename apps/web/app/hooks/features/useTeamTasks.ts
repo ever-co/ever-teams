@@ -431,7 +431,7 @@ export function useTeamTasks() {
 	const unassignAuthActiveTask = useCallback(() => {
 		setActiveTaskIdCookie('');
 		setActiveTeamTask(null);
-	}, []);
+	}, [setActiveTeamTask]);
 
 	useEffect(() => {
 		const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);

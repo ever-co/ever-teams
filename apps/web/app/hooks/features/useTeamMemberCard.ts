@@ -197,7 +197,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 				setUnAssignTaskLoading(false);
 			});
 		},
-		[updateTask, member, isAuthUser, unassignAuthActiveTask, setActiveTask]
+		[updateTask, member, isAuthUser, unassignAuthActiveTask]
 	);
 
 	return {
