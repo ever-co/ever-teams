@@ -9,6 +9,7 @@ export interface IIssueTypesCreate {
 	organizationId?: string;
 	tenantId?: string | undefined | null;
 	organizationTeamId?: string | undefined | null;
+	isDefault?: boolean;
 }
 
 export interface IIssueTypesItemList extends IIssueTypesCreate {

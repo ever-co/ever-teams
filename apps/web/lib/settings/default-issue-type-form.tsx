@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, Text, Tooltip } from 'lib/components';
+import { Text, Tooltip } from 'lib/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@app/hooks';
@@ -18,8 +18,8 @@ import {
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
-	const { issueTypes, editIssueType } = useIssueType();
-	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => !issue.isDefault);
+	const { issueTypes, editIssueType, editIssueTypeLoading } = useIssueType();
+	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
 	const textColor = defaultIssueType?.color ? getTextColor(defaultIssueType.color) : '#cdd1d8';
 
 	return (
@@ -32,32 +32,6 @@ export const DefaultIssueTypeForm = () => {
 						</Text>
 
 						<div className="flex flex-col w-full">
-							{/* <>
-								<Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400">
-									{t('common.NEW_ISSUE')}
-								</Text>
-								<div className="flex items-center w-full mt-3 gap-x-5">
-									<InputField
-										type="text"
-										placeholder={t('common.CREATE_VERSION')}
-										className="w-full mb-0"
-										wrapperClassName="mb-0 w-full"
-									/>
-								</div>
-								<div className="flex mt-5 gap-x-4">
-									<Button
-										variant="primary"
-										className="px-4 py-4 font-normal rounded-xl text-md"
-										type="submit"
-									>
-										{t('common.CREATE')}
-									</Button>
-									<Button variant="grey" className="px-4 py-4 font-normal rounded-xl text-md">
-										{t('common.CANCEL')}
-									</Button>
-								</div>
-							</> */}
-
 							<div className="flex flex-wrap w-full gap-3">
 								{defaultIssueType ? (
 									<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
@@ -109,6 +83,7 @@ export const DefaultIssueTypeForm = () => {
 												</Text.Label>
 											</Tooltip>
 										</div>
+										{editIssueTypeLoading ? 'Loading ...' : null}
 										{/* <TaskIssuesDropdown
 											type="HORIZONTAL"
 											taskStatusClassName="!px-1 py-1 rounded-sm"
@@ -123,38 +98,45 @@ export const DefaultIssueTypeForm = () => {
 											<Tooltip label={t('common.EDIT')}>
 												<DropdownMenu>
 													<DropdownMenuTrigger className={'rounded-lg'}>
-														<Button
-															variant="ghost"
-															className="p-0 m-0 min-w-0"
-															onClick={() => {
-																console.log('Edit');
-															}}
-														>
-															<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-														</Button>
+														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 													</DropdownMenuTrigger>
 													<DropdownMenuContent className="dark:bg-[#1E2025] bg-white w-10/12 flex flex-col gap-3 p-4 rounded-2xl dark:border-gray-500 border-gray-200 border-[1px] shadow-2xl shadow-black/20">
 														{issueTypes.map((issue, index) => {
 															return (
-																<DropdownMenuItem
-																	className={clsxm(
-																		'flex gap-2 rounded-lg cursor-pointer p-2 text-black/70 hover:text-black/70'
-																	)}
-																	style={{ background: issue.color }}
-																	key={index}
-																>
-																	<Image
-																		src={issue.fullIconUrl as string}
-																		alt={issue.name}
-																		width={10}
-																		height={10}
-																		decoding="async"
-																		data-nimg="1"
-																		loading="lazy"
-																		className="min-h-[20px]"
-																	/>
-																	<div>{issue.name}</div>
-																</DropdownMenuItem>
+																!issue.isDefault && (
+																	<DropdownMenuItem
+																		onClick={async () => {
+																			await editIssueType(issue.id, {
+																				...issue,
+																				isDefault: true
+																			});
+																			issueTypes.forEach(async (is) => {
+																				issue.id != is.id &&
+																					(await editIssueType(is.id, {
+																						...is,
+																						isDefault: false
+																					}));
+																			});
+																		}}
+																		className={clsxm(
+																			'flex gap-2 rounded-lg cursor-pointer p-2 text-black/70 hover:text-black/70'
+																		)}
+																		style={{ background: issue.color }}
+																		key={index}
+																	>
+																		<Image
+																			src={issue.fullIconUrl as string}
+																			alt={issue.name}
+																			width={10}
+																			height={10}
+																			decoding="async"
+																			data-nimg="1"
+																			loading="lazy"
+																			className="min-h-[20px]"
+																		/>
+																		<div>{issue.name}</div>
+																	</DropdownMenuItem>
+																)
 															);
 														})}
 													</DropdownMenuContent>
