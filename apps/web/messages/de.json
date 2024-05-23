@@ -196,7 +196,7 @@
 		"PAUSED": "Pausiert",
 		"ONLINE": "Online"
 	},
-	"hotkeys":{
+	"hotkeys": {
 		"HELP": "Hilfe",
 		"TO_OPEN_SHORTCUT_LIST": "Um die Liste der Tastenkombinationen zu öffnen",
 		"TIMER": "Timer",
@@ -402,6 +402,7 @@
 			"VERSIONS": "Versionen",
 			"LIST_OF_VERSONS": "Liste der Versionen",
 			"ISSUETYPE": "Tickettypen",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "Liste der Tickets",
 			"RELATED_ISSUE_TYPE": "Verwandte Tickettypen",
 			"LIST_OF_RELATED_TYPE": "Liste verwandter Typen",
