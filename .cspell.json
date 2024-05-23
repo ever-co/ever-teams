@@ -343,7 +343,8 @@
 		"plan",
 		"setwork",
 		"Clik",
-		"Relationnal"
+		"Relationnal",
+		"authjs"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

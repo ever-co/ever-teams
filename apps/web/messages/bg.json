@@ -186,9 +186,9 @@
 		"NO_USERS_ONLINE": "Няма потребители онлайн",
 		"NOT_FOUND": "не е намерено",
 		"PAGE_NOT_FOUND": "Страницата не е намерена",
-		"NO_USERS_WORKING":"В момента няма активни потребители",
-		"NO_USERS_PAUSED_WORK":"В момента няма потребители, които да са спрели работата си",
-		"NO_USERS_IDLE":"В момента няма неактивни потребители",
+		"NO_USERS_WORKING": "В момента няма активни потребители",
+		"NO_USERS_PAUSED_WORK": "В момента няма потребители, които да са спрели работата си",
+		"NO_USERS_IDLE": "В момента няма неактивни потребители",
 		"SELECT_TEAM_MEMBER": "изберете член на екипа",
 		"ALL_MEMBERS": "Всички членове",
 		"NOT_WORKING": "Не работи",
@@ -196,7 +196,7 @@
 		"PAUSED": "Пауза",
 		"ONLINE": "Онлайн"
 	},
-	"hotkeys":{
+	"hotkeys": {
 		"HELP": "Помощ",
 		"TO_OPEN_SHORTCUT_LIST": "за да отворите списъка с клавишни комбинации",
 		"TIMER": "Таймер",
@@ -402,6 +402,7 @@
 			"VERSIONS": "Версии",
 			"LIST_OF_VERSONS": "Списък с версии",
 			"ISSUETYPE": "Типове проблеми",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "Списък с проблеми",
 			"RELATED_ISSUE_TYPE": "Свързани типове проблеми",
 			"LIST_OF_RELATED_TYPE": "Списък със свързани типове",

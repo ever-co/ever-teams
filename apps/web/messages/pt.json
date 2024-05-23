@@ -196,7 +196,7 @@
 		"PAUSED": "Pausado",
 		"ONLINE": "Online"
 	},
-	"hotkeys":{
+	"hotkeys": {
 		"HELP": "Ajuda",
 		"TO_OPEN_SHORTCUT_LIST": "Para abrir a lista de atalhos",
 		"TIMER": "Temporizador",
@@ -402,6 +402,7 @@
 			"VERSIONS": "Versões",
 			"LIST_OF_VERSONS": "Lista de Versões",
 			"ISSUETYPE": "Tipos de Problema",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "Lista de Problemas",
 			"RELATED_ISSUE_TYPE": "Tipos de Problema Relacionados",
 			"LIST_OF_RELATED_TYPE": "Lista de Tipos Relacionados",
