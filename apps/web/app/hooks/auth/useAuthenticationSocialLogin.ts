@@ -22,7 +22,7 @@ export function useAuthenticationSocialLogin() {
 	const router = useRouter();
 	const [signInWorkspaceLoading, setSignInWorkspaceLoading] = useState(false);
 
-	const { update }: any = useSession();
+	const { update: updateNextAuthSession }: any = useSession();
 
 	const updateOAuthSession = useCallback(
 		(
@@ -52,7 +52,7 @@ export function useAuthenticationSocialLogin() {
 						});
 					}
 
-					update({
+					updateNextAuthSession({
 						access_token,
 						refresh_token: {
 							token: result.refresh_token
@@ -85,7 +85,7 @@ export function useAuthenticationSocialLogin() {
 				})
 				.catch((err) => console.log(err));
 		},
-		[router, update]
+		[router, updateNextAuthSession]
 	);
 
 	return {
