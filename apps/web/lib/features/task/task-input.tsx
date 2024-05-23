@@ -6,13 +6,22 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
+	useIssueType,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
 	useTaskInput,
 	useTaskLabels
 } from '@app/hooks';
-import { ITaskIssue, ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IIssueTypesItemList,
+	ITaskIssue,
+	ITaskPriority,
+	ITaskSize,
+	ITaskStatus,
+	ITeamTask,
+	Nullable
+} from '@app/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -66,6 +75,8 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const t = useTranslations();
+	const { issueTypes } = useIssueType();
+	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
@@ -349,7 +360,11 @@ export function TaskInput(props: Props) {
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
 							onValueChange={(v) => setTaskIssue(v)}
-							defaultValue={(localStorage.getItem('lastTaskIssue') as ITaskIssue) || null}
+							defaultValue={
+								defaultIssueType
+									? defaultIssueType.name
+									: (localStorage.getItem('lastTaskIssue') as ITaskIssue) || null
+							}
 						/>
 					)}
 

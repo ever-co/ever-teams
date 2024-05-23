@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Text, Tooltip } from 'lib/components';
+import { SpinnerLoader, Text, Tooltip } from 'lib/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@app/hooks';
@@ -83,78 +83,58 @@ export const DefaultIssueTypeForm = () => {
 												</Text.Label>
 											</Tooltip>
 										</div>
-										{editIssueTypeLoading ? 'Loading ...' : null}
-										{/* <TaskIssuesDropdown
-											type="HORIZONTAL"
-											taskStatusClassName="!px-1 py-1 rounded-sm"
-											showIssueLabels={true}
-											onValueChange={(v) => console.log(v)}
-											defaultValue={defaultIssueType.name}
-											className="h-10 w-2/3 rounded-lg"
-											fullWidth={true}
-										/> */}
-
 										<div className="flex h-10 items-center gap-x-[12PX] mr-[4px]">
-											<Tooltip label={t('common.EDIT')}>
-												<DropdownMenu>
-													<DropdownMenuTrigger className={'rounded-lg'}>
-														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-													</DropdownMenuTrigger>
-													<DropdownMenuContent className="dark:bg-[#1E2025] bg-white w-10/12 flex flex-col gap-3 p-4 rounded-2xl dark:border-gray-500 border-gray-200 border-[1px] shadow-2xl shadow-black/20">
-														{issueTypes.map((issue, index) => {
-															return (
-																!issue.isDefault && (
-																	<DropdownMenuItem
-																		onClick={async () => {
-																			await editIssueType(issue.id, {
-																				...issue,
-																				isDefault: true
-																			});
-																			issueTypes.forEach(async (is) => {
-																				issue.id != is.id &&
-																					(await editIssueType(is.id, {
-																						...is,
-																						isDefault: false
-																					}));
-																			});
-																		}}
-																		className={clsxm(
-																			'flex gap-2 rounded-lg cursor-pointer p-2 text-black/70 hover:text-black/70'
-																		)}
-																		style={{ background: issue.color }}
-																		key={index}
-																	>
-																		<Image
-																			src={issue.fullIconUrl as string}
-																			alt={issue.name}
-																			width={10}
-																			height={10}
-																			decoding="async"
-																			data-nimg="1"
-																			loading="lazy"
-																			className="min-h-[20px]"
-																		/>
-																		<div>{issue.name}</div>
-																	</DropdownMenuItem>
-																)
-															);
-														})}
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</Tooltip>
-											{/* <StatusDropdown
-											// sidebarUI={props.sidebarUI}
-											className={clsxm('w-4')}
-											// items={props.forParentChildRelationship ? updatedItemsBasedOnTaskIssueType : items}
-											// value={item || (taskIssues['Task'] as Required<TStatusItem>)}
-											defaultItem={undefined}
-											onChange={() => {
-												console.log('On change');
-											}}
-											issueType="issue"
-											items={issueTypes}
-											value={issueTypes[0]}
-										/> */}
+											{editIssueTypeLoading ? (
+												<SpinnerLoader size={25} />
+											) : (
+												<Tooltip label={t('common.EDIT')}>
+													<DropdownMenu>
+														<DropdownMenuTrigger className={'rounded-lg'}>
+															<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+														</DropdownMenuTrigger>
+														<DropdownMenuContent className="dark:bg-[#1E2025] bg-white w-10/12 flex flex-col gap-3 p-4 rounded-2xl dark:border-gray-500 border-gray-200 border-[1px] shadow-2xl shadow-black/20">
+															{issueTypes.map((issue, index) => {
+																return (
+																	!issue.isDefault && (
+																		<DropdownMenuItem
+																			onClick={async () => {
+																				await editIssueType(issue.id, {
+																					...issue,
+																					isDefault: true
+																				});
+																				issueTypes.forEach(async (is) => {
+																					issue.id != is.id &&
+																						(await editIssueType(is.id, {
+																							...is,
+																							isDefault: false
+																						}));
+																				});
+																			}}
+																			className={clsxm(
+																				'flex gap-2 rounded-lg cursor-pointer p-2 text-black/70 hover:text-black/70'
+																			)}
+																			style={{ background: issue.color }}
+																			key={index}
+																		>
+																			<Image
+																				src={issue.fullIconUrl as string}
+																				alt={issue.name}
+																				width={10}
+																				height={10}
+																				decoding="async"
+																				data-nimg="1"
+																				loading="lazy"
+																				className="min-h-[20px]"
+																			/>
+																			<div>{issue.name}</div>
+																		</DropdownMenuItem>
+																	)
+																);
+															})}
+														</DropdownMenuContent>
+													</DropdownMenu>
+												</Tooltip>
+											)}
 										</div>
 									</div>
 								) : (
