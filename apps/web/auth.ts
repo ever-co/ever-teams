@@ -78,7 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				}
 
 				token.authCookie = {
-					access_token: data.token,
+					access_token,
 					refresh_token: {
 						token: data.refresh_token
 					},
@@ -98,5 +98,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			session.user = token.authCookie as any;
 			return session;
 		}
+	},
+	pages: {
+		error: '/auth/error'
 	}
 });

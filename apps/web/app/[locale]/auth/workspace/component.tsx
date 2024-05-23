@@ -8,9 +8,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
 import { useAuthenticationSocialLogin } from '@app/hooks/auth/useAuthenticationSocialLogin';
-import { getSession } from 'next-auth/react';
 import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import Cookies from 'js-cookie';
+import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
+import { auth } from '../../../../auth';
+import { getSession } from 'next-auth/react';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -32,6 +34,7 @@ function WorkSpaceScreen() {
 	const form = useAuthenticationSocialLogin();
 	const [signinResult, setSigninResult] = useState({
 		access_token: '',
+		confirmed_mail: '',
 		organizationId: '',
 		refresh_token: {
 			token: '',
@@ -48,8 +51,8 @@ function WorkSpaceScreen() {
 		const loadOAuthSession = async () => {
 			const session: any = await getSession();
 			if (session) {
-				const { access_token, organizationId, refresh_token, tenantId, userId } = session.user;
-				setSigninResult({ access_token, organizationId, refresh_token, tenantId, userId });
+				const { access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId } = session.user;
+				setSigninResult({ access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId });
 				setWorkspaces(session.user.workspaces);
 			} else {
 				return;
@@ -60,7 +63,7 @@ function WorkSpaceScreen() {
 
 	const signInToWorkspace = (e: any) => {
 		e.preventDefault();
-
+		updateOAuthSession();
 		setAuthCookies({
 			access_token: signinResult.access_token,
 			refresh_token: signinResult.refresh_token,
@@ -74,6 +77,46 @@ function WorkSpaceScreen() {
 		router.push('/');
 		new Array(3).fill('').forEach((_, i) => {
 			Cookies.remove(`authjs.session-token.${i}`);
+		});
+	};
+
+	const updateOAuthSession = () => {
+		signInWorkspaceAPI(signinResult.confirmed_mail, workspaces[selectedWorkspace].token).then(async (result) => {
+			const session: any = await auth();
+			const tenantId = result.user?.tenantId || '';
+			const access_token = result.token;
+			const userId = result.user?.id;
+
+			const organizations = await getUserOrganizationsRequest({
+				tenantId,
+				userId,
+				token: access_token
+			});
+			const organization = organizations?.data.items[0];
+			if (!organization) {
+				return Promise.reject({
+					errors: {
+						email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					}
+				});
+			}
+			if (session) {
+				session.user = {
+					access_token,
+					refresh_token: {
+						token: result.refresh_token
+					},
+					teamId: selectedTeam,
+					tenantId,
+					organizationId: organization?.organizationId,
+					languageId: 'en',
+					noTeamPopup: true,
+
+					userId,
+					workspaces: workspaces,
+					confirmed_mail: signinResult.confirmed_mail
+				};
+			}
 		});
 	};
 
