@@ -1,5 +1,7 @@
+import { ITaskIssue } from './ITask';
+
 export interface IIssueTypesCreate {
-	name: string;
+	name: ITaskIssue;
 	description?: string;
 	icon?: string;
 	color?: string;

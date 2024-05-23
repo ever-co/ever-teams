@@ -1,13 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Text, Tooltip } from 'lib/components';
+import { Button, Text, Tooltip } from 'lib/components';
 
 import { useTranslations } from 'next-intl';
 import { useIssueType } from '@app/hooks';
-import { IIssueTypesItemList, ITaskIssue } from '@app/interfaces';
-import { clsxm } from '@app/utils';
-import Image from 'next/image';
+import { IIssueTypesItemList } from '@app/interfaces';
 import { getTextColor } from '@app/helpers';
 import { StatusesListCard } from './list-card';
+import { EditPenUnderlineIcon } from 'assets/svg';
+import { clsxm } from '@app/utils';
+import Image from 'next/image';
 import { TaskIssuesDropdown } from 'lib/features';
 
 export const DefaultIssueTypeForm = () => {
@@ -103,16 +104,18 @@ export const DefaultIssueTypeForm = () => {
 												</Text.Label>
 											</Tooltip>
 										</div>
-										<div className="flex items-center gap-x-[12PX] mr-[4px]">
+										<TaskIssuesDropdown
+											taskStatusClassName="!px-1 py-1 rounded-sm"
+											showIssueLabels={true}
+											onValueChange={(v) => console.log(v)}
+											defaultValue={defaultIssueType.name}
+											className="h-10 w-2/3 rounded-lg"
+											fullWidth={true}
+										/>
+
+										<div className="flex h-10 items-center gap-x-[12PX] mr-[4px]">
 											<Tooltip label={t('common.EDIT')}>
-												<TaskIssuesDropdown
-													taskStatusClassName="!px-1 py-1 rounded-sm"
-													showIssueLabels={true}
-													onValueChange={(v) => console.log(v)}
-													defaultValue={defaultIssueType.name as ITaskIssue}
-													className="h-full"
-												/>
-												{/* <Button
+												<Button
 													variant="ghost"
 													className="p-0 m-0 min-w-0"
 													onClick={() => {
@@ -120,7 +123,7 @@ export const DefaultIssueTypeForm = () => {
 													}}
 												>
 													<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-												</Button> */}
+												</Button>
 											</Tooltip>
 											{/* <StatusDropdown
 											// sidebarUI={props.sidebarUI}
