@@ -342,7 +342,9 @@
 		"setwork",
 		"Clik",
 		"Relationnal",
-		"authjs"
+		"authjs",
+		"MICROSOFTENTRAID",
+		"Entra"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

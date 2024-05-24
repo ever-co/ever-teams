@@ -1,23 +1,11 @@
 import NextAuth from 'next-auth';
-import type { Provider } from 'next-auth/providers';
-import Facebook from 'next-auth/providers/facebook';
-import Google from 'next-auth/providers/google';
-import Github from 'next-auth/providers/github';
-import Twitter from 'next-auth/providers/twitter';
+
 import { signWithSocialLoginsRequest } from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
-
-const providers: Provider[] = [Facebook, Google, Github, Twitter];
-
-export const mappedProviders = providers.map((provider) => {
-	if (typeof provider === 'function') {
-		const providerData = provider();
-		return { id: providerData.id, name: providerData.name };
-	} else return { id: provider.id, name: provider.name };
-});
+import { filteredProviders } from '@app/utils/check-provider-env-vars';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-	providers: providers,
+	providers: filteredProviders,
 	callbacks: {
 		async signIn({ user }) {
 			try {
