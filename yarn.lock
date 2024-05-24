@@ -6442,6 +6442,11 @@
     "@types/keygrip" "*"
     "@types/node" "*"
 
+"@types/country-flag-icons@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@types/country-flag-icons/-/country-flag-icons-1.2.2.tgz#8f51089cab857f0f700feabd38b3960d006d64f2"
+  integrity sha512-CefEn/J336TBDp7NX8JqzlDtCBOsm8M3r1Li0gEOt0HOMHF1XemNyrx9lSHjsafcb1yYWybU0N8ZAXuyCaND0w==
+
 "@types/detox@^18.1.0":
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/@types/detox/-/detox-18.1.0.tgz#5d204f08c8db3a03827f9146b043fc2421327753"
@@ -9956,6 +9961,16 @@ cosmiconfig@^8.2.0:
     js-yaml "^4.1.0"
     parse-json "^5.2.0"
     path-type "^4.0.0"
+
+country-flag-icons@^1.5.11:
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/country-flag-icons/-/country-flag-icons-1.5.11.tgz#04c0556728e517a6207946656355698ac6237080"
+  integrity sha512-B+mvFywunkRJs270k7kCBjhogvIA0uNn6GAXv6m2cPn3rrwqZzZVr2gBWcz+Cz7OGVWlcbERlYRIX0S6OGr8Bw==
+
+country-flags-icons@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/country-flags-icons/-/country-flags-icons-0.0.0.tgz#5ade489e082e63f6b55bd6aac0afa8d7d5488963"
+  integrity sha512-lL/DZHHL4dP9IJgyC+7UD91UGb7HGaMBGJad6z3phWAyRj7y2HusvCkdV3y0lLe7u923KgiUQKBpWsc+SgfsDQ==
 
 create-ecdh@^4.0.0:
   version "4.0.4"

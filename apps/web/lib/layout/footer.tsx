@@ -3,12 +3,14 @@ import { IClassName } from '@app/interfaces';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import { Text, ThemeToggler } from 'lib/components';
+import { LanguageDropDownWithFlags } from 'lib/settings/language-dropdown-flags';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
 export function Footer({ className }: IClassName) {
 	const t = useTranslations();
+
 	const [showChatwoot, setShowChatwoot] = useState(false);
 	const fullWidth = useRecoilValue(fullWidthState);
 	useEffect(() => {
@@ -26,8 +28,8 @@ export function Footer({ className }: IClassName) {
 				<Text.Link href="https://ever.co/">{t('layout.footer.COPY_RIGHT4')}</Text.Link>{' '}
 				{t('layout.footer.RIGHTS_RESERVED')}
 			</p>
-
-			<div style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
+			<div className="flex" style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
+        <LanguageDropDownWithFlags />
 				<ThemeToggler />
 			</div>
 		</footer>
