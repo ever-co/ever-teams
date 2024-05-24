@@ -53,6 +53,7 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
+	showEmoji?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
 	fullHeightCombobox?: boolean;
@@ -252,7 +253,7 @@ export function TaskInput(props: Props) {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
-				inputTask && updateTaskNameHandler(inputTask, taskName);
+				// inputTask && updateTaskNameHandler(inputTask, taskName);
 				if (taskName == inputTaskTitle) {
 					setEditMode(false);
 					setActiveTask({
@@ -298,7 +299,7 @@ export function TaskInput(props: Props) {
 			value={taskName}
 			disabled={timerRunningStatus}
 			ref={targetEl}
-			emojis={true}
+			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
 			setTaskName={setTaskName}
 			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}

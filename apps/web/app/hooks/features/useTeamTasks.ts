@@ -49,6 +49,7 @@ export function useTeamTasks() {
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
+	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
 	// const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
 	const { taskStatus } = useTaskStatus();
 	const activeTeam = useRecoilValue(activeTeamState);
@@ -383,6 +384,20 @@ export function useTeamTasks() {
 	 */
 	const setActiveTask = useCallback(
 		(task: ITeamTask | null) => {
+			/**
+			 * Unassign previous active task
+			 */
+			if ($memberActiveTaskId.current && $user.current) {
+				const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
+
+				if (_task) {
+					updateTask({
+						..._task,
+						members: _task.members.filter((m) => m.id !== $user.current?.employee.id)
+					});
+				}
+			}
+
 			setActiveTaskIdCookie(task?.id || '');
 			setActiveTeamTask(task);
 			setActiveUserTaskCookieCb(task);
@@ -413,6 +428,11 @@ export function useTeamTasks() {
 		[deleteEmployeeFromTasksQueryCall]
 	);
 
+	const unassignAuthActiveTask = useCallback(() => {
+		setActiveTaskIdCookie('');
+		setActiveTeamTask(null);
+	}, [setActiveTeamTask]);
+
 	useEffect(() => {
 		const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
 		if (memberActiveTask) {
@@ -442,6 +462,7 @@ export function useTeamTasks() {
 		getTasksByEmployeeIdLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
+		unassignAuthActiveTask,
 		setAllTasks,
 		loadTeamTasksData,
 		deleteEmployeeFromTasks,

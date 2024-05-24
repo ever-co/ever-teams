@@ -133,7 +133,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 								enableSystem
 								disableTransitionOnChange
 							>
-								{loading ? (
+								{loading && !pathname?.startsWith('/auth') ? (
 									<GlobalSkeleton />
 								) : (
 									<>

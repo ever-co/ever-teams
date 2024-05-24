@@ -21,7 +21,6 @@ import {
 	activeTeamManagersState,
 	activeTeamState,
 	isTeamMemberState,
-	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamsFetchingState,
 	timerStatusState
@@ -181,20 +180,22 @@ export function useOrganizationTeams() {
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
 	const timerStatus = useRecoilValue(timerStatusState);
 
-	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
+	// const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
 
 	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
+
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
+
 	const isTrackingEnabled = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
 	)
 		? true
 		: false;
 
-	useEffect(() => {
-		setMemberActiveTaskId(memberActiveTaskId);
-	}, [setMemberActiveTaskId, memberActiveTaskId]);
+	// useEffect(() => {
+	// 	setMemberActiveTaskId(memberActiveTaskId);
+	// }, [setMemberActiveTaskId, memberActiveTaskId]);
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();

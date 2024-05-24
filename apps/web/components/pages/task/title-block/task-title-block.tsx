@@ -15,6 +15,7 @@ import CreateParentTask from '../ParentTask';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import { clsxm } from '@app/utils';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -105,9 +106,12 @@ const TaskTitleBlock = () => {
 			{task ? (
 				<div className="flex gap-1">
 					<textarea
-						className={`w-full ${
-							edit && 'textAreaOutline'
-						} bg-transparent p-1 resize-none text-black dark:text-white not-italic font-medium text-2xl items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide`}
+						className={clsxm(
+							'w-full',
+							edit && 'textAreaOutline',
+							'bg-transparent p-1 resize-none text-black dark:text-white not-italic font-medium text-2xl',
+							'items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide'
+						)}
 						onChange={handleTaskTitleChange}
 						onKeyDown={saveOnEnter}
 						value={title}
@@ -232,33 +236,30 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 				<Link
 					href={`/task/${task.parentId}`}
 					target="_blank"
-					className={`
-					${task.parent.issueType === 'Epic' ? 'bg-[#8154BA]' : ''}
-					${task.parent.issueType === 'Story' ? 'bg-[#54BA951A]' : ''}
-					${task.parent.issueType === 'Bug' ? 'bg-[#C24A4A1A]' : ''}
-					${task.parent.issueType === 'Task' || !task.parent.issueType ? 'bg-[#5483ba]' : ''}
-
-					rounded-[0.1875rem] text-center h-5 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5`}
+					className={clsxm(
+						task.parent.issueType === 'Epic' && 'bg-[#8154BA]',
+						task.parent.issueType === 'Story' && 'bg-[#54BA951A]',
+						task.parent.issueType === 'Bug' && 'bg-[#C24A4A1A]',
+						(task.parent.issueType === 'Task' || !task.parent.issueType) && 'bg-[#5483ba]',
+						'rounded-[0.1875rem] text-center h-5 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
+					)}
 				>
 					<span
-						className={`
-
-						${task.parent.issueType === 'Epic' ? 'text-white' : ''}
-					${task.parent.issueType === 'Story' ? 'text-[#27AE60]' : ''}
-					${task.parent.issueType === 'Bug' ? 'text-[#C24A4A]' : ''}
-					${task.parent.issueType === 'Task' || !task.parent.issueType ? 'text-white' : ''}
-
-						 font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap`}
+						className={clsxm(
+							task.parent.issueType === 'Epic' && 'text-white',
+							task.parent.issueType === 'Story' && 'text-[#27AE60]',
+							task.parent.issueType === 'Bug' && 'text-[#C24A4A]',
+							(task.parent.issueType === 'Task' || !task.parent.issueType) && 'text-white',
+							'font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap'
+						)}
 					>
 						<span
-							className={`
-
-							${task.parent.issueType === 'Epic' ? 'text-[#FFFFFF80]' : ''}
-					${task.parent.issueType === 'Story' ? 'text-[#27AE6080]' : ''}
-					${task.parent.issueType === 'Bug' ? 'text-[#C24A4A80]' : ''}
-					${task.parent.issueType === 'Task' || !task.parent.issueType ? 'text-white' : ''}
-
-							`}
+							className={clsxm(
+								task.parent.issueType === 'Epic' && 'text-[#FFFFFF80]',
+								task.parent.issueType === 'Story' && 'text-[#27AE6080]',
+								task.parent.issueType === 'Bug' && 'text-[#C24A4A80]',
+								(task.parent.issueType === 'Task' || !task.parent.issueType) && 'text-white'
+							)}
 						>{`#${task.parent.taskNumber || task.parent.number}`}</span>
 						{` - ${task.parent.title}`}
 					</span>
