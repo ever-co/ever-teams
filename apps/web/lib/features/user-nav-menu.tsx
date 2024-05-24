@@ -26,6 +26,7 @@ import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { AllSidesIcon } from '@radix-ui/react-icons';
+import { signOutFunction } from '@app/[locale]/auth/social-logins';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -291,7 +292,10 @@ function UserNavMenu() {
 					<li>
 						<button
 							className="flex space-x-3 items-center font-normal mb-3 text-[#DE437B]"
-							onClick={logOut}
+							onClick={() => {
+								logOut();
+								signOutFunction();
+							}}
 						>
 							<LogoutRoundIcon className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>
 						</button>

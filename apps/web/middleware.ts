@@ -29,6 +29,8 @@ export const config = {
 	]
 };
 
+export { auth as authMiddleware } from './auth';
+
 export async function middleware(request: NextRequest) {
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,

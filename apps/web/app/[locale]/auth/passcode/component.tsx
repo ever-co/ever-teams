@@ -14,6 +14,7 @@ import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, use
 
 import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import SocialLogins from '../social-logins-buttons';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -42,12 +43,12 @@ function AuthPasscode() {
 						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
 					</>
 				) : (
-					t('pages.authLogin.HEADING_DESCRIPTION')
+					<div>{t('pages.authLogin.HEADING_DESCRIPTION')}</div>
 				)
 			}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+				<div className={clsxm('flex flex-row transition-[transform] duration-500 mb-4')}>
 					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
 					{form.authScreen.screen === 'passcode' && (
 						<PasscodeScreen form={form} className={clsxm('w-full')} />
@@ -57,6 +58,8 @@ function AuthPasscode() {
 						<WorkSpaceScreen form={form} className={clsxm('w-full')} />
 					)}
 				</div>
+				{/* Social logins */}
+				<SocialLogins />
 			</div>
 		</AuthLayout>
 	);
