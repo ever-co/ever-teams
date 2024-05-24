@@ -21,7 +21,7 @@ import cloneDeep from 'lodash/cloneDeep';
  * IOrganizationTeamList['members'][number] | undefined
  */
 export function useTeamMemberCard(member: IOrganizationTeamList['members'][number] | undefined) {
-	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks } = useTeamTasks();
+	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
 	const publicTeam = useRecoilValue(getPublicState);
@@ -193,11 +193,11 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 				...task,
 				members: task.members.filter((m) => m.id !== member.employeeId)
 			}).finally(() => {
-				isAuthUser && setActiveTask(null);
+				isAuthUser && unassignAuthActiveTask();
 				setUnAssignTaskLoading(false);
 			});
 		},
-		[updateTask, member, isAuthUser, setActiveTask]
+		[updateTask, member, isAuthUser, unassignAuthActiveTask]
 	);
 
 	return {

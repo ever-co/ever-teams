@@ -21,6 +21,7 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
+	const router = useRouter();
 	const pathname = usePathname();
 	const query = useSearchParams();
 
@@ -51,7 +52,6 @@ export function useAuthenticationPasscode() {
 	});
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
-	const router = useRouter();
 	// Queries
 	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(sendAuthCodeAPI);
 
@@ -77,10 +77,17 @@ export function useAuthenticationPasscode() {
 	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
+				if ('team' in res.data) {
+					router.replace('/');
+					return;
+				}
+
 				const checkError: {
 					message: string;
 				} = res.data as any;
+
 				const isError = checkError.message === 'Unauthorized';
+
 				if (isError) {
 					setErrors({
 						code: 'Invalid code. Please try again.'
@@ -88,6 +95,7 @@ export function useAuthenticationPasscode() {
 				} else {
 					setErrors({});
 				}
+
 				const data = res.data as ISigninEmailConfirmResponse;
 				if (!data.workspaces) {
 					return;
@@ -283,7 +291,6 @@ export function useAuthenticationPasscode() {
 		workspaces,
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
-		queryCall,
 		handleWorkspaceSubmit
 	};
 }

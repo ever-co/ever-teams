@@ -3,7 +3,17 @@
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Dispatch, forwardRef, MutableRefObject, ReactNode, Ref, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+	Dispatch,
+	forwardRef,
+	MutableRefObject,
+	ReactNode,
+	Ref,
+	SetStateAction,
+	useEffect,
+	useRef,
+	useState
+} from 'react';
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
@@ -129,9 +139,10 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				)}
 			>
 				<div
-					className={`${
-						notValidBorder ? 'border border-red-500' : 'input-border'
-					} rounded-[10px] flex justify-between h-auto items-center bg-light--theme-light dark:bg-transparent`}
+					className={clsxm(
+						notValidBorder ? 'border border-red-500' : 'input-border',
+						'rounded-[10px] flex justify-between h-auto items-center bg-light--theme-light dark:bg-transparent'
+					)}
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
@@ -140,8 +151,11 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 							{showEmoji && (
 								<div
-								ref={mergeRefs(filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[])}
-								className="absolute  right-1 z-50">
+									ref={mergeRefs(
+										filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[]
+									)}
+									className="absolute  right-1 z-50"
+								>
 									<Picker
 										data={data}
 										emojiSize={20}
@@ -202,7 +216,6 @@ TimeInputField.displayName = 'TimeInputField';
 /**
  * RadioButtonField
  */
-
 export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
 	({ className, type = 'radio', errors, name, wrapperClassName, noWrapper, ...res }, ref) => {
 		const [error, setError] = useState<string | undefined>(undefined);
