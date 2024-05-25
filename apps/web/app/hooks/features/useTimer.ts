@@ -30,6 +30,7 @@ import isEqual from 'lodash/isEqual';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import moment from 'moment';
+import { usePathname } from 'next/navigation';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -151,7 +152,8 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
  * It returns a bunch of data and functions related to the timer
  */
 export function useTimer() {
-	const { updateTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
+	const pathname = usePathname();
+	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
 
@@ -247,6 +249,7 @@ export function useTimer() {
 
 	// Start timer
 	const startTimer = useCallback(async () => {
+		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
 		if (!taskId.current) return;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current,
@@ -289,17 +292,22 @@ export function useTimer() {
 
 		return promise;
 	}, [
-		activeTeamTaskRef,
-		timerStatus,
-		updateOrganizationTeamEmployeeActiveTask,
-		user,
-		activeTeam,
-		setTimerStatus,
-		setTimerStatusFetching,
-		startTimerQueryCall,
+		pathname,
+		setActiveTask,
+		detailedTask,
 		taskId,
 		updateLocalTimerStatus,
-		updateTask
+		setTimerStatusFetching,
+		startTimerQueryCall,
+		activeTeamTaskRef,
+		timerStatus,
+		setTimerStatus,
+		updateTask,
+		activeTeam?.members,
+		activeTeam?.id,
+		activeTeam?.tenantId,
+		user?.employee.id,
+		updateOrganizationTeamEmployeeActiveTask
 	]);
 
 	// Stop timer
