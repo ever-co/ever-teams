@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationTeams, useTeamTasks, useTimer, useUserProfilePage } from '@app/hooks';
+import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@app/hooks';
 import { ChildIssueCard } from '@components/pages/task/ChildIssueCard';
 import { RelatedIssueCard } from '@components/pages/task/IssueCard';
 import TaskProperties from '@components/pages/task/TaskProperties';
@@ -25,8 +25,7 @@ const TaskDetails = () => {
 	const router = useRouter();
 	const params = useParams();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { getTaskById, setActiveTask, detailedTask: task, getTasksByIdLoading } = useTeamTasks();
-	const { timerStatus } = useTimer();
+	const { getTaskById, detailedTask: task, getTasksByIdLoading } = useTeamTasks();
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const id = params?.id;
@@ -48,12 +47,6 @@ const TaskDetails = () => {
 			getTaskById(id as string);
 		}
 	}, [getTaskById, router, task, getTasksByIdLoading, id]);
-
-	useEffect(() => {
-		if (!timerStatus?.running) {
-			setActiveTask(task);
-		}
-	}, [setActiveTask, task, timerStatus?.running]);
 
 	return (
 		<MainLayout
