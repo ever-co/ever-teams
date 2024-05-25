@@ -24,7 +24,6 @@ export function useTaskTimeSheets(id: string) {
 				organizationId: user?.employee.organizationId ?? '',
 				taskId: id
 			}).then((response) => {
-				console.log(response);
 				if (response.data) {
 					console.log(response.data);
 					setTaskTimesheets(response.data);

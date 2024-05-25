@@ -31,6 +31,7 @@ interface Props {
 
 import { Poppins } from 'next/font/google';
 import GlobalSkeleton from '@components/ui/global-skeleton';
+import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -124,18 +125,25 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
 				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
-					<RecoilRoot>
-						<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-							{loading ? (
-								<GlobalSkeleton />
-							) : (
-								<>
-									<AppState />
-									<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
-								</>
-							)}
-						</ThemeProvider>
-					</RecoilRoot>
+					<NextAuthSessionProvider>
+						<RecoilRoot>
+							<ThemeProvider
+								attribute="class"
+								defaultTheme="system"
+								enableSystem
+								disableTransitionOnChange
+							>
+								{loading && !pathname?.startsWith('/auth') ? (
+									<GlobalSkeleton />
+								) : (
+									<>
+										<AppState />
+										<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+									</>
+								)}
+							</ThemeProvider>
+						</RecoilRoot>
+					</NextAuthSessionProvider>
 				</body>
 			</NextIntlClientProvider>
 		</html>

@@ -15,6 +15,10 @@ interface IIInviteRequest {
 export async function inviteByEmailsAPI(data: IIInviteRequest, tenantId: string) {
 	const endpoint = '/invite/emails';
 
+	if (!GAUZY_API_BASE_SERVER_URL.value) {
+		return post<PaginationResponse<IInvitation>>(endpoint, data, { tenantId });
+	}
+
 	const date = new Date();
 	date.setDate(date.getDate() - 1);
 

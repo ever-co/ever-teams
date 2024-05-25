@@ -14,6 +14,7 @@ type Props = {
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
 	const t = useTranslations();
+
 	return (
 		<>
 			<Meta title={title} />

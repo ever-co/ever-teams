@@ -196,7 +196,7 @@
 		"PAUSED": "Paused",
 		"ONLINE": "Online"
 	},
-	"hotkeys":{
+	"hotkeys": {
 		"HELP": "Help",
 		"TO_OPEN_SHORTCUT_LIST": "To open the shortcut list",
 		"TIMER": "Timer",
@@ -343,6 +343,7 @@
 			"TASK_SIZES": "Task Sizes",
 			"TASK_LABELS": "Task Labels",
 			"ISSUE_TYPES": "Issue Types",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"RELATED_TYPE": "Related Type",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Create new Statuses",

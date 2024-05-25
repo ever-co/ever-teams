@@ -6,13 +6,22 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
+	useIssueType,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
 	useTaskInput,
 	useTaskLabels
 } from '@app/hooks';
-import { ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IIssueTypesItemList,
+	ITaskIssue,
+	ITaskPriority,
+	ITaskSize,
+	ITaskStatus,
+	ITeamTask,
+	Nullable
+} from '@app/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -44,6 +53,7 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
+	showEmoji?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
 	fullHeightCombobox?: boolean;
@@ -66,6 +76,8 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const t = useTranslations();
+	const { issueTypes } = useIssueType();
+	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
@@ -241,7 +253,7 @@ export function TaskInput(props: Props) {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
-				inputTask && updateTaskNameHandler(inputTask, taskName);
+				// inputTask && updateTaskNameHandler(inputTask, taskName);
 				if (taskName == inputTaskTitle) {
 					setEditMode(false);
 					setActiveTask({
@@ -280,12 +292,14 @@ export function TaskInput(props: Props) {
 		}
 	}, [props.autoFocus, targetEl]);
 
+	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
+
 	const inputField = (
 		<InputField
 			value={taskName}
 			disabled={timerRunningStatus}
 			ref={targetEl}
-			emojis={true}
+			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
 			setTaskName={setTaskName}
 			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
@@ -325,7 +339,7 @@ export function TaskInput(props: Props) {
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
-			/* Showing the task number. */
+			/* Showing the task number and issue type */
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
@@ -347,6 +361,11 @@ export function TaskInput(props: Props) {
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
 							onValueChange={(v) => setTaskIssue(v)}
+							defaultValue={
+								defaultIssueType
+									? defaultIssueType.name
+									: (localStorage.getItem('lastTaskIssue') as ITaskIssue) || null
+							}
 						/>
 					)}
 

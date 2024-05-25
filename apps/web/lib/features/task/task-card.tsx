@@ -15,6 +15,7 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import {
 	IClassName,
 	IDailyPlan,
@@ -43,7 +44,6 @@ import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
-import { TaskAssignButton } from './task-assign-button';
 import { TaskNameInfoDisplay } from './task-displays';
 import { TaskAvatars } from './task-item';
 import { ActiveTaskStatusDropdown } from './task-status';
@@ -123,6 +123,15 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
+	const activeMembers = task != null && task.members.length > 0;
+	const taskAssignee: ImageOverlapperProps[] = task?.members.map((member: any) => {
+		return {
+			id: member.user.id,
+			url: member.user.imageUrl,
+			alt: member.user.firstName
+		};
+	}) || [];
+
 
 	return (
 		<>
@@ -159,8 +168,9 @@ export function TaskCard(props: Props) {
 				)}
 
 				{viewType === 'unassign' && (
-					<div className="w-[20%] flex justify-around">
+					<div className="w-[20%] flex justify-around items-center">
 						<UsersTaskAssigned task={task} />
+						<ImageComponent radius={40} images={taskAssignee} item={task} hasActiveMembers={activeMembers} />
 					</div>
 				)}
 				<VerticalSeparator />
@@ -186,9 +196,9 @@ export function TaskCard(props: Props) {
 					{!isAuthUser && task && viewType === 'unassign' && (
 						<AssignTaskButtonCall
 							task={task}
-							assignTask={memberInfo.assignTask}
 							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
 							iconClassName='text-primary dark:text-white'
+							taskAssignee={taskAssignee}
 						/>
 					)}
 				</div>
@@ -376,14 +386,14 @@ function TimerButtonCall({
 
 function AssignTaskButtonCall({
 	task,
-	assignTask,
 	className,
-	iconClassName
+	iconClassName,
+	taskAssignee,
 }: {
 	task: ITeamTask;
-	assignTask: (task: ITeamTask) => Promise<void>;
 	className?: string;
 	iconClassName?: string;
+	taskAssignee: ImageOverlapperProps[];
 }) {
 	const {
 		disabled,
@@ -394,15 +404,12 @@ function AssignTaskButtonCall({
 
 	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
 
+	const arrowData = {
+		activeTaskStatus, disabled, task, className, iconClassName
+	}
+
 	return (
-		<TaskAssignButton
-			onClick={() => {
-				assignTask(task);
-			}}
-			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className={clsxm('h-9 w-9', className)}
-			iconClassName={iconClassName}
-		/>
+		<ImageComponent radius={30} images={taskAssignee} item={task} iconType={true} arrowData={arrowData} />
 	);
 }
 

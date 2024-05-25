@@ -3,6 +3,7 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown } from 'lucide-react';
 
 import { cn } from 'lib/utils';
+import { clsxm } from '@app/utils';
 
 const Select = SelectPrimitive.Root;
 
@@ -70,8 +71,10 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName;
 
 const SelectItem = React.forwardRef<
 	React.ElementRef<typeof SelectPrimitive.Item>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
+	{
+		chevronClass?: string;
+	} & React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
+>(({ className, chevronClass, children, ...props }, ref) => (
 	<SelectPrimitive.Item
 		ref={ref}
 		className={cn(
@@ -82,7 +85,7 @@ const SelectItem = React.forwardRef<
 	>
 		<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 			<SelectPrimitive.ItemIndicator>
-				<Check className="h-4 w-4" />
+				<Check className={clsxm('h-4 w-4', chevronClass)} />
 			</SelectPrimitive.ItemIndicator>
 		</span>
 
