@@ -2,7 +2,8 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
 import enLanguage from '../messages/en.json';
-
+// import {  } from 'country-flag-icons/react/3x2'
+import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
@@ -194,3 +195,71 @@ export enum IssuesView {
 export const TaskStatus = {
 	INPROGRESS: 'in-progress'
 };
+
+export const languagesFlags = [
+	{
+		Flag: US,
+		country: 'United Kingdom',
+		code: 'en'
+	},
+	{
+		Flag: CN,
+		country: 'China',
+		code: 'zh'
+	},
+	{
+		Flag: ES,
+		country: 'Spain',
+		code: 'es'
+	},
+	{
+		Flag: RU,
+		country: 'Russia',
+		code: 'ru'
+	},
+	{
+		Flag: PT,
+		country: 'Portugal',
+		code: 'pt'
+	},
+	{
+		Flag: IT,
+		country: 'Italy',
+		code: 'it'
+	},
+	{
+		Flag: DE,
+		country: 'Germany',
+		code: 'de'
+	},
+	{
+		Flag: BG,
+		country: 'Bulgaria',
+		code: 'bg'
+	},
+	{
+		Flag: SA,
+		country: 'Saudi Arabia',
+		code: 'ar'
+	},
+	{
+		Flag: NL,
+		country: 'Netherlands',
+		code: 'nl'
+	},
+	{
+		Flag: FR,
+		country: 'France',
+		code: 'fr'
+	},
+	{
+		Flag: PL,
+		country: 'Poland',
+		code: 'pl'
+	},
+	{
+		Flag: IS,
+		country: 'Israel',
+		code: 'he'
+	}
+];

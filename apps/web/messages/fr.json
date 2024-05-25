@@ -196,7 +196,7 @@
 		"PAUSED": "En pause",
 		"ONLINE": "En ligne"
 	},
-	"hotkeys":{
+	"hotkeys": {
 		"HELP": "Aide",
 		"TO_OPEN_SHORTCUT_LIST": "Pour ouvrir la liste des raccourcis",
 		"TIMER": "Chronomètre",
@@ -344,6 +344,7 @@
 			"TASK_SIZES": "Tailles des tâches",
 			"TASK_LABELS": "Étiquettes des tâches",
 			"ISSUE_TYPES": "Types de problèmes",
+			"DEFAULT_ISSUE_TYPE": "Type de problèmes par defaut",
 			"RELATED_TYPE": "Type connexe",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Créer de nouveaux statuts",
