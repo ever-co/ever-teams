@@ -91,17 +91,17 @@ function AllPlans({
 
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans.length > 0 ? (
+			{filteredPlans?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={
 						currentTab === 'Today Tasks'
 							? [new Date().toISOString().split('T')[0]]
-							: [filteredPlans.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+							: [filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 					}
 				>
-					{filteredPlans.map((plan) => (
+					{filteredPlans?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
