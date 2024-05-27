@@ -146,7 +146,7 @@ export function UserTeamCard({
 						<div
 							onClick={() => {
 								setUserDetailAccordion(!userDetailAccordion);
-								replace('/?memberId=' + memberInfo?.memberUser?.id ?? '');
+								replace('/?memberId=' + (memberInfo?.memberUser?.id ?? ''));
 							}}
 							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
 						>
