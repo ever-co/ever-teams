@@ -168,7 +168,7 @@ export function useOrganizationTeams() {
 	} = useQuery(getOrganizationTeamAPI);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useRecoilValue(activeTeamState);
-	
+
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
 	const loadingTeamsRef = useSyncRef(loading);
