@@ -12,6 +12,8 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
+import { TaskAvatars } from 'lib/features';
+import { FaCheck } from "react-icons/fa6";
 
 import TeamMember from 'lib/components/team-member';
 
@@ -22,11 +24,11 @@ export interface ImageOverlapperProps {
 }
 
 interface ArrowDataProps {
-	activeTaskStatus: ITimerStatus  | null | undefined;
+	activeTaskStatus: ITimerStatus | null | undefined;
 	disabled: boolean;
 	task: ITeamTask;
-	className: string  | undefined;
-	iconClassName: string  | undefined;
+	className: string | undefined;
+	iconClassName: string | undefined;
 }
 
 
@@ -66,6 +68,7 @@ export default function ImageOverlapper({
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
+
 	if ((!hasMembers && item) || hasActiveMembers) {
 		return (
 			<div>
@@ -88,22 +91,40 @@ export default function ImageOverlapper({
 						isOpen={isOpen}
 						closeModal={closeModal}
 						title={t('common.SELECT_TEAM_MEMBER')}
-						className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[20vw] h-[45vh] justify-start"
+						className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[20vw] md:max-w-fit h-[45vh] justify-start"
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="py-6 overflow-auto">
+						<ul className="py-6 overflow-auto p-5">
 							{allMembers?.map((member: any) => {
 								return (
 									<li
-									key={member.employee}
-									className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
-								>
-									<TeamMember member={member} item={item} />
-								</li>
+										key={member.employee}
+										className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
+									>
+										<TeamMember member={member} item={item} />
+									</li>
 								);
 							})}
 						</ul>
+
+						<div className="sticky top-[100%] h-[60px] w-[100%]">
+							<Divider className="mt-4" />
+							<div className='flex -space-x-3.5 overflow-hidden flex-center mt-[5px] items-center sm:justify-between'>
+								<TaskAvatars task={item} limit={3} />
+								<div className="flex px-4 h-fit">
+									<button
+										className="flex-row justify-center py-2 px-4 bg-primary 
+										dark:bg-primary-light text-white text-sm disabled:bg-primary-light
+										 disabled:opacity-40 rounded-xl flex min-w-0 w-28
+										  h-12 gap-1 items-center"
+										onClick={closeModal}>
+										<FaCheck size={17} fill="#ffffff" />
+										{" Validate"}
+									</button>
+								</div>
+							</div>
+						</div>
 					</Modal>
 				</div>
 			</div>
