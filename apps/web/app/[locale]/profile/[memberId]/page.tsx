@@ -27,7 +27,6 @@ type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
-	console.log('profileprofile', profile);
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const { getEmployeeDayPlans } = useDailyPlan();
