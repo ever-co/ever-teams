@@ -229,7 +229,8 @@
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]",
 			"MEMBER_NOT_FOUND_MSG_1": "您正在寻找的成员在团队中不存在，请尝试使用不同的查询进行搜索。",
-			"MEMBER_NOT_FOUND_MSG_2": "如果您正在寻找不同团队中的成员，请从上面的下拉菜单中选择团队。"
+			"MEMBER_NOT_FOUND_MSG_2": "如果您正在寻找不同团队中的成员，请从上面的下拉菜单中选择团队。",
+			"GO_TO_HOME": "返回主页"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"任务详情\"]",

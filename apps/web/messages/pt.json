@@ -231,7 +231,8 @@
 		"profile": {
 			"BREADCRUMB": "[\"Tarefas do Membro\"]",
 			"MEMBER_NOT_FOUND_MSG_1": "O membro que você está procurando não existe em uma equipe, tente pesquisar com uma consulta diferente.",
-			"MEMBER_NOT_FOUND_MSG_2": "Se você está procurando um membro em uma equipe diferente, selecione a equipe no menu suspenso acima."
+			"MEMBER_NOT_FOUND_MSG_2": "Se você está procurando um membro em uma equipe diferente, selecione a equipe no menu suspenso acima.",
+			"GO_TO_HOME": "Ir para a página inicial"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Detalhes da Tarefa\"]",

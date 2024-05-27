@@ -231,7 +231,8 @@
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]",
 			"MEMBER_NOT_FOUND_MSG_1": "Het lid dat u zoekt, bestaat niet in een team, probeer te zoeken met een andere query.",
-			"MEMBER_NOT_FOUND_MSG_2": "Als u op zoek bent naar een lid in een ander team, selecteert u het team uit de vervolgkeuzelijst hierboven."
+			"MEMBER_NOT_FOUND_MSG_2": "Als u op zoek bent naar een lid in een ander team, selecteert u het team uit de vervolgkeuzelijst hierboven.",
+			"GO_TO_HOME": "Ga naar de startpagina"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Taakdetails\"]",

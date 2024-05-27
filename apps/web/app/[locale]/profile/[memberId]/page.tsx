@@ -88,14 +88,14 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</Text>
 
 							<Text className=" font-light text-center text-gray-400">
-								Member you are looking is not exist in a team please try to search with different query.
+								{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
 							</Text>
 							<Text className=" font-light text-center text-gray-400">
-								Please try to switch different team.
+								{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
 							</Text>
 
 							<Button className="m-auto font-normal rounded-lg ">
-								<Link href="/">Go back to home</Link>
+								<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
 							</Button>
 						</div>
 					</div>
