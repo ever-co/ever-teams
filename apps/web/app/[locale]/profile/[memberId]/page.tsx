@@ -29,6 +29,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
+	const members = activeTeam?.members;
 	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
@@ -78,7 +79,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	// div
 	return (
 		<>
-			{profile.members.length && !profile.member ? (
+			{Array.isArray(members) && members.length && !profile.member ? (
 				<MainLayout>
 					<div className=" absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
 						<div className="flex flex-col justify-center items-center gap-5">

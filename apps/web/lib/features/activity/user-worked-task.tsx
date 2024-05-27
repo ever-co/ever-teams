@@ -9,7 +9,7 @@ import { useAuthenticateUser } from '@app/hooks';
 
 const UserWorkedTaskTab = ({ member }: { member?: OT_Member }) => {
 	const profile = useUserSelectedPage(member?.employee?.userId);
-	const hook = useTaskFilter(profile);
+	const hook = useTaskFilter();
 	const { user } = useAuthenticateUser();
 
 	const t = useTranslations();

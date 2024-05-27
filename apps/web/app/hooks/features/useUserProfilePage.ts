@@ -14,7 +14,7 @@ export function useUserProfilePage() {
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
-	const { getTasksStatsData, taskStatsDataLoading } = useTaskStatistics();
+	const { getTasksStatsData } = useTaskStatistics();
 
 	const params = useParams();
 	const memberId: string = useMemo(() => {
@@ -64,9 +64,7 @@ export function useUserProfilePage() {
 		isAuthUser,
 		activeUserTeamTask,
 		userProfile,
-		members,
 		tasksGrouped,
-		taskStatsDataLoading,
 		member: matchUser,
 		assignTask
 	};
