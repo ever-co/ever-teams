@@ -31,7 +31,6 @@ export function useTaskStatistics(addSeconds = 0) {
 	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
 	const setTasksFetching = useSetRecoilState(tasksFetchingState);
 	const [allTaskStatistics, setAllTaskStatistics] = useRecoilState(allTaskStatisticsState);
-	
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
 	const { activeTeam } = useOrganizationTeams();
