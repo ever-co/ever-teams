@@ -226,7 +226,9 @@
 			"CONFIRM_REJECT_INVITATION": "Are you sure you want to reject the invitation?"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Member Tasks\"]"
+			"BREADCRUMB": "[\"Member Tasks\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Member you are looking is not exist in a team please try to search with different query.",
+			"MEMBER_NOT_FOUND_MSG_2": "If you are looking for a member in a different team, please select the team from the dropdown above."
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Kanban Board"

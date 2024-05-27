@@ -14,7 +14,7 @@ import {
 	tasksStatisticsState,
 	timerStatusState
 } from '@app/stores';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import debounce from 'lodash/debounce';
@@ -31,7 +31,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
 	const setTasksFetching = useSetRecoilState(tasksFetchingState);
 	const [allTaskStatistics, setAllTaskStatistics] = useRecoilState(allTaskStatisticsState);
-
+	const [taskStatsDataLoading, setTaskStatsDataLoading] = useState(true);
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
 	const { activeTeam } = useOrganizationTeams();
@@ -52,14 +52,17 @@ export function useTaskStatistics(addSeconds = 0) {
 			if (!user?.employee.tenantId) {
 				return;
 			}
-			tasksTimesheetStatisticsAPI(user?.employee.tenantId, '', user?.employee.organizationId, employeeId).then(
-				({ data }) => {
+			tasksTimesheetStatisticsAPI(user?.employee.tenantId, '', user?.employee.organizationId, employeeId)
+				.then(({ data }) => {
+					setTaskStatsDataLoading(false);
 					setStatTasks({
 						all: data.global || [],
 						today: data.today || []
 					});
-				}
-			);
+				})
+				.catch(() => {
+					setTaskStatsDataLoading(false);
+				});
 		},
 		[setStatTasks, user?.employee.organizationId, user?.employee.tenantId]
 	);
@@ -188,6 +191,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		getAllTasksStatsData,
 		getTasksStatsData,
 		getTaskStat,
+		taskStatsDataLoading,
 		activeTaskTotalStat: statActiveTask.total,
 		activeTaskDailyStat: statActiveTask.today,
 		activeTaskEstimation,

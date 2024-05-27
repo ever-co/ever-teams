@@ -229,7 +229,9 @@
 			"KANBAN_BOARD": "Tabellone Kanban"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Compiti dei membri\"]"
+			"BREADCRUMB": "[\"Compiti dei membri\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Il membro che stai cercando non esiste in un team, prova a cercare con una query diversa.",
+			"MEMBER_NOT_FOUND_MSG_2": "Se stai cercando un membro in un team diverso, seleziona il team dal menu a discesa sopra."
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",
