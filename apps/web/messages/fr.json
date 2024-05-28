@@ -229,7 +229,10 @@
 			"KANBAN_BOARD": "Tableau Kanban"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Tâches du membre\"]"
+			"BREADCRUMB": "[\"Tâches du membre\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Le membre que vous recherchez n'existe pas dans une équipe, veuillez essayer de rechercher avec une requête différente.",
+			"MEMBER_NOT_FOUND_MSG_2": "Si vous recherchez un membre dans une équipe différente, veuillez sélectionner l'équipe dans le menu déroulant ci-dessus.",
+			"GO_TO_HOME": "Aller à la page d'accueil"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Détails de la tâche\"]",
