@@ -9,7 +9,7 @@ import { ScrollArea } from '@components/ui/scroll-bar';
 import { CircleIcon } from 'assets/svg';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
-import { useOrganizationTeams, useTeamMemberCard } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
@@ -61,7 +61,7 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
-	const [assignedMembers, setAssignedMembers] = useState([...item.members]);
+	const [assignedMembers, setAssignedMembers] = useState([...item?.members]);
 	const [unassignedMembers, setUnassignedMembers] = useState([]);
 	const [validate, setValidate] = useState(false);
 
@@ -86,7 +86,7 @@ export default function ImageOverlapper({
 		closeModal();	
 	}
 
-	const hasMembers = item?.members.length > 0;
+	const hasMembers = item?.members?.length > 0;
 	const membersList = { assignedMembers, unassignedMembers };
 
 	if (imageLength == undefined) {
