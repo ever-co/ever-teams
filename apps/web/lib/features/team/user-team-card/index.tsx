@@ -7,26 +7,31 @@ import {
 	useTaskStatistics,
 	useOrganizationTeams,
 	useAuthenticateUser,
-	useTeamMemberCard
+	useTeamMemberCard,
+	useUserProfilePage
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
-import { TaskTimes, TodayWorkedTime } from 'lib/features';
+import { Card, Container, InputField, Text, VerticalSeparator } from 'lib/components';
+import { TaskTimes, TodayWorkedTime, UserProfileTask, useTaskFilter } from 'lib/features';
 import { useTranslations } from 'next-intl';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
 import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/navigation';
+import { ScreenshootTab } from 'lib/features/activity/screenshoots';
+import { AppsTab } from 'lib/features/activity/apps';
+import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
+import { FilterTab } from '@app/[locale]/profile/[memberId]/page';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -53,6 +58,9 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+	const profile = useUserProfilePage();
+	const hook = useTaskFilter(profile);
+
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { replace } = useRouter();
@@ -114,6 +122,21 @@ export function UserTeamCard({
 			)}
 		</>
 	);
+	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
+
+	const activityScreens = {
+		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
+		Screenshots: <ScreenshootTab />,
+		Apps: <AppsTab />,
+		'Visited Sites': <VisitedSitesTab />
+	};
+	const changeActivityFilter = useCallback(
+		(filter: FilterTab) => {
+			setActivity(filter);
+		},
+		[setActivity]
+	);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	return (
 		<div
@@ -220,7 +243,31 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{userDetailAccordion ? <div className="h-96"></div> : null}
+				{userDetailAccordion ? (
+					<div className="h-96">
+						{hook.tab == 'worked' && canSeeActivity && (
+							<Container fullWidth={false} className="py-8">
+								<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
+									{Object.keys(activityScreens).map((filter, i) => (
+										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+											{i !== 0 && <VerticalSeparator />}
+											<div
+												className={clsxm(
+													'text-gray-500',
+													activityFilter == filter && 'text-black dark:text-white'
+												)}
+												onClick={() => changeActivityFilter(filter as FilterTab)}
+											>
+												{filter}
+											</div>
+										</div>
+									))}
+								</div>
+							</Container>
+						)}
+						<UserProfileTask profile={profile} tabFiltered={hook} />
+					</div>
+				) : null}
 				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card

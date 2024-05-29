@@ -1,7 +1,7 @@
 'use client';
 
 import { ITeamTask } from '@app/interfaces';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
@@ -15,10 +15,12 @@ export function useUserProfilePage() {
 
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
-
+	const queryParams = useSearchParams();
+	const $memberId = queryParams.get('memberId') || '';
 	const params = useParams();
+	console.log('paramsparams', $memberId);
 	const memberId: string = useMemo(() => {
-		return (params?.memberId ?? '') as string;
+		return (params?.memberId ?? $memberId) as string;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params]);
 
