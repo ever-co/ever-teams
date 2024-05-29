@@ -15,7 +15,6 @@ import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
 import { TaskAvatars } from 'lib/features';
 import { FaCheck } from "react-icons/fa6";
-import {IEmployee} from '@gauzy/contracts';
 import TeamMember from 'lib/components/team-member';
 
 export interface ImageOverlapperProps {
@@ -31,6 +30,12 @@ interface ArrowDataProps {
 	className: string | undefined;
 	iconClassName: string | undefined;
 }
+
+interface Member {
+	id: string | number;
+	[key: string]: any;
+}
+
 
 export default function ImageOverlapper({
 	images,
@@ -60,8 +65,8 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
-	const [assignedMembers, setAssignedMembers] = useState<IEmployee[]>([...(item?.members || [])]);
-	const [unassignedMembers, setUnassignedMembers] = useState<IEmployee[]>([]);
+	const [assignedMembers, setAssignedMembers] = useState<Member[]>([...(item?.members || [])]);
+	const [unassignedMembers, setUnassignedMembers] = useState<Member[]>([]);
 	const [validate, setValidate] = useState<boolean>(false);
 
 	const t = useTranslations();
