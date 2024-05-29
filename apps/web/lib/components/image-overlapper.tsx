@@ -32,6 +32,11 @@ interface ArrowDataProps {
 	iconClassName: string | undefined;
 }
 
+interface Member {
+	id: string | number;
+	[key: string]: any;
+}
+
 
 export default function ImageOverlapper({
 	images,
@@ -61,8 +66,8 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
-	const [assignedMembers, setAssignedMembers] = useState([...(item?.members || [])]);
-	const [unassignedMembers, setUnassignedMembers] = useState<object[]>([]);
+	const [assignedMembers, setAssignedMembers] = useState<Member[]>([...(item?.members || [])]);
+	const [unassignedMembers, setUnassignedMembers] = useState<Member[]>([]);
 	const [validate, setValidate] = useState<boolean>(false);
 
 	const t = useTranslations();
