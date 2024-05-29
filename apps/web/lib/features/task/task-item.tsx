@@ -120,7 +120,6 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: number }) {
 	const members = task.members;
-
 	const taskAssignee: ImageOverlapperProps[] = members.map((member: any) => {
 		return {
 			id: member.user.id,
