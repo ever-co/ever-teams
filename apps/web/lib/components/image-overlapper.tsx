@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import { ScrollArea } from '@components/ui/scroll-bar';
 import { CircleIcon } from 'assets/svg';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams, useTeamMemberCard } from '@app/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
@@ -60,10 +61,39 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
+	const [assignedMembers, setAssignedMembers] = useState([...item.members]);
+	const [unassignedMembers, setUnassignedMembers] = useState([]);
 
 	const t = useTranslations();
 
+	const onCheckMember = (member: any) => {
+		const checkUser = assignedMembers.some(el => el.id === member.id);
+		if (checkUser) {
+			const updatedMembers = assignedMembers.filter(el => el.id != member.id);
+			setAssignedMembers(updatedMembers);
+			setUnassignedMembers([...unassignedMembers, member]);
+		} else {
+			setAssignedMembers([...assignedMembers, member]);
+			const updatedUnassign = unassignedMembers.filter(el => el.id != member.id);
+			setUnassignedMembers(updatedUnassign);
+		}
+
+	}
+
+	const onCLickValidate = () => {
+		assignedMembers.forEach((member) => {
+			const { assignTask } = useTeamMemberCard({ employee: member });
+			assignTask(item);
+		});
+		unassignedMembers.forEach((member) => {
+			const memberInfo = useTeamMemberCard({ employee: member });
+			memberInfo.unassignTask(item);
+		});
+		closeModal();
+	}
+
 	const hasMembers = item?.members.length > 0;
+	const membersList = { assignedMembers, unassignedMembers };
 
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
@@ -102,7 +132,12 @@ export default function ImageOverlapper({
 										key={member.employee}
 										className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
 									>
-										<TeamMember member={member} item={item} />
+										<TeamMember
+											member={member}
+											item={item}
+											onCheckMember={onCheckMember}
+											membersList={membersList}
+										/>
 									</li>
 								);
 							})}
@@ -111,14 +146,16 @@ export default function ImageOverlapper({
 						<div className="sticky top-[100%] h-[60px] w-[100%]">
 							<Divider className="mt-4" />
 							<div className='flex -space-x-3.5 overflow-hidden flex-center mt-[5px] items-center sm:justify-between'>
-								<TaskAvatars task={item} limit={3} />
+								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
 										className="flex-row justify-center py-2 px-4 bg-primary 
 										dark:bg-primary-light text-white text-sm disabled:bg-primary-light
 										 disabled:opacity-40 rounded-xl flex min-w-0 w-28
 										  h-12 gap-1 items-center"
-										onClick={closeModal}>
+										onClick={() => {
+											onCLickValidate();
+										}}>
 										<FaCheck size={17} fill="#ffffff" />
 										{" Validate"}
 									</button>
