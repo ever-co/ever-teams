@@ -49,11 +49,11 @@ export function signInEmailPasswordRequest(email: string, password: string) {
 	});
 }
 
-export function signWithSocialLoginsRequest(email: string) {
+export function signWithSocialLoginsRequest(provider: string, oauthToken: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email.social?includeTeams=true',
 		method: 'POST',
-		body: { email }
+		body: { provider, oauthToken }
 	});
 }
 

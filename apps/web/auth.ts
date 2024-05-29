@@ -7,10 +7,13 @@ import { filteredProviders } from '@app/utils/check-provider-env-vars';
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: filteredProviders,
 	callbacks: {
-		async signIn({ user }) {
+		async signIn({ user, account }) {
 			try {
-				const { email } = user;
-				const gauzyLoginUser = await signWithSocialLoginsRequest(email ?? '');
+				console.log({ user, account });
+				const gauzyLoginUser = await signWithSocialLoginsRequest(
+					account?.provider ?? '',
+					account?.access_token ?? ''
+				);
 				const data = await signInWorkspaceAPI(
 					gauzyLoginUser?.data.confirmed_email,
 					gauzyLoginUser?.data.workspaces[0].token
@@ -37,10 +40,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			}
 		},
 
-		async jwt({ token, user, trigger, session }) {
+		async jwt({ token, user, trigger, session, account }) {
+			console.log({ user1: user, session, account1: account });
 			if (user) {
-				const { email } = user;
-				const gauzyLoginUser = await signWithSocialLoginsRequest(email ?? '');
+				const gauzyLoginUser = await signWithSocialLoginsRequest(
+					account?.provider ?? '',
+					account?.access_token ?? ''
+				);
 				const data = await signInWorkspaceAPI(
 					gauzyLoginUser?.data.confirmed_email,
 					gauzyLoginUser?.data.workspaces[0].token
