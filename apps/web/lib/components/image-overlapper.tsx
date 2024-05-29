@@ -63,6 +63,7 @@ export default function ImageOverlapper({
 	const allMembers = activeTeam?.members || [];
 	const [assignedMembers, setAssignedMembers] = useState([...item.members]);
 	const [unassignedMembers, setUnassignedMembers] = useState([]);
+	const [validate, setValidate] = useState(false);
 
 	const t = useTranslations();
 
@@ -81,15 +82,8 @@ export default function ImageOverlapper({
 	}
 
 	const onCLickValidate = () => {
-		assignedMembers.forEach((member) => {
-			const { assignTask } = useTeamMemberCard({ employee: member });
-			assignTask(item);
-		});
-		unassignedMembers.forEach((member) => {
-			const memberInfo = useTeamMemberCard({ employee: member });
-			memberInfo.unassignTask(item);
-		});
-		closeModal();
+		setValidate(!validate);
+		closeModal();	
 	}
 
 	const hasMembers = item?.members.length > 0;
@@ -137,6 +131,7 @@ export default function ImageOverlapper({
 											item={item}
 											onCheckMember={onCheckMember}
 											membersList={membersList}
+											validate={validate}
 										/>
 									</li>
 								);
