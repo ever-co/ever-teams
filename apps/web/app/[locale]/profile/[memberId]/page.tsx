@@ -7,7 +7,7 @@ import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Avatar, Breadcrumb, Container, Text, VerticalSeparator } from 'lib/components';
+import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator } from 'lib/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -29,6 +29,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const profile = useUserProfilePage();
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
+	const members = activeTeam?.members;
 	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
@@ -75,71 +76,94 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	}, [getEmployeeDayPlans, profile.member?.employeeId]);
 
 	// Example usage
-
+	// div
 	return (
 		<>
-			<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader
-					fullWidth={fullWidth}
-					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
-				>
-					{/* Breadcrumb */}
-					<div className="flex items-center gap-8">
-						<Link href="/">
-							<ArrowLeftIcon className="w-6 h-6" />
-						</Link>
+			{Array.isArray(members) && members.length && !profile.member ? (
+				<MainLayout>
+					<div className=" absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+						<div className="flex flex-col justify-center items-center gap-5">
+							<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
+								{t('common.MEMBER')} {t('common.NOT_FOUND')}!
+							</Text>
 
-						<Breadcrumb paths={breadcrumb} className="text-sm" />
-					</div>
+							<Text className=" font-light text-center text-gray-400">
+								{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
+							</Text>
+							<Text className=" font-light text-center text-gray-400">
+								{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
+							</Text>
 
-					{/* User Profile Detail */}
-					<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
-						<UserProfileDetail member={profile.member} />
-
-						{profileIsAuthUser && isTrackingEnabled && (
-							<Timer
-								className={clsxm(
-									'p-5 rounded-2xl shadow-xlcard',
-									'dark:border-[0.125rem] dark:border-[#28292F]',
-									'dark:bg-[#1B1D22]'
-								)}
-							/>
-						)}
-					</div>
-					{/* TaskFilter */}
-					<TaskFilter profile={profile} hook={hook} />
-				</MainHeader>
-				{/* Divider */}
-				<div className="h-0.5 bg-[#FFFFFF14]"></div>
-				{hook.tab == 'worked' && canSeeActivity && (
-					<Container fullWidth={fullWidth} className="py-8">
-						<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
-							{Object.keys(activityScreens).map((filter, i) => (
-								<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
-									{i !== 0 && <VerticalSeparator />}
-									<div
-										className={clsxm(
-											'text-gray-500',
-											activityFilter == filter && 'text-black dark:text-white'
-										)}
-										onClick={() => changeActivityFilter(filter as FilterTab)}
-									>
-										{filter}
-									</div>
-								</div>
-							))}
+							<Button className="m-auto font-normal rounded-lg ">
+								<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
+							</Button>
 						</div>
-					</Container>
-				)}
+					</div>
+				</MainLayout>
+			) : (
+				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
+					<MainHeader
+						fullWidth={fullWidth}
+						className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
+					>
+						{/* Breadcrumb */}
+						<div className="flex items-center gap-8">
+							<Link href="/">
+								<ArrowLeftIcon className="w-6 h-6" />
+							</Link>
 
-				<Container fullWidth={fullWidth} className="mb-10">
-					{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
-						<UserProfileTask profile={profile} tabFiltered={hook} />
-					) : (
-						activityScreens[activityFilter] ?? null
+							<Breadcrumb paths={breadcrumb} className="text-sm" />
+						</div>
+
+						{/* User Profile Detail */}
+						<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
+							<UserProfileDetail member={profile.member} />
+
+							{profileIsAuthUser && isTrackingEnabled && (
+								<Timer
+									className={clsxm(
+										'p-5 rounded-2xl shadow-xlcard',
+										'dark:border-[0.125rem] dark:border-[#28292F]',
+										'dark:bg-[#1B1D22]'
+									)}
+								/>
+							)}
+						</div>
+						{/* TaskFilter */}
+						<TaskFilter profile={profile} hook={hook} />
+					</MainHeader>
+					{/* Divider */}
+					<div className="h-0.5 bg-[#FFFFFF14]"></div>
+					{hook.tab == 'worked' && canSeeActivity && (
+						<Container fullWidth={fullWidth} className="py-8">
+							<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
+								{Object.keys(activityScreens).map((filter, i) => (
+									<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+										{i !== 0 && <VerticalSeparator />}
+										<div
+											className={clsxm(
+												'text-gray-500',
+												activityFilter == filter && 'text-black dark:text-white'
+											)}
+											onClick={() => changeActivityFilter(filter as FilterTab)}
+										>
+											{filter}
+										</div>
+									</div>
+								))}
+							</div>
+						</Container>
 					)}
-				</Container>
-			</MainLayout>
+
+					<Container fullWidth={fullWidth} className="mb-10">
+						{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
+							<UserProfileTask profile={profile} tabFiltered={hook} />
+						) : (
+							activityScreens[activityFilter] ?? null
+						)}
+					</Container>
+				</MainLayout>
+			)}
 		</>
 	);
 });
