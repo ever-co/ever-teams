@@ -21,7 +21,7 @@ export default function TeamMember(
 				memberInfo.unassignTask(item);
 			}
 		}
-	}, [validate]);
+	}, [validate, checkAssign, checkUnassign, item, assignTask, memberInfo]);
 
 	const assignMember = () => {
 		onCheckMember(member.employee);
