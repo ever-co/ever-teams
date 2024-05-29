@@ -61,7 +61,7 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
-	const [assignedMembers, setAssignedMembers] = useState([...item?.members]);
+	const [assignedMembers, setAssignedMembers] = useState([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState([]);
 	const [validate, setValidate] = useState(false);
 
