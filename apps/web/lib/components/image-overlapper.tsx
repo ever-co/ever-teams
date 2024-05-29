@@ -62,8 +62,8 @@ export default function ImageOverlapper({
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
 	const [assignedMembers, setAssignedMembers] = useState([...(item?.members || [])]);
-	const [unassignedMembers, setUnassignedMembers] = useState([]);
-	const [validate, setValidate] = useState(false);
+	const [unassignedMembers, setUnassignedMembers] = useState<object[]>([]);
+	const [validate, setValidate] = useState<boolean>(false);
 
 	const t = useTranslations();
 
