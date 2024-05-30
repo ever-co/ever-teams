@@ -106,11 +106,8 @@ export const signInEmailAPI = (email: string) => {
 };
 
 export function signInEmailPasswordAPI(email: string, password: string) {
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? '/auth/signin.email.password?includeTeams=true'
-		: `/auth/signin-email-password`;
-
-	return post<ISigninEmailConfirmResponse>(endpoint, { email, password });
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email.password' : `/auth/signin-email-password`;
+	return post<ISigninEmailConfirmResponse>(endpoint, { email, password, includeTeams: true });
 }
 
 export function signInEmailSocialLoginAPI(email: string) {

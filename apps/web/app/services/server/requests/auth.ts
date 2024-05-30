@@ -43,9 +43,9 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 
 export function signInEmailPasswordRequest(email: string, password: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email.password?includeTeams=true',
+		path: '/auth/signin.email.password',
 		method: 'POST',
-		body: { email, password }
+		body: { email, password, includeTeams: true }
 	});
 }
 
@@ -61,9 +61,9 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 	const { code, email } = data;
 
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email/confirm?includeTeams=true',
+		path: '/auth/signin.email/confirm',
 		method: 'POST',
-		body: { code, email }
+		body: { code, email, includeTeams: true }
 	});
 };
 

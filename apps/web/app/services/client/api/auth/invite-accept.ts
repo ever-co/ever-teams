@@ -95,7 +95,7 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 
 export const signInEmailConfirmAPI = (data: { code: string; email: string }) => {
 	const { code, email } = data;
-	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm?includeTeams=true', { code, email });
+	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', { code, email, includeTeams: true });
 };
 
 export async function signInEmailCodeConfirmGauzy(email: string, code: string) {
