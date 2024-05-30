@@ -40,7 +40,8 @@ export default function ImageOverlapper({
 	diameter = 40,
 	iconType = false,
 	arrowData = null,
-	hasActiveMembers = false
+	hasActiveMembers = false,
+	assignTaskButtonCall = false,
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -50,6 +51,7 @@ export default function ImageOverlapper({
 	iconType?: boolean;
 	arrowData?: ArrowDataProps | null;
 	hasActiveMembers?: boolean;
+	assignTaskButtonCall?: boolean;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -67,14 +69,14 @@ export default function ImageOverlapper({
 	const t = useTranslations();
 
 	const onCheckMember = (member: any) => {
-		const checkUser = assignedMembers.some(el => el.id === member.id);
+		const checkUser = assignedMembers.some((el: IEmployee) => el.id === member.id);
 		if (checkUser) {
-			const updatedMembers = assignedMembers.filter(el => el.id != member.id);
+			const updatedMembers = assignedMembers.filter((el: IEmployee) => el.id != member.id);
 			setAssignedMembers(updatedMembers);
 			setUnassignedMembers([...unassignedMembers, member]);
 		} else {
 			setAssignedMembers([...assignedMembers, member]);
-			const updatedUnassign = unassignedMembers.filter(el => el.id != member.id);
+			const updatedUnassign = unassignedMembers.filter((el: IEmployee) => el.id != member.id);
 			setUnassignedMembers(updatedUnassign);
 		}
 
@@ -82,7 +84,7 @@ export default function ImageOverlapper({
 
 	const onCLickValidate = () => {
 		setValidate(!validate);
-		closeModal();	
+		closeModal();
 	}
 
 	const hasMembers = item?.members?.length > 0;
@@ -92,7 +94,7 @@ export default function ImageOverlapper({
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
 
-	if ((!hasMembers && item) || hasActiveMembers) {
+	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
 			<div>
 				{
