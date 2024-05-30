@@ -2,6 +2,7 @@ import { UserInfo } from 'lib/features/team/user-team-card/user-info';
 import { useTeamMemberCard } from '@app/hooks';
 import { FaCheck } from "react-icons/fa6";
 import { useEffect } from 'react';
+import { IEmployee } from '@app/interfaces';
 
 export default function TeamMember(
 	{ member, item, onCheckMember, membersList, validate }
@@ -10,8 +11,8 @@ export default function TeamMember(
 ) {
 	const memberInfo = useTeamMemberCard(member);
 	const { assignTask } = useTeamMemberCard(member);
-	const checkAssign = membersList.assignedMembers.some(el => el.id === member.employeeId);
-	const checkUnassign = membersList.unassignedMembers.some(el => el.id === member.employeeId);
+	const checkAssign = membersList.assignedMembers.some((el:IEmployee) => el.id === member.employeeId);
+	const checkUnassign = membersList.unassignedMembers.some((el:IEmployee) => el.id === member.employeeId);
 
 	useEffect(() => {
 		if (validate) {
