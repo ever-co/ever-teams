@@ -14,13 +14,13 @@ export function PastTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; profi
 	});
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans.length > 0 ? (
+			{filteredPlans?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 				>
-					{filteredPlans.map((plan) => (
+					{filteredPlans?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}

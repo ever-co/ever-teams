@@ -21,16 +21,17 @@ export function Outstanding({ dayPlans, profile }: { dayPlans: IDailyPlan[]; pro
 			...plan,
 			// Include only no completed tasks
 			tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-		}));
+		}))
+		.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans.length > 0 ? (
+			{filteredPlans?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
-					defaultValue={filteredPlans.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
+					defaultValue={filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
 				>
-					{filteredPlans.map((plan) => (
+					{filteredPlans?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
