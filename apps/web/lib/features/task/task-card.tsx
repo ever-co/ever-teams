@@ -417,7 +417,7 @@ function AssignTaskButtonCall({
 		iconClassName
 	};
 
-	return <ImageComponent radius={30} images={taskAssignee} item={task} iconType={true} arrowData={arrowData} />;
+	return <ImageComponent radius={30} images={taskAssignee} item={task} iconType={true} arrowData={arrowData} assignTaskButtonCall={true} />;
 }
 
 //* Task Estimate info *
