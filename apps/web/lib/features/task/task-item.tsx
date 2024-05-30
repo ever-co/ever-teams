@@ -1,6 +1,6 @@
 import { imgTitle } from '@app/helpers';
 import { useTeamTasks } from '@app/hooks';
-import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
+import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components';
@@ -118,9 +118,10 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: number }) {
-	const members = task.members;
+type PartialITeamTask = Partial<ITeamTask> & { members: IEmployee[] };
 
+export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
+	const members = task.members;
 	const taskAssignee: ImageOverlapperProps[] = members.map((member: any) => {
 		return {
 			id: member.user.id,
