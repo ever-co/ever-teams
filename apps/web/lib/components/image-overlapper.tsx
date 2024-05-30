@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,8 +13,10 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
-
+import { TaskAvatars } from 'lib/features';
+import { FaCheck } from "react-icons/fa6";
 import TeamMember from 'lib/components/team-member';
+import { IEmployee } from '@app/interfaces';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -22,13 +25,12 @@ export interface ImageOverlapperProps {
 }
 
 interface ArrowDataProps {
-	activeTaskStatus: ITimerStatus  | null | undefined;
+	activeTaskStatus: ITimerStatus | null | undefined;
 	disabled: boolean;
 	task: ITeamTask;
-	className: string  | undefined;
-	iconClassName: string  | undefined;
+	className: string | undefined;
+	iconClassName: string | undefined;
 }
-
 
 export default function ImageOverlapper({
 	images,
@@ -38,7 +40,8 @@ export default function ImageOverlapper({
 	diameter = 40,
 	iconType = false,
 	arrowData = null,
-	hasActiveMembers = false
+	hasActiveMembers = false,
+	assignTaskButtonCall = false,
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -48,6 +51,7 @@ export default function ImageOverlapper({
 	iconType?: boolean;
 	arrowData?: ArrowDataProps | null;
 	hasActiveMembers?: boolean;
+	assignTaskButtonCall?: boolean;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -58,15 +62,39 @@ export default function ImageOverlapper({
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
+	const [assignedMembers, setAssignedMembers] = useState<IEmployee[]>([...(item?.members || [])]);
+	const [unassignedMembers, setUnassignedMembers] = useState<IEmployee[]>([]);
+	const [validate, setValidate] = useState<boolean>(false);
 
 	const t = useTranslations();
 
-	const hasMembers = item?.members.length > 0;
+	const onCheckMember = (member: any) => {
+		const checkUser = assignedMembers.some((el: IEmployee) => el.id === member.id);
+		if (checkUser) {
+			const updatedMembers = assignedMembers.filter((el: IEmployee) => el.id != member.id);
+			setAssignedMembers(updatedMembers);
+			setUnassignedMembers([...unassignedMembers, member]);
+		} else {
+			setAssignedMembers([...assignedMembers, member]);
+			const updatedUnassign = unassignedMembers.filter((el: IEmployee) => el.id != member.id);
+			setUnassignedMembers(updatedUnassign);
+		}
+
+	}
+
+	const onCLickValidate = () => {
+		setValidate(!validate);
+		closeModal();
+	}
+
+	const hasMembers = item?.members?.length > 0;
+	const membersList = { assignedMembers, unassignedMembers };
 
 	if (imageLength == undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
-	if ((!hasMembers && item) || hasActiveMembers) {
+
+	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
 			<div>
 				{
@@ -88,22 +116,48 @@ export default function ImageOverlapper({
 						isOpen={isOpen}
 						closeModal={closeModal}
 						title={t('common.SELECT_TEAM_MEMBER')}
-						className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[20vw] h-[45vh] justify-start"
+						className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[20vw] md:max-w-fit h-[45vh] justify-start"
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="py-6 overflow-auto">
+						<ul className="py-6 overflow-auto p-5">
 							{allMembers?.map((member: any) => {
 								return (
 									<li
-									key={member.employee}
-									className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
-								>
-									<TeamMember member={member} item={item} />
-								</li>
+										key={member.employee}
+										className="w-100 border border-transparent hover:border-blue-500 hover:border-opacity-50 rounded-lg cursor-pointer"
+									>
+										<TeamMember
+											member={member}
+											item={item}
+											onCheckMember={onCheckMember}
+											membersList={membersList}
+											validate={validate}
+										/>
+									</li>
 								);
 							})}
 						</ul>
+
+						<div className="sticky top-[100%] h-[60px] w-[100%]">
+							<Divider className="mt-4" />
+							<div className='flex -space-x-3.5 overflow-hidden flex-center mt-[5px] items-center sm:justify-between'>
+								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
+								<div className="flex px-4 h-fit">
+									<button
+										className="flex-row justify-center py-2 px-4 bg-primary 
+										dark:bg-primary-light text-white text-sm disabled:bg-primary-light
+										 disabled:opacity-40 rounded-xl flex min-w-0 w-28
+										  h-12 gap-1 items-center"
+										onClick={() => {
+											onCLickValidate();
+										}}>
+										<FaCheck size={17} fill="#ffffff" />
+										{" Validate"}
+									</button>
+								</div>
+							</div>
+						</div>
 					</Modal>
 				</div>
 			</div>

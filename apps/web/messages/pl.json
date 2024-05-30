@@ -229,7 +229,10 @@
 			"KANBAN_BOARD": "Tablica Kanbana"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Member Tasks\"]"
+			"BREADCRUMB": "[\"Member Tasks\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Członek, którego szukasz, nie istnieje w zespole, spróbuj wyszukać z innym zapytaniem.",
+			"MEMBER_NOT_FOUND_MSG_2": "Jeśli szukasz członka w innym zespole, wybierz zespół z listy rozwijanej powyżej.",
+			"GO_TO_HOME": "Przejdź do strony głównej"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",

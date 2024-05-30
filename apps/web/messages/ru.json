@@ -229,7 +229,10 @@
 			"KANBAN_BOARD": "Канбан-доска"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Member Tasks\"]"
+			"BREADCRUMB": "[\"Member Tasks\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Участник, которого вы ищете, не существует в команде, попробуйте выполнить поиск с другим запросом.",
+			"MEMBER_NOT_FOUND_MSG_2": "Если вы ищете участника в другой команде, выберите команду из выпадающего списка выше.",
+			"GO_TO_HOME": "Перейти на главную страницу"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",

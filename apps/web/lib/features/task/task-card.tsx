@@ -123,15 +123,15 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
-	const activeMembers = task != null && task.members.length > 0;
-	const taskAssignee: ImageOverlapperProps[] = task?.members.map((member: any) => {
-		return {
-			id: member.user.id,
-			url: member.user.imageUrl,
-			alt: member.user.firstName
-		};
-	}) || [];
-
+	const activeMembers = task != null && task?.members?.length > 0;
+	const taskAssignee: ImageOverlapperProps[] =
+		task?.members?.map((member: any) => {
+			return {
+				id: member.user.id,
+				url: member.user.imageUrl,
+				alt: member.user.firstName
+			};
+		}) || [];
 
 	return (
 		<>
@@ -170,7 +170,12 @@ export function TaskCard(props: Props) {
 				{viewType === 'unassign' && (
 					<div className="w-[20%] flex justify-around items-center">
 						<UsersTaskAssigned task={task} />
-						<ImageComponent radius={40} images={taskAssignee} item={task} hasActiveMembers={activeMembers} />
+						<ImageComponent
+							radius={40}
+							images={taskAssignee}
+							item={task}
+							hasActiveMembers={activeMembers}
+						/>
 					</div>
 				)}
 				<VerticalSeparator />
@@ -197,7 +202,7 @@ export function TaskCard(props: Props) {
 						<AssignTaskButtonCall
 							task={task}
 							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
-							iconClassName='text-primary dark:text-white'
+							iconClassName="text-primary dark:text-white"
 							taskAssignee={taskAssignee}
 						/>
 					)}
@@ -388,7 +393,7 @@ function AssignTaskButtonCall({
 	task,
 	className,
 	iconClassName,
-	taskAssignee,
+	taskAssignee
 }: {
 	task: ITeamTask;
 	className?: string;
@@ -405,12 +410,14 @@ function AssignTaskButtonCall({
 	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
 
 	const arrowData = {
-		activeTaskStatus, disabled, task, className, iconClassName
-	}
+		activeTaskStatus,
+		disabled,
+		task,
+		className,
+		iconClassName
+	};
 
-	return (
-		<ImageComponent radius={30} images={taskAssignee} item={task} iconType={true} arrowData={arrowData} />
-	);
+	return <ImageComponent radius={30} images={taskAssignee} item={task} iconType={true} arrowData={arrowData} assignTaskButtonCall={true} />;
 }
 
 //* Task Estimate info *

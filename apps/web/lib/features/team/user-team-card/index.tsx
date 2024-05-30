@@ -25,6 +25,8 @@ import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
+import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
+import { useRouter } from 'next/navigation';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -53,13 +55,14 @@ export function UserTeamCard({
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-
+	const { replace } = useRouter();
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const setActivityFilter = useSetRecoilState(activityTypeState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
+	const [userDetailAccordion, setUserDetailAccordion] = React.useState(false);
 	const { activeTeamManagers } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
@@ -124,7 +127,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem] !py-4',
+					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] !py-4',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -138,7 +141,20 @@ export function UserTeamCard({
 					</div>
 
 					{/* Show user name, email and image */}
-					<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+					<div className="relative">
+						<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+						<div
+							onClick={() => {
+								setUserDetailAccordion(!userDetailAccordion);
+								replace('/?memberId=' + (memberInfo?.memberUser?.id ?? ''));
+							}}
+							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
+						>
+							<ChevronDoubleDownIcon
+								className={clsxm('h-4 w-4 transition-all', userDetailAccordion && 'rotate-180')}
+							/>
+						</div>
+					</div>
 					<VerticalSeparator />
 
 					{/* Task information */}
@@ -149,6 +165,7 @@ export function UserTeamCard({
 							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 							publicTeam={publicTeam}
 						/>
+
 						{isManagerConnectedUser != 1 ? (
 							<p
 								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
@@ -203,6 +220,7 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
+				{userDetailAccordion ? <div className="h-96"></div> : null}
 				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card
