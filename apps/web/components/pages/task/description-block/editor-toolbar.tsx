@@ -159,7 +159,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 
 	useEffect(() => {
 		const handleClickOutsideOfEmoji = (event: MouseEvent) => {
-			if (emojiRef.current && !emojiRef.current.contains(event.target as Node)) {
+			if (emojiRef.current && !emojiRef.current.contains(event.target as unknown as Node)) {
 				setShowEmoji(false);
 			}
 		};
