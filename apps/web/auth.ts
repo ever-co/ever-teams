@@ -11,8 +11,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			try {
 				const gauzyLoginUser = await signWithSocialLoginsRequest(
 					account?.provider ?? '',
-					account?.access_token ?? '',
-					true
+					account?.access_token ?? ''
 				);
 				console.log({ gauzyLoginUser, user, account });
 				const data = await signInWorkspaceAPI(
@@ -46,8 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			if (user) {
 				const gauzyLoginUser = await signWithSocialLoginsRequest(
 					account?.provider ?? '',
-					account?.access_token ?? '',
-					true
+					account?.access_token ?? ''
 				);
 				const data = await signInWorkspaceAPI(
 					gauzyLoginUser?.data.confirmed_email,
