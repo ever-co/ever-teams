@@ -60,10 +60,7 @@ type IUEmployeeParam = {
  * @param {IUEmployeeParam} The employee parameters, including bearer token and optional relations.
  * @returns A Promise resolving to the IUser object with the desired relations and employee details.
  */
-export const currentAuthenticatedUserRequest = ({
-	bearer_token,
-	relations = ['role', 'tenant']
-}: IUEmployeeParam) => {
+export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['role', 'tenant'] }: IUEmployeeParam) => {
 	// Create a new instance of URLSearchParams for query string construction
 	const query = new URLSearchParams();
 
@@ -104,9 +101,9 @@ export function sendAuthCodeRequest(email: string) {
 // auth/signin.email/confirm Gives response with tenantId's
 export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<IEmailAndCodeConfirmResponse>({
-		path: '/auth/signin.email/confirm?includeTeams=true',
+		path: '/auth/signin.email/confirm',
 		method: 'POST',
-		body: { email, code }
+		body: { email, code, includeTeams: true }
 	});
 }
 

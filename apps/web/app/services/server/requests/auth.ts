@@ -4,6 +4,7 @@ import { ILoginResponse, IRegisterDataRequest, ISigninEmailConfirmResponse } fro
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { ProviderEnum } from './OAuth';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -43,17 +44,17 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 
 export function signInEmailPasswordRequest(email: string, password: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email.password?includeTeams=true',
+		path: '/auth/signin.email.password',
 		method: 'POST',
-		body: { email, password }
+		body: { email, password, includeTeams: true }
 	});
 }
 
-export function signWithSocialLoginsRequest(email: string) {
+export function signWithSocialLoginsRequest(provider: ProviderEnum, token: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email.social?includeTeams=true',
+		path: '/auth/signin.email.social',
 		method: 'POST',
-		body: { email }
+		body: { provider, token, includeTeams: true }
 	});
 }
 
@@ -61,9 +62,9 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 	const { code, email } = data;
 
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email/confirm?includeTeams=true',
+		path: '/auth/signin.email/confirm',
 		method: 'POST',
-		body: { code, email }
+		body: { code, email, includeTeams: true }
 	});
 };
 
