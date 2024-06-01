@@ -13,6 +13,7 @@ import {
 } from '@app/constants';
 import qs from 'qs';
 import { signInEmailConfirmGauzy, signInWorkspaceGauzy } from './auth/invite-accept';
+import { ProviderEnum } from '@app/services/server/requests/OAuth';
 
 /**
  * Fetches data of the authenticated user with specified relations and the option to include employee details.
@@ -110,10 +111,10 @@ export function signInEmailPasswordAPI(email: string, password: string) {
 	return post<ISigninEmailConfirmResponse>(endpoint, { email, password, includeTeams: true });
 }
 
-export function signInEmailSocialLoginAPI(email: string) {
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email.social' : `/auth/signin-email-social`;
+export function signInEmailSocialLoginAPI(provider: ProviderEnum, access_token: string) {
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.provider.social' : `/auth/signin-email-social`;
 
-	return post<ISigninEmailConfirmResponse>(endpoint, { email, includeTeams: true });
+	return post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
 }
 
 export const verifyUserEmailByTokenAPI = (email: string, token: string) => {

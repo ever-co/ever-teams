@@ -4,6 +4,7 @@ import { ILoginResponse, IRegisterDataRequest, ISigninEmailConfirmResponse } fro
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { ProviderEnum } from './OAuth';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -49,7 +50,7 @@ export function signInEmailPasswordRequest(email: string, password: string) {
 	});
 }
 
-export function signWithSocialLoginsRequest(provider: string, token: string) {
+export function signWithSocialLoginsRequest(provider: ProviderEnum, token: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email.social',
 		method: 'POST',
