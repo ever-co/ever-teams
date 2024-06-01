@@ -80,7 +80,11 @@
 		"spell": "cspell . --config .cspell.json",
 		"spellcheck": "cspell .",
 		"dev:server-web": "cd apps/server-web && yarn run dev",
-		"build:web:desktop": "cross-env NEXT_BUILD_OUTPUT_TYPE=standalone DESKTOP_MODE=true yarn build:web"
+		"build:server-web:prod": "cd apps/server-web && yarn build",
+		"build:desktop": "cd apps/web && yarn run build:server",
+		"build:web:desktop": "cross-env NEXT_BUILD_OUTPUT_TYPE=standalone NEXT_SHARP_PATH=/temp/node_modules/sharp yarn build:desktop",
+		"copy:build:web": "cp -r  apps/web/.next/standalone apps/server-web/app/ && cp -r apps/web/.next/static apps/server-web/app/standalone/apps/web/.next && cp -r apps/web/public apps/server-web/app/standalone/apps/web/",
+		"build:v1": "cd apps/server-web/renderer && yarn build:v1"
 	},
 	"config": {
 		"commitizen": {
@@ -124,6 +128,7 @@
 	"workspaces": {
 		"packages": [
 			"apps/web",
+			"apps/server-web",
 			"packages/*",
 			"libs/*",
 			"tools"

@@ -1,15 +1,56 @@
 import path from 'path'
 import { app, ipcMain, Tray, Menu, nativeImage } from 'electron'
 import serve from 'electron-serve'
-import { createWindow } from './helpers'
+import { createWindow } from './helpers';
+import { ServerConfig } from './helpers/services/libs/server-config';
+import { DesktopServer } from './helpers/desktop-server';
+import { LocalStore } from './helpers/services/libs/desktop-store';
 
-const isProd = process.env.NODE_ENV === 'production'
+const controller = new AbortController();
+const serverConfig = new ServerConfig();
+const { signal } = controller;
+
+const desktopServer = new DesktopServer();
+const isProd = process.env.NODE_ENV === 'production';
+
 
 if (isProd) {
   serve({ directory: 'app' })
 } else {
   app.setPath('userData', `${app.getPath('userData')} (development)`)
 }
+
+
+const runServer = async () => {
+	console.log('Run the Server...');
+	try {
+		const envVal = getEnvApi();
+
+		// Instantiate API and UI servers
+		await desktopServer.start(
+			{ api: path.join(__dirname, 'standalone/apps/web/server.js') },
+			envVal,
+			null,
+			signal
+		);
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.log('You exit without to stop the server');
+			return;
+		}
+	}
+};
+
+const stopServer = async () => {
+	await desktopServer.stop();
+};
+
+const getEnvApi = () => {
+  LocalStore.setDefaultServerConfig();
+	return {
+		
+	};
+};
 
  (async () => {
   console.log(app.getAppPath())
@@ -32,14 +73,14 @@ if (isProd) {
       id: '1',
       label: 'Start',
       async click() {
-        console.log('settings')
+        await runServer();
       }
     },
     {
       id: '3',
       label: 'Stop',
       async click() {
-        console.log('settings')
+        await stopServer();
       }
     },
     {
