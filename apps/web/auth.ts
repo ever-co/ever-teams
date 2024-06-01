@@ -1,90 +1,29 @@
 import NextAuth from 'next-auth';
-
-import { signWithSocialLoginsRequest } from '@app/services/server/requests';
-import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
 import { filteredProviders } from '@app/utils/check-provider-env-vars';
+import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@app/services/server/requests/OAuth';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: filteredProviders,
+	adapter: GauzyAdapter,
 	callbacks: {
-		async signIn({ user, account }) {
-			try {
-				const gauzyLoginUser = await signWithSocialLoginsRequest(
-					account?.provider ?? '',
-					account?.access_token ?? ''
-				);
-				console.log({ gauzyLoginUser, user, account });
-				const data = await signInWorkspaceAPI(
-					gauzyLoginUser?.data.confirmed_email,
-					gauzyLoginUser?.data.workspaces[0].token
-				);
-				const tenantId = data.user?.tenantId || '';
-				const access_token = data.token;
-				const userId = data.user?.id;
-
-				const { data: organizations } = await getUserOrganizationsRequest({
-					tenantId,
-					userId,
-					token: access_token
-				});
-
-				const organization = organizations?.items[0];
-
-				if (!organization) {
-					return false;
+		async signIn({ account }) {
+			if (account) {
+				const { provider, access_token } = account;
+				if (access_token) {
+					return await signInCallback(provider as ProviderEnum, access_token);
 				}
-
-				return !!gauzyLoginUser && !!organization;
-			} catch (error) {
-				return false;
 			}
+			return true;
 		},
 
 		async jwt({ token, user, trigger, session, account }) {
-			console.log({ user1: user, session, account1: account });
 			if (user) {
-				const gauzyLoginUser = await signWithSocialLoginsRequest(
-					account?.provider ?? '',
-					account?.access_token ?? ''
-				);
-				const data = await signInWorkspaceAPI(
-					gauzyLoginUser?.data.confirmed_email,
-					gauzyLoginUser?.data.workspaces[0].token
-				);
-				const tenantId = data.user?.tenantId || '';
-				const access_token = data.token;
-				const userId = data.user?.id;
-
-				const { data: organizations } = await getUserOrganizationsRequest({
-					tenantId,
-					userId,
-					token: access_token
-				});
-
-				const organization = organizations?.items[0];
-
-				if (!organization) {
-					return Promise.reject({
-						errors: {
-							email: 'Your account is not yet ready to be used on the Ever Teams Platform'
-						}
-					});
+				if (account) {
+					const { access_token, provider } = account;
+					if (access_token) {
+						token.authCookie = await jwtCallback(provider as ProviderEnum, access_token);
+					}
 				}
-
-				token.authCookie = {
-					access_token,
-					refresh_token: {
-						token: data.refresh_token
-					},
-					teamId: gauzyLoginUser?.data.workspaces[0].current_teams[0].team_id,
-					tenantId,
-					organizationId: organization?.organizationId,
-					languageId: 'en',
-					noTeamPopup: true,
-					userId,
-					workspaces: gauzyLoginUser?.data.workspaces,
-					confirmed_mail: gauzyLoginUser?.data.confirmed_email
-				};
 			}
 
 			if (trigger === 'update' && session) {
