@@ -161,9 +161,9 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
 					{emojis && (
-						<div>
+						<div>{clickInput && <>
 							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
-							{showEmoji && clickInput && (
+							{showEmoji &&  (
 								<div
 									ref={mergeRefs(
 										filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[]
@@ -178,7 +178,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 										maxFrequentRows={0}
 									/>
 								</div>
-							)}
+							)}</>}
 						</div>
 					)}
 					{trailingNode && <div className="flex items-center">{trailingNode}</div>}
