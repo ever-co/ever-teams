@@ -16,7 +16,7 @@ if (isProd) {
 
   await app.whenReady()
   const appPath = app.getAppPath();
-  const iconPath = path.join(appPath, 'resources', 'tray', 'icon.png');
+  const iconPath = path.join(appPath, 'resources', 'icons', 'tray', 'icon.png');
   const iconNativePath = nativeImage.createFromPath(iconPath);
   iconNativePath.resize({ width: 16, height: 16 })
   const tray = new Tray(iconNativePath)

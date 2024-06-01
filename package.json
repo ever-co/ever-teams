@@ -78,7 +78,9 @@
 		"postinstall.electron": "yarn electron-builder install-app-deps && yarn node tools/electron/postinstall",
 		"postinstall.web": "yarn node tools/web/postinstall",
 		"spell": "cspell . --config .cspell.json",
-		"spellcheck": "cspell ."
+		"spellcheck": "cspell .",
+		"dev:server-web": "cd apps/server-web && yarn run dev",
+		"build:web:desktop": "cross-env NEXT_BUILD_OUTPUT_TYPE=standalone DESKTOP_MODE=true yarn build:web"
 	},
 	"config": {
 		"commitizen": {
