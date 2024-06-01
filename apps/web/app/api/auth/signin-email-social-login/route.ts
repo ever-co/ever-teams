@@ -1,18 +1,12 @@
-import { validateForm } from '@app/helpers/validations';
 import { signWithSocialLoginsRequest } from '@app/services/server/requests';
+import { ProviderEnum } from '@app/services/server/requests/OAuth';
 
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-	const body = (await req.json()) as { email: string; password: string };
+	const body = (await req.json()) as { provider: ProviderEnum; access_token: string };
 
-	const { errors, isValid } = validateForm(['email'], body);
-
-	if (!isValid) {
-		return NextResponse.json({ errors }, { status: 400 });
-	}
-
-	const { data } = await signWithSocialLoginsRequest(body.email);
+	const { data } = await signWithSocialLoginsRequest(body.provider, body.access_token);
 
 	return NextResponse.json(data);
 }

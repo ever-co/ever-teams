@@ -16,6 +16,7 @@
 		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write"
 	},
 	"dependencies": {
+		"@auth/core": "^0.31.0",
 		"@emoji-mart/data": "^1.1.2",
 		"@emoji-mart/react": "^1.1.1",
 		"@excalidraw/excalidraw": "^0.15.3",
