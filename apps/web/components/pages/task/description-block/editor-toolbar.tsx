@@ -40,7 +40,7 @@ interface IToolbarProps {
 	showEmojiIcon?: boolean;
 }
 
-const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji=(() => {}), showEmojiIcon }: IToolbarProps) => {
+const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IToolbarProps) => {
 	const t = useTranslations();
 	const editor = useSlateStatic();
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
@@ -174,7 +174,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji=(() => {}), showEmoj
 	const addEmoji = (emoji: { native: string }) => {
 
 		if (showEmojiIcon) {
-			selectEmoji(emoji);
+			selectEmoji?.(emoji);
 		}
 	};
 
