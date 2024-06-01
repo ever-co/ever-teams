@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "please select one to continue",
 			"HAVE_PASSWORD": "Have Password?",
 			"LOGIN_WITH_PASSWORD": "Login with the Password",
-			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code"
+			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code",
+			"ERROR_SIGNIN": "Error on signing"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Please enter your login information."
@@ -453,7 +454,8 @@
 		"unauthorized": {
 			"TITLE": "Unauthorized",
 			"HEADING_TITLE": "You are not authorized to access this page !",
-			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login."
+			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login.",
+			"TRY_AGAIN": "Try again"
 		},
 		"page404": {
 			"HEADING_TITLE": "Page not found !",

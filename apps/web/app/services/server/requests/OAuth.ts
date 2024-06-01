@@ -1,6 +1,8 @@
 import { type Adapter } from '@auth/core/adapters';
-import { signWithSocialLoginsRequest } from '@app/services/server/requests';
+import { registerUserRequest, signWithSocialLoginsRequest } from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
+// import { Awaitable } from '@auth/core/types';
+// import { IUser } from '@app/interfaces';
 
 export enum ProviderEnum {
 	GITHUB = 'github',
@@ -10,7 +12,19 @@ export enum ProviderEnum {
 }
 
 export const GauzyAdapter: Adapter = {
-	// Provide createUser and other related functions that will call Gauzy APIs when implementing social signup
+	async createUser(user): Promise<any> {
+		const { email, name } = user;
+		const [firstName, lastName] = name ? name.split(' ') : [];
+		const createdUser = await registerUserRequest({
+			password: '',
+			confirmPassword: '',
+			user: { email, firstName, lastName, timeZone: '' }
+		});
+		return createdUser.data;
+	},
+	async getUser(id): Promise<any> {
+		return id;
+	}
 };
 
 async function signIn(provider: ProviderEnum, access_token: string) {
