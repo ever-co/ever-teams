@@ -128,7 +128,7 @@
     ora "5.4.1"
     rxjs "7.8.1"
 
-"@auth/core@0.31.0":
+"@auth/core@0.31.0", "@auth/core@^0.31.0":
   version "0.31.0"
   resolved "https://registry.yarnpkg.com/@auth/core/-/core-0.31.0.tgz#b2b43a8a1c21dc1065cd15e627a4dc47e3cfcab2"
   integrity sha512-UKk3psvA1cRbk4/c9CkpWB8mdWrkKvzw0DmEYRsWolUQytQ2cRqx+hYuV6ZCsngw/xbj9hpmkZmAZEyq2g4fMg==
