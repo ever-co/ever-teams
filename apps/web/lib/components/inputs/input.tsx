@@ -59,6 +59,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		const [error, setError] = useState<string | undefined>(undefined);
 		const inputRef = useRef<HTMLInputElement>(null);
 		const [showEmoji, setShowEmoji] = useState<boolean>(false);
+		const [clickInput, setClickInput] = useState<boolean>(false);
 
 		const addEmoji = (emoji: { native: string }) => {
 			const input = inputRef.current as HTMLInputElement | null;
@@ -76,6 +77,18 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		const handleOutsideClick = () => {
 			setShowEmoji(false);
 		};
+
+		useEffect(() => {
+			const handleClickOutside = (event: MouseEvent) => {
+				if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+					setClickInput(false);
+				}
+			};
+			document.addEventListener('mousedown', handleClickOutside);
+			return () => {
+				document.removeEventListener('mousedown', handleClickOutside);
+			};
+		}, [setClickInput]);
 
 		const { targetEl } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 		useEffect(() => {
@@ -118,6 +131,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					className
 				)}
 				onKeyUp={onKeyUp}
+				onClick={() => setClickInput(true)}
 				onMouseOut={() => {
 					if (showEmoji == true) {
 						setShowEmoji(false);
@@ -147,9 +161,9 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
 					{emojis && (
-						<div>
+						<div>{clickInput && <>
 							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
-							{showEmoji && (
+							{showEmoji &&  (
 								<div
 									ref={mergeRefs(
 										filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[]
@@ -164,7 +178,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 										maxFrequentRows={0}
 									/>
 								</div>
-							)}
+							)}</>}
 						</div>
 					)}
 					{trailingNode && <div className="flex items-center">{trailingNode}</div>}
