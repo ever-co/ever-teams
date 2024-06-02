@@ -12,7 +12,7 @@ export default function SocialLogins() {
 		{ name: 'twitter', icon: <FaTwitter key="twitter-icon" /> }
 	].filter((provider) => providerNames[provider.name] !== undefined);
 
-	return (
+	return mappedProviders.length > 0 ? (
 		<div className="flex flex-col gap-4">
 			<div className="flex flex-row justify-center items-center gap-2">
 				<Divider className="w-56" />
@@ -38,5 +38,7 @@ export default function SocialLogins() {
 				))}
 			</div>
 		</div>
+	) : (
+		<></>
 	);
 }

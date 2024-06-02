@@ -82,6 +82,16 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		setIsUpdated(false);
 	};
 
+	const selectEmoji = (emoji: { native: string }) => {
+		const { selection } = editor;
+        if (selection) {
+            const [start] = Editor.edges(editor, selection);
+            Transforms.insertText(editor, emoji.native, { at: start });
+            Transforms.collapse(editor, { edge: 'end' });
+        }
+        setIsUpdated(false);
+	}
+
 	return (
 		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
 			{task && (
@@ -94,15 +104,14 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						setIsUpdated(true);
 					}}
 				>
-					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} />
+					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} showEmojiIcon={true} selectEmoji={selectEmoji} />
 					<div className="h-[0.0625rem] bg-[#0000001A] dark:bg-[#FFFFFF29]"></div>
 
 					<Editable
-						className={`${
-							readonly
+						className={`${readonly
 								? ''
 								: 'textarea resize-y block w-full bg-transparent dark:text-white h-64 overflow-y-scroll scrollbar-hide'
-						}`}
+							}`}
 						id="editor-container"
 						renderPlaceholder={({ children, attributes }) => (
 							<div {...attributes}>
