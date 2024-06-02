@@ -1,5 +1,5 @@
 import { ChildProcessFactory, Observer } from '../utils';
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow } from 'electron';
 import { ServerConfig } from './server-config';
 import EventEmitter from 'events';
 import { EventLists } from '../../constant';

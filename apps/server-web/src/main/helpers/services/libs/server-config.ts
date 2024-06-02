@@ -1,5 +1,4 @@
 import { LocalStore } from './desktop-store';
-import { WebServer } from '../../interfaces';
 
 export class ServerConfig {
 	public get setting(): any {

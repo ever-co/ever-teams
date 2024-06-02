@@ -1,7 +1,5 @@
 import { nativeImage, Notification, NativeImage } from 'electron';
 import * as path from 'path';
-import { LocalStore } from  '../helpers/services/libs/desktop-store';
-// import { TranslateService } from './translation';
 
 export default class NotificationDesktop {
 	private readonly _iconPath: string;
@@ -13,10 +11,6 @@ export default class NotificationDesktop {
 		this._iconNativePath.resize({ width: 16, height: 16 });
 	}
 
-	// private get _isSilent(): boolean {
-	// 	const setting = LocalStore.getStore('appSetting');
-	// 	return setting ? setting.mutedNotification : false;
-	// }
 
 	public customNotification(message: string, title: string) {
 		const notification = new Notification({
@@ -24,7 +18,6 @@ export default class NotificationDesktop {
 			body: message,
 			icon: this._iconNativePath,
 			closeButtonText: 'Close'//TranslateService.instant('BUTTONS.CLOSE'),
-			// silent: this._isSilent,
 		});
 
 		notification.show();

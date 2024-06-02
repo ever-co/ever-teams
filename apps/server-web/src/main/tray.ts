@@ -4,7 +4,6 @@ import { EventEmitter } from 'events';
 import { EventLists } from './helpers/constant';
 
 export const _initTray = (resourceDir: any, resourcesFiles: any, contextMenu:any): Tray => {
-    const appPath = app.getAppPath();
     const iconPath = path.join(__dirname, resourceDir.resources, resourcesFiles.iconTray);
     console.log(iconPath)
     const iconNativePath: NativeImage = nativeImage.createFromPath(iconPath);

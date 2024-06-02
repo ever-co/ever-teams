@@ -1,8 +1,5 @@
 import path from 'path'
 import { app, ipcMain, Tray, dialog } from 'electron';
-// import serve from 'electron-serve'
-import { createWindow } from './helpers';
-import { ServerConfig } from './helpers/services/libs/server-config';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
@@ -12,13 +9,12 @@ import { EventLists } from './helpers/constant';
 const eventEmiter = new EventEmitter();
 
 const controller = new AbortController();
-const serverConfig = new ServerConfig();
 const { signal } = controller;
 const isPack = app.isPackaged;
 const desktopServer = new DesktopServer(false, eventEmiter);
 const isProd = process.env.NODE_ENV === 'production';
 
-const appPath = app.getAppPath();
+// const appPath = app.getAppPath();
 
 let isServerRun: boolean;
 
@@ -54,10 +50,10 @@ const runServer = async () => {
 		await desktopServer.start(
 			{ api: path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer) },
 			envVal,
-			null,
+			undefined,
 			signal
 		);
-	} catch (error) {
+	} catch (error:any) {
 		if (error.name === 'AbortError') {
 			console.log('You exit without to stop the server');
 			return;
