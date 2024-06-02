@@ -22,7 +22,7 @@ export function useUserProfilePage() {
 	const memberId: string = useMemo(() => {
 		return (params?.memberId ?? userMemberId) as string;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [params]);
+	}, [params, userMemberId]);
 
 	const members = activeTeam?.members || [];
 

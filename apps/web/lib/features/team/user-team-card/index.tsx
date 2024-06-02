@@ -27,7 +27,6 @@ import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
 import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
-import { useRouter } from 'next/navigation';
 import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
@@ -65,7 +64,6 @@ export function UserTeamCard({
 	const hook = useTaskFilter(profile);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const { replace } = useRouter();
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 	const fullWidth = useRecoilValue(fullWidthState);
 
