@@ -16,9 +16,8 @@ export function useUserProfilePage() {
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
 	const queryParams = useSearchParams();
-	const $memberId = queryParams.get('memberId') || '';
+	const $memberId = (queryParams && queryParams.get('memberId')) || '';
 	const params = useParams();
-	console.log('paramsparams', $memberId);
 	const memberId: string = useMemo(() => {
 		return (params?.memberId ?? $memberId) as string;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
