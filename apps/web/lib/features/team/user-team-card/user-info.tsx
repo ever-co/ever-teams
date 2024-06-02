@@ -70,8 +70,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						as="h3"
 						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg flex gap-2"
 					>
-						{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)} </span> : fullname}
-
+						<div className="max-w-[176px] truncate">
+							{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)}</span> : fullname}
+						</div>
 						{(member?.role?.name === 'MANAGER' ||
 							member?.role?.name === 'SUPER_ADMIN' ||
 							member?.role?.name === 'ADMIN') && (
