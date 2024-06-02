@@ -27,6 +27,7 @@ export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
+
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
@@ -133,7 +134,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					{/* Divider */}
 					<div className="h-0.5 bg-[#FFFFFF14]"></div>
 					{hook.tab == 'worked' && canSeeActivity && (
-						<Container fullWidth={false} className="py-8">
+						<Container fullWidth={fullWidth} className="py-8">
 							<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
 								{Object.keys(activityScreens).map((filter, i) => (
 									<div key={i} className="flex cursor-pointer justify-start items-center gap-4">

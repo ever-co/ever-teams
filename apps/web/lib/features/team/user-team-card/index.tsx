@@ -33,6 +33,7 @@ import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { FilterTab } from '@app/[locale]/profile/[memberId]/page';
 import { Loader } from 'lucide-react';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -66,6 +67,7 @@ export function UserTeamCard({
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { replace } = useRouter();
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const setActivityFilter = useSetRecoilState(activityTypeState);
@@ -255,7 +257,7 @@ export function UserTeamCard({
 				memberInfo.memberUser.id == profile.userProfile?.id ? (
 					<div className="h-96 overflow-y-auto">
 						{canSeeActivity && (
-							<Container fullWidth={false} className="py-8">
+							<Container fullWidth={fullWidth} className="py-8">
 								<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
