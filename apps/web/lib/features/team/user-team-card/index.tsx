@@ -11,12 +11,12 @@ import {
 	useUserProfilePage
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
-import { timerSecondsState } from '@app/stores';
+import { timerSecondsState, userDetailAccordion as userAccordion } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Card, Container, InputField, Text, VerticalSeparator } from 'lib/components';
 import { TaskTimes, TodayWorkedTime, UserProfileTask, useTaskFilter } from 'lib/features';
 import { useTranslations } from 'next-intl';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
@@ -32,6 +32,7 @@ import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { FilterTab } from '@app/[locale]/profile/[memberId]/page';
+import { Loader } from 'lucide-react';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -59,8 +60,8 @@ export function UserTeamCard({
 }: IUserTeamCard) {
 	const t = useTranslations();
 	const profile = useUserProfilePage();
+	const [userDetailAccordion, setUserDetailAccordion] = useRecoilState(userAccordion);
 	const hook = useTaskFilter(profile);
-
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { replace } = useRouter();
@@ -70,7 +71,6 @@ export function UserTeamCard({
 	const setActivityFilter = useSetRecoilState(activityTypeState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
-	const [userDetailAccordion, setUserDetailAccordion] = React.useState(false);
 	const { activeTeamManagers } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
@@ -78,6 +78,7 @@ export function UserTeamCard({
 
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
 		setShowActivity((prev) => !prev);
+		setUserDetailAccordion('');
 		setActivityFilter((prev) => ({
 			...prev,
 			type,
@@ -168,13 +169,20 @@ export function UserTeamCard({
 						<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
 						<div
 							onClick={() => {
-								setUserDetailAccordion(!userDetailAccordion);
-								replace('/?memberId=' + (memberInfo?.memberUser?.id ?? ''));
+								setUserDetailAccordion(
+									userDetailAccordion == memberInfo.memberUser?.id
+										? ''
+										: memberInfo.memberUser?.id ?? ''
+								);
+								replace('/?memberId=' + (memberInfo.memberUser?.id ?? ''));
 							}}
 							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
 						>
 							<ChevronDoubleDownIcon
-								className={clsxm('h-4 w-4 transition-all', userDetailAccordion && 'rotate-180')}
+								className={clsxm(
+									'h-4 w-4 transition-all',
+									userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
+								)}
 							/>
 						</div>
 					</div>
@@ -243,9 +251,10 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{userDetailAccordion ? (
-					<div className="h-96">
-						{hook.tab == 'worked' && canSeeActivity && (
+				{userDetailAccordion == memberInfo.memberUser?.id &&
+				memberInfo.memberUser.id == profile.userProfile?.id ? (
+					<div className="h-96 overflow-y-auto">
+						{canSeeActivity && (
 							<Container fullWidth={false} className="py-8">
 								<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
@@ -265,7 +274,11 @@ export function UserTeamCard({
 								</div>
 							</Container>
 						)}
-						<UserProfileTask profile={profile} tabFiltered={hook} />
+						{activityScreens[activityFilter] ?? null}
+					</div>
+				) : userDetailAccordion == memberInfo.memberUser?.id ? (
+					<div className="h-20 w-full flex justify-center items-center">
+						<Loader className="animate-spin" />
 					</div>
 				) : null}
 				<UserTeamActivity showActivity={showActivity} member={member} />
