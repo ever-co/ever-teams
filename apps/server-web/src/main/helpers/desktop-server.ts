@@ -13,18 +13,19 @@ export enum ServerState {
 /**
  * Represents a Desktop Server.
  */
-export class DesktopServer extends EventEmitter {
+export class DesktopServer {
 	private state: ServerState = ServerState.STOPPED;
 	private stateObserver: Observer<ServerState, void>;
-
-	constructor(private readonly isOnlyApiServer = false) {
-		super();
+	private eventEmitter:EventEmitter;
+	constructor(private readonly isOnlyApiServer = false, eventEmitter: EventEmitter) {
+		// super();
 
 		this.stateObserver = new Observer((state: ServerState) => {
 			this.state = state;
 			this.notification(state);
-			this.emit('stateChange', state);
+			// this.emit('stateChange', state);
 		});
+		this.eventEmitter = eventEmitter
 	}
 
 	public async start(
@@ -40,7 +41,7 @@ export class DesktopServer extends EventEmitter {
 				return; // Server already running or restarting
 			}
 
-			const apiInstance = DesktopServerFactory.getApiInstance(path?.api, env, mainWindow, signal);
+			const apiInstance = DesktopServerFactory.getApiInstance(path?.api, env, mainWindow, signal, this.eventEmitter);
 			await this.startInstance(apiInstance);
 			// Notify running state
 			this.stateObserver.notify(ServerState.RUNNING);
@@ -50,9 +51,9 @@ export class DesktopServer extends EventEmitter {
 	}
 
 	public async stop(): Promise<void> {
-		if (this.state === ServerState.STOPPED) {
-			return; // Server already stopped
-		}
+		// if (this.state === ServerState.STOPPED) {
+		// 	return; // Server already stopped
+		// }
 
 		const apiInstance = DesktopServerFactory.getApiInstance();
 		await this.stopInstance(apiInstance);
@@ -62,13 +63,13 @@ export class DesktopServer extends EventEmitter {
 	}
 
 	public async restart(): Promise<void> {
-		if (this.state === ServerState.STOPPED) {
-			return; // Server is stopped no need to restarting
-		}
+		// if (this.state === ServerState.STOPPED) {
+		// 	return; // Server is stopped no need to restarting
+		// }
 
-		if (this.state === ServerState.RESTARTING) {
-			return; // Server already restarting
-		}
+		// if (this.state === ServerState.RESTARTING) {
+		// 	return; // Server already restarting
+		// }
 
 		// Notify restarting state
 		this.stateObserver.notify(ServerState.RESTARTING);

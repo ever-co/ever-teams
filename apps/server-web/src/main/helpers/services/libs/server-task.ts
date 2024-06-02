@@ -1,6 +1,8 @@
 import { ChildProcessFactory, Observer } from '../utils';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { ServerConfig } from './server-config';
+import EventEmitter from 'events';
+import { EventLists } from '../../constant';
 // import { Timeout } from '../../decorators';
 
 export abstract class ServerTask {
@@ -17,6 +19,7 @@ export abstract class ServerTask {
 	protected isRunning: boolean;
 	protected signal: AbortSignal;
 	private criticalMessageError = ['[CRITICAL::ERROR]', 'EADDRINUSE'];
+	public eventEmmitter: EventEmitter;
 
 	protected constructor(
 		processPath: string,
@@ -24,7 +27,8 @@ export abstract class ServerTask {
 		serverWindow: BrowserWindow,
 		successMessage: string,
 		errorMessage: string,
-		signal: AbortSignal
+		signal: AbortSignal,
+		eventEmmitter: EventEmitter
 	) {
 		this.processPath = processPath;
 		this.args = args;
@@ -35,6 +39,7 @@ export abstract class ServerTask {
 		this.pid = `${this.args.serviceName}Pid`;
 		this.signal = signal;
 		this.isRunning = false;
+		this.eventEmmitter = eventEmmitter;
 
 		this.loggerObserver = new Observer((msg: string) => {
 			console.log('Sending log_state:', msg);
@@ -67,7 +72,7 @@ export abstract class ServerTask {
 
 				const service = ChildProcessFactory.createProcess(this.processPath, this.args, signal);
 
-				console.log('Service created', service);
+				console.log('Service created', service.pid);
 
 				service.stdout.on('data', (data: any) => {
 					const msg = data.toString();
@@ -92,6 +97,20 @@ export abstract class ServerTask {
 					this.loggerObserver.notify(data.toString());
 				});
 
+				service.on('disconnect', () => {
+					console.log('Webserver disconnected');
+					if (this.eventEmmitter) {
+						this.eventEmmitter.emit(EventLists.webServerStopped);
+					}
+				})
+
+				service.on('error', (err) => {
+					console.log('child process error', err);
+				})
+
+				if (this.eventEmmitter) {
+					this.eventEmmitter.emit(EventLists.webServerStarted);
+				}
 				this.config.setting = { [this.pid]: service.pid };
 			} catch (error) {
 				console.error('Error running task:', error);

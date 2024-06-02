@@ -1,28 +1,44 @@
 import path from 'path'
-import { app, ipcMain, Tray, Menu, nativeImage } from 'electron';
+import { app, ipcMain, Tray, dialog } from 'electron';
 // import serve from 'electron-serve'
 import { createWindow } from './helpers';
 import { ServerConfig } from './helpers/services/libs/server-config';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
+import { EventEmitter } from 'events';
+import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
+import { EventLists } from './helpers/constant';
+
+const eventEmiter = new EventEmitter();
 
 const controller = new AbortController();
 const serverConfig = new ServerConfig();
 const { signal } = controller;
-const isPack = app.isPackage;
-const desktopServer = new DesktopServer();
+const isPack = app.isPackaged;
+const desktopServer = new DesktopServer(false, eventEmiter);
 const isProd = process.env.NODE_ENV === 'production';
+
+const appPath = app.getAppPath();
+
+let isServerRun: boolean;
+
+let tray:Tray;
+
+const trayMenuItems = defaultTrayMenuItem(eventEmiter);
+
+
+
 console.log(__dirname);
 
 if (isProd) {
   // serve({ directory: 'app' })
 } else {
-  app.setPath('userData', `${app.getPath('userData')} (development)`)
+  app.setPath('userData', `${app.getPath('userData')}`)
 }
 
 const resourceDir = {
   webServer: !isPack ? '../../release/app/dist' : '..',
-  resources: '../resources' 
+  resources: '../resources'
 };
 const resourcesFiles = {
   webServer: 'standalone/apps/web/server.js',
@@ -54,68 +70,45 @@ const stopServer = async () => {
 };
 
 const getEnvApi = () => {
-  LocalStore.setDefaultServerConfig();
   const setting = LocalStore.getStore('config')
   console.log(setting);
 	return setting;
 };
 
+const onInitApplication = () => {
+  LocalStore.setDefaultServerConfig(); // check and set default config
+  tray = _initTray(resourceDir, resourcesFiles, trayMenuItems);
+  eventEmiter.on(EventLists.webServerStart, async () => {
+    updateTrayMenu('SERVER_START', { enabled: false }, eventEmiter, tray, trayMenuItems);
+    isServerRun = true;
+    await runServer();
+  })
+
+  eventEmiter.on(EventLists.webServerStop, async () => {
+    isServerRun = false;
+    await stopServer();
+  })
+
+  eventEmiter.on(EventLists.webServerStarted, () => {
+    console.log(EventLists.webServerStarted)
+    updateTrayMenu('SERVER_START', { enabled: false }, eventEmiter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmiter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STATUS', { label: 'Status: Started' }, eventEmiter, tray, trayMenuItems);
+    isServerRun = true;
+  })
+
+  eventEmiter.on(EventLists.webServerStopped, () => {
+    console.log(EventLists.webServerStopped);
+    updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmiter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_START', { enabled: true }, eventEmiter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STATUS', { label: 'Status: Stopped' }, eventEmiter, tray, trayMenuItems);
+    isServerRun = false;
+  })
+}
+
  (async () => {
-  console.log(app.getAppPath())
-
   await app.whenReady()
-  const appPath = app.getAppPath();
-  const iconPath = path.join(__dirname, resourceDir.resources, resourcesFiles.iconTray);
-  console.log(iconPath)
-  const iconNativePath = nativeImage.createFromPath(iconPath);
-  iconNativePath.resize({ width: 16, height: 16 })
-  const tray = new Tray(iconNativePath)
-  const contextMenu = [
-    {
-      id: '-1',
-      label: 'Status: Stopped',
-      async click() {
-        console.log('settings')
-      }
-    },
-    {
-      id: '1',
-      label: 'Start',
-      async click() {
-        await runServer();
-      }
-    },
-    {
-      id: '3',
-      label: 'Stop',
-      async click() {
-        await stopServer();
-      }
-    },
-    {
-      id: '4',
-      label: 'Settings',
-      async click() {
-        console.log('settings')
-      }
-    },
-    {
-      id: '5',
-      label: 'About Gauzy Web Server',
-      async click() {
-        console.log('about')
-      }
-    },
-    {
-      id: '6',
-      label: 'Quit',
-      click() {
-        app.quit();
-      }
-    }
-  ];
-
-  tray.setContextMenu(Menu.buildFromTemplate(contextMenu));
+  onInitApplication();
   // const mainWindow = createWindow('main', {
   //   width: 1000,
   //   height: 600,
@@ -140,3 +133,28 @@ app.on('window-all-closed', () => {
 ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
+
+app.on('before-quit', async (e) => {
+	console.log('Before Quit');
+
+	e.preventDefault();
+
+	if (isServerRun) {
+		const exitConfirmationDialog = await dialog.showMessageBox({
+      message: '',
+      title: 'Warning',
+      detail: 'Server web still running, Are you sure to exit the app ?',
+      buttons: [
+        'Yes',
+        'No'
+      ]
+    })
+
+		if (exitConfirmationDialog.response === 0) {
+			// Stop the server from main
+			stopServer();
+		}
+	} else {
+		app.exit(0);
+	}
+});

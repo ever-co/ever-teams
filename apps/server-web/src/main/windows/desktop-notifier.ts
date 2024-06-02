@@ -18,7 +18,7 @@ export default class NotificationDesktop {
 	// 	return setting ? setting.mutedNotification : false;
 	// }
 
-	public customNotification(message, title) {
+	public customNotification(message: string, title: string) {
 		const notification = new Notification({
 			title: title,
 			body: message,
