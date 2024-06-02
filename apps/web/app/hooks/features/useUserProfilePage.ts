@@ -1,25 +1,26 @@
 'use client';
 
 import { ITeamTask } from '@app/interfaces';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
+import { useRecoilValue } from 'recoil';
+import { userDetailAccordion } from '@app/stores';
 
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, updateTask } = useTeamTasks();
+	const userMemberId = useRecoilValue(userDetailAccordion);
 
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
-	const queryParams = useSearchParams();
-	const $memberId = (queryParams && queryParams.get('memberId')) || '';
 	const params = useParams();
 	const memberId: string = useMemo(() => {
-		return (params?.memberId ?? $memberId) as string;
+		return (params?.memberId ?? userMemberId) as string;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params]);
 
