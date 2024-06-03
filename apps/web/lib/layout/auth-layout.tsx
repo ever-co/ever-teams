@@ -1,10 +1,11 @@
 import { clsxm } from '@app/utils';
-import { Meta, Text } from 'lib/components';
+import { Text } from 'lib/components';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Footer } from './footer';
+import { useTheme } from 'next-themes';
 
 type Props = {
 	title?: string;
@@ -14,10 +15,10 @@ type Props = {
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
 	const t = useTranslations();
+	const { theme } = useTheme();
 
 	return (
 		<>
-			<Meta title={title} />
 			<div className="flex flex-row">
 				{/* Bg Cover side */}
 				<div
@@ -68,7 +69,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 					</div>
 
-					<div className="self-end w-full h-fit bg-primary-mid p-9">
+					<div className="self-end w-full h-fit bg-primary-mid p-9 ">
 						<Text.Heading
 							as="h3"
 							className="text-white lg:text-lg xl:text-xl 2xl:text-3xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
@@ -76,13 +77,12 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 							{t('pages.auth.COVER_TITLE')}
 						</Text.Heading>
 
-						<Text className="text-sm text-gray-400 px-9 text-ellipsis">
+						<Text.Label className="text-sm text-gray-400 px-9 text-ellipsis ">
 							{t('pages.auth.COVER_DESCRIPTION')}
-						</Text>
+						</Text.Label>
 					</div>
 				</div>
 
-				{/* Content side */}
 				<div
 					className={clsxm(
 						'w-full lg:w-1/2 h-screen min-h-[500px]',
@@ -91,18 +91,11 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 				>
 					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
 						{isAuthPage && (
-							<div className="w-11/12">
-								{title && (
-									<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
-										{title}
-									</Text.Heading>
-								)}
-
-								{description && (
-									<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px] min-h-[10vh]">
-										{description}
-									</Text>
-								)}
+							<div className="w-11/12 flex-col flex justify-center items-center mb-[103px]">
+								<Text.Heading as="h1" className="mb-3 text-center ">
+									{title}
+								</Text.Heading>
+								<p className="text-sm md:text-lg text-gray-400 text-center">{description}</p>
 							</div>
 						)}
 
