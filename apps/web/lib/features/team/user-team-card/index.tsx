@@ -201,8 +201,7 @@ export function UserTeamCard({
 							<p
 								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
 								onClick={() => {
-									showActivityFilter('TICKET', memberInfo.member ?? null);
-								    setUserDetailAccordion('');
+									showActivityFilter('TICKET', memberInfo.member ?? null); setUserDetailAccordion('');
 								}}
 							>
 								{!showActivity ? (
