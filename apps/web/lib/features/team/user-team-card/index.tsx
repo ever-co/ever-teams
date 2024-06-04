@@ -85,7 +85,7 @@ export function UserTeamCard({
 			member
 		}));
 	};
-	null
+
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
 		const { h, m } = secondsToTime(
