@@ -14,63 +14,57 @@ export enum ProviderEnum {
 export function GauzyAdapter(): Adapter {
 	return {
 		createUser: async (user): Promise<any> => {
-			console.log('========================================CREATE USER', { user });
 			const { email, name } = user;
 			const [firstName, lastName] = name ? name.split(' ') : [];
 			const createdUser = await registerUserRequest({
-				password: '',
-				confirmPassword: '',
+				password: 'gloiresalva',
+				confirmPassword: 'gloiresalva',
 				user: { email, firstName, lastName, timeZone: '' }
 			});
 			return createdUser;
 		},
 
 		getUser: async (id): Promise<any> => {
-			console.log('========================================GET USER', { id });
 			return null;
 		},
 
 		getUserByEmail: async (email): Promise<any> => {
-			console.log('========================================GET USER BY EMAIL', { email });
+			// const response = await fetch(`http://localhost:3000/api/user/email/${email}`, { method: 'GET' });
+			// const user = await response.json();
+			// console.log('Existed user', user);
+			// return user || null;
 			return null;
 		},
 
 		getUserByAccount: async (
 			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
 		): Promise<any> => {
-			console.log('========================================GET USER BY ACCOUNT', { providerAccountId });
 			return null;
 		},
 
 		updateUser: async (user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>): Promise<any> => {
-			console.log('========================================UPDATE USER', { user });
 			return user;
 		},
 
 		linkAccount: async (account: AdapterAccount) => {
-			console.log('========================================LINK ACCOUNT', { account });
 			return account;
 		},
 
 		createSession: async (session: { sessionToken: string; userId: string; expires: Date }) => {
-			console.log('========================================CREATE SESSION', { session });
 			return session;
 		},
 
 		getSessionAndUser: async (sessionToken: string): Promise<any> => {
-			console.log('========================================GET SESSION AND USER', { sessionToken });
 			return sessionToken;
 		},
 
 		updateSession: async (
 			session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
 		): Promise<any> => {
-			console.log('========================================UPDATE SESSION', { session });
 			return session;
 		},
 
 		deleteSession: async (sessionToken: string): Promise<any> => {
-			console.log('========================================DELETE SESSION', { sessionToken });
 			return sessionToken;
 		}
 	};
