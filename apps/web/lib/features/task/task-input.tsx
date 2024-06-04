@@ -609,7 +609,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className="py-6 max-h-56 overflow-y-auto">
+				<ul className="py-6 max-h-[40vh] overflow-y-auto">
 					{forParentChildRelationship &&
 						data?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;
