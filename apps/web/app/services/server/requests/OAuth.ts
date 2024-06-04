@@ -1,4 +1,4 @@
-import { type Adapter } from '@auth/core/adapters';
+import { AdapterAccount, AdapterSession, AdapterUser, type Adapter } from '@auth/core/adapters';
 import { registerUserRequest, signWithSocialLoginsRequest } from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
 // import { Awaitable } from '@auth/core/types';
@@ -11,21 +11,70 @@ export enum ProviderEnum {
 	TWITTER = 'twitter'
 }
 
-export const GauzyAdapter: Adapter = {
-	async createUser(user): Promise<any> {
-		const { email, name } = user;
-		const [firstName, lastName] = name ? name.split(' ') : [];
-		const createdUser = await registerUserRequest({
-			password: '',
-			confirmPassword: '',
-			user: { email, firstName, lastName, timeZone: '' }
-		});
-		return createdUser.data;
-	},
-	async getUser(id): Promise<any> {
-		return id;
-	}
-};
+export function GauzyAdapter(): Adapter {
+	return {
+		createUser: async (user): Promise<any> => {
+			console.log('========================================CREATE USER', { user });
+			const { email, name } = user;
+			const [firstName, lastName] = name ? name.split(' ') : [];
+			const createdUser = await registerUserRequest({
+				password: '',
+				confirmPassword: '',
+				user: { email, firstName, lastName, timeZone: '' }
+			});
+			return createdUser;
+		},
+
+		getUser: async (id): Promise<any> => {
+			console.log('========================================GET USER', { id });
+			return null;
+		},
+
+		getUserByEmail: async (email): Promise<any> => {
+			console.log('========================================GET USER BY EMAIL', { email });
+			return null;
+		},
+
+		getUserByAccount: async (
+			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
+		): Promise<any> => {
+			console.log('========================================GET USER BY ACCOUNT', { providerAccountId });
+			return null;
+		},
+
+		updateUser: async (user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>): Promise<any> => {
+			console.log('========================================UPDATE USER', { user });
+			return user;
+		},
+
+		linkAccount: async (account: AdapterAccount) => {
+			console.log('========================================LINK ACCOUNT', { account });
+			return account;
+		},
+
+		createSession: async (session: { sessionToken: string; userId: string; expires: Date }) => {
+			console.log('========================================CREATE SESSION', { session });
+			return session;
+		},
+
+		getSessionAndUser: async (sessionToken: string): Promise<any> => {
+			console.log('========================================GET SESSION AND USER', { sessionToken });
+			return sessionToken;
+		},
+
+		updateSession: async (
+			session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
+		): Promise<any> => {
+			console.log('========================================UPDATE SESSION', { session });
+			return session;
+		},
+
+		deleteSession: async (sessionToken: string): Promise<any> => {
+			console.log('========================================DELETE SESSION', { sessionToken });
+			return sessionToken;
+		}
+	};
+}
 
 async function signIn(provider: ProviderEnum, access_token: string) {
 	try {
@@ -69,7 +118,7 @@ export async function signInCallback(provider: ProviderEnum, access_token: strin
 	try {
 		const { gauzyUser, organization } = await signIn(provider, access_token);
 		return !!gauzyUser && !!organization;
-	} catch (error) {
+	} catch (error: any) {
 		return false;
 	}
 }

@@ -19,12 +19,14 @@ export default function ErrorPageComponent() {
 				<Text className="text-[20px] font-normal text-center text-gray-400">
 					{t('pages.error.HEADING_DESCRIPTION')}
 				</Text>
-				<Link href="/auth/passcode">{t('pages.unauthorized.TRY_AGAIN')}</Link>
+				<Link href="/auth/passcode" className="text-2xl text-center">
+					{t('pages.authLogin.ERROR_SIGNIN')}
+				</Link>
 			</div>
 
-			<div className="p-2 flex flex-col gap-y-3 container max-w-5xl rounded mt-5">
+			<div className="p-2 flex flex-col gap-y-3 container max-w-5xl rounded mt-5 text-center">
 				<Link href="/auth/passcode" className="text-2xl text-red-400 font-medium text-center">
-					{t('pages.authLogin.ERROR_SIGNIN')}
+					{t('pages.unauthorized.TRY_AGAIN')}
 				</Link>
 			</div>
 		</div>
