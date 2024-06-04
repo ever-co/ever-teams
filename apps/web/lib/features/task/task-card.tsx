@@ -175,6 +175,7 @@ export function TaskCard(props: Props) {
 							images={taskAssignee}
 							item={task}
 							hasActiveMembers={activeMembers}
+							hasInfo={"Assign this task"}
 						/>
 					</div>
 				)}
@@ -198,14 +199,14 @@ export function TaskCard(props: Props) {
 							className="w-11 h-11"
 						/>
 					)}
-					{!isAuthUser && task && viewType === 'unassign' && (
+					{/* {!isAuthUser && task && viewType === 'unassign' && (
 						<AssignTaskButtonCall
 							task={task}
 							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
 							iconClassName="text-primary dark:text-white"
 							taskAssignee={taskAssignee}
 						/>
-					)}
+					)} */}
 				</div>
 				<VerticalSeparator />
 
