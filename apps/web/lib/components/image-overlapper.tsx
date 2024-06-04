@@ -6,7 +6,7 @@ import { ITeamTask, ITimerStatus } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
-import { PiNuclearPlantLight, PiUserCirclePlusFill } from "react-icons/pi";
+import { PiUserCirclePlusFill } from "react-icons/pi";
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
 import { useOrganizationTeams } from '@app/hooks';

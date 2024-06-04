@@ -390,39 +390,7 @@ function TimerButtonCall({
 	);
 }
 
-function AssignTaskButtonCall({
-	task,
-	className,
-	iconClassName,
-	taskAssignee
-}: {
-	task: ITeamTask;
-	className?: string;
-	iconClassName?: string;
-	taskAssignee: ImageOverlapperProps[];
-}) {
-	const {
-		disabled,
-
-		timerStatus,
-		activeTeamTask
-	} = useTimerView();
-
-	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
-
-	const arrowData = {
-		activeTaskStatus,
-		disabled,
-		task,
-		className,
-		iconClassName
-	};
-
-	return <ImageComponent radius={30} images={taskAssignee} item={task} iconType={true} arrowData={arrowData} assignTaskButtonCall={true} />;
-}
-
 //* Task Estimate info *
-
 //* Task Info FC *
 function TaskInfo({
 	className,
