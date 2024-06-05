@@ -124,6 +124,7 @@ export function TaskCard(props: Props) {
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = task != null && task?.members?.length > 0;
+	const hasMembers = task?.members?.length > 0;
 	const taskAssignee: ImageOverlapperProps[] =
 		task?.members?.map((member: any) => {
 			return {
@@ -175,7 +176,7 @@ export function TaskCard(props: Props) {
 							images={taskAssignee}
 							item={task}
 							hasActiveMembers={activeMembers}
-							hasInfo={"Assign this task"}
+							hasInfo={!hasMembers?"Assign this task":"Assign this task to more people"}
 						/>
 					</div>
 				)}
@@ -199,14 +200,7 @@ export function TaskCard(props: Props) {
 							className="w-11 h-11"
 						/>
 					)}
-					{/* {!isAuthUser && task && viewType === 'unassign' && (
-						<AssignTaskButtonCall
-							task={task}
-							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
-							iconClassName="text-primary dark:text-white"
-							taskAssignee={taskAssignee}
-						/>
-					)} */}
+
 				</div>
 				<VerticalSeparator />
 
