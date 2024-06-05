@@ -9,9 +9,9 @@ import { TaskPrioritiesForm } from './task-priorities-form';
 import { TaskSizesForm } from './task-sizes-form';
 import { TaskStatusesForm } from './task-statuses-form';
 import { DefaultIssueTypeForm } from './default-issue-type-form';
-import { InteractionObserverVisible } from '@app/[locale]/test/page';
 import { useSetRecoilState } from 'recoil';
 import { activeSettingTeamTab } from '@app/stores/setting';
+import { InteractionObserverVisible } from '@components/pages/setting/interaction-observer';
 
 export const IssuesSettings = () => {
 	const setActiveTeam = useSetRecoilState(activeSettingTeamTab);

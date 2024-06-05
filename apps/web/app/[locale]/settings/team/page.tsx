@@ -16,8 +16,8 @@ import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
-import { InteractionObserverVisible } from '@app/[locale]/test/page';
 import { activeSettingTeamTab } from '@app/stores/setting';
+import { InteractionObserverVisible } from '@components/pages/setting/interaction-observer';
 
 const Team = () => {
 	const t = useTranslations();
