@@ -42,7 +42,7 @@ export default function ImageOverlapper({
 	arrowData = null,
 	hasActiveMembers = false,
 	assignTaskButtonCall = false,
-	hasInfo = null,
+	hasInfo = '',
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
