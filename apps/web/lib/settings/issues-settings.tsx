@@ -10,11 +10,11 @@ import { TaskSizesForm } from './task-sizes-form';
 import { TaskStatusesForm } from './task-statuses-form';
 import { DefaultIssueTypeForm } from './default-issue-type-form';
 import { InteractionObserverVisible } from '@app/[locale]/test/page';
-import { activeTeamAtom } from '@app/[locale]/settings/team/page';
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
+import { activeSettingTeamTab } from '@app/stores/setting';
 
 export const IssuesSettings = () => {
-	const [activeTea, setActiveTeam] = useRecoilState(activeTeamAtom);
+	const setActiveTeam = useSetRecoilState(activeSettingTeamTab);
 	const t = useTranslations();
 	return (
 		<div>

@@ -10,22 +10,19 @@ import { userState } from '@app/stores';
 import NoTeam from '@components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { atom, useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { Accordian } from 'lib/components/accordian';
 import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
 import { InteractionObserverVisible } from '@app/[locale]/test/page';
+import { activeSettingTeamTab } from '@app/stores/setting';
 
-export const activeTeamAtom = atom({
-	key: 'activeteamll',
-	default: null
-});
 const Team = () => {
 	const t = useTranslations();
 
-	const setActiveTeam = useSetRecoilState(activeTeamAtom);
+	const setActiveTeam = useSetRecoilState(activeSettingTeamTab);
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
