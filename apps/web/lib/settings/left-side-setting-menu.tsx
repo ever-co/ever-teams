@@ -12,11 +12,11 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import Link from 'next/link';
 import { clsxm } from '@app/utils';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
-import { activeTeamAtom } from '@app/[locale]/settings/team/page';
+import { activeSettingTeamTab } from '@app/stores/setting';
 
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
-	const activeTeamMenu = useRecoilValue(activeTeamAtom);
+	const activeTeamMenu = useRecoilValue(activeSettingTeamTab);
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const pathname = usePathname();
 	const params = useParams();
@@ -48,17 +48,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pathname]);
-	const scrollToSection = (id) => {
-		const element = document.getElementById(id);
-		const offset = window.innerHeight * 0.01;
-		const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-		const offsetPosition = elementPosition - offset;
 
-		window.scrollTo({
-			top: offsetPosition,
-			behavior: 'smooth'
-		});
-	};
 	const onLinkClick = useCallback(
 		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 			const url = new URL(e.currentTarget.href);
