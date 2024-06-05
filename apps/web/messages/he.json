@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "אנא בחר אחת כדי להמשיך",
 			"HAVE_PASSWORD": "יש לך סיסמא?",
 			"LOGIN_WITH_PASSWORD": "התחבר עם הסיסמה",
-			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם"
+			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם",
+			"ERROR_SIGNIN": "שגיאה בחתימה"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."
@@ -454,7 +455,8 @@
 		"unauthorized": {
 			"TITLE": "לא מורשה",
 			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
-			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר"
+			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר",
+			"TRY_AGAIN": "נסה שוב"
 		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",

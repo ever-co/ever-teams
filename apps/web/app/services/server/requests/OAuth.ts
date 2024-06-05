@@ -1,5 +1,10 @@
 import { AdapterAccount, AdapterSession, AdapterUser, type Adapter } from '@auth/core/adapters';
-import { registerUserRequest, signWithSocialLoginsRequest } from '@app/services/server/requests';
+import {
+	getSocialUserByProviderId,
+	getUserBySocialEmailRequest,
+	registerUserRequest,
+	signWithSocialLoginsRequest
+} from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
 // import { Awaitable } from '@auth/core/types';
 // import { IUser } from '@app/interfaces';
@@ -29,17 +34,17 @@ export function GauzyAdapter(): Adapter {
 		},
 
 		getUserByEmail: async (email): Promise<any> => {
-			// const response = await fetch(`http://localhost:3000/api/user/email/${email}`, { method: 'GET' });
-			// const user = await response.json();
-			// console.log('Existed user', user);
-			// return user || null;
-			return null;
+			const response = await getUserBySocialEmailRequest(email);
+			const user = response.data;
+			return user || null;
 		},
 
 		getUserByAccount: async (
 			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
 		): Promise<any> => {
-			return null;
+			const { provider, providerAccountId: id } = providerAccountId;
+			const response = getSocialUserByProviderId(id, provider);
+			return (await response).data || null;
 		},
 
 		updateUser: async (user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>): Promise<any> => {

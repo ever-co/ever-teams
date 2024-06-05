@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import { filteredProviders } from '@app/utils/check-provider-env-vars';
-import { GauzyAdapter, jwtCallback, ProviderEnum } from '@app/services/server/requests/OAuth';
+import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@app/services/server/requests/OAuth';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: filteredProviders,
@@ -8,10 +8,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	callbacks: {
 		async signIn({ account }) {
 			if (account) {
-				// const { provider, access_token } = account;
-				// if (access_token) {
-				// 	return await signInCallback(provider as ProviderEnum, access_token);
-				// }
+				const { provider, access_token } = account;
+				if (access_token) {
+					return await signInCallback(provider as ProviderEnum, access_token);
+				}
 				return true;
 			}
 			return false;

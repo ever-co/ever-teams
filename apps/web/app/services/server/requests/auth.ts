@@ -190,3 +190,27 @@ export const resentVerifyUserLinkRequest = (data: {
 		bearer_token
 	});
 };
+
+export const getUserBySocialEmailRequest = (email: string, relations = ['role', 'tenant']) => {
+	const query = qs.stringify({
+		relations: relations,
+		includeEmployee: true
+	});
+
+	return serverFetch<IUser>({
+		method: 'GET',
+		path: `/social-account/email/${email}?${query}`
+	});
+};
+
+export const getSocialUserByProviderId = (providerAccountId: string, provider: string) => {
+	const query = qs.stringify({
+		providerAccountId,
+		provider
+	});
+
+	return serverFetch<IUser>({
+		method: 'GET',
+		path: `/social-account/user/${query}`
+	});
+};
