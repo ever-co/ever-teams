@@ -75,6 +75,7 @@ export function TaskUnOrAssignPopover({
 					fullWidthCombobox
 					fullHeightCombobox
 					autoFocus
+					assignTaskPopup={true}
 				/>
 			</Modal>
 		</>
