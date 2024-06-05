@@ -10,20 +10,27 @@ import { userState } from '@app/stores';
 import NoTeam from '@components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { atom, useRecoilState, useSetRecoilState } from 'recoil';
 import { Accordian } from 'lib/components/accordian';
 import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
+import { InteractionObserverVisible } from '@app/[locale]/test/page';
 
+export const activeTeamAtom = atom({
+	key: 'activeteamll',
+	default: null
+});
 const Team = () => {
 	const t = useTranslations();
+
+	const setActiveTeam = useSetRecoilState(activeTeamAtom);
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
 	return (
-		<div className="overflow-auto pb-16">
+		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
@@ -32,57 +39,62 @@ const Team = () => {
 						</button>
 					</Link>
 					{/* General Settings */}
-					<Accordian
-						title={t('pages.settingsTeam.HEADING_TITLE')}
-						className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						id="general-settings"
-					>
-						<div className="flex flex-col">
-							<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />
-							<TeamSettingForm />
-						</div>
-					</Accordian>
+					<InteractionObserverVisible id="general-settings" setActiveSection={setActiveTeam}>
+						<Accordian
+							title={t('pages.settingsTeam.HEADING_TITLE')}
+							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+						>
+							<div className="flex flex-col">
+								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />
+								<TeamSettingForm />
+							</div>
+						</Accordian>
+					</InteractionObserverVisible>
 
 					{/* Invitations */}
 					{isTeamManager ? (
-						<Accordian
-							title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							id="invitations"
-						>
-							<InvitationSetting />
-						</Accordian>
+						<InteractionObserverVisible id="invitations" setActiveSection={setActiveTeam}>
+							<Accordian
+								title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
+								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+							>
+								<InvitationSetting />
+							</Accordian>
+						</InteractionObserverVisible>
 					) : null}
 
 					{/* Members */}
 					{isTeamManager ? (
-						<Accordian
-							title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							id="member"
-						>
-							<MemberSetting />
-						</Accordian>
+						<InteractionObserverVisible id="member" setActiveSection={setActiveTeam}>
+							<Accordian
+								title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
+								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+							>
+								<MemberSetting />
+							</Accordian>
+						</InteractionObserverVisible>
 					) : null}
 
 					{isTeamManager && (
-						<Accordian
-							title={t('pages.settingsTeam.INTEGRATIONS')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							id="integrations"
-						>
-							<IntegrationSetting />
-						</Accordian>
+						<InteractionObserverVisible id="integrations" setActiveSection={setActiveTeam}>
+							<Accordian
+								title={t('pages.settingsTeam.INTEGRATIONS')}
+								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+							>
+								<IntegrationSetting />
+							</Accordian>
+						</InteractionObserverVisible>
 					)}
 
 					{/* Issues Settings */}
-					<Accordian
-						title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-						className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						id="issues-settings"
-					>
-						<IssuesSettings />
-					</Accordian>
+					<InteractionObserverVisible id="issues-settings" setActiveSection={setActiveTeam}>
+						<Accordian
+							title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
+							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+						>
+							<IssuesSettings />
+						</Accordian>
+					</InteractionObserverVisible>
 
 					{/* TODO */}
 					{/* Notification Settings */}
@@ -94,14 +106,15 @@ const Team = () => {
 					</Accordian> */}
 
 					{/* Danger Zone */}
-					<Accordian
-						title={t('pages.settings.DANDER_ZONE')}
-						className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						isDanger={true}
-						id="danger-zones"
-					>
-						<DangerZoneTeam />
-					</Accordian>
+					<InteractionObserverVisible id="danger-zones" setActiveSection={setActiveTeam}>
+						<Accordian
+							title={t('pages.settings.DANDER_ZONE')}
+							className="w-full max-w-[96vw] p-4 mt-8 mb-40 dark:bg-dark--theme"
+							isDanger={true}
+						>
+							<DangerZoneTeam />
+						</Accordian>
+					</InteractionObserverVisible>
 				</>
 			) : (
 				<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">

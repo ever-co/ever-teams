@@ -9,8 +9,12 @@ import { TaskPrioritiesForm } from './task-priorities-form';
 import { TaskSizesForm } from './task-sizes-form';
 import { TaskStatusesForm } from './task-statuses-form';
 import { DefaultIssueTypeForm } from './default-issue-type-form';
+import { InteractionObserverVisible } from '@app/[locale]/test/page';
+import { activeTeamAtom } from '@app/[locale]/settings/team/page';
+import { useRecoilState } from 'recoil';
 
 export const IssuesSettings = () => {
+	const [activeTea, setActiveTeam] = useRecoilState(activeTeamAtom);
 	const t = useTranslations();
 	return (
 		<div>
@@ -166,19 +170,27 @@ export const IssuesSettings = () => {
 			<div className="flex w-full items-center justify-between gap-[2rem]">
 				<DefaultIssueTypeForm />
 			</div>
+			<InteractionObserverVisible id="statuses" setActiveSection={setActiveTeam}>
+				<div className="flex w-full items-center justify-between gap-[2rem]">
+					<TaskStatusesForm />
+				</div>
+			</InteractionObserverVisible>
+			<InteractionObserverVisible id="priorities" setActiveSection={setActiveTeam}>
+				<div className="flex w-full items-center justify-between gap-[2rem]">
+					<TaskPrioritiesForm />
+				</div>
+			</InteractionObserverVisible>
+			<InteractionObserverVisible id="sizes" setActiveSection={setActiveTeam}>
+				<div className="flex w-full items-center justify-between gap-[2rem]">
+					<TaskSizesForm />
+				</div>
+			</InteractionObserverVisible>
+			<InteractionObserverVisible id="labels" setActiveSection={setActiveTeam}>
+				<div className="flex w-full items-center justify-between gap-[2rem]">
+					<TaskLabelForm />
+				</div>
+			</InteractionObserverVisible>
 
-			<div id="statuses" className="flex w-full items-center justify-between gap-[2rem]">
-				<TaskStatusesForm />
-			</div>
-			<div id="priorities" className="flex w-full items-center justify-between gap-[2rem]">
-				<TaskPrioritiesForm />
-			</div>
-			<div id="sizes" className="flex w-full items-center justify-between gap-[2rem]">
-				<TaskSizesForm />
-			</div>
-			<div id="labels" className="flex w-full items-center justify-between gap-[2rem]">
-				<TaskLabelForm />
-			</div>
 			{/* <div
 				id="related-issue-types"
 				className="flex w-full items-center justify-between gap-[2rem]"

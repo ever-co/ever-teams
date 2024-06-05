@@ -8,13 +8,15 @@ import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
 import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import Link from 'next/link';
 import { clsxm } from '@app/utils';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { activeTeamAtom } from '@app/[locale]/settings/team/page';
 
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
+	const activeTeamMenu = useRecoilValue(activeTeamAtom);
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const pathname = usePathname();
 	const params = useParams();
@@ -46,7 +48,17 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pathname]);
+	const scrollToSection = (id) => {
+		const element = document.getElementById(id);
+		const offset = window.innerHeight * 0.01;
+		const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+		const offsetPosition = elementPosition - offset;
 
+		window.scrollTo({
+			top: offsetPosition,
+			behavior: 'smooth'
+		});
+	};
 	const onLinkClick = useCallback(
 		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
 			const url = new URL(e.currentTarget.href);
@@ -70,7 +82,10 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 			<Text className="text-4xl font-normal my-10 min-w-[16rem] text-center sm:text-left">
 				{t('common.SETTINGS')}
 			</Text>
-			<ScrollArea type='always' className="flex text-red-500 sm:block h-[calc(100vh-_382px)] overflow-y-auto pr-2.5">
+			<ScrollArea
+				type="always"
+				className="flex text-red-500 sm:block h-[calc(100vh-_382px)] overflow-y-auto pr-2.5"
+			>
 				<div>
 					<SidebarAccordian
 						title={
@@ -160,9 +175,12 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 											key={index}
 										>
 											<Text
-												className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
+												className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5 `}
 												key={index}
-												style={{ color: ad.color }}
+												style={{
+													color: ad.color,
+													fontWeight: '#' + activeTeamMenu == ad.href ? 'bold' : 'normal'
+												}}
 											>
 												{ad.title}
 											</Text>
