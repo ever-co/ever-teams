@@ -2,5 +2,5 @@ import { atom } from "recoil";
 
 export const activeSettingTeamTab = atom<string>({
 	key: 'activeSettingTeamTab',
-	default: 'general-settings'
+	default: ''
 });
