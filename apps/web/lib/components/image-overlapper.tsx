@@ -123,13 +123,13 @@ export default function ImageOverlapper({
 								!hasMembers ?
 									(
 										<div
-										 className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
-										 style={{ width: diameter, height: diameter }}>
+											className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
+											style={{ width: diameter, height: diameter }}>
 											<RiUserFill
 												fill={"#6b7280"}
 												className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
 												onClick={openModal}
-												style={{ width: diameter/2, height: diameter/2 }}
+												style={{ width: diameter / 2, height: diameter / 2 }}
 												onMouseOver={() => setShowInfo(true)}
 												onMouseOut={() => setShowInfo(false)}
 											/>
@@ -137,13 +137,13 @@ export default function ImageOverlapper({
 									)
 									:
 									(
-										<div  className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
-										style={{ width: diameter, height: diameter }}>
+										<div className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
+											style={{ width: diameter, height: diameter }}>
 											<RiUserAddFill
 												fill={"#6b7280"}
 												className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
 												onClick={openModal}
-												style={{ width: diameter/2, height: diameter/2 }}
+												style={{ width: diameter / 2, height: diameter / 2 }}
 												onMouseOver={() => setShowInfo(true)}
 												onMouseOut={() => setShowInfo(false)}
 											/>

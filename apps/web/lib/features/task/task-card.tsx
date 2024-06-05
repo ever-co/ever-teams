@@ -124,7 +124,7 @@ export function TaskCard(props: Props) {
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = task != null && task?.members?.length > 0;
-	const hasMembers = task?.members?.length > 0;
+	const hasMembers = task?.members &&  task?.members?.length > 0 ;
 	const taskAssignee: ImageOverlapperProps[] =
 		task?.members?.map((member: any) => {
 			return {
@@ -176,7 +176,7 @@ export function TaskCard(props: Props) {
 							images={taskAssignee}
 							item={task}
 							hasActiveMembers={activeMembers}
-							hasInfo={!hasMembers?"Assign this task":"Assign this task to more people"}
+							hasInfo={!hasMembers ? "Assign this task" : "Assign this task to more people"}
 						/>
 					</div>
 				)}
