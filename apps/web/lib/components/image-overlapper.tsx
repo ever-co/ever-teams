@@ -6,7 +6,7 @@ import { ITeamTask, ITimerStatus } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
-import { CircleIcon } from 'assets/svg';
+import { RiUserFill, RiUserAddFill } from "react-icons/ri";
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
 import { useOrganizationTeams } from '@app/hooks';
@@ -37,11 +37,12 @@ export default function ImageOverlapper({
 	radius = 20,
 	displayImageCount = 4,
 	item = null,
-	diameter = 40,
+	diameter = 34,
 	iconType = false,
 	arrowData = null,
 	hasActiveMembers = false,
 	assignTaskButtonCall = false,
+	hasInfo = '',
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -52,6 +53,7 @@ export default function ImageOverlapper({
 	arrowData?: ArrowDataProps | null;
 	hasActiveMembers?: boolean;
 	assignTaskButtonCall?: boolean;
+	hasInfo?: string;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images.slice(0, displayImageCount);
@@ -65,6 +67,7 @@ export default function ImageOverlapper({
 	const [assignedMembers, setAssignedMembers] = useState<IEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<IEmployee[]>([]);
 	const [validate, setValidate] = useState<boolean>(false);
+	const [showInfo, setShowInfo] = useState<boolean>(false);
 
 	const t = useTranslations();
 
@@ -96,7 +99,15 @@ export default function ImageOverlapper({
 
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
-			<div>
+			<div className="relative">
+				{hasInfo.length > 0 && showInfo &&
+					(<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
+						<div className="relative bg-black text-white rounded-[3px]">
+							<span className="text-center p-[6px] z-10">{hasInfo}</span>
+							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-t-[10px] border-t-black border-r-[10px] border-r-transparent border-l-[10px] border-l-transparent"></div>
+						</div>
+					</div>
+					)}
 				{
 					iconType ? (
 						<TaskAssignButton
@@ -107,8 +118,40 @@ export default function ImageOverlapper({
 						/>
 
 					) : (
-						<CircleIcon className="w-6 h-6 cursor-pointer  stroke-[#d3d3d3]" onClick={openModal} style={{ width: diameter, height: diameter }} />
-					)
+						<>
+							{
+								!hasMembers ?
+									(
+										<div
+											className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
+											style={{ width: diameter, height: diameter }}>
+											<RiUserFill
+												fill={"#6b7280"}
+												className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
+												onClick={openModal}
+												style={{ width: diameter / 2, height: diameter / 2 }}
+												onMouseOver={() => setShowInfo(true)}
+												onMouseOut={() => setShowInfo(false)}
+											/>
+										</div>
+									)
+									:
+									(
+										<div className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
+											style={{ width: diameter, height: diameter }}>
+											<RiUserAddFill
+												fill={"#6b7280"}
+												className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
+												onClick={openModal}
+												style={{ width: diameter / 2, height: diameter / 2 }}
+												onMouseOver={() => setShowInfo(true)}
+												onMouseOut={() => setShowInfo(false)}
+											/>
+										</div>
+									)
+							}
+
+						</>)
 				}
 
 				<div>

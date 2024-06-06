@@ -17,6 +17,9 @@
 		},
 		"desktop": {
 			"tags": []
+		},
+		"server-web": {
+			"tags": []
 		}
 	}
 }
