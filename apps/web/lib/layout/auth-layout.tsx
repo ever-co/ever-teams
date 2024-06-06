@@ -75,7 +75,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 							{t('pages.auth.COVER_TITLE')}
 						</Text.Heading>
 
-						<Text.Label className="text-sm text-gray-400 px-9 text-ellipsis ">
+						<Text.Label className="text-sm text-gray-400 px-9 text-ellipsis">
 							{t('pages.auth.COVER_DESCRIPTION')}
 						</Text.Label>
 					</div>
@@ -91,7 +91,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						{isAuthPage && (
 							<div className="w-11/12 flex-col flex justify-center items-center mb-[103px]">
 								{title && (
-									<Text.Heading as="h1" className="mb-3 text-center ">
+									<Text.Heading as="h1" className="mb-3 text-center">
 										{title}
 									</Text.Heading>
 								)}
