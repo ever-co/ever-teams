@@ -5,7 +5,6 @@ import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Footer } from './footer';
-import { useTheme } from 'next-themes';
 
 type Props = {
 	title?: string;
@@ -15,7 +14,6 @@ type Props = {
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
 	const t = useTranslations();
-	const { theme } = useTheme();
 
 	return (
 		<>
@@ -69,7 +67,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 					</div>
 
-					<div className="self-end w-full h-fit bg-primary-mid p-9 ">
+					<div className="self-end w-full h-fit bg-primary-mid p-9">
 						<Text.Heading
 							as="h3"
 							className="text-white lg:text-lg xl:text-xl 2xl:text-3xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
@@ -92,10 +90,14 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
 						{isAuthPage && (
 							<div className="w-11/12 flex-col flex justify-center items-center mb-[103px]">
-								<Text.Heading as="h1" className="mb-3 text-center ">
-									{title}
-								</Text.Heading>
-								<p className="text-sm md:text-lg text-gray-400 text-center">{description}</p>
+								{title && (
+									<Text.Heading as="h1" className="mb-3 text-center ">
+										{title}
+									</Text.Heading>
+								)}
+								{description && (
+									<p className="text-sm md:text-lg text-gray-400 text-center">{description}</p>
+								)}
 							</div>
 						)}
 

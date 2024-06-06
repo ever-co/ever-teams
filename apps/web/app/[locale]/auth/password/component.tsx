@@ -23,7 +23,7 @@ export default function AuthPassword() {
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<div className={clsxm('flex flex-row ')}>
+				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 
 					{form.authScreen.screen === 'workspace' && <WorkSpaceScreen form={form} className="w-full" />}
