@@ -48,7 +48,7 @@ function AuthPasscode() {
 			}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-			<div className={clsxm('flex flex-row transition-[transform] duration-500 mb-4')}>
+				<div className={clsxm('flex flex-row transition-[transform] duration-500 mb-4')}>
 					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
 					{form.authScreen.screen === 'passcode' && (
 						<PasscodeScreen form={form} className={clsxm('w-full')} />
