@@ -78,7 +78,10 @@
 		"postinstall.electron": "yarn electron-builder install-app-deps && yarn node tools/electron/postinstall",
 		"postinstall.web": "yarn node tools/web/postinstall",
 		"spell": "cspell . --config .cspell.json",
-		"spellcheck": "cspell ."
+		"spellcheck": "cspell .",
+		"dev:server-web": "yarn build:web:desktop && yarn copy:build:web && cd apps/server-web && yarn run start",
+		"build:web:desktop": "cross-env NEXT_BUILD_OUTPUT_TYPE=standalone NEXT_SHARP_PATH=/temp/node_modules/sharp yarn build:web",
+		"copy:build:web": "cp -r  apps/web/.next/standalone apps/server-web/release/app/dist && cp -r apps/web/.next/static apps/server-web/release/app/dist/standalone/apps/web/.next && cp -r apps/web/public apps/server-web/release/app/dist/standalone/apps/web/"
 	},
 	"config": {
 		"commitizen": {
@@ -122,6 +125,7 @@
 	"workspaces": {
 		"packages": [
 			"apps/web",
+			"apps/server-web",
 			"packages/*",
 			"libs/*",
 			"tools"
@@ -196,7 +200,8 @@
 		"pretty-quick": "^4.0.0",
 		"rimraf": "^5.0.5",
 		"semantic-release": "^22.0.12",
-		"ts-node": "^10.9.2"
+		"ts-node": "^10.9.2",
+		"@types/electron": "^1.6.10"
 	},
 	"engines": {
 		"node": ">=20.11.0",

@@ -174,6 +174,7 @@ export function UserTeamCard({
 										? ''
 										: memberInfo.memberUser?.id ?? ''
 								);
+								setShowActivity(false);
 							}}
 							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
 						>
@@ -199,7 +200,9 @@ export function UserTeamCard({
 						{isManagerConnectedUser != 1 ? (
 							<p
 								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
-								onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
+								onClick={() => {
+									showActivityFilter('TICKET', memberInfo.member ?? null); setUserDetailAccordion('');
+								}}
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -251,7 +254,7 @@ export function UserTeamCard({
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{userDetailAccordion == memberInfo.memberUser?.id &&
-				memberInfo.memberUser.id == profile.userProfile?.id ? (
+				memberInfo.memberUser.id == profile.userProfile?.id && !showActivity? (
 					<div className="h-96 overflow-y-auto">
 						{canSeeActivity && (
 							<Container fullWidth={fullWidth} className="py-8">

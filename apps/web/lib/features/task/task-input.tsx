@@ -63,6 +63,7 @@ type Props = {
 	usersTaskCreatedAssignTo?: { id: string }[];
 	onTaskCreated?: (task: ITeamTask | undefined) => void;
 	cardWithoutShadow?: boolean;
+	assignTaskPopup?: boolean;
 
 	forParentChildRelationship?: boolean;
 } & PropsWithChildren;
@@ -386,6 +387,7 @@ export function TaskInput(props: Props) {
 			fullHeight={props.fullHeightCombobox}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
+			assignTaskPopup={props.assignTaskPopup}
 			updatedTaskList={updatedTaskList}
 			forParentChildRelationship={props.forParentChildRelationship}
 		/>
@@ -436,7 +438,8 @@ function TaskCard({
 	handleTaskCreation,
 	cardWithoutShadow,
 	forParentChildRelationship,
-	updatedTaskList
+	updatedTaskList,
+	assignTaskPopup
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
@@ -447,6 +450,7 @@ function TaskCard({
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
 	updatedTaskList?: ITeamTask[];
+	assignTaskPopup?: boolean;
 }) {
 	const [, setCount] = useState(0);
 	const t = useTranslations();
@@ -609,7 +613,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className="py-6 max-h-56 overflow-y-auto">
+				<ul className={assignTaskPopup ? "py-6 max-h-[40vh] overflow-y-auto" : "py-6 max-h-56 overflow-y-auto"}>
 					{forParentChildRelationship &&
 						data?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;
