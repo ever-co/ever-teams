@@ -1,0 +1,253 @@
+name: Server API Build Apps
+
+on:
+  workflow_run:
+    workflows: ['Release Apps']
+    branches: [apps]
+    types:
+      - completed
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  release-linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [buildjet-8vcpu-ubuntu-2204]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'ever-co/ever-gauzy'
+          ref: master
+
+      - name: Install Node.js, NPM and Yarn
+        uses: buildjet/setup-node@v3
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+
+      - name: Change permissions
+        run: 'sudo chown -R $(whoami) ./*'
+
+      - name: Install system dependencies
+        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick'
+
+      - name: Fix node-gyp and Python
+        run: python3 -m pip install packaging setuptools
+
+      - name: Install latest version of NPM
+        run: 'sudo npm install -g npm@9'
+
+      - name: Install latest node-gyp package
+        run: 'sudo npm install --quiet -g node-gyp@9.3.1'
+
+      - name: Install Yarn dependencies
+        run: 'yarn install --network-timeout 1000000 --frozen-lockfile'
+
+      - name: Bootstrap Yarn
+        run: 'yarn bootstrap'
+
+      - name: Bump version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.scripts/bump-version-electron.js')
+            script.serverapi(true).then(console.log)
+        env:
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
+          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
+          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+
+      - name: Build API Server App
+        run: 'yarn build:gauzy-api-server:linux:release:gh'
+        env:
+          USE_HARD_LINKS: false
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          EP_GH_IGNORE_TIME: true
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_TRACES_SAMPLE_RATE: '${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}'
+          SENTRY_HTTP_TRACING_ENABLED: '${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}'
+          SENTRY_POSTGRES_TRACKING_ENABLED: '${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}'
+          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
+          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
+          NX_NO_CLOUD: true
+          COMPANY_SITE: 'Ever Teams'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          COMPANY_FACEBOOK_LINK: 'https://www.facebook.com/everteamshq'
+          COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
+          COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
+          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
+          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+          DESKTOP_API_SERVER_APP_REPO_NAME: 'ever-teams-api-server'
+          DESKTOP_API_SERVER_APP_REPO_OWNER: 'ever-co'
+          DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
+          DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
+          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+
+  release-mac:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-12]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'ever-co/ever-gauzy'
+          ref: master
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+
+      - name: Fix node-gyp and Python
+        run: python3 -m pip install packaging setuptools
+
+      - name: Install latest version of NPM
+        run: 'sudo npm install -g npm@9'
+
+      - name: Install latest node-gyp package
+        run: 'sudo npm install --quiet -g node-gyp@9.3.1'
+
+      - name: Install Yarn dependencies
+        run: 'yarn install --network-timeout 1000000 --frozen-lockfile'
+
+      - name: Bootstrap Yarn
+        run: 'yarn bootstrap'
+
+      - name: Bump version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.scripts/bump-version-electron.js')
+            script.serverapi(true).then(console.log)
+        env:
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
+          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
+          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+
+      - name: Build API Server App
+        run: 'yarn build:gauzy-api-server:mac:release'
+        env:
+          USE_HARD_LINKS: false
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          EP_GH_IGNORE_TIME: true
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_TRACES_SAMPLE_RATE: '${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}'
+          SENTRY_HTTP_TRACING_ENABLED: '${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}'
+          SENTRY_POSTGRES_TRACKING_ENABLED: '${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}'
+          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
+          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
+          NX_NO_CLOUD: true
+          COMPANY_SITE: 'Ever Teams'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          COMPANY_FACEBOOK_LINK: 'https://www.facebook.com/everteamshq'
+          COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
+          COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
+          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
+          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+          DESKTOP_API_SERVER_APP_REPO_NAME: 'ever-teams-api-server'
+          DESKTOP_API_SERVER_APP_REPO_OWNER: 'ever-co'
+          DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
+          DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
+          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+
+  release-windows:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'ever-co/ever-gauzy'
+          ref: master
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.11.1'
+          cache: 'yarn'
+
+      - name: Fix node-gyp and Python
+        run: python3 -m pip install packaging setuptools
+
+      - name: Install latest version of NPM
+        run: 'npm install -g npm@9'
+
+      - name: Install latest node-gyp package
+        run: 'npm install --quiet -g node-gyp@9.3.1'
+
+      - name: Install Yarn dependencies
+        run: 'yarn install --network-timeout 1000000 --frozen-lockfile'
+
+      - name: Bootstrap Yarn
+        run: 'yarn bootstrap'
+
+      - name: Bump version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.scripts/bump-version-electron.js')
+            script.serverapi(true).then(console.log)
+        env:
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
+          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
+          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+
+      - name: Build API Server App
+        run: 'yarn build:gauzy-api-server:windows:release:gh'
+        env:
+          USE_HARD_LINKS: false
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          EP_GH_IGNORE_TIME: true
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_TRACES_SAMPLE_RATE: '${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}'
+          SENTRY_HTTP_TRACING_ENABLED: '${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}'
+          SENTRY_POSTGRES_TRACKING_ENABLED: '${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}'
+          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
+          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
+          NX_NO_CLOUD: true
+          COMPANY_SITE: 'Ever Teams'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          COMPANY_FACEBOOK_LINK: 'https://www.facebook.com/everteamshq'
+          COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
+          COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
+          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
+          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+          DESKTOP_API_SERVER_APP_REPO_NAME: 'ever-teams-api-server'
+          DESKTOP_API_SERVER_APP_REPO_OWNER: 'ever-co'
+          DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
+          DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
+          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
