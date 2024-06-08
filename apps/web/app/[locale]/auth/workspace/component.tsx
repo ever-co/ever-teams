@@ -46,6 +46,7 @@ function WorkSpaceScreen() {
 
 	useEffect(() => {
 		const loadOAuthSession = async () => {
+			console.log('============================AUTH SESSION', { session });
 			if (session) {
 				const { access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId } = session.user;
 				setSigninResult({ access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId });

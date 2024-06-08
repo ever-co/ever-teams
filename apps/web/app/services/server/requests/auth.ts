@@ -5,6 +5,7 @@ import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ProviderEnum } from './OAuth';
+import { ISocialAccountExistUser } from '@app/interfaces/ISocialAccount';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -191,26 +192,18 @@ export const resentVerifyUserLinkRequest = (data: {
 	});
 };
 
-export const getUserBySocialEmailRequest = (email: string, relations = ['role', 'tenant']) => {
-	const query = qs.stringify({
-		relations: relations,
-		includeEmployee: true
-	});
-
-	return serverFetch<IUser>({
-		method: 'GET',
-		path: `/social-account/email/${email}?${query}`
+export const singinGetUserBySocialEmailRequest = (data: { email: string }) => {
+	return serverFetch<ISocialAccountExistUser>({
+		method: 'POST',
+		path: `/auth/signup.email.social`,
+		body: data
 	});
 };
 
-export const getSocialUserByProviderId = (providerAccountId: string, provider: string) => {
-	const query = qs.stringify({
-		providerAccountId,
-		provider
-	});
-
-	return serverFetch<IUser>({
-		method: 'GET',
-		path: `/social-account/user/${query}`
+export const singinGetSocialUserByProviderIdRequest = (data: { providerAccountId: string; provider: string }) => {
+	return serverFetch<ISocialAccountExistUser>({
+		method: 'POST',
+		path: `/auth/signup.provider.social`,
+		body: data
 	});
 };
