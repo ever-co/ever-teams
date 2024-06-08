@@ -27,12 +27,20 @@ import {
 	AlignFullIcon,
 	ChevronDownIcon
 } from 'assets/svg';
+import { BsEmojiSmile } from 'react-icons/bs';
+import { clsxm } from '@app/utils';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+import { MdOutlineClose } from "react-icons/md";
+
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
 	isBlockActive?: (editor: any, format: any, blockType?: string) => boolean;
+	selectEmoji?: (emoji: { native: string }) => void;
+	showEmojiIcon?: boolean;
 }
 
-const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
+const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IToolbarProps) => {
 	const t = useTranslations();
 	const editor = useSlateStatic();
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
@@ -43,9 +51,11 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		top: 0
 	});
 	const [showDropdown, setShowDropdown] = useState(false);
+	const [showEmoji, setShowEmoji] = useState(false);
 	const popupRef = useRef<any>(null);
 	const inputRef = useRef<any>(null);
 	const dropdownRef = useRef<any>(null);
+	const emojiRef = useRef<any>(null);
 
 	// const handleLinkIconClick = () => {
 	// 	const selection = editor.selection;
@@ -147,6 +157,27 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		};
 	}, [onClickOutsideOfDropdown]);
 
+	useEffect(() => {
+		const handleClickOutsideOfEmoji = (event: MouseEvent) => {
+			if (emojiRef.current && !emojiRef.current.contains(event.target as unknown as Node)) {
+				setShowEmoji(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutsideOfEmoji);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutsideOfEmoji);
+		};
+	}, [setShowEmoji]);
+
+
+	const addEmoji = (emoji: { native: string }) => {
+
+		if (showEmojiIcon) {
+			selectEmoji?.(emoji);
+		}
+	};
+
 	// const isBlockActiveMemo = useMemo(() => {
 	// 	return (
 	// 		isBlockActive &&
@@ -161,10 +192,11 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	// }, [editor, isBlockActive]);
 
 	return (
-		<div className="flex flex-row items-center justify-end gap-1 mt-8">
+		<div className="flex flex-row items-center justify-end gap-1 mt-8 relative">
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{t('pages.taskDetails.DESCRIPTION')}
 			</p>
+
 			<MarkButton
 				format="bold"
 				icon={BoldIcon}
@@ -238,6 +270,27 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				icon={AlignFullIcon}
 				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
+
+			<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+			{
+				showEmoji && <div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
+					<div className="relative h-[20px] w-full">
+						<MdOutlineClose
+							size={17}
+							onClick={() => setShowEmoji(false)}
+							className="absolute right-5 cursor-pointer"
+						/>
+					</div>
+					<Picker
+						data={data}
+						emojiSize={20}
+						emojiButtonSize={28}
+						onEmojiSelect={addEmoji}
+						maxFrequentRows={0}
+					/>
+				</div>
+			}
+
 			<div className="relative md:hidden" ref={dropdownRef}>
 				<Button
 					className={`flex items-center text-md px-2 min-w-[3.125rem] py-[2px] bg-transparent dark:bg-dark--theme rounded-md focus:outline-none`}

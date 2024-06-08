@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getTimerStatusRequest, syncTimeSlotRequest } from '../../requests/timer';
 import { ITimerTimeslotParams, TimerSource } from '../../../interfaces/ITimer';
 
@@ -31,13 +31,10 @@ const fetchTimerStatus = async (
 };
 
 const useFetchTimerStatus = (IGetTimerStatusParams, isTimerRunning: boolean, lastlogTimerSource: TimerSource) =>
-	useQuery(
-		['status-timer', IGetTimerStatusParams],
-		() => fetchTimerStatus(IGetTimerStatusParams, isTimerRunning, lastlogTimerSource),
-		{
-			refetchInterval: 5000,
-			notifyOnChangeProps: ['data'], // Re-render only when data changes
-			notifyOnChangePropsExclusions: ['isFetching']
-		}
-	);
+	useQuery({
+		queryKey: ['status-timer'],
+		queryFn: () => fetchTimerStatus(IGetTimerStatusParams, isTimerRunning, lastlogTimerSource),
+		refetchInterval: 5000,
+		notifyOnChangeProps: ['data'] // Re-render only when data changes
+	});
 export default useFetchTimerStatus;

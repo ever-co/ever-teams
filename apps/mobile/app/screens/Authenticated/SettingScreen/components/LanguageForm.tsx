@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import LanguageModal from './LanguageModal';
 import { ILanguageItemList, IUser } from '../../../../services/interfaces/IUserData';
 import { useSettings } from '../../../../services/hooks/features/useSettings';
@@ -41,7 +41,7 @@ const LanguageForm = ({
 			...user,
 			preferredLanguage: userLanguage.code
 		});
-		queryClient.invalidateQueries('Languages');
+		queryClient.invalidateQueries({ queryKey: ['Languages'] });
 		setIsLoading(false);
 		onDismiss();
 	};

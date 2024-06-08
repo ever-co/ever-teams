@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
+import { useAuthenticateUser, useModal, useSyncRef, useTaskStatus } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskLabelsItemList, Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
@@ -36,7 +36,7 @@ export function useTaskInput({
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(null);
-
+	const { taskStatus: taskStatusList } = useTaskStatus();
 	const {
 		tasks: teamTasks,
 		activeTeamTask,
@@ -50,8 +50,7 @@ export function useTaskInput({
 
 	const { user } = useAuthenticateUser();
 	const userRef = useSyncRef(user);
-
-	const taskIssue = useRef<null | string>(null);
+	const [taskIssue, setTaskIssue] = useState('');
 	const taskStatus = useRef<null | string>(null);
 	const taskPriority = useRef<null | string>(null);
 	const taskSize = useRef<null | string>(null);
@@ -61,18 +60,12 @@ export function useTaskInput({
 	const tasks = customTasks || teamTasks;
 
 	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
+
 	const memberActiveTask = useMemo(() => {
 		return tasks.find((item) => item.id === memberActiveTaskId) || null;
 	}, [memberActiveTaskId, tasks]);
 
-	/**
-	 * If task has null value then consider it as value 😄
-	 */
-	const inputTask = initEditMode
-		? task !== undefined
-			? task
-			: activeTeamTask
-		: memberActiveTask || (task !== undefined ? task : activeTeamTask);
+	const inputTask = initEditMode ? task ?? activeTeamTask : memberActiveTask ?? task ?? activeTeamTask;
 
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
 	const [editMode, setEditMode] = useState(initEditMode || false);
@@ -125,7 +118,6 @@ export function useTaskInput({
 				.startsWith(query.toLowerCase().replace(/\s+/g, ''));
 		});
 	}, [query, tasks]);
-
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = ({
@@ -140,11 +132,13 @@ export function useTaskInput({
 		}[];
 	} = {}) => {
 		if (query.trim().length < 2 || inputTask?.title === query.trim() || !userRef.current?.isEmailVerified) return;
-
+		const openId = taskStatusList.find((item) => item.value === 'open')?.id;
+		const statusId = taskStatusList.find((item) => item.name === taskStatus.current)?.id;
 		return createTask(
 			{
 				taskName: query.trim(),
-				issueType: taskIssue.current || 'Bug',
+				issueType: taskIssue || 'Bug',
+				taskStatusId: statusId || (openId as string),
 				status: taskStatus.current || undefined,
 				priority: taskPriority.current || undefined,
 				size: taskSize.current || undefined,
@@ -154,6 +148,8 @@ export function useTaskInput({
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
 			setQuery('');
+			localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
+			setTaskIssue('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
 			if (created && autoActiveTask) setActiveTask(created);
@@ -183,7 +179,7 @@ export function useTaskInput({
 	}).length;
 
 	useEffect(() => {
-		taskIssue.current = null;
+		setTaskIssue('');
 	}, [hasCreateForm]);
 
 	return {
@@ -209,6 +205,7 @@ export function useTaskInput({
 		filter,
 		updateTaskTitleHandler,
 		taskIssue,
+		setTaskIssue,
 		taskStatus,
 		taskPriority,
 		taskSize,

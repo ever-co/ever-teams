@@ -13,17 +13,24 @@ import {
 } from '@app/constants';
 import qs from 'qs';
 import { signInEmailConfirmGauzy, signInWorkspaceGauzy } from './auth/invite-accept';
+import { ProviderEnum } from '@app/services/server/requests/OAuth';
 
+/**
+ * Fetches data of the authenticated user with specified relations and the option to include employee details.
+ *
+ * @returns A Promise resolving to the IUser object.
+ */
 export const getAuthenticatedUserDataAPI = () => {
-	const params = {} as { [x: string]: string };
-	const relations = ['employee', 'role', 'tenant'];
+	// Define the relations to be included in the request
+	const relations = ['role', 'tenant'];
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
+	// Construct the query string with 'qs', including the includeEmployee parameter
+	const query = qs.stringify({
+		relations: relations,
+		includeEmployee: true // Append includeEmployee parameter set to true
 	});
 
-	const query = qs.stringify(params);
-
+	// Execute the GET request to fetch the user data
 	return get<IUser>(`/user/me?${query}`);
 };
 
@@ -100,11 +107,14 @@ export const signInEmailAPI = (email: string) => {
 };
 
 export function signInEmailPasswordAPI(email: string, password: string) {
-	const endpoint = GAUZY_API_BASE_SERVER_URL.value
-		? '/auth/signin.email.password?includeTeams=true'
-		: `/auth/signin-email-password`;
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.email.password' : `/auth/signin-email-password`;
+	return post<ISigninEmailConfirmResponse>(endpoint, { email, password, includeTeams: true });
+}
 
-	return post<ISigninEmailConfirmResponse>(endpoint, { email, password });
+export function signInEmailSocialLoginAPI(provider: ProviderEnum, access_token: string) {
+	const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/signin.provider.social' : `/auth/signin-email-social`;
+
+	return post<ISigninEmailConfirmResponse>(endpoint, { provider, access_token, includeTeams: true });
 }
 
 export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
@@ -124,15 +134,20 @@ export async function signInEmailConfirmAPI(email: string, code: string) {
 	});
 }
 
-export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
+export const signInWorkspaceAPI = (params: { email: string; token: string; selectedTeam: string; code?: string }) => {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
-		return signInWorkspaceGauzy({ email, token, teamId: selectedTeam, code: 'sign-in-workspace' });
+		return signInWorkspaceGauzy({
+			email: params.email,
+			token: params.token,
+			teamId: params.selectedTeam,
+			code: params.code
+		});
 	}
 
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
-		email,
-		token,
-		teamId: selectedTeam
+		email: params.email,
+		token: params.token,
+		teamId: params.selectedTeam
 	});
 };
 

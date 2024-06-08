@@ -5,6 +5,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { getTextColor } from '@app/helpers';
+import { useTranslations } from 'next-intl';
 
 export const StatusesListCard = ({
 	statusIcon,
@@ -12,6 +13,7 @@ export const StatusesListCard = ({
 	bgColor,
 	onEdit,
 	onDelete,
+	showDeleteButton = true,
 	isStatus
 }: IClassName<{
 	statusIcon: string;
@@ -19,9 +21,11 @@ export const StatusesListCard = ({
 	bgColor: string;
 	onEdit: any;
 	onDelete: any;
+	showDeleteButton?: boolean;
 	isStatus?: boolean;
 }>) => {
 	const textColor = getTextColor(bgColor);
+	const t = useTranslations();
 
 	return (
 		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
@@ -53,9 +57,10 @@ export const StatusesListCard = ({
 				>
 					<Text.Label
 						className={clsxm(
-							'flex-none flex-grow-0 font-normal',
+							'flex-none flex-grow-0 !w-40 max-w-[190px] font-normal',
 							'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
-							bgColor === '' && ['dark:text-[#cdd1d8]']
+							bgColor === '' && ['dark:text-[#cdd1d8]'],
+							statusIcon && 'max-w-[135px]'
 						)}
 						style={{ color: bgColor === '' ? undefined : textColor }}
 					>
@@ -64,12 +69,17 @@ export const StatusesListCard = ({
 				</Tooltip>
 			</div>
 			<div className="flex items-center gap-x-[12PX] mr-[4px]">
-				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onEdit}>
-					<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-				</Button>
-				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onDelete}>
-					<TrashIcon className="h-5 w-5" />
-				</Button>
+				<Tooltip label={t('common.EDIT')}>
+					<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onEdit}>
+						<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+					</Button>
+				</Tooltip>
+
+				{showDeleteButton && (
+					<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onDelete}>
+						<TrashIcon className="h-5 w-5" />
+					</Button>
+				)}
 			</div>
 		</div>
 	);

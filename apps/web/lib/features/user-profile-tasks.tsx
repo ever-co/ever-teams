@@ -1,11 +1,9 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
+import { UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
-import { ObserverComponent } from '@components/shared/Observer';
-import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
-
 type Props = {
 	tabFiltered: I_TaskFilter;
 	profile: I_UserProfilePage;
@@ -30,7 +28,6 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	const otherTasks = tasks.filter((t) =>
 		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
 	);
-	const { nextOffset, data } = useInfinityScrolling(otherTasks);
 	// const data = otherTasks.length < 10 ? otherTasks : data;
 
 	// const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
@@ -39,7 +36,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) &&
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 				otherTasks.length > 0 && (
 					/* Displaying the current time. */
 					<div className="flex items-center mb-3 space-x-2">
@@ -47,7 +44,6 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						<Divider className="flex-1" />
 						<div className="flex items-center space-x-4">
 							<Text className="text-xs font-normal text-gray-500">{t('common.TOTAL_TIME')}:</Text>
-
 							{profile.isAuthUser ? (
 								<Text className="font-normal">
 									{time.h}h : {time.m}m
@@ -60,7 +56,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				)}
 
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) && (
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) && (
 					<TaskCard
 						active
 						task={profile.activeUserTeamTask}
@@ -76,6 +72,8 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					/>
 				)}
 
+			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans />}
+
 			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 				<div className="flex items-center my-6 space-x-2">
 					<Text className="font-normal">
@@ -85,28 +83,29 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			<ul className="flex flex-col gap-4">
-				{data.map((task, index) => {
-					return (
-						<li key={task.id}>
-							<ObserverComponent isLast={index === data.length - 1} getNextData={nextOffset} />
-							<TaskCard
-								task={task}
-								isAuthUser={profile.isAuthUser}
-								activeAuthTask={false}
-								viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
-								profile={profile}
-								taskBadgeClassName={`	${
-									task.issueType === 'Bug'
-										? '!px-[0.3312rem] py-[0.2875rem]'
-										: '!px-[0.375rem] py-[0.375rem]'
-								} rounded-sm`}
-								taskTitleClassName="mt-[0.0625rem]"
-							/>
-						</li>
-					);
-				})}
-			</ul>
+			{tabFiltered.tab !== 'dailyplan' && (
+				<ul className="flex flex-col gap-4">
+					{otherTasks.map((task) => {
+						return (
+							<li key={task.id}>
+								<TaskCard
+									task={task}
+									isAuthUser={profile.isAuthUser}
+									activeAuthTask={false}
+									viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
+									profile={profile}
+									taskBadgeClassName={`${
+										task.issueType === 'Bug'
+											? '!px-[0.3312rem] py-[0.2875rem]'
+											: '!px-[0.375rem] py-[0.375rem]'
+									} rounded-sm`}
+									taskTitleClassName="mt-[0.0625rem]"
+								/>
+							</li>
+						);
+					})}
+				</ul>
+			)}
 		</div>
 	);
 }

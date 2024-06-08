@@ -3,11 +3,8 @@
 import {
 	HostKeys,
 	RTuseTaskInput,
-	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
-	useOrganizationEmployeeTeams,
-	useOrganizationTeams,
 	useOutsideClick,
 	useTaskInput,
 	useTaskLabels,
@@ -17,11 +14,10 @@ import { ITaskPriority, ITaskSize, ITeamTask, Nullable } from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, Card, Divider, InputField, SpinnerLoader, Tooltip } from 'lib/components';
+import { Button, Card, InputField, SpinnerLoader, Tooltip } from 'lib/components';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { TaskIssuesDropdown } from './task-issue';
-import { TaskItem } from './task-item';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { TaskLabels } from './task-labels';
@@ -51,6 +47,7 @@ type Props = {
 	usersTaskCreatedAssignTo?: { id: string }[];
 	onTaskCreated?: (task: ITeamTask | undefined) => void;
 	cardWithoutShadow?: boolean;
+	onClose: any;
 
 	forParentChildRelationship?: boolean;
 } & PropsWithChildren;
@@ -73,13 +70,8 @@ export function TaskInputKanban(props: Props) {
 		tasks: props.tasks
 	});
 
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
-
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
-	const $onTaskClick = useCallbackRef(props.onTaskClick);
 	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
 	const inputRef = useRef<HTMLDivElement>(null);
 	const timerStatus = useRecoilValue(timerStatusState);
@@ -92,13 +84,16 @@ export function TaskInputKanban(props: Props) {
 		[$onTaskCreated]
 	);
 
-	const onTaskClick = useCallback(
-		(task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
-		[$onTaskClick]
-	);
-
-	const { inputTask, editMode, setEditMode, setQuery, updateLoading, updateTaskTitleHandler, setFilter, taskIssue } =
-		datas;
+	const {
+		inputTask,
+		setTaskIssue,
+		editMode,
+		setEditMode,
+		setQuery,
+		updateLoading,
+		updateTaskTitleHandler,
+		setFilter
+	} = datas;
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
@@ -122,32 +117,6 @@ export function TaskInputKanban(props: Props) {
 		 */
 		!editMode && onCloseComboboxRef.current && onCloseComboboxRef.current();
 	}, [editMode, onCloseComboboxRef]);
-
-	/**
-	 * set the active task for the authenticated user
-	 */
-	const setAuthActiveTask = useCallback(
-		(task: ITeamTask) => {
-			if (datas.setActiveTask) {
-				datas.setActiveTask(task);
-
-				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members.find(
-					(member) => member.employeeId === user?.employee?.id
-				);
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
-						organizationId: task.organizationId,
-						activeTaskId: task.id,
-						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId
-					});
-				}
-			}
-			setEditMode(false);
-		},
-		[datas, setEditMode, activeTeam, user, updateOrganizationTeamEmployee]
-	);
 
 	/**
 	 * On update task name
@@ -183,7 +152,6 @@ export function TaskInputKanban(props: Props) {
 		If task is passed then we don't want to set the active task for the authenticated user.
 		after task creation
 	 */
-	const autoActiveTask = props.task !== undefined ? false : true;
 	const handleTaskCreation = useCallback(async () => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas &&
@@ -191,15 +159,17 @@ export function TaskInputKanban(props: Props) {
 			datas.hasCreateForm &&
 			datas
 				.handleTaskCreation({
-					autoActiveTask,
+					autoActiveTask: true,
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then(onTaskCreated)
 				.finally(async () => {
 					setTaskName('');
+
+					props.onClose && props.onClose();
 				});
-	}, [datas, autoActiveTask, props.autoAssignTaskAuth, props.usersTaskCreatedAssignTo, onTaskCreated]);
+	}, [datas, props, onTaskCreated]);
 
 	let updatedTaskList: ITeamTask[] = [];
 	if (props.forParentChildRelationship) {
@@ -231,7 +201,6 @@ export function TaskInputKanban(props: Props) {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
-				// console.log('func active');
 			}
 		};
 
@@ -313,9 +282,7 @@ export function TaskInputKanban(props: Props) {
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
-						onValueChange={(v) => {
-							taskIssue.current = v;
-						}}
+						onValueChange={(v) => setTaskIssue(v)}
 					/>
 				</div>
 			}
@@ -325,7 +292,6 @@ export function TaskInputKanban(props: Props) {
 	const taskCard = (
 		<TaskCard
 			datas={datas}
-			onItemClick={props.task !== undefined || props.onTaskClick ? onTaskClick : setAuthActiveTask}
 			inputField={viewType ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
 			fullHeight={props.fullHeightCombobox}
@@ -333,7 +299,6 @@ export function TaskInputKanban(props: Props) {
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
 			updatedTaskList={updatedTaskList}
-			forParentChildRelationship={props.forParentChildRelationship}
 		/>
 	);
 
@@ -345,21 +310,17 @@ export function TaskInputKanban(props: Props) {
  */
 function TaskCard({
 	datas,
-	onItemClick,
 	inputField,
 	kanbanTitle,
-	handleTaskCreation,
-	forParentChildRelationship
+	handleTaskCreation
 }: {
 	datas: Partial<RTuseTaskInput>;
-	onItemClick?: (task: ITeamTask) => void;
 	inputField?: JSX.Element;
 	kanbanTitle: string;
 	fullWidth?: boolean;
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
-	forParentChildRelationship?: boolean;
 	updatedTaskList?: ITeamTask[];
 }) {
 	const t = useTranslations();
@@ -383,7 +344,6 @@ function TaskCard({
 		}
 	}, [datas.editMode]);
 	const taskStatusHook = useTaskStatus();
-
 	return (
 		<>
 			<Card shadow="custom">
@@ -473,26 +433,6 @@ function TaskCard({
 						</Tooltip>
 					</div>
 				</div>
-
-				<Divider className="my-4" />
-				{!forParentChildRelationship &&
-					datas.filteredTasks?.map((task, i) => {
-						const last = (datas.filteredTasks?.length || 0) - 1 === i;
-						const active = datas.inputTask === task;
-
-						return (
-							<li key={task.id} className="list-none" ref={active ? activeTaskEl : undefined}>
-								<TaskItem
-									task={task}
-									selected={active}
-									onClick={onItemClick}
-									className="cursor-pointer"
-								/>
-
-								{!last && <Divider className="my-5" />}
-							</li>
-						);
-					})}
 			</Card>
 
 			{/* Just some spaces at the end */}

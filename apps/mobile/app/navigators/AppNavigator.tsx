@@ -13,7 +13,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { observer } from 'mobx-react-lite';
 import React, { useEffect } from 'react';
 import Config from '../config';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useStores } from '../models'; // @demo remove-current-line
 import {
 	LoginScreen // @demo remove-current-line

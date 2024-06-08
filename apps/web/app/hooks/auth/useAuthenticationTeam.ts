@@ -9,7 +9,7 @@ import { AxiosError } from 'axios';
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { RECAPTCHA_SITE_KEY } from '@app/constants';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const FIRST_STEP = 'STEP1' as const;
 const SECOND_STEP = 'STEP2' as const;
@@ -25,15 +25,17 @@ const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY
 			email: '',
 			team: '',
 			recaptcha: ''
-	  }
+		}
 	: {
 			name: '',
 			email: '',
 			team: ''
-	  };
+		};
 
 export function useAuthenticationTeam() {
 	const query = useSearchParams();
+	const router = useRouter();
+
 	const queryEmail = useMemo(() => {
 		let localEmail: null | string = null;
 
@@ -70,6 +72,7 @@ export function useAuthenticationTeam() {
 		const { errors, valid } = authFormValidate(validationFields, formValues);
 
 		if (!valid) {
+			console.log({ errors });
 			setErrors(errors as any);
 			return;
 		}
@@ -78,7 +81,7 @@ export function useAuthenticationTeam() {
 		infiniteLoading.current = true;
 
 		queryCall(formValues)
-			.then(() => window.location.reload())
+			.then(() => router.push('/'))
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
 					setErrors((err.response?.data as any)?.errors || {});

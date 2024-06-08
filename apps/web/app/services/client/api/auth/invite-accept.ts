@@ -25,16 +25,28 @@ export function verifyInviteCodeAPI(params: IInviteVerifyCode) {
 	return post<IInviteVerified>('/invite/validate-by-code', params).then((res) => res.data);
 }
 
+/**
+ * Constructs a request to fetch user organizations with tenant and user ID.
+ *
+ * @param params - Parameters including tenantId, userId, and token for authentication.
+ * @returns A promise that resolves to a pagination response of user organizations.
+ */
 export function getUserOrganizationsRequest(params: { tenantId: string; userId: string; token: string }) {
-	const query = JSON.stringify({
-		relations: [],
-		findInput: {
-			userId: params.userId,
-			tenantId: params.tenantId
-		}
+	// Create a new instance of URLSearchParams for query string construction
+	const query = new URLSearchParams();
+
+	// Add user and tenant IDs to the query
+	query.append('where[userId]', params.userId);
+	query.append('where[tenantId]', params.tenantId);
+
+	// If there are relations, add them to the query
+	const relations: string[] = [];
+	// Append each relation to the query string
+	relations.forEach((relation, index) => {
+		query.append(`relations[${index}]`, relation);
 	});
 
-	return get<PaginationResponse<IUserOrganization>>(`/user-organization?data=${encodeURIComponent(query)}`, {
+	return get<PaginationResponse<IUserOrganization>>(`/user-organization?${query.toString()}`, {
 		tenantId: params.tenantId,
 		headers: {
 			Authorization: `Bearer ${params.token}`
@@ -42,6 +54,13 @@ export function getUserOrganizationsRequest(params: { tenantId: string; userId: 
 	});
 }
 
+/**
+ * Fetches a list of all teams within an organization, including specified relation data.
+ *
+ * @param {ITeamRequestParams} params Parameters for the team request, including organization and tenant IDs, and optional relations.
+ * @param {string} bearer_token The bearer token for authentication.
+ * @returns A Promise resolving to the pagination response of organization teams.
+ */
 export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_token: string) {
 	const relations = params.relations || [
 		'members',
@@ -49,25 +68,24 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'createdBy.employee',
 		'projects',
 		'projects.repository'
 	];
 
-	const searchQueries = {
+	// Construct search queries
+	const queryParams = {
 		'where[organizationId]': params.organizationId,
 		'where[tenantId]': params.tenantId,
 		source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true'
-	} as { [x: string]: string };
+		withLastWorkedTask: 'true', // Corrected the typo here
+		...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
+	};
 
-	relations.forEach((rl, i) => {
-		searchQueries[`relations[${i}]`] = rl;
-	});
+	// Serialize search queries into a query string
+	const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
-	const query = qs.stringify(params);
-
-	return get<PaginationResponse<IOrganizationTeamList>>(`/organization-team?${query}`, {
+	// Construct and execute the request
+	return get<PaginationResponse<IOrganizationTeamList>>(`/organization-team?${queryString}`, {
 		tenantId: params.tenantId,
 		headers: {
 			Authorization: `Bearer ${bearer_token}`
@@ -77,7 +95,7 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 
 export const signInEmailConfirmAPI = (data: { code: string; email: string }) => {
 	const { code, email } = data;
-	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm?includeTeams=true', { code, email });
+	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', { code, email, includeTeams: true });
 };
 
 export async function signInEmailCodeConfirmGauzy(email: string, code: string) {
@@ -199,11 +217,13 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 /**
  * @param params
  */
-export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code: string }) {
-	const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code?: string }) {
+	if (params.code) {
+		const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
 
-	if (loginResponse) {
-		return loginResponse;
+		if (loginResponse) {
+			return loginResponse;
+		}
 	}
 
 	const data = await signInWorkspaceAPI(params.email, params.token);

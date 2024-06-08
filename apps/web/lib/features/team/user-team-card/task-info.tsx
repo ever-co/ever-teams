@@ -12,28 +12,32 @@ type Props = IClassName & {
 
 export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) {
 	return (
-		<div
-			className={clsxm(
-				'h-full w-full flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
-				className
-			)}
-		>
-			{/* task */}
+		<>
+			{!edition.task && <div className="w-full  justify-center text-center self-center">--</div>}
+
 			<div
 				className={clsxm(
-					'w-full h-10 flex justify-start items-center',
-					edition.editMode ? [''] : ['overflow-hidden']
+					'h-full w-full flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
+					className,
+					'!min-w-[461px] !max-w-[461px]'
 				)}
 			>
-				{edition.task && (
-					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
-				)}
-				{!edition.task && <div className="text-center">--</div>}
-			</div>
+				{/* task */}
+				<div
+					className={clsxm(
+						'w-full h-10 flex justify-start items-center',
+						edition.editMode ? [''] : ['overflow-hidden']
+					)}
+				>
+					{edition.task && (
+						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
+					)}
+				</div>
 
-			{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} />}
-			{!edition.task && <div className="text-center self-center">--</div>}
-		</div>
+				{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} />}
+			</div>
+			{!edition.task && <div className="w-full justify-center text-center self-center">--</div>}
+		</>
 	);
 }
 
@@ -62,9 +66,10 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			>
 				<TaskNameInfoDisplay
 					task={task}
-					className={`${
-						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
-					} rounded-sm`}
+					className={clsxm(
+						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]',
+						'rounded-sm'
+					)}
 					taskTitleClassName="mt-[0.0625rem]"
 				/>
 			</div>
@@ -78,6 +83,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 						keepOpen={true}
 						showCombobox={false}
 						autoFocus={true}
+						showEmoji={false}
 						autoInputSelectText={true}
 						onTaskClick={(e) => {
 							console.log(e);

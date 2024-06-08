@@ -4,6 +4,8 @@
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
 		"REJECT": "拒绝",
+		"ACTION": "操作",
+		"MEMBER": "成员",
 		"TOMORROW": "明天",
 		"YESTERDAY": "昨天",
 		"REJECTED": "已拒绝",
@@ -179,7 +181,30 @@
 		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "在您的应用程序中自动同步任务，实现无缝和高效的更新。",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
-		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签"
+		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签",
+		"THERE_IS_NO_TASK_ASSIGNED": "没有分配任务",
+		"NO_USERS_ONLINE": "没有在线用户",
+		"NOT_FOUND": "未找到",
+		"PAGE_NOT_FOUND": "页面未找到",
+		"NO_USERS_WORKING": "目前没有活跃用户",
+		"NO_USERS_PAUSED_WORK": "目前还没有用户停止工作",
+		"NO_USERS_IDLE": "目前没有不活跃用户",
+		"SELECT_TEAM_MEMBER": "选择团队成员",
+		"ALL_MEMBERS": "所有成员",
+		"NOT_WORKING": "不工作",
+		"WORKING": "工作",
+		"PAUSED": "暂停",
+		"ONLINE": "在线"
+	},
+	"hotkeys": {
+		"HELP": "帮助",
+		"TO_OPEN_SHORTCUT_LIST": "打开快捷键列表",
+		"TIMER": "计时器",
+		"START_TIMER": "开始计时",
+		"STOP_TIMER": "停止计时",
+		"TASK": "任务",
+		"ASSIGN_TASK": "分配任务",
+		"CREATE_TASK": "创建任务"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "我們目前正在開發即時同步功能，請稍後查看此功能。",
@@ -204,7 +229,10 @@
 			"KANBAN_BOARD": "看板"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"成员任务\"]"
+			"BREADCRUMB": "[\"成员任务\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "您正在寻找的成员在团队中不存在，请尝试使用不同的查询进行搜索。",
+			"MEMBER_NOT_FOUND_MSG_2": "如果您正在寻找不同团队中的成员，请从上面的下拉菜单中选择团队。",
+			"GO_TO_HOME": "返回主页"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"任务详情\"]",
@@ -239,6 +267,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "发送验证码",
+			"RESEND_CODE": "重新发送验证码",
+			"RESEND_CODE_IN": "重新发送验证码",
 			"JOIN": "加入",
 			"UNRECEIVED_CODE": "未收到验证码?",
 			"JOIN_TEAM": "加入团队",
@@ -375,6 +405,7 @@
 			"VERSIONS": "版本",
 			"LIST_OF_VERSONS": "版本列表",
 			"ISSUETYPE": "议题类型",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "议题列表",
 			"RELATED_ISSUE_TYPE": "相关议题类型",
 			"LIST_OF_RELATED_TYPE": "相关类型列表",

@@ -54,20 +54,27 @@ type IUEmployeeParam = {
 	relations?: string[];
 };
 
-export const currentAuthenticatedUserRequest = ({
-	bearer_token,
-	relations = ['employee', 'role', 'tenant']
-}: IUEmployeeParam) => {
-	const params = {} as { [x: string]: string };
+/**
+ * Fetches details of the currently authenticated user.
+ *
+ * @param {IUEmployeeParam} The employee parameters, including bearer token and optional relations.
+ * @returns A Promise resolving to the IUser object with the desired relations and employee details.
+ */
+export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['role', 'tenant'] }: IUEmployeeParam) => {
+	// Create a new instance of URLSearchParams for query string construction
+	const query = new URLSearchParams();
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
+	// Append each relation to the query string
+	relations.forEach((relation, index) => {
+		query.append(`relations[${index}]`, relation);
 	});
 
-	const query = new URLSearchParams(params);
+	// Append includeEmployee parameter set to true
+	query.append('includeEmployee', 'true');
 
+	// Construct the fetch request with the query string
 	return serverFetch<IUser>({
-		path: `/user/me?${query.toString()}`,
+		path: `/user/me?${query}`,
 		method: 'GET',
 		bearer_token
 	});
@@ -94,9 +101,9 @@ export function sendAuthCodeRequest(email: string) {
 // auth/signin.email/confirm Gives response with tenantId's
 export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<IEmailAndCodeConfirmResponse>({
-		path: '/auth/signin.email/confirm?includeTeams=true',
+		path: '/auth/signin.email/confirm',
 		method: 'POST',
-		body: { email, code }
+		body: { email, code, includeTeams: true }
 	});
 }
 

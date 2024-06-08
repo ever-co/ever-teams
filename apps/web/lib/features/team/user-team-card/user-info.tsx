@@ -32,7 +32,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 
 	return (
 		<Link
-			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
+			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
 			<div
@@ -70,8 +70,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						as="h3"
 						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg flex gap-2"
 					>
-						{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)} </span> : fullname}
-
+						<div className="max-w-[176px] truncate">
+							{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)}</span> : fullname}
+						</div>
 						{(member?.role?.name === 'MANAGER' ||
 							member?.role?.name === 'SUPER_ADMIN' ||
 							member?.role?.name === 'ADMIN') && (

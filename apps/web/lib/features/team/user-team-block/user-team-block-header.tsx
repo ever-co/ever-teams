@@ -8,6 +8,7 @@ import { CheckCircleTickIcon, CrossCircleIcon, StopCircleIcon, PauseIcon } from 
 import { Button, VerticalSeparator } from 'lib/components';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { useRecoilState } from 'recoil';
+import { useTranslations } from 'next-intl';
 
 interface IFilter {
 	running: number;
@@ -18,7 +19,7 @@ interface IFilter {
 }
 
 export function UserTeamBlockHeader() {
-	// const t = useTranslations();
+	const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
@@ -46,7 +47,7 @@ export function UserTeamBlockHeader() {
 
 	return (
 		<>
-			<div className="hidden sm:flex row font-normal pt-4 mt-4 justify-between hidde dark:text-[#7B8089]">
+			<div className="hidden sm:flex  dark:bg-dark-high  font-normal pt-7 justify-between dark:text-[#7B8089]">
 				<div className="flex items-center w-9/12">
 					<div
 						className={clsxm(
@@ -61,7 +62,7 @@ export function UserTeamBlockHeader() {
 								activeFilter == 'all' && 'text-primary dark:text-white'
 							)}
 						/>
-						<p>All members </p>
+						<p>{t('common.ALL_MEMBERS')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
@@ -84,7 +85,7 @@ export function UserTeamBlockHeader() {
 								activeFilter == 'idle' && '!text-primary !fill-white  dark:!text-white dark:!fill-white'
 							)}
 						/>
-						<p>Not working </p>
+						<p>{t('common.NOT_WORKING')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
@@ -109,7 +110,7 @@ export function UserTeamBlockHeader() {
 									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
-						<p>Working </p>
+						<p>{t('common.WORKING')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
@@ -132,7 +133,7 @@ export function UserTeamBlockHeader() {
 								activeFilter == 'pause' && 'text-primary dark:text-white'
 							)}
 						/>
-						<p>Paused </p>
+						<p>{t('common.PAUSED')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
@@ -156,7 +157,7 @@ export function UserTeamBlockHeader() {
 									'!text-primary !fill-white  dark:!text-primary dark:!fill-white'
 							)}
 						/>
-						<p>Online</p>
+						<p>{t('common.ONLINE')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',

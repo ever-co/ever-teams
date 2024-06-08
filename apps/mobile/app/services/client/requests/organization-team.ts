@@ -36,6 +36,13 @@ export function updateOrganizationTeamRequest({
 	});
 }
 
+/**
+ * Fetches detailed information for a specific team within an organization.
+ *
+ * @param {TeamRequestParams & { teamId: string }} params Parameters including organizationId, tenantId, teamId, and optional relations.
+ * @param {string} bearer_token Authentication token for the request.
+ * @returns A Promise resolving to the detailed information of the organization team with member status.
+ */
 export function getOrganizationTeamRequest(
 	{
 		organizationId,
@@ -47,29 +54,28 @@ export function getOrganizationTeamRequest(
 			'members.employee',
 			'members.employee.user',
 			'createdBy',
-			'createdBy.employee',
 			'projects'
 		]
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string
 ) {
-	const params = {
+	// Define query parameters
+	const queryParameters = {
 		organizationId,
 		tenantId,
-		// source: "BROWSER",
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true', // Corrected the typo here
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString(),
-		includeOrganizationTeamId: 'false'
-	} as { [x: string]: string };
+		includeOrganizationTeamId: 'false',
+		...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
+	};
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
+	// Construct the query string
+	const query = new URLSearchParams(queryParameters);
 
-	const queries = new URLSearchParams(params);
+	// Fetch and return the team data
 	return serverFetch<IOrganizationTeamWithMStatus>({
-		path: `/organization-team/${teamId}?${queries.toString()}`,
+		path: `/organization-team/${teamId}?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId
@@ -82,6 +88,13 @@ type TeamRequestParams = {
 	relations?: string[];
 };
 
+/**
+ * Fetches a list of all teams within an organization, including specified relation data.
+ *
+ * @param {TeamRequestParams} params Contains organizationId, tenantId, and optional relation specifications.
+ * @param {string} bearer_token Token for request authentication.
+ * @returns A Promise resolving to a paginated response of organization team lists.
+ */
 export function getAllOrganizationTeamRequest(
 	{
 		organizationId,
@@ -91,24 +104,21 @@ export function getAllOrganizationTeamRequest(
 			'members.role',
 			'members.employee',
 			'members.employee.user',
-			'createdBy',
-			'createdBy.employee'
+			'createdBy'
 		]
 	}: TeamRequestParams,
 	bearer_token: string
 ) {
-	const params = {
+	// Define query parameters
+	const queryParameters = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
 		source: 'BROWSER',
-		withLaskWorkedTask: 'true'
-	} as { [x: string]: string };
+		withLastWorkedTask: 'true',
+		...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
+	};
 
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
-
-	const query = new URLSearchParams(params);
+	const query = new URLSearchParams(queryParameters);
 
 	return serverFetch<PaginationResponse<IOrganizationTeamList>>({
 		path: `/organization-team?${query.toString()}`,

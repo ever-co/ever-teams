@@ -21,11 +21,11 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
+	const router = useRouter();
 	const pathname = usePathname();
 	const query = useSearchParams();
-	const queryTeamId = useMemo(() => {
-		return query?.get('teamId');
-	}, [query]);
+
+	const queryTeamId = query?.get('teamId');
 
 	const queryEmail = useMemo(() => {
 		const emailQuery = query?.get('email') || '';
@@ -52,7 +52,6 @@ export function useAuthenticationPasscode() {
 	});
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
-	const router = useRouter();
 	// Queries
 	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(sendAuthCodeAPI);
 
@@ -78,10 +77,17 @@ export function useAuthenticationPasscode() {
 	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
+				if ('team' in res.data) {
+					router.replace('/');
+					return;
+				}
+
 				const checkError: {
 					message: string;
 				} = res.data as any;
+
 				const isError = checkError.message === 'Unauthorized';
+
 				if (isError) {
 					setErrors({
 						code: 'Invalid code. Please try again.'
@@ -89,6 +95,7 @@ export function useAuthenticationPasscode() {
 				} else {
 					setErrors({});
 				}
+
 				const data = res.data as ISigninEmailConfirmResponse;
 				if (!data.workspaces) {
 					return;
@@ -110,6 +117,7 @@ export function useAuthenticationPasscode() {
 
 						signInToWorkspaceRequest({
 							email: email,
+							code: code,
 							token: currentWorkspace?.token as string,
 							selectedTeam: queryTeamId as string
 						});
@@ -156,16 +164,13 @@ export function useAuthenticationPasscode() {
 		[queryCall]
 	);
 
-	const signInToWorkspaceRequest = ({
-		email,
-		token,
-		selectedTeam
-	}: {
+	const signInToWorkspaceRequest = (params: {
 		email: string;
 		token: string;
 		selectedTeam: string;
+		code?: string;
 	}) => {
-		signInWorkspaceQueryCall(email, token, selectedTeam)
+		signInWorkspaceQueryCall(params)
 			.then(() => {
 				setAuthenticated(true);
 				router.push('/');
@@ -227,6 +232,7 @@ export function useAuthenticationPasscode() {
 
 		signInToWorkspaceRequest({
 			email: formValues.email,
+			code: formValues.code,
 			token,
 			selectedTeam
 		});
@@ -285,7 +291,6 @@ export function useAuthenticationPasscode() {
 		workspaces,
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
-		queryCall,
 		handleWorkspaceSubmit
 	};
 }

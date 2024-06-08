@@ -4,6 +4,8 @@
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
+		"MEMBER": "Member",
+		"ACTION": "Action",
 		"TOMORROW": "Tomorrow",
 		"YESTERDAY": "Yesterday",
 		"REJECTED": "Rejected",
@@ -179,7 +181,30 @@
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatically synchronize tasks in your application for seamless and efficient updates.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronize tasks selectively by associating them with specific label.",
-		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label"
+		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label",
+		"THERE_IS_NO_TASK_ASSIGNED": "There is no task assigned",
+		"NO_USERS_ONLINE": "There are no users online",
+		"NOT_FOUND": "Not Found",
+		"PAGE_NOT_FOUND": "Page not found",
+		"NO_USERS_WORKING": "There are currently no active users",
+		"NO_USERS_PAUSED_WORK": "There are currently no users who have paused their work",
+		"NO_USERS_IDLE": "There are currently no inactive users",
+		"SELECT_TEAM_MEMBER": "Select team member",
+		"ALL_MEMBERS": "All Members",
+		"NOT_WORKING": "Not Working",
+		"WORKING": "Working",
+		"PAUSED": "Paused",
+		"ONLINE": "Online"
+	},
+	"hotkeys": {
+		"HELP": "Help",
+		"TO_OPEN_SHORTCUT_LIST": "To open the shortcut list",
+		"TIMER": "Timer",
+		"START_TIMER": "Start Timer",
+		"STOP_TIMER": "Stop Timer",
+		"TASK": "Task",
+		"ASSIGN_TASK": "Assign Task",
+		"CREATE_TASK": "Create Task"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "We are working on Real-Time Sync at the moment, please check on this feature later.",
@@ -201,7 +226,10 @@
 			"CONFIRM_REJECT_INVITATION": "Are you sure you want to reject the invitation?"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Member Tasks\"]"
+			"BREADCRUMB": "[\"Member Tasks\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Member you are looking is not exist in a team please try to search with different query.",
+			"MEMBER_NOT_FOUND_MSG_2": "If you are looking for a member in a different team, please select the team from the dropdown above.",
+			"GO_TO_HOME": "Go to Home"
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Kanban Board"
@@ -239,6 +267,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "send code",
+			"RESEND_CODE": "Resend Code",
+			"RESEND_CODE_IN": "Resend Code in",
 			"JOIN": "Join",
 			"UNRECEIVED_CODE": "Didn't receive code ?",
 			"JOIN_TEAM": "Join Team",
@@ -316,6 +346,7 @@
 			"TASK_SIZES": "Task Sizes",
 			"TASK_LABELS": "Task Labels",
 			"ISSUE_TYPES": "Issue Types",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"RELATED_TYPE": "Related Type",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Create new Statuses",

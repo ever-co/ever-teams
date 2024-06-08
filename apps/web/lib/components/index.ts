@@ -10,6 +10,7 @@ export * from './dropdown';
 export * from './auto-complete-dropdown';
 export * from './modal';
 export * from './avatar';
+export * from './accordian';
 export * from './toggler';
 export * from './divider';
 export * from './breadcrumb';
@@ -25,3 +26,4 @@ export * from './inputs/input';
 export * from './inputs/auth-code-input';
 
 export * from './services/recaptcha';
+export * from './copy-tooltip';

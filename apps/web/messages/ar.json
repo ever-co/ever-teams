@@ -4,6 +4,8 @@
 		"ACCEPT": "قبول",
 		"ACCEPTED": "مقبول",
 		"REJECT": "رفض",
+		"MEMBER": "عضو",
+		"ACTION": "إجراء",
 		"REJECTED": "مرفوض",
 		"VERIFY": "تحقق",
 		"CARDS": "بطاقات",
@@ -179,7 +181,30 @@
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "قم بمزامنة المهام تلقائيًا في تطبيقك لتحديثات سلسة وفعّالة.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "تزامن المهام بشكل انتقائي عن طريق ربطها بتصنيف معين.",
 		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي",
-		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع"
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع",
+		"THERE_IS_NO_TASK_ASSIGNED": "لا توجد مهام معينة",
+		"NO_USERS_ONLINE": "لا يوجد مستخدمين على الانترنت",
+		"NOT_FOUND": "الصفحة غير موجودة",
+		"PAGE_NOT_FOUND": "غير معثور عليه",
+		"NO_USERS_WORKING": "لا يوجد مستخدمين يعملون حاليا",
+		"NO_USERS_PAUSED_WORK": "لم يتم إيقاف أي مستخدم مؤقتًا عن العمل في الوقت الحالي",
+		"NO_USERS_IDLE": "لا يوجد مستخدمين خاملين في الوقت الحالي",
+		"SELECT_TEAM_MEMBER": "اختيار عضو الفريق",
+		"ALL_MEMBERS": "جميع الأعضاء",
+		"NOT_WORKING": "غير عامل",
+		"WORKING": "يعمل",
+		"PAUSED": "متوقف",
+		"ONLINE": "متصل"
+	},
+	"hotkeys": {
+		"HELP": "مساعدة",
+		"TO_OPEN_SHORTCUT_LIST": "لفتح قائمة الاختصارات",
+		"TIMER": "المؤقت",
+		"START_TIMER": "بدء المؤقت",
+		"STOP_TIMER": "إيقاف المؤقت",
+		"TASK": "المهمة",
+		"ASSIGN_TASK": "تعيين المهمة",
+		"CREATE_TASK": "إنشاء مهمة"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "نحن نعمل على المزامنة في الوقت الحقيقي في الوقت الحالي، يرجى التحقق من هذه الميزة لاحقًا",
@@ -204,8 +229,11 @@
 			"KANBAN_BOARD": "لوحة كانبان"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"مهام العضو\"]"
-		},
+			"BREADCRUMB": "[\"مهام العضو\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "العضو الذي تبحث عنه غير موجود في الفريق، يرجى المحاولة مرة أخرى ببحث مختلف.",
+			"MEMBER_NOT_FOUND_MSG_2": "إذا كنت تبحث عن عضو في فريق مختلف، يرجى تحديد الفريق من القائمة المنسدلة أعلاه.",
+			"GO_TO_HOME": "الذهاب إلى الصفحة الرئيسية"
+			},
 		"taskDetails": {
 			"BREADCRUMB": "[\"تفاصيل المهمة\"]",
 			"DESCRIPTION": "الوصف",
@@ -239,6 +267,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "إرسال الرمز",
+			"RESEND_CODE": "إعادة إرسال الرمز",
+			"RESEND_CODE_IN": "إعادة إرسال الرمز في",
 			"JOIN": "انضمام",
 			"UNRECEIVED_CODE": "لم تتلقى الرمز؟",
 			"JOIN_TEAM": "انضمام للفريق",
@@ -375,6 +405,7 @@
 			"VERSIONS": "الإصدارات",
 			"LIST_OF_VERSONS": "قائمة الإصدارات",
 			"ISSUETYPE": "أنواع القضايا",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "قائمة القضايا",
 			"RELATED_ISSUE_TYPE": "أنواع القضايا ذات الصلة",
 			"LIST_OF_RELATED_TYPE": "قائمة الأنواع ذات الصلة",

@@ -6,6 +6,8 @@
 		"REJECT": "Rejeitar",
 		"YESTERDAY": "Ontem",
 		"TOMORROW": "Amanhã",
+		"MEMBER": "Membro",
+		"ACTION": "Ação",
 		"REJECTED": "Rejeitado",
 		"VERIFY": "Verificar",
 		"INVITE": "Convidar",
@@ -179,7 +181,30 @@
 		"GITHUB_LOADING_TEXT": "Estamos agora a instalar a sua integração do GitHub, aguarde...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronize automaticamente tarefas em seu aplicativo para atualizações sem interrupções e eficientes.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronize tarefas seletivamente associando-as a uma etiqueta específica.",
-		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática"
+		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática",
+		"THERE_IS_NO_TASK_ASSIGNED": "Não há tarefas atribuídas",
+		"NO_USERS_ONLINE": "Nenhum usuário online",
+		"NO_USERS_WORKING": "Atualmente não há usuários ativos",
+		"NO_USERS_PAUSED_WORK": "Atualmente não há usuários que interromperam seu trabalho",
+		"NO_USERS_IDLE": "Atualmente não há usuários inativos",
+		"NOT_FOUND": "Não encontrado",
+		"PAGE_NOT_FOUND": "Página não encontrada",
+		"SELECT_TEAM_MEMBER": "Selecione o membro da equipe",
+		"ALL_MEMBERS": "Todos os Membros",
+		"NOT_WORKING": "Não Trabalhando",
+		"WORKING": "Trabalhando",
+		"PAUSED": "Pausado",
+		"ONLINE": "Online"
+	},
+	"hotkeys": {
+		"HELP": "Ajuda",
+		"TO_OPEN_SHORTCUT_LIST": "Para abrir a lista de atalhos",
+		"TIMER": "Temporizador",
+		"START_TIMER": "Iniciar Temporizador",
+		"STOP_TIMER": "Parar Temporizador",
+		"TASK": "Tarefa",
+		"ASSIGN_TASK": "Atribuir Tarefa",
+		"CREATE_TASK": "Criar Tarefa"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",
@@ -204,7 +229,10 @@
 			"KANBAN_BOARD": "Quadro Kanban"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Tarefas do Membro\"]"
+			"BREADCRUMB": "[\"Tarefas do Membro\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "O membro que você está procurando não existe em uma equipe, tente pesquisar com uma consulta diferente.",
+			"MEMBER_NOT_FOUND_MSG_2": "Se você está procurando um membro em uma equipe diferente, selecione a equipe no menu suspenso acima.",
+			"GO_TO_HOME": "Ir para a página inicial"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Detalhes da Tarefa\"]",
@@ -239,6 +267,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "enviar código",
+			"RESEND_CODE": "Reenviar Código",
+			"RESEND_CODE_IN": "Reenviar Código em",
 			"JOIN": "Participar",
 			"UNRECEIVED_CODE": "Não recebeu o código?",
 			"JOIN_TEAM": "Participar da Equipe",
@@ -375,6 +405,7 @@
 			"VERSIONS": "Versões",
 			"LIST_OF_VERSONS": "Lista de Versões",
 			"ISSUETYPE": "Tipos de Problema",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "Lista de Problemas",
 			"RELATED_ISSUE_TYPE": "Tipos de Problema Relacionados",
 			"LIST_OF_RELATED_TYPE": "Lista de Tipos Relacionados",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCustomEmblaCarousel, useSyncRef } from '@app/hooks';
+import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
 import { useEffect, useMemo } from 'react';
@@ -12,6 +12,8 @@ import {
 	useTaskStatusValue
 } from './task-status';
 import { clsxm } from '@app/utils';
+import { planBadgeContent } from '@app/helpers';
+import { CalendarIcon } from '@radix-ui/react-icons';
 
 export function TaskAllStatusTypes({
 	task,
@@ -29,6 +31,8 @@ export function TaskAllStatusTypes({
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
 
+	const { dailyPlan, getAllDayPlans } = useDailyPlan();
+
 	const { viewportRef, nextBtnEnabled, scrollNext, prevBtnEnabled, scrollPrev, emblaApi } = useCustomEmblaCarousel(
 		0,
 		{
@@ -42,6 +46,10 @@ export function TaskAllStatusTypes({
 	useEffect(() => {
 		emblaApiRef.current?.reInit();
 	}, [task, emblaApiRef]);
+
+	useEffect(() => {
+		getAllDayPlans();
+	}, [getAllDayPlans]);
 
 	const tags = useMemo(() => {
 		return (
@@ -86,7 +94,12 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-
+					{planBadgeContent(dailyPlan.items, task?.id ?? '') && (
+						<div className="rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 bg-[#D9EBD7] text-[#4D6194] font-medium">
+							<CalendarIcon />
+							<span className="text-[10px]">{planBadgeContent(dailyPlan.items, task?.id ?? '')}</span>
+						</div>
+					)}
 					{tags.map((tag, i) => {
 						return (
 							<TaskStatus

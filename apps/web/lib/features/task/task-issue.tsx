@@ -19,22 +19,26 @@ export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
 		icon: <BugIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Bug',
-		bgColor: '#923535'
+		bgColor: '#923535',
+		className: 'min-w-[5rem]'
 	},
 	Task: {
 		icon: <Square4StackIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Task',
-		bgColor: '#5483BA'
+		bgColor: '#5483BA',
+		className: 'min-w-[5rem]'
 	},
 	Story: {
 		icon: <NoteIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Story',
-		bgColor: '#66BB97'
+		bgColor: '#66BB97',
+		className: 'min-w-[5rem]'
 	},
 	Epic: {
 		icon: <Square4OutlineIcon className="w-full max-w-[12px] text-white" />,
 		name: 'Custom',
-		bgColor: '#8154BA'
+		bgColor: '#8154BA',
+		className: 'min-w-[5rem]'
 	}
 };
 
@@ -103,6 +107,7 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 
 		[IssueType.BUG]: items.filter((it) => [IssueType.STORY, IssueType.TASK].includes(it.value as IssueType))
 	};
+
 	let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
 
 	if (props.task && props.task?.issueType && props.task.parent) {

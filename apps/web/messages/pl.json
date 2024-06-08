@@ -5,6 +5,8 @@
 		"ACCEPTED": "Zaakceptowane",
 		"REJECT": "Odrzuć",
 		"TOMORROW": "Jutro",
+		"MEMBER": "Członek",
+		"ACTION": "Akcja",
 		"YESTERDAY": "Wczoraj",
 		"REJECTED": "Odrzucone",
 		"VERIFY": "weryfikuj",
@@ -179,7 +181,30 @@
 		"GITHUB_LOADING_TEXT": "Aktualnie instalujemy integrację GitHub, proszę czekać...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatycznie synchronizuj zadania w swojej aplikacji, aby uzyskać płynne i efektywne aktualizacje.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronizuj zadania selektywnie, łącząc je z konkretną etykietą.",
-		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji"
+		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji",
+		"THERE_IS_NO_TASK_ASSIGNED": "Nie ma przypisanego zadania",
+		"NO_USERS_ONLINE": "Brak użytkowników online",
+		"NOT_FOUND": "Nie znaleziono",
+		"PAGE_NOT_FOUND": "Strona nie znaleziona",
+		"NO_USERS_WORKING": "Obecnie nie ma aktywnych użytkowników",
+		"NO_USERS_PAUSED_WORK": "Obecnie nie ma użytkowników, którzy przerwali pracę",
+		"NO_USERS_IDLE": "Obecnie nie ma nieaktywnych użytkowników",
+		"SELECT_TEAM_MEMBER": "Wybierz członka zespołu",
+		"ALL_MEMBERS": "Wszyscy członkowie",
+		"NOT_WORKING": "Niepracujący",
+		"WORKING": "Pracujący",
+		"PAUSED": "Wstrzymany",
+		"ONLINE": "Online"
+	},
+	"hotkeys": {
+		"HELP": "Pomoc",
+		"TO_OPEN_SHORTCUT_LIST": "Aby otworzyć listę skrótów",
+		"TIMER": "Timer",
+		"START_TIMER": "Rozpocznij Timer",
+		"STOP_TIMER": "Zatrzymaj Timer",
+		"TASK": "Zadanie",
+		"ASSIGN_TASK": "Przypisz Zadanie",
+		"CREATE_TASK": "Utwórz Zadanie"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
@@ -204,7 +229,10 @@
 			"KANBAN_BOARD": "Tablica Kanbana"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Member Tasks\"]"
+			"BREADCRUMB": "[\"Member Tasks\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Członek, którego szukasz, nie istnieje w zespole, spróbuj wyszukać z innym zapytaniem.",
+			"MEMBER_NOT_FOUND_MSG_2": "Jeśli szukasz członka w innym zespole, wybierz zespół z listy rozwijanej powyżej.",
+			"GO_TO_HOME": "Przejdź do strony głównej"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task Details\"]",
@@ -239,6 +267,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",
+			"RESEND_CODE": "Wyślij ponownie kod",
+			"RESEND_CODE_IN": "Wyślij ponownie kod w",
 			"JOIN": "Dołącz",
 			"UNRECEIVED_CODE": "Nie otrzymałeś kodu?",
 			"JOIN_TEAM": "Dołącz do Zespołu",
@@ -375,6 +405,7 @@
 			"VERSIONS": "Wersje",
 			"LIST_OF_VERSONS": "Lista Wersji",
 			"ISSUETYPE": "Typy Problemów",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "Lista Problemów",
 			"RELATED_ISSUE_TYPE": "Powiązane Typy Problemów",
 			"LIST_OF_RELATED_TYPE": "Lista Powiązanych Typów",

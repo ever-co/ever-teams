@@ -40,8 +40,7 @@ type NextCtx = {
 export const setLargeStringInCookies = (
 	COOKIE_NAME: string,
 	largeString: string,
-	req: any,
-	res: any,
+	ctx: NextCtx | undefined,
 	crossSite = false
 ) => {
 	const chunkSize = 4000;
@@ -50,10 +49,10 @@ export const setLargeStringInCookies = (
 	chunks.forEach((chunk, index) => {
 		const cookieValue = chunk.join('');
 
-		setCookie(`${COOKIE_NAME}${index}`, cookieValue, { res, req }, crossSite);
+		setCookie(`${COOKIE_NAME}${index}`, cookieValue, ctx, crossSite);
 	});
 
-	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, { res, req }, crossSite);
+	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, ctx, crossSite);
 };
 
 export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) => {
@@ -95,12 +94,12 @@ export function setAuthCookies(datas: DataParams, ctx?: NextCtx) {
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (access_token.length <= 4096) {
-		setCookie(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
+		setCookie(TOKEN_COOKIE_NAME, access_token, ctx); // cross site cookie
 	} else {
-		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx?.req, ctx?.res, true); // cross site cookie
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx); // cross site cookie
 	}
 
-	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, ctx, true); // cross site cookie
+	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, ctx); // cross site cookie
 	setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, ctx);
 	setCookie(TENANT_ID_COOKIE_NAME, tenantId, ctx);
 	setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, ctx);

@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation';
 import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
 import stc from 'string-to-color';
+import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import SocialLogins from '../social-logins-buttons';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -41,12 +43,12 @@ function AuthPasscode() {
 						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
 					</>
 				) : (
-					t('pages.authLogin.HEADING_DESCRIPTION')
+					<div>{t('pages.authLogin.HEADING_DESCRIPTION')}</div>
 				)
 			}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+				<div className={clsxm('flex flex-row transition-[transform] duration-500 mb-4')}>
 					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
 					{form.authScreen.screen === 'passcode' && (
 						<PasscodeScreen form={form} className={clsxm('w-full')} />
@@ -56,6 +58,8 @@ function AuthPasscode() {
 						<WorkSpaceScreen form={form} className={clsxm('w-full')} />
 					)}
 				</div>
+				{/* Social logins */}
+				<SocialLogins />
 			</div>
 		</AuthLayout>
 	);
@@ -127,6 +131,35 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
 	const inputsRef = useRef<Array<HTMLInputElement>>([]);
+
+	const formatTime = (seconds: number) => {
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+	};
+
+	const [timer, setTimer] = useState(60);
+	const [disabled, setDisabled] = useState(true);
+
+	useEffect(() => {
+		let interval: NodeJS.Timeout | undefined = undefined;
+		if (timer > 0) {
+			interval = setInterval(() => {
+				setTimer((prevTimer) => prevTimer - 1);
+			}, 1000);
+		} else {
+			setDisabled(false);
+			clearInterval(interval);
+		}
+
+		return () => clearInterval(interval);
+	}, [timer]);
+
+	const handleResendClick = () => {
+		setDisabled(true);
+		setTimer(60);
+	};
+
 	const resetForm = () => {
 		if (inputsRef.current) {
 			for (let i = 0; i < inputsRef.current.length; i++) {
@@ -173,8 +206,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 								form.errors['code'] || form.errors['email']
 									? 'error'
 									: form.authenticated
-									? 'success'
-									: undefined
+										? 'success'
+										: undefined
 							}
 							autoFocus={form.authScreen.screen === 'passcode'}
 						/>
@@ -192,20 +225,30 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 								<Text className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{t('pages.auth.UNRECEIVED_CODE')}
 								</Text>
-
-								{!form.sendCodeLoading && (
+								{!form.sendCodeLoading ? (
 									<button
 										type="button"
 										className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
-										onClick={form.sendAuthCodeHandler}
+										onClick={() => {
+											if (!disabled) {
+												form.sendAuthCodeHandler();
+												handleResendClick();
+											}
+										}}
 									>
-										{'Re'}
-										<span className="text-primary dark:text-primary-light">
-											{t('pages.auth.SEND_CODE')}
-										</span>
+										{!disabled ? (
+											<span className="text-primary dark:text-primary-light">
+												{t('pages.auth.RESEND_CODE')}
+											</span>
+										) : (
+											<span className=" dark:text-primary-light">
+												{t('pages.auth.RESEND_CODE_IN')} {formatTime(timer)}
+											</span>
+										)}
 									</button>
+								) : (
+									<SpinnerLoader size={15} className="self-center" />
 								)}
-								{form.sendCodeLoading && <SpinnerLoader size={15} className="self-center" />}
 							</div>
 
 							<div>
@@ -317,83 +360,84 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
-
-					<div className="flex flex-col w-full gap-4 max-h-[16.9375rem] overflow-scroll scrollbar-hide">
-						{props.workspaces?.map((worksace, index) => (
-							<div
-								key={index}
-								className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-									props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
-								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
-							>
-								<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
-									<div className="flex justify-between">
-										<span>{worksace.user.tenant.name}</span>
-										<span
-											className="hover:cursor-pointer"
-											onClick={() => {
-												props.setSelectedWorkspace(index);
-												if (
-													props.selectedTeam &&
-													!worksace.current_teams
-														?.map((team) => team.team_id)
-														.includes(props.selectedTeam)
-												) {
-													props.setSelectedTeam(worksace.current_teams[0].team_id);
-												}
-											}}
-										>
-											{props.selectedWorkspace === index ? (
-												<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
-											) : (
-												<CircleIcon className="w-6 h-6" />
-											)}
-										</span>
-									</div>
-									<span className="bg-[#E5E5E5] w-full h-[1px]"></span>
-									{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
-									<div className="flex flex-col gap-4 px-5 py-1.5">
-										{worksace.current_teams?.map((team) => (
-											<div
-												key={`${index}-${team.team_id}`}
-												className="flex items-center justify-between gap-4 min-h-[2.875rem]"
+					<ScrollArea className="h-64 relative w-full pr-2 ">
+						<div className="flex flex-col gap-y-4 ">
+							{props.workspaces?.map((worksace, index) => (
+								<div
+									key={index}
+									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+										props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
+									} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
+								>
+									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
+										<div className="flex justify-between">
+											<span>{worksace.user.tenant.name}</span>
+											<span
+												className="hover:cursor-pointer"
+												onClick={() => {
+													props.setSelectedWorkspace(index);
+													if (
+														props.selectedTeam &&
+														!worksace.current_teams
+															?.map((team) => team.team_id)
+															.includes(props.selectedTeam)
+													) {
+														props.setSelectedTeam(worksace.current_teams[0].team_id);
+													}
+												}}
 											>
-												<span className="flex items-center justify-between gap-4">
-													<Avatar
-														imageTitle={team.team_name}
-														size={34}
-														backgroundColor={`${stc(team.team_name)}80`}
-													/>
-													<div className="flex justify-between">
-														<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
-															{team.team_name}
-														</span>
-														<span>({team.team_member_count})</span>
-													</div>
-												</span>
-												<span
-													className="hover:cursor-pointer"
-													onClick={() => {
-														props.setSelectedTeam(team.team_id);
-														if (props.selectedWorkspace !== index) {
-															props.setSelectedWorkspace(index);
-														}
-													}}
+												{props.selectedWorkspace === index ? (
+													<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
+												) : (
+													<CircleIcon className="w-6 h-6" />
+												)}
+											</span>
+										</div>
+										<span className="bg-[#E5E5E5] w-full h-[1px]"></span>
+										{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
+										<div className="flex flex-col gap-4 px-5 py-1.5">
+											{worksace.current_teams?.map((team) => (
+												<div
+													key={`${index}-${team.team_id}`}
+													className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 												>
-													{props.selectedTeam === team.team_id ? (
-														<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
-													) : (
-														<CircleIcon className="w-5 h-5" />
-													)}
-												</span>
-											</div>
-										))}
+													<span className="flex items-center justify-between gap-4">
+														<Avatar
+															imageTitle={team.team_name}
+															size={34}
+															backgroundColor={`${stc(team.team_name)}80`}
+														/>
+														<div className="flex justify-between">
+															<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
+																{team.team_name}
+															</span>
+															<span>({team.team_member_count})</span>
+														</div>
+													</span>
+													<span
+														className="hover:cursor-pointer"
+														onClick={() => {
+															props.setSelectedTeam(team.team_id);
+															if (props.selectedWorkspace !== index) {
+																props.setSelectedWorkspace(index);
+															}
+														}}
+													>
+														{props.selectedTeam === team.team_id ? (
+															<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
+														) : (
+															<CircleIcon className="w-5 h-5" />
+														)}
+													</span>
+												</div>
+											))}
+										</div>
 									</div>
 								</div>
-							</div>
-						))}
-					</div>
-
+							))}
+						</div>
+						<ScrollBar className="-pr-20" />
+					</ScrollArea>
 					<div className="flex items-center justify-between w-full">
 						<div className="flex flex-col space-y-2">
 							<div>

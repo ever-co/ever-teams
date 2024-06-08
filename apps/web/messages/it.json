@@ -4,6 +4,8 @@
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
+		"MEMBER": "Member",
+		"ACTION": "Action",
 		"TOMORROW": "Domani",
 		"YESTERDAY": "Ieri",
 		"REJECTED": "Rifiutato",
@@ -179,7 +181,30 @@
 		"GITHUB_LOADING_TEXT": "Stiamo installando la tua integrazione GitHub, attendi...",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronizza automaticamente le attività nella tua applicazione per aggiornamenti senza intoppi ed efficienti.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronizza le attività in modo selettivo associandole a un'etichetta specifica.",
-		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica"
+		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica",
+		"THERE_IS_NO_TASK_ASSIGNED": "Non è stato assegnato alcun compito",
+		"NO_USERS_ONLINE": "Nessun utente online",
+		"NOT_FOUND": "Non Trovato",
+		"PAGE_NOT_FOUND": "Pagina non trovata",
+		"NO_USERS_WORKING": "Al momento non ci sono utenti attivi",
+		"NO_USERS_PAUSED_WORK": "Al momento non ci sono utenti che hanno interrotto il proprio lavoro",
+		"NO_USERS_IDLE": "Al momento non ci sono utenti inattivi",
+		"SELECT_TEAM_MEMBER": "Seleziona il membro della squadra",
+		"ALL_MEMBERS": "Tutti i membri",
+		"NOT_WORKING": "Non Lavora",
+		"WORKING": "Lavora",
+		"PAUSED": "In Pausa",
+		"ONLINE": "Online"
+	},
+	"hotkeys": {
+		"HELP": "Aiuto",
+		"TO_OPEN_SHORTCUT_LIST": "Per aprire la lista delle scorciatoie",
+		"TIMER": "Timer",
+		"START_TIMER": "Avvia Timer",
+		"STOP_TIMER": "Ferma Timer",
+		"TASK": "Compito",
+		"ASSIGN_TASK": "Assegna Compito",
+		"CREATE_TASK": "Crea Compito"
 	},
 	"alerts": {
 		"REAL_TIME_ON_WORKING": "Stiamo lavorando alla sincronizzazione in tempo reale al momento, controlla questa funzionalità più tardi.",
@@ -204,7 +229,10 @@
 			"KANBAN_BOARD": "Tabellone Kanban"
 		},
 		"profile": {
-			"BREADCRUMB": "[\"Compiti dei membri\"]"
+			"BREADCRUMB": "[\"Compiti dei membri\"]",
+			"MEMBER_NOT_FOUND_MSG_1": "Il membro che stai cercando non esiste in un team, prova a cercare con una query diversa.",
+			"MEMBER_NOT_FOUND_MSG_2": "Se stai cercando un membro in un team diverso, seleziona il team dal menu a discesa sopra.",
+			"GO_TO_HOME": "Vai alla Home"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",
@@ -239,6 +267,8 @@
 		},
 		"auth": {
 			"SEND_CODE": "Invia Codice",
+			"RESEND_CODE": "Reinvia Codice",
+			"RESEND_CODE_IN": "Invia nuovamente il codice",
 			"JOIN": "Unisciti",
 			"UNRECEIVED_CODE": "Non hai ricevuto il codice?",
 			"JOIN_TEAM": "Unisciti al Team",
@@ -375,6 +405,7 @@
 			"VERSIONS": "Versioni",
 			"LIST_OF_VERSONS": "Elenco delle Versioni",
 			"ISSUETYPE": "Tipi di Problema",
+			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"LIST_OF_ISSUES": "Elenco dei Problemi",
 			"RELATED_ISSUE_TYPE": "Tipi di Problema Collegati",
 			"LIST_OF_RELATED_TYPE": "Elenco dei Tipi Collegati",

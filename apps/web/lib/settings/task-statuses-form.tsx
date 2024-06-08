@@ -81,6 +81,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 			if (createNew) {
 				createTaskStatus({
 					name: values.name,
+					value: values.name.split(' ').join('-').toLowerCase(),
 					color: values.color,
 					// description: '',
 					organizationId: user?.employee?.organizationId,

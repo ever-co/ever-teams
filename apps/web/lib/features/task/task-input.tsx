@@ -6,21 +6,30 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
+	useIssueType,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
 	useTaskInput,
 	useTaskLabels
 } from '@app/hooks';
-import { ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
-import { timerStatusState } from '@app/stores';
+import {
+	IIssueTypesItemList,
+	ITaskIssue,
+	ITaskPriority,
+	ITaskSize,
+	ITaskStatus,
+	ITeamTask,
+	Nullable
+} from '@app/interfaces';
+import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
@@ -44,6 +53,7 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
+	showEmoji?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
 	fullHeightCombobox?: boolean;
@@ -53,6 +63,7 @@ type Props = {
 	usersTaskCreatedAssignTo?: { id: string }[];
 	onTaskCreated?: (task: ITeamTask | undefined) => void;
 	cardWithoutShadow?: boolean;
+	assignTaskPopup?: boolean;
 
 	forParentChildRelationship?: boolean;
 } & PropsWithChildren;
@@ -66,6 +77,8 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const t = useTranslations();
+	const { issueTypes } = useIssueType();
+	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
@@ -99,8 +112,17 @@ export function TaskInput(props: Props) {
 		[$onTaskClick]
 	);
 
-	const { inputTask, editMode, setEditMode, setQuery, updateLoading, updateTaskTitleHandler, setFilter, taskIssue } =
-		datas;
+	const {
+		inputTask,
+		setTaskIssue,
+		editMode,
+		setEditMode,
+		setQuery,
+		updateLoading,
+		updateTaskTitleHandler,
+		setFilter
+	} = datas;
+	const setActiveTask = useSetRecoilState(activeTeamTaskId);
 
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
@@ -186,7 +208,6 @@ export function TaskInput(props: Props) {
 		after task creation
 	 */
 	const autoActiveTask = props.task !== undefined ? false : true;
-
 	const handleTaskCreation = useCallback(() => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas &&
@@ -233,8 +254,13 @@ export function TaskInput(props: Props) {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
-				inputTask && updateTaskNameHandler(inputTask, taskName);
-				// console.log('func active');
+				// inputTask && updateTaskNameHandler(inputTask, taskName);
+				if (taskName == inputTaskTitle) {
+					setEditMode(false);
+					setActiveTask({
+						id: ''
+					});
+				}
 			}
 		};
 
@@ -245,7 +271,7 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
+	}, [inputTask, taskName, setActiveTask, updateTaskNameHandler, editMode, inputTaskTitle, setEditMode]);
 
 	// Handling Hotkeys
 	const handleCommandKeySequence = useCallback(() => {
@@ -258,6 +284,7 @@ export function TaskInput(props: Props) {
 			setEditMode(false);
 		}
 	}, [setEditMode, editMode, targetEl]);
+
 	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
 
 	useEffect(() => {
@@ -266,11 +293,16 @@ export function TaskInput(props: Props) {
 		}
 	}, [props.autoFocus, targetEl]);
 
+	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
+
 	const inputField = (
 		<InputField
 			value={taskName}
 			disabled={timerRunningStatus}
 			ref={targetEl}
+			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
+			setTaskName={setTaskName}
+			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
@@ -308,7 +340,7 @@ export function TaskInput(props: Props) {
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
-			/* Showing the task number. */
+			/* Showing the task number and issue type */
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
@@ -319,11 +351,9 @@ export function TaskInput(props: Props) {
 							task={inputTask}
 							forParentChildRelationship={true}
 							taskStatusClassName={clsxm(
-								`${
-									inputTask && inputTask.issueType === 'Bug'
-										? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-										: '!px-[0.375rem] py-[0.375rem] rounded-sm'
-								} `,
+								inputTask && inputTask.issueType === 'Bug'
+									? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
+									: '!px-[0.375rem] py-[0.375rem] rounded-sm',
 								'border-none'
 							)}
 						/>
@@ -331,9 +361,12 @@ export function TaskInput(props: Props) {
 						<TaskIssuesDropdown
 							taskStatusClassName="!px-1 py-1 rounded-sm"
 							showIssueLabels={false}
-							onValueChange={(v) => {
-								taskIssue.current = v;
-							}}
+							onValueChange={(v) => setTaskIssue(v)}
+							defaultValue={
+								defaultIssueType
+									? defaultIssueType.name
+									: (localStorage.getItem('lastTaskIssue') as ITaskIssue) || null
+							}
 						/>
 					)}
 
@@ -354,6 +387,7 @@ export function TaskInput(props: Props) {
 			fullHeight={props.fullHeightCombobox}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
+			assignTaskPopup={props.assignTaskPopup}
 			updatedTaskList={updatedTaskList}
 			forParentChildRelationship={props.forParentChildRelationship}
 		/>
@@ -362,7 +396,7 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover className="relative z-30 w-full" ref={inputRef}>
+		<Popover className="relative z-20 w-full" ref={inputRef}>
 			<Tooltip
 				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
@@ -404,7 +438,8 @@ function TaskCard({
 	handleTaskCreation,
 	cardWithoutShadow,
 	forParentChildRelationship,
-	updatedTaskList
+	updatedTaskList,
+	assignTaskPopup
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
@@ -415,7 +450,9 @@ function TaskCard({
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
 	updatedTaskList?: ITeamTask[];
+	assignTaskPopup?: boolean;
 }) {
+	const [, setCount] = useState(0);
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const { taskLabels: taskLabelsData } = useTaskLabels();
@@ -440,20 +477,20 @@ function TaskCard({
 				shadow="custom"
 				className={clsxm(
 					'rounded-xl md:px-4 md:py-4',
-					'overflow-hidden',
 					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight ? 'h-full' : 'max-h-96'
 				)}
 			>
 				{inputField}
-				<div className="h-2/5">
+				<div>
 					{/* Create team button */}
 					<div className="flex flex-col gap-y-2">
 						{datas.hasCreateForm && (
 							<div>
 								<InputField
 									placeholder="Description"
+									emojis={true}
 									onChange={(e) => {
 										if (taskDescription) {
 											taskDescription.current = e.target.value;
@@ -470,6 +507,7 @@ function TaskCard({
 											if (v && taskStatus) {
 												taskStatus.current = v;
 											}
+											setCount((c) => c + 1);
 										}}
 										defaultValue={taskStatus?.current as ITaskStatus}
 										task={null}
@@ -482,6 +520,7 @@ function TaskCard({
 											if (v && taskPriority) {
 												taskPriority.current = v;
 											}
+											setCount((c) => c + 1);
 										}}
 										defaultValue={taskPriority?.current as ITaskPriority}
 										task={null}
@@ -494,6 +533,7 @@ function TaskCard({
 											if (v && taskSize) {
 												taskSize.current = v;
 											}
+											setCount((c) => c + 1);
 										}}
 										defaultValue={taskSize?.current as ITaskSize}
 										task={null}
@@ -573,7 +613,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className="py-6 max-h-56 overflow-auto">
+				<ul className={assignTaskPopup ? "py-6 max-h-[40vh] overflow-y-auto" : "py-6 max-h-56 overflow-y-auto"}>
 					{forParentChildRelationship &&
 						data?.map((task, i) => {
 							const last = (datas.filteredTasks?.length || 0) - 1 === i;

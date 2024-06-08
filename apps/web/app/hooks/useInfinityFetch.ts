@@ -15,17 +15,21 @@ export const useInfinityScrolling = <T>(arr: T[], lim?: number) => {
 
 	const getSomeTasks = React.useCallback(
 		(offset: number) => {
-			setData(() => {
-				const newData = getPartData({ arr, limit, offset });
-				return newData;
-			});
+			if (arr.length > 0) {
+				setData(() => {
+					const newData = getPartData({ arr, limit, offset });
+					return newData;
+				});
+			}
 		},
 		[arr, limit]
 	);
 
 	const nextOffset = React.useCallback(() => {
-		setOffset((prev) => prev + 1);
-	}, []);
+		if (arr.length > 0) {
+			setOffset((prev) => prev + 1);
+		}
+	}, [arr.length]);
 
 	React.useEffect(() => {
 		getSomeTasks(offset);

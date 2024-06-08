@@ -25,10 +25,10 @@ export const HostKeys = {
 
 export const HostKeysMapping = [
 	{
-		heading: 'Help',
+		heading: 'HELP',
 		keySequence: [
 			{
-				label: 'To Open Shortcut List',
+				label:'TO_OPEN_SHORTCUT_LIST',
 				sequence: {
 					MAC: ['H'],
 					OTHER: ['H']
@@ -37,17 +37,17 @@ export const HostKeysMapping = [
 		]
 	},
 	{
-		heading: 'Timer',
+		heading: 'TIMER',
 		keySequence: [
 			{
-				label: 'Start Timer',
+				label: 'START_TIMER',
 				sequence: {
 					MAC: ['Ctrl(⌃)', 'Opt(⌥)', ']'],
 					OTHER: ['Ctrl', 'Alt', ']']
 				}
 			},
 			{
-				label: 'Stop Timer',
+				label: 'STOP_TIMER',
 				sequence: {
 					MAC: ['Ctrl(⌃)', 'Opt(⌥)', '['],
 					OTHER: ['Ctrl', 'Alt', '[']
@@ -56,17 +56,17 @@ export const HostKeysMapping = [
 		]
 	},
 	{
-		heading: 'Task',
+		heading: 'TASK',
 		keySequence: [
 			{
-				label: 'Assign Task',
+				label: 'ASSIGN_TASK',
 				sequence: {
 					MAC: ['A'],
 					OTHER: ['A']
 				}
 			},
 			{
-				label: 'Create Task',
+				label: 'CREATE_TASK',
 				sequence: {
 					MAC: ['C'],
 					OTHER: ['C']
