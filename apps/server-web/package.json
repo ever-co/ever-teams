@@ -1,36 +1,37 @@
 {
   "name": "@ever-teams/server-web",
-	"version": "0.1.0",
+  "version": "0.1.0",
   "description": "Ever Teams Web Server",
-	"license": "AGPL-3.0",
+  "license": "AGPL-3.0",
   "homepage": "https://ever.team",
   "repository": {
-		"type": "git",
-		"url": "https://github.com/ever-co/ever-teams.git"
-	},
-	"bugs": {
-		"url": "https://github.com/ever-co/ever-teams/issues"
-	},	
+    "type": "git",
+    "url": "https://github.com/ever-co/ever-teams.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ever-co/ever-teams/issues"
+  },
   "private": true,
   "author": {
-		"name": "Ever Co. LTD",
-		"email": "ever@ever.co",
-		"url": "https://ever.co"
-	},
+    "name": "Ever Co. LTD",
+    "email": "ever@ever.co",
+    "url": "https://ever.co"
+  },
   "main": "./src/main/main.ts",
   "scripts": {
-	  "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
-    "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
+    "package": "electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electronmon electronmon.js",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
+    "prepare:electron": "ts-node ./.erb/scripts/clean.js dist",
     "test": "jest"
   },
   "dependencies": {
@@ -40,12 +41,12 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
-		"electron-store": "^8.1.0"
+    "electron-store": "^8.1.0"
   },
   "devDependencies": {
     "electron": "28.1.0",
-	  "electron-builder": "^24.6.4",
-	  "@electron/notarize": "^2.1.0",
+    "electron-builder": "^24.6.4",
+    "@electron/notarize": "^2.1.0",
     "@electron/rebuild": "^3.3.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
@@ -101,7 +102,8 @@
     "webpack-bundle-analyzer": "^4.9.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
-    "webpack-merge": "^5.9.0"
+    "webpack-merge": "^5.9.0",
+    "postcss-loader": "^8.1.1"
   },
   "prettier": {
     "singleQuote": true,
@@ -150,104 +152,105 @@
     }
   },
   "engines": {
-		"node": ">=16.0.0",
-		"yarn": ">=1.13.0"
-	},
-	"build": {
+    "node": ">=16.0.0",
+    "yarn": ">=1.13.0"
+  },
+  "build": {
     "appId": "co.ever.teamswebserver",
     "artifactName": "${name}-${version}.${ext}",
-	  "productName": "Ever Teams Web Server",	  
+    "productName": "Ever Teams Web Server",
     "copyright": "Copyright © 2024-Present. Ever Co. LTD",
     "dmg": {
-			"sign": false
-		},
-	  "asar": true,    
-	  "asarUnpack": "**\\*.{node,dll}",
-	  "files": [
-		  "dist",
-		  "node_modules",
-		  "package.json"
-	],
-	"afterSign": ".erb/scripts/notarize.js",
-	"mac": {
-    "category": "public.app-category.developer-tools",
-		"target": [
-				"zip",
-				"dmg"
-		],
-    "asarUnpack": "**/*.node",
-    "artifactName": "${name}-${version}.${ext}",
-		"type": "distribution",
-		"hardenedRuntime": true,
-    "gatekeeperAssess": false,
-		"entitlements": "assets/entitlements.mac.plist",
-		"entitlementsInherit": "assets/entitlements.mac.plist"		
-	},
-	"dmg": {
-		"contents": [
-		{
-			"x": 130,
-			"y": 220
-		},
-		{
-			"x": 410,
-			"y": 220,
-			"type": "link",
-			"path": "/Applications"
-		}
-		]
-	},
-	"win": {
-    "publisherName": "Ever",
-		"target": [
-		  {
-					"target": "nsis",
-					"arch": [
-						"x64"
-					]
-			}
-		],
-    "verifyUpdateCodeSignature": false,
-		"requestedExecutionLevel": "requireAdministrator"
-	},
-	"linux": {
-		"target": [
-		   "AppImage",
-       "deb",
-			 "tar.gz"
-		],
-    "executableName": "ever-teams-web-server",
-		"artifactName": "${name}-${version}.${ext}",
-		"synopsis": "Server",
-		"category": "Development"
-	},
-	"directories": {
-		"app": "release/app",
-		"buildResources": "assets",
-		"output": "release/build"
-	},
-	"extraResources": [
-		"./assets/**"
-	],
-	"publish": [{
-		"provider": "github",		
-		"repo": "ever-teams-web-server",
-		"releaseType": "release"
-	  },
-    {
-				"provider": "spaces",
-				"name": "ever",
-				"region": "sfo3",
-				"path": "/ever-teams-web-server",
-				"acl": "public-read"
-			}
-  ]
-	},
-	"electronmon": {
-		"patterns": [
-			"!**/**",
-			"src/main/**"
-		],
-		"logLevel": "quiet"
-	}
+      "sign": false
+    },
+    "asar": true,
+    "asarUnpack": "**\\*.{node,dll}",
+    "files": [
+      "dist",
+      "node_modules",
+      "package.json"
+    ],
+    "afterSign": ".erb/scripts/notarize.js",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "zip",
+        "dmg"
+      ],
+      "asarUnpack": "**/*.node",
+      "artifactName": "${name}-${version}.${ext}",
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "publisherName": "Ever",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "tar.gz"
+      ],
+      "executableName": "ever-teams-web-server",
+      "artifactName": "${name}-${version}.${ext}",
+      "synopsis": "Server",
+      "category": "Development"
+    },
+    "directories": {
+      "app": "release/app",
+      "buildResources": "assets",
+      "output": "release/build"
+    },
+    "extraResources": [
+      "./assets/**"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "repo": "ever-teams-web-server",
+        "releaseType": "release"
+      },
+      {
+        "provider": "spaces",
+        "name": "ever",
+        "region": "sfo3",
+        "path": "/ever-teams-web-server",
+        "acl": "public-read"
+      }
+    ]
+  },
+  "electronmon": {
+    "patterns": [
+      "!**/**",
+      "src/main/**"
+    ],
+    "logLevel": "quiet"
+  }
 }
