@@ -25,8 +25,8 @@ let settingWindow: BrowserWindow | null = null;
 const trayMenuItems = defaultTrayMenuItem(eventEmiter);
 
 const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+    ? path.join(process.resourcesPath, 'assets/icons/gauzy')
+    : path.join(__dirname, '../../assets/icons/gauzy');
 
 const getAssetPath = (...paths: string[]): string => {
   return path.join(RESOURCES_PATH, ...paths);
@@ -41,13 +41,17 @@ if (isProd) {
 }
 
 const resourceDir = {
-  webServer: !isPack ? '../../release/app/dist' : '..',
+  webServer: !isPack ? '../../release/app/dist' : '.',
   resources: '../resources'
 };
 const resourcesFiles = {
   webServer: 'standalone/apps/web/server.js',
   iconTray: 'icons/tray/icon.png'
 }
+
+const devServerPath = path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer);
+const serverPath = isPack ? path.join(process.resourcesPath, 'release', 'app', 'dist', resourcesFiles.webServer) : devServerPath;
+
 
 
 if (process.env.NODE_ENV === 'production') {
@@ -75,8 +79,6 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-
-console.log('resources path', process.resourcesPath);
 
 const createWindow = async () => {
   if (isDebug) {
@@ -113,7 +115,7 @@ const runServer = async () => {
 
 		// Instantiate API and UI servers
 		await desktopServer.start(
-			{ api: path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer) },
+			{ api: serverPath },
 			envVal,
 			undefined,
 			signal
@@ -138,7 +140,7 @@ const getEnvApi = () => {
 
 const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
-  tray = _initTray(resourceDir, resourcesFiles, trayMenuItems, getAssetPath('icon.png'));
+  tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
   eventEmiter.on(EventLists.webServerStart, async () => {
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmiter, tray, trayMenuItems);
     isServerRun = true;

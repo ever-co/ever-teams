@@ -84,9 +84,13 @@
 		"copy:build:web": "pwd && cp -r  apps/web/.next/standalone apps/server-web/release/app/dist && cp -r apps/web/.next/static apps/server-web/release/app/dist/standalone/apps/web/.next && cp -r apps/web/public apps/server-web/release/app/dist/standalone/apps/web/",
 		"start:server-web": "cd apps/server-web && yarn run start",
 		"prepare:server-web": "cd apps/server-web && yarn run prepare:electron && yarn run build",
-		"pack:server-web": "cd apps/server-web && yarn run package",
+		"pack:server-web:mac": "cd apps/server-web && yarn run pack:mac",
+		"pack:server-web:win": "cd apps/server-web && yarn run pack:win",
+		"pack:server-web:linux": "cd apps/server-web && yarn run pack:linux",
 		"build:server-web": "yarn build:web:desktop && yarn prepare:server-web && yarn run copy:build:web",
-		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web --mac"
+		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web:mac",
+		"package:server-web:win": "yarn build:server-web && yarn pack:server-web:win",
+		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux"
 	},
 	"config": {
 		"commitizen": {

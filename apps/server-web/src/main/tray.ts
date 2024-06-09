@@ -3,9 +3,8 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import { EventLists } from './helpers/constant';
 
-export const _initTray = (resourceDir: any, resourcesFiles: any, contextMenu:any, icon:string): Tray => {
-    const iconPath = path.join(__dirname, resourceDir.resources, resourcesFiles.iconTray);
-    console.log(iconPath)
+export const _initTray = (contextMenu:any, icon:string): Tray => {
+
     const iconNativePath: NativeImage = nativeImage.createFromPath(icon);
     iconNativePath.resize({ width: 16, height: 16 })
     const tray = new Tray(iconNativePath);

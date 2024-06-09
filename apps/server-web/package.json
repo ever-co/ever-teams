@@ -25,6 +25,9 @@
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
+    "pack:mac": "electron-builder build --mac --publish never && npm run build:dll",
+    "pack:win": "electron-builder build --win --publish never && npm run build:dll",
+    "pack:linux": "electron-builder build --linux --publish never && npm run build:dll",
     "package": "electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
@@ -160,9 +163,6 @@
     "artifactName": "${name}-${version}.${ext}",
     "productName": "Ever Teams Web Server",
     "copyright": "Copyright © 2024-Present. Ever Co. LTD",
-    "dmg": {
-      "sign": false
-    },
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -186,6 +186,8 @@
       "entitlementsInherit": "assets/entitlements.mac.plist"
     },
     "dmg": {
+      "icon": "icon.icns",
+      "sign": false,
       "contents": [
         {
           "x": 130,
@@ -200,6 +202,7 @@
       ]
     },
     "win": {
+      "icon": "icon.ico",
       "publisherName": "Ever",
       "target": [
         {
@@ -213,6 +216,7 @@
       "requestedExecutionLevel": "requireAdministrator"
     },
     "linux": {
+      "icon": "linux",
       "target": [
         "AppImage",
         "deb",
@@ -229,7 +233,8 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./release/app/dist/standalone/**"
     ],
     "publish": [
       {
