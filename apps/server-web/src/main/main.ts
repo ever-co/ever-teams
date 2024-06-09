@@ -1,10 +1,11 @@
 import path from 'path'
-import { app, ipcMain, Tray, dialog } from 'electron';
+import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
 import { EventLists } from './helpers/constant';
+import { resolveHtmlPath } from './util';
 
 const eventEmiter = new EventEmitter();
 
@@ -19,10 +20,17 @@ const isProd = process.env.NODE_ENV === 'production';
 let isServerRun: boolean;
 
 let tray:Tray;
+let settingWindow: BrowserWindow | null = null;
 
 const trayMenuItems = defaultTrayMenuItem(eventEmiter);
 
+const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets/icons/gauzy')
+    : path.join(__dirname, '../../assets/icons/gauzy');
 
+const getAssetPath = (...paths: string[]): string => {
+  return path.join(RESOURCES_PATH, ...paths);
+};
 
 console.log(__dirname);
 
@@ -33,13 +41,72 @@ if (isProd) {
 }
 
 const resourceDir = {
-  webServer: !isPack ? '../../release/app/dist' : '..',
+  webServer: !isPack ? '../../release/app/dist' : '.',
   resources: '../resources'
 };
 const resourcesFiles = {
   webServer: 'standalone/apps/web/server.js',
   iconTray: 'icons/tray/icon.png'
 }
+
+const devServerPath = path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer);
+const serverPath = isPack ? path.join(process.resourcesPath, 'release', 'app', 'dist', resourcesFiles.webServer) : devServerPath;
+
+
+
+if (process.env.NODE_ENV === 'production') {
+  const sourceMapSupport = require('source-map-support');
+  sourceMapSupport.install();
+}
+
+const isDebug =
+  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+
+if (isDebug) {
+  require('electron-debug')();
+}
+
+const installExtensions = async () => {
+  const installer = require('electron-devtools-installer');
+  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+  const extensions = ['REACT_DEVELOPER_TOOLS'];
+
+  return installer
+    .default(
+      extensions.map((name) => installer[name]),
+      forceDownload,
+    )
+    .catch(console.log);
+};
+
+
+const createWindow = async () => {
+  if (isDebug) {
+    await installExtensions();
+  }
+
+  settingWindow = new BrowserWindow({
+    show: false,
+    width: 1024,
+    height: 728,
+    icon: getAssetPath('icon.png'),
+    maximizable: false,
+    resizable: false,
+    webPreferences: {
+      preload: app.isPackaged
+        ? path.join(__dirname, 'preload.js')
+        : path.join(__dirname, '../../.erb/dll/preload.js'),
+    },
+  });
+  const url = resolveHtmlPath('index.html', 'setting');
+  settingWindow.loadURL(url);
+
+
+  settingWindow.on('closed', () => {
+    settingWindow = null;
+  });
+
+};
 
 const runServer = async () => {
 	console.log('Run the Server...');
@@ -48,7 +115,7 @@ const runServer = async () => {
 
 		// Instantiate API and UI servers
 		await desktopServer.start(
-			{ api: path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer) },
+			{ api: serverPath },
 			envVal,
 			undefined,
 			signal
@@ -73,7 +140,7 @@ const getEnvApi = () => {
 
 const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
-  tray = _initTray(resourceDir, resourcesFiles, trayMenuItems);
+  tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
   eventEmiter.on(EventLists.webServerStart, async () => {
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmiter, tray, trayMenuItems);
     isServerRun = true;
@@ -100,34 +167,36 @@ const onInitApplication = () => {
     updateTrayMenu('SERVER_STATUS', { label: 'Status: Stopped' }, eventEmiter, tray, trayMenuItems);
     isServerRun = false;
   })
+
+  eventEmiter.on(EventLists.gotoSetting, async () => {
+    if (!settingWindow) {
+      await createWindow()
+    }
+    const serverSetting = LocalStore.getStore('config');
+    console.log('setting data', serverSetting);
+    settingWindow?.show();
+    settingWindow?.webContents.once('did-finish-load', () => {
+      settingWindow?.webContents.send('load_setting', serverSetting);
+    })
+  })
 }
 
  (async () => {
   await app.whenReady()
   onInitApplication();
-  // const mainWindow = createWindow('main', {
-  //   width: 1000,
-  //   height: 600,
-  //   webPreferences: {
-  //     preload: path.join(__dirname, 'preload.js'),
-  //   },
-  // })
-
-  // if (isProd) {
-  //   await mainWindow.loadURL('app://./home')
-  // } else {
-  //   const port = process.argv[2]
-  //   await mainWindow.loadURL(`http://localhost:${port}/home`)
-  //   mainWindow.webContents.openDevTools()
-  // }
 })()
 
 app.on('window-all-closed', () => {
-  app.quit()
+  // e.preventDefault()
+  // app.quit()
 })
 
 ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
+})
+
+ipcMain.on('save_setting', (event, arg) => {
+  LocalStore.updateConfigSetting(arg);
 })
 
 app.on('before-quit', async (e) => {
@@ -153,4 +222,10 @@ app.on('before-quit', async (e) => {
 	} else {
 		app.exit(0);
 	}
+});
+
+app.on('activate', () => {
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  // if (mainWindow === null) createWindow();
 });
