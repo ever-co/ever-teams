@@ -10,7 +10,8 @@ import {
 	createOrganizationRequest,
 	createEmployeeFromUser,
 	createOrganizationTeamRequest,
-	refreshTokenRequest
+	refreshTokenRequest,
+	linkUserToSocialAccount
 } from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
 import { generateToken, setAuthCookies } from '@app/helpers';
@@ -155,7 +156,12 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 
 		linkAccount: async (account: AdapterAccount) => {
 			console.log('LINK ACCOUNT ADAPTER');
-			return account;
+			const { provider, access_token: token } = account;
+			if (provider && token) {
+				return (await linkUserToSocialAccount({ provider: provider as ProviderEnum, token }))
+					.data as AdapterAccount;
+			}
+			return null;
 		},
 
 		createSession: async (session: { sessionToken: string; userId: string; expires: Date }) => {
@@ -164,7 +170,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		getSessionAndUser: async (sessionToken: string): Promise<any> => {
-			console.log('GET SESSION ADAPTER');
+			console.log('GET SESSION ADAPTER', { sessionToken });
 			return sessionToken;
 		},
 

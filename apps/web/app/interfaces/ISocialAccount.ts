@@ -16,3 +16,7 @@ export type ISocialAccountUpdateInput = Partial<Pick<ISocialAccountCreateInput, 
 export interface ISocialAccountExistUser extends Partial<ISocialAccountBase> {
 	isUserExists: boolean;
 }
+
+export interface ISocialAccountSendToken extends Pick<ISocialAccountBase, 'provider'> {
+	token: string;
+}
