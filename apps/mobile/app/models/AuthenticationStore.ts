@@ -47,25 +47,25 @@ export const AuthenticationStoreModel = types
 			store.authToken = value;
 		},
 		setAuthEmail(value: string) {
-			store.authEmail = value.replace(/ /g, '');
+			store.authEmail = value?.replace(/ /g, '');
 		},
 		setAuthTeamName(value: string) {
 			store.authTeamName = value;
 		},
 		setAuthConfirmCode(value: string) {
-			store.authConfirmCode = value.replace(/ /g, '');
+			store.authConfirmCode = value?.replace(/ /g, '');
 		},
 		setAuthInviteCode(value: string) {
-			store.authInviteCode = value.replace(/ /g, '');
+			store.authInviteCode = value?.replace(/ /g, '');
 		},
 		setAuthUsername(value: string) {
 			store.authUsername = value;
 		},
 		setOrganizationId(value: string) {
-			store.organizationId = value.replace(/ /g, '');
+			store.organizationId = value?.replace(/ /g, '');
 		},
 		setEmployeeId(value: string) {
-			store.employeeId = value.replace(/ /g, '');
+			store.employeeId = value?.replace(/ /g, '');
 		},
 		setUser(value: any) {
 			store.user = value;
@@ -74,7 +74,7 @@ export const AuthenticationStoreModel = types
 			store.refreshToken = value;
 		},
 		setTenantId(value: string) {
-			store.tenantId = value.replace(/ /g, '');
+			store.tenantId = value?.replace(/ /g, '');
 		},
 		setPreferredLanguage(locale: ILanguageItemList) {
 			store.preferredLanguage = locale;
