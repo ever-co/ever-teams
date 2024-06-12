@@ -383,7 +383,7 @@
 		"signin",
 		"Chatwoot",
 		"CHATWOOT",
-		"apps/web/messages/*.json",
+		"apps/web/locales/*.json",
 		"apps/web/lib/i18n/*.ts",
 		"apps/web/lib/settings/timezones.js",
 		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",
