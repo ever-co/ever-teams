@@ -384,6 +384,7 @@
 		"Chatwoot",
 		"CHATWOOT",
 		"apps/web/locales/*.json",
+		"apps/web/i18n.ts",
 		"apps/web/lib/i18n/*.ts",
 		"apps/web/lib/settings/timezones.js",
 		"apps/mobile/app/screens/DemoShowroomScreen/demos/**",
