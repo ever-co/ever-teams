@@ -8,6 +8,7 @@ import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Te
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import SocialLogins from '../social-logins-buttons';
 
 function AuthTeam() {
 	const {
@@ -102,6 +103,10 @@ function FillTeamNameForm({
 
 					<Button type="submit">{t('common.CONTINUE')}</Button>
 				</div>
+			</div>
+			<div className="mt-5">
+				{/* Social logins */}
+				<SocialLogins />
 			</div>
 		</Card>
 	);
