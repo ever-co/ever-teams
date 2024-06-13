@@ -192,7 +192,7 @@ export const resentVerifyUserLinkRequest = (data: {
 	});
 };
 
-export const singinGetUserBySocialEmailRequest = (data: { email: string }) => {
+export const signinGetUserBySocialEmailRequest = (data: { email: string }) => {
 	return serverFetch<ISocialAccountExistUser>({
 		method: 'POST',
 		path: `/auth/signup.email.social`,
@@ -200,7 +200,7 @@ export const singinGetUserBySocialEmailRequest = (data: { email: string }) => {
 	});
 };
 
-export const singinGetSocialUserByProviderIdRequest = (data: { providerAccountId: string; provider: string }) => {
+export const signinGetSocialUserByProviderIdRequest = (data: { providerAccountId: string; provider: string }) => {
 	return serverFetch<ISocialAccountExistUser>({
 		method: 'POST',
 		path: `/auth/signup.provider.social`,

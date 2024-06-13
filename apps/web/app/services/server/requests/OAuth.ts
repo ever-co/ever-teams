@@ -1,7 +1,7 @@
 import { AdapterAccount, AdapterSession, AdapterUser, type Adapter } from '@auth/core/adapters';
 import {
-	singinGetUserBySocialEmailRequest,
-	singinGetSocialUserByProviderIdRequest,
+	signinGetUserBySocialEmailRequest,
+	signinGetSocialUserByProviderIdRequest,
 	registerUserRequest,
 	signWithSocialLoginsRequest,
 	loginUserRequest,
@@ -97,12 +97,12 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 			return createdUser.data;
 		},
 
-		getUser: async (id): Promise<any> => {
+		getUser: async (): Promise<any> => {
 			return null;
 		},
 
 		getUserByEmail: async (email): Promise<any> => {
-			const response = await singinGetUserBySocialEmailRequest({ email });
+			const response = await signinGetUserBySocialEmailRequest({ email });
 			if (!response.data.isUserExists) return null;
 			return response.data;
 		},
@@ -110,7 +110,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		getUserByAccount: async (
 			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
 		): Promise<any> => {
-			const response = await singinGetSocialUserByProviderIdRequest(providerAccountId);
+			const response = await signinGetSocialUserByProviderIdRequest(providerAccountId);
 			if (!response.data.isUserExists) return null;
 			return response.data;
 		},
