@@ -19,8 +19,10 @@ export type AuthCodeProps = {
 	length?: number;
 	placeholder?: string;
 	onChange: (res: string) => void;
+	submitCode?: () => void;
 	defaultValue?: string;
 	hintType?: 'success' | 'error' | 'warning' | undefined;
+	autoComplete?: string;
 };
 
 type InputMode = 'text' | 'numeric';
@@ -77,7 +79,9 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			placeholder,
 			onChange,
 			defaultValue,
-			hintType
+			hintType,
+			autoComplete = '',
+			submitCode,
 		},
 		ref
 	) => {
@@ -111,6 +115,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 				sendResult();
 			}
 		}));
+
 		useEffect(() => {
 			if (autoFocus) {
 				setTimeout(() => {
@@ -118,6 +123,13 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 				}, 100);
 			}
 		}, [autoFocus, inputsRef]);
+
+		useEffect(() => {
+			if (autoComplete && autoComplete.length > 0) {
+				handleAutoComplete(autoComplete);
+				// submitCode && submitCode();
+			}
+		}, [autoComplete]);
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
@@ -191,6 +203,26 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			sendResult();
 
 			e.preventDefault();
+		};
+
+		const handleAutoComplete = (code: string) => {
+
+			let currentInput = 0;
+
+			for (let i = 0; i < code.length; i++) {
+				const pastedCharacter = code.charAt(i);
+				const currentValue = inputsRef.current[currentInput].value;
+				if (pastedCharacter.match(inputProps.pattern)) {
+					if (!currentValue) {
+						inputsRef.current[currentInput].value = pastedCharacter;
+						if (inputsRef.current[currentInput].nextElementSibling !== null) {
+							(inputsRef.current[currentInput].nextElementSibling as HTMLInputElement).focus();
+							currentInput++;
+						}
+					}
+				}
+			}
+			sendResult();
 		};
 
 		const hintColor = {
