@@ -56,6 +56,10 @@ function AuthTeam() {
 							</div>
 						</div>
 					</form>
+					{/* Social logins */}
+					<div>
+						<SocialLogins />
+					</div>
 				</div>
 				<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
 			</AuthLayout>
@@ -103,10 +107,6 @@ function FillTeamNameForm({
 
 					<Button type="submit">{t('common.CONTINUE')}</Button>
 				</div>
-			</div>
-			<div className="mt-5">
-				{/* Social logins */}
-				<SocialLogins />
 			</div>
 		</Card>
 	);

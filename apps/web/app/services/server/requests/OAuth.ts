@@ -17,8 +17,6 @@ import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/c
 import { generateToken } from '@app/helpers';
 import { NextRequest } from 'next/server';
 import { VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
-// import { Awaitable } from '@auth/core/types';
-// import { IUser } from '@app/interfaces';
 
 export enum ProviderEnum {
 	GITHUB = 'github',
