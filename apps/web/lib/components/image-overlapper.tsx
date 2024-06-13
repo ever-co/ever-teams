@@ -145,7 +145,7 @@ export default function ImageOverlapper({
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
-										className="flex-row justify-center py-2 px-4 bg-primary 
+										className="flex-row justify-center py-2 px-4 bg-primary
 										dark:bg-primary-light text-white text-sm disabled:bg-primary-light
 										 disabled:opacity-40 rounded-xl flex min-w-0 w-28
 										  h-12 gap-1 items-center"
@@ -153,7 +153,7 @@ export default function ImageOverlapper({
 											onCLickValidate();
 										}}>
 										<FaCheck size={17} fill="#ffffff" />
-										{" Validate"}
+										{"Confirm"}
 									</button>
 								</div>
 							</div>
