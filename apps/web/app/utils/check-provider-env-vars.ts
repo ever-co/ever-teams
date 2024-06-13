@@ -1,13 +1,13 @@
-import Apple from 'next-auth/providers/apple';
-import Discord from 'next-auth/providers/discord';
-import Facebook from 'next-auth/providers/facebook';
-import Google from 'next-auth/providers/google';
-import Github from 'next-auth/providers/github';
-import Linkedin from 'next-auth/providers/linkedin';
-import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
-import Slack from 'next-auth/providers/slack';
-import Twitter from 'next-auth/providers/twitter';
-import type { Provider } from 'next-auth/providers';
+import Apple from '@auth/core/providers/apple';
+import Discord from '@auth/core/providers/discord';
+import Facebook from '@auth/core/providers/facebook';
+import Google from '@auth/core/providers/google';
+import Github from '@auth/core/providers/github';
+import Linkedin from '@auth/core/providers/linkedin';
+import MicrosoftEntraID from '@auth/core/providers/microsoft-entra-id';
+import Slack from '@auth/core/providers/slack';
+import Twitter from '@auth/core/providers/twitter';
+import type { Provider } from '@auth/core/providers';
 
 type ProviderNames = {
 	[key: string]: string | undefined;

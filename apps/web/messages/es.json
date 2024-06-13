@@ -232,7 +232,7 @@
 			"BREADCRUMB": "[\"Tareas de miembro\"]",
 			"MEMBER_NOT_FOUND_MSG_1": "El miembro que estás buscando no existe en un equipo, por favor intenta buscar con una consulta diferente.",
 			"MEMBER_NOT_FOUND_MSG_2": "Si estás buscando un miembro en un equipo diferente, por favor selecciona el equipo del menú desplegable de arriba.",
-			"GO_TO_HOME":  "Ir a la página de inicio"
+			"GO_TO_HOME": "Ir a la página de inicio"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Detalles de la tarea\"]",
@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar",
 			"HAVE_PASSWORD": "¿Tiene contraseña?",
 			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
-			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico"
+			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico",
+			"ERROR_SIGNIN": "Error al firmar"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
@@ -454,7 +455,8 @@
 		"unauthorized": {
 			"TITLE": "No autorizado",
 			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
-			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión.",
+			"TRY_AGAIN": "Intentar otra vez"
 		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",

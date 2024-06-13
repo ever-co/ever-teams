@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "proszę wybrać jedną, aby kontynuować",
 			"HAVE_PASSWORD": "Masz hasło?",
 			"LOGIN_WITH_PASSWORD": "Zaloguj się za pomocą hasła",
-			"LOGIN_WITH_MAGIC_CODE": "Zaloguj się za pomocą magicznego kodu"
+			"LOGIN_WITH_MAGIC_CODE": "Zaloguj się za pomocą magicznego kodu",
+			"ERROR_SIGNIN": "Błąd przy podpisywaniu"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Proszę wprowadzić swoje dane logowania."
@@ -454,7 +455,8 @@
 		"unauthorized": {
 			"TITLE": "Nieautoryzowany",
 			"HEADING_TITLE": "Nie masz uprawnień, aby uzyskać dostęp do tej strony !",
-			"HEADING_DESCRIPTION": "Przepraszamy za niedogodności, ale nie masz uprawnień dostępu do tej strony. Jeśli uważasz, że to błąd. Proszę się zalogować."
+			"HEADING_DESCRIPTION": "Przepraszamy za niedogodności, ale nie masz uprawnień dostępu do tej strony. Jeśli uważasz, że to błąd. Proszę się zalogować.",
+			"TRY_AGAIN": "Spróbuj ponownie"
 		},
 		"page404": {
 			"HEADING_TITLE": "Nie Znaleziono",

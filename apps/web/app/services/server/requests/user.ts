@@ -1,4 +1,22 @@
+import { IUser } from '@app/interfaces';
 import { serverFetch } from '../fetch';
+
+export function getUserByIdRequest({
+	id,
+	bearer_token,
+	tenantId
+}: {
+	id: string | any;
+	bearer_token: string | any;
+	tenantId?: string;
+}) {
+	return serverFetch<IUser>({
+		path: `/user/${id}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
 
 export function deleteUserRequest({
 	id,

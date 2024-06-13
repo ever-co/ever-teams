@@ -8,6 +8,7 @@ import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Te
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import SocialLogins from '../social-logins-buttons';
 
 function AuthTeam() {
 	const {
@@ -55,6 +56,10 @@ function AuthTeam() {
 							</div>
 						</div>
 					</form>
+					{/* Social logins */}
+					<div>
+						<SocialLogins />
+					</div>
 				</div>
 				<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
 			</AuthLayout>

@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "veuillez en sélectionner un pour continuer.",
 			"HAVE_PASSWORD": "Vous avez un mot de passe ?",
 			"LOGIN_WITH_PASSWORD": "Connectez-vous avec le mot de passe",
-			"LOGIN_WITH_MAGIC_CODE": "Connectez-vous avec un code magique"
+			"LOGIN_WITH_MAGIC_CODE": "Connectez-vous avec un code magique",
+			"ERROR_SIGNIN": "Erreur lors de la connexion"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "S'il vous plaît entrer vos informations de connexion."
@@ -454,7 +455,8 @@
 		"unauthorized": {
 			"TITLE": "Non autorisé",
 			"HEADING_TITLE": "Vous n'êtes pas autorisé à accéder à cette page !",
-			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter."
+			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter.",
+			"TRY_AGAIN": "Réessayer"
 		},
 		"page404": {
 			"HEADING_TITLE": "Page non trouvée",
