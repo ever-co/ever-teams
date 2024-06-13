@@ -14,8 +14,8 @@ import {
 	linkUserToSocialAccount
 } from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
-import { generateToken, setAuthCookies } from '@app/helpers';
-import { NextRequest, NextResponse } from 'next/server';
+import { generateToken } from '@app/helpers';
+import { NextRequest } from 'next/server';
 import { VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
 // import { Awaitable } from '@auth/core/types';
 // import { IUser } from '@app/interfaces';
@@ -30,9 +30,7 @@ export enum ProviderEnum {
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
 		createUser: async (user): Promise<any> => {
-			console.log('CREATE USER ADAPTER');
 			const url = new URL(req.url);
-			const response = new NextResponse();
 
 			const { email, name } = user;
 			const [firstName, lastName] = name ? name.split(' ') : [];
@@ -47,18 +45,12 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 				appEmailConfirmationUrl
 			});
 
-			console.log('Creation user', { createdUser });
-
 			// User Login, get the access token
 			const { data: loginRes } = await loginUserRequest(email, password);
-			let auth_token = loginRes.token;
-
-			console.log('User login', { loginRes });
+			const auth_token = loginRes.token;
 
 			// Create user tenant
 			const { data: tenant } = await createTenantRequest(firstName, auth_token);
-
-			console.log('Createed Tenant', { tenant });
 
 			// Create tenant SMTP
 			await createTenantSmtpRequest({
@@ -77,8 +69,6 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 				auth_token
 			);
 
-			console.log('Creation organization', { organization });
-
 			// Create employee
 			const { data: employee } = await createEmployeeFromUser(
 				{
@@ -90,44 +80,23 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 				auth_token
 			);
 
-			console.log('Creation employee', { employee });
-
 			// Create user organization team
-			const { data: team } = await createOrganizationTeamRequest(
+			await createOrganizationTeamRequest(
 				{
 					name: firstName,
 					tenantId: tenant.id,
 					organizationId: organization.id,
 					managerIds: [employee.id],
-					public: true // By default team should be public,
+					public: true
 				},
 				auth_token
 			);
 
-			console.log('Creation team', { team });
+			await refreshTokenRequest(loginRes.refresh_token);
 
-			const { data: refreshTokenRes } = await refreshTokenRequest(loginRes.refresh_token);
-			auth_token = refreshTokenRes.token;
+			// await verifyUserEmailByTokenRequest({ email, token: loginRes.token });
 
-			console.log('Creation refreshTokenRes', { refreshTokenRes });
-
-			setAuthCookies(
-				{
-					access_token: auth_token,
-					refresh_token: {
-						token: loginRes.refresh_token
-					},
-					timezone: '',
-					teamId: team.id,
-					tenantId: tenant.id,
-					organizationId: organization.id,
-					languageId: 'en', // TODO: not sure what should be here
-					userId: user.id
-				},
-				{ req, res: response }
-			);
-
-			return createdUser;
+			return createdUser.data;
 		},
 
 		getUser: async (id): Promise<any> => {
@@ -135,7 +104,6 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		getUserByEmail: async (email): Promise<any> => {
-			console.log('GET USER BY EMAIL ADAPTER');
 			const response = await singinGetUserBySocialEmailRequest({ email });
 			if (!response.data.isUserExists) return null;
 			return response.data;
@@ -144,7 +112,6 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		getUserByAccount: async (
 			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
 		): Promise<any> => {
-			console.log('GET USER BY ACCOUNT ADAPTER');
 			const response = await singinGetSocialUserByProviderIdRequest(providerAccountId);
 			if (!response.data.isUserExists) return null;
 			return response.data;
@@ -155,7 +122,6 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		linkAccount: async (account: AdapterAccount) => {
-			console.log('LINK ACCOUNT ADAPTER');
 			const { provider, access_token: token } = account;
 			if (provider && token) {
 				return (await linkUserToSocialAccount({ provider: provider as ProviderEnum, token }))
@@ -165,24 +131,20 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		createSession: async (session: { sessionToken: string; userId: string; expires: Date }) => {
-			console.log('CREATE SESSION ADAPTER');
 			return session;
 		},
 
 		getSessionAndUser: async (sessionToken: string): Promise<any> => {
-			console.log('GET SESSION ADAPTER', { sessionToken });
 			return sessionToken;
 		},
 
 		updateSession: async (
 			session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
 		): Promise<any> => {
-			console.log('UPDATE SESSION ADAPTER');
 			return session;
 		},
 
 		deleteSession: async (sessionToken: string): Promise<any> => {
-			console.log('DELETE SESSION ADAPTER');
 			return sessionToken;
 		}
 	};
@@ -220,7 +182,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 				}
 			});
 		}
-		return { data, gauzyUser, organization, tenantId, userId };
+		return { data, gauzyUser, organization, tenantId, token, userId };
 	} catch (error) {
 		throw new Error('Signin error', { cause: error });
 	}
@@ -237,9 +199,9 @@ export async function signInCallback(provider: ProviderEnum, access_token: strin
 
 export async function jwtCallback(provider: ProviderEnum, access_token: string) {
 	try {
-		const { data, gauzyUser, organization, tenantId, userId } = await signIn(provider, access_token);
+		const { data, gauzyUser, organization, tenantId, token, userId } = await signIn(provider, access_token);
 		return {
-			access_token,
+			access_token: token,
 			refresh_token: {
 				token: data.refresh_token
 			},
