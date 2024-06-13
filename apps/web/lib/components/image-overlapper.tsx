@@ -153,7 +153,7 @@ export default function ImageOverlapper({
 											onCLickValidate();
 										}}>
 										<FaCheck size={17} fill="#ffffff" />
-										{"Confirm"}
+										{" Confirm"}
 									</button>
 								</div>
 							</div>
