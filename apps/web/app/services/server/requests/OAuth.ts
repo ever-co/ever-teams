@@ -1,7 +1,5 @@
 import { AdapterAccount, AdapterSession, AdapterUser, type Adapter } from '@auth/core/adapters';
 import {
-	singinGetUserBySocialEmailRequest,
-	singinGetSocialUserByProviderIdRequest,
 	registerUserRequest,
 	signWithSocialLoginsRequest,
 	loginUserRequest,
@@ -11,7 +9,9 @@ import {
 	createEmployeeFromUser,
 	createOrganizationTeamRequest,
 	refreshTokenRequest,
-	linkUserToSocialAccount
+	linkUserToSocialAccount,
+	signinGetUserBySocialEmailRequest,
+	signinGetSocialUserByProviderIdRequest
 } from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
 import { generateToken } from '@app/helpers';
@@ -102,7 +102,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		getUserByEmail: async (email): Promise<any> => {
-			const response = await singinGetUserBySocialEmailRequest({ email });
+			const response = await signinGetUserBySocialEmailRequest({ email });
 			if (!response.data.isUserExists) return null;
 			return response.data;
 		},
@@ -110,7 +110,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		getUserByAccount: async (
 			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
 		): Promise<any> => {
-			const response = await singinGetSocialUserByProviderIdRequest(providerAccountId);
+			const response = await signinGetSocialUserByProviderIdRequest(providerAccountId);
 			if (!response.data.isUserExists) return null;
 			return response.data;
 		},
