@@ -97,7 +97,7 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 			return createdUser.data;
 		},
 
-		getUser: async (id): Promise<any> => {
+		getUser: async (): Promise<any> => {
 			return null;
 		},
 
