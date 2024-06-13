@@ -127,7 +127,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		useEffect(() => {
 			if (autoComplete && autoComplete.length > 0) {
 				handleAutoComplete(autoComplete);
-				// submitCode && submitCode();
+				submitCode && submitCode();
 			}
 		}, [autoComplete]);
 
