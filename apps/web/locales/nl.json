@@ -339,6 +339,7 @@
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
 			"TIME_TRACKING": "Tijd bijhouden",
+			"REQUIRE_PLAN_TO_TRACK": "Vereist een plan om bij te houden",
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",

@@ -339,6 +339,7 @@
 			"TEAM_NAME": "Nazwa Zespołu",
 			"TEAM_TYPE": "Typ Zespołu",
 			"TIME_TRACKING": "Śledzenie Czasu",
+			"REQUIRE_PLAN_TO_TRACK": "Wymagaj planu do śledzenia",
 			"ADD_NEW_MEMBER": "Dodaj nowego członka",
 			"MANAGE_ASSIGNEES": "Zarządzaj Przydzielonymi",
 			"SEARCH_MEMBER": "Szukaj Członka",

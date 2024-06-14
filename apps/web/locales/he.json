@@ -339,6 +339,7 @@
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
 			"TIME_TRACKING": "מעקב זמן",
+			"REQUIRE_PLAN_TO_TRACK": "דרוש תוכנית למעקב",
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",
 			"MANAGE_ASSIGNEES": "נהל מוקצים",
 			"SEARCH_MEMBER": "חפש חבר",

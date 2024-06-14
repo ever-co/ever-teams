@@ -339,6 +339,7 @@
 			"TEAM_NAME": "Nome da Equipe",
 			"TEAM_TYPE": "Tipo de Equipe",
 			"TIME_TRACKING": "Rastreamento de Tempo",
+			"REQUIRE_PLAN_TO_TRACK": "Exigir um plano para rastrear",
 			"ADD_NEW_MEMBER": "Adicionar novo membro",
 			"MANAGE_ASSIGNEES": "Gerenciar Designados",
 			"SEARCH_MEMBER": "Procurar Membro",

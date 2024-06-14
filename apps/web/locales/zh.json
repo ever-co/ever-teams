@@ -339,6 +339,7 @@
 			"TEAM_NAME": "团队名称",
 			"TEAM_TYPE": "团队类型",
 			"TIME_TRACKING": "时间跟踪",
+			"REQUIRE_PLAN_TO_TRACK": "需要一个计划来跟踪",
 			"ADD_NEW_MEMBER": "添加新成员",
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",

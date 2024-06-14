@@ -338,6 +338,7 @@
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
 			"TIME_TRACKING": "Time Tracking",
+			"REQUIRE_PLAN_TO_TRACK": "Require a Plan to track",
 			"ADD_NEW_MEMBER": "Add new member",
 			"MANAGE_ASSIGNEES": "Manage Assignees",
 			"SEARCH_MEMBER": "Search Member",
