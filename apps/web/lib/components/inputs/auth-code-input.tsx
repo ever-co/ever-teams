@@ -93,7 +93,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		if (!allowedCharactersValues.some((value) => value === allowedCharacters)) {
 			throw new Error(t('errors.INVALID_ALLOWED_CHARACTER'));
 		}
-		const [canSubmit, setCanSubmit] = useState<Boolean>(false);
+		const [canSubmit, setCanSubmit] = useState<boolean>(false);
 		const reference = useRef<HTMLInputElement[]>([]);
 		const inputsRef = inputReference || reference;
 		const inputProps = propsMap[allowedCharacters];

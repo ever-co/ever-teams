@@ -179,7 +179,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	}
 
 	return (
-		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} >
+		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="mb-10 text-center">
