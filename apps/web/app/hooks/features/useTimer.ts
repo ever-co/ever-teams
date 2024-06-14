@@ -31,6 +31,7 @@ import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
+import { useTaskStatus } from './useTaskStatus';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -154,6 +155,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 export function useTimer() {
 	const pathname = usePathname();
 	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
+	const { taskStatus } = useTaskStatus();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
 
@@ -267,9 +269,11 @@ export function useTimer() {
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
 		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== 'in-progress') {
+			const choosedStatus = taskStatus.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
+			const taskStatusId = choosedStatus?.id;
 			updateTask({
 				...activeTeamTaskRef.current,
-				// taskStatusId: '', This should be updated too in order to sync columns in Kanban
+				taskStatusId: taskStatusId ?? activeTeamTaskRef.current.taskStatusId,
 				status: 'in-progress'
 			});
 		}
