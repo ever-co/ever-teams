@@ -1,7 +1,7 @@
 'use client';
 
 import { clsxm } from '@app/utils';
-import React, { MutableRefObject, forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { MutableRefObject, forwardRef, useState, useEffect, useImperativeHandle, useRef } from 'react';
 import { InputField } from './input';
 import { useTranslations } from 'next-intl';
 
@@ -93,6 +93,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		if (!allowedCharactersValues.some((value) => value === allowedCharacters)) {
 			throw new Error(t('errors.INVALID_ALLOWED_CHARACTER'));
 		}
+		const [canSubmit, setCanSubmit] = useState<Boolean>(false);
 		const reference = useRef<HTMLInputElement[]>([]);
 		const inputsRef = inputReference || reference;
 		const inputProps = propsMap[allowedCharacters];
@@ -127,9 +128,14 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		useEffect(() => {
 			if (autoComplete && autoComplete.length > 0) {
 				handleAutoComplete(autoComplete);
-				submitCode && submitCode();
+				setCanSubmit(true);
+
 			}
-		}, [autoComplete]);
+		}, [autoComplete, canSubmit]);
+
+		useEffect(() => {
+			submitCode && submitCode();
+		}, [canSubmit])
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
