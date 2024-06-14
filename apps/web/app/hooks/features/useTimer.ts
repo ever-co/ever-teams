@@ -307,6 +307,7 @@ export function useTimer() {
 		activeTeamTaskRef,
 		timerStatus,
 		setTimerStatus,
+		taskStatus,
 		updateTask,
 		activeTeam?.members,
 		activeTeam?.id,
