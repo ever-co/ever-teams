@@ -174,7 +174,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 
 	const autoSubmitForm = () => {
 		if (formRef.current) {
-			formRef.current.submit();
+			formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
 		}
 	}
 
@@ -209,7 +209,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							containerClassName="mt-[21px] w-full flex justify-between dark:bg-[#25272D]"
 							inputClassName="w-[40px] xs:w-[50px] pl-[21px] dark:bg-[#25272D]"
 							defaultValue={form.formValues.code}
-							autoComplete={code? code : ''}
+							autoComplete={code ? code : ''}
 							submitCode={autoSubmitForm}
 							onChange={(code) => {
 								form.setFormValues((v) => ({ ...v, code }));
