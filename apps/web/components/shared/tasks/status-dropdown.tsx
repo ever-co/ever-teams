@@ -35,6 +35,7 @@ export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 			if (task && status !== task.status) {
 				updateTask({
 					...task,
+					taskStatusId: task.taskStatusId,
 					status: status
 				});
 			}

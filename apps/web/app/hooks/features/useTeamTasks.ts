@@ -345,6 +345,7 @@ export function useTeamTasks() {
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
 			field: T,
+			taskStatusId: ITeamTask['taskStatusId'],
 			task?: ITeamTask | null,
 			loader?: boolean
 		) => {
@@ -367,6 +368,7 @@ export function useTeamTasks() {
 
 				return updateTask({
 					...task,
+					taskStatusId: taskStatusId ?? task.taskStatusId,
 					[field]: status
 				}).then((res) => {
 					setTasksFetching(false);

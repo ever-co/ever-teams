@@ -3,10 +3,9 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import { EventLists } from './helpers/constant';
 
-export const _initTray = (resourceDir: any, resourcesFiles: any, contextMenu:any): Tray => {
-    const iconPath = path.join(__dirname, resourceDir.resources, resourcesFiles.iconTray);
-    console.log(iconPath)
-    const iconNativePath: NativeImage = nativeImage.createFromPath(iconPath);
+export const _initTray = (contextMenu:any, icon:string): Tray => {
+
+    const iconNativePath: NativeImage = nativeImage.createFromPath(icon);
     iconNativePath.resize({ width: 16, height: 16 })
     const tray = new Tray(iconNativePath);
     tray.setContextMenu(Menu.buildFromTemplate(contextMenu));
@@ -29,6 +28,7 @@ export const defaultTrayMenuItem = (eventEmitter: EventEmitter) => {
         {
           id: 'SERVER_STOP',
           label: 'Stop',
+          enabled: false,
           async click() {
             eventEmitter.emit(EventLists.webServerStop);
           }
@@ -37,7 +37,7 @@ export const defaultTrayMenuItem = (eventEmitter: EventEmitter) => {
           id: 'APP_SETTING',
           label: 'Settings',
           async click() {
-            console.log('settings')
+            eventEmitter.emit(EventLists.gotoSetting);
           }
         },
         {
