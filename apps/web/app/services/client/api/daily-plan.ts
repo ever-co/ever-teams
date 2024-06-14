@@ -29,6 +29,25 @@ export function getAllDayPlansAPI() {
 	return get<PaginationResponse<IDailyPlan>>(`/daily-plan?${query}`, { tenantId });
 }
 
+export function getMyDailyPlansAPI() {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const relations = ['employee', 'tasks'];
+
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	relations.forEach((relation, i) => {
+		obj[`relations[${i}]`] = relation;
+	});
+
+	const query = qs.stringify(obj);
+	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/me?${query}`, { tenantId });
+}
+
 export function getDayPlansByEmployeeAPI(employeeId?: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();

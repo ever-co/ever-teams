@@ -6,6 +6,7 @@ import { useQuery } from '../useQuery';
 import {
 	dailyPlanFetchingState,
 	dailyPlanListState,
+	myDailyPlanListState,
 	profileDailyPlanListState,
 	taskPlans,
 	userState
@@ -16,6 +17,7 @@ import {
 	deleteDailyPlanAPI,
 	getAllDayPlansAPI,
 	getDayPlansByEmployeeAPI,
+	getMyDailyPlansAPI,
 	getPlansByTaskAPI,
 	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
@@ -28,6 +30,7 @@ export function useDailyPlan() {
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
+	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQuery(getMyDailyPlansAPI);
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
 	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
 	const { loading: getPlansByTaskLoading, queryCall: getPlansByTaskQueryCall } = useQuery(getPlansByTaskAPI);
@@ -37,6 +40,7 @@ export function useDailyPlan() {
 	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(deleteDailyPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
+	const [myDailyPlans, setMyDailyPlans] = useRecoilState(myDailyPlanListState);
 	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
 	const [taskPlanList, setTaskPlans] = useRecoilState(taskPlans);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
@@ -56,6 +60,15 @@ export function useDailyPlan() {
 			}
 		});
 	}, [getAllQueryCall, setDailyPlan]);
+
+	const getMyDailyPlans = useCallback(() => {
+		getMyDailyPlansQueryCall().then((response) => {
+			if (response.data.items.length) {
+				const { items, total } = response.data;
+				setMyDailyPlans({ items, total });
+			}
+		});
+	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
 
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
@@ -142,6 +155,10 @@ export function useDailyPlan() {
 
 		getAllDayPlans,
 		getAllDayPlansLoading,
+
+		myDailyPlans,
+		getMyDailyPlans,
+		getMyDailyPlansLoading,
 
 		getEmployeeDayPlans,
 		loading,

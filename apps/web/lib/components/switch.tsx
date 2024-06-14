@@ -107,13 +107,13 @@ export function ShareProfileViewsToggle() {
 export function RequireDailyPlanToTrack() {
 	const t = useTranslations();
 	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
-	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.shareProfileView);
+	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.requirePlanToTrack);
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
 			await editOrganizationTeam({
 				...activeTeam,
-				shareProfileView: !enabled,
+				requirePlanToTrack: !enabled,
 				memberIds: activeTeam.members
 					.map((t) => t.employee.id)
 					.filter((value, index, array) => array.indexOf(value) === index),
@@ -133,8 +133,8 @@ export function RequireDailyPlanToTrack() {
 	}, [activeTeam, editOrganizationTeam, enabled]);
 
 	useEffect(() => {
-		setEnabled(activeTeam?.shareProfileView);
-	}, [activeTeam?.shareProfileView]);
+		setEnabled(activeTeam?.requirePlanToTrack);
+	}, [activeTeam?.requirePlanToTrack]);
 
 	return (
 		<div className="flex items-center gap-x-[10px]">
