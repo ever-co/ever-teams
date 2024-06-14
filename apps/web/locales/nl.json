@@ -480,7 +480,7 @@
 		"ACTIVE": "Actief",
 		"APPS": "Apps",
 		"ARCHIVED": "Gearchiveerd",
-		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden",
+		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"

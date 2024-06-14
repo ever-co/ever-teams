@@ -24,9 +24,11 @@ import {
 } from '@app/services/client/api';
 import { ICreateDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useDailyPlan() {
 	const [user] = useRecoilState(userState);
+	const { user: connectedUser } = useAuthenticateUser();
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
@@ -97,10 +99,24 @@ export function useDailyPlan() {
 					total: profileDailyPlans.total + 1,
 					items: [...profileDailyPlans.items, res.data]
 				});
+				if (res.data.employee?.userId === connectedUser?.id) {
+					setMyDailyPlans({
+						total: myDailyPlans.total + 1,
+						items: [...myDailyPlans.items, res.data]
+					});
+				}
 				return res;
 			}
 		},
-		[createQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans, user?.tenantId]
+		[
+			connectedUser,
+			createQueryCall,
+			myDailyPlans,
+			profileDailyPlans,
+			setMyDailyPlans,
+			setProfileDailyPlans,
+			user?.tenantId
+		]
 	);
 
 	const updateDailyPlan = useCallback(
@@ -138,10 +154,20 @@ export function useDailyPlan() {
 			const res = await deleteDailyPlanQueryCall(planId);
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: updated.length, items: [...updated] });
+
+			const deleted = myDailyPlans.items.find((plan) => plan.id === planId);
+			if (deleted) {
+				setMyDailyPlans({ total: updated.length, items: [...updated] });
+			}
+
 			return res;
 		},
-		[deleteDailyPlanQueryCall, profileDailyPlans.items, setProfileDailyPlans]
+		[deleteDailyPlanQueryCall, myDailyPlans.items, profileDailyPlans.items, setMyDailyPlans, setProfileDailyPlans]
 	);
+
+	useEffect(() => {
+		getMyDailyPlans();
+	}, [getMyDailyPlans]);
 
 	return {
 		dailyPlan,

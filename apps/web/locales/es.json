@@ -480,7 +480,7 @@
 		"ACTIVE": "Activo",
 		"APPS": "Aplicaciones",
 		"ARCHIVED": "Archivado",
-		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo",
+		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"

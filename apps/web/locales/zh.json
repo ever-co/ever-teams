@@ -480,7 +480,7 @@
 		"ACTIVE": "活跃",
 		"APPS": "应用",
 		"ARCHIVED": "已归档",
-		"START_TIMER": "请选择或创建新任务以开始计时",
+		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
