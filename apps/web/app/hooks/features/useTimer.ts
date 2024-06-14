@@ -269,6 +269,7 @@ export function useTimer() {
 		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== 'in-progress') {
 			updateTask({
 				...activeTeamTaskRef.current,
+				// taskStatusId: '', This should be updated too in order to sync columns in Kanban
 				status: 'in-progress'
 			});
 		}
