@@ -87,6 +87,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(data: T[
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {
+				id: item.id,
 				name: item.name?.split('-').join(' '),
 				realName: item.name?.split('-').join(' '),
 				value: item.value || item.name,
@@ -120,6 +121,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 ) {
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
+	const { taskStatus } = useTaskStatus();
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 	const $task = useSyncRef(task);
@@ -136,15 +138,23 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	 */
 	function onItemChange(status: ITaskStatusStack[T]) {
 		props.onChangeLoading && props.onChangeLoading(true);
+
 		let updatedField: ITaskStatusField = field;
+		let taskStatusId: string | undefined;
+
 		if (field === 'label' && task) {
 			const currentTag = taskLabels.find((label) => label.name === status) as Tag;
 			updatedField = 'tags';
 			status = [currentTag];
 		}
 
+		if (field === 'status') {
+			const selectedStatus = taskStatus.find((s) => s.name === status && s.value === status);
+			taskStatusId = selectedStatus?.id;
+		}
+
 		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(status, updatedField || field, task.current, true).finally(() => {
+			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true).finally(() => {
 				props.onChangeLoading && props.onChangeLoading(false);
 			});
 		}, $task);
@@ -1023,7 +1033,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
 										>
 											{items.map((item, i) => {
-												const item_value = item.value || item.name;
+												const item_value = item?.value || item?.name;
 
 												return (
 													<Listbox.Option
@@ -1037,7 +1047,7 @@ export function StatusDropdown<T extends TStatusItem>({
 																showIcon={showIcon}
 																{...item}
 																cheched={
-																	item.value ? values.includes(item.value) : false
+																	item?.value ? values.includes(item?.value) : false
 																}
 																className={clsxm(
 																	issueType === 'issue' && [
