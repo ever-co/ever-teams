@@ -1,7 +1,7 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
-import enLanguage from '../messages/en.json';
+import enLanguage from '../locales/en.json';
 // import {  } from 'country-flag-icons/react/3x2'
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 export const API_BASE_URL = '/api';
