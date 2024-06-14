@@ -269,8 +269,8 @@ export function useTimer() {
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
 		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== 'in-progress') {
-			const choosedStatus = taskStatus.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
-			const taskStatusId = choosedStatus?.id;
+			const selectedStatus = taskStatus.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
+			const taskStatusId = selectedStatus?.id;
 			updateTask({
 				...activeTeamTaskRef.current,
 				taskStatusId: taskStatusId ?? activeTeamTaskRef.current.taskStatusId,

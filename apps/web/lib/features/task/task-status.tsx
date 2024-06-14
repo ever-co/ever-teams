@@ -149,8 +149,8 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		if (field === 'status') {
-			const choosedStatus = taskStatus.find((s) => s.name === status && s.value === status);
-			taskStatusId = choosedStatus?.id;
+			const selectedStatus = taskStatus.find((s) => s.name === status && s.value === status);
+			taskStatusId = selectedStatus?.id;
 		}
 
 		taskUpdateQueue.task((task) => {
