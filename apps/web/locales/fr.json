@@ -493,6 +493,13 @@
 				"title": "14 jours"
 			}
 		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN DU JOUR",
+			"WORK_TIME_PLANNED": "Ajouter les heures de travail prévues",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Temps de travail prévu pour aujourd'hui",
+			"TASKS_WITH_NO_ESTIMATIOMS": "Tâches sans estimations de temps",
+			"START_WORKING_BUTTON": "Commencer à travailler"
+		},
 		"TIME_ACTIVITY": "Activité",
 		"TOTAL_HOURS": "Total des heures",
 		"NO_SCREENSHOOT": "Aucune capture d'écran",

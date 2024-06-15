@@ -509,7 +509,14 @@
 			{
 				"title": "14 ימים"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "תכנית היום",
+			"WORK_TIME_PLANNED": "הוסף שעות עבודה מתוכננות",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "זמן עבודה מתוכנן להיום",
+			"TASKS_WITH_NO_ESTIMATIOMS": "משימות בלי הערכת זמן",
+			"START_WORKING_BUTTON": "התחל לעבוד"
+		}
 	},
 	"task": {
 		"TITLE": "משימה",

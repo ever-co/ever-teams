@@ -509,7 +509,14 @@
 			{
 				"title": "14 يوم"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "خطة اليوم",
+			"WORK_TIME_PLANNED": "إضافة ساعات العمل المخطط لها",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "وقت العمل المخطط له اليوم",
+			"TASKS_WITH_NO_ESTIMATIOMS": "تاكس مع عدم وجود تقديرات زمنية",
+			"START_WORKING_BUTTON": "ابدأ العمل"
+		}
 	},
 	"task": {
 		"TITLE": "المهمة",

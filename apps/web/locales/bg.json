@@ -509,7 +509,14 @@
 			{
 				"title": "14 дни"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "ДНЕШЕН ПЛАН",
+			"WORK_TIME_PLANNED": "Добавяне на планирани работни часове",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Планирано работно време за днес",
+			"TASKS_WITH_NO_ESTIMATIOMS": "Такси без оценки на времето",
+			"START_WORKING_BUTTON": "Започнете работа"
+		}
 	},
 	"task": {
 		"TITLE": "Задача",

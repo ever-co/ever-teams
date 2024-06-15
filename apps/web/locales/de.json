@@ -509,7 +509,14 @@
 			{
 				"title": "14 Tage"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN VON HEUTE",
+			"WORK_TIME_PLANNED": "Geplante Arbeitsstunden hinzufügen",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Für heute geplante Arbeitszeit",
+			"TASKS_WITH_NO_ESTIMATIOMS": "Taks ohne Zeitvorgaben",
+			"START_WORKING_BUTTON": "Mit der Arbeit beginnen"
+		}
 	},
 	"task": {
 		"TITLE": "Aufgabe",

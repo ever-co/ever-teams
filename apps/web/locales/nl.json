@@ -509,7 +509,14 @@
 			{
 				"title": "14 dagen"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN VAN VANDAAG",
+			"WORK_TIME_PLANNED": "Geplande werkuren toevoegen",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Geplande werktijd voor vandaag",
+			"TASKS_WITH_NO_ESTIMATIOMS": "Taken zonder tijdschattingen",
+			"START_WORKING_BUTTON": "Begin met werken"
+		}
 	},
 	"task": {
 		"TITLE": "Taak",

@@ -509,7 +509,14 @@
 		"TIME_SPENT_IN_HOURS": "Tiempo gastado (Horas)",
 		"TIMES": "Veces",
 		"TOTAL_HOURS": "Horas totales",
-		"VISITED_DATES": "Fechas visitadas"
+		"VISITED_DATES": "Fechas visitadas",
+		"todayPlanSettings": {
+			"TITLE": "PLAN DE HOY",
+			"WORK_TIME_PLANNED": "Añadir horas de trabajo previstas",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Tiempo de trabajo previsto para hoy",
+			"TASKS_WITH_NO_ESTIMATIOMS": "Tarea sin estimación de tiempo",
+			"START_WORKING_BUTTON": "Empezar a trabajar"
+		}
 	},
 	"task": {
 		"TITLE": "Tarea",

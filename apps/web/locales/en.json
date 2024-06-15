@@ -508,7 +508,14 @@
 		"ACTIVE": "Active",
 		"INACTIVE": "Inactive",
 		"ARCHIVED": "Archived",
-		"NOT_ARCHIVED": "Not archived"
+		"NOT_ARCHIVED": "Not archived",
+		"todayPlanSettings": {
+			"TITLE": "TODAY'S PLAN",
+			"WORK_TIME_PLANNED": "Add planned working hours",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Working time planned for today",
+			"TASKS_WITH_NO_ESTIMATIOMS": "Taks with no time estimations",
+			"START_WORKING_BUTTON": "Start working"
+		}
 	},
 	"task": {
 		"TITLE": "Task",
