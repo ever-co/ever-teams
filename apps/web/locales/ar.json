@@ -233,7 +233,7 @@
 			"MEMBER_NOT_FOUND_MSG_1": "العضو الذي تبحث عنه غير موجود في الفريق، يرجى المحاولة مرة أخرى ببحث مختلف.",
 			"MEMBER_NOT_FOUND_MSG_2": "إذا كنت تبحث عن عضو في فريق مختلف، يرجى تحديد الفريق من القائمة المنسدلة أعلاه.",
 			"GO_TO_HOME": "الذهاب إلى الصفحة الرئيسية"
-			},
+		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"تفاصيل المهمة\"]",
 			"DESCRIPTION": "الوصف",
@@ -339,6 +339,7 @@
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
 			"TIME_TRACKING": "تتبع الوقت",
+			"REQUIRE_PLAN_TO_TRACK": "طلب خطة للتتبع",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
@@ -479,7 +480,7 @@
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
 		"ARCHIVED": "مؤرشف",
-		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت",
+		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"

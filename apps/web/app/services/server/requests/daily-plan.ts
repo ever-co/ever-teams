@@ -32,6 +32,35 @@ export function getAllDayPlans({
 	});
 }
 
+export function getMyDailyPlansRequest({
+	organizationId,
+	tenantId,
+	bearer_token,
+	relations = ['employee', 'tasks']
+}: {
+	organizationId: string;
+	tenantId: string;
+	bearer_token: string;
+	relations?: string[];
+}) {
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	relations.forEach((relation, i) => {
+		obj[`relations[${i}]`] = relation;
+	});
+
+	const query = qs.stringify(obj);
+
+	return serverFetch<IDailyPlan>({
+		path: `/daily-plan/me?${query}`,
+		method: 'GET',
+		bearer_token
+	});
+}
+
 export function getDayPlansByEmployee({
 	employeeId,
 	organizationId,

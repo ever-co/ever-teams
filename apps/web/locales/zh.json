@@ -339,6 +339,7 @@
 			"TEAM_NAME": "团队名称",
 			"TEAM_TYPE": "团队类型",
 			"TIME_TRACKING": "时间跟踪",
+			"REQUIRE_PLAN_TO_TRACK": "需要一个计划来跟踪",
 			"ADD_NEW_MEMBER": "添加新成员",
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",
@@ -479,7 +480,7 @@
 		"ACTIVE": "活跃",
 		"APPS": "应用",
 		"ARCHIVED": "已归档",
-		"START_TIMER": "请选择或创建新任务以开始计时",
+		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"

@@ -339,6 +339,7 @@
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
 			"TIME_TRACKING": "Tijd bijhouden",
+			"REQUIRE_PLAN_TO_TRACK": "Vereist een plan om bij te houden",
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",
@@ -479,7 +480,7 @@
 		"ACTIVE": "Actief",
 		"APPS": "Apps",
 		"ARCHIVED": "Gearchiveerd",
-		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden",
+		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
