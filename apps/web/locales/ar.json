@@ -340,6 +340,7 @@
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
 			"TIME_TRACKING": "تتبع الوقت",
+			"REQUIRE_PLAN_TO_TRACK": "طلب خطة للتتبع",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
@@ -481,7 +482,7 @@
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
 		"ARCHIVED": "مؤرشف",
-		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت",
+		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"

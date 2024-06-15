@@ -72,7 +72,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	}, [profile.member]);
 
 	React.useEffect(() => {
-		console.log(profile.member?.employeeId);
 		getEmployeeDayPlans(profile.member?.employeeId ?? '');
 	}, [getEmployeeDayPlans, profile.member?.employeeId]);
 

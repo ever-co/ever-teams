@@ -340,6 +340,7 @@
 			"TEAM_NAME": "Nombre del equipo",
 			"TEAM_TYPE": "Tipo de equipo",
 			"TIME_TRACKING": "Seguimiento de tiempo",
+			"REQUIRE_PLAN_TO_TRACK": "Exigir un Plan de seguimiento",
 			"ADD_NEW_MEMBER": "Agregar nuevo miembro",
 			"MANAGE_ASSIGNEES": "Administrar asignados",
 			"SEARCH_MEMBER": "Buscar miembro",
@@ -481,7 +482,7 @@
 		"ACTIVE": "Activo",
 		"APPS": "Aplicaciones",
 		"ARCHIVED": "Archivado",
-		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo",
+		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"

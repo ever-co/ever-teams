@@ -31,6 +31,8 @@ import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
+import { useTaskStatus } from './useTaskStatus';
+import { useDailyPlan } from './useDailyPlan';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -154,8 +156,10 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 export function useTimer() {
 	const pathname = usePathname();
 	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
+	const { taskStatus } = useTaskStatus();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
+	const { myDailyPlans } = useDailyPlan();
 
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
 
@@ -180,11 +184,28 @@ export function useTimer() {
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
+
+	const hasPlan = myDailyPlans.items.find(
+		(plan) =>
+			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
+			plan.tasks &&
+			plan.tasks?.length > 0
+	);
+	const requirePlan = activeTeam?.requirePlanToTrack;
+
+	let canTrack = true;
+
+	if (requirePlan) {
+		if (!hasPlan) canTrack = false;
+	}
+
 	const canRunTimer =
 		user?.isEmailVerified &&
 		((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
 			// If timer is running at some other source and user may or may not have selected the task
-			timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS);
+			timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS) &&
+		// If team settings require to have a plan to be able track
+		canTrack;
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
@@ -267,8 +288,11 @@ export function useTimer() {
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
 		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== 'in-progress') {
+			const selectedStatus = taskStatus.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
+			const taskStatusId = selectedStatus?.id;
 			updateTask({
 				...activeTeamTaskRef.current,
+				taskStatusId: taskStatusId ?? activeTeamTaskRef.current.taskStatusId,
 				status: 'in-progress'
 			});
 		}
@@ -302,6 +326,7 @@ export function useTimer() {
 		activeTeamTaskRef,
 		timerStatus,
 		setTimerStatus,
+		taskStatus,
 		updateTask,
 		activeTeam?.members,
 		activeTeam?.id,
@@ -371,6 +396,7 @@ export function useTimer() {
 		startTimer,
 		stopTimer,
 		canRunTimer,
+		canTrack,
 		firstLoad,
 		toggleTimer,
 		timerSeconds,
@@ -408,6 +434,7 @@ export function useTimerView() {
 		startTimer,
 		stopTimer,
 		canRunTimer,
+		canTrack,
 		timerSeconds,
 		activeTeamTask,
 		syncTimerLoading
@@ -436,6 +463,7 @@ export function useTimerView() {
 		timerStatus,
 		activeTeamTask,
 		disabled: !canRunTimer,
+		canTrack,
 		startTimer,
 		stopTimer,
 		syncTimerLoading

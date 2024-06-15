@@ -141,6 +141,9 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
 	const inputsRef = useRef<Array<HTMLInputElement>>([]);
+	const formRef = useRef<HTMLFormElement>(null);
+	const urlSearchParams = new URLSearchParams(window.location.search);
+	const code = urlSearchParams.get('code');
 
 	const formatTime = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60);
@@ -178,8 +181,15 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 			inputsRef.current[0].focus();
 		}
 	};
+
+	const autoSubmitForm = () => {
+		if (formRef.current) {
+			formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+		}
+	}
+
 	return (
-		<form className={className} onSubmit={form.handleCodeSubmit} autoComplete="off">
+		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="mb-10 text-center">
@@ -209,6 +219,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							containerClassName="mt-[21px] w-full flex justify-between dark:bg-[#25272D]"
 							inputClassName="w-[40px] xs:w-[50px] pl-[21px] dark:bg-[#25272D]"
 							defaultValue={form.formValues.code}
+							autoComplete={code ? code : ''}
+							submitCode={autoSubmitForm}
 							onChange={(code) => {
 								form.setFormValues((v) => ({ ...v, code }));
 							}}
@@ -375,9 +387,8 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 							{props.workspaces?.map((worksace, index) => (
 								<div
 									key={index}
-									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-										props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
-									} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
+									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
+										} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 								>
 									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 										<div className="flex justify-between">

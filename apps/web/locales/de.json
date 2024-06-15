@@ -340,6 +340,7 @@
 			"TEAM_NAME": "Teamname",
 			"TEAM_TYPE": "Teamtyp",
 			"TIME_TRACKING": "Zeiterfassung",
+			"REQUIRE_PLAN_TO_TRACK": "Verlangt einen Plan zur Verfolgung",
 			"ADD_NEW_MEMBER": "Neues Mitglied hinzufügen",
 			"MANAGE_ASSIGNEES": "Zugewiesene verwalten",
 			"SEARCH_MEMBER": "Mitglied suchen",
@@ -481,7 +482,7 @@
 		"ACTIVE": "Aktiv",
 		"APPS": "Apps",
 		"ARCHIVED": "Archiviert",
-		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken",
+		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Teamwechsel gestoppt"

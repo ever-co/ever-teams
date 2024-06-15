@@ -340,6 +340,7 @@
 			"TEAM_NAME": "Nome del Team",
 			"TEAM_TYPE": "Tipo di Team",
 			"TIME_TRACKING": "Tracciamento del Tempo",
+			"REQUIRE_PLAN_TO_TRACK": "Richiedere un piano di monitoraggio",
 			"ADD_NEW_MEMBER": "Aggiungi nuovo membro",
 			"MANAGE_ASSIGNEES": "Gestisci Assegnatari",
 			"SEARCH_MEMBER": "Cerca Membro",
@@ -478,7 +479,7 @@
 		}
 	},
 	"timer": {
-		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo",
+		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio di team"

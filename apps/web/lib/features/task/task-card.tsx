@@ -124,7 +124,7 @@ export function TaskCard(props: Props) {
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = task != null && task?.members?.length > 0;
-	const hasMembers = task?.members &&  task?.members?.length > 0 ;
+	const hasMembers = task?.members && task?.members?.length > 0;
 	const taskAssignee: ImageOverlapperProps[] =
 		task?.members?.map((member: any) => {
 			return {
@@ -176,7 +176,7 @@ export function TaskCard(props: Props) {
 							images={taskAssignee}
 							item={task}
 							hasActiveMembers={activeMembers}
-							hasInfo={!hasMembers ? "Assign this task" : "Assign this task to more people"}
+							hasInfo={!hasMembers ? 'Assign this task' : 'Assign this task to more people'}
 						/>
 					</div>
 				)}
@@ -200,7 +200,6 @@ export function TaskCard(props: Props) {
 							className="w-11 h-11"
 						/>
 					)}
-
 				</div>
 				<VerticalSeparator />
 
@@ -330,7 +329,7 @@ function TimerButtonCall({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { disabled, timerHanlder, timerStatus, activeTeamTask, startTimer, stopTimer } = useTimerView();
+	const { canTrack, disabled, timerHanlder, timerStatus, activeTeamTask, startTimer, stopTimer } = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
 
@@ -378,7 +377,7 @@ function TimerButtonCall({
 		<TimerButton
 			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 			running={activeTaskStatus?.running}
-			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
+			disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
 			className={clsxm('h-14 w-14', className)}
 		/>
 	);
