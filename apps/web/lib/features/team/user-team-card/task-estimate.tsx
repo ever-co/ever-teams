@@ -36,7 +36,7 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 	);
 }
 
-function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
+export function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
 	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;

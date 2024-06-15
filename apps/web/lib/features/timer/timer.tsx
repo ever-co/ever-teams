@@ -38,7 +38,6 @@ export function Timer({ className }: IClassName) {
 	} = useTimerView();
 
 	const timerHanlderStartStop = useCallback(() => {
-		console.log(isPlanVerified);
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
