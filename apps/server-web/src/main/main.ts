@@ -6,6 +6,7 @@ import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
 import { EventLists } from './helpers/constant';
 import { resolveHtmlPath } from './util';
+import Updater from './updater';
 
 const eventEmiter = new EventEmitter();
 
@@ -21,6 +22,7 @@ let isServerRun: boolean;
 
 let tray:Tray;
 let settingWindow: BrowserWindow | null = null;
+const updater = new Updater(eventEmiter);
 
 const trayMenuItems = defaultTrayMenuItem(eventEmiter);
 
@@ -179,6 +181,30 @@ const onInitApplication = () => {
       settingWindow?.webContents.send('load_setting', serverSetting);
     })
   })
+
+  eventEmiter.on(EventLists.UPDATE_AVAILABLE, (data)=> {
+    console.log('UPDATE_AVAILABLE', data);
+  })
+
+  eventEmiter.on(EventLists.UPDATE_ERROR, (data)=> {
+    console.log('UPDATE_ERROR', data);
+  })
+
+  eventEmiter.on(EventLists.UPDATE_NOT_AVAILABLE, (data)=> {
+    console.log('UPDATE_NOT_AVAILABLE', data);
+  })
+
+  eventEmiter.on(EventLists.UPDATE_PROGRESS, (data)=> {
+    console.log('UPDATE_PROGRESS', data);
+  })
+
+  eventEmiter.on(EventLists.UPDATE_DOWNLOADED, (data)=> {
+    console.log('UPDATE_DOWNLOADED', data);
+  })
+
+  eventEmiter.on(EventLists.UPDATE_CANCELLED, (data)=> {
+    console.log('UPDATE_CANCELLED', data);
+  })
 }
 
  (async () => {
@@ -197,6 +223,10 @@ ipcMain.on('message', async (event, arg) => {
 
 ipcMain.on('save_setting', (event, arg) => {
   LocalStore.updateConfigSetting(arg);
+})
+
+ipcMain.on('check_for_update', (event, arg) => {
+  updater.checkUpdate()
 })
 
 app.on('before-quit', async (e) => {
