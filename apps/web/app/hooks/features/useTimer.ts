@@ -185,8 +185,11 @@ export function useTimer() {
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 
-	const hasPlan = myDailyPlans.items.find((plan) =>
-		plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+	const hasPlan = myDailyPlans.items.find(
+		(plan) =>
+			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
+			plan.tasks &&
+			plan.tasks?.length > 0
 	);
 	const requirePlan = activeTeam?.requirePlanToTrack;
 
@@ -393,6 +396,7 @@ export function useTimer() {
 		startTimer,
 		stopTimer,
 		canRunTimer,
+		canTrack,
 		firstLoad,
 		toggleTimer,
 		timerSeconds,
@@ -430,6 +434,7 @@ export function useTimerView() {
 		startTimer,
 		stopTimer,
 		canRunTimer,
+		canTrack,
 		timerSeconds,
 		activeTeamTask,
 		syncTimerLoading
@@ -458,6 +463,7 @@ export function useTimerView() {
 		timerStatus,
 		activeTeamTask,
 		disabled: !canRunTimer,
+		canTrack,
 		startTimer,
 		stopTimer,
 		syncTimerLoading

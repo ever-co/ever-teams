@@ -24,11 +24,9 @@ import {
 } from '@app/services/client/api';
 import { ICreateDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
-import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useDailyPlan() {
 	const [user] = useRecoilState(userState);
-	const { user: connectedUser } = useAuthenticateUser();
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
@@ -99,24 +97,11 @@ export function useDailyPlan() {
 					total: profileDailyPlans.total + 1,
 					items: [...profileDailyPlans.items, res.data]
 				});
-				if (res.data.employee?.userId === connectedUser?.id) {
-					setMyDailyPlans({
-						total: myDailyPlans.total + 1,
-						items: [...myDailyPlans.items, res.data]
-					});
-				}
+				getMyDailyPlans();
 				return res;
 			}
 		},
-		[
-			connectedUser,
-			createQueryCall,
-			myDailyPlans,
-			profileDailyPlans,
-			setMyDailyPlans,
-			setProfileDailyPlans,
-			user?.tenantId
-		]
+		[createQueryCall, getMyDailyPlans, profileDailyPlans, setProfileDailyPlans, user?.tenantId]
 	);
 
 	const updateDailyPlan = useCallback(
@@ -134,9 +119,10 @@ export function useDailyPlan() {
 			const res = await addTaskToPlanQueryCall(data, planId);
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			getMyDailyPlans();
 			return res;
 		},
-		[addTaskToPlanQueryCall, profileDailyPlans.items, profileDailyPlans.total, setProfileDailyPlans]
+		[addTaskToPlanQueryCall, getMyDailyPlans, profileDailyPlans, setProfileDailyPlans]
 	);
 
 	const removeTaskFromPlan = useCallback(
@@ -144,9 +130,10 @@ export function useDailyPlan() {
 			const res = await removeTAskFromPlanQueryCall(data, planId);
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			getMyDailyPlans();
 			return res;
 		},
-		[profileDailyPlans.items, profileDailyPlans.total, removeTAskFromPlanQueryCall, setProfileDailyPlans]
+		[getMyDailyPlans, profileDailyPlans, removeTAskFromPlanQueryCall, setProfileDailyPlans]
 	);
 
 	const deleteDailyPlan = useCallback(
@@ -155,14 +142,11 @@ export function useDailyPlan() {
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: updated.length, items: [...updated] });
 
-			const deleted = myDailyPlans.items.find((plan) => plan.id === planId);
-			if (deleted) {
-				setMyDailyPlans({ total: updated.length, items: [...updated] });
-			}
+			getMyDailyPlans();
 
 			return res;
 		},
-		[deleteDailyPlanQueryCall, myDailyPlans.items, profileDailyPlans.items, setMyDailyPlans, setProfileDailyPlans]
+		[deleteDailyPlanQueryCall, getMyDailyPlans, profileDailyPlans.items, setProfileDailyPlans]
 	);
 
 	useEffect(() => {
