@@ -11,3 +11,17 @@ export const EventLists = {
     UPDATE_DOWNLOADED: 'UPDATE_DOWNLOADED',
     UPDATE_CANCELLED: 'UPDATE_CANCELLED'
   }
+
+  export const SettingPageTypeMessage = {
+    loadSetting: 'load-setting',
+    checkUpdate: 'check-for-update',
+    updateAvailable: 'update-available',
+    downloadingUpdate: 'downloading-update',
+    downloaded: 'downloaded-update',
+    installUpdate: 'install-update',
+    saveSetting: 'save-setting',
+    updateError: 'update-error',
+    upToDate: 'uptodate',
+    mainResponse: 'main-response',
+    showVersion: 'show-version'
+}

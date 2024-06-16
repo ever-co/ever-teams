@@ -4,7 +4,7 @@ import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
-import { EventLists } from './helpers/constant';
+import { EventLists, SettingPageTypeMessage } from './helpers/constant';
 import { resolveHtmlPath } from './util';
 import Updater from './updater';
 
@@ -140,6 +140,13 @@ const getEnvApi = () => {
 	return setting;
 };
 
+const SendMessageToSettingWindow = (type: string, data: any) => {
+  settingWindow?.webContents.send('setting-page', {
+    type,
+    data
+  });
+}
+
 const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
   tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
@@ -178,28 +185,33 @@ const onInitApplication = () => {
     console.log('setting data', serverSetting);
     settingWindow?.show();
     settingWindow?.webContents.once('did-finish-load', () => {
-      settingWindow?.webContents.send('load_setting', serverSetting);
+      SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
     })
   })
 
   eventEmiter.on(EventLists.UPDATE_AVAILABLE, (data)=> {
     console.log('UPDATE_AVAILABLE', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.updateAvailable, data);
   })
 
   eventEmiter.on(EventLists.UPDATE_ERROR, (data)=> {
     console.log('UPDATE_ERROR', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.updateError, {message: JSON.stringify(data)});
   })
 
   eventEmiter.on(EventLists.UPDATE_NOT_AVAILABLE, (data)=> {
     console.log('UPDATE_NOT_AVAILABLE', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.upToDate, data);
   })
 
   eventEmiter.on(EventLists.UPDATE_PROGRESS, (data)=> {
-    console.log('UPDATE_PROGRESS', data);
+    console.log('UPDATE_PROGRESS', data.percent);
+    SendMessageToSettingWindow(SettingPageTypeMessage.downloadingUpdate, {percent: data.percent});
   })
 
   eventEmiter.on(EventLists.UPDATE_DOWNLOADED, (data)=> {
     console.log('UPDATE_DOWNLOADED', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.downloaded, data);
   })
 
   eventEmiter.on(EventLists.UPDATE_CANCELLED, (data)=> {
@@ -221,12 +233,26 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
-ipcMain.on('save_setting', (event, arg) => {
-  LocalStore.updateConfigSetting(arg);
-})
-
-ipcMain.on('check_for_update', (event, arg) => {
-  updater.checkUpdate()
+ipcMain.on('setting-page', (event, arg) => {
+  console.log('main setting page', arg);
+  switch (arg.type) {
+    case SettingPageTypeMessage.saveSetting:
+      LocalStore.updateConfigSetting(arg.data);
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.mainResponse, data: true });
+      break;
+    case SettingPageTypeMessage.checkUpdate:
+      updater.checkUpdate();
+      break;
+    case SettingPageTypeMessage.installUpdate:
+      updater.installUpdate();
+      break;
+    case SettingPageTypeMessage.showVersion:
+      const currentVersion = app.getVersion();
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.showVersion, data: currentVersion})
+      break;
+    default:
+      break;
+  }
 })
 
 app.on('before-quit', async (e) => {

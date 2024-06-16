@@ -30,8 +30,6 @@ class AppUpdater {
       autoUpdater.on('update-cancelled', (info) => {
         eventEmitter.emit(EventLists.UPDATE_CANCELLED, info);
       })
-
-
     //   autoUpdater.checkForUpdatesAndNotify();
     }
 

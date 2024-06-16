@@ -187,7 +187,7 @@
     },
     "dmg": {
       "icon": "icon.icns",
-      "sign": false,
+      "sign": true,
       "contents": [
         {
           "x": 130,
@@ -239,15 +239,8 @@
     "publish": [
       {
         "provider": "github",
-        "repo": "ever-teams-web-server",
+        "repo": "ever-teams",
         "releaseType": "release"
-      },
-      {
-        "provider": "spaces",
-        "name": "ever",
-        "region": "sfo3",
-        "path": "/ever-teams-web-server",
-        "acl": "public-read"
       }
     ]
   },
