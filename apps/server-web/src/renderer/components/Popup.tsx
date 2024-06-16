@@ -78,7 +78,9 @@ export function Popup(props: Props) {
                 {props.type == 'success' ? 'Success' : 'Error'}
               </h3>
               <div className="mt-2">
-                <p className="text-sm text-gray-500">{props.message}</p>
+                <p className="text-sm text-gray-500 text-pretty break-words">
+                  {props.message}
+                </p>
               </div>
             </div>
           </div>

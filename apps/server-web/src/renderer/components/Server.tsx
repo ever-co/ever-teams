@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SettingPageTypeMessage } from '../../main/helpers/constant';
 
-interface IPopup {
-  tyoe: 'success' | 'error' | 'none';
-  isShow: boolean;
-}
-
 interface IServerSetting {
   PORT: number;
   GAUZY_API_SERVER_URL: string;
