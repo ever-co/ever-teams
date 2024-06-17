@@ -55,7 +55,12 @@ const Timer = () => {
 			>
 				{timerStatus?.running ? <PauseIcon width={68} height={68} /> : <PlayIcon width={68} height={68} />}
 			</div>
-			<AddWorkTimeAndEstimatesToPlan closeModal={closeModal} open={isOpen} plan={hasPlan} />
+			<AddWorkTimeAndEstimatesToPlan
+				closeModal={closeModal}
+				open={isOpen}
+				plan={hasPlan}
+				startTimer={startTimer}
+			/>
 		</>
 	);
 };

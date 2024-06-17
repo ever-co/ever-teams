@@ -1,23 +1,38 @@
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { IDailyPlan, ITeamTask, Nullable } from '@app/interfaces';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { useTranslations } from 'use-intl';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { Button } from '@components/ui/button';
 import { TaskEstimate } from '../task/task-estimate';
+import { useEffect, useState } from 'react';
+import { useTeamTasks } from '@app/hooks';
 
 export function AddWorkTimeAndEstimatesToPlan({
 	open,
 	closeModal,
-	plan
+	plan,
+	startTimer
 	// employee
 }: {
 	open: boolean;
 	closeModal: () => void;
+	startTimer: () => void;
 	plan?: IDailyPlan;
 	// employee?: OT_Member;
 }) {
-	// const [workTimePlanned, setworkTimePlanned] = useState<number>(0);
+	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan?.workTimePlanned);
 	const t = useTranslations();
+
+	const { tasks: $tasks } = useTeamTasks();
+
+	const handleSubmit = () => {
+		if (workTimePlanned === 0 || typeof workTimePlanned !== 'number') return;
+
+		const tasks = $tasks.filter((task) => plan?.tasks?.find((t) => task.id === t.id));
+		if (tasks.some((task) => task.estimate === 0)) return;
+
+		startTimer();
+	};
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
@@ -37,7 +52,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 							placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
 							className="mb-0 min-w-[350px]"
 							wrapperClassName="mb-0 rounded-lg"
-							// onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+							onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
 							required
 							defaultValue={plan?.workTimePlanned ?? 0}
 						/>
@@ -45,10 +60,6 @@ export function AddWorkTimeAndEstimatesToPlan({
 
 					{plan?.tasks && plan?.tasks?.length > 0 && (
 						<div className="text-sm flex flex-col gap-3">
-							<span>
-								{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIOMS')}{' '}
-								<span className="text-red-600">*</span>
-							</span>
 							<UnEstimatedTasks dailyPlan={plan} />
 						</div>
 					)}
@@ -66,7 +77,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 							variant="default"
 							type="submit"
 							className="py-3 px-5 rounded-md font-light text-md dark:text-white"
-							// onClick={onSubmit}
+							onClick={handleSubmit}
 						>
 							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
 						</Button>
@@ -78,20 +89,47 @@ export function AddWorkTimeAndEstimatesToPlan({
 }
 
 function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
-	const unEstimatedTasks =
-		dailyPlan?.tasks &&
-		dailyPlan?.tasks?.length > 0 &&
-		dailyPlan?.tasks?.filter((task) => typeof task.estimate === 'number' && task.estimate <= 0);
+	const t = useTranslations();
+	const [unEstimatedTasks, setUnEstimatedTasks] = useState<ITeamTask[]>([]);
+
+	useEffect(() => {
+		if (dailyPlan?.tasks) {
+			setUnEstimatedTasks(
+				dailyPlan.tasks.filter((task) => typeof task.estimate === 'number' && task.estimate <= 0)
+			);
+		}
+	}, [dailyPlan]);
+
+	const handleUpdateTaskEstimate = (updatedTask: Nullable<ITeamTask>) => {
+		setUnEstimatedTasks((prevTasks) => prevTasks.filter((task) => task.id !== updatedTask?.id));
+	};
+
 	return (
 		<div>
-			<div className="flex flex-col gap-1">
-				{unEstimatedTasks && unEstimatedTasks?.map((task) => <UnEstimatedTask key={task.id} task={task} />)}
-			</div>
+			{unEstimatedTasks?.length > 0 && (
+				<div className="text-sm flex flex-col gap-3">
+					<span>
+						{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIOMS')} <span className="text-red-600">*</span>
+					</span>
+					<div className="flex flex-col gap-1">
+						{unEstimatedTasks &&
+							unEstimatedTasks?.map((task) => (
+								<UnEstimatedTask key={task.id} task={task} afterUpdate={handleUpdateTaskEstimate} />
+							))}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
 
-export function UnEstimatedTask({ task }: { task: ITeamTask }) {
+export function UnEstimatedTask({
+	task,
+	afterUpdate
+}: {
+	task: ITeamTask;
+	afterUpdate: (task: Nullable<ITeamTask>) => void;
+}) {
 	return (
 		<Card
 			shadow="custom"
@@ -104,7 +142,7 @@ export function UnEstimatedTask({ task }: { task: ITeamTask }) {
 			</div>
 			<VerticalSeparator />
 			{/* <TaskEstimateInput memberInfo={memberInfo} edition={taskEdition} /> */}
-			<TaskEstimate _task={task} />
+			<TaskEstimate _task={task} afterUpdate={afterUpdate} />
 		</Card>
 	);
 }

@@ -13,9 +13,18 @@ type Props = {
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
 	wrapperClassName?: string;
+	afterUpdate?: (task: Nullable<ITeamTask>) => void;
 };
 
-export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, closeable_fc, wrapperClassName }: Props) {
+export function TaskEstimate({
+	_task,
+	onCloseEdition,
+	className,
+	loadingRef,
+	closeable_fc,
+	wrapperClassName,
+	afterUpdate
+}: Props) {
 	const {
 		targetEl,
 		value,
@@ -28,7 +37,7 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 		handleBlurMinutes,
 		updateLoading,
 		editableMode
-	} = useTaskEstimation(_task);
+	} = useTaskEstimation(_task, afterUpdate);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 

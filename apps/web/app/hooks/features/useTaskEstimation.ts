@@ -6,7 +6,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../useOutsideClick';
 import { useTeamTasks } from './useTeamTasks';
 
-export function useTaskEstimation(task?: Nullable<ITeamTask>) {
+export function useTaskEstimation(task?: Nullable<ITeamTask>, afterUpdate?: (task: Nullable<ITeamTask>) => void) {
 	const { activeTeamTask, updateTask, updateLoading, activeTeamId } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
@@ -117,8 +117,12 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 			estimate: hours * 60 * 60 + minutes * 60 // time seconds
 		});
 
+		if (afterUpdate) {
+			afterUpdate($task);
+		}
+
 		setEditableMode(false);
-	}, [$task, updateTask, value]);
+	}, [$task, afterUpdate, updateTask, value]);
 
 	const handleOutsideClick = useCallback(() => {
 		if (updateLoading || !editableMode) return;

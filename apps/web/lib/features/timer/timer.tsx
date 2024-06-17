@@ -149,7 +149,12 @@ export function Timer({ className }: IClassName) {
 						}
 					/>
 				</Tooltip>
-				<AddWorkTimeAndEstimatesToPlan closeModal={closeModal} open={isOpen} plan={hasPlan} />
+				<AddWorkTimeAndEstimatesToPlan
+					closeModal={closeModal}
+					open={isOpen}
+					plan={hasPlan}
+					startTimer={startTimer}
+				/>
 			</div>
 		</div>
 	);
