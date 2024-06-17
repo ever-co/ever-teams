@@ -5,7 +5,7 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from '@components/ui/svgs/pause-icon';
 import { PlayIcon } from '@components/ui/svgs/play-icon';
-import { AddWorkTimeAndEstimatesToPlan } from 'lib/features/daily-plan/plans-awork-time-and-estimate';
+import { AddWorkTimeAndEstimatesToPlan } from 'lib/features/daily-plan/plans-work-time-and-estimate';
 import { useTranslations } from 'next-intl';
 
 const Timer = () => {

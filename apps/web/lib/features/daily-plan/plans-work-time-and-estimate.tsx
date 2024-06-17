@@ -2,9 +2,8 @@ import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { useTranslations } from 'use-intl';
 import { TaskNameInfoDisplay } from '../task/task-displays';
-import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
-import { useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit, useUserProfilePage } from '@app/hooks';
 import { Button } from '@components/ui/button';
+import { TaskEstimate } from '../task/task-estimate';
 
 export function AddWorkTimeAndEstimatesToPlan({
 	open,
@@ -59,7 +58,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 							variant="outline"
 							type="submit"
 							className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-							// onClick={onSubmit}
+							onClick={closeModal}
 						>
 							{t('common.CANCEL')}
 						</Button>
@@ -79,32 +78,20 @@ export function AddWorkTimeAndEstimatesToPlan({
 }
 
 function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
-	console.log(dailyPlan);
+	const unEstimatedTasks =
+		dailyPlan?.tasks &&
+		dailyPlan?.tasks?.length > 0 &&
+		dailyPlan?.tasks?.filter((task) => typeof task.estimate === 'number' && task.estimate <= 0);
 	return (
 		<div>
 			<div className="flex flex-col gap-1">
-				{dailyPlan?.tasks &&
-					dailyPlan?.tasks?.length > 0 &&
-					dailyPlan?.tasks
-						?.filter((task) => typeof task.estimate === 'number' && task.estimate <= 0)
-						?.map((task) => <UnEstimatedTask key={task.id} task={task} />)}
+				{unEstimatedTasks && unEstimatedTasks?.map((task) => <UnEstimatedTask key={task.id} task={task} />)}
 			</div>
 		</div>
 	);
 }
 
 export function UnEstimatedTask({ task }: { task: ITeamTask }) {
-	const { activeTeam } = useOrganizationTeams();
-	const profile = useUserProfilePage();
-
-	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => {
-		return m.employee.user?.id === profile?.userProfile?.id;
-	});
-
-	const memberInfo = useTeamMemberCard(currentMember || undefined);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-
 	return (
 		<Card
 			shadow="custom"
@@ -116,7 +103,8 @@ export function UnEstimatedTask({ task }: { task: ITeamTask }) {
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
-			<TaskEstimateInput memberInfo={memberInfo} edition={taskEdition} />
+			{/* <TaskEstimateInput memberInfo={memberInfo} edition={taskEdition} /> */}
+			<TaskEstimate _task={task} />
 		</Card>
 	);
 }

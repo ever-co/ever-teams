@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
-import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-awork-time-and-estimate';
+import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 
 export function Timer({ className }: IClassName) {
 	const t = useTranslations();
