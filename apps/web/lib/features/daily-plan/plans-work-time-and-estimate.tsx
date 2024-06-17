@@ -1,10 +1,10 @@
-import { IDailyPlan, ITeamTask, Nullable } from '@app/interfaces';
+import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { useTranslations } from 'use-intl';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { Button } from '@components/ui/button';
 import { TaskEstimate } from '../task/task-estimate';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTeamTasks } from '@app/hooks';
 
 export function AddWorkTimeAndEstimatesToPlan({
@@ -25,10 +25,11 @@ export function AddWorkTimeAndEstimatesToPlan({
 
 	const { tasks: $tasks } = useTeamTasks();
 
+	const tasks = $tasks.filter((task) =>
+		plan?.tasks?.find((t) => task?.id === t.id && task?.estimate && task?.estimate <= 0)
+	);
 	const handleSubmit = () => {
 		if (workTimePlanned === 0 || typeof workTimePlanned !== 'number') return;
-
-		const tasks = $tasks.filter((task) => plan?.tasks?.find((t) => task.id === t.id));
 		if (tasks.some((task) => task.estimate === 0)) return;
 
 		startTimer();
@@ -90,32 +91,22 @@ export function AddWorkTimeAndEstimatesToPlan({
 
 function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
 	const t = useTranslations();
-	const [unEstimatedTasks, setUnEstimatedTasks] = useState<ITeamTask[]>([]);
 
-	useEffect(() => {
-		if (dailyPlan?.tasks) {
-			setUnEstimatedTasks(
-				dailyPlan.tasks.filter((task) => typeof task.estimate === 'number' && task.estimate <= 0)
-			);
-		}
-	}, [dailyPlan]);
+	const { tasks: $tasks } = useTeamTasks();
 
-	const handleUpdateTaskEstimate = (updatedTask: Nullable<ITeamTask>) => {
-		setUnEstimatedTasks((prevTasks) => prevTasks.filter((task) => task.id !== updatedTask?.id));
-	};
+	const tasks = $tasks.filter((task) =>
+		dailyPlan?.tasks?.find((t) => task?.id === t.id && task?.estimate && task?.estimate <= 0)
+	);
 
 	return (
 		<div>
-			{unEstimatedTasks?.length > 0 && (
+			{tasks?.length > 0 && (
 				<div className="text-sm flex flex-col gap-3">
 					<span>
 						{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIOMS')} <span className="text-red-600">*</span>
 					</span>
 					<div className="flex flex-col gap-1">
-						{unEstimatedTasks &&
-							unEstimatedTasks?.map((task) => (
-								<UnEstimatedTask key={task.id} task={task} afterUpdate={handleUpdateTaskEstimate} />
-							))}
+						{tasks && tasks?.map((task) => <UnEstimatedTask key={task.id} task={task} />)}
 					</div>
 				</div>
 			)}
@@ -123,13 +114,7 @@ function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
 	);
 }
 
-export function UnEstimatedTask({
-	task,
-	afterUpdate
-}: {
-	task: ITeamTask;
-	afterUpdate: (task: Nullable<ITeamTask>) => void;
-}) {
+export function UnEstimatedTask({ task }: { task: ITeamTask }) {
 	return (
 		<Card
 			shadow="custom"
@@ -142,7 +127,7 @@ export function UnEstimatedTask({
 			</div>
 			<VerticalSeparator />
 			{/* <TaskEstimateInput memberInfo={memberInfo} edition={taskEdition} /> */}
-			<TaskEstimate _task={task} afterUpdate={afterUpdate} />
+			<TaskEstimate _task={task} />
 		</Card>
 	);
 }
