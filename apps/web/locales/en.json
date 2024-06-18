@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "please select one to continue",
 			"HAVE_PASSWORD": "Have Password?",
 			"LOGIN_WITH_PASSWORD": "Login with the Password",
-			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code"
+			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code",
+			"ERROR_SIGNIN": "Error on signing"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Please enter your login information."
@@ -327,7 +328,8 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"DATA_SYNCHRONIZATION": "Data Synchronization",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?",
+			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to remove your account"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "General Settings",
@@ -454,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "Unauthorized",
 			"HEADING_TITLE": "You are not authorized to access this page !",
-			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login."
+			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login.",
+			"TRY_AGAIN": "Try again"
 		},
 		"page404": {
 			"HEADING_TITLE": "Page not found !",

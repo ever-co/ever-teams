@@ -5,6 +5,7 @@ import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ProviderEnum } from './OAuth';
+import { ISocialAccount, ISocialAccountExistUser, ISocialAccountSendToken } from '@app/interfaces/ISocialAccount';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -188,5 +189,29 @@ export const resentVerifyUserLinkRequest = (data: {
 		body,
 		tenantId: data.tenantId,
 		bearer_token
+	});
+};
+
+export const signinGetUserBySocialEmailRequest = (data: { email: string }) => {
+	return serverFetch<ISocialAccountExistUser>({
+		method: 'POST',
+		path: `/auth/signup.email.social`,
+		body: data
+	});
+};
+
+export const signinGetSocialUserByProviderIdRequest = (data: { providerAccountId: string; provider: string }) => {
+	return serverFetch<ISocialAccountExistUser>({
+		method: 'POST',
+		path: `/auth/signup.provider.social`,
+		body: data
+	});
+};
+
+export const linkUserToSocialAccount = (data: ISocialAccountSendToken) => {
+	return serverFetch<ISocialAccount>({
+		method: 'POST',
+		path: `/auth/signup.link.account`,
+		body: data
 	});
 };

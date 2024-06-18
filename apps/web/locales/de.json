@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "bitte wählen Sie einen aus, um fortzufahren",
 			"HAVE_PASSWORD": "Haben Sie ein Passwort?",
 			"LOGIN_WITH_PASSWORD": "Melden Sie sich mit dem Passwort an",
-			"LOGIN_WITH_MAGIC_CODE": "Melden Sie sich mit einem magischen Code an"
+			"LOGIN_WITH_MAGIC_CODE": "Melden Sie sich mit einem magischen Code an",
+			"ERROR_SIGNIN": "Fehler beim Signieren"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Bitte geben Sie Ihre Anmeldedaten ein."
@@ -455,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "Nicht autorisiert",
 			"HEADING_TITLE": "Sie sind nicht autorisiert auf diese Seite zuzugreifen !",
-			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein."
+			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein.",
+			"TRY_AGAIN": "Versuchen Sie es erneut"
 		},
 		"page404": {
 			"HEADING_TITLE": "Nicht gefunden",
