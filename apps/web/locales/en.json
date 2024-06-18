@@ -98,7 +98,7 @@
 		"CREATE_ISSUE": "Create issue",
 		"NEW_ISSUE": "New Issue",
 		"ACTIVATED": "Activated",
-		"DEACTIVATED": "Activated",
+		"DEACTIVATED": "Deactivated",
 		"PERIOD": "Period",
 		"NEW": "New",
 		"CREATE_VERSION": "Create Version",
@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "please select one to continue",
 			"HAVE_PASSWORD": "Have Password?",
 			"LOGIN_WITH_PASSWORD": "Login with the Password",
-			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code"
+			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code",
+			"ERROR_SIGNIN": "Error on signing"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Please enter your login information."
@@ -327,7 +328,8 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
 			"DATA_SYNCHRONIZATION": "Data Synchronization",
-			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?",
+			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to remove your account"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "General Settings",
@@ -338,6 +340,7 @@
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
 			"TIME_TRACKING": "Time Tracking",
+			"REQUIRE_PLAN_TO_TRACK": "Require a Plan to track",
 			"ADD_NEW_MEMBER": "Add new member",
 			"MANAGE_ASSIGNEES": "Manage Assignees",
 			"SEARCH_MEMBER": "Search Member",
@@ -453,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "Unauthorized",
 			"HEADING_TITLE": "You are not authorized to access this page !",
-			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login."
+			"HEADING_DESCRIPTION": "We apologize for the inconvenience, but you are not authorized to access to this page. If you believe this is an error. Please login.",
+			"TRY_AGAIN": "Try again"
 		},
 		"page404": {
 			"HEADING_TITLE": "Page not found !",
@@ -475,7 +479,7 @@
 		}
 	},
 	"timer": {
-		"START_TIMER": "Please, select or create a new task to start tracking the time",
+		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"
@@ -507,7 +511,15 @@
 		"ACTIVE": "Active",
 		"INACTIVE": "Inactive",
 		"ARCHIVED": "Archived",
-		"NOT_ARCHIVED": "Not archived"
+		"NOT_ARCHIVED": "Not archived",
+		"todayPlanSettings": {
+			"TITLE": "TODAY'S PLAN",
+			"WORK_TIME_PLANNED": "Add planned working hours",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Working time planned for today",
+			"TASKS_WITH_NO_ESTIMATIONS": "Taks with no time estimations",
+			"START_WORKING_BUTTON": "Start working",
+			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
+		}
 	},
 	"task": {
 		"TITLE": "Task",

@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "proszę wybrać jedną, aby kontynuować",
 			"HAVE_PASSWORD": "Masz hasło?",
 			"LOGIN_WITH_PASSWORD": "Zaloguj się za pomocą hasła",
-			"LOGIN_WITH_MAGIC_CODE": "Zaloguj się za pomocą magicznego kodu"
+			"LOGIN_WITH_MAGIC_CODE": "Zaloguj się za pomocą magicznego kodu",
+			"ERROR_SIGNIN": "Błąd przy podpisywaniu"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Proszę wprowadzić swoje dane logowania."
@@ -339,6 +340,7 @@
 			"TEAM_NAME": "Nazwa Zespołu",
 			"TEAM_TYPE": "Typ Zespołu",
 			"TIME_TRACKING": "Śledzenie Czasu",
+			"REQUIRE_PLAN_TO_TRACK": "Wymagaj planu do śledzenia",
 			"ADD_NEW_MEMBER": "Dodaj nowego członka",
 			"MANAGE_ASSIGNEES": "Zarządzaj Przydzielonymi",
 			"SEARCH_MEMBER": "Szukaj Członka",
@@ -454,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "Nieautoryzowany",
 			"HEADING_TITLE": "Nie masz uprawnień, aby uzyskać dostęp do tej strony !",
-			"HEADING_DESCRIPTION": "Przepraszamy za niedogodności, ale nie masz uprawnień dostępu do tej strony. Jeśli uważasz, że to błąd. Proszę się zalogować."
+			"HEADING_DESCRIPTION": "Przepraszamy za niedogodności, ale nie masz uprawnień dostępu do tej strony. Jeśli uważasz, że to błąd. Proszę się zalogować.",
+			"TRY_AGAIN": "Spróbuj ponownie"
 		},
 		"page404": {
 			"HEADING_TITLE": "Nie Znaleziono",
@@ -476,7 +479,7 @@
 		}
 	},
 	"timer": {
-		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu",
+		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Zatrzymano Timer z powodu zmiany zespołu"
@@ -492,6 +495,14 @@
 				"title": "14 dni"
 			}
 		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN DNIA",
+			"WORK_TIME_PLANNED": "Dodaj zaplanowane godziny pracy",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Zaplanowany czas pracy na dziś",
+			"TASKS_WITH_NO_ESTIMATIONS": "Zadania bez oszacowania czasu",
+			"START_WORKING_BUTTON": "Rozpocznij pracę",
+			"WARNING_PLAN_ESTIMATION": "Popraw planowane godziny pracy lub ponownie oszacuj zadania"
+		},
 		"TIME_ACTIVITY": "Aktywność",
 		"TOTAL_HOURS": "Całkowita liczba godzin",
 		"NO_SCREENSHOOT": "Brak zrzutów ekranu",

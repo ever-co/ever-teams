@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "por favor, selecione um para continuar",
 			"HAVE_PASSWORD": "Tem senha?",
 			"LOGIN_WITH_PASSWORD": "Faça login com a senha",
-			"LOGIN_WITH_MAGIC_CODE": "Faça login com um código mágico"
+			"LOGIN_WITH_MAGIC_CODE": "Faça login com um código mágico",
+			"ERROR_SIGNIN": "Erro ao assinar"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor digite suas informações de login."
@@ -339,6 +340,7 @@
 			"TEAM_NAME": "Nome da Equipe",
 			"TEAM_TYPE": "Tipo de Equipe",
 			"TIME_TRACKING": "Rastreamento de Tempo",
+			"REQUIRE_PLAN_TO_TRACK": "Exigir um plano para rastrear",
 			"ADD_NEW_MEMBER": "Adicionar novo membro",
 			"MANAGE_ASSIGNEES": "Gerenciar Designados",
 			"SEARCH_MEMBER": "Procurar Membro",
@@ -454,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "Não autorizado",
 			"HEADING_TITLE": "Você não está autorizado à acessar essa página !",
-			"HEADING_DESCRIPTION": "Pedimos desculpas pelo transtorno, mas você não está autorizado a acessar esta página. Se você acredita que isso é um erro. Por favor entre."
+			"HEADING_DESCRIPTION": "Pedimos desculpas pelo transtorno, mas você não está autorizado a acessar esta página. Se você acredita que isso é um erro. Por favor entre.",
+			"TRY_AGAIN": "Tente novamente"
 		},
 		"page404": {
 			"HEADING_TITLE": "Não Encontrado",
@@ -476,7 +479,7 @@
 		}
 	},
 	"timer": {
-		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo",
+		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador Parado",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador Parado devido à Troca de Equipe"
@@ -492,6 +495,14 @@
 				"title": "14 dias"
 			}
 		],
+		"todayPlanSettings": {
+			"TITLE": "PLANO DO DIA",
+			"WORK_TIME_PLANNED": "Adicionar horas de trabalho planejadas",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Tempo de trabalho planejado para hoje",
+			"TASKS_WITH_NO_ESTIMATIONS": "Tarefas sem estimativas de tempo",
+			"START_WORKING_BUTTON": "Começar a trabalhar",
+			"WARNING_PLAN_ESTIMATION": "Corrigir as horas de trabalho planeadas ou fazer uma nova estimativa da(s) tarefa(s)"
+		},
 		"TIME_ACTIVITY": "Atividade",
 		"TOTAL_HOURS": "Total de Horas",
 		"NO_SCREENSHOOT": "Sem Capturas de Tela",

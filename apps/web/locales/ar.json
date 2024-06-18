@@ -233,7 +233,7 @@
 			"MEMBER_NOT_FOUND_MSG_1": "العضو الذي تبحث عنه غير موجود في الفريق، يرجى المحاولة مرة أخرى ببحث مختلف.",
 			"MEMBER_NOT_FOUND_MSG_2": "إذا كنت تبحث عن عضو في فريق مختلف، يرجى تحديد الفريق من القائمة المنسدلة أعلاه.",
 			"GO_TO_HOME": "الذهاب إلى الصفحة الرئيسية"
-			},
+		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"تفاصيل المهمة\"]",
 			"DESCRIPTION": "الوصف",
@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "يرجى تحديد واحدة للمتابعة",
 			"HAVE_PASSWORD": "هل لديك كلمة مرور؟",
 			"LOGIN_WITH_PASSWORD": "تسجيل الدخول باستخدام كلمة المرور",
-			"LOGIN_WITH_MAGIC_CODE": "قم بتسجيل الدخول باستخدام الرمز السحري"
+			"LOGIN_WITH_MAGIC_CODE": "قم بتسجيل الدخول باستخدام الرمز السحري",
+			"ERROR_SIGNIN": "خطأ في التوقيع"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "يرجى إدخال معلومات تسجيل الدخول الخاصة بك."
@@ -339,6 +340,7 @@
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
 			"TIME_TRACKING": "تتبع الوقت",
+			"REQUIRE_PLAN_TO_TRACK": "طلب خطة للتتبع",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
@@ -454,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "غير مصرح",
 			"HEADING_TITLE": "أنت غير مفوض لدخول هذه الصفحة !",
-			"HEADING_DESCRIPTION": "عتذر عن الإزعاج، لكن غير مسموح لك بالدخول إلى هذه الصفحة. إذا كنت تعتقد أن هذا خطأ. الرجاء تسجيل الدخول."
+			"HEADING_DESCRIPTION": "عتذر عن الإزعاج، لكن غير مسموح لك بالدخول إلى هذه الصفحة. إذا كنت تعتقد أن هذا خطأ. الرجاء تسجيل الدخول.",
+			"TRY_AGAIN": "حاول ثانية"
 		},
 		"page404": {
 			"HEADING_TITLE": "غير موجود",
@@ -479,7 +482,7 @@
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
 		"ARCHIVED": "مؤرشف",
-		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت",
+		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
@@ -508,7 +511,15 @@
 			{
 				"title": "14 يوم"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "خطة اليوم",
+			"WORK_TIME_PLANNED": "إضافة ساعات العمل المخطط لها",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "وقت العمل المخطط له اليوم",
+			"TASKS_WITH_NO_ESTIMATIONS": "تاكس مع عدم وجود تقديرات زمنية",
+			"START_WORKING_BUTTON": "ابدأ العمل",
+			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
+		}
 	},
 	"task": {
 		"TITLE": "المهمة",

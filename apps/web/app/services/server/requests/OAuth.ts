@@ -1,6 +1,21 @@
-import { type Adapter } from '@auth/core/adapters';
-import { signWithSocialLoginsRequest } from '@app/services/server/requests';
+import { AdapterAccount, AdapterSession, AdapterUser, type Adapter } from '@auth/core/adapters';
+import {
+	signinGetSocialUserByProviderIdRequest,
+	registerUserRequest,
+	signWithSocialLoginsRequest,
+	loginUserRequest,
+	createTenantRequest,
+	createTenantSmtpRequest,
+	createOrganizationRequest,
+	createEmployeeFromUser,
+	createOrganizationTeamRequest,
+	refreshTokenRequest,
+	linkUserToSocialAccount
+} from '@app/services/server/requests';
 import { getUserOrganizationsRequest, signInWorkspaceAPI } from '@app/services/client/api/auth/invite-accept';
+import { generateToken } from '@app/helpers';
+import { NextRequest } from 'next/server';
+import { VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
 
 export enum ProviderEnum {
 	GITHUB = 'github',
@@ -9,9 +24,126 @@ export enum ProviderEnum {
 	TWITTER = 'twitter'
 }
 
-export const GauzyAdapter: Adapter = {
-	// Provide createUser and other related functions that will call Gauzy APIs when implementing social signup
-};
+export function GauzyAdapter(req: NextRequest): Adapter {
+	return {
+		createUser: async (user): Promise<any> => {
+			const url = new URL(req.url);
+
+			const { email, name } = user;
+			const [firstName, lastName] = name ? name.split(' ') : [];
+			// General a random password with 8 chars
+			const password = generateToken(8);
+
+			const appEmailConfirmationUrl = `${url.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
+			const createdUser = await registerUserRequest({
+				password,
+				confirmPassword: password,
+				user: { email, firstName, lastName, timeZone: '' },
+				appEmailConfirmationUrl
+			});
+
+			// User Login, get the access token
+			const { data: loginRes } = await loginUserRequest(email, password);
+			const auth_token = loginRes.token;
+
+			// Create user tenant
+			const { data: tenant } = await createTenantRequest(firstName, auth_token);
+
+			// Create tenant SMTP
+			await createTenantSmtpRequest({
+				access_token: auth_token,
+				tenantId: tenant.id
+			});
+
+			// Create user organization
+			const { data: organization } = await createOrganizationRequest(
+				{
+					currency: 'USD',
+					name: firstName,
+					tenantId: tenant.id,
+					invitesAllowed: true
+				},
+				auth_token
+			);
+
+			// Create employee
+			const { data: employee } = await createEmployeeFromUser(
+				{
+					organizationId: organization.id,
+					startedWorkOn: new Date().toISOString(),
+					tenantId: tenant.id,
+					userId: createdUser.data.id
+				},
+				auth_token
+			);
+
+			// Create user organization team
+			await createOrganizationTeamRequest(
+				{
+					name: firstName,
+					tenantId: tenant.id,
+					organizationId: organization.id,
+					managerIds: [employee.id],
+					public: true
+				},
+				auth_token
+			);
+
+			await refreshTokenRequest(loginRes.refresh_token);
+
+			// await verifyUserEmailByTokenRequest({ email, token: loginRes.token });
+
+			return createdUser.data;
+		},
+
+		getUser: async (): Promise<any> => {
+			return null;
+		},
+
+		getUserByEmail: async (): Promise<any> => {
+			return null;
+		},
+
+		getUserByAccount: async (
+			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
+		): Promise<any> => {
+			const response = await signinGetSocialUserByProviderIdRequest(providerAccountId);
+			if (!response.data.isUserExists) return null;
+			return response.data;
+		},
+
+		updateUser: async (user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>): Promise<any> => {
+			return user;
+		},
+
+		linkAccount: async (account: AdapterAccount) => {
+			const { provider, access_token: token } = account;
+			if (provider && token) {
+				return (await linkUserToSocialAccount({ provider: provider as ProviderEnum, token }))
+					.data as AdapterAccount;
+			}
+			return null;
+		},
+
+		createSession: async (session: { sessionToken: string; userId: string; expires: Date }) => {
+			return session;
+		},
+
+		getSessionAndUser: async (sessionToken: string): Promise<any> => {
+			return sessionToken;
+		},
+
+		updateSession: async (
+			session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
+		): Promise<any> => {
+			return session;
+		},
+
+		deleteSession: async (sessionToken: string): Promise<any> => {
+			return sessionToken;
+		}
+	};
+}
 
 async function signIn(provider: ProviderEnum, access_token: string) {
 	try {
@@ -45,7 +177,7 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 				}
 			});
 		}
-		return { data, gauzyUser, organization, tenantId, userId };
+		return { data, gauzyUser, organization, tenantId, token, userId };
 	} catch (error) {
 		throw new Error('Signin error', { cause: error });
 	}
@@ -55,16 +187,16 @@ export async function signInCallback(provider: ProviderEnum, access_token: strin
 	try {
 		const { gauzyUser, organization } = await signIn(provider, access_token);
 		return !!gauzyUser && !!organization;
-	} catch (error) {
+	} catch (error: any) {
 		return false;
 	}
 }
 
 export async function jwtCallback(provider: ProviderEnum, access_token: string) {
 	try {
-		const { data, gauzyUser, organization, tenantId, userId } = await signIn(provider, access_token);
+		const { data, gauzyUser, organization, tenantId, token, userId } = await signIn(provider, access_token);
 		return {
-			access_token,
+			access_token: token,
 			refresh_token: {
 				token: data.refresh_token
 			},

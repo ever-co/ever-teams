@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "veuillez en sélectionner un pour continuer.",
 			"HAVE_PASSWORD": "Vous avez un mot de passe ?",
 			"LOGIN_WITH_PASSWORD": "Connectez-vous avec le mot de passe",
-			"LOGIN_WITH_MAGIC_CODE": "Connectez-vous avec un code magique"
+			"LOGIN_WITH_MAGIC_CODE": "Connectez-vous avec un code magique",
+			"ERROR_SIGNIN": "Erreur lors de la connexion"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "S'il vous plaît entrer vos informations de connexion."
@@ -339,6 +340,7 @@
 			"TEAM_NAME": "Nom de l'équipe",
 			"TEAM_TYPE": "Type d'équipe",
 			"TIME_TRACKING": "Suivi du temps",
+			"REQUIRE_PLAN_TO_TRACK": "Exiger un plan pour tracker",
 			"ADD_NEW_MEMBER": "Ajouter un nouveau membre",
 			"MANAGE_ASSIGNEES": "Gérer les personnes assignées",
 			"SEARCH_MEMBER": "Rechercher un membre",
@@ -454,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "Non autorisé",
 			"HEADING_TITLE": "Vous n'êtes pas autorisé à accéder à cette page !",
-			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter."
+			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter.",
+			"TRY_AGAIN": "Réessayer"
 		},
 		"page404": {
 			"HEADING_TITLE": "Page non trouvée",
@@ -476,7 +479,7 @@
 		}
 	},
 	"timer": {
-		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps",
+		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Chronomètre arrêté",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Le chronomètre s'est arrêté en raison du changement d'équipe"
@@ -492,6 +495,14 @@
 				"title": "14 jours"
 			}
 		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN DU JOUR",
+			"WORK_TIME_PLANNED": "Ajouter les heures de travail prévues",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Temps de travail prévu pour aujourd'hui",
+			"TASKS_WITH_NO_ESTIMATIONS": "Tâches sans estimations de temps",
+			"START_WORKING_BUTTON": "Commencer à travailler",
+			"WARNING_PLAN_ESTIMATION": "Veuillez corriger les heures de travail prévues ou réévaluer la/les tâche(s)"
+		},
 		"TIME_ACTIVITY": "Activité",
 		"TOTAL_HOURS": "Total des heures",
 		"NO_SCREENSHOOT": "Aucune capture d'écran",
