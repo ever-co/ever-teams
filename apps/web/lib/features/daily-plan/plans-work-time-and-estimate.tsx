@@ -4,8 +4,8 @@ import { useTranslations } from 'use-intl';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { Button } from '@components/ui/button';
 import { TaskEstimate } from '../task/task-estimate';
-import { useState } from 'react';
-import { useTeamTasks } from '@app/hooks';
+import { useEffect, useState } from 'react';
+import { useDailyPlan, useTeamTasks } from '@app/hooks';
 
 export function AddWorkTimeAndEstimatesToPlan({
 	open,
@@ -20,19 +20,28 @@ export function AddWorkTimeAndEstimatesToPlan({
 	plan?: IDailyPlan;
 	// employee?: OT_Member;
 }) {
-	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan?.workTimePlanned);
 	const t = useTranslations();
+	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan?.workTimePlanned);
+
+	useEffect(() => {
+		if (typeof workTimePlanned === 'string') setworkTimePlanned(parseFloat(workTimePlanned));
+	}, [workTimePlanned]);
+
+	const { updateDailyPlan } = useDailyPlan();
 
 	const { tasks: $tasks } = useTeamTasks();
 
 	const tasks = $tasks.filter((task) =>
-		plan?.tasks?.find((t) => task?.id === t.id && task?.estimate && task?.estimate <= 0)
+		plan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0)
 	);
+
 	const handleSubmit = () => {
 		if (workTimePlanned === 0 || typeof workTimePlanned !== 'number') return;
 		if (tasks.some((task) => task.estimate === 0)) return;
 
+		updateDailyPlan({ workTimePlanned }, plan?.id ?? '');
 		startTimer();
+		closeModal();
 	};
 
 	return (
@@ -95,7 +104,7 @@ function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
 	const { tasks: $tasks } = useTeamTasks();
 
 	const tasks = $tasks.filter((task) =>
-		dailyPlan?.tasks?.find((t) => task?.id === t.id && task?.estimate && task?.estimate <= 0)
+		dailyPlan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0)
 	);
 
 	return (
