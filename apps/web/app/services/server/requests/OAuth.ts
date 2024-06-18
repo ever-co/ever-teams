@@ -27,7 +27,6 @@ export enum ProviderEnum {
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
 		createUser: async (user): Promise<any> => {
-			console.log('=========================== CREATE');
 			const url = new URL(req.url);
 
 			const { email, name } = user;
