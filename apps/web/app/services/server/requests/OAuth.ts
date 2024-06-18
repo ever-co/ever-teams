@@ -1,6 +1,5 @@
 import { AdapterAccount, AdapterSession, AdapterUser, type Adapter } from '@auth/core/adapters';
 import {
-	signinGetUserBySocialEmailRequest,
 	signinGetSocialUserByProviderIdRequest,
 	registerUserRequest,
 	signWithSocialLoginsRequest,
@@ -28,6 +27,7 @@ export enum ProviderEnum {
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
 		createUser: async (user): Promise<any> => {
+			console.log('=========================== CREATE');
 			const url = new URL(req.url);
 
 			const { email, name } = user;
@@ -101,10 +101,8 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 			return null;
 		},
 
-		getUserByEmail: async (email): Promise<any> => {
-			const response = await signinGetUserBySocialEmailRequest({ email });
-			if (!response.data.isUserExists) return null;
-			return response.data;
+		getUserByEmail: async (): Promise<any> => {
+			return null;
 		},
 
 		getUserByAccount: async (
