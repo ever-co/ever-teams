@@ -6,6 +6,11 @@ export const dailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	default: { items: [], total: 0 }
 });
 
+export const myDailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
+	key: 'myDailyPlanListState',
+	default: { items: [], total: 0 }
+});
+
 export const profileDailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	key: 'profileDailyPlanListState',
 	default: { items: [], total: 0 }

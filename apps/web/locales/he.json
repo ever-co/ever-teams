@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "אנא בחר אחת כדי להמשיך",
 			"HAVE_PASSWORD": "יש לך סיסמא?",
 			"LOGIN_WITH_PASSWORD": "התחבר עם הסיסמה",
-			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם"
+			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם",
+			"ERROR_SIGNIN": "שגיאה בחתימה"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."
@@ -339,6 +340,7 @@
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
 			"TIME_TRACKING": "מעקב זמן",
+			"REQUIRE_PLAN_TO_TRACK": "דרוש תוכנית למעקב",
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",
 			"MANAGE_ASSIGNEES": "נהל מוקצים",
 			"SEARCH_MEMBER": "חפש חבר",
@@ -454,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "לא מורשה",
 			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
-			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר"
+			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר",
+			"TRY_AGAIN": "נסה שוב"
 		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",
@@ -479,7 +482,7 @@
 		"ACTIVE": "פעיל",
 		"APPS": "אפליקציות",
 		"ARCHIVED": "ארכיון",
-		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן",
+		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן או ליצור תוכנית",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"
@@ -508,7 +511,15 @@
 			{
 				"title": "14 ימים"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "תכנית היום",
+			"WORK_TIME_PLANNED": "הוסף שעות עבודה מתוכננות",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "זמן עבודה מתוכנן להיום",
+			"TASKS_WITH_NO_ESTIMATIONS": "משימות בלי הערכת זמן",
+			"START_WORKING_BUTTON": "התחל לעבוד",
+			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
+		}
 	},
 	"task": {
 		"TITLE": "משימה",

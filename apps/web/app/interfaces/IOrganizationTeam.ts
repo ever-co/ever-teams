@@ -16,6 +16,7 @@ export interface IOrganizationTeamCreate {
 	organizationId: string;
 	tenantId: string;
 	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	public?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
@@ -44,6 +45,7 @@ export interface IOrganizationTeam {
 	createdAt: string;
 	updatedAt: string;
 	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
 }
@@ -62,6 +64,7 @@ export interface IOrganizationTeamList {
 	prefix: string;
 	members: OT_Member[];
 	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	public?: boolean;
 	createdById: string;
 	createdBy: IUser;

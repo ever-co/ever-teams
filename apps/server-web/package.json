@@ -25,9 +25,9 @@
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
-    "pack:mac": "electron-builder build --mac --publish never && npm run build:dll",
-    "pack:win": "electron-builder build --win --publish never && npm run build:dll",
-    "pack:linux": "electron-builder build --linux --publish never && npm run build:dll",
+    "pack:mac": "electron-builder build --mac --publish always && npm run build:dll",
+    "pack:win": "electron-builder build --win --publish always && npm run build:dll",
+    "pack:linux": "electron-builder build --linux --publish always && npm run build:dll",
     "package": "electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
@@ -239,15 +239,8 @@
     "publish": [
       {
         "provider": "github",
-        "repo": "ever-teams-web-server",
+        "repo": "ever-teams",
         "releaseType": "release"
-      },
-      {
-        "provider": "spaces",
-        "name": "ever",
-        "region": "sfo3",
-        "path": "/ever-teams-web-server",
-        "acl": "public-read"
       }
     ]
   },
