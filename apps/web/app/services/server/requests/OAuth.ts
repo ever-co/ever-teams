@@ -101,7 +101,6 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		getUserByEmail: async (): Promise<any> => {
-			console.log('GET BY EMAIL FAILS');
 			return null;
 		},
 
