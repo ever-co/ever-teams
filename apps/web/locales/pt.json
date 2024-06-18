@@ -495,6 +495,14 @@
 				"title": "14 dias"
 			}
 		],
+		"todayPlanSettings": {
+			"TITLE": "PLANO DO DIA",
+			"WORK_TIME_PLANNED": "Adicionar horas de trabalho planejadas",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Tempo de trabalho planejado para hoje",
+			"TASKS_WITH_NO_ESTIMATIONS": "Tarefas sem estimativas de tempo",
+			"START_WORKING_BUTTON": "Começar a trabalhar",
+			"WARNING_PLAN_ESTIMATION": "Corrigir as horas de trabalho planeadas ou fazer uma nova estimativa da(s) tarefa(s)"
+		},
 		"TIME_ACTIVITY": "Atividade",
 		"TOTAL_HOURS": "Total de Horas",
 		"NO_SCREENSHOOT": "Sem Capturas de Tela",

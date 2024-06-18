@@ -511,7 +511,15 @@
 			{
 				"title": "14天"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "今日计划",
+			"WORK_TIME_PLANNED": "添加计划工作时间",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "今天计划的工作时间",
+			"TASKS_WITH_NO_ESTIMATIONS": "没有时间估算的任务",
+			"START_WORKING_BUTTON": "开始工作",
+			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
+		}
 	},
 	"task": {
 		"TITLE": "任务",
