@@ -8,6 +8,26 @@ import MicrosoftEntraID from '@auth/core/providers/microsoft-entra-id';
 import Slack from '@auth/core/providers/slack';
 import Twitter from '@auth/core/providers/twitter';
 import type { Provider } from '@auth/core/providers';
+import {
+	APPLE_CLIENT_ID,
+	APPLE_CLIENT_SECRET,
+	DISCORD_CLIENT_ID,
+	DISCORD_CLIENT_SECRET,
+	FACEBOOK_CLIENT_ID,
+	FACEBOOK_CLIENT_SECRET,
+	GITHUB_CLIENT_ID,
+	GITHUB_CLIENT_SECRET,
+	GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET,
+	LINKEDIN_CLIENT_ID,
+	LINKEDIN_CLIENT_SECRET,
+	MICROSOFT_CLIENT_ID,
+	MICROSOFT_CLIENT_SECRET,
+	SLACK_CLIENT_ID,
+	SLACK_CLIENT_SECRET,
+	TWITTER_CLIENT_ID,
+	TWITTER_CLIENT_SECRET
+} from '@app/constants';
 
 type ProviderNames = {
 	[key: string]: string | undefined;
@@ -26,15 +46,42 @@ export const providerNames: ProviderNames = {
 };
 
 export const providers: Provider[] = [
-	Apple,
-	Discord,
-	Facebook,
-	Google,
-	Github,
-	Linkedin,
-	MicrosoftEntraID,
-	Slack,
-	Twitter
+	Apple({
+		clientId: APPLE_CLIENT_ID,
+		clientSecret: APPLE_CLIENT_SECRET || ''
+	}),
+	Discord({
+		clientId: DISCORD_CLIENT_ID,
+		clientSecret: DISCORD_CLIENT_SECRET
+	}),
+	Facebook({
+		clientId: FACEBOOK_CLIENT_ID,
+		clientSecret: FACEBOOK_CLIENT_SECRET
+	}),
+	Google({
+		clientId: GOOGLE_CLIENT_ID,
+		clientSecret: GOOGLE_CLIENT_SECRET
+	}),
+	Github({
+		clientId: GITHUB_CLIENT_ID,
+		clientSecret: GITHUB_CLIENT_SECRET
+	}),
+	Linkedin({
+		clientId: LINKEDIN_CLIENT_ID,
+		clientSecret: LINKEDIN_CLIENT_SECRET
+	}),
+	MicrosoftEntraID({
+		clientId: MICROSOFT_CLIENT_ID,
+		clientSecret: MICROSOFT_CLIENT_SECRET
+	}),
+	Slack({
+		clientId: SLACK_CLIENT_ID,
+		clientSecret: SLACK_CLIENT_SECRET
+	}),
+	Twitter({
+		clientId: TWITTER_CLIENT_ID,
+		clientSecret: TWITTER_CLIENT_SECRET
+	})
 ];
 
 export const filteredProviders = providers.filter((provider) => {
