@@ -52,6 +52,7 @@ import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
 import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
+import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 
 type Props = {
 	active?: boolean;
@@ -329,7 +330,20 @@ function TimerButtonCall({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { canTrack, disabled, timerHanlder, timerStatus, activeTeamTask, startTimer, stopTimer } = useTimerView();
+	const { closeModal, isOpen, openModal } = useModal();
+
+	const {
+		canTrack,
+		disabled,
+		canRunTimer,
+		timerStatusFetching,
+		timerStatus,
+		activeTeamTask,
+		startTimer,
+		stopTimer,
+		isPlanVerified,
+		hasPlan
+	} = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
 
@@ -371,15 +385,36 @@ function TimerButtonCall({
 		updateOrganizationTeamEmployee
 	]);
 
+	const timerHanlderStartStop = useCallback(() => {
+		if (timerStatusFetching || !canRunTimer) return;
+		if (timerStatus?.running) {
+			stopTimer();
+		} else {
+			if (!isPlanVerified) {
+				openModal();
+			} else {
+				startTimer();
+			}
+		}
+	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
+
 	return loading ? (
 		<SpinnerLoader size={30} />
 	) : (
-		<TimerButton
-			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
-			running={activeTaskStatus?.running}
-			disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-			className={clsxm('h-14 w-14', className)}
-		/>
+		<>
+			<TimerButton
+				onClick={activeTaskStatus ? timerHanlderStartStop : startTimerWithTask}
+				running={activeTaskStatus?.running}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+				className={clsxm('h-14 w-14', className)}
+			/>
+			<AddWorkTimeAndEstimatesToPlan
+				closeModal={closeModal}
+				open={isOpen}
+				plan={hasPlan}
+				startTimer={startTimer}
+			/>
+		</>
 	);
 }
 
