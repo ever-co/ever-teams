@@ -514,8 +514,9 @@
 			"TITLE": "PLAN VAN VANDAAG",
 			"WORK_TIME_PLANNED": "Geplande werkuren toevoegen",
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Geplande werktijd voor vandaag",
-			"TASKS_WITH_NO_ESTIMATIOMS": "Taken zonder tijdschattingen",
-			"START_WORKING_BUTTON": "Begin met werken"
+			"TASKS_WITH_NO_ESTIMATIONS": "Taken zonder tijdschattingen",
+			"START_WORKING_BUTTON": "Begin met werken",
+			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
 		}
 	},
 	"task": {

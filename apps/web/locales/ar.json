@@ -514,8 +514,9 @@
 			"TITLE": "خطة اليوم",
 			"WORK_TIME_PLANNED": "إضافة ساعات العمل المخطط لها",
 			"WORK_TIME_PLANNED_PLACEHOLDER": "وقت العمل المخطط له اليوم",
-			"TASKS_WITH_NO_ESTIMATIOMS": "تاكس مع عدم وجود تقديرات زمنية",
-			"START_WORKING_BUTTON": "ابدأ العمل"
+			"TASKS_WITH_NO_ESTIMATIONS": "تاكس مع عدم وجود تقديرات زمنية",
+			"START_WORKING_BUTTON": "ابدأ العمل",
+			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
 		}
 	},
 	"task": {

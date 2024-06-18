@@ -514,8 +514,9 @@
 			"TITLE": "תכנית היום",
 			"WORK_TIME_PLANNED": "הוסף שעות עבודה מתוכננות",
 			"WORK_TIME_PLANNED_PLACEHOLDER": "זמן עבודה מתוכנן להיום",
-			"TASKS_WITH_NO_ESTIMATIOMS": "משימות בלי הערכת זמן",
-			"START_WORKING_BUTTON": "התחל לעבוד"
+			"TASKS_WITH_NO_ESTIMATIONS": "משימות בלי הערכת זמן",
+			"START_WORKING_BUTTON": "התחל לעבוד",
+			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
 		}
 	},
 	"task": {

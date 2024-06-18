@@ -497,8 +497,9 @@
 			"TITLE": "ПЛАН НА СЕГОДНЯ",
 			"WORK_TIME_PLANNED": "Добавить запланированные часы работы",
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Запланированное время работы на сегодня",
-			"TASKS_WITH_NO_ESTIMATIOMS": "Задачи без оценки времени",
-			"START_WORKING_BUTTON": "Начать работу"
+			"TASKS_WITH_NO_ESTIMATIONS": "Задачи без оценки времени",
+			"START_WORKING_BUTTON": "Начать работу",
+			"WARNING_PLAN_ESTIMATION": "Пожалуйста, исправьте запланированные часы работы или пересчитайте задание(я)"
 		},
 		"TIME_ACTIVITY": "Активность",
 		"TOTAL_HOURS": "Всего часов",

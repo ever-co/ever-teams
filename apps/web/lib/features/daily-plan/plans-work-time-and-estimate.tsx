@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
+import { PiWarningCircleFill } from 'react-icons/pi';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { useTranslations } from 'use-intl';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { Button } from '@components/ui/button';
 import { TaskEstimate } from '../task/task-estimate';
-import { useEffect, useState } from 'react';
 import { useDailyPlan, useTeamTasks } from '@app/hooks';
 
 export function AddWorkTimeAndEstimatesToPlan({
@@ -68,9 +69,14 @@ export function AddWorkTimeAndEstimatesToPlan({
 						/>
 					</div>
 
-					{plan?.tasks && plan?.tasks?.length > 0 && (
+					{tasks.length > 0 && (
 						<div className="text-sm flex flex-col gap-3">
 							<UnEstimatedTasks dailyPlan={plan} />
+
+							<div className="flex gap-2 items-center text-red-500">
+								<PiWarningCircleFill className="text-2xl" />
+								<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
+							</div>
 						</div>
 					)}
 
@@ -112,7 +118,7 @@ function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
 			{tasks?.length > 0 && (
 				<div className="text-sm flex flex-col gap-3">
 					<span>
-						{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIOMS')} <span className="text-red-600">*</span>
+						{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIONS')} <span className="text-red-600">*</span>
 					</span>
 					<div className="flex flex-col gap-1">
 						{tasks && tasks?.map((task) => <UnEstimatedTask key={task.id} task={task} />)}

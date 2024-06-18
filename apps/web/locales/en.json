@@ -513,8 +513,9 @@
 			"TITLE": "TODAY'S PLAN",
 			"WORK_TIME_PLANNED": "Add planned working hours",
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Working time planned for today",
-			"TASKS_WITH_NO_ESTIMATIOMS": "Taks with no time estimations",
-			"START_WORKING_BUTTON": "Start working"
+			"TASKS_WITH_NO_ESTIMATIONS": "Taks with no time estimations",
+			"START_WORKING_BUTTON": "Start working",
+			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		}
 	},
 	"task": {
