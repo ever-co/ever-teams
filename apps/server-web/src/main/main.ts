@@ -4,15 +4,16 @@ import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
-import { EventLists } from './helpers/constant';
+import { EventLists, SettingPageTypeMessage } from './helpers/constant';
 import { resolveHtmlPath } from './util';
+import Updater from './updater';
 
-const eventEmiter = new EventEmitter();
+const eventEmitter = new EventEmitter();
 
 const controller = new AbortController();
 const { signal } = controller;
 const isPack = app.isPackaged;
-const desktopServer = new DesktopServer(false, eventEmiter);
+const desktopServer = new DesktopServer(false, eventEmitter);
 const isProd = process.env.NODE_ENV === 'production';
 
 // const appPath = app.getAppPath();
@@ -21,8 +22,9 @@ let isServerRun: boolean;
 
 let tray:Tray;
 let settingWindow: BrowserWindow | null = null;
+const updater = new Updater(eventEmitter);
 
-const trayMenuItems = defaultTrayMenuItem(eventEmiter);
+const trayMenuItems = defaultTrayMenuItem(eventEmitter);
 
 const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets/icons/gauzy')
@@ -138,37 +140,44 @@ const getEnvApi = () => {
 	return setting;
 };
 
+const SendMessageToSettingWindow = (type: string, data: any) => {
+  settingWindow?.webContents.send('setting-page', {
+    type,
+    data
+  });
+}
+
 const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
   tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
-  eventEmiter.on(EventLists.webServerStart, async () => {
-    updateTrayMenu('SERVER_START', { enabled: false }, eventEmiter, tray, trayMenuItems);
+  eventEmitter.on(EventLists.webServerStart, async () => {
+    updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems);
     isServerRun = true;
     await runServer();
   })
 
-  eventEmiter.on(EventLists.webServerStop, async () => {
+  eventEmitter.on(EventLists.webServerStop, async () => {
     isServerRun = false;
     await stopServer();
   })
 
-  eventEmiter.on(EventLists.webServerStarted, () => {
+  eventEmitter.on(EventLists.webServerStarted, () => {
     console.log(EventLists.webServerStarted)
-    updateTrayMenu('SERVER_START', { enabled: false }, eventEmiter, tray, trayMenuItems);
-    updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmiter, tray, trayMenuItems);
-    updateTrayMenu('SERVER_STATUS', { label: 'Status: Started' }, eventEmiter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmitter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STATUS', { label: 'Status: Started' }, eventEmitter, tray, trayMenuItems);
     isServerRun = true;
   })
 
-  eventEmiter.on(EventLists.webServerStopped, () => {
+  eventEmitter.on(EventLists.webServerStopped, () => {
     console.log(EventLists.webServerStopped);
-    updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmiter, tray, trayMenuItems);
-    updateTrayMenu('SERVER_START', { enabled: true }, eventEmiter, tray, trayMenuItems);
-    updateTrayMenu('SERVER_STATUS', { label: 'Status: Stopped' }, eventEmiter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmitter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_START', { enabled: true }, eventEmitter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STATUS', { label: 'Status: Stopped' }, eventEmitter, tray, trayMenuItems);
     isServerRun = false;
   })
 
-  eventEmiter.on(EventLists.gotoSetting, async () => {
+  eventEmitter.on(EventLists.gotoSetting, async () => {
     if (!settingWindow) {
       await createWindow()
     }
@@ -176,8 +185,37 @@ const onInitApplication = () => {
     console.log('setting data', serverSetting);
     settingWindow?.show();
     settingWindow?.webContents.once('did-finish-load', () => {
-      settingWindow?.webContents.send('load_setting', serverSetting);
+      SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
     })
+  })
+
+  eventEmitter.on(EventLists.UPDATE_AVAILABLE, (data)=> {
+    console.log('UPDATE_AVAILABLE', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.updateAvailable, data);
+  })
+
+  eventEmitter.on(EventLists.UPDATE_ERROR, (data)=> {
+    console.log('UPDATE_ERROR', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.updateError, {message: JSON.stringify(data)});
+  })
+
+  eventEmitter.on(EventLists.UPDATE_NOT_AVAILABLE, (data)=> {
+    console.log('UPDATE_NOT_AVAILABLE', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.upToDate, data);
+  })
+
+  eventEmitter.on(EventLists.UPDATE_PROGRESS, (data)=> {
+    console.log('UPDATE_PROGRESS', data.percent);
+    SendMessageToSettingWindow(SettingPageTypeMessage.downloadingUpdate, {percent: Math.floor(data.percent || 0)});
+  })
+
+  eventEmitter.on(EventLists.UPDATE_DOWNLOADED, (data)=> {
+    console.log('UPDATE_DOWNLOADED', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.downloaded, data);
+  })
+
+  eventEmitter.on(EventLists.UPDATE_CANCELLED, (data)=> {
+    console.log('UPDATE_CANCELLED', data);
   })
 }
 
@@ -195,8 +233,26 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
-ipcMain.on('save_setting', (event, arg) => {
-  LocalStore.updateConfigSetting(arg);
+ipcMain.on('setting-page', (event, arg) => {
+  console.log('main setting page', arg);
+  switch (arg.type) {
+    case SettingPageTypeMessage.saveSetting:
+      LocalStore.updateConfigSetting(arg.data);
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.mainResponse, data: true });
+      break;
+    case SettingPageTypeMessage.checkUpdate:
+      updater.checkUpdate();
+      break;
+    case SettingPageTypeMessage.installUpdate:
+      updater.installUpdate();
+      break;
+    case SettingPageTypeMessage.showVersion:
+      const currentVersion = app.getVersion();
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.showVersion, data: currentVersion})
+      break;
+    default:
+      break;
+  }
 })
 
 app.on('before-quit', async (e) => {

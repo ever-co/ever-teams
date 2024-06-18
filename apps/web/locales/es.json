@@ -295,7 +295,8 @@
 			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar",
 			"HAVE_PASSWORD": "¿Tiene contraseña?",
 			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
-			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico"
+			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico",
+			"ERROR_SIGNIN": "Error al firmar"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
@@ -455,7 +456,8 @@
 		"unauthorized": {
 			"TITLE": "No autorizado",
 			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
-			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión.",
+			"TRY_AGAIN": "Intentar otra vez"
 		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",

@@ -15,11 +15,21 @@ import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, use
 import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
+import { useSession } from 'next-auth/react';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
 	const t = useTranslations();
 	const router = useRouter();
+	const { data: session, update }: any = useSession();
+
+	useEffect(() => {
+		if (session) {
+			router.replace('/');
+		}
+		update({});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [router]);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
