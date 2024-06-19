@@ -217,6 +217,18 @@ const onInitApplication = () => {
   eventEmitter.on(EventLists.UPDATE_CANCELLED, (data)=> {
     console.log('UPDATE_CANCELLED', data);
   })
+
+  eventEmitter.on(EventLists.gotoAbout, async () => {
+    if (!settingWindow) {
+      await createWindow();
+    }
+    const serverSetting = LocalStore.getStore('config');
+    settingWindow?.show();
+    settingWindow?.webContents.once('did-finish-load', () => {
+      SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
+      SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about'})
+    })
+  })
 }
 
  (async () => {

@@ -44,7 +44,7 @@ export const defaultTrayMenuItem = (eventEmitter: EventEmitter) => {
           id: 'APP_ABOUT',
           label: 'About Gauzy Web Server',
           async click() {
-            console.log('about')
+            eventEmitter.emit(EventLists.gotoAbout)
           }
         },
         {
