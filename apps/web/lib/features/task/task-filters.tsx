@@ -1,7 +1,13 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_UserProfilePage, useAuthenticateUser, useOrganizationTeams, useOutsideClick } from '@app/hooks';
+import {
+	I_UserProfilePage,
+	useAuthenticateUser,
+	useDailyPlan,
+	useOrganizationTeams,
+	useOutsideClick
+} from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -13,6 +19,7 @@ import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
+import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -38,6 +45,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
+	const { profileDailyPlans } = useDailyPlan();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
@@ -188,7 +196,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		onResetStatusFilter,
 		applyStatusFilder,
 		tasksGrouped: profile.tasksGrouped,
-		outclickFilterCard
+		outclickFilterCard,
+		profileDailyPlans
 	};
 }
 
@@ -391,6 +400,8 @@ export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
+
+				{hook.tab === 'dailyplan' && <DailyPlanFilter dailyPlans={hook.profileDailyPlans.items} />}
 
 				<VerticalSeparator />
 
