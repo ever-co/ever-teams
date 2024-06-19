@@ -8,16 +8,16 @@ interface UpdaterStates {
     | 'downloaded'
     | 'error'
     | 'not-started'
-    | 'uptodate';
+    | 'up-to-date';
   data: any;
   label:
     | 'Checking'
     | 'Downloading'
     | 'Quit and Install'
-    | 'Uptodate'
+    | 'Up to date'
     | 'Update Available'
     | 'Check For Update'
-    | 'Uptodate';
+    | 'Up to date';
 }
 type PropsProgress = {
   updateStates: UpdaterStates;

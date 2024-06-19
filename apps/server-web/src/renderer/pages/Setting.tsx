@@ -22,16 +22,16 @@ interface UpdaterStates {
     | 'downloaded'
     | 'error'
     | 'not-started'
-    | 'uptodate';
+    | 'up-to-date';
   data: any;
   label:
     | 'Checking'
     | 'Downloading'
     | 'Quit and Install'
-    | 'Uptodate'
+    | 'Up to date'
     | 'Update Available'
     | 'Check For Update'
-    | 'Uptodate';
+    | 'Up to date';
 }
 
 interface IServerSetting {
@@ -219,9 +219,9 @@ export function Setting() {
           break;
         case SettingPageTypeMessage.upToDate:
           setUpdateState({
-            state: 'uptodate',
+            state: 'up-to-date',
             data: null,
-            label: 'Uptodate',
+            label: 'Up to date',
           });
           setLoading(false);
           break;

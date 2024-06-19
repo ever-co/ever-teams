@@ -22,7 +22,7 @@ export const EventLists = {
     installUpdate: 'install-update',
     saveSetting: 'save-setting',
     updateError: 'update-error',
-    upToDate: 'uptodate',
+    upToDate: 'up-to-date',
     mainResponse: 'main-response',
     showVersion: 'show-version',
     selectMenu: 'select-menu'
