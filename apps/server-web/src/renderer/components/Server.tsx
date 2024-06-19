@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { SettingPageTypeMessage } from '../../main/helpers/constant';
+import { useState } from 'react';
 
 interface IServerSetting {
   PORT: number;

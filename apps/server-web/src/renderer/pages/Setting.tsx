@@ -243,6 +243,9 @@ export function Setting() {
         case SettingPageTypeMessage.showVersion:
           setVersion(arg.data);
           break;
+        case SettingPageTypeMessage.selectMenu:
+          menuChange(arg.data.key);
+          break;
         default:
           break;
       }
