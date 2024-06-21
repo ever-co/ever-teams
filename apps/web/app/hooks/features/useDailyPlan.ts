@@ -190,6 +190,57 @@ export function useDailyPlan() {
 		]
 	);
 
+	const ascSortedPlans =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	const futurePlans = ascSortedPlans?.filter((plan) => {
+		const planDate = new Date(plan.date);
+		const today = new Date();
+		today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+		return planDate.getTime() >= today.getTime();
+	});
+
+	const descSortedPlans =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+	const pastPlans = descSortedPlans?.filter((plan) => {
+		const planDate = new Date(plan.date);
+		const today = new Date();
+		today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
+		return planDate.getTime() < today.getTime();
+	});
+
+	const outstandingPlans =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items]
+			// Exclude today plans
+			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+
+			// Exclude future plans
+			.filter((plan) => {
+				const planDate = new Date(plan.date);
+				const today = new Date();
+				today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+				return planDate.getTime() <= today.getTime();
+			})
+			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+			.map((plan) => ({
+				...plan,
+				// Include only no completed tasks
+				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
+			}))
+			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
+
+	const todayPlan =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items].filter((plan) =>
+			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+		);
+
+	const sortedPlans =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
 	useEffect(() => {
 		getMyDailyPlans();
 	}, [getMyDailyPlans]);
@@ -235,6 +286,12 @@ export function useDailyPlan() {
 		removeTaskFromPlanLoading,
 
 		deleteDailyPlan,
-		deleteDailyPlanLoading
+		deleteDailyPlanLoading,
+
+		futurePlans,
+		pastPlans,
+		outstandingPlans,
+		todayPlan,
+		sortedPlans
 	};
 }

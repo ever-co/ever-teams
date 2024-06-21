@@ -1,26 +1,20 @@
 import { formatDayPlanDate, yesterdayDate } from '@app/helpers';
-import { IDailyPlan } from '@app/interfaces';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
+import { useDailyPlan } from '@app/hooks';
 
-export function PastTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; profile: any }) {
-	const descSortedPlans = [...dayPlans].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-	const filteredPlans = descSortedPlans.filter((plan) => {
-		const planDate = new Date(plan.date);
-		const today = new Date();
-		today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
-		return planDate.getTime() < today.getTime();
-	});
+export function PastTasks({ profile }: { profile: any }) {
+	const { pastPlans } = useDailyPlan();
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans?.length > 0 ? (
+			{pastPlans?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 				>
-					{filteredPlans?.map((plan) => (
+					{pastPlans?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}

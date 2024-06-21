@@ -51,15 +51,7 @@ export function DailyPlanDropDownItem({
 export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 	const { employeePlans, getEmployeeDayPlans, setProfileDailyPlans } = useDailyPlan();
-	const filteredPlans = employeePlans.filter((plan) => {
-		const planDate = new Date(plan.date);
-		const today = new Date();
-		today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-		return (
-			planDate.getTime() >= today.getTime() ||
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
-	});
+	const filteredPlans = employeePlans;
 
 	useEffect(() => {
 		if (selectedPlans.length === 0) {
@@ -112,10 +104,10 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 									leaveTo="transform scale-95 opacity-0"
 									className={clsxm('absolute right-0 left-0 z-40 min-w-min outline-none')}
 								>
-									<Listbox.Options className="outline-none">
+									<Listbox.Options className="outline-none ">
 										<Card
 											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
+											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 absolute max-h-80 overflow-y-auto no-scrollbar"
 										>
 											{filteredPlans.map((item) => (
 												<Listbox.Option
