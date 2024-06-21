@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface IServerSetting {
   PORT: number;
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export const ServerComponent = (props: Props) => {
+  const { t } = useTranslation();
   const [serverSetting, setServerSetting] = useState<IServerSetting>(
     props.serverSetting,
   );
@@ -38,7 +40,7 @@ export const ServerComponent = (props: Props) => {
                     className="block text-gray-500 font-bold md:text-left mb-1 md:mb-0 pr-4"
                     htmlFor="inline-full-name"
                   >
-                    Port
+                    {t('FORM.FIELDS.PORT')}
                   </label>
                 </div>
                 <div className="md:w-2/3">
@@ -58,7 +60,7 @@ export const ServerComponent = (props: Props) => {
                     className="block text-gray-500 font-bold md:text-left mb-1 md:mb-0 pr-4"
                     htmlFor="inline-full-name"
                   >
-                    Gauzy Api Server URL
+                    {t('FORM.FIELDS.GAUZY_API_SERVER_URL')}
                   </label>
                 </div>
                 <div className="md:w-2/3">
@@ -78,7 +80,7 @@ export const ServerComponent = (props: Props) => {
                     className="block text-gray-500 font-bold md:text-left mb-1 md:mb-0 pr-4"
                     htmlFor="inline-full-name"
                   >
-                    Public Gauzy Api Server URL
+                    {t('FORM.FIELDS.NEXT_PUBLIC_GAUZY_API_SERVER_URL')}
                   </label>
                 </div>
                 <div className="md:w-2/3">
@@ -99,7 +101,7 @@ export const ServerComponent = (props: Props) => {
             className="mx-auto mt-10 block rounded-xl border-4 border-transparent bg-blue-400 px-6 py-3 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
             type="submit"
           >
-            Save Setting
+            {t('FORM.BUTTON.SAVE_SETTING')}
           </button>
         </form>
       </div>

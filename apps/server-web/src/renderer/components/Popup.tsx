@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 type Props = {
   isShowPopup: boolean;
   modalAction: () => void;
@@ -5,6 +6,7 @@ type Props = {
   message: string;
 };
 export function Popup(props: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className={`fixed z-10 inset-0 overflow-y-auto ${props.isShowPopup ? '' : 'hidden'}`}
@@ -75,7 +77,9 @@ export function Popup(props: Props) {
                 className="text-lg leading-6 font-medium text-gray-900"
                 id="modal-headline"
               >
-                {props.type == 'success' ? 'Success' : 'Error'}
+                {props.type == 'success'
+                  ? t('MESSAGE.SUCCESS')
+                  : t('MESSAGE.ERROR')}
               </h3>
               <div className="mt-2">
                 <p className="text-sm text-gray-500 text-pretty break-words">
@@ -89,7 +93,7 @@ export function Popup(props: Props) {
               className="mx-auto mt-10 block rounded-xl border-4 border-transparent bg-blue-400 px-6 py-3 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
               onClick={props.modalAction}
             >
-              OK
+              {t('FORM.BUTTON.OK')}
             </button>
           </div>
         </div>

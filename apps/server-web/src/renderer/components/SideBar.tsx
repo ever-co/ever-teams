@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 interface SideMenu {
   displayName: string;
   key: string;
@@ -10,6 +11,7 @@ type Props = {
   menuChange: (key: string) => void;
 };
 export function SideBar({ children, menus, menuChange }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-gray-50 text-gray-800">
       <div className="fixed flex flex-col top-0 left-0 w-1/4 bg-white h-full">
@@ -27,7 +29,7 @@ export function SideBar({ children, menus, menuChange }: Props) {
                   >
                     <span className="inline-flex justify-center items-center ml-4"></span>
                     <span className="ml-2 text-sm tracking-wide truncate">
-                      {menu.displayName}
+                      {t(`MENU.${menu.displayName}`)}
                     </span>
                   </Link>
                 </li>

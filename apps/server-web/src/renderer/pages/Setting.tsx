@@ -25,13 +25,12 @@ interface UpdaterStates {
     | 'up-to-date';
   data: any;
   label:
-    | 'Checking'
-    | 'Downloading'
-    | 'Quit and Install'
-    | 'Up to date'
-    | 'Update Available'
-    | 'Check For Update'
-    | 'Up to date';
+    | 'CHECKING'
+    | 'DOWNLOADING'
+    | 'QUIT_N_INSTALL'
+    | 'UP_TO_DATE'
+    | 'UPDATE_AVAILABLE'
+    | 'CHECK_FOR_UPDATE';
 }
 
 interface IServerSetting {
@@ -48,17 +47,17 @@ interface IPopup {
 export function Setting() {
   const [menus, setMenu] = useState<SideMenu[]>([
     {
-      displayName: 'Server',
+      displayName: 'SERVER',
       key: 'server',
       isActive: true,
     },
     {
-      displayName: 'Updater',
+      displayName: 'UPDATER',
       key: 'updater',
       isActive: false,
     },
     {
-      displayName: 'About',
+      displayName: 'ABOUT',
       key: 'about',
       isActive: false,
     },
@@ -67,7 +66,7 @@ export function Setting() {
   const [updateStates, setUpdateState] = useState<UpdaterStates>({
     state: 'not-started',
     data: null,
-    label: 'Check For Update',
+    label: 'CHECK_FOR_UPDATE',
   });
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -187,21 +186,21 @@ export function Setting() {
           setUpdateState({
             state: 'update-available',
             data: null,
-            label: 'Update Available',
+            label: 'UPDATE_AVAILABLE',
           });
           break;
         case SettingPageTypeMessage.downloadingUpdate:
           setUpdateState({
             state: 'downloading',
             data: arg.data.percent,
-            label: 'Downloading',
+            label: 'DOWNLOADING',
           });
           break;
         case SettingPageTypeMessage.downloaded:
           setUpdateState({
             state: 'downloaded',
             data: null,
-            label: 'Quit and Install',
+            label: 'QUIT_N_INSTALL',
           });
           setLoading(false);
           break;
@@ -209,7 +208,7 @@ export function Setting() {
           setUpdateState({
             state: 'error',
             data: arg.data.message,
-            label: 'Check For Update',
+            label: 'CHECK_FOR_UPDATE',
           });
           setLoading(false);
           setPopupUpdater({
@@ -221,7 +220,7 @@ export function Setting() {
           setUpdateState({
             state: 'up-to-date',
             data: null,
-            label: 'Up to date',
+            label: 'UP_TO_DATE',
           });
           setLoading(false);
           break;
