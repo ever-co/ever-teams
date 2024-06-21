@@ -237,7 +237,9 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				ref={hook.outclickFilterCard.targetEl}
 			>
 				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
-				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
+				{hook.filterType === 'status' && (
+					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
+				)}
 				{hook.filterType === 'search' && (
 					<TaskNameFilter
 						value={hook.taskName}
@@ -366,7 +368,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
  */
-export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
+export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 
@@ -401,7 +403,7 @@ export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 					multiple={true}
 				/>
 
-				{hook.tab === 'dailyplan' && <DailyPlanFilter dailyPlans={hook.profileDailyPlans.items} />}
+				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 
 				<VerticalSeparator />
 
