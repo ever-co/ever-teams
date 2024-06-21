@@ -1,5 +1,4 @@
 import { formatDayPlanDate, tomorrowDate } from '@app/helpers';
-import { IDailyPlan } from '@app/interfaces';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
@@ -7,26 +6,19 @@ import { Button } from '@components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
-export function FutureTasks({ dayPlans, profile }: { dayPlans: IDailyPlan[]; profile: any }) {
-	const ascSortedPlans = [...dayPlans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-	const filteredPlans = ascSortedPlans.filter((plan) => {
-		const planDate = new Date(plan.date);
-		const today = new Date();
-		today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-		return planDate.getTime() >= today.getTime();
-	});
-	const { deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
+export function FutureTasks({ profile }: { profile: any }) {
+	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans.length > 0 ? (
+			{futurePlans.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 				>
-					{filteredPlans.map((plan) => (
+					{futurePlans.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
