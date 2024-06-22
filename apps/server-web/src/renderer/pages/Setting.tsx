@@ -6,6 +6,7 @@ import {
   ServerComponent,
   UpdaterComponent,
   AboutComponent,
+  GeneralComponent,
 } from '../components';
 
 interface SideMenu {
@@ -44,12 +45,22 @@ interface IPopup {
   isShow: boolean;
 }
 
+interface Languages {
+  code: string;
+  label: string;
+}
+
 export function Setting() {
   const [menus, setMenu] = useState<SideMenu[]>([
     {
+      displayName: 'GENERAL',
+      key: 'general',
+      isActive: true,
+    },
+    {
       displayName: 'SERVER',
       key: 'server',
-      isActive: true,
+      isActive: false,
     },
     {
       displayName: 'UPDATER',
@@ -60,6 +71,17 @@ export function Setting() {
       displayName: 'ABOUT',
       key: 'about',
       isActive: false,
+    },
+  ]);
+
+  const [langs, setLangs] = useState<Languages[]>([
+    {
+      code: 'en',
+      label: 'English',
+    },
+    {
+      code: 'bg',
+      label: 'Bulgarian',
     },
   ]);
 
@@ -94,6 +116,11 @@ export function Setting() {
       return menu;
     });
     setMenu(newMenu);
+  };
+
+  const changeLanguage = (lang: Languages) => {
+    console.log(lang);
+    sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
   };
 
   const sendingMessageToMain = (data: any, type: string) => {
@@ -175,6 +202,10 @@ export function Setting() {
     if (activeMenu() === 'about') {
       sendingMessageToMain({}, SettingPageTypeMessage.showVersion);
       return <AboutComponent version={version} />;
+    }
+
+    if (activeMenu() === 'general') {
+      return <GeneralComponent langs={langs} onChange={changeLanguage} />;
     }
     return <AboutComponent version={version} />;
   };

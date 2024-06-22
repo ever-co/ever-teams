@@ -10,7 +10,8 @@ export const EventLists = {
     UPDATE_NOT_AVAILABLE: 'UPDATE_NOT_AVAILABLE',
     UPDATE_PROGRESS: 'UPDATE_PROGRESS',
     UPDATE_DOWNLOADED: 'UPDATE_DOWNLOADED',
-    UPDATE_CANCELLED: 'UPDATE_CANCELLED'
+    UPDATE_CANCELLED: 'UPDATE_CANCELLED',
+    CHANGE_LANGUAGE: 'CHANGE_LANGUAGE'
   }
 
   export const SettingPageTypeMessage = {
@@ -25,5 +26,6 @@ export const EventLists = {
     upToDate: 'up-to-date',
     mainResponse: 'main-response',
     showVersion: 'show-version',
-    selectMenu: 'select-menu'
+    selectMenu: 'select-menu',
+    langChange: 'lang'
 }

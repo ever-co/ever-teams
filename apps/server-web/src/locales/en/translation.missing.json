@@ -1,1 +1,6 @@
-{}
+{
+  "MENU": {
+    "STATUS": "MENU.STATUS",
+    "STOPPED": "MENU.STOPPED"
+  }
+}

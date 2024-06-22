@@ -2,7 +2,16 @@
   "MENU": {
     "SERVER": "Server",
     "UPDATER": "Updater",
-    "ABOUT": "About"
+    "ABOUT": "About",
+    "SERVER_START": "Start",
+    "SERVER_STOP": "Stop",
+    "APP_SETTING": "Setting",
+    "APP_ABOUT": "About",
+    "APP_QUIT": "Quit",
+    "GENERAL": "General",
+    "STATUS": "Status",
+    "STARTED": "Started",
+    "STOPPED": "Stopped"
   },
   "FORM": {
     "FIELDS": {

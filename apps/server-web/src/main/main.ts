@@ -7,6 +7,9 @@ import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
 import { EventLists, SettingPageTypeMessage } from './helpers/constant';
 import { resolveHtmlPath } from './util';
 import Updater from './updater';
+import { mainBindings } from 'i18next-electron-fs-backend';
+import i18nextMainBackend from '../configs/i18n.mainconfig';
+import fs from 'fs';
 
 const eventEmitter = new EventEmitter();
 
@@ -23,8 +26,12 @@ let isServerRun: boolean;
 let tray:Tray;
 let settingWindow: BrowserWindow | null = null;
 const updater = new Updater(eventEmitter);
+i18nextMainBackend.on('initialized', () => {
+  i18nextMainBackend.changeLanguage('en');
+  i18nextMainBackend.off('initialized'); // Remove listener to this event as it's not needed anymore
+});
 
-const trayMenuItems = defaultTrayMenuItem(eventEmitter);
+let trayMenuItems: any = [];
 
 const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets/icons/gauzy')
@@ -103,7 +110,7 @@ const createWindow = async () => {
   const url = resolveHtmlPath('index.html', 'setting');
   settingWindow.loadURL(url);
 
-
+  mainBindings(ipcMain, settingWindow , fs);
   settingWindow.on('closed', () => {
     settingWindow = null;
   });
@@ -149,7 +156,15 @@ const SendMessageToSettingWindow = (type: string, data: any) => {
 
 const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
+  trayMenuItems = defaultTrayMenuItem(eventEmitter, i18nextMainBackend);
   tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
+  i18nextMainBackend.on('languageChanged', (lng) => {
+    console.log('change lang', lng);
+    if (i18nextMainBackend.isInitialized) {
+      trayMenuItems = defaultTrayMenuItem(eventEmitter, i18nextMainBackend);
+      updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems);
+    }
+  });
   eventEmitter.on(EventLists.webServerStart, async () => {
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems);
     isServerRun = true;
@@ -165,7 +180,7 @@ const onInitApplication = () => {
     console.log(EventLists.webServerStarted)
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems);
     updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmitter, tray, trayMenuItems);
-    updateTrayMenu('SERVER_STATUS', { label: 'Status: Started' }, eventEmitter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STATUS', { label: `${i18nextMainBackend.t('MENU.STATUS')}: ${i18nextMainBackend.t('MENU.STARTED')}` }, eventEmitter, tray, trayMenuItems);
     isServerRun = true;
   })
 
@@ -173,7 +188,7 @@ const onInitApplication = () => {
     console.log(EventLists.webServerStopped);
     updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmitter, tray, trayMenuItems);
     updateTrayMenu('SERVER_START', { enabled: true }, eventEmitter, tray, trayMenuItems);
-    updateTrayMenu('SERVER_STATUS', { label: 'Status: Stopped' }, eventEmitter, tray, trayMenuItems);
+    updateTrayMenu('SERVER_STATUS', { label: `${i18nextMainBackend.t('MENU.STATUS')}: ${i18nextMainBackend.t('MENU.STOPPED')}` }, eventEmitter, tray, trayMenuItems);
     isServerRun = false;
   })
 
@@ -216,6 +231,10 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.UPDATE_CANCELLED, (data)=> {
     console.log('UPDATE_CANCELLED', data);
+  })
+
+  eventEmitter.on(EventLists.CHANGE_LANGUAGE, (data) => {
+    i18nextMainBackend.changeLanguage(data.code)
   })
 
   eventEmitter.on(EventLists.gotoAbout, async () => {
@@ -261,6 +280,10 @@ ipcMain.on('setting-page', (event, arg) => {
     case SettingPageTypeMessage.showVersion:
       const currentVersion = app.getVersion();
       event.sender.send('setting-page', { type: SettingPageTypeMessage.showVersion, data: currentVersion})
+      break;
+    case SettingPageTypeMessage.langChange:
+      event.sender.send('languageSignal', arg.data);
+      eventEmitter.emit(EventLists.CHANGE_LANGUAGE, {code: arg.data})
       break;
     default:
       break;

@@ -3,3 +3,4 @@ export * from './Popup';
 export * from './Server';
 export * from './SideBar';
 export * from './Updater';
+export * from './General';

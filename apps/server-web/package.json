@@ -239,7 +239,8 @@
     },
     "extraResources": [
       "./assets/**",
-      "./release/app/dist/standalone/**"
+      "./release/app/dist/standalone/**",
+      "./src/locales"
     ],
     "publish": [
       {
