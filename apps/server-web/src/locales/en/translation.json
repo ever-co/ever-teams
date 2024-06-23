@@ -9,9 +9,8 @@
     "APP_ABOUT": "About",
     "APP_QUIT": "Quit",
     "GENERAL": "General",
-    "STATUS": "Status",
-    "STARTED": "Started",
-    "STOPPED": "Stopped"
+    "SERVER_STATUS_STOPPED": "Status: Stopped",
+    "SERVER_STATUS_STARTED": "Status: Started"
   },
   "FORM": {
     "FIELDS": {

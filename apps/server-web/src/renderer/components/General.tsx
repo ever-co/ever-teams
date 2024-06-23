@@ -6,8 +6,13 @@ interface Languages {
 type Props = {
   langs: Languages[];
   onChange: (lang: any) => void;
+  lang: string;
 };
 export function GeneralComponent(props: Props) {
+  const language = props.langs.find((lg) => lg.code === props.lang) || {
+    code: 'en',
+    label: 'English',
+  };
   return (
     <>
       <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-16 top-16 w-3/4">
@@ -22,7 +27,7 @@ export function GeneralComponent(props: Props) {
                   aria-expanded="true"
                   aria-controls="headlessui-menu-items-117"
                 >
-                  <span>Language</span>
+                  <span>{language.label}</span>
                   <svg
                     className="w-5 h-5 ml-2 -mr-1"
                     viewBox="0 0 20 20"

@@ -51,7 +51,8 @@ const ProgressComponent = (props: PropsProgress) => {
       <div className="flex-1 w-auto">
         {props.updateStates.state === 'downloading' &&
           `${t(`FORM.LABELS.${props.updateStates.label}`)} ${props.updateStates.data} %`}
-        {props.updateStates.state !== 'downloading' && props.updateStates.label}
+        {props.updateStates.state !== 'downloading' &&
+          t(`FORM.LABELS.${props.updateStates.label}`)}
       </div>
     </div>
   );

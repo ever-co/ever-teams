@@ -85,6 +85,8 @@ export function Setting() {
     },
   ]);
 
+  const [lng, setLng] = useState<string>('en');
+
   const [updateStates, setUpdateState] = useState<UpdaterStates>({
     state: 'not-started',
     data: null,
@@ -121,6 +123,7 @@ export function Setting() {
   const changeLanguage = (lang: Languages) => {
     console.log(lang);
     sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
+    setLng(lang.code);
   };
 
   const sendingMessageToMain = (data: any, type: string) => {
@@ -205,7 +208,9 @@ export function Setting() {
     }
 
     if (activeMenu() === 'general') {
-      return <GeneralComponent langs={langs} onChange={changeLanguage} />;
+      return (
+        <GeneralComponent langs={langs} onChange={changeLanguage} lang={lng} />
+      );
     }
     return <AboutComponent version={version} />;
   };
@@ -256,13 +261,14 @@ export function Setting() {
           setLoading(false);
           break;
         case SettingPageTypeMessage.loadSetting:
-          console.log('server setting', serverSetting);
+          console.log('server setting', arg);
           setServerSetting({
-            PORT: arg.data.PORT,
-            GAUZY_API_SERVER_URL: arg.data.GAUZY_API_SERVER_URL,
+            PORT: arg.data.server.PORT,
+            GAUZY_API_SERVER_URL: arg.data.server.GAUZY_API_SERVER_URL,
             NEXT_PUBLIC_GAUZY_API_SERVER_URL:
-              arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
+              arg.data.server.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
           });
+          setLng(arg.data.general.lang);
           break;
         case SettingPageTypeMessage.mainResponse:
           setPopupServer({

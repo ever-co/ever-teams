@@ -9,9 +9,8 @@
     "APP_ABOUT": "относно",
     "APP_QUIT": "Откажете се",
     "GENERAL": "Общ",
-    "STATUS": "Статус",
-    "STARTED": "започна",
-    "STOPPED": "Спряна"
+    "SERVER_STATUS_STOPPED": "Статус: Спряна",
+    "SERVER_STATUS_STARTED": "Статус: започна"
   },
   "FORM": {
     "FIELDS": {

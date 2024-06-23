@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
 import './App.css';
 import { Setting } from './pages/Setting';
 import i18next from 'i18next';

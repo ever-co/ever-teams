@@ -5,7 +5,7 @@ import { app } from 'electron';
 import path from 'path';
 const prependPath = app.isPackaged
     ? path.join(process.resourcesPath)
-    : path.join(__dirname, '..');
+    : path.join(__dirname, '..', '..');
 
 i18n.use(backend).init({
   backend: {

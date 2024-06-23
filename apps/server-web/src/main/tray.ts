@@ -12,22 +12,22 @@ export const _initTray = (contextMenu:any, icon:string): Tray => {
     return tray;
 }
 
-export const defaultTrayMenuItem = (eventEmitter: EventEmitter, i18nextMainBackend: typeof i18n) => {
+export const defaultTrayMenuItem = (eventEmitter: EventEmitter) => {
     const contextMenu = [
         {
           id: 'SERVER_STATUS',
-          label: `${i18nextMainBackend.t('MENU.STATUS')}: ${i18nextMainBackend.t('MENU.STOPPED')}`,
+          label: 'MENU.SERVER_STATUS_STOPPED',
         },
         {
           id: 'SERVER_START',
-          label: i18nextMainBackend.t('MENU.SERVER_START'),
+          label: 'MENU.SERVER_START',
           async click() {
             eventEmitter.emit(EventLists.webServerStart);
           }
         },
         {
           id: 'SERVER_STOP',
-          label: i18nextMainBackend.t('MENU.SERVER_STOP'),
+          label: 'MENU.SERVER_STOP',
           enabled: false,
           async click() {
             eventEmitter.emit(EventLists.webServerStop);
@@ -35,21 +35,21 @@ export const defaultTrayMenuItem = (eventEmitter: EventEmitter, i18nextMainBacke
         },
         {
           id: 'APP_SETTING',
-          label: i18nextMainBackend.t('MENU.APP_SETTING'),
+          label: 'MENU.APP_SETTING',
           async click() {
             eventEmitter.emit(EventLists.gotoSetting);
           }
         },
         {
           id: 'APP_ABOUT',
-          label: i18nextMainBackend.t('MENU.APP_ABOUT'),
+          label: 'MENU.APP_ABOUT',
           async click() {
             eventEmitter.emit(EventLists.gotoAbout)
           }
         },
         {
           id: 'APP_QUIT',
-          label: i18nextMainBackend.t('MENU.APP_QUIT'),
+          label: 'MENU.APP_QUIT',
           click() {
             app.quit();
           }
@@ -58,13 +58,22 @@ export const defaultTrayMenuItem = (eventEmitter: EventEmitter, i18nextMainBacke
     return contextMenu;
 }
 
-export const updateTrayMenu = (menuItem: string, context: { label?: string, enabled?: boolean}, eventEmitter: EventEmitter, tray: Tray, contextMenuItems: any) => {
+export const updateTrayMenu = (menuItem: string, context: { label?: string, enabled?: boolean}, eventEmitter: EventEmitter, tray: Tray, contextMenuItems: any, i18nextMainBackend: typeof i18n) => {
     const menuIdx:number = contextMenuItems.findIndex((item: any) => item.id === menuItem);
     if (menuIdx > -1) {
         contextMenuItems[menuIdx] = {...contextMenuItems[menuIdx], ...context};
-        console.log(contextMenuItems)
-        tray.setContextMenu(Menu.buildFromTemplate(contextMenuItems));
+        const newMenu = [...contextMenuItems];
+        tray.setContextMenu(Menu.buildFromTemplate(translateTrayMenu(i18nextMainBackend, newMenu)));
     } else {
-      tray.setContextMenu(Menu.buildFromTemplate(contextMenuItems))
+      const newMenu = [...contextMenuItems];
+      tray.setContextMenu(Menu.buildFromTemplate(translateTrayMenu(i18nextMainBackend, newMenu)))
     }
+}
+
+export const translateTrayMenu = (i18nextMainBackend: typeof i18n, contextMenu: any) => {
+  return contextMenu.map((menu: any) => {
+    const menuCopied = {...menu};
+    menuCopied.label = i18nextMainBackend.t(menuCopied.label);
+    return menuCopied;
+  })
 }
