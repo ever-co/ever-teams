@@ -3,7 +3,7 @@ import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
-import { defaultTrayMenuItem, _initTray, updateTrayMenu, translateTrayMenu } from './tray';
+import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
 import { EventLists, SettingPageTypeMessage } from './helpers/constant';
 import { resolveHtmlPath } from './util';
 import Updater from './updater';
