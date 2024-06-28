@@ -22,6 +22,7 @@ import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -100,66 +101,77 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				</MainLayout>
 			) : (
 				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
-					<MainHeader
-						fullWidth={fullWidth}
-						className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
-					>
-						{/* Breadcrumb */}
-						<div className="flex items-center gap-8">
-							<Link href="/">
-								<ArrowLeftIcon className="w-6 h-6" />
-							</Link>
+					<ResizablePanelGroup direction="vertical">
+						<ResizablePanel defaultSize={47} maxSize={50}>
+							<MainHeader
+								fullWidth={fullWidth}
+								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
+							>
+								{/* Breadcrumb */}
+								<div className="flex items-center gap-8">
+									<Link href="/">
+										<ArrowLeftIcon className="w-6 h-6" />
+									</Link>
 
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
-						</div>
+									<Breadcrumb paths={breadcrumb} className="text-sm" />
+								</div>
 
-						{/* User Profile Detail */}
-						<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
-							<UserProfileDetail member={profile.member} />
+								{/* User Profile Detail */}
+								<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
+									<UserProfileDetail member={profile.member} />
 
-							{profileIsAuthUser && isTrackingEnabled && (
-								<Timer
-									className={clsxm(
-										'p-5 rounded-2xl shadow-xlcard',
-										'dark:border-[0.125rem] dark:border-[#28292F]',
-										'dark:bg-[#1B1D22]'
-									)}
-								/>
-							)}
-						</div>
-						{/* TaskFilter */}
-						<TaskFilter profile={profile} hook={hook} />
-					</MainHeader>
-					{/* Divider */}
-					<div className="h-0.5 bg-[#FFFFFF14]"></div>
-					{hook.tab == 'worked' && canSeeActivity && (
-						<Container fullWidth={fullWidth} className="py-8">
-							<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
-								{Object.keys(activityScreens).map((filter, i) => (
-									<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
-										{i !== 0 && <VerticalSeparator />}
-										<div
+									{profileIsAuthUser && isTrackingEnabled && (
+										<Timer
 											className={clsxm(
-												'text-gray-500',
-												activityFilter == filter && 'text-black dark:text-white'
+												'p-5 rounded-2xl shadow-xlcard',
+												'dark:border-[0.125rem] dark:border-[#28292F]',
+												'dark:bg-[#1B1D22]'
 											)}
-											onClick={() => changeActivityFilter(filter as FilterTab)}
-										>
-											{filter}
-										</div>
-									</div>
-								))}
-							</div>
-						</Container>
-					)}
+										/>
+									)}
+								</div>
+								{/* TaskFilter */}
+								<TaskFilter profile={profile} hook={hook} />
+							</MainHeader>
+						</ResizablePanel>
+						<ResizableHandle withHandle />
 
-					<Container fullWidth={fullWidth} className="mb-10">
-						{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
-							<UserProfileTask profile={profile} tabFiltered={hook} />
-						) : (
-							activityScreens[activityFilter] ?? null
-						)}
-					</Container>
+						{/* Divider */}
+						{/* <div className="h-0.5 bg-[#FFFFFF14]"></div> */}
+						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+							{hook.tab == 'worked' && canSeeActivity && (
+								<Container fullWidth={fullWidth} className="py-8">
+									<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
+										{Object.keys(activityScreens).map((filter, i) => (
+											<div
+												key={i}
+												className="flex cursor-pointer justify-start items-center gap-4"
+											>
+												{i !== 0 && <VerticalSeparator />}
+												<div
+													className={clsxm(
+														'text-gray-500',
+														activityFilter == filter && 'text-black dark:text-white'
+													)}
+													onClick={() => changeActivityFilter(filter as FilterTab)}
+												>
+													{filter}
+												</div>
+											</div>
+										))}
+									</div>
+								</Container>
+							)}
+
+							<Container fullWidth={fullWidth} className="mb-10">
+								{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
+									<UserProfileTask profile={profile} tabFiltered={hook} />
+								) : (
+									activityScreens[activityFilter] ?? null
+								)}
+							</Container>
+						</ResizablePanel>
+					</ResizablePanelGroup>
 				</MainLayout>
 			)}
 		</>
