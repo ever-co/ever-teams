@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useOrganizationTeams } from '@app/hooks';
 // import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export function Toaster() {
 	const { toasts } = useToast();
@@ -31,12 +32,12 @@ export function Toaster() {
 export function ToastMessageManager() {
 	const { isTeamMemberJustDeleted, setIsTeamMemberJustDeleted } = useOrganizationTeams();
 	const [deletedNotifShowm, setDeletedNotifShowm] = useState(false);
-	// const t = useTranslations();
+	const t = useTranslations();
 
 	useEffect(() => {
 		let timer: NodeJS.Timeout;
 		if (isTeamMemberJustDeleted && !deletedNotifShowm) {
-			toast.error('You have been deleted from the team', { id: 'deletion-user', duration: 20000 });
+			toast.error(t('alerts.ALERT_USER_DELETED_FROM_TEAM'), { duration: 20000 });
 			timer = setTimeout(() => {
 				setIsTeamMemberJustDeleted(false);
 			}, 10000);
@@ -44,6 +45,7 @@ export function ToastMessageManager() {
 		}
 
 		return () => clearTimeout(timer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [deletedNotifShowm, isTeamMemberJustDeleted, setIsTeamMemberJustDeleted]);
 
 	return <ToasterMessage richColors visibleToasts={3} />;

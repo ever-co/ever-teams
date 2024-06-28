@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
 		"ALERT_REMOVE_ALL_DATA": "כל נתוני החשבון יוסרו מכל הצוותים שבהם אתה רק מנהל קיים אחד",
 		"ALERT_REMOVE_TEAM": "הצוות יוסר לחלוטין מהמערכת וחברי הצוות יאבדו גישה",
-		"ALERT_QUIT_TEAM": "אתה עומד לעזוב את הצוות"
+		"ALERT_QUIT_TEAM": "אתה עומד לעזוב את הצוות",
+		"ALERT_USER_DELETED_FROM_TEAM": "נמחקת מהקבוצה"
 	},
 	"pages": {
 		"home": {

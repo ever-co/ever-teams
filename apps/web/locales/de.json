@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",
 		"ALERT_REMOVE_ALL_DATA": "Alle Kontodaten werden von allen Teams entfernt, in denen Sie der EINZIGE Manager sind",
-		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen"
+		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen",
+		"ALERT_USER_DELETED_FROM_TEAM": "Du wurdest aus dem Team entfernt"
 	},
 	"pages": {
 		"home": {

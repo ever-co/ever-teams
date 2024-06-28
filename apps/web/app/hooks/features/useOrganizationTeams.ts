@@ -270,6 +270,7 @@ export function useOrganizationTeams() {
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
 			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
+				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';

@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Sua conta será excluída permanentemente com a remoção de todas as equipes",
 		"ALERT_REMOVE_TEAM": "A equipe será completamente removida do sistema e os membros da equipe perderão o acesso",
 		"ALERT_REMOVE_ALL_DATA": "Todos os dados da conta serão removidos de todas as equipes onde você é o ÚNICO gerente existente",
-		"ALERT_QUIT_TEAM": "Você está prestes a sair da equipe"
+		"ALERT_QUIT_TEAM": "Você está prestes a sair da equipe",
+		"ALERT_USER_DELETED_FROM_TEAM": "Você foi removido da equipe"
 	},
 	"pages": {
 		"home": {
