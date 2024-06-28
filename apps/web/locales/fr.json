@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Votre compte sera supprimé définitivement avec suppression de toutes les équipes",
 		"ALERT_REMOVE_TEAM": "L'équipe sera complètement supprimée du système et les membres de l'équipe perdront l'accès",
 		"ALERT_REMOVE_ALL_DATA": "Toutes les données de compte seront supprimées de toutes les équipes où vous êtes UNIQUEMENT un manager existant",
-		"ALERT_QUIT_TEAM": "Vous êtes sur le point de quitter l'équipe"
+		"ALERT_QUIT_TEAM": "Vous êtes sur le point de quitter l'équipe",
+		"ALERT_USER_DELETED_FROM_TEAM": "Vous avez été supprimé de l'équipe"
 	},
 	"pages": {
 		"home": {

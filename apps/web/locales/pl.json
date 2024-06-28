@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Twoje Konto zostanie trwale usunięte wraz z usunięciem z wszystkich zespołów",
 		"ALERT_REMOVE_ALL_DATA": "Wszystkie dane konta zostaną usunięte z zespołów, w których jesteś jedynym istniejącym menedżerem",
 		"ALERT_REMOVE_TEAM": "Zespół zostanie całkowicie usunięty z systemu, a członkowie zespołu stracą dostęp",
-		"ALERT_QUIT_TEAM": "Zamierzasz opuścić zespół"
+		"ALERT_QUIT_TEAM": "Zamierzasz opuścić zespół",
+		"ALERT_USER_DELETED_FROM_TEAM": "Zostałeś usunięty z zespołu"
 	},
 	"pages": {
 		"home": {

@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "您的账户将被永久删除,并从所有团队中移除",
 		"ALERT_REMOVE_TEAM": "团队将被完全移除出系统,成员也将失去访问权限",
 		"ALERT_REMOVE_ALL_DATA": "所有帐户数据将从您仅是一名现有经理的所有团队中删除",
-		"ALERT_QUIT_TEAM": "您将要退出团队"
+		"ALERT_QUIT_TEAM": "您将要退出团队",
+		"ALERT_USER_DELETED_FROM_TEAM": "您已从团队中删除"
 	},
 	"pages": {
 		"home": {

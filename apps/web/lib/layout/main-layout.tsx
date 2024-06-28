@@ -1,7 +1,7 @@
 'use client';
 
 import { clsxm } from '@app/utils';
-import { Toaster } from '@components/ui/toaster';
+import { Toaster, ToastMessageManager } from '@components/ui/toaster';
 import { Container, Divider, Meta } from 'lib/components';
 import { PropsWithChildren } from 'react';
 import { Footer, Navbar } from '.';
@@ -41,14 +41,14 @@ export function MainLayout({
 							? `
 							margin-left: 2rem;
 							margin-right: 2rem;
-							` :  `	--tblr-gutter-x: 1.5rem;
+							`
+							: `	--tblr-gutter-x: 1.5rem;
 						--tblr-gutter-y: 0;
 						width: 100%;
 						padding-right: calc(var(--tblr-gutter-x) * 0.5);
 						padding-left: calc(var(--tblr-gutter-x) * 0.5);
 						margin-right: auto;
-						margin-left: auto;`
-							}
+						margin-left: auto;`}
 					}
 				`}
 			</style>
@@ -77,6 +77,7 @@ export function MainLayout({
 				</Container>
 			</div>
 			<Toaster />
+			<ToastMessageManager />
 		</div>
 	);
 }
