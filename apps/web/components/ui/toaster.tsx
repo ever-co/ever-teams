@@ -31,22 +31,22 @@ export function Toaster() {
 
 export function ToastMessageManager() {
 	const { isTeamMemberJustDeleted, setIsTeamMemberJustDeleted } = useOrganizationTeams();
-	const [deletedNotifShowm, setDeletedNotifShowm] = useState(false);
+	const [deletedNotifShown, setDeletedNotifShown] = useState(false);
 	const t = useTranslations();
 
 	useEffect(() => {
 		let timer: NodeJS.Timeout;
-		if (isTeamMemberJustDeleted && !deletedNotifShowm) {
+		if (isTeamMemberJustDeleted && !deletedNotifShown) {
 			toast.error(t('alerts.ALERT_USER_DELETED_FROM_TEAM'), { duration: 20000 });
 			timer = setTimeout(() => {
 				setIsTeamMemberJustDeleted(false);
 			}, 10000);
-			setDeletedNotifShowm(true);
+			setDeletedNotifShown(true);
 		}
 
 		return () => clearTimeout(timer);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [deletedNotifShowm, isTeamMemberJustDeleted, setIsTeamMemberJustDeleted]);
+	}, [deletedNotifShown, isTeamMemberJustDeleted, setIsTeamMemberJustDeleted]);
 
 	return <ToasterMessage richColors visibleToasts={3} />;
 }
