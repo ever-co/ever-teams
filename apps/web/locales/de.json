@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",
 		"ALERT_REMOVE_ALL_DATA": "Alle Kontodaten werden von allen Teams entfernt, in denen Sie der EINZIGE Manager sind",
-		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen"
+		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen",
+		"ALERT_USER_DELETED_FROM_TEAM": "Du wurdest aus dem Team entfernt"
 	},
 	"pages": {
 		"home": {
@@ -233,7 +234,6 @@
 			"MEMBER_NOT_FOUND_MSG_1": "Das gesuchte Mitglied existiert nicht in einem Team. Bitte versuchen Sie, mit einer anderen Abfrage zu suchen.",
 			"MEMBER_NOT_FOUND_MSG_2": "Wenn Sie nach einem Mitglied in einem anderen Team suchen, wählen Sie bitte das Team aus dem Dropdown-Menü oben aus.",
 			"GO_TO_HOME": "Zur Startseite"
-
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Aufgabendetails\"]",
@@ -296,7 +296,8 @@
 			"HEADING_WORKSPACE_LINE2": "bitte wählen Sie einen aus, um fortzufahren",
 			"HAVE_PASSWORD": "Haben Sie ein Passwort?",
 			"LOGIN_WITH_PASSWORD": "Melden Sie sich mit dem Passwort an",
-			"LOGIN_WITH_MAGIC_CODE": "Melden Sie sich mit einem magischen Code an"
+			"LOGIN_WITH_MAGIC_CODE": "Melden Sie sich mit einem magischen Code an",
+			"ERROR_SIGNIN": "Fehler beim Signieren"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Bitte geben Sie Ihre Anmeldedaten ein."
@@ -340,6 +341,7 @@
 			"TEAM_NAME": "Teamname",
 			"TEAM_TYPE": "Teamtyp",
 			"TIME_TRACKING": "Zeiterfassung",
+			"REQUIRE_PLAN_TO_TRACK": "Verlangt einen Plan zur Verfolgung",
 			"ADD_NEW_MEMBER": "Neues Mitglied hinzufügen",
 			"MANAGE_ASSIGNEES": "Zugewiesene verwalten",
 			"SEARCH_MEMBER": "Mitglied suchen",
@@ -455,7 +457,8 @@
 		"unauthorized": {
 			"TITLE": "Nicht autorisiert",
 			"HEADING_TITLE": "Sie sind nicht autorisiert auf diese Seite zuzugreifen !",
-			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein."
+			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein.",
+			"TRY_AGAIN": "Versuchen Sie es erneut"
 		},
 		"page404": {
 			"HEADING_TITLE": "Nicht gefunden",
@@ -480,7 +483,7 @@
 		"ACTIVE": "Aktiv",
 		"APPS": "Apps",
 		"ARCHIVED": "Archiviert",
-		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken",
+		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Teamwechsel gestoppt"
@@ -509,7 +512,15 @@
 			{
 				"title": "14 Tage"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN VON HEUTE",
+			"WORK_TIME_PLANNED": "Geplante Arbeitsstunden hinzufügen",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Für heute geplante Arbeitszeit",
+			"TASKS_WITH_NO_ESTIMATIONS": "Taks ohne Zeitvorgaben",
+			"START_WORKING_BUTTON": "Mit der Arbeit beginnen",
+			"WARNING_PLAN_ESTIMATION": "Bitte korrigieren Sie die geplanten Arbeitsstunden oder schätzen Sie die Aufgabe(n) neu ein."
+		}
 	},
 	"task": {
 		"TITLE": "Aufgabe",

@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
 		"ALERT_REMOVE_ALL_DATA": "Alle accountgegevens worden verwijderd uit alle teams waar je ALLEEN een bestaande manager bent.",
 		"ALERT_REMOVE_TEAM": "Team wordt volledig verwijderd uit het systeem en teamleden verliezen toegang",
-		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten"
+		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten",
+		"ALERT_USER_DELETED_FROM_TEAM": "Je bent uit het team verwijderd"
 	},
 	"pages": {
 		"home": {
@@ -295,7 +296,8 @@
 			"HEADING_WORKSPACE_LINE2": "selecteer er een om door te gaan",
 			"HAVE_PASSWORD": "Wachtwoord hebben?",
 			"LOGIN_WITH_PASSWORD": "Log in met het wachtwoord",
-			"LOGIN_WITH_MAGIC_CODE": "Log in met een magische code"
+			"LOGIN_WITH_MAGIC_CODE": "Log in met een magische code",
+			"ERROR_SIGNIN": "Fout bij het ondertekenen"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Voer uw inloggegevens in."
@@ -339,6 +341,7 @@
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
 			"TIME_TRACKING": "Tijd bijhouden",
+			"REQUIRE_PLAN_TO_TRACK": "Vereist een plan om bij te houden",
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",
@@ -454,7 +457,8 @@
 		"unauthorized": {
 			"TITLE": "Ongeautoriseerd",
 			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
-			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in"
+			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in",
+			"TRY_AGAIN": "Probeer het nog eens"
 		},
 		"page404": {
 			"HEADING_TITLE": "Niet gevonden",
@@ -479,7 +483,7 @@
 		"ACTIVE": "Actief",
 		"APPS": "Apps",
 		"ARCHIVED": "Gearchiveerd",
-		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden",
+		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
@@ -508,7 +512,15 @@
 			{
 				"title": "14 dagen"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "PLAN VAN VANDAAG",
+			"WORK_TIME_PLANNED": "Geplande werkuren toevoegen",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Geplande werktijd voor vandaag",
+			"TASKS_WITH_NO_ESTIMATIONS": "Taken zonder tijdschattingen",
+			"START_WORKING_BUTTON": "Begin met werken",
+			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
+		}
 	},
 	"task": {
 		"TITLE": "Taak",

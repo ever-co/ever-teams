@@ -52,6 +52,7 @@ import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
 import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
+import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 
 type Props = {
 	active?: boolean;
@@ -124,7 +125,7 @@ export function TaskCard(props: Props) {
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = task != null && task?.members?.length > 0;
-	const hasMembers = task?.members &&  task?.members?.length > 0 ;
+	const hasMembers = task?.members && task?.members?.length > 0;
 	const taskAssignee: ImageOverlapperProps[] =
 		task?.members?.map((member: any) => {
 			return {
@@ -176,7 +177,7 @@ export function TaskCard(props: Props) {
 							images={taskAssignee}
 							item={task}
 							hasActiveMembers={activeMembers}
-							hasInfo={!hasMembers ? "Assign this task" : "Assign this task to more people"}
+							hasInfo={!hasMembers ? 'Assign this task' : 'Assign this task to more people'}
 						/>
 					</div>
 				)}
@@ -200,7 +201,6 @@ export function TaskCard(props: Props) {
 							className="w-11 h-11"
 						/>
 					)}
-
 				</div>
 				<VerticalSeparator />
 
@@ -330,7 +330,20 @@ function TimerButtonCall({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { disabled, timerHanlder, timerStatus, activeTeamTask, startTimer, stopTimer } = useTimerView();
+	const { closeModal, isOpen, openModal } = useModal();
+
+	const {
+		canTrack,
+		disabled,
+		canRunTimer,
+		timerStatusFetching,
+		timerStatus,
+		activeTeamTask,
+		startTimer,
+		stopTimer,
+		isPlanVerified,
+		hasPlan
+	} = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
 
@@ -372,15 +385,36 @@ function TimerButtonCall({
 		updateOrganizationTeamEmployee
 	]);
 
+	const timerHanlderStartStop = useCallback(() => {
+		if (timerStatusFetching || !canRunTimer) return;
+		if (timerStatus?.running) {
+			stopTimer();
+		} else {
+			if (!isPlanVerified) {
+				openModal();
+			} else {
+				startTimer();
+			}
+		}
+	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
+
 	return loading ? (
 		<SpinnerLoader size={30} />
 	) : (
-		<TimerButton
-			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
-			running={activeTaskStatus?.running}
-			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className={clsxm('h-14 w-14', className)}
-		/>
+		<>
+			<TimerButton
+				onClick={activeTaskStatus ? timerHanlderStartStop : startTimerWithTask}
+				running={activeTaskStatus?.running}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+				className={clsxm('h-14 w-14', className)}
+			/>
+			<AddWorkTimeAndEstimatesToPlan
+				closeModal={closeModal}
+				open={isOpen}
+				plan={hasPlan}
+				startTimer={startTimer}
+			/>
+		</>
 	);
 }
 

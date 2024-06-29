@@ -101,3 +101,8 @@ export interface ITimezoneItemList {
 	items: [];
 	title: string;
 }
+
+export interface IRelationalUser {
+	user?: IUser;
+	userId?: IUser['id'];
+}

@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "您的账户将被永久删除,并从所有团队中移除",
 		"ALERT_REMOVE_TEAM": "团队将被完全移除出系统,成员也将失去访问权限",
 		"ALERT_REMOVE_ALL_DATA": "所有帐户数据将从您仅是一名现有经理的所有团队中删除",
-		"ALERT_QUIT_TEAM": "您将要退出团队"
+		"ALERT_QUIT_TEAM": "您将要退出团队",
+		"ALERT_USER_DELETED_FROM_TEAM": "您已从团队中删除"
 	},
 	"pages": {
 		"home": {
@@ -295,7 +296,8 @@
 			"HEADING_WORKSPACE_LINE2": "请选择一个以继续",
 			"HAVE_PASSWORD": "有密码吗？",
 			"LOGIN_WITH_PASSWORD": "使用密码登录",
-			"LOGIN_WITH_MAGIC_CODE": "使用魔法码登录"
+			"LOGIN_WITH_MAGIC_CODE": "使用魔法码登录",
+			"ERROR_SIGNIN": "签署时出错"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "请输入您的登录信息。"
@@ -339,6 +341,7 @@
 			"TEAM_NAME": "团队名称",
 			"TEAM_TYPE": "团队类型",
 			"TIME_TRACKING": "时间跟踪",
+			"REQUIRE_PLAN_TO_TRACK": "需要一个计划来跟踪",
 			"ADD_NEW_MEMBER": "添加新成员",
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",
@@ -435,7 +438,8 @@
 		"unauthorized": {
 			"TITLE": "未經授權",
 			"HEADING_TITLE": "您無權訪問此頁面 ！",
-			"HEADING_DESCRIPTION": "對於造成您的不便，我們深表歉意，但您無權造訪此頁面。 如果您認為這是一個錯誤。 請登入。"
+			"HEADING_DESCRIPTION": "對於造成您的不便，我們深表歉意，但您無權造訪此頁面。 如果您認為這是一個錯誤。 請登入。",
+			"TRY_AGAIN": "再试一次"
 		},
 		"offline": {
 			"HEADING_TITLE": "网络断开连接！",
@@ -479,7 +483,7 @@
 		"ACTIVE": "活跃",
 		"APPS": "应用",
 		"ARCHIVED": "已归档",
-		"START_TIMER": "请选择或创建新任务以开始计时",
+		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
@@ -508,7 +512,15 @@
 			{
 				"title": "14天"
 			}
-		]
+		],
+		"todayPlanSettings": {
+			"TITLE": "今日计划",
+			"WORK_TIME_PLANNED": "添加计划工作时间",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "今天计划的工作时间",
+			"TASKS_WITH_NO_ESTIMATIONS": "没有时间估算的任务",
+			"START_WORKING_BUTTON": "开始工作",
+			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
+		}
 	},
 	"task": {
 		"TITLE": "任务",

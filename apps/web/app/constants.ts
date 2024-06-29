@@ -1,7 +1,7 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
-import enLanguage from '../messages/en.json';
+import enLanguage from '../locales/en.json';
 // import {  } from 'country-flag-icons/react/3x2'
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 export const API_BASE_URL = '/api';
@@ -263,3 +263,32 @@ export const languagesFlags = [
 		code: 'he'
 	}
 ];
+
+// OAuth providers keys
+
+export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
+export const APPLE_CLIENT_SECRET = process.env.APPLE_CLIENT_SECRET;
+
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+export const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+
+export const FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID;
+export const FACEBOOK_CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET;
+
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+export const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
+export const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
+
+export const MICROSOFT_CLIENT_ID = process.env.MICROSOFT_CLIENT_ID;
+export const MICROSOFT_CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET;
+
+export const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
+export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
+
+export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
+export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;

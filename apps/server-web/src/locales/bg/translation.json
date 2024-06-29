@@ -1,0 +1,38 @@
+{
+  "MENU": {
+    "SERVER": "сървър",
+    "UPDATER": "Актуализатор",
+    "ABOUT": "относно",
+    "SERVER_START": "Започнете",
+    "SERVER_STOP": "Спри се",
+    "APP_SETTING": "Настройка",
+    "APP_ABOUT": "относно",
+    "APP_QUIT": "Откажете се",
+    "GENERAL": "Общ",
+    "SERVER_STATUS_STOPPED": "Статус: Спряна",
+    "SERVER_STATUS_STARTED": "Статус: започна"
+  },
+  "FORM": {
+    "FIELDS": {
+      "PORT": "ПРИСТАНИЩЕ",
+      "GAUZY_API_SERVER_URL": "Gauzy API сървър Url",
+      "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Публичен Gauzy API сървър Url"
+    },
+    "BUTTON": {
+      "SAVE_SETTING": "Запазване на настройката",
+      "OK": "Добре"
+    },
+    "LABELS": {
+      "CHECKING": "Проверка",
+      "DOWNLOADING": "Изтегля се",
+      "QUIT_N_INSTALL": "Излезте и инсталирайте",
+      "UP_TO_DATE": "Актуална",
+      "UPDATE_AVAILABLE": "Налична актуализация",
+      "CHECK_FOR_UPDATE": "Проверка за актуализация"
+    }
+  },
+  "MESSAGE": {
+    "SUCCESS": "Успех",
+    "ERROR": "Грешка"
+  }
+}

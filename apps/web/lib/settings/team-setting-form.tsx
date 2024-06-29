@@ -3,7 +3,7 @@ import { RoleNameEnum } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Button, ColorPicker, InputField, Text, Tooltip } from 'lib/components';
 import { EmojiPicker } from 'lib/components/emoji-picker';
-import TimeTrackingToggle, { ShareProfileViewsToggle } from 'lib/components/switch';
+import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from 'lib/components/switch';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -375,6 +375,14 @@ export const TeamSettingForm = () => {
 										</Text>
 										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
 											<ShareProfileViewsToggle />
+										</div>
+									</div>
+									<div className="flex items-center justify-between w-full gap-12 mt-8">
+										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+											{t('pages.settingsTeam.REQUIRE_PLAN_TO_TRACK')}
+										</Text>
+										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+											<RequireDailyPlanToTrack />
 										</div>
 									</div>
 								</>

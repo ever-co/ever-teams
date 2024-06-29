@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
 		"ALERT_REMOVE_TEAM": "El equipo será eliminado completamente del sistema y los miembros del equipo perderán el acceso",
 		"ALERT_REMOVE_ALL_DATA": "Todos los datos de la cuenta serán eliminados de todos los equipos donde eres el único administrador existente",
-		"ALERT_QUIT_TEAM": "Estás a punto de abandonar el equipo"
+		"ALERT_QUIT_TEAM": "Estás a punto de abandonar el equipo",
+		"ALERT_USER_DELETED_FROM_TEAM": "Has sido eliminado del equipo"
 	},
 	"pages": {
 		"home": {
@@ -232,7 +233,7 @@
 			"BREADCRUMB": "[\"Tareas de miembro\"]",
 			"MEMBER_NOT_FOUND_MSG_1": "El miembro que estás buscando no existe en un equipo, por favor intenta buscar con una consulta diferente.",
 			"MEMBER_NOT_FOUND_MSG_2": "Si estás buscando un miembro en un equipo diferente, por favor selecciona el equipo del menú desplegable de arriba.",
-			"GO_TO_HOME":  "Ir a la página de inicio"
+			"GO_TO_HOME": "Ir a la página de inicio"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Detalles de la tarea\"]",
@@ -295,7 +296,8 @@
 			"HEADING_WORKSPACE_LINE2": "por favor seleccione uno para continuar",
 			"HAVE_PASSWORD": "¿Tiene contraseña?",
 			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
-			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico"
+			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico",
+			"ERROR_SIGNIN": "Error al firmar"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
@@ -339,6 +341,7 @@
 			"TEAM_NAME": "Nombre del equipo",
 			"TEAM_TYPE": "Tipo de equipo",
 			"TIME_TRACKING": "Seguimiento de tiempo",
+			"REQUIRE_PLAN_TO_TRACK": "Exigir un Plan de seguimiento",
 			"ADD_NEW_MEMBER": "Agregar nuevo miembro",
 			"MANAGE_ASSIGNEES": "Administrar asignados",
 			"SEARCH_MEMBER": "Buscar miembro",
@@ -454,7 +457,8 @@
 		"unauthorized": {
 			"TITLE": "No autorizado",
 			"HEADING_TITLE": "No tiene permisos para acceder a esta página !",
-			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión."
+			"HEADING_DESCRIPTION": "Lamentamos las molestias, pero no está autorizado a acceder a esta página. Si crees que esto es un error. Por favor Iniciar sesión.",
+			"TRY_AGAIN": "Intentar otra vez"
 		},
 		"page404": {
 			"HEADING_TITLE": "No encontrado",
@@ -479,7 +483,7 @@
 		"ACTIVE": "Activo",
 		"APPS": "Aplicaciones",
 		"ARCHIVED": "Archivado",
-		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo",
+		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"
@@ -508,7 +512,15 @@
 		"TIME_SPENT_IN_HOURS": "Tiempo gastado (Horas)",
 		"TIMES": "Veces",
 		"TOTAL_HOURS": "Horas totales",
-		"VISITED_DATES": "Fechas visitadas"
+		"VISITED_DATES": "Fechas visitadas",
+		"todayPlanSettings": {
+			"TITLE": "PLAN DE HOY",
+			"WORK_TIME_PLANNED": "Añadir horas de trabajo previstas",
+			"WORK_TIME_PLANNED_PLACEHOLDER": "Tiempo de trabajo previsto para hoy",
+			"TASKS_WITH_NO_ESTIMATIONS": "Tarea sin estimación de tiempo",
+			"START_WORKING_BUTTON": "Empezar a trabajar",
+			"WARNING_PLAN_ESTIMATION": "Por favor, corrija las horas de trabajo previstas o reevalúe la(s) tarea(s)"
+		}
 	},
 	"task": {
 		"TITLE": "Tarea",

@@ -1,5 +1,5 @@
 {
-  "name": "@ever-teams/server-web",
+  "name": "ever-teams-server-web",
   "version": "0.1.0",
   "description": "Ever Teams Web Server",
   "license": "AGPL-3.0",
@@ -25,9 +25,9 @@
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
-    "pack:mac": "electron-builder build --mac --publish never && npm run build:dll",
-    "pack:win": "electron-builder build --win --publish never && npm run build:dll",
-    "pack:linux": "electron-builder build --linux --publish never && npm run build:dll",
+    "pack:mac": "electron-builder build --mac --publish always && npm run build:dll",
+    "pack:win": "electron-builder build --win --publish always && npm run build:dll",
+    "pack:linux": "electron-builder build --linux --publish always && npm run build:dll",
     "package": "electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
@@ -44,7 +44,12 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
-    "electron-store": "^8.1.0"
+    "electron-store": "^8.1.0",
+    "i18next-browser-languagedetector": "^7.2.1",
+    "i18next-electron-fs-backend": "^3.0.1",
+    "i18next-fs-backend": "^2.3.1",
+    "i18next-resources-to-backend": "^1.2.1",
+    "react-i18next": "^14.1.0"
   },
   "devDependencies": {
     "electron": "28.1.0",
@@ -234,20 +239,14 @@
     },
     "extraResources": [
       "./assets/**",
-      "./release/app/dist/standalone/**"
+      "./release/app/dist/standalone/**",
+      "./src/locales"
     ],
     "publish": [
       {
         "provider": "github",
-        "repo": "ever-teams-web-server",
+        "repo": "ever-teams",
         "releaseType": "release"
-      },
-      {
-        "provider": "spaces",
-        "name": "ever",
-        "region": "sfo3",
-        "path": "/ever-teams-web-server",
-        "acl": "public-read"
       }
     ]
   },

@@ -97,7 +97,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 	const name = searchParams?.get('name');
 
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const messages = require(`../../messages/${locale}.json`);
+	const messages = require(`../../locales/${locale}.json`);
 
 	useEffect(() => {
 		if (!isApiWork && !loading) router.push(`/maintenance`);

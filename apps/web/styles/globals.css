@@ -186,6 +186,20 @@ html.dark {
 		scrollbar-width: none; /* Firefox */
 	}
 
+	.custom-scrollbar::-webkit-scrollbar {
+		display: block;
+		width: 8px;
+		height: 5px;
+		@apply dark:bg-[#7b7b7c] bg-gray-400;
+	}
+	.custom-scrollbar:hover::-webkit-scrollbar {
+		padding: 1px;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		@apply dark:bg-[#484848] bg-gray-300;
+	}
+
 	/* Details Aside Bar */
 
 	.details-label {
@@ -311,4 +325,32 @@ html.dark {
 	transition: stroke-dashoffset 0.35s;
 	transform: rotate(-90deg);
 	transform-origin: 50% 50%;
+}
+
+@layer utilities {
+	@layer responsive {
+		.no-scrollbar::-webkit-scrollbar {
+			display: block;
+		}
+
+		.no-scrollbar:hover::-webkit-scrollbar {
+			display: block;
+			width: 8px;
+			height: 5px;
+			@apply dark:bg-[#606062] bg-gray-300;
+		}
+
+		.no-scrollbar::-webkit-scrollbar-thumb {
+			@apply dark:bg-dark--theme-light bg-gray-400;
+		}
+
+		.no-scrollbar {
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+		}
+		.no-scrollbar:hover {
+			-ms-overflow-style: auto;
+			scrollbar-width: auto;
+		}
+	}
 }
