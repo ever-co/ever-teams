@@ -107,6 +107,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		(e: any) => {
 			if (typeof selectedWorkspace !== 'undefined') {
 				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
+				window && window?.localStorage.removeItem('user-saw-notif');
 			}
 		},
 		[selectedWorkspace, selectedTeam, form]

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
@@ -19,11 +19,16 @@ import { Button } from '@components/ui/button';
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export function UserProfilePlans() {
+	const defaultTab =
+		typeof window !== 'undefined'
+			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
+			: 'Today Tasks';
+
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 
-	const [currentTab, setCurrentTab] = useState<FilterTabs>('Today Tasks');
+	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
@@ -32,6 +37,10 @@ export function UserProfilePlans() {
 		'All Tasks': <AllPlans profile={profile} />,
 		Outstanding: <Outstanding profile={profile} />
 	};
+
+	useEffect(() => {
+		window.localStorage.setItem('daily-plan-tab', currentTab);
+	}, [currentTab]);
 
 	return (
 		<div className="">

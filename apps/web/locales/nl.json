@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": "om de code opnieuw te verzenden, voor het geval u deze niet heeft ontvangen.",
 			"INVITATIONS": "U bent uitgenodigd om lid te worden van",
 			"CONFIRM_ACCEPT_INVITATION": "Weet u zeker dat u de uitnodiging wilt accepteren?",
-			"CONFIRM_REJECT_INVITATION": "Weet u zeker dat u de uitnodiging wilt afwijzen?"
+			"CONFIRM_REJECT_INVITATION": "Weet u zeker dat u de uitnodiging wilt afwijzen?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "Je hebt",
+				"USER_LABEL": "onvoltooide taken, controleer alsjeblieft",
+				"OUTSTANDING_VIEW": "Uitzicht op uitstaande taken",
+				"VIEW_BUTTON": "Bekijk"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Kanban-bord"

@@ -64,6 +64,7 @@ function WorkSpaceScreen() {
 		new Array(3).fill('').forEach((_, i) => {
 			Cookies.remove(`authjs.session-token.${i}`);
 		});
+		window && window?.localStorage.removeItem('user-saw-notif');
 	};
 
 	const updateOAuthSession = useCallback(() => {

@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": " um den Code erneut zu senden, falls Sie ihn nicht erhalten haben.",
 			"INVITATIONS": "Sie wurden eingeladen, beizutreten",
 			"CONFIRM_ACCEPT_INVITATION": "Möchten Sie die Einladung wirklich annehmen?",
-			"CONFIRM_REJECT_INVITATION": "Möchten Sie die Einladung wirklich ablehnen?"
+			"CONFIRM_REJECT_INVITATION": "Möchten Sie die Einladung wirklich ablehnen?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "Sie haben",
+				"USER_LABEL": "unvollständige Aufgaben, bitte überprüfen",
+				"OUTSTANDING_VIEW": "Ausstehende Ansicht",
+				"VIEW_BUTTON": "Ansehen"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Kanban-Board"
