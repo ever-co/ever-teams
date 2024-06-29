@@ -1,13 +1,22 @@
 {
 	"name": "@ever-teams/web",
 	"version": "0.1.0",
-	"license": "UNLICENSED",
+	"description": "Ever Teams - Open Work and Project Management Platform",
+	"license": "AGPL-3.0",
+	"homepage": "https://ever.team",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ever-co/ever-teams.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ever-co/ever-teams/issues"
+	},
+	"private": true,
 	"author": {
 		"name": "Ever Co. LTD",
 		"email": "ever@ever.co",
 		"url": "https://ever.co"
 	},
-	"private": true,
 	"scripts": {
 		"dev": "yarn node env.js && yarn next dev -p 3030",
 		"build": "yarn next build",
