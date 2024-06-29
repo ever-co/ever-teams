@@ -3,6 +3,7 @@ import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
 import { IDailyPlan, IUser } from '@app/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { Tooltip } from 'lib/components';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -25,6 +26,8 @@ export function TeamOutstandingNotifications() {
 }
 
 function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTasks: IDailyPlan[]; user?: IUser }) {
+	const t = useTranslations();
+
 	// Notification will be displayed 6 hours after the user closed it
 	const REAPPEAR_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds;
 	const DISMISSAL_TIMESTAMP_KEY = 'user-saw-notif';
@@ -60,8 +63,11 @@ function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTa
 			{visible && (
 				<div className="rounded-2xl dark:border-dark--theme-light border py-2 px-6 flex justify-between items-center text-xs mb-2">
 					<div>
-						You have {tasks?.length} uncompleted tasks, please check in{' '}
-						<span className="font-medium">Outstanding View</span>
+						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {tasks?.length}{' '}
+						{t('pages.home.OUTSTANDING_NOTIFICATIONS.USER_LABEL')}{' '}
+						<span className="font-medium">
+							{t('pages.home.OUTSTANDING_NOTIFICATIONS.OUTSTANDING_VIEW')}
+						</span>
 					</div>
 					<div className="flex items-center gap-5">
 						<div>
@@ -75,10 +81,10 @@ function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTa
 								}}
 							>
 								<EyeOpenIcon />
-								<span>View</span>
+								<span>{t('pages.home.OUTSTANDING_NOTIFICATIONS.VIEW_BUTTON')}</span>
 							</Link>
 						</div>
-						<Tooltip label="Close">
+						<Tooltip label={t('common.CLOSE')}>
 							<Cross2Icon className="text-xl cursor-pointer" onClick={onClose} />
 						</Tooltip>
 					</div>

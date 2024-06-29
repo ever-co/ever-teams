@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": "لإعادة إرسال الرمز إذا لم تتلقاه.",
 			"INVITATIONS": "لقد تمت دعوتك للانضمام إلى",
 			"CONFIRM_ACCEPT_INVITATION": "هل أنت متأكد من رغبتك في قبول الدعوة؟",
-			"CONFIRM_REJECT_INVITATION": "هل أنت متأكد من رغبتك في رفض الدعوة؟"
+			"CONFIRM_REJECT_INVITATION": "هل أنت متأكد من رغبتك في رفض الدعوة؟",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "لديك",
+				"USER_LABEL": "مهام غير مكتملة، يرجى التحقق منها",
+				"OUTSTANDING_VIEW": "عرض المهام المعلقة",
+				"VIEW_BUTTON": "عرض"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "لوحة كانبان"

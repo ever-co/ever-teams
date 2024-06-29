@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": " 重新发送验证码。",
 			"INVITATIONS": "您被邀请加入",
 			"CONFIRM_ACCEPT_INVITATION": "您确定要接受邀请吗?",
-			"CONFIRM_REJECT_INVITATION": "您确定要拒绝邀请吗?"
+			"CONFIRM_REJECT_INVITATION": "您确定要拒绝邀请吗?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "您有",
+				"USER_LABEL": "未完成的任务，请检查",
+				"OUTSTANDING_VIEW": "待处理视图",
+				"VIEW_BUTTON": "查看"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "看板"
