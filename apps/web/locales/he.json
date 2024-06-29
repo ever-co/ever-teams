@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": " כדי לשלוח מחדש את הקוד, אם לא קיבלת אותו.",
 			"INVITATIONS": "הוזמנת להצטרף ל-",
 			"CONFIRM_ACCEPT_INVITATION": "האם אתה בטוח שברצונך לקבל את ההזמנה?",
-			"CONFIRM_REJECT_INVITATION": "האם אתה בטוח שברצונך לדחות את ההזמנה?"
+			"CONFIRM_REJECT_INVITATION": "האם אתה בטוח שברצונך לדחות את ההזמנה?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "יש לך",
+				"USER_LABEL": "משימות שלא הושלמו, נא לבדוק",
+				"OUTSTANDING_VIEW": "תצוגה ממתינה",
+				"VIEW_BUTTON": "הצג"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "לוח Kanban"
