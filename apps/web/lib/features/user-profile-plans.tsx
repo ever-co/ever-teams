@@ -20,17 +20,17 @@ type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 
 
 export function UserProfilePlans() {
 	const profile = useUserProfilePage();
-	const { profileDailyPlans } = useDailyPlan();
+	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>('Today Tasks');
 
 	const tabsScreens = {
-		'Today Tasks': <AllPlans plans={profileDailyPlans?.items} profile={profile} currentTab={currentTab} />,
-		'Future Tasks': <FutureTasks dayPlans={profileDailyPlans?.items} profile={profile} />,
-		'Past Tasks': <PastTasks dayPlans={profileDailyPlans?.items} profile={profile} />,
-		'All Tasks': <AllPlans plans={profileDailyPlans?.items} profile={profile} />,
-		Outstanding: <Outstanding dayPlans={profileDailyPlans?.items} profile={profile} />
+		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
+		'Future Tasks': <FutureTasks profile={profile} />,
+		'Past Tasks': <PastTasks profile={profile} />,
+		'All Tasks': <AllPlans profile={profile} />,
+		Outstanding: <Outstanding profile={profile} />
 	};
 
 	return (
@@ -45,12 +45,24 @@ export function UserProfilePlans() {
 										{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 										<div
 											className={clsxm(
-												'text-gray-500',
+												'text-gray-500 flex gap-2 items-center',
 												currentTab == filter && 'text-blue-600 dark:text-white font-medium'
 											)}
 											onClick={() => setCurrentTab(filter as FilterTabs)}
 										>
 											{filter}
+											<span
+												className={clsxm(
+													'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
+													currentTab == filter && 'dark:bg-gray-600'
+												)}
+											>
+												{filter === 'Today Tasks' && todayPlan.length}
+												{filter === 'Future Tasks' && futurePlans.length}
+												{filter === 'Past Tasks' && pastPlans.length}
+												{filter === 'All Tasks' && sortedPlans.length}
+												{filter === 'Outstanding' && outstandingPlans.length}
+											</span>
 										</div>
 									</div>
 								))}
@@ -66,26 +78,13 @@ export function UserProfilePlans() {
 	);
 }
 
-function AllPlans({
-	plans,
-	profile,
-	currentTab = 'All Tasks'
-}: {
-	plans: IDailyPlan[];
-	profile: any;
-	currentTab?: FilterTabs;
-}) {
+function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
+	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 
-	filteredPlans = [...plans].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-	if (currentTab === 'Today Tasks')
-		filteredPlans = [...plans].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
-
-	const { deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
+	filteredPlans = sortedPlans;
+	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
 

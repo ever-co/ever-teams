@@ -16,6 +16,11 @@ export const profileDailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	default: { items: [], total: 0 }
 });
 
+export const employeePlansListState = atom<IDailyPlan[]>({
+	key: 'employeePlansListState',
+	default: []
+});
+
 export const taskPlans = atom<IDailyPlan[]>({
 	key: 'taskPlansList',
 	default: []

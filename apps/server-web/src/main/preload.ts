@@ -2,7 +2,7 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'setting-page' | 'ipc-renderer';
+export type Channels = 'setting-page' | 'ipc-renderer' | 'language-set';
 
 const electronHandler = {
   ipcRenderer: {
@@ -28,5 +28,11 @@ const electronHandler = {
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
+contextBridge.exposeInMainWorld('languageChange', {
+  language: (callback: any) => ipcRenderer.on('languageSignal', (_event, value) => callback(value))
+})
 
 export type ElectronHandler = typeof electronHandler;
+export type languageChange = {
+  language: (callback: any) => void
+}

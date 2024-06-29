@@ -74,14 +74,14 @@ export abstract class ServerTask {
 
 				console.log('Service created', service.pid);
 
-				service.stdout.on('data', (data: any) => {
+				service.stdout?.on('data', (data: any) => {
 					const msg = data.toString();
 					this.loggerObserver.notify(msg);
 					if (msg.includes(this.successMessage)) {
 						const name = String(this.args.serviceName);
 						this.stateObserver.notify(true);
 						this.loggerObserver.notify(
-							`☣︎ ${name.toUpperCase()} server listen to ${this.config[`${name}Url`]}`
+							`☣︎ ${name.toUpperCase()} server listen to ${this.config.setting[`${name}Url`]}`
 						);
 						resolve();
 					}
@@ -92,7 +92,7 @@ export abstract class ServerTask {
 					}
 				});
 
-				service.stderr.on('data', (data: any) => {
+				service.stderr?.on('data', (data: any) => {
 					console.log('stderr:', data.toString());
 					this.loggerObserver.notify(data.toString());
 				});
@@ -111,7 +111,7 @@ export abstract class ServerTask {
 				if (this.eventEmmitter) {
 					this.eventEmmitter.emit(EventLists.webServerStarted);
 				}
-				this.config.setting = { [this.pid]: service.pid };
+				this.config.setting = { server: { ...this.config.setting.server ,[this.pid]: service.pid } };
 			} catch (error) {
 				console.error('Error running task:', error);
 				this.handleError(error);
@@ -123,13 +123,13 @@ export abstract class ServerTask {
 	public kill(callHandleError = true): void {
 		console.log('Kill Server Task');
 		try {
-			if (this.pid && this.config.setting[this.pid]) {
-				process.kill(this.config.setting[this.pid]);
-				delete this.config.setting[this.pid];
+			if (this.pid && this.config.setting.server[this.pid]) {
+				process.kill(this.config.setting.server[this.pid]);
+				delete this.config.setting.server[this.pid];
 				this.stateObserver.notify(false);
-				this.loggerObserver.notify(`[${this.pid.toUpperCase()}-${this.config.setting[this.pid]}]: stopped`);
+				this.loggerObserver.notify(`[${this.pid.toUpperCase()}-${this.config.setting.server[this.pid]}]: stopped`);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			if (callHandleError) {
 				if (error.code === 'ESRCH') {
 					error.message = `ERROR: Could not terminate the process [${this.pid}]. It was not running: ${error}`;
@@ -140,7 +140,7 @@ export abstract class ServerTask {
 	}
 
 	public get running(): boolean {
-		return this.isRunning && !!this.config.setting[this.pid];
+		return this.isRunning && !!this.config.setting.server[this.pid];
 	}
 
 	public async restart(): Promise<void> {

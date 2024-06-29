@@ -1,7 +1,13 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_UserProfilePage, useAuthenticateUser, useOrganizationTeams, useOutsideClick } from '@app/hooks';
+import {
+	I_UserProfilePage,
+	useAuthenticateUser,
+	useDailyPlan,
+	useOrganizationTeams,
+	useOutsideClick
+} from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -13,6 +19,7 @@ import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
+import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -38,6 +45,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
+	const { profileDailyPlans } = useDailyPlan();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
@@ -188,7 +196,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		onResetStatusFilter,
 		applyStatusFilder,
 		tasksGrouped: profile.tasksGrouped,
-		outclickFilterCard
+		outclickFilterCard,
+		profileDailyPlans
 	};
 }
 
@@ -228,7 +237,9 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				ref={hook.outclickFilterCard.targetEl}
 			>
 				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
-				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
+				{hook.filterType === 'status' && (
+					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
+				)}
 				{hook.filterType === 'search' && (
 					<TaskNameFilter
 						value={hook.taskName}
@@ -357,7 +368,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
  */
-export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
+export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 
@@ -391,6 +402,8 @@ export function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
 					multiple={true}
 				/>
+
+				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 
 				<VerticalSeparator />
 

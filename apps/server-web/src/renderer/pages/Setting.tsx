@@ -6,6 +6,7 @@ import {
   ServerComponent,
   UpdaterComponent,
   AboutComponent,
+  GeneralComponent,
 } from '../components';
 
 interface SideMenu {
@@ -22,16 +23,15 @@ interface UpdaterStates {
     | 'downloaded'
     | 'error'
     | 'not-started'
-    | 'uptodate';
+    | 'up-to-date';
   data: any;
   label:
-    | 'Checking'
-    | 'Downloading'
-    | 'Quit and Install'
-    | 'Uptodate'
-    | 'Update Available'
-    | 'Check For Update'
-    | 'Uptodate';
+    | 'CHECKING'
+    | 'DOWNLOADING'
+    | 'QUIT_N_INSTALL'
+    | 'UP_TO_DATE'
+    | 'UPDATE_AVAILABLE'
+    | 'CHECK_FOR_UPDATE';
 }
 
 interface IServerSetting {
@@ -45,29 +45,52 @@ interface IPopup {
   isShow: boolean;
 }
 
+interface Languages {
+  code: string;
+  label: string;
+}
+
 export function Setting() {
   const [menus, setMenu] = useState<SideMenu[]>([
     {
-      displayName: 'Server',
-      key: 'server',
+      displayName: 'GENERAL',
+      key: 'general',
       isActive: true,
     },
     {
-      displayName: 'Updater',
+      displayName: 'SERVER',
+      key: 'server',
+      isActive: false,
+    },
+    {
+      displayName: 'UPDATER',
       key: 'updater',
       isActive: false,
     },
     {
-      displayName: 'About',
+      displayName: 'ABOUT',
       key: 'about',
       isActive: false,
     },
   ]);
 
+  const [langs, setLangs] = useState<Languages[]>([
+    {
+      code: 'en',
+      label: 'English',
+    },
+    {
+      code: 'bg',
+      label: 'Bulgarian',
+    },
+  ]);
+
+  const [lng, setLng] = useState<string>('en');
+
   const [updateStates, setUpdateState] = useState<UpdaterStates>({
     state: 'not-started',
     data: null,
-    label: 'Check For Update',
+    label: 'CHECK_FOR_UPDATE',
   });
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -95,6 +118,12 @@ export function Setting() {
       return menu;
     });
     setMenu(newMenu);
+  };
+
+  const changeLanguage = (lang: Languages) => {
+    console.log(lang);
+    sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
+    setLng(lang.code);
   };
 
   const sendingMessageToMain = (data: any, type: string) => {
@@ -177,6 +206,12 @@ export function Setting() {
       sendingMessageToMain({}, SettingPageTypeMessage.showVersion);
       return <AboutComponent version={version} />;
     }
+
+    if (activeMenu() === 'general') {
+      return (
+        <GeneralComponent langs={langs} onChange={changeLanguage} lang={lng} />
+      );
+    }
     return <AboutComponent version={version} />;
   };
 
@@ -187,21 +222,21 @@ export function Setting() {
           setUpdateState({
             state: 'update-available',
             data: null,
-            label: 'Update Available',
+            label: 'UPDATE_AVAILABLE',
           });
           break;
         case SettingPageTypeMessage.downloadingUpdate:
           setUpdateState({
             state: 'downloading',
             data: arg.data.percent,
-            label: 'Downloading',
+            label: 'DOWNLOADING',
           });
           break;
         case SettingPageTypeMessage.downloaded:
           setUpdateState({
             state: 'downloaded',
             data: null,
-            label: 'Quit and Install',
+            label: 'QUIT_N_INSTALL',
           });
           setLoading(false);
           break;
@@ -209,7 +244,7 @@ export function Setting() {
           setUpdateState({
             state: 'error',
             data: arg.data.message,
-            label: 'Check For Update',
+            label: 'CHECK_FOR_UPDATE',
           });
           setLoading(false);
           setPopupUpdater({
@@ -219,20 +254,21 @@ export function Setting() {
           break;
         case SettingPageTypeMessage.upToDate:
           setUpdateState({
-            state: 'uptodate',
+            state: 'up-to-date',
             data: null,
-            label: 'Uptodate',
+            label: 'UP_TO_DATE',
           });
           setLoading(false);
           break;
         case SettingPageTypeMessage.loadSetting:
-          console.log('server setting', serverSetting);
+          console.log('server setting', arg);
           setServerSetting({
-            PORT: arg.data.PORT,
-            GAUZY_API_SERVER_URL: arg.data.GAUZY_API_SERVER_URL,
+            PORT: arg.data.server.PORT,
+            GAUZY_API_SERVER_URL: arg.data.server.GAUZY_API_SERVER_URL,
             NEXT_PUBLIC_GAUZY_API_SERVER_URL:
-              arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
+              arg.data.server.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
           });
+          setLng(arg.data.general.lang);
           break;
         case SettingPageTypeMessage.mainResponse:
           setPopupServer({
@@ -242,6 +278,9 @@ export function Setting() {
           break;
         case SettingPageTypeMessage.showVersion:
           setVersion(arg.data);
+          break;
+        case SettingPageTypeMessage.selectMenu:
+          menuChange(arg.data.key);
           break;
         default:
           break;
