@@ -1,4 +1,5 @@
 import { EverTeamsLogo } from './svgs';
+import { useTranslation } from 'react-i18next';
 
 interface UpdaterStates {
   state:
@@ -8,21 +9,21 @@ interface UpdaterStates {
     | 'downloaded'
     | 'error'
     | 'not-started'
-    | 'uptodate';
+    | 'up-to-date';
   data: any;
   label:
-    | 'Checking'
-    | 'Downloading'
-    | 'Quit and Install'
-    | 'Uptodate'
-    | 'Update Available'
-    | 'Check For Update'
-    | 'Uptodate';
+    | 'CHECKING'
+    | 'DOWNLOADING'
+    | 'QUIT_N_INSTALL'
+    | 'UP_TO_DATE'
+    | 'UPDATE_AVAILABLE'
+    | 'CHECK_FOR_UPDATE';
 }
 type PropsProgress = {
   updateStates: UpdaterStates;
 };
 const ProgressComponent = (props: PropsProgress) => {
+  const { t } = useTranslation();
   return (
     <div className="flex">
       <div className="flex-none w-5">
@@ -38,7 +39,7 @@ const ProgressComponent = (props: PropsProgress) => {
             cy="12"
             r="10"
             stroke="currentColor"
-            stroke-width="4"
+            strokeWidth="4"
           ></circle>
           <path
             className="opacity-75"
@@ -49,8 +50,9 @@ const ProgressComponent = (props: PropsProgress) => {
       </div>
       <div className="flex-1 w-auto">
         {props.updateStates.state === 'downloading' &&
-          `${props.updateStates.label} ${props.updateStates.data} %`}
-        {props.updateStates.state !== 'downloading' && props.updateStates.label}
+          `${t(`FORM.LABELS.${props.updateStates.label}`)} ${props.updateStates.data} %`}
+        {props.updateStates.state !== 'downloading' &&
+          t(`FORM.LABELS.${props.updateStates.label}`)}
       </div>
     </div>
   );
@@ -63,6 +65,7 @@ type Props = {
   Popup: JSX.Element;
 };
 export const UpdaterComponent = (props: Props) => {
+  const { t } = useTranslation();
   return (
     <>
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -79,7 +82,7 @@ export const UpdaterComponent = (props: Props) => {
             {props.loading && (
               <ProgressComponent updateStates={props.updateStates} />
             )}
-            {!props.loading && props.updateStates.label}
+            {!props.loading && t(`FORM.LABELS.${props.updateStates.label}`)}
           </button>
         </div>
       </div>

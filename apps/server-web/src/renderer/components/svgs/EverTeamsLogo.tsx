@@ -37,11 +37,11 @@ export const EverTeamsLogo = () => {
         <text
           className="g-gauzy-text"
           transform="translate(292.794 3681.039)"
-          font-family="Fira Sans, sans-serif"
-          font-size="21"
-          font-weight="300"
-          font-style="italic"
-          letter-spacing="-0.035em"
+          fontFamily="Fira Sans, sans-serif"
+          fontSize="21"
+          fontWeight="300"
+          fontStyle="italic"
+          letterSpacing="-0.035em"
         >
           <tspan x="0" y="0">
             teams

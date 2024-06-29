@@ -1,13 +1,9 @@
 {
 	"name": "ever-teams",
-	"homepage": "https://ever.team",
-	"license": "UNLICENSED",
-	"author": {
-		"name": "Ever Co. LTD",
-		"email": "ever@ever.co",
-		"url": "https://ever.co"
-	},
 	"version": "0.1.0",
+	"description": "Ever Teams - Open Work and Project Management Platform",
+	"license": "AGPL-3.0",
+	"homepage": "https://ever.team",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ever-co/ever-teams.git"
@@ -16,6 +12,11 @@
 		"url": "https://github.com/ever-co/ever-teams/issues"
 	},
 	"private": true,
+	"author": {
+		"name": "Ever Co. LTD",
+		"email": "ever@ever.co",
+		"url": "https://ever.co"
+	},
 	"scripts": {
 		"prepare:husky": "npx husky install .husky",
 		"ng": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
@@ -90,7 +91,10 @@
 		"build:server-web": "yarn build:web:desktop && yarn prepare:server-web && yarn run copy:build:web",
 		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web:mac",
 		"package:server-web:win": "yarn build:server-web && yarn pack:server-web:win",
-		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux"
+		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:linux:release:gh": "",
+		"build:web-server:mac:release": "",
+		"build:web-server:windows:release:gh": ""
 	},
 	"config": {
 		"commitizen": {
@@ -209,12 +213,51 @@
 		"pretty-quick": "^4.0.0",
 		"rimraf": "^5.0.5",
 		"semantic-release": "^22.0.12",
+		"simple-git": "^3.20.0",
 		"ts-node": "^10.9.2",
 		"@types/electron": "^1.6.10"
+	},
+	"overrides": {
+		"prebuild": {
+			"node-gyp": "$node-gyp"
+		},
+		"iconv": {
+			"node-gyp": "9.3.1"
+		},
+		"twing": {
+			"locutus": "2.0.30"
+		}
 	},
 	"engines": {
 		"node": ">=20.11.0",
 		"yarn": ">=1.13.0"
+	},
+	"prettier": {
+		"printWidth": 120,
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": true,
+		"tabWidth": 4,
+		"arrowParens": "always",
+		"trailingComma": "none",
+		"quoteProps": "as-needed",
+		"trimTrailingWhitespace": true,
+		"overrides": [
+			{
+				"files": "*.scss",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			},
+			{
+				"files": "*.yml",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			}
+		]
 	},
 	"snyk": true
 }

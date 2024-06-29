@@ -20,6 +20,7 @@ import {
 	activeTeamIdState,
 	activeTeamManagersState,
 	activeTeamState,
+	isTeamMemberJustDeletedState,
 	isTeamMemberState,
 	organizationTeamsState,
 	teamsFetchingState,
@@ -175,6 +176,8 @@ export function useOrganizationTeams() {
 
 	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
+	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useRecoilState(isTeamMemberJustDeletedState);
+	// const [isTeamJustDeleted, setIsTeamJustDeleted] = useRecoilState(isTeamJustDeletedState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
@@ -245,6 +248,7 @@ export function useOrganizationTeams() {
 		return queryCall(user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 			if (res.data?.items && res.data?.items?.length === 0) {
 				setIsTeamMember(false);
+				setIsTeamMemberJustDeleted(true);
 			}
 			const latestTeams = res.data?.items || [];
 
@@ -266,6 +270,7 @@ export function useOrganizationTeams() {
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
 			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
+				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';
@@ -381,6 +386,8 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeam,
 		loadingTeam,
 		isTrackingEnabled,
-		memberActiveTaskId
+		memberActiveTaskId,
+		isTeamMemberJustDeleted,
+		setIsTeamMemberJustDeleted
 	};
 }

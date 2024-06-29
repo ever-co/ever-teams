@@ -212,7 +212,8 @@
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Il tuo account verrà eliminato definitivamente e sarai rimosso da tutti i team",
 		"ALERT_REMOVE_ALL_DATA": "Tutti i dati dell'account saranno rimossi dai team in cui sei l'unico responsabile esistente",
 		"ALERT_REMOVE_TEAM": "Il Team sarà completamente rimosso dal sistema e i membri del team perderanno l'accesso",
-		"ALERT_QUIT_TEAM": "Stai per abbandonare il team"
+		"ALERT_QUIT_TEAM": "Stai per abbandonare il team",
+		"ALERT_USER_DELETED_FROM_TEAM": "Sei stato rimosso dal team"
 	},
 	"pages": {
 		"home": {
