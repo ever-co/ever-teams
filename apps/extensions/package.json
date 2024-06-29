@@ -3,7 +3,7 @@
 	"displayName": "Ever Teams",
 	"version": "0.1.0",
 	"description": "Ever Teams Browser Extensions",
-	"license": "UNLICENSED",
+	"license": "GPL-3.0",
 	"author": "Ever Co. LTD",
 	"scripts": {
 		"dev": "yarn plasmo dev",

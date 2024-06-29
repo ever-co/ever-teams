@@ -1,4 +1,4 @@
-name: Server API Build Apps
+name: Server Web Build Apps
 
 on:
   workflow_run:
@@ -22,12 +22,9 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-        with:
-          repository: 'ever-co/ever-gauzy'
-          ref: master
 
       - name: Install Node.js, NPM and Yarn
-        uses: buildjet/setup-node@v3
+        uses: buildjet/setup-node@v4
         with:
           node-version: '20.11.1'
           cache: 'yarn'
@@ -58,16 +55,16 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.serverapi(true))
+            console.log(script.serverweb(true))
         env:
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
-          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
           COMPANY_SITE_LINK: 'https://ever.team'
-          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
-          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+          DESKTOP_WEB_SERVER_APP_DESCRIPTION: 'Ever Teams Web Server'
+          DESKTOP_WEB_SERVER_APP_ID: 'com.ever.everteamswebserver'
 
-      - name: Build API Server App
-        run: 'yarn build:gauzy-api-server:linux:release:gh'
+      - name: Build Web Server App
+        run: 'yarn build:web-server:linux:release:gh'
         env:
           USE_HARD_LINKS: false
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -85,16 +82,16 @@ jobs:
           COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
           COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
-          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
-          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
-          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
-          DESKTOP_API_SERVER_APP_REPO_NAME: 'ever-teams-api-server'
-          DESKTOP_API_SERVER_APP_REPO_OWNER: 'ever-co'
-          DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
-          DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
-          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
+          DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
+          DESKTOP_WEB_SERVER_APP_DESCRIPTION: 'Ever Teams Web Server'
+          DESKTOP_WEB_SERVER_APP_ID: 'com.ever.everteamswebserver'
+          DESKTOP_WEB_SERVER_APP_REPO_NAME: 'ever-teams-web-server'
+          DESKTOP_WEB_SERVER_APP_REPO_OWNER: 'ever-co'
+          DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
+          DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
           PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/src/assets/icons/icon_512x512.png'
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -106,9 +103,6 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-        with:
-          repository: 'ever-co/ever-gauzy'
-          ref: master
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
@@ -136,16 +130,16 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.serverapi(true))
+            console.log(script.serverweb(true))
         env:
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
-          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
           COMPANY_SITE_LINK: 'https://ever.team'
-          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
-          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+          DESKTOP_WEB_SERVER_APP_DESCRIPTION: 'Ever Teams Web Server'
+          DESKTOP_WEB_SERVER_APP_ID: 'com.ever.everteamswebserver'
 
-      - name: Build API Server App
-        run: 'yarn build:gauzy-api-server:mac:release'
+      - name: Build Web Server App
+        run: 'yarn build:web-server:mac:release'
         env:
           USE_HARD_LINKS: false
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -163,16 +157,16 @@ jobs:
           COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
           COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
-          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
-          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
-          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
-          DESKTOP_API_SERVER_APP_REPO_NAME: 'ever-teams-api-server'
-          DESKTOP_API_SERVER_APP_REPO_OWNER: 'ever-co'
-          DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
-          DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
-          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
+          DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
+          DESKTOP_WEB_SERVER_APP_DESCRIPTION: 'Ever Teams Web Server'
+          DESKTOP_WEB_SERVER_APP_ID: 'com.ever.everteamswebserver'
+          DESKTOP_WEB_SERVER_APP_REPO_NAME: 'ever-teams-web-server'
+          DESKTOP_WEB_SERVER_APP_REPO_OWNER: 'ever-co'
+          DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
+          DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
           PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/src/assets/icons/icon_512x512.png'
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -184,9 +178,6 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-        with:
-          repository: 'ever-co/ever-gauzy'
-          ref: master
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
@@ -214,21 +205,21 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.serverapi(true))
+            console.log(script.serverweb(true))
         env:
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
-          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
+          DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
           COMPANY_SITE_LINK: 'https://ever.team'
-          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
-          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
+          DESKTOP_WEB_SERVER_APP_DESCRIPTION: 'Ever Teams Web Server'
+          DESKTOP_WEB_SERVER_APP_ID: 'com.ever.everteamswebserver'
 
       - name: Print environment variable names
         run: |
           echo "Environment Variable Names:"
           printenv | cut -d= -f1
 
-      - name: Build API Server App
-        run: 'yarn build:gauzy-api-server:windows:release:gh'
+      - name: Build Web Server App
+        run: 'yarn build:web-server:windows:release:gh'
         env:
           USE_HARD_LINKS: false
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -246,16 +237,16 @@ jobs:
           COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
           COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
-          DESKTOP_API_SERVER_APP_NAME: 'ever-teams-api-server'
-          DESKTOP_API_SERVER_APP_DESCRIPTION: 'Ever Teams API Server'
-          DESKTOP_API_SERVER_APP_ID: 'com.ever.everteamsapiserver'
-          DESKTOP_API_SERVER_APP_REPO_NAME: 'ever-teams-api-server'
-          DESKTOP_API_SERVER_APP_REPO_OWNER: 'ever-co'
-          DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
-          DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
-          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
+          DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
+          DESKTOP_WEB_SERVER_APP_DESCRIPTION: 'Ever Teams Web Server'
+          DESKTOP_WEB_SERVER_APP_ID: 'com.ever.everteamswebserver'
+          DESKTOP_WEB_SERVER_APP_REPO_NAME: 'ever-teams-web-server'
+          DESKTOP_WEB_SERVER_APP_REPO_OWNER: 'ever-co'
+          DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
+          DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
           PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/src/assets/icons/icon_512x512.png'
           # Override unwanted environment variables
           ACTIONS_RUNNER_ACTION_ARCHIVE_CACHE: ''
           ANT_HOME: ''
