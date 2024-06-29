@@ -5,7 +5,8 @@ import {
 	createTaskStatusAPI,
 	getTaskStatusList,
 	deleteTaskStatusAPI,
-	editTaskStatusAPI
+	editTaskStatusAPI,
+	editTaskStatusOrderAPI
 } from '@app/services/client/api';
 import { userState, taskStatusFetchingState, taskStatusListState, activeTeamIdState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
@@ -23,6 +24,7 @@ export function useTaskStatus() {
 	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(createTaskStatusAPI);
 	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskStatusAPI);
 	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(editTaskStatusAPI);
+	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQuery(editTaskStatusOrderAPI);
 
 	const [taskStatus, setTaskStatus] = useRecoilState(taskStatusListState);
 	const [taskStatusFetching, setTaskStatusFetching] = useRecoilState(taskStatusFetchingState);
@@ -114,6 +116,8 @@ export function useTaskStatus() {
 		taskStatusFetching,
 		firstLoadTaskStatusData,
 		createTaskStatus,
+		reOrderQueryCall,
+		reOrderTaskStatusLoading,
 		createTaskStatusLoading,
 		deleteTaskStatusLoading,
 		deleteTaskStatus,
