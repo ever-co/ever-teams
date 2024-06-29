@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
@@ -30,9 +30,13 @@ import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from 'lib/features/team-member-header';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
+import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
 
 function MainPage() {
 	const t = useTranslations();
+
+	const [headerSize, setHeaderSize] = useState(10);
+
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 	const [view, setView] = useRecoilState(headerTabs);
@@ -67,8 +71,16 @@ function MainPage() {
 						<div className="pt-3 h-[80vh]">
 							<ResizablePanelGroup direction="vertical">
 								{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
-								<ResizablePanel defaultSize={45} maxSize={44}>
-									<div className="bg-white sticky z-50 border-b-[0.125rem] dark:border-[#26272C] dark:bg-dark-high">
+								<ResizablePanel
+									defaultSize={50}
+									maxSize={48}
+									className={clsxm(
+										headerSize < 20 ? '!overflow-hidden' : '!overflow-visible',
+										'dark:bg-dark-high border-b-[0.125rem] dark:border-[#26272C]'
+									)}
+									onResize={(size) => setHeaderSize(size)}
+								>
+									<div className="bg-white sticky z-50 dark:bg-dark-high">
 										<div
 											className={clsxm(
 												'bg-white dark:bg-dark-high ',
@@ -87,6 +99,7 @@ function MainPage() {
 											<div className="mx-8-container mb-1">
 												<UnverifiedEmail />
 												<TeamInvitations />
+												<TeamOutstandingNotifications />
 												{isTeamMember ? (
 													<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
 												) : null}
