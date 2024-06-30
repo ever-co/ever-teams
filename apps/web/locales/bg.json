@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": "за да изпратите кода отново, ако не сте го получили.",
 			"INVITATIONS": "Поканени сте да се присъедините към",
 			"CONFIRM_ACCEPT_INVITATION": "Сигурни ли сте, че искате да приемете поканата?",
-			"CONFIRM_REJECT_INVITATION": "Сигурни ли сте, че искате да отхвърлите поканата?"
+			"CONFIRM_REJECT_INVITATION": "Сигурни ли сте, че искате да отхвърлите поканата?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "Имате",
+				"USER_LABEL": "незавършени задачи, моля, проверете",
+				"OUTSTANDING_VIEW": "Преглед на изчакващите задачи",
+				"VIEW_BUTTON": "Преглед"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Канбан дъска"

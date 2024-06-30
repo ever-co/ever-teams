@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": " aby ponownie wysłać kod, jeśli go nie otrzymałeś.",
 			"INVITATIONS": "Zostałeś zaproszony do dołączenia do",
 			"CONFIRM_ACCEPT_INVITATION": "Czy na pewno chcesz zaakceptować zaproszenie?",
-			"CONFIRM_REJECT_INVITATION": "Czy na pewno chcesz odrzucić zaproszenie?"
+			"CONFIRM_REJECT_INVITATION": "Czy na pewno chcesz odrzucić zaproszenie?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "Masz",
+				"USER_LABEL": "niezakończone zadania, proszę sprawdź",
+				"OUTSTANDING_VIEW": "Widok zadań do wykonania",
+				"VIEW_BUTTON": "Zobacz"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Tablica Kanbana"

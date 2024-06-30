@@ -224,7 +224,13 @@
 			"SENT_EMAIL_VERIFICATION_RESEND": " para reenviar el código, si no lo recibiste.",
 			"INVITATIONS": "Has sido invitado a unirte a",
 			"CONFIRM_ACCEPT_INVITATION": "¿Estás seguro de que deseas aceptar la invitación?",
-			"CONFIRM_REJECT_INVITATION": "¿Estás seguro de que deseas rechazar la invitación?"
+			"CONFIRM_REJECT_INVITATION": "¿Estás seguro de que deseas rechazar la invitación?",
+			"OUTSTANDING_NOTIFICATIONS": {
+				"SUBJECT": "Tienes",
+				"USER_LABEL": "tareas incompletas, por favor revisa",
+				"OUTSTANDING_VIEW": "Vista pendiente",
+				"VIEW_BUTTON": "Ver"
+			}
 		},
 		"kanban": {
 			"KANBAN_BOARD": "tablero kanban"
