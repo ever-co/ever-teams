@@ -3,7 +3,7 @@ import resourcesToBackend from 'i18next-resources-to-backend';
 
 i18n
   .use(
-    resourcesToBackend((language: string, namespace: string) => import(`../locales/${language}/${namespace}.json`))
+    resourcesToBackend((language: string, namespace: string) => import(`../locales/i18n/${language}/${namespace}.json`))
   )
   .init({
     debug: true,

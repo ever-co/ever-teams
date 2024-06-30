@@ -1,7 +1,7 @@
 {
   "MENU": {
     "SERVER": "сървър",
-    "UPDATER": "Актуализатор",
+    "UPDATER": "Актуализация",
     "ABOUT": "относно",
     "SERVER_START": "Започнете",
     "SERVER_STOP": "Спри се",
@@ -28,7 +28,8 @@
       "QUIT_N_INSTALL": "Излезте и инсталирайте",
       "UP_TO_DATE": "Актуална",
       "UPDATE_AVAILABLE": "Налична актуализация",
-      "CHECK_FOR_UPDATE": "Проверка за актуализация"
+      "CHECK_FOR_UPDATE": "Проверка за актуализация",
+      "SERVER_CONFIG": "Конфигурация на сървъра"
     }
   },
   "MESSAGE": {

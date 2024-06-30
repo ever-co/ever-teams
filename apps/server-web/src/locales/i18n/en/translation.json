@@ -1,7 +1,7 @@
 {
   "MENU": {
     "SERVER": "Server",
-    "UPDATER": "Updater",
+    "UPDATER": "Update",
     "ABOUT": "About",
     "SERVER_START": "Start",
     "SERVER_STOP": "Stop",
@@ -16,7 +16,9 @@
     "FIELDS": {
       "PORT": "PORT",
       "GAUZY_API_SERVER_URL": "Gauzy API Server Url",
-      "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Public Gauzy API Server Url"
+      "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Public Gauzy API Server Url",
+      "LANGUAGES": "Languages",
+      "OPTIONS": "Options"
     },
     "BUTTON": {
       "SAVE_SETTING": "Save Setting",
@@ -28,7 +30,12 @@
       "QUIT_N_INSTALL": "Quit and Install",
       "UP_TO_DATE": "Up to date",
       "UPDATE_AVAILABLE": "Update Available",
-      "CHECK_FOR_UPDATE": "Check For Update"
+      "CHECK_FOR_UPDATE": "Check For Update",
+      "SERVER_CONFIG": "Server Configuration",
+      "DAYS": "Days",
+      "MINUTES": "MINUTES",
+      "DAY": "Day",
+      "HOURS": "Hours"
     }
   },
   "MESSAGE": {

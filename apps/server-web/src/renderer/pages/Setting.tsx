@@ -53,18 +53,13 @@ interface Languages {
 export function Setting() {
   const [menus, setMenu] = useState<SideMenu[]>([
     {
-      displayName: 'GENERAL',
-      key: 'general',
+      displayName: 'UPDATER',
+      key: 'updater',
       isActive: true,
     },
     {
       displayName: 'SERVER',
       key: 'server',
-      isActive: false,
-    },
-    {
-      displayName: 'UPDATER',
-      key: 'updater',
       isActive: false,
     },
     {
@@ -289,7 +284,13 @@ export function Setting() {
   }, []);
 
   return (
-    <SideBar menus={menus} menuChange={menuChange}>
+    <SideBar
+      menus={menus}
+      menuChange={menuChange}
+      langs={langs}
+      lang={lng}
+      onLangChange={changeLanguage}
+    >
       <MenuComponent />
     </SideBar>
   );
