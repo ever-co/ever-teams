@@ -69,16 +69,16 @@ Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Busine
 
 ## 🧱 Technology Stack and Requirements
 
--   [TypeScript](https://www.typescriptlang.org) Language
+-   [TypeScript](https://www.typescriptlang.org)
 -   [Nx](https://nx.dev) and [Lerna](https://github.com/lerna/lerna)
 -   [NodeJs](https://nodejs.org)
--   [NextJs](https://nextjs.org)
+-   [Next.js](https://nextjs.org)
 -   [React](https://reactjs.org)
 -   [React Native](https://reactnative.dev)
 -   [Expo](https://expo.dev)
 -   [Tailwind](https://tailwindcss.com) - CSS / Styles
--   [shadcn/ui](https://ui.shadcn.com), [Radix](https://www.radix-ui.com) and [HeadlessUI](https://headlessui.com) - Component Libraries
--   [Vercel](https://vercel.com) and [DigitalOcean](https://www.digitalocean.com) - Hosting
+-   [shadcn/ui](https://ui.shadcn.com), [Radix](https://www.radix-ui.com) and [HeadlessUI](https://headlessui.com) - UI Component Libraries
+-   [DigitalOcean](https://www.digitalocean.com) and [Vercel](https://vercel.com) - Hosting
 
 #### See also README.md and CREDITS.md files in relevant folders for lists of libraries and software included in the Platform, information about licenses, and other details
 
@@ -107,7 +107,7 @@ Notes:
 
 1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting starting instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
 2. Clone this repo
-3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy API is running on that host & port.
+3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy APIs run on that host & port.
 4. Run `yarn install`
 5. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
 6. Open in <http://localhost:3030> in your Browser
@@ -134,6 +134,10 @@ WIP
 
 ## 🚗 Self Hosting
 
+### DigitalOcean
+
+Please see our [Wiki](https://github.com/ever-co/ever-teams/wiki/Deploy-to-DigitalOcean).
+
 ### Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fever-co%2Fever-teams&project-name=ever-teams&repository-name=ever-teams&output-directory=.next&build-command=yarn%20build&install-command=yarn%20install%20--frozen-lockfile&root-directory=apps%2Fweb)
@@ -144,11 +148,11 @@ WIP
 
 ### Railway
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=40jeja)
+[![Deploy to Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=40jeja)
 
 ### Fly
 
-[![Deploy on Railway](https://ever.team/fly.png)](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Fly)
+[![Deploy to Fly](https://ever.team/fly.png)](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Fly)
 
 ### Netlify
 
@@ -156,7 +160,7 @@ WIP
 
 ### Heroku
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ### Koyeb
 
