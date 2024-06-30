@@ -61,6 +61,43 @@ module.exports.serverweb = async (isProd) => {
 		package.description = process.env.DESKTOP_WEB_SERVER_APP_DESCRIPTION;
 		package.homepage = process.env.COMPANY_SITE_LINK;
 
+		fs.writeFileSync('./apps/server-web/release/app/package.json', JSON.stringify(package, null, 2));
+
+		let updated = require('../apps/server-web/release/app/package.json');
+
+		console.log('Version releasing', updated.version);
+	}
+
+	if (fs.existsSync('./apps/server-web/package.json')) {
+		let package = require('../apps/server-web/package.json');
+		let currentVersion = package.version;
+
+		const repoURL = process.env.PROJECT_REPO;
+		console.log('repoURL', repoURL);
+
+		const appName = process.env.DESKTOP_WEB_SERVER_APP_NAME;
+		console.log('appName', appName);
+
+		const stdout = await getLatestTag(repoURL);
+
+		let newVersion = stdout.trim();
+		console.log('latest tag', newVersion);
+
+		if (newVersion) {
+			// let's remove "v" from version, i.e. first character
+			newVersion = newVersion.substring(1);
+			package.version = newVersion;
+
+			console.log('Version updated to version', newVersion);
+		} else {
+			console.log('Latest tag is not found. Build Desktop Web Server App with default version', currentVersion);
+		}
+
+		package.name = appName;
+		package.productName = process.env.DESKTOP_WEB_SERVER_APP_DESCRIPTION;
+		package.description = process.env.DESKTOP_WEB_SERVER_APP_DESCRIPTION;
+		package.homepage = process.env.COMPANY_SITE_LINK;
+
 		package.build.appId = process.env.DESKTOP_WEB_SERVER_APP_ID;
 		package.build.productName = process.env.DESKTOP_WEB_SERVER_APP_DESCRIPTION;
 		package.build.linux.executableName = appName;
@@ -104,9 +141,9 @@ module.exports.serverweb = async (isProd) => {
 			];
 		}
 
-		fs.writeFileSync('./apps/server-web/release/app/package.json', JSON.stringify(package, null, 2));
+		fs.writeFileSync('./apps/server-web/package.json', JSON.stringify(package, null, 2));
 
-		let updated = require('../apps/server-web/release/app/package.json');
+		let updated = require('../apps/server-web/package.json');
 
 		console.log('Version releasing', updated.version);
 	}

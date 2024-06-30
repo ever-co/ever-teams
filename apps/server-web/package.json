@@ -1,5 +1,5 @@
 {
-  "name": "ever-teams-server-web",
+  "name": "ever-teams-web-server",
   "version": "0.1.0",
   "description": "Ever Teams Web Server",
   "license": "AGPL-3.0",
@@ -164,7 +164,7 @@
     "yarn": ">=1.13.0"
   },
   "build": {
-    "appId": "co.ever.teamswebserver",
+    "appId": "com.ever.everteamswebserver",
     "artifactName": "${name}-${version}.${ext}",
     "productName": "Ever Teams Web Server",
     "copyright": "Copyright © 2024-Present. Ever Co. LTD",
