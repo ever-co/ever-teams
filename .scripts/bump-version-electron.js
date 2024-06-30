@@ -31,8 +31,8 @@ async function getLatestTag(repoURL) {
 }
 
 module.exports.serverweb = async (isProd) => {
-	if (fs.existsSync('./apps/server-web/src/package.json')) {
-		let package = require('../apps/server-web/src/package.json');
+	if (fs.existsSync('./apps/server-web/release/app/package.json')) {
+		let package = require('../apps/server-web/release/app/package.json');
 		let currentVersion = package.version;
 
 		const repoURL = process.env.PROJECT_REPO;
@@ -104,9 +104,9 @@ module.exports.serverweb = async (isProd) => {
 			];
 		}
 
-		fs.writeFileSync('./apps/server-web/src/package.json', JSON.stringify(package, null, 2));
+		fs.writeFileSync('./apps/server-web/release/app/package.json', JSON.stringify(package, null, 2));
 
-		let updated = require('../apps/server-web/src/package.json');
+		let updated = require('../apps/server-web/release/app/package.json');
 
 		console.log('Version releasing', updated.version);
 	}
