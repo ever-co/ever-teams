@@ -40,7 +40,7 @@ export const SelectComponent = ({ title, items }: Props) => {
         className="inline-flex items-center justify-center rounded px-[15px] text-[13px] leading-none h-[35px] gap-[5px] bg-white text-violet11 shadow-[0_2px_10px] shadow-black/10 hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black data-[placeholder]:text-violet9 outline-none"
         aria-label="Food"
       >
-        <Select.Value placeholder="Select a fruit…" />
+        <Select.Value placeholder={title} />
         <Select.Icon className="text-violet11">
           <ChevronDownIcon />
         </Select.Icon>
@@ -52,9 +52,6 @@ export const SelectComponent = ({ title, items }: Props) => {
           </Select.ScrollUpButton>
           <Select.Viewport className="p-[5px]">
             <Select.Group>
-              <Select.Label className="px-[25px] text-xs leading-[25px] text-mauve11">
-                {t(title)}
-              </Select.Label>
               {items.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {t(item.label)}

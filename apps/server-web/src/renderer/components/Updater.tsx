@@ -96,57 +96,72 @@ export const UpdaterComponent = (props: Props) => {
     <>
       <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12 min-h-screen">
         <div>
-          <span className="font-bold text-lg">Update</span>
+          <span className="font-bold text-lg">{t('MENU.UPDATER')}</span>
         </div>
         <div>
           <span className="font-bold text-base text-gray-500">
-            Automatic Update Check
+            {t('FORM.LABELS.AUTO_UPDATE_TITLE')}
           </span>
         </div>
         <div className="mt-2">
           <span className="font-normal f-4 text-gray-500">
-            Enable automatice update check, in order to run a request to check
-            if new version is available and notify
+            {t('FORM.LABELS.AUTO_UPDATE_SUBTITLE')}
           </span>
         </div>
         <div className="bg-gray-50 px-16 py-14 mt-10 w-full">
           <form>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Switch.Root className="SwitchRoot" id="airplane-mode">
-                <Switch.Thumb className="SwitchThumb" />
-              </Switch.Root>
-              <label
-                className="Label"
-                htmlFor="airplane-mode"
-                style={{ paddingLeft: 15 }}
-              >
-                Automatic Update
-              </label>
+              <div className="flex w-1/2">
+                <Switch.Root className="SwitchRoot" id="airplane-mode">
+                  <Switch.Thumb className="SwitchThumb" />
+                </Switch.Root>
+                <label
+                  className="Label"
+                  htmlFor="airplane-mode"
+                  style={{ paddingLeft: 15 }}
+                >
+                  {t('FORM.LABELS.AUTO_UPDATE_TOGLE')}
+                </label>
+              </div>
+              <div className="flex w-2/2">
+                {/* <label
+                  className="Label"
+                  htmlFor="select-range-update"
+                  style={{ paddingLeft: 15 }}
+                >
+                  Automatic Update
+                </label> */}
+                <SelectComponent
+                  title={t('FORM.FIELDS.OPTIONS')}
+                  items={rangeUpdate}
+                />
+              </div>
             </div>
-            <div>
-              <SelectComponent
-                title={t('FORM.FIELD.OPTIONS')}
-                items={rangeUpdate}
-              />
-            </div>
+            <div></div>
           </form>
         </div>
-        <div className="bg-gray-50 px-16 py-14 mt-10 w-full">
-          <div className="flex justify-center">
-            <EverTeamsLogo />
+        <div className="mt-8">
+          <div>
+            <span className="font-bold text-lg text-gray-500">
+              {t('FORM.LABELS.CHECK_UPDATE_TITLE')}
+            </span>
           </div>
-          <p className="w-[230px] text-center font-normal text-gray-600"></p>
-          <button
-            className="mt-10 block rounded-full border-4 border-transparent bg-blue-400 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
-            onClick={props.checkForUpdate}
-            disabled={props.loading}
-          >
-            {props.loading && (
-              <ProgressComponent updateStates={props.updateStates} />
-            )}
-            {!props.loading && t(`FORM.LABELS.${props.updateStates.label}`)}
-          </button>
+          <div>
+            <span className="text-base text-gray-500">
+              {t('FORM.LABELS.CHECK_UPDATE_SUBTITLE')}
+            </span>
+          </div>
         </div>
+        <button
+          className="mt-10 block rounded-full border-4 border-transparent bg-blue-400 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
+          onClick={props.checkForUpdate}
+          disabled={props.loading}
+        >
+          {props.loading && (
+            <ProgressComponent updateStates={props.updateStates} />
+          )}
+          {!props.loading && t(`FORM.LABELS.${props.updateStates.label}`)}
+        </button>
       </div>
       {props.Popup}
     </>

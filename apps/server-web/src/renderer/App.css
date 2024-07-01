@@ -105,17 +105,17 @@
   .SwitchRoot {
     width: 42px;
     height: 25px;
-    background-color: var(--black-a9);
+    background-color: rgb(126 126 143/var(--tw-bg-opacity));
     border-radius: 9999px;
     position: relative;
-    box-shadow: 0 2px 10px var(--black-a7);
+    box-shadow: 0 2px 10px rgb(96 165 250/var(--tw-bg-opacity));
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
   .SwitchRoot:focus {
     box-shadow: 0 0 0 2px black;
   }
   .SwitchRoot[data-state='checked'] {
-    background-color: black;
+    background-color: rgb(96 165 250/var(--tw-bg-opacity));
   }
 
   .SwitchThumb {

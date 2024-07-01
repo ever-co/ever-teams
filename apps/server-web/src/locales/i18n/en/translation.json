@@ -35,7 +35,12 @@
       "DAYS": "Days",
       "MINUTES": "MINUTES",
       "DAY": "Day",
-      "HOURS": "Hours"
+      "HOURS": "Hours",
+      "AUTO_UPDATE_TITLE": "Automatic Update Check",
+      "AUTO_UPDATE_SUBTITLE": "Enable automatice update check, in order to run a request to check if new version is available and notify",
+      "AUTO_UPDATE_TOGLE": "Automatic Update",
+      "CHECK_UPDATE_TITLE": "Check & Update your app version",
+      "CHECK_UPDATE_SUBTITLE": "New Update is available! Please click button Download Now below."
     }
   },
   "MESSAGE": {
