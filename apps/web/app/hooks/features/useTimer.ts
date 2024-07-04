@@ -364,8 +364,13 @@ export function useTimer() {
 	}, [timerStatus, setTimerStatus, stopTimerQueryCall, taskId, updateLocalTimerStatus]);
 
 	useEffect(() => {
-		console.log(timerStatus);
-	}, [timerStatus]);
+		if (timerStatus?.running) {
+			const syncTimerInterval = setInterval(() => {
+				syncTimer();
+			}, 60000);
+			return () => clearInterval(syncTimerInterval);
+		}
+	}, [syncTimer, timerStatus]);
 
 	// If active team changes then stop the timer
 	useEffect(() => {
