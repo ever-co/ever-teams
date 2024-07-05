@@ -355,7 +355,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 	return (
 		<>
 			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
-			<div className={clsxm(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`)}>
+			<div className={clsxm(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`, 'w-full')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
