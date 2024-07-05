@@ -26,6 +26,7 @@ import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
 import { useSession } from 'next-auth/react';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -317,7 +318,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		(e: any) => {
 			if (typeof selectedWorkspace !== 'undefined') {
 				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
-				window && window?.localStorage.removeItem('user-saw-notif');
+				window && window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
+				window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, selectedTeam);
 			}
 		},
 		[selectedWorkspace, selectedTeam, form]
@@ -332,6 +334,14 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
 			setSelectedTeam(currentTeams[0].team_id);
+		} else {
+			const lastSelectedTeam = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0].team_id;
+			const lastSelectedWorkspace =
+				form.workspaces.findIndex((workspace) =>
+					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
+				) || 0;
+			setSelectedTeam(lastSelectedTeam);
+			setSelectedWorkspace(lastSelectedWorkspace);
 		}
 
 		if (form.workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
