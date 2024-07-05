@@ -4,7 +4,7 @@ import { getAccessTokenCookie } from '@app/helpers';
 import { TAuthenticationPassword, useAuthenticationPassword } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Button, Card, InputField, Text } from 'lib/components';
+import { BackdropLoader, Button, Card, InputField, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -99,6 +99,7 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 }
 
 function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } & IClassName) {
+	const t = useTranslations();
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
 	const router = useRouter();
@@ -140,20 +141,34 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		}
 	}, [form.authScreen, router]);
 
+	const hasMultipleTeams = form.workspaces.some((workspace) => workspace.current_teams.length > 1);
+
 	return (
-		<WorkSpaceComponent
-			className={className}
-			workspaces={form.workspaces}
-			onSubmit={signInToWorkspace}
-			onBackButtonClick={() => {
-				form.authScreen.setScreen('login');
-				form.setErrors({});
-			}}
-			selectedWorkspace={selectedWorkspace}
-			setSelectedWorkspace={setSelectedWorkspace}
-			setSelectedTeam={setSelectedTeam}
-			selectedTeam={selectedTeam}
-			signInWorkspaceLoading={form.signInWorkspaceLoading}
-		/>
+		<>
+			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
+			<div className={clsxm(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`)}>
+				<WorkSpaceComponent
+					className={className}
+					workspaces={form.workspaces}
+					onSubmit={signInToWorkspace}
+					onBackButtonClick={() => {
+						form.authScreen.setScreen('login');
+						form.setErrors({});
+					}}
+					selectedWorkspace={selectedWorkspace}
+					setSelectedWorkspace={setSelectedWorkspace}
+					setSelectedTeam={setSelectedTeam}
+					selectedTeam={selectedTeam}
+					signInWorkspaceLoading={form.signInWorkspaceLoading}
+				/>
+			</div>
+
+			{/* If the user is a member of only one workspace and only one team, render a redirecting component */}
+			{form.workspaces.length === 1 && !hasMultipleTeams && (
+				<div>
+					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
+				</div>
+			)}
+		</>
 	);
 }

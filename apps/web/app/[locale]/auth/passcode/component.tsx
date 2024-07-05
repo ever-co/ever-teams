@@ -308,6 +308,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 }
 
 function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
+	const t = useTranslations();
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
 	const router = useRouter();
@@ -351,8 +352,6 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 	const hasMultipleTeams = form.workspaces.some((workspace) => workspace.current_teams.length > 1);
 
-	console.log({ wokSpacesLength: form.workspaces.length === 1, hasMultipleTeams: !hasMultipleTeams });
-
 	return (
 		<>
 			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
@@ -376,7 +375,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			{/* If the user is a member of only one workspace and only one team, render a redirecting component */}
 			{form.workspaces.length === 1 && !hasMultipleTeams && (
 				<div>
-					<BackdropLoader show={true} title={'Redirecting to your workspace'} />
+					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
 				</div>
 			)}
 		</>
