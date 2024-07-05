@@ -9,14 +9,18 @@ import { Container, NoData, ProgressBar, VerticalSeparator } from 'lib/component
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select"
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
-import { Outstanding, PastTasks } from './task/daily-plan';
+import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
+import { IoCalendarOutline } from "react-icons/io5";
+
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
+type FiltreOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
 	const defaultTab =
@@ -24,23 +28,38 @@ export function UserProfilePlans() {
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
 
+	const defaultOutstanding = typeof window !== 'undefined' ? (window.localStorage.getItem('outstanding') as FiltreOutstanding) || null : 'ALL';
+
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
+	const [currentOutstanding, setCurrentOutstanding] = useState<FiltreOutstanding>(defaultOutstanding || 'ALL');
 
+
+	const screenOutstanding = {
+		'ALL': <OutstandingAll profile={profile} />,
+		"DATE": <OutstandingFieltreDate profile={profile} />
+	}
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
 		'Future Tasks': <FutureTasks profile={profile} />,
 		'Past Tasks': <PastTasks profile={profile} />,
 		'All Tasks': <AllPlans profile={profile} />,
-		Outstanding: <Outstanding profile={profile} />
+		Outstanding: <Outstanding filtre={screenOutstanding[currentOutstanding]} />
 	};
+
+
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
+
 	}, [currentTab]);
+
+	useEffect(() => {
+		window.localStorage.setItem('outstanding', currentOutstanding);
+	}, [currentOutstanding]);
 
 	return (
 		<div className="">
@@ -48,33 +67,54 @@ export function UserProfilePlans() {
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
-							<div className={clsxm('flex justify-start items-center gap-4 mt-14 mb-5')}>
-								{Object.keys(tabsScreens).map((filter, i) => (
-									<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
-										{i !== 0 && <VerticalSeparator className="border-slate-400" />}
-										<div
-											className={clsxm(
-												'text-gray-500 flex gap-2 items-center',
-												currentTab == filter && 'text-blue-600 dark:text-white font-medium'
-											)}
-											onClick={() => setCurrentTab(filter as FilterTabs)}
-										>
-											{filter}
-											<span
+							<div className='w-full mt-10 mb-5 items-center flex justify-between'>
+								<div className={clsxm('flex justify-start items-center gap-4 ')}>
+									{Object.keys(tabsScreens).map((filter, i) => (
+										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
+											<div
 												className={clsxm(
-													'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
-													currentTab == filter && 'dark:bg-gray-600'
+													'text-gray-500 flex gap-2 items-center',
+													currentTab == filter && 'text-blue-600 dark:text-white font-medium'
 												)}
+												onClick={() => setCurrentTab(filter as FilterTabs)}
 											>
-												{filter === 'Today Tasks' && todayPlan.length}
-												{filter === 'Future Tasks' && futurePlans.length}
-												{filter === 'Past Tasks' && pastPlans.length}
-												{filter === 'All Tasks' && sortedPlans.length}
-												{filter === 'Outstanding' && outstandingPlans.length}
-											</span>
+												{filter}
+												<span
+													className={clsxm(
+														'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
+														currentTab == filter && 'dark:bg-gray-600'
+													)}
+												>
+													{filter === 'Today Tasks' && todayPlan.length}
+													{filter === 'Future Tasks' && futurePlans.length}
+													{filter === 'Past Tasks' && pastPlans.length}
+													{filter === 'All Tasks' && sortedPlans.length}
+													{filter === 'Outstanding' && outstandingPlans.length}
+												</span>
+											</div>
 										</div>
-									</div>
-								))}
+									))}
+								</div>
+								{currentTab === 'Outstanding' && (
+									<Select onValueChange={(value) => {
+										setCurrentOutstanding(value as FiltreOutstanding)
+									}}>
+										<SelectTrigger className="w-[120px] h-9">
+											<SelectValue placeholder="Filter" />
+										</SelectTrigger>
+										<SelectContent className='cursor-pointer'>
+											{Object.keys(screenOutstanding).map((item, index) => (
+												<SelectItem key={index} value={item}>
+													<div className='flex items-center space-x-1'>
+														{item == 'DATE' && <IoCalendarOutline />}
+														<span className='capitalize'>{item}</span>
+													</div>
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								)}
 							</div>
 							{tabsScreens[currentTab]}
 						</div>
@@ -185,6 +225,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	// Get all tasks's estimations time
 	const times =
 		plan.tasks?.map((task) => task.estimate).filter((time): time is number => typeof time === 'number') ?? [];
+
 	let estimatedTime = 0;
 	if (times.length > 0) estimatedTime = times.reduce((acc, cur) => acc + cur, 0) ?? 0;
 
