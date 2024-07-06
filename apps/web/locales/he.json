@@ -312,6 +312,7 @@
 			"HEADING_TITLE": "צור צוות חדש",
 			"HEADING_DESCRIPTION": "אנא הכנס את פרטי הצוות שלך כדי ליצור צוות חדש.",
 			"LOADING_TEXT": "אנחנו עכשיו יוצרים את סביבת העבודה החדשה שלך, רגע קטן...",
+			"REDIRECT_TO_WORSPACE_LOADING": "מכוון מחדש לחלל העבודה שלך",
 			"VERIFY_EMAIL_LOADING_TEXT": "אנחנו מאמתים את האימייל שלך, רגע קטן...",
 			"INPUT_TEAM_NAME": "הכנס את שם הצוות שלך",
 			"JOIN_EXISTING_TEAM": "מצטרף לצוות קיים?",
