@@ -27,5 +27,7 @@ export const EventLists = {
     mainResponse: 'main-response',
     showVersion: 'show-version',
     selectMenu: 'select-menu',
-    langChange: 'lang'
+    langChange: 'lang',
+    updateSetting: 'update-setting',
+    updateSettingResponse: 'update-setting-response'
 }

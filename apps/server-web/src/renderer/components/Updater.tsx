@@ -1,8 +1,9 @@
-import { EverTeamsLogo } from './svgs';
 import { useTranslation } from 'react-i18next';
 import * as Switch from '@radix-ui/react-switch';
 import { SelectComponent } from './Select';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ToastComponent } from './Toast';
+import { SettingPageTypeMessage } from '../../main/helpers/constant';
 
 interface UpdaterStates {
   state:
@@ -25,6 +26,12 @@ interface UpdaterStates {
 type PropsProgress = {
   updateStates: UpdaterStates;
 };
+
+type UpdateSetting = {
+  autoUpdate: boolean;
+  updateCheckPeriode: string;
+};
+
 const ProgressComponent = (props: PropsProgress) => {
   const { t } = useTranslation();
   return (
@@ -66,6 +73,9 @@ type Props = {
   loading: boolean;
   updateStates: UpdaterStates;
   Popup: JSX.Element;
+  data: UpdateSetting;
+  changeAutoUpdate: (data: UpdateSetting) => void;
+  saveSettingUpdate: (data: UpdateSetting) => void;
 };
 
 type RangeUpdates = {
@@ -77,21 +87,59 @@ export const UpdaterComponent = (props: Props) => {
   const [rangeUpdate, setRangeUpdate] = useState<RangeUpdates[]>([
     {
       value: '30',
-      label: `30 ${t('FORM.LABELS.MINUTES')}`,
+      label: `30_MINUTES`,
     },
     {
       value: '60',
-      label: `A ${t('FORM.LABELS.HOURS')}`,
+      label: `A_HOURS`,
     },
     {
       value: '180',
-      label: `3 ${t('FORM.LABELS.HOURS')}`,
+      label: `3_HOURS`,
     },
     {
       value: '1140',
-      label: `A ${t('FORM.LABELS.DAY')}`,
+      label: `A_DAY`,
     },
   ]);
+
+  const [toastShow, setToastShow] = useState<boolean>(false);
+
+  const setOpen = () => {
+    setToastShow(false);
+    setTimeout(() => {
+      setToastShow(true);
+    }, 100);
+  };
+
+  const CloseToast = () => {
+    setToastShow(false);
+  };
+
+  const onSelectPeriode = (value: string) => {
+    props.changeAutoUpdate({
+      autoUpdate: props.data.autoUpdate,
+      updateCheckPeriode: value,
+    });
+    props.saveSettingUpdate({
+      autoUpdate: props.data.autoUpdate,
+      updateCheckPeriode: value,
+    });
+  };
+
+  useEffect(() => {
+    window.electron.ipcRenderer.once('setting-page', (arg: any) => {
+      switch (arg.type) {
+        case SettingPageTypeMessage.updateSettingResponse:
+          setOpen();
+          break;
+
+        default:
+          break;
+      }
+    });
+  }, []);
+
   return (
     <>
       <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12 min-h-screen">
@@ -112,7 +160,22 @@ export const UpdaterComponent = (props: Props) => {
           <form>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div className="flex w-1/2">
-                <Switch.Root className="SwitchRoot" id="airplane-mode">
+                <Switch.Root
+                  className="SwitchRoot"
+                  id="airplane-mode"
+                  onCheckedChange={(value) => {
+                    setOpen();
+                    props.changeAutoUpdate({
+                      autoUpdate: value,
+                      updateCheckPeriode: props.data.updateCheckPeriode,
+                    });
+                    props.saveSettingUpdate({
+                      autoUpdate: value,
+                      updateCheckPeriode: props.data.updateCheckPeriode,
+                    });
+                  }}
+                  checked={props.data.autoUpdate}
+                >
                   <Switch.Thumb className="SwitchThumb" />
                 </Switch.Root>
                 <label
@@ -124,16 +187,13 @@ export const UpdaterComponent = (props: Props) => {
                 </label>
               </div>
               <div className="flex w-2/2">
-                {/* <label
-                  className="Label"
-                  htmlFor="select-range-update"
-                  style={{ paddingLeft: 15 }}
-                >
-                  Automatic Update
-                </label> */}
                 <SelectComponent
                   title={t('FORM.FIELDS.OPTIONS')}
                   items={rangeUpdate}
+                  value={props.data.updateCheckPeriode}
+                  defaultValue={props.data.updateCheckPeriode}
+                  disabled={!props.data.autoUpdate}
+                  onValueChange={onSelectPeriode}
                 />
               </div>
             </div>
@@ -164,6 +224,14 @@ export const UpdaterComponent = (props: Props) => {
         </button>
       </div>
       {props.Popup}
+      <ToastComponent
+        show={toastShow}
+        title="Info"
+        message="Update Successfully"
+        onClose={CloseToast}
+        autoClose={true}
+        timeout={1000}
+      />
     </>
   );
 };

@@ -297,6 +297,14 @@ ipcMain.on('setting-page', (event, arg) => {
       event.sender.send('languageSignal', arg.data);
       eventEmitter.emit(EventLists.CHANGE_LANGUAGE, {code: arg.data})
       break;
+    case SettingPageTypeMessage.updateSetting:
+      LocalStore.updateConfigSetting({
+        general: {
+          autoUpdate: arg.data.autoUpdate,
+          updateCheckPeriode: arg.data.updateCheckPeriode
+        }
+      })
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.updateSettingResponse, data: true })
     default:
       break;
   }

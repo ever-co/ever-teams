@@ -1,5 +1,5 @@
 interface GeneralConfig {
-    lang: string
+    lang?: string
     [key: string]: any
 }
 

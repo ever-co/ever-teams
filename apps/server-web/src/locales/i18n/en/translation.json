@@ -32,10 +32,12 @@
       "UPDATE_AVAILABLE": "Update Available",
       "CHECK_FOR_UPDATE": "Check For Update",
       "SERVER_CONFIG": "Server Configuration",
-      "DAYS": "Days",
-      "MINUTES": "MINUTES",
-      "DAY": "Day",
-      "HOURS": "Hours",
+      "UPDATE_OPTIONS": {
+        "A_DAY": "A Day",
+        "A_HOURS": "A Hours",
+        "3_HOURS": "30 Hours",
+        "30_MINUTES": "30 Minutes"
+      },
       "AUTO_UPDATE_TITLE": "Automatic Update Check",
       "AUTO_UPDATE_SUBTITLE": "Enable automatice update check, in order to run a request to check if new version is available and notify",
       "AUTO_UPDATE_TOGLE": "Automatic Update",

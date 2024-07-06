@@ -6,5 +6,5 @@ export function resolveHtmlPath(htmlFileName: string, hash: string) {
     const port = process.env.PORT || 1212;
     return `http://localhost:${port}#/${hash}`;
   }
-  return `file://${path.resolve(__dirname, '../renderer/', `${htmlFileName}#/${hash}`)}`;
+  return `file://${path.resolve(__dirname, '../renderer/', `${htmlFileName}#`, `${hash}`)}`;
 }

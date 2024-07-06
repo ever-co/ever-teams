@@ -50,6 +50,11 @@ interface Languages {
   label: string;
 }
 
+type UpdateSetting = {
+  autoUpdate: boolean;
+  updateCheckPeriode: string;
+};
+
 export function Setting() {
   const [menus, setMenu] = useState<SideMenu[]>([
     {
@@ -68,6 +73,11 @@ export function Setting() {
       isActive: false,
     },
   ]);
+
+  const [updateSetting, setUpdateSetting] = useState<UpdateSetting>({
+    autoUpdate: false,
+    updateCheckPeriode: '180',
+  });
 
   const [langs, setLangs] = useState<Languages[]>([
     {
@@ -116,9 +126,12 @@ export function Setting() {
   };
 
   const changeLanguage = (lang: Languages) => {
-    console.log(lang);
     sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
     setLng(lang.code);
+  };
+
+  const saveSettingUpdate = (data: UpdateSetting) => {
+    sendingMessageToMain(data, SettingPageTypeMessage.updateSetting);
   };
 
   const sendingMessageToMain = (data: any, type: string) => {
@@ -126,6 +139,10 @@ export function Setting() {
       type,
       data: data,
     });
+  };
+
+  const updateDataSettingUpdate = (data: UpdateSetting) => {
+    setUpdateSetting(data);
   };
 
   const [serverSetting, setServerSetting] = useState<IServerSetting>({
@@ -185,6 +202,9 @@ export function Setting() {
           checkForUpdate={checkForUpdate}
           loading={loading}
           updateStates={updateStates}
+          changeAutoUpdate={updateDataSettingUpdate}
+          data={updateSetting}
+          saveSettingUpdate={saveSettingUpdate}
           Popup={
             <Popup
               isShowPopup={popupUpdater.isShow}
@@ -264,6 +284,10 @@ export function Setting() {
               arg.data.server.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
           });
           setLng(arg.data.general.lang);
+          setUpdateSetting({
+            autoUpdate: arg.data.general.autoUpdate,
+            updateCheckPeriode: arg.data.general.updateCheckPeriode,
+          });
           break;
         case SettingPageTypeMessage.mainResponse:
           setPopupServer({
