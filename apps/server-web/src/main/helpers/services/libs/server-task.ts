@@ -111,7 +111,7 @@ export abstract class ServerTask {
 				if (this.eventEmmitter) {
 					this.eventEmmitter.emit(EventLists.webServerStarted);
 				}
-				this.config.setting = { server: { ...this.config.setting.server ,[this.pid]: service.pid } };
+				this.config.setting = { server: { ...this.config.setting.server, [this.pid]: service.pid } };
 			} catch (error) {
 				console.error('Error running task:', error);
 				this.handleError(error);

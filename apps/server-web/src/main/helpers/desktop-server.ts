@@ -16,7 +16,7 @@ export enum ServerState {
 export class DesktopServer {
 	private state: ServerState = ServerState.STOPPED;
 	private stateObserver: Observer<ServerState, void>;
-	private eventEmitter:EventEmitter;
+	private eventEmitter: EventEmitter;
 	constructor(private readonly isOnlyApiServer = false, eventEmitter: EventEmitter) {
 		// super();
 

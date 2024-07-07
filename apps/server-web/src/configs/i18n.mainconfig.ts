@@ -9,8 +9,8 @@ const prependPath = app.isPackaged
 
 i18n.use(backend).init({
   backend: {
-    loadPath: prependPath + '/src/locales/{{lng}}/{{ns}}.json',
-    addPath: prependPath + '/src/locales/{{lng}}/{{ns}}.missing.json'
+    loadPath: prependPath + '/src/locales/i18n/{{lng}}/{{ns}}.json',
+    addPath: prependPath + '/src/locales/i18n/{{lng}}/{{ns}}.missing.json'
   },
   debug: false,
   ns: 'translation',
