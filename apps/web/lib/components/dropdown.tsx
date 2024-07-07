@@ -170,7 +170,6 @@ export function ConfirmDropdown({
 	return (
 		<Popover className="relative">
 			<Popover.Button>{children}</Popover.Button>
-
 			<Transition
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"

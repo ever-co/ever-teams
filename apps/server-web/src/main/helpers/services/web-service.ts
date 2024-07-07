@@ -13,7 +13,7 @@ export class WebService extends ServerTask {
 		const args = { ...env, serviceName: 'WebServer' };
 
 		// Note: do not change this prefix because we may use it to detect the success message from the running server!
-		const successMessage = 'Listening at http';
+		const successMessage = 'Starting...';
 
 		const errorMessage = 'Error running API server:';
 
