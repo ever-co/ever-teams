@@ -7,8 +7,8 @@ class AppUpdater {
     constructor(eventEmitter: EventEmitter) {
       log.transports.file.level = 'info';
       autoUpdater.logger = log;
-      autoUpdater.on('update-available', () => {
-        eventEmitter.emit(EventLists.UPDATE_AVAILABLE);
+      autoUpdater.on('update-available', (info) => {
+        eventEmitter.emit(EventLists.UPDATE_AVAILABLE, info);
       })
 
       autoUpdater.on('error', (message) => {
