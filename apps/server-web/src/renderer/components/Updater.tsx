@@ -163,7 +163,7 @@ export const UpdaterComponent = (props: Props) => {
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div className="flex w-1/2">
                 <Switch.Root
-                  className="SwitchRoot"
+                  className="switch-root"
                   id="airplane-mode"
                   onCheckedChange={(value) => {
                     setOpen();
@@ -178,7 +178,7 @@ export const UpdaterComponent = (props: Props) => {
                   }}
                   checked={props.data.autoUpdate}
                 >
-                  <Switch.Thumb className="SwitchThumb" />
+                  <Switch.Thumb className="switch-thumb" />
                 </Switch.Root>
                 <label
                   className="Label"

@@ -24,12 +24,12 @@ const SelectItem = forwardRef(
   ({ children, className, ...props }: any, forwardedRef) => {
     return (
       <Select.Item
-        className={classnames('SelectItem', className)}
+        className={classnames('select-item', className)}
         {...props}
         ref={forwardedRef}
       >
         <Select.ItemText>{children}</Select.ItemText>
-        <Select.ItemIndicator className="SelectItemIndicator">
+        <Select.ItemIndicator className="select-item-indicator">
           <CheckIcon />
         </Select.ItemIndicator>
       </Select.Item>
