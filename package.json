@@ -92,9 +92,11 @@
 		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web:mac",
 		"package:server-web:win": "yarn build:server-web && yarn pack:server-web:win",
 		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux",
-		"build:web-server:linux:release:gh": "",
-		"build:web-server:mac:release": "",
-		"build:web-server:windows:release:gh": ""
+		"build:web-server:linux:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:linux:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:mac:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:mac",
+		"build:web-server:windows:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:win",
+		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win"
 	},
 	"config": {
 		"commitizen": {

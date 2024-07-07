@@ -1,0 +1,19 @@
+{
+  "MENU": {
+    "STATUS": "MENU.STATUS",
+    "STOPPED": "MENU.STOPPED"
+  },
+  "SERVER_STATUS_STOPPED": "SERVER_STATUS_STOPPED",
+  "Статус: Спряна": "Статус: Спряна",
+  "Започнете": "Започнете",
+  "Спри се": "Спри се",
+  "Настройка": "Настройка",
+  "относно": "относно",
+  "Откажете се": "Откажете се",
+  "Status: Stopped": "Status: Stopped",
+  "Start": "Start",
+  "Stop": "Stop",
+  "Setting": "Setting",
+  "About": "About",
+  "Quit": "Quit"
+}

@@ -10,6 +10,7 @@ import { useAuthenticationSocialLogin } from '@app/hooks/auth/useAuthenticationS
 import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
+import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -57,6 +58,32 @@ function WorkSpaceScreen() {
 		loadOAuthSession();
 	}, [session]);
 
+	useEffect(() => {
+		if (workspaces.length === 1) {
+			setSelectedWorkspace(0);
+		}
+
+		const currentTeams = workspaces[0]?.current_teams;
+
+		if (workspaces.length === 1 && currentTeams?.length === 1) {
+			setSelectedTeam(currentTeams[0].team_id);
+		} else {
+			const lastSelectedTeam = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0].team_id;
+			const lastSelectedWorkspace =
+				workspaces.findIndex((workspace) =>
+					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
+				) || 0;
+			setSelectedTeam(lastSelectedTeam);
+			setSelectedWorkspace(lastSelectedWorkspace);
+		}
+
+		if (workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
+			setTimeout(() => {
+				document.getElementById('continue-to-workspace')?.click();
+			}, 100);
+		}
+	}, [workspaces]);
+
 	const signInToWorkspace = (e: any) => {
 		e.preventDefault();
 		updateOAuthSession();
@@ -64,7 +91,8 @@ function WorkSpaceScreen() {
 		new Array(3).fill('').forEach((_, i) => {
 			Cookies.remove(`authjs.session-token.${i}`);
 		});
-		window && window?.localStorage.removeItem('user-saw-notif');
+		window && window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
+		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, selectedTeam);
 	};
 
 	const updateOAuthSession = useCallback(() => {

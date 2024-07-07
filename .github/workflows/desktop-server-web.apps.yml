@@ -55,7 +55,7 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.serverweb(true))
+            script.serverweb(true).then(console.log)
         env:
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
           DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
@@ -130,7 +130,7 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.serverweb(true))
+            script.serverweb(true).then(console.log)
         env:
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
           DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'
@@ -205,7 +205,7 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.serverweb(true))
+            script.serverweb(true).then(console.log)
         env:
           PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
           DESKTOP_WEB_SERVER_APP_NAME: 'ever-teams-web-server'

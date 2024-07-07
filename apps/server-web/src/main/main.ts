@@ -23,10 +23,10 @@ const isProd = process.env.NODE_ENV === 'production';
 // const appPath = app.getAppPath();
 
 let isServerRun: boolean;
-
-let tray:Tray;
+let intervalUpdate: NodeJS.Timeout;
+let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
-const updater = new Updater(eventEmitter);
+const updater = new Updater(eventEmitter, i18nextMainBackend);
 i18nextMainBackend.on('initialized', () => {
   const config = LocalStore.getStore('config');
   const selectedLang = config && config.general && config.general.lang;
@@ -37,8 +37,8 @@ i18nextMainBackend.on('initialized', () => {
 let trayMenuItems: any = [];
 
 const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets/icons/gauzy')
-    : path.join(__dirname, '../../assets/icons/gauzy');
+  ? path.join(process.resourcesPath, 'assets/icons/gauzy')
+  : path.join(__dirname, '../../assets/icons/gauzy');
 
 const getAssetPath = (...paths: string[]): string => {
   return path.join(RESOURCES_PATH, ...paths);
@@ -113,7 +113,7 @@ const createWindow = async () => {
   const url = resolveHtmlPath('index.html', 'setting');
   settingWindow.loadURL(url);
 
-  mainBindings(ipcMain, settingWindow , fs);
+  mainBindings(ipcMain, settingWindow, fs);
   settingWindow.on('closed', () => {
     settingWindow = null;
   });
@@ -121,32 +121,32 @@ const createWindow = async () => {
 };
 
 const runServer = async () => {
-	console.log('Run the Server...');
-	try {
-		const envVal = getEnvApi();
+  console.log('Run the Server...');
+  try {
+    const envVal = getEnvApi();
 
-		// Instantiate API and UI servers
-		await desktopServer.start(
-			{ api: serverPath },
-			envVal,
-			undefined,
-			signal
-		);
-	} catch (error:any) {
-		if (error.name === 'AbortError') {
-			console.log('You exit without to stop the server');
-			return;
-		}
-	}
+    // Instantiate API and UI servers
+    await desktopServer.start(
+      { api: serverPath },
+      envVal,
+      undefined,
+      signal
+    );
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.log('You exit without to stop the server');
+      return;
+    }
+  }
 };
 
 const stopServer = async () => {
-	await desktopServer.stop();
+  await desktopServer.stop();
 };
 
 const getEnvApi = () => {
   const setting: WebServer = LocalStore.getStore('config')
-	return setting.server;
+  return setting.server;
 };
 
 const SendMessageToSettingWindow = (type: string, data: any) => {
@@ -158,6 +158,7 @@ const SendMessageToSettingWindow = (type: string, data: any) => {
 
 const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
+  createIntervalAutoUpdate()
   trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
   tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
   i18nextMainBackend.on('languageChanged', (lng) => {
@@ -201,47 +202,50 @@ const onInitApplication = () => {
     console.log('setting data', serverSetting);
     settingWindow?.show();
     settingWindow?.webContents.once('did-finish-load', () => {
-      setTimeout(()=> {
+      setTimeout(() => {
         settingWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
         SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
       }, 50)
     })
   })
 
-  eventEmitter.on(EventLists.UPDATE_AVAILABLE, (data)=> {
+  eventEmitter.on(EventLists.UPDATE_AVAILABLE, (data) => {
     console.log('UPDATE_AVAILABLE', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.updateAvailable, data);
   })
 
-  eventEmitter.on(EventLists.UPDATE_ERROR, (data)=> {
+  eventEmitter.on(EventLists.UPDATE_ERROR, (data) => {
     console.log('UPDATE_ERROR', data);
-    SendMessageToSettingWindow(SettingPageTypeMessage.updateError, {message: JSON.stringify(data)});
+    SendMessageToSettingWindow(SettingPageTypeMessage.updateError, { message: JSON.stringify(data) });
   })
 
-  eventEmitter.on(EventLists.UPDATE_NOT_AVAILABLE, (data)=> {
+  eventEmitter.on(EventLists.UPDATE_NOT_AVAILABLE, (data) => {
     console.log('UPDATE_NOT_AVAILABLE', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.upToDate, data);
   })
 
-  eventEmitter.on(EventLists.UPDATE_PROGRESS, (data)=> {
+  eventEmitter.on(EventLists.UPDATE_PROGRESS, (data) => {
     console.log('UPDATE_PROGRESS', data.percent);
-    SendMessageToSettingWindow(SettingPageTypeMessage.downloadingUpdate, {percent: Math.floor(data.percent || 0)});
+    SendMessageToSettingWindow(SettingPageTypeMessage.downloadingUpdate, { percent: Math.floor(data.percent || 0) });
   })
 
-  eventEmitter.on(EventLists.UPDATE_DOWNLOADED, (data)=> {
+  eventEmitter.on(EventLists.UPDATE_DOWNLOADED, (data) => {
     console.log('UPDATE_DOWNLOADED', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.downloaded, data);
   })
 
-  eventEmitter.on(EventLists.UPDATE_CANCELLED, (data)=> {
+  eventEmitter.on(EventLists.UPDATE_CANCELLED, (data) => {
     console.log('UPDATE_CANCELLED', data);
+    SendMessageToSettingWindow(SettingPageTypeMessage.updateCancel, data);
   })
 
   eventEmitter.on(EventLists.CHANGE_LANGUAGE, (data) => {
     i18nextMainBackend.changeLanguage(data.code);
-    LocalStore.updateConfigSetting({general: {
-      lang: data.code
-    }})
+    LocalStore.updateConfigSetting({
+      general: {
+        lang: data.code
+      }
+    })
   })
 
   eventEmitter.on(EventLists.gotoAbout, async () => {
@@ -251,16 +255,16 @@ const onInitApplication = () => {
     const serverSetting = LocalStore.getStore('config');
     settingWindow?.show();
     settingWindow?.webContents.once('did-finish-load', () => {
-      setTimeout(()=> {
+      setTimeout(() => {
         SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
         settingWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
-        SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about'});
+        SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about' });
       }, 100)
     })
   })
 }
 
- (async () => {
+(async () => {
   await app.whenReady()
   onInitApplication();
 })()
@@ -291,40 +295,67 @@ ipcMain.on('setting-page', (event, arg) => {
       break;
     case SettingPageTypeMessage.showVersion:
       const currentVersion = app.getVersion();
-      event.sender.send('setting-page', { type: SettingPageTypeMessage.showVersion, data: currentVersion})
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.showVersion, data: currentVersion })
       break;
     case SettingPageTypeMessage.langChange:
       event.sender.send('languageSignal', arg.data);
-      eventEmitter.emit(EventLists.CHANGE_LANGUAGE, {code: arg.data})
+      eventEmitter.emit(EventLists.CHANGE_LANGUAGE, { code: arg.data })
+      break;
+    case SettingPageTypeMessage.updateSetting:
+      LocalStore.updateConfigSetting({
+        general: {
+          autoUpdate: arg.data.autoUpdate,
+          updateCheckPeriode: arg.data.updateCheckPeriode
+        }
+      })
+      createIntervalAutoUpdate()
+      event.sender.send('setting-page', { type: SettingPageTypeMessage.updateSettingResponse, data: true })
       break;
     default:
       break;
   }
 })
 
+const createIntervalAutoUpdate = () => {
+  if (intervalUpdate) {
+    clearInterval(intervalUpdate)
+  }
+  const setting: WebServer = LocalStore.getStore('config');
+  if (setting.general?.autoUpdate && setting.general.updateCheckPeriode) {
+    const checkIntervalSecond = parseInt(setting.general.updateCheckPeriode);
+    if (!Number.isNaN(checkIntervalSecond)) {
+      const intevalMS = checkIntervalSecond * 60 * 1000;
+      intervalUpdate = setInterval(() => {
+        updater.checkUpdateNotify();
+      }, intevalMS)
+    }
+  }
+}
+
+
 app.on('before-quit', async (e) => {
-	console.log('Before Quit');
+  console.log('Before Quit');
 
-	e.preventDefault();
+  e.preventDefault();
 
-	if (isServerRun) {
-		const exitConfirmationDialog = await dialog.showMessageBox({
+  if (isServerRun) {
+    const exitConfirmationDialog = await dialog.showMessageBox({
       message: '',
-      title: 'Warning',
-      detail: 'Server web still running, Are you sure to exit the app ?',
+      title: i18nextMainBackend.t('MESSAGE.WARNING'),
+      detail: i18nextMainBackend.t('MESSAGE.EXIT_MESSAGE'),
       buttons: [
-        'Yes',
-        'No'
+        i18nextMainBackend.t('FORM.BUTTON.YES'),
+        i18nextMainBackend.t('FORM.BUTTON.NO')
       ]
     })
 
-		if (exitConfirmationDialog.response === 0) {
-			// Stop the server from main
-			stopServer();
-		}
-	} else {
-		app.exit(0);
-	}
+    if (exitConfirmationDialog.response === 0) {
+      // Stop the server from main
+      stopServer();
+    }
+  } else {
+    app.exit(0);
+  }
 });
 
 app.on('activate', () => {

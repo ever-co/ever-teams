@@ -312,6 +312,7 @@
 			"HEADING_TITLE": "Stwórz Nowy Zespół",
 			"HEADING_DESCRIPTION": "Proszę podać szczegóły swojego zespołu, aby stworzyć nowy zespół.",
 			"LOADING_TEXT": "Teraz tworzymy twoje nowe miejsce pracy, proszę czekać...",
+			"REDIRECT_TO_WORSPACE_LOADING": "Przekierowywanie do Twojej przestrzeni roboczej...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Weryfikujemy twój e-mail, proszę czekać...",
 			"INPUT_TEAM_NAME": "Wprowadź nazwę swojego zespołu",
 			"JOIN_EXISTING_TEAM": "Dołączasz do istniejącego zespołu?",
