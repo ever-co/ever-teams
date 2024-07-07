@@ -312,6 +312,7 @@
 			"HEADING_TITLE": "Neues Team erstellen",
 			"HEADING_DESCRIPTION": "Bitte geben Sie die Details für Ihr neues Team ein, um ein neues Team zu erstellen.",
 			"LOADING_TEXT": "Wir erstellen gerade Ihren neuen Arbeitsbereich, bitte warten...",
+			"REDIRECT_TO_WORSPACE_LOADING": "Weiterleitung zu Ihrem Arbeitsbereich...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Wir verifizieren gerade Ihre E-Mail, bitte warten...",
 			"INPUT_TEAM_NAME": "Teamnamen eingeben",
 			"JOIN_EXISTING_TEAM": "Einem bestehenden Team beitreten?",
