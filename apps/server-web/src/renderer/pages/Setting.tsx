@@ -17,21 +17,23 @@ interface SideMenu {
 
 interface UpdaterStates {
   state:
-    | 'check-update'
-    | 'update-available'
-    | 'downloading'
-    | 'downloaded'
-    | 'error'
-    | 'not-started'
-    | 'up-to-date';
+  | 'check-update'
+  | 'update-available'
+  | 'downloading'
+  | 'downloaded'
+  | 'error'
+  | 'not-started'
+  | 'up-to-date'
+  | 'cancel'
+  ;
   data: any;
   label:
-    | 'CHECKING'
-    | 'DOWNLOADING'
-    | 'QUIT_N_INSTALL'
-    | 'UP_TO_DATE'
-    | 'UPDATE_AVAILABLE'
-    | 'CHECK_FOR_UPDATE';
+  | 'CHECKING'
+  | 'DOWNLOADING'
+  | 'QUIT_N_INSTALL'
+  | 'UP_TO_DATE'
+  | 'UPDATE_AVAILABLE'
+  | 'CHECK_FOR_UPDATE';
 }
 
 interface IServerSetting {
@@ -300,6 +302,14 @@ export function Setting() {
           break;
         case SettingPageTypeMessage.selectMenu:
           menuChange(arg.data.key);
+          break;
+        case SettingPageTypeMessage.updateCancel:
+          setUpdateState({
+            state: 'cancel',
+            data: '',
+            label: 'CHECK_FOR_UPDATE',
+          });
+          setLoading(false);
           break;
         default:
           break;

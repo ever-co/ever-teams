@@ -10,11 +10,11 @@ export const LocalStore = {
 		let config: WebServer | any = store.get('config');
 		Object.keys(values).forEach((key: string) => {
 			if (key === 'server') {
-				config[key] = {...config[key], ...values.server }
+				config[key] = { ...config[key], ...values.server }
 			}
 
 			if (key === 'general') {
-				config[key] = {...config[key], ...values.general }
+				config[key] = { ...config[key], ...values.general }
 			}
 		})
 		store.set({
@@ -33,7 +33,9 @@ export const LocalStore = {
 					NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'http://localhost:3000'
 				},
 				general: {
-					lang: 'en'
+					lang: 'en',
+					autoUpdate: true,
+					updateCheckPeriode: '30'
 				}
 			}
 			store.set({ config });

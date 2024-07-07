@@ -3,19 +3,20 @@ import { dialog } from 'electron';
 interface InfoMessageBox {
     title: string;
     body: string;
-    action: () => void;
+    action?: () => void;
+    actionClose?: () => void;
+    btnLabel: {
+        ok: string;
+        close: string;
+    }
 }
 export const InfoMessagesBox = async (options: InfoMessageBox) => {
-    const infoMessage = await dialog.showMessageBox({
+    return dialog.showMessageBox({
         message: options.body,
         title: options.title,
         type: 'info',
-        buttons: ['Ok', 'Close']
+        buttons: [options.btnLabel.ok, options.btnLabel.close]
     })
-    if (infoMessage.response === 0) {
-        await options.action();
-    }
-    return;
 }
 
 interface ErrorMessageBox {

@@ -22,7 +22,12 @@
     },
     "BUTTON": {
       "SAVE_SETTING": "Save Setting",
-      "OK": "OK"
+      "OK": "OK",
+      "YES": "Yes",
+      "NO": "No",
+      "DOWNLOAD_NOW": "Download Now",
+      "LATER": "Later",
+      "CANCEL": "Cancel"
     },
     "LABELS": {
       "CHECKING": "Checking",
@@ -47,6 +52,10 @@
   },
   "MESSAGE": {
     "SUCCESS": "Success",
-    "ERROR": "Error"
+    "ERROR": "Error",
+    "WARNING": "Warning",
+    "INFO": "Info",
+    "UPDATE_AVAILABLE": "New Update is available! Please click button Download Now below.",
+    "EXIT_MESSAGE": "Server web still running, Are you sure to exit the app ?"
   }
 }

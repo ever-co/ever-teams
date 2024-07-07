@@ -7,21 +7,23 @@ import { SettingPageTypeMessage } from '../../main/helpers/constant';
 
 interface UpdaterStates {
   state:
-    | 'check-update'
-    | 'update-available'
-    | 'downloading'
-    | 'downloaded'
-    | 'error'
-    | 'not-started'
-    | 'up-to-date';
+  | 'check-update'
+  | 'update-available'
+  | 'downloading'
+  | 'downloaded'
+  | 'error'
+  | 'not-started'
+  | 'up-to-date'
+  | 'cancel'
+  ;
   data: any;
   label:
-    | 'CHECKING'
-    | 'DOWNLOADING'
-    | 'QUIT_N_INSTALL'
-    | 'UP_TO_DATE'
-    | 'UPDATE_AVAILABLE'
-    | 'CHECK_FOR_UPDATE';
+  | 'CHECKING'
+  | 'DOWNLOADING'
+  | 'QUIT_N_INSTALL'
+  | 'UP_TO_DATE'
+  | 'UPDATE_AVAILABLE'
+  | 'CHECK_FOR_UPDATE';
 }
 type PropsProgress = {
   updateStates: UpdaterStates;
