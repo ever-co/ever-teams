@@ -310,6 +310,7 @@ ipcMain.on('setting-page', (event, arg) => {
       })
       createIntervalAutoUpdate()
       event.sender.send('setting-page', { type: SettingPageTypeMessage.updateSettingResponse, data: true })
+      break;
     default:
       break;
   }
