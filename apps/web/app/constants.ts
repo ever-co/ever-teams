@@ -264,6 +264,10 @@ export const languagesFlags = [
 	}
 ];
 
+// Local storage keys
+export const LAST_WORSPACE_AND_TEAM = 'last-workspace-and-team';
+export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
+
 // OAuth providers keys
 
 export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;

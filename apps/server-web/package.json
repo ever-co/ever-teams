@@ -1,5 +1,5 @@
 {
-  "name": "ever-teams-server-web",
+  "name": "ever-teams-web-server",
   "version": "0.1.0",
   "description": "Ever Teams Web Server",
   "license": "AGPL-3.0",
@@ -49,7 +49,9 @@
     "i18next-electron-fs-backend": "^3.0.1",
     "i18next-fs-backend": "^2.3.1",
     "i18next-resources-to-backend": "^1.2.1",
-    "react-i18next": "^14.1.0"
+    "react-i18next": "^14.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
+    "classnames": "^2.5.1"
   },
   "devDependencies": {
     "electron": "28.1.0",
@@ -164,7 +166,7 @@
     "yarn": ">=1.13.0"
   },
   "build": {
-    "appId": "co.ever.teamswebserver",
+    "appId": "com.ever.everteamswebserver",
     "artifactName": "${name}-${version}.${ext}",
     "productName": "Ever Teams Web Server",
     "copyright": "Copyright © 2024-Present. Ever Co. LTD",

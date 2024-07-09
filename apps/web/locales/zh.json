@@ -312,6 +312,7 @@
 			"HEADING_TITLE": "创建新团队",
 			"HEADING_DESCRIPTION": "请输入团队信息以创建新团队。",
 			"LOADING_TEXT": "正在为您创建新的工作区,请稍候......",
+			"REDIRECT_TO_WORSPACE_LOADING": "正在重定向到您的工作空间......",
 			"VERIFY_EMAIL_LOADING_TEXT": "正在验证您的电子邮箱,请稍候......",
 			"INPUT_TEAM_NAME": "输入您的团队名称",
 			"JOIN_EXISTING_TEAM": "加入已有团队?",
