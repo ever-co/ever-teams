@@ -17,10 +17,12 @@ import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from '
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
 import { IoCalendarOutline } from "react-icons/io5";
+import { TaskStatusFilterDailyFuture } from './task/task-filters';
 
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FiltreOutstanding = 'ALL' | 'DATE';
+
 
 export function UserProfilePlans() {
 	const defaultTab =
@@ -52,6 +54,8 @@ export function UserProfilePlans() {
 
 
 
+
+
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
 
@@ -67,8 +71,12 @@ export function UserProfilePlans() {
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
+							{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(currentTab) && (
+								<TaskStatusFilterDailyFuture />
+							)}
 							<div className='w-full mt-10 mb-5 items-center flex justify-between'>
 								<div className={clsxm('flex justify-start items-center gap-4 ')}>
+
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
 											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
@@ -115,7 +123,9 @@ export function UserProfilePlans() {
 										</SelectContent>
 									</Select>
 								)}
+
 							</div>
+
 							{tabsScreens[currentTab]}
 						</div>
 					) : (
@@ -189,17 +199,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 									<>
 										{canSeeActivity ? (
 											<div className="flex justify-end">
-												<Button
-													disabled={deleteDailyPlanLoading}
-													onClick={() => deleteDailyPlan(plan.id ?? '')}
-													variant="destructive"
-													className="p-7 py-6 font-normal rounded-xl text-md"
-												>
-													{deleteDailyPlanLoading && (
-														<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-													)}
-													Delete this plan
-												</Button>
 												<AlertPopup
 													open={popupOpen}
 													children={

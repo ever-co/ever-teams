@@ -20,6 +20,7 @@ import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStat
 import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
+import { FiltersDatePickerWithRange } from './task-filters-date-picker';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -31,6 +32,7 @@ type ITabs = {
 
 type FilterType = 'status' | 'search' | undefined;
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
+
 type StatusFilter = { [x in IStatusType]: string[] };
 
 /**
@@ -174,9 +176,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-									statusFilters[k],
-									task['tags'].map((item) => item.name)
-								).length === statusFilters[k].length
+								statusFilters[k],
+								task['tags'].map((item) => item.name)
+							).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
@@ -371,10 +373,9 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
-
 	return (
-		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2">
-			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
+		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2 z-10">
+			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start z-50">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
@@ -406,7 +407,6 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 
 				<VerticalSeparator />
-
 				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9" onClick={hook.applyStatusFilder}>
 					{t('common.APPLY')}
 				</Button>
@@ -433,6 +433,71 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 		</div>
 	);
 }
+
+/**
+ * It renders a divider, a div with a flexbox layout, and filters buttons
+ * @returns A React component
+ */
+export function TaskStatusFilterDailyFuture() {
+	const [key, setKey] = useState(0);
+	const t = useTranslations();
+	return (
+		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2 z-10 bg-white px-2 rounded-sm">
+			<div className="flex flex-wrap items-center !justify-center flex-1 space-x-3 md:justify-start z-50 w-full">
+				<TaskStatusDropdown
+					key={key + 1}
+					// onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					multiple={true}
+				/>
+
+				<TaskPropertiesDropdown
+					key={key + 2}
+					// onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					multiple={true}
+				/>
+
+				<TaskSizesDropdown
+					key={key + 3}
+					// onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					multiple={true}
+				/>
+
+				<TaskLabelsDropdown
+					key={key + 4}
+					// onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
+					className="lg:min-w-[170px] mt-4 mb-2 lg:mt-0"
+					multiple={true}
+				/>
+
+				<VerticalSeparator />
+				<FiltersDatePickerWithRange className='lg:!min-w-[170px] mt-4 mb-2 lg:mt-0' />
+				<VerticalSeparator />
+
+				{/* {hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />} */}
+
+				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
+				// onClick={hook.applyStatusFilder}
+				>
+					{t('common.APPLY')}
+				</Button>
+				<Button
+					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
+					variant="grey"
+					onClick={() => {
+						setKey((k) => k + 1);
+						// hook.onResetStatusFilter();
+					}}
+				>
+					{t('common.RESET')}
+				</Button>
+			</div>
+		</div>
+	);
+}
+
 
 export function TaskNameFilter({
 	value,
