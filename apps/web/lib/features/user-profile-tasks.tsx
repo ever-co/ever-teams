@@ -63,11 +63,10 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						isAuthUser={profile.isAuthUser}
 						activeAuthTask={true}
 						profile={profile}
-						taskBadgeClassName={`	${
-							profile.activeUserTeamTask?.issueType === 'Bug'
-								? '!px-[0.3312rem] py-[0.2875rem]'
-								: '!px-[0.375rem] py-[0.375rem]'
-						} rounded-sm`}
+						taskBadgeClassName={`	${profile.activeUserTeamTask?.issueType === 'Bug'
+							? '!px-[0.3312rem] py-[0.2875rem]'
+							: '!px-[0.375rem] py-[0.375rem]'
+							} rounded-sm`}
 						taskTitleClassName="mt-[0.0625rem]"
 					/>
 				)}
@@ -94,11 +93,10 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 									activeAuthTask={false}
 									viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
 									profile={profile}
-									taskBadgeClassName={`${
-										task.issueType === 'Bug'
-											? '!px-[0.3312rem] py-[0.2875rem]'
-											: '!px-[0.375rem] py-[0.375rem]'
-									} rounded-sm`}
+									taskBadgeClassName={`${task.issueType === 'Bug'
+										? '!px-[0.3312rem] py-[0.2875rem]'
+										: '!px-[0.375rem] py-[0.375rem]'
+										} rounded-sm`}
 									taskTitleClassName="mt-[0.0625rem]"
 								/>
 							</li>
