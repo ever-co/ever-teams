@@ -202,30 +202,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 												</Button>
 												<AlertPopup
 													open={popupOpen}
-													children={
-														<>
-															{/*button confirm*/}
-															<Button
-																disabled={deleteDailyPlanLoading}
-																onClick={() => deleteDailyPlan(plan.id ?? '')}
-																variant="destructive"
-																className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-															>
-																{deleteDailyPlanLoading && (
-																	<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-																)}
-																Delete
-															</Button>
-															{/*button cancel*/}
-															<Button
-																onClick={() => setPopupOpen(false)}
-																variant="outline"
-																className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-															>
-																Cancel
-															</Button>
-														</>
-													}
+
 													buttonOpen={
 														//button open popup
 														<Button
@@ -236,7 +213,28 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 															Delete this plan
 														</Button>
 													}
-												/>
+												>
+													{/*button confirm*/}
+													<Button
+														disabled={deleteDailyPlanLoading}
+														onClick={() => deleteDailyPlan(plan.id ?? '')}
+														variant="destructive"
+														className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+													>
+														{deleteDailyPlanLoading && (
+															<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+														)}
+														Delete
+													</Button>
+													{/*button cancel*/}
+													<Button
+														onClick={() => setPopupOpen(false)}
+														variant="outline"
+														className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+													>
+														Cancel
+													</Button>
+												</AlertPopup>
 
 											</div>
 										) : (
