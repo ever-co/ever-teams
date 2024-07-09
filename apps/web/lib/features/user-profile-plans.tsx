@@ -71,12 +71,10 @@ export function UserProfilePlans() {
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
-							{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(currentTab) && (
-								<TaskStatusFilterDailyFuture />
-							)}
+							{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(currentTab) &&
+								(<TaskStatusFilterDailyFuture />)}
 							<div className='w-full mt-10 mb-5 items-center flex justify-between'>
 								<div className={clsxm('flex justify-start items-center gap-4 ')}>
-
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
 											{i !== 0 && <VerticalSeparator className="border-slate-400" />}

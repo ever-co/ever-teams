@@ -214,7 +214,7 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
-		<div className="relative w-full z-10">
+		<div className="relative w-full !z-50">
 			<div
 				className={clsxm(
 					'flex justify-between flex-col xs:flex-row  items-center w-full flex-wrap-reverse lg:flex-nowrap',
@@ -374,7 +374,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 	return (
-		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2 z-10">
+		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2 !z-20">
 			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start z-50">
 				<TaskStatusDropdown
 					key={key + 1}

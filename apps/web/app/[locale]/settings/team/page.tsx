@@ -18,6 +18,7 @@ import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
 import { activeSettingTeamTab } from '@app/stores/setting';
 import { InteractionObserverVisible } from '@components/pages/setting/interaction-observer';
+import { useState } from 'react';
 
 const Team = () => {
 	const t = useTranslations();
@@ -26,6 +27,7 @@ const Team = () => {
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
+	const [isOpen, setIsOpen] = useState(false)
 	return (
 		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
@@ -52,10 +54,11 @@ const Team = () => {
 					{isTeamManager ? (
 						<InteractionObserverVisible id="invitations" setActiveSection={setActiveTeam}>
 							<Accordian
+								isOpen={isOpen}
 								title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
-								<InvitationSetting />
+								<InvitationSetting setIsOpen={setIsOpen} />
 							</Accordian>
 						</InteractionObserverVisible>
 					) : null}

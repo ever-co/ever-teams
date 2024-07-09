@@ -6,7 +6,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InvitationTable } from './invitation-table';
 
-export const InvitationSetting = () => {
+export const InvitationSetting = ({ setIsOpen }: { setIsOpen: (v: any) => void }) => {
 	const t = useTranslations();
 
 	const { teamInvitations } = useTeamInvitations();
@@ -14,9 +14,7 @@ export const InvitationSetting = () => {
 
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
-
 	const [filterString, setFilterString] = useState<string>('');
-
 	useEffect(() => {
 		getRequestToJoin();
 	}, [getRequestToJoin]);
@@ -26,6 +24,16 @@ export const InvitationSetting = () => {
 			invitation?.fullName?.toLowerCase()?.includes(filterString) ||
 			invitation?.email?.toLowerCase()?.includes(filterString)
 	);
+
+	useEffect(() => {
+		if (invitations.length > 0) {
+			setIsOpen(true)
+		} else {
+			setIsOpen(false)
+		}
+	}, [invitations])
+
+
 
 	return (
 		<div className="flex flex-col">

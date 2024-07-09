@@ -80,7 +80,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<>
 			{Array.isArray(members) && members.length && !profile.member ? (
 				<MainLayout>
-					<div className=" absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+					<div className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
 						<div className="flex flex-col justify-center items-center gap-5">
 							<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 								{t('common.MEMBER')} {t('common.NOT_FOUND')}!
@@ -105,7 +105,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						<ResizablePanel defaultSize={47} maxSize={50}>
 							<MainHeader
 								fullWidth={fullWidth}
-								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
+								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-10 z-50')}
 							>
 								{/* Breadcrumb */}
 								<div className="flex items-center gap-8">
@@ -138,7 +138,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 						{/* Divider */}
 						{/* <div className="h-0.5 bg-[#FFFFFF14]"></div> */}
-						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar z-10">
 							{hook.tab == 'worked' && canSeeActivity && (
 								<Container fullWidth={fullWidth} className="py-8">
 									<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
