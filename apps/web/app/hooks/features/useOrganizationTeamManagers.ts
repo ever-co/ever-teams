@@ -9,6 +9,8 @@ export function useOrganizationAndTeamManagers() {
 		team.members.some((member) => member.employee?.user?.id === user?.id && member.role?.name === 'MANAGER')
 	);
 
+	console.log({ userManagedTeams });
+
 	return {
 		userManagedTeams
 	};
