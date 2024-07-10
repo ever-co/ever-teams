@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { formatDayPlanDate, tomorrowDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
@@ -5,10 +6,12 @@ import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { AlertPopup } from 'lib/components';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
+	const [popupOpen, setPopupOpen] = useState(false)
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -54,19 +57,53 @@ export function FutureTasks({ profile }: { profile: any }) {
 
 								{/* Delete Plan */}
 								{canSeeActivity ? (
-									<div className="flex justify-end">
+									<AlertPopup
+										buttonOpen={
+											//button open popup
+											<Button
+												onClick={() => setPopupOpen(true)}
+												variant="outline"
+												className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+											>
+												Delete this plan
+											</Button>
+										}
+										open={popupOpen}
+									>
 										<Button
 											disabled={deleteDailyPlanLoading}
 											onClick={() => deleteDailyPlan(plan.id ?? '')}
 											variant="destructive"
-											className="p-7 py-6 font-normal rounded-xl text-md"
+											className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 										>
 											{deleteDailyPlanLoading && (
 												<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
 											)}
-											Delete this plan
+											Delete
 										</Button>
-									</div>
+										{/*button cancel*/}
+										<Button
+											onClick={() => setPopupOpen(false)}
+											variant="outline"
+											className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+										>
+											Cancel
+										</Button>
+									</AlertPopup>
+
+									// <div className="flex justify-end">
+									// 	<Button
+									// 		disabled={deleteDailyPlanLoading}
+									// 		onClick={() => deleteDailyPlan(plan.id ?? '')}
+									// 		variant="destructive"
+									// 		className="p-7 py-6 font-normal rounded-xl text-md"
+									// 	>
+									// 		{deleteDailyPlanLoading && (
+									// 			<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+									// 		)}
+									// 		Delete this plan
+									// 	</Button>
+									// </div>
 								) : (
 									<></>
 								)}
