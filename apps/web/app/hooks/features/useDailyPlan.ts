@@ -193,6 +193,7 @@ export function useDailyPlan() {
 	const ascSortedPlans =
 		profileDailyPlans.items &&
 		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
 	const futurePlans = ascSortedPlans?.filter((plan) => {
 		const planDate = new Date(plan.date);
 		const today = new Date();

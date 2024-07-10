@@ -38,21 +38,21 @@ export function AddTaskToPlan({
 	const onSubmit = useCallback(async () => {
 		newPlan
 			? createDailyPlan({
-					workTimePlanned: workTimePlanned,
-					taskId: task.id,
-					date: new Date(moment(date).format('YYYY-MM-DD')),
-					status: DailyPlanStatusEnum.OPEN,
-					tenantId: employee?.tenantId,
-					employeeId: employee?.employeeId,
-					organizationId: employee?.organizationId
-				}).then(() => {
-					closeModal();
-				})
+				workTimePlanned: workTimePlanned,
+				taskId: task.id,
+				date: new Date(moment(date).format('YYYY-MM-DD')),
+				status: DailyPlanStatusEnum.OPEN,
+				tenantId: employee?.tenantId,
+				employeeId: employee?.employeeId,
+				organizationId: employee?.organizationId
+			}).then(() => {
+				closeModal();
+			})
 			: addTaskToPlan({ employeeId: employee?.employeeId ?? '', taskId: task.id }, selectedPlan?.id ?? '').then(
-					() => {
-						closeModal();
-					}
-				);
+				() => {
+					closeModal();
+				}
+			);
 	}, [
 		addTaskToPlan,
 		closeModal,
