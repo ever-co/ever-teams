@@ -55,7 +55,7 @@ export function TaskDatePickerWithRange({
                         mode="range"
                         defaultMonth={date?.from}
                         selected={date}
-                        onSelect={setDate}
+                        onSelect={(range) => setDate(range)}
                         numberOfMonths={2}
                     />
                 </PopoverContent>

@@ -8,19 +8,6 @@ export const dailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	default: { items: [], total: 0 }
 });
 
-export const dateRangeState = atom<DateRange | undefined>({
-	key: 'dateRangeState',
-	default: ({
-		from: new Date(2024, 6, 9),
-		to: addDays(new Date(2024, 6, 20), 1),
-	}),
-})
-export const originalDataState = atom<IDailyPlan[]>({
-	key: 'originalDataState',
-	default: []
-});
-
-
 export const myDailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	key: 'myDailyPlanListState',
 	default: { items: [], total: 0 }
@@ -60,6 +47,22 @@ export const activeDailyPlanState = selector<IDailyPlan | null>({
 	}
 });
 
+const today = new Date();
+
+export const dateRangeState = atom<DateRange | undefined>({
+	key: 'dateRangeState',
+	default: ({
+		from: today,
+		to: addDays(today, 3),
+	}),
+})
+
+
+export const originalDataState = atom<IDailyPlan[]>({
+	key: 'originalDataState',
+	default: []
+})
+
 function isDateInRange(itemDate: Date, from?: Date, to?: Date): boolean {
 	if (from && to) {
 		return itemDate >= from && itemDate <= to;
@@ -73,6 +76,33 @@ function isDateInRange(itemDate: Date, from?: Date, to?: Date): boolean {
 }
 export const filteredDataState = selector({
 	key: 'filteredDataState',
+	get: ({ get }) => {
+		const dateRange = get(dateRangeState);
+		const data = get(originalDataState);
+		if (!dateRange || !data.length) return data;
+		const { from, to } = dateRange;
+		return data.filter((plan) => {
+			const itemDate = new Date(plan.date); // Ensure you're using the correct date field
+			return isDateInRange(itemDate, from, to);
+		});
+	},
+});
+
+export const filteredAllDataState = selector({
+	key: 'filteredAllDataState',
+	get: ({ get }) => {
+		const dateRange = get(dateRangeState);
+		const data = get(originalDataState);
+		if (!dateRange || !data.length) return data;
+		const { from, to } = dateRange;
+		return data.filter((plan) => {
+			const itemDate = new Date(plan.date); // Ensure you're using the correct date field
+			return isDateInRange(itemDate, from, to);
+		});
+	},
+});
+export const filteredPastDataState = selector({
+	key: 'filteredPastDataState',
 	get: ({ get }) => {
 		const dateRange = get(dateRangeState);
 		const data = get(originalDataState);

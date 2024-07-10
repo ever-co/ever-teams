@@ -381,6 +381,12 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const t = useTranslations();
 	const [dailyPlanTab, setdailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
 
+
+	useEffect(() => {
+		setdailyPlanTab(window.localStorage.getItem('daily-plan-tab') || "'Future Tasks'")
+	}, [dailyPlanTab])
+
+
 	return (
 		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2 !z-50">
 			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
@@ -414,7 +420,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 
-				{/* Filter by Future Tasks, Past Tasks, All Tasks */}
+				{/* Filter by Future Tasks, Past Tasks, All Tasks*/}
 				{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(dailyPlanTab) && (
 					<TaskDatePickerWithRange />
 				)}
