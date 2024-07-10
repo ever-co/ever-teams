@@ -693,3 +693,26 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 		</span>
 	);
 }
+/**
+ *f
+ *
+ * @export
+ * @param {{ task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }} { task, plan, member }
+ * @return {*}
+ */
+export function RemoveFromAllPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+	const { removeTaskFromPlan } = useDailyPlan();
+	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
+	const onClick = () => {
+		removeTaskFromPlan(data, plan?.id ?? "");
+	}
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all text-red-600',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)} onClick={onClick}>
+			Remove from all plans
+		</span>
+	);
+}

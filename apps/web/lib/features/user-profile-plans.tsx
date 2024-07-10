@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan, useFilterAllTasksDateRange, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
 import { AlertPopup, Container, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
@@ -17,7 +17,6 @@ import { OutstandingAll, PastTasks, Outstanding, OutstandingFilterDate } from '.
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
 import { IoCalendarOutline } from "react-icons/io5";
-
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -49,7 +48,6 @@ export function UserProfilePlans() {
 		'All Tasks': <AllPlans profile={profile} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
-
 
 
 	useEffect(() => {
@@ -131,26 +129,28 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
-	const [popupOpen, setPopupOpen] = useState(false)
+	const [popupOpen, setPopupOpen] = useState(false);
+
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
+	const { filteredData } = useFilterAllTasksDateRange(filteredPlans);
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans?.length > 0 ? (
+			{filteredData?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={
 						currentTab === 'Today Tasks'
 							? [new Date().toISOString().split('T')[0]]
-							: [filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+							: [filteredData?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 					}
 				>
-					{filteredPlans?.map((plan) => (
+					{filteredData?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}

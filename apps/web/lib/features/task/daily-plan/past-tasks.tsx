@@ -2,19 +2,20 @@ import { formatDayPlanDate, yesterdayDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@app/hooks';
+import { useDailyPlan, useFilterPastTasksDateRange } from '@app/hooks';
 
 export function PastTasks({ profile }: { profile: any }) {
 	const { pastPlans } = useDailyPlan();
+	const { filteredData } = useFilterPastTasksDateRange(pastPlans);
 	return (
 		<div className="flex flex-col gap-6">
-			{pastPlans?.length > 0 ? (
+			{filteredData?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 				>
-					{pastPlans?.map((plan) => (
+					{filteredData?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}

@@ -1,27 +1,28 @@
 import { useState } from 'react'
 import { formatDayPlanDate, tomorrowDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { useCanSeeActivityScreen, useDailyPlan, useFilterFutureDateRange } from '@app/hooks';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
-import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { AlertPopup } from 'lib/components';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
-	const [popupOpen, setPopupOpen] = useState(false)
+	const [popupOpen, setPopupOpen] = useState(false);
+	const { filteredData } = useFilterFutureDateRange(futurePlans);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{futurePlans.length > 0 ? (
+			{filteredData?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 				>
-					{futurePlans.map((plan) => (
+					{filteredData?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}

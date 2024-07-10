@@ -66,11 +66,10 @@ const Permissions = () => {
 					<div className="flex flex-col w-[35%] overflow-scroll gap-2 mt-5">
 						{roles.map((role) => (
 							<div
-								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${
-									selectedRole && selectedRole.id === role.id
-										? 'bg-primary dark:bg-primary-light text-white'
-										: ''
-								}`}
+								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${selectedRole && selectedRole.id === role.id
+									? 'bg-primary dark:bg-primary-light text-white'
+									: ''
+									}`}
 								key={role?.id}
 								onClick={() => {
 									setSelectedRole(role);

@@ -44,7 +44,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 			memberList?.filter((member) =>
 				member.employee
 					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
-					  member.employee?.isActive
+					member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -55,7 +55,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 			memberList?.filter((member) =>
 				member.employee
 					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
-					  member.employee?.isActive
+					member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -112,9 +112,8 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 									<ProfileInfo
 										largerProfileInfo={true}
 										profilePicSrc={member?.employee?.user?.imageUrl}
-										names={`${member?.employee?.user?.firstName || ''} ${
-											member?.employee?.user?.lastName || ''
-										}`}
+										names={`${member?.employee?.user?.firstName || ''} ${member?.employee?.user?.lastName || ''
+											}`}
 									/>
 								</View>
 								<View pointerEvents="none">
@@ -136,9 +135,8 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 									<ProfileInfo
 										largerProfileInfo={true}
 										profilePicSrc={member?.employee?.user?.imageUrl}
-										names={`${member?.employee?.user?.firstName || ''} ${
-											member?.employee?.user?.lastName || ''
-										}`}
+										names={`${member?.employee?.user?.firstName || ''} ${member?.employee?.user?.lastName || ''
+											}`}
 									/>
 								</View>
 							</TouchableOpacity>

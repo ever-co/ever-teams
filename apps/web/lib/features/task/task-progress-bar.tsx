@@ -12,14 +12,14 @@ export function TaskProgressBar({
 	showPercents,
 	radial
 }: // memberInfo,
-{
-	isAuthUser: boolean | undefined;
-	task: Nullable<ITeamTask>;
-	activeAuthTask: boolean;
-	showPercents?: boolean;
-	memberInfo?: I_TeamMemberCardHook;
-	radial?: boolean;
-}) {
+	{
+		isAuthUser: boolean | undefined;
+		task: Nullable<ITeamTask>;
+		activeAuthTask: boolean;
+		showPercents?: boolean;
+		memberInfo?: I_TeamMemberCardHook;
+		radial?: boolean;
+	}) {
 	const seconds = useRecoilValue(timerSecondsState);
 	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
 

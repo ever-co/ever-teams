@@ -26,7 +26,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 			currentMember?.totalWorkedTasks
 				.filter((t) => t.id === task?.id)
 				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
-			0
+		0
 	);
 	const { h: dh, m: dm } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
@@ -34,7 +34,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 			currentMember?.totalTodayTasks
 				.filter((t) => t.id === task?.id)
 				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
-			0
+		0
 	);
 
 	return (
@@ -84,9 +84,8 @@ function TimeInfo({
 			{showDaily && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
-						daily.m
-					}m`}
+					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${daily.m
+						}m`}
 				>
 					<div className="flex items-center space-x-2 text-base font-normal">
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
@@ -100,9 +99,8 @@ function TimeInfo({
 			{showTotal && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
-						total.m
-					}m`}
+					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${total.m
+						}m`}
 				>
 					<div
 						className={clsxm(
@@ -142,9 +140,8 @@ function TimeBlockInfo({
 			{showDaily && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${
-						daily.m
-					}m`}
+					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TODAY_ON_TASK_TOOLTIP')} ${daily.h}h : ${daily.m
+						}m`}
 				>
 					<div className=" text-base font-normal flex flex-col items-center ">
 						<span className="text-[#7B8089] text-center text-xs capitalize">
@@ -160,9 +157,8 @@ function TimeBlockInfo({
 			{showTotal && (
 				<Tooltip
 					enabled={task ? true : false}
-					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${
-						total.m
-					}m`}
+					label={`${currentUser?.employee.fullName} ${t('task.WORKED_TOTAL_ON_TASK_TOOLTIP')} ${total.h}h : ${total.m
+						}m`}
 				>
 					<div
 						className={clsxm(
@@ -196,7 +192,7 @@ export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 
 				(previousValue, currentValue) => previousValue + currentValue.duration,
 				0
 			)) ||
-			0
+		0
 	);
 
 	return (
