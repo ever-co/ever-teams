@@ -93,6 +93,7 @@
 		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Sélectionner un problème enfant",
 		"CREATE_TEAM": "Créer une nouvelle équipe",
+		"ALL_TEAMS": "Toutes les équipes",
 		"VERIFY_ACCOUNT_MSG": "Veuillez vérifier votre compte avant de commencer à utiliser l'application",
 		"CREATE_ROLE": "Créer un rôle",
 		"CREATE": "Créer",

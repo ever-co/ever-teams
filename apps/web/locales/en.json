@@ -92,6 +92,7 @@
 		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Select Child Issue",
 		"CREATE_TEAM": "Create New Team",
+		"ALL_TEAMS": "All Teams",
 		"VERIFY_ACCOUNT_MSG": "Please Verify your account before start using the app",
 		"CREATE_ROLE": "Create Role",
 		"CREATE": "Create",

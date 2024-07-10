@@ -91,6 +91,7 @@
 		"DESCRIPTION": "תיאור",
 		"CHILD_ISSUE_TASK": "בחר בעיה ילדה",
 		"CREATE_TEAM": "צור צוות חדש",
+		"ALL_TEAMS": "כל הקבוצות",
 		"VERIFY_ACCOUNT_MSG": "אנא אמת את החשבון שלך לפני שתתחיל להשתמש באפליקציה",
 		"CREATE_ROLE": "צור תפקיד",
 		"CREATE": "צור",

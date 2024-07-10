@@ -93,6 +93,7 @@
 		"DESCRIPTION": "Beschrijving",
 		"CHILD_ISSUE_TASK": "Selecteer onderliggend probleem",
 		"CREATE_TEAM": "Nieuw team maken",
+		"ALL_TEAMS": "Alle teams",
 		"VERIFY_ACCOUNT_MSG": "Verifieer uw account voordat u de app gaat gebruiken",
 		"CREATE_ROLE": "Rol maken",
 		"CREATE": "Maken",

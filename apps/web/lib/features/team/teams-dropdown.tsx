@@ -74,7 +74,9 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 				publicTeam={publicTeam}
 			>
-				{userManagedTeams.length > 0 && <AllTeamItem title="All Teams" count={userManagedTeams.length} />}
+				{userManagedTeams.length > 1 && (
+					<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+				)}
 
 				{!publicTeam && (
 					<Tooltip

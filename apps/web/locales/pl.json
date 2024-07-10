@@ -92,6 +92,7 @@
 		"DESCRIPTION": "Opis",
 		"CHILD_ISSUE_TASK": "Wybierz zadanie podrzędne",
 		"CREATE_TEAM": "Utwórz nowy zespół",
+		"ALL_TEAMS": "Wszystkie zespoły",
 		"VERIFY_ACCOUNT_MSG": "Zweryfikuj swoje konto przed rozpoczęciem korzystania z aplikacji",
 		"CREATE_ROLE": "Utwórz rolę",
 		"CREATE": "Utwórz",

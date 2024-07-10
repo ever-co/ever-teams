@@ -93,6 +93,7 @@
 		"DESCRIPTION": "وصف",
 		"CHILD_ISSUE_TASK": "تحديد القضية الفرعية",
 		"CREATE_TEAM": "إنشاء فريق جديد",
+		"ALL_TEAMS": "جميع الفرق",
 		"VERIFY_ACCOUNT_MSG": "يرجى التحقق من حسابك قبل البدء في استخدام التطبيق",
 		"CREATE_ROLE": "إنشاء دور",
 		"CREATE": "إنشاء",

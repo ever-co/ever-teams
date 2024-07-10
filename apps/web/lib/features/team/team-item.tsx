@@ -155,34 +155,41 @@ export function TeamItem({
 
 export function AllTeamItem({ title, count }: { title: string; count: number }) {
 	return (
-		<div className={clsxm('flex items-center justify-start space-x-2 text-sm', 'cursor-pointer mb-4 max-w-full')}>
-			<Link href="/all-teams">
-				<div
-					className={clsxm(
-						'w-[27px] h-[27px]',
-						'flex justify-center items-center',
-						'rounded-full text-xs text-default dark:text-white',
-						'shadow-md'
-					)}
-				>
-					{imgTitle(title)}
+		<Link href="/all-teams">
+			<div
+				className={clsxm('flex items-center justify-start space-x-2 text-sm', 'cursor-pointer mb-4 max-w-full')}
+			>
+				<div>
+					<div
+						className={clsxm(
+							'w-[27px] h-[27px]',
+							'flex justify-center items-center',
+							'rounded-full text-xs text-default dark:text-white',
+							'shadow-md'
+						)}
+					>
+						{imgTitle(title)}
+					</div>
 				</div>
-			</Link>
-			<div className="flex gap-1">
-				<span
-					className={clsxm('text-normal md:max-w-[100px]', 'whitespace-nowrap text-ellipsis overflow-hidden')}
-				>
-					{title}
-				</span>
-				<span
-					className={clsxm('text-normal')}
-					style={{
-						marginLeft: 0
-					}}
-				>
-					{count ? `(${count})` : ''}
-				</span>
+				<div className="flex gap-1">
+					<span
+						className={clsxm(
+							'text-normal md:max-w-[100px]',
+							'whitespace-nowrap text-ellipsis overflow-hidden'
+						)}
+					>
+						{title}
+					</span>
+					<span
+						className={clsxm('text-normal')}
+						style={{
+							marginLeft: 0
+						}}
+					>
+						{count ? `(${count})` : ''}
+					</span>
+				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }

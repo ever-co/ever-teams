@@ -22,8 +22,6 @@ export function TeamOutstandingNotifications() {
 		getEmployeeDayPlans(user?.employee.id || '');
 	}, [getAllDayPlans, getEmployeeDayPlans, user?.employee.id]);
 
-	console.log(dailyPlan);
-
 	return (
 		<div className="flex flex-col gap-4">
 			{outstandingPlans && outstandingPlans.length > 0 && (
