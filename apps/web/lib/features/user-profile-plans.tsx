@@ -13,14 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
-import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from './task/daily-plan';
+import { OutstandingAll, PastTasks, Outstanding, OutstandingFilterDate } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
 import { IoCalendarOutline } from "react-icons/io5";
 
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
-type FiltreOutstanding = 'ALL' | 'DATE';
+type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
 	const defaultTab =
@@ -28,26 +28,26 @@ export function UserProfilePlans() {
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
 
-	const defaultOutstanding = typeof window !== 'undefined' ? (window.localStorage.getItem('outstanding') as FiltreOutstanding) || null : 'ALL';
+	const defaultOutstanding = typeof window !== 'undefined' ? (window.localStorage.getItem('outstanding') as FilterOutstanding) || null : 'ALL';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
-	const [currentOutstanding, setCurrentOutstanding] = useState<FiltreOutstanding>(defaultOutstanding || 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
 
 	const screenOutstanding = {
 		'ALL': <OutstandingAll profile={profile} />,
-		"DATE": <OutstandingFieltreDate profile={profile} />
+		"DATE": <OutstandingFilterDate profile={profile} />
 	}
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
 		'Future Tasks': <FutureTasks profile={profile} />,
 		'Past Tasks': <PastTasks profile={profile} />,
 		'All Tasks': <AllPlans profile={profile} />,
-		Outstanding: <Outstanding filtre={screenOutstanding[currentOutstanding]} />
+		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 
 
@@ -98,7 +98,7 @@ export function UserProfilePlans() {
 								</div>
 								{currentTab === 'Outstanding' && (
 									<Select onValueChange={(value) => {
-										setCurrentOutstanding(value as FiltreOutstanding)
+										setCurrentOutstanding(value as FilterOutstanding)
 									}}>
 										<SelectTrigger className="w-[120px] h-9">
 											<SelectValue placeholder="Filter" />
@@ -189,20 +189,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 									<>
 										{canSeeActivity ? (
 											<div className="flex justify-end">
-												<Button
-													disabled={deleteDailyPlanLoading}
-													onClick={() => deleteDailyPlan(plan.id ?? '')}
-													variant="destructive"
-													className="p-7 py-6 font-normal rounded-xl text-md"
-												>
-													{deleteDailyPlanLoading && (
-														<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-													)}
-													Delete this plan
-												</Button>
 												<AlertPopup
 													open={popupOpen}
-
 													buttonOpen={
 														//button open popup
 														<Button
