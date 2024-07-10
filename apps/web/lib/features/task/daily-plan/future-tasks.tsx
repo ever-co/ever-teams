@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
-import { useCanSeeActivityScreen, useDailyPlan, useFilterDateRange } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { AlertPopup } from 'lib/components';
 
@@ -12,7 +12,6 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false)
-	const { filteredData } = useFilterDateRange(futurePlans);
 
 	return (
 		<div className="flex flex-col gap-6">
