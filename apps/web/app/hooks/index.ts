@@ -61,6 +61,7 @@ export * from './features/useTaskVersion';
 
 // Daily plan
 export * from './features/useDailyPlan';
+export * from './useFilterDateRange';
 
 export * from './features/useRefetchData';
 export * from './features/useRolePermissions';

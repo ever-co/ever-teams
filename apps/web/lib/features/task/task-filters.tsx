@@ -20,6 +20,7 @@ import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStat
 import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
+import { TaskDatePickerWithRange } from './task-date-range';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -174,9 +175,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-									statusFilters[k],
-									task['tags'].map((item) => item.name)
-								).length === statusFilters[k].length
+								statusFilters[k],
+								task['tags'].map((item) => item.name)
+							).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
@@ -238,6 +239,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 			>
 				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
 				{hook.filterType === 'status' && (
+
 					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
 				)}
 				{hook.filterType === 'search' && (
@@ -367,13 +369,20 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 /**
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
+/**
+ *
+ *
+ * @export
+ * @param {{ hook: I_TaskFilter; employeeId: string }} { hook, employeeId }
+ * @return {*}
  */
 export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
+	const [dailyPlanTab, setdailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
 
 	return (
-		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2">
+		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2 !z-50">
 			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
@@ -405,6 +414,10 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 
+				{/* Filter by Future Tasks, Past Tasks, All Tasks */}
+				{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(dailyPlanTab) && (
+					<TaskDatePickerWithRange />
+				)}
 				<VerticalSeparator />
 
 				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9" onClick={hook.applyStatusFilder}>
