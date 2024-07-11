@@ -1,5 +1,4 @@
 "use client"
-
 import React from "react"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
@@ -18,13 +17,11 @@ interface ITaskDatePickerWithRange {
     className?: React.HTMLAttributes<HTMLDivElement>,
     date?: DateRange;
     onSelect?: SetterOrUpdater<DateRange | undefined>;
-
-
 }
 export function TaskDatePickerWithRange({
     className,
     date,
-    onSelect
+    onSelect,
 }: ITaskDatePickerWithRange) {
     return (
         <div className={cn("grid gap-2", className)}>
@@ -56,7 +53,7 @@ export function TaskDatePickerWithRange({
                 <PopoverContent className="w-auto p-0" align="center">
                     <Calendar
                         initialFocus
-                        mode="range"
+                        mode={'range'}
                         defaultMonth={date?.from}
                         selected={date}
                         onSelect={onSelect}

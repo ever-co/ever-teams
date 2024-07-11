@@ -58,6 +58,12 @@ export const dateRangeState = atom<DateRange | undefined>({
 		to: addDays(today, 3),
 	}),
 })
+type daySelectionMode = 'single' | 'multiple' | 'range' | 'default';
+export const daySelectionModeState = atom<daySelectionMode | null>({
+	key: 'mode',
+	default: 'single',
+})
+
 export const dateRangeAllState = atom<DateRange | undefined>({
 	key: 'dateRangeAllState',
 	default: ({
@@ -65,6 +71,7 @@ export const dateRangeAllState = atom<DateRange | undefined>({
 		to: addDays(today, 3),
 	}),
 })
+
 export const dateRangePastState = atom<DateRange | undefined>({
 	key: 'dateRangePastPlanState',
 	default: ({

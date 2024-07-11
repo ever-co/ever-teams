@@ -89,11 +89,11 @@ export function UserProfilePlans() {
 														currentTab == filter && 'dark:bg-gray-600'
 													)}
 												>
-													{filter === 'Today Tasks' && todayPlan.length}
-													{filter === 'Future Tasks' && futurePlansFilter.length}
-													{filter === 'Past Tasks' && pastPlansFilter.length}
-													{filter === 'All Tasks' && sortedPlansFilter.length}
-													{filter === 'Outstanding' && outstandingPlans.length}
+													{filter === 'Today Tasks' && todayPlan?.length}
+													{filter === 'Future Tasks' && futurePlansFilter?.length}
+													{filter === 'Past Tasks' && pastPlansFilter?.length}
+													{filter === 'All Tasks' && sortedPlansFilter?.length}
+													{filter === 'Outstanding' && outstandingPlans?.length}
 												</span>
 											</div>
 										</div>

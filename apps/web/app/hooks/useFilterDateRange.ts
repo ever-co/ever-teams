@@ -27,23 +27,13 @@ export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' |
     useEffect(() => {
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dateFuture]);
-
-    useEffect(() => {
-        if (dataType === 'all') {
+        } else if (dataType === 'all') {
             setOriginalAllPlanData(itemsData);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dateAllPlan]);
-
-    useEffect(() => {
-        if (dataType === 'past') {
+        } else if (dataType === 'past') {
             setOriginalPastPlanData(itemsData);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [datePastPlan]);
+    }, [dateFuture, dateAllPlan, datePastPlan]);// eslint-disable-line react-hooks/exhaustive-deps
 
     return {
         originalFuturePlanData,
