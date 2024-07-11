@@ -43,7 +43,6 @@ export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' |
             setOriginalPastPlanData(itemsData);
         }
     }, [datePaskPlan]);
-
     return {
         originalFuturePlanData,
         originalPastPlanData,
