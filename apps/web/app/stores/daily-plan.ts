@@ -65,7 +65,7 @@ export const dateRangeAllState = atom<DateRange | undefined>({
 		to: addDays(today, 3),
 	}),
 })
-export const dateRangePaskState = atom<DateRange | undefined>({
+export const dateRangePastState = atom<DateRange | undefined>({
 	key: 'dateRangePastPlanState',
 	default: ({
 		from: oneWeekAgo,
@@ -133,7 +133,7 @@ export const filteredAllDataState = selector({
 export const filteredPastDataState = selector({
 	key: 'filteredPastDataState',
 	get: ({ get }) => {
-		const dateRange = get(dateRangePaskState);
+		const dateRange = get(dateRangePastState);
 		const data = get(originalPastTaskDataState);
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;

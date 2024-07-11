@@ -22,7 +22,7 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { TaskDatePickerWithRange } from './task-date-range';
 import { useRecoilState } from 'recoil';
-import { dateRangeAllState, dateRangePaskState, dateRangeState } from '@app/stores';
+import { dateRangeAllState, dateRangePastState, dateRangeState } from '@app/stores';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -384,7 +384,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const [dailyPlanTab, setDailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
 	const [dateFuture, setDateFuture] = useRecoilState(dateRangeState);
 	const [dateAllPlan, setDateAllPlan] = useRecoilState(dateRangeAllState);
-	const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePaskState);
+	const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePastState);
 
 
 	useEffect(() => {
