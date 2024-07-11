@@ -4,7 +4,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 
 export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' | 'all') {
     const [dateAllPlan, setDateAllPlan] = useRecoilState(dateRangeAllState);
-    const [datePasPlan, setDatePastPlan] = useRecoilState(dateRangePastState);
+    const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePastState);
     const [dateFuture, setDateFuture] = useRecoilState(dateRangeState);
 
 
@@ -28,21 +28,23 @@ export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' |
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateFuture]);
-
 
     useEffect(() => {
         if (dataType === 'all') {
             setOriginalAllPlanData(itemsData);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateAllPlan]);
-
 
     useEffect(() => {
         if (dataType === 'past') {
             setOriginalPastPlanData(itemsData);
         }
-    }, [datePasPlan]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [datePastPlan]);
+
     return {
         originalFuturePlanData,
         originalPastPlanData,

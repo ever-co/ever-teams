@@ -72,12 +72,6 @@ export const dateRangePastState = atom<DateRange | undefined>({
 		to: addDays(today, 3),
 	}),
 })
-type dataType = 'Future Tasks' | 'Past Tasks' | 'All Tasks';
-export const dataTypeState = atom<dataType>({
-	key: 'dataTypePlan',
-	default: 'All Tasks'
-})
-
 
 export const originalDataState = atom<IDailyPlan[]>({
 	key: 'originalDataState',
