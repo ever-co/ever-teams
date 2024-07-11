@@ -379,11 +379,11 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
-	const [dailyPlanTab, setdailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
+	const [dailyPlanTab, setDailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
 
 
 	useEffect(() => {
-		setdailyPlanTab(window.localStorage.getItem('daily-plan-tab') || "'Future Tasks'")
+		setDailyPlanTab(window.localStorage.getItem('daily-plan-tab') || "'Future Tasks'")
 	}, [dailyPlanTab])
 
 

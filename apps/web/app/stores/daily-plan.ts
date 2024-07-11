@@ -48,7 +48,6 @@ export const activeDailyPlanState = selector<IDailyPlan | null>({
 });
 
 const today = new Date();
-
 export const dateRangeState = atom<DateRange | undefined>({
 	key: 'dateRangeState',
 	default: ({
@@ -59,6 +58,14 @@ export const dateRangeState = atom<DateRange | undefined>({
 
 
 export const originalDataState = atom<IDailyPlan[]>({
+	key: 'originalDataState',
+	default: []
+})
+export const originalAllDataState = atom<IDailyPlan[]>({
+	key: 'originalDataState',
+	default: []
+})
+export const originalPastTaskDataState = atom<IDailyPlan[]>({
 	key: 'originalDataState',
 	default: []
 })
@@ -92,7 +99,7 @@ export const filteredAllDataState = selector({
 	key: 'filteredAllDataState',
 	get: ({ get }) => {
 		const dateRange = get(dateRangeState);
-		const data = get(originalDataState);
+		const data = get(originalAllDataState);
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;
 		return data.filter((plan) => {
@@ -105,7 +112,7 @@ export const filteredPastDataState = selector({
 	key: 'filteredPastDataState',
 	get: ({ get }) => {
 		const dateRange = get(dateRangeState);
-		const data = get(originalDataState);
+		const data = get(originalPastTaskDataState);
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;
 		return data.filter((plan) => {
