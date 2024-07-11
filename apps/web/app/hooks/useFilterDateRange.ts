@@ -8,7 +8,6 @@ export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' |
     const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePastState);
     const [dateFuture, setDateFuture] = useRecoilState(dateRangeState);
 
-
     const [originalAllPlanData, setOriginalAllPlanData] = useRecoilState(originalAllDataState);
     const [originalPastPlanData, setOriginalPastPlanData] = useRecoilState(originalPastTaskDataState);
     const [originalFuturePlanData, setOriginalFuturePlanData] = useRecoilState(originalDataState);
@@ -25,15 +24,12 @@ export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' |
 
     );
 
-
     useEffect(() => {
         if (!itemsData) return;
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
         }
-
     }, [dateFuture, dataType, itemsData?.length, setOriginalFuturePlanData]);
-
 
     useEffect(() => {
         if (!itemsData) return;
@@ -41,7 +37,6 @@ export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' |
             setOriginalAllPlanData(itemsData);
         }
     }, [dateAllPlan, dataType, itemsData?.length, setOriginalAllPlanData]);
-
 
     useEffect(() => {
         if (!itemsData) return;
