@@ -111,7 +111,7 @@ export const filteredDataState = selector({
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;
 		return data.filter((plan) => {
-			const itemDate = new Date(plan.date); // Ensure you're using the correct date field
+			const itemDate = new Date(plan.date);
 			return isDateInRange(itemDate, from, to);
 		});
 	},
@@ -125,7 +125,7 @@ export const filteredAllDataState = selector({
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;
 		return data.filter((plan) => {
-			const itemDate = new Date(plan.date); // Ensure you're using the correct date field
+			const itemDate = new Date(plan.date);
 			return isDateInRange(itemDate, from, to);
 		});
 	},
