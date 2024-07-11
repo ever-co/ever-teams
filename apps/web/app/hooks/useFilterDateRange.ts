@@ -25,16 +25,30 @@ export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' |
 
     );
 
+
     useEffect(() => {
         if (!itemsData) return;
+
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
-        } else if (dataType === 'all') {
+        }
+
+    }, [dateFuture, dataType, itemsData?.length, setOriginalFuturePlanData]);
+
+    useEffect(() => {
+        if (!itemsData) return;
+        if (dataType === 'all') {
             setOriginalAllPlanData(itemsData);
-        } else if (dataType === 'past') {
+        }
+    }, [dateAllPlan, dataType, itemsData?.length, setOriginalAllPlanData]);
+
+    useEffect(() => {
+        if (!itemsData) return;
+        if (dataType === 'past') {
             setOriginalPastPlanData(itemsData);
         }
-    }, [dateFuture, dateAllPlan, datePastPlan, dataType, itemsData?.length, setOriginalFuturePlanData, setOriginalAllPlanData, setOriginalPastPlanData]);
+    }, [datePastPlan, dataType, itemsData?.length, setOriginalPastPlanData]);
+
     return {
         originalFuturePlanData,
         originalPastPlanData,
