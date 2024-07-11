@@ -28,21 +28,22 @@ export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' |
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
         }
-    }, [dateFuture, dataType]);
+    }, [dateFuture]);
 
 
     useEffect(() => {
         if (dataType === 'all') {
             setOriginalAllPlanData(itemsData);
         }
-    }, [dateAllPlan, dataType]);
+    }, [dateAllPlan]);
 
 
     useEffect(() => {
         if (dataType === 'past') {
             setOriginalPastPlanData(itemsData);
         }
-    }, [datePaskPlan, dataType]);
+    }, [datePaskPlan]);
+
     return {
         originalFuturePlanData,
         originalPastPlanData,

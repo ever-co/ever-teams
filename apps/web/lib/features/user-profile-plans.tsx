@@ -35,6 +35,10 @@ export function UserProfilePlans() {
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
+	const { filteredAllPlanData: sortedPlansFilter } = useFilterDateRange(sortedPlans, 'all');
+	const { filteredPastPanData: pastPlansFilter } = useFilterDateRange(pastPlans, 'past');
+	const { filteredFuturePlanData: futurePlansFilter } = useFilterDateRange(futurePlans, 'future');
+
 
 
 	const screenOutstanding = {
@@ -49,9 +53,7 @@ export function UserProfilePlans() {
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 
-	const { filteredFuturePlanData: futurePlansFilter } = useFilterDateRange(futurePlans, 'future');
-	const { filteredPastPanData: pastPlansFilter } = useFilterDateRange(pastPlans, 'past');
-	const { filteredAllPlanData: sortedPlansFilter } = useFilterDateRange(sortedPlans, 'all');
+
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
@@ -138,7 +140,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 	const { filteredAllPlanData: filteredData } = useFilterDateRange(filteredPlans, 'all');
-
 	const canSeeActivity = useCanSeeActivityScreen();
 
 	return (

@@ -66,7 +66,7 @@ export const dateRangeAllState = atom<DateRange | undefined>({
 	}),
 })
 export const dateRangePaskState = atom<DateRange | undefined>({
-	key: 'dateRangeAllState',
+	key: 'dateRangePastPlanState',
 	default: ({
 		from: oneWeekAgo,
 		to: addDays(today, 3),
