@@ -1,8 +1,9 @@
+import { IDailyPlan } from '@app/interfaces';
 import { dateRangeAllState, dateRangePastState, dateRangeState, filteredAllDataState, filteredDataState, filteredPastDataState, originalAllDataState, originalDataState, originalPastTaskDataState } from '@app/stores';
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 
-export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' | 'all') {
+export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' | 'past' | 'all') {
     const [dateAllPlan, setDateAllPlan] = useRecoilState(dateRangeAllState);
     const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePastState);
     const [dateFuture, setDateFuture] = useRecoilState(dateRangeState);
@@ -25,6 +26,7 @@ export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' |
     );
 
     useEffect(() => {
+        if (!itemsData) return;
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
         } else if (dataType === 'all') {
@@ -32,9 +34,7 @@ export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' |
         } else if (dataType === 'past') {
             setOriginalPastPlanData(itemsData);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dateFuture, dateAllPlan, datePastPlan]);// eslint-disable-line react-hooks/exhaustive-deps
-
+    }, [dateFuture, dateAllPlan, datePastPlan, dataType, itemsData?.length, setOriginalFuturePlanData, setOriginalAllPlanData, setOriginalPastPlanData]);
     return {
         originalFuturePlanData,
         originalPastPlanData,
