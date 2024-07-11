@@ -21,8 +21,8 @@ import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { TaskDatePickerWithRange } from './task-date-range';
-import { dateRangeAllState, dateRangePaskState, dateRangeState } from '@app/stores';
 import { useRecoilState } from 'recoil';
+import { dateRangeAllState, dateRangePaskState, dateRangeState } from '@app/stores';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -438,7 +438,6 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					<TaskDatePickerWithRange date={datePastPlan} onSelect={(range) => setDatePastPlan(range)} />
 				)}
 				<VerticalSeparator />
-
 				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9" onClick={hook.applyStatusFilder}>
 					{t('common.APPLY')}
 				</Button>
