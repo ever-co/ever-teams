@@ -97,14 +97,14 @@ function AllTeamsMember({ teams }: { teams: IOrganizationTeamList[] }) {
 													<div className="absolute left-0 cursor-pointer">
 														<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 													</div>
-													{/* User informations */}
+													{/* User information */}
 													<div className="relative">
 														<MemberInfo member={member} />
 													</div>
 
 													<VerticalSeparator />
 
-													{/* Task informations */}
+													{/* Task information */}
 													<div className="flex justify-between items-center flex-1 min-w-[40%]">
 														<UserTeamActiveTaskInfo member={member} />
 													</div>
