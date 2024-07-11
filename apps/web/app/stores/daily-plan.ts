@@ -1,7 +1,7 @@
 import { atom, selector } from 'recoil';
 import { IDailyPlan, PaginationResponse } from '@app/interfaces';
 import { DateRange } from 'react-day-picker';
-import { addDays } from 'date-fns';
+import { addDays, } from 'date-fns';
 
 export const dailyPlanListState = atom<PaginationResponse<IDailyPlan>>({
 	key: 'dailyPlanListState',
@@ -48,12 +48,34 @@ export const activeDailyPlanState = selector<IDailyPlan | null>({
 });
 
 const today = new Date();
+const oneWeekAgo = new Date();
+oneWeekAgo.setDate(today.getDate() - 7);
+
 export const dateRangeState = atom<DateRange | undefined>({
 	key: 'dateRangeState',
 	default: ({
-		from: today,
+		from: oneWeekAgo,
 		to: addDays(today, 3),
 	}),
+})
+export const dateRangeAllState = atom<DateRange | undefined>({
+	key: 'dateRangeAllState',
+	default: ({
+		from: oneWeekAgo,
+		to: addDays(today, 3),
+	}),
+})
+export const dateRangePaskState = atom<DateRange | undefined>({
+	key: 'dateRangeAllState',
+	default: ({
+		from: oneWeekAgo,
+		to: addDays(today, 3),
+	}),
+})
+type dataType = 'Future Tasks' | 'Past Tasks' | 'All Tasks';
+export const dataTypeState = atom<dataType>({
+	key: 'dataTypePlan',
+	default: 'All Tasks'
 })
 
 
@@ -62,11 +84,11 @@ export const originalDataState = atom<IDailyPlan[]>({
 	default: []
 })
 export const originalAllDataState = atom<IDailyPlan[]>({
-	key: 'originalDataState',
+	key: 'originalAllDataState',
 	default: []
 })
 export const originalPastTaskDataState = atom<IDailyPlan[]>({
-	key: 'originalDataState',
+	key: 'originalPastDataState',
 	default: []
 })
 
@@ -98,7 +120,7 @@ export const filteredDataState = selector({
 export const filteredAllDataState = selector({
 	key: 'filteredAllDataState',
 	get: ({ get }) => {
-		const dateRange = get(dateRangeState);
+		const dateRange = get(dateRangeAllState);
 		const data = get(originalAllDataState);
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;
@@ -111,7 +133,7 @@ export const filteredAllDataState = selector({
 export const filteredPastDataState = selector({
 	key: 'filteredPastDataState',
 	get: ({ get }) => {
-		const dateRange = get(dateRangeState);
+		const dateRange = get(dateRangePaskState);
 		const data = get(originalPastTaskDataState);
 		if (!dateRange || !data.length) return data;
 		const { from, to } = dateRange;

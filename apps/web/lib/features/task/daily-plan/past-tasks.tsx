@@ -2,11 +2,11 @@ import { formatDayPlanDate, yesterdayDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
-import { useDailyPlan, useFilterPastTasksDateRange } from '@app/hooks';
+import { useDailyPlan, useFilterDateRange } from '@app/hooks';
 
 export function PastTasks({ profile }: { profile: any }) {
 	const { pastPlans } = useDailyPlan();
-	const { filteredData } = useFilterPastTasksDateRange(pastPlans);
+	const { filteredPastPanData: filteredData } = useFilterDateRange(pastPlans, 'past');
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredData?.length > 0 ? (

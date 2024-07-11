@@ -11,17 +11,21 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@components/ui/popover"
-import { useRecoilState } from "recoil"
-import { dateRangeState } from "@app/stores"
+import { DateRange } from "react-day-picker"
+import { SetterOrUpdater } from "recoil"
 
 interface ITaskDatePickerWithRange {
-    className?: React.HTMLAttributes<HTMLDivElement>
+    className?: React.HTMLAttributes<HTMLDivElement>,
+    date?: DateRange;
+    onSelect?: SetterOrUpdater<DateRange | undefined>;
+
+
 }
 export function TaskDatePickerWithRange({
     className,
+    date,
+    onSelect
 }: ITaskDatePickerWithRange) {
-    const [date, setDate] = useRecoilState(dateRangeState);
-
     return (
         <div className={cn("grid gap-2", className)}>
             <Popover>
@@ -55,7 +59,7 @@ export function TaskDatePickerWithRange({
                         mode="range"
                         defaultMonth={date?.from}
                         selected={date}
-                        onSelect={(range) => setDate(range)}
+                        onSelect={onSelect}
                         numberOfMonths={2}
                     />
                 </PopoverContent>

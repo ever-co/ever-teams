@@ -21,6 +21,8 @@ import { useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { TaskDatePickerWithRange } from './task-date-range';
+import { dateRangeAllState, dateRangePaskState, dateRangeState } from '@app/stores';
+import { useRecoilState } from 'recoil';
 
 type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 type ITabs = {
@@ -380,6 +382,9 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 	const [dailyPlanTab, setDailyPlanTab] = useState(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
+	const [dateFuture, setDateFuture] = useRecoilState(dateRangeState);
+	const [dateAllPlan, setDateAllPlan] = useRecoilState(dateRangeAllState);
+	const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePaskState);
 
 
 	useEffect(() => {
@@ -421,8 +426,16 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 
 				{/* Filter by Future Tasks, Past Tasks, All Tasks*/}
-				{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(dailyPlanTab) && (
-					<TaskDatePickerWithRange />
+				{['All Tasks'].includes(dailyPlanTab) && (
+					<TaskDatePickerWithRange date={dateAllPlan} onSelect={(range) => setDateAllPlan(range)} />
+				)}
+				{/* Filter by Future Tasks, Past Tasks, All Tasks*/}
+				{['Future Tasks',].includes(dailyPlanTab) && (
+					<TaskDatePickerWithRange date={dateFuture} onSelect={(range) => setDateFuture(range)} />
+				)}
+				{/* Filter by Future Tasks, Past Tasks, All Tasks*/}
+				{['Past Tasks'].includes(dailyPlanTab) && (
+					<TaskDatePickerWithRange date={datePastPlan} onSelect={(range) => setDatePastPlan(range)} />
 				)}
 				<VerticalSeparator />
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { formatDayPlanDate, tomorrowDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { useCanSeeActivityScreen, useDailyPlan, useFilterFutureDateRange } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan, useFilterDateRange } from '@app/hooks';
 import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
@@ -12,7 +12,8 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
-	const { filteredData } = useFilterFutureDateRange(futurePlans);
+	const { filteredFuturePlanData: filteredData } = useFilterDateRange(futurePlans, 'future');
+
 
 	return (
 		<div className="flex flex-col gap-6">

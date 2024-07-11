@@ -1,36 +1,54 @@
-import { dateRangeState, filteredAllDataState, filteredDataState, filteredPastDataState, originalAllDataState, originalDataState, originalPastTaskDataState } from '@app/stores';
+import { dateRangeAllState, dateRangePaskState, dateRangeState, filteredAllDataState, filteredDataState, filteredPastDataState, originalAllDataState, originalDataState, originalPastTaskDataState } from '@app/stores';
 import { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 
-export function useFilterFutureDateRange(itemsData: any) {
-    const [date, setDate] = useRecoilState(dateRangeState);
-    const [originalData, setOriginalData] = useRecoilState(originalDataState);
-    const filteredData = useRecoilValue(filteredDataState);
+export function useFilterDateRange(itemsData: any, dataType: 'future' | 'past' | 'all') {
+    const [dateAllPlan, setDateAllPlan] = useRecoilState(dateRangeAllState);
+    const [datePaskPlan, setDatePaskPlan] = useRecoilState(dateRangePaskState);
+    const [dateFuture, setDateFuture] = useRecoilState(dateRangeState);
+
+
+    const [originalAllPlanData, setOriginalAllPlanData] = useRecoilState(originalAllDataState);
+    const [originalPastPlanData, setOriginalPastPlanData] = useRecoilState(originalPastTaskDataState);
+    const [originalFuturePlanData, setOriginalFuturePlanData] = useRecoilState(originalDataState);
+
+    const filteredAllPlanData = useRecoilValue(
+        filteredAllDataState
+    );
+    const filteredPastPanData = useRecoilValue(
+        filteredPastDataState
+
+    );
+    const filteredFuturePlanData = useRecoilValue(
+        filteredDataState
+
+    );
+
     useEffect(() => {
-        setOriginalData(itemsData)
-    }, [date, filteredData?.length]);
+        if (dataType === 'future') {
+            setOriginalFuturePlanData(itemsData);
+        }
+    }, [dateFuture, dataType]);
 
-    return { originalData, filteredData, setDate, date }
-}
 
-export function useFilterPastTasksDateRange(itemsData: any) {
-    const [date, setDate] = useRecoilState(dateRangeState);
-    const [originalData, setOriginalData] = useRecoilState(originalPastTaskDataState);
-    const filteredData = useRecoilValue(filteredPastDataState);
     useEffect(() => {
-        setOriginalData(itemsData)
-    }, [date, filteredData?.length]);
+        if (dataType === 'all') {
+            setOriginalAllPlanData(itemsData);
+        }
+    }, [dateAllPlan, dataType]);
 
-    return { originalData, filteredData, setDate, date }
-}
 
-export function useFilterAllTasksDateRange(itemsData: any) {
-    const [date, setDate] = useRecoilState(dateRangeState);
-    const [originalData, setOriginalData] = useRecoilState(originalAllDataState);
-    const filteredData = useRecoilValue(filteredAllDataState);
     useEffect(() => {
-        setOriginalData(itemsData)
-    }, [date, filteredData?.length]);
-
-    return { originalData, filteredData, setDate, date }
+        if (dataType === 'past') {
+            setOriginalPastPlanData(itemsData);
+        }
+    }, [datePaskPlan, dataType]);
+    return {
+        originalFuturePlanData,
+        originalPastPlanData,
+        originalAllPlanData,
+        filteredFuturePlanData,
+        filteredPastPanData,
+        filteredAllPlanData, setDateAllPlan, setDateFuture, setDatePaskPlan
+    };
 }

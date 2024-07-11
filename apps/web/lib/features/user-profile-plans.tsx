@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { useCanSeeActivityScreen, useDailyPlan, useFilterAllTasksDateRange, useUserProfilePage } from '@app/hooks';
+import { useCanSeeActivityScreen, useDailyPlan, useFilterDateRange, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
 import { AlertPopup, Container, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
@@ -49,6 +49,9 @@ export function UserProfilePlans() {
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 
+	const { filteredFuturePlanData: futurePlansFilter } = useFilterDateRange(futurePlans, 'future');
+	const { filteredPastPanData: pastPlansFilter } = useFilterDateRange(pastPlans, 'past');
+	const { filteredAllPlanData: sortedPlansFilter } = useFilterDateRange(sortedPlans, 'all');
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
@@ -85,9 +88,9 @@ export function UserProfilePlans() {
 													)}
 												>
 													{filter === 'Today Tasks' && todayPlan.length}
-													{filter === 'Future Tasks' && futurePlans.length}
-													{filter === 'Past Tasks' && pastPlans.length}
-													{filter === 'All Tasks' && sortedPlans.length}
+													{filter === 'Future Tasks' && futurePlansFilter.length}
+													{filter === 'Past Tasks' && pastPlansFilter.length}
+													{filter === 'All Tasks' && sortedPlansFilter.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
 												</span>
 											</div>
@@ -134,7 +137,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
-	const { filteredData } = useFilterAllTasksDateRange(filteredPlans);
+	const { filteredAllPlanData: filteredData } = useFilterDateRange(filteredPlans, 'all');
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
