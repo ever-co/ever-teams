@@ -28,12 +28,12 @@ export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' |
 
     useEffect(() => {
         if (!itemsData) return;
-
         if (dataType === 'future') {
             setOriginalFuturePlanData(itemsData);
         }
 
     }, [dateFuture, dataType, itemsData?.length, setOriginalFuturePlanData]);
+
 
     useEffect(() => {
         if (!itemsData) return;
@@ -41,6 +41,7 @@ export function useFilterDateRange(itemsData: IDailyPlan[], dataType: 'future' |
             setOriginalAllPlanData(itemsData);
         }
     }, [dateAllPlan, dataType, itemsData?.length, setOriginalAllPlanData]);
+
 
     useEffect(() => {
         if (!itemsData) return;
