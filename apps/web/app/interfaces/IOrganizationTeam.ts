@@ -109,6 +109,12 @@ export interface OT_Role {
 	isSystem: boolean;
 }
 
+export interface ITeamsMemebersFilter {
+	label: string;
+	value: ITimerStatusEnum | 'all' | 'invited';
+	bg: string;
+}
+
 export enum RoleNameEnum {
 	SUPER_ADMIN = 'SUPER_ADMIN',
 	ADMIN = 'ADMIN',

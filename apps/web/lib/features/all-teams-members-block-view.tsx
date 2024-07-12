@@ -25,7 +25,7 @@ export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizati
 	);
 
 	const employeesArray: Employee[] = Object.values(groupedEmployees);
-	console.log(employeesArray);
+
 	return (
 		<>
 			{employeesArray.map((employee) => (

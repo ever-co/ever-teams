@@ -6,7 +6,7 @@ import { HorizontalSeparator } from 'lib/components';
 export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTeamList[] }) {
 	return (
 		<div className="flex flex-col gap-5 w-full">
-			<Accordion type="multiple" className="text-sm flex flex-col gap-5">
+			<Accordion type="multiple" className="text-sm flex flex-col gap-5" defaultValue={teams.map((t) => t.name)}>
 				{teams.map((team) => {
 					return (
 						<AccordionItem key={team.id} value={team.name} className="dark:border-slate-600 !border-none">
