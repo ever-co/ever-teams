@@ -332,7 +332,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 											required
 										>
 											{members?.map((member) => (
-												<option value={member.id}>{member.employee?.user?.firstName}</option>))
+												<option key={member.id} value={member.id}>{member.employee?.user?.firstName}</option>))
 											}
 										</select>
 									</div>
@@ -346,7 +346,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 											required
 										>
 											{tasks?.map((task) => (
-												<option value={task?.id}>{task?.title}</option>
+												<option key={task.id} value={task?.id}>{task?.title}</option>
 											))}
 										</select>
 									</div>
