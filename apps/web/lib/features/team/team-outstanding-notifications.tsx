@@ -22,8 +22,6 @@ export function TeamOutstandingNotifications() {
 		getEmployeeDayPlans(user?.employee.id || '');
 	}, [getAllDayPlans, getEmployeeDayPlans, user?.employee.id]);
 
-	console.log(dailyPlan);
-
 	return (
 		<div className="flex flex-col gap-4">
 			{outstandingPlans && outstandingPlans.length > 0 && (
@@ -174,7 +172,7 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 				<div className="rounded-2xl dark:border-dark--theme-light border py-4 px-6 flex justify-between items-center text-xs mb-2">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {uniqueEmployees?.length} team member(s)
-						with unconpleted tasks, please see{' '}
+						with uncompleted tasks, please see{' '}
 						<span>
 							{uniqueEmployees?.map((em) => (
 								<Link
