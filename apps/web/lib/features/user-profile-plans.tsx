@@ -47,7 +47,7 @@ export function UserProfilePlans() {
 		'Future Tasks': <FutureTasks profile={profile} />,
 		'Past Tasks': <PastTasks profile={profile} />,
 		'All Tasks': <AllPlans profile={profile} />,
-		Outstanding: <Outstanding filtre={screenOutstanding[currentOutstanding]} />
+		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 
 
