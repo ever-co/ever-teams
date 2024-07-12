@@ -13,6 +13,8 @@
 		"CARDS": "Cards",
 		"TABLE": "Table",
 		"KANBAN": "Kanban",
+		"TEAMS": "Teams",
+		"COMBINE": "Combine",
 		"INVITE": "Invite",
 		"INVITED": "Invited",
 		"EXPIRE": "Expire",
