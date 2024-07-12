@@ -1,4 +1,4 @@
-import { ITeamsMemebersFilter } from '@app/interfaces';
+import { ITeamsMembersFilter } from '@app/interfaces';
 import { filterValue } from '@app/stores/all-teams';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
@@ -52,7 +52,7 @@ export function MemberFilterOption({
 }
 
 export function MemberFilter() {
-	const options: ITeamsMemebersFilter[] = [
+	const options: ITeamsMembersFilter[] = [
 		{ label: 'All', value: 'all', bg: 'transparent' },
 		{ label: 'Working now', value: 'running', bg: '#1f973d33' },
 		{ label: 'Paused', value: 'pause', bg: '#e58484' },
