@@ -1,9 +1,15 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
-import { TaskInfo } from 'lib/features/team/user-team-card/task-info';
+import { TaskBlockInfo } from 'lib/features/team/user-team-block/task-info';
 import { useEffect, useState } from 'react';
 
-export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }) {
+export default function UserTeamActiveBlockTaskInfo({
+	member,
+	activeTaskId
+}: {
+	member: OT_Member;
+	activeTaskId: string;
+}) {
 	const memberInfo = useTeamMemberCard(member);
 	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
@@ -11,7 +17,7 @@ export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
-		getTaskById(member.activeTaskId || '')
+		getTaskById(activeTaskId || '')
 			.then((response) => setActiveTask(response.data))
 			.catch((_) => console.log(_));
 
@@ -21,14 +27,14 @@ export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }
 	return (
 		<>
 			{activeTask?.id ? (
-				<TaskInfo
-					edition={{ ...taskEdition, task: activeTask }}
+				<TaskBlockInfo
+					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+					className=" w-full px-1 py-2 overflow-hidden"
 					publicTeam={false}
 				/>
 			) : (
-				<div className="w-full text-start px-6">--</div>
+				<div className="w-full text-start px-6 font-medium text-sm">No active task</div>
 			)}
 		</>
 	);

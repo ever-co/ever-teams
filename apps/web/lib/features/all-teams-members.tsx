@@ -7,6 +7,7 @@ import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSk
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
 import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
 import TeamsMembersCardView from './all-teams-members-card-view';
+import AllTeamsMembersBlockView from './all-teams-members-block-view';
 
 export default function AllTeamsMembers({
 	teams,
@@ -38,7 +39,7 @@ export default function AllTeamsMembers({
 			teamsMembersView = <TeamsMembersCardView teams={teams} />;
 			break;
 		case view === IssuesView.BLOCKS:
-			teamsMembersView = <></>;
+			teamsMembersView = <AllTeamsMembersBlockView teams={teams} />;
 			break;
 		default:
 			teamsMembersView = <TeamsMembersCardView teams={teams} />;

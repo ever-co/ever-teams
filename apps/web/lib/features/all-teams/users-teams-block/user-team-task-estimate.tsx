@@ -1,9 +1,15 @@
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
-import { TaskInfo } from 'lib/features/team/user-team-card/task-info';
+import { TaskEstimateInfo } from 'lib/features/team/user-team-card/task-estimate';
 import { useEffect, useState } from 'react';
 
-export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }) {
+export default function UserTeamActiveTaskEstimateBlock({
+	member,
+	activeTaskId
+}: {
+	member: OT_Member;
+	activeTaskId: string;
+}) {
 	const memberInfo = useTeamMemberCard(member);
 	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
@@ -11,7 +17,7 @@ export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }
 	const { getTaskById } = useTeamTasks();
 
 	useEffect(() => {
-		getTaskById(member.activeTaskId || '')
+		getTaskById(activeTaskId || '')
 			.then((response) => setActiveTask(response.data))
 			.catch((_) => console.log(_));
 
@@ -19,17 +25,13 @@ export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }
 	}, []);
 
 	return (
-		<>
-			{activeTask?.id ? (
-				<TaskInfo
-					edition={{ ...taskEdition, task: activeTask }}
-					memberInfo={memberInfo}
-					className="flex-1 lg:px-4 px-2 overflow-y-hidden"
-					publicTeam={false}
-				/>
-			) : (
-				<div className="w-full text-start px-6">--</div>
-			)}
-		</>
+		<TaskEstimateInfo
+			memberInfo={memberInfo}
+			edition={taskEdition}
+			activeAuthTask={true}
+			showTime={false}
+			className="w-1/5"
+			radial={true}
+		/>
 	);
 }

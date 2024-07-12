@@ -16,7 +16,8 @@ export const planBadgeContent = (plans: IDailyPlan[], taskId: ITeamTask['id']): 
 		if (otherPlansWithTask.length > 0) {
 			return 'Planned';
 		} else {
-			return `Planned ${formatDayPlanDate(plan.date, 'DD MMM YYYY')}`;
+			return `${formatDayPlanDate(plan.date, 'DD MMM YYYY')}`;
+			// return `Planned ${formatDayPlanDate(plan.date, 'DD MMM YYYY')}`;
 		}
 		// The task does not exist in any plan
 	} else {
