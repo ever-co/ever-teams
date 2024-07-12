@@ -178,10 +178,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	}, [endTime, startTime]);
 
 	useEffect(() => {
-		if (task.length == 0) {
+		if (task == '') {
 			setTask(tasks[0]?.id);
 		}
-		if (team.length == 0) {
+		if (team == '') {
 			members && setTeam(members[0].id);
 		}
 
@@ -355,6 +355,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 										<label className="block text-gray-700 mb-1">Description</label>
 										<textarea
 											value={description}
+											placeholder="What worked on?"
 											onChange={(e) => setDescription(e.target.value)}
 											className="w-full p-2 border border-gray-300 rounded-[10px]"
 										/>
