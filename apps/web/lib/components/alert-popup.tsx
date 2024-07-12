@@ -7,7 +7,7 @@ import {
 } from "@components/ui/popover"
 
 
-interface IPopconfirm {
+interface IConfirmPopup {
     buttonOpen: any,
     open: boolean
 }
@@ -15,10 +15,10 @@ interface IPopconfirm {
  *
  *
  * @export
- * @param {React.PropsWithChildren<IPopconfirm>} { children, buttonOpen, open }
+ * @param {React.PropsWithChildren<IConfirmPopup>} { children, buttonOpen, open }
  * @return {*}
  */
-export function AlertPopup({ children, buttonOpen, open }: React.PropsWithChildren<IPopconfirm>) {
+export function AlertPopup({ children, buttonOpen, open }: React.PropsWithChildren<IConfirmPopup>) {
     return (
         <Popover open={open}  >
             <PopoverTrigger asChild>
