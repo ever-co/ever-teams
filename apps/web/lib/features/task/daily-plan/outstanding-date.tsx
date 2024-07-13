@@ -9,10 +9,10 @@ import { clsxm } from '@app/utils';
 import { useRecoilValue } from 'recoil';
 import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
 
-interface IOutstandingFieltreDate {
+interface IOutstandingFilterDate {
 	profile: any;
 }
-export function OutstandingFieltreDate({ profile }: IOutstandingFieltreDate) {
+export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
 	return (

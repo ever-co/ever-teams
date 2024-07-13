@@ -10,10 +10,13 @@ import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { HorizontalSeparator } from 'lib/components';
+import { useState } from 'react';
+import { AlertPopup } from 'lib/components';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
+	const [popupOpen, setPopupOpen] = useState(false);
 
 	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
 
@@ -76,17 +79,40 @@ export function FutureTasks({ profile }: { profile: any }) {
 								{/* Delete Plan */}
 								{canSeeActivity ? (
 									<div className="flex justify-end">
-										<Button
-											disabled={deleteDailyPlanLoading}
-											onClick={() => deleteDailyPlan(plan.id ?? '')}
-											variant="destructive"
-											className="p-7 py-6 font-normal rounded-xl text-md"
+										<AlertPopup
+											open={popupOpen}
+											buttonOpen={
+												//button open popup
+												<Button
+													onClick={() => setPopupOpen(true)}
+													variant="outline"
+													className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+												>
+													Delete this plan
+												</Button>
+											}
 										>
-											{deleteDailyPlanLoading && (
-												<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-											)}
-											Delete this plan
-										</Button>
+											{/*button confirm*/}
+											<Button
+												disabled={deleteDailyPlanLoading}
+												onClick={() => deleteDailyPlan(plan.id ?? '')}
+												variant="destructive"
+												className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+											>
+												{deleteDailyPlanLoading && (
+													<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+												)}
+												Delete
+											</Button>
+											{/*button cancel*/}
+											<Button
+												onClick={() => setPopupOpen(false)}
+												variant="outline"
+												className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+											>
+												Cancel
+											</Button>
+										</AlertPopup>
 									</div>
 								) : (
 									<></>

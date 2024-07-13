@@ -5,7 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
-import { Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
+import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
-import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from './task/daily-plan';
+import { OutstandingAll, PastTasks, Outstanding, OutstandingFilterDate } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
 import { IoCalendarOutline } from 'react-icons/io5';
@@ -22,7 +22,7 @@ import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
-type FiltreOutstanding = 'ALL' | 'DATE';
+type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
 	const defaultTab =
@@ -32,7 +32,7 @@ export function UserProfilePlans() {
 
 	const defaultOutstanding =
 		typeof window !== 'undefined'
-			? (window.localStorage.getItem('outstanding') as FiltreOutstanding) || null
+			? (window.localStorage.getItem('outstanding') as FilterOutstanding) || null
 			: 'ALL';
 
 	const profile = useUserProfilePage();
@@ -40,18 +40,18 @@ export function UserProfilePlans() {
 	const fullWidth = useRecoilValue(fullWidthState);
 
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
-	const [currentOutstanding, setCurrentOutstanding] = useState<FiltreOutstanding>(defaultOutstanding || 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} />,
-		DATE: <OutstandingFieltreDate profile={profile} />
+		DATE: <OutstandingFilterDate profile={profile} />
 	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
 		'Future Tasks': <FutureTasks profile={profile} />,
 		'Past Tasks': <PastTasks profile={profile} />,
 		'All Tasks': <AllPlans profile={profile} />,
-		Outstanding: <Outstanding filtre={screenOutstanding[currentOutstanding]} />
+		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 
 	useEffect(() => {
@@ -102,7 +102,7 @@ export function UserProfilePlans() {
 									{currentTab === 'Outstanding' && (
 										<Select
 											onValueChange={(value) => {
-												setCurrentOutstanding(value as FiltreOutstanding);
+												setCurrentOutstanding(value as FilterOutstanding);
 											}}
 										>
 											<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
@@ -137,6 +137,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
+	const [popupOpen, setPopupOpen] = useState(false);
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
@@ -210,17 +211,40 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 									<>
 										{canSeeActivity ? (
 											<div className="flex justify-end">
-												<Button
-													disabled={deleteDailyPlanLoading}
-													onClick={() => deleteDailyPlan(plan.id ?? '')}
-													variant="destructive"
-													className="p-7 py-6 font-normal rounded-xl text-md"
+												<AlertPopup
+													open={popupOpen}
+													buttonOpen={
+														//button open popup
+														<Button
+															onClick={() => setPopupOpen(true)}
+															variant="outline"
+															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+														>
+															Delete this plan
+														</Button>
+													}
 												>
-													{deleteDailyPlanLoading && (
-														<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-													)}
-													Delete this plan
-												</Button>
+													{/*button confirm*/}
+													<Button
+														disabled={deleteDailyPlanLoading}
+														onClick={() => deleteDailyPlan(plan.id ?? '')}
+														variant="destructive"
+														className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+													>
+														{deleteDailyPlanLoading && (
+															<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+														)}
+														Delete
+													</Button>
+													{/*button cancel*/}
+													<Button
+														onClick={() => setPopupOpen(false)}
+														variant="outline"
+														className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+													>
+														Cancel
+													</Button>
+												</AlertPopup>
 											</div>
 										) : (
 											<></>
