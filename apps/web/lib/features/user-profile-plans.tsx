@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
-import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
 import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
@@ -105,14 +105,14 @@ export function UserProfilePlans() {
 												setCurrentOutstanding(value as FiltreOutstanding);
 											}}
 										>
-											<SelectTrigger className="w-[120px] h-9">
+											<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
 												<SelectValue placeholder="Filter" />
 											</SelectTrigger>
-											<SelectContent className="cursor-pointer">
+											<SelectContent className="cursor-pointer dark:bg-dark--theme-light border-none dark:border-dark--theme-light">
 												{Object.keys(screenOutstanding).map((item, index) => (
 													<SelectItem key={index} value={item}>
 														<div className="flex items-center space-x-1">
-															{item == 'DATE' && <IoCalendarOutline />}
+															{item == 'DATE' ? <IoCalendarOutline /> : <StarIcon />}
 															<span className="capitalize">{item}</span>
 														</div>
 													</SelectItem>
