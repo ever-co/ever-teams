@@ -572,6 +572,13 @@
 		},
 		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة"
 	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "خطة اليوم",
+		"PLAN_FOR_TOMORROW": "خطة الغد",
+		"PLAN_FOR_SOME_DAY": "خطة ليوم ما",
+		"ADD_TASK_TO_PLAN": "أضف هذه المهمة إلى الخطة",
+		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة"
+	},
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",
 		"FIRST_NAME_PLACEHOLDER": "الاسم الأول",
