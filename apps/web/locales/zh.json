@@ -572,6 +572,13 @@
 		},
 		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务"
 	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "今日计划",
+		"PLAN_FOR_TOMORROW": "明日计划",
+		"PLAN_FOR_SOME_DAY": "未来计划",
+		"ADD_TASK_TO_PLAN": "添加此任务到计划",
+		"REMOVE_FROM_THIS_PLAN": "从计划中移除"
+	},
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",
 		"FIRST_NAME_PLACEHOLDER": "名",

@@ -635,6 +635,7 @@ export function PlanTask({
 	employeeId?: string;
 	chooseMember?: boolean;
 }) {
+	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
 	const { closeModal, isOpen, openModal } = useModal();
 	const { createDailyPlan } = useDailyPlan();
@@ -688,18 +689,31 @@ export function PlanTask({
 					chooseMember={chooseMember}
 				/>
 				{planMode === 'today' && (
-					<span>{isPending ? <ReloadIcon className="animate-spin mr-2 h-4 w-4" /> : 'Plan for today'}</span>
+					<span>
+						{isPending ? (
+							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+						) : (
+							t('dailyPlan.PLAN_FOR_TODAY')
+						)}
+					</span>
 				)}
 				{planMode === 'tomorow' && (
-					<span>{isPending ? <ReloadIcon className="animate-spin mr-2 h-4 w-4" /> : 'Plan for tomorow'}</span>
+					<span>
+						{isPending ? (
+							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+						) : (
+							t('dailyPlan.PLAN_FOR_TOMORROW')
+						)}
+					</span>
 				)}
-				{planMode === 'custom' && 'Plan for some day'}
+				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
 			</span>
 		</>
 	);
 }
 
 export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; employee?: OT_Member }) {
+	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
 		<span
@@ -710,12 +724,13 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 			onClick={openModal}
 		>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
-			Add this task to a plan
+			{t('dailyPlan.ADD_TASK_TO_PLAN')}
 		</span>
 	);
 }
 
 export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
 	const onClick = () => {
@@ -729,7 +744,7 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 			)}
 			onClick={onClick}
 		>
-			Remove from this plan
+			{t('dailyPlan.REMOVE_FROM_THIS_PLAN')}
 		</span>
 	);
 }
