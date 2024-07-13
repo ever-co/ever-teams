@@ -7,8 +7,8 @@ interface ITaskEstimatedCount {
 }
 export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
 	const element = outstandingPlans?.map((plan: IDailyPlan) => plan.tasks?.map((task) => task));
-	const { timesEstemated, totalTasks } = estimatedTotalTime(element || []);
-	const { h: hour, m: minute } = secondsToTime(timesEstemated || 0);
+	const { timesEstimated, totalTasks } = estimatedTotalTime(element || []);
+	const { h: hour, m: minute } = secondsToTime(timesEstimated || 0);
 	return (
 		<div className="flex space-x-10">
 			<div className="flex space-x-2">
@@ -36,9 +36,9 @@ export function estimatedTotalTime(data: any) {
 	}, {});
 
 	// Calculate the total of estimates
-	const timesEstemated = Object.values(uniqueTasks)?.reduce((total: number, estimate: any) => total + estimate, 0);
+	const timesEstimated = Object.values(uniqueTasks)?.reduce((total: number, estimate: any) => total + estimate, 0);
 	// Calculate the total of tasks
 	const totalTasks = Object.values(uniqueTasks)?.length;
 
-	return { timesEstemated, totalTasks };
+	return { timesEstimated, totalTasks };
 }
