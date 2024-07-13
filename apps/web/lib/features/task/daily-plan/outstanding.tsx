@@ -1,6 +1,6 @@
 interface IOutstanding {
-	filtre?: any;
+	filter?: any;
 }
-export function Outstanding({ filtre }: IOutstanding) {
-	return (<>{filtre}</>);
+export function Outstanding({ filter }: IOutstanding) {
+	return (<>{filter}</>);
 }

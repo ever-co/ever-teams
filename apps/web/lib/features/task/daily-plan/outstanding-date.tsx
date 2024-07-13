@@ -4,10 +4,10 @@ import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
 
-interface IOutstandingFieltreDate {
+interface IOutstandingFilterDate {
 	profile: any
 }
-export function OutstandingFieltreDate({ profile }: IOutstandingFieltreDate) {
+export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	return (
 		<div className="flex flex-col gap-6">

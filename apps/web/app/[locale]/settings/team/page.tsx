@@ -5,8 +5,8 @@ import { Card } from 'lib/components';
 
 import { DangerZoneTeam, TeamAvatar, TeamSettingForm } from 'lib/settings';
 
-import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
-import { userState } from '@app/stores';
+import { useIsMemberManager, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
+import { fetchingTeamInvitationsState, userState } from '@app/stores';
 import NoTeam from '@components/pages/main/no-team';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -26,6 +26,9 @@ const Team = () => {
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
+	const { teamInvitations } = useTeamInvitations();
+	const [isFetchingTeamInvitations] = useRecoilState(fetchingTeamInvitationsState);
+
 	return (
 		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
@@ -49,10 +52,11 @@ const Team = () => {
 					</InteractionObserverVisible>
 
 					{/* Invitations */}
-					{isTeamManager ? (
+					{isTeamManager && !isFetchingTeamInvitations ? (
 						<InteractionObserverVisible id="invitations" setActiveSection={setActiveTeam}>
 							<Accordian
 								title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
+								defaultOpen={teamInvitations.length ? true : false}
 								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 							>
 								<InvitationSetting />
