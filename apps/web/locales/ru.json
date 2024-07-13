@@ -572,6 +572,13 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Пожалуйста, подтвердите, что вы хотите закрыть задачу"
 	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "План на сегодня",
+		"PLAN_FOR_TOMORROW": "План на завтра",
+		"PLAN_FOR_SOME_DAY": "План на какой-то день",
+		"ADD_TASK_TO_PLAN": "Добавить эту задачу в план",
+		"REMOVE_FROM_THIS_PLAN": "Убрать из этого плана"
+	},
 	"form": {
 		"NAME_PLACEHOLDER": "Введите ваше имя",
 		"FIRST_NAME_PLACEHOLDER": "Имя",
