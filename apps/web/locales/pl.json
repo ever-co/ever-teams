@@ -572,6 +572,13 @@
 		},
 		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie"
 	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "Plan na dzisiaj",
+		"PLAN_FOR_TOMORROW": "Plan na jutro",
+		"PLAN_FOR_SOME_DAY": "Plan na pewien dzień",
+		"ADD_TASK_TO_PLAN": "Dodaj tę zadanie do planu",
+		"REMOVE_FROM_THIS_PLAN": "Usuń z tego planu"
+	},
 	"form": {
 		"NAME_PLACEHOLDER": "Wprowadź swoje imię",
 		"FIRST_NAME_PLACEHOLDER": "Imię",

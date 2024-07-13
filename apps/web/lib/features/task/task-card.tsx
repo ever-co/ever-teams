@@ -1,9 +1,10 @@
 'use client';
 
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime, tomorrowDate } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useAuthenticateUser,
 	useCanSeeActivityScreen,
 	useDailyPlan,
 	useModal,
@@ -17,6 +18,7 @@ import {
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import {
+	DailyPlanStatusEnum,
 	IClassName,
 	IDailyPlan,
 	IDailyPlanMode,
@@ -39,7 +41,7 @@ import {
 } from 'lib/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useTransition } from 'react';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
@@ -53,6 +55,7 @@ import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
 import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 type Props = {
 	active?: boolean;
@@ -632,7 +635,41 @@ export function PlanTask({
 	employeeId?: string;
 	chooseMember?: boolean;
 }) {
+	const t = useTranslations();
+	const [isPending, startTransition] = useTransition();
 	const { closeModal, isOpen, openModal } = useModal();
+	const { createDailyPlan } = useDailyPlan();
+	const { user } = useAuthenticateUser();
+
+	const handleOpenModal = () => {
+		if (planMode === 'custom') {
+			openModal();
+		} else if (planMode === 'today') {
+			startTransition(() => {
+				createDailyPlan({
+					workTimePlanned: 0,
+					taskId,
+					date: new Date(),
+					status: DailyPlanStatusEnum.OPEN,
+					tenantId: user?.tenantId ?? '',
+					employeeId: employeeId,
+					organizationId: user?.employee.organizationId
+				});
+			});
+		} else {
+			startTransition(() => {
+				createDailyPlan({
+					workTimePlanned: 0,
+					taskId,
+					date: tomorrowDate,
+					status: DailyPlanStatusEnum.OPEN,
+					tenantId: user?.tenantId ?? '',
+					employeeId: employeeId,
+					organizationId: user?.employee.organizationId
+				});
+			});
+		}
+	};
 
 	return (
 		<>
@@ -641,7 +678,7 @@ export function PlanTask({
 					'font-normal whitespace-nowrap transition-all',
 					'hover:font-semibold hover:transition-all cursor-pointer'
 				)}
-				onClick={openModal}
+				onClick={handleOpenModal}
 			>
 				<CreateDailyPlanFormModal
 					open={isOpen}
@@ -651,15 +688,32 @@ export function PlanTask({
 					employeeId={employeeId}
 					chooseMember={chooseMember}
 				/>
-				{planMode === 'today' && 'Plan for today'}
-				{planMode === 'tomorow' && 'Plan for tomorow'}
-				{planMode === 'custom' && 'Plan for some day'}
+				{planMode === 'today' && (
+					<span>
+						{isPending ? (
+							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+						) : (
+							t('dailyPlan.PLAN_FOR_TODAY')
+						)}
+					</span>
+				)}
+				{planMode === 'tomorow' && (
+					<span>
+						{isPending ? (
+							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+						) : (
+							t('dailyPlan.PLAN_FOR_TOMORROW')
+						)}
+					</span>
+				)}
+				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
 			</span>
 		</>
 	);
 }
 
 export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; employee?: OT_Member }) {
+	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
 		<span
@@ -670,12 +724,13 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 			onClick={openModal}
 		>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
-			Add this task to a plan
+			{t('dailyPlan.ADD_TASK_TO_PLAN')}
 		</span>
 	);
 }
 
 export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
 	const onClick = () => {
@@ -689,7 +744,7 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 			)}
 			onClick={onClick}
 		>
-			Remove from this plan
+			{t('dailyPlan.REMOVE_FROM_THIS_PLAN')}
 		</span>
 	);
 }
