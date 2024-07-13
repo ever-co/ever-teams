@@ -18,7 +18,7 @@ import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
 import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
-import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
@@ -144,7 +144,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
+	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">

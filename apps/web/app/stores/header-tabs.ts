@@ -11,7 +11,7 @@ export const allTeamsHeaderTabs = atom<IssuesView>({
 	default: IssuesView.CARDS
 });
 
-export const dailyPlanViewaHeaderTabs = atom<IssuesView>({
-	key: 'dailyPlanViewaHeaderTabs',
+export const dailyPlanViewHeaderTabs = atom<IssuesView>({
+	key: 'dailyPlanViewHeaderTabs',
 	default: IssuesView.CARDS
 });

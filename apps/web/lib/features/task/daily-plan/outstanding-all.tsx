@@ -1,9 +1,9 @@
 import { EmptyPlans } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
-import { TaskEstimatedcount } from '.';
+import { TaskEstimatedCount } from '.';
 import { useRecoilValue } from 'recoil';
-import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 
@@ -12,11 +12,11 @@ interface OutstandingAll {
 }
 export function OutstandingAll({ profile }: OutstandingAll) {
 	const { outstandingPlans } = useDailyPlan();
-	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
+	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 	const displayedTaskId = new Set();
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedcount outstandingPlans={outstandingPlans} />
+			<TaskEstimatedCount outstandingPlans={outstandingPlans} />
 			{outstandingPlans?.length > 0 ? (
 				<>
 					{outstandingPlans?.map((plan) => (

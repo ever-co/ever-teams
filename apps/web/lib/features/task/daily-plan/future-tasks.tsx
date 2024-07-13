@@ -6,7 +6,7 @@ import { Button } from '@components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useRecoilValue } from 'recoil';
-import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { HorizontalSeparator } from 'lib/components';
@@ -18,7 +18,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
 
-	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
+	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">

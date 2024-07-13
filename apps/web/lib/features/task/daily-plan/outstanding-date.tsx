@@ -7,14 +7,14 @@ import { HorizontalSeparator } from 'lib/components';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { useRecoilValue } from 'recoil';
-import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 
 interface IOutstandingFilterDate {
 	profile: any;
 }
 export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
-	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
+	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 	return (
 		<div className="flex flex-col gap-6">
 			{outstandingPlans?.length > 0 ? (

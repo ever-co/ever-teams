@@ -1,5 +1,5 @@
 import { IssuesView } from '@app/constants';
-import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { clsxm } from '@app/utils';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
 import { Tooltip } from 'lib/components';
@@ -14,7 +14,7 @@ export default function ViewsHeaderTabs() {
 		{ label: 'BLOCKS', icon: Squares2X2Icon, view: IssuesView.BLOCKS }
 	];
 
-	const [view, setView] = useRecoilState(dailyPlanViewaHeaderTabs);
+	const [view, setView] = useRecoilState(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex items-center gap-1">

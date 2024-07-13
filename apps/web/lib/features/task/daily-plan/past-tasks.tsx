@@ -4,7 +4,7 @@ import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
 import { useRecoilValue } from 'recoil';
-import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { HorizontalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
@@ -12,7 +12,7 @@ import TaskBlockCard from '../task-block-card';
 export function PastTasks({ profile }: { profile: any }) {
 	const { pastPlans } = useDailyPlan();
 
-	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
+	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 	return (
 		<div className="flex flex-col gap-6">
 			{pastPlans?.length > 0 ? (
