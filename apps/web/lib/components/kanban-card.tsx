@@ -24,7 +24,7 @@ function getStyle(provided: DraggableProvided, style: any) {
 	};
 }
 
-function setCommentIconColor(commentType: 'tagged' | 'untagged') {
+export function setCommentIconColor(commentType: 'tagged' | 'untagged') {
 	let style;
 
 	if (commentType === 'tagged') {
@@ -77,7 +77,7 @@ export function TagList({ tags }: { tags: Tag[] }) {
 	);
 }
 
-function Priority({ level }: { level: ITaskPriority }) {
+export function Priority({ level }: { level: ITaskPriority }) {
 	const levelSmallCase = level.toString().toLowerCase();
 	const levelIntoNumber =
 		levelSmallCase === 'low' ? 1 : levelSmallCase === 'medium' ? 2 : levelSmallCase === 'high' ? 3 : 4;

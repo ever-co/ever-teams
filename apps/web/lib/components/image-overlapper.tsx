@@ -6,7 +6,7 @@ import { ITeamTask, ITimerStatus } from '@app/interfaces';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from './tooltip';
 import { ScrollArea } from '@components/ui/scroll-bar';
-import { RiUserFill, RiUserAddFill } from "react-icons/ri";
+import { RiUserFill, RiUserAddFill } from 'react-icons/ri';
 import { useModal } from '@app/hooks';
 import { Modal, Divider } from 'lib/components';
 import { useOrganizationTeams } from '@app/hooks';
@@ -14,7 +14,7 @@ import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '../../lib/features/task/task-assign-button';
 import { clsxm } from '@app/utils';
 import { TaskAvatars } from 'lib/features';
-import { FaCheck } from "react-icons/fa6";
+import { FaCheck } from 'react-icons/fa6';
 import TeamMember from 'lib/components/team-member';
 import { IEmployee } from '@app/interfaces';
 
@@ -42,7 +42,7 @@ export default function ImageOverlapper({
 	arrowData = null,
 	hasActiveMembers = false,
 	assignTaskButtonCall = false,
-	hasInfo = '',
+	hasInfo = ''
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -56,11 +56,11 @@ export default function ImageOverlapper({
 	hasInfo?: string;
 }) {
 	// Split the array into two arrays based on the display number
-	const firstArray = images.slice(0, displayImageCount);
-	const widthCalculate = images.slice(0, 5);
-	const secondArray = images.slice(displayImageCount);
-	const isMoreThanDisplay = images.length > displayImageCount;
-	const imageLength = images.length;
+	const firstArray = images?.slice(0, displayImageCount);
+	const widthCalculate = images?.slice(0, 5);
+	const secondArray = images?.slice(displayImageCount);
+	const isMoreThanDisplay = images?.length > displayImageCount;
+	const imageLength = images?.length;
 	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
 	const allMembers = activeTeam?.members || [];
@@ -82,13 +82,12 @@ export default function ImageOverlapper({
 			const updatedUnassign = unassignedMembers.filter((el: IEmployee) => el.id != member.id);
 			setUnassignedMembers(updatedUnassign);
 		}
-
-	}
+	};
 
 	const onCLickValidate = () => {
 		setValidate(!validate);
 		closeModal();
-	}
+	};
 
 	const hasMembers = item?.members?.length > 0;
 	const membersList = { assignedMembers, unassignedMembers };
@@ -100,59 +99,56 @@ export default function ImageOverlapper({
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
 			<div className="relative">
-				{hasInfo.length > 0 && showInfo &&
-					(<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
+				{hasInfo.length > 0 && showInfo && (
+					<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
 						<div className="relative bg-black text-white rounded-[3px]">
 							<span className="text-center p-[6px] z-10">{hasInfo}</span>
 							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-t-[10px] border-t-black border-r-[10px] border-r-transparent border-l-[10px] border-l-transparent"></div>
 						</div>
 					</div>
-					)}
-				{
-					iconType ? (
-						<TaskAssignButton
-							onClick={openModal}
-							disabled={arrowData?.activeTaskStatus ? arrowData?.disabled : arrowData?.task.status === 'closed'}
-							className={clsxm('h-9 w-9', arrowData?.className)}
-							iconClassName={arrowData?.iconClassName}
-						/>
-
-					) : (
-						<>
-							{
-								!hasMembers ?
-									(
-										<div
-											className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
-											style={{ width: diameter, height: diameter }}>
-											<RiUserFill
-												fill={"#6b7280"}
-												className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
-												onClick={openModal}
-												style={{ width: diameter / 2, height: diameter / 2 }}
-												onMouseOver={() => setShowInfo(true)}
-												onMouseOut={() => setShowInfo(false)}
-											/>
-										</div>
-									)
-									:
-									(
-										<div className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
-											style={{ width: diameter, height: diameter }}>
-											<RiUserAddFill
-												fill={"#6b7280"}
-												className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
-												onClick={openModal}
-												style={{ width: diameter / 2, height: diameter / 2 }}
-												onMouseOver={() => setShowInfo(true)}
-												onMouseOut={() => setShowInfo(false)}
-											/>
-										</div>
-									)
-							}
-
-						</>)
-				}
+				)}
+				{iconType ? (
+					<TaskAssignButton
+						onClick={openModal}
+						disabled={
+							arrowData?.activeTaskStatus ? arrowData?.disabled : arrowData?.task.status === 'closed'
+						}
+						className={clsxm('h-9 w-9', arrowData?.className)}
+						iconClassName={arrowData?.iconClassName}
+					/>
+				) : (
+					<>
+						{!hasMembers ? (
+							<div
+								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
+								style={{ width: diameter, height: diameter }}
+							>
+								<RiUserFill
+									fill={'#6b7280'}
+									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
+									onClick={openModal}
+									style={{ width: diameter / 2, height: diameter / 2 }}
+									onMouseOver={() => setShowInfo(true)}
+									onMouseOut={() => setShowInfo(false)}
+								/>
+							</div>
+						) : (
+							<div
+								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
+								style={{ width: diameter, height: diameter }}
+							>
+								<RiUserAddFill
+									fill={'#6b7280'}
+									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
+									onClick={openModal}
+									style={{ width: diameter / 2, height: diameter / 2 }}
+									onMouseOver={() => setShowInfo(true)}
+									onMouseOut={() => setShowInfo(false)}
+								/>
+							</div>
+						)}
+					</>
+				)}
 
 				<div>
 					<Modal
@@ -184,7 +180,7 @@ export default function ImageOverlapper({
 
 						<div className="sticky top-[100%] h-[60px] w-[100%]">
 							<Divider className="mt-4" />
-							<div className='flex -space-x-3.5 overflow-hidden flex-center mt-[5px] items-center sm:justify-between'>
+							<div className="flex -space-x-3.5 overflow-hidden flex-center mt-[5px] items-center sm:justify-between">
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
@@ -194,7 +190,8 @@ export default function ImageOverlapper({
 										  h-12 gap-1 items-center"
 										onClick={() => {
 											onCLickValidate();
-										}}>
+										}}
+									>
 										<FaCheck size={17} fill="#ffffff" />
 										{t('common.CONFIRM')}
 									</button>

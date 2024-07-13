@@ -8,14 +8,15 @@ interface isProps {
 	className: string;
 	isDanger?: boolean;
 	id?: string;
+	defaultOpen?: boolean;
 }
-export const Accordian = ({ children, title, className, isDanger, id }: isProps) => {
+export const Accordian = ({ children, title, className, isDanger, id, defaultOpen = true }: isProps) => {
 	return (
 		<div className="w-full" id={id}>
 			<div
 				className={`rounded-2xl p-2 ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
 			>
-				<Disclosure defaultOpen>
+				<Disclosure defaultOpen={defaultOpen}>
 					{({ open }) => (
 						<>
 							<Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium  hover:bg-white items-center pt-[0.15rem] pb-0 h-[3.81rem] bg-light--theme-light dark:bg-dark--theme-light">
