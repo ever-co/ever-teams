@@ -9,15 +9,15 @@ import { Container, NoData, ProgressBar, VerticalSeparator } from 'lib/component
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
-import { IoCalendarOutline } from "react-icons/io5";
-
+import { IoCalendarOutline } from 'react-icons/io5';
+import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FiltreOutstanding = 'ALL' | 'DATE';
@@ -28,7 +28,10 @@ export function UserProfilePlans() {
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
 
-	const defaultOutstanding = typeof window !== 'undefined' ? (window.localStorage.getItem('outstanding') as FiltreOutstanding) || null : 'ALL';
+	const defaultOutstanding =
+		typeof window !== 'undefined'
+			? (window.localStorage.getItem('outstanding') as FiltreOutstanding) || null
+			: 'ALL';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
@@ -37,11 +40,10 @@ export function UserProfilePlans() {
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FiltreOutstanding>(defaultOutstanding || 'ALL');
 
-
 	const screenOutstanding = {
-		'ALL': <OutstandingAll profile={profile} />,
-		"DATE": <OutstandingFieltreDate profile={profile} />
-	}
+		ALL: <OutstandingAll profile={profile} />,
+		DATE: <OutstandingFieltreDate profile={profile} />
+	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
 		'Future Tasks': <FutureTasks profile={profile} />,
@@ -50,11 +52,8 @@ export function UserProfilePlans() {
 		Outstanding: <Outstanding filtre={screenOutstanding[currentOutstanding]} />
 	};
 
-
-
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
-
 	}, [currentTab]);
 
 	useEffect(() => {
@@ -67,7 +66,7 @@ export function UserProfilePlans() {
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
-							<div className='w-full mt-10 mb-5 items-center flex justify-between'>
+							<div className="w-full mt-10 mb-5 items-start flex justify-between">
 								<div className={clsxm('flex justify-start items-center gap-4 ')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
@@ -96,25 +95,30 @@ export function UserProfilePlans() {
 										</div>
 									))}
 								</div>
-								{currentTab === 'Outstanding' && (
-									<Select onValueChange={(value) => {
-										setCurrentOutstanding(value as FiltreOutstanding)
-									}}>
-										<SelectTrigger className="w-[120px] h-9">
-											<SelectValue placeholder="Filter" />
-										</SelectTrigger>
-										<SelectContent className='cursor-pointer'>
-											{Object.keys(screenOutstanding).map((item, index) => (
-												<SelectItem key={index} value={item}>
-													<div className='flex items-center space-x-1'>
-														{item == 'DATE' && <IoCalendarOutline />}
-														<span className='capitalize'>{item}</span>
-													</div>
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								)}
+								<div className="flex flex-col items-end gap-2">
+									<ViewsHeaderTabs />
+									{currentTab === 'Outstanding' && (
+										<Select
+											onValueChange={(value) => {
+												setCurrentOutstanding(value as FiltreOutstanding);
+											}}
+										>
+											<SelectTrigger className="w-[120px] h-9">
+												<SelectValue placeholder="Filter" />
+											</SelectTrigger>
+											<SelectContent className="cursor-pointer">
+												{Object.keys(screenOutstanding).map((item, index) => (
+													<SelectItem key={index} value={item}>
+														<div className="flex items-center space-x-1">
+															{item == 'DATE' && <IoCalendarOutline />}
+															<span className="capitalize">{item}</span>
+														</div>
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									)}
+								</div>
 							</div>
 							{tabsScreens[currentTab]}
 						</div>
