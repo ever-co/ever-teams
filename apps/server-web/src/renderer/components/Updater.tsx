@@ -4,37 +4,14 @@ import { SelectComponent } from './Select';
 import { useEffect, useState } from 'react';
 import { ToastComponent } from './Toast';
 import { SettingPageTypeMessage } from '../../main/helpers/constant';
+import { DefaultRangeUpdateTimes } from '../libs/constant';
+import {
+  IProgressComponent,
+  IRangeUpdates,
+  IUpdaterComponent,
+} from '../libs/interfaces';
 
-interface UpdaterStates {
-  state:
-  | 'check-update'
-  | 'update-available'
-  | 'downloading'
-  | 'downloaded'
-  | 'error'
-  | 'not-started'
-  | 'up-to-date'
-  | 'cancel'
-  ;
-  data: any;
-  label:
-  | 'CHECKING'
-  | 'DOWNLOADING'
-  | 'QUIT_N_INSTALL'
-  | 'UP_TO_DATE'
-  | 'UPDATE_AVAILABLE'
-  | 'CHECK_FOR_UPDATE';
-}
-type PropsProgress = {
-  updateStates: UpdaterStates;
-};
-
-type UpdateSetting = {
-  autoUpdate: boolean;
-  updateCheckPeriode: string;
-};
-
-const ProgressComponent = (props: PropsProgress) => {
+const ProgressComponent = (props: IProgressComponent) => {
   const { t } = useTranslation();
   return (
     <div className="flex">
@@ -70,40 +47,9 @@ const ProgressComponent = (props: PropsProgress) => {
   );
 };
 
-type Props = {
-  checkForUpdate: () => void;
-  loading: boolean;
-  updateStates: UpdaterStates;
-  Popup: JSX.Element;
-  data: UpdateSetting;
-  changeAutoUpdate: (data: UpdateSetting) => void;
-  saveSettingUpdate: (data: UpdateSetting) => void;
-};
-
-type RangeUpdates = {
-  value: string;
-  label: string;
-};
-export const UpdaterComponent = (props: Props) => {
+export const UpdaterComponent = (props: IUpdaterComponent) => {
   const { t } = useTranslation();
-  const [rangeUpdate, setRangeUpdate] = useState<RangeUpdates[]>([
-    {
-      value: '30',
-      label: `30_MINUTES`,
-    },
-    {
-      value: '60',
-      label: `A_HOURS`,
-    },
-    {
-      value: '180',
-      label: `3_HOURS`,
-    },
-    {
-      value: '1140',
-      label: `A_DAY`,
-    },
-  ]);
+  const [rangeUpdate, _] = useState<IRangeUpdates[]>(DefaultRangeUpdateTimes);
 
   const [toastShow, setToastShow] = useState<boolean>(false);
 
@@ -191,7 +137,10 @@ export const UpdaterComponent = (props: Props) => {
               <div className="flex w-2/2">
                 <SelectComponent
                   title={t('FORM.FIELDS.OPTIONS')}
-                  items={rangeUpdate}
+                  items={rangeUpdate.map((i) => ({
+                    ...i,
+                    label: `FORM.LABELS.UPDATE_OPTIONS.${i.label}`,
+                  }))}
                   value={props.data.updateCheckPeriode}
                   defaultValue={props.data.updateCheckPeriode}
                   disabled={!props.data.autoUpdate}
@@ -228,8 +177,8 @@ export const UpdaterComponent = (props: Props) => {
       {props.Popup}
       <ToastComponent
         show={toastShow}
-        title="Info"
-        message="Update Successfully"
+        title="MESSAGE.INFO"
+        message="MESSAGE.UPDATE_SUCCESS"
         onClose={CloseToast}
         autoClose={true}
         timeout={1000}

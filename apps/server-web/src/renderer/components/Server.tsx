@@ -1,24 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IServerSetting, IServerComponent } from '../libs/interfaces';
 
-interface IServerSetting {
-  PORT: number;
-  GAUZY_API_SERVER_URL: string;
-  NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
-}
-
-type Props = {
-  serverSetting: IServerSetting;
-  saveSetting: (data: IServerSetting) => void;
-  Popup: JSX.Element;
-};
-
-export const ServerComponent = (props: Props) => {
+export const ServerComponent = (props: IServerComponent) => {
   const { t } = useTranslation();
   const [serverSetting, setServerSetting] = useState<IServerSetting>(
     props.serverSetting,
   );
-  // useEffect(() => {}, []);
   const saveSetting = (e: any) => {
     e.preventDefault();
 
