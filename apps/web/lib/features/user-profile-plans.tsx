@@ -189,20 +189,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 									<>
 										{canSeeActivity ? (
 											<div className="flex justify-end">
-												<Button
-													disabled={deleteDailyPlanLoading}
-													onClick={() => deleteDailyPlan(plan.id ?? '')}
-													variant="destructive"
-													className="p-7 py-6 font-normal rounded-xl text-md"
-												>
-													{deleteDailyPlanLoading && (
-														<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-													)}
-													Delete this plan
-												</Button>
 												<AlertPopup
 													open={popupOpen}
-
 													buttonOpen={
 														//button open popup
 														<Button
