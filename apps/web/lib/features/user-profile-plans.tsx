@@ -5,7 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
-import { Container, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
+import { Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
@@ -18,6 +18,8 @@ import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
 import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
+import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import TaskBlockCard from './task/task-block-card';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FiltreOutstanding = 'ALL' | 'DATE';
@@ -141,6 +143,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
+	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
+
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredPlans?.length > 0 ? (
@@ -157,11 +161,14 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
-							className="dark:border-slate-600"
+							className="dark:border-slate-600 !border-none"
 						>
-							<AccordionTrigger className="hover:no-underline">
-								<div className="text-lg">
-									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+							<AccordionTrigger className="!min-w-full text-start hover:no-underline">
+								<div className="flex items-center justify-between gap-3 w-full">
+									<div className="text-lg min-w-max">
+										{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+									</div>
+									<HorizontalSeparator />
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
@@ -169,22 +176,33 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 								<PlanHeader plan={plan} planMode={currentTab} />
 
 								{/* Plan tasks list */}
-								<ul className="flex flex-col gap-2 pb-[1.5rem]">
-									{plan.tasks?.map((task) => (
-										<TaskCard
-											key={`${task.id}${plan.id}`}
-											isAuthUser={true}
-											activeAuthTask={true}
-											viewType={'dailyplan'}
-											task={task}
-											profile={profile}
-											type="HORIZONTAL"
-											taskBadgeClassName={`rounded-sm`}
-											taskTitleClassName="mt-[0.0625rem]"
-											planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
-											plan={plan}
-										/>
-									))}
+								<ul
+									className={clsxm(
+										view === 'CARDS' && 'flex-col',
+										view === 'TABLE' && 'flex-wrap',
+										'flex gap-2 pb-[1.5rem]',
+										view === 'BLOCKS' && 'overflow-x-scroll'
+									)}
+								>
+									{plan.tasks?.map((task) =>
+										view === 'CARDS' ? (
+											<TaskCard
+												key={`${task.id}${plan.id}`}
+												isAuthUser={true}
+												activeAuthTask={true}
+												viewType={'dailyplan'}
+												task={task}
+												profile={profile}
+												type="HORIZONTAL"
+												taskBadgeClassName={`rounded-sm`}
+												taskTitleClassName="mt-[0.0625rem]"
+												planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
+												plan={plan}
+											/>
+										) : (
+											<TaskBlockCard key={task.id} task={task} />
+										)
+									)}
 								</ul>
 
 								{/* Delete Plan */}

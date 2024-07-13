@@ -5,10 +5,17 @@ import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { useRecoilValue } from 'recoil';
+import { dailyPlanViewaHeaderTabs } from '@app/stores/header-tabs';
+import TaskBlockCard from '../task-block-card';
+import { clsxm } from '@app/utils';
+import { HorizontalSeparator } from 'lib/components';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
+
+	const view = useRecoilValue(dailyPlanViewaHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -22,11 +29,14 @@ export function FutureTasks({ profile }: { profile: any }) {
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
-							className="dark:border-slate-600"
+							className="dark:border-slate-600 !border-none"
 						>
-							<AccordionTrigger className="hover:no-underline">
-								<div className="text-lg">
-									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+							<AccordionTrigger className="!min-w-full text-start hover:no-underline">
+								<div className="flex items-center justify-between gap-3 w-full">
+									<div className="text-lg min-w-max">
+										{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+									</div>
+									<HorizontalSeparator />
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
@@ -34,22 +44,33 @@ export function FutureTasks({ profile }: { profile: any }) {
 								<PlanHeader plan={plan} planMode="Outstanding" />
 
 								{/* Plan tasks list */}
-								<ul className="flex flex-col gap-2 pb-[1.5rem]">
-									{plan.tasks?.map((task) => (
-										<TaskCard
-											key={`${task.id}${plan.id}`}
-											isAuthUser={true}
-											activeAuthTask={true}
-											viewType={'dailyplan'}
-											task={task}
-											profile={profile}
-											type="HORIZONTAL"
-											taskBadgeClassName={`rounded-sm`}
-											taskTitleClassName="mt-[0.0625rem]"
-											plan={plan}
-											planMode="Future Tasks"
-										/>
-									))}
+								<ul
+									className={clsxm(
+										view === 'CARDS' && 'flex-col',
+										view === 'TABLE' && 'flex-wrap',
+										'flex gap-2 pb-[1.5rem]',
+										view === 'BLOCKS' && 'overflow-x-scroll'
+									)}
+								>
+									{plan.tasks?.map((task) =>
+										view === 'CARDS' ? (
+											<TaskCard
+												key={`${task.id}${plan.id}`}
+												isAuthUser={true}
+												activeAuthTask={true}
+												viewType={'dailyplan'}
+												task={task}
+												profile={profile}
+												type="HORIZONTAL"
+												taskBadgeClassName={`rounded-sm`}
+												taskTitleClassName="mt-[0.0625rem]"
+												plan={plan}
+												planMode="Future Tasks"
+											/>
+										) : (
+											<TaskBlockCard key={task.id} task={task} />
+										)
+									)}
 								</ul>
 
 								{/* Delete Plan */}
