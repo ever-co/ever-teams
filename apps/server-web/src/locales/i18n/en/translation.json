@@ -10,7 +10,9 @@
     "APP_QUIT": "Quit",
     "GENERAL": "General",
     "SERVER_STATUS_STOPPED": "Status: Stopped",
-    "SERVER_STATUS_STARTED": "Status: Started"
+    "SERVER_STATUS_STARTED": "Status: Started",
+    "OPEN_WEB": "Open Web In Browser",
+    "SERVER_WINDOW": "Server Window"
   },
   "FORM": {
     "FIELDS": {
@@ -28,7 +30,9 @@
       "DOWNLOAD_NOW": "Download Now",
       "LATER": "Later",
       "CANCEL": "Cancel",
-      "CLOSE": "Close"
+      "CLOSE": "Close",
+      "START": "Start",
+      "STOP": "Stop"
     },
     "LABELS": {
       "CHECKING": "Checking",

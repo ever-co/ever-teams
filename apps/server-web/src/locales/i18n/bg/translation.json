@@ -10,7 +10,9 @@
     "APP_QUIT": "Откажете се",
     "GENERAL": "Общ",
     "SERVER_STATUS_STOPPED": "Статус: Спряна",
-    "SERVER_STATUS_STARTED": "Статус: започна"
+    "SERVER_STATUS_STARTED": "Статус: започна",
+    "OPEN_WEB": "Отворете уеб в браузъра",
+    "SERVER_WINDOW": "Прозорец на сървъра"
   },
   "FORM": {
     "FIELDS": {
@@ -28,7 +30,9 @@
       "DOWNLOAD_NOW": "Свали сега",
       "LATER": "По късно",
       "CANCEL": "Отказ",
-      "CLOSE": "Близо"
+      "CLOSE": "Близо",
+      "START": "Започнете",
+      "STOP": "Спри се"
     },
     "LABELS": {
       "CHECKING": "Проверка",

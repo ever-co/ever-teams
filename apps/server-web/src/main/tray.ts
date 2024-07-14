@@ -1,5 +1,4 @@
 import { app, NativeImage, nativeImage, Menu, Tray } from 'electron';
-import path from 'path';
 import { EventEmitter } from 'events';
 import { EventLists } from './helpers/constant';
 import i18n from 'i18next';
@@ -14,6 +13,14 @@ export const _initTray = (contextMenu:any, icon:string): Tray => {
 
 export const defaultTrayMenuItem = (eventEmitter: EventEmitter) => {
     const contextMenu = [
+        {
+          id: 'OPEN_WEB',
+          label: 'MENU.OPEN_WEB',
+          // enabled: false,
+          click () {
+            eventEmitter.emit(EventLists.OPEN_WEB)
+          }
+        },
         {
           id: 'SERVER_STATUS',
           label: 'MENU.SERVER_STATUS_STOPPED',
@@ -31,6 +38,13 @@ export const defaultTrayMenuItem = (eventEmitter: EventEmitter) => {
           enabled: false,
           async click() {
             eventEmitter.emit(EventLists.webServerStop);
+          }
+        },
+        {
+          id: 'SERVER_WINDOW',
+          label: 'MENU.SERVER_WINDOW',
+          click () {
+            eventEmitter.emit(EventLists.SERVER_WINDOW);
           }
         },
         {
