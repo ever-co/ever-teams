@@ -211,7 +211,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                 }}
               >
                 <div className="ml-1 mt-1">
-                  {updateLogs.length &&
+                  {updateLogs.length > 0 &&
                     updateLogs.map((ulog, i) => (
                       <div className="py-1" key={i}>
                         <span>{ulog}</span>

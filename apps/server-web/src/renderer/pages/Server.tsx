@@ -85,7 +85,7 @@ export function ServerPage() {
               }}
             >
               <div className="ml-1 mt-1">
-                {logs.length &&
+                {logs.length > 0 &&
                   logs.map((log, i) => (
                     <div className="py-1" key={i}>
                       <span>{log}</span>

@@ -1,5 +1,4 @@
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import EventEmitter from 'events';
 import { EventLists } from './helpers/constant';
 import { InfoMessagesBox } from './windows/dialog';
