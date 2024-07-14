@@ -288,7 +288,7 @@ function InputFilters({ hook, profile }: Props) {
 	const [timeDifference, setTimeDifference] = useState<string>('');
 	const [minStartTime, setMinStartTime] = useState<string>('');
 	const [errorMsg, setError] = useState<string>('');
-	const [loadin, setLoadin] = useState<boolean>(false);
+	const [loading1, setLoading1] = useState<boolean>(false);
 
 	const { isOpen, openModal, closeModal } = useModal();
 
@@ -320,19 +320,19 @@ function InputFilters({ hook, profile }: Props) {
 		};
 
 		if (date && startTime && endTime && team && task) {
-			setLoading(true);
+			setLoading1(true);
 			setError('');
 			const postData = async () => {
 				try {
 					const response = await api.post('/add_time', timeObject);
 					if (response.data.message) {
-						setLoadin(false);
+						setLoading1(false);
 						closeModal();
 					}
 
 				} catch (err) {
 					setError('Failed to post data');
-					setLoadin(false);
+					setLoading1(false);
 				}
 			};
 
@@ -585,7 +585,7 @@ function InputFilters({ hook, profile }: Props) {
 						<div className="flex justify-between items-center">
 							<button type="button" className="text-[#3826A6] font-bold p-[12px] rounded-[10px] border-[1px] bo">View timesheet</button>
 							<button type="submit" className="bg-[#3826A6] font-bold min-w-[110px] flex flex-col items-center text-white p-[12px] rounded-[10px]">
-								{loadin ? <FiLoader size={20} className="animate-spin" /> : "Add time"}
+								{loading1 ? <FiLoader size={20} className="animate-spin" /> : "Add time"}
 							</button>
 						</div>
 						<div className="m-4 text-[#ff6a00de]">{errorMsg}</div>
