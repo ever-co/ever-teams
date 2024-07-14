@@ -12,14 +12,9 @@ import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useMemo, useState, FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
-import { useModal, useTeamTasks } from '@app/hooks';
-import { Modal, Divider } from 'lib/components';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl'
 import stc from 'string-to-color';
-import { MdOutlineMoreTime } from "react-icons/md";
-import { IoIosTimer } from "react-icons/io";
-import { FiLoader } from "react-icons/fi";
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -28,7 +23,6 @@ import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
-import api from '@app/services/client/axios';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -43,74 +37,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 	const hook = useTaskFilter(profile);
-	const { tasks } = useTeamTasks();
-
-	const [date, setDate] = useState<string>('');
-	const [isBillable, setIsBillable] = useState<boolean>(false);
-	const [startTime, setStartTime] = useState<string>('');
-	const [endTime, setEndTime] = useState<string>('');
-	const [team, setTeam] = useState<string>('');
-	const [task, setTask] = useState<string>('');
-	const [description, setDescription] = useState<string>('');
-	const [reason, setReason] = useState<string>('');
-	const [timeDifference, setTimeDifference] = useState<string>('');
-	const [minStartTime, setMinStartTime] = useState<string>('');
-	const [errorMsg, setError] = useState<string>('');
-	const [loading, setLoading] = useState<boolean>(false);
-
-	const { isOpen, openModal, closeModal } = useModal();
-
-	React.useEffect(() => {
-		const now = new Date();
-		const currentDate = now.toISOString().slice(0, 10);
-		const currentTime = now.toTimeString().slice(0, 5);
-		setMinStartTime(currentTime);
-
-		setDate(currentDate);
-		setStartTime(currentTime);
-		setEndTime(currentTime);
-	}, []);
-
-
-	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-
-		const timeObject = {
-			date,
-			isBillable,
-			startTime,
-			endTime,
-			team,
-			task,
-			description,
-			reason,
-			timeDifference
-		};
-
-		if (date && startTime && endTime && team && task) {
-			setLoading(true);
-			setError('');
-			const postData = async () => {
-				try {
-					const response = await api.post('/add_time', timeObject);
-					if (response.data.message) {
-						setLoading(false);
-						closeModal();
-					}
-
-				} catch (err) {
-					setError('Failed to post data');
-					setLoading(false);
-				}
-			};
-
-			postData();
-		} else {
-			setError(`Please complete all required fields with a ${"*"}`)
-		}
-
-
-	};
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
@@ -149,43 +75,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	React.useEffect(() => {
 		getEmployeeDayPlans(profile.member?.employeeId ?? '');
 	}, [getEmployeeDayPlans, profile.member?.employeeId]);
-
-	const calculateTimeDifference = () => {
-
-		if (!startTime || !endTime) {
-			return;
-		}
-
-		const [startHours, startMinutes] = startTime.split(':').map(Number);
-		const [endHours, endMinutes] = endTime.split(':').map(Number);
-
-		const startTotalMinutes = startHours * 60 + startMinutes;
-		const endTotalMinutes = endHours * 60 + endMinutes;
-
-		const diffMinutes = endTotalMinutes - startTotalMinutes;
-		if (diffMinutes < 0) {
-			return;
-		}
-
-		const hours = Math.floor(diffMinutes / 60);
-		const minutes = diffMinutes % 60;
-
-		setTimeDifference(`${hours} Hours ${minutes} Minutes`);
-	};
-
-	useEffect(() => {
-		calculateTimeDifference();
-	}, [endTime, startTime]);
-
-	useEffect(() => {
-		if (task == '') {
-			setTask(tasks[0]?.id);
-		}
-		if (team == '') {
-			members && setTeam(members[0].id);
-		}
-
-	}, [tasks, members])
 
 	return (
 		<>
@@ -230,12 +119,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 								{/* User Profile Detail */}
 								<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
 									<UserProfileDetail member={profile.member} />
-									<button
-										onClick={() => openModal()}
-										className="p-[10px] text-white rounded-[10px] border-[1px] text-[15px] flex items-center bg-[#3826A6]"
-									>
-										<MdOutlineMoreTime size={20} className="mr-[10px]" />{"Add manual time"}
-									</button>
 									{profileIsAuthUser && isTrackingEnabled && (
 										<Timer
 											className={clsxm(
@@ -251,137 +134,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</MainHeader>
 						</ResizablePanel>
 						<ResizableHandle withHandle />
-
-						{/* Divider */}
-						<div>
-							<Modal
-								isOpen={isOpen}
-								closeModal={closeModal}
-								title={'Add time'}
-								className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[20vw] md:max-w-fit h-[auto] justify-start"
-								titleClass="text-[16px]"
-							>
-								<Divider className="mt-4" />
-								<form onSubmit={handleSubmit}>
-									<div className="mb-4">
-										<label className="block text-gray-700 mb-1">Date<span className="text-[#de5505e1] ml-1">*</span></label>
-										<input
-											type="date"
-											value={date}
-											onChange={(e) => setDate(e.target.value)}
-											className="w-full p-2 border border-gray-300 rounded-[10px]"
-											required
-										/>
-									</div>
-
-									<div className="mb-4 flex items-center">
-										<label className="block text-gray-700 mr-2">Billable</label>
-										<div
-											className={`w-12 h-6 flex items-center bg-[#3726a662] rounded-full p-1 cursor-pointer `}
-											onClick={() => setIsBillable(!isBillable)}
-											style={isBillable ? { background: 'linear-gradient(to right, #3726a662, transparent)' } : { background: '#3726a662' }}
-										>
-											<div
-												className={`bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
-											/>
-										</div>
-									</div>
-									<div className='flex items-center'>
-										<div className="mb-4 mr-[6px]">
-											<label className="block text-gray-700 mb-1">Start time<span className="text-[#de5505e1] ml-1">*</span></label>
-											<input
-												type="time"
-												value={startTime}
-												onChange={(e) => setStartTime(e.target.value)}
-												className="w-full p-2 border border-gray-300 rounded-[10px]"
-												min={minStartTime}
-												required
-											/>
-										</div>
-
-										<div className="mb-4">
-											<label className="block text-gray-700 mb-1">End time<span className="text-[#de5505e1] ml-1">*</span></label>
-											<input
-												type="time"
-												value={endTime}
-												onChange={(e) => setEndTime(e.target.value)}
-												className="w-full p-2 border border-gray-300 rounded-[10px]"
-												min={startTime}
-												required
-											/>
-										</div>
-									</div>
-
-									<div className="mb-4 flex items-center">
-										<label className="block text-gray-700 mb-1">Added hours: </label>
-										<div
-											className="ml-[10px] p-[10px] flex items-center border-[#410a504e] rounded-[10px]"
-											style={{ background: 'linear-gradient(to right, #3726a662, #410a504e )' }}
-										>
-											<IoIosTimer size={20} className="mr-[10px]" />
-											{timeDifference}
-										</div>
-									</div>
-
-									<div className="mb-4">
-										<label className="block text-gray-700 mb-1">Team<span className="text-[#de5505e1] ml-1">*</span></label>
-										<select
-											value={team}
-											onChange={(e) => setTeam(e.target.value)}
-											className="w-full p-2 border border-gray-300 rounded-[10px]"
-											required
-										>
-											{members?.map((member) => (
-												<option key={member.id} value={member.id}>{member.employee?.user?.firstName}</option>))
-											}
-										</select>
-									</div>
-
-									<div className="mb-4">
-										<label className="block text-gray-700 mb-1">Task<span className="text-[#de5505e1] ml-1">*</span></label>
-										<select
-											value={task}
-											onChange={(e) => setTask(e.target.value)}
-											className="w-full p-2 border border-gray-300 rounded-[10px]"
-											required
-										>
-											{tasks?.map((task) => (
-												<option key={task.id} value={task.id}>{task.title}</option>
-											))}
-										</select>
-									</div>
-
-									<div className="mb-4">
-										<label className="block text-gray-700 mb-1">Description</label>
-										<textarea
-											value={description}
-											placeholder="What worked on?"
-											onChange={(e) => setDescription(e.target.value)}
-											className="w-full p-2 border border-gray-300 rounded-[10px]"
-										/>
-									</div>
-
-									<div className="mb-4">
-										<label className="block text-gray-700 mb-1">Reason</label>
-										<textarea
-											value={reason}
-											onChange={(e) => setReason(e.target.value)}
-											className="w-full p-2 border border-gray-300 rounded-[10px]"
-										/>
-									</div>
-
-									<div className="flex justify-between items-center">
-										<button type="button" className="text-[#3826A6] p-[12px] rounded-[10px] border-[1px]">View timesheet</button>
-										<button type="submit" className="bg-[#3826A6] min-w-[110px] flex items-center text-white p-[12px] rounded-[10px]">
-											{loading ? <FiLoader size={20} className="animate-spin" /> : "Add time"}
-										</button>
-									</div>
-									<div className="m-4 text-[#ff6a00de]">{errorMsg}</div>
-
-								</form>
-							</Modal>
-						</div>
-						{/* <div className="h-0.5 bg-[#FFFFFF14]"></div> */}
 						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
 							{hook.tab == 'worked' && canSeeActivity && (
 								<Container fullWidth={fullWidth} className="py-8">
