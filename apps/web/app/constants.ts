@@ -36,7 +36,6 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
 );
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
-
 const basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 export const GAUZY_API_SERVER_URL = basePath + '/api';
 

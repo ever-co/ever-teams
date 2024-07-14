@@ -1,15 +1,10 @@
 import { Link } from 'react-router-dom';
-interface Languages {
-  code: string;
-  label: string;
-}
-type Props = {
-  langs: Languages[];
-  onChange: (lang: any) => void;
-  lang: string;
-};
-export function GeneralComponent(props: Props) {
-  const language = props.langs.find((lg) => lg.code === props.lang) || {
+import { ILanguages, IGeneralSetting } from '../libs/interfaces';
+
+export function GeneralComponent(props: IGeneralSetting) {
+  const language: ILanguages = props.langs.find(
+    (lg) => lg.code === props.lang,
+  ) || {
     code: 'en',
     label: 'English',
   };

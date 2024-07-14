@@ -1,5 +1,4 @@
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import EventEmitter from 'events';
 import { EventLists } from './helpers/constant';
 import { InfoMessagesBox } from './windows/dialog';
@@ -7,8 +6,7 @@ import i18n from 'i18next';
 
 class AppUpdater {
   constructor(eventEmitter: EventEmitter, i18nextMainBackend: typeof i18n) {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
+    autoUpdater.logger = console;
     autoUpdater.on('update-available', (info) => {
       eventEmitter.emit(EventLists.UPDATE_AVAILABLE, info);
       if (!autoUpdater.autoDownload) {
@@ -48,6 +46,8 @@ class AppUpdater {
     autoUpdater.on('update-cancelled', (info) => {
       eventEmitter.emit(EventLists.UPDATE_CANCELLED, info);
     })
+
+    // autoUpdater.on('')
     //   autoUpdater.checkForUpdatesAndNotify();
   }
 

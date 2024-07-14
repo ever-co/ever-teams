@@ -1,24 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-interface SideMenu {
-  displayName: string;
-  key: string;
-  isActive: boolean;
-}
-
-interface Languages {
-  code: string;
-  label: string;
-}
-
-type Props = {
-  children: string | JSX.Element | JSX.Element[];
-  menus: SideMenu[];
-  menuChange: (key: string) => void;
-  langs: Languages[];
-  onLangChange: (lang: any) => void;
-  lang: string;
-};
+import { ISidebarComponent } from '../libs/interfaces';
+import { SelectComponent } from './Select';
 
 export function SideBar({
   children,
@@ -27,7 +10,7 @@ export function SideBar({
   langs,
   lang,
   onLangChange,
-}: Props) {
+}: ISidebarComponent) {
   const { t } = useTranslation();
   const language = langs.find((lg) => lg.code === lang) || {
     code: 'en',
@@ -58,7 +41,20 @@ export function SideBar({
           </ul>
         </div>
         <div className="flex items-center justify-center p-12">
-          <div className=" relative inline-block text-left dropdown">
+          <SelectComponent
+            items={langs.map((i) => ({
+              value: i.code,
+              label: `LANGUAGES.${i.code}`,
+            }))}
+            title={t('FORM.LABELS.LANGUAGES')}
+            defaultValue={language.code}
+            onValueChange={(lang) => {
+              onLangChange({ code: lang });
+            }}
+            disabled={false}
+            value={language.code}
+          />
+          {/* <div className=" relative inline-block text-left dropdown">
             <span className="rounded-md shadow-sm">
               <button
                 className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800"
@@ -107,7 +103,7 @@ export function SideBar({
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="flex flex-col relative left-64 w-3/4">{children}</div>

@@ -8,57 +8,17 @@ import {
   AboutComponent,
   GeneralComponent,
 } from '../components';
-
-interface SideMenu {
-  displayName: string;
-  key: string;
-  isActive: boolean;
-}
-
-interface UpdaterStates {
-  state:
-  | 'check-update'
-  | 'update-available'
-  | 'downloading'
-  | 'downloaded'
-  | 'error'
-  | 'not-started'
-  | 'up-to-date'
-  | 'cancel'
-  ;
-  data: any;
-  label:
-  | 'CHECKING'
-  | 'DOWNLOADING'
-  | 'QUIT_N_INSTALL'
-  | 'UP_TO_DATE'
-  | 'UPDATE_AVAILABLE'
-  | 'CHECK_FOR_UPDATE';
-}
-
-interface IServerSetting {
-  PORT: number;
-  GAUZY_API_SERVER_URL: string;
-  NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
-}
-
-interface IPopup {
-  type: 'success' | 'error' | 'none';
-  isShow: boolean;
-}
-
-interface Languages {
-  code: string;
-  label: string;
-}
-
-type UpdateSetting = {
-  autoUpdate: boolean;
-  updateCheckPeriode: string;
-};
+import {
+  IUpdaterStates,
+  IUpdateSetting,
+  IServerSetting,
+  IPopup,
+  ILanguages,
+  ISideMenu,
+} from '../libs/interfaces';
 
 export function Setting() {
-  const [menus, setMenu] = useState<SideMenu[]>([
+  const [menus, setMenu] = useState<ISideMenu[]>([
     {
       displayName: 'UPDATER',
       key: 'updater',
@@ -76,12 +36,12 @@ export function Setting() {
     },
   ]);
 
-  const [updateSetting, setUpdateSetting] = useState<UpdateSetting>({
+  const [updateSetting, setUpdateSetting] = useState<IUpdateSetting>({
     autoUpdate: false,
     updateCheckPeriode: '180',
   });
 
-  const [langs, setLangs] = useState<Languages[]>([
+  const [langs, setLangs] = useState<ILanguages[]>([
     {
       code: 'en',
       label: 'English',
@@ -94,7 +54,7 @@ export function Setting() {
 
   const [lng, setLng] = useState<string>('en');
 
-  const [updateStates, setUpdateState] = useState<UpdaterStates>({
+  const [updateStates, setUpdateState] = useState<IUpdaterStates>({
     state: 'not-started',
     data: null,
     label: 'CHECK_FOR_UPDATE',
@@ -127,12 +87,12 @@ export function Setting() {
     setMenu(newMenu);
   };
 
-  const changeLanguage = (lang: Languages) => {
+  const changeLanguage = (lang: ILanguages) => {
     sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
     setLng(lang.code);
   };
 
-  const saveSettingUpdate = (data: UpdateSetting) => {
+  const saveSettingUpdate = (data: IUpdateSetting) => {
     sendingMessageToMain(data, SettingPageTypeMessage.updateSetting);
   };
 
@@ -143,7 +103,7 @@ export function Setting() {
     });
   };
 
-  const updateDataSettingUpdate = (data: UpdateSetting) => {
+  const updateDataSettingUpdate = (data: IUpdateSetting) => {
     setUpdateSetting(data);
   };
 

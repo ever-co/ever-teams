@@ -4,37 +4,15 @@ import { SelectComponent } from './Select';
 import { useEffect, useState } from 'react';
 import { ToastComponent } from './Toast';
 import { SettingPageTypeMessage } from '../../main/helpers/constant';
+import { DefaultRangeUpdateTimes } from '../libs/constant';
+import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
+import {
+  IProgressComponent,
+  IRangeUpdates,
+  IUpdaterComponent,
+} from '../libs/interfaces';
 
-interface UpdaterStates {
-  state:
-  | 'check-update'
-  | 'update-available'
-  | 'downloading'
-  | 'downloaded'
-  | 'error'
-  | 'not-started'
-  | 'up-to-date'
-  | 'cancel'
-  ;
-  data: any;
-  label:
-  | 'CHECKING'
-  | 'DOWNLOADING'
-  | 'QUIT_N_INSTALL'
-  | 'UP_TO_DATE'
-  | 'UPDATE_AVAILABLE'
-  | 'CHECK_FOR_UPDATE';
-}
-type PropsProgress = {
-  updateStates: UpdaterStates;
-};
-
-type UpdateSetting = {
-  autoUpdate: boolean;
-  updateCheckPeriode: string;
-};
-
-const ProgressComponent = (props: PropsProgress) => {
+const ProgressComponent = (props: IProgressComponent) => {
   const { t } = useTranslation();
   return (
     <div className="flex">
@@ -70,40 +48,11 @@ const ProgressComponent = (props: PropsProgress) => {
   );
 };
 
-type Props = {
-  checkForUpdate: () => void;
-  loading: boolean;
-  updateStates: UpdaterStates;
-  Popup: JSX.Element;
-  data: UpdateSetting;
-  changeAutoUpdate: (data: UpdateSetting) => void;
-  saveSettingUpdate: (data: UpdateSetting) => void;
-};
-
-type RangeUpdates = {
-  value: string;
-  label: string;
-};
-export const UpdaterComponent = (props: Props) => {
+export const UpdaterComponent = (props: IUpdaterComponent) => {
   const { t } = useTranslation();
-  const [rangeUpdate, setRangeUpdate] = useState<RangeUpdates[]>([
-    {
-      value: '30',
-      label: `30_MINUTES`,
-    },
-    {
-      value: '60',
-      label: `A_HOURS`,
-    },
-    {
-      value: '180',
-      label: `3_HOURS`,
-    },
-    {
-      value: '1140',
-      label: `A_DAY`,
-    },
-  ]);
+  const [rangeUpdate, _] = useState<IRangeUpdates[]>(DefaultRangeUpdateTimes);
+
+  const [updateLogs, setUpdateLogs] = useState<string[]>([]);
 
   const [toastShow, setToastShow] = useState<boolean>(false);
 
@@ -129,17 +78,22 @@ export const UpdaterComponent = (props: Props) => {
     });
   };
 
-  useEffect(() => {
-    window.electron.ipcRenderer.once('setting-page', (arg: any) => {
-      switch (arg.type) {
-        case SettingPageTypeMessage.updateSettingResponse:
-          setOpen();
-          break;
+  const updaterEvent = (arg: any) => {
+    switch (arg.type) {
+      case SettingPageTypeMessage.updateSettingResponse:
+        setOpen();
+        break;
+      case LOG_TYPES.UPDATE_LOG:
+        setUpdateLogs((prev) => [...prev, arg.msg]);
+        break;
+      default:
+        break;
+    }
+  };
 
-        default:
-          break;
-      }
-    });
+  useEffect(() => {
+    window.electron.ipcRenderer.removeEventListener(IPC_TYPES.UPDATER_PAGE);
+    window.electron.ipcRenderer.on(IPC_TYPES.UPDATER_PAGE, updaterEvent);
   }, []);
 
   return (
@@ -191,7 +145,10 @@ export const UpdaterComponent = (props: Props) => {
               <div className="flex w-2/2">
                 <SelectComponent
                   title={t('FORM.FIELDS.OPTIONS')}
-                  items={rangeUpdate}
+                  items={rangeUpdate.map((i) => ({
+                    ...i,
+                    label: `FORM.LABELS.UPDATE_OPTIONS.${i.label}`,
+                  }))}
                   value={props.data.updateCheckPeriode}
                   defaultValue={props.data.updateCheckPeriode}
                   disabled={!props.data.autoUpdate}
@@ -224,12 +181,53 @@ export const UpdaterComponent = (props: Props) => {
           )}
           {!props.loading && t(`FORM.LABELS.${props.updateStates.label}`)}
         </button>
+        <div className="grid divide-y divide-neutral-200 shadow-lg mx-auto mt-8">
+          <div className="py-5 px-5">
+            <details className="group">
+              <summary className="flex justify-between items-center font-medium cursor-pointer list-none">
+                <span> Update Logs</span>
+                <span className="transition group-open:rotate-180">
+                  <svg
+                    fill="none"
+                    height="24"
+                    shapeRendering="geometricPrecision"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    viewBox="0 0 24 24"
+                    width="24"
+                  >
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+              </summary>
+              <div
+                className="inline-block w-full bg-black text-white text-xs leading-3"
+                style={{
+                  minHeight: '150px',
+                  maxHeight: '150px',
+                  overflowY: 'auto',
+                }}
+              >
+                <div className="ml-1 mt-1">
+                  {updateLogs.length > 0 &&
+                    updateLogs.map((ulog, i) => (
+                      <div className="py-1" key={i}>
+                        <span>{ulog}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
       </div>
       {props.Popup}
       <ToastComponent
         show={toastShow}
-        title="Info"
-        message="Update Successfully"
+        title="MESSAGE.INFO"
+        message="MESSAGE.UPDATE_SUCCESS"
         onClose={CloseToast}
         autoClose={true}
         timeout={1000}
