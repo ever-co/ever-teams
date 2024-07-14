@@ -20,7 +20,7 @@ import { useCallback, useEffect, useMemo, useState, FormEvent } from 'react';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
-import { SettingFilterIcon, TrashIcon } from 'assets/svg';
+import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { Modal, Divider } from 'lib/components';
 import api from '@app/services/client/axios';
