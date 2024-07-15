@@ -147,22 +147,22 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
-
+	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans?.length > 0 ? (
+			{filterAllPlanData?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={
 						currentTab === 'Today Tasks'
 							? [new Date().toISOString().split('T')[0]]
-							: [filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+							: [filterAllPlanData?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 					}
 				>
-					{filteredPlans?.map((plan) => (
+					{filterAllPlanData?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
