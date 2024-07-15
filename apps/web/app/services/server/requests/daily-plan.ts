@@ -7,7 +7,7 @@ export function getAllDayPlans({
 	organizationId,
 	tenantId,
 	bearer_token,
-	relations = ['employee', 'tasks']
+	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
 }: {
 	organizationId: string;
 	tenantId: string;
@@ -36,7 +36,7 @@ export function getMyDailyPlansRequest({
 	organizationId,
 	tenantId,
 	bearer_token,
-	relations = ['employee', 'tasks']
+	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
 }: {
 	organizationId: string;
 	tenantId: string;
@@ -66,7 +66,7 @@ export function getDayPlansByEmployee({
 	organizationId,
 	tenantId,
 	bearer_token,
-	relations = ['employee', 'tasks']
+	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
 }: {
 	employeeId: string;
 	organizationId: string;
