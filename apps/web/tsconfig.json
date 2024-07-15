@@ -2,7 +2,12 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"target": "ES2015",
-		"lib": ["dom", "dom.iterable", "esnext", "es2015"],
+		"lib": [
+			"dom",
+			"dom.iterable",
+			"esnext",
+			"es2015"
+		],
 		"allowJs": true,
 		"skipLibCheck": true,
 		"strict": true,
@@ -16,8 +21,12 @@
 		"jsx": "preserve",
 		"baseUrl": ".",
 		"paths": {
-			"@components/*": ["./components/*"],
-			"@app/*": ["./app/*"]
+			"@components/*": [
+				"./components/*"
+			],
+			"@app/*": [
+				"./app/*"
+			]
 		},
 		"incremental": true,
 		"plugins": [
@@ -26,6 +35,15 @@
 			}
 		]
 	},
-	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", ".next/types/**/*.ts"],
-	"exclude": ["node_modules"]
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		"**/*.js",
+		"**/*.jsx",
+		".next/types/**/*.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }

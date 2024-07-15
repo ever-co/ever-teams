@@ -20,6 +20,7 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
+import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -38,9 +39,12 @@ export function UserProfilePlans() {
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
-
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
+
+	const { filteredFuturePlanData: filterFuturePlanData } = useFilterDateRange(futurePlans, 'future');
+	const { filteredPastPlanData: filterPastPlanData } = useFilterDateRange(pastPlans, 'past');
+	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(sortedPlans, 'all');
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} />,
@@ -88,9 +92,9 @@ export function UserProfilePlans() {
 													)}
 												>
 													{filter === 'Today Tasks' && todayPlan.length}
-													{filter === 'Future Tasks' && futurePlans.length}
-													{filter === 'Past Tasks' && pastPlans.length}
-													{filter === 'All Tasks' && sortedPlans.length}
+													{filter === 'Future Tasks' && filterFuturePlanData?.length}
+													{filter === 'Past Tasks' && filterPastPlanData?.length}
+													{filter === 'All Tasks' && filterAllPlanData?.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
 												</span>
 											</div>

@@ -12,23 +12,25 @@ import { clsxm } from '@app/utils';
 import { HorizontalSeparator } from 'lib/components';
 import { useState } from 'react';
 import { AlertPopup } from 'lib/components';
+import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
+	const { filteredFuturePlanData: filteredFuturePlanData } = useFilterDateRange(futurePlans, 'future');
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{futurePlans.length > 0 ? (
+			{filteredFuturePlanData.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 				>
-					{futurePlans.map((plan) => (
+					{filteredFuturePlanData.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
