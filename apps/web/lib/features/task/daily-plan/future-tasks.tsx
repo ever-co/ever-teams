@@ -12,23 +12,26 @@ import { clsxm } from '@app/utils';
 import { HorizontalSeparator } from 'lib/components';
 import { useState } from 'react';
 import { AlertPopup } from 'lib/components';
+import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
+	const { filteredFuturePlanData: filteredFuturePlanData } = useFilterDateRange(futurePlans, 'future');
+	const [currentDelete, setCurrentDelete] = useState("");
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{futurePlans.length > 0 ? (
+			{filteredFuturePlanData.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 				>
-					{futurePlans.map((plan) => (
+					{filteredFuturePlanData.map((plan, index) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
@@ -80,11 +83,14 @@ export function FutureTasks({ profile }: { profile: any }) {
 								{canSeeActivity ? (
 									<div className="flex justify-end">
 										<AlertPopup
-											open={popupOpen}
+											open={currentDelete === plan.id && popupOpen}
 											buttonOpen={
 												//button open popup
 												<Button
-													onClick={() => setPopupOpen(true)}
+													onClick={() => {
+														setCurrentDelete(plan?.id ?? "")
+														setPopupOpen(true)
+													}}
 													variant="outline"
 													className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 												>
@@ -95,7 +101,9 @@ export function FutureTasks({ profile }: { profile: any }) {
 											{/*button confirm*/}
 											<Button
 												disabled={deleteDailyPlanLoading}
-												onClick={() => deleteDailyPlan(plan.id ?? '')}
+												onClick={() => {
+													deleteDailyPlan(plan.id ?? '')
+												}}
 												variant="destructive"
 												className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 											>

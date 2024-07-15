@@ -8,20 +8,23 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { HorizontalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
+import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
 export function PastTasks({ profile }: { profile: any }) {
 	const { pastPlans } = useDailyPlan();
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+	const { filteredPastPlanData: filteredPastPlanData } = useFilterDateRange(pastPlans, 'past');
+
 	return (
 		<div className="flex flex-col gap-6">
-			{pastPlans?.length > 0 ? (
+			{filteredPastPlanData?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 				>
-					{pastPlans?.map((plan) => (
+					{filteredPastPlanData?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}

@@ -20,6 +20,7 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
+import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -38,9 +39,12 @@ export function UserProfilePlans() {
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
-
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
+
+	const { filteredFuturePlanData: filterFuturePlanData } = useFilterDateRange(futurePlans, 'future');
+	const { filteredPastPlanData: filterPastPlanData } = useFilterDateRange(pastPlans, 'past');
+	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(sortedPlans, 'all');
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} />,
@@ -88,9 +92,9 @@ export function UserProfilePlans() {
 													)}
 												>
 													{filter === 'Today Tasks' && todayPlan.length}
-													{filter === 'Future Tasks' && futurePlans.length}
-													{filter === 'Past Tasks' && pastPlans.length}
-													{filter === 'All Tasks' && sortedPlans.length}
+													{filter === 'Future Tasks' && filterFuturePlanData?.length}
+													{filter === 'Past Tasks' && filterPastPlanData?.length}
+													{filter === 'All Tasks' && filterAllPlanData?.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
 												</span>
 											</div>
@@ -138,27 +142,31 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	let filteredPlans: IDailyPlan[] = [];
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
+	const [currentId, setCurrentId] = useState("");
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
+	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
+	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
+
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans?.length > 0 ? (
+			{filterPlans?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={
 						currentTab === 'Today Tasks'
 							? [new Date().toISOString().split('T')[0]]
-							: [filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+							: [filterPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 					}
 				>
-					{filteredPlans?.map((plan) => (
+					{filterPlans?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
@@ -212,11 +220,14 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 										{canSeeActivity ? (
 											<div className="flex justify-end">
 												<AlertPopup
-													open={popupOpen}
+													open={currentId === plan.id && popupOpen}
 													buttonOpen={
 														//button open popup
 														<Button
-															onClick={() => setPopupOpen(true)}
+															onClick={() => {
+																setCurrentId(plan.id ?? "")
+																setPopupOpen(true)
+															}}
 															variant="outline"
 															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 														>
