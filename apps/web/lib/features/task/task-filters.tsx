@@ -453,13 +453,13 @@ function InputFilters({ hook, profile }: Props) {
 					titleClass="text-[16px] font-bold"
 				>
 					<Divider className="mt-4" />
-					<form onSubmit={handleSubmit} className="text-[13px] w-[80%]">
+					<form onSubmit={handleSubmit} className="text-[13px] w-[90%]">
 						<div className="mb-4">
 							<label className="block text-gray-700 mb-1">Date<span className="text-[#de5505e1] ml-1">*</span></label>
 							<div className="w-full p-2 border border-gray-300 rounded-[10px]">
 								<DatePicker
 									buttonVariant={'link'}
-									buttonClassName={'p-0 decoration-transparent h-[0.875rem] w-full'}
+									buttonClassName={'py-3 decoration-transparent h-[0.875rem] w-full flex items-center'}
 									customInput={
 										<div
 											className={clsxm(
