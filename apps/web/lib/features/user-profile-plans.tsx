@@ -142,7 +142,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	let filteredPlans: IDailyPlan[] = [];
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
-	const [currentId, setCurrentId] = useState("");
+	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
@@ -150,9 +150,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
 	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
-
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -166,7 +164,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 							: [filterPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 					}
 				>
-					{filterPlans?.map((plan) => (
+					{filterPlans?.map((plan, index) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
@@ -220,13 +218,13 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 										{canSeeActivity ? (
 											<div className="flex justify-end">
 												<AlertPopup
-													open={currentId === plan.id && popupOpen}
+													open={currentDeleteIndex === index && popupOpen}
 													buttonOpen={
 														//button open popup
 														<Button
 															onClick={() => {
-																setCurrentId(plan.id ?? "")
-																setPopupOpen(true)
+																setCurrentDeleteIndex(index)
+																setPopupOpen(prev => !prev);
 															}}
 															variant="outline"
 															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"

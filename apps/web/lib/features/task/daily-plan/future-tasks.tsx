@@ -19,7 +19,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const { filteredFuturePlanData: filteredFuturePlanData } = useFilterDateRange(futurePlans, 'future');
-	const [currentDelete, setCurrentDelete] = useState("");
+	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
@@ -83,19 +83,20 @@ export function FutureTasks({ profile }: { profile: any }) {
 								{canSeeActivity ? (
 									<div className="flex justify-end">
 										<AlertPopup
-											open={currentDelete === plan.id && popupOpen}
+											open={currentDeleteIndex === index && popupOpen}
 											buttonOpen={
 												//button open popup
 												<Button
 													onClick={() => {
-														setCurrentDelete(plan?.id ?? "")
-														setPopupOpen(true)
+														setPopupOpen(prev => !prev)
+														setCurrentDeleteIndex(index)
 													}}
 													variant="outline"
 													className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 												>
 													Delete this plan
 												</Button>
+
 											}
 										>
 											{/*button confirm*/}
