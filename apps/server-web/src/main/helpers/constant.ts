@@ -1,3 +1,4 @@
+import { Channels } from './interfaces'
 export const EventLists = {
   webServerStarted: 'WEB_SERVER_STARTED',
   webServerStopped: 'WEB_SERVER_STOPPED',
@@ -11,7 +12,9 @@ export const EventLists = {
   UPDATE_PROGRESS: 'UPDATE_PROGRESS',
   UPDATE_DOWNLOADED: 'UPDATE_DOWNLOADED',
   UPDATE_CANCELLED: 'UPDATE_CANCELLED',
-  CHANGE_LANGUAGE: 'CHANGE_LANGUAGE'
+  CHANGE_LANGUAGE: 'CHANGE_LANGUAGE',
+  OPEN_WEB: 'OPEN_WEB',
+  SERVER_WINDOW: 'SERVER_WINDOW'
 }
 
 export const SettingPageTypeMessage = {
@@ -31,4 +34,24 @@ export const SettingPageTypeMessage = {
   updateSetting: 'update-setting',
   updateSettingResponse: 'update-setting-response',
   updateCancel: 'update-cancel'
+}
+
+export const ServerPageTypeMessage = {
+  SERVER_STATUS: 'server-status',
+  SERVER_EXEC: 'server-exec'
+}
+
+export const LOG_TYPES = {
+  UPDATE_LOG: 'UPDATE-LOG',
+  SERVER_LOG: 'SERVER-LOG'
+}
+
+export const IPC_TYPES: {
+  SETTING_PAGE: Channels,
+  UPDATER_PAGE: Channels,
+  SERVER_PAGE: Channels
+} = {
+  SETTING_PAGE: 'setting-page',
+  UPDATER_PAGE: 'updater-page',
+  SERVER_PAGE: 'server-page'
 }

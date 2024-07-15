@@ -3,6 +3,7 @@ import { DesktopServerFactory } from './services/desktop-server-factory';
 import EventEmitter from 'events';
 import { Observer } from './services/utils';
 import NotificationDesktop from '../windows/desktop-notifier';
+import { LOG_TYPES } from './constant';
 // Define server states
 export enum ServerState {
 	STOPPED = 'stopped',
@@ -34,7 +35,7 @@ export class DesktopServer {
 		mainWindow?: BrowserWindow,
 		signal?: AbortSignal,
 	): Promise<void> {
-		console.log('DesktopServer -> start');
+		console.log(LOG_TYPES.SERVER_LOG, 'DesktopServer -> start');
 
 		try {
 			if (this.state !== ServerState.STOPPED) {
