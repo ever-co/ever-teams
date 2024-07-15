@@ -92,7 +92,7 @@ export function getOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'projects',
-			'projects.repository'
+			'projects.customFields.repository'
 		]
 	}: ITeamRequestParams & { teamId: string },
 	bearer_token: string
@@ -139,7 +139,7 @@ export function getAllOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'projects',
-			'projects.repository'
+			'projects.customFields.repository'
 		]
 	}: ITeamRequestParams,
 	bearer_token: string
