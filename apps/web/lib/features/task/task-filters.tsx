@@ -28,6 +28,7 @@ import { MdOutlineMoreTime } from "react-icons/md";
 import { IoIosTimer } from "react-icons/io";
 import { FiLoader } from "react-icons/fi";
 import { DatePicker } from '@components/ui/DatePicker';
+import CustomTimePicker from '@components/ui/TimePicker/Index';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useDateRange } from '@app/hooks/useDateRange';
@@ -290,7 +291,6 @@ function InputFilters({ hook, profile }: Props) {
 	const [description, setDescription] = useState<string>('');
 	const [reason, setReason] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const [minStartTime, setMinStartTime] = useState<string>('');
 	const [errorMsg, setError] = useState<string>('');
 	const [loading1, setLoading1] = useState<boolean>(false);
 
@@ -300,7 +300,6 @@ function InputFilters({ hook, profile }: Props) {
 		const now = new Date();
 		const currentDate = now.toISOString().slice(0, 10);
 		const currentTime = now.toTimeString().slice(0, 5);
-		setMinStartTime(currentTime);
 
 		setDate(currentDate);
 		setStartTime(currentTime);
@@ -350,10 +349,6 @@ function InputFilters({ hook, profile }: Props) {
 
 	const calculateTimeDifference = () => {
 
-		if (!startTime || !endTime) {
-			return;
-		}
-
 		const [startHours, startMinutes] = startTime.split(':').map(Number);
 		const [endHours, endMinutes] = endTime.split(':').map(Number);
 
@@ -367,11 +362,12 @@ function InputFilters({ hook, profile }: Props) {
 
 		const hours = Math.floor(diffMinutes / 60);
 		const minutes = diffMinutes % 60;
-
+        console.log("updtated")
 		setTimeDifference(`${hours} Hours ${minutes} Minutes`);
 	};
 
 	useEffect(() => {
+		console.log("updtaed 2")
 		calculateTimeDifference();
 	}, [endTime, startTime]);
 
@@ -505,20 +501,20 @@ function InputFilters({ hook, profile }: Props) {
 						</div>
 						<div className='flex items-center'>
 							<div className="mb-4 w-[48%] mr-[4%]">
-								<label className="block text-gray-700 mb-1">Start time<span className="text-[#de5505e1] ml-1">*</span></label>
+								{/* <label className="block text-gray-700 mb-1">Start time<span className="text-[#de5505e1] ml-1">*</span></label>
 								<input
 									type="time"
 									value={startTime}
 									onChange={(e) => setStartTime(e.target.value)}
 									className="w-full p-2 border text-[13px] font-bold border-gray-300 rounded-[10px]"
-									min={minStartTime}
+									// min={minStartTime}
 									required
-								/>
-
+								/> */}
+								<CustomTimePicker selectedTime={(newTime) => {setStartTime(newTime);  calculateTimeDifference()}} containerStyle={"mb-4 w-[48%] mr-[4%]"} />
 							</div>
 
 							<div className="mb-4 w-[48%]">
-								<label className="block text-gray-700 mb-1">End time<span className="text-[#de5505e1] ml-1">*</span></label>
+								{/* <label className="block text-gray-700 mb-1">End time<span className="text-[#de5505e1] ml-1">*</span></label>
 								<input
 									type="time"
 									value={endTime}
@@ -526,7 +522,8 @@ function InputFilters({ hook, profile }: Props) {
 									className="w-full p-2 border text-[13px] font-bold border-gray-300 rounded-[10px]"
 									min={startTime}
 									required
-								/>
+								/> */}
+								<CustomTimePicker selectedTime={(newTime) => {setEndTime(newTime);  calculateTimeDifference()}} containerStyle={"mb-4 w-[48%] mr-[4%]"} />
 							</div>
 						</div>
 
