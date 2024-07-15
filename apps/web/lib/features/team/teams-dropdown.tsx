@@ -7,12 +7,14 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown, Tooltip } from 'lib/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CreateTeamModal } from './create-team-modal';
-import { TeamItem, mapTeamItems } from './team-item';
+import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
+import { useOrganizationAndTeamManagers } from '@app/hooks/features/useOrganizationTeamManagers';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
 	const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();
 	const { toast } = useToast();
@@ -72,6 +74,10 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 				publicTeam={publicTeam}
 			>
+				{userManagedTeams.length > 1 && (
+					<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+				)}
+
 				{!publicTeam && (
 					<Tooltip
 						enabled={!user?.isEmailVerified}

@@ -14,6 +14,8 @@
 		"CARDS": "Karty",
 		"KANBAN": "Kanban",
 		"TABLE": "Tabela",
+		"TEAMS": "Zespoły",
+		"COMBINE": "Łączyć",
 		"INVITED": "Zaproszony",
 		"EXPIRE": "Wygasa",
 		"EXPIRED": "Wygasło",
@@ -92,6 +94,7 @@
 		"DESCRIPTION": "Opis",
 		"CHILD_ISSUE_TASK": "Wybierz zadanie podrzędne",
 		"CREATE_TEAM": "Utwórz nowy zespół",
+		"ALL_TEAMS": "Wszystkie zespoły",
 		"VERIFY_ACCOUNT_MSG": "Zweryfikuj swoje konto przed rozpoczęciem korzystania z aplikacji",
 		"CREATE_ROLE": "Utwórz rolę",
 		"CREATE": "Utwórz",
@@ -568,6 +571,13 @@
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Ile godzin pracowano dzisiaj nad wszystkimi zadaniami dla wybranego zespołu"
 		},
 		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie"
+	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "Plan na dzisiaj",
+		"PLAN_FOR_TOMORROW": "Plan na jutro",
+		"PLAN_FOR_SOME_DAY": "Plan na pewien dzień",
+		"ADD_TASK_TO_PLAN": "Dodaj tę zadanie do planu",
+		"REMOVE_FROM_THIS_PLAN": "Usuń z tego planu"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Wprowadź swoje imię",

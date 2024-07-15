@@ -1,11 +1,7 @@
 import { useTranslation } from 'react-i18next';
-type Props = {
-  isShowPopup: boolean;
-  modalAction: () => void;
-  type: 'success' | 'error' | 'none';
-  message: string;
-};
-export function Popup(props: Props) {
+import { IPopupComponent } from '../libs/interfaces';
+
+export function Popup(props: IPopupComponent) {
   const { t } = useTranslation();
   return (
     <div

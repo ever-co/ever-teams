@@ -29,6 +29,8 @@ export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
 
+	const [headerSize, setHeaderSize] = useState(10);
+
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
@@ -102,7 +104,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 			) : (
 				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 					<ResizablePanelGroup direction="vertical">
-						<ResizablePanel defaultSize={47} maxSize={50}>
+						<ResizablePanel
+							defaultSize={47}
+							maxSize={50}
+							className={clsxm(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
+							onResize={(size) => setHeaderSize(size)}
+						>
 							<MainHeader
 								fullWidth={fullWidth}
 								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
