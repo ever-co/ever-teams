@@ -2,7 +2,7 @@ import { ChildProcessFactory, Observer } from '../utils';
 import { BrowserWindow } from 'electron';
 import { ServerConfig } from './server-config';
 import EventEmitter from 'events';
-import { EventLists } from '../../constant';
+import { EventLists, LOG_TYPES } from '../../constant';
 // import { Timeout } from '../../decorators';
 
 export abstract class ServerTask {
@@ -72,7 +72,7 @@ export abstract class ServerTask {
 
 				const service = ChildProcessFactory.createProcess(this.processPath, this.args, signal);
 
-				console.log('Service created', service.pid);
+				console.log(LOG_TYPES.SERVER_LOG, 'Service created', service.pid);
 
 				service.stdout?.on('data', (data: any) => {
 					const msg = data.toString();
@@ -93,12 +93,12 @@ export abstract class ServerTask {
 				});
 
 				service.stderr?.on('data', (data: any) => {
-					console.log('stderr:', data.toString());
+					console.log(LOG_TYPES.SERVER_LOG, 'stderr:', data.toString());
 					this.loggerObserver.notify(data.toString());
 				});
 
 				service.on('disconnect', () => {
-					console.log('Webserver disconnected');
+					console.log(LOG_TYPES.SERVER_LOG, 'Webserver disconnected');
 					if (this.eventEmmitter) {
 						this.eventEmmitter.emit(EventLists.webServerStopped);
 					}

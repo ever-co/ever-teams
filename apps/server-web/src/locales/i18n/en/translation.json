@@ -10,7 +10,9 @@
     "APP_QUIT": "Quit",
     "GENERAL": "General",
     "SERVER_STATUS_STOPPED": "Status: Stopped",
-    "SERVER_STATUS_STARTED": "Status: Started"
+    "SERVER_STATUS_STARTED": "Status: Started",
+    "OPEN_WEB": "Open Web In Browser",
+    "SERVER_WINDOW": "Server Window"
   },
   "FORM": {
     "FIELDS": {
@@ -27,7 +29,10 @@
       "NO": "No",
       "DOWNLOAD_NOW": "Download Now",
       "LATER": "Later",
-      "CANCEL": "Cancel"
+      "CANCEL": "Cancel",
+      "CLOSE": "Close",
+      "START": "Start",
+      "STOP": "Stop"
     },
     "LABELS": {
       "CHECKING": "Checking",
@@ -47,7 +52,8 @@
       "AUTO_UPDATE_SUBTITLE": "Enable automatice update check, in order to run a request to check if new version is available and notify",
       "AUTO_UPDATE_TOGLE": "Automatic Update",
       "CHECK_UPDATE_TITLE": "Check & Update your app version",
-      "CHECK_UPDATE_SUBTITLE": "New Update is available! Please click button Download Now below."
+      "CHECK_UPDATE_SUBTITLE": "New Update is available! Please click button Download Now below.",
+      "LANGUAGES": "Languages"
     }
   },
   "MESSAGE": {
@@ -56,6 +62,11 @@
     "WARNING": "Warning",
     "INFO": "Info",
     "UPDATE_AVAILABLE": "New Update is available! Please click button Download Now below.",
-    "EXIT_MESSAGE": "Server web still running, Are you sure to exit the app ?"
+    "EXIT_MESSAGE": "Server web still running, Are you sure to exit the app ?",
+    "UPDATE_SUCCESS": "Update Successfully"
+  },
+  "LANGUAGES": {
+    "en": "English",
+    "bg": "Bulgaria"
   }
 }
