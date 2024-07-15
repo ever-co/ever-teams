@@ -510,7 +510,7 @@ function InputFilters({ hook, profile }: Props) {
 									// min={minStartTime}
 									required
 								/> */}
-								<CustomTimePicker selectedTime={(newTime) => {setStartTime(newTime);  calculateTimeDifference()}} containerStyle={"mb-4 w-[48%] mr-[4%]"} />
+								<CustomTimePicker selectedTime={(newTime) => {setStartTime(newTime);  calculateTimeDifference()}} containerStyle={"mb-4 w-full mr-[4%]"} />
 							</div>
 
 							<div className="mb-4 w-[48%]">
@@ -523,7 +523,7 @@ function InputFilters({ hook, profile }: Props) {
 									min={startTime}
 									required
 								/> */}
-								<CustomTimePicker selectedTime={(newTime) => {setEndTime(newTime);  calculateTimeDifference()}} containerStyle={"mb-4 w-[48%] mr-[4%]"} />
+								<CustomTimePicker selectedTime={(newTime) => {setEndTime(newTime);  calculateTimeDifference()}} containerStyle={"mb-4 w-full"} />
 							</div>
 						</div>
 
