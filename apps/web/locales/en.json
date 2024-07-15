@@ -13,6 +13,8 @@
 		"CARDS": "Cards",
 		"TABLE": "Table",
 		"KANBAN": "Kanban",
+		"TEAMS": "Teams",
+		"COMBINE": "Combine",
 		"INVITE": "Invite",
 		"INVITED": "Invited",
 		"EXPIRE": "Expire",
@@ -92,6 +94,7 @@
 		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Select Child Issue",
 		"CREATE_TEAM": "Create New Team",
+		"ALL_TEAMS": "All Teams",
 		"VERIFY_ACCOUNT_MSG": "Please Verify your account before start using the app",
 		"CREATE_ROLE": "Create Role",
 		"CREATE": "Create",
@@ -568,6 +571,13 @@
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours employee worked today on all tasks for selected Team"
 		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
+	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "Plan for today",
+		"PLAN_FOR_TOMORROW": "Plan for tomorrow",
+		"PLAN_FOR_SOME_DAY": "Plan for some day",
+		"ADD_TASK_TO_PLAN": "Add this task to a plan",
+		"REMOVE_FROM_THIS_PLAN": "Remove from this plan"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Enter your name",

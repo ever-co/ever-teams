@@ -7,18 +7,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { forwardRef } from 'react';
 import classnames from 'classnames';
-type SelectItems = {
-  label: string;
-  value: string;
-};
-type Props = {
-  title: string;
-  items: SelectItems[];
-  defaultValue: string;
-  value: string;
-  disabled: boolean;
-  onValueChange: (val: string) => void;
-};
+import { ISelectComponent } from '../libs/interfaces';
 
 const SelectItem = forwardRef(
   ({ children, className, ...props }: any, forwardedRef) => {
@@ -43,7 +32,7 @@ export const SelectComponent = ({
   value,
   disabled,
   onValueChange,
-}: Props) => {
+}: ISelectComponent) => {
   const { t } = useTranslation();
   return (
     <Select.Root
@@ -70,7 +59,7 @@ export const SelectComponent = ({
             <Select.Group>
               {items.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
-                  {t(`FORM.LABELS.UPDATE_OPTIONS.${item.label}`)}
+                  {t(`${item.label}`)}
                 </SelectItem>
               ))}
             </Select.Group>

@@ -10,6 +10,8 @@
 		"CARDS": "Karten",
 		"TABLE": "Tabelle",
 		"KANBAN": "Kanban",
+		"TEAMS": "Teams",
+		"COMBINE": "Kombinieren",
 		"YESTERDAY": "Gestern",
 		"REJECTED": "Abgelehnt",
 		"VERIFY": "Verifizieren",
@@ -92,6 +94,7 @@
 		"DESCRIPTION": "Beschreibung",
 		"CHILD_ISSUE_TASK": "Untergeordnetes Ticket auswählen",
 		"CREATE_TEAM": "Neues Team erstellen",
+		"ALL_TEAMS": "Alle Teams",
 		"VERIFY_ACCOUNT_MSG": "Bitte verifizieren Sie Ihr Konto, bevor Sie die App nutzen",
 		"CREATE_ROLE": "Rolle erstellen",
 		"CREATE": "Erstellen",
@@ -568,6 +571,13 @@
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Wie viele Stunden hat der Mitarbeiter heute an allen Aufgaben für das ausgewählte Team gearbeitet"
 		},
 		"CONFIRM_CLOSE_TASK": "Bitte bestätigen Sie, ob Sie die Aufgabe schließen möchten"
+	},
+	"dailyPlan": {
+		"PLAN_FOR_TODAY": "Plan für heute",
+		"PLAN_FOR_TOMORROW": "Plan für morgen",
+		"PLAN_FOR_SOME_DAY": "Plan für irgendeinen Tag",
+		"ADD_TASK_TO_PLAN": "Diese Aufgabe zum Plan hinzufügen",
+		"REMOVE_FROM_THIS_PLAN": "Aus diesem Plan entfernen"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ihren Namen eingeben",

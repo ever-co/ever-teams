@@ -5,22 +5,25 @@ import { useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
-import { Container, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
+import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
-import { ReaderIcon, ReloadIcon } from '@radix-ui/react-icons';
-import { OutstandingAll, PastTasks, Outstanding, OutstandingFieltreDate } from './task/daily-plan';
+import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
+import { OutstandingAll, PastTasks, Outstanding, OutstandingFilterDate } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
 import { Button } from '@components/ui/button';
-import { IoCalendarOutline } from "react-icons/io5";
-
+import { IoCalendarOutline } from 'react-icons/io5';
+import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
+import TaskBlockCard from './task/task-block-card';
+import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
-type FiltreOutstanding = 'ALL' | 'DATE';
+type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
 	const defaultTab =
@@ -28,33 +31,35 @@ export function UserProfilePlans() {
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
 
-	const defaultOutstanding = typeof window !== 'undefined' ? (window.localStorage.getItem('outstanding') as FiltreOutstanding) || null : 'ALL';
+	const defaultOutstanding =
+		typeof window !== 'undefined'
+			? (window.localStorage.getItem('outstanding') as FilterOutstanding) || null
+			: 'ALL';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
-
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
-	const [currentOutstanding, setCurrentOutstanding] = useState<FiltreOutstanding>(defaultOutstanding || 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
+	const { filteredFuturePlanData: filterFuturePlanData } = useFilterDateRange(futurePlans, 'future');
+	const { filteredPastPlanData: filterPastPlanData } = useFilterDateRange(pastPlans, 'past');
+	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(sortedPlans, 'all');
 
 	const screenOutstanding = {
-		'ALL': <OutstandingAll profile={profile} />,
-		"DATE": <OutstandingFieltreDate profile={profile} />
-	}
+		ALL: <OutstandingAll profile={profile} />,
+		DATE: <OutstandingFilterDate profile={profile} />
+	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
 		'Future Tasks': <FutureTasks profile={profile} />,
 		'Past Tasks': <PastTasks profile={profile} />,
 		'All Tasks': <AllPlans profile={profile} />,
-		Outstanding: <Outstanding filtre={screenOutstanding[currentOutstanding]} />
+		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
-
-
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
-
 	}, [currentTab]);
 
 	useEffect(() => {
@@ -67,7 +72,7 @@ export function UserProfilePlans() {
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div>
-							<div className='w-full mt-10 mb-5 items-center flex justify-between'>
+							<div className="w-full mt-10 mb-5 items-start flex justify-between">
 								<div className={clsxm('flex justify-start items-center gap-4 ')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
@@ -87,34 +92,39 @@ export function UserProfilePlans() {
 													)}
 												>
 													{filter === 'Today Tasks' && todayPlan.length}
-													{filter === 'Future Tasks' && futurePlans.length}
-													{filter === 'Past Tasks' && pastPlans.length}
-													{filter === 'All Tasks' && sortedPlans.length}
+													{filter === 'Future Tasks' && filterFuturePlanData?.length}
+													{filter === 'Past Tasks' && filterPastPlanData?.length}
+													{filter === 'All Tasks' && filterAllPlanData?.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
 												</span>
 											</div>
 										</div>
 									))}
 								</div>
-								{currentTab === 'Outstanding' && (
-									<Select onValueChange={(value) => {
-										setCurrentOutstanding(value as FiltreOutstanding)
-									}}>
-										<SelectTrigger className="w-[120px] h-9">
-											<SelectValue placeholder="Filter" />
-										</SelectTrigger>
-										<SelectContent className='cursor-pointer'>
-											{Object.keys(screenOutstanding).map((item, index) => (
-												<SelectItem key={index} value={item}>
-													<div className='flex items-center space-x-1'>
-														{item == 'DATE' && <IoCalendarOutline />}
-														<span className='capitalize'>{item}</span>
-													</div>
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								)}
+								<div className="flex flex-col items-end gap-2">
+									<ViewsHeaderTabs />
+									{currentTab === 'Outstanding' && (
+										<Select
+											onValueChange={(value) => {
+												setCurrentOutstanding(value as FilterOutstanding);
+											}}
+										>
+											<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
+												<SelectValue placeholder="Filter" />
+											</SelectTrigger>
+											<SelectContent className="cursor-pointer dark:bg-dark--theme-light border-none dark:border-dark--theme-light">
+												{Object.keys(screenOutstanding).map((item, index) => (
+													<SelectItem key={index} value={item}>
+														<div className="flex items-center space-x-1">
+															{item == 'DATE' ? <IoCalendarOutline /> : <StarIcon />}
+															<span className="capitalize">{item}</span>
+														</div>
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									)}
+								</div>
 							</div>
 							{tabsScreens[currentTab]}
 						</div>
@@ -131,33 +141,43 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
+	const [popupOpen, setPopupOpen] = useState(false);
+	const [currentId, setCurrentId] = useState("");
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
+	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
+	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
+
+	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+
 
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPlans?.length > 0 ? (
+			{filterPlans?.length > 0 ? (
 				<Accordion
 					type="multiple"
 					className="text-sm"
 					defaultValue={
 						currentTab === 'Today Tasks'
 							? [new Date().toISOString().split('T')[0]]
-							: [filteredPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+							: [filterPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 					}
 				>
-					{filteredPlans?.map((plan) => (
+					{filterPlans?.map((plan) => (
 						<AccordionItem
 							value={plan.date.toString().split('T')[0]}
 							key={plan.id}
-							className="dark:border-slate-600"
+							className="dark:border-slate-600 !border-none"
 						>
-							<AccordionTrigger className="hover:no-underline">
-								<div className="text-lg">
-									{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+							<AccordionTrigger className="!min-w-full text-start hover:no-underline">
+								<div className="flex items-center justify-between gap-3 w-full">
+									<div className="text-lg min-w-max">
+										{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+									</div>
+									<HorizontalSeparator />
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
@@ -165,22 +185,33 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 								<PlanHeader plan={plan} planMode={currentTab} />
 
 								{/* Plan tasks list */}
-								<ul className="flex flex-col gap-2 pb-[1.5rem]">
-									{plan.tasks?.map((task) => (
-										<TaskCard
-											key={`${task.id}${plan.id}`}
-											isAuthUser={true}
-											activeAuthTask={true}
-											viewType={'dailyplan'}
-											task={task}
-											profile={profile}
-											type="HORIZONTAL"
-											taskBadgeClassName={`rounded-sm`}
-											taskTitleClassName="mt-[0.0625rem]"
-											planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
-											plan={plan}
-										/>
-									))}
+								<ul
+									className={clsxm(
+										view === 'CARDS' && 'flex-col',
+										view === 'TABLE' && 'flex-wrap',
+										'flex gap-2 pb-[1.5rem]',
+										view === 'BLOCKS' && 'overflow-x-scroll'
+									)}
+								>
+									{plan.tasks?.map((task) =>
+										view === 'CARDS' ? (
+											<TaskCard
+												key={`${task.id}${plan.id}`}
+												isAuthUser={true}
+												activeAuthTask={true}
+												viewType={'dailyplan'}
+												task={task}
+												profile={profile}
+												type="HORIZONTAL"
+												taskBadgeClassName={`rounded-sm`}
+												taskTitleClassName="mt-[0.0625rem]"
+												planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
+												plan={plan}
+											/>
+										) : (
+											<TaskBlockCard key={task.id} task={task} />
+										)
+									)}
 								</ul>
 
 								{/* Delete Plan */}
@@ -188,17 +219,43 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 									<>
 										{canSeeActivity ? (
 											<div className="flex justify-end">
-												<Button
-													disabled={deleteDailyPlanLoading}
-													onClick={() => deleteDailyPlan(plan.id ?? '')}
-													variant="destructive"
-													className="p-7 py-6 font-normal rounded-xl text-md"
+												<AlertPopup
+													open={currentId === plan.id && popupOpen}
+													buttonOpen={
+														//button open popup
+														<Button
+															onClick={() => {
+																setCurrentId(plan.id ?? "")
+																setPopupOpen(true)
+															}}
+															variant="outline"
+															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+														>
+															Delete this plan
+														</Button>
+													}
 												>
-													{deleteDailyPlanLoading && (
-														<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-													)}
-													Delete this plan
-												</Button>
+													{/*button confirm*/}
+													<Button
+														disabled={deleteDailyPlanLoading}
+														onClick={() => deleteDailyPlan(plan.id ?? '')}
+														variant="destructive"
+														className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+													>
+														{deleteDailyPlanLoading && (
+															<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+														)}
+														Delete
+													</Button>
+													{/*button cancel*/}
+													<Button
+														onClick={() => setPopupOpen(false)}
+														variant="outline"
+														className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+													>
+														Cancel
+													</Button>
+												</AlertPopup>
 											</div>
 										) : (
 											<></>
