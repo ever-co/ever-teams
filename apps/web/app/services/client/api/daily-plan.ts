@@ -5,6 +5,7 @@ import {
 	ICreateDailyPlan,
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
+	IRemoveTaskFromManyPlans,
 	IUpdateDailyPlan,
 	PaginationResponse
 } from '@app/interfaces';
@@ -103,6 +104,11 @@ export function removeTaskFromPlanAPI(data: IDailyPlanTasksUpdate, planId: strin
 	const tenantId = getTenantIdCookie();
 
 	return put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
+}
+
+export function removeManyTaskFromPlansAPI({ taskId, data }: { taskId: string, data: IRemoveTaskFromManyPlans }) {
+	const organizationId = getOrganizationIdCookie();
+	return put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId })
 }
 
 export function deleteDailyPlanAPI(planId: string) {

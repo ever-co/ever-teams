@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces/IDailyPlan';
+import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate, IRemoveTaskFromManyPlans, IUpdateDailyPlan } from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
 import { DeleteResponse } from '@app/interfaces';
 
@@ -200,5 +200,14 @@ export function deleteDailyPlanRequest({ planId, bearer_token }: { planId: strin
 		method: 'DELETE',
 		path: `/daily-plan/${planId}`,
 		bearer_token
+	});
+}
+
+export function deleteDailyPlansManyRequest({ bearer_token, taskId, data }: { bearer_token?: string, taskId: string, data: IRemoveTaskFromManyPlans }) {
+	return serverFetch<IDailyPlan[]>({
+		method: 'PUT',
+		path: `/daily-plan/${taskId}/remove`,
+		body: data,
+		bearer_token,
 	});
 }

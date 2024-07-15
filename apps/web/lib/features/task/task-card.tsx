@@ -24,6 +24,7 @@ import {
 	IDailyPlanMode,
 	IDailyPlanTasksUpdate,
 	IOrganizationTeamList,
+	IRemoveTaskFromManyPlans,
 	ITeamTask,
 	Nullable,
 	OT_Member
@@ -591,6 +592,12 @@ function TaskCardMenu({
 																plan={plan}
 															/>
 														</div>
+														<div className='mt-2'>
+															<RemoveManyTaskFromPlan
+																task={task}
+																member={profile?.member}
+															/>
+														</div>
 													</div>
 												) : (
 													<></>
@@ -745,6 +752,26 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 			onClick={onClick}
 		>
 			{t('dailyPlan.REMOVE_FROM_THIS_PLAN')}
+		</span>
+	);
+}
+
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member; }) {
+	// const t = useTranslations();
+	const { removeManyTaskPlans } = useDailyPlan();
+	const data: IRemoveTaskFromManyPlans = { plansIds: [], employeeId: member?.employeeId };
+	const onClick = () => {
+		removeManyTaskPlans(data, task.id ?? '');
+	};
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all text-red-600',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={onClick}
+		>
+			Remove from all plans
 		</span>
 	);
 }
