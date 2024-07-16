@@ -197,7 +197,8 @@
 		"NOT_WORKING": "לא עובד",
 		"WORKING": "עובד",
 		"PAUSED": "מושהה",
-		"ONLINE": "מחובר"
+		"ONLINE": "מחובר",
+		"SKIP_ADD_LATER": "הוסף מאוחר יותר"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "יש לך",
 				"USER_LABEL": "משימות שלא הושלמו, נא לבדוק",
-				"OUTSTANDING_VIEW": "תצוגה ממתינה",
+				"OUTSTANDING_VIEW": "יוצא דופן",
 				"VIEW_BUTTON": "הצג"
 			}
 		},

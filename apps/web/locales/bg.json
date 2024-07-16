@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Не работи",
 		"WORKING": "Работи",
 		"PAUSED": "Пауза",
-		"ONLINE": "Онлайн"
+		"ONLINE": "Онлайн",
+		"SKIP_ADD_LATER": "Добави по-късно"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Имате",
 				"USER_LABEL": "незавършени задачи, моля, проверете",
-				"OUTSTANDING_VIEW": "Преглед на изчакващите задачи",
+				"OUTSTANDING_VIEW": "Изключителен",
 				"VIEW_BUTTON": "Преглед"
 			}
 		},

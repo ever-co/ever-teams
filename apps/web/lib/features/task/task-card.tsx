@@ -416,6 +416,7 @@ function TimerButtonCall({
 				open={isOpen}
 				plan={hasPlan}
 				startTimer={startTimer}
+				hasPlan={!!hasPlan}
 			/>
 		</>
 	);

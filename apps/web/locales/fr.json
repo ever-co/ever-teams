@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Non actif",
 		"WORKING": "Actif",
 		"PAUSED": "En pause",
-		"ONLINE": "En ligne"
+		"ONLINE": "En ligne",
+		"SKIP_ADD_LATER": "Ajouter plus tard"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Vous avez",
 				"USER_LABEL": "des tâches incomplètes, veuillez vérifier",
-				"OUTSTANDING_VIEW": "Vue des tâches en attente",
+				"OUTSTANDING_VIEW": "En attente",
 				"VIEW_BUTTON": "Voir"
 			}
 		},
