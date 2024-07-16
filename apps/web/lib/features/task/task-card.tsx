@@ -133,9 +133,9 @@ export function TaskCard(props: Props) {
 	const taskAssignee: ImageOverlapperProps[] =
 		task?.members?.map((member: any) => {
 			return {
-				id: member.user.id,
-				url: member.user.imageUrl,
-				alt: member.user.firstName
+				id: member.user?.id,
+				url: member.user?.imageUrl,
+				alt: member.user?.firstName
 			};
 		}) || [];
 

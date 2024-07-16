@@ -175,18 +175,20 @@ export function useDailyPlan() {
 	const removeManyTaskPlans = useCallback(
 		async (data: IRemoveTaskFromManyPlans, taskId: string) => {
 			const res = await removeManyTaskPlanQueryCall({ taskId, data });
-			const updatedProfileDailyPlans = profileDailyPlans.items.map((plan) => {
-				return {
-					...plan,
-					tasks: plan?.tasks?.filter((task) => task.id !== taskId),
-				};
-			});
-			const updatedEmployeePlans = employeePlans.map((plan) => {
-				return {
-					...plan,
-					tasks: plan?.tasks?.filter((task) => task.id !== taskId),
-				};
-			});
+			const updatedProfileDailyPlans = profileDailyPlans.items
+				.map((plan) => {
+					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
+					return { ...plan, tasks: updatedTasks };
+				})
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+			// Delete plans without tasks
+			const updatedEmployeePlans = employeePlans
+				.map((plan) => {
+					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
+					return { ...plan, tasks: updatedTasks };
+				})
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+
 			setProfileDailyPlans({
 				total: profileDailyPlans.total,
 				items: updatedProfileDailyPlans

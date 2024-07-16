@@ -15,7 +15,7 @@ export function getAllDayPlansAPI() {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
-	const relations = ['employee', 'tasks', 'employee.user'];
+	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 	const obj = {
 		'where[organizationId]': organizationId,
@@ -34,7 +34,7 @@ export function getMyDailyPlansAPI() {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
-	const relations = ['employee', 'tasks'];
+	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 	const obj = {
 		'where[organizationId]': organizationId,
@@ -53,7 +53,7 @@ export function getDayPlansByEmployeeAPI(employeeId?: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
-	const relations = ['employee', 'tasks'];
+	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 	const obj = {
 		'where[organizationId]': organizationId,
