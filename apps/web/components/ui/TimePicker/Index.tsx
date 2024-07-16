@@ -16,8 +16,8 @@ const CustomTimePicker = ({ selectedTime, containerStyle, disabledTimeRange }:
     const [value, setValue] = useState(getCurrentTime());
     const [isOpen, setIsOpen] = useState(false);
 
-    const formatTime = (time:String) => {
-        const [hours, minutes] = time.split(':').map((part:any) => part.padStart(2, '0'));
+    const formatTime = (time: String) => {
+        const [hours, minutes] = time.split(':').map((part: any) => part.padStart(2, '0'));
         return `${hours}:${minutes}`;
     };
 
@@ -50,7 +50,7 @@ const CustomTimePicker = ({ selectedTime, containerStyle, disabledTimeRange }:
                         closeOnMinuteSelect
                         forceCoarseMinutes
                         coarseMinutes={10}
-                        disabledTimeRange={disabledTimeRange? {...disabledTimeRange} : null}
+                        disabledTimeRange={disabledTimeRange ? { ...disabledTimeRange } : null}
                         doneButton={() => <button
                             className="flex items-center border-[1px] border-gray-300 rounded-[12px] px-[12px] font-bold text-[#25b15d]"
                             onClick={() => setIsOpen(false)}>
