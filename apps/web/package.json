@@ -104,6 +104,7 @@
 		"react-popper": "^2.3.0",
 		"react-popper-tooltip": "^4.4.2",
 		"react-resizable-panels": "^2.0.19",
+		"react-timekeeper": "^2.2.1",
 		"recoil": "^0.7.7",
 		"sharp": "^0.32.6",
 		"slate": "^0.90.0",

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TimeKeeper from 'react-timekeeper';
-import { FaClock } from 'react-icons/fa';
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaClock } from "react-icons/fa";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 const CustomTimePicker = ({ selectedTime, containerStyle, disabledTimeRange }:
