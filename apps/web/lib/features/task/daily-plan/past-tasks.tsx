@@ -23,7 +23,7 @@ export function PastTasks({ profile }: { profile: any }) {
 	return (
 		<div className="flex flex-col gap-6">
 			{pastTasks?.length > 0 ? (
-				<DragDropContext onDragEnd={(resultat) => handleDragAndDrop(resultat, pastPlans, setPastTasks)}>
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, pastPlans, setPastTasks)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
