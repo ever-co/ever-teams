@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Não Trabalhando",
 		"WORKING": "Trabalhando",
 		"PAUSED": "Pausado",
-		"ONLINE": "Online"
+		"ONLINE": "Online",
+		"SKIP_ADD_LATER": "Adicionar depois"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Você tem",
 				"USER_LABEL": "tarefas não concluídas, por favor verifique",
-				"OUTSTANDING_VIEW": "Visualização de pendências",
+				"OUTSTANDING_VIEW": "Pendências",
 				"VIEW_BUTTON": "Ver"
 			}
 		},
