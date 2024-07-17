@@ -262,11 +262,8 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
  * @returns A div with a button, a vertical separator, a button, and a button.
  */
 function InputFilters({ hook, profile }: Props) {
-
-
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
-
 	const osSpecificAssignTaskTooltipLabel = 'A';
 
 	return (

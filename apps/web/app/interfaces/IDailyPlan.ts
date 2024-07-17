@@ -9,7 +9,7 @@ export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
 	status: DailyPlanStatusEnum;
 }
 
-export class IRemoveTaskFromManyPlans {
+export interface IRemoveTaskFromManyPlans {
 	employeeId?: IEmployee['id'];
 	plansIds?: IDailyPlan['id'][];
 	organizationId?: IOrganization['id']

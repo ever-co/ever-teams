@@ -30,7 +30,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
 			const columnInfo = kanbanColumns.find((item) => item.name === key);
-			return { id: columnInfo?.id, name: key, icon: columnInfo ? columnInfo.fullIconUrl : '',color: columnInfo?.color };
+			return { id: columnInfo?.id, name: key, icon: columnInfo ? columnInfo.fullIconUrl : '', color: columnInfo?.color };
 		})
 	);
 	const fullWidth = useRecoilValue(fullWidthState);
@@ -198,7 +198,9 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		<>
 			<DragDropContext onDragEnd={onDragEnd}>
 				{Array.isArray(columns) && columns.length > 0 && (
-					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
+					<Droppable
+						droppableId="droppable"
+						type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 							<div className="flex flex-col h-auto justify-between w-full ">
 								<div
