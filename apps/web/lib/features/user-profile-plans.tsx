@@ -322,7 +322,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0);
-
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
 
 	// Get all tasks's estimations time
