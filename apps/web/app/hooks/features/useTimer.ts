@@ -193,6 +193,11 @@ export function useTimer() {
 			plan.tasks?.length > 0
 	);
 
+	const tomorrow = moment().add(1, 'days');
+	const hasPlanForTomorrow = myDailyPlans.items.find(
+		(plan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+	);
+
 	// Team setting that tells if each member must have a today plan for allowing tracking time
 	const requirePlan = activeTeam?.requirePlanToTrack;
 
@@ -420,6 +425,7 @@ export function useTimer() {
 		startTimer,
 		stopTimer,
 		hasPlan,
+		hasPlanForTomorrow,
 		canRunTimer,
 		canTrack,
 		isPlanVerified,
@@ -460,6 +466,7 @@ export function useTimerView() {
 		startTimer,
 		stopTimer,
 		hasPlan,
+		hasPlanForTomorrow,
 		canRunTimer,
 		canTrack,
 		isPlanVerified,
@@ -491,6 +498,7 @@ export function useTimerView() {
 		timerStatus,
 		activeTeamTask,
 		hasPlan,
+		hasPlanForTomorrow,
 		disabled: !canRunTimer,
 		canTrack,
 		isPlanVerified,

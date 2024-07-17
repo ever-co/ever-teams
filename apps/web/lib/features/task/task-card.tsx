@@ -500,6 +500,7 @@ function TaskCardMenu({
 	}, [memberInfo, task, viewType]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
+	const { hasPlan, hasPlanForTomorrow } = useTimerView();
 
 	return (
 		<Popover>
@@ -556,6 +557,7 @@ function TaskCardMenu({
 														planMode="today"
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
+														hasTodayPlan={hasPlan}
 													/>
 												</li>
 												<li className="mb-2">
@@ -563,6 +565,7 @@ function TaskCardMenu({
 														planMode="tomorow"
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
+														hasPlanForTomorrow={hasPlanForTomorrow}
 													/>
 												</li>
 												<li className="mb-2">
@@ -599,7 +602,7 @@ function TaskCardMenu({
 																plan={plan}
 															/>
 														</div>
-														<div className='mt-2'>
+														<div className="mt-2">
 															<RemoveManyTaskFromPlan
 																task={task}
 																member={profile?.member}
@@ -642,12 +645,16 @@ export function PlanTask({
 	planMode,
 	taskId,
 	employeeId,
-	chooseMember
+	chooseMember,
+	hasTodayPlan,
+	hasPlanForTomorrow
 }: {
 	taskId: string;
 	planMode: IDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
+	hasTodayPlan?: IDailyPlan;
+	hasPlanForTomorrow?: IDailyPlan;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -702,7 +709,7 @@ export function PlanTask({
 					employeeId={employeeId}
 					chooseMember={chooseMember}
 				/>
-				{planMode === 'today' && (
+				{planMode === 'today' && !hasTodayPlan && (
 					<span>
 						{isPending ? (
 							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
@@ -711,7 +718,7 @@ export function PlanTask({
 						)}
 					</span>
 				)}
-				{planMode === 'tomorow' && (
+				{planMode === 'tomorow' && !hasPlanForTomorrow && (
 					<span>
 						{isPending ? (
 							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
@@ -763,7 +770,7 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 	);
 }
 
-export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member; }) {
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
 	const data: IRemoveTaskFromManyPlans = { plansIds: [], employeeId: member?.employeeId };
