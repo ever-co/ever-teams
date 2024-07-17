@@ -35,9 +35,9 @@ export function CreateDailyPlanFormModal({
 	const { handleSubmit, reset } = useForm();
 	const { user } = useAuthenticateUser();
 	const { activeTeam, activeTeamManagers } = useOrganizationTeams();
-	const { createDailyPlan, createDailyPlanLoading, myDailyPlans } = useDailyPlan();
+	const { createDailyPlan, createDailyPlanLoading, profileDailyPlans } = useDailyPlan();
 
-	const existingPlanDates = myDailyPlans.items.map((plan) => new Date(plan.date));
+	const existingPlanDates = profileDailyPlans.items.map((plan) => new Date(plan.date));
 
 	console.log(existingPlanDates);
 
