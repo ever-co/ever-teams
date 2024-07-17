@@ -22,7 +22,7 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
 import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
-type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
+export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
@@ -225,6 +225,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 															onClick={() => {
 																setCurrentDeleteIndex(index)
 																setPopupOpen(prev => !prev);
+
 															}}
 															variant="outline"
 															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"

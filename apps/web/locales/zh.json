@@ -197,7 +197,8 @@
 		"NOT_WORKING": "不工作",
 		"WORKING": "工作",
 		"PAUSED": "暂停",
-		"ONLINE": "在线"
+		"ONLINE": "在线",
+		"SKIP_ADD_LATER": "稍后添加"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "您有",
 				"USER_LABEL": "未完成的任务，请检查",
-				"OUTSTANDING_VIEW": "待处理视图",
+				"OUTSTANDING_VIEW": "突出",
 				"VIEW_BUTTON": "查看"
 			}
 		},

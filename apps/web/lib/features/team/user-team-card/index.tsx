@@ -195,13 +195,15 @@ export function UserTeamCard({
 							memberInfo={memberInfo}
 							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 							publicTeam={publicTeam}
+							tab="default"
 						/>
 
 						{isManagerConnectedUser != 1 ? (
 							<p
 								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
 								onClick={() => {
-									showActivityFilter('TICKET', memberInfo.member ?? null); setUserDetailAccordion('');
+									showActivityFilter('TICKET', memberInfo.member ?? null);
+									setUserDetailAccordion('');
 								}}
 							>
 								{!showActivity ? (
@@ -254,7 +256,8 @@ export function UserTeamCard({
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{userDetailAccordion == memberInfo.memberUser?.id &&
-				memberInfo.memberUser.id == profile.userProfile?.id && !showActivity? (
+				memberInfo.memberUser.id == profile.userProfile?.id &&
+				!showActivity ? (
 					<div className="h-96 overflow-y-auto">
 						{canSeeActivity && (
 							<Container fullWidth={fullWidth} className="py-8">
@@ -300,7 +303,13 @@ export function UserTeamCard({
 				</div>
 
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo edition={taskEdition} memberInfo={memberInfo} className="px-4" publicTeam={publicTeam} />
+					<TaskInfo
+						edition={taskEdition}
+						memberInfo={memberInfo}
+						className="px-4"
+						publicTeam={publicTeam}
+						tab="default"
+					/>
 				</div>
 
 				<div className="flex justify-between mt-4 mb-4 space-x-5">

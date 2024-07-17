@@ -154,6 +154,7 @@ export function Timer({ className }: IClassName) {
 					open={isOpen}
 					plan={hasPlan}
 					startTimer={startTimer}
+					hasPlan={!!hasPlan}
 				/>
 			</div>
 		</div>

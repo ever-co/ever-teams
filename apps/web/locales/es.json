@@ -197,7 +197,8 @@
 		"NOT_WORKING": "No trabajando",
 		"WORKING": "Trabajando",
 		"PAUSED": "Pausado",
-		"ONLINE": "En línea"
+		"ONLINE": "En línea",
+		"SKIP_ADD_LATER": "Agregar más tarde"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Tienes",
 				"USER_LABEL": "tareas incompletas, por favor revisa",
-				"OUTSTANDING_VIEW": "Vista pendiente",
+				"OUTSTANDING_VIEW": "Pendiente",
 				"VIEW_BUTTON": "Ver"
 			}
 		},
