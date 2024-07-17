@@ -149,7 +149,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
-	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
