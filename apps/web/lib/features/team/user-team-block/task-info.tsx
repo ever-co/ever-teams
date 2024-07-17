@@ -1,8 +1,7 @@
-import React from 'react';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
+import { FilterTabs, TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -10,33 +9,49 @@ type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
 	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
+	tab?: 'default' | 'unassign' | 'dailyplan';
+	dayPlanTab?: FilterTabs;
 };
 
-export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) {
+export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
 			<div className={clsxm('w-full h-10', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
-					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
+					<TaskDetailAndEdition
+						memberInfo={memberInfo}
+						edition={edition}
+						publicTeam={publicTeam}
+						tab={tab}
+						dayPlanTab={dayPlanTab}
+					/>
 				)}
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
 
-			{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} />}
+			{edition.task && (
+				<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
+			)}
 			{!edition.task && <div className="text-center self-center">--</div>}
 		</div>
 	);
 }
 
-export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Props) {
+export function TaskBlockInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	const t = useTranslations();
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
 			<div className={clsxm('w-full h-12', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
-					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
+					<TaskDetailAndEdition
+						memberInfo={memberInfo}
+						edition={edition}
+						publicTeam={publicTeam}
+						tab={tab}
+						dayPlanTab={dayPlanTab}
+					/>
 				)}
 				{!edition.task && (
 					<div className="text-center">
@@ -45,7 +60,15 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam }: Pr
 				)}
 			</div>
 
-			{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} toBlockCard={true} />}
+			{edition.task && (
+				<TaskAllStatusTypes
+					showStatus={true}
+					task={edition.task}
+					toBlockCard={true}
+					tab={tab}
+					dayPlanTab={dayPlanTab}
+				/>
+			)}
 			{!edition.task && <div className="text-center self-center text-white dark:text-dark">_</div>}
 		</div>
 	);

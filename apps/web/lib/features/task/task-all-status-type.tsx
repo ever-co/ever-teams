@@ -14,13 +14,18 @@ import {
 import { clsxm } from '@app/utils';
 import { planBadgeContent } from '@app/helpers';
 import { CalendarIcon } from '@radix-ui/react-icons';
+import { FilterTabs } from '../user-profile-plans';
 
 export function TaskAllStatusTypes({
 	task,
 	showStatus = false,
 	toBlockCard = false,
-	className
+	className,
+	tab,
+	dayPlanTab
 }: {
+	tab?: 'default' | 'unassign' | 'dailyplan';
+	dayPlanTab?: FilterTabs;
 	task?: Nullable<ITeamTask>;
 	showStatus?: boolean;
 	toBlockCard?: boolean;
@@ -94,10 +99,17 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-					{planBadgeContent(dailyPlan.items, task?.id ?? '') && (
-						<div className="rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 bg-[#D9EBD7] text-[#4D6194] font-medium">
+					{planBadgeContent(dailyPlan.items, task?.id ?? '', tab) && (
+						<div
+							className={clsxm(
+								dayPlanTab === 'Past Tasks' ? 'bg-red-600 text-white' : 'bg-[#D9EBD7] text-[#4D6194]',
+								'rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 font-medium'
+							)}
+						>
 							<CalendarIcon />
-							<span className="text-[10px]">{planBadgeContent(dailyPlan.items, task?.id ?? '')}</span>
+							<span className="text-[10px]">
+								{planBadgeContent(dailyPlan.items, task?.id ?? '', tab)}
+							</span>
 						</div>
 					)}
 					{tags.map((tag, i) => {
