@@ -28,7 +28,6 @@ import { MdOutlineMoreTime } from "react-icons/md";
 import { IoIosTimer } from "react-icons/io";
 import { FiLoader } from "react-icons/fi";
 import { DatePicker } from '@components/ui/DatePicker';
-import CustomTimePicker from '@components/ui/TimePicker/Index';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useDateRange } from '@app/hooks/useDateRange';
@@ -497,17 +496,24 @@ function InputFilters({ hook, profile }: Props) {
 						</div>
 						<div className='flex items-center'>
 							<div className="mb-4 w-[48%] mr-[4%]">
-								<CustomTimePicker
-									selectedTime={(newTime) => setStartTime(newTime)}
-									containerStyle={"mb-4 w-full mr-[4%]"}
+								<label className="block text-gray-700 mb-1">Start time<span className="text-[#de5505e1] ml-1">*</span></label>
+								<input
+									type="time"
+									value={startTime}
+									onChange={(e) => setStartTime(e.target.value)}
+									className="w-full p-2 border text-[13px] font-bold border-gray-300 rounded-[10px]"
+									required
 								/>
 							</div>
 
-							<div className="mb-4 w-[48%]">
-								<CustomTimePicker
-									selectedTime={(newTime) => setEndTime(newTime)}
-									containerStyle={"mb-4 w-full"}
-									disabledTimeRange={{ from: "00:00", to: startTime }}
+							<div className="mb-4 w-[48%]"><label className="block text-gray-700 mb-1">End time<span className="text-[#de5505e1] ml-1">*</span></label>
+
+								<input
+									type="time"
+									value={endTime}
+									onChange={(e) => setEndTime(e.target.value)}
+									className="w-full p-2 border text-[13px] font-bold border-gray-300 rounded-[10px]"
+									required
 								/>
 							</div>
 						</div>
