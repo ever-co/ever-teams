@@ -174,7 +174,13 @@ export default function Item(props: ItemProps) {
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
 					<span className="!w-64">
-						<TaskAllStatusTypes className="justify-start" task={item} showStatus={false} />
+						<TaskAllStatusTypes
+							className="justify-start"
+							task={item}
+							showStatus={false}
+							tab="default"
+							dayPlanTab="All Tasks"
+						/>
 					</span>
 					<span>
 						<MenuKanbanCard member={currentMember} item={props.item} />

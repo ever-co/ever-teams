@@ -1,16 +1,18 @@
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
+import { FilterTabs, TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
 import { useRouter } from 'next/navigation';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
 	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
+	dayPlanTab?: FilterTabs;
+	tab?: 'default' | 'unassign' | 'dailyplan';
 };
 
-export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) {
+export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
 			{!edition.task && <div className="w-full  justify-center text-center self-center">--</div>}
@@ -30,11 +32,19 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 					)}
 				>
 					{edition.task && (
-						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
+						<TaskDetailAndEdition
+							memberInfo={memberInfo}
+							edition={edition}
+							publicTeam={publicTeam}
+							tab={tab}
+							dayPlanTab={dayPlanTab}
+						/>
 					)}
 				</div>
 
-				{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} />}
+				{edition.task && (
+					<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
+				)}
 			</div>
 			{!edition.task && <div className="w-full justify-center text-center self-center">--</div>}
 		</>

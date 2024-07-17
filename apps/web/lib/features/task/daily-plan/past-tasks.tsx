@@ -1,6 +1,6 @@
 import { formatDayPlanDate, yesterdayDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
+import { EmptyPlans, FilterTabs, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
 import { useRecoilValue } from 'recoil';
@@ -10,7 +10,7 @@ import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
 import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
-export function PastTasks({ profile }: { profile: any }) {
+export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	const { pastPlans } = useDailyPlan();
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
@@ -63,6 +63,7 @@ export function PastTasks({ profile }: { profile: any }) {
 												type="HORIZONTAL"
 												taskBadgeClassName={`rounded-sm`}
 												taskTitleClassName="mt-[0.0625rem]"
+												planMode={currentTab === 'Past Tasks' ? 'Past Tasks' : undefined}
 											/>
 										) : (
 											<TaskBlockCard key={task.id} task={task} />

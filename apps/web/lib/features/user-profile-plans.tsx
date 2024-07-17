@@ -22,7 +22,7 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
 import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 
-type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
+export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
@@ -142,7 +142,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	let filteredPlans: IDailyPlan[] = [];
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
-	const [currentId, setCurrentId] = useState("");
+	const [currentId, setCurrentId] = useState('');
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
@@ -152,7 +152,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -225,8 +224,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 														//button open popup
 														<Button
 															onClick={() => {
-																setCurrentId(plan.id ?? "")
-																setPopupOpen(true)
+																setCurrentId(plan.id ?? '');
+																setPopupOpen(true);
 															}}
 															variant="outline"
 															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
