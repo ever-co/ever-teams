@@ -26,6 +26,7 @@ export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }
 					memberInfo={memberInfo}
 					className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 					publicTeam={false}
+					tab="default"
 				/>
 			) : (
 				<div className="w-full text-start px-6">--</div>

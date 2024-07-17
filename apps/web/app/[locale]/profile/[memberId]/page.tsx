@@ -13,7 +13,7 @@ import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, u
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl'
 import stc from 'string-to-color';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -126,7 +126,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 								{/* User Profile Detail */}
 								<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
 									<UserProfileDetail member={profile.member} />
-
 									{profileIsAuthUser && isTrackingEnabled && (
 										<Timer
 											className={clsxm(
@@ -142,9 +141,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</MainHeader>
 						</ResizablePanel>
 						<ResizableHandle withHandle />
-
-						{/* Divider */}
-						{/* <div className="h-0.5 bg-[#FFFFFF14]"></div> */}
 						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
 							{hook.tab == 'worked' && canSeeActivity && (
 								<Container fullWidth={fullWidth} className="py-8">

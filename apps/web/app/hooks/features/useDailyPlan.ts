@@ -1,16 +1,16 @@
 'use client';
 
-import { useRecoilState } from 'recoil';
-import { useCallback, useEffect } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '../useQuery';
 import {
+	activeTeamState,
 	dailyPlanFetchingState,
 	dailyPlanListState,
 	employeePlansListState,
 	myDailyPlanListState,
 	profileDailyPlanListState,
-	taskPlans,
-	userState
+	taskPlans
 } from '@app/stores';
 import {
 	addTaskToPlanAPI,
@@ -20,14 +20,28 @@ import {
 	getDayPlansByEmployeeAPI,
 	getMyDailyPlansAPI,
 	getPlansByTaskAPI,
+	removeManyTaskFromPlansAPI,
 	removeTaskFromPlanAPI,
 	updateDailyPlanAPI
 } from '@app/services/client/api';
-import { ICreateDailyPlan, IDailyPlanTasksUpdate, IUpdateDailyPlan } from '@app/interfaces';
+import { ICreateDailyPlan, IDailyPlanTasksUpdate, IRemoveTaskFromManyPlans, IUpdateDailyPlan } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
+import { useAuthenticateUser } from './useAuthenticateUser';
+import { TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
+
+type TodayPlanNotificationParams = {
+	canBeSeen: boolean;
+	alreadySeen: boolean;
+};
 
 export function useDailyPlan() {
-	const [user] = useRecoilState(userState);
+	const [addTodayPlanTrigger, setAddTodayPlanTrigger] = useState<TodayPlanNotificationParams>({
+		canBeSeen: false,
+		alreadySeen: false
+	});
+
+	const { user } = useAuthenticateUser();
+	const activeTeam = useRecoilValue(activeTeamState);
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
@@ -38,6 +52,8 @@ export function useDailyPlan() {
 	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
 	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } =
 		useQuery(removeTaskFromPlanAPI);
+	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQuery(removeManyTaskFromPlansAPI);
+
 	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(deleteDailyPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
@@ -148,6 +164,7 @@ export function useDailyPlan() {
 		]
 	);
 
+
 	const removeTaskFromPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
 			const res = await removeTAskFromPlanQueryCall(data, planId);
@@ -167,6 +184,42 @@ export function useDailyPlan() {
 			setProfileDailyPlans
 		]
 	);
+
+	const removeManyTaskPlans = useCallback(
+		async (data: IRemoveTaskFromManyPlans, taskId: string) => {
+			const res = await removeManyTaskPlanQueryCall({ taskId, data });
+			const updatedProfileDailyPlans = profileDailyPlans.items
+				.map((plan) => {
+					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
+					return { ...plan, tasks: updatedTasks };
+				})
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+			// Delete plans without tasks
+			const updatedEmployeePlans = employeePlans
+				.map((plan) => {
+					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
+					return { ...plan, tasks: updatedTasks };
+				})
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+
+			setProfileDailyPlans({
+				total: profileDailyPlans.total,
+				items: updatedProfileDailyPlans
+			});
+			setEmployeePlans(updatedEmployeePlans);
+			getMyDailyPlans();
+			return res;
+
+		},
+		[
+			removeManyTaskPlanQueryCall,
+			employeePlans,
+			getMyDailyPlans,
+			profileDailyPlans,
+			setEmployeePlans,
+			setProfileDailyPlans
+		]
+	)
 
 	const deleteDailyPlan = useCallback(
 		async (planId: string) => {
@@ -241,9 +294,33 @@ export function useDailyPlan() {
 		profileDailyPlans.items &&
 		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
+
 	useEffect(() => {
 		getMyDailyPlans();
 	}, [getMyDailyPlans]);
+
+	useEffect(() => {
+		const checkAndShowAlert = () => {
+			if (activeTeam && currentUser) {
+				const lastAlertDate = localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
+				const today = new Date().toISOString().split('T')[0];
+				const totalMemberWorked = currentUser?.totalTodayTasks.reduce(
+					(previousValue, currentValue) => previousValue + currentValue.duration,
+					0
+				);
+				const showTodayPlanTrigger = todayPlan && todayPlan.length > 0 && totalMemberWorked > 0;
+				if (lastAlertDate === today) {
+					setAddTodayPlanTrigger({ canBeSeen: !!showTodayPlanTrigger, alreadySeen: true });
+				}
+			}
+		};
+
+		checkAndShowAlert();
+		const intervalId = setInterval(checkAndShowAlert, 24 * 60 * 60 * 1000); // One day check and display
+
+		return () => clearInterval(intervalId);
+	}, [activeTeam, currentUser, todayPlan]);
 
 	return {
 		dailyPlan,
@@ -285,6 +362,9 @@ export function useDailyPlan() {
 		removeTaskFromPlan,
 		removeTaskFromPlanLoading,
 
+		removeManyTaskPlans,
+		removeManyTaskFromPlanLoading,
+
 		deleteDailyPlan,
 		deleteDailyPlanLoading,
 
@@ -292,6 +372,9 @@ export function useDailyPlan() {
 		pastPlans,
 		outstandingPlans,
 		todayPlan,
-		sortedPlans
+		sortedPlans,
+
+		addTodayPlanTrigger,
+		setAddTodayPlanTrigger
 	};
 }

@@ -205,13 +205,24 @@ export function signInWorkspaceAPI(email: string, token: string) {
  * @returns
  */
 export async function signInEmailConfirmGauzy(email: string, code: string) {
-	const loginResponse = await signInEmailCodeConfirmGauzy(email, code);
+	let loginResponse;
+
+	try {
+		loginResponse = await signInEmailCodeConfirmGauzy(email, code);
+	} catch (error) {
+		console.error('Error in signInEmailCodeConfirmation:', error);
+	}
 
 	if (loginResponse) {
 		return loginResponse;
 	}
 
-	return signInEmailConfirmAPI({ email, code });
+	try {
+		const signinResponse = await signInEmailConfirmAPI({ email, code });
+		return signinResponse;
+	} catch (error) {
+		return Promise.reject(error);
+	}
 }
 
 /**
@@ -219,7 +230,12 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
  */
 export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code?: string }) {
 	if (params.code) {
-		const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+		let loginResponse;
+		try {
+			loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+		} catch (error) {
+			console.error('Error in signInWorkspaces', error);
+		}
 
 		if (loginResponse) {
 			return loginResponse;
