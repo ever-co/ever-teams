@@ -30,7 +30,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 				<>
 					<DragDropContext onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}>
 						{/* <PlanHeader plan={plan} planMode="Outstanding" /> */}
-						<Droppable droppableId="droppa" type="COLUMN" direction={view === 'CARDS' ? 'vertical' : "horizontal"} >
+						<Droppable droppableId="droppableId" type="COLUMN" direction={view === 'CARDS' ? 'vertical' : "horizontal"} >
 							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 								<ul
 									ref={provided.innerRef}

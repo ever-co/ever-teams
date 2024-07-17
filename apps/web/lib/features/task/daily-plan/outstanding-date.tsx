@@ -18,16 +18,16 @@ interface IOutstandingFilterDate {
 export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-	const [outstandigTasks, setOutstandigTasks] = useState<IDailyPlan[]>(outstandingPlans)
+	const [outstandingTasks, setOutstandingTasks] = useState<IDailyPlan[]>(outstandingPlans)
 	return (
 		<div className="flex flex-col gap-6">
-			{outstandigTasks?.length > 0 ? (
-				<DragDropContext onDragEnd={(resultat) => handleDragAndDrop(resultat, outstandigTasks, setOutstandigTasks)}>
+			{outstandingTasks?.length > 0 ? (
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, outstandingTasks, setOutstandingTasks)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={outstandigTasks?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}>
-						{outstandigTasks?.map((plan) => (
+						defaultValue={outstandingTasks?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}>
+						{outstandingTasks?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
