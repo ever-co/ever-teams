@@ -84,6 +84,7 @@ const createFilteredDailyPlanDataSelector = (key: string | any, dateRangeState: 
 		});
 	},
 });
+
 export const dataDailyPlanCountFilterState = createDailyPlanCountFilterAtom('dataDailyPlanCountFilterState');
 export const dateRangePastPlanState = createDateRangeAtom('dateRangePastPlanState');
 export const dateRangeFuturePlanState = createDateRangeAtom('dateRangeFuturePlanState');
