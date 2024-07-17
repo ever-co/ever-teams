@@ -150,3 +150,16 @@ export const formatIntegerToHour = (number: number) => {
 
 	return formattedHour;
 };
+
+
+export const isTestDateRange = (itemDate: Date, from?: Date, to?: Date) => {
+	if (from && to) {
+		return itemDate >= from && itemDate <= to;
+	} else if (from) {
+		return itemDate >= from;
+	} else if (to) {
+		return itemDate <= to;
+	} else {
+		return true; // or false, depending on your default logic
+	}
+}

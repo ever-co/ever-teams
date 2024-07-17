@@ -29,7 +29,6 @@ export async function PUT(req: Request, { params }: INextParams) {
 	if (!id) {
 		return;
 	}
-
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('Unauthorized');

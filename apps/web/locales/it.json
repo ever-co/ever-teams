@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Non Lavora",
 		"WORKING": "Lavora",
 		"PAUSED": "In Pausa",
-		"ONLINE": "Online"
+		"ONLINE": "Online",
+		"SKIP_ADD_LATER": "Aggiungi dopo"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Hai",
 				"USER_LABEL": "compiti incompleti, controlla per favore",
-				"OUTSTANDING_VIEW": "Vista delle attività in sospeso",
+				"OUTSTANDING_VIEW": "Eccezionale",
 				"VIEW_BUTTON": "Vedi"
 			}
 		},
