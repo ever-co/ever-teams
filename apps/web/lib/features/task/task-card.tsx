@@ -161,6 +161,8 @@ export function TaskCard(props: Props) {
 						className="px-4 w-full"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
+						dayPlanTab={planMode}
+						tab={viewType}
 					/>
 				</div>
 				<VerticalSeparator />
@@ -249,7 +251,7 @@ export function TaskCard(props: Props) {
 					)} */}
 				</div>
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="px-4 mb-4 w-full" />{' '}
+					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
 							<div className="flex items-end mx-auto py-4 space-x-2">
@@ -417,6 +419,7 @@ function TimerButtonCall({
 				open={isOpen}
 				plan={hasPlan}
 				startTimer={startTimer}
+				hasPlan={!!hasPlan}
 			/>
 		</>
 	);
@@ -428,8 +431,12 @@ function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,
-	taskTitleClassName
+	taskTitleClassName,
+	tab,
+	dayPlanTab
 }: IClassName & {
+	tab: 'default' | 'unassign' | 'dailyplan';
+	dayPlanTab?: FilterTabs;
 	task?: Nullable<ITeamTask>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
@@ -458,7 +465,7 @@ function TaskInfo({
 			)}
 
 			{/* Task status */}
-			{task && <TaskAllStatusTypes task={task} />}
+			{task && <TaskAllStatusTypes task={task} tab={tab} dayPlanTab={dayPlanTab} />}
 			{!task && <div className="self-center py-1 text-center">--</div>}
 		</div>
 	);

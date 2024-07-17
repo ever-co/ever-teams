@@ -1,6 +1,6 @@
 import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@app/helpers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
-import { EmptyPlans, PlanHeader } from 'lib/features/user-profile-plans';
+import { EmptyPlans, FilterTabs, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
 import { useRecoilValue } from 'recoil';
@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { IDailyPlan } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 
-export function PastTasks({ profile }: { profile: any }) {
+export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	const { pastPlans } = useDailyPlan();
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
@@ -46,9 +46,14 @@ export function PastTasks({ profile }: { profile: any }) {
 								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-12">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
-									<Droppable droppableId={plan.id as string} key={plan.id} type="task" direction={view === 'CARDS' ? "vertical" : "horizontal"}>
+									<Droppable
+										droppableId={plan.id as string}
+										key={plan.id}
+										type="task"
+										direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+									>
 										{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-											< ul
+											<ul
 												ref={provided.innerRef}
 												{...provided.droppableProps}
 												className={clsxm(
@@ -56,12 +61,12 @@ export function PastTasks({ profile }: { profile: any }) {
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
 													view === 'BLOCKS' && 'overflow-x-scroll',
-													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8',
+													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 												)}
 											>
 												{plan.tasks?.map((task, index) =>
 													view === 'CARDS' ? (
-														<Draggable key={index} draggableId={task.id} index={index} >
+														<Draggable key={index} draggableId={task.id} index={index}>
 															{(provided) => (
 																<div
 																	ref={provided.innerRef}
@@ -82,14 +87,16 @@ export function PastTasks({ profile }: { profile: any }) {
 																		type="HORIZONTAL"
 																		taskBadgeClassName={`rounded-sm`}
 																		taskTitleClassName="mt-[0.0625rem]"
+																		planMode={
+																			currentTab === 'Past Tasks'
+																				? 'Past Tasks'
+																				: undefined
+																		}
 																	/>
 																</div>
-
 															)}
-
 														</Draggable>
 													) : (
-
 														<Draggable key={task.id} draggableId={task.id} index={index}>
 															{(provided) => (
 																<div
@@ -117,9 +124,7 @@ export function PastTasks({ profile }: { profile: any }) {
 				</DragDropContext>
 			) : (
 				<EmptyPlans planMode="Past Tasks" />
-			)
-			}
-
-		</div >
+			)}
+		</div>
 	);
 }

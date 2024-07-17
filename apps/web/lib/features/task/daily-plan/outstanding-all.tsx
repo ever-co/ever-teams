@@ -20,7 +20,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 	const displayedTaskId = new Set();
 
 	const tasks = outstandingPlans.map((plan) => plan.tasks).reduce((red, curr) => red?.concat(curr || []), []);
-	const [task, setTask] = useState<ITeamTask[]>(tasks!)
+	const [task, setTask] = useState<ITeamTask[]>(tasks!);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -28,9 +28,15 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 
 			{tasks && tasks?.length > 0 ? (
 				<>
-					<DragDropContext onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}>
+					<DragDropContext
+						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}
+					>
 						{/* <PlanHeader plan={plan} planMode="Outstanding" /> */}
-						<Droppable droppableId="droppableId" type="COLUMN" direction={view === 'CARDS' ? 'vertical' : "horizontal"} >
+						<Droppable
+							droppableId="droppableId"
+							type="COLUMN"
+							direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+						>
 							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 								<ul
 									ref={provided.innerRef}
@@ -74,7 +80,6 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 														/>
 													</div>
 												)}
-
 											</Draggable>
 										) : (
 											<Draggable key={task.id} draggableId={task.id} index={index}>
@@ -97,7 +102,6 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 								</ul>
 							)}
 						</Droppable>
-
 					</DragDropContext>
 				</>
 			) : (

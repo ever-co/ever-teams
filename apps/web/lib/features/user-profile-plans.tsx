@@ -21,16 +21,9 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
 import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
-import {
-	DragDropContext,
-	Droppable,
-	Draggable,
-	DroppableProvided,
-	DroppableStateSnapshot,
-} from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 
-
-type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
+export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
@@ -43,8 +36,6 @@ export function UserProfilePlans() {
 		typeof window !== 'undefined'
 			? (window.localStorage.getItem('outstanding') as FilterOutstanding) || null
 			: 'ALL';
-
-
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
@@ -158,6 +149,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
+	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
@@ -165,9 +157,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
 	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
-
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-	const [plans, setPlans] = useState<IDailyPlan[]>(filterPlans)
+	const [plans, setPlans] = useState<IDailyPlan[]>(filterPlans);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -198,7 +189,12 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 								</AccordionTrigger>
 								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
 									<PlanHeader plan={plan} planMode={currentTab as any} />
-									<Droppable droppableId={plan.id as string} key={plan.id} type="task" direction={view === 'CARDS' ? 'vertical' : 'horizontal'}>
+									<Droppable
+										droppableId={plan.id as string}
+										key={plan.id}
+										type="task"
+										direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+									>
 										{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 											<ul
 												ref={provided.innerRef}
@@ -208,7 +204,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
 													view === 'BLOCKS' && 'overflow-x-scroll',
-													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8',
+													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 												)}
 											>
 												{plan.tasks?.map((task, index) =>
@@ -233,7 +229,11 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																		type="HORIZONTAL"
 																		taskBadgeClassName={`rounded-sm`}
 																		taskTitleClassName="mt-[0.0625rem]"
-																		planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
+																		planMode={
+																			currentTab === 'Today Tasks'
+																				? 'Today Tasks'
+																				: undefined
+																		}
 																		plan={plan}
 																	/>
 																</div>
@@ -268,8 +268,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																		//button open popup
 																		<Button
 																			onClick={() => {
-																				setCurrentDeleteIndex(index)
-																				setPopupOpen(prev => !prev);
+																				setCurrentDeleteIndex(index);
+																				setPopupOpen((prev) => !prev);
 																			}}
 																			variant="outline"
 																			className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"

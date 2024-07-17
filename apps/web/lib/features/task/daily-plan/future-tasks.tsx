@@ -22,14 +22,16 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const [popupOpen, setPopupOpen] = useState(false);
 	const { filteredFuturePlanData: filteredFuturePlanData } = useFilterDateRange(futurePlans, 'future');
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
-	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(filteredFuturePlanData)
+	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(filteredFuturePlanData);
+
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) =>
-					handleDragAndDrop(result, futureDailyPlanTasks, setFutureDailyPlanTasks)}>
+				<DragDropContext
+					onDragEnd={(result) => handleDragAndDrop(result, futureDailyPlanTasks, setFutureDailyPlanTasks)}
+				>
 					<Accordion
 						type="multiple"
 						className="text-sm"
@@ -119,22 +121,21 @@ export function FutureTasks({ profile }: { profile: any }) {
 																//button open popup
 																<Button
 																	onClick={() => {
-																		setPopupOpen(prev => !prev)
-																		setCurrentDeleteIndex(index)
+																		setPopupOpen((prev) => !prev);
+																		setCurrentDeleteIndex(index);
 																	}}
 																	variant="outline"
 																	className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 																>
 																	Delete this plan
 																</Button>
-
 															}
 														>
 															{/*button confirm*/}
 															<Button
 																disabled={deleteDailyPlanLoading}
 																onClick={() => {
-																	deleteDailyPlan(plan.id ?? '')
+																	deleteDailyPlan(plan.id ?? '');
 																}}
 																variant="destructive"
 																className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
@@ -157,7 +158,6 @@ export function FutureTasks({ profile }: { profile: any }) {
 												) : (
 													<></>
 												)}
-
 											</ul>
 										)}
 									</Droppable>
@@ -165,7 +165,6 @@ export function FutureTasks({ profile }: { profile: any }) {
 							</AccordionItem>
 						))}
 					</Accordion>
-
 				</DragDropContext>
 			) : (
 				<EmptyPlans planMode="Past Tasks" />

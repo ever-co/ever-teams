@@ -12,7 +12,7 @@ export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
 export interface IRemoveTaskFromManyPlans {
 	employeeId?: IEmployee['id'];
 	plansIds?: IDailyPlan['id'][];
-	organizationId?: IOrganization['id']
+	organizationId?: IOrganization['id'];
 }
 
 export interface IDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
@@ -23,11 +23,11 @@ export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
 	taskId?: ITeamTask['id'];
 }
 
-export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> { }
+export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> {}
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
-	IBasePerTenantAndOrganizationEntity { }
+		IBasePerTenantAndOrganizationEntity {}
 
 export enum DailyPlanStatusEnum {
 	OPEN = 'open',
