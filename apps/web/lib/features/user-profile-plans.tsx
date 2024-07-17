@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
@@ -21,6 +20,8 @@ import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
 import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
+import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
+import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -136,7 +137,12 @@ export function UserProfilePlans() {
 		</div>
 	);
 }
-
+/**
+ *
+ *
+ * @param {{ profile: any; currentTab?: FilterTabs }} { profile, currentTab = 'All Tasks' }
+ * @return {*}
+ */
 function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	// Filter plans
 	let filteredPlans: IDailyPlan[] = [];
@@ -151,122 +157,163 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
 	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+	const [plans, setPlans] = useState<IDailyPlan[]>(filterPlans);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{filterPlans?.length > 0 ? (
-				<Accordion
-					type="multiple"
-					className="text-sm"
-					defaultValue={
-						currentTab === 'Today Tasks'
-							? [new Date().toISOString().split('T')[0]]
-							: [filterPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
-					}
-				>
-					{filterPlans?.map((plan, index) => (
-						<AccordionItem
-							value={plan.date.toString().split('T')[0]}
-							key={plan.id}
-							className="dark:border-slate-600 !border-none"
-						>
-							<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-								<div className="flex items-center justify-between gap-3 w-full">
-									<div className="text-lg min-w-max">
-										{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+			{Array.isArray(plans) && plans?.length > 0 ? (
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
+					<Accordion
+						type="multiple"
+						className="text-sm"
+						defaultValue={
+							currentTab === 'Today Tasks'
+								? [new Date().toISOString().split('T')[0]]
+								: [plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+						}
+					>
+						{plans.map((plan, index) => (
+							<AccordionItem
+								value={plan.date.toString().split('T')[0]}
+								key={plan.id}
+								className="dark:border-slate-600 !border-none"
+							>
+								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
+									<div className="flex items-center justify-between gap-3 w-full">
+										<div className="text-lg min-w-max">
+											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
+										</div>
+										<HorizontalSeparator />
 									</div>
-									<HorizontalSeparator />
-								</div>
-							</AccordionTrigger>
-							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
-								{/* Plan header */}
-								<PlanHeader plan={plan} planMode={currentTab} />
-
-								{/* Plan tasks list */}
-								<ul
-									className={clsxm(
-										view === 'CARDS' && 'flex-col',
-										view === 'TABLE' && 'flex-wrap',
-										'flex gap-2 pb-[1.5rem]',
-										view === 'BLOCKS' && 'overflow-x-scroll'
-									)}
-								>
-									{plan.tasks?.map((task) =>
-										view === 'CARDS' ? (
-											<TaskCard
-												key={`${task.id}${plan.id}`}
-												isAuthUser={true}
-												activeAuthTask={true}
-												viewType={'dailyplan'}
-												task={task}
-												profile={profile}
-												type="HORIZONTAL"
-												taskBadgeClassName={`rounded-sm`}
-												taskTitleClassName="mt-[0.0625rem]"
-												planMode={currentTab === 'Today Tasks' ? 'Today Tasks' : undefined}
-												plan={plan}
-											/>
-										) : (
-											<TaskBlockCard key={task.id} task={task} />
-										)
-									)}
-								</ul>
-
-								{/* Delete Plan */}
-								{currentTab === 'Today Tasks' && (
-									<>
-										{canSeeActivity ? (
-											<div className="flex justify-end">
-												<AlertPopup
-													open={currentDeleteIndex === index && popupOpen}
-													buttonOpen={
-														//button open popup
-														<Button
-															onClick={() => {
-																setCurrentDeleteIndex(index)
-																setPopupOpen(prev => !prev);
-
-															}}
-															variant="outline"
-															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-														>
-															Delete this plan
-														</Button>
-													}
-												>
-													{/*button confirm*/}
-													<Button
-														disabled={deleteDailyPlanLoading}
-														onClick={() => deleteDailyPlan(plan.id ?? '')}
-														variant="destructive"
-														className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-													>
-														{deleteDailyPlanLoading && (
-															<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+								</AccordionTrigger>
+								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
+									<PlanHeader plan={plan} planMode={currentTab as any} />
+									<Droppable
+										droppableId={plan.id as string}
+										key={plan.id}
+										type="task"
+										direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+									>
+										{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+											<ul
+												ref={provided.innerRef}
+												{...provided.droppableProps}
+												className={clsxm(
+													view === 'CARDS' && 'flex-col',
+													view === 'TABLE' && 'flex-wrap',
+													'flex gap-2 pb-[1.5rem]',
+													view === 'BLOCKS' && 'overflow-x-scroll',
+													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
+												)}
+											>
+												{plan.tasks?.map((task, index) =>
+													view === 'CARDS' ? (
+														<Draggable key={task.id} draggableId={task.id} index={index}>
+															{(provided) => (
+																<div
+																	ref={provided.innerRef}
+																	{...provided.draggableProps}
+																	{...provided.dragHandleProps}
+																	style={{
+																		...provided.draggableProps.style,
+																		marginBottom: 8
+																	}}
+																>
+																	<TaskCard
+																		isAuthUser={true}
+																		activeAuthTask={true}
+																		viewType={'dailyplan'}
+																		task={task}
+																		profile={profile}
+																		type="HORIZONTAL"
+																		taskBadgeClassName={`rounded-sm`}
+																		taskTitleClassName="mt-[0.0625rem]"
+																		planMode={
+																			currentTab === 'Today Tasks'
+																				? 'Today Tasks'
+																				: undefined
+																		}
+																		plan={plan}
+																	/>
+																</div>
+															)}
+														</Draggable>
+													) : (
+														<Draggable key={task.id} draggableId={task.id} index={index}>
+															{(provided) => (
+																<div
+																	ref={provided.innerRef}
+																	{...provided.draggableProps}
+																	{...provided.dragHandleProps}
+																	style={{
+																		...provided.draggableProps.style,
+																		marginBottom: 8
+																	}}
+																>
+																	<TaskBlockCard task={task} />
+																</div>
+															)}
+														</Draggable>
+													)
+												)}
+												<>{provided.placeholder}</>
+												{currentTab === 'Today Tasks' && (
+													<>
+														{canSeeActivity ? (
+															<div className="flex justify-end">
+																<AlertPopup
+																	open={currentDeleteIndex === index && popupOpen}
+																	buttonOpen={
+																		//button open popup
+																		<Button
+																			onClick={() => {
+																				setCurrentDeleteIndex(index);
+																				setPopupOpen((prev) => !prev);
+																			}}
+																			variant="outline"
+																			className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+																		>
+																			Delete this plan
+																		</Button>
+																	}
+																>
+																	{/*button confirm*/}
+																	<Button
+																		disabled={deleteDailyPlanLoading}
+																		onClick={() => deleteDailyPlan(plan.id ?? '')}
+																		variant="destructive"
+																		className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	>
+																		{deleteDailyPlanLoading && (
+																			<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+																		)}
+																		Delete
+																	</Button>
+																	{/*button cancel*/}
+																	<Button
+																		onClick={() => setPopupOpen(false)}
+																		variant="outline"
+																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+																	>
+																		Cancel
+																	</Button>
+																</AlertPopup>
+															</div>
+														) : (
+															<></>
 														)}
-														Delete
-													</Button>
-													{/*button cancel*/}
-													<Button
-														onClick={() => setPopupOpen(false)}
-														variant="outline"
-														className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-													>
-														Cancel
-													</Button>
-												</AlertPopup>
-											</div>
-										) : (
-											<></>
+													</>
+												)}
+											</ul>
 										)}
-									</>
-								)}
-							</AccordionContent>
-						</AccordionItem>
-					))}
-				</Accordion>
+									</Droppable>
+								</AccordionContent>
+							</AccordionItem>
+						))}
+					</Accordion>
+				</DragDropContext>
 			) : (
-				<EmptyPlans planMode={currentTab} />
+				<EmptyPlans planMode="Past Tasks" />
 			)}
 		</div>
 	);
@@ -280,7 +327,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	// Get all tasks's estimations time
 	const times =
-		plan.tasks?.map((task) => task.estimate).filter((time): time is number => typeof time === 'number') ?? [];
+		plan.tasks?.map((task) => task?.estimate).filter((time): time is number => typeof time === 'number') ?? [];
 
 	let estimatedTime = 0;
 	if (times.length > 0) estimatedTime = times.reduce((acc, cur) => acc + cur, 0) ?? 0;

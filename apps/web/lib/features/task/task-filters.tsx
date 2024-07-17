@@ -263,7 +263,6 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 function InputFilters({ hook, profile }: Props) {
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
-
 	const osSpecificAssignTaskTooltipLabel = 'A';
 
 	return (
