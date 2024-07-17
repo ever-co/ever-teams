@@ -52,7 +52,8 @@ export function useDailyPlan() {
 	const { loading: addTaskToPlanLoading, queryCall: addTaskToPlanQueryCall } = useQuery(addTaskToPlanAPI);
 	const { loading: removeTaskFromPlanLoading, queryCall: removeTAskFromPlanQueryCall } =
 		useQuery(removeTaskFromPlanAPI);
-	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } = useQuery(removeManyTaskFromPlansAPI);
+	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } =
+		useQuery(removeManyTaskFromPlansAPI);
 
 	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(deleteDailyPlanAPI);
 
@@ -164,7 +165,6 @@ export function useDailyPlan() {
 		]
 	);
 
-
 	const removeTaskFromPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
 			const res = await removeTAskFromPlanQueryCall(data, planId);
@@ -209,7 +209,6 @@ export function useDailyPlan() {
 			setEmployeePlans(updatedEmployeePlans);
 			getMyDailyPlans();
 			return res;
-
 		},
 		[
 			removeManyTaskPlanQueryCall,
@@ -219,7 +218,7 @@ export function useDailyPlan() {
 			setEmployeePlans,
 			setProfileDailyPlans
 		]
-	)
+	);
 
 	const deleteDailyPlan = useCallback(
 		async (planId: string) => {
@@ -305,13 +304,17 @@ export function useDailyPlan() {
 			if (activeTeam && currentUser) {
 				const lastAlertDate = localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
 				const today = new Date().toISOString().split('T')[0];
-				const totalMemberWorked = currentUser?.totalTodayTasks.reduce(
-					(previousValue, currentValue) => previousValue + currentValue.duration,
-					0
-				);
-				const showTodayPlanTrigger = todayPlan && todayPlan.length > 0 && totalMemberWorked > 0;
-				if (lastAlertDate === today) {
-					setAddTodayPlanTrigger({ canBeSeen: !!showTodayPlanTrigger, alreadySeen: true });
+
+				if (currentUser?.totalTodayTasks) {
+					const totalMemberWorked = currentUser?.totalTodayTasks.reduce(
+						(previousValue, currentValue) => previousValue + currentValue.duration,
+						0
+					);
+
+					const showTodayPlanTrigger = todayPlan && todayPlan.length > 0 && totalMemberWorked > 0;
+					if (lastAlertDate === today) {
+						setAddTodayPlanTrigger({ canBeSeen: !!showTodayPlanTrigger, alreadySeen: true });
+					}
 				}
 			}
 		};
