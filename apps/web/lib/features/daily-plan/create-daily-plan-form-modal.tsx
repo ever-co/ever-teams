@@ -39,8 +39,6 @@ export function CreateDailyPlanFormModal({
 
 	const existingPlanDates = profileDailyPlans.items.map((plan) => new Date(plan.date));
 
-	console.log(existingPlanDates);
-
 	const isManagerConnectedUser = activeTeamManagers.find((member) => member.employee?.user?.id == user?.id);
 
 	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
