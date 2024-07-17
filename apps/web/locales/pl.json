@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Niepracujący",
 		"WORKING": "Pracujący",
 		"PAUSED": "Wstrzymany",
-		"ONLINE": "Online"
+		"ONLINE": "Online",
+		"SKIP_ADD_LATER": "Dodaj później"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Masz",
 				"USER_LABEL": "niezakończone zadania, proszę sprawdź",
-				"OUTSTANDING_VIEW": "Widok zadań do wykonania",
+				"OUTSTANDING_VIEW": "Wyjątkowy",
 				"VIEW_BUTTON": "Zobacz"
 			}
 		},

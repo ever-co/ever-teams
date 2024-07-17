@@ -197,7 +197,8 @@
 		"NOT_WORKING": "غير عامل",
 		"WORKING": "يعمل",
 		"PAUSED": "متوقف",
-		"ONLINE": "متصل"
+		"ONLINE": "متصل",
+		"SKIP_ADD_LATER": "أضف لاحقًا"
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "لديك",
 				"USER_LABEL": "مهام غير مكتملة، يرجى التحقق منها",
-				"OUTSTANDING_VIEW": "عرض المهام المعلقة",
+				"OUTSTANDING_VIEW": "معلق",
 				"VIEW_BUTTON": "عرض"
 			}
 		},

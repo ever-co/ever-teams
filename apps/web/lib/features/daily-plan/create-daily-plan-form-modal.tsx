@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
-import { Avatar, Card, InputField, Modal, Text } from 'lib/components';
+import { Avatar, Card, Modal, Text } from 'lib/components';
 import { imgTitle, tomorrowDate } from '@app/helpers';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
@@ -32,10 +32,12 @@ export function CreateDailyPlanFormModal({
 	employeeId?: string;
 	chooseMember?: boolean;
 }) {
-	const { handleSubmit, reset, register } = useForm();
+	const { handleSubmit, reset } = useForm();
 	const { user } = useAuthenticateUser();
 	const { activeTeam, activeTeamManagers } = useOrganizationTeams();
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
+	const { createDailyPlan, createDailyPlanLoading, profileDailyPlans } = useDailyPlan();
+
+	const existingPlanDates = profileDailyPlans.items.map((plan) => new Date(plan.date));
 
 	const isManagerConnectedUser = activeTeamManagers.find((member) => member.employee?.user?.id == user?.id);
 
@@ -50,7 +52,7 @@ export function CreateDailyPlanFormModal({
 		async (values: any) => {
 			const toDay = new Date();
 			createDailyPlan({
-				workTimePlanned: parseInt(values.workTimePlanned),
+				workTimePlanned: parseInt(values.workTimePlanned) || 0,
 				taskId,
 				date:
 					planMode == 'today'
@@ -104,14 +106,14 @@ export function CreateDailyPlanFormModal({
 								/>
 							)}
 
-							<InputField
+							{/* <InputField
 								type="number"
 								placeholder="Working time to plan"
 								className="mb-0 min-w-[350px]"
 								wrapperClassName="mb-0 rounded-lg"
-								required
+								// required
 								{...register('workTimePlanned')}
-							/>
+							/> */}
 
 							{planMode === 'custom' && (
 								<Popover>
@@ -119,7 +121,7 @@ export function CreateDailyPlanFormModal({
 										<Button
 											variant={'outline'}
 											className={cn(
-												'justify-start text-left font-normal py-6 rounded-lg',
+												'justify-start text-left font-normal py-6 rounded-lg dark:bg-dark--theme-light dark:border-slate-700',
 												!date && 'text-muted-foreground'
 											)}
 										>
@@ -127,13 +129,17 @@ export function CreateDailyPlanFormModal({
 											{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
 										</Button>
 									</PopoverTrigger>
-									<PopoverContent className="w-full p-0 z-[9999]">
+									<PopoverContent className="w-full p-0 z-[9999] dark:!border-slate-700">
 										<Calendar
 											mode="single"
+											className="dark:bg-dark--theme-light"
 											selected={date}
 											onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
 											initialFocus
-											disabled={{ from: new Date(1970, 1, 1), to: tomorrowDate }}
+											disabled={[
+												...existingPlanDates,
+												{ from: new Date(1970, 1, 1), to: tomorrowDate }
+											]}
 										/>
 									</PopoverContent>
 								</Popover>

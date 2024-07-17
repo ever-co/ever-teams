@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Nicht arbeiten",
 		"WORKING": "Arbeiten",
 		"PAUSED": "Pausiert",
-		"ONLINE": "Online"
+		"ONLINE": "Online",
+		"SKIP_ADD_LATER": "Später hinzufügen"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Sie haben",
 				"USER_LABEL": "unvollständige Aufgaben, bitte überprüfen",
-				"OUTSTANDING_VIEW": "Ausstehende Ansicht",
+				"OUTSTANDING_VIEW": "Hervorragend",
 				"VIEW_BUTTON": "Ansehen"
 			}
 		},
