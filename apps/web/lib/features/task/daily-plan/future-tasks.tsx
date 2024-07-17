@@ -52,7 +52,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 									</div>
 								</AccordionTrigger>
 								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
-									<PlanHeader plan={plan} planMode="Outstanding" />
+									<PlanHeader plan={plan} planMode="Future Tasks" />
 									<Droppable droppableId={plan.id as string} key={plan.id} type="task">
 										{(provided) => (
 											<ul
