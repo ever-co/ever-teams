@@ -72,10 +72,10 @@ function MainPage() {
 						<ResizablePanelGroup direction="vertical">
 							{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
 							<ResizablePanel
-								defaultSize={50}
+								defaultSize={30}
 								maxSize={48}
 								className={clsxm(
-									headerSize < 20 ? '!overflow-hidden' : '!overflow-visible',
+									headerSize < 20 ? '!overflow-hidden ' : '!overflow-visible',
 									'dark:bg-dark-high border-b-[0.125rem] dark:border-[#26272C]'
 								)}
 								onResize={(size) => setHeaderSize(size)}
@@ -106,7 +106,7 @@ function MainPage() {
 							<ResizableHandle withHandle />
 							{/* </Container> */}
 							<ResizablePanel
-								defaultSize={55}
+								defaultSize={65}
 								maxSize={95}
 								className="!overflow-y-scroll custom-scrollbar"
 							>

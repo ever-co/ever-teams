@@ -105,8 +105,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 					<ResizablePanelGroup direction="vertical">
 						<ResizablePanel
-							defaultSize={47}
-							maxSize={50}
+							defaultSize={30}
+							maxSize={48}
 							className={clsxm(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
 							onResize={(size) => setHeaderSize(size)}
 						>
@@ -138,7 +138,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</MainHeader>
 						</ResizablePanel>
 						<ResizableHandle withHandle />
-						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+						<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
 							{hook.tab == 'worked' && canSeeActivity && (
 								<Container fullWidth={fullWidth} className="py-8">
 									<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
