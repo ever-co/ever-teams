@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
 import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
+import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
@@ -43,9 +44,12 @@ export function UserProfilePlans() {
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
+
 	const { filteredFuturePlanData: filterFuturePlanData } = useFilterDateRange(futurePlans, 'future');
 	const { filteredPastPlanData: filterPastPlanData } = useFilterDateRange(pastPlans, 'past');
 	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(sortedPlans, 'all');
+	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState)
+
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} />,
@@ -61,11 +65,22 @@ export function UserProfilePlans() {
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
-	}, [currentTab]);
+		if (!currentDataDailyPlan) return;
+		if (currentTab === 'All Tasks') {
+			setCurrentDataDailyPlan(sortedPlans)
+		} else if (currentTab === 'Past Tasks') {
+			setCurrentDataDailyPlan(pastPlans)
+		} else if (currentTab === 'Future Tasks') {
+			setCurrentDataDailyPlan(futurePlans)
+		}
+	}, [currentTab, setCurrentDataDailyPlan]);
+
 
 	useEffect(() => {
 		window.localStorage.setItem('outstanding', currentOutstanding);
 	}, [currentOutstanding]);
+
+
 
 	return (
 		<div className="">
