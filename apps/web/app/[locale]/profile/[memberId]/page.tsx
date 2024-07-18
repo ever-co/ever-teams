@@ -13,7 +13,7 @@ import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, u
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -110,10 +110,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							className={clsxm(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
 							onResize={(size) => setHeaderSize(size)}
 						>
-							<MainHeader
-								fullWidth={fullWidth}
-								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
-							>
+							<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2')}>
 								{/* Breadcrumb */}
 								<div className="flex items-center gap-8">
 									<Link href="/">
