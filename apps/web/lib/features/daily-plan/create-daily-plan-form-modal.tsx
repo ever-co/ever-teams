@@ -4,13 +4,10 @@ import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member }
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
 import { Avatar, Card, Modal, Text } from 'lib/components';
 import { imgTitle, tomorrowDate } from '@app/helpers';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
-import { cn } from 'lib/utils';
-import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { Calendar } from '@components/ui/calendar';
 import { Button } from '@components/ui/button';
-
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@components/ui/command';
 import { ScrollArea } from '@components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
@@ -116,33 +113,50 @@ export function CreateDailyPlanFormModal({
 							/> */}
 
 							{planMode === 'custom' && (
-								<Popover>
-									<PopoverTrigger asChild>
-										<Button
-											variant={'outline'}
-											className={cn(
-												'justify-start text-left font-normal py-6 rounded-lg dark:bg-dark--theme-light dark:border-slate-700',
-												!date && 'text-muted-foreground'
-											)}
-										>
-											<CalendarIcon className="mr-2 h-4 w-4" />
-											{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="w-full p-0 z-[9999] dark:!border-slate-700">
-										<Calendar
-											mode="single"
-											className="dark:bg-dark--theme-light"
-											selected={date}
-											onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
-											initialFocus
-											disabled={[
-												...existingPlanDates,
-												{ from: new Date(1970, 1, 1), to: tomorrowDate }
-											]}
-										/>
-									</PopoverContent>
-								</Popover>
+								<div className="flex justify-center w-full">
+									{/* <Popover>
+										<PopoverTrigger asChild>
+											<Button
+												variant={'outline'}
+												className={cn(
+													'justify-start text-left font-normal py-6 rounded-lg dark:bg-dark--theme-light dark:border-slate-700',
+													!date && 'text-muted-foreground'
+												)}
+											>
+												<CalendarIcon className="mr-2 h-4 w-4" />
+												{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-full p-0 z-[9999] dark:!border-slate-700">
+											<Calendar
+												mode="single"
+												captionLayout="dropdown"
+												className="dark:bg-dark--theme-light"
+												selected={date}
+												onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
+												initialFocus
+												disabled={[
+													...existingPlanDates,
+													{ from: new Date(1970, 1, 1), to: tomorrowDate }
+												]}
+											/>
+										</PopoverContent>
+									</Popover> */}
+
+									<Calendar
+										mode="single"
+										captionLayout="dropdown"
+										selected={date}
+										onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
+										initialFocus
+										disabled={[
+											...existingPlanDates,
+											{ from: new Date(1970, 1, 1), to: tomorrowDate }
+										]}
+										fromYear={new Date().getUTCFullYear()}
+										toYear={new Date().getUTCFullYear() + 5}
+									/>
+								</div>
 							)}
 
 							<Button
