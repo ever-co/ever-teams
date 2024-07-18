@@ -81,7 +81,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			defaultValue,
 			hintType,
 			autoComplete = '',
-			submitCode,
+			submitCode
 		},
 		ref
 	) => {
@@ -129,13 +129,12 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			if (autoComplete && autoComplete.length > 0) {
 				handleAutoComplete(autoComplete);
 				setCanSubmit(true);
-
 			}
 		}, [autoComplete, canSubmit]);
 
 		useEffect(() => {
-			submitCode && submitCode();
-		}, [canSubmit])
+			canSubmit && submitCode && submitCode();
+		}, []);
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
@@ -212,7 +211,6 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		};
 
 		const handleAutoComplete = (code: string) => {
-
 			let currentInput = 0;
 
 			for (let i = 0; i < code.length; i++) {
