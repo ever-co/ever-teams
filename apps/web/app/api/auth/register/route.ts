@@ -13,7 +13,7 @@ import {
 } from '@app/services/server/requests';
 import { setAuthCookies } from '@app/helpers/cookies';
 import { recaptchaVerification } from '@app/services/server/recaptcha';
-import { RECAPTCHA_SECRET_KEY, VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
+import { RECAPTCHA_SECRET_KEY, SMTP_PASSWORD, SMTP_USERNAME, VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -84,15 +84,12 @@ export async function POST(req: Request) {
 	const { data: tenant } = await createTenantRequest(body.team, auth_token);
 
 	// Create tenant SMTP
-	try {
+	if (SMTP_USERNAME && SMTP_PASSWORD) {
 		await createTenantSmtpRequest({
 			access_token: auth_token,
 			tenantId: tenant.id
 		});
-	} catch (error) {
-		console.error('Failed to create tenant SMTP:', error);
 	}
-	console.log({ URL_LOGS: url.hostname });
 
 	// Create user organization
 	const { data: organization } = await createOrganizationRequest(
