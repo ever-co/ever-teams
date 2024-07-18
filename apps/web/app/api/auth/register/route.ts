@@ -84,10 +84,15 @@ export async function POST(req: Request) {
 	const { data: tenant } = await createTenantRequest(body.team, auth_token);
 
 	// Create tenant SMTP
-	await createTenantSmtpRequest({
-		access_token: auth_token,
-		tenantId: tenant.id
-	});
+	try {
+		await createTenantSmtpRequest({
+			access_token: auth_token,
+			tenantId: tenant.id
+		});
+	} catch (error) {
+		console.error('Failed to create tenant SMTP:', error);
+	}
+	console.log({ URL_LOGS: url.hostname });
 
 	// Create user organization
 	const { data: organization } = await createOrganizationRequest(
