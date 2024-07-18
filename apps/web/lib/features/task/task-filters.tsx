@@ -247,9 +247,9 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0 ease-out"
 				className="w-full"
-				ref={hook.outclickFilterCard.targetEl}
+				ref={hook?.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl: null}
 			>
-				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
+				{hook.filterType !== undefined && <Divider className="mt-4" />}
 				{hook.filterType === 'status' && (
 					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
 				)}
