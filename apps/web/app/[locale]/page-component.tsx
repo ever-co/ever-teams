@@ -31,9 +31,11 @@ import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from 'lib/features/team-member-header';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
+import { DailyPlanCompareEstimatedModal } from 'lib/features/daily-plan';
 
 function MainPage() {
 	const t = useTranslations();
+	const [isOpen, setIsOpen] = useState(true)
 
 	const [headerSize, setHeaderSize] = useState(10);
 
@@ -64,6 +66,8 @@ function MainPage() {
 	}
 	return (
 		<>
+			<DailyPlanCompareEstimatedModal open={isOpen} closeModal={() => setIsOpen(prev => prev)} />
+
 			<div className="flex flex-col h-screen justify-between">
 				{/* <div className="flex-grow "> */}
 				<MainLayout className="h-full" footerClassName={clsxm('')}>
