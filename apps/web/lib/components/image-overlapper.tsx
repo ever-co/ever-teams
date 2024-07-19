@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ import { TaskAvatars } from 'lib/features';
 import { FaCheck } from 'react-icons/fa6';
 import TeamMember from 'lib/components/team-member';
 import { IEmployee } from '@app/interfaces';
+import { Url } from 'next/dist/shared/lib/router/router';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -42,7 +43,8 @@ export default function ImageOverlapper({
 	arrowData = null,
 	hasActiveMembers = false,
 	assignTaskButtonCall = false,
-	hasInfo = ''
+	hasInfo = '',
+	onAvatarClickRedirectTo = 'profile'
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -54,6 +56,7 @@ export default function ImageOverlapper({
 	hasActiveMembers?: boolean;
 	assignTaskButtonCall?: boolean;
 	hasInfo?: string;
+	onAvatarClickRedirectTo?: 'kanbanTasks' | 'profile';
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images?.slice(0, displayImageCount);
@@ -83,6 +86,26 @@ export default function ImageOverlapper({
 			setUnassignedMembers(updatedUnassign);
 		}
 	};
+
+	const onRedirect = useCallback(
+		(image: ImageOverlapperProps): Url => {
+			switch (onAvatarClickRedirectTo) {
+				case 'kanbanTasks':
+					return {
+						pathname: '/kanban',
+						query: {
+							employee: activeTeam?.members.find((el) => el.employee.userId === image.id)?.employee
+								.fullName
+						}
+					};
+				case 'profile':
+					return { pathname: `/profile/${image.id}?name=${image.alt}` };
+				default:
+					return {};
+			}
+		},
+		[activeTeam?.members, onAvatarClickRedirectTo]
+	);
 
 	const onCLickValidate = () => {
 		setValidate(!validate);
@@ -212,7 +235,7 @@ export default function ImageOverlapper({
 			className="relative "
 		>
 			{firstArray.map((image, index) => (
-				<Link key={index} href={`/profile/${image.id}?name=${image.alt}`}>
+				<Link key={index} href={onRedirect(image)}>
 					<div
 						className="absolute hover:!z-20 transition-all hover:scale-110"
 						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
@@ -253,7 +276,7 @@ export default function ImageOverlapper({
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link
-											href={`/profile/${image.id}?name=${image.alt}`}
+											href={onRedirect(image)}
 											className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
 											key={index}
 										>
