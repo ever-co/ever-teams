@@ -15,6 +15,7 @@ import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl'
 import stc from 'string-to-color';
+import { I_TaskFilter } from 'lib/features/task/task-filters';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -122,7 +123,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 									</Link>
 
 									<Breadcrumb paths={breadcrumb} className="text-sm" />
-									<CheckPlans />
+
 								</div>
 
 								{/* User Profile Detail */}
@@ -139,6 +140,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 									)}
 								</div>
 								{/* TaskFilter */}
+								<CheckPlans hook={hook} />
 								<TaskFilter profile={profile} hook={hook} />
 							</MainHeader>
 						</ResizablePanel>
@@ -244,7 +246,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	);
 }
 
-function CheckPlans() {
+function CheckPlans(hook: I_TaskFilter) {
 
 	const [plansExist, setPlansExist] = useState(false);
 	const prof = useUserProfilePage();
@@ -265,9 +267,13 @@ function CheckPlans() {
 		}
 	}, []);
 
+	const createPlanRedirect = () => {
+		hook.setTab("assigned");
+		console.log("Qwerty !", hook);
+		closeModal();
+	}
+
 	return (
-
-
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
@@ -276,7 +282,9 @@ function CheckPlans() {
 			titleClass="text-[16px] font-bold"
 		>
 			<button
-				className="px-[10px] py-[14px] bg-[#3826A6] ml-[15px] rounded-[12px] mb-[10px] text-[#fff]">
+				onClick={() => {console.log("Azerty");createPlanRedirect()}}
+				className="px-[10px] py-[14px] bg-[#3826A6] ml-[15px] rounded-[12px] mb-[10px] text-[#fff]"
+			>
 				Create the Plan
 			</button>
 		</Modal>
