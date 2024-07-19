@@ -20,9 +20,10 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
-import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
+import { useFilterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { useDateRange } from '@app/hooks/useDateRange';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -45,10 +46,9 @@ export function UserProfilePlans() {
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
 
-	const { filteredFuturePlanData: filterFuturePlanData } = useFilterDateRange(futurePlans, 'future');
-	const { filteredPastPlanData: filterPastPlanData } = useFilterDateRange(pastPlans, 'past');
-	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(sortedPlans, 'all');
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState)
+	const { setDate, date } = useDateRange(currentTab);
+
 
 
 	const screenOutstanding = {
@@ -62,25 +62,31 @@ export function UserProfilePlans() {
 		'All Tasks': <AllPlans profile={profile} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
+	const [filterFuturePlanData, setFilterFuturePlanData] = useState<IDailyPlan[]>(futurePlans);
+	const [filterPastPlanData, setFilteredPastPlanData] = useState<IDailyPlan[]>(pastPlans);
+	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
+
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
 		if (!currentDataDailyPlan) return;
 		if (currentTab === 'All Tasks') {
 			setCurrentDataDailyPlan(sortedPlans)
+			setFilterAllPlanData(useFilterDailyPlan(date as any, sortedPlans))
 		} else if (currentTab === 'Past Tasks') {
 			setCurrentDataDailyPlan(pastPlans)
+			setFilteredPastPlanData(useFilterDailyPlan(date as any, pastPlans))
 		} else if (currentTab === 'Future Tasks') {
 			setCurrentDataDailyPlan(futurePlans)
+			setFilterFuturePlanData(useFilterDailyPlan(date as any, futurePlans))
 		}
-	}, [currentTab, setCurrentDataDailyPlan]);
+
+	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
 
 
 	useEffect(() => {
 		window.localStorage.setItem('outstanding', currentOutstanding);
 	}, [currentOutstanding]);
-
-
 
 	return (
 		<div className="">
@@ -98,7 +104,10 @@ export function UserProfilePlans() {
 													'text-gray-500 flex gap-2 items-center',
 													currentTab == filter && 'text-blue-600 dark:text-white font-medium'
 												)}
-												onClick={() => setCurrentTab(filter as FilterTabs)}
+												onClick={() => {
+													setDate(undefined)
+													setCurrentTab(filter as FilterTabs)
+												}}
 											>
 												{filter}
 												<span
@@ -112,6 +121,7 @@ export function UserProfilePlans() {
 													{filter === 'Past Tasks' && filterPastPlanData?.length}
 													{filter === 'All Tasks' && filterAllPlanData?.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
+
 												</span>
 											</div>
 										</div>
@@ -164,16 +174,20 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
+	const { setDate, date } = useDateRange(currentTab);
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
-	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
+	// const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
+	// const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ?  : filteredPlans;
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-	const [plans, setPlans] = useState<IDailyPlan[]>(filterPlans);
 
+	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
+	useEffect(() => {
+		setPlans(useFilterDailyPlan(date as any, filteredPlans))
+	}, [date, setDate])
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (

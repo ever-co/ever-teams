@@ -74,6 +74,7 @@ const getFirstAndLastDateSelector = (key: string | any) => selector({
 		return { from: new Date(sortedData[0]?.date), to: new Date(sortedData[sortedData.length - 1]?.date) };
 	}
 });
+export const dateRangeDailyPlanState = createDateRangeAtom('dateRangeDailyPlanState')
 
 const createFilteredDailyPlanDataSelector = (key: string | any, dateRangeState: RecoilState<DateRange | undefined>, originalDataState: RecoilState<IDailyPlan[]>) => selector({
 	key,
@@ -91,12 +92,30 @@ const createFilteredDailyPlanDataSelector = (key: string | any, dateRangeState: 
 		});
 	},
 });
+export const dataDailyPlanAllFilterState = createDailyPlanAtom('dataDailyPlanAllFilterState');
+export const dateRangeAllPlanState = createDateRangeAtom('dateRangeAllPlanState');
+
+export const setCreateFilteredDailyPlanDataSelector = () => selector({
+	key: 'dataDailyPlanAllFilter',
+	get: ({ get }) => {
+		const dateRange = get(dateRangeAllPlanState);
+		const data = get(dataDailyPlanAllFilterState);
+		if (!dateRange || !data.length) return data;
+		const { from, to } = dateRange;
+		if (!from && !to) {
+			return data
+		}
+		return data.filter((plan) => {
+			const itemDate = new Date(plan.date);
+			return isTestDateRange(itemDate, from, to);
+		});
+	},
+});
 
 export const dataDailyPlanCountFilterState = createDailyPlanCountFilterAtom('dataDailyPlanCountFilterState');
 export const dateRangePastPlanState = createDateRangeAtom('dateRangePastPlanState');
 
 export const dateRangeFuturePlanState = createDateRangeAtom('dateRangeFuturePlanState');
-export const dateRangeAllPlanState = createDateRangeAtom('dateRangeAllPlanState');
 export const dateRangeLimitState = createDateRangeAtom('startAndEndDateRange');
 
 export const originalFuturePlanState = createDailyPlanAtom('originalFuturePlanState');

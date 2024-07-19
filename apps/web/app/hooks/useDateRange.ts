@@ -2,12 +2,10 @@ import { dateRangeAllPlanState, dateRangeFuturePlanState, dateRangePastPlanState
 import { useRecoilState, useRecoilValue } from "recoil";
 
 export const useDateRange = (tab: string | any) => {
-
     const itemsDate = useRecoilValue(getFirstAndLastDateState);
     const [dateFuture, setDateFuture] = useRecoilState(dateRangeFuturePlanState);
     const [dateAllPlan, setDateAllPlan] = useRecoilState(dateRangeAllPlanState);
     const [datePastPlan, setDatePastPlan] = useRecoilState(dateRangePastPlanState);
-
     switch (tab) {
         case 'Future Tasks':
             return { date: dateFuture, setDate: setDateFuture, data: itemsDate };
