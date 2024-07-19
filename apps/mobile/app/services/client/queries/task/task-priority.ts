@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getTaskAllPrioritiesRequest } from '../../requests/task-priority';
 
 interface IGetTaskPrioritiesParams {
@@ -21,7 +21,9 @@ const fetchAllPriorities = async (params: IGetTaskPrioritiesParams) => {
 };
 
 const useFetchAllPriorities = (IGetTaskPrioritiesParams) =>
-	useQuery(['priorities', IGetTaskPrioritiesParams], () => fetchAllPriorities(IGetTaskPrioritiesParams), {
+	useQuery({
+		queryKey: ['priorities'],
+		queryFn: () => fetchAllPriorities(IGetTaskPrioritiesParams),
 		refetchInterval: 62000
 	});
 export default useFetchAllPriorities;

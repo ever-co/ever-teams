@@ -1,6 +1,6 @@
 'use client';
 
-import { useCustomEmblaCarousel, useSyncRef } from '@app/hooks';
+import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
 import { useEffect, useMemo } from 'react';
@@ -12,13 +12,20 @@ import {
 	useTaskStatusValue
 } from './task-status';
 import { clsxm } from '@app/utils';
+import { planBadgeContent } from '@app/helpers';
+import { CalendarIcon } from '@radix-ui/react-icons';
+import { FilterTabs } from '../user-profile-plans';
 
 export function TaskAllStatusTypes({
 	task,
 	showStatus = false,
 	toBlockCard = false,
-	className
+	className,
+	tab,
+	dayPlanTab
 }: {
+	tab?: 'default' | 'unassign' | 'dailyplan';
+	dayPlanTab?: FilterTabs;
 	task?: Nullable<ITeamTask>;
 	showStatus?: boolean;
 	toBlockCard?: boolean;
@@ -28,6 +35,8 @@ export function TaskAllStatusTypes({
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
+
+	const { dailyPlan, getAllDayPlans } = useDailyPlan();
 
 	const { viewportRef, nextBtnEnabled, scrollNext, prevBtnEnabled, scrollPrev, emblaApi } = useCustomEmblaCarousel(
 		0,
@@ -42,6 +51,10 @@ export function TaskAllStatusTypes({
 	useEffect(() => {
 		emblaApiRef.current?.reInit();
 	}, [task, emblaApiRef]);
+
+	useEffect(() => {
+		getAllDayPlans();
+	}, [getAllDayPlans]);
 
 	const tags = useMemo(() => {
 		return (
@@ -86,7 +99,19 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-
+					{planBadgeContent(dailyPlan.items, task?.id ?? '', tab) && (
+						<div
+							className={clsxm(
+								dayPlanTab === 'Past Tasks' ? 'bg-red-600 text-white' : 'bg-[#D9EBD7] text-[#4D6194]',
+								'rounded-md pr-5 pl-4 !py-10 flex items-center gap-2 font-medium'
+							)}
+						>
+							<CalendarIcon />
+							<span className="text-[10px]">
+								{planBadgeContent(dailyPlan.items, task?.id ?? '', tab)}
+							</span>
+						</div>
+					)}
 					{tags.map((tag, i) => {
 						return (
 							<TaskStatus

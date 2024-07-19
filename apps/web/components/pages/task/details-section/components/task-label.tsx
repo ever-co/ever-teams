@@ -1,3 +1,4 @@
+import { clsxm } from '@app/utils';
 import Image from 'next/image';
 
 type TaskLabelProps = {
@@ -10,11 +11,11 @@ type TaskLabelProps = {
 const TaskLabel: React.FC<TaskLabelProps> = ({ labelIconPath, afterIconPath, labelTitle, alignWithIconLabel }) => {
 	return (
 		<div
-			className={`flex ${
-				labelTitle === 'Assignees' || labelTitle === 'Estimations' || labelTitle === 'Total Group Time'
-					? 'h-6'
-					: ''
-			} items-center `}
+			className={clsxm(
+				'flex items-center',
+				(labelTitle === 'Assignees' || labelTitle === 'Estimations' || labelTitle === 'Total Group Time') &&
+					'h6'
+			)}
 		>
 			{labelIconPath ? (
 				<Image

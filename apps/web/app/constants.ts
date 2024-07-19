@@ -1,8 +1,9 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
-import enLanguage from '../messages/en.json';
-
+import enLanguage from '../locales/en.json';
+// import {  } from 'country-flag-icons/react/3x2'
+import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
@@ -35,7 +36,6 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
 );
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
-
 const basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 export const GAUZY_API_SERVER_URL = basePath + '/api';
 
@@ -194,3 +194,105 @@ export enum IssuesView {
 export const TaskStatus = {
 	INPROGRESS: 'in-progress'
 };
+
+export const languagesFlags = [
+	{
+		Flag: US,
+		country: 'United Kingdom',
+		code: 'en'
+	},
+	{
+		Flag: CN,
+		country: 'China',
+		code: 'zh'
+	},
+	{
+		Flag: ES,
+		country: 'Spain',
+		code: 'es'
+	},
+	{
+		Flag: RU,
+		country: 'Russia',
+		code: 'ru'
+	},
+	{
+		Flag: PT,
+		country: 'Portugal',
+		code: 'pt'
+	},
+	{
+		Flag: IT,
+		country: 'Italy',
+		code: 'it'
+	},
+	{
+		Flag: DE,
+		country: 'Germany',
+		code: 'de'
+	},
+	{
+		Flag: BG,
+		country: 'Bulgaria',
+		code: 'bg'
+	},
+	{
+		Flag: SA,
+		country: 'Saudi Arabia',
+		code: 'ar'
+	},
+	{
+		Flag: NL,
+		country: 'Netherlands',
+		code: 'nl'
+	},
+	{
+		Flag: FR,
+		country: 'France',
+		code: 'fr'
+	},
+	{
+		Flag: PL,
+		country: 'Poland',
+		code: 'pl'
+	},
+	{
+		Flag: IS,
+		country: 'Israel',
+		code: 'he'
+	}
+];
+
+// Local storage keys
+export const LAST_WORSPACE_AND_TEAM = 'last-workspace-and-team';
+export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
+export const TODAY_PLAN_ALERT_SHOWN_DATE = 'last-today-plan-alert-date';
+
+// OAuth providers keys
+
+export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
+export const APPLE_CLIENT_SECRET = process.env.APPLE_CLIENT_SECRET;
+
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+export const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+
+export const FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID;
+export const FACEBOOK_CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET;
+
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+export const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
+export const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
+
+export const MICROSOFT_CLIENT_ID = process.env.MICROSOFT_CLIENT_ID;
+export const MICROSOFT_CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET;
+
+export const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
+export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
+
+export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
+export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;

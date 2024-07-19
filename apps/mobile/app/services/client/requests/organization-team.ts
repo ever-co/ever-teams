@@ -114,7 +114,7 @@ export function getAllOrganizationTeamRequest(
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
 		source: 'BROWSER',
-		withLaskWorkedTask: 'true',
+		withLastWorkedTask: 'true',
 		...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
 	};
 

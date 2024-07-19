@@ -20,8 +20,8 @@ import {
 	activeTeamIdState,
 	activeTeamManagersState,
 	activeTeamState,
+	isTeamMemberJustDeletedState,
 	isTeamMemberState,
-	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamsFetchingState,
 	timerStatusState
@@ -176,25 +176,29 @@ export function useOrganizationTeams() {
 
 	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
+	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useRecoilState(isTeamMemberJustDeletedState);
+	// const [isTeamJustDeleted, setIsTeamJustDeleted] = useRecoilState(isTeamJustDeletedState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
 	const timerStatus = useRecoilValue(timerStatusState);
 
-	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
+	// const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
 
 	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
+
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
+
 	const isTrackingEnabled = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
 	)
 		? true
 		: false;
 
-	useEffect(() => {
-		setMemberActiveTaskId(memberActiveTaskId);
-	}, [setMemberActiveTaskId, memberActiveTaskId]);
+	// useEffect(() => {
+	// 	setMemberActiveTaskId(memberActiveTaskId);
+	// }, [setMemberActiveTaskId, memberActiveTaskId]);
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
@@ -244,6 +248,7 @@ export function useOrganizationTeams() {
 		return queryCall(user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 			if (res.data?.items && res.data?.items?.length === 0) {
 				setIsTeamMember(false);
+				setIsTeamMemberJustDeleted(true);
 			}
 			const latestTeams = res.data?.items || [];
 
@@ -265,6 +270,7 @@ export function useOrganizationTeams() {
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
 			if (!latestTeams.find((team: any) => team.id === teamId) && latestTeams.length) {
+				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';
@@ -380,6 +386,8 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeam,
 		loadingTeam,
 		isTrackingEnabled,
-		memberActiveTaskId
+		memberActiveTaskId,
+		isTeamMemberJustDeleted,
+		setIsTeamMemberJustDeleted
 	};
 }

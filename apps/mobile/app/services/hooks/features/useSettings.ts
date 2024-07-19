@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStores } from '../../../models';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import useFetchAllLanguages from '../../client/queries/language';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,7 +36,7 @@ export function useSettings() {
 			},
 			authToken
 		);
-		queryClient.invalidateQueries('user');
+		queryClient.invalidateQueries({ queryKey: ['user'] });
 		return data;
 	}, []);
 
@@ -58,7 +58,7 @@ export function useSettings() {
 				},
 				authToken
 			);
-			queryClient.invalidateQueries('user');
+			queryClient.invalidateQueries({ queryKey: ['user'] });
 		}
 	}, []);
 

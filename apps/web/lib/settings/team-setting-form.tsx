@@ -3,7 +3,7 @@ import { RoleNameEnum } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { Button, ColorPicker, InputField, Text, Tooltip } from 'lib/components';
 import { EmojiPicker } from 'lib/components/emoji-picker';
-import TimeTrackingToggle from 'lib/components/switch';
+import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from 'lib/components/switch';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -93,6 +93,7 @@ export const TeamSettingForm = () => {
 					public: values.teamType === 'PUBLIC' ? true : false,
 					color: values.color,
 					emoji: values.emoji,
+					shareProfileView: activeTeam.shareProfileView,
 					teamSize: values.teamSize,
 					memberIds: activeTeam.members
 						.map((t) => t.employee.id)
@@ -211,11 +212,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Team Color */}
-							<div className="z-50 flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
+							<div className="flex flex-col lg:flex-row items-center justify-between w-full gap-1 lg:gap-12 ">
 								<Text className="flex-none flex-grow-0 w-full lg:w-1/5 mb-2 text-lg font-normal text-gray-400">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
+								<div className="z-50 flex flex-row items-center justify-between flex-grow-0 w-full lg:w-4/5">
 									<ColorPicker
 										defaultColor={activeTeam?.color}
 										onChange={(color: any | null) => {
@@ -359,14 +360,32 @@ export const TeamSettingForm = () => {
 
 							{/* Time Tracking */}
 							{isTeamManager ? (
-								<div className="flex items-center justify-between w-full gap-12 mt-8">
-									<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
-										{t('pages.settingsTeam.TIME_TRACKING')}
-									</Text>
-									<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
-										<TimeTrackingToggle activeManager={activeManager} />
+								<>
+									<div className="flex items-center justify-between w-full gap-12 mt-8">
+										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+											{t('pages.settingsTeam.TIME_TRACKING')}
+										</Text>
+										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+											<TimeTrackingToggle activeManager={activeManager} />
+										</div>
 									</div>
-								</div>
+									<div className="flex items-center justify-between w-full gap-12 mt-8">
+										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+											Share members profile views
+										</Text>
+										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+											<ShareProfileViewsToggle />
+										</div>
+									</div>
+									<div className="flex items-center justify-between w-full gap-12 mt-8">
+										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+											{t('pages.settingsTeam.REQUIRE_PLAN_TO_TRACK')}
+										</Text>
+										<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+											<RequireDailyPlanToTrack />
+										</div>
+									</div>
+								</>
 							) : (
 								<></>
 							)}

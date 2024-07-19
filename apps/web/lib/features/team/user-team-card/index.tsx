@@ -7,24 +7,32 @@ import {
 	useTaskStatistics,
 	useOrganizationTeams,
 	useAuthenticateUser,
-	useTeamMemberCard
+	useTeamMemberCard,
+	useUserProfilePage
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList, OT_Member } from '@app/interfaces';
-import { timerSecondsState } from '@app/stores';
+import { timerSecondsState, userDetailAccordion as userAccordion } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
-import { TaskTimes, TodayWorkedTime } from 'lib/features';
+import { Card, Container, InputField, Text, VerticalSeparator } from 'lib/components';
+import { TaskTimes, TodayWorkedTime, UserProfileTask, useTaskFilter } from 'lib/features';
 import { useTranslations } from 'next-intl';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import UserTeamActivity from './user-team-card-activity';
 import { CollapseUpIcon, ExpandIcon } from '@components/ui/svgs/expand';
 import { activityTypeState } from '@app/stores/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
+import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
+import { ScreenshootTab } from 'lib/features/activity/screenshoots';
+import { AppsTab } from 'lib/features/activity/apps';
+import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
+import { FilterTab } from '@app/[locale]/profile/[memberId]/page';
+import { Loader } from 'lucide-react';
+import { fullWidthState } from '@app/stores/fullWidth';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -51,10 +59,13 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+	const profile = useUserProfilePage();
+	const [userDetailAccordion, setUserDetailAccordion] = useRecoilState(userAccordion);
+	const hook = useTaskFilter(profile);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
+	const fullWidth = useRecoilValue(fullWidthState);
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const setActivityFilter = useSetRecoilState(activityTypeState);
@@ -67,6 +78,7 @@ export function UserTeamCard({
 
 	const showActivityFilter = (type: 'DATE' | 'TICKET', member: OT_Member | null) => {
 		setShowActivity((prev) => !prev);
+		setUserDetailAccordion('');
 		setActivityFilter((prev) => ({
 			...prev,
 			type,
@@ -111,6 +123,21 @@ export function UserTeamCard({
 			)}
 		</>
 	);
+	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
+
+	const activityScreens = {
+		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
+		Screenshots: <ScreenshootTab />,
+		Apps: <AppsTab />,
+		'Visited Sites': <VisitedSitesTab />
+	};
+	const changeActivityFilter = useCallback(
+		(filter: FilterTab) => {
+			setActivity(filter);
+		},
+		[setActivity]
+	);
+	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 
 	return (
 		<div
@@ -124,7 +151,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden dark:bg-[#1E2025] min-h-[7rem] !py-4',
+					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] !py-4',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -138,7 +165,27 @@ export function UserTeamCard({
 					</div>
 
 					{/* Show user name, email and image */}
-					<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+					<div className="relative">
+						<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
+						<div
+							onClick={() => {
+								setUserDetailAccordion(
+									userDetailAccordion == memberInfo.memberUser?.id
+										? ''
+										: memberInfo.memberUser?.id ?? ''
+								);
+								setShowActivity(false);
+							}}
+							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
+						>
+							<ChevronDoubleDownIcon
+								className={clsxm(
+									'h-4 w-4 transition-all',
+									userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
+								)}
+							/>
+						</div>
+					</div>
 					<VerticalSeparator />
 
 					{/* Task information */}
@@ -148,11 +195,16 @@ export function UserTeamCard({
 							memberInfo={memberInfo}
 							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
 							publicTeam={publicTeam}
+							tab="default"
 						/>
+
 						{isManagerConnectedUser != 1 ? (
 							<p
 								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
-								onClick={() => showActivityFilter('TICKET', memberInfo.member ?? null)}
+								onClick={() => {
+									showActivityFilter('TICKET', memberInfo.member ?? null);
+									setUserDetailAccordion('');
+								}}
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -181,6 +233,7 @@ export function UserTeamCard({
 						activeAuthTask={true}
 						className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 					/>
+
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
@@ -202,6 +255,37 @@ export function UserTeamCard({
 					{/* Card menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
+				{userDetailAccordion == memberInfo.memberUser?.id &&
+				memberInfo.memberUser.id == profile.userProfile?.id &&
+				!showActivity ? (
+					<div className="h-96 overflow-y-auto">
+						{canSeeActivity && (
+							<Container fullWidth={fullWidth} className="py-8">
+								<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
+									{Object.keys(activityScreens).map((filter, i) => (
+										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+											{i !== 0 && <VerticalSeparator />}
+											<div
+												className={clsxm(
+													'text-gray-500',
+													activityFilter == filter && 'text-black dark:text-white'
+												)}
+												onClick={() => changeActivityFilter(filter as FilterTab)}
+											>
+												{filter}
+											</div>
+										</div>
+									))}
+								</div>
+							</Container>
+						)}
+						{activityScreens[activityFilter] ?? null}
+					</div>
+				) : userDetailAccordion == memberInfo.memberUser?.id ? (
+					<div className="h-20 w-full flex justify-center items-center">
+						<Loader className="animate-spin" />
+					</div>
+				) : null}
 				<UserTeamActivity showActivity={showActivity} member={member} />
 			</Card>
 			<Card
@@ -219,7 +303,13 @@ export function UserTeamCard({
 				</div>
 
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo edition={taskEdition} memberInfo={memberInfo} className="px-4" publicTeam={publicTeam} />
+					<TaskInfo
+						edition={taskEdition}
+						memberInfo={memberInfo}
+						className="px-4"
+						publicTeam={publicTeam}
+						tab="default"
+					/>
 				</div>
 
 				<div className="flex justify-between mt-4 mb-4 space-x-5">

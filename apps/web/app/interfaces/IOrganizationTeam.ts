@@ -15,6 +15,8 @@ export interface IOrganizationTeamCreate {
 	tags?: any[];
 	organizationId: string;
 	tenantId: string;
+	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	public?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
@@ -42,6 +44,8 @@ export interface IOrganizationTeam {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
+	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
 }
@@ -59,6 +63,8 @@ export interface IOrganizationTeamList {
 	updated?: boolean;
 	prefix: string;
 	members: OT_Member[];
+	shareProfileView?: boolean;
+	requirePlanToTrack?: boolean;
 	public?: boolean;
 	createdById: string;
 	createdBy: IUser;
@@ -101,6 +107,12 @@ export interface OT_Role {
 	tenantId: string;
 	name: string;
 	isSystem: boolean;
+}
+
+export interface ITeamsMembersFilter {
+	label: string;
+	value: ITimerStatusEnum | 'all' | 'invited';
+	bg: string;
 }
 
 export enum RoleNameEnum {

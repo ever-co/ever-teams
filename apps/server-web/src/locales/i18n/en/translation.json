@@ -1,0 +1,72 @@
+{
+  "MENU": {
+    "SERVER": "Server",
+    "UPDATER": "Update",
+    "ABOUT": "About",
+    "SERVER_START": "Start",
+    "SERVER_STOP": "Stop",
+    "APP_SETTING": "Setting",
+    "APP_ABOUT": "About",
+    "APP_QUIT": "Quit",
+    "GENERAL": "General",
+    "SERVER_STATUS_STOPPED": "Status: Stopped",
+    "SERVER_STATUS_STARTED": "Status: Started",
+    "OPEN_WEB": "Open Web In Browser",
+    "SERVER_WINDOW": "Server Window"
+  },
+  "FORM": {
+    "FIELDS": {
+      "PORT": "PORT",
+      "GAUZY_API_SERVER_URL": "Gauzy API Server Url",
+      "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Public Gauzy API Server Url",
+      "LANGUAGES": "Languages",
+      "OPTIONS": "Options"
+    },
+    "BUTTON": {
+      "SAVE_SETTING": "Save Setting",
+      "OK": "OK",
+      "YES": "Yes",
+      "NO": "No",
+      "DOWNLOAD_NOW": "Download Now",
+      "LATER": "Later",
+      "CANCEL": "Cancel",
+      "CLOSE": "Close",
+      "START": "Start",
+      "STOP": "Stop"
+    },
+    "LABELS": {
+      "CHECKING": "Checking",
+      "DOWNLOADING": "Downloading",
+      "QUIT_N_INSTALL": "Quit and Install",
+      "UP_TO_DATE": "Up to date",
+      "UPDATE_AVAILABLE": "Update Available",
+      "CHECK_FOR_UPDATE": "Check For Update",
+      "SERVER_CONFIG": "Server Configuration",
+      "UPDATE_OPTIONS": {
+        "A_DAY": "A Day",
+        "A_HOURS": "A Hours",
+        "3_HOURS": "30 Hours",
+        "30_MINUTES": "30 Minutes"
+      },
+      "AUTO_UPDATE_TITLE": "Automatic Update Check",
+      "AUTO_UPDATE_SUBTITLE": "Enable automatice update check, in order to run a request to check if new version is available and notify",
+      "AUTO_UPDATE_TOGLE": "Automatic Update",
+      "CHECK_UPDATE_TITLE": "Check & Update your app version",
+      "CHECK_UPDATE_SUBTITLE": "New Update is available! Please click button Download Now below.",
+      "LANGUAGES": "Languages"
+    }
+  },
+  "MESSAGE": {
+    "SUCCESS": "Success",
+    "ERROR": "Error",
+    "WARNING": "Warning",
+    "INFO": "Info",
+    "UPDATE_AVAILABLE": "New Update is available! Please click button Download Now below.",
+    "EXIT_MESSAGE": "Server web still running, Are you sure to exit the app ?",
+    "UPDATE_SUCCESS": "Update Successfully"
+  },
+  "LANGUAGES": {
+    "en": "English",
+    "bg": "Bulgaria"
+  }
+}

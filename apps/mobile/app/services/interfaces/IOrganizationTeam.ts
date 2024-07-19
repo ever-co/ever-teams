@@ -11,6 +11,7 @@ export interface IOrganizationTeamCreate {
 	tags?: any[];
 	organizationId: string;
 	tenantId: string;
+	shareProfileView?: boolean;
 	public?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
@@ -30,6 +31,7 @@ export interface IOrganizationTeam {
 	members: any[];
 	tags: any[];
 	id: string;
+	shareProfileView?: boolean;
 	createdAt: string;
 	updatedAt: string;
 	imageId?: string | null;
@@ -48,6 +50,7 @@ export interface IOrganizationTeamList {
 	members: OT_Member[];
 	managerIds?: string[];
 	memberIds?: string[];
+	shareProfileView?: boolean;
 	public?: boolean;
 	createdById: string;
 	createdBy: IUser;

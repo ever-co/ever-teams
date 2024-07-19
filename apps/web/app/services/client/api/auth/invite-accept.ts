@@ -25,16 +25,28 @@ export function verifyInviteCodeAPI(params: IInviteVerifyCode) {
 	return post<IInviteVerified>('/invite/validate-by-code', params).then((res) => res.data);
 }
 
+/**
+ * Constructs a request to fetch user organizations with tenant and user ID.
+ *
+ * @param params - Parameters including tenantId, userId, and token for authentication.
+ * @returns A promise that resolves to a pagination response of user organizations.
+ */
 export function getUserOrganizationsRequest(params: { tenantId: string; userId: string; token: string }) {
-	const query = JSON.stringify({
-		relations: [],
-		findInput: {
-			userId: params.userId,
-			tenantId: params.tenantId
-		}
+	// Create a new instance of URLSearchParams for query string construction
+	const query = new URLSearchParams();
+
+	// Add user and tenant IDs to the query
+	query.append('where[userId]', params.userId);
+	query.append('where[tenantId]', params.tenantId);
+
+	// If there are relations, add them to the query
+	const relations: string[] = [];
+	// Append each relation to the query string
+	relations.forEach((relation, index) => {
+		query.append(`relations[${index}]`, relation);
 	});
 
-	return get<PaginationResponse<IUserOrganization>>(`/user-organization?data=${encodeURIComponent(query)}`, {
+	return get<PaginationResponse<IUserOrganization>>(`/user-organization?${query.toString()}`, {
 		tenantId: params.tenantId,
 		headers: {
 			Authorization: `Bearer ${params.token}`
@@ -57,7 +69,7 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 		'members.employee.user',
 		'createdBy',
 		'projects',
-		'projects.repository'
+		'projects.customFields.repository'
 	];
 
 	// Construct search queries
@@ -83,7 +95,7 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 
 export const signInEmailConfirmAPI = (data: { code: string; email: string }) => {
 	const { code, email } = data;
-	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm?includeTeams=true', { code, email });
+	return post<ISigninEmailConfirmResponse>('/auth/signin.email/confirm', { code, email, includeTeams: true });
 };
 
 export async function signInEmailCodeConfirmGauzy(email: string, code: string) {
@@ -193,23 +205,41 @@ export function signInWorkspaceAPI(email: string, token: string) {
  * @returns
  */
 export async function signInEmailConfirmGauzy(email: string, code: string) {
-	const loginResponse = await signInEmailCodeConfirmGauzy(email, code);
+	let loginResponse;
+
+	try {
+		loginResponse = await signInEmailCodeConfirmGauzy(email, code);
+	} catch (error) {
+		console.error('Error in signInEmailCodeConfirmation:', error);
+	}
 
 	if (loginResponse) {
 		return loginResponse;
 	}
 
-	return signInEmailConfirmAPI({ email, code });
+	try {
+		const signinResponse = await signInEmailConfirmAPI({ email, code });
+		return signinResponse;
+	} catch (error) {
+		return Promise.reject(error);
+	}
 }
 
 /**
  * @param params
  */
-export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code: string }) {
-	const loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code?: string }) {
+	if (params.code) {
+		let loginResponse;
+		try {
+			loginResponse = await signInEmailCodeConfirmGauzy(params.email, params.code);
+		} catch (error) {
+			console.error('Error in signInWorkspaces', error);
+		}
 
-	if (loginResponse) {
-		return loginResponse;
+		if (loginResponse) {
+			return loginResponse;
+		}
 	}
 
 	const data = await signInWorkspaceAPI(params.email, params.token);

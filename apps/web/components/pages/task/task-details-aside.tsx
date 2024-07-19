@@ -5,6 +5,7 @@ import TaskProgress from './details-section/blocks/task-progress';
 import TaskPublicity from './details-section/blocks/task-publicity';
 import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
 import { useTranslations } from 'next-intl';
+import { TaskPlans } from './details-section/blocks/task-plans';
 
 const TaskDetailsAside = () => {
 	const t = useTranslations();
@@ -24,6 +25,11 @@ const TaskDetailsAside = () => {
 
 			<div className="flex flex-col gap-4">
 				<TaskMainInfo />
+
+				{/* Divider */}
+				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-[95%] mx-auto"></div>
+
+				<TaskPlans />
 
 				{/* Divider */}
 				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-[95%] mx-auto"></div>

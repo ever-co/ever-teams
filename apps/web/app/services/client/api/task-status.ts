@@ -1,6 +1,7 @@
 import { DeleteResponse, ITaskStatusCreate, ITaskStatusItemList, PaginationResponse } from '@app/interfaces';
-import { deleteApi, get, post, put } from '../axios';
+import { deleteApi, get, post, put, patch } from '../axios';
 import qs from 'qs';
+
 import { UUID } from 'crypto';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
@@ -20,8 +21,9 @@ type ITaskStatusOrder = {
 	reorder: { id: string; order: number }[];
 };
 export function editTaskStatusOrderAPI(data: ITaskStatusOrder, tenantId?: string) {
-	return put<ITaskStatusCreate>(`/task-statuses/reorder`, data, {
-		tenantId
+	return patch<ITaskStatusCreate>(`/task-statuses/reorder`, data, {
+		tenantId,
+		method: 'PATCH'
 	});
 }
 export function deleteTaskStatusAPI(id: string) {

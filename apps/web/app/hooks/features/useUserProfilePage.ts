@@ -8,19 +8,21 @@ import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
+import { useRecoilValue } from 'recoil';
+import { userDetailAccordion } from '@app/stores';
 
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, updateTask } = useTeamTasks();
+	const userMemberId = useRecoilValue(userDetailAccordion);
 
 	const { user: auth } = useAuthenticateUser();
 	const { getTasksStatsData } = useTaskStatistics();
-
 	const params = useParams();
 	const memberId: string = useMemo(() => {
-		return (params?.memberId ?? '') as string;
+		return (params?.memberId ?? userMemberId) as string;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [params]);
+	}, [params, userMemberId]);
 
 	const members = activeTeam?.members || [];
 

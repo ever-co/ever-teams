@@ -4,6 +4,8 @@ import { ILoginResponse, IRegisterDataRequest, ISigninEmailConfirmResponse } fro
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { ProviderEnum } from './OAuth';
+import { ISocialAccount, ISocialAccountExistUser, ISocialAccountSendToken } from '@app/interfaces/ISocialAccount';
 
 const registerDefaultValue = {
 	appName: APP_NAME,
@@ -43,9 +45,17 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 
 export function signInEmailPasswordRequest(email: string, password: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email.password?includeTeams=true',
+		path: '/auth/signin.email.password',
 		method: 'POST',
-		body: { email, password }
+		body: { email, password, includeTeams: true }
+	});
+}
+
+export function signWithSocialLoginsRequest(provider: ProviderEnum, token: string) {
+	return serverFetch<ISigninEmailConfirmResponse>({
+		path: '/auth/signin.email.social',
+		method: 'POST',
+		body: { provider, token, includeTeams: true }
 	});
 }
 
@@ -53,9 +63,9 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 	const { code, email } = data;
 
 	return serverFetch<ISigninEmailConfirmResponse>({
-		path: '/auth/signin.email/confirm?includeTeams=true',
+		path: '/auth/signin.email/confirm',
 		method: 'POST',
-		body: { code, email }
+		body: { code, email, includeTeams: true }
 	});
 };
 
@@ -106,14 +116,11 @@ type IUEmployeeParam = {
  * @param {IUEmployeeParam} employeeParams - The employee parameters, including bearer token and optional relations.
  * @returns A Promise resolving to the IUser object with the desired relations.
  */
-export const currentAuthenticatedUserRequest = ({
-	bearer_token,
-	relations = ['role', 'tenant']
-}: IUEmployeeParam) => {
+export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['role', 'tenant'] }: IUEmployeeParam) => {
 	// Construct the query string with 'qs', including the includeEmployee parameter
 	const query = qs.stringify({
 		relations: relations,
-		includeEmployee: true  // Append includeEmployee parameter set to true
+		includeEmployee: true // Append includeEmployee parameter set to true
 	});
 
 	// Construct and return the server fetch request
@@ -182,5 +189,29 @@ export const resentVerifyUserLinkRequest = (data: {
 		body,
 		tenantId: data.tenantId,
 		bearer_token
+	});
+};
+
+export const signinGetUserBySocialEmailRequest = (data: { email: string }) => {
+	return serverFetch<ISocialAccountExistUser>({
+		method: 'POST',
+		path: `/auth/signup.email.social`,
+		body: data
+	});
+};
+
+export const signinGetSocialUserByProviderIdRequest = (data: { providerAccountId: string; provider: string }) => {
+	return serverFetch<ISocialAccountExistUser>({
+		method: 'POST',
+		path: `/auth/signup.provider.social`,
+		body: data
+	});
+};
+
+export const linkUserToSocialAccount = (data: ISocialAccountSendToken) => {
+	return serverFetch<ISocialAccount>({
+		method: 'POST',
+		path: `/auth/signup.link.account`,
+		body: data
 	});
 };

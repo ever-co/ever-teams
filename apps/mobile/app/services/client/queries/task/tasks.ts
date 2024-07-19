@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getTeamTasksRequest } from '../../requests/tasks';
 
 interface IGetAllTasksParams {
@@ -23,7 +23,9 @@ const fetchAllTasks = async (params: IGetAllTasksParams) => {
 };
 
 const useFetchAllTasks = (IGetAllTasksParams) =>
-	useQuery(['tasks', IGetAllTasksParams], () => fetchAllTasks(IGetAllTasksParams), {
+	useQuery({
+		queryKey: ['tasks'],
+		queryFn: () => fetchAllTasks(IGetAllTasksParams),
 		refetchInterval: 5000,
 		notifyOnChangeProps: ['data'] // Re-render only when data changes
 	});

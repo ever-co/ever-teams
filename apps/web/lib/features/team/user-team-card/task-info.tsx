@@ -1,16 +1,18 @@
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
+import { FilterTabs, TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
 import { useRouter } from 'next/navigation';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
 	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
+	dayPlanTab?: FilterTabs;
+	tab?: 'default' | 'unassign' | 'dailyplan';
 };
 
-export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) {
+export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
 			{!edition.task && <div className="w-full  justify-center text-center self-center">--</div>}
@@ -30,11 +32,19 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) 
 					)}
 				>
 					{edition.task && (
-						<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
+						<TaskDetailAndEdition
+							memberInfo={memberInfo}
+							edition={edition}
+							publicTeam={publicTeam}
+							tab={tab}
+							dayPlanTab={dayPlanTab}
+						/>
 					)}
 				</div>
 
-				{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} />}
+				{edition.task && (
+					<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
+				)}
 			</div>
 			{!edition.task && <div className="w-full justify-center text-center self-center">--</div>}
 		</>
@@ -66,9 +76,10 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			>
 				<TaskNameInfoDisplay
 					task={task}
-					className={`${
-						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
-					} rounded-sm`}
+					className={clsxm(
+						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]',
+						'rounded-sm'
+					)}
 					taskTitleClassName="mt-[0.0625rem]"
 				/>
 			</div>
@@ -82,6 +93,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 						keepOpen={true}
 						showCombobox={false}
 						autoFocus={true}
+						showEmoji={false}
 						autoInputSelectText={true}
 						onTaskClick={(e) => {
 							console.log(e);

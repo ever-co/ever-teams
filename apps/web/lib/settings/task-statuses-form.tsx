@@ -82,6 +82,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 			if (createNew) {
 				createTaskStatus({
 					name: values.name,
+					value: values.name.split(' ').join('-').toLowerCase(),
 					color: values.color,
 					// description: '',
 					organizationId: user?.employee?.organizationId,
@@ -116,13 +117,15 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	);
 	const updateArray = taskStatus.slice();
 	const sortedArray =
-		Array.isArray(updateArray) && updateArray.length > 0 && updateArray.sort((a: any, b: any) => a.order - b.order);
+		Array.isArray(updateArray) && updateArray.length > 0
+			? updateArray.sort((a: any, b: any) => a.order - b.order)
+			: [];
 	const { isOpen, closeModal, openModal } = useModal();
 
 	return (
 		<>
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-			<SortTasksStatusSettings arr={sortedArray}/>
+				<SortTasksStatusSettings onClose={closeModal} arr={sortedArray} />
 			</Modal>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
@@ -213,14 +216,14 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 								</>
 							)}
 
-							{!formOnly && taskStatus?.length > 0 && (
+							{!formOnly && taskStatus.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{t('pages.settingsTeam.LIST_OF_STATUSES')}s
+										{t('pages.settingsTeam.LIST_OF_STATUSES')}
 									</Text>
 									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-										{loading && !taskStatus.length && <Spinner dark={false} />}
-										{sortedArray ? (
+										{loading && <Spinner dark={false} />}
+										{!loading && sortedArray.length ? (
 											sortedArray.map((status) => (
 												<StatusesListCard
 													key={status.id}

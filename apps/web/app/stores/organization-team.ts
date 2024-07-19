@@ -21,6 +21,16 @@ export const isTeamMemberState = atom<boolean>({
 	default: true
 });
 
+export const isTeamMemberJustDeletedState = atom<boolean>({
+	key: 'isTeamMemberJustDeletedState',
+	default: false
+});
+
+export const isTeamJustDeletedState = atom<boolean>({
+	key: 'isTeamJustDeletedState',
+	default: false
+});
+
 export const isOTRefreshingState = atom<boolean>({
 	key: 'isOTRefreshing',
 	default: false

@@ -1,5 +1,5 @@
 import { pad } from '@app/helpers';
-import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@app/hooks';
+import { HostKeys, useDetectOS, useHotkeys, useModal, useTimerView } from '@app/hooks';
 import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
@@ -15,11 +15,40 @@ import {
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
+import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 
 export function Timer({ className }: IClassName) {
 	const t = useTranslations();
-	const { hours, minutes, seconds, activeTaskEstimation, ms_p, canRunTimer, timerHanlder, timerStatus, disabled } =
-		useTimerView();
+	const { closeModal, isOpen, openModal } = useModal();
+	const {
+		hours,
+		minutes,
+		seconds,
+		activeTaskEstimation,
+		ms_p,
+		canRunTimer,
+		timerStatusFetching,
+		timerHanlder,
+		timerStatus,
+		disabled,
+		startTimer,
+		stopTimer,
+		isPlanVerified,
+		hasPlan
+	} = useTimerView();
+
+	const timerHanlderStartStop = useCallback(() => {
+		if (timerStatusFetching || !canRunTimer) return;
+		if (timerStatus?.running) {
+			stopTimer();
+		} else {
+			if (!isPlanVerified) {
+				openModal();
+			} else {
+				startTimer();
+			}
+		}
+	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
 
 	const { os } = useDetectOS();
 	const osSpecificTimerTooltipLabel = useMemo(() => {
@@ -112,7 +141,7 @@ export function Timer({ className }: IClassName) {
 					// }
 				>
 					<TimerButton
-						onClick={timerHanlder}
+						onClick={timerHanlderStartStop}
 						running={timerStatus?.running}
 						disabled={
 							// If timer is running at some other source and user may or may not have selected the task
@@ -120,6 +149,13 @@ export function Timer({ className }: IClassName) {
 						}
 					/>
 				</Tooltip>
+				<AddWorkTimeAndEstimatesToPlan
+					closeModal={closeModal}
+					open={isOpen}
+					plan={hasPlan}
+					startTimer={startTimer}
+					hasPlan={!!hasPlan}
+				/>
 			</div>
 		</div>
 	);

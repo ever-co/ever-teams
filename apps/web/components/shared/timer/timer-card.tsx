@@ -1,9 +1,11 @@
 import { pad } from '@app/helpers/number';
+import { useModal } from '@app/hooks';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from '@components/ui/svgs/pause-icon';
 import { PlayIcon } from '@components/ui/svgs/play-icon';
+import { AddWorkTimeAndEstimatesToPlan } from 'lib/features/daily-plan/plans-work-time-and-estimate';
 import { useTranslations } from 'next-intl';
 
 const Timer = () => {
@@ -15,17 +17,25 @@ const Timer = () => {
 		startTimer,
 		stopTimer,
 		canRunTimer,
+		isPlanVerified,
+		hasPlan,
 		timerSeconds
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
+
+	const { closeModal, isOpen, openModal } = useModal();
 
 	const timerHanlder = () => {
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
 		} else {
-			startTimer();
+			if (!isPlanVerified) {
+				openModal();
+			} else {
+				startTimer();
+			}
 		}
 	};
 
@@ -45,6 +55,13 @@ const Timer = () => {
 			>
 				{timerStatus?.running ? <PauseIcon width={68} height={68} /> : <PlayIcon width={68} height={68} />}
 			</div>
+			<AddWorkTimeAndEstimatesToPlan
+				closeModal={closeModal}
+				open={isOpen}
+				plan={hasPlan}
+				startTimer={startTimer}
+				hasPlan={!!hasPlan}
+			/>
 		</>
 	);
 };

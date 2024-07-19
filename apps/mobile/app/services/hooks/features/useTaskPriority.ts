@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStores } from '../../../models';
 import useFetchAllPriorities from '../../client/queries/task/task-priority';
 import {
@@ -37,7 +37,7 @@ export const useTaskPriority = () => {
 			tenantId,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('priorities');
+		queryClient.invalidateQueries({ queryKey: ['priorities'] });
 	}, []);
 
 	// Update the priority
@@ -49,7 +49,7 @@ export const useTaskPriority = () => {
 			datas: data,
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('priorities');
+		queryClient.invalidateQueries({ queryKey: ['priorities'] });
 	}, []);
 
 	// Create the priority
@@ -60,7 +60,7 @@ export const useTaskPriority = () => {
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken
 		});
-		queryClient.invalidateQueries('priorities');
+		queryClient.invalidateQueries({ queryKey: ['priorities'] });
 	}, []);
 
 	useEffect(() => {

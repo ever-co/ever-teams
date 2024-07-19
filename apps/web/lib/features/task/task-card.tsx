@@ -1,9 +1,13 @@
 'use client';
 
-import { secondsToTime } from '@app/helpers';
+import { secondsToTime, tomorrowDate } from '@app/helpers';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	useAuthenticateUser,
+	useCanSeeActivityScreen,
+	useDailyPlan,
+	useModal,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useTMCardTaskEdit,
@@ -12,12 +16,25 @@ import {
 	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import { IClassName, IOrganizationTeamList, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
+import {
+	DailyPlanStatusEnum,
+	IClassName,
+	IDailyPlan,
+	IDailyPlanMode,
+	IDailyPlanTasksUpdate,
+	IOrganizationTeamList,
+	IRemoveTaskFromManyPlans,
+	ITeamTask,
+	Nullable,
+	OT_Member
+} from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
 	Card,
+	Divider,
 	// ConfirmDropdown,
 	SpinnerLoader,
 	Text,
@@ -25,31 +42,38 @@ import {
 } from 'lib/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useTransition } from 'react';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
-import { TaskAssignButton } from './task-assign-button';
 import { TaskNameInfoDisplay } from './task-displays';
 import { TaskAvatars } from './task-item';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
+import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
+import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 type Props = {
 	active?: boolean;
 	task?: Nullable<ITeamTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	viewType?: 'default' | 'unassign';
+	viewType?: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	editTaskId?: string | null;
 	setEditTaskId?: SetterOrUpdater<string | null>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
+	plan?: IDailyPlan;
+	planMode?: FilterTabs;
 } & IClassName;
+
+type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export function TaskCard(props: Props) {
 	const {
@@ -61,7 +85,9 @@ export function TaskCard(props: Props) {
 		viewType = 'default',
 		profile,
 		taskBadgeClassName,
-		taskTitleClassName
+		taskTitleClassName,
+		plan,
+		planMode
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
@@ -102,6 +128,16 @@ export function TaskCard(props: Props) {
 
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
+	const activeMembers = task != null && task?.members?.length > 0;
+	const hasMembers = task?.members && task?.members?.length > 0;
+	const taskAssignee: ImageOverlapperProps[] =
+		task?.members?.map((member: any) => {
+			return {
+				id: member.user?.id,
+				url: member.user?.imageUrl,
+				alt: member.user?.firstName
+			};
+		}) || [];
 
 	return (
 		<>
@@ -125,10 +161,12 @@ export function TaskCard(props: Props) {
 						className="px-4 w-full"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
+						dayPlanTab={planMode}
+						tab={viewType}
 					/>
 				</div>
 				<VerticalSeparator />
-				{viewType === 'default' && (
+				{(viewType === 'default' || viewType === 'dailyplan') && (
 					<>
 						{/* TaskEstimateInfo */}
 						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
@@ -138,8 +176,15 @@ export function TaskCard(props: Props) {
 				)}
 
 				{viewType === 'unassign' && (
-					<div className="w-[20%] flex justify-center">
+					<div className="w-[20%] flex justify-around items-center">
 						<UsersTaskAssigned task={task} />
+						<ImageComponent
+							radius={40}
+							images={taskAssignee}
+							item={task}
+							hasActiveMembers={activeMembers}
+							hasInfo={!hasMembers ? 'Assign this task' : 'Assign this task to more people'}
+						/>
 					</div>
 				)}
 				<VerticalSeparator />
@@ -162,13 +207,6 @@ export function TaskCard(props: Props) {
 							className="w-11 h-11"
 						/>
 					)}
-					{!isAuthUser && task && viewType === 'unassign' && (
-						<AssignTaskButtonCall
-							task={task}
-							assignTask={memberInfo.assignTask}
-							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
-						/>
-					)}
 				</div>
 				<VerticalSeparator />
 
@@ -184,7 +222,15 @@ export function TaskCard(props: Props) {
 
 					{/* TaskCardMenu */}
 					{task && currentMember && (
-						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+							profile={profile}
+							plan={plan}
+							planMode={planMode}
+						/>
 					)}
 				</div>
 			</Card>
@@ -205,7 +251,7 @@ export function TaskCard(props: Props) {
 					)} */}
 				</div>
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="px-4 mb-4 w-full" />{' '}
+					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
 							<div className="flex items-end mx-auto py-4 space-x-2">
@@ -236,7 +282,13 @@ export function TaskCard(props: Props) {
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
 
 					{task && currentMember && (
-						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+							plan={plan}
+						/>
 					)}
 				</div>
 			</Card>
@@ -284,7 +336,20 @@ function TimerButtonCall({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { disabled, timerHanlder, timerStatus, activeTeamTask, startTimer, stopTimer } = useTimerView();
+	const { closeModal, isOpen, openModal } = useModal();
+
+	const {
+		canTrack,
+		disabled,
+		canRunTimer,
+		timerStatusFetching,
+		timerStatus,
+		activeTeamTask,
+		startTimer,
+		stopTimer,
+		isPlanVerified,
+		hasPlan
+	} = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
 
@@ -326,56 +391,52 @@ function TimerButtonCall({
 		updateOrganizationTeamEmployee
 	]);
 
+	const timerHanlderStartStop = useCallback(() => {
+		if (timerStatusFetching || !canRunTimer) return;
+		if (timerStatus?.running) {
+			stopTimer();
+		} else {
+			if (!isPlanVerified) {
+				openModal();
+			} else {
+				startTimer();
+			}
+		}
+	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
+
 	return loading ? (
 		<SpinnerLoader size={30} />
 	) : (
-		<TimerButton
-			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
-			running={activeTaskStatus?.running}
-			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className={clsxm('h-14 w-14', className)}
-		/>
-	);
-}
-
-function AssignTaskButtonCall({
-	task,
-	assignTask,
-	className
-}: {
-	task: ITeamTask;
-	assignTask: (task: ITeamTask) => Promise<void>;
-	className?: string;
-}) {
-	const {
-		disabled,
-
-		timerStatus,
-		activeTeamTask
-	} = useTimerView();
-
-	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
-
-	return (
-		<TaskAssignButton
-			onClick={() => {
-				assignTask(task);
-			}}
-			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className={clsxm('h-9 w-9', className)}
-		/>
+		<>
+			<TimerButton
+				onClick={activeTaskStatus ? timerHanlderStartStop : startTimerWithTask}
+				running={activeTaskStatus?.running}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+				className={clsxm('h-14 w-14', className)}
+			/>
+			<AddWorkTimeAndEstimatesToPlan
+				closeModal={closeModal}
+				open={isOpen}
+				plan={hasPlan}
+				startTimer={startTimer}
+				hasPlan={!!hasPlan}
+			/>
+		</>
 	);
 }
 
 //* Task Estimate info *
-
 //* Task Info FC *
 function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,
-	taskTitleClassName
+	taskTitleClassName,
+	tab,
+	dayPlanTab
 }: IClassName & {
+	tab: 'default' | 'unassign' | 'dailyplan';
+	dayPlanTab?: FilterTabs;
 	task?: Nullable<ITeamTask>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
@@ -404,7 +465,7 @@ function TaskInfo({
 			)}
 
 			{/* Task status */}
-			{task && <TaskAllStatusTypes task={task} />}
+			{task && <TaskAllStatusTypes task={task} tab={tab} dayPlanTab={dayPlanTab} />}
 			{!task && <div className="self-center py-1 text-center">--</div>}
 		</div>
 	);
@@ -416,12 +477,18 @@ function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,
-	viewType
+	viewType,
+	profile,
+	plan,
+	planMode
 }: {
 	task: ITeamTask;
 	loading?: boolean;
 	memberInfo?: I_TeamMemberCardHook;
-	viewType: 'default' | 'unassign';
+	viewType: 'default' | 'unassign' | 'dailyplan';
+	profile?: I_UserProfilePage;
+	plan?: IDailyPlan;
+	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
 	const handleAssignment = useCallback(() => {
@@ -431,6 +498,9 @@ function TaskCardMenu({
 			memberInfo?.unassignTask(task);
 		}
 	}, [memberInfo, task, viewType]);
+
+	const canSeeActivity = useCanSeeActivityScreen();
+	const { hasPlan, hasPlanForTomorrow } = useTimerView();
 
 	return (
 		<Popover>
@@ -451,7 +521,7 @@ function TaskCardMenu({
 				<Popover.Panel>
 					{() => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+							<Card shadow="custom" className="shadow-xlcard !py-3 !px-7">
 								<ul className="min-w-[124px]">
 									<li className="mb-2">
 										<Link
@@ -464,7 +534,7 @@ function TaskCardMenu({
 											{t('common.TASK_DETAILS')}
 										</Link>
 									</li>
-									<li className="mb-2">
+									<li className="mb-3">
 										<span
 											className={clsxm(
 												'font-normal whitespace-nowrap transition-all',
@@ -478,6 +548,72 @@ function TaskCardMenu({
 										</span>
 									</li>
 
+									{viewType == 'default' && (
+										<>
+											<Divider type="HORIZONTAL" />
+											<div className="mt-3">
+												<li className="mb-2">
+													<PlanTask
+														planMode="today"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+														hasTodayPlan={hasPlan}
+													/>
+												</li>
+												<li className="mb-2">
+													<PlanTask
+														planMode="tomorow"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+														hasPlanForTomorrow={hasPlanForTomorrow}
+													/>
+												</li>
+												<li className="mb-2">
+													<PlanTask
+														planMode="custom"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
+												</li>
+											</div>
+										</>
+									)}
+
+									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
+										<>
+											{canSeeActivity ? (
+												<AddTaskToPlanComponent employee={profile?.member} task={task} />
+											) : (
+												<></>
+											)}
+										</>
+									)}
+
+									{viewType === 'dailyplan' &&
+										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
+											<>
+												{canSeeActivity ? (
+													<div>
+														<Divider type="HORIZONTAL" />
+														<div className="mt-2">
+															<RemoveTaskFromPlan
+																member={profile?.member}
+																task={task}
+																plan={plan}
+															/>
+														</div>
+														<div className="mt-2">
+															<RemoveManyTaskFromPlan
+																task={task}
+																member={profile?.member}
+															/>
+														</div>
+													</div>
+												) : (
+													<></>
+												)}
+											</>
+										)}
 									{/* <li>
 										<ConfirmDropdown
 											className="right-[110%] top-0"
@@ -502,5 +638,154 @@ function TaskCardMenu({
 				</Popover.Panel>
 			</Transition>
 		</Popover>
+	);
+}
+
+export function PlanTask({
+	planMode,
+	taskId,
+	employeeId,
+	chooseMember,
+	hasTodayPlan,
+	hasPlanForTomorrow
+}: {
+	taskId: string;
+	planMode: IDailyPlanMode;
+	employeeId?: string;
+	chooseMember?: boolean;
+	hasTodayPlan?: IDailyPlan;
+	hasPlanForTomorrow?: IDailyPlan;
+}) {
+	const t = useTranslations();
+	const [isPending, startTransition] = useTransition();
+	const { closeModal, isOpen, openModal } = useModal();
+	const { createDailyPlan } = useDailyPlan();
+	const { user } = useAuthenticateUser();
+
+	const handleOpenModal = () => {
+		if (planMode === 'custom') {
+			openModal();
+		} else if (planMode === 'today') {
+			startTransition(() => {
+				createDailyPlan({
+					workTimePlanned: 0,
+					taskId,
+					date: new Date(),
+					status: DailyPlanStatusEnum.OPEN,
+					tenantId: user?.tenantId ?? '',
+					employeeId: employeeId,
+					organizationId: user?.employee.organizationId
+				});
+			});
+		} else {
+			startTransition(() => {
+				createDailyPlan({
+					workTimePlanned: 0,
+					taskId,
+					date: tomorrowDate,
+					status: DailyPlanStatusEnum.OPEN,
+					tenantId: user?.tenantId ?? '',
+					employeeId: employeeId,
+					organizationId: user?.employee.organizationId
+				});
+			});
+		}
+	};
+
+	return (
+		<>
+			<span
+				className={clsxm(
+					'font-normal whitespace-nowrap transition-all',
+					'hover:font-semibold hover:transition-all cursor-pointer'
+				)}
+				onClick={handleOpenModal}
+			>
+				<CreateDailyPlanFormModal
+					open={isOpen}
+					closeModal={closeModal}
+					taskId={taskId}
+					planMode={planMode}
+					employeeId={employeeId}
+					chooseMember={chooseMember}
+				/>
+				{planMode === 'today' && !hasTodayPlan && (
+					<span>
+						{isPending ? (
+							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+						) : (
+							t('dailyPlan.PLAN_FOR_TODAY')
+						)}
+					</span>
+				)}
+				{planMode === 'tomorow' && !hasPlanForTomorrow && (
+					<span>
+						{isPending ? (
+							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+						) : (
+							t('dailyPlan.PLAN_FOR_TOMORROW')
+						)}
+					</span>
+				)}
+				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
+			</span>
+		</>
+	);
+}
+
+export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; employee?: OT_Member }) {
+	const t = useTranslations();
+	const { closeModal, isOpen, openModal } = useModal();
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={openModal}
+		>
+			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
+			{t('dailyPlan.ADD_TASK_TO_PLAN')}
+		</span>
+	);
+}
+
+export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
+	const t = useTranslations();
+	const { removeTaskFromPlan } = useDailyPlan();
+	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
+	const onClick = () => {
+		removeTaskFromPlan(data, plan?.id ?? '');
+	};
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all text-red-600',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={onClick}
+		>
+			{t('dailyPlan.REMOVE_FROM_THIS_PLAN')}
+		</span>
+	);
+}
+
+export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member }) {
+	// const t = useTranslations();
+	const { removeManyTaskPlans } = useDailyPlan();
+	const data: IRemoveTaskFromManyPlans = { plansIds: [], employeeId: member?.employeeId };
+	const onClick = () => {
+		removeManyTaskPlans(data, task.id ?? '');
+	};
+	return (
+		<span
+			className={clsxm(
+				'font-normal whitespace-nowrap transition-all text-red-600',
+				'hover:font-semibold hover:transition-all cursor-pointer'
+			)}
+			onClick={onClick}
+		>
+			Remove from all plans
+		</span>
 	);
 }

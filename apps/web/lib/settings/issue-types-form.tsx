@@ -173,7 +173,7 @@ export const IssueTypesForm = () => {
 							)}
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{t('pages.settingsTeam.LIST_OF_STATUSES')}aa
+								{t('pages.settingsTeam.LIST_OF_STATUSES')}
 							</Text>
 							<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 								{loading && !issueTypes?.length && <Spinner dark={false} />}

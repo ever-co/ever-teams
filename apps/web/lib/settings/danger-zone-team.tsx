@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { RemoveModal } from './remove-modal';
 import { TransferTeamModal } from './transfer-team-modal';
+import { LAST_WORSPACE_AND_TEAM } from '@app/constants';
 
 export const DangerZoneTeam = () => {
 	const t = useTranslations();
@@ -21,6 +22,7 @@ export const DangerZoneTeam = () => {
 
 	const handleDisposeTeam = useCallback(() => {
 		if (activeTeam) {
+			window.localStorage.removeItem(LAST_WORSPACE_AND_TEAM);
 			return deleteOrganizationTeam(activeTeam.id);
 		}
 	}, [activeTeam, deleteOrganizationTeam]);

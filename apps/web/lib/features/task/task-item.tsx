@@ -1,9 +1,10 @@
 import { imgTitle } from '@app/helpers';
 import { useTeamTasks } from '@app/hooks';
-import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
+import { IClassName, ITaskStatus, IEmployee, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components';
+import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import { CrossIcon, RefreshIcon } from 'assets/svg';
 import Link from 'next/link';
 import { useCallback } from 'react';
@@ -25,7 +26,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
-			handleStatusUpdate(status, 'status', task);
+			handleStatusUpdate(status, 'status', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
 	);
@@ -117,8 +118,25 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: number }) {
+type PartialITeamTask = Partial<ITeamTask> & { members: IEmployee[] };
+
+export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit?: number }) {
 	const members = task.members;
+	const taskAssignee: ImageOverlapperProps[] = members.map((member: any) => {
+		return {
+			id: member.user.id,
+			url: member.user.imageUrl,
+			alt: member.user.firstName
+		};
+	});
+
+	if (!members.length) {
+		return (
+			<div className="avatars flex -space-x-2 min-w-[59px] justify-center">
+				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
+			</div>
+		);
+	}
 
 	return (
 		<div className="avatars flex -space-x-2 min-w-[59px] justify-center" onClick={(e) => e.stopPropagation()}>

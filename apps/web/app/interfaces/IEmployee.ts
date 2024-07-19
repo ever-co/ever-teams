@@ -11,6 +11,7 @@ export interface IEmployee {
 	short_description: any;
 	description: any;
 	startedWorkOn: any;
+	isTrackingTime?: boolean;
 	endWork: any;
 	payPeriod: string;
 	billRateValue: number;
@@ -82,3 +83,8 @@ export type IWorkingEmployee = Pick<
 	| 'user'
 	| 'fullName'
 >;
+
+export interface IRelationnalEmployee {
+	readonly employee?: IEmployee;
+	readonly employeeId?: IEmployee['id'];
+}

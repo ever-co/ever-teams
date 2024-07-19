@@ -1,5 +1,6 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
+import { UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
@@ -35,7 +36,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) &&
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 				otherTasks.length > 0 && (
 					/* Displaying the current time. */
 					<div className="flex items-center mb-3 space-x-2">
@@ -55,21 +56,22 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				)}
 
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) && (
+				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) && (
 					<TaskCard
 						active
 						task={profile.activeUserTeamTask}
 						isAuthUser={profile.isAuthUser}
 						activeAuthTask={true}
 						profile={profile}
-						taskBadgeClassName={`	${
-							profile.activeUserTeamTask?.issueType === 'Bug'
-								? '!px-[0.3312rem] py-[0.2875rem]'
-								: '!px-[0.375rem] py-[0.375rem]'
-						} rounded-sm`}
+						taskBadgeClassName={`	${profile.activeUserTeamTask?.issueType === 'Bug'
+							? '!px-[0.3312rem] py-[0.2875rem]'
+							: '!px-[0.375rem] py-[0.375rem]'
+							} rounded-sm`}
 						taskTitleClassName="mt-[0.0625rem]"
 					/>
 				)}
+
+			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans />}
 
 			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 				<div className="flex items-center my-6 space-x-2">
@@ -80,27 +82,28 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			<ul className="flex flex-col gap-4">
-				{otherTasks.map((task) => {
-					return (
-						<li key={task.id}>
-							<TaskCard
-								task={task}
-								isAuthUser={profile.isAuthUser}
-								activeAuthTask={false}
-								viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
-								profile={profile}
-								taskBadgeClassName={`${
-									task.issueType === 'Bug'
+			{tabFiltered.tab !== 'dailyplan' && (
+				<ul className="flex flex-col gap-4">
+					{otherTasks.map((task) => {
+						return (
+							<li key={task.id}>
+								<TaskCard
+									task={task}
+									isAuthUser={profile.isAuthUser}
+									activeAuthTask={false}
+									viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
+									profile={profile}
+									taskBadgeClassName={`${task.issueType === 'Bug'
 										? '!px-[0.3312rem] py-[0.2875rem]'
 										: '!px-[0.375rem] py-[0.375rem]'
-								} rounded-sm`}
-								taskTitleClassName="mt-[0.0625rem]"
-							/>
-						</li>
-					);
-				})}
-			</ul>
+										} rounded-sm`}
+									taskTitleClassName="mt-[0.0625rem]"
+								/>
+							</li>
+						);
+					})}
+				</ul>
+			)}
 		</div>
 	);
 }

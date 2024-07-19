@@ -4,7 +4,7 @@ import { mergeRefs, secondsToTime } from '@app/helpers';
 import { I_TMCardTaskEditHook, I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Text } from 'lib/components';
+import { SpinnerLoader, Text } from 'lib/components';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useRef } from 'react';
@@ -36,7 +36,7 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 	);
 }
 
-function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
+export function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
 	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;
@@ -90,13 +90,19 @@ function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'a
 						])}
 						onClick={() => task && edition.setEstimateEditMode(true)}
 					>
-						<EditPenBoxIcon
-							className={clsxm(
-								'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
-								!task && ['opacity-40 cursor-default'],
-								'dark:stroke-[#B1AEBC]'
-							)}
-						/>
+						{loadingRef.current ? (
+							<div className="">
+								<SpinnerLoader size={12} />
+							</div>
+						) : (
+							<EditPenBoxIcon
+								className={clsxm(
+									'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
+									!task && ['opacity-40 cursor-default'],
+									'dark:stroke-[#B1AEBC]'
+								)}
+							/>
+						)}
 					</button>
 				)}
 			</div>
