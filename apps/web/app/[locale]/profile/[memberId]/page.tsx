@@ -140,7 +140,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 									)}
 								</div>
 								{/* TaskFilter */}
-								<CheckPlans hook={hook} />
 								<TaskFilter profile={profile} hook={hook} />
 							</MainHeader>
 						</ResizablePanel>
@@ -246,7 +245,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	);
 }
 
-function CheckPlans(hook: I_TaskFilter) {
+export function CheckPlans({hook}: {hook:I_TaskFilter}) {
 
 	const [plansExist, setPlansExist] = useState(false);
 	const prof = useUserProfilePage();
@@ -269,7 +268,6 @@ function CheckPlans(hook: I_TaskFilter) {
 
 	const createPlanRedirect = () => {
 		hook.setTab("assigned");
-		console.log("Qwerty !", hook);
 		closeModal();
 	}
 
@@ -282,7 +280,7 @@ function CheckPlans(hook: I_TaskFilter) {
 			titleClass="text-[16px] font-bold"
 		>
 			<button
-				onClick={() => {console.log("Azerty");createPlanRedirect()}}
+				onClick={createPlanRedirect}
 				className="px-[10px] py-[14px] bg-[#3826A6] ml-[15px] rounded-[12px] mb-[10px] text-[#fff]"
 			>
 				Create the Plan
