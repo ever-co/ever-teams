@@ -32,6 +32,7 @@ import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
+import { CheckPlans } from '@app/[locale]/profile/[memberId]/page';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 
@@ -49,7 +50,7 @@ type StatusFilter = { [x in IStatusType]: string[] };
 /**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
  * @param {I_UserProfilePage} hook - I_UserProfilePage - this is the hook that we're using in the
- * component.
+ * component. TaskFilter
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
@@ -224,7 +225,6 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
-	console.log(hook)
 	return (
 		<div className="relative w-full z-10">
 			<div
@@ -234,6 +234,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				)}
 			>
 				<TabsNav hook={hook} />
+				<CheckPlans hook={hook} />
 				<InputFilters profile={profile} hook={hook} />
 			</div>
 
@@ -750,3 +751,5 @@ export function TaskNameFilter({
 		</div>
 	);
 }
+
+
