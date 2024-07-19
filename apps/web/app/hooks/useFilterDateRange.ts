@@ -1,8 +1,10 @@
 'use client';
 
+import { isTestDateRange } from '@app/helpers';
 import { IDailyPlan } from '@app/interfaces'
 import { dateRangeAllPlanState, dateRangeFuturePlanState, dateRangePastPlanState, filteredAllPlanDataState, filteredFuturePlanDataState, filteredPastPlanDataState, originalAllPlanState, originalFuturePlanState, originalPastPlanDataState } from '@app/stores';
 import { useEffect, useMemo } from 'react';
+import { DateRange } from 'react-day-picker';
 import { useRecoilState, useRecoilValue } from 'recoil';
 /**
  *custom filter the data with date range
@@ -37,7 +39,6 @@ export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'fu
     //         setOriginalAllPlanState(itemsDailyPlan);
     //     }
     // }, [itemsDailyPlan, dateFuture, datePastPlan, dateAllPlan, typeItems, setOriginalAllPlanState, setOriginalFuturePlanData, setOriginalAllPlanState]);
-
     const updateOriginalPlanData = useMemo(() => (data: IDailyPlan[]) => {
         switch (typeItems) {
             case 'future':
@@ -58,7 +59,7 @@ export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'fu
         if (!itemsDailyPlan) return;
         updateOriginalPlanData(itemsDailyPlan);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateOriginalPlanData, dateAllPlan, datePastPlan, dateFuture]);
+    }, [updateOriginalPlanData, dateAllPlan, datePastPlan, dateFuture, setDateAllPlan, setDatePastPlan, setDateFuture]);
 
     return {
         filteredAllPlanData,
@@ -71,4 +72,17 @@ export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'fu
         setDateFuture,
         setDatePastPlan,
     }
+}
+
+
+export const filterDailyPlan = (date: DateRange, data: IDailyPlan[]) => {
+    if (!date || !data.length) return data;
+    const { from, to } = date;
+    if (!from && !to) {
+        return data
+    }
+    return data.filter((plan) => {
+        const itemDate = new Date(plan.date);
+        return isTestDateRange(itemDate, from, to);
+    });
 }
