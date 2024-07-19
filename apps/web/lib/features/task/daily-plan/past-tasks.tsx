@@ -8,18 +8,22 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { HorizontalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
-import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
-import { useState } from 'react';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { useEffect, useState } from 'react';
 import { IDailyPlan } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { useDateRange } from '@app/hooks/useDateRange';
 
 export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	const { pastPlans } = useDailyPlan();
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-	const { filteredPastPlanData: filteredPastPlanData } = useFilterDateRange(pastPlans, 'past');
-	const [pastTasks, setPastTasks] = useState<IDailyPlan[]>(filteredPastPlanData);
+	const [pastTasks, setPastTasks] = useState<IDailyPlan[]>(pastPlans);
+	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 
+	useEffect(() => {
+		setPastTasks(filterDailyPlan(date as any, pastPlans))
+	}, [date, setDate])
 	return (
 		<div className="flex flex-col gap-6">
 			{pastTasks?.length > 0 ? (
