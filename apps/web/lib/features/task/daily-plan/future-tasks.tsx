@@ -10,20 +10,24 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { HorizontalSeparator } from 'lib/components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertPopup } from 'lib/components';
-import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { IDailyPlan } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { useDateRange } from '@app/hooks/useDateRange';
 
 export function FutureTasks({ profile }: { profile: any }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
-	const { filteredFuturePlanData: filteredFuturePlanData } = useFilterDateRange(futurePlans, 'future');
-	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
-	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(filteredFuturePlanData);
 
+	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
+	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
+	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
+	useEffect(() => {
+		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans))
+	}, [date, setDate])
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (

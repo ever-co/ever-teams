@@ -33,6 +33,7 @@ type TodayPlanNotificationParams = {
 	canBeSeen: boolean;
 	alreadySeen: boolean;
 };
+export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
 export function useDailyPlan() {
 	const [addTodayPlanTrigger, setAddTodayPlanTrigger] = useState<TodayPlanNotificationParams>({
@@ -65,6 +66,7 @@ export function useDailyPlan() {
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
 	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
 
+
 	useEffect(() => {
 		if (firstLoad) {
 			setDailyPlanFetching(loading);
@@ -76,8 +78,10 @@ export function useDailyPlan() {
 			if (response.data.items.length) {
 				const { items, total } = response.data;
 				setDailyPlan({ items, total });
+
 			}
 		});
+
 	}, [getAllQueryCall, setDailyPlan]);
 
 	const getMyDailyPlans = useCallback(() => {
@@ -294,7 +298,6 @@ export function useDailyPlan() {
 		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
-
 	useEffect(() => {
 		getMyDailyPlans();
 	}, [getMyDailyPlans]);

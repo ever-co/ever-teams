@@ -2,7 +2,7 @@
 
 import React from "react"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { CalendarDays } from "lucide-react"
 import { cn } from "lib/utils"
 import { Button } from "@components/ui/button"
 import { Calendar } from "@components/ui/calendar"
@@ -13,34 +13,42 @@ import {
 } from "@components/ui/popover"
 import { DateRange } from "react-day-picker"
 import { SetterOrUpdater } from "recoil"
+import moment from "moment"
 
 interface ITaskDatePickerWithRange {
     className?: React.HTMLAttributes<HTMLDivElement>,
     date?: DateRange;
     onSelect?: SetterOrUpdater<DateRange | undefined>;
-    label?: string
+    label?: string,
+    data?: any,
 }
-
 export function TaskDatePickerWithRange({
     className,
     date,
     onSelect,
-    label
-
+    label,
+    data,
 }: ITaskDatePickerWithRange) {
+    const isDateDisabled = (dateToCheck: any) => {
+        const { from, to }: any = data;
+        const fromDate = new Date(moment(from)?.format('YYYY-MM-DD'));
+        const toDate = new Date(moment(to)?.format('YYYY-MM-DD'));
+        return dateToCheck < fromDate || dateToCheck > toDate;
+    };
+
     return (
         <div className={cn("grid gap-2", className)}>
             <Popover>
-                <PopoverTrigger asChild>
+                <PopoverTrigger asChild >
                     <Button
                         id="date"
                         variant={"outline"}
                         className={cn(
-                            "w-[250px] justify-start text-left font-normal",
+                            "w-[230px] justify-start text-left font-normal dark:bg-dark--theme-light rounded-xl  mt-4 mb-2 lg:mt-0 h-9",
                             !date && "text-muted-foreground"
                         )}
                     >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <CalendarDays className="mr-2 h-4 w-4" />
                         {date?.from ? (
                             date.to ? (
                                 <>
@@ -57,12 +65,14 @@ export function TaskDatePickerWithRange({
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="center">
                     <Calendar
+                        className="dark:bg-dark--theme"
                         initialFocus
                         mode={'range'}
                         defaultMonth={date?.from}
                         selected={date}
                         onSelect={onSelect}
                         numberOfMonths={2}
+                        disabled={isDateDisabled}
                     />
                 </PopoverContent>
             </Popover>
