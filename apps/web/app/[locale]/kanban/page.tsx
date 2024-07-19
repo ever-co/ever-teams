@@ -91,13 +91,17 @@ const Kanban = () => {
 	});
 
 	useEffect(() => {
+		const lastPath = breadcrumbPath.slice(-1)[0];
 		if (employee) {
-			const lastPath = breadcrumbPath.slice(-1)[0];
 			if (lastPath.title == 'Kanban') {
 				breadcrumbPath.push({ title: employee, href: `/${currentLocale}/kanban?employee=${employee}` });
 			} else {
 				breadcrumbPath.pop();
 				breadcrumbPath.push({ title: employee, href: `/${currentLocale}/kanban?employee=${employee}` });
+			}
+		} else {
+			if (lastPath.title !== 'Kanban') {
+				breadcrumbPath.pop();
 			}
 		}
 	}, [breadcrumbPath, currentLocale, employee]);

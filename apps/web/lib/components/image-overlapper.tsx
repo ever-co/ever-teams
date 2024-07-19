@@ -99,7 +99,7 @@ export default function ImageOverlapper({
 						}
 					};
 				case 'profile':
-					return { pathname: `/profile/${image.id}?name=${image.alt}` };
+					return { pathname: `/profile/${image.id}`, query: { name: image.alt } };
 				default:
 					return {};
 			}
