@@ -2,12 +2,12 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTimer, useUserProfilePage, useModal } from '@app/hooks';
 import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator } from 'lib/components';
+import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator, Modal } from 'lib/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -34,15 +34,15 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
-	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 	const hook = useTaskFilter(profile);
 
+	const { getEmployeeDayPlans } = useDailyPlan();
+
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
 	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
-
 	const t = useTranslations();
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
@@ -80,6 +80,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	return (
 		<>
+
 			{Array.isArray(members) && members.length && !profile.member ? (
 				<MainLayout>
 					<div className=" absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
@@ -121,6 +122,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 									</Link>
 
 									<Breadcrumb paths={breadcrumb} className="text-sm" />
+									<CheckPlans />
 								</div>
 
 								{/* User Profile Detail */}
@@ -240,6 +242,45 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 			</div>
 		</div>
 	);
+}
+
+function CheckPlans() {
+
+	const [plansExist, setPlansExist] = useState(false);
+	const prof = useUserProfilePage();
+	const { isOpen, openModal, closeModal } = useModal();
+	const { getEmployeeDayPlans, todayPlan } = useDailyPlan();
+
+	React.useEffect(() => {
+		getEmployeeDayPlans(prof.member?.employeeId ?? '');
+	}, [getEmployeeDayPlans, prof.member?.employeeId]);
+
+
+	React.useEffect(() => {
+		if (todayPlan?.length > 0) {
+			setPlansExist(true);
+
+		} else {
+			openModal();
+		}
+	}, []);
+
+	return (
+
+
+		<Modal
+			isOpen={isOpen}
+			closeModal={closeModal}
+			title={'Please create a Plan for Today'}
+			className="bg-light--theme-light flex top-[-100px] items-center dark:bg-dark--theme-light py-5 rounded-xl w-[70vw] h-[auto] justify-start"
+			titleClass="text-[16px] font-bold"
+		>
+			<button
+				className="px-[10px] py-[14px] bg-[#3826A6] ml-[15px] rounded-[12px] mb-[10px] text-[#fff]">
+				Create the Plan
+			</button>
+		</Modal>
+	)
 }
 
 export default withAuthentication(Profile, { displayName: 'ProfilePage' });
