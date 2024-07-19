@@ -304,16 +304,23 @@ export function useDailyPlan() {
 			if (activeTeam && currentUser) {
 				const lastAlertDate = localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
 				const today = new Date().toISOString().split('T')[0];
-
 				if (currentUser?.totalTodayTasks) {
 					const totalMemberWorked = currentUser?.totalTodayTasks.reduce(
 						(previousValue, currentValue) => previousValue + currentValue.duration,
 						0
 					);
 
-					const showTodayPlanTrigger = todayPlan && todayPlan.length > 0 && totalMemberWorked > 0;
+					const showTodayPlanTrigger = !!todayPlan && totalMemberWorked <= 0;
 					if (lastAlertDate === today) {
-						setAddTodayPlanTrigger({ canBeSeen: !!showTodayPlanTrigger, alreadySeen: true });
+						setAddTodayPlanTrigger((prev) => ({
+							canBeSeen: prev.canBeSeen || showTodayPlanTrigger,
+							alreadySeen: prev.alreadySeen || lastAlertDate === today
+						}));
+					} else {
+						setAddTodayPlanTrigger((prev) => ({
+							canBeSeen: !!showTodayPlanTrigger,
+							alreadySeen: false
+						}));
 					}
 				}
 			}
@@ -323,7 +330,7 @@ export function useDailyPlan() {
 		const intervalId = setInterval(checkAndShowAlert, 24 * 60 * 60 * 1000); // One day check and display
 
 		return () => clearInterval(intervalId);
-	}, [activeTeam, currentUser, todayPlan]);
+	}, []);
 
 	return {
 		dailyPlan,

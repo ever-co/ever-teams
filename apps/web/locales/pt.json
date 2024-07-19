@@ -578,7 +578,10 @@
 		"PLAN_FOR_TOMORROW": "Plano para amanhã",
 		"PLAN_FOR_SOME_DAY": "Plano para algum dia",
 		"ADD_TASK_TO_PLAN": "Adicionar esta tarefa ao plano",
-		"REMOVE_FROM_THIS_PLAN": "Remover deste plano"
+		"REMOVE_FROM_THIS_PLAN": "Remover deste plano",
+		"CREATE_A_PLAN_FOR_TODAY": "Criar um plano para hoje",
+		"TODAY_PLAN_SUB_TITLE": "Não há plano para hoje",
+		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Digite seu nome",

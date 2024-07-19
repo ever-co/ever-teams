@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
-import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@app/interfaces';
+import { IDailyPlan, ITeamTask, IUser } from '@app/interfaces';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { useTranslations } from 'use-intl';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { Button } from '@components/ui/button';
 import { TaskEstimate } from '../task/task-estimate';
-import { useAuthenticateUser, useDailyPlan, useTeamTasks } from '@app/hooks';
+import { useAuthenticateUser, useAuthTeamTasks, useDailyPlan, useTeamTasks } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 
 export function AddWorkTimeAndEstimatesToPlan({
 	open,
@@ -31,17 +32,29 @@ export function AddWorkTimeAndEstimatesToPlan({
 	useEffect(() => {
 		if (typeof workTimePlanned === 'string') setworkTimePlanned(parseFloat(workTimePlanned));
 	}, [workTimePlanned]);
+	const { user } = useAuthenticateUser();
 
-	const { updateDailyPlan } = useDailyPlan();
+	const { updateDailyPlan, addTodayPlanTrigger } = useDailyPlan();
 
 	const { tasks: $tasks, activeTeam } = useTeamTasks();
+	const requirePlan = activeTeam?.requirePlanToTrack;
 
-	const tasks = $tasks.filter((task) =>
-		plan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0)
-	);
+	const tasks = $tasks.filter((task) => {
+		if (hasPlan) {
+			return plan?.tasks?.some(
+				(t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0
+			);
+		} else {
+			if (!requirePlan) {
+				return typeof task?.estimate === 'number' && task?.estimate <= 0;
+			}
+		}
+	});
+
+	const currentDate = new Date().toISOString().split('T')[0];
+	const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
 
 	const handleSubmit = () => {
-		const requirePlan = activeTeam?.requirePlanToTrack;
 		if (requirePlan) {
 			if (workTimePlanned === 0 || typeof workTimePlanned !== 'number') return;
 			if (tasks.some((task) => task.estimate === 0)) return;
@@ -53,8 +66,8 @@ export function AddWorkTimeAndEstimatesToPlan({
 	};
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
-			{hasPlan ? (
+		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
+			{addTodayPlanTrigger.canBeSeen || lastPopupDate || lastPopupDate === currentDate ? (
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col justify-between">
 						<div className="mb-7">
@@ -62,24 +75,33 @@ export function AddWorkTimeAndEstimatesToPlan({
 								{t('timer.todayPlanSettings.TITLE')}
 							</Text.Heading>
 						</div>
-						<div className="mb-7 w-full flex flex-col gap-4">
-							<span className="text-sm">
-								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
-							</span>
-							<InputField
-								type="number"
-								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-								className="mb-0 min-w-[350px]"
-								wrapperClassName="mb-0 rounded-lg"
-								onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-								required
-								defaultValue={plan?.workTimePlanned ?? 0}
-							/>
-						</div>
+						{hasPlan && (
+							<div className="mb-7 w-full flex flex-col gap-4">
+								<span className="text-sm">
+									{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+									<span className="text-red-600">*</span>
+								</span>
+
+								<InputField
+									type="number"
+									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+									className="mb-0 min-w-[350px]"
+									wrapperClassName="mb-0 rounded-lg"
+									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+									required
+									defaultValue={plan?.workTimePlanned ?? 0}
+								/>
+							</div>
+						)}
 
 						{tasks.length > 0 && (
 							<div className="text-sm flex flex-col gap-3">
-								<UnEstimatedTasks dailyPlan={plan} />
+								<UnEstimatedTasks
+									dailyPlan={plan}
+									requirePlan={!!requirePlan}
+									hasPlan={hasPlan}
+									user={user}
+								/>
 
 								<div className="flex gap-2 items-center text-red-500">
 									<PiWarningCircleFill className="text-2xl" />
@@ -109,20 +131,52 @@ export function AddWorkTimeAndEstimatesToPlan({
 					</div>
 				</Card>
 			) : (
-				<CreateTodayPlanPopup closeModal={closeModal} />
+				<CreateTodayPlanPopup closeModal={closeModal} startTimer={startTimer} currentDate={currentDate} />
 			)}
 		</Modal>
 	);
 }
 
-function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
+function UnEstimatedTasks({
+	requirePlan,
+	hasPlan,
+	dailyPlan,
+	user
+}: {
+	requirePlan: boolean;
+	hasPlan: boolean;
+	dailyPlan?: IDailyPlan;
+	user?: IUser;
+}) {
 	const t = useTranslations();
 
 	const { tasks: $tasks } = useTeamTasks();
+	const { assignedTasks } = useAuthTeamTasks(user);
 
-	const tasks = $tasks.filter((task) =>
-		dailyPlan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0)
-	);
+	let tasks: ITeamTask[] = [];
+	if (hasPlan) {
+		tasks = $tasks.filter((task) =>
+			dailyPlan?.tasks?.some(
+				(t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0
+			)
+		);
+	} else {
+		if (!requirePlan) {
+			tasks = assignedTasks.filter((task) => typeof task?.estimate === 'number' && task?.estimate <= 0);
+		}
+	}
+
+	// const tasks = $tasks.filter((task) => {
+	// 	if (hasPlan) {
+	// 		return dailyPlan?.tasks?.some(
+	// 			(t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0
+	// 		);
+	// 	} else {
+	// 		if (!requirePlan) {
+	// 			return typeof task?.estimate === 'number' && task?.estimate <= 0;
+	// 		}
+	// 	}
+	// });
 
 	return (
 		<div>
@@ -158,44 +212,61 @@ export function UnEstimatedTask({ task }: { task: ITeamTask }) {
 	);
 }
 
-export function CreateTodayPlanPopup({ closeModal }: { closeModal: () => void }) {
+export function CreateTodayPlanPopup({
+	closeModal,
+	startTimer,
+	currentDate
+}: {
+	closeModal: () => void;
+	startTimer: () => void;
+	currentDate: string;
+}) {
+	const t = useTranslations();
 	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useTeamTasks();
 	const member = activeTeam?.members.find((member) => member.employee.userId === user?.id);
-	const onSubmit = useCallback(
-		async (values: any) => {
-			const toDay = new Date();
-			createDailyPlan({
-				workTimePlanned: parseInt(values.workTimePlanned) || 0,
-				date: toDay,
-				status: DailyPlanStatusEnum.OPEN,
-				tenantId: user?.tenantId ?? '',
-				employeeId: member?.employeeId,
-				organizationId: member?.organizationId
-			}).then(() => {
-				closeModal();
-			});
-		},
-		[closeModal, createDailyPlan, member?.employeeId, member?.organizationId, user?.tenantId]
-	);
+
+	const handleCloseModal = useCallback(() => {
+		closeModal();
+		// startTimer();
+		localStorage.setItem(TODAY_PLAN_ALERT_SHOWN_DATE, currentDate);
+	}, [closeModal, currentDate]);
+
+	// const onSubmit = useCallback(
+	// 	async (values: any) => {
+	// 		const toDay = new Date();
+	// 		createDailyPlan({
+	// 			workTimePlanned: parseInt(values.workTimePlanned) || 0,
+	// 			date: toDay,
+	// 			status: DailyPlanStatusEnum.OPEN,
+	// 			tenantId: user?.tenantId ?? '',
+	// 			employeeId: member?.employeeId,
+	// 			organizationId: member?.organizationId
+	// 		}).then(() => {
+	// 			closeModal();
+	// 		});
+	// 	},
+	// 	[closeModal, createDailyPlan, member?.employeeId, member?.organizationId, user?.tenantId]
+	// );
 
 	return (
 		<Card className="w-full" shadow="custom">
 			<div className="flex flex-col items-center justify-between">
 				<div className="mb-7">
 					<Text.Heading as="h3" className="mb-3 text-center">
-						CREATE A PLAN FOR TODAY
+						{t('dailyPlan.CREATE_A_PLAN_FOR_TODAY')}
 					</Text.Heading>
 
-					<Text className="text-sm text-center text-gray-500">You are creating a new plan for today</Text>
+					<Text className="text-sm text-center text-gray-500">{t('dailyPlan.TODAY_PLAN_SUB_TITLE')}</Text>
+					<Text className="text-sm text-center text-gray-500">{t('dailyPlan.DAILY_PLAN_DESCRIPTION')}</Text>
 				</div>
 				<div className="flex flex-col w-full gap-3">
 					<Button
 						variant="default"
 						className="p-7 font-normal rounded-xl text-md"
 						disabled={createDailyPlanLoading}
-						onClick={onSubmit}
+						onClick={handleCloseModal}
 					>
 						{createDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
 						OK

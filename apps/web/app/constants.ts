@@ -267,6 +267,7 @@ export const languagesFlags = [
 export const LAST_WORSPACE_AND_TEAM = 'last-workspace-and-team';
 export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
 export const TODAY_PLAN_ALERT_SHOWN_DATE = 'last-today-plan-alert-date';
+export const ESTIMATE_POPUP_SHOWN_DATE = 'last-estimate-popup-date';
 
 // OAuth providers keys
 

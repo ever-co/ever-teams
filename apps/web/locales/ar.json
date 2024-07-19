@@ -578,7 +578,10 @@
 		"PLAN_FOR_TOMORROW": "خطة الغد",
 		"PLAN_FOR_SOME_DAY": "خطة ليوم ما",
 		"ADD_TASK_TO_PLAN": "أضف هذه المهمة إلى الخطة",
-		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة"
+		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة",
+		"CREATE_A_PLAN_FOR_TODAY": "إنشاء خطة لليوم",
+		"TODAY_PLAN_SUB_TITLE": "لا توجد خطة لليوم",
+		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",

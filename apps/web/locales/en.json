@@ -578,7 +578,10 @@
 		"PLAN_FOR_TOMORROW": "Plan for tomorrow",
 		"PLAN_FOR_SOME_DAY": "Plan for some day",
 		"ADD_TASK_TO_PLAN": "Add this task to a plan",
-		"REMOVE_FROM_THIS_PLAN": "Remove from this plan"
+		"REMOVE_FROM_THIS_PLAN": "Remove from this plan",
+		"CREATE_A_PLAN_FOR_TODAY": "Create a Plan for Today",
+		"TODAY_PLAN_SUB_TITLE": " There is no plan for Today",
+		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Enter your name",
