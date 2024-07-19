@@ -20,7 +20,7 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
-import { useFilterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
@@ -72,13 +72,13 @@ export function UserProfilePlans() {
 		if (!currentDataDailyPlan) return;
 		if (currentTab === 'All Tasks') {
 			setCurrentDataDailyPlan(sortedPlans)
-			setFilterAllPlanData(useFilterDailyPlan(date as any, sortedPlans))
+			setFilterAllPlanData(filterDailyPlan(date as any, sortedPlans))
 		} else if (currentTab === 'Past Tasks') {
 			setCurrentDataDailyPlan(pastPlans)
-			setFilteredPastPlanData(useFilterDailyPlan(date as any, pastPlans))
+			setFilteredPastPlanData(filterDailyPlan(date as any, pastPlans))
 		} else if (currentTab === 'Future Tasks') {
 			setCurrentDataDailyPlan(futurePlans)
-			setFilterFuturePlanData(useFilterDailyPlan(date as any, futurePlans))
+			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans))
 		}
 
 	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
@@ -186,7 +186,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 
 	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
 	useEffect(() => {
-		setPlans(useFilterDailyPlan(date as any, filteredPlans))
+		setPlans(filterDailyPlan(date as any, filteredPlans))
 	}, [date, setDate])
 	return (
 		<div className="flex flex-col gap-6">

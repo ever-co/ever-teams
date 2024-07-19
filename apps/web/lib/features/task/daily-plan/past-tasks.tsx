@@ -8,7 +8,7 @@ import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { HorizontalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
-import { useFilterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { useEffect, useState } from 'react';
 import { IDailyPlan } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
@@ -22,7 +22,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 
 	useEffect(() => {
-		setPastTasks(useFilterDailyPlan(date as any, pastPlans))
+		setPastTasks(filterDailyPlan(date as any, pastPlans))
 	}, [date, setDate])
 	return (
 		<div className="flex flex-col gap-6">

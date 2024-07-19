@@ -12,7 +12,7 @@ import { clsxm } from '@app/utils';
 import { HorizontalSeparator } from 'lib/components';
 import { useEffect, useState } from 'react';
 import { AlertPopup } from 'lib/components';
-import { useFilterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { IDailyPlan } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
@@ -26,7 +26,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
 	useEffect(() => {
-		setFutureDailyPlanTasks(useFilterDailyPlan(date as any, futurePlans))
+		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans))
 	}, [date, setDate])
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 

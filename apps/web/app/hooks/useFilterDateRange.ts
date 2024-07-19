@@ -75,7 +75,7 @@ export function useFilterDateRange(itemsDailyPlan: IDailyPlan[], typeItems?: 'fu
 }
 
 
-export const useFilterDailyPlan = (date: DateRange, data: IDailyPlan[]) => {
+export const filterDailyPlan = (date: DateRange, data: IDailyPlan[]) => {
     if (!date || !data.length) return data;
     const { from, to } = date;
     if (!from && !to) {
