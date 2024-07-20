@@ -394,9 +394,12 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
       LocalStore.updateConfigSetting({
         server: arg.data
       });
-      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: true });
+      const dirFiles = 'standalone/apps/web/.next';
+      const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
+      const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
+      const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
       await replaceConfig(
-        path.join(__dirname, resourceDir.webServer, 'standalone/apps/web/.next'),
+        diFilesPath,
         {
           before: {
             NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL
@@ -406,6 +409,7 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
           }
         }
       )
+      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: true });
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
