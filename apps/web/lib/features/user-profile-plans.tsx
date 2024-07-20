@@ -263,7 +263,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																				: undefined
 																		}
 																		plan={plan}
-																		className='shadow-md'
+																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
 																	/>
 																</div>
 															)}

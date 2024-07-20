@@ -47,7 +47,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-12">
+								<AccordionContent className="border-none dark:bg-dark--theme pb-6">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									<Droppable
@@ -78,7 +78,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 																	{...provided.dragHandleProps}
 																	style={{
 																		...provided.draggableProps.style,
-																		marginBottom: 8
+																		marginBottom: 4
 																	}}
 																>
 																	<TaskCard
@@ -96,6 +96,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 																				? 'Past Tasks'
 																				: undefined
 																		}
+																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
 																	/>
 																</div>
 															)}
