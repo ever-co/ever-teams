@@ -35,9 +35,9 @@ import { DailyPlanCompareEstimatedModal } from 'lib/features/daily-plan';
 
 function MainPage() {
 	const t = useTranslations();
-	const [isOpen, setIsOpen] = useState(false)
+	const [isOpen, setIsOpen] = useState(true)
 	const { todayPlan } = useDailyPlan();
-
+	const profile = useUserProfilePage();
 	const [headerSize, setHeaderSize] = useState(10);
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -65,7 +65,6 @@ function MainPage() {
 	if (!online) {
 		return <Offline />;
 	}
-	const profile = useUserProfilePage();
 
 	return (
 		<>

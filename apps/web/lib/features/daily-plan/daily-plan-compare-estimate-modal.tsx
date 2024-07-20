@@ -1,6 +1,5 @@
 import { Card, Modal, Text, Button } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import '../../../styles/style-input.css';
 import React from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -25,9 +24,7 @@ export function DailyPlanCompareEstimatedModal({
                         <HeadTitle />
                     </div>
                     <div className='flex items-start flex-col justify-start w-full px-2'>
-                        <InputTime onChange={(_) => {
-
-                        }} />
+                        <InputTime />
                     </div>
                     <div className='flex h-full w-full p-2'>
                         {todayPlan?.map((plan, i) => {
@@ -47,7 +44,7 @@ export function DailyPlanCompareEstimatedModal({
                             <PiWarningCircleFill className='text-[14px]' />
                             <span>Please correct planned work hours or re-estimate task(s)</span>
                         </div>
-                        <ButtonAction closeModal={closeModal} onClick={() => { }} />
+                        <ButtonAction closeModal={closeModal} />
                     </div>
                 </Card>
             </div>
