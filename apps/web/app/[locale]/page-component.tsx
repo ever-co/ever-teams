@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeams } from '@app/hooks';
+import { useDailyPlan, useOrganizationTeams, useUserProfilePage } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -31,10 +31,13 @@ import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from 'lib/features/team-member-header';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
+import { DailyPlanCompareEstimatedModal } from 'lib/features/daily-plan';
 
 function MainPage() {
 	const t = useTranslations();
-
+	const [isOpen, setIsOpen] = useState(true)
+	const { todayPlan } = useDailyPlan();
+	const profile = useUserProfilePage();
 	const [headerSize, setHeaderSize] = useState(10);
 
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -62,8 +65,10 @@ function MainPage() {
 	if (!online) {
 		return <Offline />;
 	}
+
 	return (
 		<>
+			<DailyPlanCompareEstimatedModal open={isOpen} closeModal={() => setIsOpen(prev => prev)} todayPlan={todayPlan} profile={profile} />
 			<div className="flex flex-col h-screen justify-between">
 				{/* <div className="flex-grow "> */}
 				<MainLayout className="h-full" footerClassName={clsxm('')}>
