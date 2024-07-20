@@ -1,6 +1,8 @@
+"use client"
+
 import { Card, Modal, Text, Button } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React, { InputHTMLAttributes } from 'react'
+import React, { InputHTMLAttributes, useState } from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -23,7 +25,7 @@ export function DailyPlanCompareEstimatedModal({
     const { startTimer } = useTimer()
 
     const onClick = () => {
-        startTimer()
+        startTimer();
         window.localStorage.setItem('daily-plan-modal', new Date().toISOString().split('T')[0]);
     }
     return (
@@ -54,7 +56,7 @@ export function DailyPlanCompareEstimatedModal({
                             <PiWarningCircleFill className='text-[14px]' />
                             <span>Please correct planned work hours or re-estimate task(s)</span>
                         </div>
-                        <DailyPlanCompareActionButton closeModal={closeModal} onClick={onClick} />
+                        <DailyPlanCompareActionButton loading={false} closeModal={closeModal} onClick={onClick} />
                     </div>
                 </Card>
             </div>
@@ -93,7 +95,7 @@ export function DailyPlanTask({ task, profile }: { task?: ITeamTask, profile: an
 }
 
 
-export function DailyPlanCompareActionButton({ closeModal, onClick }: { closeModal?: () => void, onClick?: () => void }) {
+export function DailyPlanCompareActionButton({ closeModal, onClick, loading }: { closeModal?: () => void, onClick?: () => void, loading?: boolean }) {
     return (
         <div className='flex items-center justify-between'>
             <Button
@@ -102,7 +104,7 @@ export function DailyPlanCompareActionButton({ closeModal, onClick }: { closeMod
                 className='font-normal rounded-sm text-md h-9'>
                 Cancel
             </Button>
-            <Button onClick={onClick} className='font-normal rounded-sm text-md h-9'>
+            <Button disabled={loading} loading={loading} onClick={onClick} className='font-normal rounded-sm text-md h-9'>
                 Start working
             </Button>
         </div>
