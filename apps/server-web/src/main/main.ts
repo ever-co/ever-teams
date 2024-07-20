@@ -11,6 +11,7 @@ import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import fs from 'fs';
 import { WebServer } from './helpers/interfaces';
+import { replaceConfig } from './helpers';
 import Log from 'electron-log';
 console.log = Log.log;
 Object.assign(console, Log.functions);
@@ -385,14 +386,26 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
-ipcMain.on(IPC_TYPES.SETTING_PAGE, (event, arg) => {
+ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   console.log('main setting page', arg);
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
+      const existingConfig = getEnvApi();
       LocalStore.updateConfigSetting({
         server: arg.data
       });
       event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: true });
+      await replaceConfig(
+        path.join(__dirname, resourceDir.webServer, 'standalone/apps/web/.next'),
+        {
+          before: {
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+          },
+          after: {
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+          }
+        }
+      )
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
