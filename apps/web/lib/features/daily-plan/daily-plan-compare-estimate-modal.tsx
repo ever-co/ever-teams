@@ -7,7 +7,7 @@ import { TaskNameInfoDisplay } from '../task/task-displays';
 import { clsxm } from '@app/utils';
 import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
 import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@app/hooks';
-import { dailyPlanCompareEstemated } from '@app/helpers/daily-plan-estimated';
+import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 
 
@@ -18,7 +18,7 @@ export function DailyPlanCompareEstimatedModal({
     profile
 }: { open: boolean, closeModal: () => void, todayPlan?: IDailyPlan[], profile: any }) {
 
-    const { estimatedTime } = dailyPlanCompareEstemated(todayPlan!);
+    const { estimatedTime } = dailyPlanCompareEstimated(todayPlan!);
     const { h: dh, m: dm, s: ds } = secondsToTime(estimatedTime || 0);
     const { startTimer } = useTimer()
 
