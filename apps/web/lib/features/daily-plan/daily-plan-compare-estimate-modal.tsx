@@ -2,7 +2,7 @@
 
 import { Card, Modal, Text, Button } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React, { InputHTMLAttributes, useState } from 'react'
+import React, { InputHTMLAttributes } from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
