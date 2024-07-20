@@ -2,7 +2,7 @@
 
 import { IDailyPlan } from "@app/interfaces";
 
-export const dailyPlanCompareEstemated = (plans: IDailyPlan[]) => {
+export const dailyPlanCompareEstimated = (plans: IDailyPlan[]) => {
 
     const plan = plans.find((plan) => plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]));
 
