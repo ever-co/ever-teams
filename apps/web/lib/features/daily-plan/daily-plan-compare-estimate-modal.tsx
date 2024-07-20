@@ -1,12 +1,14 @@
 import { Card, Modal, Text, Button } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React from 'react'
+import React, { InputHTMLAttributes } from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { clsxm } from '@app/utils';
 import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
-import { useTeamMemberCard, useTMCardTaskEdit } from '@app/hooks';
+import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@app/hooks';
+import { dailyPlanCompareEstemated } from '@app/helpers/daily-plan-estimated';
+import { secondsToTime } from '@app/helpers';
 
 
 export function DailyPlanCompareEstimatedModal({
@@ -16,21 +18,29 @@ export function DailyPlanCompareEstimatedModal({
     profile
 }: { open: boolean, closeModal: () => void, todayPlan?: IDailyPlan[], profile: any }) {
 
+    const { estimatedTime } = dailyPlanCompareEstemated(todayPlan!);
+    const { h: dh, m: dm, s: ds } = secondsToTime(estimatedTime || 0);
+    const { startTimer } = useTimer()
+
+    const onClick = () => {
+        startTimer()
+        window.localStorage.setItem('daily-plan-modal', new Date().toISOString().split('T')[0]);
+    }
     return (
         <Modal isOpen={open} closeModal={closeModal}>
-            <div className='w-[98%] md:w-[550px] relative   '>
+            <div className='w-[98%] md:w-[550px] relative'>
                 <Card className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow='custom'>
                     <div className='flex flex-col items-center justify-between'>
-                        <HeadTitle />
+                        <DailyPlanCompareHeader />
                     </div>
                     <div className='flex items-start flex-col justify-start w-full px-2'>
-                        <InputTime />
+                        <DailyPlanWorkTimeInput estimated={`${dh}:${dm}:${ds}`} />
                     </div>
                     <div className='flex h-full w-full p-2'>
                         {todayPlan?.map((plan, i) => {
                             return <div key={i}>
                                 {plan.tasks?.map((data, index) => {
-                                    return <CardDailyPlan
+                                    return <DailyPlanTask
                                         key={index}
                                         task={data}
                                         profile={profile}
@@ -44,14 +54,14 @@ export function DailyPlanCompareEstimatedModal({
                             <PiWarningCircleFill className='text-[14px]' />
                             <span>Please correct planned work hours or re-estimate task(s)</span>
                         </div>
-                        <ButtonAction closeModal={closeModal} />
+                        <DailyPlanCompareActionButton closeModal={closeModal} onClick={onClick} />
                     </div>
                 </Card>
             </div>
         </Modal>
     )
 }
-export function CardDailyPlan({ task, profile }: { task?: ITeamTask, profile: any }) {
+export function DailyPlanTask({ task, profile }: { task?: ITeamTask, profile: any }) {
     const taskEdition = useTMCardTaskEdit(task);
     const member = task?.selectedTeam?.members.find((member) => {
         return member?.employee?.user?.id === profile?.userProfile?.id
@@ -83,7 +93,7 @@ export function CardDailyPlan({ task, profile }: { task?: ITeamTask, profile: an
 }
 
 
-export function ButtonAction({ closeModal, onClick }: { closeModal?: () => void, onClick?: () => void }) {
+export function DailyPlanCompareActionButton({ closeModal, onClick }: { closeModal?: () => void, onClick?: () => void }) {
     return (
         <div className='flex items-center justify-between'>
             <Button
@@ -100,7 +110,7 @@ export function ButtonAction({ closeModal, onClick }: { closeModal?: () => void,
 }
 
 
-export function HeadTitle() {
+export function DailyPlanCompareHeader() {
     return (
         <>
             <div >
@@ -122,11 +132,12 @@ export function HeadTitle() {
 }
 
 
-export function InputTime({ onChange }: { onChange?: (_: any) => void }) {
+export function DailyPlanWorkTimeInput({ onChange, estimated }: { onChange?: (_: InputHTMLAttributes<HTMLInputElement>) => void, estimated?: string }) {
     return (
         <>
             <input
                 onChange={onChange}
+                defaultValue={estimated}
                 className='custom-time-input mb-3 w-full p-1 focus:border-[#1B005D] border rounded-md border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1 font-normal dark:text-white outline-none dark:bg-transparent text-[13px]'
                 type="time" />
             <div className='flex items-center space-x-1 w-auto'>
