@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeams } from '@app/hooks';
+import { useDailyPlan, useOrganizationTeams, useUserProfilePage } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -35,7 +35,8 @@ import { DailyPlanCompareEstimatedModal } from 'lib/features/daily-plan';
 
 function MainPage() {
 	const t = useTranslations();
-	const [isOpen, setIsOpen] = useState(true)
+	const [isOpen, setIsOpen] = useState(false)
+	const { todayPlan } = useDailyPlan();
 
 	const [headerSize, setHeaderSize] = useState(10);
 
@@ -64,10 +65,11 @@ function MainPage() {
 	if (!online) {
 		return <Offline />;
 	}
+	const profile = useUserProfilePage();
+
 	return (
 		<>
-			<DailyPlanCompareEstimatedModal open={isOpen} closeModal={() => setIsOpen(prev => prev)} />
-
+			<DailyPlanCompareEstimatedModal open={isOpen} closeModal={() => setIsOpen(prev => prev)} todayPlan={todayPlan} profile={profile} />
 			<div className="flex flex-col h-screen justify-between">
 				{/* <div className="flex-grow "> */}
 				<MainLayout className="h-full" footerClassName={clsxm('')}>

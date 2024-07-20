@@ -180,8 +180,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	// const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
-	// const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ?  : filteredPlans;
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
