@@ -272,7 +272,7 @@ export function Setting() {
           });
           break;
         case SettingPageTypeMessage.mainResponse:
-          let typeMessage: any = 'success';
+          let typeMessage: any;
           if (arg.data.status && arg.data.isServerRun) {
             typeMessage = 'warning';
           } else {

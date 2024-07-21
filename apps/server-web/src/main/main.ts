@@ -1,5 +1,5 @@
 import path from 'path'
-import { app, ipcMain, Tray, dialog, BrowserWindow, shell, Menu } from 'electron';
+import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
