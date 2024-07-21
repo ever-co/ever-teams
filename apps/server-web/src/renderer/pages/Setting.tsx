@@ -16,6 +16,7 @@ import {
   ILanguages,
   ISideMenu,
 } from '../libs/interfaces';
+import { useTranslation } from 'react-i18next';
 
 export function Setting() {
   const [menus, setMenu] = useState<ISideMenu[]>([
@@ -35,6 +36,7 @@ export function Setting() {
       isActive: false,
     },
   ]);
+  const { t } = useTranslation();
 
   const [updateSetting, setUpdateSetting] = useState<IUpdateSetting>({
     autoUpdate: false,
@@ -64,11 +66,13 @@ export function Setting() {
 
   const [popupServer, setPopupServer] = useState<IPopup>({
     isShow: false,
+    isDialog: false,
     type: 'none',
   });
 
   const [popupUpdater, setPopupUpdater] = useState<IPopup>({
     isShow: false,
+    isDialog: false,
     type: 'none',
   });
 
@@ -136,6 +140,11 @@ export function Setting() {
     setPopupServer((prevData) => ({ ...prevData, isShow: !prevData.isShow }));
   };
 
+  const restartServer = () => {
+    setPopupServer((prevData) => ({ ...prevData, isShow: !prevData.isShow }));
+    sendingMessageToMain({}, SettingPageTypeMessage.restartServer);
+  };
+
   const setPopupUpdaterState = () => {
     setPopupUpdater((prevData) => ({ ...prevData, isShow: !prevData.isShow }));
   };
@@ -147,12 +156,22 @@ export function Setting() {
           serverSetting={serverSetting}
           saveSetting={saveSetting}
           Popup={
-            <Popup
-              isShowPopup={popupServer.isShow}
-              modalAction={setPopupServerState}
-              type={popupServer.type}
-              message=""
-            />
+            popupServer.isDialog ? (
+              <Popup
+                isShowPopup={popupServer.isShow}
+                modalAction={restartServer}
+                type={popupServer.type}
+                closeAction={setPopupServerState}
+                message={t('MESSAGE.SERVER_RUN_DIALOG')}
+              />
+            ) : (
+              <Popup
+                isShowPopup={popupServer.isShow}
+                modalAction={setPopupServerState}
+                type={popupServer.type}
+                message=""
+              />
+            )
           }
         />
       );
@@ -226,6 +245,7 @@ export function Setting() {
           setLoading(false);
           setPopupUpdater({
             isShow: true,
+            isDialog: false,
             type: 'error',
           });
           break;
@@ -252,9 +272,16 @@ export function Setting() {
           });
           break;
         case SettingPageTypeMessage.mainResponse:
+          let typeMessage: any = 'success';
+          if (arg.data.status && arg.data.isServerRun) {
+            typeMessage = 'warning';
+          } else {
+            typeMessage = arg.data.status ? 'success' : 'error';
+          }
           setPopupServer({
             isShow: true,
-            type: arg.data ? 'success' : 'error',
+            type: typeMessage,
+            isDialog: arg.data.isServerRun,
           });
           break;
         case SettingPageTypeMessage.showVersion:

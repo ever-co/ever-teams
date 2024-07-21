@@ -208,6 +208,16 @@ const stopServer = async () => {
   await desktopServer.stop();
 };
 
+const restartServer = async () => {
+  await desktopServer.stop();
+  const waitingForServerStop = setInterval(async () => {
+    if (!isServerRun) {
+      clearInterval(waitingForServerStop);
+      await runServer()
+    }
+  }, 1000)
+}
+
 const getEnvApi = () => {
   const setting: WebServer = LocalStore.getStore('config')
   return setting.server;
@@ -238,8 +248,12 @@ const onInitApplication = () => {
   })
 
   eventEmitter.on(EventLists.webServerStop, async () => {
-    isServerRun = false;
     await stopServer();
+    isServerRun = false;
+  })
+
+  eventEmitter.on(EventLists.RESTART_SERVER, async () => {
+    await restartServer();
   })
 
   eventEmitter.on(EventLists.webServerStarted, () => {
@@ -409,7 +423,10 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
           }
         }
       )
-      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: true });
+      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: {
+        status: true,
+        isServerRun: isServerRun
+      } });
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
@@ -424,6 +441,9 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
     case SettingPageTypeMessage.langChange:
       event.sender.send('languageSignal', arg.data);
       eventEmitter.emit(EventLists.CHANGE_LANGUAGE, { code: arg.data })
+      break;
+    case SettingPageTypeMessage.restartServer:
+      eventEmitter.emit(EventLists.RESTART_SERVER)
       break;
     default:
       break;

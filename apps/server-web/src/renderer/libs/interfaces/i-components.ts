@@ -12,8 +12,9 @@ type IToastComponent = {
 type IPopupComponent = {
   isShowPopup: boolean;
   modalAction: () => void;
-  type: 'success' | 'error' | 'none';
+  type: 'success' | 'error' | 'none' | 'warning';
   message: string;
+  closeAction?: () => void;
 };
 
 type IProgressComponent = {
