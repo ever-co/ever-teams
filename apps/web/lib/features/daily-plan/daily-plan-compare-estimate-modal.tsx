@@ -2,7 +2,7 @@
 
 import { Card, Modal, Text, Button } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React, { InputHTMLAttributes } from 'react'
+import React from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -42,9 +42,6 @@ export function DailyPlanCompareEstimatedModal({
                                 hours: dh?.toString().padStart(2, '0') ?? '--',
                                 meridiem: 'AM',
                                 minute: dm?.toString().padStart(2, '0') ?? '--',
-                            }}
-                            onChange={(value) => {
-                                console.log(value);
                             }}
                         />
                         <DailyPlanWorkTimeInput />

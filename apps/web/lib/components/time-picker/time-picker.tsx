@@ -20,7 +20,7 @@ type TimepickerValue = {
 
 interface IPopoverTimepicker {
     defaultValue: TimepickerValue;
-    onChange: (value: TimepickerValue) => void;
+    onChange?: (value: TimepickerValue) => void;
 }
 
 export function PopoverTimepicker({ onChange, defaultValue }: IPopoverTimepicker) {
