@@ -39,7 +39,7 @@ let logWindow: BrowserWindow | null = null;
 let SettingMenu: any = null;
 let ServerWindowMenu: any = null;
 
-Log.hooks.push((message:any, transport) => {
+Log.hooks.push((message: any, transport) => {
   if (transport !== Log.transports.file) {
     return message;
   }
@@ -275,7 +275,7 @@ const onInitApplication = () => {
     console.log(EventLists.webServerStarted)
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    updateTrayMenu('OPEN_WEB', { enabled: true}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    updateTrayMenu('OPEN_WEB', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STATUS', { label: 'MENU.SERVER_STATUS_STARTED' }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     if (logWindow) {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
@@ -292,7 +292,7 @@ const onInitApplication = () => {
     console.log(EventLists.webServerStopped);
     updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_START', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    updateTrayMenu('OPEN_WEB', { enabled: false}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    updateTrayMenu('OPEN_WEB', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STATUS', { label: 'MENU.SERVER_STATUS_STOPPED' }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     if (logWindow) {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
@@ -438,10 +438,12 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
           }
         }
       )
-      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: {
-        status: true,
-        isServerRun: isServerRun
-      } });
+      event.sender.send(IPC_TYPES.SETTING_PAGE, {
+        type: SettingPageTypeMessage.mainResponse, data: {
+          status: true,
+          isServerRun: isServerRun
+        }
+      });
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();

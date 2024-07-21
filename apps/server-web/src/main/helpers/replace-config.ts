@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import fg from 'fast-glob';
+import os from 'os';
 
 type EnvOptions = {
   before: {
@@ -27,6 +28,10 @@ const scanAllFiles = async (files: string[], oldConfig: string, newConfig: strin
 export const replaceConfig = async (folderPath: string, envOptions: EnvOptions) => {
   try {
     console.log('all files path', folderPath);
+    if (os.platform() === 'win32') {
+      folderPath = folderPath.replace(/\\/g, '/');
+    }
+    console.log('final path', folderPath);
     const NEXT_PUBLIC_GAUZY_API_SERVER_URL_BEFORE = `"NEXT_PUBLIC_GAUZY_API_SERVER_URL","${envOptions.before.NEXT_PUBLIC_GAUZY_API_SERVER_URL}"`;
     const NEXT_PUBLIC_GAUZY_API_SERVER_URL_AFTER = `"NEXT_PUBLIC_GAUZY_API_SERVER_URL","${envOptions.after.NEXT_PUBLIC_GAUZY_API_SERVER_URL}"`;
     const NEXT_PUBLIC_GAUZY_API_SERVER_URL_DEFAULT = `"NEXT_PUBLIC_GAUZY_API_SERVER_URL","https://api.ever.team"`;
