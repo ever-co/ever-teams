@@ -1,5 +1,5 @@
 import path from 'path'
-import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
+import { app, ipcMain, Tray, dialog, BrowserWindow, shell, Menu } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
@@ -13,6 +13,9 @@ import fs from 'fs';
 import { WebServer } from './helpers/interfaces';
 import { replaceConfig } from './helpers';
 import Log from 'electron-log';
+import MenuBuilder from './menu';
+
+
 console.log = Log.log;
 Object.assign(console, Log.functions);
 
@@ -33,6 +36,8 @@ let intervalUpdate: NodeJS.Timeout;
 let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
+let SettingMenu: any = null;
+let ServerWindowMenu: any = null;
 
 Log.hooks.push((message:any, transport) => {
   if (transport !== Log.transports.file) {
@@ -168,7 +173,12 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
       mainBindings(ipcMain, settingWindow, fs);
       settingWindow.on('closed', () => {
         settingWindow = null;
+        SettingMenu = null
       });
+      if (!SettingMenu) {
+        SettingMenu = new MenuBuilder(settingWindow);
+      }
+      SettingMenu.buildMenu();
       break;
     case 'LOG_WINDOW':
       logWindow = new BrowserWindow(defaultOptionWindow);
@@ -177,7 +187,12 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
       mainBindings(ipcMain, logWindow, fs);
       logWindow.on('closed', () => {
         logWindow = null;
+        ServerWindowMenu = null
       })
+      if (!ServerWindowMenu) {
+        ServerWindowMenu = new MenuBuilder(logWindow);
+      }
+      ServerWindowMenu.buildMenu();
       break;
     default:
       break;
