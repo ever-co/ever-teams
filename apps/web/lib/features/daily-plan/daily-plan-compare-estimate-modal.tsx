@@ -11,6 +11,7 @@ import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
 import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@app/hooks';
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
+import { PopoverTimepicker } from 'lib/components/time-picker/time-picker';
 
 
 export function DailyPlanCompareEstimatedModal({
@@ -21,7 +22,7 @@ export function DailyPlanCompareEstimatedModal({
 }: { open: boolean, closeModal: () => void, todayPlan?: IDailyPlan[], profile: any }) {
 
     const { estimatedTime } = dailyPlanCompareEstimated(todayPlan!);
-    const { h: dh, m: dm, s: ds } = secondsToTime(estimatedTime || 0);
+    const { h: dh, m: dm } = secondsToTime(estimatedTime || 0);
     const { startTimer } = useTimer()
 
     const onClick = () => {
@@ -36,7 +37,18 @@ export function DailyPlanCompareEstimatedModal({
                         <DailyPlanCompareHeader />
                     </div>
                     <div className='flex items-start flex-col justify-start w-full px-2'>
-                        <DailyPlanWorkTimeInput estimated={`${dh}:${dm}:${ds}`} />
+                        <PopoverTimepicker
+                            defaultValue={{
+                                hours: dh?.toString().padStart(2, '0') ?? '--',
+                                meridiem: 'AM',
+                                minute: dm?.toString().padStart(2, '0') ?? '--',
+                            }}
+                            onChange={(value) => {
+                                console.log(value);
+                            }}
+                        />
+                        <DailyPlanWorkTimeInput />
+
                     </div>
                     <div className='flex h-full w-full p-2'>
                         {todayPlan?.map((plan, i) => {
@@ -134,14 +146,14 @@ export function DailyPlanCompareHeader() {
 }
 
 
-export function DailyPlanWorkTimeInput({ onChange, estimated }: { onChange?: (_: InputHTMLAttributes<HTMLInputElement>) => void, estimated?: string }) {
+export function DailyPlanWorkTimeInput() {
     return (
         <>
-            <input
+            {/* <input
                 onChange={onChange}
                 defaultValue={estimated}
                 className='custom-time-input mb-3 w-full p-1 focus:border-[#1B005D] border rounded-md border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1 font-normal dark:text-white outline-none dark:bg-transparent text-[13px]'
-                type="time" />
+                type="time" /> */}
             <div className='flex items-center space-x-1 w-auto'>
                 <Text.Heading as='h4' className=' text-center text-gray-500 text-[12px]'>
                     Tasks with no time estimations
