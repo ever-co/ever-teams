@@ -3,7 +3,6 @@ import React, { useCallback, useState } from 'react'
 import { TimerIcon } from "lucide-react"
 import { cn } from "lib/utils"
 import { Button } from "@components/ui/button"
-import '../../../styles/style.css'
 
 import {
     Popover,
@@ -12,18 +11,18 @@ import {
 } from "@components/ui/popover"
 import { clsxm } from '@app/utils'
 
-type TimepickerValue = {
+export type TimepickerValue = {
     hours: string;
     minute: string;
     meridiem: 'AM' | 'PM';
 };
 
 interface IPopoverTimepicker {
-    defaultValue: TimepickerValue;
+    defaultValue?: TimepickerValue;
     onChange?: (value: TimepickerValue) => void;
 }
 
-export function PopoverTimepicker({ onChange, defaultValue }: IPopoverTimepicker) {
+export function TimePicker({ onChange, defaultValue }: IPopoverTimepicker) {
     const [time, setTime] = useState({
         hours: defaultValue?.hours,
         minute: defaultValue?.minute,
@@ -119,10 +118,21 @@ const Timepicker = ({ onTimeChange }: { onTimeChange: (_: any) => void }) => {
     return (
         <div className='h-48 justify-normal '>
             <div className='flex items-start justify-center h-48 w-full p-1'>
-                <div className='flex flex-col h-48  overflow-scroll scroll-hidden p-1'>
+                <div
+                    style={{
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                        WebkitOverflowScrolling: 'touch',
+                        overflow: '-moz-scrollbars-none',
+                    }} className='flex flex-col h-48  overflow-scroll  p-1'>
                     {renderButtons(12, handleHoursClick, time.hours)}
                 </div>
-                <div className='flex flex-col h-48  overflow-scroll scroll-hidden p-1'>
+                <div style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    WebkitOverflowScrolling: 'touch',
+                    overflow: '-moz-scrollbars-none',
+                }} className='flex flex-col h-48  overflow-scroll  p-1'>
                     {renderButtons(60, handleMinutesClick, time.minutes)}
                 </div>
                 <div className='flex flex-col py-1 p-1'>
@@ -171,11 +181,3 @@ const TimerPickerButton: React.FC<TimerPickerButtonProps> = React.memo(({
         </Button>
     );
 });
-
-//Hidden bar scroll
-export const scrollHiddenStyle = {
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-    WebkitOverflowScrolling: 'touch',
-    overflow: '-moz-scrollbars-none',
-};

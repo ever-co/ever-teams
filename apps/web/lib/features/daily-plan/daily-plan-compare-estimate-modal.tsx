@@ -1,8 +1,8 @@
 "use client"
 
-import { Card, Modal, Text, Button } from 'lib/components'
+import { Card, Modal, Text, Button, TimePicker, TimepickerValue } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React from 'react'
+import React, { useState } from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -11,7 +11,6 @@ import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
 import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@app/hooks';
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
-import { PopoverTimepicker } from 'lib/components/time-picker/time-picker';
 
 
 export function DailyPlanCompareEstimatedModal({
@@ -24,7 +23,13 @@ export function DailyPlanCompareEstimatedModal({
     const { estimatedTime } = dailyPlanCompareEstimated(todayPlan!);
     const { h: dh, m: dm } = secondsToTime(estimatedTime || 0);
     const { startTimer } = useTimer()
-
+    const hour = dh.toString()!.padStart(2, '0');
+    const minute = dm.toString()!.padStart(2, '0');
+    const [times, setTimes] = useState<TimepickerValue>({
+        hours: '--',
+        meridiem: 'PM',
+        minute: '--'
+    })
     const onClick = () => {
         startTimer();
         window.localStorage.setItem('daily-plan-modal', new Date().toISOString().split('T')[0]);
@@ -37,11 +42,16 @@ export function DailyPlanCompareEstimatedModal({
                         <DailyPlanCompareHeader />
                     </div>
                     <div className='flex items-start flex-col justify-start w-full px-2'>
-                        <PopoverTimepicker
+                        <TimePicker
                             defaultValue={{
-                                hours: dh?.toString().padStart(2, '0') ?? '--',
+                                hours: hour,
                                 meridiem: 'AM',
-                                minute: dm?.toString().padStart(2, '0') ?? '--',
+                                minute: minute,
+                            }}
+                            onChange={(value) => {
+                                setTimes(value);
+                                console.log(times)
+
                             }}
                         />
                         <DailyPlanWorkTimeInput />
