@@ -164,10 +164,11 @@ interface TimerPickerButtonProps {
     variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null;
 }
 
+// eslint-disable-next-line react/display-name
 const TimerPickerButton: React.FC<TimerPickerButtonProps> = React.memo(({
     title = '',
     className = 'border-none border-gray-100 ',
-    onClick = () => { },
+    onClick = () => null,
     loading = false,
     variant = 'default',
 }) => {

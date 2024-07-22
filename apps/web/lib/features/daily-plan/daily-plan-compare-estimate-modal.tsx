@@ -2,7 +2,7 @@
 
 import { Card, Modal, Text, Button, TimePicker, TimepickerValue } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React, { useState, InputHTMLAttributes } from 'react'
+import React, { useState } from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -18,13 +18,13 @@ export function DailyPlanCompareEstimatedModal({
     closeModal,
     todayPlan,
     profile
-}: { open: boolean, closeModal: () => void, todayPlan?: IDailyPlan[], profile: any }) {
+}: { open: boolean, closeModal: () => void, todayPlan: IDailyPlan[], profile: any }) {
 
-    const { estimatedTime } = dailyPlanCompareEstimated(todayPlan!);
-    const { h: dh, m: dm, s: ds } = secondsToTime(estimatedTime || 0);
+    const { estimatedTime } = dailyPlanCompareEstimated(todayPlan);
+    const { h: dh, m: dm } = secondsToTime(estimatedTime || 0);
     const { startTimer } = useTimer()
-    const hour = dh.toString()!.padStart(2, '0');
-    const minute = dm.toString()!.padStart(2, '0');
+    const hour = dh.toString()?.padStart(2, '0');
+    const minute = dm.toString()?.padStart(2, '0');
     const [times, setTimes] = useState<TimepickerValue>({
         hours: '--',
         meridiem: 'PM',
