@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, Modal, Text, Button, TimePicker, TimepickerValue } from 'lib/components'
+import { Card, Modal, Text, Button, TimePicker, TimePickerValue } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
 import React, { useState } from 'react'
 import Separator from '@components/ui/separator';
@@ -25,7 +25,7 @@ export function DailyPlanCompareEstimatedModal({
     const { startTimer } = useTimer()
     const hour = dh.toString()?.padStart(2, '0');
     const minute = dm.toString()?.padStart(2, '0');
-    const [times, setTimes] = useState<TimepickerValue>({
+    const [times, setTimes] = useState<TimePickerValue>({
         hours: '--',
         meridiem: 'PM',
         minute: '--'

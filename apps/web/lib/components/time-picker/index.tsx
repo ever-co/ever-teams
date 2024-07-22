@@ -17,12 +17,12 @@ export type TimePickerValue = {
     meridiem: 'AM' | 'PM';
 };
 
-interface IPopoverTimepicker {
+interface IPopoverTimePicker {
     defaultValue?: TimePickerValue;
     onChange?: (value: TimePickerValue) => void;
 }
 
-export function TimePicker({ onChange, defaultValue }: IPopoverTimepicker) {
+export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
     const [time, setTime] = useState({
         hours: defaultValue?.hours,
         minute: defaultValue?.minute,
@@ -50,7 +50,7 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimepicker) {
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="flex items-start !w-52 left-0 dark:bg-dark--theme-light border border-transparent">
-                <Timepicker onTimeChange={handleTimeChange} />
+                <TimePickerInput onTimeChange={handleTimeChange} />
             </PopoverContent>
         </Popover>
     );
@@ -58,7 +58,7 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimepicker) {
 
 
 
-const Timepicker = ({ onTimeChange }: { onTimeChange: (_: any) => void }) => {
+const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) => {
     const [time, setTime] = useState({
         hours: 0,
         minutes: 0,
@@ -152,7 +152,7 @@ const Timepicker = ({ onTimeChange }: { onTimeChange: (_: any) => void }) => {
     );
 };
 
-export default Timepicker;
+export default TimePickerInput;
 
 
 
