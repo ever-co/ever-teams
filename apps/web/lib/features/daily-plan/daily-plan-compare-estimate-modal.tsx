@@ -57,7 +57,7 @@ export function DailyPlanCompareEstimatedModal({
                         <DailyPlanWorkTimeInput />
                     </div>
                     <div className='flex h-full w-full p-2'>
-                        {todayPlan?.map((plan, i) => {
+                        {todayPlan.map((plan, i) => {
                             return <div key={i}>
                                 {plan.tasks?.map((data, index) => {
                                     return <DailyPlanTask
