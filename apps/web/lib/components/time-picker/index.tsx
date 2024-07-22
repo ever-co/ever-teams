@@ -11,15 +11,15 @@ import {
 } from "@components/ui/popover"
 import { clsxm } from '@app/utils'
 
-export type TimepickerValue = {
+export type TimePickerValue = {
     hours: string;
     minute: string;
     meridiem: 'AM' | 'PM';
 };
 
 interface IPopoverTimepicker {
-    defaultValue?: TimepickerValue;
-    onChange?: (value: TimepickerValue) => void;
+    defaultValue?: TimePickerValue;
+    onChange?: (value: TimePickerValue) => void;
 }
 
 export function TimePicker({ onChange, defaultValue }: IPopoverTimepicker) {
