@@ -213,7 +213,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
+								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme">
 									<PlanHeader plan={plan} planMode={currentTab as any} />
 									<Droppable
 										droppableId={plan.id as string}
@@ -243,7 +243,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																	{...provided.dragHandleProps}
 																	style={{
 																		...provided.draggableProps.style,
-																		marginBottom: 8
+																		marginBottom: 6
 																	}}
 																>
 																	<TaskCard
@@ -261,6 +261,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																				: undefined
 																		}
 																		plan={plan}
+																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
 																	/>
 																</div>
 															)}
@@ -379,7 +380,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-8 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'}  items-center gap-5`}
+			className={`mb-6 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'}  items-center gap-5`}
 		>
 			{/* Planned Time */}
 

@@ -55,7 +55,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
+								<AccordionContent className="border-none dark:bg-dark--theme">
 									<PlanHeader plan={plan} planMode="Future Tasks" />
 									<Droppable droppableId={plan.id as string} key={plan.id} type="task">
 										{(provided) => (
@@ -79,7 +79,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 																	{...provided.dragHandleProps}
 																	style={{
 																		...provided.draggableProps.style,
-																		marginBottom: 8
+																		marginBottom: 4
 																	}}
 																>
 																	<TaskCard
@@ -94,6 +94,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 																		taskTitleClassName="mt-[0.0625rem]"
 																		plan={plan}
 																		planMode="Future Tasks"
+																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
 																	/>
 																</div>
 															)}

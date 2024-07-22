@@ -2,7 +2,7 @@
 
 import { Card, Modal, Text, Button, TimePicker, TimepickerValue } from 'lib/components'
 import { PiWarningCircleFill } from "react-icons/pi";
-import React, { useState } from 'react'
+import React, { useState, InputHTMLAttributes } from 'react'
 import Separator from '@components/ui/separator';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { TaskNameInfoDisplay } from '../task/task-displays';
@@ -21,7 +21,7 @@ export function DailyPlanCompareEstimatedModal({
 }: { open: boolean, closeModal: () => void, todayPlan?: IDailyPlan[], profile: any }) {
 
     const { estimatedTime } = dailyPlanCompareEstimated(todayPlan!);
-    const { h: dh, m: dm } = secondsToTime(estimatedTime || 0);
+    const { h: dh, m: dm, s: ds } = secondsToTime(estimatedTime || 0);
     const { startTimer } = useTimer()
     const hour = dh.toString()!.padStart(2, '0');
     const minute = dm.toString()!.padStart(2, '0');
@@ -55,7 +55,6 @@ export function DailyPlanCompareEstimatedModal({
                             }}
                         />
                         <DailyPlanWorkTimeInput />
-
                     </div>
                     <div className='flex h-full w-full p-2'>
                         {todayPlan?.map((plan, i) => {
@@ -156,11 +155,6 @@ export function DailyPlanCompareHeader() {
 export function DailyPlanWorkTimeInput() {
     return (
         <>
-            {/* <input
-                onChange={onChange}
-                defaultValue={estimated}
-                className='custom-time-input mb-3 w-full p-1 focus:border-[#1B005D] border rounded-md border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1 font-normal dark:text-white outline-none dark:bg-transparent text-[13px]'
-                type="time" /> */}
             <div className='flex items-center space-x-1 w-auto'>
                 <Text.Heading as='h4' className=' text-center text-gray-500 text-[12px]'>
                     Tasks with no time estimations

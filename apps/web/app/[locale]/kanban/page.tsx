@@ -8,9 +8,9 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { Footer, MainLayout } from 'lib/layout';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import ImageComponent, { ImageOverlapperProps } from 'lib/components/image-overlapper';
 import Separator from '@components/ui/separator';
 import HeaderTabs from '@components/pages/main/header-tabs';
@@ -55,11 +55,15 @@ const Kanban = () => {
 	const fullWidth = useRecoilValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
-	const breadcrumbPath = [
-		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-		{ title: activeTeam?.name || '', href: '/' },
-		{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
-	];
+	const employee = useSearchParams().get('employee');
+	const breadcrumbPath = useMemo(
+		() => [
+			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+			{ title: activeTeam?.name || '', href: '/' },
+			{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
+		],
+		[activeTeam?.name, currentLocale]
+	);
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
 
@@ -85,6 +89,22 @@ const Kanban = () => {
 		value: issues as any,
 		onValueChange: setIssues as any
 	});
+
+	useEffect(() => {
+		const lastPath = breadcrumbPath.slice(-1)[0];
+		if (employee) {
+			if (lastPath.title == 'Kanban') {
+				breadcrumbPath.push({ title: employee, href: `/${currentLocale}/kanban?employee=${employee}` });
+			} else {
+				breadcrumbPath.pop();
+				breadcrumbPath.push({ title: employee, href: `/${currentLocale}/kanban?employee=${employee}` });
+			}
+		} else {
+			if (lastPath.title !== 'Kanban') {
+				breadcrumbPath.pop();
+			}
+		}
+	}, [breadcrumbPath, currentLocale, employee]);
 	return (
 		<>
 			<Head>
@@ -99,7 +119,11 @@ const Kanban = () => {
 				className="h-[calc(100vh-_22px)]"
 			>
 				<div className="h-[263.4px] z-10 bg-white  dark:bg-dark-high fixed w-full"></div>
-				<div className={'fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C]  z-10 mx-[0px] w-full bg-white dark:bg-dark-high'}>
+				<div
+					className={
+						'fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C]  z-10 mx-[0px] w-full bg-white dark:bg-dark-high'
+					}
+				>
 					<Container fullWidth={fullWidth}>
 						<div className="flex bg-white dark:bg-dark-high flex-row items-start justify-between mt-12">
 							<div className="flex justify-center items-center gap-8 h-10">
@@ -122,7 +146,7 @@ const Kanban = () => {
 								<div className="mt-1">
 									<Separator />
 								</div>
-								<ImageComponent images={teamMembers} />
+								<ImageComponent onAvatarClickRedirectTo="kanbanTasks" images={teamMembers} />
 								<div className="mt-1">
 									<Separator />
 								</div>
@@ -250,11 +274,12 @@ const Kanban = () => {
 					)}
 				</div>
 			</MainLayout>
-			<div className='bg-white dark:bg-[#1e2025]  w-screen z-[5000] fixed bottom-0'>
-
-					<Divider />
-					<Footer className={clsxm(' justify-between w-full px-0  mx-auto', fullWidth ? 'px-8' : 'x-container')} />
-				</div>
+			<div className="bg-white dark:bg-[#1e2025]  w-screen z-[5000] fixed bottom-0">
+				<Divider />
+				<Footer
+					className={clsxm(' justify-between w-full px-0  mx-auto', fullWidth ? 'px-8' : 'x-container')}
+				/>
+			</div>
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
