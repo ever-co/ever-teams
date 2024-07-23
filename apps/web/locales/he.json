@@ -579,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "תוכנית למחר",
 		"PLAN_FOR_SOME_DAY": "תוכנית ליום כלשהו",
 		"ADD_TASK_TO_PLAN": "הוסף משימה זו לתוכנית",
-		"REMOVE_FROM_THIS_PLAN": "הסר מתוכנית זו"
+		"REMOVE_FROM_THIS_PLAN": "הסר מתוכנית זו",
+		"CREATE_A_PLAN_FOR_TODAY": "צור תוכנית להיום",
+		"TODAY_PLAN_SUB_TITLE": "אין תוכנית להיום",
+		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "הכנס את השם שלך",
