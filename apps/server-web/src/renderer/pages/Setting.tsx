@@ -8,57 +8,18 @@ import {
   AboutComponent,
   GeneralComponent,
 } from '../components';
-
-interface SideMenu {
-  displayName: string;
-  key: string;
-  isActive: boolean;
-}
-
-interface UpdaterStates {
-  state:
-  | 'check-update'
-  | 'update-available'
-  | 'downloading'
-  | 'downloaded'
-  | 'error'
-  | 'not-started'
-  | 'up-to-date'
-  | 'cancel'
-  ;
-  data: any;
-  label:
-  | 'CHECKING'
-  | 'DOWNLOADING'
-  | 'QUIT_N_INSTALL'
-  | 'UP_TO_DATE'
-  | 'UPDATE_AVAILABLE'
-  | 'CHECK_FOR_UPDATE';
-}
-
-interface IServerSetting {
-  PORT: number;
-  GAUZY_API_SERVER_URL: string;
-  NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
-}
-
-interface IPopup {
-  type: 'success' | 'error' | 'none';
-  isShow: boolean;
-}
-
-interface Languages {
-  code: string;
-  label: string;
-}
-
-type UpdateSetting = {
-  autoUpdate: boolean;
-  updateCheckPeriode: string;
-};
+import {
+  IUpdaterStates,
+  IUpdateSetting,
+  IServerSetting,
+  IPopup,
+  ILanguages,
+  ISideMenu,
+} from '../libs/interfaces';
+import { useTranslation } from 'react-i18next';
 
 export function Setting() {
-  const [menus, setMenu] = useState<SideMenu[]>([
+  const [menus, setMenu] = useState<ISideMenu[]>([
     {
       displayName: 'UPDATER',
       key: 'updater',
@@ -75,13 +36,14 @@ export function Setting() {
       isActive: false,
     },
   ]);
+  const { t } = useTranslation();
 
-  const [updateSetting, setUpdateSetting] = useState<UpdateSetting>({
+  const [updateSetting, setUpdateSetting] = useState<IUpdateSetting>({
     autoUpdate: false,
     updateCheckPeriode: '180',
   });
 
-  const [langs, setLangs] = useState<Languages[]>([
+  const [langs, setLangs] = useState<ILanguages[]>([
     {
       code: 'en',
       label: 'English',
@@ -94,7 +56,7 @@ export function Setting() {
 
   const [lng, setLng] = useState<string>('en');
 
-  const [updateStates, setUpdateState] = useState<UpdaterStates>({
+  const [updateStates, setUpdateState] = useState<IUpdaterStates>({
     state: 'not-started',
     data: null,
     label: 'CHECK_FOR_UPDATE',
@@ -104,11 +66,13 @@ export function Setting() {
 
   const [popupServer, setPopupServer] = useState<IPopup>({
     isShow: false,
+    isDialog: false,
     type: 'none',
   });
 
   const [popupUpdater, setPopupUpdater] = useState<IPopup>({
     isShow: false,
+    isDialog: false,
     type: 'none',
   });
 
@@ -127,12 +91,12 @@ export function Setting() {
     setMenu(newMenu);
   };
 
-  const changeLanguage = (lang: Languages) => {
+  const changeLanguage = (lang: ILanguages) => {
     sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
     setLng(lang.code);
   };
 
-  const saveSettingUpdate = (data: UpdateSetting) => {
+  const saveSettingUpdate = (data: IUpdateSetting) => {
     sendingMessageToMain(data, SettingPageTypeMessage.updateSetting);
   };
 
@@ -143,7 +107,7 @@ export function Setting() {
     });
   };
 
-  const updateDataSettingUpdate = (data: UpdateSetting) => {
+  const updateDataSettingUpdate = (data: IUpdateSetting) => {
     setUpdateSetting(data);
   };
 
@@ -176,6 +140,11 @@ export function Setting() {
     setPopupServer((prevData) => ({ ...prevData, isShow: !prevData.isShow }));
   };
 
+  const restartServer = () => {
+    setPopupServer((prevData) => ({ ...prevData, isShow: !prevData.isShow }));
+    sendingMessageToMain({}, SettingPageTypeMessage.restartServer);
+  };
+
   const setPopupUpdaterState = () => {
     setPopupUpdater((prevData) => ({ ...prevData, isShow: !prevData.isShow }));
   };
@@ -187,12 +156,22 @@ export function Setting() {
           serverSetting={serverSetting}
           saveSetting={saveSetting}
           Popup={
-            <Popup
-              isShowPopup={popupServer.isShow}
-              modalAction={setPopupServerState}
-              type={popupServer.type}
-              message=""
-            />
+            popupServer.isDialog ? (
+              <Popup
+                isShowPopup={popupServer.isShow}
+                modalAction={restartServer}
+                type={popupServer.type}
+                closeAction={setPopupServerState}
+                message={t('MESSAGE.SERVER_RUN_DIALOG')}
+              />
+            ) : (
+              <Popup
+                isShowPopup={popupServer.isShow}
+                modalAction={setPopupServerState}
+                type={popupServer.type}
+                message=""
+              />
+            )
           }
         />
       );
@@ -266,6 +245,7 @@ export function Setting() {
           setLoading(false);
           setPopupUpdater({
             isShow: true,
+            isDialog: false,
             type: 'error',
           });
           break;
@@ -292,9 +272,16 @@ export function Setting() {
           });
           break;
         case SettingPageTypeMessage.mainResponse:
+          let typeMessage: any;
+          if (arg.data.status && arg.data.isServerRun) {
+            typeMessage = 'warning';
+          } else {
+            typeMessage = arg.data.status ? 'success' : 'error';
+          }
           setPopupServer({
             isShow: true,
-            type: arg.data ? 'success' : 'error',
+            type: typeMessage,
+            isDialog: arg.data.isServerRun,
           });
           break;
         case SettingPageTypeMessage.showVersion:

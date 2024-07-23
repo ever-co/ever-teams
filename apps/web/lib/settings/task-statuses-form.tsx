@@ -1,11 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useRefetchData, useTaskStatus } from '@app/hooks';
+import { useModal, useRefetchData, useTaskStatus } from '@app/hooks';
 import { IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { Button, ColorPicker, InputField, Modal, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
@@ -13,6 +13,7 @@ import { useRecoilState } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
+import SortTasksStatusSettings from '@components/pages/kanban/sort-tasks-status-settings';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -114,9 +115,18 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		},
 		[edit, createNew, formOnly, editTaskStatus, onCreated, user, reset, createTaskStatus, refetch]
 	);
+	const updateArray = taskStatus.slice();
+	const sortedArray =
+		Array.isArray(updateArray) && updateArray.length > 0
+			? updateArray.sort((a: any, b: any) => a.order - b.order)
+			: [];
+	const { isOpen, closeModal, openModal } = useModal();
 
 	return (
 		<>
+			<Modal isOpen={isOpen} closeModal={closeModal}>
+				<SortTasksStatusSettings onClose={closeModal} arr={sortedArray} />
+			</Modal>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
@@ -127,20 +137,24 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 						)}
 
 						<div className="flex flex-col items-center sm:items-start">
-							{!createNew && !edit && (
-								<Button
-									variant="outline"
-									className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
-									onClick={() => {
-										setEdit(null);
-										setCreateNew(true);
-									}}
-								>
-									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									{t('pages.settingsTeam.CREATE_NEW_STATUS')}
+							<div className="flex">
+								{!createNew && !edit && (
+									<Button
+										variant="outline"
+										className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
+										onClick={() => {
+											setEdit(null);
+											setCreateNew(true);
+										}}
+									>
+										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
+										{t('pages.settingsTeam.CREATE_NEW_STATUS')}
+									</Button>
+								)}
+								<Button onClick={openModal} variant="outline" className="mx-2 rounded-[10px]">
+									Sort
 								</Button>
-							)}
-
+							</div>
 							{(createNew || edit) && (
 								<>
 									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
@@ -202,15 +216,15 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 								</>
 							)}
 
-							{!formOnly && taskStatus?.length > 0 && (
+							{!formOnly && taskStatus.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_STATUSES')}
 									</Text>
 									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-										{loading && !taskStatus?.length && <Spinner dark={false} />}
-										{taskStatus && taskStatus?.length ? (
-											taskStatus.map((status) => (
+										{loading && <Spinner dark={false} />}
+										{!loading && sortedArray.length ? (
+											sortedArray.map((status) => (
 												<StatusesListCard
 													key={status.id}
 													statusTitle={status.name ? status.name?.split('-').join(' ') : ''}

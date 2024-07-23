@@ -36,7 +36,6 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
 );
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
-
 const basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 export const GAUZY_API_SERVER_URL = basePath + '/api';
 
@@ -267,6 +266,9 @@ export const languagesFlags = [
 // Local storage keys
 export const LAST_WORSPACE_AND_TEAM = 'last-workspace-and-team';
 export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
+export const TODAY_PLAN_ALERT_SHOWN_DATE = 'last-today-plan-alert-date';
+export const ESTIMATE_POPUP_SHOWN_DATE = 'last-estimate-popup-date';
+export const DAILY_PLAN_SHOW_MODAL = 'daily-plan-modal';
 
 // OAuth providers keys
 

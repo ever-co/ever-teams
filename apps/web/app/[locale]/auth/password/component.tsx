@@ -9,7 +9,7 @@ import { AuthLayout } from 'lib/layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/component';
 import SocialLogins from '../social-logins-buttons';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
@@ -116,29 +116,35 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		[selectedWorkspace, selectedTeam, form]
 	);
 
+	const hasMultipleTeams = useMemo(
+		() => form.workspaces.some((workspace) => workspace.current_teams.length > 1),
+		[form.workspaces]
+	);
+
 	useEffect(() => {
-		if (form.workspaces.length === 1) {
-			setSelectedWorkspace(0);
-		}
-
-		const currentTeams = form.workspaces[0]?.current_teams;
-
-		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
-			setSelectedTeam(currentTeams[0].team_id);
-		} else {
-			const lastSelectedTeam = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0].team_id;
-			const lastSelectedWorkspace =
-				form.workspaces.findIndex((workspace) =>
-					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
-				) || 0;
-			setSelectedTeam(lastSelectedTeam);
-			setSelectedWorkspace(lastSelectedWorkspace);
-		}
-
-		if (form.workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
+		if (form.workspaces.length === 1 && !hasMultipleTeams) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
+		}
+
+		const currentTeams = form.workspaces.find((el) => el.current_teams && el.current_teams.length)?.current_teams;
+		const lastSelectedTeamId = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM);
+
+		if (currentTeams) {
+			setSelectedWorkspace(
+				form.workspaces.findIndex((el) =>
+					el.current_teams.find((el) => el.team_id == currentTeams[0]?.team_id)
+				) || 0
+			);
+			setSelectedTeam(currentTeams[0].team_id);
+		}
+
+		if (lastSelectedTeamId && lastSelectedTeamId !== 'undefined') {
+			setSelectedWorkspace(
+				form.workspaces.findIndex((el) => el.current_teams.find((el) => el.team_id == lastSelectedTeamId)) || 0
+			);
+			setSelectedTeam(lastSelectedTeamId);
 		}
 	}, [form.workspaces]);
 
@@ -150,8 +156,6 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 			}
 		}
 	}, [form.authScreen, router]);
-
-	const hasMultipleTeams = form.workspaces.some((workspace) => workspace.current_teams.length > 1);
 
 	return (
 		<>

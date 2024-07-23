@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Не работи",
 		"WORKING": "Работи",
 		"PAUSED": "Пауза",
-		"ONLINE": "Онлайн"
+		"ONLINE": "Онлайн",
+		"SKIP_ADD_LATER": "Добави по-късно"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Имате",
 				"USER_LABEL": "незавършени задачи, моля, проверете",
-				"OUTSTANDING_VIEW": "Преглед на изчакващите задачи",
+				"OUTSTANDING_VIEW": "Изключителен",
 				"VIEW_BUTTON": "Преглед"
 			}
 		},
@@ -356,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Управление на отговорници",
 			"SEARCH_MEMBER": "Търсене на член",
 			"TASK_STATUSES": "Статуси на задачи",
+			"SORT_TASK_STATUSES": "Сортиране на статуси на задачи",
 			"TASK_PRIORITIES": "Приоритети на задачи",
 			"TASK_SIZES": "Размери на задачи",
 			"TASK_LABELS": "Етикети на задачи",
@@ -577,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "План за утре",
 		"PLAN_FOR_SOME_DAY": "План за някой ден",
 		"ADD_TASK_TO_PLAN": "Добави тази задача към плана",
-		"REMOVE_FROM_THIS_PLAN": "Премахни от този план"
+		"REMOVE_FROM_THIS_PLAN": "Премахни от този план",
+		"CREATE_A_PLAN_FOR_TODAY": "Създайте план за днес",
+		"TODAY_PLAN_SUB_TITLE": "Няма план за днес",
+		"DAILY_PLAN_DESCRIPTION": "'Дневният план' помага да се организира работният процес за постигане на най-добри резултати"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Въведете името си",

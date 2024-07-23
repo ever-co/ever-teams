@@ -197,7 +197,8 @@
 		"NOT_WORKING": "غير عامل",
 		"WORKING": "يعمل",
 		"PAUSED": "متوقف",
-		"ONLINE": "متصل"
+		"ONLINE": "متصل",
+		"SKIP_ADD_LATER": "أضف لاحقًا"
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "لديك",
 				"USER_LABEL": "مهام غير مكتملة، يرجى التحقق منها",
-				"OUTSTANDING_VIEW": "عرض المهام المعلقة",
+				"OUTSTANDING_VIEW": "معلق",
 				"VIEW_BUTTON": "عرض"
 			}
 		},
@@ -356,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
 			"TASK_STATUSES": "حالات المهام",
+			"SORT_TASK_STATUSES": "فرز حالات المهام",
 			"TASK_PRIORITIES": "أولويات المهام",
 			"TASK_SIZES": "أحجام المهام",
 			"TASK_LABELS": "تصنيفات المهام",
@@ -577,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "خطة الغد",
 		"PLAN_FOR_SOME_DAY": "خطة ليوم ما",
 		"ADD_TASK_TO_PLAN": "أضف هذه المهمة إلى الخطة",
-		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة"
+		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة",
+		"CREATE_A_PLAN_FOR_TODAY": "إنشاء خطة لليوم",
+		"TODAY_PLAN_SUB_TITLE": "لا توجد خطة لليوم",
+		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",

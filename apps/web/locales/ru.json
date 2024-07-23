@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Не работает",
 		"WORKING": "Работает",
 		"PAUSED": "Приостановлено",
-		"ONLINE": "Онлайн"
+		"ONLINE": "Онлайн",
+		"SKIP_ADD_LATER": "Добавить позже"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "У вас есть",
 				"USER_LABEL": "незавершенные задачи, пожалуйста, проверьте",
-				"OUTSTANDING_VIEW": "Просмотр незавершенных задач",
+				"OUTSTANDING_VIEW": "Выдающийся",
 				"VIEW_BUTTON": "Просмотр"
 			}
 		},
@@ -356,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Управление назначенными",
 			"SEARCH_MEMBER": "Поиск участника",
 			"TASK_STATUSES": "Статусы задачи",
+			"SORT_TASK_STATUSES": "Сортировать статусы задачи",
 			"TASK_PRIORITIES": "Приоритеты задачи",
 			"TASK_SIZES": "Размеры задачи",
 			"TASK_LABELS": "Метки задачи",
@@ -577,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "План на завтра",
 		"PLAN_FOR_SOME_DAY": "План на какой-то день",
 		"ADD_TASK_TO_PLAN": "Добавить эту задачу в план",
-		"REMOVE_FROM_THIS_PLAN": "Убрать из этого плана"
+		"REMOVE_FROM_THIS_PLAN": "Убрать из этого плана",
+		"CREATE_A_PLAN_FOR_TODAY": "Создать план на сегодня",
+		"TODAY_PLAN_SUB_TITLE": "На сегодня нет плана",
+		"DAILY_PLAN_DESCRIPTION": "'Ежедневный план' помогает организовать рабочий процесс для достижения наилучших результатов"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Введите ваше имя",

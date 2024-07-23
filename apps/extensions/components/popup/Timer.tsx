@@ -25,7 +25,7 @@ const Timer: React.FC<Props> = ({ port }) => {
 								? new Date(msg.payload.timer * 1000).toISOString().substr(11, 8)
 								: '00:00:00';
 						const totalWorkedTime =
-							msg.payload.totalWorked > 0
+							msg.payload!.totalWorked > 0
 								? new Date(msg.payload.totalWorked * 1000).toISOString().substr(11, 8)
 								: '00:00:00';
 						setTimeString(taskWorkedTime);

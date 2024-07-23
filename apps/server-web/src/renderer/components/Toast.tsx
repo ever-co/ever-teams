@@ -1,13 +1,7 @@
 import * as React from 'react';
 import * as Toast from '@radix-ui/react-toast';
-type Props = {
-  title: string;
-  message: string;
-  show: boolean;
-  autoClose: boolean;
-  timeout: number;
-  onClose: () => void;
-};
+import { IToastComponent } from '../libs/interfaces';
+import { useTranslation } from 'react-i18next';
 export const ToastComponent = ({
   title,
   message,
@@ -15,10 +9,10 @@ export const ToastComponent = ({
   autoClose,
   timeout,
   onClose,
-}: Props) => {
+}: IToastComponent) => {
   const timerRef = React.useRef(0);
+  const { t } = useTranslation();
   React.useEffect(() => {
-    // return () => clearTimeout(timerRef.current);
     if (autoClose) {
       clearTimeout(timerRef.current);
       timerRef.current = window.setTimeout(() => {
@@ -35,10 +29,10 @@ export const ToastComponent = ({
         duration={timeout}
       >
         <Toast.Title className="[grid-area:_title] mb-[5px] font-medium text-slate12 text-[15px] text-bold">
-          {title}
+          {t(title)}
         </Toast.Title>
         <Toast.Description asChild>
-          <span className="text-base fs-4">{message}</span>
+          <span className="text-base fs-4">{t(message)}</span>
         </Toast.Description>
         <Toast.Action
           className="[grid-area:_action]"
@@ -49,7 +43,7 @@ export const ToastComponent = ({
             onClick={onClose}
             className="inline-flex items-center justify-center rounded font-medium text-xs px-[10px] leading-[25px] h-[25px] bg-green2 text-green11 shadow-[inset_0_0_0_1px] shadow-green7 hover:shadow-[inset_0_0_0_1px] hover:shadow-green8 focus:shadow-[0_0_0_2px] focus:shadow-green8"
           >
-            Close
+            {t('FORM.BUTTON.CLOSE')}
           </button>
         </Toast.Action>
       </Toast.Root>

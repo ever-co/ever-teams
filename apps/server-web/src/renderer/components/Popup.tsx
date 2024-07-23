@@ -1,11 +1,7 @@
 import { useTranslation } from 'react-i18next';
-type Props = {
-  isShowPopup: boolean;
-  modalAction: () => void;
-  type: 'success' | 'error' | 'none';
-  message: string;
-};
-export function Popup(props: Props) {
+import { IPopupComponent } from '../libs/interfaces';
+
+export function Popup(props: IPopupComponent) {
   const { t } = useTranslation();
   return (
     <div
@@ -50,6 +46,26 @@ export function Popup(props: Props) {
                   </div>
                 </div>
               )}
+              {props.type === 'warning' && (
+                <div className="rounded-full bg-orange-200 p-6">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-500 p-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="h-8 w-8 text-white"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4.5 12.75l6 6 9-13.5"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              )}
               {props.type === 'error' && (
                 <div className="rounded-full bg-red-200 p-6">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500 p-4">
@@ -77,7 +93,7 @@ export function Popup(props: Props) {
                 className="text-lg leading-6 font-medium text-gray-900"
                 id="modal-headline"
               >
-                {props.type == 'success'
+                {props.type == 'success' || 'warning'
                   ? t('MESSAGE.SUCCESS')
                   : t('MESSAGE.ERROR')}
               </h3>
@@ -88,13 +104,21 @@ export function Popup(props: Props) {
               </div>
             </div>
           </div>
-          <div className="mt-5 sm:mt-6">
+          <div className="flex flex-row mt-5 sm:mt-6">
             <button
               className="mx-auto mt-10 block rounded-xl border-4 border-transparent bg-blue-400 px-6 py-3 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
               onClick={props.modalAction}
             >
               {t('FORM.BUTTON.OK')}
             </button>
+            {props.closeAction && (
+              <button
+                className="mx-auto mt-10 block rounded-xl border-4 border-transparent bg-red-400 px-6 py-3 text-center text-base font-medium text-red-100 outline-8 hover:outline hover:duration-300"
+                onClick={props.closeAction}
+              >
+                {t('FORM.BUTTON.CLOSE')}
+              </button>
+            )}
           </div>
         </div>
       </div>

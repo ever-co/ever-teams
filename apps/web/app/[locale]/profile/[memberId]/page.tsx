@@ -105,15 +105,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 					<ResizablePanelGroup direction="vertical">
 						<ResizablePanel
-							defaultSize={47}
-							maxSize={50}
+							defaultSize={30}
+							maxSize={48}
 							className={clsxm(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
 							onResize={(size) => setHeaderSize(size)}
 						>
-							<MainHeader
-								fullWidth={fullWidth}
-								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
-							>
+							<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2')}>
 								{/* Breadcrumb */}
 								<div className="flex items-center gap-8">
 									<Link href="/">
@@ -126,7 +123,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 								{/* User Profile Detail */}
 								<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
 									<UserProfileDetail member={profile.member} />
-
 									{profileIsAuthUser && isTrackingEnabled && (
 										<Timer
 											className={clsxm(
@@ -142,10 +138,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</MainHeader>
 						</ResizablePanel>
 						<ResizableHandle withHandle />
-
-						{/* Divider */}
-						{/* <div className="h-0.5 bg-[#FFFFFF14]"></div> */}
-						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+						<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
 							{hook.tab == 'worked' && canSeeActivity && (
 								<Container fullWidth={fullWidth} className="py-8">
 									<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>

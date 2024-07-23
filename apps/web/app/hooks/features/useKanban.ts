@@ -6,6 +6,7 @@ import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { useTeamTasks } from './useTeamTasks';
 import { IKanban } from '@app/interfaces/IKanban';
 import { TStatusItem } from 'lib/features';
+import { useSearchParams } from 'next/navigation';
 export function useKanban() {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchTasks, setSearchTasks] = useState('');
@@ -22,6 +23,7 @@ export function useKanban() {
 	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
+	const employee = useSearchParams().get('employee');
 	useEffect(() => {
 		if (!taskStatusHook.loading && !tasksFetching) {
 			let kanban = {};
@@ -44,6 +46,13 @@ export function useKanban() {
 				})
 				.filter((task: ITeamTask) => {
 					return epics.length ? epics.includes(task.id) : true;
+				})
+				.filter((task: ITeamTask) => {
+					if (employee) {
+						return task.members.map((el) => el.fullName).includes(employee as string);
+					} else {
+						return task;
+					}
 				});
 
 			const getTasksByStatus = (status: string | undefined) => {
@@ -62,7 +71,7 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics, issues]);
+	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics, issues, employee]);
 
 	/**
 	 * collapse or show kanban column

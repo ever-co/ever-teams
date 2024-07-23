@@ -1,6 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { API_BASE_URL, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers/cookies';
+import {
+	getAccessTokenCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@app/helpers/cookies';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
@@ -8,10 +13,9 @@ const api = axios.create({
 	withCredentials: true,
 	timeout: 60 * 1000
 });
-
 api.interceptors.request.use(
 	async (config: any) => {
-		const cookie = getAccessTokenCookie();
+		const cookie = getActiveTeamIdCookie();
 
 		if (cookie) {
 			config.headers['Authorization'] = `Bearer ${cookie}`;
@@ -23,7 +27,6 @@ api.interceptors.request.use(
 		Promise.reject(error);
 	}
 );
-
 api.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	async (error: { response: AxiosResponse }) => {
@@ -128,7 +131,6 @@ function post<T>(url: string, data?: Record<string, any> | FormData, config?: AP
 
 	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
 }
-
 function put<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
 	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
 	const { directAPI = true } = config || {};
@@ -145,7 +147,23 @@ function put<T>(url: string, data?: Record<string, any> | FormData, config?: API
 
 	return baseURL && directAPI ? apiDirect.put<T>(url, data, { ...config, headers }) : api.put<T>(url, data);
 }
+function patch<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+	const { directAPI = true } = config || {};
 
-export { get, post, deleteApi, put };
+	if (baseURL && directAPI && data && !(data instanceof FormData)) {
+		if (!data.tenantId) {
+			data.tenantId = tenantId;
+		}
+
+		if (!data.organizationId) {
+			data.organizationId = organizationId;
+		}
+	}
+
+	return baseURL && directAPI ? apiDirect.patch<T>(url, data, { ...config, headers }) : api.patch<T>(url, data);
+}
+
+export { get, post, deleteApi, put, patch };
 
 export default api;

@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Niepracujący",
 		"WORKING": "Pracujący",
 		"PAUSED": "Wstrzymany",
-		"ONLINE": "Online"
+		"ONLINE": "Online",
+		"SKIP_ADD_LATER": "Dodaj później"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Masz",
 				"USER_LABEL": "niezakończone zadania, proszę sprawdź",
-				"OUTSTANDING_VIEW": "Widok zadań do wykonania",
+				"OUTSTANDING_VIEW": "Wyjątkowy",
 				"VIEW_BUTTON": "Zobacz"
 			}
 		},
@@ -356,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Zarządzaj Przydzielonymi",
 			"SEARCH_MEMBER": "Szukaj Członka",
 			"TASK_STATUSES": "Statusy Zadania",
+			"SORT_TASK_STATUSES": "Sortuj Statusy Zadania",
 			"TASK_PRIORITIES": "Priorytety Zadania",
 			"TASK_SIZES": "Rozmiary Zadania",
 			"TASK_LABELS": "Etykiety Zadania",
@@ -577,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "Plan na jutro",
 		"PLAN_FOR_SOME_DAY": "Plan na pewien dzień",
 		"ADD_TASK_TO_PLAN": "Dodaj tę zadanie do planu",
-		"REMOVE_FROM_THIS_PLAN": "Usuń z tego planu"
+		"REMOVE_FROM_THIS_PLAN": "Usuń z tego planu",
+		"CREATE_A_PLAN_FOR_TODAY": "Utwórz plan na dziś",
+		"TODAY_PLAN_SUB_TITLE": "Brak planu na dziś",
+		"DAILY_PLAN_DESCRIPTION": "'Plan dnia' pomaga zorganizować proces pracy, aby osiągnąć najlepsze wyniki"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Wprowadź swoje imię",

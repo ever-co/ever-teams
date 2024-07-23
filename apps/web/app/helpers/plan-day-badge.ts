@@ -1,7 +1,11 @@
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { formatDayPlanDate } from './date';
 
-export const planBadgeContent = (plans: IDailyPlan[], taskId: ITeamTask['id']): string | null => {
+export const planBadgeContent = (
+	plans: IDailyPlan[],
+	taskId: ITeamTask['id'],
+	tab?: 'default' | 'unassign' | 'dailyplan'
+): string | null => {
 	// Search a plan that contains a given task
 	const plan = plans.find((plan) => plan.tasks?.some((task) => task.id === taskId));
 
@@ -12,8 +16,8 @@ export const planBadgeContent = (plans: IDailyPlan[], taskId: ITeamTask['id']): 
 			(pl) => pl.id !== plan.id && pl.tasks?.some((tsk) => tsk.id === taskId)
 		);
 
-		// If the task exists in other plans, the its planned many days
-		if (otherPlansWithTask.length > 0) {
+		// If the task exists in other plans, then its planned many days
+		if (otherPlansWithTask.length > 0 || tab === 'unassign') {
 			return 'Planned';
 		} else {
 			return `${formatDayPlanDate(plan.date, 'DD MMM YYYY')}`;

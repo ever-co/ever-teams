@@ -4,13 +4,22 @@ import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
-import { EventLists, SettingPageTypeMessage } from './helpers/constant';
+import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES } from './helpers/constant';
 import { resolveHtmlPath } from './util';
 import Updater from './updater';
 import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import fs from 'fs';
 import { WebServer } from './helpers/interfaces';
+import { replaceConfig } from './helpers';
+import Log from 'electron-log';
+import MenuBuilder from './menu';
+
+
+console.log = Log.log;
+Object.assign(console, Log.functions);
+
+
 
 const eventEmitter = new EventEmitter();
 
@@ -26,6 +35,50 @@ let isServerRun: boolean;
 let intervalUpdate: NodeJS.Timeout;
 let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
+let logWindow: BrowserWindow | null = null;
+let SettingMenu: any = null;
+let ServerWindowMenu: any = null;
+
+Log.hooks.push((message: any, transport) => {
+  if (transport !== Log.transports.file) {
+    return message;
+  }
+
+  // if (message[0]) {
+  //   message[0] = `LOGS - ${message[0]}`
+  // }
+
+  message.data = message.data.map((i: any) => {
+    if (typeof i === 'object') {
+      return JSON.stringify(i)
+    }
+    return i;
+  })
+
+  if (message.data[0] === LOG_TYPES.SERVER_LOG) {
+    if (logWindow) {
+      const msg = message.data.join(' ');
+      logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
+        type: LOG_TYPES.SERVER_LOG,
+        msg
+      });
+    }
+  }
+
+  if (message.data[0] === LOG_TYPES.UPDATE_LOG) {
+    if (settingWindow) {
+      const msg = `${message.data.join(' ')}`;
+      settingWindow.webContents.send(IPC_TYPES.UPDATER_PAGE, {
+        type: LOG_TYPES.UPDATE_LOG,
+        msg
+      })
+    }
+  }
+
+
+  return message;
+})
+
 const updater = new Updater(eventEmitter, i18nextMainBackend);
 i18nextMainBackend.on('initialized', () => {
   const config = LocalStore.getStore('config');
@@ -92,12 +145,12 @@ const installExtensions = async () => {
 };
 
 
-const createWindow = async () => {
+const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
   if (isDebug) {
     await installExtensions();
   }
 
-  settingWindow = new BrowserWindow({
+  const defaultOptionWindow = {
     show: false,
     width: 1024,
     height: 728,
@@ -109,15 +162,41 @@ const createWindow = async () => {
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
-  });
-  const url = resolveHtmlPath('index.html', 'setting');
-  settingWindow.loadURL(url);
+  }
+  let url = '';
+  switch (type) {
+    case 'SETTING_WINDOW':
+      settingWindow = new BrowserWindow(defaultOptionWindow);
+      url = resolveHtmlPath('index.html', 'setting');
+      settingWindow.loadURL(url);
 
-  mainBindings(ipcMain, settingWindow, fs);
-  settingWindow.on('closed', () => {
-    settingWindow = null;
-  });
-
+      mainBindings(ipcMain, settingWindow, fs);
+      settingWindow.on('closed', () => {
+        settingWindow = null;
+        SettingMenu = null
+      });
+      if (!SettingMenu) {
+        SettingMenu = new MenuBuilder(settingWindow);
+      }
+      SettingMenu.buildMenu();
+      break;
+    case 'LOG_WINDOW':
+      logWindow = new BrowserWindow(defaultOptionWindow);
+      url = resolveHtmlPath('index.html', 'history-console')
+      logWindow.loadURL(url);
+      mainBindings(ipcMain, logWindow, fs);
+      logWindow.on('closed', () => {
+        logWindow = null;
+        ServerWindowMenu = null
+      })
+      if (!ServerWindowMenu) {
+        ServerWindowMenu = new MenuBuilder(logWindow);
+      }
+      ServerWindowMenu.buildMenu();
+      break;
+    default:
+      break;
+  }
 };
 
 const runServer = async () => {
@@ -143,6 +222,16 @@ const runServer = async () => {
 const stopServer = async () => {
   await desktopServer.stop();
 };
+
+const restartServer = async () => {
+  await desktopServer.stop();
+  const waitingForServerStop = setInterval(async () => {
+    if (!isServerRun) {
+      clearInterval(waitingForServerStop);
+      await runServer()
+    }
+  }, 1000)
+}
 
 const getEnvApi = () => {
   const setting: WebServer = LocalStore.getStore('config')
@@ -174,15 +263,28 @@ const onInitApplication = () => {
   })
 
   eventEmitter.on(EventLists.webServerStop, async () => {
-    isServerRun = false;
     await stopServer();
+    isServerRun = false;
+  })
+
+  eventEmitter.on(EventLists.RESTART_SERVER, async () => {
+    await restartServer();
   })
 
   eventEmitter.on(EventLists.webServerStarted, () => {
     console.log(EventLists.webServerStarted)
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    updateTrayMenu('OPEN_WEB', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STATUS', { label: 'MENU.SERVER_STATUS_STARTED' }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    if (logWindow) {
+      logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
+        type: ServerPageTypeMessage.SERVER_STATUS,
+        data: {
+          isRun: true
+        }
+      })
+    }
     isServerRun = true;
   })
 
@@ -190,13 +292,22 @@ const onInitApplication = () => {
     console.log(EventLists.webServerStopped);
     updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_START', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    updateTrayMenu('OPEN_WEB', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STATUS', { label: 'MENU.SERVER_STATUS_STOPPED' }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    if (logWindow) {
+      logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
+        type: ServerPageTypeMessage.SERVER_STATUS,
+        data: {
+          isRun: false
+        }
+      })
+    }
     isServerRun = false;
   })
 
   eventEmitter.on(EventLists.gotoSetting, async () => {
     if (!settingWindow) {
-      await createWindow()
+      await createWindow('SETTING_WINDOW');
     }
     const serverSetting: WebServer = LocalStore.getStore('config');
     console.log('setting data', serverSetting);
@@ -210,32 +321,32 @@ const onInitApplication = () => {
   })
 
   eventEmitter.on(EventLists.UPDATE_AVAILABLE, (data) => {
-    console.log('UPDATE_AVAILABLE', data);
+    console.log(LOG_TYPES.UPDATE_LOG, 'UPDATE_AVAILABLE', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.updateAvailable, data);
   })
 
   eventEmitter.on(EventLists.UPDATE_ERROR, (data) => {
-    console.log('UPDATE_ERROR', data);
+    console.log(LOG_TYPES.UPDATE_LOG, 'UPDATE_ERROR', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.updateError, { message: JSON.stringify(data) });
   })
 
   eventEmitter.on(EventLists.UPDATE_NOT_AVAILABLE, (data) => {
-    console.log('UPDATE_NOT_AVAILABLE', data);
+    console.log(LOG_TYPES.UPDATE_LOG, 'UPDATE_NOT_AVAILABLE', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.upToDate, data);
   })
 
   eventEmitter.on(EventLists.UPDATE_PROGRESS, (data) => {
-    console.log('UPDATE_PROGRESS', data.percent);
+    console.log(LOG_TYPES.UPDATE_LOG, 'UPDATE_PROGRESS', data.percent);
     SendMessageToSettingWindow(SettingPageTypeMessage.downloadingUpdate, { percent: Math.floor(data.percent || 0) });
   })
 
   eventEmitter.on(EventLists.UPDATE_DOWNLOADED, (data) => {
-    console.log('UPDATE_DOWNLOADED', data);
+    console.log(LOG_TYPES.UPDATE_LOG, 'UPDATE_DOWNLOADED', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.downloaded, data);
   })
 
   eventEmitter.on(EventLists.UPDATE_CANCELLED, (data) => {
-    console.log('UPDATE_CANCELLED', data);
+    console.log(LOG_TYPES.UPDATE_LOG, 'UPDATE_CANCELLED', data);
     SendMessageToSettingWindow(SettingPageTypeMessage.updateCancel, data);
   })
 
@@ -250,7 +361,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.gotoAbout, async () => {
     if (!settingWindow) {
-      await createWindow();
+      await createWindow('SETTING_WINDOW');
     }
     const serverSetting = LocalStore.getStore('config');
     settingWindow?.show();
@@ -261,6 +372,32 @@ const onInitApplication = () => {
         SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about' });
       }, 100)
     })
+  })
+
+  eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
+    if (!logWindow) {
+      await createWindow('LOG_WINDOW');
+    }
+    const serverSetting = LocalStore.getStore('config');
+    logWindow?.show();
+    logWindow?.webContents.once('did-finish-load', () => {
+      setTimeout(() => {
+        logWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
+        // SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about' });
+        logWindow?.webContents.send(IPC_TYPES.SERVER_PAGE, {
+          type: ServerPageTypeMessage.SERVER_STATUS,
+          data: {
+            isRun: isServerRun
+          }
+        })
+      }, 100)
+    })
+  })
+
+  eventEmitter.on(EventLists.OPEN_WEB, () => {
+    const envConfig = getEnvApi();
+    const url = `http://127.0.0.1:${envConfig?.PORT}`
+    shell.openExternal(url)
   })
 }
 
@@ -278,14 +415,35 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
-ipcMain.on('setting-page', (event, arg) => {
+ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   console.log('main setting page', arg);
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
+      const existingConfig = getEnvApi();
       LocalStore.updateConfigSetting({
         server: arg.data
       });
-      event.sender.send('setting-page', { type: SettingPageTypeMessage.mainResponse, data: true });
+      const dirFiles = 'standalone/apps/web/.next';
+      const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
+      const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
+      const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
+      await replaceConfig(
+        diFilesPath,
+        {
+          before: {
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+          },
+          after: {
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+          }
+        }
+      )
+      event.sender.send(IPC_TYPES.SETTING_PAGE, {
+        type: SettingPageTypeMessage.mainResponse, data: {
+          status: true,
+          isServerRun: isServerRun
+        }
+      });
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
@@ -295,12 +453,22 @@ ipcMain.on('setting-page', (event, arg) => {
       break;
     case SettingPageTypeMessage.showVersion:
       const currentVersion = app.getVersion();
-      event.sender.send('setting-page', { type: SettingPageTypeMessage.showVersion, data: currentVersion })
+      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.showVersion, data: currentVersion })
       break;
     case SettingPageTypeMessage.langChange:
       event.sender.send('languageSignal', arg.data);
       eventEmitter.emit(EventLists.CHANGE_LANGUAGE, { code: arg.data })
       break;
+    case SettingPageTypeMessage.restartServer:
+      eventEmitter.emit(EventLists.RESTART_SERVER)
+      break;
+    default:
+      break;
+  }
+})
+
+ipcMain.on(IPC_TYPES.UPDATER_PAGE, (event, arg) => {
+  switch (arg.type) {
     case SettingPageTypeMessage.updateSetting:
       LocalStore.updateConfigSetting({
         general: {
@@ -309,8 +477,24 @@ ipcMain.on('setting-page', (event, arg) => {
         }
       })
       createIntervalAutoUpdate()
-      event.sender.send('setting-page', { type: SettingPageTypeMessage.updateSettingResponse, data: true })
+      event.sender.send(IPC_TYPES.UPDATER_PAGE, { type: SettingPageTypeMessage.updateSettingResponse, data: true })
       break;
+
+    default:
+      break;
+  }
+})
+
+ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
+  switch (arg.type) {
+    case ServerPageTypeMessage.SERVER_EXEC:
+      if (arg.data.isRun) {
+        eventEmitter.emit(EventLists.webServerStart)
+      } else {
+        eventEmitter.emit(EventLists.webServerStop)
+      }
+      break;
+
     default:
       break;
   }

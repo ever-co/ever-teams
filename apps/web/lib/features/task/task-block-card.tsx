@@ -39,9 +39,9 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const taskAssignee: ImageOverlapperProps[] = task.members?.map((member: any) => {
 		return {
-			id: member.user.id,
-			url: member.user.imageUrl,
-			alt: member.user.firstName
+			id: member.user?.id,
+			url: member.user?.imageUrl,
+			alt: member.user?.firstName
 		};
 	});
 
@@ -63,7 +63,13 @@ export default function TaskBlockCard(props: TaskItemProps) {
 			<div className="w-full justify-between h-fit">
 				<div className="w-full flex justify-between">
 					<span className="!w-64">
-						<TaskAllStatusTypes className="justify-start" task={task} showStatus={false} />
+						<TaskAllStatusTypes
+							className="justify-start"
+							task={task}
+							showStatus={false}
+							tab="default"
+							dayPlanTab="All Tasks"
+						/>
 					</span>
 					<span>
 						<MenuKanbanCard member={currentMember} item={task} />

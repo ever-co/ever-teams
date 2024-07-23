@@ -197,7 +197,8 @@
 		"NOT_WORKING": "Niet aan het werk",
 		"WORKING": "Aan het werk",
 		"PAUSED": "Gepauzeerd",
-		"ONLINE": "Online"
+		"ONLINE": "Online",
+		"SKIP_ADD_LATER": "Later toevoegen"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -231,7 +232,7 @@
 			"OUTSTANDING_NOTIFICATIONS": {
 				"SUBJECT": "Je hebt",
 				"USER_LABEL": "onvoltooide taken, controleer alsjeblieft",
-				"OUTSTANDING_VIEW": "Uitzicht op uitstaande taken",
+				"OUTSTANDING_VIEW": "Uitstekend",
 				"VIEW_BUTTON": "Bekijk"
 			}
 		},
@@ -356,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",
 			"TASK_STATUSES": "Taakstatussen",
+			"SORT_TASK_STATUSES": "Sorteer taakstatussen",
 			"TASK_PRIORITIES": "Taakprioriteiten",
 			"TASK_SIZES": "Taakformaten",
 			"TASK_LABELS": "Taaklabels",
@@ -577,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "Plan voor morgen",
 		"PLAN_FOR_SOME_DAY": "Plan voor een dag",
 		"ADD_TASK_TO_PLAN": "Voeg deze taak toe aan een plan",
-		"REMOVE_FROM_THIS_PLAN": "Verwijder uit dit plan"
+		"REMOVE_FROM_THIS_PLAN": "Verwijder uit dit plan",
+		"CREATE_A_PLAN_FOR_TODAY": "Maak een plan voor vandaag",
+		"TODAY_PLAN_SUB_TITLE": "Er is geen plan voor vandaag",
+		"DAILY_PLAN_DESCRIPTION": "'Dagelijkse planning' helpt om het werkproces te organiseren om de beste resultaten te behalen"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Voer uw naam in",

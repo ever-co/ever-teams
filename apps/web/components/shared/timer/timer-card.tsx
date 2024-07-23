@@ -1,3 +1,4 @@
+import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 import { pad } from '@app/helpers/number';
 import { useModal } from '@app/hooks';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
@@ -27,11 +28,15 @@ const Timer = () => {
 	const { closeModal, isOpen, openModal } = useModal();
 
 	const timerHanlder = () => {
+		const currentDate = new Date().toISOString().split('T')[0];
+		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
+		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
 		} else {
-			if (!isPlanVerified) {
+			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
 				openModal();
 			} else {
 				startTimer();
@@ -60,6 +65,7 @@ const Timer = () => {
 				open={isOpen}
 				plan={hasPlan}
 				startTimer={startTimer}
+				hasPlan={!!hasPlan}
 			/>
 		</>
 	);

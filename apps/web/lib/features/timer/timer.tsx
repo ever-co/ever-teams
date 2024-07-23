@@ -16,6 +16,7 @@ import {
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
 import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
+import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 
 export function Timer({ className }: IClassName) {
 	const t = useTranslations();
@@ -38,11 +39,15 @@ export function Timer({ className }: IClassName) {
 	} = useTimerView();
 
 	const timerHanlderStartStop = useCallback(() => {
+		const currentDate = new Date().toISOString().split('T')[0];
+		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
+		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
 		} else {
-			if (!isPlanVerified) {
+			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
 				openModal();
 			} else {
 				startTimer();
@@ -154,6 +159,7 @@ export function Timer({ className }: IClassName) {
 					open={isOpen}
 					plan={hasPlan}
 					startTimer={startTimer}
+					hasPlan={!!hasPlan}
 				/>
 			</div>
 		</div>
