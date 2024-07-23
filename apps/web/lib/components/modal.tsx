@@ -47,7 +47,7 @@ export function Modal({
 				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[9999] w-full h-full"
 			>
 				<div ref={refDiv} className="absolute inset-0 flex items-center justify-center p-4 w-full">
-					<Dialog.Panel
+					<Dialog.Overlay
 						className={clsxm('flex justify-center items-center flex-col space-y-1 relative', className)}
 					>
 						{title && <Dialog.Title className={clsxm(titleClass)}>{title}</Dialog.Title>}
@@ -69,7 +69,7 @@ export function Modal({
 							</div>
 						)}
 						{children}
-					</Dialog.Panel>
+					</Dialog.Overlay>
 				</div>
 			</Dialog>
 		</Transition>

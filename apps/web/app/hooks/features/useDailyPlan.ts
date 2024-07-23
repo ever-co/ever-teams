@@ -27,6 +27,8 @@ import { ICreateDailyPlan, IDailyPlanTasksUpdate, IRemoveTaskFromManyPlans, IUpd
 import { useFirstLoad } from '../useFirstLoad';
 import { useAuthenticateUser } from './useAuthenticateUser';
 
+export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
+
 export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
 

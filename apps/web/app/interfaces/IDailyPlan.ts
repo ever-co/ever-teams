@@ -23,11 +23,11 @@ export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
 	taskId?: ITeamTask['id'];
 }
 
-export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> {}
+export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> { }
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
-		IBasePerTenantAndOrganizationEntity {}
+	IBasePerTenantAndOrganizationEntity { }
 
 export enum DailyPlanStatusEnum {
 	OPEN = 'open',

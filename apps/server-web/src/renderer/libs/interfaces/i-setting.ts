@@ -32,8 +32,9 @@ interface IServerSetting {
 }
 
 interface IPopup {
-  type: 'success' | 'error' | 'none';
+  type: 'success' | 'error' | 'none' | 'warning';
   isShow: boolean;
+  isDialog: boolean;
 }
 
 interface ILanguages {
