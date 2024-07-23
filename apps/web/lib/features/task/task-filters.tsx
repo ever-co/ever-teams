@@ -234,7 +234,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				)}
 			>
 				<TabsNav hook={hook} />
-				<CheckPlans hook={hook} />
+				<CheckPlans />
 				<InputFilters profile={profile} hook={hook} />
 			</div>
 

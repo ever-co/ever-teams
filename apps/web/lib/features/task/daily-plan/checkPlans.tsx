@@ -8,7 +8,7 @@ import {
 	useTimerView
 } from '@app/hooks';
 
-export function CheckPlans({ hook }: { hook: I_TaskFilter }) {
+export function CheckPlans() {
 	// const { user } = useAuthenticateUser();
 	const prof = useUserProfilePage();
 	const { isOpen, openModal, closeModal } = useModal();
@@ -52,7 +52,7 @@ export function CheckPlans({ hook }: { hook: I_TaskFilter }) {
 			}
 		}
 
-	}, [todayPlan, canShowModal]);
+	}, [todayPlan, canShowModal, openModal]);
 
 	// const createPlanRedirect = useCallback(
 	// 	async (values: any) => {
