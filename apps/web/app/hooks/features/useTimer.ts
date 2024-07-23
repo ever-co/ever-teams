@@ -210,8 +210,11 @@ export function useTimer() {
 
 	// If require plan setting is activated,
 	// check if the today plan has working time planned and all the tasks into the plan are estimated
-	const isPlanVerified =
-		!!hasPlan?.workTimePlanned && !!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0);
+	const isPlanVerified = requirePlan
+		? hasPlan &&
+			hasPlan?.workTimePlanned > 0 &&
+			!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
+		: true;
 
 	const canRunTimer =
 		user?.isEmailVerified &&

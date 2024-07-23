@@ -14,7 +14,8 @@ export const EventLists = {
   UPDATE_CANCELLED: 'UPDATE_CANCELLED',
   CHANGE_LANGUAGE: 'CHANGE_LANGUAGE',
   OPEN_WEB: 'OPEN_WEB',
-  SERVER_WINDOW: 'SERVER_WINDOW'
+  SERVER_WINDOW: 'SERVER_WINDOW',
+  RESTART_SERVER: 'RESTART_SERVER'
 }
 
 export const SettingPageTypeMessage = {
@@ -33,7 +34,8 @@ export const SettingPageTypeMessage = {
   langChange: 'lang',
   updateSetting: 'update-setting',
   updateSettingResponse: 'update-setting-response',
-  updateCancel: 'update-cancel'
+  updateCancel: 'update-cancel',
+  restartServer: 'restart-server'
 }
 
 export const ServerPageTypeMessage = {
