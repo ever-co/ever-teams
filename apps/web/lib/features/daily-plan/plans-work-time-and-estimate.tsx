@@ -14,7 +14,8 @@ export function AddWorkTimeAndEstimatesToPlan({
 	closeModal,
 	plan,
 	startTimer,
-	hasPlan
+	hasPlan,
+	cancelBtn
 	// employee
 }: {
 	open: boolean;
@@ -22,6 +23,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 	startTimer: () => void;
 	hasPlan: boolean;
 	plan?: IDailyPlan;
+	cancelBtn?: boolean;
 
 	// employee?: OT_Member;
 }) {
@@ -89,7 +91,16 @@ export function AddWorkTimeAndEstimatesToPlan({
 						)}
 
 						<div className="mt-6 flex justify-between items-center">
-							<Button
+							{
+								cancelBtn?(<Button
+									variant="outline"
+									type="submit"
+									className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+									onClick={closeModal}
+								>
+									Cancel
+								</Button>):
+								<Button
 								variant="outline"
 								type="submit"
 								className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
@@ -97,6 +108,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 							>
 								{t('common.SKIP_ADD_LATER')}
 							</Button>
+							}
 							<Button
 								variant="default"
 								type="submit"
@@ -123,10 +135,6 @@ function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
 	const tasks = $tasks.filter((task) =>
 		dailyPlan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0)
 	);
-
-	// const tasks :ITeamTask[] = todayPlan.flatMap((item: IDailyPlan) =>
-	// 	item.tasks ? item.tasks.filter((task: ITeamTask) => task.estimate === 0) : []
-	// );
 
 	return (
 		<div>
