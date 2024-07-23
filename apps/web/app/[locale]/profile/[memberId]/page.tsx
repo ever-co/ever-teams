@@ -2,12 +2,20 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTimer, useUserProfilePage, useModal } from '@app/hooks';
-import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
+import {
+	useAuthenticateUser,
+	useDailyPlan,
+	useOrganizationTeams,
+	useTimer, useUserProfilePage,
+	useModal,
+	useTeamTasks,
+	useTimerView
+} from '@app/hooks';
+import { ITimerStatusEnum, OT_Member, DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator, Modal } from 'lib/components';
+import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator, Modal, Card } from 'lib/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -24,6 +32,9 @@ import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
+import { Button as ButtonPlan } from '@components/ui/button';
+import { AddWorkTimeAndEstimatesToPlan, UnEstimatedTask } from 'lib/features/daily-plan/plans-work-time-and-estimate';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -245,47 +256,144 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	);
 }
 
-export function CheckPlans({hook}: {hook:I_TaskFilter}) {
-
-	const [plansExist, setPlansExist] = useState(false);
+export function CheckPlans({ hook }: { hook: I_TaskFilter }) {
+	const t = useTranslations();
+	const { user } = useAuthenticateUser();
 	const prof = useUserProfilePage();
 	const { isOpen, openModal, closeModal } = useModal();
 	const { getEmployeeDayPlans, todayPlan } = useDailyPlan();
+	const modes = ['noPlan', 'noEstimation', 'hasEstimation'];
+	const [modeKey, setModeKey] = React.useState(0);
+	const [hasShownInfo, setHasShown] = useState(false);
+	const [unestimatedTask, setUnesteimatedtasK] = useState<ITeamTask[]>([]);
+	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
+	const { activeTeam } = useTeamTasks();
+	const member = activeTeam?.members.find((member) => member.employee.userId === user?.id);
 
+	const {
+		startTimer,
+		hasPlan
+	} = useTimerView();
+
+	React.useEffect(() => {
+
+		const zeroEstimateTasks: ITeamTask[] = todayPlan.flatMap((item: IDailyPlan) =>
+			item.tasks ? item.tasks.filter((task: ITeamTask) => task.estimate === 0) : []
+		);
+
+		setUnesteimatedtasK(zeroEstimateTasks);
+	}, [todayPlan.length, setUnesteimatedtasK]);
 	React.useEffect(() => {
 		getEmployeeDayPlans(prof.member?.employeeId ?? '');
 	}, [getEmployeeDayPlans, prof.member?.employeeId]);
 
-
 	React.useEffect(() => {
-		if (todayPlan?.length > 0) {
-			setPlansExist(true);
+		const today = new Date().toISOString().split('T')[0];
+		const lastActionDate = localStorage.getItem('lastActionDate');
 
-		} else {
+		if (lastActionDate !== today && todayPlan?.length === 0) {
+			localStorage.setItem('lastActionDate', today);
 			openModal();
+		} else if (todayPlan?.length > 0 && !hasShownInfo) {
+			const hasMissedPlanedTime = todayPlan?.some(item =>
+				item?.tasks?.some(task => task?.estimate === 0 || typeof task?.estimate !== 'number')
+			);
+			setHasShown(true);
+			if (!hasMissedPlanedTime) {
+				openModal();
+				setModeKey(2);
+			} else {
+				openModal();
+				setModeKey(1);
+			}
 		}
-	}, []);
+	}, [todayPlan]);
 
-	const createPlanRedirect = () => {
-		hook.setTab("assigned");
-		closeModal();
-	}
+	const createPlanRedirect = useCallback(
+		async (values: any) => {
+			hook.setTab("assigned");
+			const toDay = new Date();
+			createDailyPlan({
+				workTimePlanned: parseInt(values.workTimePlanned) || 0,
+				date: toDay,
+				status: DailyPlanStatusEnum.OPEN,
+				tenantId: user?.tenantId ?? '',
+				employeeId: member?.employeeId,
+				organizationId: member?.organizationId
+			}).then(() => {
+				closeModal();
+			});
+		},
+		[closeModal, createDailyPlan, member?.employeeId, member?.organizationId, user?.tenantId]
+	);
 
 	return (
-		<Modal
-			isOpen={isOpen}
-			closeModal={closeModal}
-			title={'Please create a Plan for Today'}
-			className="bg-light--theme-light flex top-[-100px] items-center dark:bg-dark--theme-light py-5 rounded-xl w-[70vw] h-[auto] justify-start"
-			titleClass="text-[16px] font-bold"
-		>
-			<button
-				onClick={createPlanRedirect}
-				className="px-[10px] py-[14px] bg-[#3826A6] ml-[15px] rounded-[12px] mb-[10px] text-[#fff]"
-			>
-				Create the Plan
-			</button>
-		</Modal>
+		<>
+			{
+				modes[modeKey] === 'noPlan' ?
+					(
+						<Modal
+							isOpen={isOpen}
+							closeModal={closeModal}
+							title={''}
+							className="bg-light--theme-light flex top-[-100px] items-center dark:bg-dark--theme-light py-5 rounded-xl w-[70vw] h-[auto] justify-start"
+							titleClass="text-[16px] font-bold"
+						>
+							<Card className="w-full" shadow="custom">
+								<div className="flex items-center justify-between">
+									<Text.Heading as="h3" className="mb-3 text-center">
+										Please create a Plan for Today
+									</Text.Heading>
+									<ButtonPlan
+										variant="default"
+										className="p-7 font-normal rounded-xl text-md"
+										disabled={createDailyPlanLoading}
+										onClick={createPlanRedirect}
+									>
+										{createDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
+										Create the Plan
+									</ButtonPlan>
+								</div>
+							</Card>
+						</Modal>
+					)
+					: modes[modeKey] === 'hasEstimation' ? (<Modal
+						isOpen={isOpen}
+						closeModal={closeModal}
+						title={'TODAYS PLANS'}
+						className="bg-light--theme-light flex top-[-100px] items-center dark:bg-dark--theme-light py-5 rounded-xl w-[40vw] h-[auto] justify-start"
+						titleClass="text-[16px] font-bold"
+					>
+						<div className="text-sm flex flex-col gap-3 w-[90%]">
+							<span>
+								{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIONS')} <span className="text-red-600">*</span>
+							</span>
+							<div className="flex flex-col gap-1">
+								{unestimatedTask.map((task) => <UnEstimatedTask key={task.id} task={task} />)}
+							</div>
+
+							<button
+								onClick={createPlanRedirect}
+								className="px-[10px] py-[14px] mt-[30px] flex flex-col justify-center bg-[#3826A6] rounded-[12px] mb-[10px] text-[#fff]"
+							>
+								Start Working
+							</button>
+						</div>
+
+					</Modal>)
+						: modes[modeKey] === 'noEstimation' ? (
+							<AddWorkTimeAndEstimatesToPlan
+								closeModal={closeModal}
+								open={isOpen}
+								plan={todayPlan[0]}
+								startTimer={startTimer}
+								hasPlan={!!hasPlan}
+								cancelBtn={true}
+							/>
+						) : <></>
+			}
+		</>
+
 	)
 }
 

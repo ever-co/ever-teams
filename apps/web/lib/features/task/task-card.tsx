@@ -675,7 +675,7 @@ export function PlanTask({
 					tenantId: user?.tenantId ?? '',
 					employeeId: employeeId,
 					organizationId: user?.employee.organizationId
-				});
+				})
 			});
 		} else {
 			startTransition(() => {
