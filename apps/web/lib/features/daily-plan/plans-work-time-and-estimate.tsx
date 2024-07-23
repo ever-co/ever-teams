@@ -124,6 +124,10 @@ function UnEstimatedTasks({ dailyPlan }: { dailyPlan?: IDailyPlan }) {
 		dailyPlan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0)
 	);
 
+	// const tasks :ITeamTask[] = todayPlan.flatMap((item: IDailyPlan) =>
+	// 	item.tasks ? item.tasks.filter((task: ITeamTask) => task.estimate === 0) : []
+	// );
+
 	return (
 		<div>
 			{tasks?.length > 0 && (
