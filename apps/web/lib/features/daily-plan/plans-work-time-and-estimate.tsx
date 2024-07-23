@@ -141,6 +141,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 				}
 			}
 		}
+		return null;
 	};
 
 	return (
