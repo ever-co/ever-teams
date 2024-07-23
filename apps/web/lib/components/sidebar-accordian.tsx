@@ -28,9 +28,8 @@ export const SidebarAccordian = ({ children, title, className, wrapperClassName,
 								</Text>
 
 								<ChevronUpIcon
-									className={`${
-										open ? 'rotate-180 transform' : ''
-									} h-5 w-5 text-[#292D32] dark:text-white`}
+									className={`${open ? 'rotate-180 transform' : ''
+										} h-5 w-5 text-[#292D32] dark:text-white`}
 								/>
 							</Disclosure.Button>
 							{children && (

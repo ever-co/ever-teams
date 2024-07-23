@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan } from '@app/interfaces';
 import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
+import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
@@ -19,9 +20,10 @@ import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
-import { useFilterDateRange } from '@app/hooks/useFilterDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { useDateRange } from '@app/hooks/useDateRange';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -43,9 +45,11 @@ export function UserProfilePlans() {
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
-	const { filteredFuturePlanData: filterFuturePlanData } = useFilterDateRange(futurePlans, 'future');
-	const { filteredPastPlanData: filterPastPlanData } = useFilterDateRange(pastPlans, 'past');
-	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(sortedPlans, 'all');
+
+	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState)
+	const { setDate, date } = useDateRange(currentTab);
+
+
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} />,
@@ -58,10 +62,27 @@ export function UserProfilePlans() {
 		'All Tasks': <AllPlans profile={profile} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
+	const [filterFuturePlanData, setFilterFuturePlanData] = useState<IDailyPlan[]>(futurePlans);
+	const [filterPastPlanData, setFilteredPastPlanData] = useState<IDailyPlan[]>(pastPlans);
+	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
+
 
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
-	}, [currentTab]);
+		if (!currentDataDailyPlan) return;
+		if (currentTab === 'All Tasks') {
+			setCurrentDataDailyPlan(sortedPlans)
+			setFilterAllPlanData(filterDailyPlan(date as any, sortedPlans))
+		} else if (currentTab === 'Past Tasks') {
+			setCurrentDataDailyPlan(pastPlans)
+			setFilteredPastPlanData(filterDailyPlan(date as any, pastPlans))
+		} else if (currentTab === 'Future Tasks') {
+			setCurrentDataDailyPlan(futurePlans)
+			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans))
+		}
+
+	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
+
 
 	useEffect(() => {
 		window.localStorage.setItem('outstanding', currentOutstanding);
@@ -83,7 +104,10 @@ export function UserProfilePlans() {
 													'text-gray-500 flex gap-2 items-center',
 													currentTab == filter && 'text-blue-600 dark:text-white font-medium'
 												)}
-												onClick={() => setCurrentTab(filter as FilterTabs)}
+												onClick={() => {
+													setDate(undefined)
+													setCurrentTab(filter as FilterTabs)
+												}}
 											>
 												{filter}
 												<span
@@ -97,6 +121,7 @@ export function UserProfilePlans() {
 													{filter === 'Past Tasks' && filterPastPlanData?.length}
 													{filter === 'All Tasks' && filterAllPlanData?.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
+
 												</span>
 											</div>
 										</div>
@@ -149,16 +174,18 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
+	const { setDate, date } = useDateRange(currentTab);
 
 	filteredPlans = sortedPlans;
 	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	const { filteredAllPlanData: filterAllPlanData } = useFilterDateRange(filteredPlans, 'all');
-	const filterPlans: IDailyPlan[] = currentTab === 'All Tasks' ? filterAllPlanData : filteredPlans;
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-	const [plans, setPlans] = useState<IDailyPlan[]>(filterPlans);
 
+	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
+	useEffect(() => {
+		setPlans(filterDailyPlan(date as any, filteredPlans))
+	}, [date, setDate])
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (
@@ -186,7 +213,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme">
+								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme">
 									<PlanHeader plan={plan} planMode={currentTab as any} />
 									<Droppable
 										droppableId={plan.id as string}
@@ -216,7 +243,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																	{...provided.dragHandleProps}
 																	style={{
 																		...provided.draggableProps.style,
-																		marginBottom: 8
+																		marginBottom: 6
 																	}}
 																>
 																	<TaskCard
@@ -234,6 +261,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																				: undefined
 																		}
 																		plan={plan}
+																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
 																	/>
 																</div>
 															)}
@@ -352,7 +380,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-8 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'}  items-center gap-5`}
+			className={`mb-6 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'}  items-center gap-5`}
 		>
 			{/* Planned Time */}
 

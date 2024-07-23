@@ -63,7 +63,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 														{...provided.dragHandleProps}
 														style={{
 															...provided.draggableProps.style,
-															marginBottom: 8
+															marginBottom: 4
 														}}
 													>
 														<TaskCard
@@ -77,6 +77,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 															taskBadgeClassName={`rounded-sm`}
 															taskTitleClassName="mt-[0.0625rem]"
 															planMode="Outstanding"
+															className='shadow-[0px_0px_15px_0px_#e2e8f0]'
 														/>
 													</div>
 												)}
