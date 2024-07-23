@@ -92,22 +92,22 @@ export function AddWorkTimeAndEstimatesToPlan({
 
 						<div className="mt-6 flex justify-between items-center">
 							{
-								cancelBtn?(<Button
+								cancelBtn ? (<Button
 									variant="outline"
 									type="submit"
 									className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 									onClick={closeModal}
 								>
 									Cancel
-								</Button>):
-								<Button
-								variant="outline"
-								type="submit"
-								className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-								onClick={handleSubmit}
-							>
-								{t('common.SKIP_ADD_LATER')}
-							</Button>
+								</Button>) :
+									<Button
+										variant="outline"
+										type="submit"
+										className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+										onClick={handleSubmit}
+									>
+										{t('common.SKIP_ADD_LATER')}
+									</Button>
 							}
 							<Button
 								variant="default"
