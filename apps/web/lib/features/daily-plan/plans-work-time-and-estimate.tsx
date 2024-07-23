@@ -73,6 +73,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 		localStorage.setItem(ESTIMATE_POPUP_SHOWN_DATE, currentDate);
 	}, [closeModal, currentDate]);
 
+	console.log(hasPlanToday);
 	const Content = () => {
 		if (hasWorkedToday && hasWorkedToday > 0) {
 			if ((!hasPlanToday || hasPlanToday.length === 0) && (!lastPopupDate || lastPopupDate !== currentDate)) {
@@ -122,15 +123,26 @@ export function AddWorkTimeAndEstimatesToPlan({
 									</div>
 								)}
 							</div>
+
 							<div className="mt-6 flex justify-between items-center">
-								<Button
-									variant="outline"
-									type="submit"
-									className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-									onClick={handleCloseModal}
-								>
-									{t('common.SKIP_ADD_LATER')}
-								</Button>
+								{
+									cancelBtn ? (<Button
+										variant="outline"
+										type="submit"
+										className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+										onClick={closeModal}
+									>
+										Cancel
+									</Button>) :
+										<Button
+											variant="outline"
+											type="submit"
+											className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+											onClick={handleCloseModal}
+										>
+											{t('common.SKIP_ADD_LATER')}
+										</Button>
+								}
 								<Button
 									variant="default"
 									type="submit"
@@ -140,41 +152,14 @@ export function AddWorkTimeAndEstimatesToPlan({
 									{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
 								</Button>
 							</div>
-						)}
-
-						<div className="mt-6 flex justify-between items-center">
-							{
-								cancelBtn ? (<Button
-									variant="outline"
-									type="submit"
-									className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-									onClick={closeModal}
-								>
-									Cancel
-								</Button>) :
-									<Button
-										variant="outline"
-										type="submit"
-										className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-										onClick={handleSubmit}
-									>
-										{t('common.SKIP_ADD_LATER')}
-									</Button>
-							}
-							<Button
-								variant="default"
-								type="submit"
-								className="py-3 px-5 rounded-md font-light text-md dark:text-white"
-								onClick={handleSubmit}
-							>
-								{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
-							</Button>
 						</div>
 					);
 				}
 			}
 		}
-		return null;
+		return <div>
+			<h3>You Have not worked today</h3>
+		</div>;
 	};
 
 	return (
@@ -278,7 +263,7 @@ export function CreateTodayPlanPopup({ closeModal, currentDate }: { closeModal: 
 						onClick={handleCloseModal}
 					>
 						{createDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
-						OK
+						Create Plan
 					</Button>
 				</div>
 			</div>
