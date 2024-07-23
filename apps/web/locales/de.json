@@ -357,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Zugewiesene verwalten",
 			"SEARCH_MEMBER": "Mitglied suchen",
 			"TASK_STATUSES": "Aufgabenstatus",
+			"SORT_TASK_STATUSES": "Aufgabenstatus sortieren",
 			"TASK_PRIORITIES": "Aufgabenprioritäten",
 			"TASK_SIZES": "Aufgabengrößen",
 			"TASK_LABELS": "Aufgabenlabels",
@@ -578,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "Plan für morgen",
 		"PLAN_FOR_SOME_DAY": "Plan für irgendeinen Tag",
 		"ADD_TASK_TO_PLAN": "Diese Aufgabe zum Plan hinzufügen",
-		"REMOVE_FROM_THIS_PLAN": "Aus diesem Plan entfernen"
+		"REMOVE_FROM_THIS_PLAN": "Aus diesem Plan entfernen",
+		"CREATE_A_PLAN_FOR_TODAY": "Erstellen Sie einen Plan für heute",
+		"TODAY_PLAN_SUB_TITLE": "Es gibt keinen Plan für heute",
+		"DAILY_PLAN_DESCRIPTION": "'Tagesplan' hilft, den Arbeitsprozess zu organisieren, um die besten Ergebnisse zu erzielen"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ihren Namen eingeben",

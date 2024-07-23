@@ -81,7 +81,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			defaultValue,
 			hintType,
 			autoComplete = '',
-			submitCode,
+			submitCode
 		},
 		ref
 	) => {
@@ -129,13 +129,12 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			if (autoComplete && autoComplete.length > 0) {
 				handleAutoComplete(autoComplete);
 				setCanSubmit(true);
-
 			}
 		}, [autoComplete, canSubmit]);
 
 		useEffect(() => {
-			submitCode && submitCode();
-		}, [canSubmit])
+			canSubmit && submitCode && submitCode();
+		}, []);
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
@@ -189,30 +188,25 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		};
 
 		const handleOnPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+			e.preventDefault();
 			const pastedValue = e.clipboardData.getData('Text');
 
 			let currentInput = 0;
 
 			for (let i = 0; i < pastedValue.length; i++) {
 				const pastedCharacter = pastedValue.charAt(i);
-				const currentValue = inputsRef.current[currentInput].value;
 				if (pastedCharacter.match(inputProps.pattern)) {
-					if (!currentValue) {
-						inputsRef.current[currentInput].value = pastedCharacter;
-						if (inputsRef.current[currentInput].nextElementSibling !== null) {
-							(inputsRef.current[currentInput].nextElementSibling as HTMLInputElement).focus();
-							currentInput++;
-						}
+					inputsRef.current[currentInput].value = pastedCharacter;
+					if (inputsRef.current[currentInput].nextElementSibling !== null) {
+						(inputsRef.current[currentInput].nextElementSibling as HTMLInputElement).focus();
+						currentInput++;
 					}
 				}
 			}
 			sendResult();
-
-			e.preventDefault();
 		};
 
 		const handleAutoComplete = (code: string) => {
-
 			let currentInput = 0;
 
 			for (let i = 0; i < code.length; i++) {

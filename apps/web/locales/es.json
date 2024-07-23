@@ -357,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Administrar asignados",
 			"SEARCH_MEMBER": "Buscar miembro",
 			"TASK_STATUSES": "Estados de las tareas",
+			"SORT_TASK_STATUSES": "Ordenar estados de las tareas",
 			"TASK_PRIORITIES": "Prioridades de las tareas",
 			"TASK_SIZES": "Tamaños de las tareas",
 			"TASK_LABELS": "Etiquetas de las tareas",
@@ -578,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "Plan para mañana",
 		"PLAN_FOR_SOME_DAY": "Plan para algún día",
 		"ADD_TASK_TO_PLAN": "Agregar esta tarea a un plan",
-		"REMOVE_FROM_THIS_PLAN": "Eliminar de este plan"
+		"REMOVE_FROM_THIS_PLAN": "Eliminar de este plan",
+		"CREATE_A_PLAN_FOR_TODAY": "Crear un plan para hoy",
+		"TODAY_PLAN_SUB_TITLE": "No hay plan para hoy",
+		"DAILY_PLAN_DESCRIPTION": "'Plan diario' ayuda a organizar el proceso de trabajo para lograr los mejores resultados"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ingresa tu nombre",

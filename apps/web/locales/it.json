@@ -357,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "Gestisci Assegnatari",
 			"SEARCH_MEMBER": "Cerca Membro",
 			"TASK_STATUSES": "Stati del Compito",
+			"SORT_TASK_STATUSES": "Ordina gli Stati del Compito",
 			"TASK_PRIORITIES": "Priorità del Compito",
 			"TASK_SIZES": "Dimensioni del Compito",
 			"TASK_LABELS": "Etichette del Compito",
@@ -578,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "Piano per domani",
 		"PLAN_FOR_SOME_DAY": "Piano per un giorno",
 		"ADD_TASK_TO_PLAN": "Aggiungi questa attività al piano",
-		"REMOVE_FROM_THIS_PLAN": "Rimuovi da questo piano"
+		"REMOVE_FROM_THIS_PLAN": "Rimuovi da questo piano",
+		"CREATE_A_PLAN_FOR_TODAY": "Crea un piano per oggi",
+		"TODAY_PLAN_SUB_TITLE": "Non c'è nessun piano per oggi",
+		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Inserisci il tuo nome",

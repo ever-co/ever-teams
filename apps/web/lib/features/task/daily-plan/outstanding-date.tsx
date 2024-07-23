@@ -40,7 +40,7 @@ export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme pb-12">
+								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme pb-12">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									<Droppable droppableId={plan.id as string} key={plan.id} type="task">

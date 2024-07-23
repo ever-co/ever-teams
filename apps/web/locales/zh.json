@@ -357,6 +357,7 @@
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",
 			"TASK_STATUSES": "任务状态",
+			"SORT_TASK_STATUSES": "排序任务状态",
 			"TASK_PRIORITIES": "任务优先级",
 			"TASK_SIZES": "任务大小",
 			"TASK_LABELS": "任务标签",
@@ -578,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "明日计划",
 		"PLAN_FOR_SOME_DAY": "未来计划",
 		"ADD_TASK_TO_PLAN": "添加此任务到计划",
-		"REMOVE_FROM_THIS_PLAN": "从计划中移除"
+		"REMOVE_FROM_THIS_PLAN": "从计划中移除",
+		"CREATE_A_PLAN_FOR_TODAY": "为今天制定计划",
+		"TODAY_PLAN_SUB_TITLE": "今天没有计划",
+		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",

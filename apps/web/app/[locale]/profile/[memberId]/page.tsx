@@ -21,7 +21,7 @@ import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, u
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { I_TaskFilter } from 'lib/features/task/task-filters';
 
@@ -118,15 +118,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
 					<ResizablePanelGroup direction="vertical">
 						<ResizablePanel
-							defaultSize={47}
-							maxSize={50}
+							defaultSize={30}
+							maxSize={48}
 							className={clsxm(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
 							onResize={(size) => setHeaderSize(size)}
 						>
-							<MainHeader
-								fullWidth={fullWidth}
-								className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20 sticky top-20 z-50')}
-							>
+							<MainHeader fullWidth={fullWidth} className={clsxm(hookFilterType && ['pb-0'], 'pb-2')}>
 								{/* Breadcrumb */}
 								<div className="flex items-center gap-8">
 									<Link href="/">
@@ -155,7 +152,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</MainHeader>
 						</ResizablePanel>
 						<ResizableHandle withHandle />
-						<ResizablePanel defaultSize={53} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+						<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
 							{hook.tab == 'worked' && canSeeActivity && (
 								<Container fullWidth={fullWidth} className="py-8">
 									<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>

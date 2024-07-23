@@ -11,7 +11,11 @@ import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import fs from 'fs';
 import { WebServer } from './helpers/interfaces';
+import { replaceConfig } from './helpers';
 import Log from 'electron-log';
+import MenuBuilder from './menu';
+
+
 console.log = Log.log;
 Object.assign(console, Log.functions);
 
@@ -32,8 +36,10 @@ let intervalUpdate: NodeJS.Timeout;
 let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
+let SettingMenu: any = null;
+let ServerWindowMenu: any = null;
 
-Log.hooks.push((message:any, transport) => {
+Log.hooks.push((message: any, transport) => {
   if (transport !== Log.transports.file) {
     return message;
   }
@@ -167,7 +173,12 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
       mainBindings(ipcMain, settingWindow, fs);
       settingWindow.on('closed', () => {
         settingWindow = null;
+        SettingMenu = null
       });
+      if (!SettingMenu) {
+        SettingMenu = new MenuBuilder(settingWindow);
+      }
+      SettingMenu.buildMenu();
       break;
     case 'LOG_WINDOW':
       logWindow = new BrowserWindow(defaultOptionWindow);
@@ -176,7 +187,12 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
       mainBindings(ipcMain, logWindow, fs);
       logWindow.on('closed', () => {
         logWindow = null;
+        ServerWindowMenu = null
       })
+      if (!ServerWindowMenu) {
+        ServerWindowMenu = new MenuBuilder(logWindow);
+      }
+      ServerWindowMenu.buildMenu();
       break;
     default:
       break;
@@ -206,6 +222,16 @@ const runServer = async () => {
 const stopServer = async () => {
   await desktopServer.stop();
 };
+
+const restartServer = async () => {
+  await desktopServer.stop();
+  const waitingForServerStop = setInterval(async () => {
+    if (!isServerRun) {
+      clearInterval(waitingForServerStop);
+      await runServer()
+    }
+  }, 1000)
+}
 
 const getEnvApi = () => {
   const setting: WebServer = LocalStore.getStore('config')
@@ -237,15 +263,19 @@ const onInitApplication = () => {
   })
 
   eventEmitter.on(EventLists.webServerStop, async () => {
-    isServerRun = false;
     await stopServer();
+    isServerRun = false;
+  })
+
+  eventEmitter.on(EventLists.RESTART_SERVER, async () => {
+    await restartServer();
   })
 
   eventEmitter.on(EventLists.webServerStarted, () => {
     console.log(EventLists.webServerStarted)
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STOP', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    updateTrayMenu('OPEN_WEB', { enabled: true}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    updateTrayMenu('OPEN_WEB', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STATUS', { label: 'MENU.SERVER_STATUS_STARTED' }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     if (logWindow) {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
@@ -262,7 +292,7 @@ const onInitApplication = () => {
     console.log(EventLists.webServerStopped);
     updateTrayMenu('SERVER_STOP', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_START', { enabled: true }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    updateTrayMenu('OPEN_WEB', { enabled: false}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    updateTrayMenu('OPEN_WEB', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     updateTrayMenu('SERVER_STATUS', { label: 'MENU.SERVER_STATUS_STOPPED' }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     if (logWindow) {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
@@ -385,14 +415,35 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
-ipcMain.on(IPC_TYPES.SETTING_PAGE, (event, arg) => {
+ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   console.log('main setting page', arg);
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
+      const existingConfig = getEnvApi();
       LocalStore.updateConfigSetting({
         server: arg.data
       });
-      event.sender.send(IPC_TYPES.SETTING_PAGE, { type: SettingPageTypeMessage.mainResponse, data: true });
+      const dirFiles = 'standalone/apps/web/.next';
+      const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
+      const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
+      const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
+      await replaceConfig(
+        diFilesPath,
+        {
+          before: {
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+          },
+          after: {
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+          }
+        }
+      )
+      event.sender.send(IPC_TYPES.SETTING_PAGE, {
+        type: SettingPageTypeMessage.mainResponse, data: {
+          status: true,
+          isServerRun: isServerRun
+        }
+      });
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
@@ -407,6 +458,9 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, (event, arg) => {
     case SettingPageTypeMessage.langChange:
       event.sender.send('languageSignal', arg.data);
       eventEmitter.emit(EventLists.CHANGE_LANGUAGE, { code: arg.data })
+      break;
+    case SettingPageTypeMessage.restartServer:
+      eventEmitter.emit(EventLists.RESTART_SERVER)
       break;
     default:
       break;
