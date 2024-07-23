@@ -57,6 +57,7 @@ import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-m
 import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 
 type Props = {
 	active?: boolean;
@@ -392,11 +393,15 @@ function TimerButtonCall({
 	]);
 
 	const timerHanlderStartStop = useCallback(() => {
+		const currentDate = new Date().toISOString().split('T')[0];
+		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
+		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
 		} else {
-			if (!isPlanVerified) {
+			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
 				openModal();
 			} else {
 				startTimer();

@@ -63,7 +63,8 @@
     "INFO": "Info",
     "UPDATE_AVAILABLE": "New Update is available! Please click button Download Now below.",
     "EXIT_MESSAGE": "Server web still running, Are you sure to exit the app ?",
-    "UPDATE_SUCCESS": "Update Successfully"
+    "UPDATE_SUCCESS": "Update Successfully",
+    "SERVER_RUN_DIALOG": "Server web currently running, You want to restart the server ?"
   },
   "LANGUAGES": {
     "en": "English",

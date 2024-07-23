@@ -579,7 +579,10 @@
 		"PLAN_FOR_TOMORROW": "План за утре",
 		"PLAN_FOR_SOME_DAY": "План за някой ден",
 		"ADD_TASK_TO_PLAN": "Добави тази задача към плана",
-		"REMOVE_FROM_THIS_PLAN": "Премахни от този план"
+		"REMOVE_FROM_THIS_PLAN": "Премахни от този план",
+		"CREATE_A_PLAN_FOR_TODAY": "Създайте план за днес",
+		"TODAY_PLAN_SUB_TITLE": "Няма план за днес",
+		"DAILY_PLAN_DESCRIPTION": "'Дневният план' помага да се организира работният процес за постигане на най-добри резултати"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Въведете името си",
