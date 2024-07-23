@@ -8,7 +8,7 @@ import { Button } from '@components/ui/button';
 import { TaskEstimate } from '../task/task-estimate';
 import { useAuthenticateUser, useAuthTeamTasks, useDailyPlan, useTeamTasks } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
+import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 
 export function AddWorkTimeAndEstimatesToPlan({
 	open,
@@ -16,15 +16,12 @@ export function AddWorkTimeAndEstimatesToPlan({
 	plan,
 	startTimer,
 	hasPlan
-	// employee
 }: {
 	open: boolean;
 	closeModal: () => void;
 	startTimer: () => void;
 	hasPlan: boolean;
 	plan?: IDailyPlan;
-
-	// employee?: OT_Member;
 }) {
 	const t = useTranslations();
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan?.workTimePlanned);
@@ -34,25 +31,26 @@ export function AddWorkTimeAndEstimatesToPlan({
 	}, [workTimePlanned]);
 	const { user } = useAuthenticateUser();
 
-	const { updateDailyPlan, addTodayPlanTrigger } = useDailyPlan();
+	const { updateDailyPlan, todayPlan: hasPlanToday } = useDailyPlan();
 
 	const { tasks: $tasks, activeTeam } = useTeamTasks();
 	const requirePlan = activeTeam?.requirePlanToTrack;
+	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
+
+	const tasksEstimated = plan?.tasks?.some((t) => typeof t?.estimate === 'number' && t?.estimate <= 0);
 
 	const tasks = $tasks.filter((task) => {
-		if (hasPlan) {
-			return plan?.tasks?.some(
-				(t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0
-			);
-		} else {
-			if (!requirePlan) {
-				return typeof task?.estimate === 'number' && task?.estimate <= 0;
-			}
-		}
+		return plan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0);
 	});
 
 	const currentDate = new Date().toISOString().split('T')[0];
 	const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
+	const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+
+	const hasWorkedToday = currentUser?.totalTodayTasks.reduce(
+		(previousValue, currentValue) => previousValue + currentValue.duration,
+		0
+	);
 
 	const handleSubmit = () => {
 		if (requirePlan) {
@@ -65,74 +63,91 @@ export function AddWorkTimeAndEstimatesToPlan({
 		closeModal();
 	};
 
+	const handleCloseModal = useCallback(() => {
+		closeModal();
+		// startTimer();
+		localStorage.setItem(ESTIMATE_POPUP_SHOWN_DATE, currentDate);
+	}, [closeModal, currentDate]);
+
+	const Content = () => {
+		if (hasWorkedToday && hasWorkedToday > 0) {
+			if ((!hasPlanToday || hasPlanToday.length === 0) && (!lastPopupDate || lastPopupDate !== currentDate)) {
+				return <CreateTodayPlanPopup closeModal={closeModal} currentDate={currentDate} />;
+			} else {
+				if (
+					(tasksEstimated || !plan?.workTimePlanned || plan?.workTimePlanned <= 0) &&
+					(!lastPopupEstimates || lastPopupEstimates !== currentDate)
+				) {
+					return (
+						<div className="flex flex-col justify-between">
+							<div className="mb-7">
+								<Text.Heading as="h3" className="mb-3 text-center">
+									{t('timer.todayPlanSettings.TITLE')}
+								</Text.Heading>
+								{hasPlan && plan?.workTimePlanned && plan?.workTimePlanned <= 0 && (
+									<div className="mb-7 w-full flex flex-col gap-4">
+										<span className="text-sm">
+											{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+											<span className="text-red-600">*</span>
+										</span>
+
+										<InputField
+											type="number"
+											placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+											className="mb-0 min-w-[350px]"
+											wrapperClassName="mb-0 rounded-lg"
+											onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+											required
+											defaultValue={plan?.workTimePlanned ?? 0}
+										/>
+									</div>
+								)}
+								{tasksEstimated && (
+									<div className="text-sm flex flex-col gap-3">
+										<UnEstimatedTasks
+											dailyPlan={plan}
+											requirePlan={!!requirePlan}
+											hasPlan={hasPlan}
+											user={user}
+										/>
+
+										<div className="flex gap-2 items-center text-red-500">
+											<PiWarningCircleFill className="text-2xl" />
+											<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
+										</div>
+									</div>
+								)}
+							</div>
+							<div className="mt-6 flex justify-between items-center">
+								<Button
+									variant="outline"
+									type="submit"
+									className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+									onClick={handleCloseModal}
+								>
+									{t('common.SKIP_ADD_LATER')}
+								</Button>
+								<Button
+									variant="default"
+									type="submit"
+									className="py-3 px-5 rounded-md font-light text-md dark:text-white"
+									onClick={handleSubmit}
+								>
+									{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
+								</Button>
+							</div>
+						</div>
+					);
+				}
+			}
+		}
+	};
+
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
-			{addTodayPlanTrigger.canBeSeen || lastPopupDate || lastPopupDate === currentDate ? (
-				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between">
-						<div className="mb-7">
-							<Text.Heading as="h3" className="mb-3 text-center">
-								{t('timer.todayPlanSettings.TITLE')}
-							</Text.Heading>
-						</div>
-						{hasPlan && (
-							<div className="mb-7 w-full flex flex-col gap-4">
-								<span className="text-sm">
-									{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
-									<span className="text-red-600">*</span>
-								</span>
-
-								<InputField
-									type="number"
-									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-									className="mb-0 min-w-[350px]"
-									wrapperClassName="mb-0 rounded-lg"
-									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-									required
-									defaultValue={plan?.workTimePlanned ?? 0}
-								/>
-							</div>
-						)}
-
-						{tasks.length > 0 && (
-							<div className="text-sm flex flex-col gap-3">
-								<UnEstimatedTasks
-									dailyPlan={plan}
-									requirePlan={!!requirePlan}
-									hasPlan={hasPlan}
-									user={user}
-								/>
-
-								<div className="flex gap-2 items-center text-red-500">
-									<PiWarningCircleFill className="text-2xl" />
-									<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
-								</div>
-							</div>
-						)}
-
-						<div className="mt-6 flex justify-between items-center">
-							<Button
-								variant="outline"
-								type="submit"
-								className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-								onClick={handleSubmit}
-							>
-								{t('common.SKIP_ADD_LATER')}
-							</Button>
-							<Button
-								variant="default"
-								type="submit"
-								className="py-3 px-5 rounded-md font-light text-md dark:text-white"
-								onClick={handleSubmit}
-							>
-								{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
-							</Button>
-						</div>
-					</div>
-				</Card>
-			) : (
-				<CreateTodayPlanPopup closeModal={closeModal} startTimer={startTimer} currentDate={currentDate} />
-			)}
+			<Card className="w-full" shadow="custom">
+				<Content />
+			</Card>
 		</Modal>
 	);
 }
@@ -165,18 +180,6 @@ function UnEstimatedTasks({
 			tasks = assignedTasks.filter((task) => typeof task?.estimate === 'number' && task?.estimate <= 0);
 		}
 	}
-
-	// const tasks = $tasks.filter((task) => {
-	// 	if (hasPlan) {
-	// 		return dailyPlan?.tasks?.some(
-	// 			(t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0
-	// 		);
-	// 	} else {
-	// 		if (!requirePlan) {
-	// 			return typeof task?.estimate === 'number' && task?.estimate <= 0;
-	// 		}
-	// 	}
-	// });
 
 	return (
 		<div>
@@ -212,43 +215,15 @@ export function UnEstimatedTask({ task }: { task: ITeamTask }) {
 	);
 }
 
-export function CreateTodayPlanPopup({
-	closeModal,
-	startTimer,
-	currentDate
-}: {
-	closeModal: () => void;
-	startTimer: () => void;
-	currentDate: string;
-}) {
+export function CreateTodayPlanPopup({ closeModal, currentDate }: { closeModal: () => void; currentDate: string }) {
 	const t = useTranslations();
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
-	const { user } = useAuthenticateUser();
-	const { activeTeam } = useTeamTasks();
-	const member = activeTeam?.members.find((member) => member.employee.userId === user?.id);
+	const { createDailyPlanLoading } = useDailyPlan();
 
 	const handleCloseModal = useCallback(() => {
 		closeModal();
 		// startTimer();
 		localStorage.setItem(TODAY_PLAN_ALERT_SHOWN_DATE, currentDate);
 	}, [closeModal, currentDate]);
-
-	// const onSubmit = useCallback(
-	// 	async (values: any) => {
-	// 		const toDay = new Date();
-	// 		createDailyPlan({
-	// 			workTimePlanned: parseInt(values.workTimePlanned) || 0,
-	// 			date: toDay,
-	// 			status: DailyPlanStatusEnum.OPEN,
-	// 			tenantId: user?.tenantId ?? '',
-	// 			employeeId: member?.employeeId,
-	// 			organizationId: member?.organizationId
-	// 		}).then(() => {
-	// 			closeModal();
-	// 		});
-	// 	},
-	// 	[closeModal, createDailyPlan, member?.employeeId, member?.organizationId, user?.tenantId]
-	// );
 
 	return (
 		<Card className="w-full" shadow="custom">

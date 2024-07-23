@@ -13,7 +13,7 @@ import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, u
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
