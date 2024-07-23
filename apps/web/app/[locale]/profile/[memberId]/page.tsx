@@ -8,14 +8,13 @@ import {
 	useOrganizationTeams,
 	useTimer, useUserProfilePage,
 	useModal,
-	useTeamTasks,
 	useTimerView
 } from '@app/hooks';
-import { ITimerStatusEnum, OT_Member, DailyPlanStatusEnum } from '@app/interfaces';
+import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator, Modal, Card } from 'lib/components';
+import { Avatar, Breadcrumb, Button, Container, Text, VerticalSeparator } from 'lib/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -32,9 +31,7 @@ import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
-import { Button as ButtonPlan } from '@components/ui/button';
 import { AddWorkTimeAndEstimatesToPlan } from 'lib/features/daily-plan/plans-work-time-and-estimate';
-import { ReloadIcon } from '@radix-ui/react-icons';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
