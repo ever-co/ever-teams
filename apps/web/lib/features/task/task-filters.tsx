@@ -32,7 +32,7 @@ import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
-import { CheckPlans } from '@app/[locale]/profile/[memberId]/page';
+import { CheckPlans } from './daily-plan/checkPlans';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 
