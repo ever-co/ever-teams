@@ -57,11 +57,26 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 				disabled={task ? false : true}
 				onFocus={handleFocus}
 				onBlur={handleBlur}
-				label="h"
-				dash={value['hours'] ? '' : '__'}
+				label={
+					editableMode ? 'h' : parseInt(value['hours']) > 0 ? 'h' : parseInt(value['minutes']) > 0 ? '' : 'h'
+				}
+				dash={
+					editableMode ? '__' : parseInt(value['hours']) > 0 ? '' : parseInt(value['minutes']) > 0 ? '' : '__'
+				}
 				wrapperClassName={wrapperClassName}
 			/>
-			<span>:</span>
+
+			{editableMode ? (
+				<>
+					<span>:</span>
+				</>
+			) : parseInt(value['hours']) > 0 ? (
+				parseInt(value['minutes']) > 0 ? (
+					<>
+						<span>:</span>
+					</>
+				) : null
+			) : null}
 			<TimeInputField
 				value={value['minutes']}
 				onChange={onChange('minutes')}
@@ -71,9 +86,13 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 				disabled={task ? false : true}
 				onFocus={handleFocusMinutes}
 				onBlur={handleBlurMinutes}
-				label="m"
+				label={
+					editableMode ? 'm' : parseInt(value['minutes']) > 0 ? 'm' : parseInt(value['hours']) > 0 ? '' : 'm'
+				}
 				loading={updateLoading}
-				dash={value['minutes'] ? '' : '__'}
+				dash={
+					editableMode ? '__' : parseInt(value['minutes']) > 0 ? '' : parseInt(value['hours']) > 0 ? '' : '__'
+				}
 				wrapperClassName={wrapperClassName}
 			/>
 		</div>

@@ -56,7 +56,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				hours: oldVa.hours !== '0' ? oldVa.hours : ''
+				hours: oldVa.hours ? oldVa.hours : ''
 			};
 		});
 		setEditableMode(true);
@@ -66,7 +66,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				hours: oldVa.hours !== '' ? oldVa.hours : '0'
+				hours: oldVa.hours ? oldVa.hours : ''
 			};
 		});
 	};
@@ -75,7 +75,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '' ? pad(+oldVa.minutes) : pad(0)
+				minutes: oldVa.minutes ? pad(+oldVa.minutes) : ''
 			};
 		});
 	};
