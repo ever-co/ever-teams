@@ -150,9 +150,9 @@ export async function tasksTimesheetStatisticsAPI(
 	if (GAUZY_API_BASE_SERVER_URL.value) {
 		const employeesParams = employeeId
 			? [employeeId].reduce((acc: any, v, i) => {
-					acc[`employeeIds[${i}]`] = v;
-					return acc;
-			  })
+				acc[`employeeIds[${i}]`] = v;
+				return acc;
+			})
 			: {};
 		const commonParams = {
 			tenantId,
@@ -189,6 +189,7 @@ export async function tasksTimesheetStatisticsAPI(
 			`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
 		);
 	}
+
 }
 
 export async function activeTaskTimesheetStatisticsAPI(
@@ -200,9 +201,9 @@ export async function activeTaskTimesheetStatisticsAPI(
 	if (GAUZY_API_BASE_SERVER_URL.value) {
 		const employeesParams = employeeId
 			? [employeeId].reduce((acc: any, v, i) => {
-					acc[`employeeIds[${i}]`] = v;
-					return acc;
-			  })
+				acc[`employeeIds[${i}]`] = v;
+				return acc;
+			})
 			: {};
 		const commonParams = {
 			tenantId,

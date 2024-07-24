@@ -20,6 +20,7 @@ export function addHours(numOfHours: number, date = new Date()) {
 	return date;
 }
 
+
 export function secondsToTime(secs: number) {
 	const hours = Math.floor(secs / (60 * 60));
 

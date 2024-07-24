@@ -13,7 +13,7 @@ import {
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
-import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
+import { Button, InputField, SelectItems, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon } from 'assets/svg';
 import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState, FormEvent } from 'react';
@@ -24,14 +24,15 @@ import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { Modal, Divider } from 'lib/components';
 import api from '@app/services/client/axios';
-import { MdOutlineMoreTime } from "react-icons/md";
 import { IoIosTimer } from "react-icons/io";
-import { FiLoader } from "react-icons/fi";
 import { DatePicker } from '@components/ui/DatePicker';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
+import { format } from 'date-fns';
+import '../../../styles/style.css'
+
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
 
@@ -278,7 +279,7 @@ function InputFilters({ hook, profile }: Props) {
 	const { activeTeam } = useOrganizationTeams();
 	const members = activeTeam?.members;
 
-	const [date, setDate] = useState<string>('');
+	const [date, setDate] = useState<Date>(new Date());
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [startTime, setStartTime] = useState<string>('');
 	const [endTime, setEndTime] = useState<string>('');
@@ -294,10 +295,9 @@ function InputFilters({ hook, profile }: Props) {
 
 	useEffect(() => {
 		const now = new Date();
-		const currentDate = now.toISOString().slice(0, 10);
 		const currentTime = now.toTimeString().slice(0, 5);
 
-		setDate(currentDate);
+		setDate(now);
 		setStartTime(currentTime);
 		setEndTime(currentTime);
 	}, []);
@@ -389,9 +389,7 @@ function InputFilters({ hook, profile }: Props) {
 					)}
 				/>
 			</button>
-
 			<VerticalSeparator />
-
 			<button
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm(
@@ -404,12 +402,16 @@ function InputFilters({ hook, profile }: Props) {
 				<SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
 				<span>{t('common.FILTER')}</span>
 			</button>
-			<button
+			<Button
 				onClick={() => openModal()}
-				className="p-[10px] text-white rounded-[12px] min-w-[200px] border-[1px] text-[15px] flex items-center bg-[#3826A6]"
+				className={clsxm(
+					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base flex items-center space-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
+					'min-w-[8.25rem] h-[2.75rem]'
+				)}
 			>
-				<MdOutlineMoreTime size={20} className="mr-[10px]" />{"Add manual time"}
-			</button>
+				<span className='text-xl'>+</span>
+				Add time
+			</Button>
 
 			{/* Assign task combobox */}
 			<TaskUnOrAssignPopover
@@ -436,152 +438,142 @@ function InputFilters({ hook, profile }: Props) {
 					</Button>
 				</Tooltip>
 			</TaskUnOrAssignPopover>
-			<div>
-				<Modal
-					isOpen={isOpen}
-					closeModal={closeModal}
-					title={'Add time'}
-					className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[20vw] md:max-w-fit h-[auto] justify-start"
-					titleClass="text-[16px] font-bold"
-				>
-					<Divider className="mt-4" />
-					<form onSubmit={handleSubmit} className="text-[13px] w-[90%]">
-						<div className="mb-4">
-							<label className="block text-gray-700 mb-1">Date<span className="text-[#de5505e1] ml-1">*</span></label>
-							<div className="w-full p-2 border border-gray-300 rounded-[10px]">
-								<DatePicker
-									buttonVariant={'link'}
-									buttonClassName={'py-3 decoration-transparent h-[0.875rem] w-full flex items-center'}
-									customInput={
-										<div
-											className={clsxm(
-												'not-italic cursor-pointer font-semibold text-[0.625rem] 3xl:text-xs w-full',
-												'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white w-full'
-											)}
-										>
-											{
-												date ?
-													<div className="flex items-center w-full">
-														<FaRegCalendarAlt size={20} fill={"#13648fa9"} className="mx-[20px]" />
-														{date}
-													</div>
-													: (
-														<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
-													)}
-										</div>
-									}
-									selected={new Date()}
-									onSelect={(dateI) => {
-										dateI && setDate(dateI.toDateString());
-									}}
-									mode={'single'}
-								/>
-							</div>
-						</div>
 
-						<div className="mb-4 flex items-center">
-							<label className="block text-gray-700 mr-2">Billable</label>
-							<div
-								className={`w-12 h-6 flex items-center bg-[#3726a662] rounded-full p-1 cursor-pointer `}
-								onClick={() => setIsBillable(!isBillable)}
-								style={isBillable ? { background: 'linear-gradient(to right, #3726a662, transparent)' } : { background: '#3726a662' }}
-							>
-								<div
-									className={`bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
-								/>
-							</div>
-						</div>
-						<div className='flex items-center'>
-							<div className="mb-4 w-[48%] mr-[4%]">
-								<label className="block text-gray-700 mb-1">Start time<span className="text-[#de5505e1] ml-1">*</span></label>
-								<input
-									type="time"
-									value={startTime}
-									onChange={(e) => setStartTime(e.target.value)}
-									className="w-full p-2 border text-[13px] font-bold border-gray-300 rounded-[10px]"
-									required
-								/>
-							</div>
-
-							<div className="mb-4 w-[48%]"><label className="block text-gray-700 mb-1">End time<span className="text-[#de5505e1] ml-1">*</span></label>
-
-								<input
-									type="time"
-									value={endTime}
-									onChange={(e) => setEndTime(e.target.value)}
-									className="w-full p-2 border text-[13px] font-bold border-gray-300 rounded-[10px]"
-									required
-								/>
-							</div>
-						</div>
-
-						<div className="mb-4 flex items-center">
-							<label className="block text-gray-700 mb-1">Added hours: </label>
-							<div
-								className="ml-[10px] p-[10px] flex items-center font-bold border-[#410a504e] rounded-[10px]"
-								style={{ background: 'linear-gradient(to right, #0085c8a4, #410a504e )' }}
-							>
-								<IoIosTimer size={20} className="mr-[10px]" />
-								{timeDifference}
-							</div>
-						</div>
-
-						<div className="mb-4">
-							<label className="block text-gray-700 mb-1">Team<span className="text-[#de5505e1] ml-1">*</span></label>
-							<select
-								value={team}
-								onChange={(e) => setTeam(e.target.value)}
-								className="w-full p-2 border border-gray-300 rounded-[10px] font-bold"
-							>
-								{members?.map((member) => (
-									<option key={member.id} value={member.id}>{member.employee?.user?.firstName}</option>))
+			<Modal
+				isOpen={isOpen}
+				closeModal={closeModal}
+				title={'Add time'}
+				className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[25vw] md:max-w-fit h-[auto] justify-start"
+				titleClass="text-[16px] font-bold"
+			>
+				<Divider className="mt-4" />
+				<form onSubmit={handleSubmit} className="text-[13px] w-[90%]">
+					<div className="mb-4">
+						<label className="block text-gray-500 mb-1">Date<span className="text-[#de5505e1] ml-1">*</span></label>
+						<div className="w-full p-2 border border-gray-100 rounded-[10px]">
+							<DatePicker
+								buttonVariant={'link'}
+								className='dark:bg-dark--theme-light'
+								buttonClassName={'py-3 decoration-transparent h-[0.875rem] w-full flex items-center'}
+								customInput={
+									<div
+										className={clsxm(
+											'not-italic cursor-pointer font-semibold text-[0.625rem] 3xl:text-xs w-full',
+											'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white w-full'
+										)}
+									>
+										{
+											date ?
+												<div className="flex items-center w-full">
+													<FaRegCalendarAlt size={20} fill={"#3826A6"} className="mx-[20px] text-[#3826A6]" />
+													{format(date, "PPP")}
+												</div>
+												: (
+													<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
+												)}
+									</div>
 								}
-							</select>
+								selected={date}
+								onSelect={(value) => {
+									value && setDate(value);
+								}}
+								mode={'single'}
+							/>
 						</div>
+					</div>
 
-						<div className="mb-4">
-							<label className="block text-gray-700 mb-1">Task<span className="text-[#de5505e1] ml-1">*</span></label>
-							<select
-								value={task}
-								onChange={(e) => setTask(e.target.value)}
-								className="w-full p-2 border border-gray-300 rounded-[10px] font-bold"
-							>
-								{tasks?.map((task) => (
-									<option key={task.id} value={task.id}>{task.title}</option>
-								))}
-							</select>
+					<div className="mb-4 flex items-center">
+						<label className="block text-gray-500 mr-2">Billable</label>
+						<div
+							className={`w-12 h-6 flex items-center bg-[#3726a662] rounded-full p-1 cursor-pointer `}
+							onClick={() => setIsBillable(!isBillable)}
+							style={isBillable ? { background: 'linear-gradient(to right, #3726a662, transparent)' } : { background: '#3726a662' }}
+						>
+							<div
+								className={`bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
+							/>
 						</div>
-
-						<div className="mb-4">
-							<label className="block text-gray-700 mb-1">Description</label>
-							<textarea
-								value={description}
-								placeholder="What worked on?"
-								onChange={(e) => setDescription(e.target.value)}
-								className="w-full p-2 border border-gray-300 rounded-[10px]"
+					</div>
+					<div className='flex items-center'>
+						<div className="mb-4 w-[48%] mr-[4%]">
+							<label className="block text-gray-500 mb-1">Start time<span className="text-[#de5505e1] ml-1">*</span></label>
+							<input
+								type="time"
+								value={startTime}
+								onChange={(e) => setStartTime(e.target.value)}
+								className="w-full p-2 border text-[13px] font-bold border-gray-100 rounded-[10px] dark:bg-dark--theme-light"
+								required
 							/>
 						</div>
 
-						<div className="mb-4">
-							<label className="block text-gray-700 mb-1">Reason</label>
-							<textarea
-								value={reason}
-								onChange={(e) => setReason(e.target.value)}
-								className="w-full p-2 border border-gray-300 rounded-[10px]"
+						<div className="mb-4 w-[48%]"><label className="block text-gray-500 mb-1">End time<span className="text-[#de5505e1] ml-1">*</span></label>
+
+							<input
+								type="time"
+								value={endTime}
+								onChange={(e) => setEndTime(e.target.value)}
+								className="w-full p-2 border text-[13px] font-bold border-gray-100 rounded-[10px] dark:bg-dark--theme-light"
+								required
 							/>
 						</div>
+					</div>
 
-						<div className="flex justify-between items-center">
-							<button type="button" className="text-[#3826A6] font-bold p-[12px] rounded-[10px] border-[1px] bo">View timesheet</button>
-							<button type="submit" className="bg-[#3826A6] font-bold min-w-[110px] flex flex-col items-center text-white p-[12px] rounded-[10px]">
-								{loading1 ? <FiLoader size={20} className="animate-spin" /> : "Add time"}
-							</button>
+					<div className="mb-4 flex items-center">
+						<label className="block text-gray-500 mb-1">Added hours: </label>
+						<div
+							className="ml-[10px] p-[10px] flex items-center font-bold border-[#410a504e] rounded-[10px]"
+							style={{ background: 'linear-gradient(to right, #0085c8a4, #410a504e )' }}
+						>
+							<IoIosTimer size={20} className="mr-[10px]" />
+							{timeDifference}
 						</div>
-						<div className="m-4 text-[#ff6a00de]">{errorMsg}</div>
+					</div>
 
-					</form>
-				</Modal>
-			</div>
+					<div className="mb-4">
+						<label className="block text-gray-500 mb-1">Team<span className="text-[#de5505e1] ml-1">*</span></label>
+						<SelectItems items={members!}
+							onValueChange={(value) => setTeam(value)}
+							itemId={(member) => (member.id)}
+							itemToString={(member: any) => member?.employee?.user?.firstName} />
+					</div>
+
+					<div className="mb-4">
+						<label className="block text-gray-500 mb-1">Task<span className="text-[#de5505e1] ml-1">*</span></label>
+						<SelectItems items={tasks}
+							onValueChange={(value) => setTask(value)}
+							itemId={(task) => (task.id)}
+							itemToString={(task) => task.title} />
+					</div>
+
+					<div className="mb-4">
+						<label className="block text-gray-500 mb-1">Description</label>
+						<textarea
+							value={description}
+							placeholder="What worked on?"
+							onChange={(e) => setDescription(e.target.value)}
+							className="w-full p-2 border border-gray-100 rounded-[10px] dark:bg-dark--theme-light"
+						/>
+					</div>
+
+					<div className="mb-4">
+						<label className="block text-gray-500 mb-1">Reason</label>
+						<textarea
+							value={reason}
+							onChange={(e) => setReason(e.target.value)}
+							className="w-full p-2 border border-gray-100 rounded-[10px] dark:bg-dark--theme-light"
+						/>
+					</div>
+
+					<div className="flex justify-between items-center w-full">
+						<Button variant='outline' type="button" className="text-[#3826A6] font-bold p-[12px] h-11 rounded-[10px] border-[1px] dark:bg-dark--theme-light">View timesheet</Button>
+						<Button loading={loading1} disabled={loading1} type="submit" className="bg-[#3826A6] font-bold  flex items-center text-white p-[12px] rounded-[10px]">
+							Add time
+						</Button>
+					</div>
+					<div className="m-4 text-[#ff6a00de]">{errorMsg}</div>
+
+				</form>
+			</Modal>
 		</div >
 	);
 }
