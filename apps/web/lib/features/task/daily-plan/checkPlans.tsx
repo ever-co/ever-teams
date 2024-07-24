@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { I_TaskFilter } from 'lib/features/task/task-filters';
 import { AddWorkTimeAndEstimatesToPlan } from 'lib/features/daily-plan/plans-work-time-and-estimate';
 import {
 	useDailyPlan,
