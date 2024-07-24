@@ -72,9 +72,8 @@ export const EmojiPicker = ({
 						as="div"
 					>
 						<div
-							className={` relative w-[100%] h-[48px] ${
-								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-							}  dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+							className={` relative w-[100%] h-[48px] ${disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+								}  dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
 								<div className="dark:text-white">
@@ -99,7 +98,7 @@ export const EmojiPicker = ({
 										}}
 										className={`outline-none `}
 									>
-										<TrashIcon  className='w-5'  />
+										<TrashIcon className='w-5' />
 									</button>
 								</div>
 							)}

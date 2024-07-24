@@ -147,47 +147,51 @@ export async function tasksTimesheetStatisticsAPI(
 	organizationId: string,
 	employeeId?: string
 ) {
-	if (GAUZY_API_BASE_SERVER_URL.value) {
-		const employeesParams = employeeId
-			? [employeeId].reduce((acc: any, v, i) => {
+	try {
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			const employeesParams = employeeId
+				? [employeeId].reduce((acc: any, v, i) => {
 					acc[`employeeIds[${i}]`] = v;
 					return acc;
-			  })
-			: {};
-		const commonParams = {
-			tenantId,
-			organizationId,
-			// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
-			...employeesParams
-		};
-		const globalQueries = qs.stringify({
-			...commonParams,
-			defaultRange: 'false'
-		});
+				})
+				: {};
+			const commonParams = {
+				tenantId,
+				organizationId,
+				// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
+				...employeesParams
+			};
+			const globalQueries = qs.stringify({
+				...commonParams,
+				defaultRange: 'false'
+			});
 
-		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
-			tenantId
-		});
+			const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
+				tenantId
+			});
 
-		const todayQueries = qs.stringify({
-			...commonParams,
-			defaultRange: 'true',
-			unitOfTime: 'day'
-		});
-		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
-			tenantId
-		});
+			const todayQueries = qs.stringify({
+				...commonParams,
+				defaultRange: 'true',
+				unitOfTime: 'day'
+			});
+			const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
+				tenantId
+			});
 
-		return {
-			data: {
-				global: globalData.data,
-				today: todayData.data
-			}
-		};
-	} else {
-		return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
-			`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
-		);
+			return {
+				data: {
+					global: globalData.data,
+					today: todayData.data
+				}
+			};
+		} else {
+			return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+				`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
+			);
+		}
+	} catch (e) {
+
 	}
 }
 
@@ -200,9 +204,9 @@ export async function activeTaskTimesheetStatisticsAPI(
 	if (GAUZY_API_BASE_SERVER_URL.value) {
 		const employeesParams = employeeId
 			? [employeeId].reduce((acc: any, v, i) => {
-					acc[`employeeIds[${i}]`] = v;
-					return acc;
-			  })
+				acc[`employeeIds[${i}]`] = v;
+				return acc;
+			})
 			: {};
 		const commonParams = {
 			tenantId,
