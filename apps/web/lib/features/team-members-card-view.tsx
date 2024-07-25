@@ -1,10 +1,12 @@
-import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useModal, useOrganizationEmployeeTeams, useTeamInvitations, useUserProfilePage } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { DailyPlanCompareEstimatedModal } from './daily-plan';
+import { DAILY_PLAN_SHOW_MODAL } from '@app/constants';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -19,9 +21,17 @@ const TeamMembersCardView: React.FC<Props> = ({
 	teamsFetching = false,
 	publicTeam = false
 }) => {
-	const { isTeamManager } = useAuthenticateUser();
 
+	const { isTeamManager } = useAuthenticateUser();
 	const { teamInvitations } = useTeamInvitations();
+	const [isOpen, setIsOpen] = useState(false)
+	const { todayPlan } = useDailyPlan();
+	const profile = useUserProfilePage();
+	const defaultOpenPopup =
+		typeof window !== 'undefined'
+			? (window.localStorage.getItem(DAILY_PLAN_SHOW_MODAL)) || null
+			: new Date().toISOString().split('T')[0];
+	const plan = todayPlan.find((plan) => plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]));
 
 	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 
@@ -31,6 +41,18 @@ const TeamMembersCardView: React.FC<Props> = ({
 	const draggedOverTeamMember = React.useRef<number>(0);
 
 	useEffect(() => setMemberOrdereds(members), [members]);
+
+	useEffect(() => {
+		if (plan) {
+			const currentDateString = new Date().toISOString().split('T')[0];
+			window.localStorage.setItem(DAILY_PLAN_SHOW_MODAL, currentDateString);
+			if (defaultOpenPopup !== currentDateString || !defaultOpenPopup) {
+				setIsOpen(true);
+			}
+		}
+	}, [defaultOpenPopup, plan]);
+
+
 
 	function handleSort() {
 		const peopleClone = [...memberOrdereds];
@@ -49,6 +71,11 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
+			<DailyPlanCompareEstimatedModal open={isOpen} closeModal={() => setIsOpen((prev) => {
+				window.localStorage.setItem(DAILY_PLAN_SHOW_MODAL, new Date().toISOString().split('T')[0]);
+				return !prev;
+			})} todayPlan={todayPlan} profile={profile} />
+
 			<ul className="mt-7">
 				{/* Current authenticated user members */}
 				<Transition
