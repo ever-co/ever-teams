@@ -134,7 +134,6 @@ export function Timer({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
-
 			<VerticalSeparator />
 			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
 				<Tooltip
