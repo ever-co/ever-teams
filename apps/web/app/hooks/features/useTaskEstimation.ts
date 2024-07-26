@@ -139,6 +139,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		value,
 		handleSubmit,
 		task: $task,
+		setEditableMode,
 		updateLoading
 	};
 }
