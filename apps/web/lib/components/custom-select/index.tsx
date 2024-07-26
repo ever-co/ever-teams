@@ -12,21 +12,7 @@ interface SelectItemsProps<T> {
     triggerClassName?: string;
     popoverClassName?: string;
 }
-/**
- *
- *
- * @export
- * @template T
- * @param {SelectItemsProps<T>} {
- *     items,
- *     onValueChange,
- *     itemToString,
- *     itemId,
- *     triggerClassName = '',
- *     popoverClassName = ''
- * }
- * @return {*}
- */
+
 export function SelectItems<T>({
     items,
     onValueChange,
