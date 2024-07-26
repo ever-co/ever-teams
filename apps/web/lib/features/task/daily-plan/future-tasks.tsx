@@ -26,8 +26,8 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
 	useEffect(() => {
-		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans))
-	}, [date, setDate])
+		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
+	}, [date, setDate]);
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (
@@ -94,7 +94,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 																		taskTitleClassName="mt-[0.0625rem]"
 																		plan={plan}
 																		planMode="Future Tasks"
-																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
+																		className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																	/>
 																</div>
 															)}
@@ -119,7 +119,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 												)}
 												<>{provided.placeholder}</>
 												{canSeeActivity ? (
-													<div className="flex justify-end">
+													<div className="flex shrink-0  justify-end">
 														<AlertPopup
 															open={currentDeleteIndex === index && popupOpen}
 															buttonOpen={
