@@ -244,13 +244,14 @@ export function useAuthenticationPasscode() {
 	useEffect(() => {
 		if (queryEmail && queryCode && !loginFromQuery.current) {
 			setScreen('passcode');
-			verifyPasscodeRequest({
-				email: queryEmail as string,
-				code: queryCode as string
-			});
+			verifySignInEmailConfirmRequest({ email: queryEmail, code: queryCode });
+			// verifyPasscodeRequest({
+			// 	email: queryEmail as string,
+			// 	code: queryCode as string
+			// });
 			loginFromQuery.current = true;
 		}
-	}, [query, verifyPasscodeRequest, queryEmail, queryCode]);
+	}, [query, verifySignInEmailConfirmRequest, queryEmail, queryCode]); // deepscan-disable-line
 
 	/**
 	 * send a fresh auth request handler
