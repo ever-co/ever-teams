@@ -508,12 +508,15 @@ function TaskCardMenu({
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { todayPlan, futurePlans } = useDailyPlan();
 
-
 	const taskPlannedToday = todayPlan[0].tasks?.find((_task) => _task.id === task.id);
 
 	const taskPlannedTomorrow = futurePlans
-		.find(plan => moment(plan.date).isSame(moment().add(1, 'day'), 'day'))
-		?.tasks?.find(task => task.id === task.id);
+		.filter((_plan) => moment(_plan.date).format('YYYY-MM-DD')
+			?.toString()
+			?.startsWith(moment()
+				?.add(1, 'day')
+				.format('YYYY-MM-DD')))[0]
+		?.tasks?.find((_task) => _task.id === task.id);
 
 	return (
 		<Popover>
