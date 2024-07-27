@@ -369,7 +369,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const totalTasks = plan.tasks?.length ?? 0;
 
 	// Completion percent
-	const completionPercent = totalTasks > 0 ? ((completedTasks * 100) / totalTasks).toFixed(0) : '0.00';
+	const completionPercent = totalTasks > 0 ? ((completedTasks * 100) / totalTasks).toFixed(0) : '0.0';
 
 
 	return (
@@ -487,8 +487,7 @@ export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
 		<div className="xl:mt-20">
 			<NoData
 				text={`No task planned ${planMode === 'Today Tasks' ? 'today' : ''}`}
-				component={<ReaderIcon className="w-14 h-14" />}
-			/>
+				component={<ReaderIcon className="w-14 h-14" />} />
 		</div>
 	);
 }

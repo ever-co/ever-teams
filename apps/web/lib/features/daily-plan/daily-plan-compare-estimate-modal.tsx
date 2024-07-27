@@ -12,6 +12,7 @@ import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@a
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 import { DAILY_PLAN_SHOW_MODAL } from '@app/constants';
+import { ScrollArea } from '@components/ui/scroll-bar';
 
 export interface IDailyPlanCompareEstimated {
     difference?: boolean,
@@ -67,7 +68,7 @@ export function DailyPlanCompareEstimatedModal({
                         />
                         <DailyPlanWorkTimeInput />
                     </div>
-                    <div className='flex h-full w-full p-2'>
+                    <ScrollArea className='flex h-full w-full p-2 flex-col'>
                         {todayPlan.map((plan, i) => {
                             return <div key={i}>
                                 {plan.tasks?.map((data, index) => {
@@ -81,7 +82,7 @@ export function DailyPlanCompareEstimatedModal({
                                 })}
                             </div>
                         })}
-                    </div>
+                    </ScrollArea>
                     <div className='flex flex-col'>
                         <div className='flex items-center pb-2 text-red-500 text-[12px]'>
                             {!difference && !estimated?.every(Boolean) && (
