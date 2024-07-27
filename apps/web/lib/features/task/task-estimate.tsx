@@ -65,7 +65,10 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 				dash={
 					editableMode ? '__' : parseInt(value['hours']) > 0 ? '' : parseInt(value['minutes']) > 0 ? '' : '__'
 				}
-				wrapperClassName={wrapperClassName}
+				wrapperClassName={clsxm(
+					wrapperClassName,
+					`${editableMode ? 'block' : parseInt(value['hours']) > 0 ? 'block' : parseInt(value['minutes']) > 0 ? 'hidden' : 'block'}`
+				)}
 			/>
 			{editableMode ? (
 				<>
@@ -93,7 +96,10 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 				dash={
 					editableMode ? '__' : parseInt(value['minutes']) > 0 ? '' : parseInt(value['hours']) > 0 ? '' : '__'
 				}
-				wrapperClassName={wrapperClassName}
+				wrapperClassName={clsxm(
+					wrapperClassName,
+					`${editableMode ? 'block' : parseInt(value['minutes']) > 0 ? 'block' : parseInt(value['hours']) > 0 ? 'hidden' : 'block'}`
+				)}
 			/>
 			<div className="h-full flex items-center justify-center">
 				{!updateLoading ? (
