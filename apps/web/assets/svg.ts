@@ -32,6 +32,7 @@ export { default as SearchStatusIcon } from './common/search-status.svg';
 export { default as SettingFilterIcon } from './common/setting-filter.svg';
 export { default as SettingGearIcon } from './common/setting-gear.svg';
 export { default as SettingOutlineIcon } from './common/setting-outline.svg';
+export { default as LoadingIcon } from './common/loading.svg';
 
 // checkbox
 export { default as CheckCircleOutlineIcon } from './common/tick/circle-outline.svg';
