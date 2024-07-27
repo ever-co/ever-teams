@@ -443,7 +443,7 @@ function InputFilters({ hook, profile }: Props) {
 				isOpen={isOpen}
 				closeModal={closeModal}
 				title={'Add time'}
-				className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[25vw] md:max-w-fit h-[auto] justify-start"
+				className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[25vw] md:max-w-fit h-[auto] justify-start shadow-xl"
 				titleClass="text-[16px] font-bold"
 			>
 				{/* <Divider className="mt-4" /> */}

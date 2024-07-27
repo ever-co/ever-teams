@@ -423,9 +423,8 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 							{props.workspaces?.map((worksace, index) => (
 								<div
 									key={index}
-									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-										props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
-									} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
+									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
+										} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 								>
 									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 										<div className="flex justify-between">
