@@ -351,7 +351,6 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
-
 	// Get all tasks's estimations time
 	// Helper function to sum times
 	const sumTimes = (tasks: ITeamTask[], key: any) => tasks?.map((task: any) =>
