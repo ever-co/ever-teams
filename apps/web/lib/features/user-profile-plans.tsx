@@ -344,7 +344,6 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
-
 	// Get all tasks's estimations time
 	const times =
 		plan.tasks?.map((task) => task?.estimate).filter((time): time is number => typeof time === 'number') ?? [];
@@ -442,7 +441,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 				<div>
 					<div className="flex items-center gap-2">
 						<span className="font-medium">Completed tasks: </span>
-						<span className="font-medium">{completedTasks}</span>
+						<span className="font-medium">{`${completedTasks}/${totalTasks}`}</span>
 					</div>
 					<div className="flex items-center gap-2">
 						<span className="font-medium">Ready: </span>
