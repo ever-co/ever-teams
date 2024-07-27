@@ -1,5 +1,5 @@
 import { pad } from '@app/helpers';
-import { HostKeys, useDetectOS, useHotkeys, useModal, useTimerView } from '@app/hooks';
+import { HostKeys, useDetectOS, useHotkeys, useModal, useTeamTasks, useTimerView } from '@app/hooks';
 import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
@@ -15,12 +15,17 @@ import {
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
-import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
+import { EnforcePlanedTaskModal, AddWorkTimeAndEstimatesToPlan } from '../daily-plan';
 
 export function Timer({ className }: IClassName) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
+	const {
+		isOpen: isEnforceTaskModalOpen,
+		closeModal: enforceTaskCloseModal,
+		openModal: enforceTaskOpenModal
+	} = useModal();
 	const {
 		hours,
 		minutes,
@@ -37,6 +42,13 @@ export function Timer({ className }: IClassName) {
 		isPlanVerified,
 		hasPlan
 	} = useTimerView();
+	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+
+	const isActiveTaskPlaned = useMemo(
+		() => hasPlan?.tasks?.some((task) => task.id === activeTeamTask?.id),
+		[activeTeamTask?.id, hasPlan?.tasks]
+	);
 
 	const timerHanlderStartStop = useCallback(() => {
 		const currentDate = new Date().toISOString().split('T')[0];
@@ -47,6 +59,8 @@ export function Timer({ className }: IClassName) {
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
+		} else if (requirePlan && !isActiveTaskPlaned) {
+			enforceTaskOpenModal();
 		} else {
 			if (lastPlanPopupDate == currentDate && lastEstimatesPopupDate == currentDate) {
 				startTimer();
@@ -63,10 +77,13 @@ export function Timer({ className }: IClassName) {
 		}
 	}, [
 		canRunTimer,
+		enforceTaskOpenModal,
 		hasPlan?.tasks,
 		hasPlan?.workTimePlanned,
+		isActiveTaskPlaned,
 		isPlanVerified,
 		openModal,
+		requirePlan,
 		startTimer,
 		stopTimer,
 		timerStatus?.running,
@@ -74,6 +91,7 @@ export function Timer({ className }: IClassName) {
 	]);
 
 	const { os } = useDetectOS();
+
 	const osSpecificTimerTooltipLabel = useMemo(() => {
 		if (os === 'Mac') {
 			if (!timerStatus?.running) {
@@ -177,6 +195,14 @@ export function Timer({ className }: IClassName) {
 					startTimer={startTimer}
 					hasPlan={!!hasPlan}
 				/>
+				{requirePlan && hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						closeModal={enforceTaskCloseModal}
+						plan={hasPlan}
+						open={isEnforceTaskModalOpen}
+						task={activeTeamTask}
+					/>
+				)}
 			</div>
 		</div>
 	);

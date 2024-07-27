@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Retirer de ce plan",
 		"CREATE_A_PLAN_FOR_TODAY": "Créer un plan pour aujourd'hui",
 		"TODAY_PLAN_SUB_TITLE": "Il n'y a pas de plan pour aujourd'hui",
-		"DAILY_PLAN_DESCRIPTION": "'Plan quotidien' aide à organiser le processus de travail pour obtenir les meilleurs résultats"
+		"DAILY_PLAN_DESCRIPTION": "'Plan quotidien' aide à organiser le processus de travail pour obtenir les meilleurs résultats",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Cette tâche n'était pas prévue dans le planning d'aujourd'hui. Souhaitez-vous l'ajouter au planning ?"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Entrez votre nom",
