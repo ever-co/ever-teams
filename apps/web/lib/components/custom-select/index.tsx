@@ -11,6 +11,7 @@ interface SelectItemsProps<T> {
     itemId: (item: T) => string;
     triggerClassName?: string;
     popoverClassName?: string;
+    renderItem?: (item: T, onClick: () => void) => JSX.Element;
 }
 
 export function SelectItems<T>({
@@ -19,7 +20,8 @@ export function SelectItems<T>({
     itemToString,
     itemId,
     triggerClassName = '',
-    popoverClassName = ''
+    popoverClassName = '',
+    renderItem
 }: SelectItemsProps<T>) {
     const [selectedItem, setSelectedItem] = useState<T | null>(null);
     const [isPopoverOpen, setPopoverOpen] = useState(false);
@@ -57,13 +59,16 @@ export function SelectItems<T>({
             <PopoverContent className={cn("w-[430px] border border-transparent max-h-[80vh] dark:bg-dark--theme-light", popoverClassName)}>
                 <div className="w-full max-h-[80vh] overflow-auto flex flex-col">
                     {items.map((item) => (
-                        <span
-                            onClick={() => onClick(item)}
-                            key={itemId(item)}
-                            className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-bold dark:text-white dark:hover:bg-primary"
-                            style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
-                            {itemToString(item)}
-                        </span>
+                        renderItem ? renderItem(item, () => onClick(item)) : (
+                            <span
+                                onClick={() => onClick(item)}
+                                key={itemId(item)}
+                                className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-bold dark:text-white dark:hover:bg-primary"
+                                style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
+                            >
+                                {itemToString(item)}
+                            </span>
+                        )
                     ))}
                 </div>
             </PopoverContent>
