@@ -58,6 +58,7 @@ import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
+import moment from 'moment';
 
 type Props = {
 	active?: boolean;
@@ -505,7 +506,17 @@ function TaskCardMenu({
 	}, [memberInfo, task, viewType]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	const { hasPlan, hasPlanForTomorrow } = useTimerView();
+	const { todayPlan, futurePlans } = useDailyPlan();
+
+	const taskPlannedToday = todayPlan[0].tasks?.find((_task) => _task.id === task.id);
+
+	const taskPlannedTomorrow = futurePlans
+		.filter((_plan) => moment(_plan.date).format('YYYY-MM-DD')
+			?.toString()
+			?.startsWith(moment()
+				?.add(1, 'day')
+				.format('YYYY-MM-DD')))[0]
+		?.tasks?.find((_task) => _task.id === task.id);
 
 	return (
 		<Popover>
@@ -562,7 +573,7 @@ function TaskCardMenu({
 														planMode="today"
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
-														hasTodayPlan={hasPlan}
+														taskPlannedToday={taskPlannedToday}
 													/>
 												</li>
 												<li className="mb-2">
@@ -570,7 +581,7 @@ function TaskCardMenu({
 														planMode="tomorow"
 														taskId={task.id}
 														employeeId={profile?.member?.employeeId ?? ''}
-														hasPlanForTomorrow={hasPlanForTomorrow}
+														taskPlannedForTomorrow={taskPlannedTomorrow}
 													/>
 												</li>
 												<li className="mb-2">
@@ -651,15 +662,15 @@ export function PlanTask({
 	taskId,
 	employeeId,
 	chooseMember,
-	hasTodayPlan,
-	hasPlanForTomorrow
+	taskPlannedToday,
+	taskPlannedForTomorrow
 }: {
 	taskId: string;
 	planMode: IDailyPlanMode;
 	employeeId?: string;
 	chooseMember?: boolean;
-	hasTodayPlan?: IDailyPlan;
-	hasPlanForTomorrow?: IDailyPlan;
+	taskPlannedToday?: ITeamTask;
+	taskPlannedForTomorrow?: ITeamTask;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -714,7 +725,7 @@ export function PlanTask({
 					employeeId={employeeId}
 					chooseMember={chooseMember}
 				/>
-				{planMode === 'today' && !hasTodayPlan && (
+				{planMode === 'today' && !taskPlannedToday && (
 					<span>
 						{isPending ? (
 							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
@@ -723,7 +734,7 @@ export function PlanTask({
 						)}
 					</span>
 				)}
-				{planMode === 'tomorow' && !hasPlanForTomorrow && (
+				{planMode === 'tomorow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending ? (
 							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
