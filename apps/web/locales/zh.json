@@ -643,5 +643,16 @@
 			"TEAM": "团队",
 			"SETTINGS": "设置"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "仅手动时间",
+			"LOST_ELECTRICITY": "失去電力",
+			"LOST_INTERNET": "失去網路",
+			"FORGOT_TO_START_TIMER": "忘記啟動計時器",
+			"ERROR": "錯誤",
+			"UNPLANNED_WORK": "未計劃的工作",
+			"TESTED_TIMER": "計時器測試"
+		}
 	}
 }

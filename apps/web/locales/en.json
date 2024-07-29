@@ -643,5 +643,16 @@
 			"TEAM": "Team",
 			"SETTINGS": "Settings"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Only manual time",
+			"LOST_ELECTRICITY": "Lost elelctricity",
+			"LOST_INTERNET": "Lost internet",
+			"FORGOT_TO_START_TIMER": "Forgot to start timer",
+			"ERROR": "Error",
+			"UNPLANNED_WORK": "Unplanned work",
+			"TESTED_TIMER": "Tested timer"
+		}
 	}
 }

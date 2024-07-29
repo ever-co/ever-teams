@@ -2,8 +2,8 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
 import enLanguage from '../locales/en.json';
-// import {  } from 'country-flag-icons/react/3x2'
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
+import { ManualTimeReasons } from './interfaces/timer/IManualTimeReasons';
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
@@ -298,3 +298,14 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
+
+// Add manual timer reason
+
+export const manualTimeReasons: ManualTimeReasons[] = [
+	'LOST_ELECTRICITY',
+	'LOST_INTERNET',
+	'FORGOT_TO_START_TIMER',
+	'ERROR',
+	'UNPLANNED_WORK',
+	'TESTED_TIMER'
+];

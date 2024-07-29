@@ -643,5 +643,16 @@
 			"TEAM": "Zespół",
 			"SETTINGS": "Ustawienia"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Tylko czas ręczny",
+			"LOST_ELECTRICITY": "Utrata zasilania",
+			"LOST_INTERNET": "Utrata internetu",
+			"FORGOT_TO_START_TIMER": "Zapomniałem uruchomić stoper",
+			"ERROR": "Błąd",
+			"UNPLANNED_WORK": "Nieplanowana praca",
+			"TESTED_TIMER": "Testowany stoper"
+		}
 	}
 }

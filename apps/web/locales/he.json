@@ -643,5 +643,16 @@
 			"TEAM": "צוות",
 			"SETTINGS": "הגדרות"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "רק זמן ידני",
+			"LOST_ELECTRICITY": "הפסקת חשמל",
+			"LOST_INTERNET": "אובדן אינטרנט",
+			"FORGOT_TO_START_TIMER": "שכחתי להפעיל את הטיימר",
+			"ERROR": "שגיאה",
+			"UNPLANNED_WORK": "עבודה לא מתוכננת",
+			"TESTED_TIMER": "טיימר נבדק"
+		}
 	}
 }

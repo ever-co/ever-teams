@@ -643,5 +643,16 @@
 			"TEAM": "Отбор",
 			"SETTINGS": "Настройки"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Само ръчно време",
+			"LOST_ELECTRICITY": "Изгубено електрическо захранване",
+			"LOST_INTERNET": "Изгубен интернет",
+			"FORGOT_TO_START_TIMER": "Забравих да стартирам таймера",
+			"ERROR": "Грешка",
+			"UNPLANNED_WORK": "Неочаквана работа",
+			"TESTED_TIMER": "Тест на таймера"
+		}
 	}
 }

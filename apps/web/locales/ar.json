@@ -643,5 +643,16 @@
 			"TEAM": "الفريق",
 			"SETTINGS": "الإعدادات"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "فقط الوقت اليدوي",
+			"LOST_ELECTRICITY": "انقطاع الكهرباء",
+			"LOST_INTERNET": "فقدان الإنترنت",
+			"FORGOT_TO_START_TIMER": "نسيت تشغيل المؤقت",
+			"ERROR": "خطأ",
+			"UNPLANNED_WORK": "عمل غير مخطط له",
+			"TESTED_TIMER": "اختبار المؤقت"
+		}
 	}
 }

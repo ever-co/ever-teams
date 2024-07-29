@@ -643,5 +643,16 @@
 			"TEAM": "Equipo",
 			"SETTINGS": "Ajustes"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Solo tiempo manual",
+			"LOST_ELECTRICITY": "Corte de electricidad",
+			"LOST_INTERNET": "Pérdida de internet",
+			"FORGOT_TO_START_TIMER": "Olvidé iniciar el temporizador",
+			"ERROR": "Error",
+			"UNPLANNED_WORK": "Trabajo no planificado",
+			"TESTED_TIMER": "Temporizador probado"
+		}
 	}
 }

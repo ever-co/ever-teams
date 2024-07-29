@@ -643,5 +643,16 @@
 			"TEAM": "Team",
 			"SETTINGS": "Instellingen"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Alleen handmatige tijd",
+			"LOST_ELECTRICITY": "Stroomuitval",
+			"LOST_INTERNET": "Internetverlies",
+			"FORGOT_TO_START_TIMER": "Vergeten de timer te starten",
+			"ERROR": "Fout",
+			"UNPLANNED_WORK": "Ongeplande werkzaamheden",
+			"TESTED_TIMER": "Timer getest"
+		}
 	}
 }
