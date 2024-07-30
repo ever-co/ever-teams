@@ -40,20 +40,38 @@ export function Timer({ className }: IClassName) {
 
 	const timerHanlderStartStop = useCallback(() => {
 		const currentDate = new Date().toISOString().split('T')[0];
-		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
-		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+		const lastPlanPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
+		const lastEstimatesPopupDate = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+		const hasEstimationHours = hasPlan?.tasks?.some((el) => typeof el?.estimate === 'number' && el?.estimate <= 0);
 
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
 		} else {
-			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
-				openModal();
-			} else {
+			if (lastPlanPopupDate == currentDate && lastEstimatesPopupDate == currentDate) {
 				startTimer();
+			} else {
+				if (
+					isPlanVerified &&
+					(hasEstimationHours || (hasPlan?.workTimePlanned && hasPlan?.workTimePlanned > 0))
+				) {
+					startTimer();
+				} else {
+					openModal();
+				}
 			}
 		}
-	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
+	}, [
+		canRunTimer,
+		hasPlan?.tasks,
+		hasPlan?.workTimePlanned,
+		isPlanVerified,
+		openModal,
+		startTimer,
+		stopTimer,
+		timerStatus?.running,
+		timerStatusFetching
+	]);
 
 	const { os } = useDetectOS();
 	const osSpecificTimerTooltipLabel = useMemo(() => {
@@ -77,7 +95,6 @@ export function Timer({ className }: IClassName) {
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
 			console.log('h?.shortcut', h?.shortcut);
 			// Start Timer
-
 			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
 				timerHanlder();
 			}
@@ -134,7 +151,6 @@ export function Timer({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
-
 			<VerticalSeparator />
 			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
 				<Tooltip

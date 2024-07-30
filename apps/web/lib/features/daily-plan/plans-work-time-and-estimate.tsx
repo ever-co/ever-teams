@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
 import { IDailyPlan, ITeamTask, IUser } from '@app/interfaces';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
@@ -34,25 +34,27 @@ export function AddWorkTimeAndEstimatesToPlan({
 	const { updateDailyPlan, todayPlan: hasPlanToday } = useDailyPlan();
 
 	const { tasks: $tasks, activeTeam } = useTeamTasks();
-	const requirePlan = activeTeam?.requirePlanToTrack;
-	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
 
-	const tasksEstimated = plan?.tasks?.some((t) => typeof t?.estimate === 'number' && t?.estimate <= 0);
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
-	const tasks = $tasks.filter((task) => {
-		return plan?.tasks?.some((t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0);
-	});
-
-	const currentDate = new Date().toISOString().split('T')[0];
-	const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
-	const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
-
-	const hasWorkedToday = currentUser?.totalTodayTasks.reduce(
-		(previousValue, currentValue) => previousValue + currentValue.duration,
-		0
+	const hasEstimationHours = useMemo(
+		() => plan?.tasks?.some((t) => typeof t?.estimate === 'number' && t?.estimate <= 0),
+		[plan?.tasks]
 	);
 
-	const handleSubmit = () => {
+	const tasks = useMemo(
+		() =>
+			$tasks.filter((task) => {
+				return plan?.tasks?.some(
+					(t) => task?.id === t.id && typeof task?.estimate === 'number' && task?.estimate <= 0
+				);
+			}),
+		[$tasks, plan?.tasks]
+	);
+
+	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+	const handleSubmit = useCallback(() => {
 		if (requirePlan) {
 			if (workTimePlanned === 0 || typeof workTimePlanned !== 'number') return;
 			if (tasks.some((task) => task.estimate === 0)) return;
@@ -61,7 +63,7 @@ export function AddWorkTimeAndEstimatesToPlan({
 		updateDailyPlan({ workTimePlanned }, plan?.id ?? '');
 		startTimer();
 		closeModal();
-	};
+	}, [closeModal, plan?.id, requirePlan, startTimer, tasks, updateDailyPlan, workTimePlanned]);
 
 	const handleCloseModal = useCallback(() => {
 		closeModal();
@@ -70,78 +72,73 @@ export function AddWorkTimeAndEstimatesToPlan({
 	}, [closeModal, currentDate]);
 
 	const Content = () => {
-		if (hasWorkedToday && hasWorkedToday > 0) {
-			if ((!hasPlanToday || hasPlanToday.length === 0) && (!lastPopupDate || lastPopupDate !== currentDate)) {
-				return <CreateTodayPlanPopup closeModal={closeModal} currentDate={currentDate} />;
-			} else {
-				if (
-					(tasksEstimated || !plan?.workTimePlanned || plan?.workTimePlanned <= 0) &&
-					(!lastPopupEstimates || lastPopupEstimates !== currentDate)
-				) {
-					return (
-						<div className="flex flex-col justify-between">
-							<div className="mb-7">
-								<Text.Heading as="h3" className="mb-3 text-center">
-									{t('timer.todayPlanSettings.TITLE')}
-								</Text.Heading>
-								{hasPlan && plan?.workTimePlanned && plan?.workTimePlanned <= 0 && (
-									<div className="mb-7 w-full flex flex-col gap-4">
-										<span className="text-sm">
-											{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
-											<span className="text-red-600">*</span>
-										</span>
+		if (!hasPlanToday || hasPlanToday.length === 0) {
+			return <CreateTodayPlanPopup closeModal={closeModal} currentDate={currentDate} />;
+		} else if (!hasEstimationHours || !plan?.workTimePlanned || plan?.workTimePlanned <= 0) {
+			return (
+				<div className="flex flex-col justify-between">
+					<div className="mb-7">
+						<Text.Heading as="h3" className="mb-3 text-center">
+							{t('timer.todayPlanSettings.TITLE')}
+						</Text.Heading>
+						{hasPlan && plan?.workTimePlanned && plan?.workTimePlanned <= 0 && (
+							<div className="mb-7 w-full flex flex-col gap-4">
+								<span className="text-sm">
+									{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+									<span className="text-red-600">*</span>
+								</span>
 
-										<InputField
-											type="number"
-											placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0 rounded-lg"
-											onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-											required
-											defaultValue={plan?.workTimePlanned ?? 0}
-										/>
-									</div>
-								)}
-								{tasksEstimated && (
-									<div className="text-sm flex flex-col gap-3">
-										<UnEstimatedTasks
-											dailyPlan={plan}
-											requirePlan={!!requirePlan}
-											hasPlan={hasPlan}
-											user={user}
-										/>
+								<InputField
+									type="number"
+									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+									className="mb-0 min-w-[350px]"
+									wrapperClassName="mb-0 rounded-lg"
+									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+									required
+									value={workTimePlanned}
+									defaultValue={plan?.workTimePlanned ?? 0}
+								/>
+							</div>
+						)}
+						{hasEstimationHours && (
+							<div className="text-sm flex flex-col gap-3">
+								<UnEstimatedTasks
+									dailyPlan={plan}
+									requirePlan={!!requirePlan}
+									hasPlan={hasPlan}
+									user={user}
+								/>
 
-										<div className="flex gap-2 items-center text-red-500">
-											<PiWarningCircleFill className="text-2xl" />
-											<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
-										</div>
-									</div>
-								)}
+								<div className="flex gap-2 items-center text-red-500">
+									<PiWarningCircleFill className="text-2xl" />
+									<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
+								</div>
 							</div>
-							<div className="mt-6 flex justify-between items-center">
-								<Button
-									variant="outline"
-									type="submit"
-									className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-									onClick={handleCloseModal}
-								>
-									{t('common.SKIP_ADD_LATER')}
-								</Button>
-								<Button
-									variant="default"
-									type="submit"
-									className="py-3 px-5 rounded-md font-light text-md dark:text-white"
-									onClick={handleSubmit}
-								>
-									{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
-								</Button>
-							</div>
-						</div>
-					);
-				}
-			}
+						)}
+					</div>
+					<div className="mt-6 flex justify-between items-center">
+						<Button
+							variant="outline"
+							type="submit"
+							className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							onClick={handleCloseModal}
+						>
+							{t('common.SKIP_ADD_LATER')}
+						</Button>
+						<Button
+							variant="default"
+							type="submit"
+							className="py-3 px-5 rounded-md font-light text-md dark:text-white"
+							onClick={handleSubmit}
+						>
+							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
+						</Button>
+					</div>
+				</div>
+			);
+		} else {
+			return null;
 		}
-		return null;
 	};
 
 	return (
