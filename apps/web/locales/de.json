@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Aus diesem Plan entfernen",
 		"CREATE_A_PLAN_FOR_TODAY": "Erstellen Sie einen Plan für heute",
 		"TODAY_PLAN_SUB_TITLE": "Es gibt keinen Plan für heute",
-		"DAILY_PLAN_DESCRIPTION": "'Tagesplan' hilft, den Arbeitsprozess zu organisieren, um die besten Ergebnisse zu erzielen"
+		"DAILY_PLAN_DESCRIPTION": "'Tagesplan' hilft, den Arbeitsprozess zu organisieren, um die besten Ergebnisse zu erzielen",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Deze taak was niet gepland voor het plan van vandaag. Wilt u iets toevoegen aan het plan?"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ihren Namen eingeben",
