@@ -643,5 +643,16 @@
 			"TEAM": "Команда",
 			"SETTINGS": "Настройки"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Только ручное время",
+			"LOST_ELECTRICITY": "Потеря электричества",
+			"LOST_INTERNET": "Потеря интернета",
+			"FORGOT_TO_START_TIMER": "Забыл запустить таймер",
+			"ERROR": "Ошибка",
+			"UNPLANNED_WORK": "Незапланированная работа",
+			"TESTED_TIMER": "Таймер протестирован"
+		}
 	}
 }

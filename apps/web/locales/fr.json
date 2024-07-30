@@ -643,5 +643,16 @@
 			"TEAM": "Équipe",
 			"SETTINGS": "Paramètres"
 		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Seulement le temps manuel",
+			"LOST_ELECTRICITY": "Panne d'électricité",
+			"LOST_INTERNET": "Perte d'internet",
+			"FORGOT_TO_START_TIMER": "Oubli de démarrer le chronomètre",
+			"ERROR": "Erreur",
+			"UNPLANNED_WORK": "Travail non planifié",
+			"TESTED_TIMER": "Test du chronomètre"
+		}
 	}
 }
