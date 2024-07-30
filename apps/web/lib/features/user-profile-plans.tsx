@@ -45,11 +45,8 @@ export function UserProfilePlans() {
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
 
-
-	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState)
+	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
-
-
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} />,
@@ -66,23 +63,20 @@ export function UserProfilePlans() {
 	const [filterPastPlanData, setFilteredPastPlanData] = useState<IDailyPlan[]>(pastPlans);
 	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
 
-
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
 		if (!currentDataDailyPlan) return;
 		if (currentTab === 'All Tasks') {
-			setCurrentDataDailyPlan(sortedPlans)
-			setFilterAllPlanData(filterDailyPlan(date as any, sortedPlans))
+			setCurrentDataDailyPlan(sortedPlans);
+			setFilterAllPlanData(filterDailyPlan(date as any, sortedPlans));
 		} else if (currentTab === 'Past Tasks') {
-			setCurrentDataDailyPlan(pastPlans)
-			setFilteredPastPlanData(filterDailyPlan(date as any, pastPlans))
+			setCurrentDataDailyPlan(pastPlans);
+			setFilteredPastPlanData(filterDailyPlan(date as any, pastPlans));
 		} else if (currentTab === 'Future Tasks') {
-			setCurrentDataDailyPlan(futurePlans)
-			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans))
+			setCurrentDataDailyPlan(futurePlans);
+			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
 		}
-
 	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
-
 
 	useEffect(() => {
 		window.localStorage.setItem('outstanding', currentOutstanding);
@@ -105,8 +99,8 @@ export function UserProfilePlans() {
 													currentTab == filter && 'text-blue-600 dark:text-white font-medium'
 												)}
 												onClick={() => {
-													setDate(undefined)
-													setCurrentTab(filter as FilterTabs)
+													setDate(undefined);
+													setCurrentTab(filter as FilterTabs);
 												}}
 											>
 												{filter}
@@ -121,7 +115,6 @@ export function UserProfilePlans() {
 													{filter === 'Past Tasks' && filterPastPlanData?.length}
 													{filter === 'All Tasks' && filterAllPlanData?.length}
 													{filter === 'Outstanding' && outstandingPlans.length}
-
 												</span>
 											</div>
 										</div>
@@ -184,8 +177,8 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 
 	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
 	useEffect(() => {
-		setPlans(filterDailyPlan(date as any, filteredPlans))
-	}, [date, setDate])
+		setPlans(filterDailyPlan(date as any, filteredPlans));
+	}, [date, setDate]);
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (
@@ -261,7 +254,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																				: undefined
 																		}
 																		plan={plan}
-																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
+																		className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																	/>
 																</div>
 															)}

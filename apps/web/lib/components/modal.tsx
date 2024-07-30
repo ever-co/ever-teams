@@ -13,6 +13,7 @@ type Props = {
 	closeModal: () => void;
 	className?: string;
 	alignCloseIcon?: boolean;
+	showCloseIcon?: boolean;
 } & PropsWithChildren;
 
 export function Modal({
@@ -23,7 +24,8 @@ export function Modal({
 	titleClass,
 	description,
 	className,
-	alignCloseIcon
+	alignCloseIcon,
+	showCloseIcon = true
 }: Props) {
 	const refDiv = useRef(null);
 
@@ -50,20 +52,22 @@ export function Modal({
 					>
 						{title && <Dialog.Title className={clsxm(titleClass)}>{title}</Dialog.Title>}
 						{description && <Dialog.Description>{description}</Dialog.Description>}
-						<div
-							onClick={closeModal}
-							className={`absolute ${
-								alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
-							}  md:right-2 md:top-3 cursor-pointer z-50`}
-						>
-							<Image
-								src={'/assets/svg/close.svg'}
-								alt="close"
-								width={28}
-								height={28}
-								className="w-6 md:w-7"
-							/>
-						</div>
+						{showCloseIcon && (
+							<div
+								onClick={closeModal}
+								className={`absolute ${
+									alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
+								}  md:right-2 md:top-3 cursor-pointer z-50`}
+							>
+								<Image
+									src={'/assets/svg/close.svg'}
+									alt="close"
+									width={28}
+									height={28}
+									className="w-6 md:w-7"
+								/>
+							</div>
+						)}
 						{children}
 					</Dialog.Overlay>
 				</div>

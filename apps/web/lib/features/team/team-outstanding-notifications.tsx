@@ -105,6 +105,7 @@ function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTa
 }
 
 function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstandingTasks: IDailyPlan[] }) {
+	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
 	// Notification will be displayed 6 hours after the user closed it
@@ -114,6 +115,7 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 	const [visible, setVisible] = useState(false);
 
 	const employeeWithOutstanding = outstandingTasks
+		.filter((plan) => plan.employeeId !== user?.employee.id)
 		.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
 
 		.filter((plan) => {
@@ -168,7 +170,7 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 	};
 	return (
 		<>
-			{visible && (
+			{uniqueEmployees?.length > 0 && visible && (
 				<div className="rounded-2xl dark:border-dark--theme-light border py-4 px-6 flex justify-between items-center text-xs mb-2">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {uniqueEmployees?.length} team member(s)

@@ -22,8 +22,8 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 
 	useEffect(() => {
-		setPastTasks(filterDailyPlan(date as any, pastPlans))
-	}, [date, setDate])
+		setPastTasks(filterDailyPlan(date as any, pastPlans));
+	}, [date, setDate]);
 	return (
 		<div className="flex flex-col gap-6">
 			{pastTasks?.length > 0 ? (
@@ -96,7 +96,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 																				? 'Past Tasks'
 																				: undefined
 																		}
-																		className='shadow-[0px_0px_15px_0px_#e2e8f0]'
+																		className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																	/>
 																</div>
 															)}
