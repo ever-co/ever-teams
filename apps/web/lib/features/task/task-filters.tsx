@@ -8,7 +8,7 @@ import {
 	useOrganizationTeams,
 	useOutsideClick,
 	useModal,
-	useTeamTasks
+	useTeamTasks,
 } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -32,6 +32,7 @@ import { TaskDatePickerWithRange } from './task-date-range';
 import { format } from 'date-fns';
 import { HiMiniClock } from "react-icons/hi2";
 import '../../../styles/style.css'
+import { TaskIssueStatus } from './task-issue';
 
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
@@ -279,6 +280,7 @@ function InputFilters({ hook, profile }: Props) {
 	const { activeTeam } = useOrganizationTeams();
 	const members = activeTeam?.members;
 
+
 	const [date, setDate] = useState<Date>(new Date());
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [startTime, setStartTime] = useState<string>('');
@@ -358,6 +360,7 @@ function InputFilters({ hook, profile }: Props) {
 		const minutes = diffMinutes % 60;
 		setTimeDifference(`${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`);
 	};
+
 
 	useEffect(() => {
 		calculateTimeDifference();
@@ -543,11 +546,25 @@ function InputFilters({ hook, profile }: Props) {
 
 					<div className="mb-4">
 						<label className="block text-gray-500 mb-1">Task<span className="text-[#de5505e1] ml-1">*</span></label>
-						<SelectItems items={tasks}
-							onValueChange={(value) => setTask(value)}
-							itemId={(task) => (task.id)}
+						<SelectItems
+							items={tasks}
 							itemToString={(task) => task.title}
+							itemId={(task) => task.id}
+							onValueChange={(value) => setTask(value)}
 							triggerClassName='border-slate-100 dark:border-slate-600'
+							renderItem={(item, onClick) => {
+								return <button
+									style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
+									key={item.id} onClick={onClick} className={clsxm("truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-bold dark:text-white dark:hover:bg-primary flex items-center space-x-1 justify-start")}
+								>
+									<TaskIssueStatus showIssueLabels={false} className={'truncate hover:cursor-pointer h-5'} task={item} />
+									<span
+										style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
+									>
+										{item.title}
+									</span>
+								</button>
+							}}
 						/>
 					</div>
 
