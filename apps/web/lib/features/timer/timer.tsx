@@ -143,10 +143,10 @@ export function Timer({ className }: IClassName) {
 
 				<SuggestDailyPlanModal
 					isOpen={modals.isSuggestDailyPlanModalOpen}
-					closeModal={modals.suggrstDailyPlanCloseModal}
+					closeModal={modals.suggestDailyPlanCloseModal}
 				/>
 
-				{hasPlan && hasPlan.tasks && hasPlan.tasks.length && (
+				{hasPlan && hasPlan.tasks && (
 					<AddTasksEstimationHoursModal
 						isOpen={modals.isTasksEstimationHoursModalOpen}
 						closeModal={modals.tasksEstimationHoursCloseModal}

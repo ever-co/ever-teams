@@ -29,7 +29,7 @@ export function useStartStopTimerHandler() {
 
 	const {
 		isOpen: isSuggestDailyPlanModalOpen,
-		closeModal: suggrstDailyPlanCloseModal,
+		closeModal: suggestDailyPlanCloseModal,
 		openModal: openSuggestDailyPlanModal
 	} = useModal();
 
@@ -141,7 +141,7 @@ export function useStartStopTimerHandler() {
 			tasksEstimationHoursCloseModal,
 			openAddTasksEstimationHoursModal,
 			isSuggestDailyPlanModalOpen,
-			suggrstDailyPlanCloseModal,
+			suggestDailyPlanCloseModal,
 			openSuggestDailyPlanModal
 		},
 		startStopTimerHandler
