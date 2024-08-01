@@ -3,6 +3,7 @@
 import { useCallbackRef, useTaskEstimation } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { TimeInputField } from 'lib/components';
 import { MutableRefObject, useEffect } from 'react';
 
@@ -27,7 +28,8 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 		handleFocusMinutes,
 		handleBlurMinutes,
 		updateLoading,
-		editableMode
+		editableMode,
+		setEditableMode
 	} = useTaskEstimation(_task);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
@@ -57,11 +59,28 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 				disabled={task ? false : true}
 				onFocus={handleFocus}
 				onBlur={handleBlur}
-				label="h"
-				dash={value['hours'] ? '' : '__'}
-				wrapperClassName={wrapperClassName}
+				label={
+					editableMode ? 'h' : parseInt(value['hours']) > 0 ? 'h' : parseInt(value['minutes']) > 0 ? '' : 'h'
+				}
+				dash={
+					editableMode ? '__' : parseInt(value['hours']) > 0 ? '' : parseInt(value['minutes']) > 0 ? '' : '__'
+				}
+				wrapperClassName={clsxm(
+					wrapperClassName,
+					`${editableMode ? 'block' : parseInt(value['hours']) > 0 ? 'block' : parseInt(value['minutes']) > 0 ? 'hidden' : 'block'}`
+				)}
 			/>
-			<span>:</span>
+			{editableMode ? (
+				<>
+					<span>:</span>
+				</>
+			) : parseInt(value['hours']) > 0 ? (
+				parseInt(value['minutes']) > 0 ? (
+					<>
+						<span>:</span>
+					</>
+				) : null
+			) : null}
 			<TimeInputField
 				value={value['minutes']}
 				onChange={onChange('minutes')}
@@ -71,11 +90,37 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 				disabled={task ? false : true}
 				onFocus={handleFocusMinutes}
 				onBlur={handleBlurMinutes}
-				label="m"
-				loading={updateLoading}
-				dash={value['minutes'] ? '' : '__'}
-				wrapperClassName={wrapperClassName}
+				label={
+					editableMode ? 'm' : parseInt(value['minutes']) > 0 ? 'm' : parseInt(value['hours']) > 0 ? '' : 'm'
+				}
+				dash={
+					editableMode ? '__' : parseInt(value['minutes']) > 0 ? '' : parseInt(value['hours']) > 0 ? '' : '__'
+				}
+				wrapperClassName={clsxm(
+					wrapperClassName,
+					`${editableMode ? 'block' : parseInt(value['minutes']) > 0 ? 'block' : parseInt(value['hours']) > 0 ? 'hidden' : 'block'}`
+				)}
 			/>
+			<div className="h-full flex items-center justify-center">
+				{!updateLoading ? (
+					editableMode ? (
+						<button
+							onClick={() => {
+								handleSubmit();
+								setEditableMode(false);
+							}}
+						>
+							<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+						</button>
+					) : (
+						<button onClick={() => setEditableMode(true)}>
+							<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+						</button>
+					)
+				) : (
+					<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+				)}
+			</div>
 		</div>
 	);
 }

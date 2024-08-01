@@ -3,14 +3,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useDailyPlan, useOrganizationTeams, useUserProfilePage } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card } from 'lib/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
 import { MainLayout } from 'lib/layout';
-import { DAILY_PLAN_SHOW_MODAL, IssuesView } from '@app/constants';
+import { IssuesView } from '@app/constants';
 import { useNetworkState } from '@uidotdev/usehooks';
 import Offline from '@components/pages/offline';
 import { useTranslations } from 'next-intl';
@@ -31,21 +31,10 @@ import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from 'lib/features/team-member-header';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
-import { DailyPlanCompareEstimatedModal } from 'lib/features/daily-plan';
 
 function MainPage() {
 	const t = useTranslations();
-	const [isOpen, setIsOpen] = useState(false)
-	const { todayPlan } = useDailyPlan();
-	const profile = useUserProfilePage();
 	const [headerSize, setHeaderSize] = useState(10);
-	const plan = todayPlan.find((plan) => plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]));
-
-	const defaultOpenPopup =
-		typeof window !== 'undefined'
-			? (window.localStorage.getItem(DAILY_PLAN_SHOW_MODAL)) || null
-			: new Date().toISOString().split('T')[0];
-
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
 	const [view, setView] = useRecoilState(headerTabs);
@@ -63,14 +52,6 @@ function MainPage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
 
-	useEffect(() => {
-		window.localStorage.setItem(DAILY_PLAN_SHOW_MODAL, new Date().toISOString().split('T')[0]);
-		if (defaultOpenPopup !== new Date().toISOString().split('T')[0] || defaultOpenPopup === null) {
-			setIsOpen(true)
-		}
-	}, [defaultOpenPopup, plan])
-
-
 	React.useEffect(() => {
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
@@ -81,10 +62,6 @@ function MainPage() {
 	}
 	return (
 		<>
-			<DailyPlanCompareEstimatedModal open={isOpen} closeModal={() => setIsOpen((prev) => {
-				window.localStorage.setItem(DAILY_PLAN_SHOW_MODAL, new Date().toISOString().split('T')[0]);
-				return !prev;
-			})} todayPlan={todayPlan} profile={profile} />
 			<div className="flex flex-col h-screen justify-between">
 				{/* <div className="flex-grow "> */}
 				<MainLayout className="h-full" footerClassName={clsxm('')}>

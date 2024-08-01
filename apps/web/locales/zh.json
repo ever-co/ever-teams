@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "从计划中移除",
 		"CREATE_A_PLAN_FOR_TODAY": "为今天制定计划",
 		"TODAY_PLAN_SUB_TITLE": "今天没有计划",
-		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果"
+		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",
@@ -641,6 +642,17 @@
 			"TASKS": "任务",
 			"TEAM": "团队",
 			"SETTINGS": "设置"
+		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "仅手动时间",
+			"LOST_ELECTRICITY": "失去電力",
+			"LOST_INTERNET": "失去網路",
+			"FORGOT_TO_START_TIMER": "忘記啟動計時器",
+			"ERROR": "錯誤",
+			"UNPLANNED_WORK": "未計劃的工作",
+			"TESTED_TIMER": "計時器測試"
 		}
 	}
 }
