@@ -47,7 +47,7 @@ function LiveKitPage() {
                     videoEnabled: true,
                     audioEnabled: true,
                     audioDeviceId: '',
-                    username: user?.email!,
+                    username: user?.email || '',
                     videoDeviceId: ''
                 }}
             />}
