@@ -28,8 +28,8 @@ function AllTeamsPage() {
 	];
 
 	/* If the user is not a manager in any team or if he's
-        manager in only one team, then redirect him to the home page
-    */
+		manager in only one team, then redirect him to the home page
+	*/
 	if (userManagedTeams.length < 2) return <RedirectUser />;
 
 	return (

@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Rimuovi da questo piano",
 		"CREATE_A_PLAN_FOR_TODAY": "Crea un piano per oggi",
 		"TODAY_PLAN_SUB_TITLE": "Non c'è nessun piano per oggi",
-		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati"
+		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Questa attività non era pianificata per il piano di oggi. Vuoi aggiungerla al piano?"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Inserisci il tuo nome",
@@ -641,6 +642,17 @@
 			"TASKS": "Attività",
 			"TEAM": "Team",
 			"SETTINGS": "Impostazioni"
+		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Solo tempo manuale",
+			"LOST_ELECTRICITY": "Interruzione di corrente",
+			"LOST_INTERNET": "Perdita di internet",
+			"FORGOT_TO_START_TIMER": "Dimenticato di avviare il timer",
+			"ERROR": "Errore",
+			"UNPLANNED_WORK": "Lavoro non pianificato",
+			"TESTED_TIMER": "Timer testato"
 		}
 	}
 }

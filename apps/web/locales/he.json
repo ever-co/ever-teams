@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "הסר מתוכנית זו",
 		"CREATE_A_PLAN_FOR_TODAY": "צור תוכנית להיום",
 		"TODAY_PLAN_SUB_TITLE": "אין תוכנית להיום",
-		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר"
+		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "הכנס את השם שלך",
@@ -641,6 +642,17 @@
 			"TASKS": "משימות",
 			"TEAM": "צוות",
 			"SETTINGS": "הגדרות"
+		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "רק זמן ידני",
+			"LOST_ELECTRICITY": "הפסקת חשמל",
+			"LOST_INTERNET": "אובדן אינטרנט",
+			"FORGOT_TO_START_TIMER": "שכחתי להפעיל את הטיימר",
+			"ERROR": "שגיאה",
+			"UNPLANNED_WORK": "עבודה לא מתוכננת",
+			"TESTED_TIMER": "טיימר נבדק"
 		}
 	}
 }

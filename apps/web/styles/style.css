@@ -1,0 +1,6 @@
+.border-gradient-dark {
+    border-width: 2px;
+    border-style: solid;
+    border-image-source: linear-gradient(to top left, #FF007A, #1A73E8);
+    border-image-slice: 1;
+}

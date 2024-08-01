@@ -28,3 +28,27 @@ export const planBadgeContent = (
 		return null;
 	}
 };
+
+
+export const planBadgeContPast = (
+	dailyPlan: IDailyPlan[],
+	taskId: ITeamTask['id']
+): string | null => {
+	const today = new Date().toISOString().split('T')[0];
+	const dailyPlanDataPast = dailyPlan.filter(plan => new Date(plan.date) < new Date(today));
+	const allTasks = dailyPlanDataPast.flatMap(plan => plan.tasks);
+	const taskCount: { [key: string]: number } = allTasks?.reduce((acc, task) => {
+		if (task && task.id) { acc[task.id] = (acc[task.id] || 0) + 1; }
+		return acc;
+	}, {} as { [key: string]: number });
+
+	const dailyPlanPast = allTasks?.filter(task => task && taskCount[task.id] === 1);
+	const filterDailyPlan = dailyPlanPast.filter((plan) => plan?.id === taskId);
+	if (filterDailyPlan.length > 0) {
+		return 'Planned';
+	} else {
+		return null;
+	}
+
+
+}

@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Usuń z tego planu",
 		"CREATE_A_PLAN_FOR_TODAY": "Utwórz plan na dziś",
 		"TODAY_PLAN_SUB_TITLE": "Brak planu na dziś",
-		"DAILY_PLAN_DESCRIPTION": "'Plan dnia' pomaga zorganizować proces pracy, aby osiągnąć najlepsze wyniki"
+		"DAILY_PLAN_DESCRIPTION": "'Plan dnia' pomaga zorganizować proces pracy, aby osiągnąć najlepsze wyniki",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "To zadanie nie było zaplanowane na dzisiejszy plan. Czy chcesz dodać do planu?"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Wprowadź swoje imię",
@@ -641,6 +642,17 @@
 			"TASKS": "Zadania",
 			"TEAM": "Zespół",
 			"SETTINGS": "Ustawienia"
+		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Tylko czas ręczny",
+			"LOST_ELECTRICITY": "Utrata zasilania",
+			"LOST_INTERNET": "Utrata internetu",
+			"FORGOT_TO_START_TIMER": "Zapomniałem uruchomić stoper",
+			"ERROR": "Błąd",
+			"UNPLANNED_WORK": "Nieplanowana praca",
+			"TESTED_TIMER": "Testowany stoper"
 		}
 	}
 }

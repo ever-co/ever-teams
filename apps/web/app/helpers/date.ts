@@ -163,3 +163,8 @@ export const isTestDateRange = (itemDate: Date, from?: Date, to?: Date) => {
 		return true; // or false, depending on your default logic
 	}
 }
+
+
+export function convertHourToSeconds(hours: number) {
+	return hours * 60 * 60;
+}

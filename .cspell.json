@@ -4,6 +4,7 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"nivo",
 		"accepte",
 		"Accordian",
 		"adipiscing",
@@ -349,7 +350,8 @@
 		"Xlarge",
 		"xlcard",
 		"xlight",
-		"yellowbox"
+		"yellowbox",
+		"vhidden"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
