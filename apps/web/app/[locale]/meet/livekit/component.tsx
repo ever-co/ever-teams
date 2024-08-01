@@ -5,7 +5,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTokenLiveKit } from '@app/hooks/useLiveKit';
 
 const LiveKit = dynamic(() => import('lib/features/integrations/livekit'), {
