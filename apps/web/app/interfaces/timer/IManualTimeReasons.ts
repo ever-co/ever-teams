@@ -1,0 +1,7 @@
+export type ManualTimeReasons =
+	| 'LOST_ELECTRICITY'
+	| 'LOST_INTERNET'
+	| 'FORGOT_TO_START_TIMER'
+	| 'ERROR'
+	| 'UNPLANNED_WORK'
+	| 'TESTED_TIMER';

@@ -350,7 +350,8 @@
 		"Xlarge",
 		"xlcard",
 		"xlight",
-		"yellowbox"
+		"yellowbox",
+		"vhidden"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

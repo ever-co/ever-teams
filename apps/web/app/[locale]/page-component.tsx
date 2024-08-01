@@ -52,9 +52,6 @@ function MainPage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
 
-
-
-
 	React.useEffect(() => {
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
@@ -65,7 +62,6 @@ function MainPage() {
 	}
 	return (
 		<>
-
 			<div className="flex flex-col h-screen justify-between">
 				{/* <div className="flex-grow "> */}
 				<MainLayout className="h-full" footerClassName={clsxm('')}>

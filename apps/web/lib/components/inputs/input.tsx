@@ -161,24 +161,31 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
 					{emojis && (
-						<div>{clickInput && <>
-							<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
-							{showEmoji &&  (
-								<div
-									ref={mergeRefs(
-										filteredRefs as (Ref<HTMLDivElement> | MutableRefObject<HTMLDivElement>)[]
+						<div>
+							{clickInput && (
+								<>
+									<BsEmojiSmile onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
+									{showEmoji && (
+										<div
+											ref={mergeRefs(
+												filteredRefs as (
+													| Ref<HTMLDivElement>
+													| MutableRefObject<HTMLDivElement>
+												)[]
+											)}
+											className="absolute  right-1 z-50"
+										>
+											<Picker
+												data={data}
+												emojiSize={20}
+												emojiButtonSize={28}
+												onEmojiSelect={addEmoji}
+												maxFrequentRows={0}
+											/>
+										</div>
 									)}
-									className="absolute  right-1 z-50"
-								>
-									<Picker
-										data={data}
-										emojiSize={20}
-										emojiButtonSize={28}
-										onEmojiSelect={addEmoji}
-										maxFrequentRows={0}
-									/>
-								</div>
-							)}</>}
+								</>
+							)}
 						</div>
 					)}
 					{trailingNode && <div className="flex items-center">{trailingNode}</div>}

@@ -582,7 +582,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Remover deste plano",
 		"CREATE_A_PLAN_FOR_TODAY": "Criar um plano para hoje",
 		"TODAY_PLAN_SUB_TITLE": "Não há plano para hoje",
-		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados"
+		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?"
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Digite seu nome",
@@ -641,6 +642,17 @@
 			"TASKS": "Tarefas",
 			"TEAM": "Equipe",
 			"SETTINGS": "Configurações"
+		}
+	},
+	"manualTime": {
+		"reasons": {
+			"DEFAULT": "Apenas tempo manual",
+			"LOST_ELECTRICITY": "Perda de eletricidade",
+			"LOST_INTERNET": "Perda de internet",
+			"FORGOT_TO_START_TIMER": "Esqueci de iniciar o temporizador",
+			"ERROR": "Erro",
+			"UNPLANNED_WORK": "Trabalho não planejado",
+			"TESTED_TIMER": "Temporizador testado"
 		}
 	}
 }
