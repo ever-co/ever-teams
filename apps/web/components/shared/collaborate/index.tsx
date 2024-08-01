@@ -24,7 +24,7 @@ import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@components/ui/scroll-bar';
 
 const Collaborate = () => {
-	const { onLiveKitClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
+	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
 	const { analytics } = useJitsu();
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -199,8 +199,7 @@ const Collaborate = () => {
 							<Button
 								onClick={() => {
 									closeModal();
-									onLiveKitClick();
-									// onMeetClick();
+									onMeetClick();
 								}}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"

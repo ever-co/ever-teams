@@ -9,7 +9,10 @@ import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import capitalize from 'lodash/capitalize';
 
+
+
 export function useCollaborative(user?: IUser) {
+	const meetType = process.env.NEXT_PUBLIC_MEET_TYPE;
 	const { activeTeam } = useOrganizationTeams();
 	const { user: authUser } = useAuthenticateUser();
 	const [collaborativeSelect, setCollaborativeSelect] = useRecoilState(collaborativeSelectState);
@@ -57,17 +60,14 @@ export function useCollaborative(user?: IUser) {
 	}, [authUser, randomMeetName, activeTeam, collaborativeMembers]);
 
 	const onMeetClick = useCallback(() => {
+		// LiveKit | Jitsi
 		const meetName = getMeetRoomName();
-
-		router.push(`/meet?room=${btoa(meetName)}`);
-	}, [getMeetRoomName, router]);
-
-
-	const onLiveKitClick = useCallback(() => {
-		const meetName = getMeetRoomName();
-		router.push(`/meet/livekit?roomName=${btoa(meetName)}`);
-	}, [getMeetRoomName, router]);
-
+		const encodedName = Buffer.from(meetName).toString('base64');
+		const path = meetType === 'Jitsi'
+			? `/meet/jitsi?room=${encodedName}`
+			: `/meet/livekit?roomName=${encodedName}`;
+		router.push(path);
+	}, [getMeetRoomName, router, meetType]);
 
 	const onBoardClick = useCallback(() => {
 		const members = collaborativeMembers.map((m) => m.id).join(',');
@@ -89,7 +89,6 @@ export function useCollaborative(user?: IUser) {
 		setCollaborativeSelect,
 		onBoardClick,
 		onMeetClick,
-		onLiveKitClick,
 		collaborativeMembers,
 		setCollaborativeMembers,
 		user_selected,
