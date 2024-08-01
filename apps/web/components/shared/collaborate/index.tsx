@@ -24,7 +24,7 @@ import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { ScrollArea } from '@components/ui/scroll-bar';
 
 const Collaborate = () => {
-	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
+	const { onLiveKitClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
 	const { analytics } = useJitsu();
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -114,11 +114,11 @@ const Collaborate = () => {
 												{(member?.image?.thumbUrl ||
 													member?.image?.fullUrl ||
 													member?.imageUrl) &&
-												isValidUrl(
-													member?.image?.thumbUrl ||
+													isValidUrl(
+														member?.image?.thumbUrl ||
 														member?.image?.fullUrl ||
 														member?.imageUrl
-												) ? (
+													) ? (
 													<Avatar
 														size={36}
 														className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
@@ -167,9 +167,9 @@ const Collaborate = () => {
 										}}
 									>
 										{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
-										isValidUrl(
-											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
-										) ? (
+											isValidUrl(
+												member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
+											) ? (
 											<Avatar
 												size={32}
 												className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
@@ -199,7 +199,8 @@ const Collaborate = () => {
 							<Button
 								onClick={() => {
 									closeModal();
-									onMeetClick();
+									onLiveKitClick();
+									// onMeetClick();
 								}}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"

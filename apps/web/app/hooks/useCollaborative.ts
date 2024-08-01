@@ -62,6 +62,13 @@ export function useCollaborative(user?: IUser) {
 		router.push(`/meet?room=${btoa(meetName)}`);
 	}, [getMeetRoomName, router]);
 
+
+	const onLiveKitClick = useCallback(() => {
+		// const meetName = getMeetRoomName();
+		router.push(`/livekit`);
+	}, [getMeetRoomName, router]);
+
+
 	const onBoardClick = useCallback(() => {
 		const members = collaborativeMembers.map((m) => m.id).join(',');
 
@@ -82,6 +89,7 @@ export function useCollaborative(user?: IUser) {
 		setCollaborativeSelect,
 		onBoardClick,
 		onMeetClick,
+		onLiveKitClick,
 		collaborativeMembers,
 		setCollaborativeMembers,
 		user_selected,
