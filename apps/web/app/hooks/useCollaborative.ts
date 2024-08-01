@@ -64,8 +64,8 @@ export function useCollaborative(user?: IUser) {
 
 
 	const onLiveKitClick = useCallback(() => {
-		// const meetName = getMeetRoomName();
-		router.push(`/livekit`);
+		const meetName = getMeetRoomName();
+		router.push(`/meet/livekit?roomName=${btoa(meetName)}`);
 	}, [getMeetRoomName, router]);
 
 

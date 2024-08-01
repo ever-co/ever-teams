@@ -1,4 +1,4 @@
-import LiveKitPage from './companent'
+import LiveKitPage from './component'
 import React from 'react'
 
 function Page() {

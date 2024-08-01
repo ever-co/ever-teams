@@ -26,10 +26,7 @@ export function useTokenLiveKit({ roomName, username }: ITokenLiveKitProps) {
                 console.error('Failed to fetch token:', error);
             }
         };
-
-        if (!token) {
-            fetchToken();
-        }
+        fetchToken();
     }, [roomName, username, token]);
 
     return { token };
