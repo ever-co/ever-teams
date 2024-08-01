@@ -1,6 +1,5 @@
 import '../../../styles/style.css';
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
-import api from '@app/services/client/axios';
 import { clsxm } from '@app/utils';
 import { DatePicker } from '@components/ui/DatePicker';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
@@ -11,6 +10,9 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 import { HiMiniClock } from 'react-icons/hi2';
 import { manualTimeReasons } from '@app/constants';
 import { useTranslations } from 'next-intl';
+// import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
+import { IOrganizationTeamList } from '@app/interfaces';
+import { useManualTime } from '@app/hooks/features/useManualTime';
 
 interface IAddManualTimeModalProps {
 	isOpen: boolean;
@@ -23,16 +25,17 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [description, setDescription] = useState<string>('');
 	const [reason, setReason] = useState<string>('');
-	const [errorMsg, setError] = useState<string>('');
-	const [loading, setLoading] = useState<boolean>(false);
+	const [errorMsg] = useState<string>('');
 	const [endTime, setEndTime] = useState<string>('');
 	const [date, setDate] = useState<Date>(new Date());
 	const [startTime, setStartTime] = useState<string>('');
-	const [teamId, setTeamId] = useState<string>('');
+	const [team, setTeam] = useState<IOrganizationTeamList>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const { activeTeamTask, tasks, activeTeamId, activeTeam } = useTeamTasks();
+	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
+
+	const { addManualTime, addManualTimeLoading } = useManualTime();
 
 	useEffect(() => {
 		const now = new Date();
@@ -47,40 +50,66 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		(e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 
-			const timeObject = {
-				date,
-				isBillable,
-				startTime,
-				endTime,
-				teamId,
-				taskId,
-				description,
-				reason,
-				timeDifference
-			};
+			const startedAt = new Date(date);
+			const stoppedAt = new Date(date);
 
-			if (date && startTime && endTime && teamId && taskId) {
-				setLoading(true);
-				setError('');
-				const postData = async () => {
-					try {
-						const response = await api.post('/add_time', timeObject);
-						if (response.data.message) {
-							setLoading(false);
-							closeModal();
-						}
-					} catch (err) {
-						setError('Failed to post data');
-						setLoading(false);
-					}
-				};
+			// Set time for the started date
+			startedAt.setHours(parseInt(startTime.split(':')[0]));
+			startedAt.setHours(parseInt(startTime.split(':')[1]));
 
-				postData();
-			} else {
-				setError(`Please complete all required fields with a ${'*'}`);
-			}
+			// Set time for the stopped date
+			stoppedAt.setHours(parseInt(endTime.split(':')[0]));
+			stoppedAt.setHours(parseInt(endTime.split(':')[1]));
+
+			console.log(startedAt, stoppedAt);
+
+			// const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> = {
+			// 	startedAt,
+			// 	stoppedAt,
+			// 	taskId,
+			// 	description,
+			// 	reason,
+			// 	isBillable,
+			// 	organization: { id: team?.organizationId as string },
+			// 	organizationContactId: team?.organizationId
+			// };
+
+			// addManualTime(requestData);
+
+			// const timeObject = {
+			// 	date,
+			// 	isBillable,
+			// 	startTime,
+			// 	endTime,
+			// 	teamId: team?.id,
+			// 	taskId,
+			// 	description,
+			// 	reason,
+			// 	timeDifference
+			// };
+
+			// if (date && startTime && endTime && teamId && taskId) {
+			// 	setLoading(true);
+			// 	setError('');
+			// 	const postData = async () => {
+			// 		try {
+			// 			const response = await api.post('/add_time', timeObject);
+			// 			if (response.data.message) {
+			// 				setLoading(false);
+			// 				closeModal();
+			// 			}
+			// 		} catch (err) {
+			// 			setError('Failed to post data');
+			// 			setLoading(false);
+			// 		}
+			// 	};
+
+			// 	postData();
+			// } else {
+			// 	setError(`Please complete all required fields with a ${'*'}`);
+			// }
 		},
-		[closeModal, date, description, endTime, isBillable, reason, startTime, taskId, teamId, timeDifference]
+		[date, endTime, startTime]
 	);
 
 	const calculateTimeDifference = useCallback(() => {
@@ -108,10 +137,10 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		if (activeTeamTask) {
 			setTaskId(activeTeamTask.id);
 		}
-		if (activeTeamId) {
-			setTeamId(activeTeamId);
+		if (activeTeam) {
+			setTeam(activeTeam);
 		}
-	}, [activeTeamTask, activeTeamId]);
+	}, [activeTeamTask, activeTeam]);
 
 	return (
 		<Modal
@@ -225,10 +254,9 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 					</label>
 					<SelectItems
 						items={teams}
-						defaultValue={activeTeam}
-						onValueChange={(value) => setTeamId(value ? value.id : '')}
-						itemId={(team) => (team ? team.id : '')}
-						itemToString={(team) => (team ? team.name : '')}
+						onValueChange={(value) => setTeam(value)}
+						itemId={(team) => team.id}
+						itemToString={(team) => team.name}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
 				</div>
@@ -239,10 +267,9 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 					</label>
 					<SelectItems
 						items={tasks}
-						onValueChange={(value) => setTaskId(value ? value.id : '')}
-						itemId={(task) => (task ? task.id : '')}
-						defaultValue={activeTeamTask}
-						itemToString={(task) => (task ? task.title : '')}
+						onValueChange={(value) => setTaskId(value.id)}
+						itemId={(task) => task.id}
+						itemToString={(task) => task.title}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
 				</div>
@@ -278,8 +305,8 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						View timesheet
 					</Button>
 					<Button
-						loading={loading}
-						disabled={loading}
+						loading={addManualTimeLoading}
+						disabled={addManualTimeLoading}
 						type="submit"
 						className="bg-[#3826A6] font-bold  flex items-center text-white "
 					>
