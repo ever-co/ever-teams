@@ -42,7 +42,7 @@ import {
 } from 'lib/components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useMemo, useState, useTransition } from 'react';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
@@ -55,10 +55,15 @@ import { useTranslations } from 'next-intl';
 import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { CreateDailyPlanFormModal } from '../daily-plan/create-daily-plan-form-modal';
 import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
-import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 import moment from 'moment';
+import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
+import {
+	AddDailyPlanWorkHourModal,
+	AddTasksEstimationHoursModal,
+	EnforcePlanedTaskModal,
+	SuggestDailyPlanModal
+} from '../daily-plan';
 
 type Props = {
 	active?: boolean;
@@ -338,24 +343,17 @@ function TimerButtonCall({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { closeModal, isOpen, openModal } = useModal();
 
-	const {
-		canTrack,
-		disabled,
-		canRunTimer,
-		timerStatusFetching,
-		timerStatus,
-		activeTeamTask,
-		startTimer,
-		stopTimer,
-		isPlanVerified,
-		hasPlan
-	} = useTimerView();
+	const { canTrack, disabled, timerStatus, activeTeamTask, startTimer, stopTimer, hasPlan } = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
 
-	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
+	const activeTaskStatus = useMemo(
+		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
+		[activeTeamTask?.id, task.id, timerStatus]
+	);
+
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
@@ -393,40 +391,48 @@ function TimerButtonCall({
 		updateOrganizationTeamEmployee
 	]);
 
-	const timerHanlderStartStop = useCallback(() => {
-		const currentDate = new Date().toISOString().split('T')[0];
-		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
-		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
-
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
-				openModal();
-			} else {
-				startTimer();
-			}
-		}
-	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
 	return loading ? (
 		<SpinnerLoader size={30} />
 	) : (
 		<>
 			<TimerButton
-				onClick={activeTaskStatus ? timerHanlderStartStop : startTimerWithTask}
+				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
 				running={activeTaskStatus?.running}
 				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
 				className={clsxm('h-14 w-14', className)}
 			/>
-			<AddWorkTimeAndEstimatesToPlan
-				closeModal={closeModal}
-				open={isOpen}
-				plan={hasPlan}
-				startTimer={startTimer}
-				hasPlan={!!hasPlan}
+			<SuggestDailyPlanModal
+				isOpen={modals.isSuggestDailyPlanModalOpen}
+				closeModal={modals.suggestDailyPlanCloseModal}
 			/>
+
+			{hasPlan && hasPlan.tasks && (
+				<AddTasksEstimationHoursModal
+					isOpen={modals.isTasksEstimationHoursModalOpen}
+					closeModal={modals.tasksEstimationHoursCloseModal}
+					plan={hasPlan}
+					tasks={hasPlan.tasks}
+				/>
+			)}
+
+			{hasPlan && (
+				<AddDailyPlanWorkHourModal
+					isOpen={modals.isDailyPlanWorkHoursModalOpen}
+					closeModal={modals.dailyPlanWorkHoursCloseModal}
+					plan={hasPlan}
+				/>
+			)}
+
+			{requirePlan && hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					closeModal={modals.enforceTaskCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
 		</>
 	);
 }
@@ -508,14 +514,15 @@ function TaskCardMenu({
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { todayPlan, futurePlans } = useDailyPlan();
 
-	const taskPlannedToday = todayPlan[0].tasks?.find((_task) => _task.id === task.id);
+	const taskPlannedToday = todayPlan[0]?.tasks?.find((_task) => _task.id === task.id);
 
 	const taskPlannedTomorrow = futurePlans
-		.filter((_plan) => moment(_plan.date).format('YYYY-MM-DD')
-			?.toString()
-			?.startsWith(moment()
-				?.add(1, 'day')
-				.format('YYYY-MM-DD')))[0]
+		.filter((_plan) =>
+			moment(_plan.date)
+				.format('YYYY-MM-DD')
+				?.toString()
+				?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
+		)[0]
 		?.tasks?.find((_task) => _task.id === task.id);
 
 	return (

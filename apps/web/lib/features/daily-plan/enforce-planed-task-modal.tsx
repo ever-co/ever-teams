@@ -4,14 +4,14 @@ import { Button, Card, Modal, Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
-interface IProps {
+interface IEnforcePlannedTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
 	task: ITeamTask;
 	plan: IDailyPlan;
 }
 
-export function EnforcePlanedTaskModal(props: IProps) {
+export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	const { closeModal, task, open, plan } = props;
 	const t = useTranslations();
 	const { addTaskToPlan, addTaskToPlanLoading } = useDailyPlan();
