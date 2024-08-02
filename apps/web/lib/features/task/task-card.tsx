@@ -151,7 +151,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
+					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
 					active && ['border-primary-light dark:bg-[#1E2025]'],
 					'gap-5',
 					className
@@ -161,7 +161,7 @@ export function TaskCard(props: Props) {
 					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
 				</div>
 
-				<div className="flex-1 min-w-[35%] max-w-[40%] flex flex-row justify-between">
+				<div className="flex-1 min-w-[12rem] max-w-[40%] flex flex-row justify-between">
 					{/* Task information */}
 					<TaskInfo
 						task={task}
@@ -217,28 +217,29 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex flex-row justify-between items-center w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
+				<div className="xl:flex  h-full flex-col items-center justify-center xl:flex-row xl:justify-between xl:items-center w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<div className="w-full flex items-center justify-center">
+					<div className=" flex items-center justify-center">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load) => setLoading(load)}
-							className="min-w-[10.625rem]"
+							className="min-w-[10.625rem] text-sm"
 						/>
 					</div>
-
 					{/* TaskCardMenu */}
-					{task && currentMember && (
-						<TaskCardMenu
-							task={task}
-							loading={loading}
-							memberInfo={memberInfo}
-							viewType={viewType}
-							profile={profile}
-							plan={plan}
-							planMode={planMode}
-						/>
-					)}
+					<div className=" shrink-0  flex items-end justify-end mt-2 xl:mt-0 text-end">
+						{task && currentMember && (
+							<TaskCardMenu
+								task={task}
+								loading={loading}
+								memberInfo={memberInfo}
+								viewType={viewType}
+								profile={profile}
+								plan={plan}
+								planMode={planMode}
+							/>
+						)}
+					</div>
 				</div>
 			</Card>
 
@@ -248,7 +249,8 @@ export function TaskCard(props: Props) {
 				className={clsxm(
 					'relative lg:hidden flex justify-between py-3 flex-col',
 					active && ['border-primary-light border-[2px]'],
-					className
+					className,
+					'bg-red-500'
 				)}
 			>
 				<div className="flex justify-between mb-4 ml-2">
@@ -285,9 +287,7 @@ export function TaskCard(props: Props) {
 							<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
 						)}
 					</div>
-
 					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
-
 					{task && currentMember && (
 						<TaskCardMenu
 							task={task}
@@ -528,7 +528,7 @@ function TaskCardMenu({
 	return (
 		<Popover>
 			<Popover.Button className="flex items-center border-none outline-none">
-				{!loading && <ThreeCircleOutlineVerticalIcon className="w-full max-w-[24px] dark:text-[#B1AEBC]" />}
+				{!loading && <ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px]  dark:text-[#B1AEBC]" />}
 				{loading && <SpinnerLoader size={20} />}
 			</Popover.Button>
 
