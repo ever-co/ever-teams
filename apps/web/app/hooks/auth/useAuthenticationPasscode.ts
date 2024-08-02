@@ -1,7 +1,7 @@
 'use client';
 
 import { authFormValidate } from '@app/helpers/validations';
-import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { IOrganizationTeam, ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import {
 	sendAuthCodeAPI,
 	signInEmailAPI,
@@ -44,6 +44,7 @@ export function useAuthenticationPasscode() {
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>('email');
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
+	const [defaultTeamId, setDefaultTeamId] = useState<string | undefined>(undefined);
 	const [authenticated, setAuthenticated] = useState(false);
 
 	const [formValues, setFormValues] = useState({
@@ -103,6 +104,7 @@ export function useAuthenticationPasscode() {
 
 				if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
 					setWorkspaces(data.workspaces);
+					setDefaultTeamId(data.defaultTeamId);
 
 					setScreen('workspace');
 				}
@@ -169,6 +171,7 @@ export function useAuthenticationPasscode() {
 		token: string;
 		selectedTeam: string;
 		code?: string;
+		defaultTeamId?: IOrganizationTeam['id'];
 	}) => {
 		signInWorkspaceQueryCall(params)
 			.then(() => {
@@ -234,7 +237,8 @@ export function useAuthenticationPasscode() {
 			email: formValues.email,
 			code: formValues.code,
 			token,
-			selectedTeam
+			selectedTeam,
+			defaultTeamId: selectedTeam
 		});
 	};
 
@@ -290,6 +294,7 @@ export function useAuthenticationPasscode() {
 		signInEmailConfirmQueryCall,
 		signInEmailConfirmLoading,
 		workspaces,
+		defaultTeamId,
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
 		handleWorkspaceSubmit

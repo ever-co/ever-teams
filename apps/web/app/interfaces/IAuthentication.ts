@@ -1,9 +1,16 @@
+import { IOrganizationTeam } from './IOrganizationTeam';
 import { ITeamProps, IUser } from './IUserData';
 
 export interface ILoginResponse {
 	user: IUser;
 	token: string;
 	refresh_token: string;
+}
+
+export interface ISigninWorkspaceInput {
+	email: string;
+	token: string;
+	defaultTeamId?: IOrganizationTeam['id'];
 }
 
 export interface IRegisterDataRequest {
@@ -57,4 +64,5 @@ export interface ISigninEmailConfirmResponse {
 	show_popup: boolean;
 	workspaces: ISigninEmailConfirmWorkspaces[];
 	status?: number;
+	defaultTeamId?: string;
 }

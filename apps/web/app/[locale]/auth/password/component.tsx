@@ -129,7 +129,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		}
 
 		const currentTeams = form.workspaces.find((el) => el.current_teams && el.current_teams.length)?.current_teams;
-		const lastSelectedTeamId = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM);
+		const lastSelectedTeamId = form.defaultTeamId || window.localStorage.getItem(LAST_WORSPACE_AND_TEAM);
 
 		if (currentTeams) {
 			setSelectedWorkspace(

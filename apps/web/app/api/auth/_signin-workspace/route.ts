@@ -7,7 +7,7 @@ import {
 	verifyInviteCodeRequest
 } from '@app/services/server/requests';
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
-import { ILoginResponse } from '@app/interfaces';
+import { ILoginResponse, IOrganizationTeam } from '@app/interfaces';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -19,6 +19,7 @@ export async function POST(req: Request) {
 			token: string;
 			teamId: string;
 			code: string;
+			defaultTeamId?: IOrganizationTeam['id'];
 		};
 		let loginResponse: ILoginResponse | null = null;
 
@@ -134,8 +135,8 @@ export async function POST(req: Request) {
 			return NextResponse.json({ team, loginResponse });
 		}
 		// Accept Invite Flow End
-
-		const { data } = await signInWorkspaceRequest(body.email, body.token);
+		const { email, token, defaultTeamId } = body;
+		const { data } = await signInWorkspaceRequest({ email, token, defaultTeamId });
 
 		/**
 		 * Get the first team from first organization

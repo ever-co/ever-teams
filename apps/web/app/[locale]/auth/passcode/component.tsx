@@ -335,7 +335,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
 			setSelectedTeam(currentTeams[0].team_id);
 		} else {
-			const lastSelectedTeam = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0]?.team_id;
+			const lastSelectedTeam =
+				form.defaultTeamId || window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0]?.team_id;
 			const lastSelectedWorkspace =
 				form.workspaces.findIndex((workspace) =>
 					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
@@ -349,7 +350,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
-	}, [form.workspaces]);
+	}, [form.defaultTeamId, form.workspaces]);
 
 	useEffect(() => {
 		if (form.authScreen.screen === 'workspace') {
@@ -423,8 +424,9 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 							{props.workspaces?.map((worksace, index) => (
 								<div
 									key={index}
-									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
-										} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
+									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+										props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
+									} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 								>
 									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 										<div className="flex justify-between">

@@ -157,7 +157,10 @@ async function signIn(provider: ProviderEnum, access_token: string) {
 			});
 		}
 
-		const data = await signInWorkspaceAPI(gauzyUser?.data.confirmed_email, gauzyUser?.data.workspaces[0].token);
+		const data = await signInWorkspaceAPI({
+			email: gauzyUser?.data.confirmed_email,
+			token: gauzyUser?.data.workspaces[0].token
+		});
 		const tenantId = data.user?.tenantId || '';
 		const token = data.token;
 		const userId = data.user?.id;

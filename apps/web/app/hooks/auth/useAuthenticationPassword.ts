@@ -1,7 +1,7 @@
 'use client';
 
 import { validateForm } from '@app/helpers';
-import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import { useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { signInEmailPasswordAPI, signInWorkspaceAPI } from '@app/services/client/api';
@@ -21,6 +21,8 @@ export function useAuthenticationPassword() {
 	const [screen, setScreen] = useState<'login' | 'workspace'>('login');
 
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
+
+	const [defaultTeamId, setDefaultTeamId] = useState<string | undefined>(undefined);
 
 	const [authenticated, setAuthenticated] = useState(false);
 
@@ -65,6 +67,7 @@ export function useAuthenticationPassword() {
 				if (Array.isArray(data.workspaces) && data.workspaces.length > 0) {
 					setScreen('workspace');
 					setWorkspaces(data.workspaces);
+					setDefaultTeamId(data.defaultTeamId);
 				}
 			})
 			.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
@@ -78,16 +81,13 @@ export function useAuthenticationPassword() {
 			});
 	};
 
-	const signInToWorkspaceRequest = ({
-		email,
-		token,
-		selectedTeam
-	}: {
+	const signInToWorkspaceRequest = (params: {
 		email: string;
 		token: string;
 		selectedTeam: string;
+		defaultTeamId?: IOrganizationTeam['id'];
 	}) => {
-		signInWorkspaceQueryCall({ email, token, selectedTeam })
+		signInWorkspaceQueryCall(params)
 			.then(() => {
 				setAuthenticated(true);
 				router.push('/');
@@ -131,6 +131,7 @@ export function useAuthenticationPassword() {
 		inputCodeRef,
 		authScreen: { screen, setScreen },
 		workspaces,
+		defaultTeamId,
 		signInQueryCall,
 		signInLoading,
 		signInWorkspaceLoading,
