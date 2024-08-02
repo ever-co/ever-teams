@@ -31,7 +31,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const [teamId, setTeamId] = useState<string>('');
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const { activeTeamTask, tasks, activeTeamId } = useTeamTasks();
+	const { activeTeamTask, tasks, activeTeamId, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
 
 	useEffect(() => {
@@ -225,9 +225,10 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 					</label>
 					<SelectItems
 						items={teams}
-						onValueChange={(value) => setTeamId(value)}
-						itemId={(team) => team.id}
-						itemToString={(team) => team.name}
+						defaultValue={activeTeam}
+						onValueChange={(value) => setTeamId(value ? value.id : '')}
+						itemId={(team) => (team ? team.id : '')}
+						itemToString={(team) => (team ? team.name : '')}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
 				</div>
@@ -238,9 +239,10 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 					</label>
 					<SelectItems
 						items={tasks}
-						onValueChange={(value) => setTaskId(value)}
-						itemId={(task) => task.id}
-						itemToString={(task) => task.title}
+						onValueChange={(value) => setTaskId(value ? value.id : '')}
+						itemId={(task) => (task ? task.id : '')}
+						defaultValue={activeTeamTask}
+						itemToString={(task) => (task ? task.title : '')}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
 				</div>
@@ -261,6 +263,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
 						onValueChange={(reason) => setReason(reason)}
 						itemId={(reason) => reason}
+						defaultValue={t('manualTime.reasons.DEFAULT')}
 						itemToString={(reason) => reason}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
