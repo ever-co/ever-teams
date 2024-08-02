@@ -114,11 +114,11 @@ const Collaborate = () => {
 												{(member?.image?.thumbUrl ||
 													member?.image?.fullUrl ||
 													member?.imageUrl) &&
-												isValidUrl(
-													member?.image?.thumbUrl ||
+													isValidUrl(
+														member?.image?.thumbUrl ||
 														member?.image?.fullUrl ||
 														member?.imageUrl
-												) ? (
+													) ? (
 													<Avatar
 														size={36}
 														className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
@@ -167,9 +167,9 @@ const Collaborate = () => {
 										}}
 									>
 										{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
-										isValidUrl(
-											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
-										) ? (
+											isValidUrl(
+												member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
+											) ? (
 											<Avatar
 												size={32}
 												className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"

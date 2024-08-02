@@ -44,7 +44,7 @@ function MeetPage() {
 	}, [pathname]);
 
 	useEffect(() => {
-		if (!room && pathname?.startsWith('/meet') && !replaced.current) {
+		if (!room && pathname?.startsWith('/meet/jitsi') && !replaced.current) {
 			const url = new URL(window.location.href);
 			url.searchParams.set('room', btoa(randomMeetName()));
 
