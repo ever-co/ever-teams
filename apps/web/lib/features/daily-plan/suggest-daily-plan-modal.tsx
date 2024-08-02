@@ -3,6 +3,8 @@ import { Button } from '@components/ui/button';
 import { useCallback, useMemo } from 'react';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useAuthenticateUser } from '@app/hooks';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -11,6 +13,12 @@ interface ISuggestDailyPlanModalProps {
 
 export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const { isOpen, closeModal } = props;
+
+	const { user } = useAuthenticateUser();
+	const name = useMemo(
+		() => user?.name || user?.firstName || user?.lastName || user?.username || '',
+		[user?.firstName, user?.lastName, user?.name, user?.username]
+	);
 
 	const t = useTranslations();
 
@@ -35,7 +43,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 							{t('dailyPlan.DAILY_PLAN_DESCRIPTION')}
 						</Text>
 					</div>
-					<div className="flex flex-col w-full gap-3">
+					<Link href={`/profile/${user?.id}?name=${name || ''}`} className="flex flex-col w-full gap-3">
 						<Button
 							variant="default"
 							className="p-7 font-normal rounded-xl text-md"
@@ -43,7 +51,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 						>
 							OK
 						</Button>
-					</div>
+					</Link>
 				</div>
 			</Card>
 		</Modal>

@@ -62,11 +62,34 @@ export function useStartStopTimerHandler() {
 			window && window?.localStorage.getItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE);
 
 		/**
-		 * Handle missing working hour for a daily plN
+		 * Handle missing working hour for a daily plan
 		 */
 		const handleMissingDailyPlanWorkHour = () => {
-			if (!hasWorkedHours) {
-				openAddDailyPlanWorkHoursModal();
+			if (hasPlan) {
+				if (!hasWorkedHours) {
+					openAddDailyPlanWorkHoursModal();
+				} else {
+					startTimer();
+				}
+			} else {
+				startTimer();
+			}
+		};
+
+		/**
+		 * Handle missing estimation hours for tasks
+		 */
+		const handleMissingTasksEstimationHours = () => {
+			if (hasPlan) {
+				if (areAllTasksEstimated) {
+					if (dailyPlanEstimateHoursModalDate != currentDate) {
+						handleMissingDailyPlanWorkHour();
+					} else {
+						startTimer();
+					}
+				} else {
+					openAddTasksEstimationHoursModal();
+				}
 			} else {
 				startTimer();
 			}
@@ -90,20 +113,20 @@ export function useStartStopTimerHandler() {
 				startTimer();
 			} else {
 				if (dailyPlanSuggestionModalDate != currentDate) {
-					openSuggestDailyPlanModal();
+					if (!hasPlan) {
+						openSuggestDailyPlanModal();
+					} else {
+						handleMissingTasksEstimationHours();
+					}
 				} else if (tasksEstimateHoursModalDate != currentDate) {
-					if (areAllTasksEstimated) {
-						if (dailyPlanEstimateHoursModalDate != currentDate) {
+					handleMissingTasksEstimationHours();
+				} else if (dailyPlanEstimateHoursModalDate != currentDate) {
+					if (hasPlan) {
+						if (areAllTasksEstimated) {
 							handleMissingDailyPlanWorkHour();
 						} else {
 							startTimer();
 						}
-					} else {
-						openAddTasksEstimationHoursModal();
-					}
-				} else if (dailyPlanEstimateHoursModalDate != currentDate) {
-					if (areAllTasksEstimated) {
-						handleMissingDailyPlanWorkHour();
 					} else {
 						startTimer();
 					}
@@ -116,6 +139,7 @@ export function useStartStopTimerHandler() {
 	}, [
 		areAllTasksEstimated,
 		canRunTimer,
+		hasPlan,
 		hasWorkedHours,
 		isActiveTaskPlaned,
 		openAddDailyPlanWorkHoursModal,
