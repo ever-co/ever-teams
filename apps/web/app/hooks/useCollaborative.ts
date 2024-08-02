@@ -12,7 +12,8 @@ import capitalize from 'lodash/capitalize';
 
 
 export function useCollaborative(user?: IUser) {
-	const meetType = process.env.NEXT_PUBLIC_MEET_TYPE;
+	const meetType = process.env.NEXT_PUBLIC_MEET_TYPE || 'Jitsi';
+
 	const { activeTeam } = useOrganizationTeams();
 	const { user: authUser } = useAuthenticateUser();
 	const [collaborativeSelect, setCollaborativeSelect] = useRecoilState(collaborativeSelectState);
