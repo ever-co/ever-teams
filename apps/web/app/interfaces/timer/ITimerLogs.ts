@@ -31,7 +31,7 @@ export interface IAddManualTimeRequest {
 	tags?: string[];
 	isBillable?: boolean;
 	organizationId?: string;
-	organization: Pick<IOrganization, 'id'>;
+	organization?: Pick<IOrganization, 'id'>;
 	tenantId?: string;
 	logType: TimeLogType;
 	source: TimerSource.BROWSER;

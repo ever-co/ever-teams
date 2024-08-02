@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import '../../../styles/style.css';
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { clsxm } from '@app/utils';
@@ -10,9 +11,9 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 import { HiMiniClock } from 'react-icons/hi2';
 import { manualTimeReasons } from '@app/constants';
 import { useTranslations } from 'next-intl';
-// import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { useManualTime } from '@app/hooks/features/useManualTime';
+import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 
 interface IAddManualTimeModalProps {
 	isOpen: boolean;
@@ -35,7 +36,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
 
-	const { addManualTime, addManualTimeLoading } = useManualTime();
+	const { addManualTime, addManualTimeLoading, timeLog } = useManualTime();
 
 	useEffect(() => {
 		const now = new Date();
@@ -55,61 +56,25 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 			// Set time for the started date
 			startedAt.setHours(parseInt(startTime.split(':')[0]));
-			startedAt.setHours(parseInt(startTime.split(':')[1]));
+			startedAt.setMinutes(parseInt(startTime.split(':')[1]));
 
 			// Set time for the stopped date
 			stoppedAt.setHours(parseInt(endTime.split(':')[0]));
-			stoppedAt.setHours(parseInt(endTime.split(':')[1]));
+			stoppedAt.setMinutes(parseInt(endTime.split(':')[1]));
 
-			console.log(startedAt, stoppedAt);
+			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> = {
+				startedAt,
+				stoppedAt,
+				taskId,
+				description,
+				reason,
+				isBillable,
+				organizationId: team?.organizationId
+			};
 
-			// const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> = {
-			// 	startedAt,
-			// 	stoppedAt,
-			// 	taskId,
-			// 	description,
-			// 	reason,
-			// 	isBillable,
-			// 	organization: { id: team?.organizationId as string },
-			// 	organizationContactId: team?.organizationId
-			// };
-
-			// addManualTime(requestData);
-
-			// const timeObject = {
-			// 	date,
-			// 	isBillable,
-			// 	startTime,
-			// 	endTime,
-			// 	teamId: team?.id,
-			// 	taskId,
-			// 	description,
-			// 	reason,
-			// 	timeDifference
-			// };
-
-			// if (date && startTime && endTime && teamId && taskId) {
-			// 	setLoading(true);
-			// 	setError('');
-			// 	const postData = async () => {
-			// 		try {
-			// 			const response = await api.post('/add_time', timeObject);
-			// 			if (response.data.message) {
-			// 				setLoading(false);
-			// 				closeModal();
-			// 			}
-			// 		} catch (err) {
-			// 			setError('Failed to post data');
-			// 			setLoading(false);
-			// 		}
-			// 	};
-
-			// 	postData();
-			// } else {
-			// 	setError(`Please complete all required fields with a ${'*'}`);
-			// }
+			addManualTime(requestData); // [TODO : api] Allow team member to add manual time as well
 		},
-		[date, endTime, startTime]
+		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team?.organizationId]
 	);
 
 	const calculateTimeDifference = useCallback(() => {
@@ -141,6 +106,13 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 			setTeam(activeTeam);
 		}
 	}, [activeTeamTask, activeTeam]);
+
+	useEffect(() => {
+		if (!addManualTimeLoading && timeLog) {
+			closeModal();
+			setDescription('');
+		}
+	}, [addManualTimeLoading, closeModal, timeLog]);
 
 	return (
 		<Modal
@@ -253,10 +225,11 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						Team<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
 					<SelectItems
+						defaultValue={activeTeam!}
 						items={teams}
-						onValueChange={(value) => setTeam(value)}
-						itemId={(team) => team.id}
-						itemToString={(team) => team.name}
+						onValueChange={(team) => setTeam(team)}
+						itemId={(team) => (team ? team.name : '')}
+						itemToString={(team) => (team ? team.name : '')}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
 				</div>
@@ -266,10 +239,11 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						Task<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
 					<SelectItems
+						defaultValue={activeTeamTask}
 						items={tasks}
-						onValueChange={(value) => setTaskId(value.id)}
-						itemId={(task) => task.id}
-						itemToString={(task) => task.title}
+						onValueChange={(task) => setTaskId(task ? task.id : '')}
+						itemId={(task) => (task ? task.id : '')}
+						itemToString={(task) => (task ? task.title : '')}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
 				</div>

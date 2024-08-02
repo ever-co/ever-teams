@@ -13,7 +13,6 @@ export function useManualTime() {
 
 	const addManualTime = useCallback(
 		(data: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
-			console.log(data);
 			queryAddManualTime({
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee.id ?? '',
