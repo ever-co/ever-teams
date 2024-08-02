@@ -26,7 +26,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [description, setDescription] = useState<string>('');
 	const [reason, setReason] = useState<string>('');
-	const [errorMsg] = useState<string>('');
+	const [errorMsg, setErrorMsg] = useState<string>('');
 	const [endTime, setEndTime] = useState<string>('');
 	const [date, setDate] = useState<Date>(new Date());
 	const [startTime, setStartTime] = useState<string>('');
@@ -72,9 +72,13 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 				organizationId: team?.organizationId
 			};
 
-			addManualTime(requestData); // [TODO : api] Allow team member to add manual time as well
+			if (date && startTime && endTime && team && taskId) {
+				addManualTime(requestData); // [TODO : api] Allow team member to add manual time as well
+			} else {
+				setErrorMsg("Please complete all required fields with a '*'");
+			}
 		},
-		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team?.organizationId]
+		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team]
 	);
 
 	const calculateTimeDifference = useCallback(() => {
@@ -228,7 +232,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						defaultValue={activeTeam!}
 						items={teams}
 						onValueChange={(team) => setTeam(team)}
-						itemId={(team) => (team ? team.name : '')}
+						itemId={(team) => (team ? team.id : '')}
 						itemToString={(team) => (team ? team.name : '')}
 						triggerClassName="border-slate-100 dark:border-slate-600"
 					/>
