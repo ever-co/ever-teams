@@ -8,6 +8,7 @@ import {
 } from '@livekit/components-react';
 import { RoomConnectOptions } from 'livekit-client';
 import "@livekit/components-styles";
+import { SettingsMenu } from './settings-livekit';
 
 type ActiveRoomProps = {
     userChoices: LocalUserChoices;
@@ -30,7 +31,7 @@ export default function LiveKitPage({
     const LiveKitRoomComponent = LiveKitRoom as React.ElementType;
     return (
         <LiveKitRoomComponent
-            className='!bg-dark--theme-light'
+            className='!bg-light--theme-dark dark:!bg-dark--theme-light'
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
             video={userChoices.videoEnabled}
@@ -43,7 +44,7 @@ export default function LiveKitPage({
         >
             <VideoConference
                 chatMessageFormatter={formatChatMessageLinks}
-                SettingsComponent={undefined} // or provide an actual component if needed
+                SettingsComponent={SettingsMenu}
             />
         </LiveKitRoomComponent>
     );

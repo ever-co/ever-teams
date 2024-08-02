@@ -52,60 +52,60 @@ export function DailyPlanCompareEstimatedModal({
 		}
 	};
 
-  return (
-      <Modal isOpen={open} closeModal={closeModal}>
-          <div className='w-[98%] md:w-[550px] relative'>
-              <Card className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow='custom'>
-                  <div className='flex flex-col items-center justify-between'>
-                      <DailyPlanCompareHeader />
-                  </div>
-                  <div className='flex items-start flex-col justify-start w-full px-2'>
-                      <TimePicker
-                          defaultValue={{
-                              hours: hour,
-                              meridiem: 'AM',
-                              minute: minute,
-                          }}
-                          onChange={(value) => setTimes(value)}
-                      />
-                      <DailyPlanWorkTimeInput />
-                  </div>
-                  <ScrollArea className='flex h-full w-full p-2 flex-col'>
-                      {todayPlan.map((plan, i) => {
-                          return <div key={i}>
-                              {plan.tasks?.map((data, index) => {
-                                  return <div key={index} className='p-1'>
-                                      <DailyPlanTask
-                                          key={index}
-                                          task={data}
-                                          profile={profile}
-                                      />
-                                  </div>
-                              })}
-                          </div>
-                      })}
-                  </ScrollArea>
-                  <div className='flex flex-col'>
-                      <div className='flex items-center pb-2 text-red-500 text-[12px]'>
-                          {!difference && !estimated?.every(Boolean) && (
-                              <>
-                                  <PiWarningCircleFill className='text-[14px]' />
-                                  <span>Please correct planned work hours or re-estimate task(s)</span>
-                              </>
-                          )
-                          }
-                      </div>
-                      <DailyPlanCompareActionButton
-                          loading={updateDailyPlanLoading}
-                          closeModal={closeModal}
-                          onClick={onClick}
-                          disabled={updateDailyPlanLoading && (parseInt(times.hours) > 0 ? false : true)}
-                      />
-                  </div>
-              </Card>
-          </div>
-      </Modal>
-  )
+	return (
+		<Modal isOpen={open} closeModal={closeModal}>
+			<div className='w-[98%] md:w-[550px] relative'>
+				<Card className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow='custom'>
+					<div className='flex flex-col items-center justify-between'>
+						<DailyPlanCompareHeader />
+					</div>
+					<div className='flex items-start flex-col justify-start w-full px-2'>
+						<TimePicker
+							defaultValue={{
+								hours: hour,
+								meridiem: 'AM',
+								minute: minute,
+							}}
+							onChange={(value) => setTimes(value)}
+						/>
+						<DailyPlanWorkTimeInput />
+					</div>
+					<ScrollArea className='flex h-full w-full p-2 flex-col'>
+						{todayPlan.map((plan, i) => {
+							return <div key={i}>
+								{plan.tasks?.map((data, index) => {
+									return <div key={index} className='p-1'>
+										<DailyPlanTask
+											key={index}
+											task={data}
+											profile={profile}
+										/>
+									</div>
+								})}
+							</div>
+						})}
+					</ScrollArea>
+					<div className='flex flex-col'>
+						<div className='flex items-center pb-2 text-red-500 text-[12px]'>
+							{!difference && !estimated?.every(Boolean) && (
+								<>
+									<PiWarningCircleFill className='text-[14px]' />
+									<span>Please correct planned work hours or re-estimate task(s)</span>
+								</>
+							)
+							}
+						</div>
+						<DailyPlanCompareActionButton
+							loading={updateDailyPlanLoading}
+							closeModal={closeModal}
+							onClick={onClick}
+							disabled={updateDailyPlanLoading && (parseInt(times.hours) > 0 ? false : true)}
+						/>
+					</div>
+				</Card>
+			</div>
+		</Modal>
+	)
 }
 export function DailyPlanTask({ task, profile }: { task?: ITeamTask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
