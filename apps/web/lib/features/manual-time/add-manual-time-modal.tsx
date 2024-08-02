@@ -73,7 +73,11 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 			};
 
 			if (date && startTime && endTime && team && taskId) {
-				addManualTime(requestData); // [TODO : api] Allow team member to add manual time as well
+				if (endTime > startTime) {
+					addManualTime(requestData); // [TODO : api] Allow team member to add manual time as well
+				} else {
+					setErrorMsg('End time should be after than start time');
+				}
 			} else {
 				setErrorMsg("Please complete all required fields with a '*'");
 			}
@@ -115,6 +119,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		if (!addManualTimeLoading && timeLog) {
 			closeModal();
 			setDescription('');
+			setErrorMsg('');
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
