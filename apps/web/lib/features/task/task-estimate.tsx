@@ -14,9 +14,18 @@ type Props = {
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
 	wrapperClassName?: string;
+	showEditAndSaveButton?: boolean;
 };
 
-export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, closeable_fc, wrapperClassName }: Props) {
+export function TaskEstimate({
+	_task,
+	onCloseEdition,
+	className,
+	loadingRef,
+	closeable_fc,
+	wrapperClassName,
+	showEditAndSaveButton = true
+}: Props) {
 	const {
 		targetEl,
 		value,
@@ -101,26 +110,28 @@ export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, clo
 					`${editableMode ? 'block' : parseInt(value['minutes']) > 0 ? 'block' : parseInt(value['hours']) > 0 ? 'hidden' : 'block'}`
 				)}
 			/>
-			<div className="h-full flex items-center justify-center">
-				{!updateLoading ? (
-					editableMode ? (
-						<button
-							onClick={() => {
-								handleSubmit();
-								setEditableMode(false);
-							}}
-						>
-							<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
-						</button>
+			{showEditAndSaveButton && (
+				<div className="h-full flex items-center justify-center">
+					{!updateLoading ? (
+						editableMode ? (
+							<button
+								onClick={() => {
+									handleSubmit();
+									setEditableMode(false);
+								}}
+							>
+								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+							</button>
+						) : (
+							<button onClick={() => setEditableMode(true)}>
+								<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
+							</button>
+						)
 					) : (
-						<button onClick={() => setEditableMode(true)}>
-							<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
-						</button>
-					)
-				) : (
-					<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
-				)}
-			</div>
+						<LoadingIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2 animate-spin')} />
+					)}
+				</div>
+			)}
 		</div>
 	);
 }

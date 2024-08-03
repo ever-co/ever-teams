@@ -60,7 +60,12 @@ export function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'classNam
 			>
 				{task && (
 					<>
-						<TaskEstimate _task={task} loadingRef={loadingRef} closeable_fc={closeFn} />
+						<TaskEstimate
+							_task={task}
+							loadingRef={loadingRef}
+							closeable_fc={closeFn}
+							showEditAndSaveButton={false}
+						/>
 						<button
 							className={`ml-2 ${loadingRef.current && 'hidden'}`}
 							onClick={() => task && edition.setEstimateEditMode(false)}
