@@ -139,9 +139,13 @@ export function SettingsMenu(props: SettingsMenuProps) {
                     </>
                 )}
             </div>
-            <div className={`${styles.settingsCloseButton} flex items-center w-full justify-between`}>
+            <div style={{
+                position: 'absolute',
+                right: 'var(--lk-grid-gap)',
+                bottom: 'var(--lk-grid-gap)'
+            }} className={`flex items-center w-full justify-between`}>
                 <div className='flex items-start flex-col'>
-                    <span className='px-7'>You can invite your colleagues to join the meeting by sharing this link.</span>
+                    <span className='px-7 text-gray-600 dark:text-gray-400'>You can invite your colleagues to join the meeting by sharing this link.</span>
                     <button
                         className='px-7 text-primary-light flex items-center'
                         onClick={() => {
