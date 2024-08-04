@@ -19,6 +19,8 @@ import { BiLoaderCircle } from "react-icons/bi";
 export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function SettingsMenu(props: SettingsMenuProps) {
+    const TrackToggleComponent = TrackToggle as React.ElementType;
+
     const layoutContext = useMaybeLayoutContext();
     const [copied, setCopied] = React.useState<boolean>(false);
 
@@ -93,7 +95,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
                             <>
                                 <h3>Camera</h3>
                                 <section className="lk-button-group">
-                                    <TrackToggle source={Track.Source.Camera}>Camera</TrackToggle>
+                                    <TrackToggleComponent source={Track.Source.Camera}>Camera</TrackToggleComponent>
                                     <div className="lk-button-group-menu">
                                         <MediaDeviceMenu kind="videoinput" />
                                     </div>
@@ -104,7 +106,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
                             <>
                                 <h3>Microphone</h3>
                                 <section className="lk-button-group">
-                                    <TrackToggle source={Track.Source.Microphone}>Microphone</TrackToggle>
+                                    <TrackToggleComponent source={Track.Source.Microphone}>Microphone</TrackToggleComponent>
                                     <div className="lk-button-group-menu">
                                         <MediaDeviceMenu kind="audioinput" />
                                     </div>
