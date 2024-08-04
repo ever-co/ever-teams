@@ -40,3 +40,12 @@ export function chunk<T>(array: T[], size: number): T[][] {
 
 	return result;
 }
+
+export const shortenLink = (value: any): string => {
+	if (typeof value !== 'string' || value.length <= 19) {
+		return value;
+	}
+	const start = value.substring(0, window.location.origin.length);
+	const end = value.substring(value.length - 10);
+	return `${start}...${end}`;
+};

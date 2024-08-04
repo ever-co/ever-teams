@@ -55,6 +55,15 @@ const Collaborate = () => {
 		[collaborativeMembers, members, setCollaborativeMembers]
 	);
 
+	const handleAction = (actionCallback: () => void) => () => {
+		closeModal();
+		actionCallback();
+	};
+
+	const handleMeetClick = handleAction(onMeetClick);
+	const handleBoardClick = handleAction(onBoardClick);
+
+
 	return (
 		<div>
 			<JitsuAnalytics user={user} />
@@ -197,10 +206,7 @@ const Collaborate = () => {
 
 						<div className="flex space-x-3 ">
 							<Button
-								onClick={() => {
-									closeModal();
-									onMeetClick();
-								}}
+								onClick={handleMeetClick}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"
 							>
@@ -209,10 +215,7 @@ const Collaborate = () => {
 							</Button>
 
 							<Button
-								onClick={() => {
-									closeModal();
-									onBoardClick();
-								}}
+								onClick={handleBoardClick}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 							>
 								<BrushSquareIcon className="w-4 h-4" />
