@@ -11,7 +11,6 @@ import { TaskEstimateInput } from '../team/user-team-card/task-estimate';
 import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@app/hooks';
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
-import { ScrollArea } from '@components/ui/scroll-bar';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 
 export interface IDailyPlanCompareEstimated {
@@ -64,12 +63,13 @@ export function DailyPlanCompareEstimatedModal({
 							defaultValue={{
 								hours: hour,
 								meridiem: 'AM',
-								minute: minute,
+								minute: minute
 							}}
 							onChange={(value) => setTimes(value)}
 						/>
 						<DailyPlanWorkTimeInput />
 					</div>
+
 					<ScrollArea className='flex h-full w-full p-2 flex-col'>
 						{todayPlan.map((plan, i) => {
 							return <div key={i}>
@@ -105,8 +105,9 @@ export function DailyPlanCompareEstimatedModal({
 				</Card>
 			</div>
 		</Modal>
-	)
+	);
 }
+
 export function DailyPlanTask({ task, profile }: { task?: ITeamTask; profile: any }) {
 	const taskEdition = useTMCardTaskEdit(task);
 	const member = task?.selectedTeam?.members.find((member) => {
