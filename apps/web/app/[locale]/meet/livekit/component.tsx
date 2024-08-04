@@ -20,6 +20,7 @@ function LiveKitPage() {
     const params = useSearchParams();
 
     const onLeave = useCallback(() => {
+        window.localStorage.removeItem('current-room-live-kit');
         router.push('/');
     }, [router]);
 
@@ -27,6 +28,7 @@ function LiveKitPage() {
         const room = params.get("roomName");
         if (room) {
             setRoomName(room);
+            window.localStorage.setItem('current-room-live-kit', room);
         }
     }, [params]);
 
@@ -36,7 +38,7 @@ function LiveKitPage() {
     });
 
     return (
-        <>
+        <div >
             <Meta title="Meet" />
             {token && roomName && <LiveKit
                 token={token!}
@@ -51,7 +53,7 @@ function LiveKitPage() {
                     videoDeviceId: ''
                 }}
             />}
-        </>
+        </div>
     );
 }
 

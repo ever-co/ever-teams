@@ -3691,6 +3691,11 @@
   resolved "https://registry.yarnpkg.com/@livekit/components-styles/-/components-styles-1.0.12.tgz#53b2e4f933b46f53c15b889a6ba7047cdab3a2a1"
   integrity sha512-Hsxkfq240w0tMPtkQTHQotpkYfIY4lhP2pzegvOIIV/nYxj8LeRYypUjxJpFw3s6jQcV/WQS7oCYmFQdy98Jtw==
 
+"@livekit/krisp-noise-filter@^0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@livekit/krisp-noise-filter/-/krisp-noise-filter-0.2.5.tgz#889268d0a842cb22e75cfc838c42b40c2a6c226c"
+  integrity sha512-/lY0geizAGp34qbTqp6WUZsNuIM5c2B8UV0WePNUyCntmku9WbkGJiJSUeXnunpf0a7tVPDUK6QFCXBw7dub5w==
+
 "@livekit/protocol@1.19.1", "@livekit/protocol@^1.19.0":
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/@livekit/protocol/-/protocol-1.19.1.tgz#ee35dd2abb92a1232bb36edbbf230bd3c376363c"
