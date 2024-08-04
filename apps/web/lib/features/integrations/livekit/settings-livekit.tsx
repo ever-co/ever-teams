@@ -15,7 +15,7 @@ import { shortenLink } from 'lib/utils';
 import { BiLoaderCircle } from "react-icons/bi";
 
 
-
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function SettingsMenu(props: SettingsMenuProps) {

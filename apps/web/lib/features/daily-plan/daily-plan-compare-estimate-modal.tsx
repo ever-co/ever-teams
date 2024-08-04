@@ -12,6 +12,7 @@ import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@a
 import { dailyPlanCompareEstimated } from '@app/helpers/daily-plan-estimated';
 import { secondsToTime } from '@app/helpers';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
+import { ScrollArea } from '@components/ui/scroll-bar';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
