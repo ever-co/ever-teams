@@ -153,7 +153,7 @@ export function TaskCard(props: Props) {
 				className={clsxm(
 					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
 					active && ['border-primary-light dark:bg-[#1E2025]'],
-					'gap-5',
+					'xl:gap-5 gap-2',
 					className
 				)}
 			>
@@ -217,7 +217,7 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="xl:flex  h-full flex-col items-center justify-center xl:flex-row xl:justify-between xl:items-center w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
+				<div className="flex  h-full justify-center items-center xl:justify-between w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<div className=" flex items-center justify-center">
 						<ActiveTaskStatusDropdown
@@ -249,8 +249,7 @@ export function TaskCard(props: Props) {
 				className={clsxm(
 					'relative lg:hidden flex justify-between py-3 flex-col',
 					active && ['border-primary-light border-[2px]'],
-					className,
-					'bg-red-500'
+					className
 				)}
 			>
 				<div className="flex justify-between mb-4 ml-2">
