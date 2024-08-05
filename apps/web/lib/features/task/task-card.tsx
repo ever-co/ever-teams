@@ -513,16 +513,23 @@ function TaskCardMenu({
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { todayPlan, futurePlans } = useDailyPlan();
 
-	const taskPlannedToday = todayPlan[0]?.tasks?.find((_task) => _task.id === task.id);
+	const taskPlannedToday = useMemo(
+		() => todayPlan[todayPlan.length - 1]?.tasks?.find((_task) => _task.id === task.id),
+		[task.id, todayPlan]
+	);
 
-	const taskPlannedTomorrow = futurePlans
-		.filter((_plan) =>
-			moment(_plan.date)
-				.format('YYYY-MM-DD')
-				?.toString()
-				?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
-		)[0]
-		?.tasks?.find((_task) => _task.id === task.id);
+	const taskPlannedTomorrow = useMemo(
+		() =>
+			futurePlans
+				.filter((_plan) =>
+					moment(_plan.date)
+						.format('YYYY-MM-DD')
+						?.toString()
+						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
+				)[0]
+				?.tasks?.find((_task) => _task.id === task.id),
+		[futurePlans, task.id]
+	);
 
 	return (
 		<Popover>
@@ -574,14 +581,17 @@ function TaskCardMenu({
 										<>
 											<Divider type="HORIZONTAL" />
 											<div className="mt-3">
-												<li className="mb-2">
-													<PlanTask
-														planMode="today"
-														taskId={task.id}
-														employeeId={profile?.member?.employeeId ?? ''}
-														taskPlannedToday={taskPlannedToday}
-													/>
-												</li>
+												{!taskPlannedToday && (
+													<li className="mb-2">
+														<PlanTask
+															planMode="today"
+															taskId={task.id}
+															employeeId={profile?.member?.employeeId ?? ''}
+															taskPlannedToday={taskPlannedToday}
+														/>
+													</li>
+												)}
+
 												<li className="mb-2">
 													<PlanTask
 														planMode="tomorow"
@@ -681,7 +691,7 @@ export function PlanTask({
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
 	const { closeModal, isOpen, openModal } = useModal();
-	const { createDailyPlan } = useDailyPlan();
+	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 	const { user } = useAuthenticateUser();
 
 	const handleOpenModal = () => {
@@ -716,12 +726,13 @@ export function PlanTask({
 
 	return (
 		<>
-			<span
+			<button
 				className={clsxm(
 					'font-normal whitespace-nowrap transition-all',
-					'hover:font-semibold hover:transition-all cursor-pointer'
+					'hover:font-semibold hover:transition-all cursor-pointer h-auto'
 				)}
 				onClick={handleOpenModal}
+				disabled={planMode === 'today' && createDailyPlanLoading}
 			>
 				<CreateDailyPlanFormModal
 					open={isOpen}
@@ -732,8 +743,8 @@ export function PlanTask({
 					chooseMember={chooseMember}
 				/>
 				{planMode === 'today' && !taskPlannedToday && (
-					<span>
-						{isPending ? (
+					<span className="">
+						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TODAY')
@@ -750,7 +761,7 @@ export function PlanTask({
 					</span>
 				)}
 				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
-			</span>
+			</button>
 		</>
 	);
 }
