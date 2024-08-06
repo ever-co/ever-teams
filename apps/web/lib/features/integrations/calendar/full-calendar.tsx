@@ -16,7 +16,7 @@ const Calendar: React.FC = () => {
     // const [newEventTitle, setNewEventTitle] = useState('');
     const calendarRef = useRef<FullCalendar | null>(null);
     const [selectedDate, setSelectedDate] = useState('');
-    let current = calendarRef.current;
+    const current = calendarRef.current;
 
     const [events, setEvents] = useState<IOrganizationTeamList[]>([]);
     const handleDateClick = (info: { dateStr: string }) => {
@@ -150,7 +150,7 @@ const Calendar: React.FC = () => {
             </div>
             {isDialogOpen && (
                 <div className={`py-10 w-1/5 m-5`}>
-                    <CardItemsProject selectedDate={selectedDate as any} />
+                    <CardItems selectedDate={selectedDate as any} />
                 </div>
             )}
         </div>
@@ -161,7 +161,7 @@ export default Calendar
 
 
 
-export const CardItemsProject = ({ selectedDate }: { selectedDate: Date }) => {
+export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
     return (
         <div className='h-full  w-full  border  border-slate-200 rounded-xl  overflow-scroll py-4'>
             <span className='p-2 text-[16px] font-normal text-gray-400'>
