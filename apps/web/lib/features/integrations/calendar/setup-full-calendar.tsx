@@ -1,6 +1,9 @@
 "use client"
 import React, { useState, useRef } from 'react';
-import { IoIosArrowForward, IoIosArrowDown } from "react-icons/io";
+import { LuCalendarPlus } from "react-icons/lu";
+import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
+import { IoTimeSharp } from "react-icons/io5";
+import { MdTimer } from "react-icons/md";
 import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -8,27 +11,90 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import { startOfYear, endOfYear, format } from 'date-fns';
 import Image from 'next/image';
-import { IOrganizationTeamList } from '@app/interfaces';
+import { Button } from 'lib/components';
+import { SettingFilterIcon } from 'assets/svg';
+import { YearDateFilter } from './year-picker-filter';
+import { cn } from 'lib/utils';
+// import { IOrganizationTeamList } from '@app/interfaces';
 
+interface Event {
+    id?: string;
+    title: string;
+    start: string;
+    times?: string,
+    color: string;
+    textColor?: string,
+    padding?: number,
+    extendedProps?: {
+        icon?: JSX.Element;
+    },
 
-const Calendar: React.FC = () => {
+}
+
+export function SetupFullCalendar() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     // const [newEventTitle, setNewEventTitle] = useState('');
     const calendarRef = useRef<FullCalendar | null>(null);
     const [selectedDate, setSelectedDate] = useState('');
-    const current = calendarRef.current;
+    const [events, setEvents] = useState<Event[]>([
+        {
+            id: '10',
+            title: 'Auto',
+            start: '2024-08-01',
+            color: '#dcfce7',
+            textColor: "#16a34a",
+            extendedProps: {
+                icon: <MdTimer className="inline-block mr-1 text-[#16a34a]" />,
+            },
 
-    const [events, setEvents] = useState<IOrganizationTeamList[]>([]);
+
+        },
+        {
+            id: '13',
+            title: 'Manual',
+            start: '2024-08-01',
+            color: '#ffedd5',
+            textColor: "#f97316",
+            extendedProps: {
+                icon: <LuCalendarPlus className="inline-block mr-1 text-[#f97316]" />,
+            },
+        },
+        {
+            id: '12',
+            title: 'Auto',
+            start: '2024-08-01',
+            color: '#dcfce7',
+            textColor: "#16a34a",
+            extendedProps: {
+                icon: <MdTimer className="inline-block mr-1 text-[#16a34a]" />,
+            },
+
+        },
+        {
+            id: '11',
+            title: 'Manual',
+            start: '2024-08-02',
+            color: '#ffedd5',
+            textColor: "#f97316",
+            extendedProps: {
+                icon: <LuCalendarPlus className="inline-block mr-1 text-[#f97316]" />,
+            },
+        },
+    ]);
+
     const handleDateClick = (info: { dateStr: string }) => {
-        setSelectedDate(info.dateStr);
+        setSelectedDate(info?.dateStr);
         setIsDialogOpen((prev) => !prev);
     };
 
     const renderEventContent = (eventInfo: any) => {
         return (
-            <div className='flex items-center text-ellipsis rounded-md p-[1.5px]'>
-                {eventInfo.event.extendedProps.icon}
-                <span className='text-[12px] leading-4'>{eventInfo.event.title}</span>
+            <div className='flex justify-between w-full items-center text-ellipsis rounded-md p-[1.5px]'>
+                <div className='w-full'>
+                    {eventInfo.event.extendedProps.icon}
+                    <span className='text-[11px] leading-4 font-bold'>{eventInfo.event.title}</span>
+                </div>
+                <span className='text-[11px] leading-4 font-bold'>05:30h</span>
             </div>
         );
     };
@@ -42,11 +108,11 @@ const Calendar: React.FC = () => {
         return ['alldays-cell'];
     };
 
-    const handleEventClick = (info: { event: { title: string; startStr: string } }) => {
-        const isDelete = confirm(`Do you want to delete the event: ${info.event.title}?`);
+    const handleEventClick = (info: { event: { id: string; startStr: string } }) => {
+        const isDelete = confirm(`Do you want to delete the event: ${info.event?.id}?`);
         if (isDelete) {
             const updatedEvents = events.filter(event =>
-                event.id !== info.event.title || event.createdAt !== info.event.startStr
+                event.id !== info.event.id || event.start !== info.event.startStr
             );
             setEvents(updatedEvents);
         }
@@ -59,32 +125,31 @@ const Calendar: React.FC = () => {
         setEvents(updatedEvents);
     };
 
-    function goNext() {
-        if (current) {
-            const calendarApi = current.getApi()
-            calendarApi.nextYear()
-        }
-    }
-    function goPrev() {
-        if (current) {
-            const calendarApi = current.getApi()
-            calendarApi.prevYear();
-        }
-    }
+
 
 
 
 
     return (
         <div className='flex overflow-hidden'>
-            <div className='w-full'>
-                <button onClick={goNext} aria-label="Go to next date">
-                    Go Next
-                </button>
-                <button onClick={goPrev} aria-label="Go to previous date">
-                    Go Prev
-                </button>
+            <div className='w-full min-h-[600px] p-[32px] bg-white dark:!bg-dark--theme'>
+                <div className='flex items-center justify-between'>
+                    <div className='flex items-center space-x-5'>
+                        <YearDateFilter calendarRef={calendarRef} />
+                        <TotalHours />
+                    </div>
+                    <div>
+                        <Button
+                            className='flex items-center justify-center h-10 rounded-lg'
+                            variant='primary'>
+                            <SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
+                            <span>Filter</span>
+                        </Button>
+                    </div>
+                </div>
                 <FullCalendar
+                    dayHeaderClassNames={'font-semibold text-[14px] text-gray-400 !bg-light--theme dark:!bg-dark--theme'}
+                    viewClassNames={'bg-white text-[18px] font-semibold !bg-light--theme dark:!bg-dark--theme w-full'}
                     ref={calendarRef}
                     stickyHeaderDates
                     plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
@@ -120,8 +185,7 @@ const Calendar: React.FC = () => {
                     eventDrop={handleEventDrop}
                     eventContent={renderEventContent}
                     editable={true}
-                    dayHeaderClassNames={'font-semibold text-[14px] text-gray-400'}
-                    viewClassNames={'bg-white text-[18px] font-semibold'}
+
                 />
                 <style jsx global>{`
                 .fc .fc-daygrid-day.fc-day-today {
@@ -136,7 +200,7 @@ const Calendar: React.FC = () => {
                     height: 1.9em;
                     line-height: 1.5em;
                     text-align: center !important;
-                     margin: 0.2em;
+                    margin: 0.2em;
                 }
                 .alldays-cell .fc-daygrid-day-number {
                     display: inline-block;
@@ -156,8 +220,6 @@ const Calendar: React.FC = () => {
         </div>
     )
 }
-
-export default Calendar
 
 
 
@@ -208,5 +270,22 @@ export const CardItemsProjects = ({ logo, title, totalHours }: { logo?: string, 
             </div>
             <IoIosArrowDown />
         </div>
+    )
+}
+
+
+export function TotalHours() {
+    return (
+        <div
+            className={cn(
+                "w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2",
+            )}
+        >
+            <div className="flex items-center">
+                <IoTimeSharp className="mr-2 h-5 w-5" />
+                <span>Total Hours 240</span>
+            </div>
+        </div>
+
     )
 }
