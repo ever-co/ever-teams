@@ -107,7 +107,7 @@ export function useDailyPlan() {
 					plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
 				);
 				if (todayPlan) {
-					const updatedProfilDailyPlans = profileDailyPlans.items.map((plan) => {
+					const updatedProfileDailyPlans = profileDailyPlans.items.map((plan) => {
 						if (plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])) {
 							return res.data;
 						}
@@ -116,8 +116,8 @@ export function useDailyPlan() {
 					});
 
 					setProfileDailyPlans({
-						total: updatedProfilDailyPlans.length,
-						items: updatedProfilDailyPlans
+						total: updatedProfileDailyPlans.length,
+						items: updatedProfileDailyPlans
 					});
 				} else {
 					setProfileDailyPlans({
