@@ -32,8 +32,21 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const at = new AccessToken(apiKey, apiSecret, { identity: username });
-        at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true, roomRecord: true });
+        const at = new AccessToken(apiKey, apiSecret, { identity: username, ttl: '1h' });
+        at.addGrant({
+            room,
+            roomJoin: true,
+            canPublish: true,
+            canSubscribe: true,
+            roomRecord: true,
+            roomCreate: true,
+            roomAdmin: true,
+            recorder: true,
+            roomList: true,
+            canUpdateOwnMetadata: true,
+            agent: true,
+            canPublishData: true,
+        });
         const token = await at.toJwt();
         return NextResponse.json({ token: token });
     } catch (error) {

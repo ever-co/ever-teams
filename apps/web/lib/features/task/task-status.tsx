@@ -775,18 +775,18 @@ export function TaskStatus({
 	isEpic
 }: PropsWithChildren<
 	TStatusItem &
-	IClassName & {
-		active?: boolean;
-		issueType?: 'status' | 'issue';
-		showIssueLabels?: boolean;
-		forDetails?: boolean;
-		titleClassName?: string;
-		cheched?: boolean;
-		sidebarUI?: boolean;
-		value?: string;
-		isVersion?: boolean;
-		isEpic?: boolean;
-	}
+		IClassName & {
+			active?: boolean;
+			issueType?: 'status' | 'issue';
+			showIssueLabels?: boolean;
+			forDetails?: boolean;
+			titleClassName?: string;
+			cheched?: boolean;
+			sidebarUI?: boolean;
+			value?: string;
+			isVersion?: boolean;
+			isEpic?: boolean;
+		}
 >) {
 	const { theme } = useTheme();
 	const readableColorHex = readableColor(backgroundColor || (theme === 'light' ? '#FFF' : '#000'));
@@ -839,8 +839,8 @@ export function TaskStatus({
 						style={
 							isVersion || isEpic
 								? {
-									color: theme === 'light' ? '#000' : '#FFF'
-								}
+										color: theme === 'light' ? '#000' : '#FFF'
+									}
 								: {}
 						}
 					>
@@ -996,7 +996,7 @@ export function StatusDropdown<T extends TStatusItem>({
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
-												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 												taskStatusClassName
 											)}
 											name={
