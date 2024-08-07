@@ -364,7 +364,8 @@
 		"POSTHOG",
 		"posthog",
 		"pageviews",
-		"pageleave"
+		"pageleave",
+		"pageview"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
