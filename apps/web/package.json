@@ -102,6 +102,7 @@
 		"pako": "^2.1.0",
 		"polished": "^4.2.2",
 		"postcss": "^8.4.19",
+		"posthog-js": "^1.154.5",
 		"qs": "^6.11.2",
 		"react": "^18.2.0",
 		"react-beautiful-dnd": "^13.1.1",

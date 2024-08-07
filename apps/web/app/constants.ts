@@ -121,6 +121,10 @@ export const BOARD_FIREBASE_CONFIG = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
 );
 
+export const POSTHOG_KEY = getNextPublicEnv('NEXT_PUBLIC_POSTHOG_KEY', process.env.NEXT_PUBLIC_POSTHOG_KEY);
+
+export const POSTHOG_HOST = getNextPublicEnv('NEXT_PUBLIC_POSTHOG_HOST', process.env.NEXT_PUBLIC_POSTHOG_HOST);
+
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
 	host: getNextPublicEnv('NEXT_PUBLIC_JITSU_BROWSER_URL', process.env.NEXT_PUBLIC_JITSU_BROWSER_URL).value,
