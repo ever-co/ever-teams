@@ -233,6 +233,7 @@ export async function signInWorkspaceGauzy(params: {
 	teamId: string;
 	code?: string;
 	defaultTeamId?: IOrganizationTeam['id'];
+	lastTeamId?: IOrganizationTeam['id'];
 }) {
 	if (params.code) {
 		let loginResponse;
@@ -250,7 +251,8 @@ export async function signInWorkspaceGauzy(params: {
 	const data = await signInWorkspaceAPI({
 		email: params.email,
 		token: params.token,
-		defaultTeamId: params.defaultTeamId
+		defaultTeamId: params.defaultTeamId,
+		lastTeamId: params.lastTeamId
 	});
 
 	/**

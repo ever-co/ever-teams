@@ -21,6 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		teamId: string;
 		code: string;
 		defaultTeamId?: IOrganizationTeam['id'];
+		lastTeamId?: IOrganizationTeam['id'];
 	};
 
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
@@ -144,8 +145,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	}
 
 	// Accept Invite Flow End
-	const { email, token, defaultTeamId } = body;
-	const { data } = await signInWorkspaceRequest({ email, token, defaultTeamId });
+	const { email, token, defaultTeamId, lastTeamId } = body;
+	const { data } = await signInWorkspaceRequest({ email, token, defaultTeamId, lastTeamId });
 
 	/**
 	 * Get the first team from first organization

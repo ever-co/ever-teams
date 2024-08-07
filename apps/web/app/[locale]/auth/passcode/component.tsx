@@ -325,6 +325,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		[selectedWorkspace, selectedTeam, form]
 	);
 
+	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
+
 	useEffect(() => {
 		if (form.workspaces.length === 1) {
 			setSelectedWorkspace(0);
@@ -336,7 +338,10 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			setSelectedTeam(currentTeams[0].team_id);
 		} else {
 			const lastSelectedTeam =
-				form.defaultTeamId || window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0]?.team_id;
+				window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) ||
+				lastSelectedTeamFromAPI ||
+				form.defaultTeamId ||
+				currentTeams[0]?.team_id;
 			const lastSelectedWorkspace =
 				form.workspaces.findIndex((workspace) =>
 					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)

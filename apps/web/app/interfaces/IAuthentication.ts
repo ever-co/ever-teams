@@ -1,3 +1,4 @@
+import { IOrganization } from './IOrganization';
 import { IOrganizationTeam } from './IOrganizationTeam';
 import { ITeamProps, IUser } from './IUserData';
 
@@ -11,6 +12,7 @@ export interface ISigninWorkspaceInput {
 	email: string;
 	token: string;
 	defaultTeamId?: IOrganizationTeam['id'];
+	lastTeamId?: IOrganizationTeam['id'];
 }
 
 export interface IRegisterDataRequest {
@@ -42,11 +44,19 @@ export interface ILoginDataAPI {
 	code: string;
 }
 
+export interface IUserLogoutInput {
+	userId: string;
+	lastTeamId: IOrganizationTeam['id'];
+	lastOrganizationId?: IOrganization['id'];
+}
+
 export interface ISigninEmailConfirmWorkspaces {
 	token: string;
 	user: {
 		email: string;
 		imageUrl: string;
+		lastTeamId?: string;
+		lastLogoutAt?: string;
 		name: string;
 		tenant: { name: string; logo: string };
 	};

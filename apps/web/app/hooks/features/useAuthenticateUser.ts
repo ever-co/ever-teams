@@ -1,12 +1,12 @@
 'use client';
 
-import { DEFAULT_APP_PATH } from '@app/constants';
+import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@app/constants';
 import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';
-import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@app/services/client/api/auth';
-import { userState } from '@app/stores';
+import { getAuthenticatedUserDataAPI, logoutUserAPI, refreshTokenAPI } from '@app/services/client/api/auth';
+import { activeTeamState, userState } from '@app/stores';
 import { useCallback, useMemo, useRef } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { useQuery } from '../useQuery';
 import { useIsMemberManager } from './useTeamMember';
@@ -17,6 +17,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const [user, setUser] = useRecoilState(userState);
 	const $user = useRef(defaultUser);
 	const intervalRt = useRef(0);
+	const activeTeam = useRecoilValue(activeTeamState);
 
 	const { isTeamManager } = useIsMemberManager(user);
 
@@ -25,6 +26,8 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		loading: refreshUserLoading,
 		loadingRef: refreshUserLoadingRef
 	} = useQuery(getAuthenticatedUserDataAPI);
+
+	const { queryCall: logoutUserQueryCall } = useQuery(logoutUserAPI);
 
 	const updateUserFromAPI = useCallback(() => {
 		if (refreshUserLoadingRef.current) {
@@ -40,10 +43,17 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	}, [user]);
 
 	const logOut = useCallback(() => {
-		removeAuthCookies();
-		window.clearInterval(intervalRt.current);
-		window.location.replace(DEFAULT_APP_PATH);
-	}, []);
+		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, activeTeam?.id ?? '');
+		logoutUserQueryCall({
+			userId: user?.id || '',
+			lastTeamId: activeTeam?.id || '',
+			lastOrganizationId: activeTeam?.organizationId || ''
+		}).finally(() => {
+			removeAuthCookies();
+			window.clearInterval(intervalRt.current);
+			window.location.replace(DEFAULT_APP_PATH);
+		});
+	}, [activeTeam?.id, activeTeam?.organizationId, logoutUserQueryCall, user?.id]);
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
 		window.clearInterval(intervalRt.current);

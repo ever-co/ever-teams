@@ -20,6 +20,7 @@ export async function POST(req: Request) {
 			teamId: string;
 			code: string;
 			defaultTeamId?: IOrganizationTeam['id'];
+			lastTeamId?: IOrganizationTeam['id'];
 		};
 		let loginResponse: ILoginResponse | null = null;
 
@@ -135,8 +136,8 @@ export async function POST(req: Request) {
 			return NextResponse.json({ team, loginResponse });
 		}
 		// Accept Invite Flow End
-		const { email, token, defaultTeamId } = body;
-		const { data } = await signInWorkspaceRequest({ email, token, defaultTeamId });
+		const { email, token, defaultTeamId, lastTeamId } = body;
+		const { data } = await signInWorkspaceRequest({ email, token, defaultTeamId, lastTeamId });
 
 		/**
 		 * Get the first team from first organization

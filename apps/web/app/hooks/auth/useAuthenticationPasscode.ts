@@ -274,6 +274,28 @@ export function useAuthenticationPasscode() {
 		return promise;
 	}, [formValues, signInEmailQueryCall]);
 
+	const getLastTeamIdWithRecentLogout = useCallback(() => {
+		let latestUser: {
+			email: string;
+			imageUrl: string;
+			lastTeamId?: string;
+			lastLogoutAt?: string;
+			name: string;
+			tenant: { name: string; logo: string };
+		} | null = null;
+
+		for (const workspace of workspaces) {
+			const user = workspace.user;
+			if (user?.lastLogoutAt) {
+				if (!latestUser || new Date(user?.lastLogoutAt) > new Date(latestUser?.lastLogoutAt ?? '')) {
+					latestUser = user;
+				}
+			}
+		}
+
+		return latestUser ? latestUser.lastTeamId : null;
+	}, [workspaces]);
+
 	return {
 		sendAuthCodeHandler,
 		errors,
@@ -297,7 +319,8 @@ export function useAuthenticationPasscode() {
 		defaultTeamId,
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
-		handleWorkspaceSubmit
+		handleWorkspaceSubmit,
+		getLastTeamIdWithRecentLogout
 	};
 }
 

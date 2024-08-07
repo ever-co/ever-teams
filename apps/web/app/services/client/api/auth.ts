@@ -1,6 +1,11 @@
 import { getRefreshTokenCookie, getTenantIdCookie, setAccessTokenCookie } from '@app/helpers/cookies';
 import { IOrganizationTeam, ISuccessResponse, IUser } from '@app/interfaces';
-import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
+import {
+	ILoginResponse,
+	IRegisterDataAPI,
+	ISigninEmailConfirmResponse,
+	IUserLogoutInput
+} from '@app/interfaces/IAuthentication';
 import api, { get, post } from '../axios';
 import {
 	APP_LOGO_URL,
@@ -140,6 +145,7 @@ export const signInWorkspaceAPI = (params: {
 	selectedTeam: string;
 	code?: string;
 	defaultTeamId?: IOrganizationTeam['id'];
+	lastTeamId?: IOrganizationTeam['id'];
 }) => {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
 		return signInWorkspaceGauzy({
@@ -147,7 +153,8 @@ export const signInWorkspaceAPI = (params: {
 			token: params.token,
 			teamId: params.selectedTeam,
 			code: params.code,
-			defaultTeamId: params.defaultTeamId
+			defaultTeamId: params.defaultTeamId,
+			lastTeamId: params.lastTeamId
 		});
 	}
 
@@ -160,4 +167,8 @@ export const signInWorkspaceAPI = (params: {
 
 export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 	return api.post<ILoginResponse>('/auth/register', data);
+};
+
+export const logoutUserAPI = (data: IUserLogoutInput) => {
+	return api.post<any>('/auth/logout', data);
 };
