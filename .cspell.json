@@ -356,7 +356,11 @@
 		"xlcard",
 		"xlight",
 		"yellowbox",
-		"vhidden"
+		"vhidden",
+		"POSTHOG",
+		"posthog",
+		"pageviews",
+		"pageleave"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
