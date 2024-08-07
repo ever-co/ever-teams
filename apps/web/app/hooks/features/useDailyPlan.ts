@@ -102,13 +102,13 @@ export function useDailyPlan() {
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(data, user?.tenantId || '');
-				//Check if there is a plan for today
-				const todayPlan = profileDailyPlans.items.find((plan) =>
-					plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+				//Check if there is an existing plan
+				const isPlanExist = profileDailyPlans.items.find((plan) =>
+					plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])
 				);
-				if (todayPlan) {
-					const updatedProfileDailyPlans = profileDailyPlans.items.map((plan) => {
-						if (plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])) {
+				if (isPlanExist) {
+					const updatedPlans = profileDailyPlans.items.map((plan) => {
+						if (plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])) {
 							return res.data;
 						}
 
@@ -116,8 +116,8 @@ export function useDailyPlan() {
 					});
 
 					setProfileDailyPlans({
-						total: updatedProfileDailyPlans.length,
-						items: updatedProfileDailyPlans
+						total: updatedPlans.length,
+						items: updatedPlans
 					});
 				} else {
 					setProfileDailyPlans({
