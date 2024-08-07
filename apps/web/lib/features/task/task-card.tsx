@@ -190,7 +190,12 @@ export function TaskCard(props: Props) {
 					<>
 						{/* TaskEstimateInfo */}
 						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
-							<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
+							<TaskEstimateInfo
+								plan={plan}
+								memberInfo={memberInfo}
+								edition={taskEdition}
+								activeAuthTask={true}
+							/>
 						</div>
 					</>
 				)}
