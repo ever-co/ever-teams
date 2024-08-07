@@ -531,6 +531,15 @@ function TaskCardMenu({
 		[task.id, todayPlan]
 	);
 
+	const allPlans = [...todayPlan, ...futurePlans];
+	const isTaskPlannedMultipleTimes = allPlans.reduce((count, plan) => {
+		if (plan?.tasks) {
+			const taskCount = plan.tasks.filter(_task => _task.id === task.id).length;
+			return count + taskCount;
+		}
+		return count;
+	}, 0) > 1;
+
 	const taskPlannedTomorrow = useMemo(
 		() =>
 			futurePlans
@@ -647,12 +656,13 @@ function TaskCardMenu({
 																plan={plan}
 															/>
 														</div>
-														<div className="mt-2">
-															<RemoveManyTaskFromPlan
-																task={task}
-																member={profile?.member}
-															/>
-														</div>
+														{isTaskPlannedMultipleTimes && (
+															<div className="mt-2">
+																<RemoveManyTaskFromPlan
+																	task={task}
+																	member={profile?.member}
+																/>
+															</div>)}
 													</div>
 												) : (
 													<></>
