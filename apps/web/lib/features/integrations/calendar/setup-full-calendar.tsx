@@ -3,18 +3,16 @@ import React, { useState, useRef } from 'react';
 import { LuCalendarPlus } from "react-icons/lu";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
-import { MdTimer } from "react-icons/md";
 import FullCalendar from '@fullcalendar/react';
-import interactionPlugin from '@fullcalendar/interaction';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
-import { startOfYear, endOfYear, format } from 'date-fns';
+import { format } from 'date-fns';
 import Image from 'next/image';
 import { Button } from 'lib/components';
 import { SettingFilterIcon } from 'assets/svg';
 import { YearDateFilter } from './year-picker-filter';
-import { cn } from 'lib/utils';
+import CalendarComponent from './calendar-component';
+import { PiTimerBold } from "react-icons/pi";
+import { formatWithSuffix } from 'lib/utils';
+
 // import { IOrganizationTeamList } from '@app/interfaces';
 
 interface Event {
@@ -44,7 +42,7 @@ export function SetupFullCalendar() {
             color: '#dcfce7',
             textColor: "#16a34a",
             extendedProps: {
-                icon: <MdTimer className="inline-block mr-1 text-[#16a34a]" />,
+                icon: <PiTimerBold className="inline-block mr-1 text-[#16a34a]" />,
             },
 
 
@@ -66,7 +64,7 @@ export function SetupFullCalendar() {
             color: '#dcfce7',
             textColor: "#16a34a",
             extendedProps: {
-                icon: <MdTimer className="inline-block mr-1 text-[#16a34a]" />,
+                icon: <PiTimerBold className="inline-block mr-1 text-[#16a34a]" />,
             },
 
         },
@@ -89,7 +87,7 @@ export function SetupFullCalendar() {
 
     const renderEventContent = (eventInfo: any) => {
         return (
-            <div className='flex justify-between w-full items-center text-ellipsis rounded-md p-[1.5px]'>
+            <div className='flex justify-between w-full items-center text-ellipsis rounded-lg p-[1.2px]'>
                 <div className='w-full'>
                     {eventInfo.event.extendedProps.icon}
                     <span className='text-[11px] leading-4 font-bold'>{eventInfo.event.title}</span>
@@ -108,15 +106,15 @@ export function SetupFullCalendar() {
         return ['alldays-cell'];
     };
 
-    const handleEventClick = (info: { event: { id: string; startStr: string } }) => {
-        const isDelete = confirm(`Do you want to delete the event: ${info.event?.id}?`);
-        if (isDelete) {
-            const updatedEvents = events.filter(event =>
-                event.id !== info.event.id || event.start !== info.event.startStr
-            );
-            setEvents(updatedEvents);
-        }
-    };
+    // const handleEventClick = (info: { event: { id: string; startStr: string } }) => {
+    //     const isDelete = confirm(`Do you want to delete the event: ${info.event?.id}?`);
+    //     if (isDelete) {
+    //         const updatedEvents = events.filter(event =>
+    //             event.id !== info.event.id || event.start !== info.event.startStr
+    //         );
+    //         setEvents(updatedEvents);
+    //     }
+    // };
 
     const handleEventDrop = (info: { event: { id: string; startStr: string } }) => {
         const updatedEvents = events.map(event =>
@@ -125,16 +123,11 @@ export function SetupFullCalendar() {
         setEvents(updatedEvents);
     };
 
-
-
-
-
-
     return (
-        <div className='flex overflow-hidden'>
-            <div className='w-full min-h-[600px] p-[32px] bg-white dark:!bg-dark--theme'>
-                <div className='flex items-center justify-between'>
-                    <div className='flex items-center space-x-5'>
+        <div className='flex flex-col  overflow-hidden p-[32px]'>
+            <div className='w-full bg-white dark:!bg-dark--theme  rounded-xl border border-slate-200 p-4'>
+                <div className='flex items-center justify-between w-full  dark:!bg-dark--theme p-2  '>
+                    <div className='flex items-center space-x-5 dark:!bg-dark--theme '>
                         <YearDateFilter calendarRef={calendarRef} />
                         <TotalHours />
                     </div>
@@ -147,112 +140,62 @@ export function SetupFullCalendar() {
                         </Button>
                     </div>
                 </div>
-                <FullCalendar
-                    dayHeaderClassNames={'font-semibold text-[14px] text-gray-400 !bg-light--theme dark:!bg-dark--theme'}
-                    viewClassNames={'bg-white text-[18px] font-semibold !bg-light--theme dark:!bg-dark--theme w-full'}
-                    ref={calendarRef}
-                    stickyHeaderDates
-                    plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-                    headerToolbar={{
-                        left: '',
-                        center: '',
-                        right: '',
-                    }}
-                    views={{
-                        dayGridMonth: { buttonText: 'Month' },
-                        dayGridWeek: { buttonText: 'Week' },
-                        timeGridDay: { buttonText: 'Day' },
-                        listWeek: { buttonText: 'List' },
-                        yearView: {
-                            type: 'dayGridMonth',
-                            buttonText: 'Year',
-                            duration: { months: 36 },
-                            visibleRange: (currentDate) => {
-                                const start = startOfYear(currentDate);
-                                const end = endOfYear(currentDate);
-                                return { start, end };
-                            },
-                            titleFormat: { year: 'numeric' },
-                            eventClassNames: (info) => info.event.classNames,
-                        },
-                    }}
-                    // weekends={false}
-                    dayCellClassNames={dayCellClassNames}
-                    initialView="dayGridMonth"
-                    events={events}
-                    dateClick={handleDateClick}
-                    eventClick={handleEventClick}
-                    eventDrop={handleEventDrop}
-                    eventContent={renderEventContent}
-                    editable={true}
-
-                />
-                <style jsx global>{`
-                .fc .fc-daygrid-day.fc-day-today {
-                    background-color: inherit !important;
-                }
-                .today-cell .fc-daygrid-day-number {
-                    background-color: #3826a6;
-                    color: white;
-                    border-radius: 50%;
-                    display: inline-block;
-                    width: 1.9em;
-                    height: 1.9em;
-                    line-height: 1.5em;
-                    text-align: center !important;
-                    margin: 0.2em;
-                }
-                .alldays-cell .fc-daygrid-day-number {
-                    display: inline-block;
-                    width: 1.9em;
-                    height: 1.9em;
-                    line-height: 1.5em;
-                    text-align: center !important;
-                    margin: 0.2em;
-                }
-            `}</style>
-            </div>
-            {isDialogOpen && (
-                <div className={`py-10 w-1/5 m-5`}>
-                    <CardItems selectedDate={selectedDate as any} />
+                <div className='flex h-full border border-gray-200'>
+                    <CalendarComponent
+                        calendarRef={calendarRef}
+                        dayCellClassNames={dayCellClassNames}
+                        events={events}
+                        handleDateClick={handleDateClick}
+                        handleEventDrop={handleEventDrop}
+                        renderEventContent={renderEventContent}
+                    />
+                    {isDialogOpen && (
+                        <div className={`py-10 w-1/5 m-5 h-full`}>
+                            <CardItems selectedDate={selectedDate as any} />
+                        </div>
+                    )}
                 </div>
-            )}
+
+            </div>
+
+
+
         </div>
     )
 }
-
 
 
 export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
     return (
-        <div className='h-full  w-full  border  border-slate-200 rounded-xl  overflow-scroll py-4'>
-            <span className='p-2 text-[16px] font-normal text-gray-400'>
-                {format(selectedDate, 'PPP')}
-            </span>
-            <div className='px-2 w-full h-full'>
-                <CardItemsProjects />
-                <CardItemsMember imageUrl='' name='' time='' />
-                <CardItemsMember imageUrl='' name='' time='' />
-
-                <CardItemsProjects />
-                <CardItemsMember imageUrl='' name='' time='' />
-                <CardItemsMember imageUrl='' name='' time='' />
+        <div className='flex flex-col w-full h-[90vh] sticky'>
+            <div className='h-full  w-full  border  border-slate-200 rounded-xl py-4 bg-white flex-grow'>
+                <span className='p-2 text-[16px] text-gray-500 font-bold'>
+                    {formatWithSuffix(new Date(selectedDate))}
+                </span>
+                <div className='px-2 w-full h-full flex flex-col'>
+                    <CardItemsProjects logo="https://dummyimage.com/330x300/0ecc9D/ffffff.jpg&text=N" title='Ever teams projects' totalHours='Total hours 52h' />
+                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=E" name='Ruslan' time='04:06h' />
+                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecc8D/ffffff.jpg&text=R" name='Ruslan' time='04:06h' />
+                    <CardItemsProjects logo="https://dummyimage.com/330x300/f97316/ffffff.jpg&text=G" title='Ever Gauzy projects' totalHours='Total hours 53h' />
+                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=K" name='Ruslan' time='04:06h' />
+                </div>
             </div>
         </div>
     )
 }
 
-
 export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string, name?: string, time?: string }) => {
     return (
         <div className='w-full  flex items-center'>
-            <div className='w-full flex items-center space-x-2 p-2 cursor-pointer hover:bg-slate-100 rounded'>
-                <Image className='text-white p-1 rounded-full flex items-center justify-center' src={imageUrl!} alt='' width={90} height={90} />
+            <div className='w-full flex items-center space-x-2 p-1 cursor-pointer hover:bg-gray-100 rounded'>
+                <Image className='text-white p-1 rounded-full flex items-center justify-center h-8 w-8' src={imageUrl!} alt='' width={90} height={90} />
                 <div className='flex items-center space-x-1 w-full'>
-                    <span className='text-[14px]'>{name}</span>
-                    <span className='text-[14px] text-gray-400'>{time}</span>
+                    <span className='text-[14px] font-normal'>{name}</span>
                 </div>
-                <IoIosArrowForward />
+                <div className='flex items-center space-x-2'>
+                    <span className='text-[14px] text-gray-400'>{time}</span>
+                    <IoIosArrowForward />
+                </div>
             </div>
         </div>
     )
@@ -276,11 +219,7 @@ export const CardItemsProjects = ({ logo, title, totalHours }: { logo?: string, 
 
 export function TotalHours() {
     return (
-        <div
-            className={cn(
-                "w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2",
-            )}
-        >
+        <div className="w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2">
             <div className="flex items-center">
                 <IoTimeSharp className="mr-2 h-5 w-5" />
                 <span>Total Hours 240</span>
