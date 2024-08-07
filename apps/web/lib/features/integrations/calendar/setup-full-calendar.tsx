@@ -174,13 +174,10 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
                 </span>
                 <div className='px-2 w-full h-full flex flex-col'>
                     <CardItemsProjects logo="https://dummyimage.com/330x300/0ecc9D/ffffff.jpg&text=N" title='Ever teams projects' totalHours='Total hours 52h' />
-                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=A" name='AKILIMALI Innocent' time='04:06h' />
-                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecc8D/ffffff.jpg&text=C" name='Cedric' time='04:06h' />
-                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecc9D/ffffff.jpg&text=G" name='Gloire ' time='04:06h' />
+                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=E" name='Ruslan Konviser' time='04:06h' />
+                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecc8D/ffffff.jpg&text=R" name='Ruslan Konviser' time='04:06h' />
                     <CardItemsProjects logo="https://dummyimage.com/330x300/f97316/ffffff.jpg&text=G" title='Ever Gauzy projects' totalHours='Total hours 53h' />
-                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=A" name='AKILIMALI Innocent' time='04:06h' />
-                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecc8D/ffffff.jpg&text=C" name='Cedric' time='04:06h' />
-                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecc9D/ffffff.jpg&text=G" name='Gloire ' time='04:06h' />
+                    <CardItemsMember imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=K" name='Ruslan Konviser' time='04:06h' />
                 </div>
             </div>
         </div>
