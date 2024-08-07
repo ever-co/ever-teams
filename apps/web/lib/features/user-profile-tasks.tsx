@@ -4,6 +4,7 @@ import { UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 type Props = {
 	tabFiltered: I_TaskFilter;
 	profile: I_UserProfilePage;
@@ -23,10 +24,11 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	/**
 	 * When tab is worked, then filter exclude the active task
 	 */
-	const tasks = tabFiltered.tasksFiltered;
+	const tasks = useMemo(() => tabFiltered.tasksFiltered, [tabFiltered.tasksFiltered]);
 
-	const otherTasks = tasks.filter((t) =>
-		profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t
+	const otherTasks = useMemo(
+		() => tasks.filter((t) => (profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t)),
+		[profile.activeUserTeamTask?.id, profile.member?.running, tasks]
 	);
 	// const data = otherTasks.length < 10 ? otherTasks : data;
 

@@ -41,21 +41,33 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
 	const hook = useTaskFilter(profile);
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
-	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
+	const isManagerConnectedUser = useMemo(
+		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
+		[activeTeamManagers, user?.id]
+	);
+	const canSeeActivity = useMemo(
+		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+	);
 
 	const t = useTranslations();
-	const breadcrumb = [
-		{ title: activeTeam?.name || '', href: '/' },
-		{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
-	];
+	const breadcrumb = useMemo(
+		() => [
+			{ title: activeTeam?.name || '', href: '/' },
+			{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
+		],
+		[activeTeam?.name, params.memberId, t]
+	);
 
-	const activityScreens = {
-		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
-		Screenshots: <ScreenshootTab />,
-		Apps: <AppsTab />,
-		'Visited Sites': <VisitedSitesTab />
-	};
+	const activityScreens = useMemo(
+		() => ({
+			Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		}),
+		[hook, profile]
+	);
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
