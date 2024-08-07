@@ -12,6 +12,8 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react'
 import { useRecoilValue } from 'recoil';
+import { LuCalendarDays } from "react-icons/lu";
+
 
 const CalendarPage = () => {
     const t = useTranslations();
@@ -55,16 +57,22 @@ const CalendarPage = () => {
                             <h1 className="text-4xl font-semibold ">
                                 CALENDAR
                             </h1>
-                            <div>
+                            <div className='flex items-center space-x-3'>
+                                <button
+                                    className=' hover:!bg-gray-100 text-xl h-10 w-10 rounded-lg flex items-center justify-center'>
+                                    <LuCalendarDays />
+                                </button>
+                                <button
+                                    className='bg-gray-100 text-xl !h-10 !w-10 rounded-lg flex items-center justify-center'>
+                                    <LuCalendarDays />
+                                </button>
                                 <Button
                                     variant='primary'
-                                    className='bg-primary dark:bg-primary-light'
+                                    className='bg-primary dark:!bg-primary-light'
                                 >Add Manuel Time
                                 </Button>
                             </div>
-
                         </div>
-                        {/* <div className="h-20 w-full bg-red-500/50"></div> */}
                     </Container>
                 </div>
                 <div className='mt-[256px] mb-24 '>
