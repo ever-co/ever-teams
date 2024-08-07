@@ -28,7 +28,7 @@ export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatistic
 
 	return serverFetch<ITasksTimesheet[]>({
 		path: `/timesheet/statistics/tasks?${queries}`,
-		method: 'GET',
+		method: 'POST',
 		bearer_token,
 		tenantId: params.tenantId
 	});

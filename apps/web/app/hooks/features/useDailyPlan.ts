@@ -102,10 +102,30 @@ export function useDailyPlan() {
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(data, user?.tenantId || '');
-				setProfileDailyPlans({
-					total: profileDailyPlans.total + 1,
-					items: [...profileDailyPlans.items, res.data]
-				});
+				//Check if there is an existing plan
+				const isPlanExist = profileDailyPlans.items.find((plan) =>
+					plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])
+				);
+				if (isPlanExist) {
+					const updatedPlans = profileDailyPlans.items.map((plan) => {
+						if (plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])) {
+							return res.data;
+						}
+
+						return plan;
+					});
+
+					setProfileDailyPlans({
+						total: updatedPlans.length,
+						items: updatedPlans
+					});
+				} else {
+					setProfileDailyPlans({
+						total: profileDailyPlans.total + 1,
+						items: [...profileDailyPlans.items, res.data]
+					});
+				}
+
 				setEmployeePlans([...employeePlans, res.data]);
 				getMyDailyPlans();
 				return res;
