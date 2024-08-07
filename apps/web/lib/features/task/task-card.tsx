@@ -101,51 +101,64 @@ export function TaskCard(props: Props) {
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => {
-		return m.employee.user?.id === profile?.userProfile?.id;
-	});
+	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
+	const currentMember = useMemo(
+		() =>
+			members.find((m) => {
+				return m.employee.user?.id === profile?.userProfile?.id;
+			}),
+		[members, profile?.userProfile?.id]
+	);
 
 	const { h, m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
-	const totalWork =
-		isAuthUser && activeAuthTask ? (
-			<div className={clsxm('flex space-x-2 items-center font-normal')}>
-				<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
-				<Text>
-					{h}h : {m}m
-				</Text>
-			</div>
-		) : (
-			<></>
-		);
-
+	const totalWork = useMemo(
+		() =>
+			isAuthUser && activeAuthTask ? (
+				<div className={clsxm('flex space-x-2 items-center font-normal')}>
+					<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
+					<Text>
+						{h}h : {m}m
+					</Text>
+				</div>
+			) : (
+				<></>
+			),
+		[activeAuthTask, h, isAuthUser, m, t]
+	);
 	// Daily work
-	const { h: dh, m: dm } = secondsToTime((activeTaskDailyStat?.duration || 0) + addSeconds);
-	const todayWork =
-		isAuthUser && activeAuthTask ? (
-			<div className={clsxm('flex flex-col items-start font-normal')}>
-				<span className="text-xs text-gray-500">{t('common.TOTAL_WORK')}</span>
-				<Text>
-					{dh}h : {dm}m
-				</Text>
-			</div>
-		) : (
-			<></>
-		);
-
+	const { h: dh, m: dm } = useMemo(
+		() => secondsToTime((activeTaskDailyStat?.duration || 0) + addSeconds),
+		[activeTaskDailyStat?.duration, addSeconds]
+	);
+	const todayWork = useMemo(
+		() =>
+			isAuthUser && activeAuthTask ? (
+				<div className={clsxm('flex flex-col items-start font-normal')}>
+					<span className="text-xs text-gray-500">{t('common.TOTAL_WORK')}</span>
+					<Text>
+						{dh}h : {dm}m
+					</Text>
+				</div>
+			) : (
+				<></>
+			),
+		[activeAuthTask, dh, dm, isAuthUser, t]
+	);
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
-	const activeMembers = task != null && task?.members?.length > 0;
-	const hasMembers = task?.members && task?.members?.length > 0;
-	const taskAssignee: ImageOverlapperProps[] =
-		task?.members?.map((member: any) => {
-			return {
-				id: member.user?.id,
-				url: member.user?.imageUrl,
-				alt: member.user?.firstName
-			};
-		}) || [];
-
+	const activeMembers = useMemo(() => task != null && task?.members?.length > 0, [task]);
+	const hasMembers = useMemo(() => task?.members && task?.members?.length > 0, [task?.members]);
+	const taskAssignee: ImageOverlapperProps[] = useMemo(
+		() =>
+			task?.members?.map((member: any) => {
+				return {
+					id: member.user?.id,
+					url: member.user?.imageUrl,
+					alt: member.user?.firstName
+				};
+			}) || [],
+		[task?.members]
+	);
 	return (
 		<>
 			<Card
@@ -304,7 +317,7 @@ export function TaskCard(props: Props) {
 
 function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & IClassName) {
 	const t = useTranslations();
-	const members = task?.members || [];
+	const members = useMemo(() => task?.members || [], [task?.members]);
 
 	return (
 		<div className={clsxm('flex justify-center items-center', className)}>
