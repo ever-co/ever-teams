@@ -27,13 +27,14 @@ import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
 import '../../../styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
+import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
 
-export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
+export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 type ITabs = {
 	tab: ITab;
 	name: string;
-	count: number;
+	count?: number;
 	description: string;
 };
 
@@ -48,15 +49,22 @@ type StatusFilter = { [x in IStatusType]: string[] };
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
-	const defaultValue =
-		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
-
+	const defaultValue = useMemo(
+		() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
+		[]
+	);
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { profileDailyPlans } = useDailyPlan();
-
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
-	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
+	const { timerLogsDailyReport } = useTimeLogs();
+	const isManagerConnectedUser = useMemo(
+		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
+		[activeTeamManagers, user?.id]
+	);
+	const canSeeActivity = useMemo(
+		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+	);
 
 	const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
@@ -67,14 +75,18 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const [taskName, setTaskName] = useState('');
 
-	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
-		unassigned: profile.tasksGrouped.unassignedTasks,
-		assigned: profile.tasksGrouped.assignedTasks,
-		worked: profile.tasksGrouped.workedTasks,
-		dailyplan: [] // Change this soon
-	};
+	const tasksFiltered: { [x in ITab]: ITeamTask[] } = useMemo(
+		() => ({
+			unassigned: profile.tasksGrouped.unassignedTasks,
+			assigned: profile.tasksGrouped.assignedTasks,
+			worked: profile.tasksGrouped.workedTasks,
+			stats: [],
+			dailyplan: [] // Change this soon
+		}),
+		[profile.tasksGrouped.assignedTasks, profile.tasksGrouped.unassignedTasks, profile.tasksGrouped.workedTasks]
+	);
 
-	const tasks = tasksFiltered[tab];
+	const tasks = useMemo(() => tasksFiltered[tab], [tab, tasksFiltered]);
 
 	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
 		if (filterType === 'search' && taskName.trim().length === 0) {
@@ -99,16 +111,24 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			name: t('common.UNASSIGNED'),
 			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.unassignedTasks.length
-		}
+		},
+
 	];
 
 	// For tabs on profile page, display "Worked" and "Daily Plan" only for the logged in user or managers
 	if (activeTeam?.shareProfileView || canSeeActivity) {
+
 		tabs.push({
 			tab: 'dailyplan',
-			name: 'Daily Plan',
+			name: 'Planned',
 			description: 'This tab shows all yours tasks planned',
-			count: profile.tasksGrouped.dailyplan?.length
+			count: profile.tasksGrouped.planned
+		});
+		tabs.push({
+			tab: 'stats',
+			name: 'Stats',
+			description: 'This tab shows all stats',
+			count: timerLogsDailyReport.length,
 		});
 		tabs.unshift({
 			tab: 'worked',
@@ -182,9 +202,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-									statusFilters[k],
-									task['tags'].map((item) => item.name)
-								).length === statusFilters[k].length
+								statusFilters[k],
+								task['tags'].map((item) => item.name)
+							).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});

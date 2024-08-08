@@ -88,6 +88,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 																		viewType={'dailyplan'}
 																		task={task}
 																		profile={profile}
+																		plan={plan}
 																		type="HORIZONTAL"
 																		taskBadgeClassName={`rounded-sm`}
 																		taskTitleClassName="mt-[0.0625rem]"
