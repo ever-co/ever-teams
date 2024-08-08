@@ -273,6 +273,7 @@ export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
 export const DAILY_PLAN_SUGGESTION_MODAL_DATE = 'daily-plan-suggestion-modal-date';
 export const TASKS_ESTIMATE_HOURS_MODAL_DATE = 'tasks-estimate-hours-modal-date';
 export const DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE = 'daily-plan-estimate-hours-modal';
+export const COMPARE_PLANNED_AND_ESTIMATE_HOURS_MODAL_DATE = 'compare-planned-and-estimate-hours-modal';
 
 // OAuth providers keys
 

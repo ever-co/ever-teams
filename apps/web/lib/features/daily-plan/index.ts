@@ -1,5 +1,5 @@
 export * from './add-task-to-plan';
-export * from './daily-plan-compare-estimate-modal';
+export * from './compare-planned-estimate-hours-modal';
 export * from './create-daily-plan-form-modal';
 export * from './enforce-planed-task-modal';
 export * from './add-daily-plan-work-hours-modal';

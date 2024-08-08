@@ -4,16 +4,17 @@ import {
 	useModal,
 	useOrganizationEmployeeTeams,
 	useTeamInvitations,
-	useUserProfilePage
+	useTimerView
 } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
-import React, { useEffect, useState } from 'react';
-import { DailyPlanCompareEstimatedModal } from './daily-plan';
-import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
+import React, { useEffect } from 'react';
+import { ComparePlannedAndEstimateModal } from './daily-plan';
+import { COMPARE_PLANNED_AND_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
+import { estimatedTotalTime } from './task/daily-plan';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -30,16 +31,15 @@ const TeamMembersCardView: React.FC<Props> = ({
 }) => {
 	const { isTeamManager } = useAuthenticateUser();
 	const { teamInvitations } = useTeamInvitations();
-	const [isOpen, setIsOpen] = useState(false);
 	const { todayPlan } = useDailyPlan();
-	const profile = useUserProfilePage();
-	const defaultOpenPopup =
-		typeof window !== 'undefined'
-			? window.localStorage.getItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE) || null
-			: new Date().toISOString().split('T')[0];
-	const plan = todayPlan.find((plan) => plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]));
+	const {
+		closeModal: closeComparePlannedAndEstimate,
+		isOpen: isComparePlannedAndEstimateModalOpen,
+		openModal: openComparePlannedAndEstimateModal
+	} = useModal();
 
 	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
+	const { hasPlan } = useTimerView();
 
 	// TODO: sort teamMembers by index
 	const [memberOrdereds, setMemberOrdereds] = React.useState<OT_Member[]>(members);
@@ -49,14 +49,21 @@ const TeamMembersCardView: React.FC<Props> = ({
 	useEffect(() => setMemberOrdereds(members), [members]);
 
 	useEffect(() => {
-		if (plan) {
-			const currentDateString = new Date().toISOString().split('T')[0];
-			window.localStorage.setItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, currentDateString);
-			if (defaultOpenPopup !== currentDateString || !defaultOpenPopup) {
-				setIsOpen(true);
+		const lastComparePlannedAndEstimateModalOpen = window.localStorage.getItem(
+			COMPARE_PLANNED_AND_ESTIMATE_HOURS_MODAL_DATE
+		);
+		const currentDate = new Date().toISOString().split('T')[0];
+
+		const totalTaskTimes = hasPlan?.tasks ? estimatedTotalTime(hasPlan?.tasks).timesEstimated / 3600 : 0;
+
+		if (hasPlan) {
+			if (lastComparePlannedAndEstimateModalOpen !== currentDate) {
+				if (Math.abs(hasPlan.workTimePlanned - totalTaskTimes) > 1) {
+					openComparePlannedAndEstimateModal();
+				}
 			}
 		}
-	}, [defaultOpenPopup, plan]);
+	}, [hasPlan, openComparePlannedAndEstimateModal, todayPlan]);
 
 	function handleSort() {
 		const peopleClone = [...memberOrdereds];
@@ -75,20 +82,14 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
-			<DailyPlanCompareEstimatedModal
-				open={isOpen}
-				closeModal={() =>
-					setIsOpen((prev) => {
-						window.localStorage.setItem(
-							DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE,
-							new Date().toISOString().split('T')[0]
-						);
-						return !prev;
-					})
-				}
-				todayPlan={todayPlan}
-				profile={profile}
-			/>
+			{hasPlan && hasPlan.tasks && (
+				<ComparePlannedAndEstimateModal
+					isOpen={isComparePlannedAndEstimateModalOpen}
+					closeModal={closeComparePlannedAndEstimate}
+					plan={hasPlan}
+					tasks={hasPlan.tasks}
+				/>
+			)}
 
 			<ul className="mt-7">
 				{/* Current authenticated user members */}
