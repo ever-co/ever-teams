@@ -120,7 +120,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 		tabs.push({
 			tab: 'dailyplan',
-			name: 'Daily Plan',
+			name: 'Planned',
 			description: 'This tab shows all yours tasks planned',
 			count: profile.tasksGrouped.planned
 		});
