@@ -4,8 +4,7 @@ import {
 	useModal,
 	useOrganizationEmployeeTeams,
 	useTeamInvitations,
-	useTimerView,
-	useUserProfilePage
+	useTimerView
 } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
@@ -33,7 +32,6 @@ const TeamMembersCardView: React.FC<Props> = ({
 	const { isTeamManager } = useAuthenticateUser();
 	const { teamInvitations } = useTeamInvitations();
 	const { todayPlan } = useDailyPlan();
-	const profile = useUserProfilePage();
 	const {
 		closeModal: closeComparePlannedAndEstimate,
 		isOpen: isComparePlannedAndEstimateModalOpen,
@@ -56,11 +54,11 @@ const TeamMembersCardView: React.FC<Props> = ({
 		);
 		const currentDate = new Date().toISOString().split('T')[0];
 
-		const totalTaskTimes = estimatedTotalTime(hasPlan?.tasks).timesEstimated / 3600;
+		const totalTaskTimes = hasPlan?.tasks ? estimatedTotalTime(hasPlan?.tasks).timesEstimated / 3600 : 0;
 
 		if (hasPlan) {
 			if (lastComparePlannedAndEstimateModalOpen !== currentDate) {
-				if (Math.abs(hasPlan.workTimePlanned - totalTaskTimes)) {
+				if (Math.abs(hasPlan.workTimePlanned - totalTaskTimes) > 1) {
 					openComparePlannedAndEstimateModal();
 				}
 			}

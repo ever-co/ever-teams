@@ -23,7 +23,7 @@ export function ComparePlannedAndEstimateModal(props: IComparePlannedAndEstimate
 
 	const t = useTranslations();
 	const { updateDailyPlan } = useDailyPlan();
-	const { startTimer } = useTimerView();
+	const { startTimer, timerStatus } = useTimerView();
 	const { activeTeam } = useTeamTasks();
 
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
@@ -37,9 +37,11 @@ export function ComparePlannedAndEstimateModal(props: IComparePlannedAndEstimate
 
 	const handleSubmit = useCallback(() => {
 		updateDailyPlan({ workTimePlanned }, plan.id ?? '');
-		startTimer();
+		if (!timerStatus?.running) {
+			startTimer();
+		}
 		handleCloseModal();
-	}, [handleCloseModal, plan.id, startTimer, updateDailyPlan, workTimePlanned]);
+	}, [handleCloseModal, plan.id, startTimer, timerStatus?.running, updateDailyPlan, workTimePlanned]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
@@ -80,7 +82,7 @@ export function ComparePlannedAndEstimateModal(props: IComparePlannedAndEstimate
 												key={index}
 												shadow="custom"
 												className={
-													'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs'
+													'lg:flex mb-1 items-center justify-between py-3 px-4 md:px-4 hidden min-h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs'
 												}
 											>
 												<div className="min-w-[50%] max-w-[50%]">
@@ -118,8 +120,8 @@ export function ComparePlannedAndEstimateModal(props: IComparePlannedAndEstimate
 							Total Estimates of all planned tasks should be approx the same as Planned work hours (+/-
 							1h)
 						</p>
-						<p>Please, correct one of the more appropriate values:</p>
-						<ul className="flex flex-col gap-1 list-disc list-inside">
+						<p className=" text-black">Please, correct one of the more appropriate values:</p>
+						<ul className="flex flex-col gap-1 text-black list-disc list-inside">
 							<li>Planned work hours</li>
 							<li>Reestimate task(s)</li>
 							<li>Replan or Plan tasks</li>
