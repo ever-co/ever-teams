@@ -198,7 +198,8 @@
 		"WORKING": "Aan het werk",
 		"PAUSED": "Gepauzeerd",
 		"ONLINE": "Online",
-		"SKIP_ADD_LATER": "Later toevoegen"
+		"SKIP_ADD_LATER": "Later toevoegen",
+		"DAILYPLAN": "dagelijks plan"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -553,7 +554,8 @@
 			"WORKED_DESCRIPTION": "Dit tabblad toont alle taken waar u aan begonnen bent",
 			"ASSIGNED_DESCRIPTION": "Dit tabblad toont alle taken die aan u zijn toegewezen",
 			"UNASSIGNED_DESCRIPTION": "Dit tabblad toont alle taken die niet aan u zijn toegewezen",
-			"NO_TASK_USER_ASSIGNED": "Niemand toegewezen aan deze taak"
+			"NO_TASK_USER_ASSIGNED": "Niemand toegewezen aan deze taak",
+			"DAILYPLAN_DESCRIPTION": "Dit tabblad toont alle door jou geplande taken"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Naam",

@@ -116,8 +116,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	if (activeTeam?.shareProfileView || canSeeActivity) {
 		tabs.push({
 			tab: 'dailyplan',
-			name: 'Daily Plan',
-			description: 'This tab shows all yours tasks planned',
+			name: t('common.DAILYPLAN'),
+			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION'),
 			count: profile.tasksGrouped.planned
 		});
 		tabs.unshift({

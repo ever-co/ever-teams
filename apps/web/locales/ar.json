@@ -198,7 +198,8 @@
 		"WORKING": "يعمل",
 		"PAUSED": "متوقف",
 		"ONLINE": "متصل",
-		"SKIP_ADD_LATER": "أضف لاحقًا"
+		"SKIP_ADD_LATER": "أضف لاحقًا",
+		"DAILYPLAN": "الخطة اليومية"
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -553,7 +554,8 @@
 			"WORKED_DESCRIPTION": "يعرض هذا التبويب جميع المهام التي بدأت العمل عليها",
 			"ASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام المعينة لك",
 			"UNASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام غير المعينة لك",
-			"NO_TASK_USER_ASSIGNED": "لم يتم تعيين أحد لهذه المهمة"
+			"NO_TASK_USER_ASSIGNED": "لم يتم تعيين أحد لهذه المهمة",
+			"DAILYPLAN_DESCRIPTION": "تعرض علامة التبويب هذه جميع مهامك المخطط لها"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "الاسم",

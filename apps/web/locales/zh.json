@@ -198,7 +198,8 @@
 		"WORKING": "工作",
 		"PAUSED": "暂停",
 		"ONLINE": "在线",
-		"SKIP_ADD_LATER": "稍后添加"
+		"SKIP_ADD_LATER": "稍后添加",
+		"DAILYPLAN": "每日計劃"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -553,7 +554,8 @@
 			"WORKED_DESCRIPTION": "此标签显示您开始处理的所有任务",
 			"ASSIGNED_DESCRIPTION": "此标签显示分配给您的所有任务",
 			"UNASSIGNED_DESCRIPTION": "此标签显示未分配给您的任务",
-			"NO_TASK_USER_ASSIGNED": "此任务未分配"
+			"NO_TASK_USER_ASSIGNED": "此任务未分配",
+			"DAILYPLAN_DESCRIPTION": "此標籤顯示您已規劃的所有任務"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "名称",

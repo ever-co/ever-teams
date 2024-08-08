@@ -198,7 +198,8 @@
 		"WORKING": "Trabajando",
 		"PAUSED": "Pausado",
 		"ONLINE": "En línea",
-		"SKIP_ADD_LATER": "Agregar más tarde"
+		"SKIP_ADD_LATER": "Agregar más tarde",
+		"DAILYPLAN": "Plan diario"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -553,7 +554,8 @@
 			"WORKED_DESCRIPTION": "Esta pestaña muestra todas las tareas en las que comenzaste a trabajar",
 			"ASSIGNED_DESCRIPTION": "Esta pestaña muestra todas las tareas que te han sido asignadas",
 			"UNASSIGNED_DESCRIPTION": "Esta pestaña muestra todas las tareas que no te han sido asignadas",
-			"NO_TASK_USER_ASSIGNED": "Nadie asignado a esta tarea"
+			"NO_TASK_USER_ASSIGNED": "Nadie asignado a esta tarea",
+			"DAILYPLAN_DESCRIPTION": "Esta pestaña muestra todas sus tareas planificadas"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nombre",
