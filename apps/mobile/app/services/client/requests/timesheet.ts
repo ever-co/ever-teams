@@ -11,12 +11,13 @@ type TTasksTimesheetStatisticsParams = {
 	'taskIds[0]'?: string;
 	unitOfTime?: 'day';
 };
+
 export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
 	const queries = new URLSearchParams(params);
 
 	return serverFetch<ITasksTimesheet[]>({
 		path: `/timesheet/statistics/tasks?${queries.toString()}`,
-		method: 'GET',
+		method: 'POST',
 		bearer_token,
 		tenantId: params.tenantId
 	});

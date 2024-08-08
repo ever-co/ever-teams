@@ -132,14 +132,17 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 
 	if (!members.length) {
 		return (
-			<div className="avatars flex -space-x-2 min-w-[59px] justify-center">
+			<div className="avatars flex -space-x-2 min-w-[59px] justify-center items-center">
 				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
 			</div>
 		);
 	}
 
 	return (
-		<div className="avatars flex -space-x-2 min-w-[59px] justify-center" onClick={(e) => e.stopPropagation()}>
+		<div
+			className="avatars flex -space-x-2 min-w-[59px] justify-center items-center"
+			onClick={(e) => e.stopPropagation()}
+		>
 			{members.slice(0, limit).map((member, i) => {
 				const user = member.user;
 				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;

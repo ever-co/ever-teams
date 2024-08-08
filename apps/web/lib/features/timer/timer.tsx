@@ -177,16 +177,10 @@ export function Timer({ className }: IClassName) {
 }
 
 export function MinTimerFrame({ className }: IClassName) {
-	const {
-		hours,
-		minutes,
-		seconds,
-		ms_p,
-
-		timerHanlder,
-		timerStatus,
-		disabled
-	} = useTimerView();
+	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan } = useTimerView();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	return (
 		<div
@@ -219,12 +213,43 @@ export function MinTimerFrame({ className }: IClassName) {
 
 			<div className="z-[50]">
 				<TimerButton
-					onClick={timerHanlder}
+					onClick={startStopTimerHandler}
 					running={timerStatus?.running}
 					disabled={disabled}
 					className="w-7 h-7"
 				/>
 			</div>
+
+			<SuggestDailyPlanModal
+				isOpen={modals.isSuggestDailyPlanModalOpen}
+				closeModal={modals.suggestDailyPlanCloseModal}
+			/>
+
+			{hasPlan && hasPlan.tasks && (
+				<AddTasksEstimationHoursModal
+					isOpen={modals.isTasksEstimationHoursModalOpen}
+					closeModal={modals.tasksEstimationHoursCloseModal}
+					plan={hasPlan}
+					tasks={hasPlan.tasks}
+				/>
+			)}
+
+			{hasPlan && (
+				<AddDailyPlanWorkHourModal
+					isOpen={modals.isDailyPlanWorkHoursModalOpen}
+					closeModal={modals.dailyPlanWorkHoursCloseModal}
+					plan={hasPlan}
+				/>
+			)}
+
+			{requirePlan && hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					closeModal={modals.enforceTaskCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
 		</div>
 	);
 }
