@@ -1,6 +1,12 @@
 import { VERIFY_EMAIL_CALLBACK_URL, APP_NAME, APP_SIGNATURE, APP_LOGO_URL } from '@app/constants';
 import { ISuccessResponse } from '@app/interfaces';
-import { ILoginResponse, IRegisterDataRequest, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
+import {
+	ILoginResponse,
+	IRegisterDataRequest,
+	ISigninEmailConfirmResponse,
+	ISigninWorkspaceInput,
+	IUserLogoutInput
+} from '@app/interfaces/IAuthentication';
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
@@ -69,12 +75,12 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 	});
 };
 
-export function signInWorkspaceRequest(email: string, token: string) {
+export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/signin.workspace',
 		method: 'POST',
-		body: { email, token },
-		bearer_token: token
+		body: input,
+		bearer_token: input.token
 	});
 }
 
@@ -212,6 +218,14 @@ export const linkUserToSocialAccount = (data: ISocialAccountSendToken) => {
 	return serverFetch<ISocialAccount>({
 		method: 'POST',
 		path: `/auth/signup.link.account`,
+		body: data
+	});
+};
+
+export const logoutRequest = (data: IUserLogoutInput) => {
+	return serverFetch<void>({
+		method: 'POST',
+		path: '/auth/logout',
 		body: data
 	});
 };
