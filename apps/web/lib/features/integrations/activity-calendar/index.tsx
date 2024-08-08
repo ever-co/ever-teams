@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { CalendarDatum, ResponsiveCalendar } from '@nivo/calendar';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
+import Separator from '@components/ui/separator';
 
 export function ActivityCalendar() {
     const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();
@@ -15,48 +16,69 @@ export function ActivityCalendar() {
         );
     }, [timerLogsDailyReport]);
 
+    const colorRange = [
+        '#9370DB',
+        '#6A5ACD',
+        '#4169E1',
+        '#0000FF',
+        '#1E90FF',
+        '#87CEEB',
+        '#FFA500',
+        '#FF8C00',
+        '#FF4500',
+        '#FF0000'
+    ];
+
     return (
-        <div className=" h-[650px] w-full flex items-center justify-center overflow-y-hidden overflow-x-auto">
+        <div className="h-[650px] w-full flex items-center justify-center overflow-y-hidden overflow-x-auto">
             {timerLogsDailyReportLoading ? (
                 <ActivityCalendarSkeleton />
             ) : (
-                <div className='flex flex-col w-full h-full relative'>
+                <div className='flex flex-col w-full h-full'>
                     <ActivityLegend />
-                    <ResponsiveCalendar
-                        data={calendarData}
-                        from={moment().startOf('year').toDate()}
-                        to={moment().startOf('year').toDate()}
-                        emptyColor="#ffffff"
-                        colors={['#ADD8E6', '#9370DB', '#6A5ACD', '#0000FF']}
-                        yearSpacing={40}
-                        monthBorderWidth={0}
-                        dayBorderWidth={0}
-                        daySpacing={2}
-                        monthLegendPosition="before"
-                        margin={{ top: 10, right: 5, bottom: 10, left: 5 }}
-                        legends={[
-                            {
-                                anchor: 'bottom-right',
-                                direction: 'row',
-                                translateY: 36,
-                                itemCount: 3,
-                                itemWidth: 42,
-                                itemHeight: 36,
-                                itemsSpacing: 14,
-                                itemDirection: 'right-to-left',
-                                data: [
-                                    { color: '#0000FF', label: '8 hours or more', id: 'legend-blue' },
-                                    { color: '#6A5ACD', label: '6 hours', id: 'legend-slateblue' },
-                                    { color: '#9370DB', label: '4 hours', id: 'legend-purple' },
-                                    { color: '#ADD8E6', label: '2 hours', id: 'legend-light-blue' }
-                                ]
-                            }
-                        ]}
-                        monthSpacing={20}
-                        monthLegend={(_, __, d) => d.toLocaleString('en-US', { month: 'short' })}
-                    />
-
-
+                    <div className='h-80 w-full'>
+                        <ResponsiveCalendar
+                            tooltip={(value) => (
+                                <div className="flex items-center mb-2">
+                                    <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: value.color }}></span>
+                                    <span className={`text-[14px] font-semibold dark:!text-primary-xlight`}>{value.day}</span>
+                                </div>
+                            )}
+                            yearLegend={(value) => value}
+                            data={calendarData}
+                            from={moment().startOf('year').toDate()}
+                            to={moment().startOf('year').toDate()}
+                            emptyColor="#ffffff"
+                            colors={colorRange}
+                            yearSpacing={40}
+                            monthBorderWidth={0}
+                            dayBorderWidth={0}
+                            daySpacing={2}
+                            monthLegendPosition="before"
+                            margin={{ top: 0, right: 5, bottom: 0, left: 5 }}
+                            legends={[
+                                {
+                                    anchor: 'bottom-right',
+                                    direction: 'row',
+                                    translateY: 36,
+                                    itemCount: 4,
+                                    itemWidth: 70,
+                                    itemHeight: 20,
+                                    itemsSpacing: 14,
+                                    itemDirection: 'left-to-right',
+                                    symbolSize: 20,
+                                    data: [
+                                        { color: '#9370DB', label: '0 - 4 Hours', id: 'legend-purple' },
+                                        { color: '#0000FF', label: '4 - 10 Hours', id: 'legend-blue' },
+                                        { color: '#FFA500', label: '10 - 18 Hours', id: 'legend-orange' },
+                                        { color: '#FF0000', label: '18 - 24 Hours', id: 'legend-red' }
+                                    ]
+                                }
+                            ]}
+                            monthSpacing={20}
+                            monthLegend={(_, __, d) => d.toLocaleString('en-US', { month: 'short' })}
+                        />
+                    </div>
                 </div>
             )}
         </div>
@@ -84,24 +106,28 @@ function ActivityCalendarSkeleton() {
 
 function ActivityLegend() {
     return (
-        <div className="flex flex-col w-full items-start p-4 bg-white dark:bg-dark--theme-light rounded-lg shadow-sm">
+        <div className="flex w-full items-center justify-start p-1 bg-white dark:bg-dark--theme-light rounded-lg shadow shadow-slate-50 dark:shadow-slate-700 space-x-3 px-3">
             <h3 className="text-lg font-bold mb-2">Legend</h3>
-            <div className="flex items-center mb-2" id="legend-blue">
-                <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#0000FF' }}></span>
-                <span>8 Hours or more</span>
-            </div>
-            <div className="flex items-center mb-2" id="legend-slateblue">
-                <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#6A5ACD' }}></span>
-                <span>6 Hours</span>
-            </div>
-            <div className="flex items-center mb-2" id="legend-purple">
+            <Separator />
+            <div className="flex items-center" id="legend-purple">
                 <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#9370DB' }}></span>
-                <span>4 Hours</span>
+                <span>0 - 4 Hours</span>
             </div>
-            <div className="flex items-center mb-2" id="legend-light-blue">
-                <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#ADD8E6' }}></span>
-                <span>2 Hours</span>
+            <Separator />
+            <div className="flex items-center" id="legend-blue">
+                <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#0000FF' }}></span>
+                <span>4 - 10 Hours</span>
+            </div>
+            <Separator />
+            <div className="flex items-center" id="legend-orange">
+                <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#FFA500' }}></span>
+                <span>10 - 18 Hours</span>
+            </div>
+            <Separator />
+            <div className="flex items-center" id="legend-red">
+                <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: '#FF0000' }}></span>
+                <span>18 - 24 Hours</span>
             </div>
         </div>
-    )
+    );
 }
