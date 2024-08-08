@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
+import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
@@ -31,6 +31,7 @@ import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
+import { checkPastDate } from 'lib/utils';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -357,6 +358,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const [editTime, setEditTime] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
+	const { isTeamManager } = useAuthenticateUser();
 	// Get all tasks's estimations time
 	// Helper function to sum times
 	const sumTimes = (tasks: ITeamTask[], key: any) =>
@@ -392,7 +394,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 							<span className="font-medium">Planned time: </span>
 							<span className="font-semibold">{formatIntegerToHour(plan.workTimePlanned)}</span>
 						</div>
-						{planMode !== 'Past Tasks' && (
+						{(!checkPastDate(plan.date) || isTeamManager) && (
 							<EditPenBoxIcon
 								className={clsxm('cursor-pointer lg:h-4 lg:w-4 w-2 h-2', 'dark:stroke-[#B1AEBC]')}
 								onClick={() => setEditTime(true)}
