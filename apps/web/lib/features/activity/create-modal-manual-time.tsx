@@ -141,7 +141,7 @@ export function CreateManualTimeModal({ open, setOpen }: CreateManualTimeProps) 
           <SelectItems
             defaultValue={null}
             items={[]}
-            onValueChange={(task) => null}
+            onValueChange={(task) => task as any}
             itemId={(task) => task as any}
             itemToString={(task) => task as any}
             triggerClassName="border-slate-100 dark:border-slate-600"
@@ -154,7 +154,7 @@ export function CreateManualTimeModal({ open, setOpen }: CreateManualTimeProps) 
           <SelectItems
             defaultValue={null}
             items={[]}
-            onValueChange={(task) => null}
+            onValueChange={(task) => task as any}
             itemId={(task) => task as any}
             itemToString={(task) => task as any}
             triggerClassName="border-slate-100 dark:border-slate-600"
@@ -178,9 +178,7 @@ export function CreateManualTimeModal({ open, setOpen }: CreateManualTimeProps) 
         <div className="flex flex-col">
           <label className="block text-gray-500 shrink-0">Description</label>
           <textarea
-            // value={description}
             placeholder="What worked on?"
-            onChange={(e) => null}
             className="w-full p-2 grow border border-slate-100 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
           />
         </div>
