@@ -1,11 +1,6 @@
 import { getRefreshTokenCookie, getTenantIdCookie, setAccessTokenCookie } from '@app/helpers/cookies';
 import { IOrganizationTeam, ISuccessResponse, IUser } from '@app/interfaces';
-import {
-	ILoginResponse,
-	IRegisterDataAPI,
-	ISigninEmailConfirmResponse,
-	IUserLogoutInput
-} from '@app/interfaces/IAuthentication';
+import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
 import api, { get, post } from '../axios';
 import {
 	APP_LOGO_URL,
@@ -167,8 +162,4 @@ export const signInWorkspaceAPI = (params: {
 
 export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 	return api.post<ILoginResponse>('/auth/register', data);
-};
-
-export const logoutUserAPI = (data: IUserLogoutInput) => {
-	return api.post<any>('/auth/logout', data);
 };

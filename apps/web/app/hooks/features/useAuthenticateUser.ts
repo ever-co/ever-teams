@@ -3,7 +3,7 @@
 import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@app/constants';
 import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';
-import { getAuthenticatedUserDataAPI, logoutUserAPI, refreshTokenAPI } from '@app/services/client/api/auth';
+import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@app/services/client/api/auth';
 import { activeTeamState, userState } from '@app/stores';
 import { useCallback, useMemo, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -27,8 +27,6 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		loadingRef: refreshUserLoadingRef
 	} = useQuery(getAuthenticatedUserDataAPI);
 
-	const { queryCall: logoutUserQueryCall } = useQuery(logoutUserAPI);
-
 	const updateUserFromAPI = useCallback(() => {
 		if (refreshUserLoadingRef.current) {
 			return;
@@ -44,16 +42,10 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	const logOut = useCallback(() => {
 		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, activeTeam?.id ?? '');
-		logoutUserQueryCall({
-			userId: user?.id || '',
-			lastTeamId: activeTeam?.id || '',
-			lastOrganizationId: activeTeam?.organizationId || ''
-		}).finally(() => {
-			removeAuthCookies();
-			window.clearInterval(intervalRt.current);
-			window.location.replace(DEFAULT_APP_PATH);
-		});
-	}, [activeTeam?.id, activeTeam?.organizationId, logoutUserQueryCall, user?.id]);
+		removeAuthCookies();
+		window.clearInterval(intervalRt.current);
+		window.location.replace(DEFAULT_APP_PATH);
+	}, [activeTeam?.id]);
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
 		window.clearInterval(intervalRt.current);

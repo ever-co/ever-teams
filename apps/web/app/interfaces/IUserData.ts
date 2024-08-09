@@ -35,7 +35,7 @@ export interface IUser {
 	defaultOrganizationId?: IOrganization['id'];
 	lastOrganization?: IOrganization;
 	lastOrganizationId?: IOrganization['id'];
-	lastLogoutAt?: Date;
+	lastLoginAt?: Date;
 	createdAt: string;
 	updatedAt: string;
 	timeZone?: string;

@@ -4,8 +4,7 @@ import {
 	ILoginResponse,
 	IRegisterDataRequest,
 	ISigninEmailConfirmResponse,
-	ISigninWorkspaceInput,
-	IUserLogoutInput
+	ISigninWorkspaceInput
 } from '@app/interfaces/IAuthentication';
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
@@ -218,14 +217,6 @@ export const linkUserToSocialAccount = (data: ISocialAccountSendToken) => {
 	return serverFetch<ISocialAccount>({
 		method: 'POST',
 		path: `/auth/signup.link.account`,
-		body: data
-	});
-};
-
-export const logoutRequest = (data: IUserLogoutInput) => {
-	return serverFetch<void>({
-		method: 'POST',
-		path: '/auth/logout',
 		body: data
 	});
 };

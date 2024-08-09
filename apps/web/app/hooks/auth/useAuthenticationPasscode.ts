@@ -1,7 +1,7 @@
 'use client';
 
 import { authFormValidate } from '@app/helpers/validations';
-import { IOrganizationTeam, ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { ISigninEmailConfirmResponse, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import {
 	sendAuthCodeAPI,
 	signInEmailAPI,
@@ -75,7 +75,15 @@ export function useAuthenticationPasscode() {
 	/**
 	 * Verify auth request
 	 */
-	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
+	const verifySignInEmailConfirmRequest = async ({
+		email,
+		code,
+		lastTeamId
+	}: {
+		email: string;
+		code: string;
+		lastTeamId?: string;
+	}) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
 				if ('team' in res.data) {
@@ -121,7 +129,8 @@ export function useAuthenticationPasscode() {
 							email: email,
 							code: code,
 							token: currentWorkspace?.token as string,
-							selectedTeam: queryTeamId as string
+							selectedTeam: queryTeamId as string,
+							lastTeamId
 						});
 					}
 				}
@@ -171,7 +180,8 @@ export function useAuthenticationPasscode() {
 		token: string;
 		selectedTeam: string;
 		code?: string;
-		defaultTeamId?: IOrganizationTeam['id'];
+		defaultTeamId?: string;
+		lastTeamId?: string;
 	}) => {
 		signInWorkspaceQueryCall(params)
 			.then(() => {
@@ -238,7 +248,8 @@ export function useAuthenticationPasscode() {
 			code: formValues.code,
 			token,
 			selectedTeam,
-			defaultTeamId: selectedTeam
+			defaultTeamId: selectedTeam,
+			lastTeamId: selectedTeam
 		});
 	};
 
@@ -279,15 +290,15 @@ export function useAuthenticationPasscode() {
 			email: string;
 			imageUrl: string;
 			lastTeamId?: string;
-			lastLogoutAt?: string;
+			lastLoginAt?: string;
 			name: string;
 			tenant: { name: string; logo: string };
 		} | null = null;
 
 		for (const workspace of workspaces) {
 			const user = workspace.user;
-			if (user?.lastLogoutAt) {
-				if (!latestUser || new Date(user?.lastLogoutAt) > new Date(latestUser?.lastLogoutAt ?? '')) {
+			if (user?.lastLoginAt) {
+				if (!latestUser || new Date(user?.lastLoginAt) > new Date(latestUser?.lastLoginAt ?? '')) {
 					latestUser = user;
 				}
 			}

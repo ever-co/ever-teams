@@ -86,6 +86,7 @@ export function useAuthenticationPassword() {
 		token: string;
 		selectedTeam: string;
 		defaultTeamId?: IOrganizationTeam['id'];
+		lastTeamId: string;
 	}) => {
 		signInWorkspaceQueryCall(params)
 			.then(() => {
@@ -116,7 +117,8 @@ export function useAuthenticationPassword() {
 		signInToWorkspaceRequest({
 			email: formValues.email,
 			token,
-			selectedTeam
+			selectedTeam,
+			lastTeamId: selectedTeam
 		});
 	};
 
@@ -125,15 +127,15 @@ export function useAuthenticationPassword() {
 			email: string;
 			imageUrl: string;
 			lastTeamId?: string;
-			lastLogoutAt?: string;
+			lastLoginAt?: string;
 			name: string;
 			tenant: { name: string; logo: string };
 		} | null = null;
 
 		for (const workspace of workspaces) {
 			const user = workspace.user;
-			if (user?.lastLogoutAt) {
-				if (!latestUser || new Date(user?.lastLogoutAt) > new Date(latestUser?.lastLogoutAt ?? '')) {
+			if (user?.lastLoginAt) {
+				if (!latestUser || new Date(user?.lastLoginAt) > new Date(latestUser?.lastLoginAt ?? '')) {
 					latestUser = user;
 				}
 			}
