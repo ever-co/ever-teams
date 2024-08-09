@@ -168,7 +168,7 @@ export function CreateManualTimeModal({ open, setOpen }: CreateManualTimeProps) 
           <SelectItems
             defaultValue={null}
             items={[]}
-            onValueChange={(task) => null}
+            onValueChange={(task) => task}
             itemId={(task) => task as any}
             itemToString={(task) => task as any}
             triggerClassName="border-slate-100 dark:border-slate-600"
