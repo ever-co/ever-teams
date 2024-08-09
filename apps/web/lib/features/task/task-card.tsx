@@ -605,7 +605,8 @@ function TaskCardMenu({
 										</span>
 									</li>
 
-									{viewType == 'default' && (
+									{(viewType == 'default' ||
+										(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
 										<>
 											<Divider type="HORIZONTAL" />
 											<div className="mt-3">
@@ -636,16 +637,6 @@ function TaskCardMenu({
 													/>
 												</li>
 											</div>
-										</>
-									)}
-
-									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
-										<>
-											{canSeeActivity ? (
-												<AddTaskToPlanComponent employee={profile?.member} task={task} />
-											) : (
-												<></>
-											)}
 										</>
 									)}
 
