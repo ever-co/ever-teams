@@ -36,49 +36,54 @@ export function ActivityCalendar() {
             ) : (
                 <div className='flex flex-col w-full h-full'>
                     <ActivityLegend />
-                    <div className='h-80 w-full'>
-                        <ResponsiveCalendar
-                            tooltip={(value) => (
-                                <div className="flex items-center mb-2">
-                                    <span className="w-4 h-4 inline-block mr-2" style={{ backgroundColor: value.color }}></span>
-                                    <span className={`text-[14px] font-semibold dark:!text-primary-xlight`}>{value.day}</span>
-                                </div>
-                            )}
-                            yearLegend={(value) => value}
-                            data={calendarData}
-                            from={moment().startOf('year').toDate()}
-                            to={moment().startOf('year').toDate()}
-                            emptyColor="#ffffff"
-                            colors={colorRange}
-                            yearSpacing={40}
-                            monthBorderWidth={0}
-                            dayBorderWidth={0}
-                            daySpacing={2}
-                            monthLegendPosition="before"
-                            margin={{ top: 0, right: 5, bottom: 0, left: 5 }}
-                            legends={[
-                                {
-                                    anchor: 'bottom-right',
-                                    direction: 'row',
-                                    translateY: 36,
-                                    itemCount: 4,
-                                    itemWidth: 70,
-                                    itemHeight: 20,
-                                    itemsSpacing: 14,
-                                    itemDirection: 'left-to-right',
-                                    symbolSize: 20,
-                                    data: [
-                                        { color: '#9370DB', label: '0 - 4 Hours', id: 'legend-purple' },
-                                        { color: '#0000FF', label: '4 - 10 Hours', id: 'legend-blue' },
-                                        { color: '#FFA500', label: '10 - 18 Hours', id: 'legend-orange' },
-                                        { color: '#FF0000', label: '18 - 24 Hours', id: 'legend-red' }
-                                    ]
+                    <ResponsiveCalendar
+                        data={calendarData}
+                        from={moment().startOf('year').toDate()}
+                        to={moment().startOf('year').toDate()}
+                        emptyColor="#ffffff"
+                        colors={colorRange}
+                        yearSpacing={40}
+                        monthBorderWidth={0}
+                        dayBorderWidth={0}
+                        daySpacing={2}
+                        monthLegendPosition="before"
+                        margin={{ top: 10, right: 5, bottom: 10, left: 5 }}
+                        legends={[
+                            {
+                                anchor: 'bottom-right',
+                                direction: 'row',
+                                translateY: 36,
+                                itemCount: 3,
+                                itemWidth: 42,
+                                itemHeight: 36,
+                                itemsSpacing: 14,
+                                itemDirection: 'right-to-left',
+                                data: [
+                                    { color: '#0000FF', label: '8 hours or more', id: 'legend-blue' },
+                                    { color: '#6A5ACD', label: '6 hours', id: 'legend-slateblue' },
+                                    { color: '#9370DB', label: '4 hours', id: 'legend-purple' },
+                                    { color: '#ADD8E6', label: '2 hours', id: 'legend-light-blue' }
+                                ]
+                            }
+                        ]}
+                        monthSpacing={20}
+                        monthLegend={(year, month) => {
+                            return new Date(year, month).toLocaleString('en-US', { month: 'short' });
+                        }}
+                        theme={{
+                            labels: {
+                                text: {
+                                    fill: '#9ca3af',
+                                    fontSize: 16,
+                                    font: 'icon',
+                                    animation: 'ease',
+                                    border: '12',
                                 }
-                            ]}
-                            monthSpacing={20}
-                            monthLegend={(_, __, d) => d.toLocaleString('en-US', { month: 'short' })}
-                        />
-                    </div>
+                            }
+                        }}
+                    />
+
+
                 </div>
             )}
         </div>
