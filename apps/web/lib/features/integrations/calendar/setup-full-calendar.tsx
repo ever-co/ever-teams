@@ -12,8 +12,7 @@ import { YearDateFilter } from './year-picker-filter';
 import CalendarComponent from './calendar-component';
 import { PiTimerBold } from "react-icons/pi";
 import { formatWithSuffix } from 'lib/utils';
-
-// import { IOrganizationTeamList } from '@app/interfaces';
+import { useOrganizationTeams } from '@app/hooks';
 
 interface Event {
     id?: string;
@@ -31,7 +30,10 @@ interface Event {
 
 export function SetupFullCalendar() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    // const [newEventTitle, setNewEventTitle] = useState('');
+
+    const { activeTeam } = useOrganizationTeams();
+    console.log("==============>", activeTeam);
+
     const calendarRef = useRef<FullCalendar | null>(null);
     const [selectedDate, setSelectedDate] = useState('');
     const [events, setEvents] = useState<Event[]>([

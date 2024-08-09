@@ -10,11 +10,13 @@ import Separator from '@components/ui/separator';
 export function ActivityCalendar() {
     const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();
     const [calendarData, setCalendarData] = useState<CalendarDatum[]>([]);
+
     useEffect(() => {
         setCalendarData(
             timerLogsDailyReport.map((el) => ({ value: Number((el.sum / 3600).toPrecision(2)), day: el.date }))
         );
     }, [timerLogsDailyReport]);
+
 
     const colorRange = [
         '#9370DB',
@@ -76,7 +78,20 @@ export function ActivityCalendar() {
                                 }
                             ]}
                             monthSpacing={20}
-                            monthLegend={(_, __, d) => d.toLocaleString('en-US', { month: 'short' })}
+                            monthLegend={(year, month) => {
+                                return new Date(year, month).toLocaleString('en-US', { month: 'short' });
+                            }}
+                            theme={{
+                                labels: {
+                                    text: {
+                                        fill: '#9ca3af',
+                                        fontSize: 16,
+                                        font: 'icon',
+                                        animation: 'ease',
+                                        border: '12',
+                                    }
+                                }
+                            }}
                         />
                     </div>
                 </div>
