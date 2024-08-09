@@ -39,11 +39,11 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
                 <Button
                     variant={"outline"}
                     className={cn(
-                        "w-full justify-start text-left font-normal dark:bg-dark--theme-light",
+                        "w-full justify-start text-left font-normal dark:bg-dark--theme-light text-[14px]",
                         !time.minute && "text-muted-foreground"
                     )}
                 >
-                    <div className='flex items-center justify-between w-full text-[16px] font-medium'>
+                    <div className='flex items-center justify-between w-full text-[14px] font-normal'>
                         {time.hours !== '--' && time.minute !== '--' ? `${time.hours}:${time.minute} ${time.meridiem}` : <span>Time picker</span>}
                         <TimerIcon className="mr-2 h-4 w-4" />
                     </div>

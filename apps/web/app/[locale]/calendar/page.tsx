@@ -1,5 +1,5 @@
 "use client"
-import { useOrganizationTeams } from '@app/hooks';
+import { useModal, useOrganizationTeams } from '@app/hooks';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import HeaderTabs from '@components/pages/main/header-tabs';
@@ -13,12 +13,18 @@ import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react'
 import { useRecoilValue } from 'recoil';
 import { LuCalendarDays } from "react-icons/lu";
+import { CreateManualTimeModal } from 'lib/features/activity/create-modal-manual-time';
 
 
 const CalendarPage = () => {
     const t = useTranslations();
     const fullWidth = useRecoilValue(fullWidthState);
     const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+    const {
+        isOpen,
+        openModal,
+        closeModal
+    } = useModal();
     const params = useParams<{ locale: string }>();
     const currentLocale = params ? params.locale : null;
     const breadcrumbPath = useMemo(
@@ -31,6 +37,7 @@ const CalendarPage = () => {
     );
     return (
         <>
+            <CreateManualTimeModal open={isOpen} setOpen={closeModal} />
             <MainLayout
                 showTimer={isTrackingEnabled}
                 footerClassName="hidden"
@@ -67,6 +74,7 @@ const CalendarPage = () => {
                                     <LuCalendarDays />
                                 </button>
                                 <Button
+                                    onClick={openModal}
                                     variant='primary'
                                     className='bg-primary dark:!bg-primary-light'
                                 >Add Manuel Time
