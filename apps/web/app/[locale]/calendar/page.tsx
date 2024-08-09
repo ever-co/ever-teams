@@ -14,6 +14,7 @@ import React, { useMemo } from 'react'
 import { useRecoilValue } from 'recoil';
 import { LuCalendarDays } from "react-icons/lu";
 import { CreateManualTimeModal } from 'lib/features/activity/create-modal-manual-time';
+import { QueueListIcon } from '@heroicons/react/20/solid';
 
 
 const CalendarPage = () => {
@@ -41,7 +42,7 @@ const CalendarPage = () => {
             <MainLayout
                 showTimer={isTrackingEnabled}
                 footerClassName="hidden"
-                // footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark-high",!fullWidth && 'left-0 right-0')}
+                // footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark-high", !fullWidth && 'left-0 right-0')}
                 className="h-[calc(100vh-_22px)]"
             >
                 <div className="h-[263.4px] z-10 bg-white  dark:bg-dark-high fixed w-full"></div>
@@ -60,27 +61,7 @@ const CalendarPage = () => {
                                 <HeaderTabs kanban={true} linkAll={true} />
                             </div>
                         </div>
-                        <div className="flex justify-between items-center  mt-10 bg-white dark:bg-dark-high py-2">
-                            <h1 className="text-4xl font-semibold ">
-                                CALENDAR
-                            </h1>
-                            <div className='flex items-center space-x-3'>
-                                <button
-                                    className=' hover:!bg-gray-100 text-xl h-10 w-10 rounded-lg flex items-center justify-center'>
-                                    <LuCalendarDays />
-                                </button>
-                                <button
-                                    className='bg-gray-100 text-xl !h-10 !w-10 rounded-lg flex items-center justify-center'>
-                                    <LuCalendarDays />
-                                </button>
-                                <Button
-                                    onClick={openModal}
-                                    variant='primary'
-                                    className='bg-primary dark:!bg-primary-light'
-                                >Add Manuel Time
-                                </Button>
-                            </div>
-                        </div>
+                        <HeadCalendar openModal={openModal} />
                     </Container>
                 </div>
                 <div className='mt-[256px] mb-24 '>
@@ -98,3 +79,28 @@ const CalendarPage = () => {
 }
 
 export default withAuthentication(CalendarPage, { displayName: 'Calender' });
+
+
+export function HeadCalendar({ openModal }: { openModal: () => void }) {
+    return (<div className="flex justify-between items-center  mt-10 bg-white dark:bg-dark-high py-2">
+        <h1 className="text-4xl font-semibold ">
+            CALENDAR
+        </h1>
+        <div className='flex items-center space-x-3'>
+            <button
+                className=' hover:!bg-gray-100 text-xl h-10 w-10 rounded-lg flex items-center justify-center'>
+                <QueueListIcon className={clsxm('w-5 h-5')} />
+            </button>
+            <button
+                className='bg-gray-100 text-xl !h-10 !w-10 rounded-lg flex items-center justify-center'>
+                <LuCalendarDays />
+            </button>
+            <Button
+                onClick={openModal}
+                variant='primary'
+                className='bg-primary dark:!bg-primary-light'
+            >Add Manuel Time
+            </Button>
+        </div>
+    </div>)
+}
