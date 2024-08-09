@@ -23,7 +23,7 @@ import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
-import { ActivityCalendar } from 'lib/features/activity/calendar';
+// import { ActivityCalendar } from 'lib/features/activity/calendar';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -149,9 +149,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 								{/* TaskFilter */}
 								<TaskFilter profile={profile} hook={hook} />
 							</MainHeader>
-							<div className="p-1">
+							{/* <div className="p-1">
 								<ActivityCalendar />
-							</div>
+							</div> */}
 						</ResizablePanel>
 						<ResizableHandle withHandle />
 						<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-scroll custom-scrollbar">

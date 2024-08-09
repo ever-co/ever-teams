@@ -190,7 +190,12 @@ export function TaskCard(props: Props) {
 					<>
 						{/* TaskEstimateInfo */}
 						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
-							<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
+							<TaskEstimateInfo
+								plan={plan}
+								memberInfo={memberInfo}
+								edition={taskEdition}
+								activeAuthTask={true}
+							/>
 						</div>
 					</>
 				)}
@@ -531,6 +536,16 @@ function TaskCardMenu({
 		[task.id, todayPlan]
 	);
 
+	const allPlans = [...todayPlan, ...futurePlans];
+	const isTaskPlannedMultipleTimes =
+		allPlans.reduce((count, plan) => {
+			if (plan?.tasks) {
+				const taskCount = plan.tasks.filter((_task) => _task.id === task.id).length;
+				return count + taskCount;
+			}
+			return count;
+		}, 0) > 1;
+
 	const taskPlannedTomorrow = useMemo(
 		() =>
 			futurePlans
@@ -647,12 +662,14 @@ function TaskCardMenu({
 																plan={plan}
 															/>
 														</div>
-														<div className="mt-2">
-															<RemoveManyTaskFromPlan
-																task={task}
-																member={profile?.member}
-															/>
-														</div>
+														{isTaskPlannedMultipleTimes && (
+															<div className="mt-2">
+																<RemoveManyTaskFromPlan
+																	task={task}
+																	member={profile?.member}
+																/>
+															</div>
+														)}
 													</div>
 												) : (
 													<></>
@@ -738,7 +755,15 @@ export function PlanTask({
 	};
 
 	return (
-		<>
+		<div>
+			<CreateDailyPlanFormModal
+				open={isOpen}
+				closeModal={closeModal}
+				taskId={taskId}
+				planMode={planMode}
+				employeeId={employeeId}
+				chooseMember={chooseMember}
+			/>
 			<button
 				className={clsxm(
 					'font-normal whitespace-nowrap transition-all',
@@ -747,14 +772,6 @@ export function PlanTask({
 				onClick={handleOpenModal}
 				disabled={planMode === 'today' && createDailyPlanLoading}
 			>
-				<CreateDailyPlanFormModal
-					open={isOpen}
-					closeModal={closeModal}
-					taskId={taskId}
-					planMode={planMode}
-					employeeId={employeeId}
-					chooseMember={chooseMember}
-				/>
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
@@ -775,7 +792,7 @@ export function PlanTask({
 				)}
 				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
 			</button>
-		</>
+		</div>
 	);
 }
 

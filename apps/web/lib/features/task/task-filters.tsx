@@ -27,13 +27,14 @@ import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
 import '../../../styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
+import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
 
-export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
+export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 type ITabs = {
 	tab: ITab;
 	name: string;
-	count: number;
+	count?: number;
 	description: string;
 };
 
@@ -55,7 +56,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { profileDailyPlans } = useDailyPlan();
-
+	const { timerLogsDailyReport } = useTimeLogs();
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
 		[activeTeamManagers, user?.id]
@@ -79,6 +80,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			unassigned: profile.tasksGrouped.unassignedTasks,
 			assigned: profile.tasksGrouped.assignedTasks,
 			worked: profile.tasksGrouped.workedTasks,
+			stats: [],
 			dailyplan: [] // Change this soon
 		}),
 		[profile.tasksGrouped.assignedTasks, profile.tasksGrouped.unassignedTasks, profile.tasksGrouped.workedTasks]
@@ -109,16 +111,24 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			name: t('common.UNASSIGNED'),
 			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.unassignedTasks.length
-		}
+		},
+
 	];
 
 	// For tabs on profile page, display "Worked" and "Daily Plan" only for the logged in user or managers
 	if (activeTeam?.shareProfileView || canSeeActivity) {
+
 		tabs.push({
 			tab: 'dailyplan',
-			name: 'Daily Plan',
+			name: 'Planned',
 			description: 'This tab shows all yours tasks planned',
 			count: profile.tasksGrouped.planned
+		});
+		tabs.push({
+			tab: 'stats',
+			name: 'Stats',
+			description: 'This tab shows all stats',
+			count: timerLogsDailyReport.length,
 		});
 		tabs.unshift({
 			tab: 'worked',
@@ -192,9 +202,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-									statusFilters[k],
-									task['tags'].map((item) => item.name)
-								).length === statusFilters[k].length
+								statusFilters[k],
+								task['tags'].map((item) => item.name)
+							).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
