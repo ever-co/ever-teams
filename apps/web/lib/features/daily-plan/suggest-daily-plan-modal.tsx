@@ -30,7 +30,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	}, [closeModal, currentDate]);
 
 	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal}>
+		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={false}>
 			<Card className="w-full" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<div className="mb-7">
