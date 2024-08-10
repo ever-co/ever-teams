@@ -13,14 +13,19 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
-import { CreateManualTimeModal } from 'lib/features/activity/create-modal-manual-time';
 import { HeadCalendar } from './component';
+import { AddManualTimeModal } from 'lib/features/manual-time/add-manual-time-modal';
 
 const CalendarPage = () => {
     const t = useTranslations();
     const fullWidth = useRecoilValue(fullWidthState);
     const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
-    const { isOpen, openModal, closeModal } = useModal();
+    const {
+        isOpen: isManualTimeModalOpen,
+        openModal: openManualTimeModal,
+        closeModal: closeManualTimeModal
+    } = useModal();
+
     const params = useParams<{ locale: string }>();
     const currentLocale = params ? params.locale : null;
     const breadcrumbPath = useMemo(
@@ -40,7 +45,12 @@ const CalendarPage = () => {
                 footerClassName="hidden"
                 className="h-[calc(100vh-22px)]"
             >
-                <CreateManualTimeModal open={isOpen} setOpen={closeModal} />
+                <AddManualTimeModal
+                    closeModal={closeManualTimeModal}
+                    isOpen={isManualTimeModalOpen}
+                    params='AddManuelTime'
+                />
+
                 <div className="h-[263.4px] z-10 bg-white dark:bg-dark-high fixed w-full"></div>
                 <div
                     className='fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C] z-10 mx-0 w-full bg-white dark:bg-dark-high'
@@ -55,7 +65,7 @@ const CalendarPage = () => {
                                 <HeaderTabs kanban={true} linkAll={true} />
                             </div>
                         </div>
-                        <HeadCalendar openModal={openModal} />
+                        <HeadCalendar openModal={openManualTimeModal} />
                     </Container>
                 </div>
                 <div className='mt-[256px] mb-24'>

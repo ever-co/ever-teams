@@ -53,7 +53,7 @@ export function SelectItems<T>({
 					onClick={() => setPopoverOpen(!isPopoverOpen)}
 					variant="outline"
 					className={cn(
-						'w-full justify-between text-left font-normal h-9 rounded-lg dark:bg-dark--theme-light',
+						'w-full justify-between text-left font-normal h-10 rounded-lg dark:bg-dark--theme-light',
 						!selectedItem && 'text-muted-foreground',
 						triggerClassName
 					)}
@@ -82,7 +82,7 @@ export function SelectItems<T>({
 							<span
 								onClick={() => onClick(item)}
 								key={itemId(item)}
-								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-bold dark:text-white dark:hover:bg-primary"
+								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary"
 								style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
 							>
 								{itemToString(item)}

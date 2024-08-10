@@ -3,25 +3,37 @@ import '../../../styles/style.css';
 import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { DatePicker } from '@components/ui/DatePicker';
-import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { format } from 'date-fns';
 import { useState, useEffect, FormEvent, useCallback } from 'react';
 import { Button, SelectItems, Modal } from 'lib/components';
-import { FaRegCalendarAlt } from 'react-icons/fa';
-import { HiMiniClock } from 'react-icons/hi2';
 import { manualTimeReasons } from '@app/constants';
 import { useTranslations } from 'next-intl';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { useManualTime } from '@app/hooks/features/useManualTime';
 import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
+import { cn } from 'lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { IoTime } from 'react-icons/io5';
 
+/**
+ * Interface for the properties of the `AddManualTimeModal` component.
+ *
+ * This interface defines the properties expected by the `AddManualTimeModal` component.
+ *
+ * @interface IAddManualTimeModalProps
+ *
+ * @property {boolean} isOpen - Indicates whether the modal is open or closed.
+ * @property {"Calendar" | "DailyPlan"} params - Determines the context in which the modal is used, either "Calendar" for the calendar view or "DailyPlan" for the daily plan.
+ * @property {() => void} closeModal - Callback function to be called to close the modal.
+ */
 interface IAddManualTimeModalProps {
 	isOpen: boolean;
+	params: "AddManuelTime" | "AddTime";
 	closeModal: () => void;
 }
 
 export function AddManualTimeModal(props: IAddManualTimeModalProps) {
-	const { closeModal, isOpen } = props;
+	const { closeModal, isOpen, params } = props;
 	const t = useTranslations();
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [description, setDescription] = useState<string>('');
@@ -93,14 +105,19 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		const endTotalMinutes = endHours * 60 + endMinutes;
 
 		const diffMinutes = endTotalMinutes - startTotalMinutes;
-		if (diffMinutes < 0) {
-			return;
-		}
+		if (diffMinutes < 0) return;
 
 		const hours = Math.floor(diffMinutes / 60);
 		const minutes = diffMinutes % 60;
-		setTimeDifference(`${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`);
+
+		const timeString = [
+			hours > 0 ? `${String(hours).padStart(2, '0')}h` : '0h',
+			minutes > 0 ? `${String(minutes).padStart(2, '0')}m` : ''
+		].filter(Boolean).join(' ');
+
+		setTimeDifference(timeString);
 	}, [endTime, startTime]);
+
 
 	useEffect(() => {
 		calculateTimeDifference();
@@ -127,48 +144,38 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
-			title={'Add time'}
+			title={params === "AddManuelTime" ? 'Add Manuel Time' : "Add time"}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start shadow-xl"
 			titleClass="font-bold"
 		>
 			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-4">
-				<div className="">
+				<div className="flex flex-col">
 					<label className="block text-gray-500 mb-1">
 						Date<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
-					<div className="w-full p-2 border border-slate-100 dark:border-slate-600 rounded-md">
-						<DatePicker
-							buttonVariant={'link'}
-							className="dark:bg-dark--theme-light"
-							buttonClassName={'decoration-transparent h-[0.875rem] w-full flex items-center'}
-							customInput={
-								<div
-									className={clsxm(
-										'not-italic cursor-pointer font-semibold text-[0.625rem] 3xl:text-xs w-full',
-										'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white w-full'
-									)}
-								>
-									{date ? (
-										<div className="flex items-center w-full">
-											<FaRegCalendarAlt
-												size={20}
-												fill={'#3826A6'}
-												className="mx-[20px] text-[#3826A6]"
-											/>
-											{format(date, 'PPP')}
-										</div>
-									) : (
-										<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
-									)}
-								</div>
-							}
-							selected={date}
-							onSelect={(value) => {
-								value && setDate(value);
-							}}
-							mode={'single'}
-						/>
-					</div>
+					<DatePicker
+						buttonVariant={'link'}
+						className="dark:bg-dark--theme-light"
+						buttonClassName={'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
+						customInput={
+							<>
+								<CalendarIcon className="h-4 w-4" />
+								<Button
+									variant={"outline"}
+									className={cn(
+										"w-full justify-start text-left font-normal text-black  h-10 border border-transparent",
+										!date && "text-muted-foreground"
+									)}>
+									{date ? format(date, "PPP") : <span>Pick a date</span>}
+								</Button>
+							</>
+						}
+						selected={date}
+						onSelect={(value) => {
+							value && setDate(value);
+						}}
+						mode={'single'}
+					/>
 				</div>
 
 				<div className=" flex items-center">
@@ -196,7 +203,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="w-full p-2 border font-bold border-slate-100 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
+							className="w-full p-2 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 							required
 						/>
 					</div>
@@ -210,94 +217,170 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="w-full p-2 border font-bold border-slate-100 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
+							className="w-full p-2 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 							required
 						/>
 					</div>
 				</div>
 
 				<div className=" flex items-center">
-					<label className="block text-gray-500 mb-1">Added hours: </label>
-					<div className="ml-[10px] p-1 flex items-center font-bold dark:border-regal-rose rounded-md border pr-3">
-						<div className="mr-[10px] bg-gradient-to-tl from-[#3826A6] dark:from-regal-rose to-regal-blue rounded-full ">
-							<HiMiniClock
+					<label className="block text-primary mb-1">{`${params === 'AddManuelTime' ? 'Total hours' : 'Added hours'}`}: </label>
+					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
+						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
+							<IoTime
 								size={20}
-								className="bg-gradient-to-tl from-regal-rose to-regal-blue rounded-full text-[#8a7bedb7] dark:text-to-regal-rose"
+								className="rounded-full text-primary dark:text-[#8a7bedb7]"
 							/>
 						</div>
 						{timeDifference}
 					</div>
 				</div>
 
-				<div className="">
-					<label className="block text-gray-500 mb-1">
-						Team<span className="text-[#de5505e1] ml-1">*</span>
-					</label>
-					<SelectItems
-						defaultValue={activeTeam!}
-						items={teams}
-						onValueChange={(team) => setTeam(team)}
-						itemId={(team) => (team ? team.id : '')}
-						itemToString={(team) => (team ? team.name : '')}
-						triggerClassName="border-slate-100 dark:border-slate-600"
-					/>
-				</div>
+				{
+					params === 'AddManuelTime' ? (
+						<>
+							<div className="">
+								<label className="block text-gray-500 mb-1">
+									Project<span className="text-[#de5505e1] ml-1">*</span>
+								</label>
+								<SelectItems
+									defaultValue={activeTeam!}
+									items={teams}
+									onValueChange={(team) => setTeam(team)}
+									itemId={(team) => (team ? team.id : '')}
+									itemToString={(team) => (team ? team.name : '')}
+									triggerClassName="border-gray-300 dark:border-slate-600"
+								/>
+							</div>
 
-				<div className="">
-					<label className="block text-gray-500 mb-1">
-						Task<span className="text-[#de5505e1] ml-1">*</span>
-					</label>
-					<SelectItems
-						defaultValue={activeTeamTask}
-						items={tasks}
-						onValueChange={(task) => setTaskId(task ? task.id : '')}
-						itemId={(task) => (task ? task.id : '')}
-						itemToString={(task) => (task ? task.title : '')}
-						triggerClassName="border-slate-100 dark:border-slate-600"
-					/>
-				</div>
+							<div className="">
+								<label className="block text-gray-500 mb-1">
+									Employee<span className="text-[#de5505e1] ml-1">*</span>
+								</label>
+								<SelectItems
+									defaultValue={activeTeamTask}
+									items={tasks}
+									onValueChange={(task) => setTaskId(task ? task.id : '')}
+									itemId={(task) => (task ? task.id : '')}
+									itemToString={(task) => (task ? task.title : '')}
+									triggerClassName="border-gray-300 dark:border-slate-600"
+								/>
+							</div>
 
-				<div className="flex flex-col">
-					<label className="block text-gray-500 shrink-0">Description</label>
-					<textarea
-						value={description}
-						placeholder="What worked on?"
-						onChange={(e) => setDescription(e.target.value)}
-						className="w-full p-2 grow border border-slate-100 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
-					/>
-				</div>
+							<div className="">
+								<label className="block text-gray-500 mb-1">Task</label>
+								<SelectItems
+									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
+									onValueChange={(reason) => setReason(reason)}
+									itemId={(reason) => reason}
+									defaultValue={t('manualTime.reasons.DEFAULT')}
+									itemToString={(reason) => reason}
+									triggerClassName="border-gray-400 dark:border-slate-600"
+								/>
+							</div>
 
-				<div className="">
-					<label className="block text-gray-500 mb-1">Reason</label>
-					<SelectItems
-						items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
-						onValueChange={(reason) => setReason(reason)}
-						itemId={(reason) => reason}
-						defaultValue={t('manualTime.reasons.DEFAULT')}
-						itemToString={(reason) => reason}
-						triggerClassName="border-slate-100 dark:border-slate-600"
-					/>
-				</div>
 
-				<div className="flex justify-between items-center w-full pt-6">
-					<Button
-						variant="outline"
-						type="button"
-						className="dark:text-primary border-slate-100 dark:border-slate-600 font-bold  dark:bg-dark--theme-light"
-					>
-						View timesheet
-					</Button>
-					<Button
-						loading={addManualTimeLoading}
-						disabled={addManualTimeLoading}
-						type="submit"
-						className="bg-[#3826A6] font-bold  flex items-center text-white "
-					>
-						Add time
-					</Button>
+							<div className="flex flex-col">
+								<label className="block text-gray-500 shrink-0">Description(optional)</label>
+								<textarea
+									value={description}
+									placeholder="Add description"
+									onChange={(e) => setDescription(e.target.value)}
+									className="w-full resize-none p-2 grow border border-slate-400 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+								/>
+							</div>
+						</>
+					) : (
+						<>
+							<div className="">
+								<label className="block text-gray-500 mb-1">
+									Team<span className="text-[#de5505e1] ml-1">*</span>
+								</label>
+								<SelectItems
+									defaultValue={activeTeam!}
+									items={teams}
+									onValueChange={(team) => setTeam(team)}
+									itemId={(team) => (team ? team.id : '')}
+									itemToString={(team) => (team ? team.name : '')}
+									triggerClassName="border-gray-300 dark:border-slate-600"
+								/>
+							</div>
+
+							<div className="">
+								<label className="block text-gray-500 mb-1">
+									Task<span className="text-[#de5505e1] ml-1">*</span>
+								</label>
+								<SelectItems
+									defaultValue={activeTeamTask}
+									items={tasks}
+									onValueChange={(task) => setTaskId(task ? task.id : '')}
+									itemId={(task) => (task ? task.id : '')}
+									itemToString={(task) => (task ? task.title : '')}
+									triggerClassName="border-gray-300 dark:border-slate-600"
+								/>
+							</div>
+
+							<div className="flex flex-col">
+								<label className="block text-gray-500 shrink-0">Description(optional)</label>
+								<textarea
+									value={description}
+									placeholder="What worked on? "
+									onChange={(e) => setDescription(e.target.value)}
+									className="w-full resize-none p-2 grow border border-slate-400 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+								/>
+							</div>
+
+							<div className="">
+								<label className="block text-gray-500 mb-1">Reason</label>
+								<SelectItems
+									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
+									onValueChange={(reason) => setReason(reason)}
+									itemId={(reason) => reason}
+									defaultValue={t('manualTime.reasons.DEFAULT')}
+									itemToString={(reason) => reason}
+									triggerClassName="border-gray-400 dark:border-slate-600"
+								/>
+							</div>
+						</>
+					)
+
+				}
+
+				<div
+					className={clsxm(
+						"flex items-center w-full pt-6",
+						params === 'AddManuelTime' ? "justify-center" : "justify-between"
+					)}
+				>
+					{params === 'AddTime' ? (
+						<>
+							<Button
+								variant="outline"
+								type="button"
+								className="dark:text-primary border-slate-100 dark:border-slate-600 font-bold dark:bg-dark--theme-light"
+							>
+								View timesheet
+							</Button>
+							<Button
+								loading={addManualTimeLoading}
+								disabled={addManualTimeLoading}
+								type="submit"
+								className="bg-[#3826A6] font-bold flex items-center text-white"
+							>
+								Add time
+							</Button>
+						</>
+					) : (
+						<Button
+							type="submit"
+							className="bg-[#3826A6] font-bold flex items-center text-white w-full"
+						>
+							Add Manuel time
+						</Button>
+					)}
 				</div>
 				<div className="m-4 text-[#ff6a00de]">{errorMsg}</div>
 			</form>
-		</Modal>
+		</Modal >
 	);
 }

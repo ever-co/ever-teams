@@ -3,7 +3,7 @@ import { QueueListIcon } from "@heroicons/react/20/solid";
 import { Button } from "lib/components";
 import { LuCalendarDays } from "react-icons/lu";
 
-export function HeadCalendar({ openModal }: { openModal: () => void }) {
+export function HeadCalendar({ openModal }: { openModal?: () => void }) {
     return (
         <div className="flex justify-between items-center mt-10 bg-white dark:bg-dark-high py-2">
             <h1 className="text-4xl font-semibold">CALENDAR</h1>
