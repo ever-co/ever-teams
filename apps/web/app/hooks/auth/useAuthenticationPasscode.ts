@@ -286,25 +286,17 @@ export function useAuthenticationPasscode() {
 	}, [formValues, signInEmailQueryCall]);
 
 	const getLastTeamIdWithRecentLogout = useCallback(() => {
-		let latestUser: {
-			email: string;
-			imageUrl: string;
-			lastTeamId?: string;
-			lastLoginAt?: string;
-			name: string;
-			tenant: { name: string; logo: string };
-		} | null = null;
-
-		for (const workspace of workspaces) {
-			const user = workspace.user;
-			if (user?.lastLoginAt) {
-				if (!latestUser || new Date(user?.lastLoginAt) > new Date(latestUser?.lastLoginAt ?? '')) {
-					latestUser = user;
-				}
-			}
+		if (workspaces.length === 0) {
+			throw new Error('No workspaces found');
 		}
 
-		return latestUser ? latestUser.lastTeamId : null;
+		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
+			const prevDate = new Date(prev.user.lastLoginAt ?? '');
+			const currentDate = new Date(current.user.lastLoginAt ?? '');
+			return currentDate > prevDate ? current : prev;
+		});
+
+		return mostRecentWorkspace.user.lastTeamId;
 	}, [workspaces]);
 
 	return {

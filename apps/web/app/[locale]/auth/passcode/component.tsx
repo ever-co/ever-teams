@@ -325,6 +325,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		[selectedWorkspace, selectedTeam, form]
 	);
 
+	console.log(form.getLastTeamIdWithRecentLogout);
+
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
 	useEffect(() => {
@@ -355,7 +357,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
-	}, [form.defaultTeamId, form.workspaces]);
+	}, [form.defaultTeamId, form.workspaces, lastSelectedTeamFromAPI]);
 
 	useEffect(() => {
 		if (form.authScreen.screen === 'workspace') {
