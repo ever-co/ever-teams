@@ -555,7 +555,7 @@
 			"ASSIGNED_DESCRIPTION": "לשונית זו מציגה את כל המשימות שהוקצו לך",
 			"UNASSIGNED_DESCRIPTION": "לשונית זו מציגה את כל המשימות שלא הוקצו לך",
 			"NO_TASK_USER_ASSIGNED": "אף אחד לא הוקצה למשימה הזאת",
-			"DAILYPLAN_DESCRIPTION": ""
+			"DAILYPLAN_DESCRIPTION": "כרטיסייה זו מציגה את כל המשימות המתוכננות שלך"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "שם",
