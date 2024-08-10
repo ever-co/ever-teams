@@ -537,13 +537,14 @@ function TaskCardMenu({
 	);
 
 	const allPlans = [...todayPlan, ...futurePlans];
-	const isTaskPlannedMultipleTimes = allPlans.reduce((count, plan) => {
-		if (plan?.tasks) {
-			const taskCount = plan.tasks.filter(_task => _task.id === task.id).length;
-			return count + taskCount;
-		}
-		return count;
-	}, 0) > 1;
+	const isTaskPlannedMultipleTimes =
+		allPlans.reduce((count, plan) => {
+			if (plan?.tasks) {
+				const taskCount = plan.tasks.filter((_task) => _task.id === task.id).length;
+				return count + taskCount;
+			}
+			return count;
+		}, 0) > 1;
 
 	const taskPlannedTomorrow = useMemo(
 		() =>
@@ -604,7 +605,8 @@ function TaskCardMenu({
 										</span>
 									</li>
 
-									{viewType == 'default' && (
+									{(viewType == 'default' ||
+										(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
 										<>
 											<Divider type="HORIZONTAL" />
 											<div className="mt-3">
@@ -638,16 +640,6 @@ function TaskCardMenu({
 										</>
 									)}
 
-									{viewType === 'dailyplan' && planMode === 'Outstanding' && (
-										<>
-											{canSeeActivity ? (
-												<AddTaskToPlanComponent employee={profile?.member} task={task} />
-											) : (
-												<></>
-											)}
-										</>
-									)}
-
 									{viewType === 'dailyplan' &&
 										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
 											<>
@@ -667,7 +659,8 @@ function TaskCardMenu({
 																	task={task}
 																	member={profile?.member}
 																/>
-															</div>)}
+															</div>
+														)}
 													</div>
 												) : (
 													<></>
@@ -753,7 +746,15 @@ export function PlanTask({
 	};
 
 	return (
-		<>
+		<div>
+			<CreateDailyPlanFormModal
+				open={isOpen}
+				closeModal={closeModal}
+				taskId={taskId}
+				planMode={planMode}
+				employeeId={employeeId}
+				chooseMember={chooseMember}
+			/>
 			<button
 				className={clsxm(
 					'font-normal whitespace-nowrap transition-all',
@@ -762,14 +763,6 @@ export function PlanTask({
 				onClick={handleOpenModal}
 				disabled={planMode === 'today' && createDailyPlanLoading}
 			>
-				<CreateDailyPlanFormModal
-					open={isOpen}
-					closeModal={closeModal}
-					taskId={taskId}
-					planMode={planMode}
-					employeeId={employeeId}
-					chooseMember={chooseMember}
-				/>
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
@@ -790,7 +783,7 @@ export function PlanTask({
 				)}
 				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
 			</button>
-		</>
+		</div>
 	);
 }
 

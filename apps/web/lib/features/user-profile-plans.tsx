@@ -71,6 +71,16 @@ export function UserProfilePlans() {
 	const [filterPastPlanData, setFilteredPastPlanData] = useState<IDailyPlan[]>(pastPlans);
 	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
 
+	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
+	useEffect(() => {
+		if (!getTotalTasks(todayPlan)) {
+			if (estimatedTotalTime(outstandingPlans).totalTasks) {
+				setCurrentTab('Outstanding');
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	useEffect(() => {
 		window.localStorage.setItem('daily-plan-tab', currentTab);
 		if (!currentDataDailyPlan) return;
