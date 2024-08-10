@@ -13,6 +13,8 @@ import { ScrollArea } from '@components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
 import stc from 'string-to-color';
 import { Check } from 'lucide-react';
+import { cn } from 'lib/utils';
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -46,10 +48,23 @@ export function CreateDailyPlanFormModal({
 
 	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
 	const [selectedEmployee, setSelectedEmployee] = useState<OT_Member | undefined>(isManagerConnectedUser);
+	const [isOpen, setIsOpen] = useState(false);
 
 	const handleMemberClick = useCallback((member: OT_Member) => {
 		setSelectedEmployee(member);
 	}, []);
+
+	const handleCloseModal = useCallback(() => {
+		closeModal();
+	}, [closeModal]);
+
+	const handleSelect = useCallback(() => {
+		reset();
+	}, [reset]);
+
+	const handleSelectAndClose = useCallback(() => {
+		handleCloseModal();
+	}, [handleCloseModal]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -69,7 +84,6 @@ export function CreateDailyPlanFormModal({
 				organizationId: user?.employee.organizationId
 			}).then(() => {
 				reset();
-				closeModal();
 			});
 		},
 		[
@@ -81,20 +95,19 @@ export function CreateDailyPlanFormModal({
 			user?.employee.organizationId,
 			employeeId,
 			selectedEmployee?.employeeId,
-			reset,
-			closeModal
+			reset
 		]
 	);
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal}>
+		<Modal isOpen={open} closeModal={handleCloseModal}>
 			<form className="w-[98%] md:w-[430px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						{/* Form header */}
 						<div className="mb-3">
 							<Text.Heading as="h3" className="text-start">
-								Plan this task for {moment(date).format('DD.MM.YYYY').toString()}
+								Select Date
 							</Text.Heading>
 						</div>
 
@@ -135,15 +148,56 @@ export function CreateDailyPlanFormModal({
 								>
 									Cancel
 								</Button>
-								<Button
-									variant="default"
-									type="submit"
-									className="px-7 py-4 font-normal rounded-xl text-md"
-									disabled={createDailyPlanLoading}
-								>
-									{createDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
-									{planMode === 'custom' ? 'Select Date' : 'Create Plan'}
-								</Button>
+								<div className="relative w-40  inline-block text-left">
+									<Button
+										type="button"
+										className={clsxm(
+											'font-normal flex items-center justify-between w-full rounded-xl text-md',
+											createDailyPlanLoading ? 'justify-center' : 'justify-between'
+										)}
+										onClick={() => setIsOpen(!isOpen)}
+									>
+										{createDailyPlanLoading ? (
+											<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+										) : (
+											<>
+												<span>Select date</span>
+												<MdOutlineKeyboardArrowDown
+													className={cn(
+														'h-6 w-6 transition-transform',
+														isOpen && 'rotate-180'
+													)}
+												/>
+											</>
+										)}
+									</Button>
+									{isOpen && (
+										<div className="absolute right-0 w-full mt-2 p-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+											<div className="flex w-full flex-col items-center gap-1">
+												<Button
+													disabled={createDailyPlanLoading}
+													onClick={handleSelect}
+													size="sm"
+													variant="outline"
+													type="submit"
+													className="w-full text-xs"
+												>
+													Select
+												</Button>
+												<Button
+													disabled={createDailyPlanLoading}
+													onClick={handleSelectAndClose}
+													size="sm"
+													variant="outline"
+													type="submit"
+													className="w-full text-xs"
+												>
+													Select & Close
+												</Button>
+											</div>
+										</div>
+									)}
+								</div>
 							</div>
 						</div>
 					</div>

@@ -553,7 +553,12 @@
 			"WORKED_DESCRIPTION": "Esta pestaña muestra todas las tareas en las que comenzaste a trabajar",
 			"ASSIGNED_DESCRIPTION": "Esta pestaña muestra todas las tareas que te han sido asignadas",
 			"UNASSIGNED_DESCRIPTION": "Esta pestaña muestra todas las tareas que no te han sido asignadas",
-			"NO_TASK_USER_ASSIGNED": "Nadie asignado a esta tarea"
+			"NO_TASK_USER_ASSIGNED": "Nadie asignado a esta tarea",
+			"TODAY_TASKS": "Tareas de hoy",
+			"FUTURE_TASKS": "Tareas futuras",
+			"PAST_TASKS": "Tareas pasadas",
+			"ALL_TASKS": "Todas las tareas",
+			"OUTSTANDING": "Pendientes"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nombre",

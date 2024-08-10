@@ -553,7 +553,12 @@
 			"WORKED_DESCRIPTION": "Esta aba mostra todas as tarefas nas quais você começou a trabalhar",
 			"ASSIGNED_DESCRIPTION": "Esta aba mostra todas as tarefas atribuídas a você",
 			"UNASSIGNED_DESCRIPTION": "Esta aba mostra todas as tarefas que não estão atribuídas a você",
-			"NO_TASK_USER_ASSIGNED": "Ninguém atribuído a esta tarefa"
+			"NO_TASK_USER_ASSIGNED": "Ninguém atribuído a esta tarefa",
+			"TODAY_TASKS": "Tarefas de hoje",
+			"FUTURE_TASKS": "Tarefas futuras",
+			"PAST_TASKS": "Tarefas passadas",
+			"ALL_TASKS": "Todas as tarefas",
+			"OUTSTANDING": "Pendente"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nome",

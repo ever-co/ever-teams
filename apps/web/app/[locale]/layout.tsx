@@ -32,6 +32,8 @@ interface Props {
 import { Poppins } from 'next/font/google';
 import GlobalSkeleton from '@components/ui/global-skeleton';
 import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
+import dynamic from 'next/dynamic';
+import { PHProvider } from './integration/posthog/provider';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -39,6 +41,11 @@ const poppins = Poppins({
 	variable: '--font-poppins',
 	display: 'swap'
 });
+
+const PostHogPageView = dynamic(() => import('./integration/posthog/page-view'), {
+	ssr: false
+});
+
 // export function generateStaticParams() {
 // 	return locales.map((locale: any) => ({ locale }));
 // }
@@ -124,27 +131,31 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 				)}
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
-				<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
-					<NextAuthSessionProvider>
-						<RecoilRoot>
-							<ThemeProvider
-								attribute="class"
-								defaultTheme="system"
-								enableSystem
-								disableTransitionOnChange
-							>
-								{loading && !pathname?.startsWith('/auth') ? (
-									<GlobalSkeleton />
-								) : (
-									<>
-										<AppState />
-										<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
-									</>
-								)}
-							</ThemeProvider>
-						</RecoilRoot>
-					</NextAuthSessionProvider>
-				</body>
+				<PHProvider>
+					<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
+						<PostHogPageView />
+
+						<NextAuthSessionProvider>
+							<RecoilRoot>
+								<ThemeProvider
+									attribute="class"
+									defaultTheme="system"
+									enableSystem
+									disableTransitionOnChange
+								>
+									{loading && !pathname?.startsWith('/auth') ? (
+										<GlobalSkeleton />
+									) : (
+										<>
+											<AppState />
+											<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+										</>
+									)}
+								</ThemeProvider>
+							</RecoilRoot>
+						</NextAuthSessionProvider>
+					</body>
+				</PHProvider>
 			</NextIntlClientProvider>
 		</html>
 	);

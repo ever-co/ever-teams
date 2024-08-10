@@ -27,13 +27,16 @@ import { useDateRange } from '@app/hooks/useDateRange';
 import { TaskDatePickerWithRange } from './task-date-range';
 import '../../../styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
+import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
+import { estimatedTotalTime, getTotalTasks } from './daily-plan';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
 
-export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan';
+export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 type ITabs = {
 	tab: ITab;
 	name: string;
-	count: number;
+	count?: number;
 	description: string;
 };
 
@@ -48,15 +51,22 @@ type StatusFilter = { [x in IStatusType]: string[] };
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
-	const defaultValue =
-		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
-
+	const defaultValue = useMemo(
+		() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
+		[]
+	);
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const { profileDailyPlans } = useDailyPlan();
-
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
-	const canSeeActivity = profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
+	const { profileDailyPlans, outstandingPlans, todayPlan } = useDailyPlan();
+	const { timerLogsDailyReport } = useTimeLogs();
+	const isManagerConnectedUser = useMemo(
+		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
+		[activeTeamManagers, user?.id]
+	);
+	const canSeeActivity = useMemo(
+		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+	);
 
 	const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
@@ -67,14 +77,19 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const [taskName, setTaskName] = useState('');
 
-	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
-		unassigned: profile.tasksGrouped.unassignedTasks,
-		assigned: profile.tasksGrouped.assignedTasks,
-		worked: profile.tasksGrouped.workedTasks,
-		dailyplan: [] // Change this soon
-	};
+	const tasksFiltered: { [x in ITab]: ITeamTask[] } = useMemo(
+		() => ({
+			unassigned: profile.tasksGrouped.unassignedTasks,
+			assigned: profile.tasksGrouped.assignedTasks,
+			worked: profile.tasksGrouped.workedTasks,
+			stats: [],
+			dailyplan: [] // Change this soon
+		}),
+		[profile.tasksGrouped.assignedTasks, profile.tasksGrouped.unassignedTasks, profile.tasksGrouped.workedTasks]
+	);
 
-	const tasks = tasksFiltered[tab];
+	const tasks = useMemo(() => tasksFiltered[tab], [tab, tasksFiltered]);
+	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 
 	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
 		if (filterType === 'search' && taskName.trim().length === 0) {
@@ -106,9 +121,15 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	if (activeTeam?.shareProfileView || canSeeActivity) {
 		tabs.push({
 			tab: 'dailyplan',
-			name:t('common.DAILY_PLAN'),
+			name: 'Planned',
 			description: 'This tab shows all yours tasks planned',
-			count: profile.tasksGrouped.dailyplan?.length
+			count: profile.tasksGrouped.planned
+		});
+		tabs.push({
+			tab: 'stats',
+			name: 'Stats',
+			description: 'This tab shows all stats',
+			count: timerLogsDailyReport.length
 		});
 		tabs.unshift({
 			tab: 'worked',
@@ -146,6 +167,21 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		},
 		[setStatusFilter]
 	);
+
+	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
+	useEffect(() => {
+		if (dailyPlanSuggestionModalDate) {
+			if (!getTotalTasks(todayPlan)) {
+				if (estimatedTotalTime(outstandingPlans).totalTasks) {
+					setTab('dailyplan');
+				} else {
+					setTab('assigned');
+				}
+			}
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dailyPlanSuggestionModalDate]);
 
 	// Reset status applied filter status when filter changed
 	useEffect(() => {

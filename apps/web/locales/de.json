@@ -553,7 +553,12 @@
 			"WORKED_DESCRIPTION": "Dieser Tab zeigt alle Aufgaben, an denen Sie gearbeitet haben",
 			"ASSIGNED_DESCRIPTION": "Dieser Tab zeigt alle Aufgaben, die Ihnen zugewiesen sind",
 			"UNASSIGNED_DESCRIPTION": "Dieser Tab zeigt alle Aufgaben, die Ihnen nicht zugewiesen sind",
-			"NO_TASK_USER_ASSIGNED": "Niemandem dieser Aufgabe zugewiesen"
+			"NO_TASK_USER_ASSIGNED": "Niemandem dieser Aufgabe zugewiesen",
+			"TODAY_TASKS": "Heutige Aufgaben",
+			"FUTURE_TASKS": "Zukünftige Aufgaben",
+			"PAST_TASKS": "Vergangene Aufgaben",
+			"ALL_TASKS": "Alle Aufgaben",
+			"OUTSTANDING": "Ausstehend"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Name",

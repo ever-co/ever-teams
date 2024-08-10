@@ -554,7 +554,12 @@
 			"WORKED_DESCRIPTION": "This tab shows all tasks you started working on",
 			"ASSIGNED_DESCRIPTION": "This tab shows all tasks that are assigned to you",
 			"UNASSIGNED_DESCRIPTION": "This tab shows all tasks that are not assigned to you",
-			"NO_TASK_USER_ASSIGNED": "No one assigned  to this Task"
+			"NO_TASK_USER_ASSIGNED": "No one assigned  to this Task",
+			"TODAY_TASKS": "Today Tasks",
+			"FUTURE_TASKS": "Future Tasks",
+			"PAST_TASKS": "Past Tasks",
+			"ALL_TASKS": "All Tasks",
+			"OUTSTANDING": "Outstanding"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Name",

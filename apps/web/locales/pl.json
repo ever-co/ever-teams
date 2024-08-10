@@ -553,7 +553,12 @@
 			"WORKED_DESCRIPTION": "Ta karta pokazuje wszystkie zadania, nad którymi rozpocząłeś pracę",
 			"ASSIGNED_DESCRIPTION": "Ta karta pokazuje wszystkie zadania przypisane do ciebie",
 			"UNASSIGNED_DESCRIPTION": "Ta karta pokazuje wszystkie zadania, które nie są przypisane do ciebie",
-			"NO_TASK_USER_ASSIGNED": "Nikt nie jest przypisany do tego zadania"
+			"NO_TASK_USER_ASSIGNED": "Nikt nie jest przypisany do tego zadania",
+			"TODAY_TASKS": "Dzisiejsze zadania",
+			"FUTURE_TASKS": "Przyszłe zadania",
+			"PAST_TASKS": "Zadania z przeszłości",
+			"ALL_TASKS": "Wszystkie zadania",
+			"OUTSTANDING": "Niezakończone"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nazwa",
