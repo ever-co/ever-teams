@@ -198,7 +198,8 @@
 		"WORKING": "Работи",
 		"PAUSED": "Пауза",
 		"ONLINE": "Онлайн",
-		"SKIP_ADD_LATER": "Добави по-късно"
+		"SKIP_ADD_LATER": "Добави по-късно",
+		"PLANNED": "Планирано"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

@@ -198,7 +198,8 @@
 		"WORKING": "工作",
 		"PAUSED": "暂停",
 		"ONLINE": "在线",
-		"SKIP_ADD_LATER": "稍后添加"
+		"SKIP_ADD_LATER": "稍后添加",
+		"PLANNED": "计划的"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

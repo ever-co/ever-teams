@@ -198,7 +198,8 @@
 		"WORKING": "Arbeiten",
 		"PAUSED": "Pausiert",
 		"ONLINE": "Online",
-		"SKIP_ADD_LATER": "Später hinzufügen"
+		"SKIP_ADD_LATER": "Später hinzufügen",
+		"PLANNED": "Geplant"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",

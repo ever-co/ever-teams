@@ -198,7 +198,8 @@
 		"WORKING": "עובד",
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
-		"SKIP_ADD_LATER": "הוסף מאוחר יותר"
+		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
+		"PLANNED": "מתוכנן"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

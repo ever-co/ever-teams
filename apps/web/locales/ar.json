@@ -198,7 +198,8 @@
 		"WORKING": "يعمل",
 		"PAUSED": "متوقف",
 		"ONLINE": "متصل",
-		"SKIP_ADD_LATER": "أضف لاحقًا"
+		"SKIP_ADD_LATER": "أضف لاحقًا",
+		"PLANNED": "مخطط"
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",

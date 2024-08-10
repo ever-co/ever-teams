@@ -199,7 +199,8 @@
 		"WORKING": "Working",
 		"PAUSED": "Paused",
 		"ONLINE": "Online",
-		"SKIP_ADD_LATER": "Add later"
+		"SKIP_ADD_LATER": "Add later",
+		"PLANNED": "Planned"
 	},
 	"hotkeys": {
 		"HELP": "Help",
