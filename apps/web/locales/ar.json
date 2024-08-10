@@ -555,7 +555,12 @@
 			"ASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام المعينة لك",
 			"UNASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام غير المعينة لك",
 			"NO_TASK_USER_ASSIGNED": "لم يتم تعيين أحد لهذه المهمة",
-			"DAILYPLAN_DESCRIPTION": "تعرض علامة التبويب هذه جميع مهامك المخطط لها"
+			"DAILYPLAN_DESCRIPTION": "تعرض علامة التبويب هذه جميع مهامك المخطط لها",
+			"TODAY_TASKS": "مهام اليوم",
+			"FUTURE_TASKS": "المهام المستقبلية",
+			"PAST_TASKS": "المهام السابقة",
+			"ALL_TASKS": "كل المهام",
+			"OUTSTANDING": "معلقة"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "الاسم",
