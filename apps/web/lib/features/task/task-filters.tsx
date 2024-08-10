@@ -28,6 +28,8 @@ import { TaskDatePickerWithRange } from './task-date-range';
 import '../../../styles/style.css';
 import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
+import { estimatedTotalTime, getTotalTasks } from './daily-plan';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
@@ -55,7 +57,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	);
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const { profileDailyPlans } = useDailyPlan();
+	const { profileDailyPlans, outstandingPlans, todayPlan } = useDailyPlan();
 	const { timerLogsDailyReport } = useTimeLogs();
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
@@ -87,6 +89,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	);
 
 	const tasks = useMemo(() => tasksFiltered[tab], [tab, tasksFiltered]);
+	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 
 	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
 		if (filterType === 'search' && taskName.trim().length === 0) {
@@ -111,24 +114,22 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			name: t('common.UNASSIGNED'),
 			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.unassignedTasks.length
-		},
-
+		}
 	];
 
 	// For tabs on profile page, display "Worked" and "Daily Plan" only for the logged in user or managers
 	if (activeTeam?.shareProfileView || canSeeActivity) {
-
 		tabs.push({
 			tab: 'dailyplan',
-			name: 'Planned',
-			description: 'This tab shows all yours tasks planned',
+			name: t('common.DAILYPLAN'),
+			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION'),
 			count: profile.tasksGrouped.planned
 		});
 		tabs.push({
 			tab: 'stats',
 			name: 'Stats',
 			description: 'This tab shows all stats',
-			count: timerLogsDailyReport.length,
+			count: timerLogsDailyReport.length
 		});
 		tabs.unshift({
 			tab: 'worked',
@@ -167,6 +168,21 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[setStatusFilter]
 	);
 
+	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
+	useEffect(() => {
+		if (dailyPlanSuggestionModalDate) {
+			if (!getTotalTasks(todayPlan)) {
+				if (estimatedTotalTime(outstandingPlans).totalTasks) {
+					setTab('dailyplan');
+				} else {
+					setTab('assigned');
+				}
+			}
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dailyPlanSuggestionModalDate]);
+
 	// Reset status applied filter status when filter changed
 	useEffect(() => {
 		if (filterType !== 'status') {
@@ -202,9 +218,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-								statusFilters[k],
-								task['tags'].map((item) => item.name)
-							).length === statusFilters[k].length
+									statusFilters[k],
+									task['tags'].map((item) => item.name)
+								).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
