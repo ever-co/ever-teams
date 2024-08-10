@@ -199,7 +199,7 @@
 		"PAUSED": "In Pausa",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Aggiungi dopo",
-		"PLANNED": "Pianificato"
+		"DAILYPLAN": "Pianificato"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -555,11 +555,7 @@
 			"ASSIGNED_DESCRIPTION": "Questa scheda mostra tutti i compiti assegnati a te",
 			"UNASSIGNED_DESCRIPTION": "Questa scheda mostra tutti i compiti che non sono assegnati a te",
 			"NO_TASK_USER_ASSIGNED": "Nessuno assegnato a questo compito",
-			"TODAY_TASKS": "Compiti di oggi",
-			"FUTURE_TASKS": "Compiti futuri",
-			"PAST_TASKS": "Compiti passati",
-			"ALL_TASKS": "Tutti i compiti",
-			"OUTSTANDING": "Eccezionale"
+			"DAILYPLAN_DESCRIPTION": "Questa scheda mostra tutte le attività pianificate"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nome",

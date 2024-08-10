@@ -199,7 +199,7 @@
 		"PAUSED": "Gepauzeerd",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Later toevoegen",
-		"PLANNED": "Gepland"
+		"DAILYPLAN": "Gepland"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -555,11 +555,7 @@
 			"ASSIGNED_DESCRIPTION": "Dit tabblad toont alle taken die aan u zijn toegewezen",
 			"UNASSIGNED_DESCRIPTION": "Dit tabblad toont alle taken die niet aan u zijn toegewezen",
 			"NO_TASK_USER_ASSIGNED": "Niemand toegewezen aan deze taak",
-			"TODAY_TASKS": "Taken van vandaag",
-			"FUTURE_TASKS": "Toekomstige taken",
-			"PAST_TASKS": "Verleden taken",
-			"ALL_TASKS": "Alle taken",
-			"OUTSTANDING": "Uitstekend"
+			"DAILYPLAN_DESCRIPTION": "Dit tabblad toont alle door jou geplande taken"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Naam",

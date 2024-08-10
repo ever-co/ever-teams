@@ -199,7 +199,7 @@
 		"PAUSED": "Wstrzymany",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Dodaj później",
-		"PLANNED": "Zaplanowane"
+		"DAILYPLAN": "Planowane"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -555,11 +555,7 @@
 			"ASSIGNED_DESCRIPTION": "Ta karta pokazuje wszystkie zadania przypisane do ciebie",
 			"UNASSIGNED_DESCRIPTION": "Ta karta pokazuje wszystkie zadania, które nie są przypisane do ciebie",
 			"NO_TASK_USER_ASSIGNED": "Nikt nie jest przypisany do tego zadania",
-			"TODAY_TASKS": "Dzisiejsze zadania",
-			"FUTURE_TASKS": "Przyszłe zadania",
-			"PAST_TASKS": "Zadania z przeszłości",
-			"ALL_TASKS": "Wszystkie zadania",
-			"OUTSTANDING": "Niezakończone"
+			"DAILYPLAN_DESCRIPTION": "Na tej karcie wyświetlane są wszystkie zaplanowane zadania"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nazwa",

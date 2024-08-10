@@ -199,7 +199,7 @@
 		"PAUSED": "Пауза",
 		"ONLINE": "Онлайн",
 		"SKIP_ADD_LATER": "Добави по-късно",
-		"PLANNED": "Планирано"
+		"DAILYPLAN": "Планирано"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -555,11 +555,7 @@
 			"ASSIGNED_DESCRIPTION": "Тази раздел показва всички задачи, които са възложени на вас",
 			"UNASSIGNED_DESCRIPTION": "Тази раздел показва всички задачи, които не са възложени на вас",
 			"NO_TASK_USER_ASSIGNED": "Никой не е възложен на тази задача",
-			"TODAY_TASKS": "Днешни задачи",
-			"FUTURE_TASKS": "Бъдещи задачи",
-			"PAST_TASKS": "Минали задачи",
-			"ALL_TASKS": "Всички задачи",
-			"OUTSTANDING": "Изключителни"
+			"DAILYPLAN_DESCRIPTION": "Този раздел показва всички планирани задачи."
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Име",
