@@ -198,7 +198,8 @@
 		"WORKING": "עובד",
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
-		"SKIP_ADD_LATER": "הוסף מאוחר יותר"
+		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
+		"DAILYPLAN": "מְתוּכנָן"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -553,7 +554,8 @@
 			"WORKED_DESCRIPTION": "לשונית זו מציגה את כל המשימות שהתחלת לעבוד עליהן",
 			"ASSIGNED_DESCRIPTION": "לשונית זו מציגה את כל המשימות שהוקצו לך",
 			"UNASSIGNED_DESCRIPTION": "לשונית זו מציגה את כל המשימות שלא הוקצו לך",
-			"NO_TASK_USER_ASSIGNED": "אף אחד לא הוקצה למשימה הזאת"
+			"NO_TASK_USER_ASSIGNED": "אף אחד לא הוקצה למשימה הזאת",
+			"DAILYPLAN_DESCRIPTION": "כרטיסייה זו מציגה את כל המשימות המתוכננות שלך"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "שם",
