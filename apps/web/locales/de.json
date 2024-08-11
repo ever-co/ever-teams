@@ -555,7 +555,12 @@
 			"ASSIGNED_DESCRIPTION": "Dieser Tab zeigt alle Aufgaben, die Ihnen zugewiesen sind",
 			"UNASSIGNED_DESCRIPTION": "Dieser Tab zeigt alle Aufgaben, die Ihnen nicht zugewiesen sind",
 			"NO_TASK_USER_ASSIGNED": "Niemandem dieser Aufgabe zugewiesen",
-			"DAILYPLAN_DESCRIPTION": "Diese Registerkarte zeigt alle Ihre geplanten Aufgaben"
+			"DAILYPLAN_DESCRIPTION": "Diese Registerkarte zeigt alle Ihre geplanten Aufgaben",
+			"TODAY_TASKS": "Heutige Aufgaben",
+			"FUTURE_TASKS": "Zukünftige Aufgaben",
+			"PAST_TASKS": "Vergangene Aufgaben",
+			"ALL_TASKS": "Alle Aufgaben",
+			"OUTSTANDING": "Ausstehend"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Name",
