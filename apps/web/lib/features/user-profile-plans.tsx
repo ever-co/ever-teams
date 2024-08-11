@@ -32,12 +32,16 @@ import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
 import { checkPastDate } from 'lib/utils';
+
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
+	const t = useTranslations();
 	const defaultTab =
 		typeof window !== 'undefined'
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
@@ -115,7 +119,7 @@ export function UserProfilePlans() {
 													setCurrentTab(filter as FilterTabs);
 												}}
 											>
-												{filter}
+												{t(`task.tabFilter.${filter.toUpperCase().replace(' ', '_')}` as DottedLanguageObjectStringPaths)}
 												<span
 													className={clsxm(
 														'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',

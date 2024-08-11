@@ -555,7 +555,12 @@
 			"ASSIGNED_DESCRIPTION": "Esta aba mostra todas as tarefas atribuídas a você",
 			"UNASSIGNED_DESCRIPTION": "Esta aba mostra todas as tarefas que não estão atribuídas a você",
 			"NO_TASK_USER_ASSIGNED": "Ninguém atribuído a esta tarefa",
-			"DAILYPLAN_DESCRIPTION": "Este separador mostra todas as suas tarefas planeadas"
+			"DAILYPLAN_DESCRIPTION": "Este separador mostra todas as suas tarefas planeadas",
+			"TODAY_TASKS": "Tarefas de hoje",
+			"FUTURE_TASKS": "Tarefas futuras",
+			"PAST_TASKS": "Tarefas passadas",
+			"ALL_TASKS": "Todas as tarefas",
+			"OUTSTANDING": "Pendente"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nome",

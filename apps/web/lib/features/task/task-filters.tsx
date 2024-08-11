@@ -18,7 +18,7 @@ import intersection from 'lodash/intersection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
-import { useTranslations } from 'next-intl';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from './daily-plan/daily-plan-filter';
 import { Divider } from 'lib/components';
@@ -121,8 +121,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	if (activeTeam?.shareProfileView || canSeeActivity) {
 		tabs.push({
 			tab: 'dailyplan',
-			name: t('common.DAILYPLAN'),
-			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION'),
+			name: t('common.DAILYPLAN'as DottedLanguageObjectStringPaths) ,
+			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION' as DottedLanguageObjectStringPaths),
 			count: profile.tasksGrouped.planned
 		});
 		tabs.push({

@@ -555,7 +555,12 @@
 			"ASSIGNED_DESCRIPTION": "Cet onglet affiche toutes les tâches qui vous sont assignées",
 			"UNASSIGNED_DESCRIPTION": "Cet onglet affiche toutes les tâches qui ne vous sont pas assignées",
 			"NO_TASK_USER_ASSIGNED": "Personne n'est assigné à cette tâche",
-			"DAILYPLAN_DESCRIPTION": "Cet onglet présente toutes vos tâches planifiées"
+			"DAILYPLAN_DESCRIPTION": "Cet onglet présente toutes vos tâches planifiées",
+			"TODAY_TASKS": "Tâches d'aujourd'hui",
+			"FUTURE_TASKS": "Tâches futures",
+			"PAST_TASKS": "Tâches passées",
+			"ALL_TASKS": "Toutes les tâches",
+			"OUTSTANDING": "En suspens"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nom",
