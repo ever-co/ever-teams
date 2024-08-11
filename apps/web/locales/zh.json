@@ -555,7 +555,12 @@
 			"ASSIGNED_DESCRIPTION": "此标签显示分配给您的所有任务",
 			"UNASSIGNED_DESCRIPTION": "此标签显示未分配给您的任务",
 			"NO_TASK_USER_ASSIGNED": "此任务未分配",
-			"DAILYPLAN_DESCRIPTION": "此標籤顯示您已規劃的所有任務"
+			"DAILYPLAN_DESCRIPTION": "此標籤顯示您已規劃的所有任務",
+			"TODAY_TASKS": "今天的任务",
+			"FUTURE_TASKS": "未来任务",
+			"PAST_TASKS": "过去任务",
+			"ALL_TASKS": "所有任务",
+			"OUTSTANDING": "突出"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "名称",

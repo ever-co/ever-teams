@@ -33,25 +33,26 @@ import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStat
 import { useDateRange } from '@app/hooks/useDateRange';
 import { checkPastDate } from 'lib/utils';
 
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+
+
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
+	const t = useTranslations();
 	const defaultTab =
 		typeof window !== 'undefined'
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
 
-	const defaultOutstanding =
-		typeof window !== 'undefined'
-			? (window.localStorage.getItem('outstanding') as FilterOutstanding) || null
-			: 'ALL';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
-	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
@@ -96,9 +97,6 @@ export function UserProfilePlans() {
 		}
 	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
 
-	useEffect(() => {
-		window.localStorage.setItem('outstanding', currentOutstanding);
-	}, [currentOutstanding]);
 
 	return (
 		<div className="">
@@ -121,7 +119,7 @@ export function UserProfilePlans() {
 													setCurrentTab(filter as FilterTabs);
 												}}
 											>
-												{filter}
+												{t(`task.tabFilter.${filter.toUpperCase().replace(' ', '_')}` as DottedLanguageObjectStringPaths)}
 												<span
 													className={clsxm(
 														'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
