@@ -32,7 +32,10 @@ import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
 import { checkPastDate } from 'lib/utils';
+
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -44,16 +47,12 @@ export function UserProfilePlans() {
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
 
-	const defaultOutstanding =
-		typeof window !== 'undefined'
-			? (window.localStorage.getItem('outstanding') as FilterOutstanding) || null
-			: 'ALL';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
-	const [currentOutstanding, setCurrentOutstanding] = useState<FilterOutstanding>(defaultOutstanding || 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
@@ -98,9 +97,6 @@ export function UserProfilePlans() {
 		}
 	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
 
-	useEffect(() => {
-		window.localStorage.setItem('outstanding', currentOutstanding);
-	}, [currentOutstanding]);
 
 	return (
 		<div className="">

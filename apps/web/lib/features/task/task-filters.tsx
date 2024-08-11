@@ -377,7 +377,11 @@ function InputFilters({ hook, profile }: Props) {
 					</Button>
 				</Tooltip>
 			</TaskUnOrAssignPopover>
-			<AddManualTimeModal closeModal={closeManualTimeModal} isOpen={isManualTimeModalOpen} />
+			<AddManualTimeModal
+				closeModal={closeManualTimeModal}
+				isOpen={isManualTimeModalOpen}
+				params='AddTime'
+			/>
 		</div>
 	);
 }
