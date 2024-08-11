@@ -54,7 +54,7 @@ export function SelectItems<T>({
 					variant="outline"
 					className={cn(
 						'w-full justify-between text-left font-normal h-10 rounded-lg dark:bg-dark--theme-light',
-						!selectedItem && 'text-muted-foreground',
+						// !selectedItem && 'text-muted-foreground',
 						triggerClassName
 					)}
 				>
@@ -64,7 +64,7 @@ export function SelectItems<T>({
 						<span>Select an item</span>
 					)}
 					<MdOutlineKeyboardArrowDown
-						className={cn('mr-2 h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')}
+						className={cn('h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')}
 					/>
 				</Button>
 			</PopoverTrigger>

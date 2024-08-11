@@ -144,7 +144,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
-			title={params === "AddManuelTime" ? 'Add Manuel Time' : "Add time"}
+			title={"Add Time"}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start shadow-xl"
 			titleClass="font-bold"
 		>
@@ -268,25 +268,25 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							</div>
 
 							<div className="">
-								<label className="block text-gray-500 mb-1">Task</label>
+								<label className="block text-gray-500 mb-1">
+									Task<span className="text-[#de5505e1] ml-1">*</span>
+								</label>
 								<SelectItems
 									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
 									onValueChange={(reason) => setReason(reason)}
 									itemId={(reason) => reason}
 									defaultValue={t('manualTime.reasons.DEFAULT')}
 									itemToString={(reason) => reason}
-									triggerClassName="border-gray-400 dark:border-slate-600"
+									triggerClassName="border-gray-300 dark:border-slate-600"
 								/>
 							</div>
-
-
 							<div className="flex flex-col">
-								<label className="block text-gray-500 shrink-0">Description(optional)</label>
+								<label className="block text-gray-500 shrink-0">Description (optional)</label>
 								<textarea
 									value={description}
-									placeholder="Add description"
+									placeholder="What did you worked on..."
 									onChange={(e) => setDescription(e.target.value)}
-									className="w-full resize-none p-2 grow border border-slate-400 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+									className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
 								/>
 							</div>
 						</>
@@ -321,24 +321,24 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							</div>
 
 							<div className="flex flex-col">
-								<label className="block text-gray-500 shrink-0">Description(optional)</label>
+								<label className="block text-gray-500 shrink-0">Description (optional)</label>
 								<textarea
 									value={description}
 									placeholder="What worked on? "
 									onChange={(e) => setDescription(e.target.value)}
-									className="w-full resize-none p-2 grow border border-slate-400 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+									className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
 								/>
 							</div>
 
 							<div className="">
-								<label className="block text-gray-500 mb-1">Reason</label>
+								<label className="block text-gray-500 mb-1">Reason (optional)</label>
 								<SelectItems
 									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
 									onValueChange={(reason) => setReason(reason)}
 									itemId={(reason) => reason}
 									defaultValue={t('manualTime.reasons.DEFAULT')}
 									itemToString={(reason) => reason}
-									triggerClassName="border-gray-400 dark:border-slate-600"
+									triggerClassName="border-gray-300 dark:border-slate-600"
 								/>
 							</div>
 						</>
@@ -348,38 +348,36 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 				<div
 					className={clsxm(
-						"flex items-center w-full pt-6",
+						"flex items-center w-full pt-2",
 						params === 'AddManuelTime' ? "justify-center" : "justify-between"
-					)}
-				>
-					{params === 'AddTime' ? (
-						<>
+					)}>
+					<>
+						{params === 'AddTime' && (
 							<Button
 								variant="outline"
 								type="button"
-								className="dark:text-primary border-slate-100 dark:border-slate-600 font-bold dark:bg-dark--theme-light"
+								className="dark:text-primary border-gray-300 dark:border-slate-600 font-bold dark:bg-dark--theme-light"
 							>
 								View timesheet
 							</Button>
-							<Button
-								loading={addManualTimeLoading}
-								disabled={addManualTimeLoading}
-								type="submit"
-								className="bg-[#3826A6] font-bold flex items-center text-white"
-							>
-								Add time
-							</Button>
-						</>
-					) : (
+						)}
 						<Button
+							loading={addManualTimeLoading}
+							disabled={addManualTimeLoading}
 							type="submit"
-							className="bg-[#3826A6] font-bold flex items-center text-white w-full"
-						>
-							Add Manuel time
+							className={clsxm(
+								"bg-[#3826A6] font-bold flex items-center text-white",
+								`${params === 'AddManuelTime' && "w-full"}`
+							)}>
+							Add Time
 						</Button>
-					)}
+					</>
 				</div>
-				<div className="m-4 text-[#ff6a00de]">{errorMsg}</div>
+				{
+					errorMsg && (
+						<div className="m-2 text-[#ff6a00de]">{errorMsg}</div>
+					)
+				}
 			</form>
 		</Modal >
 	);

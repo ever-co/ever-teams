@@ -23,7 +23,7 @@ export function HeadCalendar({ openModal }: { openModal?: () => void }) {
                     variant='primary'
                     className='bg-primary dark:bg-primary-light'
                 >
-                    Add Manual Time
+                    Add Time
                 </Button>
             </div>
         </div>
