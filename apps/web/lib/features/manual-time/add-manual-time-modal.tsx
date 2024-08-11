@@ -23,7 +23,7 @@ import { IoTime } from 'react-icons/io5';
  * @interface IAddManualTimeModalProps
  *
  * @property {boolean} isOpen - Indicates whether the modal is open or closed.
- * @property {"Calendar" | "DailyPlan"} params - Determines the context in which the modal is used, either "Calendar" for the calendar view or "DailyPlan" for the daily plan.
+ * @property {"AddManuelTime" | "AddTime"} params - Determines the context in which the modal is used, either "AddManuelTime" for the Add Manuel Time view or "AddTime" for the   Add time.
  * @property {() => void} closeModal - Callback function to be called to close the modal.
  */
 interface IAddManualTimeModalProps {
