@@ -76,7 +76,20 @@ export function ActivityCalendar() {
                                 }
                             ]}
                             monthSpacing={20}
-                            monthLegend={(_, __, d) => d.toLocaleString('en-US', { month: 'short' })}
+                            monthLegend={(year, month) => {
+                                return new Date(year, month).toLocaleString('en-US', { month: 'short' });
+                            }}
+                            theme={{
+                                labels: {
+                                    text: {
+                                        fill: '#9ca3af',
+                                        fontSize: 16,
+                                        font: 'icon',
+                                        animation: 'ease',
+                                        border: '12',
+                                    }
+                                }
+                            }}
                         />
                     </div>
                 </div>
