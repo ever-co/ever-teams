@@ -12,7 +12,7 @@ import { IOrganizationTeamList } from '@app/interfaces';
 import { useManualTime } from '@app/hooks/features/useManualTime';
 import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 import { cn } from 'lib/utils';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import { IoTime } from 'react-icons/io5';
 
 /**
@@ -159,7 +159,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						buttonClassName={'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
 						customInput={
 							<>
-								<CalendarIcon className="h-4 w-4" />
+								<CalendarDays className="h-4 w-4" />
 								<Button
 									variant={"outline"}
 									className={cn(
@@ -236,22 +236,23 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 					</div>
 				</div>
 
+				<div className="">
+					<label className="block text-gray-500 mb-1">
+						Team<span className="text-[#de5505e1] ml-1">*</span>
+					</label>
+					<SelectItems
+						defaultValue={activeTeam!}
+						items={teams}
+						onValueChange={(team) => setTeam(team)}
+						itemId={(team) => (team ? team.id : '')}
+						itemToString={(team) => (team ? team.name : '')}
+						triggerClassName="border-gray-300 dark:border-slate-600"
+					/>
+				</div>
+
 				{
 					params === 'AddManuelTime' ? (
 						<>
-							<div className="">
-								<label className="block text-gray-500 mb-1">
-									Project<span className="text-[#de5505e1] ml-1">*</span>
-								</label>
-								<SelectItems
-									defaultValue={activeTeam!}
-									items={teams}
-									onValueChange={(team) => setTeam(team)}
-									itemId={(team) => (team ? team.id : '')}
-									itemToString={(team) => (team ? team.name : '')}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
 
 							<div className="">
 								<label className="block text-gray-500 mb-1">
@@ -292,19 +293,6 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						</>
 					) : (
 						<>
-							<div className="">
-								<label className="block text-gray-500 mb-1">
-									Team<span className="text-[#de5505e1] ml-1">*</span>
-								</label>
-								<SelectItems
-									defaultValue={activeTeam!}
-									items={teams}
-									onValueChange={(team) => setTeam(team)}
-									itemId={(team) => (team ? team.id : '')}
-									itemToString={(team) => (team ? team.name : '')}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
 
 							<div className="">
 								<label className="block text-gray-500 mb-1">
