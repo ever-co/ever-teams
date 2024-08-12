@@ -124,8 +124,8 @@ export function SetupFullCalendar() {
     };
 
     return (
-        <div className='flex flex-col  overflow-hidden p-[32px]'>
-            <div className='w-full bg-white dark:!bg-dark--theme  rounded-xl border border-slate-200 p-4'>
+        <div className='flex flex-col  overflow-hidden p-[32px] shadow-lg shadow-gray-100 dark:shadow-gray-700 '>
+            <div className='w-full bg-white dark:!bg-dark--theme  rounded-xl border border-slate-200  dark:border-slate-700 p-4'>
                 <div className='flex items-center justify-between w-full  dark:!bg-dark--theme p-2  '>
                     <div className='flex items-center space-x-5 dark:!bg-dark--theme '>
                         <YearDateFilter calendarRef={calendarRef} />
@@ -140,7 +140,7 @@ export function SetupFullCalendar() {
                         </Button>
                     </div>
                 </div>
-                <div className='flex h-full border border-gray-200'>
+                <div className='flex h-full border border-gray-200 dark:border-gray-700 rounded-lg'>
                     <CalendarComponent
                         calendarRef={calendarRef}
                         dayCellClassNames={dayCellClassNames}
@@ -168,7 +168,7 @@ export function SetupFullCalendar() {
 export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
     return (
         <div className='flex flex-col w-full h-[90vh] sticky'>
-            <div className='h-full  w-full  border  border-slate-200 rounded-xl py-4 bg-white flex-grow'>
+            <div className='h-full  w-full  border  border-gray-200 dark:border-gray-700 rounded-xl py-4 bg-white flex-grow'>
                 <span className='p-2 text-[16px] text-gray-500 font-bold'>
                     {formatWithSuffix(new Date(selectedDate))}
                 </span>

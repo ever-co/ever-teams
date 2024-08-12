@@ -1,6 +1,6 @@
 "use client";
 
-import { useModal, useOrganizationTeams } from '@app/hooks';
+import { useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { clsxm } from '@app/utils';
 import HeaderTabs from '@components/pages/main/header-tabs';
@@ -13,13 +13,16 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
-import { HeadCalendar } from './component';
+import { HeadCalendar, HeadTimeSheet } from './component';
 import { AddManualTimeModal } from 'lib/features/manual-time/add-manual-time-modal';
+import { timesheetCalendar } from 'lib/features/integrations/calendar/helper-calendar';
+import { SetupTimeSheet } from 'lib/features/integrations/calendar/setup-time-sheet';
 
 const CalendarPage = () => {
     const t = useTranslations();
     const fullWidth = useRecoilValue(fullWidthState);
     const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+    const [calendarTimeSheet, setCalendarTimeSheet] = useLocalStorageState<timesheetCalendar>('calendar-timesheet', 'Calendar')
     const {
         isOpen: isManualTimeModalOpen,
         openModal: openManualTimeModal,
@@ -37,13 +40,23 @@ const CalendarPage = () => {
         [activeTeam?.name, currentLocale, t]
     );
 
+    const renderComponent = () => {
+        switch (calendarTimeSheet) {
+            case 'Calendar':
+                return <SetupFullCalendar />;
+            case 'TimeSheet':
+                return <SetupTimeSheet />;
+            default:
+                return null;
+        }
+    };
     return (
         <>
 
             <MainLayout
                 showTimer={isTrackingEnabled}
                 footerClassName="hidden"
-                className="h-[calc(100vh-22px)]"
+                className="h-[calc(100vh-22px)] shadow-xl"
             >
                 <AddManualTimeModal
                     closeModal={closeManualTimeModal}
@@ -51,9 +64,9 @@ const CalendarPage = () => {
                     params='AddManuelTime'
                 />
 
-                <div className="h-[263.4px] z-10 bg-white dark:bg-dark-high fixed w-full"></div>
+
                 <div
-                    className='fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C] z-10 mx-0 w-full bg-white dark:bg-dark-high'
+                    className='fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C] z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 '
                 >
                     <Container fullWidth={fullWidth}>
                         <div className="flex bg-white dark:bg-dark-high flex-row items-start justify-between mt-12">
@@ -65,11 +78,20 @@ const CalendarPage = () => {
                                 <HeaderTabs kanban={true} linkAll={true} />
                             </div>
                         </div>
-                        <HeadCalendar openModal={openManualTimeModal} />
+                        <div className='flex flex-col w-full'>
+                            <HeadCalendar
+                                openModal={openManualTimeModal}
+                                timesheet={calendarTimeSheet}
+                                setCalendarTimeSheet={setCalendarTimeSheet} />
+                            <div className='border border-gray-100 dark:border-gray-700 w-full'></div>
+                            <HeadTimeSheet timesheet={calendarTimeSheet} />
+
+                        </div>
                     </Container>
                 </div>
-                <div className='mt-[256px] mb-24'>
-                    <SetupFullCalendar />
+
+                <div className='mt-[325px] mb-40'>
+                    {renderComponent()}
                 </div>
             </MainLayout>
             <div className="bg-white dark:bg-[#1e2025] w-screen z-[5000] fixed bottom-0">
