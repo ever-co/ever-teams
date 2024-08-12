@@ -46,7 +46,7 @@ export function TimeSheetFilter() {
                         </div>
                         <div className="">
                             <label className="block text-gray-500 mb-1">
-                                Emplyee<span className="text-[#de5505e1] ml-1">*</span>
+                                Employee<span className="text-[#de5505e1] ml-1">*</span>
                             </label>
                             <SelectItems
                                 defaultValue={activeTeamTask}
