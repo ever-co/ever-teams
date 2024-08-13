@@ -86,7 +86,7 @@ const data: TimeSheet[] = [
         description: "Members count 11",
         employee: "Ruslan Konviser",
         status: "Rejected",
-        time: '08:00h'
+        time: '06:00h'
     },
 ]
 

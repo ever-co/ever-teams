@@ -3,8 +3,7 @@ import { DatePicker } from "@components/ui/DatePicker";
 import { QueueListIcon } from "@heroicons/react/20/solid";
 import { addDays, format } from "date-fns";
 import { Button } from "lib/components";
-import { timesheetCalendar } from "lib/features/integrations/calendar/helper-calendar";
-import { TimeSheetFilter } from "lib/features/integrations/calendar/time-sheet-filter-popover";
+import { TimeSheetFilter, timesheetCalendar } from "lib/features/integrations/calendar";
 import {
     Select,
     SelectContent,
@@ -103,14 +102,14 @@ export function HeadTimeSheet({ timesheet }: { timesheet?: timesheetCalendar }) 
                                     </Button>
                                 </>
                             }
+                            mode={'range'}
+                            numberOfMonths={2}
+                            initialFocus
                             defaultMonth={date?.from}
                             selected={date}
                             onSelect={(value) => {
                                 value && setDate(value);
                             }}
-                            mode={'range'}
-                            numberOfMonths={2}
-                            initialFocus
                         />
                         <div>
                             <TimeSheetFilter />

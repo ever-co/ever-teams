@@ -15,8 +15,7 @@ import React, { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { HeadCalendar, HeadTimeSheet } from './component';
 import { AddManualTimeModal } from 'lib/features/manual-time/add-manual-time-modal';
-import { timesheetCalendar } from 'lib/features/integrations/calendar/helper-calendar';
-import { SetupTimeSheet } from 'lib/features/integrations/calendar/setup-time-sheet';
+import { SetupTimeSheet, timesheetCalendar } from 'lib/features/integrations/calendar';
 
 const CalendarPage = () => {
     const t = useTranslations();
