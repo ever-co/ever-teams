@@ -90,7 +90,9 @@ const CalendarPage = () => {
                 </div>
 
                 <div className='mt-[325px] mb-40'>
-                    {renderComponent()}
+                    <Container fullWidth={fullWidth}>
+                        {renderComponent()}
+                    </Container>
                 </div>
             </MainLayout>
             <div className="bg-white dark:bg-[#1e2025] w-screen z-[5000] fixed bottom-0">

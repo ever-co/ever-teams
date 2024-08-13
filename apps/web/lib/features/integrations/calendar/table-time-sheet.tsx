@@ -46,6 +46,8 @@ import {
     MdKeyboardArrowLeft,
     MdKeyboardArrowRight
 } from "react-icons/md";
+import { ConfirmStatusChange } from "."
+import { useModal } from "@app/hooks"
 
 
 
@@ -179,9 +181,13 @@ export const columns: ColumnDef<TimeSheet>[] = [
         header: () => (
             <div className="text-center w-full sm:w-auto text-sm sm:text-base">Status</div>
         ),
-        cell: ({ row }) => (
-            <SelectFilter status={row.original.status} />
-        ),
+        cell: ({ row }) => {
+            return <SelectFilter
+                selectedStatus={row.original.status}
+
+            />
+
+        }
     },
     {
         accessorKey: "time",
@@ -225,11 +231,19 @@ export const columns: ColumnDef<TimeSheet>[] = [
     },
 ];
 
+
+
 export function DataTableTimeSheet() {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
     )
+    const {
+        isOpen,
+        closeModal
+    } = useModal();
+
+
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
@@ -254,111 +268,117 @@ export function DataTableTimeSheet() {
     })
 
     return (
-        <div className="w-full">
-            <div className="rounded-md  w-full ">
-                <Table className=" border dark:border-gray-700">
-                    <TableHeader className="w-full border dark:border-gray-700">
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    className=" cursor-pointer border dark:border-gray-700"
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
+        <>
+            <ConfirmStatusChange
+                closeModal={closeModal}
+                isOpen={isOpen} />
+
+            <div className="w-full">
+                <div className="rounded-md  w-full ">
+                    <Table className=" border dark:border-gray-700">
+                        <TableHeader className="w-full border dark:border-gray-700">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                            </TableHead>
+                                        )
+                                    })}
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        className=" cursor-pointer border dark:border-gray-700"
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center"
+                                    >
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </div>
-                <div className="space-x-2 flex items-center">
-                    <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        <MdKeyboardDoubleArrowLeft />
-                    </Button>
-                    <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        <MdKeyboardArrowLeft />
-                    </Button>
-                    <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        <MdKeyboardArrowRight />
-                    </Button>
-                    <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        <MdKeyboardDoubleArrowRight />
-                    </Button>
+                <div className="flex items-center justify-end space-x-2 py-4">
+                    <div className="flex-1 text-sm text-muted-foreground">
+                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                        {table.getFilteredRowModel().rows.length} row(s) selected.
+                    </div>
+                    <div className="space-x-2 flex items-center">
+                        <Button
+                            className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            <MdKeyboardDoubleArrowLeft />
+                        </Button>
+                        <Button
+                            className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            <MdKeyboardArrowLeft />
+                        </Button>
+                        <Button
+                            className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            <MdKeyboardArrowRight />
+                        </Button>
+                        <Button
+                            className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            <MdKeyboardDoubleArrowRight />
+                        </Button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 
-function SelectFilter({ status }: { status?: string }) {
-    const [selectedStatus, setSelectedStatus] = React.useState(status || "");
+function SelectFilter({ selectedStatus }: { selectedStatus?: string, }) {
+    const [selected, setSelected] = React.useState(selectedStatus);
 
     const getColorClass = () => {
-        switch (selectedStatus) {
+        switch (selected) {
             case "Rejected":
                 return "text-red-500 border-red-500 rou";
             case "Approved":
@@ -372,8 +392,11 @@ function SelectFilter({ status }: { status?: string }) {
 
     return (
         <Select
-            value={selectedStatus}
-            onValueChange={(value) => setSelectedStatus(value)}
+            value={selected}
+            onValueChange={(value) => {
+                setSelected(value)
+            }}
+
         >
             <SelectTrigger
                 className={`min-w-[120px] w-fit border border-gray-200 dark:border-gray-700 bg-transparent font-medium rounded-xl ${getColorClass()}`}

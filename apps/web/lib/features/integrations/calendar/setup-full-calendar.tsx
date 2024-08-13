@@ -124,7 +124,7 @@ export function SetupFullCalendar() {
     };
 
     return (
-        <div className='flex flex-col  overflow-hidden p-[32px] shadow-lg shadow-gray-100 dark:shadow-gray-700 '>
+        <div className='flex flex-col  overflow-hidden py-[32px] shadow-lg shadow-gray-100 dark:shadow-gray-700 '>
             <div className='w-full bg-white dark:!bg-dark--theme  rounded-xl border border-slate-200  dark:border-slate-700 p-4'>
                 <div className='flex items-center justify-between w-full  dark:!bg-dark--theme p-2  '>
                     <div className='flex items-center space-x-5 dark:!bg-dark--theme '>
