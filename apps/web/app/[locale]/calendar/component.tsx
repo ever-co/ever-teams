@@ -77,14 +77,14 @@ export function HeadTimeSheet({ timesheet }: { timesheet?: timesheetCalendar }) 
                         <DatePicker
                             buttonVariant={'link'}
                             className="dark:bg-dark--theme-light rounded-lg"
-                            buttonClassName={'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
+                            buttonClassName={'decoration-transparent flex items-center w-full  border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
                             customInput={
                                 <>
                                     <CalendarDays className="h-5 w-5 dark:text-gray-500" />
                                     <Button
                                         variant={"outline"}
                                         className={cn(
-                                            "w-full justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent",
+                                            "w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent",
                                             !date && "text-muted-foreground"
                                         )}>
                                         {date?.from ? (

@@ -159,11 +159,11 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						buttonClassName={'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
 						customInput={
 							<>
-								<CalendarDays className="h-4 w-4" />
+								<CalendarDays className="h-5 w-5 dark:text-gray-700" />
 								<Button
 									variant={"outline"}
 									className={cn(
-										"w-full justify-start text-left font-normal text-black  h-10 border border-transparent",
+										"w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent",
 										!date && "text-muted-foreground"
 									)}>
 									{date ? format(date, "PPP") : <span>Pick a date</span>}

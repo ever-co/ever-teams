@@ -40,6 +40,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@components/ui/select"
+import {
+    MdKeyboardDoubleArrowLeft,
+    MdKeyboardDoubleArrowRight,
+    MdKeyboardArrowLeft,
+    MdKeyboardArrowRight
+} from "react-icons/md";
+
 
 
 const data: TimeSheet[] = [
@@ -304,22 +311,42 @@ export function DataTableTimeSheet() {
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
-                <div className="space-x-2">
+                <div className="space-x-2 flex items-center">
                     <Button
+                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
                         variant="outline"
                         size="sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Previous
+                        <MdKeyboardDoubleArrowLeft />
                     </Button>
                     <Button
+                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <MdKeyboardArrowLeft />
+                    </Button>
+                    <Button
+                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <MdKeyboardArrowRight />
+                    </Button>
+                    <Button
+                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
                         variant="outline"
                         size="sm"
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Next
+                        <MdKeyboardDoubleArrowRight />
                     </Button>
                 </div>
             </div>
@@ -349,7 +376,7 @@ function SelectFilter({ status }: { status?: string }) {
             onValueChange={(value) => setSelectedStatus(value)}
         >
             <SelectTrigger
-                className={`min-w-[120px] w-fit border border-gray-200 bg-transparent font-medium rounded-xl ${getColorClass()}`}
+                className={`min-w-[120px] w-fit border border-gray-200 dark:border-gray-700 bg-transparent font-medium rounded-xl ${getColorClass()}`}
             >
                 <SelectValue
                     placeholder="Select a daily"
@@ -363,7 +390,7 @@ function SelectFilter({ status }: { status?: string }) {
                         <div key={option.value}>
                             <SelectItem value={option.value}>{option.label}</SelectItem>
                             {index < statusOptions.length - 1 && (
-                                <div className="border w-full border-gray-100"></div>
+                                <div className="border w-full border-gray-100 dark:border-gray-700"></div>
                             )}
                         </div>
                     ))}
