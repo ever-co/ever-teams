@@ -46,11 +46,10 @@ export function useTimeSlots(hasFilter?: boolean) {
 				organizationId: user?.employee.organizationId ?? '',
 				ids: ids
 			}).then(() => {
-				const updatedSlots = timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null));
-				setTimeSlots(updatedSlots);
+				setTimeSlots((timeSlots) => timeSlots.filter((el) => (!ids?.includes(el.id) ? el : null)));
 			});
 		},
-		[queryDeleteCall, setTimeSlots, timeSlots, user]
+		[queryDeleteCall, setTimeSlots, user]
 	);
 
 	useEffect(() => {

@@ -303,8 +303,11 @@ export function useDailyPlan() {
 		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	useEffect(() => {
-		getMyDailyPlans();
-	}, [getMyDailyPlans]);
+		if (firstLoad) {
+			getMyDailyPlans();
+			getAllDayPlans();
+		}
+	}, [getMyDailyPlans, getAllDayPlans, firstLoad]);
 
 	return {
 		dailyPlan,

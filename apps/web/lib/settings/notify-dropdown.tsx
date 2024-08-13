@@ -34,7 +34,7 @@ export const NotifyDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!NotifyItem) {
+		if (!NotifyItem && items.length > 0) {
 			setNotifyItem(items[0]);
 		}
 	}, [NotifyItem, items]);
