@@ -393,9 +393,7 @@ function SelectFilter({ selectedStatus }: { selectedStatus?: string, }) {
     return (
         <Select
             value={selected}
-            onValueChange={(value) => {
-                setSelected(value)
-            }}
+            onValueChange={(value) => setSelected(value)}
 
         >
             <SelectTrigger
