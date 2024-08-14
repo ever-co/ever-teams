@@ -11,7 +11,7 @@ import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { DailyPlanCompareEstimatedModal } from './daily-plan';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 
@@ -58,7 +58,14 @@ const TeamMembersCardView: React.FC<Props> = ({
 		}
 	}, [defaultOpenPopup, plan]);
 
-	function handleSort() {
+	const handleChangeOrder = useCallback(
+		(employee: OT_Member, order: number) => {
+			updateOrganizationTeamEmployeeOrderOnList(employee, order);
+		},
+		[updateOrganizationTeamEmployeeOrderOnList]
+	);
+
+	const handleSort = useCallback(() => {
 		const peopleClone = [...memberOrdereds];
 		const temp = peopleClone[dragTeamMember.current];
 		peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
@@ -67,11 +74,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 		// TODO: update teamMembers index
 		handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
 		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
-	}
-
-	const handleChangeOrder = (employee: OT_Member, order: number) => {
-		updateOrganizationTeamEmployeeOrderOnList(employee, order);
-	};
+	}, [memberOrdereds, dragTeamMember, draggedOverTeamMember]);
 
 	return (
 		<>

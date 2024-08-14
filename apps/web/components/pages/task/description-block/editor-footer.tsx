@@ -1,4 +1,4 @@
-import { useTeamTasks } from '@app/hooks';
+import { useCallbackRef, useTeamTasks } from '@app/hooks';
 import { detailedTaskState } from '@app/stores';
 import { Button } from 'lib/components';
 import Image from 'next/image';
@@ -17,6 +17,7 @@ interface IDFooterProps {
 }
 
 const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUnsavedValues }: IDFooterProps) => {
+	const $setIsUpdated = useCallbackRef(setIsUpdated);
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
 	const t = useTranslations();
@@ -37,7 +38,7 @@ const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUn
 	useEffect(() => {
 		const handleClickOutsideEditor = (event: MouseEvent) => {
 			if (editorRef.current && !editorRef.current.contains(event.target)) {
-				setIsUpdated();
+				$setIsUpdated.current();
 			}
 		};
 		// Add event listener when component mounts
@@ -46,16 +47,14 @@ const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUn
 			// Clean up event listener when component unmounts
 			document.removeEventListener('mousedown', handleClickOutsideEditor);
 		};
-	}, [editorRef, setIsUpdated]);
+	}, [editorRef, $setIsUpdated]);
 
 	return (
 		<div>
 			<div className={`flex justify-end mb-0 ${isUpdated ? 'opacity-100' : 'opacity-0'}`}>
 				<Button
 					variant="grey"
-					onClick={() => {
-						cancelEdit();
-					}}
+					onClick={cancelEdit}
 					className=" dark:bg-gray-500 font-medium min-w-[5rem] w-[3rem] text-sm px-6 py-2 m-1 rounded-lg transition-all"
 					disabled={!isUpdated}
 				>

@@ -33,7 +33,7 @@ export const IconDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!iconItem) {
+		if (!iconItem && items.length > 0) {
 			setIconItem(items[0]);
 		}
 	}, [iconItem, items]);

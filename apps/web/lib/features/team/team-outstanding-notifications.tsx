@@ -14,14 +14,14 @@ interface IEmployeeWithOutstanding {
 }
 
 export function TeamOutstandingNotifications() {
-	const { getAllDayPlans, dailyPlan, getEmployeeDayPlans, outstandingPlans } = useDailyPlan();
+	const { dailyPlan, getEmployeeDayPlans, outstandingPlans } = useDailyPlan();
 
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	useEffect(() => {
-		getAllDayPlans();
+		// getAllDayPlans();
 		getEmployeeDayPlans(user?.employee.id || '');
-	}, [getAllDayPlans, getEmployeeDayPlans, user?.employee.id]);
+	}, [getEmployeeDayPlans, user?.employee.id]);
 
 	return (
 		<div className="flex flex-col gap-4">
