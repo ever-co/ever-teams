@@ -415,10 +415,10 @@ type IWorkSpace = {
 export function WorkSpaceComponent(props: IWorkSpace) {
 	const t = useTranslations();
 
-	const [uncollapsedWorkspace, setUncollapsedWorkspace] = useState(props.selectedWorkspace);
+	const [expandedWorkspace, setExpandedWorkspace] = useState(props.selectedWorkspace);
 
 	useEffect(() => {
-		setUncollapsedWorkspace(props.selectedWorkspace);
+		setExpandedWorkspace(props.selectedWorkspace);
 	}, [props.selectedWorkspace]);
 
 	return (
@@ -437,7 +437,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 							{props.workspaces?.map((worksace, index) => (
 								<div
 									key={index}
-									className={`w-full overflow-hidden h-16 ${uncollapsedWorkspace === index && 'h-auto'}   flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+									className={`w-full overflow-hidden h-16 ${expandedWorkspace === index && 'h-auto'}   flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
 										props.selectedWorkspace === index
 											? 'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]'
 											: ''
@@ -446,14 +446,14 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 										<div className="flex justify-between">
 											<div
-												onClick={() => setUncollapsedWorkspace(index)}
+												onClick={() => setExpandedWorkspace(index)}
 												className="flex cursor-pointer items-center justify-center gap-1"
 											>
 												<span>{worksace.user.tenant.name}</span>
 												<span
 													className={cn(
 														'h-6 w-6 flex items-center justify-center transition-transform',
-														uncollapsedWorkspace === index && 'rotate-180'
+														expandedWorkspace === index && 'rotate-180'
 													)}
 												>
 													<MdOutlineKeyboardArrowDown />
@@ -481,7 +481,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											</span>
 										</div>
 										<span
-											className={`bg-[#E5E5E5] w-full h-[1px] hidden ${uncollapsedWorkspace === index && 'block'}`}
+											className={`bg-[#E5E5E5] w-full h-[1px] hidden ${expandedWorkspace === index && 'block'}`}
 										></span>
 										{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
 										<div className="flex flex-col gap-4 px-5 py-1.5">
