@@ -34,15 +34,18 @@ export const PositionDropDown = ({
 			title: 'CTO'
 		}
 	]);
-	const handleAddNew = (position: string) => {
-		setNewPosition(position);
-		setPositions([
-			...positions,
-			{
-				title: position
-			}
-		]);
-	};
+	const handleAddNew = useCallback(
+		(position: string) => {
+			setNewPosition(position);
+			setPositions([
+				...positions,
+				{
+					title: position
+				}
+			]);
+		},
+		[positions, setPositions, setNewPosition]
+	);
 
 	const items = useMemo(() => mapPositionItems(positions), [positions]);
 

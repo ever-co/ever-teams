@@ -1,4 +1,5 @@
 'use client';
+import { useCallbackRef } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { useIntersectionObserver } from '@uidotdev/usehooks';
 import React, { useEffect } from 'react';
@@ -6,13 +7,15 @@ import React, { useEffect } from 'react';
 export const InteractionObserverVisible = ({
 	id,
 	setActiveSection,
-	children,
+	children
 }: {
 	id: string;
 	setActiveSection: (v: any) => void;
 	children: React.ReactNode;
 	className?: string;
 }) => {
+	const $setActiveSection = useCallbackRef(setActiveSection);
+
 	const [ref, entry] = useIntersectionObserver({
 		threshold: 0.9,
 		root: null,
@@ -20,9 +23,9 @@ export const InteractionObserverVisible = ({
 	});
 	useEffect(() => {
 		if (entry?.isIntersecting) {
-			setActiveSection(id);
+			$setActiveSection.current?.(id);
 		}
-	}, [entry, id, setActiveSection]);
+	}, [entry, id, $setActiveSection]);
 
 	return (
 		<div className="relative">

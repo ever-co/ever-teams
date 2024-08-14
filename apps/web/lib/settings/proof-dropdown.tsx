@@ -37,7 +37,7 @@ export const ProofDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!ProofItem) {
+		if (!ProofItem && items.length > 0) {
 			setProofItem(items[0]);
 		}
 	}, [ProofItem, items]);

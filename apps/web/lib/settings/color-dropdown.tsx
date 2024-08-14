@@ -71,7 +71,7 @@ export const ColorDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!colorItem) {
+		if (!colorItem && items.length > 0) {
 			setColorItem(items[0]);
 		}
 	}, [colorItem, items]);

@@ -47,7 +47,7 @@ export const PaginationDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!paginationItem) {
+		if (!paginationItem && items.length > 0) {
 			setPaginationItem(items[0]);
 		}
 	}, [paginationItem, items]);

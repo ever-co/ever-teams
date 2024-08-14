@@ -55,7 +55,7 @@ function MainPage() {
 	React.useEffect(() => {
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
-	}, [fullWidth, setFullWidth]);
+	}, [setFullWidth]);
 
 	if (!online) {
 		return <Offline />;

@@ -2,6 +2,7 @@ import { DISABLE_AUTO_REFRESH } from '@app/constants';
 import {
 	useAutoAssignTask,
 	useCallbackRef,
+	useDailyPlan,
 	useIssueType,
 	useLanguageSettings,
 	useOTRefreshInterval,
@@ -19,6 +20,7 @@ import {
 	useTeamTasks,
 	useTimer
 } from '@app/hooks';
+import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
 import { publicState, userState } from '@app/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
@@ -51,6 +53,9 @@ function InitState() {
 	const { firstLoadIssueTypeData } = useIssueType();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
+	const { firstLoadDailyPlanData } = useDailyPlan();
+	const { firstLoadTimeLogs } = useTimeLogs();
+
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
 		firstLoadTeamsData();
@@ -68,6 +73,8 @@ function InitState() {
 		firstLoadTaskLabelsData();
 		firstLoadIssueTypeData();
 		firstLoadTaskRelatedIssueTypeData();
+		firstLoadDailyPlanData();
+		firstLoadTimeLogs();
 		// --------------
 
 		getTimerStatus();

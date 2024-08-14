@@ -1,3 +1,4 @@
+import { useCallbackRef } from '@app/hooks';
 import React from 'react';
 
 export const ObserverComponent = ({
@@ -8,6 +9,7 @@ export const ObserverComponent = ({
 	isLast: boolean;
 	getNextData: () => any;
 }) => {
+	const getNextDataRef = useCallbackRef(getNextData);
 	const cardRef = React.useRef<HTMLDivElement>();
 
 	React.useEffect(() => {
@@ -18,7 +20,7 @@ export const ObserverComponent = ({
 				if (isLast && entry.isIntersecting) {
 					// fetch with new Entry
 					console.log('IN OBSERVER');
-					getNextData();
+					getNextDataRef.current && getNextDataRef.current();
 					observer.unobserve(entry.target);
 				}
 			},
@@ -33,7 +35,7 @@ export const ObserverComponent = ({
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			cardRef.current && observer.unobserve(cardRef.current);
 		};
-	}, [isLast, getNextData]);
+	}, [isLast, getNextDataRef]);
 	// @ts-expect-error
 	return <div ref={cardRef} className="-z-10 h-2 bg-transparent  " />;
 };
