@@ -36,7 +36,7 @@ export const InvitationExpireDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!expireItem) {
+		if (!expireItem && items.length > 0) {
 			setExpireItem(items[0]);
 		}
 	}, [expireItem, items]);
