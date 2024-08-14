@@ -1,5 +1,7 @@
 import { IEmployee } from './IEmployee';
 import { IImageAssets } from './IImageAssets';
+import { IOrganization } from './IOrganization';
+import { IOrganizationTeam } from './IOrganizationTeam';
 
 export interface ITeamProps {
 	email: string;
@@ -25,6 +27,15 @@ export interface IUser {
 	employee: IEmployee;
 	role: Role;
 	tenant: Tenant;
+	defaultTeam?: IOrganizationTeam;
+	defaultTeamId?: IOrganizationTeam['id'];
+	lastTeam?: IOrganizationTeam;
+	lastTeamId?: IOrganizationTeam['id'];
+	defaultOrganization?: IOrganization;
+	defaultOrganizationId?: IOrganization['id'];
+	lastOrganization?: IOrganization;
+	lastOrganizationId?: IOrganization['id'];
+	lastLoginAt?: Date;
 	createdAt: string;
 	updatedAt: string;
 	timeZone?: string;

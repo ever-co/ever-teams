@@ -1,8 +1,8 @@
 'use client';
 
 import { validateForm } from '@app/helpers';
-import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
-import { useRef, useState } from 'react';
+import { IOrganizationTeam, ISigninEmailConfirmWorkspaces } from '@app/interfaces';
+import { useCallback, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { signInEmailPasswordAPI, signInWorkspaceAPI } from '@app/services/client/api';
 import { AxiosError, isAxiosError } from 'axios';
@@ -21,6 +21,8 @@ export function useAuthenticationPassword() {
 	const [screen, setScreen] = useState<'login' | 'workspace'>('login');
 
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
+
+	const [defaultTeamId, setDefaultTeamId] = useState<string | undefined>(undefined);
 
 	const [authenticated, setAuthenticated] = useState(false);
 
@@ -65,6 +67,7 @@ export function useAuthenticationPassword() {
 				if (Array.isArray(data.workspaces) && data.workspaces.length > 0) {
 					setScreen('workspace');
 					setWorkspaces(data.workspaces);
+					setDefaultTeamId(data.defaultTeamId);
 				}
 			})
 			.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
@@ -78,16 +81,14 @@ export function useAuthenticationPassword() {
 			});
 	};
 
-	const signInToWorkspaceRequest = ({
-		email,
-		token,
-		selectedTeam
-	}: {
+	const signInToWorkspaceRequest = (params: {
 		email: string;
 		token: string;
 		selectedTeam: string;
+		defaultTeamId?: IOrganizationTeam['id'];
+		lastTeamId: string;
 	}) => {
-		signInWorkspaceQueryCall({ email, token, selectedTeam })
+		signInWorkspaceQueryCall(params)
 			.then(() => {
 				setAuthenticated(true);
 				router.push('/');
@@ -116,9 +117,24 @@ export function useAuthenticationPassword() {
 		signInToWorkspaceRequest({
 			email: formValues.email,
 			token,
-			selectedTeam
+			selectedTeam,
+			lastTeamId: selectedTeam
 		});
 	};
+
+	const getLastTeamIdWithRecentLogout = useCallback(() => {
+		if (workspaces.length === 0) {
+			throw new Error('No workspaces found');
+		}
+
+		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
+			const prevDate = new Date(prev.user.lastLoginAt ?? '');
+			const currentDate = new Date(current.user.lastLoginAt ?? '');
+			return currentDate > prevDate ? current : prev;
+		});
+
+		return mostRecentWorkspace.user.lastTeamId;
+	}, [workspaces]);
 
 	return {
 		errors,
@@ -131,10 +147,12 @@ export function useAuthenticationPassword() {
 		inputCodeRef,
 		authScreen: { screen, setScreen },
 		workspaces,
+		defaultTeamId,
 		signInQueryCall,
 		signInLoading,
 		signInWorkspaceLoading,
-		authenticated
+		authenticated,
+		getLastTeamIdWithRecentLogout
 	};
 }
 
