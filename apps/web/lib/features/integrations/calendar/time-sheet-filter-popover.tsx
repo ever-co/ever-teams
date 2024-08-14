@@ -1,4 +1,5 @@
-import { useTeamTasks } from "@app/hooks";
+import { useState } from "react";
+import { useOrganizationTeams, useTeamTasks } from "@app/hooks";
 import { Button } from "@components/ui/button"
 import {
     Popover,
@@ -7,12 +8,18 @@ import {
 } from "@components/ui/popover"
 import { SettingFilterIcon } from "assets/svg"
 import { SelectItems } from "lib/components";
-import { useState } from "react";
+import { statusOptions } from "@app/constants";
+
 
 export function TimeSheetFilter() {
+
+
+    const { teams, activeTeam } = useOrganizationTeams();
+
     const { activeTeamTask, tasks } = useTeamTasks();
-    // const [team, setTeam] = useState<IOrganizationTeamList>();
+    const [status, setStatus] = useState('');
     const [taskId, setTaskId] = useState<string>('');
+    const [teamId, setTeamId] = useState<string>('');
 
 
     return (
@@ -24,7 +31,7 @@ export function TimeSheetFilter() {
                     <span className="dark:text-white">Filter</span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[430px]">
+            <PopoverContent className="w-[430px] shadow">
                 <div className="w-full flex flex-col gap-4">
                     <div className="flex items-center justify-center">
                         <h4 className="font-bold leading-none text-[20px] ">Select Filter</h4>
@@ -36,11 +43,11 @@ export function TimeSheetFilter() {
                                 Team<span className="text-[#de5505e1] ml-1">*</span>
                             </label>
                             <SelectItems
-                                defaultValue={activeTeamTask}
-                                items={tasks}
-                                onValueChange={(task) => setTaskId(task ? task.id : '')}
-                                itemId={(task) => (task ? task.id : '')}
-                                itemToString={(task) => (task ? task.title : taskId)}
+                                defaultValue={activeTeam}
+                                items={teams}
+                                onValueChange={(team) => setTeamId(team ? team.id : '')}
+                                itemId={(team) => (team ? team.id : '')}
+                                itemToString={(team) => (team ? team.name : teamId)}
                                 triggerClassName="border-slate-100 dark:border-slate-600"
                             />
                         </div>
@@ -62,11 +69,10 @@ export function TimeSheetFilter() {
                                 Status<span className="text-[#de5505e1] ml-1">*</span>
                             </label>
                             <SelectItems
-                                defaultValue={activeTeamTask}
-                                items={tasks}
-                                onValueChange={(task) => setTaskId(task ? task.id : '')}
-                                itemId={(task) => (task ? task.id : '')}
-                                itemToString={(task) => (task ? task.title : '')}
+                                items={statusOptions}
+                                onValueChange={(value) => setStatus(value.value ? value.value : status)}
+                                itemId={(value) => value.label}
+                                itemToString={(value) => (value.label)}
                                 triggerClassName="border-slate-100 dark:border-slate-600"
                             />
                         </div>
@@ -77,7 +83,7 @@ export function TimeSheetFilter() {
                             <SelectItems
                                 defaultValue={activeTeamTask}
                                 items={tasks}
-                                onValueChange={(task) => setTaskId(task ? task.id : '')}
+                                onValueChange={(task) => setTaskId(task ? task.id : taskId)}
                                 itemId={(task) => (task ? task.id : '')}
                                 itemToString={(task) => (task ? task.title : '')}
                                 triggerClassName="border-slate-100 dark:border-slate-600"
