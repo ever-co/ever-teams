@@ -33,6 +33,8 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { useSettings } from './useSettings';
+import { LAST_WORSPACE_AND_TEAM } from '@app/constants';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -181,6 +183,7 @@ export function useOrganizationTeams() {
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
+	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useRecoilValue(timerStatusState);
 
 	// const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
@@ -228,8 +231,10 @@ export function useOrganizationTeams() {
 			if (team && team?.projects && team.projects.length) {
 				setActiveProjectIdCookie(team.projects[0].id);
 			}
+			window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, team.id);
+			if (user) updateUserLastTeam({ id: user.id, lastTeamId: team.id });
 		},
-		[setActiveTeamId]
+		[setActiveTeamId, updateUserLastTeam, user]
 	);
 
 	const loadTeamsData = useCallback(() => {

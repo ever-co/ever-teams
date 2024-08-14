@@ -37,7 +37,7 @@ export const PeriodDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!PeriodItem) {
+		if (!PeriodItem && items.length > 0) {
 			setPeriodItem(items[0]);
 		}
 	}, [PeriodItem, items]);

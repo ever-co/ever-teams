@@ -40,7 +40,7 @@ export const ChooseDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!chooseItem) {
+		if (!chooseItem && items.length > 0) {
 			setChooseItem(items[0]);
 		}
 	}, [chooseItem, items]);
@@ -49,7 +49,7 @@ export const ChooseDropdown = ({
 		if (active && chooseList.every((choose) => choose.title !== active.title)) {
 			setChoose([...chooseList, active]);
 		}
-	}, [chooseList, setChoose, setChooseItem, active]);
+	}, [chooseList, setChoose, active]);
 
 	useEffect(() => {
 		if (active) {

@@ -37,7 +37,7 @@ export const SortDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!sortItem) {
+		if (!sortItem && items.length > 0) {
 			setSortItem(items[0]);
 		}
 	}, [sortItem, items]);

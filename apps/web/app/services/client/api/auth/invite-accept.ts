@@ -7,7 +7,9 @@ import {
 	ITeamRequestParams,
 	TimerSource,
 	IOrganizationTeamList,
-	ISigninEmailConfirmResponse
+	ISigninEmailConfirmResponse,
+	ISigninWorkspaceInput,
+	IOrganizationTeam
 } from '@app/interfaces';
 import { AcceptInviteParams } from '@app/services/server/requests';
 import { get, post } from '../../axios';
@@ -191,11 +193,8 @@ export async function signInEmailCodeConfirmGauzy(email: string, code: string) {
 	return loginResponse;
 }
 
-export function signInWorkspaceAPI(email: string, token: string) {
-	return post<ILoginResponse>('/auth/signin.workspace', {
-		email,
-		token
-	}).then((res) => res.data);
+export function signInWorkspaceAPI(input: ISigninWorkspaceInput) {
+	return post<ILoginResponse>('/auth/signin.workspace', input).then((res) => res.data);
 }
 
 /**
@@ -228,7 +227,14 @@ export async function signInEmailConfirmGauzy(email: string, code: string) {
 /**
  * @param params
  */
-export async function signInWorkspaceGauzy(params: { email: string; token: string; teamId: string; code?: string }) {
+export async function signInWorkspaceGauzy(params: {
+	email: string;
+	token: string;
+	teamId: string;
+	code?: string;
+	defaultTeamId?: IOrganizationTeam['id'];
+	lastTeamId?: IOrganizationTeam['id'];
+}) {
 	if (params.code) {
 		let loginResponse;
 		try {
@@ -242,7 +248,12 @@ export async function signInWorkspaceGauzy(params: { email: string; token: strin
 		}
 	}
 
-	const data = await signInWorkspaceAPI(params.email, params.token);
+	const data = await signInWorkspaceAPI({
+		email: params.email,
+		token: params.token,
+		defaultTeamId: params.defaultTeamId,
+		lastTeamId: params.lastTeamId
+	});
 
 	/**
 	 * Get the first team from first organization

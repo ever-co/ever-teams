@@ -5,9 +5,13 @@ import { timerLogsDailyReportState } from '@app/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect } from 'react';
 import moment from 'moment';
+import { useFirstLoad } from '../useFirstLoad';
 
 export function useTimeLogs() {
 	const { user } = useAuthenticateUser();
+
+	const { firstLoadData: firstLoadTimeLogs, firstLoad } = useFirstLoad();
+
 	const [timerLogsDailyReport, setTimerLogsDailyReport] = useRecoilState(timerLogsDailyReportState);
 
 	const { loading: timerLogsDailyReportLoading, queryCall: queryTimerLogsDailyReport } = useQuery(
@@ -42,11 +46,14 @@ export function useTimeLogs() {
 	);
 
 	useEffect(() => {
-		getTimerLogsDailyReport();
-	}, [getTimerLogsDailyReport]);
+		if (firstLoad) {
+			getTimerLogsDailyReport();
+		}
+	}, [getTimerLogsDailyReport, firstLoad]);
 
 	return {
 		timerLogsDailyReport,
-		timerLogsDailyReportLoading
+		timerLogsDailyReportLoading,
+		firstLoadTimeLogs
 	};
 }

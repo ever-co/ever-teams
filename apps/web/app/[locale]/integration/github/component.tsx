@@ -13,6 +13,7 @@ const GitHub = () => {
 	const searchParams = useSearchParams();
 	const installation_id = searchParams?.get('installation_id');
 	const setup_action = searchParams?.get('setup_action');
+	const initialLoad = useRef<boolean>(false);
 
 	const t = useTranslations();
 
@@ -49,7 +50,9 @@ const GitHub = () => {
 	}, [integrationTenantLoading, integrationTenant, getRepositories]);
 
 	useEffect(() => {
-		if (!loadingIntegrationTypes && integrationTypes.length === 0) {
+		if (!loadingIntegrationTypes && integrationTypes.length === 0 && !initialLoad.current) {
+			initialLoad.current = true;
+
 			getIntegrationTypes().then((types) => {
 				const allIntegrations = types.find((item: any) => item.name === 'All Integrations');
 				if (allIntegrations && allIntegrations?.id) {
@@ -57,7 +60,7 @@ const GitHub = () => {
 				}
 			});
 		}
-	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
+	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant, initialLoad]);
 
 	return (
 		<div className="flex flex-col p-3">

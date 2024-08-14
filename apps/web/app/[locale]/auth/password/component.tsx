@@ -116,6 +116,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		[selectedWorkspace, selectedTeam, form]
 	);
 
+	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
+
 	const hasMultipleTeams = useMemo(
 		() => form.workspaces.some((workspace) => workspace.current_teams.length > 1),
 		[form.workspaces]
@@ -129,7 +131,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		}
 
 		const currentTeams = form.workspaces.find((el) => el.current_teams && el.current_teams.length)?.current_teams;
-		const lastSelectedTeamId = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM);
+		const lastSelectedTeamId =
+			window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || lastSelectedTeamFromAPI || form.defaultTeamId;
 
 		if (currentTeams) {
 			setSelectedWorkspace(

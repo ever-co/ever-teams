@@ -44,6 +44,7 @@ export function useAuthenticationPasscode() {
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>('email');
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
+	const [defaultTeamId, setDefaultTeamId] = useState<string | undefined>(undefined);
 	const [authenticated, setAuthenticated] = useState(false);
 
 	const [formValues, setFormValues] = useState({
@@ -74,7 +75,15 @@ export function useAuthenticationPasscode() {
 	/**
 	 * Verify auth request
 	 */
-	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
+	const verifySignInEmailConfirmRequest = async ({
+		email,
+		code,
+		lastTeamId
+	}: {
+		email: string;
+		code: string;
+		lastTeamId?: string;
+	}) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
 				if ('team' in res.data) {
@@ -103,6 +112,7 @@ export function useAuthenticationPasscode() {
 
 				if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
 					setWorkspaces(data.workspaces);
+					setDefaultTeamId(data.defaultTeamId);
 
 					setScreen('workspace');
 				}
@@ -119,7 +129,8 @@ export function useAuthenticationPasscode() {
 							email: email,
 							code: code,
 							token: currentWorkspace?.token as string,
-							selectedTeam: queryTeamId as string
+							selectedTeam: queryTeamId as string,
+							lastTeamId
 						});
 					}
 				}
@@ -169,6 +180,8 @@ export function useAuthenticationPasscode() {
 		token: string;
 		selectedTeam: string;
 		code?: string;
+		defaultTeamId?: string;
+		lastTeamId?: string;
 	}) => {
 		signInWorkspaceQueryCall(params)
 			.then(() => {
@@ -234,7 +247,9 @@ export function useAuthenticationPasscode() {
 			email: formValues.email,
 			code: formValues.code,
 			token,
-			selectedTeam
+			selectedTeam,
+			defaultTeamId: selectedTeam,
+			lastTeamId: selectedTeam
 		});
 	};
 
@@ -270,6 +285,20 @@ export function useAuthenticationPasscode() {
 		return promise;
 	}, [formValues, signInEmailQueryCall]);
 
+	const getLastTeamIdWithRecentLogout = useCallback(() => {
+		if (workspaces.length === 0) {
+			throw new Error('No workspaces found');
+		}
+
+		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
+			const prevDate = new Date(prev.user.lastLoginAt ?? '');
+			const currentDate = new Date(current.user.lastLoginAt ?? '');
+			return currentDate > prevDate ? current : prev;
+		});
+
+		return mostRecentWorkspace.user.lastTeamId;
+	}, [workspaces]);
+
 	return {
 		sendAuthCodeHandler,
 		errors,
@@ -290,9 +319,11 @@ export function useAuthenticationPasscode() {
 		signInEmailConfirmQueryCall,
 		signInEmailConfirmLoading,
 		workspaces,
+		defaultTeamId,
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
-		handleWorkspaceSubmit
+		handleWorkspaceSubmit,
+		getLastTeamIdWithRecentLogout
 	};
 }
 
