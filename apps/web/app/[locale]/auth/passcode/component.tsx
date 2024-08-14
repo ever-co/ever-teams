@@ -78,8 +78,7 @@ function AuthPasscode() {
 					{form.authScreen.screen === 'workspace' && (
 						<WorkSpaceScreen form={form} className={clsxm('w-full')} />
 					)}
-				</div>
-				{/* Social logins */}
+				</div>				
 				<SocialLogins />
 			</div>
 		</AuthLayout>
@@ -324,8 +323,6 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		},
 		[selectedWorkspace, selectedTeam, form]
 	);
-
-	console.log(form.getLastTeamIdWithRecentLogout);
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
