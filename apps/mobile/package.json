@@ -57,7 +57,7 @@
 		"@tanstack/react-query": "^5.36.0",
 		"@types/react-dom": "~18.0.10",
 		"apisauce": "3.0.0",
-		"axios": "^1.6.0",
+		"axios": "^1.7.4",
 		"date-fns": "^2.29.2",
 		"expo": "~48.0.9",
 		"expo-application": "~5.1.1",
