@@ -7,7 +7,7 @@ import { ITimerSlot } from './ITimerSlot';
 export interface ITimerLogsDailyReportRequest {
 	tenantId: string;
 	organizationId: string;
-	employeeId: string;
+	employeeIds: string[];
 	startDate: Date;
 	endDate: Date;
 }
