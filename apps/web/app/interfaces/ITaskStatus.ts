@@ -16,7 +16,7 @@ export interface ITaskStatusItemList extends TaskStatusWorkFlow {
 	isCollapsed?: boolean;
 	organizationTeamId?: string | undefined | null;
 	order?: number;
-	template: TaskStatusEnum;
+	template?: TaskStatusEnum;
 }
 
 export interface ITaskStatusCreate
