@@ -29,9 +29,7 @@ export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
-
 	const [headerSize, setHeaderSize] = useState(10);
-
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
@@ -115,7 +113,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</MainLayout>
 			) : (
-				<MainLayout showTimer={profileIsAuthUser && isTrackingEnabled}>
+				<MainLayout showTimer={headerSize <= 11.8 && isTrackingEnabled || !profileIsAuthUser}>
 					<ResizablePanelGroup direction="vertical">
 						<ResizablePanel
 							defaultSize={30}
