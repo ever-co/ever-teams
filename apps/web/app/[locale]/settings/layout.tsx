@@ -13,8 +13,10 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
 import { usePathname } from 'next/navigation';
+import { useOrganizationTeams } from '@app/hooks';
 
 const SettingsLayout = ({ children }: { children: JSX.Element }) => {
+	const { isTrackingEnabled, } = useOrganizationTeams();
 	const t = useTranslations();
 	const [user] = useRecoilState(userState);
 	const fullWidth = useRecoilValue(fullWidthState);
@@ -26,12 +28,13 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 		{ title: t('common.SETTINGS'), href: pathName as string },
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
-	
+
 	if (!user) {
 		return <SettingsPersonalSkeleton />;
 	} else {
 		return (
 			<MainLayout
+				showTimer={isTrackingEnabled}
 				className="items-start pb-1 overflow-hidden w-full"
 				childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full"
 			>
@@ -39,12 +42,12 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 					<Container
 						fullWidth={fullWidth}
 						className={clsxm('w-full mt-4 flex flex-row items-center justify-start gap-8')}
-					>						
+					>
 						<Link href="/">
 							<ArrowLeftIcon className="w-6 h-6" />
 						</Link>
 
-						<Breadcrumb paths={breadcrumb} className="text-sm" />					
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</Container>
 				</div>
 				<Container fullWidth={fullWidth} className={clsxm('!p-0')}>

@@ -64,7 +64,11 @@ function MainPage() {
 		<>
 			<div className="flex flex-col h-screen justify-between">
 				{/* <div className="flex-grow "> */}
-				<MainLayout className="h-full" footerClassName={clsxm('')}>
+				<MainLayout
+					showTimer={headerSize <= 11.8 && isTrackingEnabled}
+					className="h-full"
+					footerClassName={clsxm('')}
+				>
 					<ChatwootWidget />
 					<div className=" h-full">
 						<ResizablePanelGroup direction="vertical">
