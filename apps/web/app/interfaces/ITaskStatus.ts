@@ -1,4 +1,4 @@
-export interface ITaskStatusItemList {
+export interface ITaskStatusItemList extends TaskStatusWorkFlow {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -14,19 +14,32 @@ export interface ITaskStatusItemList {
 	isSystem?: boolean;
 	projectId?: string;
 	isCollapsed?: boolean;
+	organizationTeamId?: string | undefined | null;
 	order?: number;
+	template: TaskStatusEnum;
 }
 
-export interface ITaskStatusCreate {
-	name?: string;
-	description?: string;
-	icon?: string;
-	value?: string;
-	color?: string;
-	projectId?: string;
-	organizationId?: string;
-	tenantId?: string | undefined | null;
-	organizationTeamId?: string | undefined | null;
-	isCollapsed?: boolean;
-	order?: number;
+export interface ITaskStatusCreate
+	extends Partial<Omit<ITaskStatusItemList, 'isSystem'>>,
+		Partial<Omit<ITaskStatusItemList, 'is_system'>> {}
+
+/**
+ * Default task statuses
+ */
+export enum TaskStatusEnum {
+	BACKLOG = 'backlog',
+	OPEN = 'open',
+	IN_PROGRESS = 'in-progress',
+	READY_FOR_REVIEW = 'ready-for-review',
+	IN_REVIEW = 'in-review',
+	BLOCKED = 'blocked',
+	DONE = 'done',
+	COMPLETED = 'completed',
+	CUSTOM = 'custom'
+}
+
+export interface TaskStatusWorkFlow {
+	isTodo?: boolean;
+	isInProgress?: boolean;
+	isDone?: boolean;
 }

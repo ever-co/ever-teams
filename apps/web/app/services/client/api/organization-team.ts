@@ -30,8 +30,8 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'projects',
-		'projects.customFields.repository'
+		'projects'
+		// 'projects.customFields.repository'
 	];
 	// Construct the query parameters including relations
 	const queryParameters = {
@@ -105,8 +105,8 @@ export async function getOrganizationTeamAPI(teamId: string, organizationId: str
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'projects',
-		'projects.customFields.repository'
+		'projects'
+		// 'projects.customFields.repository'
 	];
 
 	// Define base parameters including organization and tenant IDs, and date range
