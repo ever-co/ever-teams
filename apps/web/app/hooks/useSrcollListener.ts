@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 
-export function useSrcolListener() {
+export function useSrcollListener() {
     const [scrolling, setScrolling] = React.useState(false);
     React.useEffect(() => {
         const handleScroll = () => {
