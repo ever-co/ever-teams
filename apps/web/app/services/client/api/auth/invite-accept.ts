@@ -70,8 +70,8 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
-		'projects'
-		// 'projects.customFields.repository'
+		'projects',
+		'projects.customFields.repository'
 	];
 
 	// Construct search queries
