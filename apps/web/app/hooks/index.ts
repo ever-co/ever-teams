@@ -70,4 +70,5 @@ export * from './integrations/useIntegration';
 export * from './integrations/useIntegrationTenant';
 export * from './integrations/useIntegrationTypes';
 
+export * from './useLocalStorageState';
 export * from './useScrollListener';
