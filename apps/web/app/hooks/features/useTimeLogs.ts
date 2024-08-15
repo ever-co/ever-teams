@@ -6,9 +6,11 @@ import { useQuery } from '../useQuery';
 import { useCallback, useEffect } from 'react';
 import moment from 'moment';
 import { useFirstLoad } from '../useFirstLoad';
+import { useUserProfilePage } from '..';
 
 export function useTimeLogs() {
 	const { user } = useAuthenticateUser();
+	const profile = useUserProfilePage();
 
 	const { firstLoadData: firstLoadTimeLogs, firstLoad } = useFirstLoad();
 
@@ -23,9 +25,10 @@ export function useTimeLogs() {
 			queryTimerLogsDailyReport({
 				tenantId: user?.tenantId ?? '',
 				organizationId: user?.employee.organizationId ?? '',
-				employeeId: user?.employee.id ?? '',
+				employeeIds: [profile.member?.employeeId ?? ''],
 				startDate,
-				endDate
+				endDate,
+
 			})
 				.then((response) => {
 					if (response.data && Array.isArray(response.data)) {
@@ -37,11 +40,12 @@ export function useTimeLogs() {
 				});
 		},
 		[
+			profile.member?.employeeId,
 			queryTimerLogsDailyReport,
 			setTimerLogsDailyReport,
 			user?.employee.id,
 			user?.employee.organizationId,
-			user?.tenantId
+			user?.tenantId,
 		]
 	);
 
