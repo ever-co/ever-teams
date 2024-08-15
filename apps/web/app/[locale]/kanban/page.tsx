@@ -167,8 +167,8 @@ const Kanban = () => {
 										key={tab.name}
 										onClick={() => setActiveTab(tab.value)}
 										className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${activeTab === tab.value
-												? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-												: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
+											? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
+											: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
 											}`}
 										style={{
 											borderBottomWidth: '3px',
