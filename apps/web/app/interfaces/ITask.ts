@@ -109,7 +109,11 @@ export type ITaskStatus =
 	| 'completed'
 	| 'closed'
 	| 'in review'
-	| 'open';
+	| 'open'
+	| 'custom'
+	| 'ready-for-review'
+	| 'in-review'
+	| 'done';
 
 export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 
@@ -130,7 +134,8 @@ export type ITaskStatusField =
 	| 'epic'
 	| 'project'
 	| 'team'
-	| 'tags';
+	| 'tags'
+	| 'status type';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
@@ -140,6 +145,7 @@ export type ITaskStatusStack = {
 	issueType: ITaskIssue;
 	version: IVersionProperty;
 	epic: IEpicProperty;
+	'status type': any;
 	project: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
 	team: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
 	tags: any; //TODO: these types are not strings, but rather array of objects for tags. To reimplement

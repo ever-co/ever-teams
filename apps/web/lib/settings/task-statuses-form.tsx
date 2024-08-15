@@ -14,6 +14,7 @@ import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
 import SortTasksStatusSettings from '@components/pages/kanban/sort-tasks-status-settings';
+import { StandardTaskStatusDropDown } from 'lib/features';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -86,8 +87,9 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 					color: values.color,
 					// description: '',
 					organizationId: user?.employee?.organizationId,
-					tenantId: user?.tenantId,
-					icon: values.icon
+					tenantId: user?.tenantId ?? '',
+					icon: values.icon,
+					template: values.template
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
@@ -163,7 +165,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 									</Text>
 									<div
 										className={clsxm(
-											'flex w-full gap-x-5 items-center mt-3',
+											'flex w-full gap-x-5 items-stretch mt-3',
 											formOnly && ['flex-wrap space-y-2']
 										)}
 									>
@@ -174,7 +176,10 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
 										/>
-
+										<StandardTaskStatusDropDown
+											onValueChange={(status) => setValue('template', status)}
+											className="h-[53px] w-[265px]"
+										/>
 										<IconPopover
 											iconList={iconList}
 											setValue={setValue}
@@ -184,7 +189,6 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 													: null
 											}
 										/>
-
 										<ColorPicker
 											defaultColor={edit ? edit.color : undefined}
 											onChange={(color) => setValue('color', color)}
