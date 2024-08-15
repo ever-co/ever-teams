@@ -113,7 +113,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</MainLayout>
 			) : (
-				<MainLayout showTimer={headerSize <= 11.8 && profileIsAuthUser && isTrackingEnabled}>
+				<MainLayout showTimer={headerSize <= 11.8 && isTrackingEnabled || !profileIsAuthUser}>
 					<ResizablePanelGroup direction="vertical">
 						<ResizablePanel
 							defaultSize={30}
