@@ -5,7 +5,7 @@ import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from 'assets/svg';
 import { TimeInputField } from 'lib/components';
-import { MutableRefObject, useEffect } from 'react';
+import { MutableRefObject, useEffect, useRef } from 'react';
 
 type Props = {
 	_task?: Nullable<ITeamTask>;
@@ -42,9 +42,22 @@ export function TaskEstimate({
 	} = useTaskEstimation(_task);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
+	const hourRef = useRef<HTMLInputElement | null>(null);
+	const minRef = useRef<HTMLInputElement | null>(null);
 
 	useEffect(() => {
 		!editableMode && onCloseEditionRef.current && onCloseEditionRef.current();
+
+		if (editableMode) {
+			if (value['hours']) {
+				hourRef.current?.focus();
+			} else if (value['minutes']) {
+				minRef.current?.focus();
+			} else {
+				hourRef.current?.focus();
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editableMode, onCloseEditionRef]);
 
 	useEffect(() => {
@@ -60,6 +73,7 @@ export function TaskEstimate({
 	return (
 		<div className={clsxm('flex items-center space-x-1', className)} ref={targetEl}>
 			<TimeInputField
+				ref={hourRef}
 				value={value['hours']}
 				onChange={onChange('hours')}
 				onKeyUp={(e) => {
@@ -91,6 +105,7 @@ export function TaskEstimate({
 				) : null
 			) : null}
 			<TimeInputField
+				ref={minRef}
 				value={value['minutes']}
 				onChange={onChange('minutes')}
 				onKeyUp={(e) => {
