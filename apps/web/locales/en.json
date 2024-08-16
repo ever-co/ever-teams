@@ -365,6 +365,7 @@
 			"TASK_LABELS": "Task Labels",
 			"ISSUE_TYPES": "Issue Types",
 			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
+			"NO_DEFAULT_ISSUE_TYPE": "No Default Issue Type",
 			"RELATED_TYPE": "Related Type",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Create new Statuses",
