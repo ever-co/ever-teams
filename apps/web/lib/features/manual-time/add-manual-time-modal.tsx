@@ -261,8 +261,8 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 								</label>
 								<SelectItems
 									items={activeTeam?.members ?? []}
-									onValueChange={(member) => setMemberId(member ? member.id : '')}
-									itemId={(member) => (member ? member.id : '')}
+									onValueChange={(member) => setMemberId(member ? member.id : memberId)}
+									itemId={(member) => (member ? member.id : memberId)}
 									itemToString={(member) => (member ? member.employee.fullName : '')}
 									triggerClassName="border-gray-300 dark:border-slate-600"
 								/>
