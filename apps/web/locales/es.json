@@ -150,6 +150,7 @@
 		"CANCEL": "Cancelar",
 		"DISCARD": "Descartar",
 		"EXISTING_MEMBER": "Ya es miembro",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "Dirección de correo electrónico del miembro del equipo",
 		"NEW_MEMBER": "Convertirse en miembro",
 		"BACK": "Atrás",
 		"JOIN_REQUEST": "Solicitud para unirse",

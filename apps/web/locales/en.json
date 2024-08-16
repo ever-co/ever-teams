@@ -149,6 +149,7 @@
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a Member",
 		"NEW_MEMBER": "Become a Member",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "Team member email address",
 		"BACK": "Back",
 		"DONT_HAVE_ACCOUNT": "Don't have an account?",
 		"REGISTER": "Register Now!",

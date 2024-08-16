@@ -150,6 +150,7 @@
 		"CANCEL": "إلغاء",
 		"DISCARD": "تجاهل",
 		"EXISTING_MEMBER": "عضو بالفعل",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "عنوان البريد الإلكتروني لعضو الفريق",
 		"NEW_MEMBER": "أصبح عضوًا",
 		"BACK": "رجوع",
 		"JOIN_REQUEST": "طلب الانضمام",

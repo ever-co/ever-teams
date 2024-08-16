@@ -150,6 +150,7 @@
 		"CANCEL": "בטל",
 		"DISCARD": "בטל",
 		"EXISTING_MEMBER": "כבר חבר",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "כתובת אימייל של חבר צוות",
 		"NEW_MEMBER": "הפוך לחבר",
 		"BACK": "חזור",
 		"JOIN_REQUEST": "בקש הצטרפות",

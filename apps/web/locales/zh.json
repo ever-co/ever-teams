@@ -150,6 +150,7 @@
 		"CANCEL": "取消",
 		"DISCARD": "放弃",
 		"EXISTING_MEMBER": "已是成员",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "团队成员电子邮件地址",
 		"NEW_MEMBER": "成为成员",
 		"BACK": "返回",
 		"JOIN_REQUEST": "请求加入",
