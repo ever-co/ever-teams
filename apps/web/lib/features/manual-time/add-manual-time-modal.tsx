@@ -45,6 +45,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const [team, setTeam] = useState<IOrganizationTeamList>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
+	const [memberId, setMemberId] = useState<string>('')
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
 
@@ -259,11 +260,10 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 									Employee<span className="text-[#de5505e1] ml-1">*</span>
 								</label>
 								<SelectItems
-									defaultValue={activeTeamTask}
-									items={tasks}
-									onValueChange={(task) => setTaskId(task ? task.id : '')}
-									itemId={(task) => (task ? task.id : '')}
-									itemToString={(task) => (task ? task.title : '')}
+									items={activeTeam?.members ?? []}
+									onValueChange={(member) => setMemberId(member ? member.id : '')}
+									itemId={(member) => (member ? member.id : '')}
+									itemToString={(member) => (member ? member.employee.fullName : '')}
 									triggerClassName="border-gray-300 dark:border-slate-600"
 								/>
 							</div>
