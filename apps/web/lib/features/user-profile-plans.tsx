@@ -500,10 +500,14 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 }
 
 export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
+	const t = useTranslations()
+
 	return (
 		<div className="xl:mt-20">
 			<NoData
-				text={`No task planned ${planMode === 'Today Tasks' ? 'today' : ''}`}
+				text={planMode == 'Today Tasks' ?
+					t('dailyPlan.NO_TASK_PLANNED_TODAY') :
+					t('dailyPlan.NO_TASK_PLANNED')}
 				component={<ReaderIcon className="w-14 h-14" />}
 			/>
 		</div>

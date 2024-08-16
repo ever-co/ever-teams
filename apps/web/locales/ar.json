@@ -589,6 +589,8 @@
 		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة",
 		"CREATE_A_PLAN_FOR_TODAY": "إنشاء خطة لليوم",
 		"TODAY_PLAN_SUB_TITLE": "لا توجد خطة لليوم",
+		"NO_TASK_PLANNED": "لم يتم التخطيط لأي مهمة",
+		"NO_TASK_PLANNED_TODAY": "لم يتم التخطيط لأي مهمة اليوم",
 		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟"
 	},

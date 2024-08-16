@@ -589,6 +589,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Remove from this plan",
 		"CREATE_A_PLAN_FOR_TODAY": "Create a Plan for Today",
 		"TODAY_PLAN_SUB_TITLE": " There is no plan for Today",
+		"NO_TASK_PLANNED": "No task planned",
+		"NO_TASK_PLANNED_TODAY": "No task planned Today",
 		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?"
 	},

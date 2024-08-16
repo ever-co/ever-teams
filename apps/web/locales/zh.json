@@ -589,6 +589,8 @@
 		"REMOVE_FROM_THIS_PLAN": "从计划中移除",
 		"CREATE_A_PLAN_FOR_TODAY": "为今天制定计划",
 		"TODAY_PLAN_SUB_TITLE": "今天没有计划",
+		"NO_TASK_PLANNED": "没有计划任务",
+		"NO_TASK_PLANNED_TODAY": "今天没有计划任务",
 		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？"
 	},

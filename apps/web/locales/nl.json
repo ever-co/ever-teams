@@ -589,6 +589,8 @@
 		"REMOVE_FROM_THIS_PLAN": "Verwijder uit dit plan",
 		"CREATE_A_PLAN_FOR_TODAY": "Maak een plan voor vandaag",
 		"TODAY_PLAN_SUB_TITLE": "Er is geen plan voor vandaag",
+		"NO_TASK_PLANNED": "Geen taak gepland",
+		"NO_TASK_PLANNED_TODAY": "Geen taak gepland voor vandaag",
 		"DAILY_PLAN_DESCRIPTION": "'Dagelijkse planning' helpt om het werkproces te organiseren om de beste resultaten te behalen",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Diese Aufgabe war für den heutigen Plan nicht vorgesehen. Möchten Sie den Plan ergänzen?"
 	},

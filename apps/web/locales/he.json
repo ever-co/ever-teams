@@ -589,6 +589,8 @@
 		"REMOVE_FROM_THIS_PLAN": "הסר מתוכנית זו",
 		"CREATE_A_PLAN_FOR_TODAY": "צור תוכנית להיום",
 		"TODAY_PLAN_SUB_TITLE": "אין תוכנית להיום",
+		"NO_TASK_PLANNED": "אין משימה מתוכננת",
+		"NO_TASK_PLANNED_TODAY": "אין משימה מתוכננת להיום",
 		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?"
 	},
