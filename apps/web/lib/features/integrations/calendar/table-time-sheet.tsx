@@ -210,7 +210,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
         cell: ({ row }) => {
 
             return (
-                <TaskActionMenu id={row?.original?.id} />
+                <TaskActionMenu idTasks={row?.original?.id} />
             );
         },
     },
@@ -367,7 +367,7 @@ function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
                 return "text-orange-500 border-orange-500";
             default:
                 return "text-gray-500 border-gray-200";
-        };
+        }
 
 
     };
@@ -418,7 +418,9 @@ function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
     );
 }
 
-const TaskActionMenu = ({ id }: { id: number }) => {
+const TaskActionMenu = ({ idTasks }: { idTasks: any }) => {
+    const handleCopyPaymentId = () => navigator.clipboard.writeText(idTasks);
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -429,7 +431,7 @@ const TaskActionMenu = ({ id }: { id: number }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopyPaymentId}>
                     Copy payment ID
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
