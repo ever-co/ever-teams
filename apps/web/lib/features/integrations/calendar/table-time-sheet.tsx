@@ -13,7 +13,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ArrowUpDownIcon, MoreHorizontal } from "lucide-react"
+import { ArrowUpDownIcon, MoreHorizontal } from "lucide-react"
 import { Button } from "@components/ui/button"
 import {
     DropdownMenu,
