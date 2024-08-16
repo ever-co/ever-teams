@@ -599,6 +599,8 @@
 		"LEFT": "Restant",
 		"COMPLETION": "Achèvement",
 		"PLANNED_TASKS": "Tâche planifiées",
+		"ESTIMATED": "Estimé",
+		"TOTAL_TASK": "Tâches totales",
 		"DAILY_PLAN_DESCRIPTION": "'Plan quotidien' aide à organiser le processus de travail pour obtenir les meilleurs résultats",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Cette tâche n'était pas prévue dans le planning d'aujourd'hui. Souhaitez-vous l'ajouter au planning ?"
 	},

@@ -599,6 +599,8 @@
 		"LEFT": "剩余",
 		"COMPLETION": "完成度",
 		"PLANNED_TASKS": "计划任务",
+		"ESTIMATED": "预计",
+		"TOTAL_TASK": "总任务",
 		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？"
 	},

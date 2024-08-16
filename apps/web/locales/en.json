@@ -599,6 +599,8 @@
 		"LEFT": "Left",
 		"COMPLETION": "Completion",
 		"PLANNED_TASKS": "Planned task",
+		"ESTIMATED": "Estimated",
+		"TOTAL_TASK": "Total tasks",
 		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?"
 	},

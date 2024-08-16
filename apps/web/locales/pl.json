@@ -599,6 +599,8 @@
 		"LEFT": "Pozostało",
 		"COMPLETION": "Ukończenie",
 		"PLANNED_TASKS": "Planowane zadanie",
+		"ESTIMATED": "Szacowany",
+		"TOTAL_TASK": "Łączna liczba zadań",
 		"DAILY_PLAN_DESCRIPTION": "'Plan dnia' pomaga zorganizować proces pracy, aby osiągnąć najlepsze wyniki",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "To zadanie nie było zaplanowane na dzisiejszy plan. Czy chcesz dodać do planu?"
 	},
