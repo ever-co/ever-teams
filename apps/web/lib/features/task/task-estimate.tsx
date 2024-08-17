@@ -10,6 +10,7 @@ import { MutableRefObject, useEffect, useRef } from 'react';
 type Props = {
 	_task?: Nullable<ITeamTask>;
 	onCloseEdition?: () => void;
+	onOpenEdition?: () => void;
 	className?: string;
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
@@ -20,6 +21,7 @@ type Props = {
 export function TaskEstimate({
 	_task,
 	onCloseEdition,
+	onOpenEdition,
 	className,
 	loadingRef,
 	closeable_fc,
@@ -41,6 +43,7 @@ export function TaskEstimate({
 		setEditableMode
 	} = useTaskEstimation(_task);
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);
+	const onOpenEditionRef = useCallbackRef(onOpenEdition);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 	const hourRef = useRef<HTMLInputElement | null>(null);
 	const minRef = useRef<HTMLInputElement | null>(null);
@@ -49,6 +52,7 @@ export function TaskEstimate({
 		!editableMode && onCloseEditionRef.current && onCloseEditionRef.current();
 
 		if (editableMode) {
+			onOpenEditionRef.current && onOpenEditionRef.current();
 			if (value['hours']) {
 				hourRef.current?.focus();
 			} else if (value['minutes']) {
@@ -138,7 +142,12 @@ export function TaskEstimate({
 								<TickSaveIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
 							</button>
 						) : (
-							<button onClick={() => setEditableMode(true)}>
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									setEditableMode(true);
+								}}
+							>
 								<EditPenBoxIcon className={clsxm('lg:h-4 lg:w-4 w-2 h-2 mx-2')} />
 							</button>
 						)
