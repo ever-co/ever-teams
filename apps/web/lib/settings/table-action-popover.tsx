@@ -13,7 +13,7 @@ type Props = {
 	member: OT_Member;
 	role?: OT_Role
 	handleEdit?: (member: OT_Member) => void;
-	status?: 'settings' | 'profils'
+	status?: 'settings' | 'profile'
 };
 /**
  *
@@ -51,7 +51,7 @@ export const TableActionPopover = ({ member, role, handleEdit, status }: Props) 
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className={`z-10 absolute ${status === 'profils' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}>
+						<Popover.Panel className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}>
 							{/* TODO Dynamic */}
 							{/* Edit */}
 							{status === 'settings' && <div
@@ -132,7 +132,7 @@ export const TableActionPopover = ({ member, role, handleEdit, status }: Props) 
 							</div>}
 						</Popover.Panel>
 					</Transition>
-					{(status === 'settings' || (status === 'profils' && role?.name === 'MANAGER' && member.role?.name !== 'MANAGER')) && (
+					{(status === 'settings' || (status === 'profile' && role?.name === 'MANAGER' && member.role?.name !== 'MANAGER')) && (
 						<Popover.Button className="w-full mt-2 outline-none">
 							<ThreeCircleOutlineHorizontalIcon className="w-6 text-[#292D32] relative dark:text-white" strokeWidth="2.5" />
 						</Popover.Button>

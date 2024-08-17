@@ -255,7 +255,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>
 					<div className='h-8  w-8'>
-						<TableActionPopover role={activeTeamManagers[0]?.role} member={member!} status='profils' />
+						<TableActionPopover role={activeTeamManagers[0]?.role} member={member!} status='profile' />
 					</div>
 				</div>
 				<Text className="text-lg text-gray-500">{user?.email}</Text>
