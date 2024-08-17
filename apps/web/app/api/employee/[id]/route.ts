@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
     const res = new NextResponse();
     const { id } = params;
-    if (id) {
+    if (!id) {
         return
     }
     const { $res, user, access_token } = await authenticatedGuard(req, res);
