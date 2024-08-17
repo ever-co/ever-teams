@@ -1,6 +1,6 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
-import { useSettings } from '@app/hooks';
+import { useOrganizationTeams, useSettings } from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { OT_Member, OT_Role } from '@app/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
@@ -21,6 +21,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<OT_Member>(members);
 	const { updateAvatar } = useSettings();
+	const { activeTeamManagers } = useOrganizationTeams();
 
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 	const [organizationTeams, setOrganizationTeams] = useRecoilState(organizationTeamsState);
@@ -28,7 +29,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const handleEdit = (member: OT_Member) => {
 		setEditMember(member);
 	};
-
 	const handelNameChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
 			const name = event.target.value || '';
@@ -210,7 +210,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									<MemberTableStatus status={member.employee.isActive ? 'Member' : 'Suspended'} />
 								</td>
 								<td className="flex items-center justify-center py-4">
-									<TableActionPopover member={member} handleEdit={handleEdit} />
+									<TableActionPopover role={activeTeamManagers[0].role} member={member} handleEdit={handleEdit} />
 								</td>
 							</tr>
 						))}

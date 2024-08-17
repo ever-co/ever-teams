@@ -1,10 +1,11 @@
-import { getWorkingEmployeesAPI } from '@app/services/client/api';
+import { getWorkingEmployeesAPI, updateEmployeeAPI } from '@app/services/client/api';
 import { workingEmployeesEmailState, workingEmployeesState } from '@app/stores/employee';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { IUpdateEmployee } from '@app/interfaces';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();
@@ -39,3 +40,19 @@ export const useEmployee = () => {
 		workingEmployeesEmail
 	};
 };
+
+
+export const useEmployeeUpdate = () => {
+	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(updateEmployeeAPI);
+
+	const updateEmployee = useCallback(({ id, data
+	}: { id: string, data: IUpdateEmployee }) => {
+		employeeUpdateQuery({ id, data })
+			.then((res) => res.data)
+			.catch((error) => {
+				console.log(error);
+			});
+	}, []);
+
+	return { updateEmployee, isLoading }
+}
