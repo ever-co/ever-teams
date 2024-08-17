@@ -620,15 +620,16 @@ function TaskCardMenu({
 														/>
 													</li>
 												)}
-
-												<li className="mb-2">
-													<PlanTask
-														planMode="tomorow"
-														taskId={task.id}
-														employeeId={profile?.member?.employeeId ?? ''}
-														taskPlannedForTomorrow={taskPlannedTomorrow}
-													/>
-												</li>
+												{!taskPlannedTomorrow && (
+													<li className="mb-2">
+														<PlanTask
+															planMode="tomorow"
+															taskId={task.id}
+															employeeId={profile?.member?.employeeId ?? ''}
+															taskPlannedForTomorrow={taskPlannedTomorrow}
+														/>
+													</li>
+												)}
 												<li className="mb-2">
 													<PlanTask
 														planMode="custom"
@@ -774,7 +775,7 @@ export function PlanTask({
 				)}
 				{planMode === 'tomorow' && !taskPlannedForTomorrow && (
 					<span>
-						{isPending ? (
+						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TOMORROW')
