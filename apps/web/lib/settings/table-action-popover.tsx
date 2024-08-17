@@ -12,13 +12,14 @@ import { useEmployeeUpdate } from '@app/hooks/features/useEmployee';
 type Props = {
 	member: OT_Member;
 	role?: OT_Role
-	handleEdit: (member: OT_Member) => void;
+	handleEdit?: (member: OT_Member) => void;
+	status?: 'settings' | 'profils'
 };
 /**
  *
  *
  */
-export const TableActionPopover = ({ member, role, handleEdit }: Props) => {
+export const TableActionPopover = ({ member, role, handleEdit, status }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
@@ -36,6 +37,7 @@ export const TableActionPopover = ({ member, role, handleEdit }: Props) => {
 	// const handleClick = () => {
 	// 	setIsOpen(!isOpen);
 	// };
+
 	return (
 		<Popover className="w-full relative no-underline border-none">
 			{() => (
@@ -49,19 +51,19 @@ export const TableActionPopover = ({ member, role, handleEdit }: Props) => {
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className="z-10 absolute right-10 bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]">
+						<Popover.Panel className={`z-10 absolute ${status === 'profils' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}>
 							{/* TODO Dynamic */}
 							{/* Edit */}
-							<div
+							{status === 'settings' && <div
 								className="flex items-center w-auto h-8 hover:cursor-pointer"
 								onClick={() => {
-									handleEdit(member);
+									handleEdit && handleEdit(member);
 								}}
 							>
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									{t('common.EDIT')}
 								</span>
-							</div>
+							</div>}
 
 							{/* TODO Dynamic */}
 							{/* Change Role */}
@@ -119,7 +121,7 @@ export const TableActionPopover = ({ member, role, handleEdit }: Props) => {
 							</div> */}
 
 							{/* Delete */}
-							<div
+							{status === 'settings' && <div
 								className={`flex items-center h-8 w-auto ${!isCurrentUser ? 'hover:cursor-pointer' : ''
 									}`}
 								onClick={isCurrentUser ? () => undefined : () => openModal()}
@@ -127,12 +129,14 @@ export const TableActionPopover = ({ member, role, handleEdit }: Props) => {
 								<span className={`${!isCurrentUser ? 'text-[#E27474]' : ''} text-xs font-semibold`}>
 									{t('common.DELETE')}
 								</span>
-							</div>
+							</div>}
 						</Popover.Panel>
 					</Transition>
-					<Popover.Button className="w-full mt-2 outline-none">
-						<ThreeCircleOutlineHorizontalIcon className="w-6 text-[#292D32] relative dark:text-white" strokeWidth="2.5" />
-					</Popover.Button>
+					{(status === 'settings' || (status === 'profils' && role?.name === 'MANAGER' && member.role?.name !== 'MANAGER')) && (
+						<Popover.Button className="w-full mt-2 outline-none">
+							<ThreeCircleOutlineHorizontalIcon className="w-6 text-[#292D32] relative dark:text-white" strokeWidth="2.5" />
+						</Popover.Button>
+					)}
 					<ConfirmationModal
 						open={isOpen}
 						close={closeModal}
