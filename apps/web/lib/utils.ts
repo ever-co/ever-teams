@@ -72,8 +72,6 @@ export function checkPastDate(dateToBeChecked?: Date): boolean {
 		date.setHours(0, 0, 0, 0);
 		todayDate.setHours(0, 0, 0, 0);
 
-		console.log(todayDate, date);
-
 		return todayDate > date;
 	} else {
 		return false; // Return false if dateToBeChecked is not provided or is null or undefined.
