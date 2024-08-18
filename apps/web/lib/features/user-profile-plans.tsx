@@ -96,7 +96,7 @@ export function UserProfilePlans() {
 	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
 
 	return (
-		<div className="">
+		<div ref={profile.loadTaskStatsIObserverRef}>
 			<Container fullWidth={fullWidth} className="pb-8 mb-5">
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (

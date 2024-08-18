@@ -147,6 +147,7 @@ export function UserTeamCard({
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
+			ref={profile.loadTaskStatsIObserverRef}
 		>
 			<Card
 				shadow="bigger"
@@ -256,8 +257,8 @@ export function UserTeamCard({
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{userDetailAccordion == memberInfo.memberUser?.id &&
-					memberInfo.memberUser.id == profile.userProfile?.id &&
-					!showActivity ? (
+				memberInfo.memberUser.id == profile.userProfile?.id &&
+				!showActivity ? (
 					<div className="h-96 overflow-y-auto">
 						{canSeeActivity && (
 							<Container fullWidth={fullWidth} className="py-8">

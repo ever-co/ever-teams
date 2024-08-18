@@ -40,6 +40,7 @@ export function useTaskTimeSheets(id: string) {
 	return {
 		taskTimesheets,
 		getTaskTimesheets,
-		loading
+		loading,
+		loadTaskStatsIObserverRef: profile.loadTaskStatsIObserverRef
 	};
 }

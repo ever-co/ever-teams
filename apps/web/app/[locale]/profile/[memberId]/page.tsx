@@ -93,7 +93,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<>
 			{Array.isArray(members) && members.length && !profile.member ? (
 				<MainLayout>
-					<div className=" absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2">
+					<div
+						ref={profile.loadTaskStatsIObserverRef}
+						className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
+					>
 						<div className="flex flex-col justify-center items-center gap-5">
 							<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 								{t('common.MEMBER')} {t('common.NOT_FOUND')}!
@@ -113,7 +116,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</MainLayout>
 			) : (
-				<MainLayout showTimer={headerSize <= 11.8 && isTrackingEnabled || !profileIsAuthUser}>
+				<MainLayout showTimer={(headerSize <= 11.8 && isTrackingEnabled) || !profileIsAuthUser}>
 					<ResizablePanelGroup direction="vertical">
 						<ResizablePanel
 							defaultSize={30}

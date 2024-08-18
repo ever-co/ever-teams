@@ -2,14 +2,14 @@
 
 import { ITeamTask } from '@app/interfaces';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
-import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 import { useRecoilValue } from 'recoil';
 import { userDetailAccordion } from '@app/stores';
+import { useGetTasksStatsData } from './useGetTasksStatsData';
 
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
@@ -17,7 +17,6 @@ export function useUserProfilePage() {
 	const userMemberId = useRecoilValue(userDetailAccordion);
 
 	const { user: auth } = useAuthenticateUser();
-	const { getTasksStatsData } = useTaskStatistics();
 	const params = useParams();
 	const memberId: string = useMemo(() => {
 		return (params?.memberId ?? userMemberId) as string;
@@ -36,17 +35,12 @@ export function useUserProfilePage() {
 
 	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
 
-	const employeeId = isAuthUser ? auth?.employee?.id : matchUser?.employeeId;
-
 	/* Filtering the tasks */
 	const tasksGrouped = useAuthTeamTasks(userProfile);
 
-	useEffect(() => {
-		if (employeeId) {
-			getTasksStatsData(employeeId);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [employeeId]);
+	const employeeId = isAuthUser ? auth?.employee?.id : matchUser?.employeeId;
+
+	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
 		(task: ITeamTask) => {
@@ -68,7 +62,8 @@ export function useUserProfilePage() {
 		userProfile,
 		tasksGrouped,
 		member: matchUser,
-		assignTask
+		assignTask,
+		loadTaskStatsIObserverRef
 	};
 }
 
