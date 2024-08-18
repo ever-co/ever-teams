@@ -1,6 +1,6 @@
-import { useAuthenticateUser, useModal, useTMCardTaskEdit, useTeamMemberCard } from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useTMCardTaskEdit, useTeamMemberCard } from '@app/hooks';
 import { useRoles } from '@app/hooks/features/useRoles';
-import { OT_Member, OT_Role } from '@app/interfaces';
+import { OT_Member, RoleNameEnum } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
 import { Fragment, useEffect } from 'react';
@@ -11,7 +11,6 @@ import { useEmployeeUpdate } from '@app/hooks/features/useEmployee';
 
 type Props = {
 	member: OT_Member;
-	role?: OT_Role
 	handleEdit?: (member: OT_Member) => void;
 	status?: 'settings' | 'profile'
 };
@@ -19,10 +18,12 @@ type Props = {
  *
  *
  */
-export const TableActionPopover = ({ member, role, handleEdit, status }: Props) => {
+export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	const { activeTeamManagers } = useOrganizationTeams();
+
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { onRemoveMember } = useDropdownAction({
@@ -34,10 +35,10 @@ export const TableActionPopover = ({ member, role, handleEdit, status }: Props) 
 	const { isOpen, openModal, closeModal } = useModal();
 
 	const isCurrentUser = user?.employee.id === memberInfo.member?.employeeId;
+	const isManager = activeTeamManagers.findIndex((member) => member.employee.user?.id === user?.id);
 	// const handleClick = () => {
 	// 	setIsOpen(!isOpen);
 	// };
-
 	return (
 		<Popover className="w-full relative no-underline border-none">
 			{() => (
@@ -73,7 +74,7 @@ export const TableActionPopover = ({ member, role, handleEdit, status }: Props) 
 								</span>
 							</div> */}
 							<RolePopover />
-							{role?.name === 'MANAGER' && member.role?.name !== 'MANAGER' &&
+							{isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER &&
 								<div className=" flex justify-between items-center gap-x-2">
 									<span>Time tracking</span>
 									<div
@@ -132,7 +133,7 @@ export const TableActionPopover = ({ member, role, handleEdit, status }: Props) 
 							</div>}
 						</Popover.Panel>
 					</Transition>
-					{(status === 'settings' || (status === 'profile' && role?.name === 'MANAGER' && member.role?.name !== 'MANAGER')) && (
+					{(status === 'settings' || (status === 'profile' && isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER)) && (
 						<Popover.Button className="w-full mt-2 outline-none">
 							<ThreeCircleOutlineHorizontalIcon className="w-6 text-[#292D32] relative dark:text-white" strokeWidth="2.5" />
 						</Popover.Button>

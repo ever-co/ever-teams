@@ -195,12 +195,13 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
+
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
 	const size = 100;
 	const { timerStatus } = useTimer();
-	const { activeTeamManagers } = useOrganizationTeams();
+	// const isManager = activeTeamManagers.find((member) => member.employee.user?.id === member?.employee.user?.id);
 	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, false);
 	}, [timerStatus, member]);
@@ -255,7 +256,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>
 					<div className='h-8  w-8'>
-						<TableActionPopover role={activeTeamManagers[0]?.role} member={member!} status='profile' />
+						<TableActionPopover member={member!} status='profile' />
 					</div>
 				</div>
 				<Text className="text-lg text-gray-500">{user?.email}</Text>
