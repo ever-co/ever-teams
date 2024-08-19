@@ -41,16 +41,14 @@ type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
 	const t = useTranslations();
-	const defaultTab =
-		typeof window !== 'undefined'
-			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
-			: 'Today Tasks';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
-	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
+
+	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
+
 
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
@@ -366,6 +364,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
+	const t = useTranslations()
 	// Get all tasks's estimations time
 	// Helper function to sum times
 	const sumTimes = (tasks: ITeamTask[], key: any) =>
@@ -398,7 +397,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 				{!editTime && !updateDailyPlanLoading ? (
 					<>
 						<div>
-							<span className="font-medium">Planned time: </span>
+							<span className="font-medium">{t('dailyPlan.PLANNED_TIME')} : </span>
 							<span className="font-semibold">{formatIntegerToHour(plan.workTimePlanned)}</span>
 						</div>
 						{(!checkPastDate(plan.date) || isTeamManager) && (
@@ -439,7 +438,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			<VerticalSeparator className="h-10" />
 
 			<div className="flex items-center gap-2">
-				<span className="font-medium">Estimated time: </span>
+				<span className="font-medium">{t('dailyPlan.ESTIMATED_TIME')} : </span>
 				<span className="font-semibold">{formatIntegerToHour(estimatedTime / 3600)}</span>
 			</div>
 
@@ -448,7 +447,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{/* Total worked time for the plan */}
 			{planMode !== 'Future Tasks' && (
 				<div className="flex items-center gap-2">
-					<span className="font-medium">Total time worked: </span>
+					<span className="font-medium">{t('dailyPlan.TOTAL_TIME_WORKED')} : </span>
 					<span className="font-semibold">{formatIntegerToHour(totalWorkTime / 3600)}</span>
 				</div>
 			)}
@@ -459,15 +458,15 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{planMode !== 'Future Tasks' && (
 				<div>
 					<div className="flex items-center gap-2">
-						<span className="font-medium">Completed tasks: </span>
+						<span className="font-medium">{t('dailyPlan.COMPLETED_TASKS')} : </span>
 						<span className="font-medium">{`${completedTasks}/${totalTasks}`}</span>
 					</div>
 					<div className="flex items-center gap-2">
-						<span className="font-medium">Ready: </span>
+						<span className="font-medium">{t('dailyPlan.READY')}: </span>
 						<span className="font-medium">{readyTasks}</span>
 					</div>
 					<div className="flex items-center gap-2">
-						<span className="font-medium">Left: </span>
+						<span className="font-medium">{t('dailyPlan.LEFT')}: </span>
 						<span className="font-semibold">{totalTasks - completedTasks - readyTasks}</span>
 					</div>
 				</div>
@@ -479,7 +478,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{planMode !== 'Future Tasks' && (
 				<div className="flex flex-col gap-3">
 					<div className="flex items-center gap-2">
-						<span className="font-medium">Completion: </span>
+						<span className="font-medium">{t('dailyPlan.COMPLETION')}: </span>
 						<span className="font-semibold">{completionPercent}%</span>
 					</div>
 					<ProgressBar progress={`${completionPercent || 0}%`} showPercents={false} width="100%" />
@@ -490,7 +489,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{planMode === 'Future Tasks' && (
 				<div>
 					<div className="flex items-center gap-2">
-						<span className="font-medium">Planned tasks: </span>
+						<span className="font-medium">{t('dailyPlan.PLANNED_TASKS')}: </span>
 						<span className="font-semibold">{totalTasks}</span>
 					</div>
 				</div>
@@ -500,10 +499,14 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 }
 
 export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
+	const t = useTranslations()
+
 	return (
 		<div className="xl:mt-20">
 			<NoData
-				text={`No task planned ${planMode === 'Today Tasks' ? 'today' : ''}`}
+				text={planMode == 'Today Tasks' ?
+					t('dailyPlan.NO_TASK_PLANNED_TODAY') :
+					t('dailyPlan.NO_TASK_PLANNED')}
 				component={<ReaderIcon className="w-14 h-14" />}
 			/>
 		</div>

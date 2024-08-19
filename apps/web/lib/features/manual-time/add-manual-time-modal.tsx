@@ -152,7 +152,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-4">
 				<div className="flex flex-col">
 					<label className="block text-gray-500 mb-1">
-						Date<span className="text-[#de5505e1] ml-1">*</span>
+						{t('manualTime.DATE')}<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
 					<DatePicker
 						buttonVariant={'link'}
@@ -167,7 +167,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 										"w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent",
 										!date && "text-muted-foreground"
 									)}>
-									{date ? format(date, "PPP") : <span>Pick a date</span>}
+									{date ? format(date, "PPP") : <span>{t('manualTime.PICK_A_DATE')}</span>}
 								</Button>
 							</>
 						}
@@ -198,7 +198,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
 						<label className="block text-gray-500 mb-1">
-							Start time<span className="text-[#de5505e1] ml-1">*</span>
+							{t('manualTime.START_TIME')}<span className="text-[#de5505e1] ml-1">*</span>
 						</label>
 						<input
 							type="time"
@@ -211,7 +211,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 					<div className=" w-[48%]">
 						<label className="block text-gray-500 mb-1">
-							End time<span className="text-[#de5505e1] ml-1">*</span>
+							{t('manualTime.END_TIME')}<span className="text-[#de5505e1] ml-1">*</span>
 						</label>
 
 						<input
@@ -225,7 +225,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 				</div>
 
 				<div className=" flex items-center">
-					<label className="block text-primary mb-1">{`${params === 'AddManuelTime' ? 'Total hours' : 'Added hours'}`}: </label>
+					<label className="block text-primary mb-1">{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}: </label>
 					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
 						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
 							<IoTime
@@ -239,7 +239,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 				<div className="">
 					<label className="block text-gray-500 mb-1">
-						Team<span className="text-[#de5505e1] ml-1">*</span>
+						{t('manualTime.TEAM')}<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
 					<SelectItems
 						defaultValue={activeTeam!}
@@ -257,7 +257,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 							<div className="">
 								<label className="block text-gray-500 mb-1">
-									Employee<span className="text-[#de5505e1] ml-1">*</span>
+									{t('manualTime.EMPLOYEE')}<span className="text-[#de5505e1] ml-1">*</span>
 								</label>
 								<SelectItems
 									items={activeTeam?.members ?? []}
@@ -270,7 +270,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 							<div className="">
 								<label className="block text-gray-500 mb-1">
-									Task<span className="text-[#de5505e1] ml-1">*</span>
+									{t('manualTime.TASK')}<span className="text-[#de5505e1] ml-1">*</span>
 								</label>
 								<SelectItems
 									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
@@ -282,7 +282,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 								/>
 							</div>
 							<div className="flex flex-col">
-								<label className="block text-gray-500 shrink-0">Description (optional)</label>
+								<label className="block text-gray-500 shrink-0">{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})</label>
 								<textarea
 									value={description}
 									placeholder="What did you worked on..."
@@ -296,7 +296,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 							<div className="">
 								<label className="block text-gray-500 mb-1">
-									Task<span className="text-[#de5505e1] ml-1">*</span>
+									{t('manualTime.TASK')}<span className="text-[#de5505e1] ml-1">*</span>
 								</label>
 								<SelectItems
 									defaultValue={activeTeamTask}
@@ -309,7 +309,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							</div>
 
 							<div className="flex flex-col">
-								<label className="block text-gray-500 shrink-0">Description (optional)</label>
+								<label className="block text-gray-500 shrink-0">{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})</label>
 								<textarea
 									value={description}
 									placeholder="What worked on? "
@@ -319,7 +319,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							</div>
 
 							<div className="">
-								<label className="block text-gray-500 mb-1">Reason (optional)</label>
+								<label className="block text-gray-500 mb-1">{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})</label>
 								<SelectItems
 									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
 									onValueChange={(reason) => setReason(reason)}

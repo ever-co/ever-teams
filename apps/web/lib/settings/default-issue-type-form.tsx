@@ -139,7 +139,7 @@ export const DefaultIssueTypeForm = () => {
 									</div>
 								) : (
 									<StatusesListCard
-										statusTitle={'No Default Issue Type'}
+										statusTitle={t('pages.settingsTeam.NO_DEFAULT_ISSUE_TYPE')}
 										bgColor={''}
 										statusIcon={''}
 										showDeleteButton={false}
