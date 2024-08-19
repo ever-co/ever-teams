@@ -57,6 +57,7 @@ export interface IEmployee {
 }
 
 export type ICreateEmployee = Pick<IEmployee, 'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'>;
+export type IUpdateEmployee = Pick<IEmployee, 'id' | 'isTrackingEnabled' | 'organizationId' | 'tenantId' | 'isActive'>
 
 export interface IRole {
 	id?: string;

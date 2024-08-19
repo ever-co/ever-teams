@@ -271,6 +271,26 @@ export function useDailyPlan() {
 		return planDate.getTime() < today.getTime();
 	});
 
+	const todayPlan =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items].filter((plan) =>
+			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+		);
+
+	const todayTasks = todayPlan
+		.map((plan) => {
+			return plan.tasks ? plan.tasks : [];
+		})
+		.flat();
+
+	const futureTasks =
+		futurePlans &&
+		futurePlans
+			.map((plan) => {
+				return plan.tasks ? plan.tasks : [];
+			})
+			.flat();
+
 	const outstandingPlans =
 		profileDailyPlans.items &&
 		[...profileDailyPlans.items]
@@ -290,13 +310,14 @@ export function useDailyPlan() {
 				// Include only no completed tasks
 				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
 			}))
+			.map((plan) => ({
+				...plan,
+				// Include only tasks that are not added yet to the today plan or future plans
+				tasks: plan.tasks?.filter(
+					(_task) => ![...todayTasks, ...futureTasks].find((task) => task.id === _task.id)
+				)
+			}))
 			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
-
-	const todayPlan =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
 
 	const sortedPlans =
 		profileDailyPlans.items &&

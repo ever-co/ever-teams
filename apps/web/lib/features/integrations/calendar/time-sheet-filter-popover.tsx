@@ -20,6 +20,7 @@ export function TimeSheetFilter() {
     const [status, setStatus] = useState('');
     const [taskId, setTaskId] = useState<string>('');
     const [teamId, setTeamId] = useState<string>('');
+    const [membersId, setMembersId] = useState('')
 
 
     return (
@@ -56,11 +57,10 @@ export function TimeSheetFilter() {
                                 Employee<span className="text-[#de5505e1] ml-1">*</span>
                             </label>
                             <SelectItems
-                                defaultValue={activeTeamTask}
-                                items={tasks}
-                                onValueChange={(task) => setTaskId(task ? task.id : '')}
-                                itemId={(task) => (task ? task.id : '')}
-                                itemToString={(task) => (task ? task.title : '')}
+                                items={activeTeam?.members ?? []}
+                                onValueChange={(members) => setMembersId(members ? members.id : '')}
+                                itemId={(members) => (members ? members.id : membersId)}
+                                itemToString={(members) => (members ? members.employee.fullName : '')}
                                 triggerClassName="border-slate-100 dark:border-slate-600"
                             />
                         </div>
