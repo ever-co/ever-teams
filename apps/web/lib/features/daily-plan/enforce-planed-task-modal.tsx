@@ -1,7 +1,6 @@
 import { useAuthenticateUser, useDailyPlan, useTimerView } from '@app/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
 interface IEnforcePlannedTaskModalProps {
@@ -9,11 +8,11 @@ interface IEnforcePlannedTaskModalProps {
 	closeModal: () => void;
 	task: ITeamTask;
 	plan: IDailyPlan;
+	content: string;
 }
 
 export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
-	const { closeModal, task, open, plan } = props;
-	const t = useTranslations();
+	const { closeModal, task, open, plan, content } = props;
 	const { addTaskToPlan, addTaskToPlanLoading } = useDailyPlan();
 	const { startTimer } = useTimerView();
 	const { user } = useAuthenticateUser();
@@ -32,7 +31,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 			<Card className="w-full" shadow="custom">
 				<div className="w-full flex flex-col justify-between gap-6">
 					<Text.Heading as="h5" className="mb-3 text-center">
-						{t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+						{content}
 					</Text.Heading>
 					<div className="w-full flex items-center justify-evenly">
 						<Button

@@ -68,6 +68,7 @@ const Timer = () => {
 
 			{requirePlan && hasPlan && activeTeamTask && (
 				<EnforcePlanedTaskModal
+					content={t('timer.todayPlanSettings.TITLE')}
 					closeModal={modals.enforceTaskCloseModal}
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}

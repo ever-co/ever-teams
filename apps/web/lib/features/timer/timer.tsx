@@ -165,6 +165,7 @@ export function Timer({ className }: IClassName) {
 
 				{requirePlan && hasPlan && activeTeamTask && (
 					<EnforcePlanedTaskModal
+						content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
 						closeModal={modals.enforceTaskCloseModal}
 						plan={hasPlan}
 						open={modals.isEnforceTaskModalOpen}
@@ -181,6 +182,7 @@ export function MinTimerFrame({ className }: IClassName) {
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 	const { activeTeam, activeTeamTask } = useTeamTasks();
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const t = useTranslations();
 
 	return (
 		<div
@@ -244,6 +246,7 @@ export function MinTimerFrame({ className }: IClassName) {
 
 			{requirePlan && hasPlan && activeTeamTask && (
 				<EnforcePlanedTaskModal
+					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
 					closeModal={modals.enforceTaskCloseModal}
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}

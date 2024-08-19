@@ -371,6 +371,7 @@ function TimerButtonCall({
 	);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const t = useTranslations();
 
 	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
@@ -444,6 +445,7 @@ function TimerButtonCall({
 
 			{requirePlan && hasPlan && activeTeamTask && (
 				<EnforcePlanedTaskModal
+					content={t('timer.todayPlanSettings.TITLE')}
 					closeModal={modals.enforceTaskCloseModal}
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}
