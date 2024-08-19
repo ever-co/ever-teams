@@ -55,7 +55,7 @@ export const RelatedIssueCard = () => {
 				<div className="flex items-center justify-end gap-2.5">
 					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
 						<span onClick={modal.openModal}>
-						<AddIcon className="h-4 w-4 text-[#B1AEBC] dark:text-white cursor-pointer mr-1.5" />
+							<AddIcon className="h-4 w-4 text-[#B1AEBC] dark:text-white cursor-pointer mr-1.5" />
 						</span>
 					</div>
 
@@ -84,7 +84,7 @@ export const RelatedIssueCard = () => {
 
 			{linkedTasks.length > 0 && (
 				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
-					{linkedTasks.map(({ task, issue }) => {
+					{linkedTasks?.map(({ task, issue }) => {
 						return (
 							<TaskLinkedIssue
 								key={task.id}
