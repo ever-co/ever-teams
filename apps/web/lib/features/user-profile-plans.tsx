@@ -36,7 +36,6 @@ import { checkPastDate } from 'lib/utils';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
 
-
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
@@ -46,7 +45,6 @@ export function UserProfilePlans() {
 		typeof window !== 'undefined'
 			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
 			: 'Today Tasks';
-
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
@@ -97,9 +95,8 @@ export function UserProfilePlans() {
 		}
 	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
 
-
 	return (
-		<div className="">
+		<div ref={profile.loadTaskStatsIObserverRef}>
 			<Container fullWidth={fullWidth} className="pb-8 mb-5">
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
@@ -119,7 +116,9 @@ export function UserProfilePlans() {
 													setCurrentTab(filter as FilterTabs);
 												}}
 											>
-												{t(`task.tabFilter.${filter.toUpperCase().replace(' ', '_')}` as DottedLanguageObjectStringPaths)}
+												{t(
+													`task.tabFilter.${filter.toUpperCase().replace(' ', '_')}` as DottedLanguageObjectStringPaths
+												)}
 												<span
 													className={clsxm(
 														'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
@@ -412,6 +411,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 				) : (
 					<div className="flex">
 						<input
+							min={0}
 							type="number"
 							className={clsxm(
 								'outline-none p-0 bg-transparent border-b text-center max-w-[54px] text-xs font-medium'

@@ -117,7 +117,7 @@ export function DailyPlanTask({ task, profile }: { task?: ITeamTask; profile: an
 
 	const memberInfo = useTeamMemberCard(member);
 	return (
-		<div className="flex items-center w-full bg-white border h-16  drop-shadow rounded-lg px-1 font-normal justify-between">
+		<div className="flex items-center w-full bg-white dark:bg-dark--theme-light border dark:border-gray-700 h-16  drop-shadow rounded-lg px-1 font-normal justify-between">
 			<div className="flex items-center space-x-1 w-full">
 				<TaskNameInfoDisplay
 					task={task}

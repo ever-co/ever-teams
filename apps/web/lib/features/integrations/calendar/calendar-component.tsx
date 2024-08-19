@@ -28,7 +28,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     return (
         <ScrollArea className='w-full'>
             <FullCalendar
-                dayHeaderClassNames='font-semibold text-[14px] text-gray-400 !bg-white dark:!bg-dark--theme'
+                dayHeaderClassNames='font-semibold text-[14px] text-gray-400  !bg-white dark:!bg-dark--theme'
                 viewClassNames='bg-white text-[18px]  font-semibold !bg-white dark:!bg-dark--theme w-full !overflow-scroll'
                 ref={calendarRef}
                 stickyHeaderDates

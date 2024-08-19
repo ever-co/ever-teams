@@ -32,7 +32,7 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 
 				<div className="flex items-center justify-end gap-2.5">
 					<button onClick={() => setHidden((e) => !e)}>
-					{hidden ? (
+						{hidden ? (
 							<ChevronDownIcon className="h-4 w-4 text-[#293241] dark:text-white cursor-pointer" />
 						) : (
 							<ChevronUpIcon className="h-4 w-4 text-[#293241] dark:text-white cursor-pointer" />
@@ -41,19 +41,21 @@ export function TaskActivity({ task }: { task: ITeamTask }) {
 				</div>
 			</div>
 			<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
-				{groupedData.length < 1 ?
-					<p className="mx-auto ">There is no Activity</p> :
-				groupedData.map((timesheet, i) => (
-					<div
-						key={i}
-						className="shadow-lg rounded-lg p-4 bg-light dark:bg-dark border border-[#00000014] dark:border-[#26272C]"
-					>
-						<h3 className="text-base font-semibold py-2">{timesheet.date}</h3>
-						{timesheet.items.map((item) => (
-							<UserTaskActivity key={item.id} timesheet={item} />
-						))}
-					</div>
-				))}
+				{groupedData.length < 1 ? (
+					<p className="mx-auto ">There is no Activity</p>
+				) : (
+					groupedData.map((timesheet, i) => (
+						<div
+							key={i}
+							className="shadow-lg rounded-lg p-4 bg-light dark:bg-dark border border-[#00000014] dark:border-[#26272C]"
+						>
+							<h3 className="text-base font-semibold py-2">{timesheet.date}</h3>
+							{timesheet.items.map((item) => (
+								<UserTaskActivity key={item.id} timesheet={item} />
+							))}
+						</div>
+					))
+				)}
 			</div>
 		</Card>
 	);

@@ -61,8 +61,8 @@ export function Avatar({
 				height: size,
 				...(backgroundColor
 					? {
-							backgroundColor
-					  }
+						backgroundColor
+					}
 					: {})
 			}}
 		>

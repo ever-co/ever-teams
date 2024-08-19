@@ -5,14 +5,14 @@ import qs from 'qs';
 export async function getTimerLogsDailyReportRequestAPI({
 	tenantId,
 	organizationId,
-	employeeId,
+	employeeIds,
 	startDate,
 	endDate
 }: ITimerLogsDailyReportRequest) {
 	const params = {
 		tenantId: tenantId,
 		organizationId: organizationId,
-		employeeId,
+		employeeIds,
 		todayEnd: startDate.toISOString(),
 		todayStart: endDate.toISOString()
 	};
