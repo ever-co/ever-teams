@@ -1,9 +1,10 @@
 'use client';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
 import {
+	activeTeamState,
 	dailyPlanFetchingState,
 	dailyPlanListState,
 	employeePlansListState,
@@ -31,6 +32,7 @@ export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Ta
 
 export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
+	const activeTeam = useRecoilValue(activeTeamState);
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
@@ -101,7 +103,10 @@ export function useDailyPlan() {
 	const createDailyPlan = useCallback(
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
-				const res = await createQueryCall(data, user?.tenantId || '');
+				const res = await createQueryCall(
+					{ ...data, organizationTeamId: activeTeam?.id },
+					user?.tenantId || ''
+				);
 				//Check if there is an existing plan
 				const isPlanExist = profileDailyPlans.items.find((plan) =>
 					plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])
@@ -132,6 +137,7 @@ export function useDailyPlan() {
 			}
 		},
 		[
+			activeTeam?.id,
 			createQueryCall,
 			employeePlans,
 			getMyDailyPlans,
