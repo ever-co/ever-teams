@@ -1,19 +1,18 @@
 'use client';
 
 import { ITeamTask } from '@app/interfaces';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
-import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
+import { useGetTasksStatsData } from './useGetTasksStatsData';
 
 export function useUserDetails(memberId: string) {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
-	const { getTasksStatsData } = useTaskStatistics();
 
 	const members = activeTeam?.members || [];
 
@@ -32,12 +31,7 @@ export function useUserDetails(memberId: string) {
 	/* Filtering the tasks */
 	const tasksGrouped = useAuthTeamTasks(userProfile);
 
-	useEffect(() => {
-		if (employeeId) {
-			getTasksStatsData(employeeId);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [employeeId]);
+	const loadTaskStatsIObserverRef = useGetTasksStatsData(employeeId);
 
 	const assignTask = useCallback(
 		(task: ITeamTask) => {
@@ -59,7 +53,8 @@ export function useUserDetails(memberId: string) {
 		userProfile,
 		tasksGrouped,
 		member: matchUser,
-		assignTask
+		assignTask,
+		loadTaskStatsIObserverRef
 	};
 }
 
