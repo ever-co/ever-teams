@@ -13,7 +13,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDownIcon, MoreHorizontal } from "lucide-react"
 import { Button } from "@components/ui/button"
 import {
     DropdownMenu,
@@ -146,29 +146,27 @@ export const columns: ColumnDef<TimeSheet>[] = [
                 className="text-sm sm:text-base w-full text-center"
             >
                 Project
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <ArrowUpDownIcon className="ml-2 h-4 w-4" />
             </Button>
         ),
         cell: ({ row }) => (
-            <div className="flex items-start w-full">
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary dark:bg-primary-light text-white shadow p-2">
-                    <span className="lowercase font-medium">ever</span>
-                </div>
-                <div className="flex flex-col items-start w-full sm:w-1/2 ml-4">
-                    <span className="capitalize font-bold text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
-                        {row.original.name}
-                    </span>
-                    <span className="capitalize font-normal text-sm sm:text-base text-gray-400 leading-4 whitespace-nowrap">
-                        {row.original.description}
-                    </span>
-                </div>
-            </div>
+            <TaskDetails
+                description={row.original.description}
+                name={row.original.name}
+            />
         ),
     },
     {
         accessorKey: "employee",
-        header: () => (
-            <div className="text-center w-full sm:w-96 text-sm sm:text-base">Employee</div>
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="text-center w-full sm:w-auto text-sm sm:text-base"
+            >
+                Employee
+                <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+            </Button>
         ),
         cell: ({ row }) => (
             <div className="text-center font-medium w-full sm:w-96 text-sm sm:text-base">
@@ -178,15 +176,21 @@ export const columns: ColumnDef<TimeSheet>[] = [
     },
     {
         accessorKey: "status",
-        header: () => (
-            <div className="text-center w-full sm:w-auto text-sm sm:text-base">Status</div>
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="text-center w-full sm:w-auto text-sm sm:text-base"
+            >
+                Status
+                <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+            </Button>
+
         ),
         cell: ({ row }) => {
+
             return <SelectFilter
-                selectedStatus={row.original.status}
-
-            />
-
+                selectedStatus={row.original.status} />
         }
     },
     {
@@ -204,28 +208,9 @@ export const columns: ColumnDef<TimeSheet>[] = [
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => {
-            const payment = row.original;
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 border text-sm sm:text-base">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(payment.id as any)}
-                        >
-                            Copy payment ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <TaskActionMenu idTasks={row?.original?.id} />
             );
         },
     },
@@ -238,12 +223,6 @@ export function DataTableTimeSheet() {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
     )
-    const {
-        isOpen,
-        closeModal
-    } = useModal();
-
-
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
@@ -269,9 +248,7 @@ export function DataTableTimeSheet() {
 
     return (
         <>
-            <ConfirmStatusChange
-                closeModal={closeModal}
-                isOpen={isOpen} />
+
 
             <div className="w-full">
                 <div className="rounded-md  w-full ">
@@ -374,8 +351,11 @@ export function DataTableTimeSheet() {
     )
 }
 
-function SelectFilter({ selectedStatus }: { selectedStatus?: string, }) {
-    const [selected, setSelected] = React.useState(selectedStatus);
+function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
+
+    const { isOpen, closeModal, openModal } = useModal();
+    const [selected] = React.useState(selectedStatus);
+    const [newStatus, setNewStatus] = React.useState('');
 
     const getColorClass = () => {
         switch (selected) {
@@ -388,36 +368,94 @@ function SelectFilter({ selectedStatus }: { selectedStatus?: string, }) {
             default:
                 return "text-gray-500 border-gray-200";
         }
+
+
     };
 
+
+    const onValueChanges = (value: string) => {
+        setNewStatus(value);
+        openModal()
+    }
+
     return (
-        <Select
-            value={selected}
-            onValueChange={(value) => setSelected(value)}
+        <>
 
-        >
-            <SelectTrigger
-                className={`min-w-[120px] w-fit border border-gray-200 dark:border-gray-700 bg-transparent font-medium rounded-xl ${getColorClass()}`}
+            <ConfirmStatusChange
+                closeModal={closeModal}
+                isOpen={isOpen}
+                oldStatus={selected}
+                newStatus={newStatus}
+            />
+
+            <Select
+                value={selected}
+                onValueChange={(value) => onValueChanges(value)}
             >
-                <SelectValue
-                    placeholder="Select a daily"
-                    className={getColorClass()}
-                />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectGroup className="rounded">
-                    <SelectLabel>Status</SelectLabel>
-                    {statusOptions.map((option, index) => (
-                        <div key={option.value}>
-                            <SelectItem value={option.value}>{option.label}</SelectItem>
-                            {index < statusOptions.length - 1 && (
-                                <div className="border w-full border-gray-100 dark:border-gray-700"></div>
-                            )}
-                        </div>
-                    ))}
-                </SelectGroup>
-            </SelectContent>
-        </Select>
-
+                <SelectTrigger
+                    className={`min-w-[120px] w-fit border border-gray-200 dark:border-gray-700 bg-transparent font-medium rounded-xl ${getColorClass()}`}
+                >
+                    <SelectValue
+                        placeholder="Select a daily"
+                        className={getColorClass()}
+                    />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup className="rounded">
+                        <SelectLabel>Status</SelectLabel>
+                        {statusOptions.map((option, index) => (
+                            <div key={option.value}>
+                                <SelectItem value={option.value}>{option.label}</SelectItem>
+                                {index < statusOptions.length - 1 && (
+                                    <div className="border w-full border-gray-100 dark:border-gray-700"></div>
+                                )}
+                            </div>
+                        ))}
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        </>
     );
 }
+
+const TaskActionMenu = ({ idTasks }: { idTasks: any }) => {
+    const handleCopyPaymentId = () => navigator.clipboard.writeText(idTasks);
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 border text-sm sm:text-base">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={handleCopyPaymentId}>
+                    Copy payment ID
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>View customer</DropdownMenuItem>
+                <DropdownMenuItem>View payment details</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+};
+
+const TaskDetails = ({ description, name }: { description: string; name: string }) => {
+    return (
+        <div className="flex items-start w-full">
+            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary dark:bg-primary-light text-white shadow p-2">
+                <span className="lowercase font-medium">ever</span>
+            </div>
+            <div className="flex flex-col items-start w-full sm:w-1/2 ml-4">
+                <span className="capitalize font-bold text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
+                    {name}
+                </span>
+                <span className="capitalize font-normal text-sm sm:text-base text-gray-400 leading-4 whitespace-nowrap">
+                    {description}
+                </span>
+            </div>
+        </div>
+    );
+};

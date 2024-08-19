@@ -39,7 +39,7 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
                 <Button
                     variant={"outline"}
                     className={cn(
-                        "w-full justify-start text-left font-normal dark:bg-dark--theme-light text-[14px]",
+                        "w-full justify-start text-left font-normal dark:bg-dark--theme-light text-[14px] dark:border-slate-700",
                         !time.minute && "text-muted-foreground"
                     )}
                 >
@@ -167,7 +167,7 @@ interface TimerPickerButtonProps {
 // eslint-disable-next-line react/display-name
 const TimerPickerButton: React.FC<TimerPickerButtonProps> = React.memo(({
     title = '',
-    className = 'border-none border-gray-100 ',
+    className = 'border-none border-gray-100 dark:border-gray-700',
     onClick = () => null,
     loading = false,
     variant = 'default',
