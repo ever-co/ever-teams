@@ -28,7 +28,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const handleEdit = (member: OT_Member) => {
 		setEditMember(member);
 	};
-
 	const handelNameChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
 			const name = event.target.value || '';
@@ -210,7 +209,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									<MemberTableStatus status={member.employee.isActive ? 'Member' : 'Suspended'} />
 								</td>
 								<td className="flex items-center justify-center py-4">
-									<TableActionPopover member={member} handleEdit={handleEdit} />
+									<TableActionPopover member={member} handleEdit={handleEdit} status='settings' />
 								</td>
 							</tr>
 						))}
