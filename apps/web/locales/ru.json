@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Добавленные часы",
+		"DATE": "Дата",
+		"PICK_A_DATE": "Выберите дату",
+		"START_TIME": "Время начала",
+		"END_TIME": "Время окончания",
+		"TEAM": "Команда",
+		"EMPLOYEE": "Сотрудник",
+		"TASK": "Задача",
+		"DESCRIPTION": "Описание",
+		"OPTIONAL": "Необязательный",
+		"REASON": "Причина",
 		"reasons": {
 			"DEFAULT": "Только ручное время",
 			"LOST_ELECTRICITY": "Потеря электричества",

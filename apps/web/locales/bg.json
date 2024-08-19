@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Добавени часове",
+		"DATE": "Дата",
+		"PICK_A_DATE": "Изберете дата",
+		"START_TIME": "Начален час",
+		"END_TIME": "Краен час",
+		"TEAM": "Екип",
+		"EMPLOYEE": "Служител",
+		"TASK": "Задача",
+		"DESCRIPTION": "Описание",
+		"OPTIONAL": "По избор",
+		"REASON": "Причина",
 		"reasons": {
 			"DEFAULT": "Само ръчно време",
 			"LOST_ELECTRICITY": "Изгубено електрическо захранване",

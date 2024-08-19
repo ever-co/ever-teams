@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Heures ajoutées",
+		"DATE": "Date",
+		"PICK_A_DATE": "Choisir une date",
+		"START_TIME": "Heure de début",
+		"END_TIME": "Heure de fin",
+		"TEAM": "Équipe",
+		"EMPLOYEE": "Employé",
+		"TASK": "Tâche",
+		"DESCRIPTION": "Description",
+		"OPTIONAL": "Optionnel",
+		"REASON": "Raison",
 		"reasons": {
 			"DEFAULT": "Seulement le temps manuel",
 			"LOST_ELECTRICITY": "Panne d'électricité",

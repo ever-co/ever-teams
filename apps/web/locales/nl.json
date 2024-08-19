@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Toegevoegde uren",
+		"DATE": "Datum",
+		"PICK_A_DATE": "Kies een datum",
+		"START_TIME": "Starttijd",
+		"END_TIME": "Eindtijd",
+		"TEAM": "Team",
+		"EMPLOYEE": "Werknemer",
+		"TASK": "Taak",
+		"DESCRIPTION": "Beschrijving",
+		"OPTIONAL": "Optioneel",
+		"REASON": "Reden",
 		"reasons": {
 			"DEFAULT": "Alleen handmatige tijd",
 			"LOST_ELECTRICITY": "Stroomuitval",

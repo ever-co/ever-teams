@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Hinzugefügte Stunden",
+		"DATE": "Datum",
+		"PICK_A_DATE": "Datum auswählen",
+		"START_TIME": "Startzeit",
+		"END_TIME": "Endzeit",
+		"TEAM": "Team",
+		"EMPLOYEE": "Mitarbeiter",
+		"TASK": "Aufgabe",
+		"DESCRIPTION": "Beschreibung",
+		"OPTIONAL": "Optional",
+		"REASON": "Grund",
 		"reasons": {
 			"DEFAULT": "Nur manuelle Zeit",
 			"LOST_ELECTRICITY": "Stromausfall",

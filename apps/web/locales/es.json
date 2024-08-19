@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Horas añadidas",
+		"DATE": "Fecha",
+		"PICK_A_DATE": "Elegir una fecha",
+		"START_TIME": "Hora de inicio",
+		"END_TIME": "Hora de finalización",
+		"TEAM": "Equipo",
+		"EMPLOYEE": "Empleado",
+		"TASK": "Tarea",
+		"DESCRIPTION": "Descripción",
+		"OPTIONAL": "Opcional",
+		"REASON": "Razón",
 		"reasons": {
 			"DEFAULT": "Solo tiempo manual",
 			"LOST_ELECTRICITY": "Corte de electricidad",

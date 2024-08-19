@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "الساعات المضافة",
+		"DATE": "التاريخ",
+		"PICK_A_DATE": "اختر تاريخًا",
+		"START_TIME": "وقت البدء",
+		"END_TIME": "وقت الانتهاء",
+		"TEAM": "فريق",
+		"EMPLOYEE": "موظف",
+		"TASK": "مهمة",
+		"DESCRIPTION": "وصف",
+		"OPTIONAL": "اختياري",
+		"REASON": "السبب",
 		"reasons": {
 			"DEFAULT": "فقط الوقت اليدوي",
 			"LOST_ELECTRICITY": "انقطاع الكهرباء",

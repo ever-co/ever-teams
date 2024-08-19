@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "添加的小时",
+		"DATE": "日期",
+		"PICK_A_DATE": "选择日期",
+		"START_TIME": "开始时间",
+		"END_TIME": "结束时间",
+		"TEAM": "团队",
+		"EMPLOYEE": "员工",
+		"TASK": "任务",
+		"DESCRIPTION": "描述",
+		"OPTIONAL": "可选",
+		"REASON": "原因",
 		"reasons": {
 			"DEFAULT": "仅手动时间",
 			"LOST_ELECTRICITY": "失去電力",

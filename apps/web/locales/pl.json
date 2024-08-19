@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "Dodane godziny",
+		"DATE": "Data",
+		"PICK_A_DATE": "Wybierz datę",
+		"START_TIME": "Czas rozpoczęcia",
+		"END_TIME": "Czas zakończenia",
+		"TEAM": "Zespół",
+		"EMPLOYEE": "Pracownik",
+		"TASK": "Zadanie",
+		"DESCRIPTION": "Opis",
+		"OPTIONAL": "Opcjonalny",
+		"REASON": "Powód",
 		"reasons": {
 			"DEFAULT": "Tylko czas ręczny",
 			"LOST_ELECTRICITY": "Utrata zasilania",

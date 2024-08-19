@@ -666,6 +666,17 @@
 		}
 	},
 	"manualTime": {
+		"ADDED_HOURS": "שעות נוספות",
+		"DATE": "תַאֲרִיך",
+		"PICK_A_DATE": "בחר תאריך",
+		"START_TIME": "שעת התחלה",
+		"END_TIME": "שעת סיום",
+		"TEAM": "צוות",
+		"EMPLOYEE": "עוֹבֵד",
+		"TASK": "מְשִׂימָה",
+		"DESCRIPTION": "תיאור",
+		"OPTIONAL": "אופציונאלי",
+		"REASON": "סִיבָּה",
 		"reasons": {
 			"DEFAULT": "רק זמן ידני",
 			"LOST_ELECTRICITY": "הפסקת חשמל",

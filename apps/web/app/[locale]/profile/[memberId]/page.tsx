@@ -106,9 +106,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							<Text className=" font-light text-center text-gray-400">
 								{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
 							</Text>
-							<Text className=" font-light text-center text-gray-400">
-								{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
-							</Text>
 
 							<Button className="m-auto font-normal rounded-lg ">
 								<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
