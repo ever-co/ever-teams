@@ -225,7 +225,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			memberList.filter((member) =>
 				member.employee
 					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
-						member.employee?.isActive
+					member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -236,7 +236,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			memberList.filter((member) =>
 				member.employee
 					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
-						member.employee?.isActive
+					member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]

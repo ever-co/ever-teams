@@ -51,7 +51,8 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
-			<ul className="mt-7">
+			<ul className="mt-7" ref={profile.loadTaskStatsIObserverRef}>
+
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}

@@ -6,7 +6,7 @@ import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
 
@@ -21,6 +21,8 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const { workingEmployees } = useEmployee();
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
 	const { activeTeam } = useOrganizationTeams();
+	const nameInputRef = useRef<HTMLInputElement>(null);
+
 
 	useEffect(() => {
 		if (activeTeam?.members) {
@@ -38,9 +40,21 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	}, [workingEmployees, workingEmployees.length, activeTeam]);
 
 	const handleAddNew = (email: string) => {
+
+		if (!email.includes('@')) {
+			email = `${email}@gmail.com`;
+		}
+
 		const newItem = { title: email, name: '' };
 		setSelectedEmail(newItem);
+
 		setCurrentOrgEmails([...currentOrgEmails, newItem]);
+		const extractedName = email.split('@')[0];
+		if (nameInputRef.current) {
+			nameInputRef.current.value = extractedName;
+			nameInputRef.current.focus();
+			nameInputRef.current.select();
+		}
 	};
 
 	const handleSubmit = useCallback(
@@ -99,6 +113,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 							/>
 
 							<InputField
+								ref={nameInputRef}
 								type="text"
 								name="name"
 								placeholder={t('form.TEAM_MEMBER_NAME_PLACEHOLDER')}

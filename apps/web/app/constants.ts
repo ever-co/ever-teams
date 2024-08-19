@@ -313,3 +313,9 @@ export const manualTimeReasons: ManualTimeReasons[] = [
 	'UNPLANNED_WORK',
 	'TESTED_TIMER'
 ];
+
+export const statusOptions = [
+	{ value: "Approved", label: "Approved" },
+	{ value: "Pending", label: "Pending" },
+	{ value: "Rejected", label: "Rejected" },
+];

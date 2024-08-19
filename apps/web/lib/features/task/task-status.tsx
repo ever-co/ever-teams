@@ -8,7 +8,8 @@ import {
 	ITaskStatusStack,
 	ITeamTask,
 	Nullable,
-	Tag
+	Tag,
+	TaskStatusEnum
 } from '@app/interfaces';
 import { Queue, clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
@@ -301,6 +302,49 @@ export function TaskStatusDropdown({
 			multiple={multiple}
 			values={values}
 			largerWidth={largerWidth}
+		>
+			{children}
+		</StatusDropdown>
+	);
+}
+
+export function StandardTaskStatusDropDown({
+	className,
+	defaultValue,
+	onValueChange,
+	forDetails,
+	multiple,
+	sidebarUI = false,
+	children,
+	largerWidth
+}: TTaskStatusesDropdown<'status type'>) {
+	const taskStatusValues = useTaskStatusValue();
+
+	const { item, items, onChange, values } = useStatusValue<'status type'>({
+		status: taskStatusValues,
+		value: defaultValue,
+		onValueChange,
+		multiple
+	});
+
+	const standardStatuses = useMemo(
+		() => items.filter((status) => Object.values(TaskStatusEnum).includes(status.value as TaskStatusEnum)),
+		[items]
+	);
+	return (
+		<StatusDropdown
+			sidebarUI={sidebarUI}
+			showIcon={false}
+			forDetails={forDetails}
+			className={className}
+			items={standardStatuses}
+			value={item}
+			defaultItem={!item ? 'status type' : undefined}
+			onChange={onChange}
+			multiple={multiple}
+			values={values}
+			largerWidth={largerWidth}
+			bordered={false}
 		>
 			{children}
 		</StatusDropdown>
@@ -972,7 +1016,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									as="div"
 									className={clsxm(
 										!forDetails && 'w-full max-w-[190px]',
-										'cursor-pointer outline-none'
+										'cursor-pointer outline-none h-full'
 									)}
 									style={{
 										width: largerWidth ? '160px' : ''
@@ -992,7 +1036,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											forDetails={forDetails}
 											sidebarUI={sidebarUI}
 											className={clsxm(
-												'justify-between w-full capitalize',
+												'justify-between w-full capitalize h-full',
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
