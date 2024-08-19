@@ -41,16 +41,14 @@ type FilterOutstanding = 'ALL' | 'DATE';
 
 export function UserProfilePlans() {
 	const t = useTranslations();
-	const defaultTab =
-		typeof window !== 'undefined'
-			? (window.localStorage.getItem('daily-plan-tab') as FilterTabs) || null
-			: 'Today Tasks';
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useRecoilValue(fullWidthState);
-	const [currentTab, setCurrentTab] = useState<FilterTabs>(defaultTab || 'Today Tasks');
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
+
+	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
+
 
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
