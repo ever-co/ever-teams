@@ -21,10 +21,35 @@ type Props = IClassName & {
 };
 
 export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, radial = false, ...rest }: Props) {
+	const { memberInfo, edition } = rest;
+	const t = useTranslations();
+	const loadingRef = useRef<boolean>(false);
+	const task = edition.task || memberInfo.memberTask;
+	const hasEditMode = edition.estimateEditMode && task;
+	const closeFn = () => {
+		setTimeout(() => {
+			!loadingRef.current && edition.setEstimateEditMode(false);
+		}, 1);
+	};
+
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col gap-y-[2rem] justify-center">
-				{showTime && <TaskEstimateInput {...rest} />}
+				{showTime && (
+					<div className="flex space-x-2 items-center font-normal lg:text-sm text-xs">
+						<span className={clsxm('text-gray-500', hasEditMode && ['hidden'])}>
+							{t('common.ESTIMATED')}:
+						</span>
+						<TaskEstimate
+							_task={task}
+							loadingRef={loadingRef}
+							closeable_fc={closeFn}
+							onOpenEdition={() => edition.setEstimateEditMode(true)}
+							onCloseEdition={() => edition.setEstimateEditMode(false)}
+							showEditAndSaveButton={memberInfo.isAuthUser || memberInfo.isAuthTeamManager}
+						/>
+					</div>
+				)}
 
 				<TaskProgressBar
 					task={rest.edition.task || rest.memberInfo.memberTask}

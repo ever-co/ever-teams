@@ -48,6 +48,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 		size: taskSizesValue,
 		label: taskLabels,
 		issueType: taskIssues,
+		'status type': {},
 		project: {},
 		epic: {},
 		team: {},

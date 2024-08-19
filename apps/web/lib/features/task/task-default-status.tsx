@@ -52,7 +52,23 @@ export const taskStatus: TStatus<ITaskStatus> = {
 		icon: <TickCircleIcon className="w-full max-w-[17px]" />,
 		bgColor: '#eaeaea'
 	},
-	open: {}
+	open: {
+		icon: <LoginIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
+		bgColor: '#D6E4F9'
+	},
+	'in-review': {
+		icon: <SearchStatusIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
+		bgColor: ' #F3D8B0'
+	},
+	'ready-for-review': {
+		icon: <ClockIcon />,
+		bgColor: '#F5F1CB'
+	},
+	done: {
+		icon: <TickCircleIcon className="w-full max-w-[17px]" />,
+		bgColor: '#D4EFDF'
+	},
+	custom: {}
 };
 
 export const taskPriorities: TStatus<ITaskPriority> = {

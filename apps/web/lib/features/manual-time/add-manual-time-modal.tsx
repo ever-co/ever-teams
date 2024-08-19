@@ -45,6 +45,7 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const [team, setTeam] = useState<IOrganizationTeamList>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
+	const [memberId, setMemberId] = useState<string>('')
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
 
@@ -159,11 +160,11 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 						buttonClassName={'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
 						customInput={
 							<>
-								<CalendarDays className="h-4 w-4" />
+								<CalendarDays className="h-5 w-5 dark:text-gray-700" />
 								<Button
 									variant={"outline"}
 									className={cn(
-										"w-full justify-start text-left font-normal text-black  h-10 border border-transparent",
+										"w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent",
 										!date && "text-muted-foreground"
 									)}>
 									{date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -259,11 +260,10 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 									Employee<span className="text-[#de5505e1] ml-1">*</span>
 								</label>
 								<SelectItems
-									defaultValue={activeTeamTask}
-									items={tasks}
-									onValueChange={(task) => setTaskId(task ? task.id : '')}
-									itemId={(task) => (task ? task.id : '')}
-									itemToString={(task) => (task ? task.title : '')}
+									items={activeTeam?.members ?? []}
+									onValueChange={(member) => setMemberId(member ? member.id : memberId)}
+									itemId={(member) => (member ? member.id : memberId)}
+									itemToString={(member) => (member ? member.employee.fullName : '')}
 									triggerClassName="border-gray-300 dark:border-slate-600"
 								/>
 							</div>
