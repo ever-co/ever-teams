@@ -13,14 +13,17 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDownIcon, MoreHorizontal } from "lucide-react"
+import { ArrowUpDownIcon, MoreHorizontal, } from "lucide-react"
 import { Button } from "@components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
+    DropdownMenuPortal,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
 import {
@@ -46,74 +49,15 @@ import {
     MdKeyboardArrowLeft,
     MdKeyboardArrowRight
 } from "react-icons/md";
-import { ConfirmStatusChange } from "."
+import { ConfirmStatusChange, TimeSheet, dataSourceTimeSheet, statusOptions } from "."
 import { useModal } from "@app/hooks"
+import { Checkbox } from "@components/ui/checkbox"
 
 
 
-const data: TimeSheet[] = [
-    {
-        id: 1,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
-        name: "Gauzy Platform SaaS",
-        description: "Members count 11",
-        employee: "Ruslan Konviser",
-        status: "Approved",
-        time: '08:00h'
-    },
-    {
-        id: 2,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
-        name: "Gauzy Platform SaaS",
-        description: "Members count 11",
-        employee: "Ruslan Konviser",
-        status: "Pending",
-        time: '08:00h'
-    },
-    {
-        id: 3,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
-        name: "Gauzy Platform SaaS",
-        description: "Members count 11",
-        employee: "Ruslan Konviser",
-        status: "Approved",
-        time: '08:00h'
-    },
-    {
-        id: 4,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
-        name: "Gauzy Platform SaaS",
-        description: "Members count 11",
-        employee: "Ruslan Konviser",
-        status: "Pending",
-        time: '08:00h'
-    },
-    {
-        id: 5,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
-        name: "Gauzy Platform SaaS",
-        description: "Members count 11",
-        employee: "Ruslan Konviser",
-        status: "Rejected",
-        time: '06:00h'
-    },
-]
 
-export type TimeSheet = {
-    id: number,
-    task: string,
-    name: string,
-    description: string,
-    employee: string,
-    status: "Approved" | "Pending" | "Rejected",
-    time: string
-}
 
-const statusOptions = [
-    { value: "Approved", label: "Approved" },
-    { value: "Pending", label: "Pending" },
-    { value: "Rejected", label: "Rejected" },
-];
+
 
 function getStatusColor(status: string) {
     switch (status) {
@@ -131,10 +75,32 @@ function getStatusColor(status: string) {
 
 export const columns: ColumnDef<TimeSheet>[] = [
     {
-        accessorKey: "task",
-        header: "Task",
+        enableHiding: false,
+        id: "select",
+        size: 50,
+        header: ({ table }) => (
+            <div className="gap-x-4 flex items-center" >
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+                <span>Task</span>
+            </div>
+        ),
         cell: ({ row }) => (
-            <div className="capitalize break-words whitespace-break-spaces text-sm sm:text-base">{row.getValue("task")}</div>
+
+            <div className="flex items-center  gap-x-4" >
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+                <span className="capitalize break-words whitespace-break-spaces text-sm sm:text-base">{row.original.task}</span>
+            </div>
         ),
     },
     {
@@ -162,15 +128,15 @@ export const columns: ColumnDef<TimeSheet>[] = [
             <Button
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                className="text-center w-full sm:w-auto text-sm sm:text-base"
+                className="w-full sm:w-auto text-sm sm:text-base"
             >
-                Employee
+                <span>Employee</span>
                 <ArrowUpDownIcon className="ml-2 h-4 w-4" />
             </Button>
         ),
         cell: ({ row }) => (
             <div className="text-center font-medium w-full sm:w-96 text-sm sm:text-base">
-                {row.original.employee}
+                <span>  {row.original.employee}</span>
             </div>
         ),
     },
@@ -220,15 +186,12 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 export function DataTableTimeSheet() {
     const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    )
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
 
     const table = useReactTable({
-        data,
+        data: dataSourceTimeSheet,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -251,7 +214,8 @@ export function DataTableTimeSheet() {
 
 
             <div className="w-full">
-                <div className="rounded-md  w-full ">
+
+                <div className="rounded-md">
                     <Table className=" border dark:border-gray-700">
                         <TableHeader className="w-full border dark:border-gray-700">
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -275,13 +239,14 @@ export function DataTableTimeSheet() {
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <TableRow
-                                        className=" cursor-pointer border dark:border-gray-700"
+                                        className="cursor-pointer border dark:border-gray-700 font-normal"
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                     >
                                         {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
+                                            <TableCell aria-checked key={cell.id}>
                                                 {flexRender(
+
                                                     cell.column.columnDef.cell,
                                                     cell.getContext()
                                                 )}
@@ -424,19 +389,18 @@ const TaskActionMenu = ({ idTasks }: { idTasks: any }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0 border text-sm sm:text-base">
+                <Button variant="ghost" className="h-8 w-8 p-0  text-sm sm:text-base">
                     <span className="sr-only">Open menu</span>
                     <MoreHorizontal className="h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={handleCopyPaymentId}>
-                    Copy payment ID
+                <DropdownMenuItem className="cursor-pointer" onClick={handleCopyPaymentId}>
+                    Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>View customer</DropdownMenuItem>
-                <DropdownMenuItem>View payment details</DropdownMenuItem>
+                <StatusTask />
+                <DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">Delete</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );
@@ -459,3 +423,25 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
         </div>
     );
 };
+
+export const StatusTask = () => {
+    return (
+        <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+                <span>Status</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                    {statusOptions?.map((status, index) => (
+                        <DropdownMenuItem key={index} textValue={status.value} className="cursor-pointer">
+                            <div className="flex items-center gap-3">
+                                <div className="h-1 w-1 rounded-full bg-black dark:bg-white"></div>
+                                <span>{status.label}</span>
+                            </div>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+        </DropdownMenuSub>
+    )
+}

@@ -12,6 +12,7 @@ import { YearDateFilter } from './year-picker-filter';
 import CalendarComponent from './calendar-component';
 import { PiTimerBold } from "react-icons/pi";
 import { formatWithSuffix } from 'lib/utils';
+import { useLocalStorageState } from '@app/hooks';
 
 // import { IOrganizationTeamList } from '@app/interfaces';
 
@@ -29,8 +30,10 @@ interface Event {
 
 }
 
+type openDetails = 'open' | 'close';
+
 export function SetupFullCalendar() {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useLocalStorageState<openDetails>('calendar_details_persistance', 'close');
     // const [newEventTitle, setNewEventTitle] = useState('');
     const calendarRef = useRef<FullCalendar | null>(null);
     const [selectedDate, setSelectedDate] = useState('');
@@ -82,7 +85,7 @@ export function SetupFullCalendar() {
 
     const handleDateClick = (info: { dateStr: string }) => {
         setSelectedDate(info?.dateStr);
-        setIsDialogOpen((prev) => !prev);
+        setIsDialogOpen('open');
     };
 
     const renderEventContent = (eventInfo: any) => {
@@ -133,7 +136,7 @@ export function SetupFullCalendar() {
                     </div>
                     <div>
                         <Button
-                            className='flex items-center justify-center h-10 rounded-lg'
+                            className='flex items-center justify-center h-10 rounded-lg dark:bg-primary-light'
                             variant='primary'>
                             <SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
                             <span>Filter</span>
@@ -149,7 +152,7 @@ export function SetupFullCalendar() {
                         handleEventDrop={handleEventDrop}
                         renderEventContent={renderEventContent}
                     />
-                    {isDialogOpen && (
+                    {isDialogOpen === 'open' && (
                         <div className={`py-10 w-1/5 m-5 h-full`}>
                             <CardItems selectedDate={selectedDate as any} />
                         </div>
@@ -167,8 +170,8 @@ export function SetupFullCalendar() {
 
 export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
     return (
-        <div className='flex flex-col w-full h-[90vh] sticky'>
-            <div className='h-full  w-full  border  border-gray-200 dark:border-gray-700 rounded-xl py-4 bg-white flex-grow'>
+        <div className='flex flex-col w-full bg-red-400 md:h-[50vh] lg:h-[90vh] xl:h-[95vh] sticky top-0'>
+            <div className='h-full  w-full  border  border-gray-200 dark:border-gray-700 rounded-xl py-4 bg-white dark:!bg-dark--theme-light flex-grow'>
                 <span className='p-2 text-[16px] text-gray-500 font-bold'>
                     {formatWithSuffix(new Date(selectedDate))}
                 </span>
@@ -186,8 +189,8 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 
 export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string, name?: string, time?: string }) => {
     return (
-        <div className='w-full  flex items-center'>
-            <div className='w-full flex items-center space-x-2 p-1 cursor-pointer hover:bg-gray-100 rounded'>
+        <div className='w-full flex items-center'>
+            <div className='w-full flex items-center space-x-2 p-1 cursor-pointer hover:bg-gray-100 rounded dark:hover:bg-gray-700'>
                 <Image className='text-white p-1 rounded-full flex items-center justify-center h-8 w-8' src={imageUrl!} alt='' width={90} height={90} />
                 <div className='flex items-center space-x-1 w-full'>
                     <span className='text-[14px] font-normal'>{name}</span>
@@ -207,7 +210,7 @@ export const CardItemsProjects = ({ logo, title, totalHours }: { logo?: string, 
             <div className='flex items-center w-full'>
                 <Image src={logo!} alt='logos' width={100} height={100} className='h-8 w-8 bg-cover rounded-lg flex items-center justify-center' />
                 <div className='flex items-start flex-col justify-center p-1'>
-                    <span className='font-bold text-[16px] overflow-hidden leading-4'>{title}</span>
+                    <span className='font-bold text-[14px] sm:text-[16px] overflow-hidden leading-4'>{title}</span>
                     <span className='text-gray-400 text-[12px] leading-4'>{totalHours}</span>
                 </div>
             </div>

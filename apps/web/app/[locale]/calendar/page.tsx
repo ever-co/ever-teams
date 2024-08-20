@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
-import { HeadCalendar, HeadTimeSheet } from './component';
+import { HeadCalendar } from './component';
 import { AddManualTimeModal } from 'lib/features/manual-time/add-manual-time-modal';
 import { SetupTimeSheet, timesheetCalendar } from 'lib/features/integrations/calendar';
 
@@ -44,7 +44,10 @@ const CalendarPage = () => {
             case 'Calendar':
                 return <SetupFullCalendar />;
             case 'TimeSheet':
-                return <SetupTimeSheet />;
+                return <SetupTimeSheet
+                    openModal={openManualTimeModal}
+                    timesheet={calendarTimeSheet}
+                    setCalendarTimeSheet={setCalendarTimeSheet} />
             default:
                 return null;
         }
@@ -55,15 +58,13 @@ const CalendarPage = () => {
             <MainLayout
                 showTimer={isTrackingEnabled}
                 footerClassName="hidden"
-                className="h-[calc(100vh-22px)] shadow-xl"
+                className="h-full shadow-xl"
             >
                 <AddManualTimeModal
                     closeModal={closeManualTimeModal}
                     isOpen={isManualTimeModalOpen}
                     params='AddManuelTime'
                 />
-
-
                 <div
                     className='fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C] z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 '
                 >
@@ -81,14 +82,14 @@ const CalendarPage = () => {
                             <HeadCalendar
                                 openModal={openManualTimeModal}
                                 timesheet={calendarTimeSheet}
-                                setCalendarTimeSheet={setCalendarTimeSheet} />
-                            <div className='border border-gray-100 dark:border-gray-700 w-full'></div>
-                            <HeadTimeSheet timesheet={calendarTimeSheet} />
+                                setCalendarTimeSheet={setCalendarTimeSheet}
 
+                            />
+                            <div className='border border-gray-100 dark:border-gray-700 w-full'></div>
+                            <div className='flex items-center justify-between w-full  dark:!bg-dark--theme h-28'></div>
                         </div>
                     </Container>
                 </div>
-
                 <div className='mt-[325px] mb-40'>
                     <Container fullWidth={fullWidth}>
                         {renderComponent()}
