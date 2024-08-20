@@ -1,30 +1,30 @@
-import { useAuthenticateUser, useDailyPlan, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { useCallback } from 'react';
+import { ReactNode, useCallback } from 'react';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
 	task: ITeamTask;
 	plan: IDailyPlan;
-	content: string;
+	content: ReactNode;
+	onOK?: () => void;
 }
 
 export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
-	const { closeModal, task, open, plan, content } = props;
+	const { closeModal, task, open, plan, content, onOK } = props;
 	const { addTaskToPlan, addTaskToPlanLoading } = useDailyPlan();
-	const { startTimer } = useTimerView();
 	const { user } = useAuthenticateUser();
 
 	const handleAddTaskToPlan = useCallback(() => {
 		if (user?.employee && task && plan.id) {
 			addTaskToPlan({ employeeId: user.employee.id, taskId: task.id }, plan.id).then(() => {
 				closeModal();
-				startTimer();
+				onOK?.();
 			});
 		}
-	}, [addTaskToPlan, closeModal, plan.id, startTimer, task, user?.employee]);
+	}, [addTaskToPlan, closeModal, onOK, plan.id, task, user?.employee]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>

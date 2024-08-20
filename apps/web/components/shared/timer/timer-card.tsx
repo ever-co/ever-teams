@@ -9,7 +9,8 @@ import { PlayIcon } from '@components/ui/svgs/play-icon';
 import {
 	AddTasksEstimationHoursModal,
 	AddDailyPlanWorkHourModal,
-	EnforcePlanedTaskModal
+	EnforcePlanedTaskModal,
+	SuggestDailyPlanModal
 } from 'lib/features/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
@@ -22,7 +23,8 @@ const Timer = () => {
 		timerStatusFetching,
 		canRunTimer,
 		hasPlan,
-		timerSeconds
+		timerSeconds,
+		startTimer
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
@@ -49,6 +51,25 @@ const Timer = () => {
 			>
 				{timerStatus?.running ? <PauseIcon width={68} height={68} /> : <PlayIcon width={68} height={68} />}
 			</div>
+
+			<SuggestDailyPlanModal
+				isOpen={modals.isSuggestDailyPlanModalOpen}
+				closeModal={modals.suggestDailyPlanCloseModal}
+			/>
+
+			{/**
+			 * Track time on planned task (SOFT FLOW)
+			 */}
+			{hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+					closeModal={modals.enforceTaskSoftCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskSoftModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
+
 			{hasPlan && hasPlan.tasks && (
 				<AddTasksEstimationHoursModal
 					isOpen={modals.isTasksEstimationHoursModalOpen}
@@ -66,9 +87,14 @@ const Timer = () => {
 				/>
 			)}
 
+			{/**
+			 * Track time on planned task (REQUIRE PLAN)
+			 */}
+
 			{requirePlan && hasPlan && activeTeamTask && (
 				<EnforcePlanedTaskModal
-					content={t('timer.todayPlanSettings.TITLE')}
+					onOK={startTimer}
+					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
 					closeModal={modals.enforceTaskCloseModal}
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}

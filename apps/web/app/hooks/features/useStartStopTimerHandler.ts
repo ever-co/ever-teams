@@ -79,7 +79,7 @@ export function useStartStopTimerHandler() {
 		const handleCheckSelectedTaskOnTodayPlan = () => {
 			if (hasPlan) {
 				if (isActiveTaskPlaned) {
-					if (dailyPlanEstimateHoursModalDate != currentDate) {
+					if (tasksEstimateHoursModalDate != currentDate) {
 						openAddTasksEstimationHoursModal();
 					} else {
 						startTimer();
@@ -112,15 +112,16 @@ export function useStartStopTimerHandler() {
 		 */
 		const handleMissingTasksEstimationHours = () => {
 			if (hasPlan) {
-				if (areAllTasksEstimated) {
-					// If all tasks are estimated, show the list of tasks, user may want to change something.
+				if (tasksEstimateHoursModalDate != currentDate) {
+					handleCheckSelectedTaskOnTodayPlan();
+				} else if (areAllTasksEstimated) {
 					if (dailyPlanEstimateHoursModalDate != currentDate) {
-						openAddTasksEstimationHoursModal();
+						handleMissingDailyPlanWorkHour();
 					} else {
 						startTimer();
 					}
 				} else {
-					handleCheckSelectedTaskOnTodayPlan();
+					openAddTasksEstimationHoursModal();
 				}
 			} else {
 				startTimer();
