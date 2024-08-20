@@ -31,13 +31,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const handleCloseModal = useCallback(() => {
 		localStorage.setItem(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate);
 		closeModal();
-	}, [closeModal, currentDate]);
+		startTimer();
+	}, [closeModal, currentDate, startTimer]);
 
 	const handleSubmit = useCallback(() => {
 		updateDailyPlan({ workTimePlanned }, plan.id ?? '');
-		startTimer();
+
 		handleCloseModal();
-	}, [handleCloseModal, plan.id, startTimer, updateDailyPlan, workTimePlanned]);
+	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
