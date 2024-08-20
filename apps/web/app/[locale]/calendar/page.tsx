@@ -44,10 +44,7 @@ const CalendarPage = () => {
             case 'Calendar':
                 return <SetupFullCalendar />;
             case 'TimeSheet':
-                return <SetupTimeSheet
-                    openModal={openManualTimeModal}
-                    timesheet={calendarTimeSheet}
-                    setCalendarTimeSheet={setCalendarTimeSheet} />
+                return <SetupTimeSheet timesheet={calendarTimeSheet} />
             default:
                 return null;
         }

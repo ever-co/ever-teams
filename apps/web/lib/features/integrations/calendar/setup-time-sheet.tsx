@@ -6,12 +6,10 @@ import { HeadTimeSheet } from '@app/[locale]/calendar/component'
 import { timesheetCalendar } from './helper-calendar'
 
 interface ISetupTimeSheetProps {
-    setCalendarTimeSheet?: React.Dispatch<React.SetStateAction<timesheetCalendar>>
     timesheet?: timesheetCalendar
-    openModal?: () => void
 }
 
-export function SetupTimeSheet({ setCalendarTimeSheet, timesheet, openModal }: ISetupTimeSheetProps) {
+export function SetupTimeSheet({ timesheet }: ISetupTimeSheetProps) {
 
     return (
         <div className='flex flex-col overflow-hidden py-[32px]'>
