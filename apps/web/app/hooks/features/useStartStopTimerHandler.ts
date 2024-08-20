@@ -16,6 +16,12 @@ export function useStartStopTimerHandler() {
 	} = useModal();
 
 	const {
+		isOpen: isEnforceTaskSoftModalOpen,
+		closeModal: _enforceTaskSoftCloseModal,
+		openModal: openEnforcePlannedTaskSoftModal
+	} = useModal();
+
+	const {
 		isOpen: isDailyPlanWorkHoursModalOpen,
 		closeModal: dailyPlanWorkHoursCloseModal,
 		openModal: openAddDailyPlanWorkHoursModal
@@ -54,12 +60,37 @@ export function useStartStopTimerHandler() {
 		[activeTeamTask?.id, hasPlan?.tasks]
 	);
 
+	const enforceTaskSoftCloseModal = () => {
+		_enforceTaskSoftCloseModal();
+		openAddTasksEstimationHoursModal();
+	};
+
 	const startStopTimerHandler = useCallback(() => {
 		const currentDate = new Date().toISOString().split('T')[0];
 		const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 		const tasksEstimateHoursModalDate = window && window?.localStorage.getItem(TASKS_ESTIMATE_HOURS_MODAL_DATE);
 		const dailyPlanEstimateHoursModalDate =
 			window && window?.localStorage.getItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE);
+
+		/**
+		 * Check if the active task is planned
+		 * If not, ask the user to add it to the today plan
+		 */
+		const handleCheckSelectedTaskOnTodayPlan = () => {
+			if (hasPlan) {
+				if (isActiveTaskPlaned) {
+					if (dailyPlanEstimateHoursModalDate != currentDate) {
+						openAddTasksEstimationHoursModal();
+					} else {
+						startTimer();
+					}
+				} else {
+					openEnforcePlannedTaskSoftModal();
+				}
+			} else {
+				startTimer();
+			}
+		};
 
 		/**
 		 * Handle missing working hour for a daily plan
@@ -82,13 +113,14 @@ export function useStartStopTimerHandler() {
 		const handleMissingTasksEstimationHours = () => {
 			if (hasPlan) {
 				if (areAllTasksEstimated) {
+					// If all tasks are estimated, show the list of tasks, user may want to change something.
 					if (dailyPlanEstimateHoursModalDate != currentDate) {
-						handleMissingDailyPlanWorkHour();
+						openAddTasksEstimationHoursModal();
 					} else {
 						startTimer();
 					}
 				} else {
-					openAddTasksEstimationHoursModal();
+					handleCheckSelectedTaskOnTodayPlan();
 				}
 			} else {
 				startTimer();
@@ -145,6 +177,7 @@ export function useStartStopTimerHandler() {
 		openAddDailyPlanWorkHoursModal,
 		openAddTasksEstimationHoursModal,
 		openEnforcePlannedTaskModal,
+		openEnforcePlannedTaskSoftModal,
 		openSuggestDailyPlanModal,
 		requirePlan,
 		startTimer,
@@ -166,7 +199,10 @@ export function useStartStopTimerHandler() {
 			openAddTasksEstimationHoursModal,
 			isSuggestDailyPlanModalOpen,
 			suggestDailyPlanCloseModal,
-			openSuggestDailyPlanModal
+			openSuggestDailyPlanModal,
+			isEnforceTaskSoftModalOpen,
+			enforceTaskSoftCloseModal,
+			openEnforcePlannedTaskSoftModal
 		},
 		startStopTimerHandler
 	};
