@@ -17,7 +17,7 @@ export function SetupTimeSheet({ timesheet }: ISetupTimeSheetProps) {
                 <div className='border border-gray-100 dark:border-gray-700 w-full'></div>
                 <HeadTimeSheet timesheet={timesheet} />
             </div>
-            <div className='flex h-[750px] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark--theme-light p-4 shadow-lg shadow-gray-100  dark:shadow-gray-700'>
+            <div className='flex h-[780px] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark--theme-light p-4 shadow-lg shadow-gray-100  dark:shadow-gray-700'>
                 <DataTableTimeSheet />
             </div>
         </div>

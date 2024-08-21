@@ -51,7 +51,9 @@ import {
 } from "react-icons/md";
 import { ConfirmStatusChange, TimeSheet, dataSourceTimeSheet, statusOptions } from "."
 import { useModal } from "@app/hooks"
-import { Checkbox } from "@components/ui/checkbox"
+import { Checkbox } from "@components/ui/checkbox";
+import { Badge } from "@components/ui/badge"
+
 
 
 
@@ -99,7 +101,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
                     aria-label="Select row"
                 />
-                <span className="capitalize break-words whitespace-break-spaces text-sm sm:text-base">{row.original.task}</span>
+                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base">{row.original.task}</span>
             </div>
         ),
     },
@@ -128,8 +130,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
             <Button
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                className="w-full sm:w-auto text-sm sm:text-base"
-            >
+                className="text-center flex items-center justify-center font-medium w-full sm:w-96 text-sm sm:text-base">
                 <span>Employee</span>
                 <ArrowUpDownIcon className="ml-2 h-4 w-4" />
             </Button>
@@ -146,16 +147,15 @@ export const columns: ColumnDef<TimeSheet>[] = [
             <Button
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                className="text-center w-full sm:w-auto text-sm sm:text-base"
+                className=" flex items-center justify-center text-center w-full sm:w-auto text-sm sm:text-base"
             >
-                Status
+                <span>Status</span>
                 <ArrowUpDownIcon className="ml-2 h-4 w-4" />
             </Button>
 
         ),
         cell: ({ row }) => {
-
-            return <SelectFilter
+            return <StatusBadge
                 selectedStatus={row.original.status} />
         }
     },
@@ -214,7 +214,6 @@ export function DataTableTimeSheet() {
 
 
             <div className="w-full">
-
                 <div className="rounded-md">
                     <Table className=" border dark:border-gray-700">
                         <TableHeader className="w-full border dark:border-gray-700">
@@ -272,7 +271,8 @@ export function DataTableTimeSheet() {
                         {table.getFilteredSelectedRowModel().rows.length} of{" "}
                         {table.getFilteredRowModel().rows.length} row(s) selected.
                     </div>
-                    <div className="space-x-2 flex items-center">
+                    <div className="gap-x-3 flex items-center">
+                        <span className="text-sm font-medium">Page 1 of 10</span>
                         <Button
                             className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
                             variant="outline"
@@ -316,7 +316,36 @@ export function DataTableTimeSheet() {
     )
 }
 
-function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
+
+
+function StatusBadge({ selectedStatus }: { selectedStatus?: string }) {
+
+    const [selected] = React.useState(selectedStatus);
+
+    const getColorClass = () => {
+        switch (selected) {
+            case "Rejected":
+                return "text-red-500 border-red-500 ";
+            case "Approved":
+                return "text-green-500 border-green-500";
+            case "Pending":
+                return "text-orange-500 border-orange-500";
+            default:
+                return "text-gray-500 border-gray-200";
+        }
+
+
+    };
+
+
+    return (
+        <Badge className={`${getColorClass()} bg-transparent rounded-md py-1 px-2 text-center hover:bg-transparent`}
+        >{selected}</Badge>
+    );
+}
+
+
+export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 
     const { isOpen, closeModal, openModal } = useModal();
     const [selected] = React.useState(selectedStatus);
@@ -408,18 +437,13 @@ const TaskActionMenu = ({ idTasks }: { idTasks: any }) => {
 
 const TaskDetails = ({ description, name }: { description: string; name: string }) => {
     return (
-        <div className="flex items-start w-full">
+        <div className="flex items-center gap-x-2 w-full">
             <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary dark:bg-primary-light text-white shadow p-2">
                 <span className="lowercase font-medium">ever</span>
             </div>
-            <div className="flex flex-col items-start w-full sm:w-1/2 ml-4">
-                <span className="capitalize font-bold text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
-                    {name}
-                </span>
-                <span className="capitalize font-normal text-sm sm:text-base text-gray-400 leading-4 whitespace-nowrap">
-                    {description}
-                </span>
-            </div>
+            <span className="capitalize font-bold !text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
+                {name}
+            </span>
         </div>
     );
 };

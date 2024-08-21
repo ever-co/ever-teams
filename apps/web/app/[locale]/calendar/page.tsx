@@ -83,11 +83,10 @@ const CalendarPage = () => {
 
                             />
                             <div className='border border-gray-100 dark:border-gray-700 w-full'></div>
-                            <div className='flex items-center justify-between w-full  dark:!bg-dark--theme h-28'></div>
                         </div>
                     </Container>
                 </div>
-                <div className='mt-[325px] mb-40'>
+                <div className='mt-[15vh] mb-32'>
                     <Container fullWidth={fullWidth}>
                         {renderComponent()}
                     </Container>
