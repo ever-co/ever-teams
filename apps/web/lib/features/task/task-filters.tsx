@@ -121,7 +121,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	if (activeTeam?.shareProfileView || canSeeActivity) {
 		tabs.push({
 			tab: 'dailyplan',
-			name: t('common.DAILYPLAN'as DottedLanguageObjectStringPaths) ,
+			name: t('common.DAILYPLAN' as DottedLanguageObjectStringPaths),
 			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION' as DottedLanguageObjectStringPaths),
 			count: profile.tasksGrouped.planned
 		});
@@ -174,8 +174,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			if (!getTotalTasks(todayPlan)) {
 				if (estimatedTotalTime(outstandingPlans).totalTasks) {
 					setTab('dailyplan');
-				} else {
+				} else if (profile.tasksGrouped.assignedTasks.length) {
 					setTab('assigned');
+				} else {
+					setTab('unassigned');
 				}
 			}
 		}
@@ -377,11 +379,7 @@ function InputFilters({ hook, profile }: Props) {
 					</Button>
 				</Tooltip>
 			</TaskUnOrAssignPopover>
-			<AddManualTimeModal
-				closeModal={closeManualTimeModal}
-				isOpen={isManualTimeModalOpen}
-				params='AddTime'
-			/>
+			<AddManualTimeModal closeModal={closeManualTimeModal} isOpen={isManualTimeModalOpen} params="AddTime" />
 		</div>
 	);
 }
