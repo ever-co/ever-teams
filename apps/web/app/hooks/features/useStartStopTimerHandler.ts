@@ -88,7 +88,11 @@ export function useStartStopTimerHandler() {
 						startTimer();
 					}
 				} else {
-					openAddTasksEstimationHoursModal();
+					if (tasksEstimateHoursModalDate != currentDate) {
+						openAddTasksEstimationHoursModal();
+					} else {
+						startTimer();
+					}
 				}
 			} else {
 				startTimer();
