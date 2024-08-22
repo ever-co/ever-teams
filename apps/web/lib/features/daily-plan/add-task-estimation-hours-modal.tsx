@@ -1,5 +1,5 @@
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
@@ -8,6 +8,7 @@ import { useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { estimatedTotalTime } from '../task/daily-plan';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -27,6 +28,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
+	const [warning, setWarning] = useState('');
 
 	const handleCloseModal = useCallback(() => {
 		localStorage.setItem(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate);
@@ -39,6 +42,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 		handleCloseModal();
 	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
+
+	useEffect(() => {
+		if (!workTimePlanned) {
+			setWarning('Please add planned time');
+		} else if (plan.tasks?.find((task) => task.estimate === null || task.estimate <= 0)) {
+			setWarning('Please, estimate all tasks');
+		}
+	}, [workTimePlanned, tasksEstimationTimes, plan.tasks]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
@@ -91,7 +102,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							</div>
 							<div className="flex gap-2 items-center text-red-500">
 								<PiWarningCircleFill className="text-2xl" />
-								<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
+								<p>{warning}</p>
 							</div>
 						</div>
 					</div>
@@ -105,6 +116,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							{t('common.SKIP_ADD_LATER')}
 						</Button>
 						<Button
+							disabled={warning ? true : false}
 							variant="default"
 							type="submit"
 							className="py-3 px-5 rounded-md font-light text-md dark:text-white"
