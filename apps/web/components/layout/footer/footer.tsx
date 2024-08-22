@@ -18,7 +18,7 @@ const Footer = () => {
 					</a>
 					<div>by</div>
 					<a
-						href={process.env.NEXT_PUBLIC_EVER_PLATFORME_LINK || 'https://ever.co'}
+						href={process.env.NEXT_PUBLIC_EVER_PLATFORM_LINK || 'https://ever.co'}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"

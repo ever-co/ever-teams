@@ -28,7 +28,7 @@ export function Footer({ className }: IClassName) {
 					{t('TITLE')}
 				</Text.Link>{' '}
 				{t('layout.footer.BY')}{' '}
-				<Text.Link href={process.env.NEXT_PUBLIC_EVER_PLATFORME_LINK || 'https://ever.co'}>
+				<Text.Link href={process.env.NEXT_PUBLIC_EVER_PLATFORM_LINK || 'https://ever.co'}>
 					{t('layout.footer.COPY_RIGHT4')}
 				</Text.Link>{' '}
 				{t('layout.footer.RIGHTS_RESERVED')}
