@@ -604,7 +604,13 @@
 		"ESTIMATED": "Szacowany",
 		"TOTAL_TASK": "Łączna liczba zadań",
 		"DAILY_PLAN_DESCRIPTION": "'Plan dnia' pomaga zorganizować proces pracy, aby osiągnąć najlepsze wyniki",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "To zadanie nie było zaplanowane na dzisiejszy plan. Czy chcesz dodać do planu?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "To zadanie nie było zaplanowane na dzisiejszy plan. Czy chcesz dodać do planu?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Proszę dodać planowany czas",
+				"TASKS_ESTIMATION": "Proszę oszacować wszystkie zadania"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Wprowadź swoje imię",

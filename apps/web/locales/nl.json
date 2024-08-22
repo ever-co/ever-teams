@@ -604,7 +604,13 @@
 		"ESTIMATED": "Geschat",
 		"TOTAL_TASK": "Totale taken",
 		"DAILY_PLAN_DESCRIPTION": "'Dagelijkse planning' helpt om het werkproces te organiseren om de beste resultaten te behalen",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Diese Aufgabe war für den heutigen Plan nicht vorgesehen. Möchten Sie den Plan ergänzen?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Diese Aufgabe war für den heutigen Plan nicht vorgesehen. Möchten Sie den Plan ergänzen?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",
+				"TASKS_ESTIMATION": "Schat alstublieft alle taken in"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Voer uw naam in",

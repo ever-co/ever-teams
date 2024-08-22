@@ -604,7 +604,13 @@
 		"ESTIMATED": "Stimato",
 		"TOTAL_TASK": "Compiti totali",
 		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Questa attività non era pianificata per il piano di oggi. Vuoi aggiungerla al piano?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Questa attività non era pianificata per il piano di oggi. Vuoi aggiungerla al piano?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Per favore, aggiungi il tempo pianificato",
+				"TASKS_ESTIMATION": "Per favore, stima tutte le attività"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Inserisci il tuo nome",
