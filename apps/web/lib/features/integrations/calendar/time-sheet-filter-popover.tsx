@@ -13,9 +13,7 @@ import { statusOptions } from "@app/constants";
 
 export function TimeSheetFilter() {
 
-
     const { teams, activeTeam } = useOrganizationTeams();
-
     const { activeTeamTask, tasks } = useTeamTasks();
     const [status, setStatus] = useState('');
     const [taskId, setTaskId] = useState<string>('');
@@ -27,9 +25,14 @@ export function TimeSheetFilter() {
         <Popover>
             <PopoverTrigger asChild>
                 <Button
-                    className='flex items-center justify-center h-10 rounded-lg bg-primary dark:bg-primary-light gap-x-3' >
-                    <SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
-                    <span className="dark:text-white">Filter</span>
+                    className='flex items-center justify-center h-10 rounded-lg bg-white dark:bg-dark--theme-light gap-x-3 border dark:border-gray-700 hover:bg-white' >
+                    <SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
+                    <div className="gap-x-2 flex items-center w-full">
+                        <span className="text-gray-700 dark:text-white">Filter</span>
+                        <div className="bg-gray-700 dark:bg-white h-6 w-6 rounded-full flex items-center  justify-center text-whiten dark:text-gray-700">
+                            <span>6</span>
+                        </div>
+                    </div>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[430px] shadow">

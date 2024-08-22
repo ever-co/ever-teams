@@ -62,7 +62,22 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
                 dateClick={handleDateClick}
                 eventDrop={handleEventDrop}
                 eventContent={renderEventContent}
-                editable
+                editable={true}
+                dragScroll={true}
+                locale={"pt-br"}
+                timeZone={"UTF"}
+                allDaySlot={false}
+                nowIndicator={true}
+                themeSystem='bootstrap'
+                contentHeight='auto'
+                select={(selected) => {
+                    console.log(selected.start)
+                }}
+                eventResize={(resize) => {
+                    console.log(resize.el.COMMENT_NODE)
+                }}
+
+            // dayPopoverFormat={}
             />
             <style jsx global>{`
                 .fc .fc-daygrid-day.fc-day-today {

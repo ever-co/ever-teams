@@ -7,7 +7,8 @@ import {
 	useDailyPlan,
 	useOrganizationTeams,
 	useOutsideClick,
-	useModal
+	useModal,
+	useLocalStorageState
 } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -51,10 +52,10 @@ type StatusFilter = { [x in IStatusType]: string[] };
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
-	const defaultValue = useMemo(
-		() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
-		[]
-	);
+	// const defaultValue = useMemo(
+	// 	() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
+	// 	[]
+	// );
 	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { profileDailyPlans, outstandingPlans, todayPlan } = useDailyPlan();
@@ -68,7 +69,8 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
 
-	const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
+	// const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
+	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked')
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>({} as StatusFilter);
@@ -139,9 +141,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		});
 	}
 
-	useEffect(() => {
-		window.localStorage.setItem('task-tab', tab);
-	}, [tab]);
+	// useEffect(() => {
+	// 	window.localStorage.setItem('task-tab', tab);
+	// }, [tab]);
 
 	useEffect(() => {
 		setTaskName('');
@@ -220,9 +222,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-									statusFilters[k],
-									task['tags'].map((item) => item.name)
-								).length === statusFilters[k].length
+								statusFilters[k],
+								task['tags'].map((item) => item.name)
+							).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
