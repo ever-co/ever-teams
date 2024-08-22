@@ -9,6 +9,7 @@ import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import clsx from 'clsx';
+import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -79,18 +80,23 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<span className="text-sm">
 								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
 							</span>
-
-							<InputField
-								type="number"
-								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-								className="mb-0 min-w-[350px]"
-								wrapperClassName="mb-0 rounded-lg"
-								onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-								required
-								min={0}
-								value={workTimePlanned}
-								defaultValue={plan.workTimePlanned ?? 0}
-							/>
+							<div className="w-full flex gap-3 h-[3rem]">
+								<InputField
+									type="number"
+									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+									className="h-full"
+									wrapperClassName=" h-full"
+									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+									required
+									noWrapper
+									min={0}
+									value={workTimePlanned}
+									defaultValue={plan.workTimePlanned ?? 0}
+								/>
+								<div className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center">
+									<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+								</div>
+							</div>
 						</div>
 						<div className="text-sm flex flex-col gap-3">
 							<div className="text-sm flex flex-col gap-3">
@@ -145,16 +151,23 @@ function TaskCard({ task }: ITaskCardProps) {
 		<Card
 			shadow="custom"
 			className={clsx(
-				'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-[30rem] h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
 				task.id === activeTeamTask?.id && 'border-primary-light border-[0.15rem]'
 			)}
 			onClick={() => setActiveTask(task)}
 		>
-			<div className="min-w-[50%] max-w-[50%]">
+			<div className="min-w-[48%] flex items-center h-full max-w-[50%]">
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
-			<TaskEstimate _task={task} />
+			<div className="h-full  grow flex items-center justify-end gap-2">
+				<div className="h-full flex items-center justify-center gap-1">
+					<span>Estimation :</span> <TaskEstimate _task={task} />
+				</div>
+				<span className="w-4 h-full flex items-center justify-center">
+					<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
+				</span>
+			</div>
 		</Card>
 	);
 }
