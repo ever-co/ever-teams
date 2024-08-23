@@ -9,7 +9,7 @@ const Footer = () => {
 				<div className="flex items-center justify-between space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>
 					<a
-						href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://gauzy.team'}
+						href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://ever.team'}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
