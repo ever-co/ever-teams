@@ -32,8 +32,8 @@ export function SetupTimeSheet({ timesheet }: ISetupTimeSheetProps) {
                     </div>
                     <div className='flex gap-x-2 h-6'>
                         <StatusBadge selectedStatus='77:00h' />
-                        {statusOptions.map((itens, index) => (
-                            <StatusBadge key={index} selectedStatus={itens.value} filterNumber={`${index + 2}`} />
+                        {statusOptions.map((items, index) => (
+                            <StatusBadge key={index} selectedStatus={items.value} filterNumber={`${index + 2}`} />
 
                         ))}
                     </div>
