@@ -24,7 +24,7 @@ export function Footer({ className }: IClassName) {
 		<footer className={clsxm('flex flex-col xs:flex-row justify-around items-center w-full py-6 px-3', className)}>
 			<p className="text-neutral text-xs font-normal leading-4 -tracking-[-0.02em] text-center md:mb-2 mb-7">
 				{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}{' '}
-				<Text.Link href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://gauzy.team'}>
+				<Text.Link href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://ever.team'}>
 					{t('TITLE')}
 				</Text.Link>{' '}
 				{t('layout.footer.BY')}{' '}
