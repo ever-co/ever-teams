@@ -604,7 +604,13 @@
 		"ESTIMATED": "预计",
 		"TOTAL_TASK": "总任务",
 		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "请添加计划时间",
+				"TASKS_ESTIMATION": "请估算所有任务"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",

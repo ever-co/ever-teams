@@ -604,7 +604,13 @@
 		"ESTIMATED": "تقديري",
 		"TOTAL_TASK": "إجمالي المهام",
 		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "يرجى إضافة الوقت المخطط",
+				"TASKS_ESTIMATION": "يرجى تقدير جميع المهام"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",

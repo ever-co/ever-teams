@@ -604,7 +604,13 @@
 		"ESTIMATED": "Estimado",
 		"TOTAL_TASK": "Tareas totales",
 		"DAILY_PLAN_DESCRIPTION": "'Plan diario' ayuda a organizar el proceso de trabajo para lograr los mejores resultados",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarea no estaba prevista en el plan de hoy. ¿Te gustaría añadir algo al plan?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarea no estaba prevista en el plan de hoy. ¿Te gustaría añadir algo al plan?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Por favor, añade tiempo planificado",
+				"TASKS_ESTIMATION": "Por favor, estima todas las tareas"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ingresa tu nombre",

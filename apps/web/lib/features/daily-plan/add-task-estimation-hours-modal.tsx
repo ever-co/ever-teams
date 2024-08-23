@@ -9,6 +9,7 @@ import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { estimatedTotalTime } from '../task/daily-plan';
+import { clsxm } from '@app/utils';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -21,7 +22,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const { isOpen, closeModal, plan, tasks } = props;
 
 	const t = useTranslations();
-	const { updateDailyPlan } = useDailyPlan();
+	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
 	const { startTimer } = useTimerView();
 	const { activeTeam } = useTeamTasks();
 
@@ -44,12 +45,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
 
 	useEffect(() => {
-		if (!workTimePlanned) {
-			setWarning('Please add planned time');
-		} else if (plan.tasks?.find((task) => task.estimate === null || task.estimate <= 0)) {
-			setWarning('Please, estimate all tasks');
+		if (!workTimePlanned || workTimePlanned <= 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		} else if (plan.tasks?.find((task) => !task.estimate)) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+		} else {
+			setWarning('');
 		}
-	}, [workTimePlanned, tasksEstimationTimes, plan.tasks]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [workTimePlanned, tasksEstimationTimes, plan.tasks, myDailyPlans]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
@@ -100,9 +104,13 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 									))}
 								</div>
 							</div>
-							<div className="flex gap-2 items-center text-red-500">
-								<PiWarningCircleFill className="text-2xl" />
-								<p>{warning}</p>
+							<div className="flex gap-2 items-center h-6 text-red-500">
+								{warning && (
+									<>
+										<PiWarningCircleFill className="text-2xl" />
+										<p>{warning}</p>
+									</>
+								)}
 							</div>
 						</div>
 					</div>
@@ -119,7 +127,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							disabled={warning ? true : false}
 							variant="default"
 							type="submit"
-							className="py-3 px-5 rounded-md font-light text-md dark:text-white"
+							className={clsxm(
+								'py-3 px-5 rounded-md font-light text-md dark:text-white',
+								warning && 'bg-gray-400'
+							)}
 							onClick={handleSubmit}
 						>
 							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
