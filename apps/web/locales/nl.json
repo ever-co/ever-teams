@@ -608,7 +608,9 @@
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",
-				"TASKS_ESTIMATION": "Schat alstublieft alle taken in"
+				"TASKS_ESTIMATION": "Schat alstublieft alle taken in",
+				"OPTIMIZE_PLAN": "De totale geschatte tijd overschrijdt uw geplande tijd, optimaliseer uw plan alstublieft",
+				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe"
 			}
 		}
 	},

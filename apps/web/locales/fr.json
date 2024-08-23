@@ -608,7 +608,9 @@
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Veuillez ajouter le temps planifié",
-				"TASKS_ESTIMATION": "Veuillez estimer toutes les tâches"
+				"TASKS_ESTIMATION": "Veuillez estimer toutes les tâches",
+				"OPTIMIZE_PLAN": "Le temps total estimé dépasse votre temps planifié, veuillez optimiser votre plan",
+				"PLAN_MORE_TASKS": "Veuillez ajouter plus de tâches au plan"
 			}
 		}
 	},

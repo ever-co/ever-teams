@@ -37,13 +37,39 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const handleCloseModal = useCallback(() => {
 		localStorage.setItem(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate);
 		closeModal();
-	}, [closeModal, currentDate]);
+		startTimer();
+	}, [closeModal, currentDate, startTimer]);
 
 	const handleSubmit = useCallback(() => {
 		updateDailyPlan({ workTimePlanned }, plan.id ?? '');
-		startTimer();
 		handleCloseModal();
-	}, [handleCloseModal, plan.id, startTimer, updateDailyPlan, workTimePlanned]);
+	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
+
+	const checkPlannedAndEstimateTimeDiff = useCallback(() => {
+		if (workTimePlanned) {
+			if (workTimePlanned > tasksEstimationTimes) {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.PLAN_MORE_TASKS'));
+			} else {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.OPTIMIZE_PLAN'));
+			}
+		} else {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [tasksEstimationTimes, workTimePlanned]);
+
+	useEffect(() => {
+		if (!workTimePlanned || workTimePlanned <= 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		} else if (plan.tasks?.find((task) => !task.estimate)) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+		} else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+			checkPlannedAndEstimateTimeDiff();
+		} else {
+			setWarning('');
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [workTimePlanned, tasksEstimationTimes, plan.tasks, myDailyPlans]);
 
 	// Put tasks without estimates at the top of the list
 	const sortedTasks = useMemo(
@@ -72,21 +98,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen]);
 
-	useEffect(() => {
-		if (!workTimePlanned || workTimePlanned <= 0) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
-		} else if (plan.tasks?.find((task) => !task.estimate)) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
-		} else {
-			setWarning('');
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [workTimePlanned, tasksEstimationTimes, plan.tasks, myDailyPlans]);
-
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
 			<Card className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between">
+				<div className="flex w-[32rem] flex-col justify-between">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
 							{t('timer.todayPlanSettings.TITLE')}
@@ -115,21 +130,30 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						<div className="text-sm flex flex-col gap-3">
 							<div className="text-sm flex flex-col gap-3">
-								<span>
-									{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIONS')}{' '}
-									<span className="text-red-600">*</span>
-								</span>
+								<div className="w-full flex items-center justify-between gap-2">
+									<div className="flex items-center justify-center gap-1">
+										<span>Tasks</span>
+										<span className="text-red-600">*</span>
+									</div>
+									<div className="flex items-center justify-center gap-1">
+										<span>Total estimate:</span>
+										<span className=" font-medium">
+											{tasksEstimationTimes.toFixed(1)}
+											{' h'}
+										</span>
+									</div>
+								</div>
 								<div className="flex flex-col gap-1">
 									{sortedTasks.map((task, index) => (
 										<TaskCard key={index} task={task} />
 									))}
 								</div>
 							</div>
-							<div className="flex gap-2 items-center h-6 text-red-500">
+							<div className="flex gap-2 text-sm h-6 text-red-500">
 								{warning && (
 									<>
-										<PiWarningCircleFill className="text-2xl" />
-										<p>{warning}</p>
+										<PiWarningCircleFill />
+										<span>{warning}</span>
 									</>
 								)}
 							</div>
@@ -174,7 +198,7 @@ function TaskCard({ task }: ITaskCardProps) {
 		<Card
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-[30rem] h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
 				task.id === activeTeamTask?.id && 'border-primary-light border-[0.15rem]'
 			)}
 			onClick={() => setActiveTask(task)}

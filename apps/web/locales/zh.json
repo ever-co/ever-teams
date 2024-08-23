@@ -608,7 +608,9 @@
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "请添加计划时间",
-				"TASKS_ESTIMATION": "请估算所有任务"
+				"TASKS_ESTIMATION": "请估算所有任务",
+				"OPTIMIZE_PLAN": "总预计时间超过您的计划时间，请优化您的计划",
+				"PLAN_MORE_TASKS": "请在计划中添加更多任务"
 			}
 		}
 	},
