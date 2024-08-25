@@ -1,45 +1,30 @@
 import { useState } from "react";
 import { useOrganizationTeams, useTeamTasks } from "@app/hooks";
 import { Button } from "@components/ui/button"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@components/ui/popover"
-import { SettingFilterIcon } from "assets/svg"
-import { SelectItems } from "lib/components";
+import { Modal, SelectItems } from "lib/components";
 import { statusOptions } from "@app/constants";
+interface TimeSheetFilterProps {
+    isOpen: boolean,
+    closeModal: () => void
+}
 
-
-export function TimeSheetFilter() {
-
+export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
     const { teams, activeTeam } = useOrganizationTeams();
     const { activeTeamTask, tasks } = useTeamTasks();
     const [status, setStatus] = useState('');
     const [taskId, setTaskId] = useState<string>('');
     const [teamId, setTeamId] = useState<string>('');
     const [membersId, setMembersId] = useState('')
-
-
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    className='flex items-center justify-center h-10 rounded-lg bg-white dark:bg-dark--theme-light gap-x-3 border dark:border-gray-700 hover:bg-white' >
-                    <SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
-                    <div className="gap-x-2 flex items-center w-full">
-                        <span className="text-gray-700 dark:text-white">Filter</span>
-                        <div className="bg-gray-700 dark:bg-white h-6 w-6 rounded-full flex items-center  justify-center text-whiten dark:text-gray-700">
-                            <span>6</span>
-                        </div>
-                    </div>
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[430px] shadow">
-                <div className="w-full flex flex-col gap-4">
-                    <div className="flex items-center justify-center">
-                        <h4 className="font-bold leading-none text-[20px] ">Select Filter</h4>
-                    </div>
+        <>
+            <Modal
+                isOpen={isOpen}
+                closeModal={closeModal}
+                title={"Filters"}
+                className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl !w-[400px]  md:w-40 md:min-w-[24rem] h-[auto] justify-start shadow-xl"
+                titleClass="font-bold"
+            >
+                <div className="w-full flex flex-col gap-5 ">
                     <div className="grid gap-3">
 
                         <div className="">
@@ -92,13 +77,20 @@ export function TimeSheetFilter() {
                                 triggerClassName="border-slate-100 dark:border-slate-600"
                             />
                         </div>
-                        <Button
-                            className='flex items-center justify-center h-10 rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300' >
-                            <span>Add Filter</span>
-                        </Button>
+                        <div className="flex items-center justify-between gap-x-4 w-full">
+                            <Button
+                                variant={'outline'}
+                                className='flex items-center justify-center h-10 w-full rounded-lg  dark:text-gray-300' >
+                                <span>Clear Filter</span>
+                            </Button>
+                            <Button
+                                className='flex items-center justify-center h-10 w-full rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300' >
+                                <span>Apply Filter</span>
+                            </Button>
+                        </div>
                     </div>
                 </div>
-            </PopoverContent>
-        </Popover>
+            </Modal>
+        </>
     )
 }
