@@ -44,9 +44,13 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 2
 		};
 	}, [page, items]);
 
-	return slicedItems.map((item, i) => {
-		const key = 'id' in item ? (item.id as any) : i;
+	return (
+		<>
+			{slicedItems.map((item, i) => {
+				const key = 'id' in item ? (item.id as any) : i;
 
-		return <React.Fragment key={key}>{children ? children(item, i) : undefined}</React.Fragment>;
-	});
+				return <React.Fragment key={key}>{children ? children(item, i) : undefined}</React.Fragment>;
+			})}
+		</>
+	);
 }
