@@ -980,7 +980,8 @@ export function StatusDropdown<T extends TStatusItem>({
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
-				isVersion && 'dark:text-white'
+				isVersion && 'dark:text-white',
+				'h-full'
 			)}
 			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
 			isVersion={isVersion}
@@ -1002,7 +1003,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	);
 
 	const dropdown = (
-		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
+		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={clsxm('relative', className)}>
 				<Listbox
 					value={value?.value || value?.name || (multiple ? [] : null)}
