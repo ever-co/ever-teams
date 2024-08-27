@@ -39,7 +39,7 @@ export function TaskNameInfoDisplay({
 	const short: string = taskSizeColor[size].short;
 	return (
 		<Tooltip label={task?.title || ''} placement="top" enabled={(task?.title && task?.title.length > 60) || false}>
-			<span className="flex">
+			<span className="flex items-center">
 				{task && (
 					// Show task issue and task number
 					<div>
