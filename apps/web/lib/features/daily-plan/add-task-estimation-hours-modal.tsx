@@ -1,5 +1,5 @@
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
@@ -8,6 +8,8 @@ import { useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import clsx from 'clsx';
+import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -22,7 +24,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const t = useTranslations();
 	const { updateDailyPlan } = useDailyPlan();
 	const { startTimer } = useTimerView();
-	const { activeTeam } = useTeamTasks();
+	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
 
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -40,6 +42,33 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		handleCloseModal();
 	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
 
+	// Put tasks without estimates at the top of the list
+	const sortedTasks = useMemo(
+		() =>
+			[...tasks].sort((t1, t2) => {
+				if ((t1.estimate === null || t1.estimate <= 0) && t2.estimate !== null && t2.estimate > 0) {
+					return -1;
+				} else if (t1.estimate !== null && t1.estimate > 0 && (t2.estimate === null || t2.estimate <= 0)) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}),
+		[tasks]
+	);
+
+	// Set the active task from the today's plan (preferable estimated task)
+	useEffect(() => {
+		if (!sortedTasks.find((task) => task.id == activeTeamTask?.id)) {
+			[...sortedTasks].forEach((task) => {
+				if (task.estimate !== null && task.estimate > 0) {
+					isOpen && setActiveTask(task);
+				}
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isOpen]);
+
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
 			<Card className="w-full" shadow="custom">
@@ -52,18 +81,23 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<span className="text-sm">
 								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
 							</span>
-
-							<InputField
-								type="number"
-								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-								className="mb-0 min-w-[350px]"
-								wrapperClassName="mb-0 rounded-lg"
-								onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-								required
-								min={0}
-								value={workTimePlanned}
-								defaultValue={plan.workTimePlanned ?? 0}
-							/>
+							<div className="w-full flex gap-3 h-[3rem]">
+								<InputField
+									type="number"
+									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+									className="h-full"
+									wrapperClassName=" h-full"
+									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+									required
+									noWrapper
+									min={0}
+									value={workTimePlanned}
+									defaultValue={plan.workTimePlanned ?? 0}
+								/>
+								<div className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center">
+									<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+								</div>
+							</div>
 						</div>
 						<div className="text-sm flex flex-col gap-3">
 							<div className="text-sm flex flex-col gap-3">
@@ -72,20 +106,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 									<span className="text-red-600">*</span>
 								</span>
 								<div className="flex flex-col gap-1">
-									{tasks.map((task, index) => (
-										<Card
-											key={index}
-											shadow="custom"
-											className={
-												'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs'
-											}
-										>
-											<div className="min-w-[50%] max-w-[50%]">
-												<TaskNameInfoDisplay task={task} />
-											</div>
-											<VerticalSeparator />
-											<TaskEstimate _task={task} />
-										</Card>
+									{sortedTasks.map((task, index) => (
+										<TaskCard key={index} task={task} />
 									))}
 								</div>
 							</div>
@@ -116,5 +138,37 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 				</div>
 			</Card>
 		</Modal>
+	);
+}
+
+interface ITaskCardProps {
+	task: ITeamTask;
+}
+
+function TaskCard({ task }: ITaskCardProps) {
+	const { setActiveTask, activeTeamTask } = useTeamTasks();
+
+	return (
+		<Card
+			shadow="custom"
+			className={clsx(
+				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-[30rem] h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				task.id === activeTeamTask?.id && 'border-primary-light border-[0.15rem]'
+			)}
+			onClick={() => setActiveTask(task)}
+		>
+			<div className="min-w-[48%] flex items-center h-full max-w-[50%]">
+				<TaskNameInfoDisplay task={task} />
+			</div>
+			<VerticalSeparator />
+			<div className="h-full  grow flex items-center justify-end gap-2">
+				<div className="h-full flex items-center justify-center gap-1">
+					<span>Estimation :</span> <TaskEstimate _task={task} />
+				</div>
+				<span className="w-4 h-full flex items-center justify-center">
+					<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
+				</span>
+			</div>
+		</Card>
 	);
 }
