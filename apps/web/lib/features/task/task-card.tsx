@@ -371,6 +371,7 @@ function TimerButtonCall({
 	);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const t = useTranslations();
 
 	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
@@ -420,10 +421,24 @@ function TimerButtonCall({
 				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
 				className={clsxm('h-14 w-14', className)}
 			/>
+
 			<SuggestDailyPlanModal
 				isOpen={modals.isSuggestDailyPlanModalOpen}
 				closeModal={modals.suggestDailyPlanCloseModal}
 			/>
+
+			{/**
+			 * Track time on planned task (SOFT FLOW)
+			 */}
+			{hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+					closeModal={modals.enforceTaskSoftCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskSoftModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
 
 			{hasPlan && hasPlan.tasks && (
 				<AddTasksEstimationHoursModal
@@ -442,8 +457,14 @@ function TimerButtonCall({
 				/>
 			)}
 
+			{/**
+			 * Track time on planned task (REQUIRE PLAN)
+			 */}
+
 			{requirePlan && hasPlan && activeTeamTask && (
 				<EnforcePlanedTaskModal
+					onOK={startTimer}
+					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
 					closeModal={modals.enforceTaskCloseModal}
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}
