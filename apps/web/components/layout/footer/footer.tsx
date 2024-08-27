@@ -9,7 +9,7 @@ const Footer = () => {
 				<div className="flex items-center justify-between space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>
 					<a
-						href="https://gauzy.team"
+						href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://ever.team'}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
@@ -18,7 +18,7 @@ const Footer = () => {
 					</a>
 					<div>by</div>
 					<a
-						href="https://ever.co"
+						href={process.env.NEXT_PUBLIC_EVER_PLATFORM_LINK || 'https://ever.co'}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
@@ -38,7 +38,7 @@ const Footer = () => {
 			<div className="flex flex-col items-center xs:flex-row sm:flex-col md:flex-row">
 				<div className="flex justify-center w-full space-x-4 text-center">
 					<a
-						href="https://demo.gauzy.co/#/pages/legal/terms"
+						href={process.env.NEXT_PUBLIC_EVER_LEGAL_TERM}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
@@ -46,7 +46,7 @@ const Footer = () => {
 						{t('layout.footer.TERMS')}
 					</a>
 					<a
-						href="https://demo.gauzy.co/#/pages/legal/privacy"
+						href={process.env.NEXT_PUBLIC_EVER_LEGAL_PRIVACY}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
