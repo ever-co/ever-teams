@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 
 type Props<T> = {
 	items: T[];
@@ -13,6 +13,7 @@ type Props<T> = {
  * @returns
  */
 export function LazyRender<T extends object>({ items, children, itemsPerPage = 20 }: Props<T>) {
+	const itemsRef = useRef(items);
 	const [slicedItems, setSlicedItems] = useState<T[]>([]);
 	const [page, setPage] = useState(1);
 
@@ -21,6 +22,14 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 2
 			setSlicedItems(items);
 			return;
 		}
+
+		if (itemsRef.current !== items) {
+			setPage(1);
+			itemsRef.current = items;
+			return;
+		}
+
+		itemsRef.current = items;
 
 		let cancelableIdlCallback = requestIdleCallback(function callback(deadline) {
 			console.log('Called Lazy Render');
@@ -31,9 +40,9 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 2
 
 			const newItems = items.slice(0, itemsPerPage * page);
 
-			if (items.length > newItems.length) {
-				setSlicedItems((prevItems) => (prevItems.length === newItems.length ? prevItems : newItems));
+			setSlicedItems((prevItems) => (prevItems.length === newItems.length ? prevItems : newItems));
 
+			if (items.length > newItems.length) {
 				// Increment the page to trigger the next render
 				setPage((p) => p + 1);
 			}
@@ -42,7 +51,7 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 2
 		return () => {
 			window.cancelIdleCallback(cancelableIdlCallback);
 		};
-	}, [page, items]);
+	}, [page, items, itemsRef]);
 
 	return (
 		<>
