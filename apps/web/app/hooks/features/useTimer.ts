@@ -370,7 +370,7 @@ export function useTimer() {
 
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
-		if (timerStatus?.running) {
+		if (timerStatus?.running && firstLoad) {
 			syncTimerInterval = setInterval(() => {
 				syncTimer();
 			}, 60000);
@@ -378,7 +378,7 @@ export function useTimer() {
 		return () => {
 			if (syncTimerInterval) clearInterval(syncTimerInterval);
 		};
-	}, [syncTimer, timerStatus]);
+	}, [syncTimer, timerStatus, firstLoad]);
 
 	// If active team changes then stop the timer
 	useEffect(() => {
@@ -402,9 +402,9 @@ export function useTimer() {
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;
-		const canStop = lastActiveTaskId.current !== null && taskId !== lastActiveTaskId.current && firstLoad;
+		const canStop = lastActiveTaskId.current !== null && taskId !== lastActiveTaskId.current;
 
-		if (canStop && timerStatusRef.current?.running) {
+		if (canStop && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {

@@ -68,7 +68,7 @@ export function MemberFilter() {
 					{({ open }) => {
 						return (
 							<>
-								<Listbox.Button as="div" className="cursor-pointer">
+								<Listbox.Button as="div" className="cursor-pointer border rounded-lg dark:border-dark-lighter">
 									<MemberFilterOption
 										label={value.label}
 										icon={
