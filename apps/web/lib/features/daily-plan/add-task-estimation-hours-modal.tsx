@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
 import { clsxm } from '@app/utils';
+import { formatIntegerToHour } from '@app/helpers';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -138,8 +139,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 									<div className="flex items-center justify-center gap-1">
 										<span>Total estimate:</span>
 										<span className=" font-medium">
-											{tasksEstimationTimes.toFixed(1)}
-											{' h'}
+											{formatIntegerToHour(tasksEstimationTimes)}
 										</span>
 									</div>
 								</div>
