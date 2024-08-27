@@ -5,7 +5,7 @@ import { PiWarningCircleFill } from 'react-icons/pi';
 import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -14,6 +14,7 @@ import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { Popover, Transition } from '@headlessui/react';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
+import { AxiosResponse } from 'axios';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -194,8 +195,8 @@ interface ITaskCardActionsProps {
 
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan } = props;
-
-	const { futurePlans, todayPlan } = useDailyPlan();
+	const { user } = useAuthenticateUser();
+	const { futurePlans, todayPlan, removeManyTaskPlans } = useDailyPlan();
 
 	const otherPlanIds = useMemo(
 		() =>
@@ -213,14 +214,14 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	 * @param {string} [taskId] - The task ID
 	 * @param {string[]} [planIds] - The list of plan IDs
 	 *
-	 * @returns {void}
+	 * @returns {Promise<AxiosResponse<IDailyPlan[], any>>}
 	 *
 	 */
-	const handleUplanTask = useCallback(
+	const handleUnplanTask = useCallback(
 		(taskId: string, planIds: string[]) => {
-			console.log(task.id, selectedPlan, otherPlanIds);
+			return removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
 		},
-		[otherPlanIds, selectedPlan, task.id]
+		[removeManyTaskPlans, user?.employee.id]
 	);
 
 	return (
@@ -239,7 +240,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				className="absolute z-10 right-0 min-w-[110px]"
 			>
 				<Popover.Panel>
-					{() => {
+					{({ close }) => {
 						return (
 							<Card shadow="custom" className=" shadow-xlcard  !p-3 !rounded-lg !border-2">
 								<ul className=" flex flex-col justify-end gap-3">
@@ -256,15 +257,19 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 									{selectedPlan && selectedPlan.id && (
 										<li>
 											{otherPlanIds.length ? (
-												<UplanTask
+												<UnplanTask
 													taskId={task.id}
 													selectedPlanId={selectedPlan.id}
-													planIds={otherPlanIds}
-													unplanHandler={handleUplanTask}
+													planIds={[selectedPlan.id, ...otherPlanIds]}
+													unplanHandler={handleUnplanTask}
 												/>
 											) : (
 												<span
-													onClick={() => handleUplanTask(task.id, [selectedPlan.id!])}
+													onClick={() =>
+														handleUnplanTask(task.id, [selectedPlan.id!]).then(() =>
+															close()
+														)
+													}
 													className={clsxm(
 														' text-red-600 hover:font-semibold hover:transition-all'
 													)}
@@ -288,7 +293,7 @@ interface IUnplanTaskProps {
 	taskId: string;
 	selectedPlanId: string;
 	planIds: string[];
-	unplanHandler: (taskId: string, planIds: string[]) => void;
+	unplanHandler: (taskId: string, planIds: string[]) => Promise<AxiosResponse<IDailyPlan[], any>>;
 }
 
 /**
@@ -303,7 +308,7 @@ interface IUnplanTaskProps {
  * @returns {JSX.Element} The Popover component.
  */
 
-function UplanTask(props: IUnplanTaskProps) {
+function UnplanTask(props: IUnplanTaskProps) {
 	const { taskId, selectedPlanId, planIds, unplanHandler } = props;
 	return (
 		<Popover>
@@ -329,13 +334,13 @@ function UplanTask(props: IUnplanTaskProps) {
 							>
 								<ul className="p-3 w-full flex flex-col border justify-end gap-3">
 									<li
-										onClick={() => unplanHandler(taskId, [selectedPlanId])}
+										onClick={() => unplanHandler(taskId, [selectedPlanId]).then(() => close())}
 										className={clsxm('hover:font-semibold hover:transition-all shrink-0')}
 									>
-										Uplan selected date
+										Unclear plan selected date
 									</li>
 									<li
-										onClick={() => unplanHandler(taskId, planIds)}
+										onClick={() => unplanHandler(taskId, planIds).then(() => close())}
 										className={clsxm('hover:font-semibold hover:transition-all')}
 									>
 										Unplan all
