@@ -12,7 +12,7 @@ type Props<T> = {
  * @param param0
  * @returns
  */
-export function LazyRender<T extends object>({ items, children, itemsPerPage = 20 }: Props<T>) {
+export function LazyRender<T extends object>({ items, children, itemsPerPage = 10 }: Props<T>) {
 	const itemsRef = useRef(items);
 	const [slicedItems, setSlicedItems] = useState<T[]>([]);
 	const [page, setPage] = useState(1);
@@ -23,13 +23,11 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 2
 			return;
 		}
 
-		if (itemsRef.current !== items) {
-			setPage(1);
+		if (itemsRef.current !== items && page > 1) {
 			itemsRef.current = items;
+			setPage(1);
 			return;
 		}
-
-		itemsRef.current = items;
 
 		let cancelableIdlCallback = requestIdleCallback(function callback(deadline) {
 			console.log('Called Lazy Render');
@@ -40,7 +38,11 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 2
 
 			const newItems = items.slice(0, itemsPerPage * page);
 
-			setSlicedItems((prevItems) => (prevItems.length === newItems.length ? prevItems : newItems));
+			setSlicedItems((prevItems) =>
+				prevItems.length === newItems.length && itemsRef.current === items ? prevItems : newItems
+			);
+
+			itemsRef.current = items;
 
 			if (items.length > newItems.length) {
 				// Increment the page to trigger the next render
