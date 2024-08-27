@@ -22,9 +22,15 @@ export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTe
 
 							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme flex flex-col gap-2 mt-4">
 								{team.members.length > 0 ? (
-									team.members.map((member) => {
-										return <UserTeamCard key={`${member.id}${team.id}`} member={member} />;
-									})
+									<ul>
+										{team.members.map((member) => {
+											return (
+												<li key={member.id} className='mb-4'>
+													<UserTeamCard key={`${member.id}${team.id}`} member={member} />
+												</li>
+											)
+										})}
+									</ul>
 								) : (
 									<div className="text-center font-medium">
 										There is no member for filtered value in the team{' '}
