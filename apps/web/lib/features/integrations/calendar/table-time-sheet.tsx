@@ -49,10 +49,9 @@ import {
     MdKeyboardArrowLeft,
     MdKeyboardArrowRight
 } from "react-icons/md";
-import { ConfirmStatusChange, TimeSheet, dataSourceTimeSheet, statusOptions } from "."
+import { ConfirmStatusChange, StatusBadge, TimeSheet, dataSourceTimeSheet, statusOptions } from "."
 import { useModal } from "@app/hooks"
 import { Checkbox } from "@components/ui/checkbox";
-import { Badge } from "@components/ui/badge"
 
 
 
@@ -318,32 +317,6 @@ export function DataTableTimeSheet() {
 
 
 
-function StatusBadge({ selectedStatus }: { selectedStatus?: string }) {
-
-    const [selected] = React.useState(selectedStatus);
-
-    const getColorClass = () => {
-        switch (selected) {
-            case "Rejected":
-                return "text-red-500 border-red-500 ";
-            case "Approved":
-                return "text-green-500 border-green-500";
-            case "Pending":
-                return "text-orange-500 border-orange-500";
-            default:
-                return "text-gray-500 border-gray-200";
-        }
-
-
-    };
-
-
-    return (
-        <Badge className={`${getColorClass()} bg-transparent rounded-md py-1 px-2 text-center hover:bg-transparent`}
-        >{selected}</Badge>
-    );
-}
-
 
 export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 
@@ -354,11 +327,11 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
     const getColorClass = () => {
         switch (selected) {
             case "Rejected":
-                return "text-red-500 border-red-500 rou";
+                return "text-red-500 border-gray-200";
             case "Approved":
-                return "text-green-500 border-green-500";
+                return "text-green-500 border-gray-200";
             case "Pending":
-                return "text-orange-500 border-orange-500";
+                return "text-orange-500 border-gray-200";
             default:
                 return "text-gray-500 border-gray-200";
         }
@@ -387,7 +360,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
                 onValueChange={(value) => onValueChanges(value)}
             >
                 <SelectTrigger
-                    className={`min-w-[120px] w-fit border border-gray-200 dark:border-gray-700 bg-transparent font-medium rounded-xl ${getColorClass()}`}
+                    className={`min-w-[120px] w-fit border border-gray-200 h-8 dark:border-gray-700 bg-transparent font-normal rounded-md ${getColorClass()}`}
                 >
                     <SelectValue
                         placeholder="Select a daily"

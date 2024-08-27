@@ -63,7 +63,7 @@ const CalendarPage = () => {
                     params='AddManuelTime'
                 />
                 <div
-                    className='fixed top-20 flex flex-col border-b-[1px] dark:border-[#26272C] z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 '
+                    className='fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 '
                 >
                     <Container fullWidth={fullWidth}>
                         <div className="flex bg-white dark:bg-dark-high flex-row items-start justify-between mt-12">
@@ -82,7 +82,7 @@ const CalendarPage = () => {
                                 setCalendarTimeSheet={setCalendarTimeSheet}
 
                             />
-                            <div className='border border-gray-100 dark:border-gray-700 w-full'></div>
+                            <div className='border border-gray-100 dark:border-gray-800 w-full'></div>
                         </div>
                     </Container>
                 </div>
