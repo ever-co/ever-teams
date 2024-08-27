@@ -154,6 +154,7 @@ export function useTeamTasks() {
 				const activeTeamTasks = tasksRef.current.slice().sort((a, b) => a.title.localeCompare(b.title));
 
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
+					// Fetch plans with updated task(s)
 					getMyDailyPlans();
 					getAllDayPlans();
 					setAllTasks(responseTasks);
