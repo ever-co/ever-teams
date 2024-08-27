@@ -29,7 +29,13 @@ export default function AllTeamsMembersBlockView({ teams }: { teams: IOrganizati
 	return (
 		<>
 			{employeesArray.length > 0 ? (
-				employeesArray.map((employee) => <UserTeamBlockCard key={employee.id} member={employee} />)
+				<div className="flex w-full flex-wrap items-start">{
+					employeesArray.map((employee) =>
+						<div className="px-2" key={employee.id}>
+							<UserTeamBlockCard key={employee.id} member={employee} />
+						</div>
+					)
+				}</div>
 			) : (
 				<div className="text-center font-medium w-full">There is no member for filtered value</div>
 			)}
