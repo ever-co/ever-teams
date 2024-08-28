@@ -3,23 +3,26 @@ import { deleteApi, get, post, put } from '../axios';
 import {
 	DeleteResponse,
 	ICreateDailyPlan,
+	ID,
 	IDailyPlan,
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlans,
 	IUpdateDailyPlan,
 	PaginationResponse
 } from '@app/interfaces';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
-export function getAllDayPlansAPI() {
+export function getAllDayPlansAPI(activeTeamId?: ID) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
+	const organizationTeamId = getActiveTeamIdCookie();
 
 	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': activeTeamId || organizationTeamId
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -30,15 +33,17 @@ export function getAllDayPlansAPI() {
 	return get<PaginationResponse<IDailyPlan>>(`/daily-plan?${query}`, { tenantId });
 }
 
-export function getMyDailyPlansAPI() {
+export function getMyDailyPlansAPI(activeTeamId?: ID) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
+	const organizationTeamId = getActiveTeamIdCookie();
 
 	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': activeTeamId || organizationTeamId
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -49,15 +54,17 @@ export function getMyDailyPlansAPI() {
 	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/me?${query}`, { tenantId });
 }
 
-export function getDayPlansByEmployeeAPI(employeeId?: string) {
+export function getDayPlansByEmployeeAPI(employeeId?: string, activeTeamId?: ID) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
+	const organizationTeamId = getActiveTeamIdCookie();
 
 	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': activeTeamId || organizationTeamId
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -71,10 +78,12 @@ export function getDayPlansByEmployeeAPI(employeeId?: string) {
 export function getPlansByTaskAPI(taskId?: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
+	const organizationTeamId = getActiveTeamIdCookie();
 
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': organizationTeamId
 	} as Record<string, string>;
 
 	const query = qs.stringify(obj);
@@ -106,9 +115,9 @@ export function removeTaskFromPlanAPI(data: IDailyPlanTasksUpdate, planId: strin
 	return put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 }
 
-export function removeManyTaskFromPlansAPI({ taskId, data }: { taskId: string, data: IRemoveTaskFromManyPlans }) {
+export function removeManyTaskFromPlansAPI({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlans }) {
 	const organizationId = getOrganizationIdCookie();
-	return put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId })
+	return put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 }
 
 export function deleteDailyPlanAPI(planId: string) {

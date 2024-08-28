@@ -284,7 +284,7 @@ export function useDailyPlan() {
 		);
 
 	const todayTasks = todayPlan
-		.map((plan) => {
+		?.map((plan) => {
 			return plan.tasks ? plan.tasks : [];
 		})
 		.flat();
@@ -333,8 +333,9 @@ export function useDailyPlan() {
 		if (firstLoad) {
 			getMyDailyPlans();
 			getAllDayPlans();
+			getEmployeeDayPlans(user?.employee.id || '');
 		}
-	}, [getMyDailyPlans, getAllDayPlans, firstLoad]);
+	}, [getMyDailyPlans, activeTeam?.id, getAllDayPlans, firstLoad, getEmployeeDayPlans, user?.employee.id]);
 
 	return {
 		dailyPlan,

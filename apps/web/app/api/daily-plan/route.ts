@@ -19,13 +19,21 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
 	const res = new NextResponse();
 
-	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
+	const {
+		$res,
+		user,
+		tenantId,
+		organizationId,
+		teamId: organizationTeamId,
+		access_token
+	} = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
 	const response = await getAllDayPlans({
 		bearer_token: access_token,
 		organizationId,
-		tenantId
+		tenantId,
+		organizationTeamId
 	});
 
 	return $res(response.data);

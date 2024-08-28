@@ -70,7 +70,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	);
 
 	// const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
-	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked')
+	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>({} as StatusFilter);
@@ -125,7 +125,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'dailyplan',
 			name: t('common.DAILYPLAN' as DottedLanguageObjectStringPaths),
 			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION' as DottedLanguageObjectStringPaths),
-			count: profile.tasksGrouped.planned
+			count: isNaN(profile.tasksGrouped.planned) ? 0 : profile.tasksGrouped.planned
 		});
 		tabs.push({
 			tab: 'stats',
@@ -222,9 +222,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-								statusFilters[k],
-								task['tags'].map((item) => item.name)
-							).length === statusFilters[k].length
+									statusFilters[k],
+									task['tags'].map((item) => item.name)
+								).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
