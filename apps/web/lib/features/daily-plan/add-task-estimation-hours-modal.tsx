@@ -2,7 +2,7 @@
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
-import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Modal, SpinnerLoader, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
@@ -14,7 +14,6 @@ import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { Popover, Transition } from '@headlessui/react';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
-import { AxiosResponse } from 'axios';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -184,10 +183,10 @@ interface ITaskCardActionsProps {
 }
 
 /**
- * A Popover that contents task actions (view, edit, unplan)
+ * A Popover that contains task actions (view, edit, unplan)
  *
- * @param {object} props - The props
- * @param {ITeamTask} props.task - The task actions will be performed
+ * @param {object} props - The props object
+ * @param {ITeamTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  *
  * @returns {JSX.Element} The Popover component.
@@ -196,7 +195,7 @@ interface ITaskCardActionsProps {
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan } = props;
 	const { user } = useAuthenticateUser();
-	const { futurePlans, todayPlan, removeManyTaskPlans } = useDailyPlan();
+	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
 
 	const otherPlanIds = useMemo(
 		() =>
@@ -209,19 +208,20 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	);
 
 	/**
-	 * A function that removes task from one or more plans
-	 *
-	 * @param {string} [taskId] - The task ID
-	 * @param {string[]} [planIds] - The list of plan IDs
-	 *
-	 * @returns {Promise<AxiosResponse<IDailyPlan[], any>>}
-	 *
+	 * Unplan selected task
 	 */
-	const handleUnplanTask = useCallback(
-		(taskId: string, planIds: string[]) => {
-			return removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+	const unplanSelectedDate = useCallback(
+		async (closePopover: () => void) => {
+			try {
+				selectedPlan?.id &&
+					(await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, selectedPlan?.id));
+
+				closePopover();
+			} catch (error) {
+				console.log(error);
+			}
 		},
-		[removeManyTaskPlans, user?.employee.id]
+		[removeTaskFromPlan, selectedPlan.id, task.id, user?.employee.id]
 	);
 
 	return (
@@ -261,20 +261,18 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 													taskId={task.id}
 													selectedPlanId={selectedPlan.id}
 													planIds={[selectedPlan.id, ...otherPlanIds]}
-													unplanHandler={handleUnplanTask}
+													closeActionPopover={close}
 												/>
 											) : (
 												<span
-													onClick={() =>
-														handleUnplanTask(task.id, [selectedPlan.id!]).then(() =>
-															close()
-														)
-													}
+													onClick={() => unplanSelectedDate(close)}
 													className={clsxm(
-														' text-red-600 hover:font-semibold hover:transition-all'
+														' text-red-600',
+														!removeTaskFromPlanLoading &&
+															' hover:font-semibold hover:transition-all'
 													)}
 												>
-													Unplan
+													{removeTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan'}
 												</span>
 											)}
 										</li>
@@ -293,23 +291,63 @@ interface IUnplanTaskProps {
 	taskId: string;
 	selectedPlanId: string;
 	planIds: string[];
-	unplanHandler: (taskId: string, planIds: string[]) => Promise<AxiosResponse<IDailyPlan[], any>>;
+	closeActionPopover: () => void;
 }
 
 /**
- * A Popover that contents unplan options (view, edit, unplan)
+ * A Popover that contains unplan options (unplan selected date, unplan all dates)
  *
- * @param {object} props - The props
- * @param {string} props.taskId - The task ID with which actions will be performed
+ * @param {object} props - The props object
+ * @param {string} props.taskId - The task id
  * @param {string} props.selectedPlanId - The currently selected plan id
- * @param {string[]} [props.planIds] - The plans's ids
- * @param {(taskId : string, planIds : string[]) => void} props.unplanHandler - The function to perform the action (unplan)
+ * @param {string[]} [props.planIds] - Others plans's ids
+ * @param {() => void} props.closeActionPopover - The function to close the task card actions popover
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function UnplanTask(props: IUnplanTaskProps) {
-	const { taskId, selectedPlanId, planIds, unplanHandler } = props;
+	const { taskId, selectedPlanId, planIds, closeActionPopover } = props;
+	const { user } = useAuthenticateUser();
+	const { removeTaskFromPlan, removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } =
+		useDailyPlan();
+
+	/**
+	 * Unplan selected task
+	 */
+	const unplanSelectedDate = useCallback(
+		async (closePopover: () => void) => {
+			try {
+				await removeTaskFromPlan({ taskId: taskId, employeeId: user?.employee.id }, selectedPlanId);
+
+				closePopover();
+				// Close the task card actions popover as well
+				closeActionPopover();
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[closeActionPopover, removeTaskFromPlan, selectedPlanId, taskId, user?.employee.id]
+	);
+
+	/**
+	 * Unplan all tasks
+	 */
+	const unplanAll = useCallback(
+		async (closePopover: () => void) => {
+			try {
+				await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+
+				closePopover();
+				// Close the task card actions popover as well
+				closeActionPopover();
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[closeActionPopover, planIds, removeManyTaskPlans, taskId, user?.employee.id]
+	);
+
 	return (
 		<Popover>
 			<Popover.Button>
@@ -330,20 +368,31 @@ function UnplanTask(props: IUnplanTaskProps) {
 						return (
 							<Card
 								shadow="custom"
-								className=" shadow-xlcard  min-w-max w-40 flex flex-col justify-end !p-0 !rounded-lg !border-2"
+								className=" shadow-xlcard  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
 								<ul className="p-3 w-full flex flex-col border justify-end gap-3">
 									<li
-										onClick={() => unplanHandler(taskId, [selectedPlanId]).then(() => close())}
-										className={clsxm('hover:font-semibold hover:transition-all shrink-0')}
+										onClick={() => unplanSelectedDate(close)}
+										className={clsxm(
+											'shrink-0',
+											!removeTaskFromPlanLoading && 'hover:font-semibold hover:transition-all '
+										)}
 									>
-										Unclear plan selected date
+										{removeTaskFromPlanLoading ? (
+											<SpinnerLoader size={10} />
+										) : (
+											'Unplan selected date'
+										)}
 									</li>
 									<li
-										onClick={() => unplanHandler(taskId, planIds).then(() => close())}
-										className={clsxm('hover:font-semibold hover:transition-all')}
+										onClick={() => unplanAll(close)}
+										className={clsxm(
+											'shrink-0',
+											!removeManyTaskFromPlanLoading &&
+												'hover:font-semibold hover:transition-all '
+										)}
 									>
-										Unplan all
+										{removeManyTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan all'}
 									</li>
 								</ul>
 								<button
