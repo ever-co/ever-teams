@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "Tarefa",
+		"TITLE_PLURAL": "Tarefas",
 		"ASSIGN_NEW_TASK": "Atribuir nova tarefa",
 		"ASSIGNED_BY": "Atribuído por",
 		"NO_ONE_FOR_TASK": "Ninguém atribuído a esta tarefa",
@@ -602,6 +603,7 @@
 		"COMPLETION": "Conclusão",
 		"PLANNED_TASKS": "Tarefa planejada",
 		"ESTIMATED": "Estimado",
+		"TOTAL_ESTIMATED": "Total Estimado",
 		"TOTAL_TASK": "Tarefas totais",
 		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?",

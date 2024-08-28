@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "Task",
+		"TITLE_PLURAL": "Tasks",
 		"ASSIGN_NEW_TASK": "Assign new task",
 		"ASSIGNED_BY": "Assigned By",
 		"NO_ONE_FOR_TASK": "No One Assigned to this Task",
@@ -602,6 +603,7 @@
 		"COMPLETION": "Completion",
 		"PLANNED_TASKS": "Planned task",
 		"ESTIMATED": "Estimated",
+		"TOTAL_ESTIMATED": "Total Estimated",
 		"TOTAL_TASK": "Total tasks",
 		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?",

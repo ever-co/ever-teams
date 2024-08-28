@@ -84,22 +84,22 @@ export function useTeamTasks() {
 	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } =
 		useQuery(deleteEmployeeFromTasksAPI);
 
-	const getAllDayPlans = useCallback(() => {
-		getAllQueryCall().then((response) => {
-			if (response.data.items.length) {
-				const { items, total } = response.data;
-				setDailyPlan({ items, total });
-			}
-		});
+	const getAllDayPlans = useCallback(async () => {
+		const response = await getAllQueryCall();
+
+		if (response.data.items.length) {
+			const { items, total } = response.data;
+			setDailyPlan({ items, total });
+		}
 	}, [getAllQueryCall, setDailyPlan]);
 
-	const getMyDailyPlans = useCallback(() => {
-		getMyDailyPlansQueryCall().then((response) => {
-			if (response.data.items.length) {
-				const { items, total } = response.data;
-				setMyDailyPlans({ items, total });
-			}
-		});
+	const getMyDailyPlans = useCallback(async () => {
+		const response = await getMyDailyPlansQueryCall();
+
+		if (response.data.items.length) {
+			const { items, total } = response.data;
+			setMyDailyPlans({ items, total });
+		}
 	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
 
 	const getTaskById = useCallback(

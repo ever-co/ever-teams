@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "任务",
+		"TITLE_PLURAL": "任务",
 		"ASSIGN_NEW_TASK": "分配新任务",
 		"ASSIGNED_BY": "分配者",
 		"NO_ONE_FOR_TASK": "此任务未分配",
@@ -602,6 +603,7 @@
 		"COMPLETION": "完成度",
 		"PLANNED_TASKS": "计划任务",
 		"ESTIMATED": "预计",
+		"TOTAL_ESTIMATED": "总预计",
 		"TOTAL_TASK": "总任务",
 		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？",

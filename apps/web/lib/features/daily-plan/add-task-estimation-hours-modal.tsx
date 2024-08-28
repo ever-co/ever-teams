@@ -133,11 +133,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<div className="text-sm flex flex-col gap-3">
 								<div className="w-full flex items-center justify-between gap-2">
 									<div className="flex items-center justify-center gap-1">
-										<span>Tasks</span>
+										<span>{t('task.TITLE_PLURAL')}</span>
 										<span className="text-red-600">*</span>
 									</div>
 									<div className="flex items-center justify-center gap-1">
-										<span>Total estimate:</span>
+										<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
 										<span className=" font-medium">
 											{formatIntegerToHour(tasksEstimationTimes)}
 										</span>
@@ -193,6 +193,7 @@ interface ITaskCardProps {
 
 function TaskCard({ task }: ITaskCardProps) {
 	const { setActiveTask, activeTeamTask } = useTeamTasks();
+	const t = useTranslations();
 
 	return (
 		<Card
@@ -209,7 +210,7 @@ function TaskCard({ task }: ITaskCardProps) {
 			<VerticalSeparator />
 			<div className="h-full  grow flex items-center justify-end gap-2">
 				<div className="h-full flex items-center justify-center gap-1">
-					<span>Estimation :</span> <TaskEstimate _task={task} />
+					<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
 				</div>
 				<span className="w-4 h-full flex items-center justify-center">
 					<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />

@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "Aufgabe",
+		"TITLE_PLURAL": "Aufgaben",
 		"ASSIGN_NEW_TASK": "Neue Aufgabe zuweisen",
 		"ASSIGNED_BY": "Zugewiesen von",
 		"NO_ONE_FOR_TASK": "Niemand dieser Aufgabe zugewiesen",
@@ -602,6 +603,7 @@
 		"COMPLETION": "Abschluss",
 		"PLANNED_TASKS": "Geplante Aufgabe",
 		"ESTIMATED": "Geschätzt",
+		"TOTAL_ESTIMATED": "Gesamtschätzung",
 		"TOTAL_TASK": "Gesamte Aufgaben",
 		"DAILY_PLAN_DESCRIPTION": "'Tagesplan' hilft, den Arbeitsprozess zu organisieren, um die besten Ergebnisse zu erzielen",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Deze taak was niet gepland voor het plan van vandaag. Wilt u iets toevoegen aan het plan?",

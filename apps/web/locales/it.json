@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "Compito",
+		"TITLE_PLURAL": "Attività",
 		"ASSIGN_NEW_TASK": "Assegna nuovo compito",
 		"ASSIGNED_BY": "Assegnato da",
 		"NO_ONE_FOR_TASK": "Nessuno assegnato a questo compito",
@@ -602,6 +603,7 @@
 		"COMPLETION": "Completamento",
 		"PLANNED_TASKS": "Compito pianificato",
 		"ESTIMATED": "Stimato",
+		"TOTAL_ESTIMATED": "Totale Stimato",
 		"TOTAL_TASK": "Compiti totali",
 		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Questa attività non era pianificata per il piano di oggi. Vuoi aggiungerla al piano?",

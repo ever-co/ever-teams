@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "משימה",
+		"TITLE_PLURAL": "משימות",
 		"ASSIGN_NEW_TASK": "הקצה משימה חדשה",
 		"ASSIGNED_BY": "הוקצה על ידי",
 		"NO_ONE_FOR_TASK": "אף אחד לא הוקצה למשימה זו",
@@ -602,6 +603,7 @@
 		"COMPLETION": "השלמה",
 		"PLANNED_TASKS": "משימה מתוכננת",
 		"ESTIMATED": "משוער",
+		"TOTAL_ESTIMATED": "הערכה כוללת",
 		"TOTAL_TASK": "סך כל המשימות",
 		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?",
