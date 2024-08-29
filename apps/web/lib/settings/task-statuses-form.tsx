@@ -138,8 +138,8 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 							</Text>
 						)}
 
-						<div className="flex flex-col items-center sm:items-start">
-							<div className="flex">
+						<div className="flex flex-col gap-2  items-center sm:items-start">
+							<div className="flex gap-2">
 								{!createNew && !edit && (
 									<Button
 										variant="outline"
@@ -153,7 +153,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										{t('pages.settingsTeam.CREATE_NEW_STATUS')}
 									</Button>
 								)}
-								<Button onClick={openModal} variant="outline" className="mx-2 rounded-[10px]">
+								<Button onClick={openModal} variant="outline" className="rounded-[10px]">
 									Sort
 								</Button>
 							</div>
@@ -165,20 +165,20 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 									</Text>
 									<div
 										className={clsxm(
-											'flex w-full gap-x-5 items-stretch mt-3',
+											'flex w-full gap-x-5 items-center mt-3',
 											formOnly && ['flex-wrap space-y-2']
 										)}
 									>
 										<InputField
 											type="text"
 											placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
-											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0 rounded-lg"
+											className="mb-0 w-full"
+											wrapperClassName="mb-0 rounded-lg flex-grow"
 											{...register('name')}
 										/>
 										<StandardTaskStatusDropDown
 											onValueChange={(status) => setValue('template', status)}
-											className="h-[53px] w-[265px]"
+											className=" h-14 shrink-0"
 										/>
 										<IconPopover
 											iconList={iconList}
@@ -192,6 +192,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										<ColorPicker
 											defaultColor={edit ? edit.color : undefined}
 											onChange={(color) => setValue('color', color)}
+											className=" shrink-0"
 										/>
 									</div>
 									<div className="flex mt-5 gap-x-4">

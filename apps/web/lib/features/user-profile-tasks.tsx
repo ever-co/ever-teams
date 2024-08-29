@@ -4,20 +4,25 @@ import { UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScreenCalendar } from './activity/screen-calendar';
+import { cn } from 'lib/utils';
+import { useScrollPagination } from '@app/hooks/features/usePagination';
+
 type Props = {
 	tabFiltered: I_TaskFilter;
 	profile: I_UserProfilePage;
+	paginateTasks?: boolean;
 };
 
 /**
- * It renders a list of tasks, with the first task being the active task, and the rest being the last
- * 24 hours of tasks
+ * It displays a list of tasks, the first task being the active task and the rest being the last 24 hours of tasks
  * @param  - `profile` - The user profile page data.
  * @returns A component that displays a user's profile page.
  */
-export function UserProfileTask({ profile, tabFiltered }: Props) {
+export function UserProfileTask({ profile, paginateTasks, tabFiltered }: Props) {
+	const [scrollableContainer, setScrollableContainer] = useState<HTMLDivElement | null>(null);
+
 	const t = useTranslations();
 	// Get current timer seconds
 	const { time, timerStatus } = useLiveTimerStatus();
@@ -31,10 +36,22 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 		() => tasks.filter((t) => (profile.member?.running == true ? t.id !== profile.activeUserTeamTask?.id : t)),
 		[profile.activeUserTeamTask?.id, profile.member?.running, tasks]
 	);
-	// const data = otherTasks.length < 10 ? otherTasks : data;
 
-	// const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-	// 	usePagination(otherTasks);
+	const { slicedItems } = useScrollPagination({
+		enabled: !!paginateTasks,
+		items: otherTasks,
+		scrollableElement: scrollableContainer,
+		defaultItemsPerPage: 20
+	});
+
+	useEffect(() => {
+		// Use the native element query since the ResizablePanel
+		// does not forward any HTML reference
+		const scrollable = document.querySelector<HTMLDivElement>('div.custom-scrollbar');
+		if (scrollable) {
+			setScrollableContainer(scrollable);
+		}
+	}, []);
 
 	return (
 		<div className="mt-10">
@@ -66,10 +83,12 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						isAuthUser={profile.isAuthUser}
 						activeAuthTask={true}
 						profile={profile}
-						taskBadgeClassName={`	${profile.activeUserTeamTask?.issueType === 'Bug'
-							? '!px-[0.3312rem] py-[0.2875rem]'
-							: '!px-[0.375rem] py-[0.375rem]'
-							} rounded-sm`}
+						taskBadgeClassName={cn(
+							profile.activeUserTeamTask?.issueType === 'Bug'
+								? '!px-[0.3312rem] py-[0.2875rem]'
+								: '!px-[0.375rem] py-[0.375rem]',
+							'rounded-sm'
+						)}
 						taskTitleClassName="mt-[0.0625rem]"
 					/>
 				)}
@@ -87,19 +106,22 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 
 			{tabFiltered.tab !== 'dailyplan' && (
 				<ul className="flex flex-col gap-4">
-					{otherTasks.map((task) => {
+					{slicedItems.map((task) => {
 						return (
 							<li key={task.id}>
 								<TaskCard
+									key={task.id}
 									task={task}
 									isAuthUser={profile.isAuthUser}
 									activeAuthTask={false}
 									viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
 									profile={profile}
-									taskBadgeClassName={`${task.issueType === 'Bug'
-										? '!px-[0.3312rem] py-[0.2875rem]'
-										: '!px-[0.375rem] py-[0.375rem]'
-										} rounded-sm`}
+									taskBadgeClassName={cn(
+										task.issueType === 'Bug'
+											? '!px-[0.3312rem] py-[0.2875rem]'
+											: '!px-[0.375rem] py-[0.375rem]',
+										'rounded-sm'
+									)}
 									taskTitleClassName="mt-[0.0625rem]"
 								/>
 							</li>

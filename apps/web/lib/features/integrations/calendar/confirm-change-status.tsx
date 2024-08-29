@@ -1,4 +1,5 @@
 import { clsxm } from '@app/utils';
+import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { Modal } from 'lib/components'
 import React from 'react'
@@ -49,7 +50,7 @@ export function ConfirmStatusChange({ closeModal, isOpen, newStatus, oldStatus }
 
 const StatusTransition = ({ previousStatus, currentStatus, currentStatusClass, previousStatusClass }: { previousStatus: string; currentStatus: string; currentStatusClass: string; previousStatusClass: string }) => (
     <div className="flex items-center gap-x-2 font-medium">
-        <span className={clsxm(previousStatusClass)}>{previousStatus}</span>
+        <span className={clsxm(previousStatusClass, 'line-through font-normal')}>{previousStatus}</span>
         <span>to</span>
         <span className={clsxm(currentStatusClass)}>{currentStatus}</span>
     </div>
@@ -78,3 +79,25 @@ const CommentInputArea = () => (
         </div>
     </>
 );
+
+
+export function StatusBadge({ selectedStatus, filterNumber }: { selectedStatus?: string, filterNumber?: string }) {
+    const [selected] = React.useState(selectedStatus);
+    const getColorClass = () => {
+        switch (selected) {
+            case "Rejected":
+                return `text-red-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : " border-red-500"} `;
+            case "Approved":
+                return `text-green-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : "border-green-500"}`;
+            case "Pending":
+                return `text-orange-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : "border-orange-500"} `;
+            default:
+                return `text-gray-500 dark:text-gray-200 border-gray-200 dark:border-gray-700 !py-0 font-normal`;
+        }
+    };
+
+    return (
+        <Badge className={`${getColorClass()} bg-transparent rounded-md ${filterNumber ? "font-normal" : 'py-1'}   px-2 text-center hover:bg-transparent`}
+        >{filterNumber}{" "}{selected}</Badge>
+    );
+}
