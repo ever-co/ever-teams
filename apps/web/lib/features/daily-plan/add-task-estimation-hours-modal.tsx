@@ -1,15 +1,19 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
-import { Card, InputField, Modal, Text, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Modal, SpinnerLoader, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { Popover, Transition } from '@headlessui/react';
+import { clsxm } from '@app/utils';
+import Link from 'next/link';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -107,7 +111,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								</span>
 								<div className="flex flex-col gap-1">
 									{sortedTasks.map((task, index) => (
-										<TaskCard key={index} task={task} />
+										<TaskCard plan={plan} key={index} task={task} />
 									))}
 								</div>
 							</div>
@@ -143,9 +147,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 interface ITaskCardProps {
 	task: ITeamTask;
+	plan: IDailyPlan;
 }
 
-function TaskCard({ task }: ITaskCardProps) {
+function TaskCard({ task, plan }: ITaskCardProps) {
 	const { setActiveTask, activeTeamTask } = useTeamTasks();
 
 	return (
@@ -155,9 +160,8 @@ function TaskCard({ task }: ITaskCardProps) {
 				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-[30rem] h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
 				task.id === activeTeamTask?.id && 'border-primary-light border-[0.15rem]'
 			)}
-			onClick={() => setActiveTask(task)}
 		>
-			<div className="min-w-[48%] flex items-center h-full max-w-[50%]">
+			<div onClick={() => setActiveTask(task)} className="min-w-[48%] flex items-center h-full max-w-[50%]">
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
@@ -166,9 +170,244 @@ function TaskCard({ task }: ITaskCardProps) {
 					<span>Estimation :</span> <TaskEstimate _task={task} />
 				</div>
 				<span className="w-4 h-full flex items-center justify-center">
-					<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
+					<TaskCardActions selectedPlan={plan} task={task} />
 				</span>
 			</div>
 		</Card>
+	);
+}
+
+interface ITaskCardActionsProps {
+	task: ITeamTask;
+	selectedPlan: IDailyPlan;
+}
+
+/**
+ * A Popover that contains task actions (view, edit, unplan)
+ *
+ * @param {object} props - The props object
+ * @param {ITeamTask} props.task - The task on which actions will be performed
+ * @param {IDailyPlan} props.selectedPlan - The currently selected plan
+ *
+ * @returns {JSX.Element} The Popover component.
+ */
+
+function TaskCardActions(props: ITaskCardActionsProps) {
+	const { task, selectedPlan } = props;
+	const { user } = useAuthenticateUser();
+	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
+
+	const otherPlanIds = useMemo(
+		() =>
+			[...futurePlans, ...todayPlan]
+				// Remove selected plan
+				.filter((plan) => plan.id! !== selectedPlan.id)
+				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
+				.map((plan) => plan.id!),
+		[futurePlans, selectedPlan.id, task.id, todayPlan]
+	);
+
+	/**
+	 * Unplan selected task
+	 */
+	const unplanSelectedDate = useCallback(
+		async (closePopover: () => void) => {
+			try {
+				selectedPlan?.id &&
+					(await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, selectedPlan?.id));
+
+				closePopover();
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[removeTaskFromPlan, selectedPlan.id, task.id, user?.employee.id]
+	);
+
+	return (
+		<Popover>
+			<Popover.Button className="w-4 h-full flex items-center justify-center border-none outline-none">
+				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
+			</Popover.Button>
+
+			<Transition
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+				className="absolute z-10 right-0 min-w-[110px]"
+			>
+				<Popover.Panel>
+					{({ close }) => {
+						return (
+							<Card shadow="custom" className=" shadow-xlcard  !p-3 !rounded-lg !border-2">
+								<ul className=" flex flex-col justify-end gap-3">
+									<li className="">
+										<Link
+											href={`/task/${task.id}`}
+											className={clsxm('hover:font-semibold hover:transition-all')}
+										>
+											View
+										</Link>
+									</li>
+									<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
+
+									{selectedPlan && selectedPlan.id && (
+										<li>
+											{otherPlanIds.length ? (
+												<UnplanTask
+													taskId={task.id}
+													selectedPlanId={selectedPlan.id}
+													planIds={[selectedPlan.id, ...otherPlanIds]}
+													closeActionPopover={close}
+												/>
+											) : (
+												<span
+													onClick={() => unplanSelectedDate(close)}
+													className={clsxm(
+														' text-red-600',
+														!removeTaskFromPlanLoading &&
+															' hover:font-semibold hover:transition-all'
+													)}
+												>
+													{removeTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan'}
+												</span>
+											)}
+										</li>
+									)}
+								</ul>
+							</Card>
+						);
+					}}
+				</Popover.Panel>
+			</Transition>
+		</Popover>
+	);
+}
+
+interface IUnplanTaskProps {
+	taskId: string;
+	selectedPlanId: string;
+	planIds: string[];
+	closeActionPopover: () => void;
+}
+
+/**
+ * A Popover that contains unplan options (unplan selected date, unplan all dates)
+ *
+ * @param {object} props - The props object
+ * @param {string} props.taskId - The task id
+ * @param {string} props.selectedPlanId - The currently selected plan id
+ * @param {string[]} [props.planIds] - Others plans's ids
+ * @param {() => void} props.closeActionPopover - The function to close the task card actions popover
+ *
+ * @returns {JSX.Element} The Popover component.
+ */
+
+function UnplanTask(props: IUnplanTaskProps) {
+	const { taskId, selectedPlanId, planIds, closeActionPopover } = props;
+	const { user } = useAuthenticateUser();
+	const { removeTaskFromPlan, removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } =
+		useDailyPlan();
+
+	/**
+	 * Unplan selected task
+	 */
+	const unplanSelectedDate = useCallback(
+		async (closePopover: () => void) => {
+			try {
+				await removeTaskFromPlan({ taskId: taskId, employeeId: user?.employee.id }, selectedPlanId);
+
+				closePopover();
+				// Close the task card actions popover as well
+				closeActionPopover();
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[closeActionPopover, removeTaskFromPlan, selectedPlanId, taskId, user?.employee.id]
+	);
+
+	/**
+	 * Unplan all tasks
+	 */
+	const unplanAll = useCallback(
+		async (closePopover: () => void) => {
+			try {
+				await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+
+				closePopover();
+				// Close the task card actions popover as well
+				closeActionPopover();
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[closeActionPopover, planIds, removeManyTaskPlans, taskId, user?.employee.id]
+	);
+
+	return (
+		<Popover>
+			<Popover.Button>
+				<span className={clsxm(' text-red-600 hover:font-semibold hover:transition-all')}>Unplan</span>
+			</Popover.Button>
+
+			<Transition
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+				className="absolute z-10 right-0 min-w-[110px]"
+			>
+				<Popover.Panel>
+					{({ close }) => {
+						return (
+							<Card
+								shadow="custom"
+								className=" shadow-xlcard  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
+							>
+								<ul className="p-3 w-full flex flex-col border justify-end gap-3">
+									<li
+										onClick={() => unplanSelectedDate(close)}
+										className={clsxm(
+											'shrink-0',
+											!removeTaskFromPlanLoading && 'hover:font-semibold hover:transition-all '
+										)}
+									>
+										{removeTaskFromPlanLoading ? (
+											<SpinnerLoader size={10} />
+										) : (
+											'Unplan selected date'
+										)}
+									</li>
+									<li
+										onClick={() => unplanAll(close)}
+										className={clsxm(
+											'shrink-0',
+											!removeManyTaskFromPlanLoading &&
+												'hover:font-semibold hover:transition-all '
+										)}
+									>
+										{removeManyTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan all'}
+									</li>
+								</ul>
+								<button
+									onClick={() => {
+										close();
+									}}
+									className={clsxm('w-full bg-primary/5 px-3 py-2')}
+								>
+									<span>Cancel</span>
+								</button>
+							</Card>
+						);
+					}}
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
