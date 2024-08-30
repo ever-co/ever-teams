@@ -5,7 +5,7 @@ import { PiWarningCircleFill } from 'react-icons/pi';
 import { Card, InputField, Modal, SpinnerLoader, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useDailyPlan, useModal, useTeamTasks, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -16,6 +16,7 @@ import { clsxm } from '@app/utils';
 import { TaskDetailsModal } from './task-details-modal';
 import { formatIntegerToHour } from '@app/helpers';
 import { Popover, Transition } from '@headlessui/react';
+import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -102,36 +103,44 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen]);
 
+	const [showPlannedTaskList] = useState(false);
+
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
-			<Card className="w-full" shadow="custom">
-				<div className="flex w-[32rem] flex-col justify-between">
-					<div className="mb-7">
+			<Card className="w-[36rem]" shadow="custom">
+				<div className="flex w-full flex-col justify-between">
+					<div className="mb-7 w-full">
 						<Text.Heading as="h3" className="mb-3 text-center">
 							{t('timer.todayPlanSettings.TITLE')}
 						</Text.Heading>
-						<div className="mb-7 w-full flex flex-col gap-4">
-							<span className="text-sm">
-								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
-							</span>
-							<div className="w-full flex gap-3 h-[3rem]">
-								<InputField
-									type="number"
-									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-									className="h-full"
-									wrapperClassName=" h-full"
-									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-									required
-									noWrapper
-									min={0}
-									value={workTimePlanned}
-									defaultValue={plan.workTimePlanned ?? 0}
-								/>
-								<div className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center">
-									<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+						{showPlannedTaskList ? (
+							<div className="mb-7 w-full flex flex-col gap-3">
+								<span className="text-sm">
+									{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+									<span className="text-red-600">*</span>
+								</span>
+								<div className="w-full flex gap-3 h-[3rem]">
+									<InputField
+										type="number"
+										placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+										className="h-full"
+										wrapperClassName=" h-full"
+										onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
+										required
+										noWrapper
+										min={0}
+										value={workTimePlanned}
+										defaultValue={plan.workTimePlanned ?? 0}
+									/>
+									<div className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center">
+										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+									</div>
 								</div>
 							</div>
-						</div>
+						) : (
+							<SearchTaskInput selectedPlan={plan} />
+						)}
+
 						<div className="text-sm flex flex-col gap-3">
 							<div className="text-sm flex flex-col gap-3">
 								<div className="w-full flex items-center justify-between gap-2">
@@ -190,12 +199,139 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	);
 }
 
+/**
+ * ----------------------------------------------------------------
+ * 		--------- Search / Add / Create task input -----------
+ * ----------------------------------------------------------------
+ */
+
+// interface SearchTaskInputProps {}
+function SearchTaskInput({ selectedPlan }: { selectedPlan: IDailyPlan }) {
+	const { tasks: teamTasks, createTask } = useTeamTasks();
+	const { addTaskToPlan } = useDailyPlan();
+	const { taskStatus } = useTaskStatus();
+	const [input, setInput] = useState('');
+	const [tasks, setTasks] = useState<ITeamTask[]>([]);
+	const [loadings, setLoadings] = useState({
+		addTask: false,
+		createTask: false
+	});
+
+	useEffect(() => {
+		setTasks(
+			teamTasks
+				.filter((task) => !selectedPlan?.tasks?.some((_task) => _task.id == task.id))
+				.filter((task) => task.title.toLowerCase().includes(input.toLowerCase()))
+		);
+	}, [input, selectedPlan?.tasks, teamTasks]);
+
+	const handleCreateTask = useCallback(async () => {
+		try {
+			setLoadings((prev) => ({ ...prev, createTask: true }));
+
+			if (input.trim().length < 5) return;
+			await createTask({
+				taskName: input.trim(),
+				status: taskStatus[0].name,
+				taskStatusId: taskStatus[0].id
+			});
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoadings((prev) => ({ ...prev, createTask: false }));
+		}
+	}, [createTask, input, taskStatus]);
+
+	const handleAddTask = useCallback(
+		async (taskId: string) => {
+			try {
+				setLoadings((prev) => ({ ...prev, addTask: true }));
+
+				if (selectedPlan.id) await addTaskToPlan({ taskId }, selectedPlan.id);
+			} catch (error) {
+				console.log(error);
+			} finally {
+				setLoadings((prev) => ({ ...prev, addTask: false }));
+			}
+		},
+		[addTaskToPlan, selectedPlan?.id]
+	);
+
+	return (
+		<Popover className={clsxm('relative z-20 w-full')}>
+			<div className="mb-7 w-full flex flex-col gap-3 items-start">
+				<span className="text-sm">Select or create task for the plan</span>
+				<div className="w-full flex gap-3 h-[3rem]">
+					<Popover.Button
+						placeholder={'Select or create task for the plan'}
+						className={clsxm(
+							'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
+							'input-border',
+							'py-2 px-4 rounded-[10px]',
+							'text-sm outline-none ',
+							'h-[50px] w-full',
+							'font-light tracking-tight',
+							'h-full z-50 w-full px-3 focus:outline-none'
+						)}
+						required
+						as="input"
+						onChange={(e) => setInput(e.target.value)}
+					/>
+				</div>
+			</div>
+
+			<Popover.Panel className={clsxm('absolute -mt-6 w-full')}>
+				{tasks.length ? (
+					<Card shadow="custom" className="h-[26rem] border shadow-lg !p-3">
+						<ScrollArea className="w-full h-full">
+							<ul className=" flex flex-col gap-2">
+								{tasks.map((task, index) => (
+									<li key={index}>
+										<TaskCard
+											viewListMode="searched"
+											addToPlan={handleAddTask}
+											addToPlanLoading={loadings.addTask}
+											task={task}
+											plan={selectedPlan}
+										/>
+									</li>
+								))}
+							</ul>
+							<ScrollBar className="-pr-20" />
+						</ScrollArea>
+					</Card>
+				) : (
+					<Card shadow="custom" className="shadow-lg border !rounded !p-2">
+						<Button
+							disabled={loadings.createTask || input.trim().length < 5}
+							onClick={handleCreateTask}
+							className="w-full h-full min-h-12"
+						>
+							{loadings.createTask ? <SpinnerLoader variant="light" size={20} /> : 'Create Task'}
+						</Button>
+					</Card>
+				)}
+			</Popover.Panel>
+		</Popover>
+	);
+}
+
+/**
+ * ----------------------------------------------------------------
+ * 		-------------------- TASK CARD -----------------------
+ * ----------------------------------------------------------------
+ */
+
 interface ITaskCardProps {
 	task: ITeamTask;
 	plan: IDailyPlan;
+	viewListMode?: 'planned' | 'searched';
+	addToPlan?: (taskId: string) => void;
+	addToPlanLoading?: boolean;
 }
 
-function TaskCard({ task, plan }: ITaskCardProps) {
+function TaskCard(props: ITaskCardProps) {
+	const { task, plan, viewListMode = 'planned', addToPlan, addToPlanLoading } = props;
 	const { setActiveTask, activeTeamTask, getTaskById } = useTeamTasks();
 	const {
 		isOpen: isTaskDetailsModalOpen,
@@ -209,8 +345,8 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 		openTaskDetailsModal();
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
-    const t = useTranslations();
-    
+	const t = useTranslations();
+
 	return (
 		<Card
 			shadow="custom"
@@ -224,16 +360,33 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 			</div>
 			<VerticalSeparator />
 			<div className="h-full  grow flex items-center justify-end gap-2">
-				<div className="h-full flex items-center justify-center gap-1">
-					<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
-				</div>
-				<span className="w-4 h-full flex items-center justify-center">
-					<TaskCardActions
-						openTaskDetailsModal={handleOpenTaskDetailsModal}
-						selectedPlan={plan}
-						task={task}
-					/>
-				</span>
+				{viewListMode === 'searched' ? (
+					<>
+						{addToPlan && (
+							<Button
+								onClick={() => addToPlan(task.id)}
+								variant="outline"
+								className=" mon-h-12"
+								type="button"
+							>
+								{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
+							</Button>
+						)}
+					</>
+				) : (
+					<>
+						<div className="h-full flex items-center justify-center gap-1">
+							<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
+						</div>
+						<span className="w-4 h-full flex items-center justify-center">
+							<TaskCardActions
+								openTaskDetailsModal={handleOpenTaskDetailsModal}
+								selectedPlan={plan}
+								task={task}
+							/>
+						</span>
+					</>
+				)}
 			</div>
 			<TaskDetailsModal task={task} isOpen={isTaskDetailsModalOpen} closeModal={closeTaskDetailsModal} />
 		</Card>
