@@ -16,7 +16,6 @@ import { clsxm } from '@app/utils';
 import { TaskDetailsModal } from './task-details-modal';
 import { formatIntegerToHour } from '@app/helpers';
 import { Popover, Transition } from '@headlessui/react';
-import Link from 'next/link';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
