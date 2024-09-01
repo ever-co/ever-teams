@@ -11,9 +11,12 @@ import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { Popover, Transition } from '@headlessui/react';
+import { estimatedTotalTime } from '../task/daily-plan';
 import { clsxm } from '@app/utils';
 import { TaskDetailsModal } from './task-details-modal';
+import { formatIntegerToHour } from '@app/helpers';
+import { Popover, Transition } from '@headlessui/react';
+import Link from 'next/link';
 
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
@@ -26,13 +29,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const { isOpen, closeModal, plan, tasks } = props;
 
 	const t = useTranslations();
-	const { updateDailyPlan } = useDailyPlan();
+	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
 	const { startTimer } = useTimerView();
 	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
 
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
+	const [warning, setWarning] = useState('');
 
 	const handleCloseModal = useCallback(() => {
 		localStorage.setItem(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate);
@@ -42,9 +47,34 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const handleSubmit = useCallback(() => {
 		updateDailyPlan({ workTimePlanned }, plan.id ?? '');
-
 		handleCloseModal();
 	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
+
+	const checkPlannedAndEstimateTimeDiff = useCallback(() => {
+		if (workTimePlanned) {
+			if (workTimePlanned > tasksEstimationTimes) {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.PLAN_MORE_TASKS'));
+			} else {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.OPTIMIZE_PLAN'));
+			}
+		} else {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [tasksEstimationTimes, workTimePlanned]);
+
+	useEffect(() => {
+		if (!workTimePlanned || workTimePlanned <= 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		} else if (plan.tasks?.find((task) => !task.estimate)) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+		} else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+			checkPlannedAndEstimateTimeDiff();
+		} else {
+			setWarning('');
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [workTimePlanned, tasksEstimationTimes, plan.tasks, myDailyPlans]);
 
 	// Put tasks without estimates at the top of the list
 	const sortedTasks = useMemo(
@@ -76,7 +106,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
 			<Card className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between">
+				<div className="flex w-[32rem] flex-col justify-between">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
 							{t('timer.todayPlanSettings.TITLE')}
@@ -105,19 +135,31 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						<div className="text-sm flex flex-col gap-3">
 							<div className="text-sm flex flex-col gap-3">
-								<span>
-									{t('timer.todayPlanSettings.TASKS_WITH_NO_ESTIMATIONS')}{' '}
-									<span className="text-red-600">*</span>
-								</span>
+								<div className="w-full flex items-center justify-between gap-2">
+									<div className="flex items-center justify-center gap-1">
+										<span>{t('task.TITLE_PLURAL')}</span>
+										<span className="text-red-600">*</span>
+									</div>
+									<div className="flex items-center justify-center gap-1">
+										<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+										<span className=" font-medium">
+											{formatIntegerToHour(tasksEstimationTimes)}
+										</span>
+									</div>
+								</div>
 								<div className="flex flex-col gap-1">
 									{sortedTasks.map((task, index) => (
 										<TaskCard plan={plan} key={index} task={task} />
 									))}
 								</div>
 							</div>
-							<div className="flex gap-2 items-center text-red-500">
-								<PiWarningCircleFill className="text-2xl" />
-								<p>{t('timer.todayPlanSettings.WARNING_PLAN_ESTIMATION')}</p>
+							<div className="flex gap-2 text-sm h-6 text-red-500">
+								{warning && (
+									<>
+										<PiWarningCircleFill />
+										<span>{warning}</span>
+									</>
+								)}
 							</div>
 						</div>
 					</div>
@@ -131,9 +173,13 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							{t('common.SKIP_ADD_LATER')}
 						</Button>
 						<Button
+							disabled={warning ? true : false}
 							variant="default"
 							type="submit"
-							className="py-3 px-5 rounded-md font-light text-md dark:text-white"
+							className={clsxm(
+								'py-3 px-5 rounded-md font-light text-md dark:text-white',
+								warning && 'bg-gray-400'
+							)}
 							onClick={handleSubmit}
 						>
 							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
@@ -162,13 +208,15 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 		// Update the detailed task state
 		getTaskById(task.id);
 		openTaskDetailsModal();
-	}, [getTaskById, openTaskDetailsModal, task.id]);
+	}, [getTaskById, openTaskDetai
 
+  const t = useTranslations();
+    
 	return (
 		<Card
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-[30rem] h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
 				task.id === activeTeamTask?.id && 'border-primary-light border-[0.15rem]'
 			)}
 		>
@@ -178,7 +226,7 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 			<VerticalSeparator />
 			<div className="h-full  grow flex items-center justify-end gap-2">
 				<div className="h-full flex items-center justify-center gap-1">
-					<span>Estimation :</span> <TaskEstimate _task={task} />
+					<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
 				</div>
 				<span className="w-4 h-full flex items-center justify-center">
 					<TaskCardActions

@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "Zadanie",
+		"TITLE_PLURAL": "Zadania",
 		"ASSIGN_NEW_TASK": "Przypisz nowe zadanie",
 		"ASSIGNED_BY": "Przypisane przez",
 		"NO_ONE_FOR_TASK": "Nikt nie jest przypisany do tego zadania",
@@ -602,9 +603,18 @@
 		"COMPLETION": "Ukończenie",
 		"PLANNED_TASKS": "Planowane zadanie",
 		"ESTIMATED": "Szacowany",
+		"TOTAL_ESTIMATED": "Całkowicie szacowane",
 		"TOTAL_TASK": "Łączna liczba zadań",
 		"DAILY_PLAN_DESCRIPTION": "'Plan dnia' pomaga zorganizować proces pracy, aby osiągnąć najlepsze wyniki",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "To zadanie nie było zaplanowane na dzisiejszy plan. Czy chcesz dodać do planu?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "To zadanie nie było zaplanowane na dzisiejszy plan. Czy chcesz dodać do planu?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Proszę dodać planowany czas",
+				"TASKS_ESTIMATION": "Proszę oszacować wszystkie zadania",
+				"OPTIMIZE_PLAN": "Całkowity szacowany czas przekracza planowany czas, proszę zoptymalizować swój plan",
+				"PLAN_MORE_TASKS": "Proszę dodać więcej zadań do planu"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Wprowadź swoje imię",
