@@ -208,9 +208,9 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 		// Update the detailed task state
 		getTaskById(task.id);
 		openTaskDetailsModal();
-	}, [getTaskById, openTaskDetai
+	}, [getTaskById, openTaskDetailsModal, task.id]);
 
-  const t = useTranslations();
+    const t = useTranslations();
     
 	return (
 		<Card
