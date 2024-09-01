@@ -1,6 +1,6 @@
-import { IBasePerTenantAndOrganizationEntity } from './IBaseModel';
-import { IEmployee, IRelationnalEmployee } from './IEmployee';
-import { IOrganization } from './IOrganization';
+import { IBasePerTenantAndOrganizationEntity, ID } from './IBaseModel';
+import { IRelationnalEmployee } from './IEmployee';
+import { IRelationalOrganizationTeam } from './IOrganizationTeam';
 import { ITeamTask } from './ITask';
 
 export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
@@ -10,24 +10,27 @@ export interface IDailyPlanBase extends IBasePerTenantAndOrganizationEntity {
 }
 
 export interface IRemoveTaskFromManyPlans {
-	employeeId?: IEmployee['id'];
-	plansIds?: IDailyPlan['id'][];
-	organizationId?: IOrganization['id'];
+	employeeId?: ID;
+	plansIds?: ID[];
+	organizationId?: ID;
 }
 
-export interface IDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
+export interface IDailyPlan extends IDailyPlanBase, IRelationnalEmployee, IRelationalOrganizationTeam {
 	tasks?: ITeamTask[];
 }
 
-export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee {
-	taskId?: ITeamTask['id'];
+export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee, IRelationalOrganizationTeam {
+	taskId?: ID;
 }
 
-export interface IUpdateDailyPlan extends Partial<IDailyPlanBase>, Pick<ICreateDailyPlan, 'employeeId'> { }
+export interface IUpdateDailyPlan
+	extends Partial<IDailyPlanBase>,
+		Pick<ICreateDailyPlan, 'employeeId'>,
+		Partial<Pick<IRelationalOrganizationTeam, 'organizationTeamId'>> {}
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
-	IBasePerTenantAndOrganizationEntity { }
+		IBasePerTenantAndOrganizationEntity {}
 
 export enum DailyPlanStatusEnum {
 	OPEN = 'open',
