@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "Tarefa",
+		"TITLE_PLURAL": "Tarefas",
 		"ASSIGN_NEW_TASK": "Atribuir nova tarefa",
 		"ASSIGNED_BY": "Atribuído por",
 		"NO_ONE_FOR_TASK": "Ninguém atribuído a esta tarefa",
@@ -602,9 +603,18 @@
 		"COMPLETION": "Conclusão",
 		"PLANNED_TASKS": "Tarefa planejada",
 		"ESTIMATED": "Estimado",
+		"TOTAL_ESTIMATED": "Total Estimado",
 		"TOTAL_TASK": "Tarefas totais",
 		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Por favor, adicione o tempo planejado",
+				"TASKS_ESTIMATION": "Por favor, estime todas as tarefas",
+				"OPTIMIZE_PLAN": "O tempo total estimado excede o seu tempo planejado, por favor otimize seu plano",
+				"PLAN_MORE_TASKS": "Por favor, adicione mais tarefas ao plano"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Digite seu nome",
