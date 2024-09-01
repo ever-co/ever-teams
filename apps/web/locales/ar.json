@@ -539,6 +539,7 @@
 	},
 	"task": {
 		"TITLE": "المهمة",
+		"TITLE_PLURAL": "مهام",
 		"ASSIGN_NEW_TASK": "تعيين مهمة جديدة",
 		"ASSIGNED_BY": "تم التعيين بواسطة",
 		"NO_ONE_FOR_TASK": "لم يتم تعيين أحد لهذه المهمة",
@@ -602,9 +603,18 @@
 		"COMPLETION": "إتمام",
 		"PLANNED_TASKS": "المهمة المخططة",
 		"ESTIMATED": "تقديري",
+		"TOTAL_ESTIMATED": "الإجمالي المقدر",
 		"TOTAL_TASK": "إجمالي المهام",
 		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "يرجى إضافة الوقت المخطط",
+				"TASKS_ESTIMATION": "يرجى تقدير جميع المهام",
+				"OPTIMIZE_PLAN": "الوقت المقدر الإجمالي يتجاوز الوقت المخطط له، يرجى تحسين خطتك",
+				"PLAN_MORE_TASKS": "يرجى إضافة المزيد من المهام إلى الخطة"
+			}
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",

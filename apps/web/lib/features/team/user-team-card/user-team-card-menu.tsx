@@ -3,7 +3,7 @@ import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
+import { Card, ConfirmDropdown, HorizontalSeparator, SpinnerLoader, Text } from 'lib/components';
 import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
@@ -112,7 +112,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 								shadow="custom"
 								className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-[10.75rem]"
 							>
-								<ul>
+								<ul className="flex flex-col items-start">
 									{menu.map((item, i) => {
 										const text = (
 											<Text
@@ -182,6 +182,16 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											</li>
 										);
 									})}
+									<HorizontalSeparator className="-mx-2" />
+									<ul className="w-full py-1 flex flex-col items-start">
+										<button
+											className={clsxm(
+												'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all'
+											)}
+										>
+											See Plan
+										</button>
+									</ul>
 								</ul>
 							</Card>
 						);
