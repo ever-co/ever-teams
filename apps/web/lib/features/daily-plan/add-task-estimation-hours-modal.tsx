@@ -5,7 +5,7 @@ import { PiWarningCircleFill } from 'react-icons/pi';
 import { Card, InputField, Modal, SpinnerLoader, Text, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useModal, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -13,6 +13,7 @@ import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
 import { clsxm } from '@app/utils';
+import { TaskDetailsModal } from './task-details-modal';
 import { formatIntegerToHour } from '@app/helpers';
 import { Popover, Transition } from '@headlessui/react';
 import Link from 'next/link';
@@ -196,9 +197,21 @@ interface ITaskCardProps {
 }
 
 function TaskCard({ task, plan }: ITaskCardProps) {
-	const { setActiveTask, activeTeamTask } = useTeamTasks();
-	const t = useTranslations();
+	const { setActiveTask, activeTeamTask, getTaskById } = useTeamTasks();
+	const {
+		isOpen: isTaskDetailsModalOpen,
+		closeModal: closeTaskDetailsModal,
+		openModal: openTaskDetailsModal
+	} = useModal();
 
+	const handleOpenTaskDetailsModal = useCallback(() => {
+		// Update the detailed task state
+		getTaskById(task.id);
+		openTaskDetailsModal();
+	}, [getTaskById, openTaskDetai
+
+  const t = useTranslations();
+    
 	return (
 		<Card
 			shadow="custom"
@@ -216,9 +229,14 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 					<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
 				</div>
 				<span className="w-4 h-full flex items-center justify-center">
-					<TaskCardActions selectedPlan={plan} task={task} />
+					<TaskCardActions
+						openTaskDetailsModal={handleOpenTaskDetailsModal}
+						selectedPlan={plan}
+						task={task}
+					/>
 				</span>
 			</div>
+			<TaskDetailsModal task={task} isOpen={isTaskDetailsModalOpen} closeModal={closeTaskDetailsModal} />
 		</Card>
 	);
 }
@@ -226,6 +244,7 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 interface ITaskCardActionsProps {
 	task: ITeamTask;
 	selectedPlan: IDailyPlan;
+	openTaskDetailsModal: () => void;
 }
 
 /**
@@ -234,12 +253,13 @@ interface ITaskCardActionsProps {
  * @param {object} props - The props object
  * @param {ITeamTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
+ * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan } = props;
+	const { task, selectedPlan, openTaskDetailsModal } = props;
 	const { user } = useAuthenticateUser();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
 
@@ -290,13 +310,8 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						return (
 							<Card shadow="custom" className=" shadow-xlcard  !p-3 !rounded-lg !border-2">
 								<ul className=" flex flex-col justify-end gap-3">
-									<li className="">
-										<Link
-											href={`/task/${task.id}`}
-											className={clsxm('hover:font-semibold hover:transition-all')}
-										>
-											View
-										</Link>
+									<li onClick={openTaskDetailsModal} className="">
+										View
 									</li>
 									<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
 
