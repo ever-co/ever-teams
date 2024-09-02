@@ -14,7 +14,6 @@ import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
 import { IoTime } from 'react-icons/io5';
-
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
  *
