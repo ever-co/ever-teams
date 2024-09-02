@@ -37,7 +37,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 							type="COLUMN"
 							direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
 						>
-							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+							{(provided: DroppableProvided) => (
 								<ul
 									ref={provided.innerRef}
 									{...provided.droppableProps}

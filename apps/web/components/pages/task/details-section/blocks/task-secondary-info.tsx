@@ -52,7 +52,7 @@ const TaskSecondaryInfo = () => {
 		(version: ITaskVersionCreate) => {
 			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
 		},
-		[$taskVersion, task, handleStatusUpdate]
+		[task, handleStatusUpdate]
 	);
 
 	const onTaskSelect = useCallback(

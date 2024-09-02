@@ -126,15 +126,8 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		}, [autoFocus, inputsRef]);
 
 		useEffect(() => {
-			if (autoComplete && autoComplete.length > 0) {
-				handleAutoComplete(autoComplete);
-				setCanSubmit(true);
-			}
-		}, [autoComplete, canSubmit]);
-
-		useEffect(() => {
 			canSubmit && submitCode && submitCode();
-		}, []);
+		}, [canSubmit, submitCode]);
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
@@ -224,6 +217,13 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			}
 			sendResult();
 		};
+
+		useEffect(() => {
+			if (autoComplete && autoComplete.length > 0) {
+				handleAutoComplete(autoComplete);
+				setCanSubmit(true);
+			}
+		}, [autoComplete, canSubmit, handleAutoComplete]);
 
 		const hintColor = {
 			success: '#4BB543',

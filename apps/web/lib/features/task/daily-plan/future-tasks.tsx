@@ -27,7 +27,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
 	useEffect(() => {
 		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
-	}, [date, setDate]);
+	}, [date, setDate, futurePlans]);
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
 	return (

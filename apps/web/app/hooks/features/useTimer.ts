@@ -112,7 +112,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 			return 0;
 		}
 		return timerSecondsRef.current;
-	}, [seconds, firstLoad, timerStatusRef]);
+	}, [seconds, timerStatusRef]);
 
 	useEffect(() => {
 		if (firstLoad) {

@@ -23,7 +23,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 
 	useEffect(() => {
 		setPastTasks(filterDailyPlan(date as any, pastPlans));
-	}, [date, setDate]);
+	}, [date, setDate, pastPlans]);
 	return (
 		<div className="flex flex-col gap-6">
 			{pastTasks?.length > 0 ? (

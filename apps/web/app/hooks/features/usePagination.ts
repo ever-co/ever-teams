@@ -48,7 +48,7 @@ export function useScrollPagination<T>({
 			setPage(1);
 			setSlicedItems(items.slice(0, defaultItemsPerPage));
 		}
-	}, [enabled, items]);
+	}, [enabled, items, defaultItemsPerPage]);
 
 	useEffect(() => {
 		const container = $scrollableElement.current;
@@ -68,7 +68,7 @@ export function useScrollPagination<T>({
 		return () => {
 			container.removeEventListener('scroll', handleScroll);
 		};
-	}, [$scrollableElement.current, enabled]);
+	}, [enabled]);
 
 	useEffect(() => {
 		const newItems = items.slice(0, defaultItemsPerPage * page);

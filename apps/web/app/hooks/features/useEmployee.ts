@@ -52,7 +52,7 @@ export const useEmployeeUpdate = () => {
 			.catch((error) => {
 				console.log(error);
 			});
-	}, []);
+	}, [employeeUpdateQuery]);
 
 	return { updateEmployee, isLoading }
 }

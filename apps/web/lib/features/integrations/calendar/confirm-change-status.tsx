@@ -25,8 +25,8 @@ export function ConfirmStatusChange({ closeModal, isOpen, newStatus, oldStatus }
 
     return (
         <Modal
-            isOpen={isOpen!}
-            closeModal={closeModal!}
+            isOpen={isOpen ? isOpen : false}
+            closeModal={closeModal ? closeModal : () => {}}
             title={"Confirm Change"}
             className="bg-light--theme-light text-xl0 dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start !shadow-2xl"
             titleClass="font-bold"

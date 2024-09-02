@@ -417,6 +417,7 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
             <span className="capitalize font-bold !text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
                 {name}
             </span>
+            <div style={{display: 'none'}}>{description}</div>
         </div>
     );
 };

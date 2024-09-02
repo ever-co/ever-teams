@@ -91,7 +91,16 @@ export function UserProfilePlans() {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
 		}
-	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
+	}, [currentTab,
+		setCurrentDataDailyPlan,
+		setDate,
+		date,
+		currentDataDailyPlan,
+		futurePlans,
+		pastPlans,
+		sortedPlans
+	]
+	);
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
@@ -196,7 +205,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
 	useEffect(() => {
 		setPlans(filterDailyPlan(date as any, filteredPlans));
-	}, [date, setDate]);
+	}, [date, setDate, filteredPlans]);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -374,8 +383,8 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			.reduce((acc, cur) => acc + cur, 0) ?? 0;
 
 	// Get all tasks' estimation and worked times
-	const estimatedTime = sumTimes(plan.tasks!, 'estimate');
-	const totalWorkTime = sumTimes(plan.tasks!, 'totalWorkedTime');
+	const estimatedTime = plan.tasks ? sumTimes(plan.tasks, 'estimate') : 0;
+    const totalWorkTime = plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0;
 
 	// Get completed and ready tasks from a plan
 	const completedTasks = plan.tasks?.filter((task) => task.status === 'completed').length ?? 0;

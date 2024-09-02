@@ -11,10 +11,11 @@ export const handleDragAndDrop = (results: DropResult, plans: IDailyPlan[], setP
     const planSourceIndex = newPlans.findIndex(plan => plan.id === source.droppableId);
     const planDestinationIndex = newPlans.findIndex(plan => plan.id === destination.droppableId);
 
-    const newSourceTasks = [...newPlans[planSourceIndex].tasks!];
+    const newSourceTasks = newPlans[planSourceIndex].tasks ? [...newPlans[planSourceIndex].tasks] : [];
     const newDestinationTasks = source.droppableId !== destination.droppableId
-        ? [...newPlans[planDestinationIndex].tasks!]
+        ? newPlans[planDestinationIndex].tasks ? [...newPlans[planDestinationIndex].tasks] : []
         : newSourceTasks;
+
 
     const [deletedTask] = newSourceTasks.splice(source.index, 1);
     newDestinationTasks.splice(destination.index, 0, deletedTask);
