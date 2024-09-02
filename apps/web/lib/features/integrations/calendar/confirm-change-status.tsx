@@ -24,29 +24,36 @@ export function ConfirmStatusChange({ closeModal, isOpen, newStatus, oldStatus }
     const oldStatusClass = getStatusClasses(oldStatus);
 
     return (
-        <Modal
-            isOpen={isOpen ? isOpen : false}
-            closeModal={closeModal ? closeModal : () => {}}
-            title={"Confirm Change"}
-            className="bg-light--theme-light text-xl0 dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start !shadow-2xl"
-            titleClass="font-bold"
-        >
-            <div className='flex flex-col gap-y-4 items-center'>
-                <span className='font-medium'>Time entry will be changed from</span>
-                <StatusTransition
-                    currentStatus={newStatus || ""}
-                    previousStatus={oldStatus || ""}
-                    currentStatusClass={newStatusClass}
-                    previousStatusClass={oldStatusClass}
-                />
+        <>
+            {
+                closeModal ? (
+                    <Modal
+                        isOpen={isOpen ? isOpen : false}
+                        closeModal={closeModal}
+                        title={"Confirm Change"}
+                        className="bg-light--theme-light text-xl0 dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start !shadow-2xl"
+                        titleClass="font-bold"
+                    >
+                        <div className='flex flex-col gap-y-4 items-center'>
+                            <span className='font-medium'>Time entry will be changed from</span>
+                            <StatusTransition
+                                currentStatus={newStatus || ""}
+                                previousStatus={oldStatus || ""}
+                                currentStatusClass={newStatusClass}
+                                previousStatusClass={oldStatusClass}
+                            />
 
-                <CommentInputArea />
-                <ConfirmationButtons onCancel={closeModal} />
-            </div>
-        </Modal>
+                            <CommentInputArea />
+                            <ConfirmationButtons onCancel={closeModal} />
+                        </div>
+                    </Modal>
+                )
+                    :
+                    <></>
+            }
+        </>
     )
 }
-
 
 const StatusTransition = ({ previousStatus, currentStatus, currentStatusClass, previousStatusClass }: { previousStatus: string; currentStatus: string; currentStatusClass: string; previousStatusClass: string }) => (
     <div className="flex items-center gap-x-2 font-medium">
