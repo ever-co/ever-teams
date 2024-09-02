@@ -6,7 +6,7 @@ import { useRecoilValue } from 'recoil';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { ITeamTask } from '@app/interfaces';
 import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';

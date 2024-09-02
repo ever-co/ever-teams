@@ -41,7 +41,7 @@ function LiveKitPage() {
         <div >
             <Meta title="Meet" />
             {token && roomName && <LiveKit
-                token={token ?? null }
+                token={token}
                 roomName={roomName}
                 liveKitUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL || ''}
                 onLeave={onLeave}

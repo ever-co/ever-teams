@@ -223,7 +223,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 				handleAutoComplete(autoComplete);
 				setCanSubmit(true);
 			}
-		}, [autoComplete, canSubmit, handleAutoComplete]);
+		}, [autoComplete, canSubmit]);
 
 		const hintColor = {
 			success: '#4BB543',
