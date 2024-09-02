@@ -33,7 +33,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
 	const { startTimer } = useTimerView();
 	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
-
+	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -103,8 +103,6 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpen]);
-
-	const [showSearchInput, setShowSearchInput] = useState(true);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
@@ -216,28 +214,33 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
  * ----------------------------------------------------------------
  */
 
-// interface SearchTaskInputProps {}
-function SearchTaskInput({
-	selectedPlan,
-	setShowSearchInput
-}: {
+interface ISearchTaskInputProps {
 	selectedPlan: IDailyPlan;
 	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
-}) {
+}
+
+/**
+ * Search task input
+ *
+ * @param {Object} props - The props object
+ * @param {string} props.selectedPlan - The selected plan
+ * @param {Dispatch<SetStateAction<boolean>>} props.setShowSearchInput - A setter for (showing / hiding) the input
+ *
+ * @returns The Search input component
+ */
+function SearchTaskInput(props: ISearchTaskInputProps) {
+	const { selectedPlan, setShowSearchInput } = props;
 	const { tasks: teamTasks, createTask } = useTeamTasks();
 	const { taskStatus } = useTaskStatus();
-	const [input, setInput] = useState('');
+	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<ITeamTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
 	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
 	const t = useTranslations();
 
-	// A ref for a button rendered as an input
+	// The ref for the popover button (rendered as an input)
 	const searchInputRef = useRef<HTMLButtonElement>(null);
 
-	/**
-	 * A function that checks if a task is part of the selected plan
-	 */
 	const isTaskPlanned = useCallback(
 		(taskId: string) => {
 			return selectedPlan?.tasks?.some((task) => task.id == taskId);
@@ -248,7 +251,7 @@ function SearchTaskInput({
 	useEffect(() => {
 		setTasks(
 			teamTasks
-				.filter((task) => task.title.toLowerCase().includes(input.toLowerCase()))
+				.filter((task) => task.title.toLowerCase().includes(taskName.toLowerCase()))
 				// Put the unplanned tasks at the top of the list.
 				.sort((task1, task2) => {
 					if (isTaskPlanned(task1.id) && !isTaskPlanned(task2.id)) {
@@ -260,44 +263,30 @@ function SearchTaskInput({
 					}
 				})
 		);
-	}, [input, isTaskPlanned, selectedPlan.tasks, teamTasks]);
+	}, [isTaskPlanned, selectedPlan.tasks, taskName, teamTasks]);
 
-	/**
-	 * The function that create a new task.
-	 */
 	const handleCreateTask = useCallback(async () => {
 		try {
 			setCreateTaskLoading(true);
-
-			if (input.trim().length < 5) return;
+			if (taskName.trim().length < 5) return;
 			await createTask({
-				taskName: input.trim(),
+				taskName: taskName.trim(),
 				status: taskStatus[0].name,
-				taskStatusId: taskStatus[0].id
+				taskStatusId: taskStatus[0].id,
+				issueType: 'Bug' // TODO: Let the user choose the issue type
 			});
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setCreateTaskLoading(false);
 		}
-	}, [createTask, input, taskStatus]);
+	}, [createTask, taskName, taskStatus]);
 
 	/**
-	 * Keep the panel (task list) open as long as the search input is focused (onFocus).
-	 * Close the panel when the search input loose the focus (onBlur)
+	 * Focus on the search input when the popover is mounted.
 	 */
-
-	const handleOnFocus = useCallback(() => setIsSearchInputFocused(true), []);
-	const handleOnBlur = useCallback(() => setIsSearchInputFocused(false), []);
-
 	useEffect(() => {
-		searchInputRef.current?.addEventListener('focus', handleOnFocus);
-		searchInputRef.current?.addEventListener('blur', handleOnBlur);
-
-		return () => {
-			searchInputRef.current?.removeEventListener('focus', handleOnFocus);
-			searchInputRef.current?.removeEventListener('blur', handleOnBlur);
-		};
+		searchInputRef.current?.focus();
 	}, []);
 
 	return (
@@ -319,11 +308,12 @@ function SearchTaskInput({
 						required
 						as="input"
 						ref={searchInputRef}
-						onChange={(e) => setInput(e.target.value)}
+						onChange={(e) => setTaskName(e.target.value)}
+						onFocus={() => setIsSearchInputFocused(true)}
+						value={taskName}
 					/>
 					<button
 						onClick={() => {
-							handleOnBlur();
 							setShowSearchInput(false);
 						}}
 						className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
@@ -354,9 +344,9 @@ function SearchTaskInput({
 						</ScrollArea>
 					</Card>
 				) : (
-					<Card shadow="custom" className="shadow-lg border !rounded !p-2">
+					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
 						<Button
-							disabled={createTaskLoading || input.trim().length < 5}
+							disabled={createTaskLoading || taskName.trim().length < 5}
 							onClick={handleCreateTask}
 							className="w-full h-full min-h-12"
 						>
