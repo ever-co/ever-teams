@@ -149,6 +149,7 @@ export function useAuthenticationPasscode() {
 						setErrors(err.errors || {});
 					}
 				});
+			// eslint-disable-next-line react-hooks/exhaustive-deps		
 		}, [signInEmailConfirmQueryCall, router, pathname, queryTeamId]);
 
 	const verifyPasscodeRequest = useCallback(

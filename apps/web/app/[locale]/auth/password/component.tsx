@@ -123,7 +123,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		[form.workspaces]
 	);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+
 	useEffect(() => {
 		if (form.workspaces.length === 1 && !hasMultipleTeams) {
 			setTimeout(() => {
@@ -150,6 +150,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 			);
 			setSelectedTeam(lastSelectedTeamId);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [form.workspaces]);
 
 	useEffect(() => {

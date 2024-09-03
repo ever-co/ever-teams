@@ -223,6 +223,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 				handleAutoComplete(autoComplete);
 				setCanSubmit(true);
 			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [autoComplete, canSubmit]);
 
 		const hintColor = {
