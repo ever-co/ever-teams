@@ -13,9 +13,8 @@ export const handleDragAndDrop = (results: DropResult, plans: IDailyPlan[], setP
 
     const newSourceTasks = [...(newPlans[planSourceIndex].tasks ?? [])];
     const newDestinationTasks = source.droppableId !== destination.droppableId
-        ? newPlans[planDestinationIndex].tasks ? [...newPlans[planDestinationIndex].tasks] : []
+        ? [...(newPlans[planDestinationIndex].tasks ?? [])]
         : newSourceTasks;
-
 
     const [deletedTask] = newSourceTasks.splice(source.index, 1);
     newDestinationTasks.splice(destination.index, 0, deletedTask);

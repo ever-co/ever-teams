@@ -20,7 +20,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 	const displayedTaskId = new Set();
 
 	const tasks = outstandingPlans.map((plan) => plan.tasks).reduce((red, curr) => red?.concat(curr || []), []);
-	const [task, setTask] = useState<ITeamTask[]>(tasks!);
+	const [task, setTask] = useState<ITeamTask[]>(() => tasks ?? []);
 
 	return (
 		<div className="flex flex-col gap-6">
