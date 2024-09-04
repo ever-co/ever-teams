@@ -407,6 +407,7 @@ export function useDailyPlan() {
 		deleteDailyPlanLoading,
 
 		activeTeamDailyPlans,
+		getDailyPlansByTeamLoading,
 
 		futurePlans,
 		pastPlans,
