@@ -68,6 +68,29 @@ export function getDayPlansByEmployeeAPI(employeeId?: string) {
 	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/employee/${employeeId}?${query}`, { tenantId });
 }
 
+export function getDailyPlansByTeamAPI(teamId: string) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+
+	const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
+
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId
+		// 'where[organizationTeamId]': teamId
+	} as Record<string, string>;
+
+	relations.forEach((relation, i) => {
+		obj[`relations[${i}]`] = relation;
+	});
+
+	const query = qs.stringify(obj);
+
+	console.log(query);
+
+	return get<PaginationResponse<IDailyPlan>>(`/daily-plan/team?${query}`, { tenantId });
+}
+
 export function getPlansByTaskAPI(taskId?: string) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
@@ -106,9 +129,9 @@ export function removeTaskFromPlanAPI(data: IDailyPlanTasksUpdate, planId: strin
 	return put<IDailyPlan>(`/daily-plan/${planId}/task`, { ...data, organizationId }, { tenantId });
 }
 
-export function removeManyTaskFromPlansAPI({ taskId, data }: { taskId: string, data: IRemoveTaskFromManyPlans }) {
+export function removeManyTaskFromPlansAPI({ taskId, data }: { taskId: string; data: IRemoveTaskFromManyPlans }) {
 	const organizationId = getOrganizationIdCookie();
-	return put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId })
+	return put<IDailyPlan[]>(`/daily-plan/${taskId}/remove`, { ...data, organizationId });
 }
 
 export function deleteDailyPlanAPI(planId: string) {

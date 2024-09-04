@@ -4,6 +4,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
 import {
+	activeTeamDailyPlansState,
 	activeTeamState,
 	dailyPlanFetchingState,
 	dailyPlanListState,
@@ -17,6 +18,7 @@ import {
 	createDailyPlanAPI,
 	deleteDailyPlanAPI,
 	getAllDayPlansAPI,
+	getDailyPlansByTeamAPI,
 	getDayPlansByEmployeeAPI,
 	getMyDailyPlansAPI,
 	getPlansByTaskAPI,
@@ -45,7 +47,8 @@ export function useDailyPlan() {
 		useQuery(removeTaskFromPlanAPI);
 	const { loading: removeManyTaskFromPlanLoading, queryCall: removeManyTaskPlanQueryCall } =
 		useQuery(removeManyTaskFromPlansAPI);
-
+	const { loading: getDailyPlansByTeamLoading, queryCall: getDailyPlansByTeamQueryCall } =
+		useQuery(getDailyPlansByTeamAPI);
 	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(deleteDailyPlanAPI);
 
 	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
@@ -54,6 +57,7 @@ export function useDailyPlan() {
 	const [employeePlans, setEmployeePlans] = useRecoilState(employeePlansListState);
 	const [taskPlanList, setTaskPlans] = useRecoilState(taskPlans);
 	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
+	const [activeTeamDailyPlans, setActiveTeamDailyPlans] = useRecoilState(activeTeamDailyPlansState);
 	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
@@ -98,6 +102,22 @@ export function useDailyPlan() {
 			});
 		},
 		[getPlansByTaskQueryCall, setTaskPlans]
+	);
+
+	const getTeamDailyPlans = useCallback(
+		async (teamId: string) => {
+			try {
+				console.log(teamId);
+				const response = await getDailyPlansByTeamQueryCall(teamId);
+
+				if (response.data) {
+					setActiveTeamDailyPlans(response.data);
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[getDailyPlansByTeamQueryCall, setActiveTeamDailyPlans]
 	);
 
 	const createDailyPlan = useCallback(
@@ -336,6 +356,10 @@ export function useDailyPlan() {
 		}
 	}, [getMyDailyPlans, getAllDayPlans, firstLoad]);
 
+	useEffect(() => {
+		activeTeam?.id && getTeamDailyPlans(activeTeam.id);
+	}, [activeTeam?.id, getTeamDailyPlans]);
+
 	return {
 		dailyPlan,
 		setDailyPlan,
@@ -381,6 +405,8 @@ export function useDailyPlan() {
 
 		deleteDailyPlan,
 		deleteDailyPlanLoading,
+
+		activeTeamDailyPlans,
 
 		futurePlans,
 		pastPlans,
