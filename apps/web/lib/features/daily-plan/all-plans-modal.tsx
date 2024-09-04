@@ -1,8 +1,10 @@
 import { Card, Modal, VerticalSeparator } from 'lib/components';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { ChevronRightIcon } from 'assets/svg';
+import { Button } from '@components/ui/button';
+import { useTranslations } from 'next-intl';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -19,17 +21,17 @@ interface IAllPlansModal {
  *
  * @returns {JSX.Element} The modal element
  */
-export function AllPlansModal(props: IAllPlansModal) {
+export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) {
 	const { isOpen, closeModal } = props;
-
-	const [selectedTab, setSelectedPlan] = useState(0);
+	const t = useTranslations();
+	const [showCalendar, setShowCalendar] = useState(false);
 
 	const handleCloseModal = useCallback(() => {
 		closeModal();
 	}, [closeModal]);
 
 	const tabs = useMemo(
-		() => [
+		(): { name: 'Today' | 'Tomorrow' | 'Future' }[] => [
 			{
 				name: 'Today'
 			},
@@ -42,6 +44,8 @@ export function AllPlansModal(props: IAllPlansModal) {
 		],
 		[]
 	);
+
+	const [selectedTab, setSelectedTab] = useState<{ name: 'Today' | 'Tomorrow' | 'Future' }>(tabs[0]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} className={clsxm('w-[36rem]')}>
@@ -58,23 +62,60 @@ export function AllPlansModal(props: IAllPlansModal) {
 							Plan for 12/04/2024
 						</Text.Heading>
 					</div>
-					<div className="w-full h-14 flex items-center px-3">
+					<div className="w-full flex items-center px-3">
 						<ul className="w-full flex items-center gap-3">
 							{tabs.map((tab, index) => (
 								<li
 									key={index}
-									className={`flex justify-center gap-4 items-center hover:text-primary cursor-pointer ${selectedTab === index ? 'text-primary font-medium' : ''}`}
-									onClick={() => setSelectedPlan(index)}
+									className={`flex justify-center gap-4 items-center hover:text-primary cursor-pointer ${selectedTab.name === tab.name ? 'text-primary font-medium' : ''}`}
+									onClick={() => {
+										setSelectedTab(tab);
+										if (tab.name == 'Future') {
+											setShowCalendar(true);
+										} else {
+											setShowCalendar(false);
+										}
+									}}
 								>
 									<span>{tab.name}</span>
-									{index + 1 < tabs.length && <VerticalSeparator />}
+									{index + 1 < tabs.length && <VerticalSeparator className="w-full" />}
 								</li>
 							))}
 						</ul>
 					</div>
-					<div className="w-full h-[28rem]">Contents</div>
+					<div className="w-full flex  items-center justify-center h-[30rem]">
+						{showCalendar && (
+							<div className="w-full h-full flex flex-col gap-4 items-center justify-center">
+								<p className=" text-sm font-medium">Select a date to be able to see a plan</p>
+								<div className="p-3 border flex  items-center  justify-center rounded-md">
+									{/* <CustomCalendar
+										setDate={() => console.log('first')}
+										date={new Date()}
+										existingPlanDates={[new Date()]}
+									/> */}
+								</div>
+							</div>
+						)}
+					</div>
+					<div className="flex items-center justify-between h-14 w-full">
+						<Button
+							variant="outline"
+							type="submit"
+							className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							onClick={handleCloseModal}
+						>
+							{t('common.CANCEL')}
+						</Button>
+						<Button
+							variant="default"
+							type="submit"
+							className={clsxm('py-3 px-5 rounded-md font-light text-md dark:text-white')}
+						>
+							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
+						</Button>
+					</div>
 				</div>
 			</Card>
 		</Modal>
 	);
-}
+});

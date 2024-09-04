@@ -6,6 +6,7 @@ import { cn } from 'lib/utils';
 import { buttonVariants } from 'components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 import { ScrollArea } from './scroll-bar';
+import { useCallback, useMemo } from 'react';
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -44,17 +45,21 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 				...classNames
 			}}
 			components={{
-				Dropdown: ({ value, onChange, children, ...props }: DropdownProps) => {
-					const options = React.Children.toArray(children) as React.ReactElement<
-						React.HTMLProps<HTMLOptionElement>
-					>[];
-					const selected = options.find((child) => child.props.value === value);
-					const handleChange = (value: string) => {
+				Dropdown: React.memo(function Dropdown({ value, onChange, children, ...props }: DropdownProps) {
+					const options = useMemo(
+						() =>
+							React.Children.toArray(children) as React.ReactElement<
+								React.HTMLProps<HTMLOptionElement>
+							>[],
+						[]
+					);
+					const selected = useMemo(() => options.find((child) => child.props.value === value), []);
+					const handleChange = useCallback((value: string) => {
 						const changeEvent = {
 							target: { value }
 						} as React.ChangeEvent<HTMLSelectElement>;
 						onChange?.(changeEvent);
-					};
+					}, []);
 					return (
 						<Select
 							value={value?.toString()}
@@ -65,7 +70,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 							<SelectTrigger className="pr-1.5 focus:ring-0 dark:bg-dark--theme-light border-none">
 								<SelectValue>{selected?.props?.children}</SelectValue>
 							</SelectTrigger>
-							<SelectContent position="popper" className="dark:bg-dark--theme-light z-[9999] border-none">
+							<SelectContent className="dark:bg-dark--theme-light z-[9999] border-none">
 								<ScrollArea className="h-60 max-h-min">
 									{options.map((option, id: number) => (
 										<SelectItem
@@ -79,7 +84,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 							</SelectContent>
 						</Select>
 					);
-				},
+				}),
 				IconLeft,
 				IconRight
 			}}
