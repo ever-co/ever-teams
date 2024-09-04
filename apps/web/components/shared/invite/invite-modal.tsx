@@ -14,9 +14,14 @@ const initalValues: IInvite = {
 };
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initalValues);
-	const { inviteUser, inviteLoading } = useTeamInvitations();
+	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
+		useTeamInvitations();
+
 	const [errors, setErrors] = useState({});
 	const t = useTranslations();
+
+	const isLoading = inviteLoading || resendInviteLoading;
+
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setErrors((er) => {
@@ -30,6 +35,13 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		const existingInvitation = teamInvitations.find((invitation) => invitation.email === formData.email);
+
+		if (existingInvitation) {
+			resendTeamInvitation(existingInvitation.id);
+			return;
+		}
+
 		inviteUser(formData.email, formData.name)
 			.then(() => {
 				setFormData(initalValues);
@@ -109,10 +121,10 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 										<button
 											className="w-full flex justify-center items-center mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
 											type="submit"
-											disabled={inviteLoading}
+											disabled={isLoading}
 										>
 											<span>{t('pages.invite.INVITE_LABEL_SEND')}</span>{' '}
-											{inviteLoading && (
+											{isLoading && (
 												<span className="ml-2">
 													<Spinner />
 												</span>

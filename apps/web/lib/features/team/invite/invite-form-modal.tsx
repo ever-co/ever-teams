@@ -12,17 +12,21 @@ import { InviteEmailDropdown } from './invite-email-dropdown';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
-	const { inviteUser, inviteLoading } = useTeamInvitations();
+	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
+		useTeamInvitations();
+
 	const [errors, setErrors] = useState<{
 		email?: string;
 		name?: string;
 	}>({});
+
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
 	const { workingEmployees } = useEmployee();
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
 	const { activeTeam } = useOrganizationTeams();
 	const nameInputRef = useRef<HTMLInputElement>(null);
 
+	const isLoading = inviteLoading || resendInviteLoading;
 
 	useEffect(() => {
 		if (activeTeam?.members) {
@@ -40,7 +44,6 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	}, [workingEmployees, workingEmployees.length, activeTeam]);
 
 	const handleAddNew = (email: string) => {
-
 		if (!email.includes('@')) {
 			email = `${email}@gmail.com`;
 		}
@@ -67,6 +70,13 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				setErrors({
 					email: t('errors.VALID_EMAIL')
 				});
+				return;
+			}
+
+			const existingInvitation = teamInvitations.find((invitation) => invitation.email === selectedEmail.title);
+
+			if (existingInvitation) {
+				resendTeamInvitation(existingInvitation.id);
 				return;
 			}
 
@@ -127,7 +137,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 						<div className="flex items-center justify-between w-full mt-3">
 							<BackButton onClick={closeModal} />
 
-							<Button type="submit" disabled={inviteLoading} loading={inviteLoading}>
+							<Button type="submit" disabled={isLoading} loading={isLoading}>
 								{t('pages.invite.SEND_INVITE')}
 							</Button>
 						</div>
