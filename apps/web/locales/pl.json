@@ -614,6 +614,10 @@
 				"OPTIMIZE_PLAN": "Całkowity szacowany czas przekracza planowany czas, proszę zoptymalizować swój plan",
 				"PLAN_MORE_TASKS": "Proszę dodać więcej zadań do planu"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Zmień aktywne zadanie",
+			"MESSAGE": "Zaraz zaczniesz pracować nad planem na dziś {defaultPlannedTask}, ale wciąż masz aktywne zadanie {activeTask}"
 		}
 	},
 	"form": {
