@@ -16,15 +16,13 @@ export const Text = ({ children, ...props }: Props & React.ComponentPropsWithRef
 /**
  * <P />
  */
-Text.P = forwardRef<HTMLParagraphElement, Props & React.ComponentPropsWithRef<'p'>>(
-	({ children, className, ...rest }, ref) => {
-		return (
-			<p ref={ref} {...rest}>
-				{children}
-			</p>
-		);
-	}
-);
+Text.P = forwardRef<HTMLParagraphElement, Props & React.ComponentPropsWithRef<'p'>>(({ children, ...rest }, ref) => {
+	return (
+		<p ref={ref} {...rest}>
+			{children}
+		</p>
+	);
+});
 
 Text.P.displayName = 'TextParagraph';
 
