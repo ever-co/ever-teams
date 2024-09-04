@@ -614,6 +614,10 @@
 				"OPTIMIZE_PLAN": "El tiempo total estimado excede tu tiempo planificado, por favor optimiza tu plan",
 				"PLAN_MORE_TASKS": "Por favor, añade más tareas al plan"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Cambiar tarea activa",
+			"MESSAGE": "Estás a punto de comenzar a trabajar en el plan de hoy {defaultPlannedTask}, pero aún tienes la tarea activa {activeTask}"
 		}
 	},
 	"form": {
