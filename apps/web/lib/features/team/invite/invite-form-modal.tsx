@@ -9,6 +9,7 @@ import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/component
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
+import { useToast } from '@components/ui/use-toast';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
@@ -25,6 +26,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
 	const { activeTeam } = useOrganizationTeams();
 	const nameInputRef = useRef<HTMLInputElement>(null);
+	const { toast } = useToast();
 
 	const isLoading = inviteLoading || resendInviteLoading;
 
@@ -76,19 +78,42 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 			const existingInvitation = teamInvitations.find((invitation) => invitation.email === selectedEmail.title);
 
 			if (existingInvitation) {
-				resendTeamInvitation(existingInvitation.id);
+				resendTeamInvitation(existingInvitation.id).then(() => {
+					closeModal();
+
+					toast({
+						variant: 'default',
+						title: t('common.INVITATION_SENT'),
+						description: t('common.INVITATION_SENT_TO_USER', { email: selectedEmail.title }),
+						duration: 5 * 1000
+					});
+				});
 				return;
 			}
 
 			inviteUser(selectedEmail.title, form.get('name')?.toString() || selectedEmail.name || '')
-				.then(() => {
+				.then(({ data }) => {
 					closeModal();
-
 					e.currentTarget.reset();
+
+					toast({
+						variant: 'default',
+						title: t('common.INVITATION_SENT'),
+						description: t('common.INVITATION_SENT_TO_USER', { email: selectedEmail.title }),
+						duration: 5 * 1000
+					});
 				})
 				.catch((err: AxiosError) => {
 					if (err.response?.status === 400) {
-						setErrors((err.response?.data as any)?.errors || {});
+						const data = err.response?.data as any;
+
+						if ('errors' in data) {
+							setErrors(data.errors || {});
+						}
+
+						if ('message' in data && Array.isArray(data.message)) {
+							setErrors({ email: data.message[0] });
+						}
 					}
 				});
 		},

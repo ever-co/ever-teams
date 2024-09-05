@@ -200,7 +200,9 @@
 		"PAUSED": "Wstrzymany",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Dodaj później",
-		"DAILYPLAN": "Planowane"
+		"DAILYPLAN": "Planowane",
+		"INVITATION_SENT": "Zaproszenie wysłane",
+		"INVITATION_SENT_TO_USER": "Zaproszenie zespołu zostało wysłane do {email}."
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

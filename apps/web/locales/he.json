@@ -200,7 +200,9 @@
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
 		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
-		"DAILYPLAN": "מְתוּכנָן"
+		"DAILYPLAN": "מְתוּכנָן",
+		"INVITATION_SENT": "ההזמנה נשלחה בהצלחה",
+		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}."
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

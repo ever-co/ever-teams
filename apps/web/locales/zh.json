@@ -200,7 +200,9 @@
 		"PAUSED": "暂停",
 		"ONLINE": "在线",
 		"SKIP_ADD_LATER": "稍后添加",
-		"DAILYPLAN": "計劃中"
+		"DAILYPLAN": "計劃中",
+		"INVITATION_SENT": "邀请已发送",
+		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

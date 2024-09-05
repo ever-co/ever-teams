@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { IInvite, IInviteProps } from '../../../app/interfaces/hooks';
 import { UserOutlineIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
+import { useToast } from '@components/ui/use-toast';
 
 const initalValues: IInvite = {
 	email: '',
@@ -19,6 +20,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 
 	const [errors, setErrors] = useState({});
 	const t = useTranslations();
+	const { toast } = useToast();
 
 	const isLoading = inviteLoading || resendInviteLoading;
 
@@ -38,18 +40,41 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 		const existingInvitation = teamInvitations.find((invitation) => invitation.email === formData.email);
 
 		if (existingInvitation) {
-			resendTeamInvitation(existingInvitation.id);
+			resendTeamInvitation(existingInvitation.id).then(() => {
+				closeModal();
+
+				toast({
+					variant: 'default',
+					title: t('common.INVITATION_SENT'),
+					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
+					duration: 5 * 1000
+				});
+			});
 			return;
 		}
 
 		inviteUser(formData.email, formData.name)
-			.then(() => {
+			.then((data) => {
 				setFormData(initalValues);
 				closeModal();
+				toast({
+					variant: 'default',
+					title: t('common.INVITATION_SENT'),
+					description: t('common.INVITATION_SENT_TO_USER', { email: formData.email }),
+					duration: 5 * 1000
+				});
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
+					const data = err.response?.data as any;
+
+					if ('errors' in data) {
+						setErrors(data.errors || {});
+					}
+
+					if ('message' in data && Array.isArray(data.message)) {
+						setErrors({ email: data.message[0] });
+					}
 				}
 			});
 	};

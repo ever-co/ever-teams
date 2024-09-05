@@ -107,7 +107,7 @@ export function useTeamInvitations() {
 
 	const resendTeamInvitation = useCallback(
 		(invitationId: string) => {
-			resendInviteQueryCall(invitationId);
+			return resendInviteQueryCall(invitationId);
 		},
 		[resendInviteQueryCall]
 	);
