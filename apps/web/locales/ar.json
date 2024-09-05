@@ -200,7 +200,9 @@
 		"PAUSED": "متوقف",
 		"ONLINE": "متصل",
 		"SKIP_ADD_LATER": "أضف لاحقًا",
-		"DAILYPLAN": "مخطط"
+		"DAILYPLAN": "مخطط",
+		"INVITATION_SENT": "تم إرسال دعوة بنجاح",
+		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}."
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",

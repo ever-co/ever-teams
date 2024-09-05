@@ -200,7 +200,9 @@
 		"PAUSED": "Пауза",
 		"ONLINE": "Онлайн",
 		"SKIP_ADD_LATER": "Добави по-късно",
-		"DAILYPLAN": "Планирано"
+		"DAILYPLAN": "Планирано",
+		"INVITATION_SENT": "Покана е изпратена успешно",
+		"INVITATION_SENT_TO_USER": "Покана е изпратена на {email}."
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

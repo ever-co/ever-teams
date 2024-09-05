@@ -200,7 +200,9 @@
 		"PAUSED": "Pausado",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Adicionar depois",
-		"DAILYPLAN": "Planeado"
+		"DAILYPLAN": "Planeado",
+		"INVITATION_SENT": "Convite enviado com sucesso",
+		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}."
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",

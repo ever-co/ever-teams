@@ -200,7 +200,9 @@
 		"PAUSED": "Paused",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Add later",
-		"DAILYPLAN": "Planned"
+		"DAILYPLAN": "Planned",
+		"INVITATION_SENT": "Invitation Sent Successfully",
+		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}."
 	},
 	"hotkeys": {
 		"HELP": "Help",
