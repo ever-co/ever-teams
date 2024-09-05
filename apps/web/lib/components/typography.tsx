@@ -16,9 +16,9 @@ export const Text = ({ children, ...props }: Props & React.ComponentPropsWithRef
 /**
  * <P />
  */
-Text.P = forwardRef<HTMLParagraphElement, Props & React.ComponentPropsWithRef<'p'>>(({ children, ...rest }, ref) => {
+Text.P = forwardRef<HTMLParagraphElement, Props & React.ComponentPropsWithRef<'p'>>(({ children, ...props }, ref) => {
 	return (
-		<p ref={ref} {...rest}>
+		<p {...props} ref={ref}>
 			{children}
 		</p>
 	);
