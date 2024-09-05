@@ -207,7 +207,7 @@ export function CreateDailyPlanFormModal({
 	);
 }
 
-export const CustomCalendar = memo(function CustomCalendar({
+const CustomCalendar = memo(function CustomCalendar({
 	date,
 	setDate,
 	existingPlanDates

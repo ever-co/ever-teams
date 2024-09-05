@@ -155,9 +155,21 @@ export function useDailyPlan() {
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
 			setEmployeePlans([...updatedEmployee, res.data]);
+			// Fetch updated plans
+			getMyDailyPlans();
+			getAllDayPlans();
 			return res;
 		},
-		[employeePlans, profileDailyPlans, setEmployeePlans, setProfileDailyPlans, updateQueryCall]
+		[
+			employeePlans,
+			getAllDayPlans,
+			getMyDailyPlans,
+			profileDailyPlans.items,
+			profileDailyPlans.total,
+			setEmployeePlans,
+			setProfileDailyPlans,
+			updateQueryCall
+		]
 	);
 
 	const addTaskToPlan = useCallback(
