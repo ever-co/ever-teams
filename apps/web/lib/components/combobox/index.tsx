@@ -28,7 +28,7 @@ interface ComboboxProps<T> {
     onChangeValue?: (value: T | null) => void
     className?: string
     popoverClassName?: string
-    selectedItem?: T | null // Ajout de la prop pour la gestion externe
+    selectedItem?: T | null
 }
 
 export function CustomCombobox<T>({
@@ -42,20 +42,19 @@ export function CustomCombobox<T>({
     onChangeValue,
     className,
     popoverClassName,
-    selectedItem = null // Ajout d'une valeur par défaut pour `selectedItem`
+    selectedItem = null
 }: ComboboxProps<T>) {
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState<T | null>(selectedItem) // Utilisation de `selectedItem` comme valeur initiale
+    const [value, setValue] = React.useState<T | null>(selectedItem)
     const [popoverWidth, setPopoverWidth] = React.useState<number | null>(null);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
 
-    // Gestion de la sélection de l'élément
     const handleSelect = (currentValue: string) => {
         const selectedItem = items.find(item => itemToValue(item) === currentValue) || null
         setValue(selectedItem)
         setOpen(false)
         if (onChangeValue) {
-            onChangeValue(selectedItem) // Notifier le parent du changement
+            onChangeValue(selectedItem)
         }
     }
 
@@ -65,7 +64,7 @@ export function CustomCombobox<T>({
         }
     }, [triggerRef.current]);
 
-    // Mettre à jour la valeur interne quand `selectedItem` change via les props
+
     React.useEffect(() => {
         setValue(selectedItem);
     }, [selectedItem]);
