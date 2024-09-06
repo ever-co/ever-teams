@@ -14,6 +14,7 @@ import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
 import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
 import { IoTime } from 'react-icons/io5';
+import { Item, ManageOrMemberComponent, getNestedValue } from './manage-member-component';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -29,11 +30,12 @@ import { IoTime } from 'react-icons/io5';
 interface IAddManualTimeModalProps {
 	isOpen: boolean;
 	params: "AddManuelTime" | "AddTime";
+	timeSheetStatus?: "ManagerTimesheet" | "TeamMemberTimesheet",
 	closeModal: () => void;
 }
 
 export function AddManualTimeModal(props: IAddManualTimeModalProps) {
-	const { closeModal, isOpen, params } = props;
+	const { closeModal, isOpen, params, timeSheetStatus } = props;
 	const t = useTranslations();
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [description, setDescription] = useState<string>('');
@@ -45,7 +47,6 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	const [team, setTeam] = useState<IOrganizationTeamList>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const [memberId, setMemberId] = useState<string>('')
 	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
 	const { teams } = useOrganizationTeams();
 
@@ -140,6 +141,56 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 			setErrorMsg('');
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
+
+
+	const memberItemsLists = {
+		'Project': activeTeam?.projects,
+		'Employee': activeTeam?.members,
+		'Task': tasks,
+	};
+	const selectedValues = {
+		'Teams': null,
+		'Members': null,
+		"Task": null
+	};
+	const fields = [
+		{
+			label: 'Project',
+			placeholder: 'Select a project',
+			isRequired: true,
+			valueKey: 'id',
+			displayKey: 'name',
+			element: 'Project'
+		},
+		...(timeSheetStatus === 'ManagerTimesheet' ?
+			[{
+				label: t('manualTime.EMPLOYEE'),
+				placeholder: 'Select an employee',
+				isRequired: true,
+				valueKey: 'id',
+				displayKey: 'employee.fullName',
+				element: 'Employee'
+			}] : []),
+		{
+			label: t('manualTime.TASK'),
+			placeholder: 'Select a Task',
+			isRequired: true,
+			valueKey: 'id',
+			displayKey: 'title',
+			element: 'Task'
+		}
+	];
+
+
+
+
+	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
+		console.log(values);
+	};
+
+	const handleChange = (field: string, selectedItem: Item | null) => {
+		console.log(`Field: ${field}, Selected Item:`, selectedItem);
+	};
 
 	return (
 		<Modal
@@ -237,50 +288,19 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 					</div>
 				</div>
 
-				<div className="">
-					<label className="block text-gray-500 mb-1">
-						{t('manualTime.TEAM')}<span className="text-[#de5505e1] ml-1">*</span>
-					</label>
-					<SelectItems
-						defaultValue={activeTeam!}
-						items={teams}
-						onValueChange={(team) => setTeam(team)}
-						itemId={(team) => (team ? team.id : '')}
-						itemToString={(team) => (team ? team.name : '')}
-						triggerClassName="border-gray-300 dark:border-slate-600"
-					/>
-				</div>
 
 				{
 					params === 'AddManuelTime' ? (
 						<>
-
-							<div className="">
-								<label className="block text-gray-500 mb-1">
-									{t('manualTime.EMPLOYEE')}<span className="text-[#de5505e1] ml-1">*</span>
-								</label>
-								<SelectItems
-									items={activeTeam?.members ?? []}
-									onValueChange={(member) => setMemberId(member ? member.id : memberId)}
-									itemId={(member) => (member ? member.id : memberId)}
-									itemToString={(member) => (member ? member.employee.fullName : '')}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
-
-							<div className="">
-								<label className="block text-gray-500 mb-1">
-									{t('manualTime.TASK')}<span className="text-[#de5505e1] ml-1">*</span>
-								</label>
-								<SelectItems
-									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
-									onValueChange={(reason) => setReason(reason)}
-									itemId={(reason) => reason}
-									defaultValue={t('manualTime.reasons.DEFAULT')}
-									itemToString={(reason) => reason}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
+							<ManageOrMemberComponent
+								fields={fields}
+								itemsLists={memberItemsLists}
+								selectedValues={selectedValues}
+								onSelectedValuesChange={handleSelectedValuesChange}
+								handleChange={handleChange}
+								itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
+								itemToValue={(item, valueKey) => getNestedValue(item, valueKey) || ''}
+							/>
 							<div className="flex flex-col">
 								<label className="block text-gray-500 shrink-0">{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})</label>
 								<textarea
@@ -290,10 +310,23 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 									className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
 								/>
 							</div>
+
 						</>
 					) : (
 						<>
-
+							<div className="">
+								<label className="block text-gray-500 mb-1">
+									{t('manualTime.TEAM')}<span className="text-[#de5505e1] ml-1">*</span>
+								</label>
+								<SelectItems
+									defaultValue={activeTeam!}
+									items={teams}
+									onValueChange={(team) => setTeam(team)}
+									itemId={(team) => (team ? team.id : '')}
+									itemToString={(team) => (team ? team.name : '')}
+									triggerClassName="border-gray-300 dark:border-slate-600"
+								/>
+							</div>
 							<div className="">
 								<label className="block text-gray-500 mb-1">
 									{t('manualTime.TASK')}<span className="text-[#de5505e1] ml-1">*</span>
