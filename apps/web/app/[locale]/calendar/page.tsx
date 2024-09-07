@@ -61,6 +61,7 @@ const CalendarPage = () => {
                     closeModal={closeManualTimeModal}
                     isOpen={isManualTimeModalOpen}
                     params='AddManuelTime'
+                    timeSheetStatus='ManagerTimesheet'
                 />
                 <div
                     className='fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 '

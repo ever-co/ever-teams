@@ -1,4 +1,3 @@
-"use client"
 import * as React from "react";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { cn } from "lib/utils";
@@ -29,26 +28,9 @@ interface ComboboxProps<T> {
     onChangeValue?: (value: T | null) => void
     className?: string
     popoverClassName?: string
+    selectedItem?: T | null
 }
-/**
- *
- *
- * @export
- * @template T
- * @param {ComboboxProps<T>} {
- *     items,
- *     itemToString,
- *     itemToValue,
- *     placeholder = "Select item...",
- *     buttonWidth = "w-[200px]",
- *     commandInputHeight = "h-9",
- *     noResultsText = "No item found.",
- *     onChangeValue,
- *     className,
- *     popoverClassName
- * }
- * @return {*}
- */
+
 export function CustomCombobox<T>({
     items,
     itemToString,
@@ -59,10 +41,11 @@ export function CustomCombobox<T>({
     noResultsText = "No item found.",
     onChangeValue,
     className,
-    popoverClassName
+    popoverClassName,
+    selectedItem = null
 }: ComboboxProps<T>) {
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState<T | null>(null)
+    const [value, setValue] = React.useState<T | null>(selectedItem)
     const [popoverWidth, setPopoverWidth] = React.useState<number | null>(null);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -80,6 +63,12 @@ export function CustomCombobox<T>({
             setPopoverWidth(triggerRef.current.offsetWidth);
         }
     }, [triggerRef.current]);
+
+
+    React.useEffect(() => {
+        setValue(selectedItem);
+    }, [selectedItem]);
+
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
