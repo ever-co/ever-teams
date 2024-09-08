@@ -7,11 +7,24 @@ import { IVariant } from './types';
 type Props = PropsWithChildren<IClassName>;
 
 /**
- * <p />
+ * <div />
  */
-export const Text = ({ children, ...props }: Props & React.ComponentPropsWithRef<'p'>) => {
-	return <p {...props}>{children}</p>;
+export const Text = ({ children, ...props }: Props & React.ComponentPropsWithRef<'div'>) => {
+	return <div {...props}>{children}</div>;
 };
+
+/**
+ * <P />
+ */
+Text.P = forwardRef<HTMLParagraphElement, Props & React.ComponentPropsWithRef<'p'>>(({ children, ...props }, ref) => {
+	return (
+		<p {...props} ref={ref}>
+			{children}
+		</p>
+	);
+});
+
+Text.P.displayName = 'TextParagraph';
 
 /**
  * <Link />

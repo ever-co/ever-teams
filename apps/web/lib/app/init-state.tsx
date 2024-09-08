@@ -20,6 +20,7 @@ import {
 	useTeamTasks,
 	useTimer
 } from '@app/hooks';
+import { useEmployee } from '@app/hooks/features/useEmployee';
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
 import { publicState, userState } from '@app/stores';
 // import { useSyncLanguage } from 'ni18n';
@@ -56,6 +57,8 @@ function InitState() {
 	const { firstLoadDailyPlanData } = useDailyPlan();
 	const { firstLoadTimeLogs } = useTimeLogs();
 
+	const { firstLoadDataEmployee } = useEmployee();
+
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
 		firstLoadTeamsData();
@@ -75,6 +78,7 @@ function InitState() {
 		firstLoadTaskRelatedIssueTypeData();
 		firstLoadDailyPlanData();
 		firstLoadTimeLogs();
+		firstLoadDataEmployee();
 		// --------------
 
 		getTimerStatus();

@@ -5,6 +5,15 @@ export interface IBaseDelete {
 	deletedAt?: Date;
 }
 
+/**
+ * @description
+ * An entity ID. Represents a unique identifier as a string.
+ *
+ * @docsCategory Type Definitions
+ * @docsSubcategory Identifiers
+ */
+export type ID = string;
+
 export interface IBaseEntity extends IBaseDelete {
 	id?: string;
 	readonly createdAt?: Date;

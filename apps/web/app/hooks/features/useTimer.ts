@@ -301,6 +301,16 @@ export function useTimer() {
 			return;
 		});
 
+		promise.catch(() => {
+			if (taskId.current) {
+				updateLocalTimerStatus({
+					lastTaskId: taskId.current,
+					runnedDateTime: 0,
+					running: false
+				});
+			}
+		});
+
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
