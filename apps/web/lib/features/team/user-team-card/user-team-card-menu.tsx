@@ -1,5 +1,5 @@
 import { mergeRefs } from '@app/helpers';
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -8,6 +8,7 @@ import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { AllPlansModal } from 'lib/features/daily-plan/all-plans-modal';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -26,6 +27,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 	const t = useTranslations();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
+
+	const { isOpen: isAllPlansModalOpen, closeModal: closeAllPlansModal, openModal: openAllPlansModal } = useModal();
 
 	const menu = [
 		{
@@ -76,129 +79,133 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	].filter((item) => item.active || item.active === undefined);
 
 	return (
-		<Popover
-			className="relative w-full flex flex-col items-center justify-center"
-			ref={mergeRefs([
-				edition.estimateEditIgnoreElement.ignoreElementRef,
-				edition.taskEditIgnoreElement.ignoreElementRef
-			])}
-		>
-			{!loading && (
-				<Popover.Button
-					disabled={menu.length === 0}
-					className={clsxm(
-						'flex items-center outline-none border-none',
-						menu.length === 0 && ['opacity-50 hidden']
-					)}
-				>
-					<ThreeCircleOutlineVerticalIcon className="w-6 dark:text-[#B1AEBC]" strokeWidth="1.4" />
-				</Popover.Button>
-			)}
-			{loading && <SpinnerLoader size={20} />}
-
-			<Transition
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-30 -right-5 min-w-[13.125rem]"
+		<>
+			<Popover
+				className="relative w-full flex flex-col items-center justify-center"
+				ref={mergeRefs([
+					edition.estimateEditIgnoreElement.ignoreElementRef,
+					edition.taskEditIgnoreElement.ignoreElementRef
+				])}
 			>
-				<Popover.Panel>
-					{({ close }) => {
-						return (
-							<Card
-								shadow="custom"
-								className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-[10.75rem]"
-							>
-								<ul className="flex flex-col items-start">
-									{menu.map((item, i) => {
-										const text = (
-											<Text
+				{!loading && (
+					<Popover.Button
+						disabled={menu.length === 0}
+						className={clsxm(
+							'flex items-center outline-none border-none',
+							menu.length === 0 && ['opacity-50 hidden']
+						)}
+					>
+						<ThreeCircleOutlineVerticalIcon className="w-6 dark:text-[#B1AEBC]" strokeWidth="1.4" />
+					</Popover.Button>
+				)}
+				{loading && <SpinnerLoader size={20} />}
+
+				<Transition
+					enter="transition duration-100 ease-out"
+					enterFrom="transform scale-95 opacity-0"
+					enterTo="transform scale-100 opacity-100"
+					leave="transition duration-75 ease-out"
+					leaveFrom="transform scale-100 opacity-100"
+					leaveTo="transform scale-95 opacity-0"
+					className="absolute z-30 -right-5 min-w-[13.125rem]"
+				>
+					<Popover.Panel>
+						{({ close }) => {
+							return (
+								<Card
+									shadow="custom"
+									className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-[10.75rem]"
+								>
+									<ul className="flex flex-col items-start">
+										{menu.map((item, i) => {
+											const text = (
+												<Text
+													className={clsxm(
+														'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all',
+														item.type === 'danger' && ['text-red-500']
+													)}
+												>
+													{item.name}
+												</Text>
+											);
+
+											// When true show combobox component (AssignActionMenu)
+											const assignAction = item.action === 'assign';
+
+											const removeAction = item.action === 'remove';
+
+											return (
+												<li key={i}>
+													{assignAction && (
+														// Show only for item with combobox menu
+														<TaskUnOrAssignPopover
+															tasks={memberInfo.memberUnassignTasks}
+															onTaskClick={(task, closeCmbx) => {
+																// Can close all open combobox
+																item.onClick &&
+																	item.onClick({
+																		task,
+																		closeCombobox1: closeCmbx,
+																		closeCombobox2: close
+																	});
+															}}
+															userProfile={memberInfo.member}
+															usersTaskCreatedAssignTo={
+																memberInfo.member?.employeeId
+																	? [{ id: memberInfo.member?.employeeId }]
+																	: undefined
+															}
+														>
+															{text}
+														</TaskUnOrAssignPopover>
+													)}
+
+													{removeAction && (
+														<ConfirmDropdown
+															className="right-[110%] top-0"
+															onConfirm={() => {
+																item.onClick && item.onClick({ close });
+															}}
+														>
+															{text}
+														</ConfirmDropdown>
+													)}
+
+													{/* WHen hasn't an action */}
+													{!assignAction && !removeAction && (
+														<button
+															className="mb-2"
+															onClick={() => {
+																item.onClick && item.onClick({});
+																item.closable && close();
+															}}
+														>
+															{text}
+														</button>
+													)}
+												</li>
+											);
+										})}
+										<HorizontalSeparator className="-mx-2" />
+										<ul className="w-full py-1 flex flex-col items-start">
+											<button
+												onClick={openAllPlansModal}
 												className={clsxm(
-													'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all',
-													item.type === 'danger' && ['text-red-500']
+													'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all'
 												)}
 											>
-												{item.name}
-											</Text>
-										);
-
-										// When true show combobox component (AssignActionMenu)
-										const assignAction = item.action === 'assign';
-
-										const removeAction = item.action === 'remove';
-
-										return (
-											<li key={i}>
-												{assignAction && (
-													// Show only for item with combobox menu
-													<TaskUnOrAssignPopover
-														tasks={memberInfo.memberUnassignTasks}
-														onTaskClick={(task, closeCmbx) => {
-															// Can close all open combobox
-															item.onClick &&
-																item.onClick({
-																	task,
-																	closeCombobox1: closeCmbx,
-																	closeCombobox2: close
-																});
-														}}
-														userProfile={memberInfo.member}
-														usersTaskCreatedAssignTo={
-															memberInfo.member?.employeeId
-																? [{ id: memberInfo.member?.employeeId }]
-																: undefined
-														}
-													>
-														{text}
-													</TaskUnOrAssignPopover>
-												)}
-
-												{removeAction && (
-													<ConfirmDropdown
-														className="right-[110%] top-0"
-														onConfirm={() => {
-															item.onClick && item.onClick({ close });
-														}}
-													>
-														{text}
-													</ConfirmDropdown>
-												)}
-
-												{/* WHen hasn't an action */}
-												{!assignAction && !removeAction && (
-													<button
-														className="mb-2"
-														onClick={() => {
-															item.onClick && item.onClick({});
-															item.closable && close();
-														}}
-													>
-														{text}
-													</button>
-												)}
-											</li>
-										);
-									})}
-									<HorizontalSeparator className="-mx-2" />
-									<ul className="w-full py-1 flex flex-col items-start">
-										<button
-											className={clsxm(
-												'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all'
-											)}
-										>
-											See Plan
-										</button>
+												See Plan
+											</button>
+										</ul>
 									</ul>
-								</ul>
-							</Card>
-						);
-					}}
-				</Popover.Panel>
-			</Transition>
-		</Popover>
+								</Card>
+							);
+						}}
+					</Popover.Panel>
+				</Transition>
+			</Popover>
+			<AllPlansModal isOpen={isAllPlansModalOpen} closeModal={closeAllPlansModal} />
+		</>
 	);
 }
 
