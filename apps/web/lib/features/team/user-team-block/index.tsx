@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { useRecoilValue } from 'recoil';
 import { TaskBlockInfo } from './task-info';
 import { UserBoxInfo } from './user-info';
-import { UserTeamCardMenu } from './user-team-card-menu';
+import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 
 type IUserTeamBlock = {

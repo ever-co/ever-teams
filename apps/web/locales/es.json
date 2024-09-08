@@ -200,7 +200,9 @@
 		"PAUSED": "Pausado",
 		"ONLINE": "En línea",
 		"SKIP_ADD_LATER": "Agregar más tarde",
-		"DAILYPLAN": "Planificado"
+		"DAILYPLAN": "Planificado",
+		"INVITATION_SENT": "Invitación enviada con éxito",
+		"INVITATION_SENT_TO_USER": "Se ha enviado una invitación de equipo a {email}."
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -539,6 +541,7 @@
 	},
 	"task": {
 		"TITLE": "Tarea",
+		"TITLE_PLURAL": "Tareas",
 		"ASSIGN_NEW_TASK": "Asignar nueva tarea",
 		"ASSIGNED_BY": "Asignado por",
 		"NO_ONE_FOR_TASK": "Nadie asignado a esta tarea",
@@ -602,9 +605,22 @@
 		"COMPLETION": "Finalización",
 		"PLANNED_TASKS": "Tarea planificada",
 		"ESTIMATED": "Estimado",
+		"TOTAL_ESTIMATED": "Estimado total",
 		"TOTAL_TASK": "Tareas totales",
 		"DAILY_PLAN_DESCRIPTION": "'Plan diario' ayuda a organizar el proceso de trabajo para lograr los mejores resultados",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarea no estaba prevista en el plan de hoy. ¿Te gustaría añadir algo al plan?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarea no estaba prevista en el plan de hoy. ¿Te gustaría añadir algo al plan?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Por favor, añade tiempo planificado",
+				"TASKS_ESTIMATION": "Por favor, estima todas las tareas",
+				"OPTIMIZE_PLAN": "El tiempo total estimado excede tu tiempo planificado, por favor optimiza tu plan",
+				"PLAN_MORE_TASKS": "Por favor, añade más tareas al plan"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Cambiar tarea activa",
+			"MESSAGE": "Estás a punto de comenzar a trabajar en el plan de hoy {defaultPlannedTask}, pero aún tienes la tarea activa {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ingresa tu nombre",

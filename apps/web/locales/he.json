@@ -200,7 +200,9 @@
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
 		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
-		"DAILYPLAN": "מְתוּכנָן"
+		"DAILYPLAN": "מְתוּכנָן",
+		"INVITATION_SENT": "ההזמנה נשלחה בהצלחה",
+		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}."
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -539,6 +541,7 @@
 	},
 	"task": {
 		"TITLE": "משימה",
+		"TITLE_PLURAL": "משימות",
 		"ASSIGN_NEW_TASK": "הקצה משימה חדשה",
 		"ASSIGNED_BY": "הוקצה על ידי",
 		"NO_ONE_FOR_TASK": "אף אחד לא הוקצה למשימה זו",
@@ -602,9 +605,22 @@
 		"COMPLETION": "השלמה",
 		"PLANNED_TASKS": "משימה מתוכננת",
 		"ESTIMATED": "משוער",
+		"TOTAL_ESTIMATED": "הערכה כוללת",
 		"TOTAL_TASK": "סך כל המשימות",
 		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "אנא הוסף זמן מתוכנן",
+				"TASKS_ESTIMATION": "אנא הערך את כל המשימות",
+				"OPTIMIZE_PLAN": "הזמן הכולל המשוער חורג מהזמן המתוכנן, אנא מיטב את התוכנית שלך",
+				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "שנה משימה פעילה",
+			"MESSAGE": "אתה עומד להתחיל לעבוד על התוכנית של היום {defaultPlannedTask}, אבל עדיין יש לך משימה פעילה {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "הכנס את השם שלך",

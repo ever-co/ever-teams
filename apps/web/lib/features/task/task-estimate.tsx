@@ -134,7 +134,8 @@ export function TaskEstimate({
 					{!updateLoading ? (
 						editableMode ? (
 							<button
-								onClick={() => {
+								onClick={(e) => {
+									e.stopPropagation();
 									handleSubmit();
 									setEditableMode(false);
 								}}

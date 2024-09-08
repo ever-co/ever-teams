@@ -74,6 +74,11 @@ export interface IOrganizationTeamList {
 	projects?: IProject[];
 }
 
+export interface IRelationalOrganizationTeam {
+	organizationTeam?: IOrganizationTeam;
+	organizationTeamId?: IOrganizationTeam['id'];
+}
+
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
 
 export interface OT_Member {
