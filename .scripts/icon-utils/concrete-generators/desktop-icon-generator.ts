@@ -13,8 +13,11 @@ export class DesktopIconGenerator
 	implements IDesktopIconGenerator {
 	constructor() {
 		super();
-		this.imageUrl = env.GAUZY_DESKTOP_LOGO_512X512;
+		this.imageUrl = env.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512;
 		this.destination = path.join('apps', this.desktop, 'src', 'icons');
+	}
+	generateMenuIcon(originalImage: Jimp): Promise<void> {
+		throw new Error('Method not implemented.');
 	}
 
 	private async updateLogoPath(): Promise<void> {
@@ -22,7 +25,6 @@ export class DesktopIconGenerator
 		const destination = path.join(
 			'apps',
 			this.desktop,
-			'src',
 			'assets',
 			'icons',
 			'desktop_logo_512x512.png'
@@ -106,7 +108,7 @@ export class DesktopIconGenerator
 			'apps',
 			this.desktop,
 			'src',
-			'assets',
+			'resources',
 			'icons',
 			'tray'
 		);
@@ -125,31 +127,6 @@ export class DesktopIconGenerator
 						resolve(true);
 					})
 			);
-		}
-	}
-
-	public async generateMenuIcon(originalImage: Jimp): Promise<void> {
-		const iconSizes = [512, 256, 192, 128, 96, 64, 48, 40, 32, 24, 20, 16];
-		// Remove 512x512 pixels for windows apps
-		if (process.platform === 'win32') {
-			iconSizes.shift();
-		}
-		const destination = path.join(
-			'apps',
-			this.desktop,
-			'src',
-			'assets',
-			'icons',
-			'menu'
-		);
-		for (const iconSize of iconSizes) {
-			const png = iconSize === iconSizes[0] ? 'icon.png' : `icon_${iconSize}x${iconSize}.png`;
-			const menuIconFilePath = path.join(destination, png);
-			await originalImage
-				.clone()
-				.resize(iconSize, Jimp.AUTO, Jimp.RESIZE_NEAREST_NEIGHBOR)
-				.writeAsync(menuIconFilePath);
-			console.log(`✔ menu ${png} generated.`);
 		}
 	}
 
@@ -193,12 +170,6 @@ export class DesktopIconGenerator
 			await this.generateTrayIcon(image);
 		} catch (error) {
 			console.error('tray', error);
-			throw error;
-		}
-		try {
-			await this.generateMenuIcon(image);
-		} catch (error) {
-			console.error('menu', error);
 			throw error;
 		}
 

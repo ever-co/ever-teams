@@ -8,4 +8,6 @@ export interface IDesktopEnvironment extends Env {
     REPO_OWNER: string;
     WELCOME_TITLE: string;
     WELCOME_CONTENT: string;
+    PLATFORM_LOGO: string;
+    DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512: string;
 }

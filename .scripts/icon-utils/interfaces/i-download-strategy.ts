@@ -1,3 +1,3 @@
 export interface IDownloadStrategy {
-	download(imageUrl: string, destination?: string): Promise<string> | string;
+	download(imageUrl: string, destination?: string): Promise<string> | string | undefined | null;
 }

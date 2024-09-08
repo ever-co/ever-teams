@@ -1,10 +1,12 @@
 import { IIconGeneratorBase } from '../interfaces/i-icon-generator-base';
 import * as fs from 'fs';
-import { argv } from 'yargs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { env } from '../../env';
 import * as path from 'path';
 import { DesktopEnvironmentManager } from '../../electron-desktop-environment/desktop-environment-manager';
 
+const argv: any = yargs(hideBin(process.argv)).argv;
 export class DesktopDefaultIconGenerator implements IIconGeneratorBase {
 	private readonly desktop: string;
 	private readonly destination: string;
@@ -12,7 +14,7 @@ export class DesktopDefaultIconGenerator implements IIconGeneratorBase {
 
 	constructor() {
 		this.desktop = String(argv.desktop);
-		this.destination = path.join('apps', this.desktop, 'src', 'icons');
+		this.destination = path.join('apps', this.desktop, 'assets');
 		this.source = path.join('.scripts', 'icon-utils', 'icons');
 	}
 
@@ -31,12 +33,10 @@ export class DesktopDefaultIconGenerator implements IIconGeneratorBase {
 						reject(error);
 						return;
 					}
-					DesktopEnvironmentManager.environment.GAUZY_DESKTOP_LOGO_512X512 =
-						env.GAUZY_DESKTOP_LOGO_512X512;
+					DesktopEnvironmentManager.environment.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512 =
+						env.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512;
 					DesktopEnvironmentManager.environment.PLATFORM_LOGO =
 						env.PLATFORM_LOGO;
-					DesktopEnvironmentManager.environment.NO_INTERNET_LOGO =
-						env.NO_INTERNET_LOGO;
 					console.log('✔ default icons generated successfully!');
 					resolve(true);
 				}

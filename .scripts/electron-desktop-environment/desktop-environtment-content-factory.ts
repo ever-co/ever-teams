@@ -10,7 +10,7 @@ export class DesktopEnvirontmentContentFactory {
     ) {
         const common = new CommonEnvironmentContent();
         switch (desktop) {
-            case 'desktop-server-web':
+            case 'server-web':
                 const desktopServerWeb = new DesktopServerWebEnvironmentContent();
                 return `
                     ${common.generate(environtment)}

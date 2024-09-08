@@ -1,9 +1,12 @@
 import { DesktopEnvirontmentContentFactory } from './desktop-environtment-content-factory';
-import { Argv } from 'yargs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import * as path from 'path';
 import * as fs from 'fs';
 import { env } from '../env';
 import { IDesktopEnvironment } from './intefaces/i-desktop-environment';
+
+const argv: any = yargs(hideBin(process.argv)).argv;
 
 
 export class DesktopEnvironmentManager {
@@ -14,10 +17,11 @@ export class DesktopEnvironmentManager {
     private readonly isProd: boolean;
 
     private constructor() {
-        this.desktop = String(env.DESKTOP);
-        this.fileDir = path.join(__dirname, '..', '..', 'environments');
-        this.fileName = 'desktop-environment.ts';
-        this.isProd = env.NODE_ENV === 'production';
+        console.log(argv);
+        this.desktop = String(argv.desktop);
+        this.isProd = argv.environment === 'prod';
+        this.fileName = 'config';
+        this.fileDir = path.join('apps', this.desktop, 'src', 'configs');
     }
 
 
@@ -31,13 +35,18 @@ export class DesktopEnvironmentManager {
     public static get environment(): any {
         if (
             fs.existsSync(
-                path.join(this.instance.fileDir, this.instance.fileName)
+                path.join(
+                    this.instance.fileDir,
+                    this.instance.fileName.concat(`.ts`)
+                )
             )
         ) {
             return require(path.join(
+                '..',
+                '..',
                 this.instance.fileDir,
                 this.instance.fileName
-            )).environment;
+            )).config;
         }
         return null;
     }
@@ -64,11 +73,11 @@ export class DesktopEnvironmentManager {
     }
 
     public static generate(): void {
-        const files = ['desktop-environment.ts', 'desktop-environment.prod.ts'];
+        const files = ['config.ts'];
         const environment: Partial<IDesktopEnvironment> = Object.assign({}, env);
 
         for (const file of files) {
-            const isProd = file === 'desktop-environment.prod.ts';
+            const isProd = file === 'config.ts';
             const filePath = path.join(this.instance.fileDir, file);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
@@ -85,7 +94,7 @@ export class DesktopEnvironmentManager {
 
     private content(variable: Partial<IDesktopEnvironment>, isProd: boolean): string {
         return `
-            export const environment = {
+            export const config = {
                 production: ${isProd},
                 ${DesktopEnvirontmentContentFactory.generate(
             this.desktop,

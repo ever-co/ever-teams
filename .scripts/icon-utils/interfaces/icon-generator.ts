@@ -1,9 +1,11 @@
-import { argv } from 'yargs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import * as fs from 'fs';
-import { isUndefined } from 'underscore';
 import { DownloadContext } from '../context/download-context';
 import { DownloadAssetStrategy } from '../concrete-download-strategy/download-asset-strategy';
 import { DownloadHttpsStrategy } from '../concrete-download-strategy/download-https-strategy';
+
+const argv: any = yargs(hideBin(process.argv)).argv;
 
 export abstract class IconGenerator {
 	private downloadContext: DownloadContext;
@@ -12,7 +14,7 @@ export abstract class IconGenerator {
 	protected desktop: string | null;
 
 	protected constructor() {
-		this.desktop = isUndefined(argv.desktop) ? null : String(argv.desktop);
+		this.desktop = String(argv.desktop);
 		this.downloadContext = new DownloadContext();
 	}
 
