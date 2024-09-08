@@ -121,7 +121,7 @@ export default function ImageOverlapper({
 
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
-			<div className="relative">
+			<div className="relative bg-blue-500 h-full">
 				{hasInfo.length > 0 && showInfo && (
 					<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
 						<div className="relative bg-black text-white rounded-[3px]">

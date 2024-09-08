@@ -63,7 +63,7 @@ export function Navbar({
 	}, [pathname]);
 
 	return (
-		<div>
+		<div className="h-full w-full">
 			{!user && !notFound && !publicTeam ? (
 				<HeaderSkeleton />
 			) : (
@@ -74,7 +74,7 @@ export function Navbar({
 					)}
 				>
 					<Container fullWidth={fullWidth}>
-						<div className="w-full flex justify-between items-center min-h-[90px]">
+						<div className="w-full flex justify-between items-center h-full">
 							<EverTeamsLogo dash />
 							{!notFound && (
 								<div className="flex items-center gap-10">

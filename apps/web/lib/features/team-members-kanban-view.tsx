@@ -30,7 +30,12 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
 			const columnInfo = kanbanColumns.find((item) => item.name === key);
-			return { id: columnInfo?.id, name: key, icon: columnInfo ? columnInfo.fullIconUrl : '', color: columnInfo?.color };
+			return {
+				id: columnInfo?.id,
+				name: key,
+				icon: columnInfo ? columnInfo.fullIconUrl : '',
+				color: columnInfo?.color
+			};
 		})
 	);
 	const fullWidth = useRecoilValue(fullWidthState);
@@ -198,63 +203,61 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		<>
 			<DragDropContext onDragEnd={onDragEnd}>
 				{Array.isArray(columns) && columns.length > 0 && (
-					<Droppable
-						droppableId="droppable"
-						type="COLUMN" direction="horizontal">
+					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col h-auto justify-between w-full ">
+							<div className="flex flex-col h-full bg-red-600 justify-between w-full ">
 								<div
 									className={clsxm(
-										'flex flex-row  h-full p-[32px] bg-transparent dark:bg-[#181920]',
+										'flex flex-row h-full w-full p-[32px] bg-transparent dark:bg-[#181920]',
 										snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8',
 										!fullWidth && 'x-container pl-0'
 									)}
 									ref={provided.innerRef}
 									{...provided.droppableProps}
 								>
-									{columns.length > 0 ? (
-										<>
-											{columns.map((column: any, index: number) => {
-												return (
-													<React.Fragment key={index}>
-														<div key={index}>
-															{isColumnCollapse(column.name) ? (
-																<EmptyKanbanDroppable
-																	index={index}
-																	title={column.name}
-																	status={column}
-																	setColumn={setColumn}
-																	items={items[column.name]}
-																	backgroundColor={getHeaderBackground(
-																		kanbanColumns,
-																		column.name
-																	)}
-																/>
-															) : (
-																<>
-																	<KanbanDraggable
-																		key={index}
-																		status={column}
-																		setColumn={setColumn}
-																		isLoading={isLoading}
-																		index={index}
-																		icon={column.icon}
-																		addNewTask={addNewTask}
-																		title={column.name}
-																		items={items[column.name]}
-																		backgroundColor={getHeaderBackground(
-																			kanbanColumns,
-																			column.name
-																		)}
-																	/>
-																</>
+									{/* {columns.length > 0 ? (
+										<> */}
+									{columns?.map((column: any, index: number) => {
+										return (
+											<React.Fragment key={index}>
+												<div className="" key={index}>
+													{isColumnCollapse(column.name) ? (
+														<EmptyKanbanDroppable
+															index={index}
+															title={column.name}
+															status={column}
+															setColumn={setColumn}
+															items={items[column.name]}
+															backgroundColor={getHeaderBackground(
+																kanbanColumns,
+																column.name
 															)}
-														</div>
-													</React.Fragment>
-												);
-											})}
-										</>
-									) : null}
+														/>
+													) : (
+														<>
+															<KanbanDraggable
+																key={index}
+																status={column}
+																setColumn={setColumn}
+																isLoading={isLoading}
+																index={index}
+																icon={column.icon}
+																addNewTask={addNewTask}
+																title={column.name}
+																items={items[column.name]}
+																backgroundColor={getHeaderBackground(
+																	kanbanColumns,
+																	column.name
+																)}
+															/>
+														</>
+													)}
+												</div>
+											</React.Fragment>
+										);
+									})}
+									{/* </>
+									) : null} */}
 									<>{provided.placeholder}</>
 								</div>
 							</div>

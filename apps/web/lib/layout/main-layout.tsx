@@ -54,16 +54,18 @@ export function MainLayout({
 			</style>
 
 			<Meta title={title} />
-			<Navbar
-				showTimer={showTimer}
-				className="fixed z-[999]"
-				publicTeam={publicTeam || false}
-				notFound={notFound || false}
-			/>
+			<div className="h-24">
+				<Navbar
+					showTimer={showTimer}
+					className="h-full w-full flex items-center justify-center"
+					publicTeam={publicTeam || false}
+					notFound={notFound || false}
+				/>
+			</div>
 
 			<div
 				className={clsxm(
-					'w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px] pt-20',
+					'w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px]',
 					className
 				)}
 			>

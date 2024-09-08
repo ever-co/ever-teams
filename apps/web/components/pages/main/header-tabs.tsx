@@ -23,7 +23,11 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 	return (
 		<>
 			{options.map(({ label, icon: Icon, view: optionView }, index) => (
-				<Tooltip key={label} label={t(`common.${label}` as DottedLanguageObjectStringPaths)} placement="top-start">
+				<Tooltip
+					key={label}
+					label={t(`common.${label}` as DottedLanguageObjectStringPaths)}
+					placement="top-start"
+				>
 					<LinkWrapper isRoute={!!links[index]} href={links[index]}>
 						<button
 							className={clsxm(
