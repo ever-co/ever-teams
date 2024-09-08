@@ -4,6 +4,7 @@ import { IClassName, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text, Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -18,23 +19,35 @@ type Props = {
 export function TaskTimes({ className, task, memberInfo, showDaily = true, showTotal = true, isBlock = false }: Props) {
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
-	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id);
-
-	const { h, m } = secondsToTime(
-		(currentMember?.totalWorkedTasks &&
-			currentMember?.totalWorkedTasks?.length &&
-			currentMember?.totalWorkedTasks
-				.filter((t) => t.id === task?.id)
-				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
-			0
+	const currentMember = useMemo(
+		() => activeTeam?.members.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
+		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
 	);
-	const { h: dh, m: dm } = secondsToTime(
-		(currentMember?.totalTodayTasks &&
-			currentMember?.totalTodayTasks.length &&
-			currentMember?.totalTodayTasks
-				.filter((t) => t.id === task?.id)
-				.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
-			0
+
+	const { h, m } = useMemo(
+		() =>
+			secondsToTime(
+				(currentMember?.totalWorkedTasks &&
+					currentMember?.totalWorkedTasks?.length &&
+					currentMember?.totalWorkedTasks
+						.filter((t) => t.id === task?.id)
+						.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+					0
+			),
+		[currentMember?.totalWorkedTasks, task?.id]
+	);
+
+	const { h: dh, m: dm } = useMemo(
+		() =>
+			secondsToTime(
+				(currentMember?.totalTodayTasks &&
+					currentMember?.totalTodayTasks.length &&
+					currentMember?.totalTodayTasks
+						.filter((t) => t.id === task?.id)
+						.reduce((previousValue, currentValue) => previousValue + currentValue.duration, 0)) ||
+					0
+			),
+		[currentMember?.totalTodayTasks, task?.id]
 	);
 
 	return (

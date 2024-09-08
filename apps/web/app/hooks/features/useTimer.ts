@@ -84,22 +84,22 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 
 	// Update local time status (storage and store) only when global timerStatus changes
 	useEffect(() => {
-		// if (firstLoad) {
-		const localStatus = getLocalCounterStatus();
-		localStatus && setLocalTimerStatus(localStatus);
+		if (firstLoad) {
+			const localStatus = getLocalCounterStatus();
+			localStatus && setLocalTimerStatus(localStatus);
 
-		const timerStatusDate = timerStatus?.lastLog?.createdAt
-			? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 - timerStatus?.lastLog?.duration
-			: 0;
+			const timerStatusDate = timerStatus?.lastLog?.createdAt
+				? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 - timerStatus?.lastLog?.duration
+				: 0;
 
-		timerStatus &&
-			updateLocalTimerStatus({
-				runnedDateTime:
-					(timerStatus.running ? timerStatusDate || Date.now() : 0) || localStatus?.runnedDateTime || 0,
-				running: timerStatus.running,
-				lastTaskId: timerStatus.lastLog?.taskId || null
-			});
-		// }
+			timerStatus &&
+				updateLocalTimerStatus({
+					runnedDateTime:
+						(timerStatus.running ? timerStatusDate || Date.now() : 0) || localStatus?.runnedDateTime || 0,
+					running: timerStatus.running,
+					lastTaskId: timerStatus.lastLog?.taskId || null
+				});
+		}
 	}, [firstLoad, timerStatus, getLocalCounterStatus, setLocalTimerStatus, updateLocalTimerStatus]);
 
 	// THis is form constant update of the progress line
@@ -115,16 +115,16 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	}, [seconds, firstLoad, timerStatusRef]);
 
 	useEffect(() => {
-		// if (firstLoad) {
-		timerSecondsRef.current = 0;
-		setTimerSeconds(0);
-		// }
+		if (firstLoad) {
+			timerSecondsRef.current = 0;
+			setTimerSeconds(0);
+		}
 	}, [activeTeamTask?.id, setTimerSeconds, firstLoad, timerSecondsRef]);
 
 	useEffect(() => {
-		// if (firstLoad) {
-		setTimerSeconds(timerSecondsRef.current);
-		// }
+		if (firstLoad) {
+			setTimerSeconds(timerSecondsRef.current);
+		}
 	}, [setTimerSeconds, firstLoad]);
 
 	// Time Counter
@@ -276,9 +276,9 @@ export function useTimer() {
 
 	// Loading states
 	useEffect(() => {
-		// if (firstLoad) {
-		setTimerStatusFetching(loading);
-		// }
+		if (firstLoad) {
+			setTimerStatusFetching(loading);
+		}
 	}, [loading, firstLoad, setTimerStatusFetching]);
 
 	useEffect(() => {
@@ -299,6 +299,16 @@ export function useTimer() {
 		const promise = startTimerQueryCall().then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 			return;
+		});
+
+		promise.catch(() => {
+			if (taskId.current) {
+				updateLocalTimerStatus({
+					lastTaskId: taskId.current,
+					runnedDateTime: 0,
+					running: false
+				});
+			}
 		});
 
 		/**
@@ -370,7 +380,7 @@ export function useTimer() {
 
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
-		if (timerStatus?.running) {
+		if (timerStatus?.running && firstLoad) {
 			syncTimerInterval = setInterval(() => {
 				syncTimer();
 			}, 60000);
@@ -378,7 +388,7 @@ export function useTimer() {
 		return () => {
 			if (syncTimerInterval) clearInterval(syncTimerInterval);
 		};
-	}, [syncTimer, timerStatus]);
+	}, [syncTimer, timerStatus, firstLoad]);
 
 	// If active team changes then stop the timer
 	useEffect(() => {
@@ -402,9 +412,9 @@ export function useTimer() {
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;
-		const canStop = lastActiveTaskId.current !== null && taskId !== lastActiveTaskId.current && firstLoad;
+		const canStop = lastActiveTaskId.current !== null && taskId !== lastActiveTaskId.current;
 
-		if (canStop && timerStatusRef.current?.running) {
+		if (canStop && timerStatusRef.current?.running && firstLoad) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {

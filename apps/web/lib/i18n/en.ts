@@ -53,6 +53,7 @@ export const en = {
 		SELECT_STATUS: 'Select status',
 		SELECT_ISSUE: 'Select Issue',
 		UNASSIGNED: 'Unassigned',
+		DAILY_PLAN: 'Daily plan',
 		TASK_DETAILS: 'Task Details',
 		TYPE_SOMETHING: 'Type something',
 		FILTER: 'Filter',

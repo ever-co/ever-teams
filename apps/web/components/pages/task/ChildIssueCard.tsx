@@ -56,7 +56,7 @@ export const ChildIssueCard = () => {
 
 			{childTasks.length > 0 && (
 				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
-					{childTasks.map((task) => {
+					{childTasks?.map((task) => {
 						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-[#25272D] py-0" />;
 					})}
 				</div>
@@ -115,7 +115,7 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-			<div className="w-[98%] md:w-[42rem]  relative">
+			<div className="w-[98%] md:w-[45rem]  relative">
 				{loading && (
 					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
 						<SpinnerLoader />

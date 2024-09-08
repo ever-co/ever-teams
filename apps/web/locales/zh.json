@@ -150,6 +150,7 @@
 		"CANCEL": "取消",
 		"DISCARD": "放弃",
 		"EXISTING_MEMBER": "已是成员",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "团队成员电子邮件地址",
 		"NEW_MEMBER": "成为成员",
 		"BACK": "返回",
 		"JOIN_REQUEST": "请求加入",
@@ -198,7 +199,10 @@
 		"WORKING": "工作",
 		"PAUSED": "暂停",
 		"ONLINE": "在线",
-		"SKIP_ADD_LATER": "稍后添加"
+		"SKIP_ADD_LATER": "稍后添加",
+		"DAILYPLAN": "計劃中",
+		"INVITATION_SENT": "邀请已发送",
+		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -420,7 +424,8 @@
 			"VERSIONS": "版本",
 			"LIST_OF_VERSONS": "版本列表",
 			"ISSUETYPE": "议题类型",
-			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
+			"DEFAULT_ISSUE_TYPE": "默认问题类型",
+			"NO_DEFAULT_ISSUE_TYPE": "无默认问题类型",
 			"LIST_OF_ISSUES": "议题列表",
 			"RELATED_ISSUE_TYPE": "相关议题类型",
 			"LIST_OF_RELATED_TYPE": "相关类型列表",
@@ -536,6 +541,7 @@
 	},
 	"task": {
 		"TITLE": "任务",
+		"TITLE_PLURAL": "任务",
 		"ASSIGN_NEW_TASK": "分配新任务",
 		"ASSIGNED_BY": "分配者",
 		"NO_ONE_FOR_TASK": "此任务未分配",
@@ -553,7 +559,13 @@
 			"WORKED_DESCRIPTION": "此标签显示您开始处理的所有任务",
 			"ASSIGNED_DESCRIPTION": "此标签显示分配给您的所有任务",
 			"UNASSIGNED_DESCRIPTION": "此标签显示未分配给您的任务",
-			"NO_TASK_USER_ASSIGNED": "此任务未分配"
+			"NO_TASK_USER_ASSIGNED": "此任务未分配",
+			"DAILYPLAN_DESCRIPTION": "此標籤顯示您已規劃的所有任務",
+			"TODAY_TASKS": "今天的任务",
+			"FUTURE_TASKS": "未来任务",
+			"PAST_TASKS": "过去任务",
+			"ALL_TASKS": "所有任务",
+			"OUTSTANDING": "突出"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "名称",
@@ -582,7 +594,33 @@
 		"REMOVE_FROM_THIS_PLAN": "从计划中移除",
 		"CREATE_A_PLAN_FOR_TODAY": "为今天制定计划",
 		"TODAY_PLAN_SUB_TITLE": "今天没有计划",
-		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果"
+		"NO_TASK_PLANNED": "没有计划任务",
+		"NO_TASK_PLANNED_TODAY": "今天没有计划任务",
+		"PLANNED_TIME": "计划时间",
+		"ESTIMATED_TIME": "预计时间",
+		"TOTAL_TIME_WORKED": "总工作时间",
+		"COMPLETED_TASKS": "完成的任务",
+		"READY": "准备好",
+		"LEFT": "剩余",
+		"COMPLETION": "完成度",
+		"PLANNED_TASKS": "计划任务",
+		"ESTIMATED": "预计",
+		"TOTAL_ESTIMATED": "总预计",
+		"TOTAL_TASK": "总任务",
+		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "请添加计划时间",
+				"TASKS_ESTIMATION": "请估算所有任务",
+				"OPTIMIZE_PLAN": "总预计时间超过您的计划时间，请优化您的计划",
+				"PLAN_MORE_TASKS": "请在计划中添加更多任务"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "更改活动任务",
+			"MESSAGE": "您即将开始今天的计划 {defaultPlannedTask}，但仍有未完成的活动任务 {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",
@@ -641,6 +679,28 @@
 			"TASKS": "任务",
 			"TEAM": "团队",
 			"SETTINGS": "设置"
+		}
+	},
+	"manualTime": {
+		"ADDED_HOURS": "添加的小时",
+		"DATE": "日期",
+		"PICK_A_DATE": "选择日期",
+		"START_TIME": "开始时间",
+		"END_TIME": "结束时间",
+		"TEAM": "团队",
+		"EMPLOYEE": "员工",
+		"TASK": "任务",
+		"DESCRIPTION": "描述",
+		"OPTIONAL": "可选",
+		"REASON": "原因",
+		"reasons": {
+			"DEFAULT": "仅手动时间",
+			"LOST_ELECTRICITY": "失去電力",
+			"LOST_INTERNET": "失去網路",
+			"FORGOT_TO_START_TIMER": "忘記啟動計時器",
+			"ERROR": "錯誤",
+			"UNPLANNED_WORK": "未計劃的工作",
+			"TESTED_TIMER": "計時器測試"
 		}
 	}
 }

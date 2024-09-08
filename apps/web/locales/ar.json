@@ -150,6 +150,7 @@
 		"CANCEL": "إلغاء",
 		"DISCARD": "تجاهل",
 		"EXISTING_MEMBER": "عضو بالفعل",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "عنوان البريد الإلكتروني لعضو الفريق",
 		"NEW_MEMBER": "أصبح عضوًا",
 		"BACK": "رجوع",
 		"JOIN_REQUEST": "طلب الانضمام",
@@ -198,7 +199,10 @@
 		"WORKING": "يعمل",
 		"PAUSED": "متوقف",
 		"ONLINE": "متصل",
-		"SKIP_ADD_LATER": "أضف لاحقًا"
+		"SKIP_ADD_LATER": "أضف لاحقًا",
+		"DAILYPLAN": "مخطط",
+		"INVITATION_SENT": "تم إرسال دعوة بنجاح",
+		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}."
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -420,7 +424,8 @@
 			"VERSIONS": "الإصدارات",
 			"LIST_OF_VERSONS": "قائمة الإصدارات",
 			"ISSUETYPE": "أنواع القضايا",
-			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
+			"DEFAULT_ISSUE_TYPE": "نوع المشكلة الافتراضي",
+			"NO_DEFAULT_ISSUE_TYPE": "لا يوجد نوع مشكلة افتراضي",
 			"LIST_OF_ISSUES": "قائمة القضايا",
 			"RELATED_ISSUE_TYPE": "أنواع القضايا ذات الصلة",
 			"LIST_OF_RELATED_TYPE": "قائمة الأنواع ذات الصلة",
@@ -536,6 +541,7 @@
 	},
 	"task": {
 		"TITLE": "المهمة",
+		"TITLE_PLURAL": "مهام",
 		"ASSIGN_NEW_TASK": "تعيين مهمة جديدة",
 		"ASSIGNED_BY": "تم التعيين بواسطة",
 		"NO_ONE_FOR_TASK": "لم يتم تعيين أحد لهذه المهمة",
@@ -553,7 +559,13 @@
 			"WORKED_DESCRIPTION": "يعرض هذا التبويب جميع المهام التي بدأت العمل عليها",
 			"ASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام المعينة لك",
 			"UNASSIGNED_DESCRIPTION": "يعرض هذا التبويب جميع المهام غير المعينة لك",
-			"NO_TASK_USER_ASSIGNED": "لم يتم تعيين أحد لهذه المهمة"
+			"NO_TASK_USER_ASSIGNED": "لم يتم تعيين أحد لهذه المهمة",
+			"DAILYPLAN_DESCRIPTION": "تعرض علامة التبويب هذه جميع مهامك المخطط لها",
+			"TODAY_TASKS": "مهام اليوم",
+			"FUTURE_TASKS": "المهام المستقبلية",
+			"PAST_TASKS": "المهام السابقة",
+			"ALL_TASKS": "كل المهام",
+			"OUTSTANDING": "معلقة"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "الاسم",
@@ -582,7 +594,33 @@
 		"REMOVE_FROM_THIS_PLAN": "إزالة من هذه الخطة",
 		"CREATE_A_PLAN_FOR_TODAY": "إنشاء خطة لليوم",
 		"TODAY_PLAN_SUB_TITLE": "لا توجد خطة لليوم",
-		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج"
+		"NO_TASK_PLANNED": "لم يتم التخطيط لأي مهمة",
+		"NO_TASK_PLANNED_TODAY": "لم يتم التخطيط لأي مهمة اليوم",
+		"PLANNED_TIME": "الوقت المخطط",
+		"ESTIMATED_TIME": "الوقت المقدر",
+		"TOTAL_TIME_WORKED": "إجمالي الوقت المستغرق",
+		"COMPLETED_TASKS": "المهام المكتملة",
+		"READY": "جاهز",
+		"LEFT": "متبقي",
+		"COMPLETION": "إتمام",
+		"PLANNED_TASKS": "المهمة المخططة",
+		"ESTIMATED": "تقديري",
+		"TOTAL_ESTIMATED": "الإجمالي المقدر",
+		"TOTAL_TASK": "إجمالي المهام",
+		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "يرجى إضافة الوقت المخطط",
+				"TASKS_ESTIMATION": "يرجى تقدير جميع المهام",
+				"OPTIMIZE_PLAN": "الوقت المقدر الإجمالي يتجاوز الوقت المخطط له، يرجى تحسين خطتك",
+				"PLAN_MORE_TASKS": "يرجى إضافة المزيد من المهام إلى الخطة"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "تغيير المهمة النشطة",
+			"MESSAGE": "أنت على وشك البدء في العمل على خطة اليوم {defaultPlannedTask}، لكن لا تزال لديك مهمة نشطة {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "أدخل اسمك",
@@ -641,6 +679,28 @@
 			"TASKS": "المهام",
 			"TEAM": "الفريق",
 			"SETTINGS": "الإعدادات"
+		}
+	},
+	"manualTime": {
+		"ADDED_HOURS": "الساعات المضافة",
+		"DATE": "التاريخ",
+		"PICK_A_DATE": "اختر تاريخًا",
+		"START_TIME": "وقت البدء",
+		"END_TIME": "وقت الانتهاء",
+		"TEAM": "فريق",
+		"EMPLOYEE": "موظف",
+		"TASK": "مهمة",
+		"DESCRIPTION": "وصف",
+		"OPTIONAL": "اختياري",
+		"REASON": "السبب",
+		"reasons": {
+			"DEFAULT": "فقط الوقت اليدوي",
+			"LOST_ELECTRICITY": "انقطاع الكهرباء",
+			"LOST_INTERNET": "فقدان الإنترنت",
+			"FORGOT_TO_START_TIMER": "نسيت تشغيل المؤقت",
+			"ERROR": "خطأ",
+			"UNPLANNED_WORK": "عمل غير مخطط له",
+			"TESTED_TIMER": "اختبار المؤقت"
 		}
 	}
 }

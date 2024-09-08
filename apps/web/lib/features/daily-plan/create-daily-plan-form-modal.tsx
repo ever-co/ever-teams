@@ -1,21 +1,20 @@
-import { useCallback, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
 import { Avatar, Card, Modal, Text } from 'lib/components';
 import { imgTitle, tomorrowDate } from '@app/helpers';
-import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
-import { cn } from 'lib/utils';
-import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { Calendar } from '@components/ui/calendar';
 import { Button } from '@components/ui/button';
-
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@components/ui/command';
 import { ScrollArea } from '@components/ui/scroll-bar';
 import { clsxm, isValidUrl } from '@app/utils';
 import stc from 'string-to-color';
 import { Check } from 'lucide-react';
+import { cn } from 'lib/utils';
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -37,16 +36,35 @@ export function CreateDailyPlanFormModal({
 	const { activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const { createDailyPlan, createDailyPlanLoading, profileDailyPlans } = useDailyPlan();
 
-	const existingPlanDates = profileDailyPlans.items.map((plan) => new Date(plan.date));
+	const existingPlanDates = useMemo(
+		() => profileDailyPlans.items.map((plan) => new Date(plan.date)),
+		[profileDailyPlans.items]
+	);
 
-	const isManagerConnectedUser = activeTeamManagers.find((member) => member.employee?.user?.id == user?.id);
+	const isManagerConnectedUser = useMemo(
+		() => activeTeamManagers.find((member) => member.employee?.user?.id === user?.id),
+		[activeTeamManagers, user?.id]
+	);
 
 	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
 	const [selectedEmployee, setSelectedEmployee] = useState<OT_Member | undefined>(isManagerConnectedUser);
+	const [isOpen, setIsOpen] = useState(false);
 
 	const handleMemberClick = useCallback((member: OT_Member) => {
 		setSelectedEmployee(member);
 	}, []);
+
+	const handleCloseModal = useCallback(() => {
+		closeModal();
+	}, [closeModal]);
+
+	const handleSelect = useCallback(() => {
+		reset();
+	}, [reset]);
+
+	const handleSelectAndClose = useCallback(() => {
+		handleCloseModal();
+	}, [handleCloseModal]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -66,7 +84,6 @@ export function CreateDailyPlanFormModal({
 				organizationId: user?.employee.organizationId
 			}).then(() => {
 				reset();
-				closeModal();
 			});
 		},
 		[
@@ -78,22 +95,20 @@ export function CreateDailyPlanFormModal({
 			user?.employee.organizationId,
 			employeeId,
 			selectedEmployee?.employeeId,
-			reset,
-			closeModal
+			reset
 		]
 	);
+
 	return (
-		<Modal isOpen={open} closeModal={closeModal}>
-			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+		<Modal isOpen={open} closeModal={handleCloseModal}>
+			<form className="w-[98%] md:w-[430px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col items-center justify-between">
 						{/* Form header */}
-						<div className="mb-7">
-							<Text.Heading as="h3" className="mb-3 text-center">
-								CREATE A DAY PLAN
+						<div className="mb-3">
+							<Text.Heading as="h3" className="text-start">
+								Select Date
 							</Text.Heading>
-
-							<Text className="text-sm text-center text-gray-500">You are creating a new plan</Text>
 						</div>
 
 						{/* Form Fields */}
@@ -116,44 +131,74 @@ export function CreateDailyPlanFormModal({
 							/> */}
 
 							{planMode === 'custom' && (
-								<Popover>
-									<PopoverTrigger asChild>
-										<Button
-											variant={'outline'}
-											className={cn(
-												'justify-start text-left font-normal py-6 rounded-lg dark:bg-dark--theme-light dark:border-slate-700',
-												!date && 'text-muted-foreground'
-											)}
-										>
-											<CalendarIcon className="mr-2 h-4 w-4" />
-											{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="w-full p-0 z-[9999] dark:!border-slate-700">
-										<Calendar
-											mode="single"
-											className="dark:bg-dark--theme-light"
-											selected={date}
-											onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
-											initialFocus
-											disabled={[
-												...existingPlanDates,
-												{ from: new Date(1970, 1, 1), to: tomorrowDate }
-											]}
-										/>
-									</PopoverContent>
-								</Popover>
+								<div className="flex justify-center w-full">
+									<CustomCalendar
+										date={date}
+										setDate={setDate}
+										existingPlanDates={existingPlanDates}
+									/>
+								</div>
 							)}
-
-							<Button
-								variant="default"
-								type="submit"
-								className="p-7 font-normal rounded-xl text-md"
-								disabled={createDailyPlanLoading}
-							>
-								{createDailyPlanLoading && <ReloadIcon className="animate-spin mr-2 h-4 w-4" />}
-								Create Plan
-							</Button>
+							<div className={clsxm(planMode === 'custom' ? 'flex justify-between gap-5' : '')}>
+								<Button
+									variant="outline"
+									type="button"
+									className="px-7 py-4 font-normal rounded-xl text-md"
+									onClick={() => closeModal()}
+								>
+									Cancel
+								</Button>
+								<div className="relative w-40  inline-block text-left">
+									<Button
+										type="button"
+										className={clsxm(
+											'font-normal flex items-center justify-between w-full rounded-xl text-md',
+											createDailyPlanLoading ? 'justify-center' : 'justify-between'
+										)}
+										onClick={() => setIsOpen(!isOpen)}
+									>
+										{createDailyPlanLoading ? (
+											<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+										) : (
+											<>
+												<span>Select date</span>
+												<MdOutlineKeyboardArrowDown
+													className={cn(
+														'h-6 w-6 transition-transform',
+														isOpen && 'rotate-180'
+													)}
+												/>
+											</>
+										)}
+									</Button>
+									{isOpen && (
+										<div className="absolute right-0 w-full mt-2 p-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+											<div className="flex w-full flex-col items-center gap-1">
+												<Button
+													disabled={createDailyPlanLoading}
+													onClick={handleSelect}
+													size="sm"
+													variant="outline"
+													type="submit"
+													className="w-full text-xs"
+												>
+													Select
+												</Button>
+												<Button
+													disabled={createDailyPlanLoading}
+													onClick={handleSelectAndClose}
+													size="sm"
+													variant="outline"
+													type="submit"
+													className="w-full text-xs"
+												>
+													Select & Close
+												</Button>
+											</div>
+										</div>
+									)}
+								</div>
+							</div>
 						</div>
 					</div>
 				</Card>
@@ -161,6 +206,33 @@ export function CreateDailyPlanFormModal({
 		</Modal>
 	);
 }
+
+const CustomCalendar = memo(function CustomCalendar({
+	date,
+	setDate,
+	existingPlanDates
+}: {
+	date: Date;
+	setDate: Dispatch<SetStateAction<Date>>;
+	existingPlanDates: Date[];
+}) {
+	return (
+		<Calendar
+			mode="single"
+			captionLayout="dropdown"
+			selected={date}
+			onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
+			initialFocus
+			disabled={[...existingPlanDates, { from: new Date(1970, 1, 1), to: tomorrowDate }]}
+			modifiers={{
+				booked: existingPlanDates
+			}}
+			modifiersClassNames={{ booked: 'bg-primary text-white' }}
+			fromYear={new Date().getUTCFullYear()}
+			toYear={new Date().getUTCFullYear() + 5}
+		/>
+	);
+});
 
 function MembersList({
 	activeTeam,

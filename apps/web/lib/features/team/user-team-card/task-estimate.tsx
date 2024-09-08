@@ -1,14 +1,15 @@
 'use client';
 
 import { mergeRefs, secondsToTime } from '@app/helpers';
-import { I_TMCardTaskEditHook, I_TeamMemberCardHook } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
+import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@app/hooks';
+import { IClassName, IDailyPlan } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { SpinnerLoader, Text } from 'lib/components';
 import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { checkPastDate } from 'lib/utils';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -16,13 +17,39 @@ type Props = IClassName & {
 	activeAuthTask: boolean;
 	showTime?: boolean;
 	radial?: boolean;
+	plan?: IDailyPlan;
 };
 
 export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, radial = false, ...rest }: Props) {
+	const { memberInfo, edition } = rest;
+	const t = useTranslations();
+	const loadingRef = useRef<boolean>(false);
+	const task = edition.task || memberInfo.memberTask;
+	const hasEditMode = edition.estimateEditMode && task;
+	const closeFn = () => {
+		setTimeout(() => {
+			!loadingRef.current && edition.setEstimateEditMode(false);
+		}, 1);
+	};
+
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col gap-y-[2rem] justify-center">
-				{showTime && <TaskEstimateInput {...rest} />}
+				{showTime && (
+					<div className="flex space-x-2 items-center font-normal lg:text-sm text-xs">
+						<span className={clsxm('text-gray-500', hasEditMode && ['hidden'])}>
+							{t('common.ESTIMATED')}:
+						</span>
+						<TaskEstimate
+							_task={task}
+							loadingRef={loadingRef}
+							closeable_fc={closeFn}
+							onOpenEdition={() => edition.setEstimateEditMode(true)}
+							onCloseEdition={() => edition.setEstimateEditMode(false)}
+							showEditAndSaveButton={memberInfo.isAuthUser || memberInfo.isAuthTeamManager}
+						/>
+					</div>
+				)}
 
 				<TaskProgressBar
 					task={rest.edition.task || rest.memberInfo.memberTask}
@@ -36,11 +63,11 @@ export function TaskEstimateInfo({ className, activeAuthTask, showTime = true, r
 	);
 }
 
-export function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
+export function TaskEstimateInput({ memberInfo, edition, plan }: Omit<Props, 'className' | 'activeAuthTask'>) {
 	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;
-
+	const { isTeamManager } = useAuthenticateUser();
 	const hasEditMode = edition.estimateEditMode && task;
 
 	const closeFn = () => {
@@ -60,7 +87,12 @@ export function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'classNam
 			>
 				{task && (
 					<>
-						<TaskEstimate _task={task} loadingRef={loadingRef} closeable_fc={closeFn} />
+						<TaskEstimate
+							_task={task}
+							loadingRef={loadingRef}
+							closeable_fc={closeFn}
+							showEditAndSaveButton={false}
+						/>
 						<button
 							className={`ml-2 ${loadingRef.current && 'hidden'}`}
 							onClick={() => task && edition.setEstimateEditMode(false)}
@@ -83,27 +115,31 @@ export function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'classNam
 				</Text>
 
 				{(memberInfo.isAuthUser || memberInfo.isAuthTeamManager) && (
-					<button
-						ref={mergeRefs([
-							edition.estimateEditIgnoreElement.ignoreElementRef,
-							edition.estimateEditIgnoreElement.targetEl
-						])}
-						onClick={() => task && edition.setEstimateEditMode(true)}
-					>
-						{loadingRef.current ? (
-							<div className="">
-								<SpinnerLoader size={12} />
-							</div>
-						) : (
-							<EditPenBoxIcon
-								className={clsxm(
-									'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
-									!task && ['opacity-40 cursor-default'],
-									'dark:stroke-[#B1AEBC]'
+					<>
+						{(!checkPastDate(plan?.date) || isTeamManager) && (
+							<button
+								ref={mergeRefs([
+									edition.estimateEditIgnoreElement.ignoreElementRef,
+									edition.estimateEditIgnoreElement.targetEl
+								])}
+								onClick={() => task && edition.setEstimateEditMode(true)}
+							>
+								{loadingRef.current ? (
+									<div className="">
+										<SpinnerLoader size={12} />
+									</div>
+								) : (
+									<EditPenBoxIcon
+										className={clsxm(
+											'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
+											!task && ['opacity-40 cursor-default'],
+											'dark:stroke-[#B1AEBC]'
+										)}
+									/>
 								)}
-							/>
+							</button>
 						)}
-					</button>
+					</>
 				)}
 			</div>
 		</>

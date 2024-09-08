@@ -46,7 +46,7 @@ export const FilterDropdown = ({
 	);
 
 	useEffect(() => {
-		if (!filterItem) {
+		if (!filterItem && items.length > 0) {
 			setFilterItem(items[0]);
 		}
 	}, [filterItem, items]);

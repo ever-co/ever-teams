@@ -2,8 +2,8 @@ import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
 import { getNextPublicEnv } from './env';
 import enLanguage from '../locales/en.json';
-// import {  } from 'country-flag-icons/react/3x2'
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
+import { ManualTimeReasons } from './interfaces/timer/IManualTimeReasons';
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
@@ -120,6 +120,10 @@ export const BOARD_FIREBASE_CONFIG = getNextPublicEnv(
 	'NEXT_PUBLIC_BOARD_FIREBASE_CONFIG',
 	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
 );
+
+export const POSTHOG_KEY = getNextPublicEnv('NEXT_PUBLIC_POSTHOG_KEY', process.env.NEXT_PUBLIC_POSTHOG_KEY);
+
+export const POSTHOG_HOST = getNextPublicEnv('NEXT_PUBLIC_POSTHOG_HOST', process.env.NEXT_PUBLIC_POSTHOG_HOST);
 
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
@@ -266,9 +270,10 @@ export const languagesFlags = [
 // Local storage keys
 export const LAST_WORSPACE_AND_TEAM = 'last-workspace-and-team';
 export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
-export const TODAY_PLAN_ALERT_SHOWN_DATE = 'last-today-plan-alert-date';
-export const ESTIMATE_POPUP_SHOWN_DATE = 'last-estimate-popup-date';
-export const DAILY_PLAN_SHOW_MODAL = 'daily-plan-modal';
+export const DAILY_PLAN_SUGGESTION_MODAL_DATE = 'daily-plan-suggestion-modal-date';
+export const TASKS_ESTIMATE_HOURS_MODAL_DATE = 'tasks-estimate-hours-modal-date';
+export const DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE = 'daily-plan-estimate-hours-modal';
+export const DEFAULT_PLANNED_TASK_ID = 'default-planned-task-id';
 
 // OAuth providers keys
 
@@ -298,3 +303,20 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
+
+// Add manual timer reason
+
+export const manualTimeReasons: ManualTimeReasons[] = [
+	'LOST_ELECTRICITY',
+	'LOST_INTERNET',
+	'FORGOT_TO_START_TIMER',
+	'ERROR',
+	'UNPLANNED_WORK',
+	'TESTED_TIMER'
+];
+
+export const statusOptions = [
+	{ value: 'Approved', label: 'Approved' },
+	{ value: 'Pending', label: 'Pending' },
+	{ value: 'Rejected', label: 'Rejected' }
+];

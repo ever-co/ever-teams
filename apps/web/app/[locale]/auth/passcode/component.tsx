@@ -27,6 +27,8 @@ import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import SocialLogins from '../social-logins-buttons';
 import { useSession } from 'next-auth/react';
 import { LAST_WORSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@app/constants';
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
+import { cn } from 'lib/utils';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -325,6 +327,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		[selectedWorkspace, selectedTeam, form]
 	);
 
+	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
+
 	useEffect(() => {
 		if (form.workspaces.length === 1) {
 			setSelectedWorkspace(0);
@@ -335,7 +339,11 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
 			setSelectedTeam(currentTeams[0].team_id);
 		} else {
-			const lastSelectedTeam = window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) || currentTeams[0]?.team_id;
+			const lastSelectedTeam =
+				window.localStorage.getItem(LAST_WORSPACE_AND_TEAM) ||
+				lastSelectedTeamFromAPI ||
+				form.defaultTeamId ||
+				currentTeams[0]?.team_id;
 			const lastSelectedWorkspace =
 				form.workspaces.findIndex((workspace) =>
 					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
@@ -349,7 +357,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
-	}, [form.workspaces]);
+	}, [form.defaultTeamId, form.workspaces, lastSelectedTeamFromAPI]);
 
 	useEffect(() => {
 		if (form.authScreen.screen === 'workspace') {
@@ -407,6 +415,12 @@ type IWorkSpace = {
 export function WorkSpaceComponent(props: IWorkSpace) {
 	const t = useTranslations();
 
+	const [expandedWorkspace, setExpandedWorkspace] = useState(props.selectedWorkspace);
+
+	useEffect(() => {
+		setExpandedWorkspace(props.selectedWorkspace);
+	}, [props.selectedWorkspace]);
+
 	return (
 		<form
 			className={clsxm(props.className, 'flex justify-center w-full')}
@@ -423,13 +437,28 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 							{props.workspaces?.map((worksace, index) => (
 								<div
 									key={index}
-									className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-										props.selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
-									} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
+									className={`w-full overflow-hidden h-16 ${expandedWorkspace === index && 'h-auto'}   flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+										props.selectedWorkspace === index
+											? 'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]'
+											: ''
+									} hover:bg-[#FCFCFC]  dark:hover:bg-[#1F2024] rounded-xl`}
 								>
 									<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 										<div className="flex justify-between">
-											<span>{worksace.user.tenant.name}</span>
+											<div
+												onClick={() => setExpandedWorkspace(index)}
+												className="flex cursor-pointer items-center justify-center gap-1"
+											>
+												<span>{worksace.user.tenant.name}</span>
+												<span
+													className={cn(
+														'h-6 w-6 flex items-center justify-center transition-transform',
+														expandedWorkspace === index && 'rotate-180'
+													)}
+												>
+													<MdOutlineKeyboardArrowDown />
+												</span>
+											</div>
 											<span
 												className="hover:cursor-pointer"
 												onClick={() => {
@@ -451,7 +480,9 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 												)}
 											</span>
 										</div>
-										<span className="bg-[#E5E5E5] w-full h-[1px]"></span>
+										<span
+											className={`bg-[#E5E5E5] w-full h-[1px] hidden ${expandedWorkspace === index && 'block'}`}
+										></span>
 										{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
 										<div className="flex flex-col gap-4 px-5 py-1.5">
 											{worksace.current_teams?.map((team) => (

@@ -1,13 +1,19 @@
-import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
 import { pad } from '@app/helpers/number';
-import { useModal } from '@app/hooks';
+import { useTeamTasks } from '@app/hooks';
+import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from '@components/ui/svgs/pause-icon';
 import { PlayIcon } from '@components/ui/svgs/play-icon';
-import { AddWorkTimeAndEstimatesToPlan } from 'lib/features/daily-plan/plans-work-time-and-estimate';
+import {
+	AddTasksEstimationHoursModal,
+	AddDailyPlanWorkHourModal,
+	EnforcePlanedTaskModal,
+	SuggestDailyPlanModal
+} from 'lib/features/daily-plan';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 const Timer = () => {
 	const t = useTranslations();
@@ -15,34 +21,19 @@ const Timer = () => {
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 		timerStatus,
 		timerStatusFetching,
-		startTimer,
-		stopTimer,
 		canRunTimer,
-		isPlanVerified,
 		hasPlan,
-		timerSeconds
+		timerSeconds,
+		startTimer
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
 
-	const { closeModal, isOpen, openModal } = useModal();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
-	const timerHanlder = () => {
-		const currentDate = new Date().toISOString().split('T')[0];
-		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
-		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
+	const { activeTeam, activeTeamTask } = useTeamTasks();
 
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
-				openModal();
-			} else {
-				startTimer();
-			}
-		}
-	};
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	return (
 		<>
@@ -56,17 +47,60 @@ const Timer = () => {
 			<div
 				title={timerStatusFetching || !canRunTimer ? t('timer.START_TIMER') : undefined}
 				className={`cursor-pointer ${timerStatusFetching || !canRunTimer ? 'opacity-30' : ''}`}
-				onClick={!timerStatusFetching ? timerHanlder : undefined}
+				onClick={!timerStatusFetching ? startStopTimerHandler : undefined}
 			>
 				{timerStatus?.running ? <PauseIcon width={68} height={68} /> : <PlayIcon width={68} height={68} />}
 			</div>
-			<AddWorkTimeAndEstimatesToPlan
-				closeModal={closeModal}
-				open={isOpen}
-				plan={hasPlan}
-				startTimer={startTimer}
-				hasPlan={!!hasPlan}
+
+			<SuggestDailyPlanModal
+				isOpen={modals.isSuggestDailyPlanModalOpen}
+				closeModal={modals.suggestDailyPlanCloseModal}
 			/>
+
+			{/**
+			 * Track time on planned task (SOFT FLOW)
+			 */}
+			{hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+					closeModal={modals.enforceTaskSoftCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskSoftModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
+
+			{hasPlan && hasPlan.tasks && (
+				<AddTasksEstimationHoursModal
+					isOpen={modals.isTasksEstimationHoursModalOpen}
+					closeModal={modals.tasksEstimationHoursCloseModal}
+					plan={hasPlan}
+					tasks={hasPlan.tasks}
+				/>
+			)}
+
+			{hasPlan && (
+				<AddDailyPlanWorkHourModal
+					isOpen={modals.isDailyPlanWorkHoursModalOpen}
+					closeModal={modals.dailyPlanWorkHoursCloseModal}
+					plan={hasPlan}
+				/>
+			)}
+
+			{/**
+			 * Track time on planned task (REQUIRE PLAN)
+			 */}
+
+			{requirePlan && hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					onOK={startTimer}
+					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+					closeModal={modals.enforceTaskCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
 		</>
 	);
 };

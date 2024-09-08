@@ -6,6 +6,7 @@ import { Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { estimatedTotalTime } from '../task/daily-plan';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
@@ -13,19 +14,19 @@ interface IEmployeeWithOutstanding {
 }
 
 export function TeamOutstandingNotifications() {
-	const { getAllDayPlans, dailyPlan, getEmployeeDayPlans, outstandingPlans } = useDailyPlan();
+	const { dailyPlan, getEmployeeDayPlans, outstandingPlans } = useDailyPlan();
 
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	useEffect(() => {
-		getAllDayPlans();
+		// getAllDayPlans();
 		getEmployeeDayPlans(user?.employee.id || '');
-	}, [getAllDayPlans, getEmployeeDayPlans, user?.employee.id]);
+	}, [getEmployeeDayPlans, user?.employee.id]);
 
 	return (
 		<div className="flex flex-col gap-4">
 			{outstandingPlans && outstandingPlans.length > 0 && (
-				<UserOutstandingNotification outstandingTasks={outstandingPlans} user={user} />
+				<UserOutstandingNotification outstandingPlans={outstandingPlans} user={user} />
 			)}
 
 			{dailyPlan.items && dailyPlan.items.length > 0 && isTeamManager && (
@@ -35,7 +36,7 @@ export function TeamOutstandingNotifications() {
 	);
 }
 
-function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTasks: IDailyPlan[]; user?: IUser }) {
+function UserOutstandingNotification({ outstandingPlans, user }: { outstandingPlans: IDailyPlan[]; user?: IUser }) {
 	const t = useTranslations();
 
 	// Notification will be displayed 6 hours after the user closed it
@@ -45,7 +46,9 @@ function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTa
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const [visible, setVisible] = useState(false);
-	const tasks = outstandingTasks.flatMap((plan) => plan.tasks);
+	const outStandingTasksCount = estimatedTotalTime(
+		outstandingPlans.map((plan) => plan.tasks?.map((task) => task))
+	).totalTasks;
 
 	useEffect(() => {
 		const checkNotification = () => {
@@ -73,7 +76,7 @@ function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTa
 			{visible && (
 				<div className="rounded-2xl dark:border-dark--theme-light border py-2 px-6 flex justify-between items-center text-xs mb-2">
 					<div>
-						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {tasks?.length}{' '}
+						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {outStandingTasksCount}{' '}
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.USER_LABEL')}{' '}
 						<span className="font-medium">
 							{t('pages.home.OUTSTANDING_NOTIFICATIONS.OUTSTANDING_VIEW')}
@@ -105,6 +108,7 @@ function UserOutstandingNotification({ outstandingTasks, user }: { outstandingTa
 }
 
 function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstandingTasks: IDailyPlan[] }) {
+	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
 	// Notification will be displayed 6 hours after the user closed it
@@ -114,6 +118,7 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 	const [visible, setVisible] = useState(false);
 
 	const employeeWithOutstanding = outstandingTasks
+		.filter((plan) => plan.employeeId !== user?.employee.id)
 		.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
 
 		.filter((plan) => {
@@ -168,7 +173,7 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 	};
 	return (
 		<>
-			{visible && (
+			{uniqueEmployees?.length > 0 && visible && (
 				<div className="rounded-2xl dark:border-dark--theme-light border py-4 px-6 flex justify-between items-center text-xs mb-2">
 					<div>
 						{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {uniqueEmployees?.length} team member(s)

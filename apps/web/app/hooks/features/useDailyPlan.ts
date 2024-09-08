@@ -1,9 +1,10 @@
 'use client';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
 import {
+	activeTeamState,
 	dailyPlanFetchingState,
 	dailyPlanListState,
 	employeePlansListState,
@@ -31,6 +32,7 @@ export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Ta
 
 export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
+	const activeTeam = useRecoilValue(activeTeamState);
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
@@ -101,17 +103,41 @@ export function useDailyPlan() {
 	const createDailyPlan = useCallback(
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
-				const res = await createQueryCall(data, user?.tenantId || '');
-				setProfileDailyPlans({
-					total: profileDailyPlans.total + 1,
-					items: [...profileDailyPlans.items, res.data]
-				});
+				const res = await createQueryCall(
+					{ ...data, organizationTeamId: activeTeam?.id },
+					user?.tenantId || ''
+				);
+				//Check if there is an existing plan
+				const isPlanExist = profileDailyPlans.items.find((plan) =>
+					plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])
+				);
+				if (isPlanExist) {
+					const updatedPlans = profileDailyPlans.items.map((plan) => {
+						if (plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])) {
+							return res.data;
+						}
+
+						return plan;
+					});
+
+					setProfileDailyPlans({
+						total: updatedPlans.length,
+						items: updatedPlans
+					});
+				} else {
+					setProfileDailyPlans({
+						total: profileDailyPlans.total + 1,
+						items: [...profileDailyPlans.items, res.data]
+					});
+				}
+
 				setEmployeePlans([...employeePlans, res.data]);
 				getMyDailyPlans();
 				return res;
 			}
 		},
 		[
+			activeTeam?.id,
 			createQueryCall,
 			employeePlans,
 			getMyDailyPlans,
@@ -129,9 +155,21 @@ export function useDailyPlan() {
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
 			setEmployeePlans([...updatedEmployee, res.data]);
+			// Fetch updated plans
+			getMyDailyPlans();
+			getAllDayPlans();
 			return res;
 		},
-		[employeePlans, profileDailyPlans, setEmployeePlans, setProfileDailyPlans, updateQueryCall]
+		[
+			employeePlans,
+			getAllDayPlans,
+			getMyDailyPlans,
+			profileDailyPlans.items,
+			profileDailyPlans.total,
+			setEmployeePlans,
+			setProfileDailyPlans,
+			updateQueryCall
+		]
 	);
 
 	const addTaskToPlan = useCallback(
@@ -251,6 +289,26 @@ export function useDailyPlan() {
 		return planDate.getTime() < today.getTime();
 	});
 
+	const todayPlan =
+		profileDailyPlans.items &&
+		[...profileDailyPlans.items].filter((plan) =>
+			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+		);
+
+	const todayTasks = todayPlan
+		.map((plan) => {
+			return plan.tasks ? plan.tasks : [];
+		})
+		.flat();
+
+	const futureTasks =
+		futurePlans &&
+		futurePlans
+			.map((plan) => {
+				return plan.tasks ? plan.tasks : [];
+			})
+			.flat();
+
 	const outstandingPlans =
 		profileDailyPlans.items &&
 		[...profileDailyPlans.items]
@@ -270,21 +328,25 @@ export function useDailyPlan() {
 				// Include only no completed tasks
 				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
 			}))
+			.map((plan) => ({
+				...plan,
+				// Include only tasks that are not added yet to the today plan or future plans
+				tasks: plan.tasks?.filter(
+					(_task) => ![...todayTasks, ...futureTasks].find((task) => task.id === _task.id)
+				)
+			}))
 			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
-
-	const todayPlan =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
 
 	const sortedPlans =
 		profileDailyPlans.items &&
 		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	useEffect(() => {
-		getMyDailyPlans();
-	}, [getMyDailyPlans]);
+		if (firstLoad) {
+			getMyDailyPlans();
+			getAllDayPlans();
+		}
+	}, [getMyDailyPlans, getAllDayPlans, firstLoad]);
 
 	return {
 		dailyPlan,

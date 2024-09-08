@@ -161,7 +161,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			Math.min(
 				Math.floor(
 					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
-					(estimate || _task?.estimate || 0)
+						(estimate || _task?.estimate || 0)
 				),
 				100
 			),

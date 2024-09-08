@@ -9,7 +9,7 @@
 		"TOMORROW": "Tomorrow",
 		"YESTERDAY": "Yesterday",
 		"REJECTED": "Rejected",
-		"VERIFY": "verify",
+		"VERIFY": "Verify",
 		"CARDS": "Cards",
 		"TABLE": "Table",
 		"KANBAN": "Kanban",
@@ -26,7 +26,7 @@
 		"POSITION": "Position",
 		"ROLES": "Roles",
 		"JOIN_OR_LEFT": "Joined / Left",
-		"PLEASE": "please",
+		"PLEASE": "Please",
 		"HERE": "here",
 		"PEOPLE": "People",
 		"COLLABORATE": "Collaborate",
@@ -52,7 +52,7 @@
 		"MAKE_A_MANAGER": "Make a Manager",
 		"UNMAKE_A_MANAGER": "Unmake a Manager",
 		"TRANSFERT_OWNERSHIP": "Transfer Ownership",
-		"TRANSFERT_OWNERSHIP_TO": "Transfer full ownership of team to another user",
+		"TRANSFERT_OWNERSHIP_TO": "Transfer full ownership of the team to another user",
 		"REMOVE": "Remove",
 		"REMOVE_TEAM": "Remove Team",
 		"DISPOSE_TEAM": "Dispose Team",
@@ -142,13 +142,14 @@
 		"TRANSFER": "Transfer",
 		"TRANSFER_TEAM": "Transfer Team",
 		"TEAM_MEMBERS": "Team Members",
-		"NO_TEAM": "Create your own team or join existed",
+		"NO_TEAM": "Create your team or join existing",
 		"NO_TEAM_SUB": "It's great to work with others so create a team and invite everyone to collaborate!",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
 		"CANCEL": "Cancel",
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a Member",
 		"NEW_MEMBER": "Become a Member",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "Team member email address",
 		"BACK": "Back",
 		"DONT_HAVE_ACCOUNT": "Don't have an account?",
 		"REGISTER": "Register Now!",
@@ -183,7 +184,7 @@
 		"GITHUB_LOADING_TEXT": "We are now installing your GitHub Integration, hold on...",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatically synchronize tasks in your application for seamless and efficient updates.",
-		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronize tasks selectively by associating them with specific label.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronize tasks selectively by associating them with specific labels.",
 		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label",
 		"THERE_IS_NO_TASK_ASSIGNED": "There is no task assigned",
 		"NO_USERS_ONLINE": "There are no users online",
@@ -198,7 +199,10 @@
 		"WORKING": "Working",
 		"PAUSED": "Paused",
 		"ONLINE": "Online",
-		"SKIP_ADD_LATER": "Add later"
+		"SKIP_ADD_LATER": "Add later",
+		"DAILYPLAN": "Planned",
+		"INVITATION_SENT": "Invitation Sent Successfully",
+		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -214,8 +218,8 @@
 		"REAL_TIME_ON_WORKING": "We are working on Real-Time Sync at the moment, please check on this feature later.",
 		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
-		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
-		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existing manager",
+		"ALERT_REMOVE_TEAM": "Team will be completely removed from the system and team members will lose access",
 		"ALERT_QUIT_TEAM": "You are about to quit the team",
 		"ALERT_USER_DELETED_FROM_TEAM": "You have been deleted from the team"
 	},
@@ -224,8 +228,8 @@
 			"BREADCRUMB": "[\"Dashboard\"]",
 			"SENT_EMAIL_VERIFICATION": "Code Verification has been sent to your email",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "You need to ",
-			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " your email address. The verification code should already be send to your email, but feel free to click ",
-			"SENT_EMAIL_VERIFICATION_RESEND": " to resend the code, if you did not received it.",
+			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " your email address. The verification code should already be sent to your email, but feel free to click ",
+			"SENT_EMAIL_VERIFICATION_RESEND": " to resend the code, if you did not receive it.",
 			"INVITATIONS": "You've been invited to join",
 			"CONFIRM_ACCEPT_INVITATION": "Are you sure you want to accept the invitation?",
 			"CONFIRM_REJECT_INVITATION": "Are you sure you want to reject the invitation?",
@@ -238,7 +242,7 @@
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]",
-			"MEMBER_NOT_FOUND_MSG_1": "Member you are looking is not exist in a team please try to search with different query.",
+			"MEMBER_NOT_FOUND_MSG_1": "The member you are looking is not exist in a team please try to search with a different query.",
 			"MEMBER_NOT_FOUND_MSG_2": "If you are looking for a member in a different team, please select the team from the dropdown above.",
 			"GO_TO_HOME": "Go to Home"
 		},
@@ -296,14 +300,14 @@
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",
-			"HEADING_DESCRIPTION": "Please enter email and invitation code to join existing team."
+			"HEADING_DESCRIPTION": "Please enter your email and invitation code to join an existing team."
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Log In to Ever Teams",
 			"HEADING_DESCRIPTION": "Please enter your email below to begin the login process.",
 			"WORKSPACE": "Workspace",
 			"HEADING_WORKSPACE_LINE1": "The email associated with multiple workspaces,",
-			"HEADING_WORKSPACE_LINE2": "please select one to continue",
+			"HEADING_WORKSPACE_LINE2": "Please select one to continue",
 			"HAVE_PASSWORD": "Have Password?",
 			"LOGIN_WITH_PASSWORD": "Login with the Password",
 			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code",
@@ -326,7 +330,7 @@
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",
 			"DANDER_ZONE": "Danger Zone",
-			"HEADING_DESCRIPTION": "Setting dan manage your personal dashboard here",
+			"HEADING_DESCRIPTION": "Setting dan manage your dashboard here",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Are you sure you want to delete this user?"
 		},
 		"settingsPersonal": {
@@ -338,7 +342,7 @@
 			"ABOUT_TO_CHANGE_EMAIL": "You are about to change Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
-			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams unless you're the only manager ?",
 			"DATA_SYNCHRONIZATION": "Data Synchronization",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?",
 			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to remove your account"
@@ -363,6 +367,7 @@
 			"TASK_LABELS": "Task Labels",
 			"ISSUE_TYPES": "Issue Types",
 			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
+			"NO_DEFAULT_ISSUE_TYPE": "No Default Issue Type",
 			"RELATED_TYPE": "Related Type",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Create new Statuses",
@@ -428,7 +433,7 @@
 			"COPY_NUMBER": "Copy Number",
 			"IN_PROGRESS": "In Progress",
 			"FINAL": "Final",
-			"DISPOSE_TEAM": "You are about to Dispose team ?",
+			"DISPOSE_TEAM": "You are about to Dispose the team ?",
 			"QUIT_TEAM": "You are about to Quit team ?",
 			"TEAM_COLOR": "Team Color",
 			"TEAM_SIZE": "Team Size",
@@ -449,7 +454,7 @@
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",
-			"HEADING_DESCRIPTION": "Send invitation to a team member by email",
+			"HEADING_DESCRIPTION": "Send an invitation to a team member by email",
 			"TEAM_MEMBER_EMAIL": "Team Member's Email",
 			"TEAM_MEMBER_FULLNAME": "Team Member's Full Name",
 			"SEND_INVITE": "Send Invitation",
@@ -460,7 +465,7 @@
 				"NAME_AND_EMAIL": "Name & Email",
 				"POSITION": "Position",
 				"DATE_AND_TIME_REQUEST": "Date & Time Request",
-				"CV_OR_ATTACHMENT": "CV / Attachement"
+				"CV_OR_ATTACHMENT": "CV / Attachment"
 			}
 		},
 		"permissions": {
@@ -479,7 +484,7 @@
 		},
 		"offline": {
 			"HEADING_TITLE": "Network Disconnected!",
-			"HEADING_DESCRIPTION": "You are currently Offline, please check your internet connection..."
+			"HEADING_DESCRIPTION": "Your network is offline, please check your internet connection..."
 		},
 		"error": {
 			"TITLE": "Error !",
@@ -488,7 +493,7 @@
 		},
 		"maintenance": {
 			"HEADING_TITLE": "We are Under Maintenance",
-			"HEADING_DESCRIPTION": "We are currently updating our website to serve you better. Please check back later."
+			"HEADING_DESCRIPTION": "We are updating our website to serve you better. Please check back later."
 		}
 	},
 	"timer": {
@@ -510,13 +515,13 @@
 		],
 		"TIME_ACTIVITY": "Activity",
 		"TOTAL_HOURS": "Total Hours",
-		"NO_SCREENSHOOT": "No Screenshoots",
+		"NO_SCREENSHOOT": "No Screenshots",
 		"PERCENT_OF_MINUTES": " % of 10 Minutes",
 		"APPS": "Apps",
 		"VISITED_DATES": "Visited Dates",
 		"PERCENT_USED": "Percent Used",
 		"TIME_SPENT_IN_HOURS": "Time spent (Hours)",
-		"THERE_IS_NO_APPS_VISITED": "There is no Apps Visited.",
+		"THERE_IS_NO_APPS_VISITED": "There are no Apps Visited.",
 		"OTHER_DETAILS": "Other details",
 		"KEYBOARD": "keyboard",
 		"MOUSE": "Mouse",
@@ -529,13 +534,14 @@
 			"TITLE": "TODAY'S PLAN",
 			"WORK_TIME_PLANNED": "Add planned working hours",
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Working time planned for today",
-			"TASKS_WITH_NO_ESTIMATIONS": "Taks with no time estimations",
+			"TASKS_WITH_NO_ESTIMATIONS": "Tasks with no time estimations",
 			"START_WORKING_BUTTON": "Start working",
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		}
 	},
 	"task": {
 		"TITLE": "Task",
+		"TITLE_PLURAL": "Tasks",
 		"ASSIGN_NEW_TASK": "Assign new task",
 		"ASSIGNED_BY": "Assigned By",
 		"NO_ONE_FOR_TASK": "No One Assigned to this Task",
@@ -553,7 +559,13 @@
 			"WORKED_DESCRIPTION": "This tab shows all tasks you started working on",
 			"ASSIGNED_DESCRIPTION": "This tab shows all tasks that are assigned to you",
 			"UNASSIGNED_DESCRIPTION": "This tab shows all tasks that are not assigned to you",
-			"NO_TASK_USER_ASSIGNED": "No one assigned  to this Task"
+			"NO_TASK_USER_ASSIGNED": "No one assigned  to this Task",
+			"DAILYPLAN_DESCRIPTION": "This tab shows all your planned tasks",
+			"TODAY_TASKS": "Today Tasks",
+			"FUTURE_TASKS": "Future Tasks",
+			"PAST_TASKS": "Past Tasks",
+			"ALL_TASKS": "All Tasks",
+			"OUTSTANDING": "Outstanding"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Name",
@@ -569,20 +581,46 @@
 				"DESCRIPTION": "Today",
 				"LABEL": "Total worked Today"
 			},
-			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours employee worked for total and today on task",
-			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours employee worked today on all tasks for selected Team"
+			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours an employee worked for total and today on task",
+			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours did employees work today on all tasks for the selected Team"
 		},
 		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",
 		"PLAN_FOR_TOMORROW": "Plan for tomorrow",
-		"PLAN_FOR_SOME_DAY": "Plan for some day",
+		"PLAN_FOR_SOME_DAY": "Plan for selected day",
 		"ADD_TASK_TO_PLAN": "Add this task to a plan",
 		"REMOVE_FROM_THIS_PLAN": "Remove from this plan",
 		"CREATE_A_PLAN_FOR_TODAY": "Create a Plan for Today",
 		"TODAY_PLAN_SUB_TITLE": " There is no plan for Today",
-		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results"
+		"NO_TASK_PLANNED": "No task planned",
+		"NO_TASK_PLANNED_TODAY": "No task planned Today",
+		"PLANNED_TIME": "Planned time",
+		"ESTIMATED_TIME": "Estimated time",
+		"TOTAL_TIME_WORKED": "Total time worked",
+		"COMPLETED_TASKS": "Completed tasks",
+		"READY": "Ready",
+		"LEFT": "Left",
+		"COMPLETION": "Completion",
+		"PLANNED_TASKS": "Planned task",
+		"ESTIMATED": "Estimated",
+		"TOTAL_ESTIMATED": "Total Estimated",
+		"TOTAL_TASK": "Total tasks",
+		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Please, add planned time",
+				"TASKS_ESTIMATION": "Please, estimate all tasks",
+				"OPTIMIZE_PLAN": "Total estimated time exceeds your Planned time, please optimize your plan",
+				"PLAN_MORE_TASKS": "Please add more tasks to the plan"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Change Active Task",
+			"MESSAGE": "You are about to start working on Today's plan {defaultPlannedTask}, but still have active {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Enter your name",
@@ -603,7 +641,7 @@
 		"SET_THEME": "Set Theme",
 		"CHANGE_AVATAR": "Change Avatar",
 		"SELECT_TEAM_SIZE": "Select Team Size",
-		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric"
 	},
 	"layout": {
 		"footer": {
@@ -619,10 +657,10 @@
 		}
 	},
 	"errors": {
-		"NETWORK_ISSUE": "network issue, please try again later",
+		"NETWORK_ISSUE": "Network issue, please try again later",
 		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code.",
 		"LENGTH_NUMBER_ERROR": "Length should be a number and greater than 0",
-		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric",
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowed characters. Use alpha, numeric, or alphanumeric",
 		"VALID_EMAIL": "Please enter valid email"
 	},
 	"placeholders": {
@@ -641,6 +679,28 @@
 			"TASKS": "Tasks",
 			"TEAM": "Team",
 			"SETTINGS": "Settings"
+		}
+	},
+	"manualTime": {
+		"ADDED_HOURS": "Added Hours",
+		"DATE": "Date",
+		"PICK_A_DATE": "Pick a Date",
+		"START_TIME": "Start Time",
+		"END_TIME": "End Time",
+		"TEAM": "Team",
+		"EMPLOYEE": "Employee",
+		"TASK": "Task",
+		"DESCRIPTION": "Description",
+		"OPTIONAL": "Optional",
+		"REASON": "Reason ",
+		"reasons": {
+			"DEFAULT": "Only manual time",
+			"LOST_ELECTRICITY": "Lost electricity",
+			"LOST_INTERNET": "Lost internet",
+			"FORGOT_TO_START_TIMER": "Forgot to start timer",
+			"ERROR": "Error",
+			"UNPLANNED_WORK": "Unplanned work",
+			"TESTED_TIMER": "Tested timer"
 		}
 	}
 }

@@ -37,6 +37,7 @@ import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatus
 import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 import { ObserverComponent } from '@components/shared/Observer';
+import { LazyRender } from 'lib/components/lazy-render';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -476,7 +477,7 @@ function TaskCard({
 			<Card
 				shadow="custom"
 				className={clsxm(
-					'rounded-xl md:px-4 md:py-4',
+					'rounded-xl md:px-4 md:py-4 overflow-hidden',
 					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight ? 'h-full' : 'max-h-96'
@@ -613,43 +614,50 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className={assignTaskPopup ? "py-6 max-h-[40vh] overflow-y-auto" : "py-6 max-h-56 overflow-y-auto"}>
-					{forParentChildRelationship &&
-						data?.map((task, i) => {
-							const last = (datas.filteredTasks?.length || 0) - 1 === i;
-							const active = datas.inputTask === task;
+				<ul className={assignTaskPopup ? 'py-6 max-h-[40vh] overflow-y-auto' : 'py-6 max-h-56 overflow-y-auto'}>
+					{forParentChildRelationship && (
+						<LazyRender items={data || []}>
+							{(task, i) => {
+								const last = (datas.filteredTasks?.length || 0) - 1 === i;
+								const active = datas.inputTask === task;
 
-							return (
-								<li key={task.id} ref={active ? activeTaskEl : undefined}>
-									<TaskItem
-										task={task}
-										selected={active}
-										onClick={onItemClick}
-										className="cursor-pointer"
-									/>
-									<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
-									{!last && <Divider className="my-5" />}
-								</li>
-							);
-						})}
-					{!forParentChildRelationship &&
-						datas.filteredTasks?.map((task, i) => {
-							const last = (datas.filteredTasks?.length || 0) - 1 === i;
-							const active = datas.inputTask === task;
+								return (
+									<li key={task.id} ref={active ? activeTaskEl : undefined}>
+										<TaskItem
+											task={task}
+											selected={active}
+											onClick={onItemClick}
+											className="cursor-pointer"
+										/>
+										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
+										{!last && <Divider className="my-5" />}
+									</li>
+								);
+							}}
+						</LazyRender>
+					)}
 
-							return (
-								<li key={task.id} ref={active ? activeTaskEl : undefined}>
-									<TaskItem
-										task={task}
-										selected={active}
-										onClick={onItemClick}
-										className="cursor-pointer"
-									/>
+					{!forParentChildRelationship && (
+						<LazyRender items={datas.filteredTasks || []}>
+							{(task, i) => {
+								const last = (datas.filteredTasks?.length || 0) - 1 === i;
+								const active = datas.inputTask === task;
 
-									{!last && <Divider className="my-5" />}
-								</li>
-							);
-						})}
+								return (
+									<li key={task.id} ref={active ? activeTaskEl : undefined}>
+										<TaskItem
+											task={task}
+											selected={active}
+											onClick={onItemClick}
+											className="cursor-pointer"
+										/>
+
+										{!last && <Divider className="my-5" />}
+									</li>
+								);
+							}}
+						</LazyRender>
+					)}
 
 					{(forParentChildRelationship && updatedTaskList && updatedTaskList.length === 0) ||
 						(!forParentChildRelationship && datas.filteredTasks && datas.filteredTasks.length === 0 && (

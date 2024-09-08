@@ -40,7 +40,7 @@ export function KeyboardShortcuts() {
 							{HostKeysMapping.map((item, index) => (
 								<div key={index} className="flex flex-col gap-2">
 									<p className="text-base font-normal text-black dark:text-light--theme-light">
-										{t(`hotkeys.${item.heading}`  as DottedLanguageObjectStringPaths)}
+										{t(`hotkeys.${item.heading}` as DottedLanguageObjectStringPaths)}
 									</p>
 
 									{item.keySequence.map((keySeq, keySeqIndex) => (

@@ -151,6 +151,7 @@
 		"NEW_MEMBER": "Tornar-se Membro",
 		"BACK": "Voltar",
 		"DONT_HAVE_ACCOUNT": "Não tem uma conta?",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "Endereço de e-mail do membro da equipe",
 		"REGISTER": "Registre-se agora!",
 		"JOIN_REQUEST": "Pedido para Entrar",
 		"PERMISSION": "Permissão",
@@ -198,7 +199,10 @@
 		"WORKING": "Trabalhando",
 		"PAUSED": "Pausado",
 		"ONLINE": "Online",
-		"SKIP_ADD_LATER": "Adicionar depois"
+		"SKIP_ADD_LATER": "Adicionar depois",
+		"DAILYPLAN": "Planeado",
+		"INVITATION_SENT": "Convite enviado com sucesso",
+		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}."
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -420,7 +424,8 @@
 			"VERSIONS": "Versões",
 			"LIST_OF_VERSONS": "Lista de Versões",
 			"ISSUETYPE": "Tipos de Problema",
-			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
+			"DEFAULT_ISSUE_TYPE": "Tipo de problema padrão",
+			"NO_DEFAULT_ISSUE_TYPE": "Nenhum tipo de problema padrão",
 			"LIST_OF_ISSUES": "Lista de Problemas",
 			"RELATED_ISSUE_TYPE": "Tipos de Problema Relacionados",
 			"LIST_OF_RELATED_TYPE": "Lista de Tipos Relacionados",
@@ -536,6 +541,7 @@
 	},
 	"task": {
 		"TITLE": "Tarefa",
+		"TITLE_PLURAL": "Tarefas",
 		"ASSIGN_NEW_TASK": "Atribuir nova tarefa",
 		"ASSIGNED_BY": "Atribuído por",
 		"NO_ONE_FOR_TASK": "Ninguém atribuído a esta tarefa",
@@ -553,7 +559,13 @@
 			"WORKED_DESCRIPTION": "Esta aba mostra todas as tarefas nas quais você começou a trabalhar",
 			"ASSIGNED_DESCRIPTION": "Esta aba mostra todas as tarefas atribuídas a você",
 			"UNASSIGNED_DESCRIPTION": "Esta aba mostra todas as tarefas que não estão atribuídas a você",
-			"NO_TASK_USER_ASSIGNED": "Ninguém atribuído a esta tarefa"
+			"NO_TASK_USER_ASSIGNED": "Ninguém atribuído a esta tarefa",
+			"DAILYPLAN_DESCRIPTION": "Este separador mostra todas as suas tarefas planeadas",
+			"TODAY_TASKS": "Tarefas de hoje",
+			"FUTURE_TASKS": "Tarefas futuras",
+			"PAST_TASKS": "Tarefas passadas",
+			"ALL_TASKS": "Todas as tarefas",
+			"OUTSTANDING": "Pendente"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nome",
@@ -582,7 +594,33 @@
 		"REMOVE_FROM_THIS_PLAN": "Remover deste plano",
 		"CREATE_A_PLAN_FOR_TODAY": "Criar um plano para hoje",
 		"TODAY_PLAN_SUB_TITLE": "Não há plano para hoje",
-		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados"
+		"NO_TASK_PLANNED": "Nenhuma tarefa planejada",
+		"NO_TASK_PLANNED_TODAY": "Nenhuma tarefa planejada para hoje",
+		"PLANNED_TIME": "Tempo planejado",
+		"ESTIMATED_TIME": "Tempo estimado",
+		"TOTAL_TIME_WORKED": "Tempo total trabalhado",
+		"COMPLETED_TASKS": "Tarefas concluídas",
+		"READY": "Pronto",
+		"LEFT": "Restante",
+		"COMPLETION": "Conclusão",
+		"PLANNED_TASKS": "Tarefa planejada",
+		"ESTIMATED": "Estimado",
+		"TOTAL_ESTIMATED": "Total Estimado",
+		"TOTAL_TASK": "Tarefas totais",
+		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Por favor, adicione o tempo planejado",
+				"TASKS_ESTIMATION": "Por favor, estime todas as tarefas",
+				"OPTIMIZE_PLAN": "O tempo total estimado excede o seu tempo planejado, por favor otimize seu plano",
+				"PLAN_MORE_TASKS": "Por favor, adicione mais tarefas ao plano"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Alterar Tarefa Ativa",
+			"MESSAGE": "Está prestes a começar a trabalhar no plano de hoje {defaultPlannedTask}, mas ainda tem a tarefa ativa {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Digite seu nome",
@@ -641,6 +679,28 @@
 			"TASKS": "Tarefas",
 			"TEAM": "Equipe",
 			"SETTINGS": "Configurações"
+		}
+	},
+	"manualTime": {
+		"ADDED_HOURS": "Horas adicionadas",
+		"DATE": "Data",
+		"PICK_A_DATE": "Escolher uma data",
+		"START_TIME": "Hora de início",
+		"END_TIME": "Hora de término",
+		"TEAM": "Equipe",
+		"EMPLOYEE": "Empregado",
+		"TASK": "Tarefa",
+		"DESCRIPTION": "Descrição",
+		"OPTIONAL": "Opcional",
+		"REASON": "Razão",
+		"reasons": {
+			"DEFAULT": "Apenas tempo manual",
+			"LOST_ELECTRICITY": "Perda de eletricidade",
+			"LOST_INTERNET": "Perda de internet",
+			"FORGOT_TO_START_TIMER": "Esqueci de iniciar o temporizador",
+			"ERROR": "Erro",
+			"UNPLANNED_WORK": "Trabalho não planejado",
+			"TESTED_TIMER": "Temporizador testado"
 		}
 	}
 }

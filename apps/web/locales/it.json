@@ -150,6 +150,7 @@
 		"EXISTING_MEMBER": "Già un Membro",
 		"NEW_MEMBER": "Diventa un Membro",
 		"BACK": "Indietro",
+		"TEAM_MEMBER_EMAIL_ADDRESS": "Indirizzo email del membro del team",
 		"DONT_HAVE_ACCOUNT": "Non hai un account?",
 		"REGISTER": "Registrati Ora!",
 		"JOIN_REQUEST": "Richiesta di Partecipazione",
@@ -198,7 +199,10 @@
 		"WORKING": "Lavora",
 		"PAUSED": "In Pausa",
 		"ONLINE": "Online",
-		"SKIP_ADD_LATER": "Aggiungi dopo"
+		"SKIP_ADD_LATER": "Aggiungi dopo",
+		"DAILYPLAN": "Pianificato",
+		"INVITATION_SENT": "Invito inviato con successo",
+		"INVITATION_SENT_TO_USER": "Un invito alla squadra è stato inviato a {email}."
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -420,7 +424,8 @@
 			"VERSIONS": "Versioni",
 			"LIST_OF_VERSONS": "Elenco delle Versioni",
 			"ISSUETYPE": "Tipi di Problema",
-			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
+			"DEFAULT_ISSUE_TYPE": "Tipo di problema predefinito",
+			"NO_DEFAULT_ISSUE_TYPE": "Nessun tipo di problema predefinito",
 			"LIST_OF_ISSUES": "Elenco dei Problemi",
 			"RELATED_ISSUE_TYPE": "Tipi di Problema Collegati",
 			"LIST_OF_RELATED_TYPE": "Elenco dei Tipi Collegati",
@@ -536,6 +541,7 @@
 	},
 	"task": {
 		"TITLE": "Compito",
+		"TITLE_PLURAL": "Attività",
 		"ASSIGN_NEW_TASK": "Assegna nuovo compito",
 		"ASSIGNED_BY": "Assegnato da",
 		"NO_ONE_FOR_TASK": "Nessuno assegnato a questo compito",
@@ -553,7 +559,13 @@
 			"WORKED_DESCRIPTION": "Questa scheda mostra tutte le attività su cui hai iniziato a lavorare",
 			"ASSIGNED_DESCRIPTION": "Questa scheda mostra tutti i compiti assegnati a te",
 			"UNASSIGNED_DESCRIPTION": "Questa scheda mostra tutti i compiti che non sono assegnati a te",
-			"NO_TASK_USER_ASSIGNED": "Nessuno assegnato a questo compito"
+			"NO_TASK_USER_ASSIGNED": "Nessuno assegnato a questo compito",
+			"DAILYPLAN_DESCRIPTION": "Questa scheda mostra tutte le attività pianificate",
+			"TODAY_TASKS": "Compiti di oggi",
+			"FUTURE_TASKS": "Compiti futuri",
+			"PAST_TASKS": "Compiti passati",
+			"ALL_TASKS": "Tutti i compiti",
+			"OUTSTANDING": "Eccezionale"
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Nome",
@@ -582,7 +594,33 @@
 		"REMOVE_FROM_THIS_PLAN": "Rimuovi da questo piano",
 		"CREATE_A_PLAN_FOR_TODAY": "Crea un piano per oggi",
 		"TODAY_PLAN_SUB_TITLE": "Non c'è nessun piano per oggi",
-		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati"
+		"NO_TASK_PLANNED": "Nessun compito pianificato",
+		"NO_TASK_PLANNED_TODAY": "Nessun compito pianificato per oggi",
+		"PLANNED_TIME": "Tempo pianificato",
+		"ESTIMATED_TIME": "Tempo stimato",
+		"TOTAL_TIME_WORKED": "Tempo totale lavorato",
+		"COMPLETED_TASKS": "Compiti completati",
+		"READY": "Pronto",
+		"LEFT": "Rimasto",
+		"COMPLETION": "Completamento",
+		"PLANNED_TASKS": "Compito pianificato",
+		"ESTIMATED": "Stimato",
+		"TOTAL_ESTIMATED": "Totale Stimato",
+		"TOTAL_TASK": "Compiti totali",
+		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati",
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Questa attività non era pianificata per il piano di oggi. Vuoi aggiungerla al piano?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Per favore, aggiungi il tempo pianificato",
+				"TASKS_ESTIMATION": "Per favore, stima tutte le attività",
+				"OPTIMIZE_PLAN": "Il tempo totale stimato supera il tempo pianificato, per favore ottimizza il tuo piano",
+				"PLAN_MORE_TASKS": "Per favore, aggiungi più attività al piano"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Cambia Attività Attiva",
+			"MESSAGE": "Stai per iniziare a lavorare sul piano di oggi {defaultPlannedTask}, ma hai ancora un'attività attiva {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Inserisci il tuo nome",
@@ -641,6 +679,28 @@
 			"TASKS": "Attività",
 			"TEAM": "Team",
 			"SETTINGS": "Impostazioni"
+		}
+	},
+	"manualTime": {
+		"ADDED_HOURS": "Ore aggiunte",
+		"DATE": "Data",
+		"PICK_A_DATE": "Seleziona una data",
+		"START_TIME": "Orario di inizio",
+		"END_TIME": "Orario di fine",
+		"TEAM": "Squadra",
+		"EMPLOYEE": "Dipendente",
+		"TASK": "Compito",
+		"DESCRIPTION": "Descrizione",
+		"OPTIONAL": "Opzionale",
+		"REASON": "Motivo",
+		"reasons": {
+			"DEFAULT": "Solo tempo manuale",
+			"LOST_ELECTRICITY": "Interruzione di corrente",
+			"LOST_INTERNET": "Perdita di internet",
+			"FORGOT_TO_START_TIMER": "Dimenticato di avviare il timer",
+			"ERROR": "Errore",
+			"UNPLANNED_WORK": "Lavoro non pianificato",
+			"TESTED_TIMER": "Timer testato"
 		}
 	}
 }

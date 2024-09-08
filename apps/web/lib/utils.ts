@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
+import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -39,4 +40,40 @@ export function chunk<T>(array: T[], size: number): T[][] {
 	}
 
 	return result;
+}
+
+export const shortenLink = (value: any): string => {
+	if (typeof value !== 'string' || value.length <= 19) {
+		return value;
+	}
+	const start = value.substring(0, window.location.origin.length);
+	const end = value.substring(value.length - 10);
+	return `${start}...${end}`;
+};
+
+export function formatWithSuffix(date: Date) {
+	const day = moment(date).date();
+	const suffix =
+		day === 1 || day === 21 || day === 31
+			? 'st'
+			: day === 2 || day === 22
+				? 'nd'
+				: day === 3 || day === 23
+					? 'rd'
+					: 'th';
+	return moment(date).format(`D[${suffix}] MMMM YYYY`);
+}
+
+export function checkPastDate(dateToBeChecked?: Date): boolean {
+	if (dateToBeChecked) {
+		const todayDate = new Date(new Date().toUTCString());
+		const date = new Date(new Date(dateToBeChecked).toUTCString());
+
+		date.setHours(0, 0, 0, 0);
+		todayDate.setHours(0, 0, 0, 0);
+
+		return todayDate > date;
+	} else {
+		return false; // Return false if dateToBeChecked is not provided or is null or undefined.
+	}
 }

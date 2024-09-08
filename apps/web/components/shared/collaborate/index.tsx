@@ -55,6 +55,15 @@ const Collaborate = () => {
 		[collaborativeMembers, members, setCollaborativeMembers]
 	);
 
+	const handleAction = (actionCallback: () => void) => () => {
+		closeModal();
+		actionCallback();
+	};
+
+	const handleMeetClick = handleAction(onMeetClick);
+	const handleBoardClick = handleAction(onBoardClick);
+
+
 	return (
 		<div>
 			<JitsuAnalytics user={user} />
@@ -114,11 +123,11 @@ const Collaborate = () => {
 												{(member?.image?.thumbUrl ||
 													member?.image?.fullUrl ||
 													member?.imageUrl) &&
-												isValidUrl(
-													member?.image?.thumbUrl ||
+													isValidUrl(
+														member?.image?.thumbUrl ||
 														member?.image?.fullUrl ||
 														member?.imageUrl
-												) ? (
+													) ? (
 													<Avatar
 														size={36}
 														className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
@@ -167,9 +176,9 @@ const Collaborate = () => {
 										}}
 									>
 										{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
-										isValidUrl(
-											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
-										) ? (
+											isValidUrl(
+												member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
+											) ? (
 											<Avatar
 												size={32}
 												className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
@@ -197,10 +206,7 @@ const Collaborate = () => {
 
 						<div className="flex space-x-3 ">
 							<Button
-								onClick={() => {
-									closeModal();
-									onMeetClick();
-								}}
+								onClick={handleMeetClick}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"
 							>
@@ -209,10 +215,7 @@ const Collaborate = () => {
 							</Button>
 
 							<Button
-								onClick={() => {
-									closeModal();
-									onBoardClick();
-								}}
+								onClick={handleBoardClick}
 								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 							>
 								<BrushSquareIcon className="w-4 h-4" />

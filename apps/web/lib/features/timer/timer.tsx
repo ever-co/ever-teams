@@ -1,5 +1,5 @@
 import { pad } from '@app/helpers';
-import { HostKeys, useDetectOS, useHotkeys, useModal, useTimerView } from '@app/hooks';
+import { HostKeys, useDetectOS, useHotkeys, useTeamTasks, useTimerView } from '@app/hooks';
 import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
@@ -15,12 +15,17 @@ import {
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
-import { AddWorkTimeAndEstimatesToPlan } from '../daily-plan/plans-work-time-and-estimate';
-import { ESTIMATE_POPUP_SHOWN_DATE, TODAY_PLAN_ALERT_SHOWN_DATE } from '@app/constants';
+import {
+	AddDailyPlanWorkHourModal,
+	AddTasksEstimationHoursModal,
+	EnforcePlanedTaskModal,
+	SuggestDailyPlanModal
+} from '../daily-plan';
+import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
 
 export function Timer({ className }: IClassName) {
 	const t = useTranslations();
-	const { closeModal, isOpen, openModal } = useModal();
+
 	const {
 		hours,
 		minutes,
@@ -28,34 +33,18 @@ export function Timer({ className }: IClassName) {
 		activeTaskEstimation,
 		ms_p,
 		canRunTimer,
-		timerStatusFetching,
 		timerHanlder,
 		timerStatus,
 		disabled,
-		startTimer,
-		stopTimer,
-		isPlanVerified,
-		hasPlan
+		hasPlan,
+		startTimer
 	} = useTimerView();
-
-	const timerHanlderStartStop = useCallback(() => {
-		const currentDate = new Date().toISOString().split('T')[0];
-		const lastPopupDate = window && window?.localStorage.getItem(TODAY_PLAN_ALERT_SHOWN_DATE);
-		const lastPopupEstimates = window && window?.localStorage.getItem(ESTIMATE_POPUP_SHOWN_DATE);
-
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			if (!isPlanVerified || lastPopupDate !== currentDate || lastPopupEstimates !== currentDate) {
-				openModal();
-			} else {
-				startTimer();
-			}
-		}
-	}, [canRunTimer, isPlanVerified, openModal, startTimer, stopTimer, timerStatus, timerStatusFetching]);
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	const { os } = useDetectOS();
+
 	const osSpecificTimerTooltipLabel = useMemo(() => {
 		if (os === 'Mac') {
 			if (!timerStatus?.running) {
@@ -77,7 +66,6 @@ export function Timer({ className }: IClassName) {
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
 			console.log('h?.shortcut', h?.shortcut);
 			// Start Timer
-
 			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
 				timerHanlder();
 			}
@@ -134,7 +122,6 @@ export function Timer({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
-
 			<VerticalSeparator />
 			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
 				<Tooltip
@@ -146,7 +133,7 @@ export function Timer({ className }: IClassName) {
 					// }
 				>
 					<TimerButton
-						onClick={timerHanlderStartStop}
+						onClick={startStopTimerHandler}
 						running={timerStatus?.running}
 						disabled={
 							// If timer is running at some other source and user may or may not have selected the task
@@ -154,29 +141,66 @@ export function Timer({ className }: IClassName) {
 						}
 					/>
 				</Tooltip>
-				<AddWorkTimeAndEstimatesToPlan
-					closeModal={closeModal}
-					open={isOpen}
-					plan={hasPlan}
-					startTimer={startTimer}
-					hasPlan={!!hasPlan}
+
+				<SuggestDailyPlanModal
+					isOpen={modals.isSuggestDailyPlanModalOpen}
+					closeModal={modals.suggestDailyPlanCloseModal}
 				/>
+				{/**
+				 * Track time on planned task (SOFT FLOW)
+				 */}
+				{hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+						closeModal={modals.enforceTaskSoftCloseModal}
+						plan={hasPlan}
+						open={modals.isEnforceTaskSoftModalOpen}
+						task={activeTeamTask}
+					/>
+				)}
+
+				{hasPlan && hasPlan.tasks && (
+					<AddTasksEstimationHoursModal
+						isOpen={modals.isTasksEstimationHoursModalOpen}
+						closeModal={modals.tasksEstimationHoursCloseModal}
+						plan={hasPlan}
+						tasks={hasPlan.tasks}
+					/>
+				)}
+
+				{hasPlan && (
+					<AddDailyPlanWorkHourModal
+						isOpen={modals.isDailyPlanWorkHoursModalOpen}
+						closeModal={modals.dailyPlanWorkHoursCloseModal}
+						plan={hasPlan}
+					/>
+				)}
+
+				{/**
+				 * Track time on planned task (REQUIRE PLAN)
+				 */}
+
+				{requirePlan && hasPlan && activeTeamTask && (
+					<EnforcePlanedTaskModal
+						onOK={startTimer}
+						content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+						closeModal={modals.enforceTaskCloseModal}
+						plan={hasPlan}
+						open={modals.isEnforceTaskModalOpen}
+						task={activeTeamTask}
+					/>
+				)}
 			</div>
 		</div>
 	);
 }
 
 export function MinTimerFrame({ className }: IClassName) {
-	const {
-		hours,
-		minutes,
-		seconds,
-		ms_p,
-
-		timerHanlder,
-		timerStatus,
-		disabled
-	} = useTimerView();
+	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer } = useTimerView();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { activeTeam, activeTeamTask } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const t = useTranslations();
 
 	return (
 		<div
@@ -209,12 +233,62 @@ export function MinTimerFrame({ className }: IClassName) {
 
 			<div className="z-[50]">
 				<TimerButton
-					onClick={timerHanlder}
+					onClick={startStopTimerHandler}
 					running={timerStatus?.running}
 					disabled={disabled}
 					className="w-7 h-7"
 				/>
 			</div>
+
+			<SuggestDailyPlanModal
+				isOpen={modals.isSuggestDailyPlanModalOpen}
+				closeModal={modals.suggestDailyPlanCloseModal}
+			/>
+
+			{/**
+			 * Track time on planned task (SOFT FLOW)
+			 */}
+			{hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+					closeModal={modals.enforceTaskSoftCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskSoftModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
+
+			{hasPlan && hasPlan.tasks && (
+				<AddTasksEstimationHoursModal
+					isOpen={modals.isTasksEstimationHoursModalOpen}
+					closeModal={modals.tasksEstimationHoursCloseModal}
+					plan={hasPlan}
+					tasks={hasPlan.tasks}
+				/>
+			)}
+
+			{hasPlan && (
+				<AddDailyPlanWorkHourModal
+					isOpen={modals.isDailyPlanWorkHoursModalOpen}
+					closeModal={modals.dailyPlanWorkHoursCloseModal}
+					plan={hasPlan}
+				/>
+			)}
+
+			{/**
+			 * Track time on planned task (REQUIRE PLAN)
+			 */}
+
+			{requirePlan && hasPlan && activeTeamTask && (
+				<EnforcePlanedTaskModal
+					onOK={startTimer}
+					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+					closeModal={modals.enforceTaskCloseModal}
+					plan={hasPlan}
+					open={modals.isEnforceTaskModalOpen}
+					task={activeTeamTask}
+				/>
+			)}
 		</div>
 	);
 }

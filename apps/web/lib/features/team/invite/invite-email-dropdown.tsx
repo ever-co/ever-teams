@@ -5,6 +5,7 @@ import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 import { clsxm } from '@app/utils';
 import { IInviteEmail } from '@app/interfaces';
 import { useSyncRef } from '@app/hooks';
+import { useTranslations } from 'next-intl';
 
 export const InviteEmailDropdown = ({
 	emails,
@@ -18,7 +19,8 @@ export const InviteEmailDropdown = ({
 	selectedEmail: IInviteEmail | undefined;
 	error: string;
 	handleAddNew: (email: string) => void;
-}) => {
+	}) => {
+	const t = useTranslations()
 	const items = useMemo(() => mapTeamMemberItems(emails), [emails]);
 	const $items = useSyncRef(items);
 
@@ -48,7 +50,7 @@ export const InviteEmailDropdown = ({
 				value={emailItem}
 				onChange={onChangeActive}
 				items={items}
-				placeholder={'Team member email address'}
+				placeholder={t('common.TEAM_MEMBER_EMAIL_ADDRESS')}
 				error={error}
 				handleAddNew={handleAddNew}
 				useHandleKeyUp={true}

@@ -10,7 +10,9 @@ export function TaskPlans() {
 	const { taskPlanList, getPlansByTask } = useDailyPlan();
 
 	useEffect(() => {
-		getPlansByTask(task?.id);
+		if (task?.id) {
+			getPlansByTask(task?.id);
+		}
 	}, [getPlansByTask, task?.id]);
 
 	const groupedByEmployee: { [key: string]: any[] } = {};

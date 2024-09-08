@@ -14,6 +14,7 @@ import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
 import SortTasksStatusSettings from '@components/pages/kanban/sort-tasks-status-settings';
+import { StandardTaskStatusDropDown } from 'lib/features';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -86,8 +87,9 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 					color: values.color,
 					// description: '',
 					organizationId: user?.employee?.organizationId,
-					tenantId: user?.tenantId,
-					icon: values.icon
+					tenantId: user?.tenantId ?? '',
+					icon: values.icon,
+					template: values.template
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
@@ -136,8 +138,8 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 							</Text>
 						)}
 
-						<div className="flex flex-col items-center sm:items-start">
-							<div className="flex">
+						<div className="flex flex-col gap-2  items-center sm:items-start">
+							<div className="flex gap-2">
 								{!createNew && !edit && (
 									<Button
 										variant="outline"
@@ -151,7 +153,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										{t('pages.settingsTeam.CREATE_NEW_STATUS')}
 									</Button>
 								)}
-								<Button onClick={openModal} variant="outline" className="mx-2 rounded-[10px]">
+								<Button onClick={openModal} variant="outline" className="rounded-[10px]">
 									Sort
 								</Button>
 							</div>
@@ -170,11 +172,14 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										<InputField
 											type="text"
 											placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
-											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0 rounded-lg"
+											className="mb-0 w-full"
+											wrapperClassName="mb-0 rounded-lg flex-grow"
 											{...register('name')}
 										/>
-
+										<StandardTaskStatusDropDown
+											onValueChange={(status) => setValue('template', status)}
+											className=" h-14 shrink-0"
+										/>
 										<IconPopover
 											iconList={iconList}
 											setValue={setValue}
@@ -184,10 +189,10 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 													: null
 											}
 										/>
-
 										<ColorPicker
 											defaultColor={edit ? edit.color : undefined}
 											onChange={(color) => setValue('color', color)}
+											className=" shrink-0"
 										/>
 									</div>
 									<div className="flex mt-5 gap-x-4">

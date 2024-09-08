@@ -8,7 +8,8 @@ import {
 	ITaskStatusStack,
 	ITeamTask,
 	Nullable,
-	Tag
+	Tag,
+	TaskStatusEnum
 } from '@app/interfaces';
 import { Queue, clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
@@ -301,6 +302,49 @@ export function TaskStatusDropdown({
 			multiple={multiple}
 			values={values}
 			largerWidth={largerWidth}
+		>
+			{children}
+		</StatusDropdown>
+	);
+}
+
+export function StandardTaskStatusDropDown({
+	className,
+	defaultValue,
+	onValueChange,
+	forDetails,
+	multiple,
+	sidebarUI = false,
+	children,
+	largerWidth
+}: TTaskStatusesDropdown<'status type'>) {
+	const taskStatusValues = useTaskStatusValue();
+
+	const { item, items, onChange, values } = useStatusValue<'status type'>({
+		status: taskStatusValues,
+		value: defaultValue,
+		onValueChange,
+		multiple
+	});
+
+	const standardStatuses = useMemo(
+		() => items.filter((status) => Object.values(TaskStatusEnum).includes(status.value as TaskStatusEnum)),
+		[items]
+	);
+	return (
+		<StatusDropdown
+			sidebarUI={sidebarUI}
+			showIcon={false}
+			forDetails={forDetails}
+			className={className}
+			items={standardStatuses}
+			value={item}
+			defaultItem={!item ? 'status type' : undefined}
+			onChange={onChange}
+			multiple={multiple}
+			values={values}
+			largerWidth={largerWidth}
+			bordered={false}
 		>
 			{children}
 		</StatusDropdown>
@@ -775,18 +819,18 @@ export function TaskStatus({
 	isEpic
 }: PropsWithChildren<
 	TStatusItem &
-	IClassName & {
-		active?: boolean;
-		issueType?: 'status' | 'issue';
-		showIssueLabels?: boolean;
-		forDetails?: boolean;
-		titleClassName?: string;
-		cheched?: boolean;
-		sidebarUI?: boolean;
-		value?: string;
-		isVersion?: boolean;
-		isEpic?: boolean;
-	}
+		IClassName & {
+			active?: boolean;
+			issueType?: 'status' | 'issue';
+			showIssueLabels?: boolean;
+			forDetails?: boolean;
+			titleClassName?: string;
+			cheched?: boolean;
+			sidebarUI?: boolean;
+			value?: string;
+			isVersion?: boolean;
+			isEpic?: boolean;
+		}
 >) {
 	const { theme } = useTheme();
 	const readableColorHex = readableColor(backgroundColor || (theme === 'light' ? '#FFF' : '#000'));
@@ -839,8 +883,8 @@ export function TaskStatus({
 						style={
 							isVersion || isEpic
 								? {
-									color: theme === 'light' ? '#000' : '#FFF'
-								}
+										color: theme === 'light' ? '#000' : '#FFF'
+									}
 								: {}
 						}
 					>
@@ -936,7 +980,8 @@ export function StatusDropdown<T extends TStatusItem>({
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
-				isVersion && 'dark:text-white'
+				isVersion && 'dark:text-white',
+				'h-full'
 			)}
 			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
 			isVersion={isVersion}
@@ -958,7 +1003,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	);
 
 	const dropdown = (
-		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
+		<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={clsxm('relative', className)}>
 				<Listbox
 					value={value?.value || value?.name || (multiple ? [] : null)}
@@ -972,7 +1017,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									as="div"
 									className={clsxm(
 										!forDetails && 'w-full max-w-[190px]',
-										'cursor-pointer outline-none'
+										'cursor-pointer outline-none h-full'
 									)}
 									style={{
 										width: largerWidth ? '160px' : ''
@@ -992,11 +1037,11 @@ export function StatusDropdown<T extends TStatusItem>({
 											forDetails={forDetails}
 											sidebarUI={sidebarUI}
 											className={clsxm(
-												'justify-between w-full capitalize',
+												'justify-between w-full capitalize h-full',
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
-												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 												taskStatusClassName
 											)}
 											name={

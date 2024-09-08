@@ -147,6 +147,7 @@ export function UserTeamCard({
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
+			ref={profile.loadTaskStatsIObserverRef}
 		>
 			<Card
 				shadow="bigger"

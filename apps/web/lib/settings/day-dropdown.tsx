@@ -26,7 +26,7 @@ export const DayDropdown = ({ setValue, active }: { setValue: UseFormSetValue<Fi
 	);
 
 	useEffect(() => {
-		if (!DayItem) {
+		if (!DayItem && items.length > 0) {
 			setDayItem(items[0]);
 		}
 	}, [DayItem, items]);

@@ -39,13 +39,13 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
                 <Button
                     variant={"outline"}
                     className={cn(
-                        "w-full justify-start text-left font-normal dark:bg-dark--theme-light",
+                        "w-full justify-start text-left font-normal dark:bg-dark--theme-light text-[14px] dark:border-slate-700",
                         !time.minute && "text-muted-foreground"
                     )}
                 >
-                    <div className='flex items-center justify-between w-full text-[16px] font-medium'>
-                        {time.hours !== '--' && time.minute !== '--' ? `${time.hours}:${time.minute} ${time.meridiem}` : <span>Time picker</span>}
+                    <div className='flex items-center justify-start w-full text-[14px] font-normal'>
                         <TimerIcon className="mr-2 h-4 w-4" />
+                        {time.hours !== '--' && time.minute !== '--' ? `${time.hours}:${time.minute} ${time.meridiem}` : <span>Time picker</span>}
                     </div>
                 </Button>
             </PopoverTrigger>
@@ -167,7 +167,7 @@ interface TimerPickerButtonProps {
 // eslint-disable-next-line react/display-name
 const TimerPickerButton: React.FC<TimerPickerButtonProps> = React.memo(({
     title = '',
-    className = 'border-none border-gray-100 ',
+    className = 'border-none border-gray-100 dark:border-gray-700',
     onClick = () => null,
     loading = false,
     variant = 'default',

@@ -15,12 +15,14 @@ import { HeaderTabs } from '@components/pages/all-teams/header-tabs';
 import { allTeamsHeaderTabs } from '@app/stores/header-tabs';
 import AllTeamsMembers from 'lib/features/all-teams-members';
 import { MemberFilter } from 'lib/features/all-teams/all-team-members-filter';
+import { useOrganizationTeams } from '@app/hooks';
 
 function AllTeamsPage() {
 	const t = useTranslations();
 	const fullWidth = useRecoilValue(fullWidthState);
 	const view = useRecoilValue(allTeamsHeaderTabs);
 	const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -28,12 +30,12 @@ function AllTeamsPage() {
 	];
 
 	/* If the user is not a manager in any team or if he's
-        manager in only one team, then redirect him to the home page
-    */
+		manager in only one team, then redirect him to the home page
+	*/
 	if (userManagedTeams.length < 2) return <RedirectUser />;
 
 	return (
-		<MainLayout className="items-start">
+		<MainLayout showTimer={isTrackingEnabled} className="items-start">
 			<MainHeader fullWidth={fullWidth} className={'pb-2 pt-10 sticky top-20 z-50'}>
 				{/* Breadcrumb */}
 				<div className="flex flex-row items-start justify-between mb-5">

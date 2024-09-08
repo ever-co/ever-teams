@@ -4,7 +4,7 @@ import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 interface Props {
 	teamMembers: OT_Member[];
@@ -20,7 +20,6 @@ const TeamMembersCardView: React.FC<Props> = ({
 	publicTeam = false
 }) => {
 	const { isTeamManager } = useAuthenticateUser();
-
 	const { teamInvitations } = useTeamInvitations();
 
 	const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
@@ -32,7 +31,14 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	useEffect(() => setMemberOrdereds(members), [members]);
 
-	function handleSort() {
+	const handleChangeOrder = useCallback(
+		(employee: OT_Member, order: number) => {
+			updateOrganizationTeamEmployeeOrderOnList(employee, order);
+		},
+		[updateOrganizationTeamEmployeeOrderOnList]
+	);
+
+	const handleSort = useCallback(() => {
 		const peopleClone = [...memberOrdereds];
 		const temp = peopleClone[dragTeamMember.current];
 		peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
@@ -41,15 +47,12 @@ const TeamMembersCardView: React.FC<Props> = ({
 		// TODO: update teamMembers index
 		handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
 		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
-	}
-
-	const handleChangeOrder = (employee: OT_Member, order: number) => {
-		updateOrganizationTeamEmployeeOrderOnList(employee, order);
-	};
+	}, [memberOrdereds, dragTeamMember, draggedOverTeamMember]);
 
 	return (
 		<>
 			<ul className="mt-7">
+
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}

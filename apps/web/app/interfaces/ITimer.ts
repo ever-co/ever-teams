@@ -33,6 +33,13 @@ export enum TimerSource {
 	'TEAMS' = 'TEAMS'
 }
 
+export enum TimeLogType {
+	TRACKED = 'TRACKED',
+	MANUAL = 'MANUAL',
+	IDLE = 'IDLE',
+	RESUMED = 'RESUMED'
+}
+
 export interface ITimerStatus {
 	duration: number;
 	lastLog?: ITimer;

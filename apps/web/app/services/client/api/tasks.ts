@@ -152,7 +152,7 @@ export async function tasksTimesheetStatisticsAPI(
 			? [employeeId].reduce((acc: any, v, i) => {
 					acc[`employeeIds[${i}]`] = v;
 					return acc;
-			  })
+				})
 			: {};
 		const commonParams = {
 			tenantId,
@@ -165,7 +165,7 @@ export async function tasksTimesheetStatisticsAPI(
 			defaultRange: 'false'
 		});
 
-		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
+		const globalData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
 			tenantId
 		});
 
@@ -174,7 +174,7 @@ export async function tasksTimesheetStatisticsAPI(
 			defaultRange: 'true',
 			unitOfTime: 'day'
 		});
-		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
+		const todayData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
 			tenantId
 		});
 
@@ -202,7 +202,7 @@ export async function activeTaskTimesheetStatisticsAPI(
 			? [employeeId].reduce((acc: any, v, i) => {
 					acc[`employeeIds[${i}]`] = v;
 					return acc;
-			  })
+				})
 			: {};
 		const commonParams = {
 			tenantId,
@@ -214,12 +214,12 @@ export async function activeTaskTimesheetStatisticsAPI(
 			...commonParams,
 			defaultRange: 'false'
 		});
-		const globalData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
+		const globalData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${globalQueries}`, {
 			tenantId
 		});
 
 		const todayQueries = qs.stringify({ ...commonParams, defaultRange: 'true', unitOfTime: 'day' });
-		const todayData = await get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
+		const todayData = await post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${todayQueries}`, {
 			tenantId
 		});
 
@@ -261,7 +261,7 @@ export function allTaskTimesheetStatisticsAPI() {
 			)
 		});
 
-		return get<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
+		return post<ITasksTimesheet[]>(`/timesheet/statistics/tasks?${queries.toString()}`, { tenantId });
 	}
 
 	return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);

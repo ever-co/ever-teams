@@ -6,21 +6,29 @@ import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from './invite-email-dropdown';
+import { useToast } from '@components/ui/use-toast';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
-	const { inviteUser, inviteLoading } = useTeamInvitations();
+	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
+		useTeamInvitations();
+
 	const [errors, setErrors] = useState<{
 		email?: string;
 		name?: string;
 	}>({});
+
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
 	const { workingEmployees } = useEmployee();
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
 	const { activeTeam } = useOrganizationTeams();
+	const nameInputRef = useRef<HTMLInputElement>(null);
+	const { toast } = useToast();
+
+	const isLoading = inviteLoading || resendInviteLoading;
 
 	useEffect(() => {
 		if (activeTeam?.members) {
@@ -38,9 +46,20 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	}, [workingEmployees, workingEmployees.length, activeTeam]);
 
 	const handleAddNew = (email: string) => {
+		if (!email.includes('@')) {
+			email = `${email}@gmail.com`;
+		}
+
 		const newItem = { title: email, name: '' };
 		setSelectedEmail(newItem);
+
 		setCurrentOrgEmails([...currentOrgEmails, newItem]);
+		const extractedName = email.split('@')[0];
+		if (nameInputRef.current) {
+			nameInputRef.current.value = extractedName;
+			nameInputRef.current.focus();
+			nameInputRef.current.select();
+		}
 	};
 
 	const handleSubmit = useCallback(
@@ -56,15 +75,45 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				return;
 			}
 
-			inviteUser(selectedEmail.title, form.get('name')?.toString() || selectedEmail.name || '')
-				.then(() => {
+			const existingInvitation = teamInvitations.find((invitation) => invitation.email === selectedEmail.title);
+
+			if (existingInvitation) {
+				resendTeamInvitation(existingInvitation.id).then(() => {
 					closeModal();
 
+					toast({
+						variant: 'default',
+						title: t('common.INVITATION_SENT'),
+						description: t('common.INVITATION_SENT_TO_USER', { email: selectedEmail.title }),
+						duration: 5 * 1000
+					});
+				});
+				return;
+			}
+
+			inviteUser(selectedEmail.title, form.get('name')?.toString() || selectedEmail.name || '')
+				.then(({ data }) => {
+					closeModal();
 					e.currentTarget.reset();
+
+					toast({
+						variant: 'default',
+						title: t('common.INVITATION_SENT'),
+						description: t('common.INVITATION_SENT_TO_USER', { email: selectedEmail.title }),
+						duration: 5 * 1000
+					});
 				})
 				.catch((err: AxiosError) => {
 					if (err.response?.status === 400) {
-						setErrors((err.response?.data as any)?.errors || {});
+						const data = err.response?.data as any;
+
+						if ('errors' in data) {
+							setErrors(data.errors || {});
+						}
+
+						if ('message' in data && Array.isArray(data.message)) {
+							setErrors({ email: data.message[0] });
+						}
 					}
 				});
 		},
@@ -99,6 +148,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 							/>
 
 							<InputField
+								ref={nameInputRef}
 								type="text"
 								name="name"
 								placeholder={t('form.TEAM_MEMBER_NAME_PLACEHOLDER')}
@@ -112,7 +162,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 						<div className="flex items-center justify-between w-full mt-3">
 							<BackButton onClick={closeModal} />
 
-							<Button type="submit" disabled={inviteLoading} loading={inviteLoading}>
+							<Button type="submit" disabled={isLoading} loading={isLoading}>
 								{t('pages.invite.SEND_INVITE')}
 							</Button>
 						</div>

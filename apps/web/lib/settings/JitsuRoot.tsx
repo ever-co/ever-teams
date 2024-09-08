@@ -24,7 +24,7 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 		cookieDomain: process.env.NEXT_PUBLIC_JITSU_COOKIE_DOMAIN,
 		echoEvents: false
 	};
-	const isJitsuEnvs: boolean = jitsuConf.host !== '' && jitsuConf.writeKey !== '';
+	const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey;
 	console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
@@ -38,10 +38,10 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 							debug: jitsuConf.debug,
 							cookieDomain: jitsuConf.cookieDomain ?? undefined,
 							echoEvents: jitsuConf.echoEvents
-					  }
+						}
 					: {
 							disabled: true
-					  }
+						}
 			}
 		>
 			<JitsuAnalytics user={pageProps?.user} />
