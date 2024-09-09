@@ -4,6 +4,7 @@ import { clsxm } from '@app/utils';
 import React, { MutableRefObject, forwardRef, useState, useEffect, useImperativeHandle, useRef } from 'react';
 import { InputField } from './input';
 import { useTranslations } from 'next-intl';
+import { useCallbackRef } from '@app/hooks';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
@@ -95,6 +96,8 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		}
 		const [canSubmit, setCanSubmit] = useState<boolean>(false);
 		const reference = useRef<HTMLInputElement[]>([]);
+		const $submitCode = useCallbackRef(submitCode);
+
 		const inputsRef = inputReference || reference;
 		const inputProps = propsMap[allowedCharacters];
 		const validDefaultValue =
@@ -126,8 +129,8 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		}, [autoFocus, inputsRef]);
 
 		useEffect(() => {
-			canSubmit && submitCode && submitCode();
-		}, [canSubmit, submitCode]);
+			canSubmit && $submitCode.current?.();
+		}, [canSubmit, $submitCode]);
 
 		const sendResult = () => {
 			const res = inputsRef.current.map((input) => input.value).join('');
