@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
@@ -49,7 +49,6 @@ export function UserProfilePlans() {
 
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
 
-
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
 
@@ -91,16 +90,7 @@ export function UserProfilePlans() {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
 		}
-	}, [currentTab,
-		setCurrentDataDailyPlan,
-		setDate,
-		date,
-		currentDataDailyPlan,
-		futurePlans,
-		pastPlans,
-		sortedPlans
-	]
-	);
+	}, [currentTab, setCurrentDataDailyPlan, setDate, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
@@ -190,22 +180,26 @@ export function UserProfilePlans() {
  */
 function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	// Filter plans
-	let filteredPlans: IDailyPlan[] = [];
+	const filteredPlans = useRef<IDailyPlan[]>([]);
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
-	const { setDate, date } = useDateRange(currentTab);
+	const { date } = useDateRange(currentTab);
 
-	filteredPlans = sortedPlans;
-	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
+	if (currentTab === 'Today Tasks') {
+		filteredPlans.current = todayPlan;
+	} else {
+		filteredPlans.current = sortedPlans;
+	}
 
 	const canSeeActivity = useCanSeeActivityScreen();
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
-	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
+	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans.current);
+
 	useEffect(() => {
-		setPlans(filterDailyPlan(date as any, filteredPlans));
-	}, [date, setDate, filteredPlans]);
+		setPlans(filterDailyPlan(date as any, filteredPlans.current));
+	}, [date, filteredPlans.current]);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -373,7 +367,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
-	const t = useTranslations()
+	const t = useTranslations();
 	// Get all tasks's estimations time
 	// Helper function to sum times
 	const sumTimes = (tasks: ITeamTask[], key: any) =>
@@ -384,7 +378,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	// Get all tasks' estimation and worked times
 	const estimatedTime = plan.tasks ? sumTimes(plan.tasks, 'estimate') : 0;
-    const totalWorkTime = plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0;
+	const totalWorkTime = plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0;
 
 	// Get completed and ready tasks from a plan
 	const completedTasks = plan.tasks?.filter((task) => task.status === 'completed').length ?? 0;
@@ -508,14 +502,12 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 }
 
 export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
-	const t = useTranslations()
+	const t = useTranslations();
 
 	return (
 		<div className="xl:mt-20">
 			<NoData
-				text={planMode == 'Today Tasks' ?
-					t('dailyPlan.NO_TASK_PLANNED_TODAY') :
-					t('dailyPlan.NO_TASK_PLANNED')}
+				text={planMode == 'Today Tasks' ? t('dailyPlan.NO_TASK_PLANNED_TODAY') : t('dailyPlan.NO_TASK_PLANNED')}
 				component={<ReaderIcon className="w-14 h-14" />}
 			/>
 		</div>
