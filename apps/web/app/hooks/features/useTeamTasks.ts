@@ -115,7 +115,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[getTasksByIdQueryCall, setDetailedTask]
+		[getTasksByIdQueryCall, setDetailedTask, tasksRef]
 	);
 
 	const getTasksByEmployeeId = useCallback(
@@ -285,8 +285,8 @@ export function useTeamTasks() {
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 					...(activeTeam?.projects && activeTeam?.projects.length > 0
 						? {
-								projectId: activeTeam.projects[0].id
-							}
+							projectId: activeTeam.projects[0].id
+						}
 						: {}),
 					...(description ? { description: `<p>${description}</p>` } : {}),
 					...(members ? { members } : {}),
@@ -451,7 +451,17 @@ export function useTeamTasks() {
 				}
 			}
 		},
-		[setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, activeTeam, authUser]
+		[
+			setActiveTeamTask,
+			setActiveUserTaskCookieCb,
+			updateOrganizationTeamEmployeeActiveTask,
+			activeTeam,
+			authUser,
+			$memberActiveTaskId,
+			$user,
+			tasksRef,
+			updateTask
+		]
 	);
 
 	const deleteEmployeeFromTasks = useCallback(

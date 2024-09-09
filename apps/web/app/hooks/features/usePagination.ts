@@ -48,7 +48,7 @@ export function useScrollPagination<T>({
 			setPage(1);
 			setSlicedItems(items.slice(0, defaultItemsPerPage));
 		}
-	}, [enabled, items]);
+	}, [enabled, items, defaultItemsPerPage]);
 
 	useEffect(() => {
 		const container = $scrollableElement.current;
@@ -68,6 +68,8 @@ export function useScrollPagination<T>({
 		return () => {
 			container.removeEventListener('scroll', handleScroll);
 		};
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [$scrollableElement.current, enabled]);
 
 	useEffect(() => {

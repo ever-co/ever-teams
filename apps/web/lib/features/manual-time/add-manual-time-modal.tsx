@@ -29,8 +29,8 @@ import { Item, ManageOrMemberComponent, getNestedValue } from './manage-member-c
  */
 interface IAddManualTimeModalProps {
 	isOpen: boolean;
-	params: "AddManuelTime" | "AddTime";
-	timeSheetStatus?: "ManagerTimesheet" | "TeamMemberTimesheet",
+	params: 'AddManuelTime' | 'AddTime';
+	timeSheetStatus?: 'ManagerTimesheet' | 'TeamMemberTimesheet';
 	closeModal: () => void;
 }
 
@@ -115,11 +115,12 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		const timeString = [
 			hours > 0 ? `${String(hours).padStart(2, '0')}h` : '0h',
 			minutes > 0 ? `${String(minutes).padStart(2, '0')}m` : ''
-		].filter(Boolean).join(' ');
+		]
+			.filter(Boolean)
+			.join(' ');
 
 		setTimeDifference(timeString);
 	}, [endTime, startTime]);
-
 
 	useEffect(() => {
 		calculateTimeDifference();
@@ -142,16 +143,15 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		}
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
-
 	const memberItemsLists = {
-		'Project': activeTeam?.projects,
-		'Employee': activeTeam?.members,
-		'Task': tasks,
+		Project: activeTeam?.projects,
+		Employee: activeTeam?.members,
+		Task: tasks
 	};
 	const selectedValues = {
-		'Teams': null,
-		'Members': null,
-		"Task": null
+		Teams: null,
+		Members: null,
+		Task: null
 	};
 	const fields = [
 		{
@@ -162,15 +162,18 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 			displayKey: 'name',
 			element: 'Project'
 		},
-		...(timeSheetStatus === 'ManagerTimesheet' ?
-			[{
-				label: t('manualTime.EMPLOYEE'),
-				placeholder: 'Select an employee',
-				isRequired: true,
-				valueKey: 'id',
-				displayKey: 'employee.fullName',
-				element: 'Employee'
-			}] : []),
+		...(timeSheetStatus === 'ManagerTimesheet'
+			? [
+					{
+						label: t('manualTime.EMPLOYEE'),
+						placeholder: 'Select an employee',
+						isRequired: true,
+						valueKey: 'id',
+						displayKey: 'employee.fullName',
+						element: 'Employee'
+					}
+				]
+			: []),
 		{
 			label: t('manualTime.TASK'),
 			placeholder: 'Select a Task',
@@ -180,9 +183,6 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 			element: 'Task'
 		}
 	];
-
-
-
 
 	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
 		console.log(values);
@@ -196,29 +196,33 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
-			title={"Add Time"}
+			title={'Add Time'}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start shadow-xl"
 			titleClass="font-bold"
 		>
 			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-4">
 				<div className="flex flex-col">
 					<label className="block text-gray-500 mb-1">
-						{t('manualTime.DATE')}<span className="text-[#de5505e1] ml-1">*</span>
+						{t('manualTime.DATE')}
+						<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
 					<DatePicker
 						buttonVariant={'link'}
 						className="dark:bg-dark--theme-light"
-						buttonClassName={'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
+						buttonClassName={
+							'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'
+						}
 						customInput={
 							<>
 								<CalendarDays className="h-5 w-5 dark:text-gray-700" />
 								<Button
-									variant={"outline"}
+									variant={'outline'}
 									className={cn(
-										"w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent",
-										!date && "text-muted-foreground"
-									)}>
-									{date ? format(date, "PPP") : <span>{t('manualTime.PICK_A_DATE')}</span>}
+										'w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent',
+										!date && 'text-muted-foreground'
+									)}
+								>
+									{date ? format(date, 'PPP') : <span>{t('manualTime.PICK_A_DATE')}</span>}
 								</Button>
 							</>
 						}
@@ -249,7 +253,8 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
 						<label className="block text-gray-500 mb-1">
-							{t('manualTime.START_TIME')}<span className="text-[#de5505e1] ml-1">*</span>
+							{t('manualTime.START_TIME')}
+							<span className="text-[#de5505e1] ml-1">*</span>
 						</label>
 						<input
 							type="time"
@@ -262,7 +267,8 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 
 					<div className=" w-[48%]">
 						<label className="block text-gray-500 mb-1">
-							{t('manualTime.END_TIME')}<span className="text-[#de5505e1] ml-1">*</span>
+							{t('manualTime.END_TIME')}
+							<span className="text-[#de5505e1] ml-1">*</span>
 						</label>
 
 						<input
@@ -276,102 +282,124 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 				</div>
 
 				<div className=" flex items-center">
-					<label className="block text-primary mb-1">{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}: </label>
+					<label className="block text-primary mb-1">
+						{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}:{' '}
+					</label>
 					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
 						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
-							<IoTime
-								size={20}
-								className="rounded-full text-primary dark:text-[#8a7bedb7]"
-							/>
+							<IoTime size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
 						</div>
 						{timeDifference}
 					</div>
 				</div>
 
-
-				{
-					params === 'AddManuelTime' ? (
-						<>
-							<ManageOrMemberComponent
-								fields={fields}
-								itemsLists={memberItemsLists}
-								selectedValues={selectedValues}
-								onSelectedValuesChange={handleSelectedValuesChange}
-								handleChange={handleChange}
-								itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
-								itemToValue={(item, valueKey) => getNestedValue(item, valueKey) || ''}
+				{/* <div className="">
+					<label className="block text-gray-500 mb-1">
+						{t('manualTime.TEAM')}<span className="text-[#de5505e1] ml-1">*</span>
+					</label>
+					{
+						activeTeam ?
+							<SelectItems
+								defaultValue={activeTeam}
+								items={teams}
+								onValueChange={(team) => setTeam(team)}
+								itemId={(team) => (team ? team.id : '')}
+								itemToString={(team) => (team ? team.name : '')}
+								triggerClassName="border-gray-300 dark:border-slate-600"
 							/>
-							<div className="flex flex-col">
-								<label className="block text-gray-500 shrink-0">{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})</label>
-								<textarea
-									value={description}
-									placeholder="What did you worked on..."
-									onChange={(e) => setDescription(e.target.value)}
-									className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
-								/>
-							</div>
+							:
+							<></>
+					}
+				</div> */}
 
-						</>
-					) : (
-						<>
-							<div className="">
-								<label className="block text-gray-500 mb-1">
-									{t('manualTime.TEAM')}<span className="text-[#de5505e1] ml-1">*</span>
-								</label>
-								<SelectItems
-									defaultValue={activeTeam!}
-									items={teams}
-									onValueChange={(team) => setTeam(team)}
-									itemId={(team) => (team ? team.id : '')}
-									itemToString={(team) => (team ? team.name : '')}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
-							<div className="">
-								<label className="block text-gray-500 mb-1">
-									{t('manualTime.TASK')}<span className="text-[#de5505e1] ml-1">*</span>
-								</label>
-								<SelectItems
-									defaultValue={activeTeamTask}
-									items={tasks}
-									onValueChange={(task) => setTaskId(task ? task.id : '')}
-									itemId={(task) => (task ? task.id : '')}
-									itemToString={(task) => (task ? task.title : '')}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
+				{params === 'AddManuelTime' ? (
+					<>
+						<ManageOrMemberComponent
+							fields={fields}
+							itemsLists={memberItemsLists}
+							selectedValues={selectedValues}
+							onSelectedValuesChange={handleSelectedValuesChange}
+							handleChange={handleChange}
+							itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
+							itemToValue={(item, valueKey) => getNestedValue(item, valueKey) || ''}
+						/>
+						<div className="flex flex-col">
+							<label className="block text-gray-500 shrink-0">
+								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
+							</label>
+							<textarea
+								value={description}
+								placeholder="What did you worked on..."
+								onChange={(e) => setDescription(e.target.value)}
+								className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+							/>
+						</div>
+					</>
+				) : (
+					<>
+						<div className="">
+							<label className="block text-gray-500 mb-1">
+								{t('manualTime.TEAM')}
+								<span className="text-[#de5505e1] ml-1">*</span>
+							</label>
+							<SelectItems
+								defaultValue={activeTeam!}
+								items={teams}
+								onValueChange={(team) => setTeam(team)}
+								itemId={(team) => (team ? team.id : '')}
+								itemToString={(team) => (team ? team.name : '')}
+								triggerClassName="border-gray-300 dark:border-slate-600"
+							/>
+						</div>
+						<div className="">
+							<label className="block text-gray-500 mb-1">
+								{t('manualTime.TASK')}
+								<span className="text-[#de5505e1] ml-1">*</span>
+							</label>
+							<SelectItems
+								defaultValue={activeTeamTask}
+								items={tasks}
+								onValueChange={(task) => setTaskId(task ? task.id : '')}
+								itemId={(task) => (task ? task.id : '')}
+								itemToString={(task) => (task ? task.title : '')}
+								triggerClassName="border-gray-300 dark:border-slate-600"
+							/>
+						</div>
 
-							<div className="flex flex-col">
-								<label className="block text-gray-500 shrink-0">{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})</label>
-								<textarea
-									value={description}
-									placeholder="What worked on? "
-									onChange={(e) => setDescription(e.target.value)}
-									className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
-								/>
-							</div>
+						<div className="flex flex-col">
+							<label className="block text-gray-500 shrink-0">
+								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
+							</label>
+							<textarea
+								value={description}
+								placeholder="What worked on? "
+								onChange={(e) => setDescription(e.target.value)}
+								className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+							/>
+						</div>
 
-							<div className="">
-								<label className="block text-gray-500 mb-1">{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})</label>
-								<SelectItems
-									items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
-									onValueChange={(reason) => setReason(reason)}
-									itemId={(reason) => reason}
-									defaultValue={t('manualTime.reasons.DEFAULT')}
-									itemToString={(reason) => reason}
-									triggerClassName="border-gray-300 dark:border-slate-600"
-								/>
-							</div>
-						</>
-					)
-
-				}
+						<div className="">
+							<label className="block text-gray-500 mb-1">
+								{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})
+							</label>
+							<SelectItems
+								items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
+								onValueChange={(reason) => setReason(reason)}
+								itemId={(reason) => reason}
+								defaultValue={t('manualTime.reasons.DEFAULT')}
+								itemToString={(reason) => reason}
+								triggerClassName="border-gray-300 dark:border-slate-600"
+							/>
+						</div>
+					</>
+				)}
 
 				<div
 					className={clsxm(
-						"flex items-center w-full pt-2",
-						params === 'AddManuelTime' ? "justify-center" : "justify-between"
-					)}>
+						'flex items-center w-full pt-2',
+						params === 'AddManuelTime' ? 'justify-center' : 'justify-between'
+					)}
+				>
 					<>
 						{params === 'AddTime' && (
 							<Button
@@ -387,19 +415,16 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 							disabled={addManualTimeLoading}
 							type="submit"
 							className={clsxm(
-								"bg-[#3826A6] font-bold flex items-center text-white",
-								`${params === 'AddManuelTime' && "w-full"}`
-							)}>
+								'bg-[#3826A6] font-bold flex items-center text-white',
+								`${params === 'AddManuelTime' && 'w-full'}`
+							)}
+						>
 							Add Time
 						</Button>
 					</>
 				</div>
-				{
-					errorMsg && (
-						<div className="m-2 text-[#ff6a00de]">{errorMsg}</div>
-					)
-				}
+				{errorMsg && <div className="m-2 text-[#ff6a00de]">{errorMsg}</div>}
 			</form>
-		</Modal >
+		</Modal>
 	);
 }

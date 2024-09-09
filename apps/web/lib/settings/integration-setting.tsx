@@ -77,7 +77,7 @@ export const IntegrationSetting = () => {
 		}
 	}, [metaData, integrationTenant]);
 
-	const { loading: loadingIntegrationTypes, integrationTypes, getIntegrationTypes } = useIntegrationTypes();
+	const { getIntegrationTypes } = useIntegrationTypes();
 
 	useEffect(() => {
 		if (!integrationTenantLoading && integrationTenant && integrationTenant.length) {
@@ -86,15 +86,13 @@ export const IntegrationSetting = () => {
 	}, [integrationTenantLoading, integrationTenant, getRepositories]);
 
 	useEffect(() => {
-		if (!loadingIntegrationTypes && integrationTypes.length === 0) {
-			getIntegrationTypes().then((types) => {
-				const allIntegrations = types.find((item: any) => item.name === 'All Integrations');
-				if (allIntegrations && allIntegrations?.id) {
-					getIntegrationTenant('Github');
-				}
-			});
-		}
-	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
+		getIntegrationTypes().then((types) => {
+			const allIntegrations = types.find((item: any) => item.name === 'All Integrations');
+			if (allIntegrations && allIntegrations?.id) {
+				getIntegrationTenant('Github');
+			}
+		});
+	}, [getIntegrationTypes, getIntegrationTenant]);
 
 	const handleSelectRepo = useCallback(
 		(value: string) => {

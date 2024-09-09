@@ -296,7 +296,8 @@
 			"LOGIN": "Zaloguj się",
 			"SELECT_WORKSPACE": "Wybierz Przestrzeń Roboczą",
 			"ENTER_EMAIL": "Wprowadź E-mail",
-			"WORKSPACES_NOT_FOUND": "Nie znaleziono Przestrzeni Roboczych"
+			"WORKSPACES_NOT_FOUND": "Nie znaleziono Przestrzeni Roboczych",
+			"INVALID_CODE_TRY_AGAIN": "Nieprawidłowy Kod. Proszę spróbować ponownie."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Dołącz do istniejącego zespołu",

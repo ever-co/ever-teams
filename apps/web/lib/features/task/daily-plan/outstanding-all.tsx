@@ -6,7 +6,7 @@ import { useRecoilValue } from 'recoil';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { ITeamTask } from '@app/interfaces';
 import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';
@@ -20,7 +20,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 	const displayedTaskId = new Set();
 
 	const tasks = outstandingPlans.map((plan) => plan.tasks).reduce((red, curr) => red?.concat(curr || []), []);
-	const [task, setTask] = useState<ITeamTask[]>(tasks!);
+	const [task, setTask] = useState<ITeamTask[]>(() => tasks ?? []);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -37,7 +37,7 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 							type="COLUMN"
 							direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
 						>
-							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+							{(provided: DroppableProvided) => (
 								<ul
 									ref={provided.innerRef}
 									{...provided.droppableProps}

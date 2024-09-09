@@ -12,6 +12,7 @@ import { taskBlockFilterState } from '@app/stores/task-filter';
 import { OT_Member } from '@app/interfaces';
 import { Container } from 'lib/components';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { useMemo } from 'react';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -24,23 +25,28 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const fullWidth = useRecoilValue(fullWidthState);
 	const { activeTeam } = useOrganizationTeams();
 	const { teamsFetching } = useOrganizationTeams();
-	const members = (activeTeam?.members || []).filter(member => member.employee !== null);
+	const members = (activeTeam?.members || []).filter((member) => member.employee !== null);
 	const orderedMembers = [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
 
-	const blockViewMembers =
-		activeFilter == 'all'
+	const blockViewMembers = useMemo(() => {
+		return activeFilter == 'all'
 			? orderedMembers
 			: activeFilter == 'idle'
 				? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
 				: orderedMembers.filter((m) => m.timerStatus === activeFilter);
+	}, [activeFilter, orderedMembers]);
 
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
-	const $members = members
-		.filter((member) => member.id !== currentUser?.id)
-		.sort((a, b) => {
-			if (a.order && b.order) return a.order > b.order ? -1 : 1;
-			else return -1;
-		});
+
+	const $members = useMemo(() => {
+		return members
+			.filter((member) => member.id !== currentUser?.id)
+			.sort((a, b) => {
+				if (a.order && b.order) return a.order > b.order ? -1 : 1;
+				else return -1;
+			});
+	}, [members, currentUser]);
+
 	const $teamsFetching = teamsFetching && members.length === 0;
 
 	let teamMembersView;
