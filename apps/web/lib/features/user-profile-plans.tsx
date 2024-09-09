@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
 import { TaskCard } from './task/task-card';
@@ -195,12 +195,16 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const canSeeActivity = useCanSeeActivityScreen();
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
-	const plans = filterDailyPlan(date as any, filteredPlans.current);
+	const [plans, setPlans] = useState(filteredPlans.current);
+
+	useEffect(() => {
+		setPlans(filterDailyPlan(date as any, filteredPlans.current));
+	}, [date, filteredPlans.current]);
 
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, () => {})}>
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
@@ -366,19 +370,26 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const t = useTranslations();
 	// Get all tasks's estimations time
 	// Helper function to sum times
-	const sumTimes = (tasks: ITeamTask[], key: any) =>
-		tasks
-			?.map((task: any) => task[key])
-			.filter((time): time is number => typeof time === 'number')
-			.reduce((acc, cur) => acc + cur, 0) ?? 0;
+	const sumTimes = useCallback((tasks: ITeamTask[], key: any) => {
+		return (
+			tasks
+				?.map((task: any) => task[key])
+				.filter((time): time is number => typeof time === 'number')
+				.reduce((acc, cur) => acc + cur, 0) ?? 0
+		);
+	}, []);
 
 	// Get all tasks' estimation and worked times
-	const estimatedTime = plan.tasks ? sumTimes(plan.tasks, 'estimate') : 0;
-	const totalWorkTime = plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0;
+	const estimatedTime = useMemo(() => (plan.tasks ? sumTimes(plan.tasks, 'estimate') : 0), [plan.tasks]);
+	const totalWorkTime = useMemo(() => (plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0), [plan.tasks]);
 
 	// Get completed and ready tasks from a plan
-	const completedTasks = plan.tasks?.filter((task) => task.status === 'completed').length ?? 0;
-	const readyTasks = plan.tasks?.filter((task) => task.status === 'ready').length ?? 0;
+	const completedTasks = useMemo(
+		() => plan.tasks?.filter((task) => task.status === 'completed').length ?? 0,
+		[plan.tasks]
+	);
+
+	const readyTasks = useMemo(() => plan.tasks?.filter((task) => task.status === 'ready').length ?? 0, [plan.tasks]);
 
 	// Total tasks for the plan
 	const totalTasks = plan.tasks?.length ?? 0;
