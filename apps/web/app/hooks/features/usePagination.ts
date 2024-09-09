@@ -68,7 +68,7 @@ export function useScrollPagination<T>({
 		return () => {
 			container.removeEventListener('scroll', handleScroll);
 		};
-	}, [enabled]);
+	}, [$scrollableElement.current, enabled]);
 
 	useEffect(() => {
 		const newItems = items.slice(0, defaultItemsPerPage * page);
