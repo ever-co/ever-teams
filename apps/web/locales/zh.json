@@ -200,7 +200,9 @@
 		"PAUSED": "暂停",
 		"ONLINE": "在线",
 		"SKIP_ADD_LATER": "稍后添加",
-		"DAILYPLAN": "計劃中"
+		"DAILYPLAN": "計劃中",
+		"INVITATION_SENT": "邀请已发送",
+		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "总预计时间超过您的计划时间，请优化您的计划",
 				"PLAN_MORE_TASKS": "请在计划中添加更多任务"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "更改活动任务",
+			"MESSAGE": "您即将开始今天的计划 {defaultPlannedTask}，但仍有未完成的活动任务 {activeTask}"
 		}
 	},
 	"form": {

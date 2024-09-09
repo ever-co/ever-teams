@@ -200,7 +200,9 @@
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
 		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
-		"DAILYPLAN": "מְתוּכנָן"
+		"DAILYPLAN": "מְתוּכנָן",
+		"INVITATION_SENT": "ההזמנה נשלחה בהצלחה",
+		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}."
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "הזמן הכולל המשוער חורג מהזמן המתוכנן, אנא מיטב את התוכנית שלך",
 				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "שנה משימה פעילה",
+			"MESSAGE": "אתה עומד להתחיל לעבוד על התוכנית של היום {defaultPlannedTask}, אבל עדיין יש לך משימה פעילה {activeTask}"
 		}
 	},
 	"form": {

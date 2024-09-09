@@ -200,7 +200,9 @@
 		"PAUSED": "Gepauzeerd",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Later toevoegen",
-		"DAILYPLAN": "Gepland"
+		"DAILYPLAN": "Gepland",
+		"INVITATION_SENT": "Uitnodiging verzonden",
+		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "De totale geschatte tijd overschrijdt uw geplande tijd, optimaliseer uw plan alstublieft",
 				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Actieve Taak Wijzigen",
+			"MESSAGE": "Je staat op het punt om te beginnen met het plan van vandaag {defaultPlannedTask}, maar hebt nog een actieve taak {activeTask}"
 		}
 	},
 	"form": {

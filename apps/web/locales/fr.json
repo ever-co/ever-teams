@@ -200,7 +200,9 @@
 		"PAUSED": "En pause",
 		"ONLINE": "En ligne",
 		"SKIP_ADD_LATER": "Ajouter plus tard",
-		"DAILYPLAN": "Planifié"
+		"DAILYPLAN": "Planifié",
+		"INVITATION_SENT": "Invitation envoyée avec succès",
+		"INVITATION_SENT_TO_USER": "Une invitation a été envoyée à {email}."
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "Le temps total estimé dépasse votre temps planifié, veuillez optimiser votre plan",
 				"PLAN_MORE_TASKS": "Veuillez ajouter plus de tâches au plan"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Changer de tâche active",
+			"MESSAGE": "Vous êtes sur le point de commencer à travailler sur le plan d'aujourd'hui {defaultPlannedTask}, mais vous avez encore une tâche active {activeTask}"
 		}
 	},
 	"form": {

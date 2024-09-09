@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { PiWarningCircleFill } from 'react-icons/pi';
-import { Card, InputField, Modal, SpinnerLoader, Text, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Modal, SpinnerLoader, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useAuthenticateUser, useDailyPlan, useModal, useTeamTasks, useTimerView } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
@@ -13,42 +13,148 @@ import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
 import { clsxm } from '@app/utils';
-import { TaskDetailsModal } from './task-details-modal';
 import { formatIntegerToHour } from '@app/helpers';
+import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
+import { ActiveTaskHandlerModal } from './active-task-handler-modal';
+import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
+import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { Cross2Icon } from '@radix-ui/react-icons';
 
+/**
+ * A modal that allows user to add task estimation / planned work time, etc.
+ *
+ * @param {Object} props - The props Object
+ * @param {boolean} props.open - If true open the modal otherwise close the modal
+ * @param {() => void} props.closeModal - A function to close the modal
+ * @param {IDailyPlan} props.plan - The selected plan
+ * @param {ITeamTask[]} props.tasks - The list of planned tasks
+ * @param {boolean} props.isRenderedInSoftFlow - If true use the soft flow logic.
+ *
+ * @returns {JSX.Element} The modal element
+ */
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
 	plan: IDailyPlan;
 	tasks: ITeamTask[];
+	isRenderedInSoftFlow?: boolean;
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
-	const { isOpen, closeModal, plan, tasks } = props;
+	const { isOpen, closeModal, plan, tasks, isRenderedInSoftFlow = true } = props;
+	const {
+		isOpen: isActiveTaskHandlerModalOpen,
+		closeModal: closeActiveTaskHandlerModal,
+		openModal: openActiveTaskHandlerModal
+	} = useModal();
 
 	const t = useTranslations();
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
 	const { startTimer } = useTimerView();
 	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
-
-	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
+	const [showSearchInput, setShowSearchInput] = useState(false);
+	const [workTimePlanned, setWorkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
 	const [warning, setWarning] = useState('');
+	const [loading, setLoading] = useState(false);
+	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
+	const isActiveTaskPlanned = useMemo(
+		() => plan.tasks?.some((task) => task.id == activeTeamTask?.id),
+		[activeTeamTask?.id, plan.tasks]
+	);
+
+	const canStartWorking = useMemo(() => {
+		const isTodayPlan =
+			new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+
+		return isTodayPlan;
+		// Can add others conditions
+	}, [plan.date]);
 
 	const handleCloseModal = useCallback(() => {
-		localStorage.setItem(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate);
+		if (canStartWorking) {
+			localStorage.setItem(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate);
+		}
 		closeModal();
-		startTimer();
-	}, [closeModal, currentDate, startTimer]);
+	}, [canStartWorking, closeModal, currentDate]);
 
-	const handleSubmit = useCallback(() => {
-		updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+	/**
+	 * The function that close the Planned tasks modal when the user ignores the modal (Today's plan)
+	 */
+	const closeModalAndStartTimer = useCallback(() => {
 		handleCloseModal();
-	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
+		if (canStartWorking) {
+			startTimer();
+		}
+	}, [canStartWorking, handleCloseModal, startTimer]);
 
+	/**
+	 * The function that opens the Change task modal if conditions are met (or start the timer)
+	 */
+	const handleChangeActiveTask = useCallback(() => {
+		if (isActiveTaskPlanned) {
+			if (defaultTask?.id !== activeTeamTask?.id) {
+				setActiveTask(defaultTask);
+			}
+
+			if (!isRenderedInSoftFlow) {
+				handleCloseModal();
+			}
+			startTimer();
+		} else {
+			openActiveTaskHandlerModal();
+		}
+	}, [
+		activeTeamTask?.id,
+		defaultTask,
+		handleCloseModal,
+		isActiveTaskPlanned,
+		openActiveTaskHandlerModal,
+		isRenderedInSoftFlow,
+		setActiveTask,
+		startTimer
+	]);
+
+	/**
+	 * The function which is called when the user clicks on the 'Start working' button
+	 */
+	const handleSubmit = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			// Update the plan work time only if the user changed it
+			plan.workTimePlanned !== workTimePlanned && (await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+
+			if (canStartWorking) {
+				handleChangeActiveTask();
+
+				if (isRenderedInSoftFlow) {
+					handleCloseModal();
+				}
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	}, [
+		canStartWorking,
+		handleChangeActiveTask,
+		handleCloseModal,
+		plan.id,
+		plan.workTimePlanned,
+		isRenderedInSoftFlow,
+		updateDailyPlan,
+		workTimePlanned
+	]);
+
+	/**
+	 * The function that handles warning messages for the
+	 * difference of time (planned work / total estimated)
+	 */
 	const checkPlannedAndEstimateTimeDiff = useCallback(() => {
 		if (workTimePlanned) {
 			if (workTimePlanned > tasksEstimationTimes) {
@@ -62,6 +168,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tasksEstimationTimes, workTimePlanned]);
 
+	// Handle warning messages
 	useEffect(() => {
 		if (!workTimePlanned || workTimePlanned <= 0) {
 			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
@@ -95,108 +202,351 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		if (!sortedTasks.find((task) => task.id == activeTeamTask?.id)) {
 			[...sortedTasks].forEach((task) => {
 				if (task.estimate !== null && task.estimate > 0) {
-					isOpen && setActiveTask(task);
+					if (isOpen) {
+						setDefaultTask(task);
+						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
+					}
 				}
 			});
+		} else {
+			if (isOpen && activeTeamTask) {
+				setDefaultTask(activeTeamTask);
+				window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, activeTeamTask.id);
+			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isOpen]);
+	}, [isOpen, tasks]);
 
-	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
-			<Card className="w-full" shadow="custom">
-				<div className="flex w-[32rem] flex-col justify-between">
-					<div className="mb-7">
-						<Text.Heading as="h3" className="mb-3 text-center">
-							{t('timer.todayPlanSettings.TITLE')}
-						</Text.Heading>
-						<div className="mb-7 w-full flex flex-col gap-4">
-							<span className="text-sm">
-								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
-							</span>
-							<div className="w-full flex gap-3 h-[3rem]">
-								<InputField
-									type="number"
-									placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-									className="h-full"
-									wrapperClassName=" h-full"
-									onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
-									required
-									noWrapper
-									min={0}
-									value={workTimePlanned}
-									defaultValue={plan.workTimePlanned ?? 0}
-								/>
-								<div className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center">
-									<AddIcon className="w-4 h-4 text-dark dark:text-white" />
-								</div>
-							</div>
-						</div>
-						<div className="text-sm flex flex-col gap-3">
-							<div className="text-sm flex flex-col gap-3">
-								<div className="w-full flex items-center justify-between gap-2">
-									<div className="flex items-center justify-center gap-1">
-										<span>{t('task.TITLE_PLURAL')}</span>
-										<span className="text-red-600">*</span>
-									</div>
-									<div className="flex items-center justify-center gap-1">
-										<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
-										<span className=" font-medium">
-											{formatIntegerToHour(tasksEstimationTimes)}
-										</span>
-									</div>
-								</div>
-								<div className="flex flex-col gap-1">
-									{sortedTasks.map((task, index) => (
-										<TaskCard plan={plan} key={index} task={task} />
-									))}
-								</div>
-							</div>
-							<div className="flex gap-2 text-sm h-6 text-red-500">
-								{warning && (
-									<>
-										<PiWarningCircleFill />
-										<span>{warning}</span>
-									</>
-								)}
-							</div>
+	// Update the working planned time
+	useEffect(() => {
+		setWorkTimePlanned(plan.workTimePlanned);
+	}, [plan]);
+
+	const content = (
+		<div className="flex w-full flex-col justify-between">
+			<div className="w-full flex flex-col gap-4">
+				{isRenderedInSoftFlow && (
+					<Text.Heading as="h3" className="mb-3 text-center">
+						{t('timer.todayPlanSettings.TITLE')}
+					</Text.Heading>
+				)}
+
+				{showSearchInput ? (
+					<SearchTaskInput
+						defaultTask={defaultTask}
+						setDefaultTask={setDefaultTask}
+						setShowSearchInput={setShowSearchInput}
+						selectedPlan={plan}
+					/>
+				) : (
+					<div className=" w-full flex flex-col gap-2">
+						<span className="text-sm">
+							{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
+						</span>
+						<div className="w-full flex gap-3 h-[3rem]">
+							<InputField
+								type="number"
+								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+								className="h-full"
+								wrapperClassName=" h-full"
+								onChange={(e) => setWorkTimePlanned(parseFloat(e.target.value))}
+								required
+								noWrapper
+								min={0}
+								value={workTimePlanned}
+								defaultValue={plan.workTimePlanned ?? 0}
+							/>
+							<button
+								onClick={() => {
+									setShowSearchInput(true);
+								}}
+								className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
+							>
+								<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+							</button>
 						</div>
 					</div>
-					<div className="mt-6 flex justify-between items-center">
-						<Button
-							variant="outline"
-							type="submit"
-							className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-							onClick={handleCloseModal}
-						>
-							{t('common.SKIP_ADD_LATER')}
-						</Button>
-						<Button
-							disabled={warning ? true : false}
-							variant="default"
-							type="submit"
-							className={clsxm(
-								'py-3 px-5 rounded-md font-light text-md dark:text-white',
-								warning && 'bg-gray-400'
+				)}
+
+				<div className="text-sm flex flex-col gap-3">
+					<div className="text-sm flex flex-col gap-3">
+						<div className="text-sm flex flex-col gap-2">
+							<div className="w-full flex items-center justify-between gap-2">
+								<div className="flex items-center justify-center gap-1">
+									<span>{t('task.TITLE_PLURAL')}</span>
+									<span className="text-red-600">*</span>
+								</div>
+								<div className="flex items-center justify-center gap-1">
+									<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+									<span className=" font-medium">{formatIntegerToHour(tasksEstimationTimes)}</span>
+								</div>
+							</div>
+							<div className="h-80">
+								<ScrollArea className="w-full h-full">
+									<ul className=" flex flex-col gap-2">
+										{sortedTasks.map((task, index) => (
+											<TaskCard
+												plan={plan}
+												key={index}
+												task={task}
+												setDefaultTask={setDefaultTask}
+												isDefaultTask={task.id == defaultTask?.id}
+											/>
+										))}
+									</ul>
+									<ScrollBar className="-pr-20" />
+								</ScrollArea>
+							</div>
+						</div>
+						<div className="flex gap-2 items-center text-sm h-6 text-red-500">
+							{warning && (
+								<>
+									<PiWarningCircleFill />
+									<span className=" text-xs">{warning}</span>
+								</>
 							)}
-							onClick={handleSubmit}
-						>
-							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
-						</Button>
+						</div>
 					</div>
 				</div>
-			</Card>
-		</Modal>
+				<div className=" flex justify-between items-center">
+					<Button
+						disabled={loading}
+						variant="outline"
+						type="submit"
+						className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+						onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
+					>
+						{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
+					</Button>
+					<Button
+						disabled={warning || loading ? true : false}
+						variant="default"
+						type="submit"
+						className={clsxm(
+							'py-3 px-5 w-40 rounded-md font-light flex items-center justify-center text-md dark:text-white',
+							warning && 'bg-gray-400'
+						)}
+						onClick={handleSubmit}
+					>
+						{loading ? (
+							<SpinnerLoader variant="light" size={20} />
+						) : canStartWorking ? (
+							t('timer.todayPlanSettings.START_WORKING_BUTTON')
+						) : (
+							'Edit plan'
+						)}
+					</Button>
+				</div>
+			</div>
+		</div>
+	);
+
+	return (
+		<>
+			{isRenderedInSoftFlow ? (
+				<Modal isOpen={isOpen} closeModal={closeModalAndStartTimer} showCloseIcon={requirePlan ? false : true}>
+					<Card className="w-[36rem]" shadow="custom">
+						{content}
+					</Card>
+				</Modal>
+			) : (
+				content
+			)}
+
+			{defaultTask && (
+				<ActiveTaskHandlerModal
+					defaultPlannedTask={defaultTask}
+					open={isActiveTaskHandlerModalOpen}
+					closeModal={() => {
+						if (!isRenderedInSoftFlow) {
+							handleCloseModal();
+						}
+						closeActiveTaskHandlerModal();
+					}}
+				/>
+			)}
+		</>
 	);
 }
 
-interface ITaskCardProps {
-	task: ITeamTask;
-	plan: IDailyPlan;
+/**
+ * ----------------------------------------------------------------
+ * 		--------- Search / Add / Create task input -----------
+ * ----------------------------------------------------------------
+ */
+
+interface ISearchTaskInputProps {
+	selectedPlan: IDailyPlan;
+	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
+	setDefaultTask: Dispatch<SetStateAction<ITeamTask | null>>;
+	defaultTask: ITeamTask | null;
 }
 
-function TaskCard({ task, plan }: ITaskCardProps) {
-	const { setActiveTask, activeTeamTask, getTaskById } = useTeamTasks();
+/**
+ * Search task input
+ *
+ * @param {Object} props - The props object
+ * @param {string} props.selectedPlan - The selected plan
+ * @param {Dispatch<SetStateAction<boolean>>} props.setShowSearchInput - A setter for (showing / hiding) the input
+ * @param {Dispatch<SetStateAction<ITeamTask>>} props.setDefaultTask - A function that sets default planned task
+ * @param {ITeamTask} props.defaultTask - The default planned task
+ *
+ * @returns The Search input component
+ */
+function SearchTaskInput(props: ISearchTaskInputProps) {
+	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask } = props;
+	const { tasks: teamTasks, createTask } = useTeamTasks();
+	const { taskStatus } = useTaskStatus();
+	const [taskName, setTaskName] = useState('');
+	const [tasks, setTasks] = useState<ITeamTask[]>([]);
+	const [createTaskLoading, setCreateTaskLoading] = useState(false);
+	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
+	const t = useTranslations();
+
+	// The ref for the popover button (rendered as an input)
+	const searchInputRef = useRef<HTMLButtonElement>(null);
+
+	const isTaskPlanned = useCallback(
+		(taskId: string) => {
+			return selectedPlan?.tasks?.some((task) => task.id == taskId);
+		},
+		[selectedPlan.tasks]
+	);
+
+	useEffect(() => {
+		setTasks(
+			teamTasks
+				.filter((task) => task.title.toLowerCase().includes(taskName.toLowerCase()))
+				// Put the unplanned tasks at the top of the list.
+				.sort((task1, task2) => {
+					if (isTaskPlanned(task1.id) && !isTaskPlanned(task2.id)) {
+						return 1;
+					} else if (!isTaskPlanned(task1.id) && isTaskPlanned(task2.id)) {
+						return -1;
+					} else {
+						return 0;
+					}
+				})
+		);
+	}, [isTaskPlanned, selectedPlan.tasks, taskName, teamTasks]);
+
+	const handleCreateTask = useCallback(async () => {
+		try {
+			setCreateTaskLoading(true);
+			if (taskName.trim().length < 5) return;
+			await createTask({
+				taskName: taskName.trim(),
+				status: taskStatus[0].name,
+				taskStatusId: taskStatus[0].id,
+				issueType: 'Bug' // TODO: Let the user choose the issue type
+			});
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setCreateTaskLoading(false);
+		}
+	}, [createTask, taskName, taskStatus]);
+
+	/**
+	 * Focus on the search input when the popover is mounted.
+	 */
+	useEffect(() => {
+		searchInputRef.current?.focus();
+	}, []);
+
+	return (
+		<Popover className={clsxm('relative z-20 w-full')}>
+			<div className="w-full flex flex-col gap-2 items-start">
+				<span className="text-sm">Select or create task for the plan</span>
+				<div className="w-full flex gap-3 h-[3rem]">
+					<Popover.Button
+						placeholder={'Select or create task for the plan'}
+						className={clsxm(
+							'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
+							'input-border',
+							'py-2 px-4 rounded-[10px]',
+							'text-sm outline-none ',
+							'h-[50px] w-full',
+							'font-light tracking-tight',
+							'h-full z-50 w-full px-3 focus:outline-none'
+						)}
+						required
+						as="input"
+						ref={searchInputRef}
+						onChange={(e) => setTaskName(e.target.value)}
+						onFocus={() => setIsSearchInputFocused(true)}
+						value={taskName}
+					/>
+					<button
+						onClick={() => {
+							setShowSearchInput(false);
+						}}
+						className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
+					>
+						<Tooltip label={t('common.CLOSE')}>
+							<Cross2Icon className="text-xl cursor-pointer" />
+						</Tooltip>
+					</button>
+				</div>
+			</div>
+
+			<Popover.Panel static={isSearchInputFocused} className={clsxm('absolute mt-1  w-full')}>
+				{tasks.length ? (
+					<Card shadow="custom" className="h-[25rem] border shadow-lg !p-3">
+						<ScrollArea className="w-full h-full">
+							<ul className="w-full h-full flex flex-col gap-2">
+								{tasks.map((task, index) => (
+									<li key={index}>
+										<TaskCard
+											viewListMode={isTaskPlanned(task.id) ? 'planned' : 'searched'}
+											task={task}
+											plan={selectedPlan}
+											setDefaultTask={setDefaultTask}
+											isDefaultTask={task.id == defaultTask?.id}
+										/>
+									</li>
+								))}
+							</ul>
+							<ScrollBar className="-pr-20" />
+						</ScrollArea>
+					</Card>
+				) : (
+					<Card shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
+						<Button
+							disabled={createTaskLoading || taskName.trim().length < 5}
+							onClick={handleCreateTask}
+							className="w-full h-full min-h-12"
+						>
+							{createTaskLoading ? <SpinnerLoader variant="light" size={20} /> : 'Create Task'}
+						</Button>
+					</Card>
+				)}
+			</Popover.Panel>
+		</Popover>
+	);
+}
+
+/**
+ * ----------------------------------------------------------------
+ * 		-------------------- TASK CARD -----------------------
+ * ----------------------------------------------------------------
+ */
+
+interface ITaskCardProps {
+	task: ITeamTask;
+	setDefaultTask: Dispatch<SetStateAction<ITeamTask | null>>;
+	isDefaultTask: boolean;
+	plan: IDailyPlan;
+	viewListMode?: 'planned' | 'searched';
+}
+
+function TaskCard(props: ITaskCardProps) {
+	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask } = props;
+	const { getTaskById } = useTeamTasks();
+	const { addTaskToPlan } = useDailyPlan();
+	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
+	const isTaskRenderedInTodayPlan =
+		new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {
 		isOpen: isTaskDetailsModalOpen,
 		closeModal: closeTaskDetailsModal,
@@ -209,31 +559,62 @@ function TaskCard({ task, plan }: ITaskCardProps) {
 		openTaskDetailsModal();
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
-    const t = useTranslations();
-    
+	const t = useTranslations();
+
+	/**
+	 * The function that adds the task to the selected plan
+	 */
+	const handleAddTask = useCallback(async () => {
+		try {
+			setAddToPlanLoading(true);
+
+			if (plan.id) await addTaskToPlan({ taskId: task.id }, plan.id);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setAddToPlanLoading(false);
+		}
+	}, [addTaskToPlan, plan.id, task.id]);
+
 	return (
 		<Card
 			shadow="custom"
 			className={clsx(
 				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
-				task.id === activeTeamTask?.id && 'border-primary-light border-[0.15rem]'
+				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>
-			<div onClick={() => setActiveTask(task)} className="min-w-[48%] flex items-center h-full max-w-[50%]">
+			<div
+				onClick={() => {
+					if (isTaskRenderedInTodayPlan) {
+						setDefaultTask(task);
+						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id);
+					}
+				}}
+				className="min-w-[48%] flex items-center h-full max-w-[50%]"
+			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
 			<div className="h-full  grow flex items-center justify-end gap-2">
-				<div className="h-full flex items-center justify-center gap-1">
-					<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
-				</div>
-				<span className="w-4 h-full flex items-center justify-center">
-					<TaskCardActions
-						openTaskDetailsModal={handleOpenTaskDetailsModal}
-						selectedPlan={plan}
-						task={task}
-					/>
-				</span>
+				{viewListMode === 'searched' ? (
+					<Button onClick={handleAddTask} variant="outline" className=" mon-h-12" type="button">
+						{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
+					</Button>
+				) : (
+					<>
+						<div className="h-full flex items-center justify-center gap-1">
+							<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
+						</div>
+						<span className="w-4 h-full flex items-center justify-center">
+							<TaskCardActions
+								openTaskDetailsModal={handleOpenTaskDetailsModal}
+								selectedPlan={plan}
+								task={task}
+							/>
+						</span>
+					</>
+				)}
 			</div>
 			<TaskDetailsModal task={task} isOpen={isTaskDetailsModalOpen} closeModal={closeTaskDetailsModal} />
 		</Card>

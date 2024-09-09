@@ -273,6 +273,7 @@ export const USER_SAW_OUTSTANDING_NOTIFICATION = 'user-saw-notif';
 export const DAILY_PLAN_SUGGESTION_MODAL_DATE = 'daily-plan-suggestion-modal-date';
 export const TASKS_ESTIMATE_HOURS_MODAL_DATE = 'tasks-estimate-hours-modal-date';
 export const DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE = 'daily-plan-estimate-hours-modal';
+export const DEFAULT_PLANNED_TASK_ID = 'default-planned-task-id';
 
 // OAuth providers keys
 
@@ -315,7 +316,7 @@ export const manualTimeReasons: ManualTimeReasons[] = [
 ];
 
 export const statusOptions = [
-	{ value: "Approved", label: "Approved" },
-	{ value: "Pending", label: "Pending" },
-	{ value: "Rejected", label: "Rejected" },
+	{ value: 'Approved', label: 'Approved' },
+	{ value: 'Pending', label: 'Pending' },
+	{ value: 'Rejected', label: 'Rejected' }
 ];

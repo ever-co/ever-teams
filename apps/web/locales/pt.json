@@ -200,7 +200,9 @@
 		"PAUSED": "Pausado",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Adicionar depois",
-		"DAILYPLAN": "Planeado"
+		"DAILYPLAN": "Planeado",
+		"INVITATION_SENT": "Convite enviado com sucesso",
+		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}."
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "O tempo total estimado excede o seu tempo planejado, por favor otimize seu plano",
 				"PLAN_MORE_TASKS": "Por favor, adicione mais tarefas ao plano"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Alterar Tarefa Ativa",
+			"MESSAGE": "Está prestes a começar a trabalhar no plano de hoje {defaultPlannedTask}, mas ainda tem a tarefa ativa {activeTask}"
 		}
 	},
 	"form": {

@@ -200,7 +200,9 @@
 		"PAUSED": "Wstrzymany",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Dodaj później",
-		"DAILYPLAN": "Planowane"
+		"DAILYPLAN": "Planowane",
+		"INVITATION_SENT": "Zaproszenie wysłane",
+		"INVITATION_SENT_TO_USER": "Zaproszenie zespołu zostało wysłane do {email}."
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "Całkowity szacowany czas przekracza planowany czas, proszę zoptymalizować swój plan",
 				"PLAN_MORE_TASKS": "Proszę dodać więcej zadań do planu"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Zmień aktywne zadanie",
+			"MESSAGE": "Zaraz zaczniesz pracować nad planem na dziś {defaultPlannedTask}, ale wciąż masz aktywne zadanie {activeTask}"
 		}
 	},
 	"form": {

@@ -200,7 +200,9 @@
 		"PAUSED": "Paused",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Add later",
-		"DAILYPLAN": "Planned"
+		"DAILYPLAN": "Planned",
+		"INVITATION_SENT": "Invitation Sent Successfully",
+		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "Total estimated time exceeds your Planned time, please optimize your plan",
 				"PLAN_MORE_TASKS": "Please add more tasks to the plan"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Change Active Task",
+			"MESSAGE": "You are about to start working on Today's plan {defaultPlannedTask}, but still have active {activeTask}"
 		}
 	},
 	"form": {

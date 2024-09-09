@@ -200,7 +200,9 @@
 		"PAUSED": "متوقف",
 		"ONLINE": "متصل",
 		"SKIP_ADD_LATER": "أضف لاحقًا",
-		"DAILYPLAN": "مخطط"
+		"DAILYPLAN": "مخطط",
+		"INVITATION_SENT": "تم إرسال دعوة بنجاح",
+		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}."
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -615,6 +617,10 @@
 				"OPTIMIZE_PLAN": "الوقت المقدر الإجمالي يتجاوز الوقت المخطط له، يرجى تحسين خطتك",
 				"PLAN_MORE_TASKS": "يرجى إضافة المزيد من المهام إلى الخطة"
 			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "تغيير المهمة النشطة",
+			"MESSAGE": "أنت على وشك البدء في العمل على خطة اليوم {defaultPlannedTask}، لكن لا تزال لديك مهمة نشطة {activeTask}"
 		}
 	},
 	"form": {
