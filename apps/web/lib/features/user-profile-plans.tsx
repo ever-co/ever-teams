@@ -90,7 +90,7 @@ export function UserProfilePlans() {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
 		}
-	}, [currentTab, setCurrentDataDailyPlan, setDate, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
+	}, [currentTab, setCurrentDataDailyPlan, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
@@ -195,16 +195,12 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const canSeeActivity = useCanSeeActivityScreen();
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 
-	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans.current);
-
-	useEffect(() => {
-		setPlans(filterDailyPlan(date as any, filteredPlans.current));
-	}, [date, filteredPlans.current]);
+	const plans = filterDailyPlan(date as any, filteredPlans.current);
 
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(plans) && plans?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, () => {})}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
