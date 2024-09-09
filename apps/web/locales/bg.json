@@ -294,7 +294,8 @@
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
-			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени"
+			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени",
+			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",

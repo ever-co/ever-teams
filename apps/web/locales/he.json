@@ -294,7 +294,8 @@
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
-			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו"
+			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו",
+			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",

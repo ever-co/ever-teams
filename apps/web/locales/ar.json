@@ -294,7 +294,8 @@
 			"LOGIN": "تسجيل الدخول",
 			"SELECT_WORKSPACE": "تحديد مساحة العمل",
 			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
-			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل"
+			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل",
+			"INVALID_CODE_TRY_AGAIN": "رمز غير صالح. الرجاء المحاولة مرة أخرى."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",

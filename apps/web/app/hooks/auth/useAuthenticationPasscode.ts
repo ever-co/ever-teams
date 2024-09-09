@@ -14,6 +14,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -24,6 +25,7 @@ export function useAuthenticationPasscode() {
 	const router = useRouter();
 	const pathname = usePathname();
 	const query = useSearchParams();
+	const t = useTranslations();
 
 	const queryTeamId = query?.get('teamId');
 
@@ -76,15 +78,7 @@ export function useAuthenticationPasscode() {
 	 * Verify auth request
 	 */
 	const verifySignInEmailConfirmRequest = useCallback(
-		async ({
-			email,
-			code,
-			lastTeamId
-		}: {
-			email: string;
-			code: string;
-			lastTeamId?: string;
-		}) => {
+		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
 			signInEmailConfirmQueryCall(email, code)
 				.then((res) => {
 					if ('team' in res.data) {
@@ -100,7 +94,7 @@ export function useAuthenticationPasscode() {
 
 					if (isError) {
 						setErrors({
-							code: 'Invalid code. Please try again.'
+							code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
 						});
 					} else {
 						setErrors({});
@@ -149,8 +143,10 @@ export function useAuthenticationPasscode() {
 						setErrors(err.errors || {});
 					}
 				});
-			// eslint-disable-next-line react-hooks/exhaustive-deps		
-		}, [signInEmailConfirmQueryCall, router, pathname, queryTeamId]);
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		},
+		[signInEmailConfirmQueryCall, router, pathname, queryTeamId]
+	);
 
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
