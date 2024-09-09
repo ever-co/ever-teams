@@ -68,6 +68,8 @@ export function useScrollPagination<T>({
 		return () => {
 			container.removeEventListener('scroll', handleScroll);
 		};
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [$scrollableElement.current, enabled]);
 
 	useEffect(() => {

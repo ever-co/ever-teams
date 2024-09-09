@@ -74,6 +74,31 @@ export function useAuthenticationPasscode() {
 		setFormValues((prevState) => ({ ...prevState, [name]: value }));
 	};
 
+	const signInToWorkspaceRequest = useCallback(
+		(params: {
+			email: string;
+			token: string;
+			selectedTeam: string;
+			code?: string;
+			defaultTeamId?: string;
+			lastTeamId?: string;
+		}) => {
+			signInWorkspaceQueryCall(params)
+				.then(() => {
+					setAuthenticated(true);
+					router.push('/');
+				})
+				.catch((err: AxiosError) => {
+					if (err.response?.status === 400) {
+						setErrors((err.response?.data as any)?.errors || {});
+					}
+
+					inputCodeRef.current?.clear();
+				});
+		},
+		[signInWorkspaceQueryCall, router]
+	);
+
 	/**
 	 * Verify auth request
 	 */
@@ -145,7 +170,7 @@ export function useAuthenticationPasscode() {
 				});
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		},
-		[signInEmailConfirmQueryCall, router, pathname, queryTeamId]
+		[signInEmailConfirmQueryCall, t, signInToWorkspaceRequest, router, pathname, queryTeamId]
 	);
 
 	const verifyPasscodeRequest = useCallback(
@@ -172,28 +197,6 @@ export function useAuthenticationPasscode() {
 		},
 		[queryCall]
 	);
-
-	const signInToWorkspaceRequest = (params: {
-		email: string;
-		token: string;
-		selectedTeam: string;
-		code?: string;
-		defaultTeamId?: string;
-		lastTeamId?: string;
-	}) => {
-		signInWorkspaceQueryCall(params)
-			.then(() => {
-				setAuthenticated(true);
-				router.push('/');
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
-
-				inputCodeRef.current?.clear();
-			});
-	};
 
 	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

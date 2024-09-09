@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { MetaProps } from '../../app/interfaces/hooks';
 
-const Meta = ({ title = 'Gauzy Teams', keywords = '', description = '' }: MetaProps) => {
+const Meta = ({ title = 'Gauzy Teams', keywords = '', description = '' }: Partial<MetaProps>) => {
 	return (
 		<Head>
 			<meta name="keywords" content={keywords} />
