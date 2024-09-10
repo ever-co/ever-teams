@@ -121,7 +121,7 @@ export default function ImageOverlapper({
 
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
-			<div className="relative bg-blue-500 h-full">
+			<div className="relative bg-b h-full">
 				{hasInfo.length > 0 && showInfo && (
 					<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
 						<div className="relative bg-black text-white rounded-[3px]">
@@ -232,13 +232,13 @@ export default function ImageOverlapper({
 				width:
 					imageLength == 1 ? 40 : isMoreThanDisplay ? widthCalculate.length * 33 : widthCalculate.length * 35
 			}}
-			className="relative "
+			className="relative h-10 "
 		>
 			{firstArray.map((image, index) => (
 				<Link key={index} href={onRedirect(image)}>
 					<div
-						className="absolute hover:!z-20 transition-all hover:scale-110"
-						style={{ zIndex: index + 1, left: index * 30, top: isMoreThanDisplay ? -8 : -16 }}
+						className="absolute top-0 hover:!z-20 transition-all hover:scale-110"
+						style={{ zIndex: index + 1, left: index * 30 }}
 					>
 						<Tooltip
 							label={image.alt ?? 'untitled'}

@@ -24,6 +24,8 @@ import { Modal } from './modal';
 import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 import Image from 'next/image';
 import EditStatusModal from '@components/pages/kanban/edit-status-modal';
+import { ScrollArea } from '@components/ui/scroll-bar';
+import { ScrollBar } from '@components/ui/scroll-area';
 
 const grid = 8;
 
@@ -441,7 +443,7 @@ const KanbanDraggable = ({
 	//
 
 	return (
-		<>
+		<div className="w-full h-full">
 			{title && (
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
@@ -450,11 +452,11 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col px-2 h-fit w-[355px]"
+							className="relative h-full flex flex-col px-2 overflow-hidden w-[355px]"
 						>
 							{title ? (
-								<>
-									<div>
+								<div className="h-full w-full">
+									<div className=" h-12">
 										<KanbanDraggableHeader
 											title={title}
 											icon={icon}
@@ -467,23 +469,26 @@ const KanbanDraggable = ({
 											backgroundColor={backgroundColor}
 										/>
 									</div>
-									<div className="flex flex-col ">
-										<KanbanDroppable
-											isLoading={isLoading}
-											title={title}
-											droppableId={title}
-											type={'TASK'}
-											content={items}
-										/>
-										<button
-											onClick={() => openModal()}
-											className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
-										>
-											<AddIcon className=" h-5 w-5" />
-											<p>{t('common.CREATE_TASK')}</p>
-										</button>
+									<div className="flex h-[calc(100%-3rem)] overflow-hidden flex-col ">
+										<ScrollArea className="w-full h-full">
+											<KanbanDroppable
+												isLoading={isLoading}
+												title={title}
+												droppableId={title}
+												type={'TASK'}
+												content={items}
+											/>
+											<button
+												onClick={() => openModal()}
+												className="flex flex-row items-center text-sm not-italic w-full font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+											>
+												<AddIcon className=" h-5 w-5" />
+												<p>{t('common.CREATE_TASK')}</p>
+											</button>
+											<ScrollBar className="-pr-20" />
+										</ScrollArea>
 									</div>
-								</>
+								</div>
 							) : null}
 						</div>
 					)}
@@ -492,7 +497,7 @@ const KanbanDraggable = ({
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
-		</>
+		</div>
 	);
 };
 
