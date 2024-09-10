@@ -54,7 +54,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const { startTimer } = useTimerView();
 	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
-	const [workTimePlanned, setWorkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
+	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
@@ -65,6 +65,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		() => plan.tasks?.some((task) => task.id == activeTeamTask?.id),
 		[activeTeamTask?.id, plan.tasks]
 	);
+	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -249,12 +250,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
 								className="h-full"
 								wrapperClassName=" h-full"
-								onChange={(e) => setWorkTimePlanned(parseFloat(e.target.value))}
+								onChange={(e) => {
+									!isNaN(parseInt(e.target.value))
+										? setWorkTimePlanned(parseInt(e.target.value))
+										: setWorkTimePlanned(0);
+								}}
 								required
 								noWrapper
 								min={0}
-								value={workTimePlanned}
-								defaultValue={plan.workTimePlanned ?? 0}
+								value={
+									!isNaN(workTimePlanned) && workTimePlanned.toString() !== '0'
+										? workTimePlanned.toString().replace(/^0+/, '')
+										: isWorkingTimeInputFocused
+											? ''
+											: 0
+								}
+								onFocus={() => setWorkingTimeInputFocused(true)}
+								onBlur={() => setWorkingTimeInputFocused(false)}
+								defaultValue={plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0}
 							/>
 							<button
 								onClick={() => {
