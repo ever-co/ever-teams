@@ -10,7 +10,7 @@ import { memo, useCallback, useMemo } from 'react';
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
-function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
+const Calendar = memo(function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
 	return (
 		<DayPicker
 			showOutsideDays={showOutsideDays}
@@ -91,7 +91,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 			{...props}
 		/>
 	);
-}
+});
 
 function IconRight({ ...props }) {
 	return <ChevronRight className="h-4 w-4" {...props} />;

@@ -211,6 +211,9 @@ interface ICalendarProps {
  * @param {Object} props - The props object
  * @param {Dispatch<SetStateAction<IDailyPlan>>} props.setSelectedFuturePlan - A function that set the selected plan
  * @param {IDailyPlan} props.selectedFuturePlan - The selected plan
+ * @param {IDailyPlan[]} props.plans - Available plans
+ *
+ * @returns {JSX.Element} The Calendar component.
  */
 const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarProps) {
 	const { futurePlans, selectedFuturePlan, setSelectedFuturePlan } = props;
@@ -272,8 +275,6 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 				),
 				selected: clsxm('bg-primary text-white !rounded-full')
 			}}
-			fromMonth={new Date(sortedFuturePlans?.[0]?.date ?? Date.now())}
-			toMonth={new Date(sortedFuturePlans?.[sortedFuturePlans?.length - 1]?.date ?? Date.now())}
 			fromYear={new Date(sortedFuturePlans?.[0]?.date ?? Date.now())?.getFullYear()}
 			toYear={new Date(sortedFuturePlans?.[sortedFuturePlans?.length - 1]?.date ?? Date.now())?.getFullYear()}
 		/>
