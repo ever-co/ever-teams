@@ -25,11 +25,11 @@ export function Footer({ className }: IClassName) {
 			<p className="text-neutral text-xs font-normal leading-4 -tracking-[-0.02em] text-center md:mb-2 mb-7">
 				{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}{' '}
 				<Text.Link href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://ever.team'}>
-					{t('TITLE')}
+					{process.env.NEXT_PUBLIC_APP_NAME}
 				</Text.Link>{' '}
 				{t('layout.footer.BY')}{' '}
 				<Text.Link href={process.env.NEXT_PUBLIC_EVER_PLATFORM_LINK || 'https://ever.co'}>
-					{t('layout.footer.COPY_RIGHT4')}
+					{process.env.NEXT_PUBLIC_COMPANY_NAME}
 				</Text.Link>{' '}
 				{t('layout.footer.RIGHTS_RESERVED')}
 			</p>

@@ -14,7 +14,7 @@ const Footer = () => {
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
 					>
-						{t('layout.footer.COPY_RIGHT4')}
+						{process.env.NEXT_PUBLIC_APP_NAME}
 					</a>
 					<div>by</div>
 					<a
@@ -23,7 +23,7 @@ const Footer = () => {
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
 					>
-						{t('layout.footer.COMPANY_NAME')}
+						{process.env.NEXT_PUBLIC_COMPANY_NAME}
 					</a>{' '}
 					<div className="hidden space-x-2 xs:flex sm:hidden">
 						<ToggleThemeContainer />
