@@ -15,6 +15,7 @@ import stc from 'string-to-color';
 import { Check } from 'lucide-react';
 import { cn } from 'lib/utils';
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
+import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@app/constants';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -35,6 +36,10 @@ export function CreateDailyPlanFormModal({
 	const { user } = useAuthenticateUser();
 	const { activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const { createDailyPlan, createDailyPlanLoading, profileDailyPlans } = useDailyPlan();
+	const latestOption: 'Select' | 'Select & Close' | null = useMemo(
+		() => window.localStorage.getItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL) as 'Select' | 'Select & Close',
+		[]
+	);
 
 	const existingPlanDates = useMemo(
 		() => profileDailyPlans.items.map((plan) => new Date(plan.date)),
@@ -60,10 +65,12 @@ export function CreateDailyPlanFormModal({
 
 	const handleSelect = useCallback(() => {
 		reset();
+		window.localStorage.setItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL, 'Select');
 	}, [reset]);
 
 	const handleSelectAndClose = useCallback(() => {
 		handleCloseModal();
+		window.localStorage.setItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL, 'Select & Close');
 	}, [handleCloseModal]);
 
 	const onSubmit = useCallback(
@@ -99,6 +106,12 @@ export function CreateDailyPlanFormModal({
 		]
 	);
 
+	// Use the last selected option if there is one
+	const lastSelectedOption = useMemo(
+		() => (latestOption ? (latestOption == 'Select' ? handleSelect : handleSelectAndClose) : handleSelectAndClose),
+		[handleSelect, handleSelectAndClose, latestOption]
+	);
+
 	return (
 		<Modal isOpen={open} closeModal={handleCloseModal}>
 			<form className="w-[98%] md:w-[430px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
@@ -112,7 +125,7 @@ export function CreateDailyPlanFormModal({
 						</div>
 
 						{/* Form Fields */}
-						<div className="flex flex-col w-full gap-3">
+						<div className="flex flex-col w-full gap-6">
 							{chooseMember && isManagerConnectedUser && (
 								<MembersList
 									activeTeam={activeTeam}
@@ -120,15 +133,6 @@ export function CreateDailyPlanFormModal({
 									handleMemberClick={handleMemberClick}
 								/>
 							)}
-
-							{/* <InputField
-								type="number"
-								placeholder="Working time to plan"
-								className="mb-0 min-w-[350px]"
-								wrapperClassName="mb-0 rounded-lg"
-								// required
-								{...register('workTimePlanned')}
-							/> */}
 
 							{planMode === 'custom' && (
 								<div className="flex justify-center w-full">
@@ -139,40 +143,49 @@ export function CreateDailyPlanFormModal({
 									/>
 								</div>
 							)}
-							<div className={clsxm(planMode === 'custom' ? 'flex justify-between gap-5' : '')}>
+							<div className={clsxm(planMode === 'custom' ? 'flex justify-between gap-5 h-10' : '')}>
 								<Button
 									variant="outline"
 									type="button"
-									className="px-7 py-4 font-normal rounded-xl text-md"
+									className="px-7 py-4 w-36 font-light rounded-md"
 									onClick={() => closeModal()}
 								>
 									Cancel
 								</Button>
-								<div className="relative w-40  inline-block text-left">
-									<Button
-										type="button"
-										className={clsxm(
-											'font-normal flex items-center justify-between w-full rounded-xl text-md',
-											createDailyPlanLoading ? 'justify-center' : 'justify-between'
-										)}
-										onClick={() => setIsOpen(!isOpen)}
-									>
-										{createDailyPlanLoading ? (
-											<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
-										) : (
-											<>
-												<span>Select date</span>
+								<div
+									className={clsxm(
+										'w-40 relative font-medium h-full text-xs bg-primary  cursor-pointer inline-block rounded-md border text-left',
+										createDailyPlanLoading ? 'justify-center' : 'justify-between'
+									)}
+								>
+									{createDailyPlanLoading ? (
+										<ReloadIcon className="animate-spin text-white h-4 w-4" />
+									) : (
+										<div className="w-full  h-full items-center overflow-hidden justify-between flex">
+											<Button
+												onClick={lastSelectedOption}
+												className="w-full text-sm text-white h-full font-light flex items-center justify-center "
+											>
+												{latestOption ?? 'Select & close'}
+											</Button>
+
+											<div
+												onClick={() => setIsOpen(!isOpen)}
+												className=" flex items-center text-white justify-center w-8 h-full border-l"
+											>
 												<MdOutlineKeyboardArrowDown
+													size={10}
 													className={cn(
-														'h-6 w-6 transition-transform',
+														'w-6 h-6 flex items-center justify-center transition-transform font-light',
 														isOpen && 'rotate-180'
 													)}
 												/>
-											</>
-										)}
-									</Button>
+											</div>
+										</div>
+									)}
+
 									{isOpen && (
-										<div className="absolute right-0 w-full mt-2 p-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+										<div className="absolute z-5 right-0 w-full mt-2 p-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 											<div className="flex w-full flex-col items-center gap-1">
 												<Button
 													disabled={createDailyPlanLoading}
