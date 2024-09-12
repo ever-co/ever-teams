@@ -154,12 +154,13 @@ export function CreateDailyPlanFormModal({
 								</Button>
 								<div
 									className={clsxm(
-										'w-40 relative font-medium h-full text-xs bg-primary  cursor-pointer inline-block rounded-md border text-left',
-										createDailyPlanLoading ? 'justify-center' : 'justify-between'
+										'w-40 relative font-medium h-full text-xs bg-primary  cursor-pointer inline-block items-center rounded-md border text-left'
 									)}
 								>
 									{createDailyPlanLoading ? (
-										<ReloadIcon className="animate-spin text-white h-4 w-4" />
+										<div className="w-full h-full flex items-center justify-center">
+											<ReloadIcon className="animate-spin text-white h-4 w-4" />
+										</div>
 									) : (
 										<div className="w-full  h-full items-center overflow-hidden justify-between flex">
 											<Button
