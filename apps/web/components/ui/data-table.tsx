@@ -78,7 +78,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 											style={{
 												textAlign: index === 0 ? 'left' : 'center'
 											}}
-											className="!w-40  text-base"
+											className="!w-40 text-base"
 											key={header.id}
 										>
 											<Tooltip label={isTooltip as string} className="" enabled={!!isTooltip}>
@@ -86,9 +86,9 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 													{header.isPlaceholder
 														? null
 														: flexRender(
-															header.column.columnDef.header,
-															header.getContext()
-														)}
+																header.column.columnDef.header,
+																header.getContext()
+															)}
 												</div>
 											</Tooltip>
 										</TableHead>
@@ -98,32 +98,39 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 						))}
 					</TableHeader>
 				)}
-				<div className="mt-8 "></div>
+				<div className="mt-8"></div>
 				<TableBody className="divide-y h-40 overflow-y-auto divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
 					{table.getRowModel().rows?.length ? (
-						table.getRowModel().rows.map((row, i) => (
-							<TableRow
-								key={row.id}
-								data-state={row.getIsSelected() && 'selected'}
-								className={clsxm(
-									'my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40',
-									i == 1 && 'max-w-[615px]'
-								)}
-							>
-								{row.getVisibleCells().map((cell, index) => (
-									<TableCell
-										key={cell.id}
-										style={{
-											textAlign: index === 0 ? 'left' : 'center'
-										}}
-										// className="!w-36"
-										className="my-4 !w-fit xl:!w-fit border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C] "
-									>
-										{flexRender(cell.column.columnDef.cell, cell.getContext())}
-									</TableCell>
-								))}
-							</TableRow>
-						))
+						table.getRowModel().rows.map((row, i) => {
+							return (
+								<TableRow
+									key={row.id}
+									data-state={row.getIsSelected() && 'selected'}
+									className={clsxm(
+										'my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40',
+										i == 1 && 'max-w-[615px]'
+									)}
+								>
+									{row.getVisibleCells().map((cell, index) => {
+										return (
+											<TableCell
+												key={cell.id}
+												style={{
+													textAlign: index === 0 ? 'left' : 'center',
+													width: index === 4 ? '2rem' : '13rem'
+												}}
+												// className="!w-36"
+												className={clsxm(
+													'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C]'
+												)}
+											>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</TableCell>
+										);
+									})}
+								</TableRow>
+							);
+						})
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
