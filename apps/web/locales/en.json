@@ -296,7 +296,8 @@
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Select Workspace",
 			"ENTER_EMAIL": "Enter Email",
-			"WORKSPACES_NOT_FOUND": "Workspaces Not Found"
+			"WORKSPACES_NOT_FOUND": "Workspaces Not Found",
+			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",

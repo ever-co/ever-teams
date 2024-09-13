@@ -14,6 +14,7 @@ import {
 	useStatusValue
 } from './task-status';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
@@ -99,30 +100,38 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 	const t = useTranslations();
 	const { item, items, onChange, field } = useActiveTaskStatus(props, taskIssues, 'issueType');
 
-	const validTransitions: Record<IssueType, TStatusItem[]> = {
-		[IssueType.EPIC]: [],
-		[IssueType.STORY]: items.filter((it) => [IssueType.TASK, IssueType.BUG].includes(it.value as IssueType)),
+	const validTransitions: Record<IssueType, TStatusItem[]> = useMemo(
+		() => ({
+			[IssueType.EPIC]: [],
+			[IssueType.STORY]: items.filter((it) => [IssueType.TASK, IssueType.BUG].includes(it.value as IssueType)),
 
-		[IssueType.TASK]: items.filter((it) => [IssueType.STORY, IssueType.BUG].includes(it.value as IssueType)),
+			[IssueType.TASK]: items.filter((it) => [IssueType.STORY, IssueType.BUG].includes(it.value as IssueType)),
 
-		[IssueType.BUG]: items.filter((it) => [IssueType.STORY, IssueType.TASK].includes(it.value as IssueType))
-	};
+			[IssueType.BUG]: items.filter((it) => [IssueType.STORY, IssueType.TASK].includes(it.value as IssueType))
+		}),
+		[items]
+	);
 
-	let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
+	const updatedItemsBasedOnTaskIssueType = useMemo(() => {
+		let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
+		if (props.task && props.task?.issueType && props.task.parent) {
+			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
 
-	if (props.task && props.task?.issueType && props.task.parent) {
-		updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
-
-		// If parent task is already Story then user can not assign current task as a Story
-		if (props.task.parent.issueType === 'Story') {
-			updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter((it) => it.value !== 'Story');
+			// If parent task is already Story then user can not assign current task as a Story
+			if (props.task.parent.issueType === 'Story') {
+				updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter(
+					(it) => it.value !== 'Story'
+				);
+			}
+		} else if (props.task && props.task?.issueType) {
+			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+		} else {
+			// Default show types in Dropdown
+			updatedItemsBasedOnTaskIssueType = items;
 		}
-	} else if (props.task && props.task?.issueType) {
-		updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
-	} else {
-		// Default show types in Dropdown
-		updatedItemsBasedOnTaskIssueType = items;
-	}
+
+		return updatedItemsBasedOnTaskIssueType;
+	}, [props.task, items, validTransitions]);
 
 	return (
 		<StatusDropdown

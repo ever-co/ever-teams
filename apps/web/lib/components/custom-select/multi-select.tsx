@@ -71,7 +71,7 @@ export function MultiSelect<T>({
         if (triggerRef.current) {
             setPopoverWidth(triggerRef.current.offsetWidth);
         }
-    }, [triggerRef.current]);
+    }, []);
 
     return (
         <div className="relative w-full overflow-hidden">

@@ -32,7 +32,7 @@ export function useGetTasksStatsData(employeeId: string | undefined, triggerWith
 		if (entry?.isIntersecting && supported) {
 			loadTaskStats();
 		}
-	}, [employeeId, triggerWithIObserver, entry]);
+	}, [employeeId, triggerWithIObserver, entry, getTasksStatsData]);
 
 	return IObserverRef;
 }

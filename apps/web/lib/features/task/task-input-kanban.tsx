@@ -171,31 +171,35 @@ export function TaskInputKanban(props: Props) {
 				});
 	}, [datas, props, onTaskCreated]);
 
-	let updatedTaskList: ITeamTask[] = [];
-	if (props.forParentChildRelationship) {
-		if (
-			// Story can have ParentId set to Epic ID
-			props.task?.issueType === 'Story'
-		) {
-			updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
-		} else if (
-			// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-			props.task?.issueType === 'Task' ||
-			props.task?.issueType === 'Bug' ||
-			!props.task?.issueType
-		) {
-			updatedTaskList = datas.filteredTasks.filter(
-				(item) => item.issueType === 'Epic' || item.issueType === 'Story'
-			);
-		} else {
-			updatedTaskList = datas.filteredTasks;
+	const updatedTaskList = useMemo(() => {
+		let updatedTaskList: ITeamTask[] = [];
+		if (props.forParentChildRelationship) {
+			if (
+				// Story can have ParentId set to Epic ID
+				props.task?.issueType === 'Story'
+			) {
+				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
+			} else if (
+				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
+				props.task?.issueType === 'Task' ||
+				props.task?.issueType === 'Bug' ||
+				!props.task?.issueType
+			) {
+				updatedTaskList = datas.filteredTasks.filter(
+					(item) => item.issueType === 'Epic' || item.issueType === 'Story'
+				);
+			} else {
+				updatedTaskList = datas.filteredTasks;
+			}
+
+			if (props.task?.children && props.task?.children?.length) {
+				const childrenTaskIds = props.task?.children?.map((item) => item.id);
+				updatedTaskList = updatedTaskList.filter((item) => !childrenTaskIds.includes(item.id));
+			}
 		}
 
-		if (props.task?.children && props.task?.children?.length) {
-			const childrenTaskIds = props.task?.children?.map((item) => item.id);
-			updatedTaskList = updatedTaskList.filter((item) => !childrenTaskIds.includes(item.id));
-		}
-	}
+		return updatedTaskList;
+	}, [props.task, datas.filteredTasks]);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {

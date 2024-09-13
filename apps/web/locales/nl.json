@@ -296,7 +296,8 @@
 			"LOGIN": "Inloggen",
 			"SELECT_WORKSPACE": "Selecteer werkruimte",
 			"ENTER_EMAIL": "Voer e-mail in",
-			"WORKSPACES_NOT_FOUND": "Werkruimtes niet gevonden"
+			"WORKSPACES_NOT_FOUND": "Werkruimtes niet gevonden",
+			"INVALID_CODE_TRY_AGAIN": "Ongeldige code. Probeer opnieuw."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",

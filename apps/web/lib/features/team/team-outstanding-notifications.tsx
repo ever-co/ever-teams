@@ -25,7 +25,7 @@ export function TeamOutstandingNotifications() {
 
 	return (
 		<div className="flex flex-col gap-4">
-			{outstandingPlans && outstandingPlans.length > 0 && (
+			{outstandingPlans.length > 0 && (
 				<UserOutstandingNotification outstandingPlans={outstandingPlans} user={user} />
 			)}
 

@@ -66,7 +66,7 @@ export function TaskAllStatusTypes({
 		);
 	}, [taskLabels, task?.tags]);
 
-	const taskId = planBadgeContPast(dailyPlan.items, task!.id);
+	const taskId = task ? planBadgeContPast(dailyPlan.items, task.id) : '';
 
 	return (
 		<div className="relative w-full h-full flex flex-col justify-center">

@@ -85,7 +85,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 				});
 			}
 		},
-		[edit, createNew, formOnly, onCreated, editTaskVersion, user, reset, createTaskVersion, refetch]
+		[edit, createNew, formOnly, onCreated, editTaskVersion, user, reset, createTaskVersion, refetch, $onVersionCreated]
 	);
 
 	return (

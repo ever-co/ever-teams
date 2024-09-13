@@ -62,7 +62,7 @@ const Kanban = () => {
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: t('common.KANBAN'), href: `/${currentLocale}/kanban` }
 		],
-		[activeTeam?.name, currentLocale]
+		[activeTeam?.name, currentLocale, t]
 	);
 
 	const activeTeamMembers = activeTeam?.members ? activeTeam.members : [];
