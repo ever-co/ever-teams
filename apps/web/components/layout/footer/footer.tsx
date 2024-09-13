@@ -2,6 +2,9 @@ import ToggleThemeContainer from '../toggleThemeBtns';
 import { useTranslations } from 'next-intl';
 
 const Footer = () => {
+	const appName = process.env.APP_NAME;
+	const companyName = process.env.COMPANY_NAME;
+
 	const t = useTranslations();
 	return (
 		<footer className="flex flex-col items-center justify-between py-2 text-sm font-light text-center md:flex-row lg:text-base sm:text-start x-container-fluid">
@@ -14,7 +17,7 @@ const Footer = () => {
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
 					>
-						{process.env.NEXT_PUBLIC_APP_NAME}
+						{appName}
 					</a>
 					<div>by</div>
 					<a
@@ -23,7 +26,7 @@ const Footer = () => {
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"
 					>
-						{process.env.NEXT_PUBLIC_COMPANY_NAME}
+						{companyName}
 					</a>{' '}
 					<div className="hidden space-x-2 xs:flex sm:hidden">
 						<ToggleThemeContainer />

@@ -114,6 +114,12 @@ const nextConfig = {
 			}
 		];
 	},
+	env: {
+		APP_NAME: process.env.APP_NAME,
+		APP_SIGNATURE: process.env.APP_SIGNATURE,
+		APP_LOGO_URL: process.env.APP_LOGO_URL,
+		COMPANY_NAME: process.env.COMPANY_NAME
+	},
 	...sentryConfig
 };
 

@@ -8,7 +8,7 @@ type Props = IClassName<{
 }>;
 
 export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
-	const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
+	const logoUrl = process.env.APP_LOGO_URL;
 	return (
 		<Link href={dash ? '/' : process.env.NEXT_PUBLIC_EVER_TEAMS_LINK!} target="_self">
 			{logoUrl ? (
