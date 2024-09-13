@@ -13,6 +13,8 @@ type Props = {
 } & PropsWithChildren;
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
+	const mainPicture = process.env.MAIN_PICTURE;
+	const mainPictureDark = process.env.MAIN_PICTURE_DARK;
 	const t = useTranslations();
 
 	return (
@@ -35,38 +37,36 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 
 						<div className="relative w-[110%] h-full min-h-[800px]">
-							{[process.env.NEXT_PUBLIC_BG_COVER!, process.env.NEXT_PUBLIC_BG_COVER_DARK!].map(
-								(image, index) => {
-									const isDarkModeImage = index === 1; // The second image is the dark mode one
-									return (
-										<div
-											className={clsxm(
-												'ml-[12%] rounded-3xl absolute w-full h-full inset-0',
-												[
-													!isDarkModeImage && ['opacity-100 dark:opacity-0'],
-													isDarkModeImage && ['opacity-0 dark:opacity-100']
-												],
-												'shadow-[-76px_-13px_244px_-42px_rgba(40,32,72,0.55)]',
-												'dark:shadow-[-76px_-13px_244px_-42px_rgba(0,0,0,0.75)]'
-											)}
-											key={image}
-										>
-											<Image
-												src={image}
-												layout="responsive"
-												objectFit="fill"
-												priority
-												width={2880}
-												height={2840}
-												alt={t('TITLE')}
-												className={
-													'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
-												}
-											/>
-										</div>
-									);
-								}
-							)}
+							{[mainPicture!, mainPictureDark!].map((image, index) => {
+								const isDarkModeImage = index === 1; // The second image is the dark mode one
+								return (
+									<div
+										className={clsxm(
+											'ml-[12%] rounded-3xl absolute w-full h-full inset-0',
+											[
+												!isDarkModeImage && ['opacity-100 dark:opacity-0'],
+												isDarkModeImage && ['opacity-0 dark:opacity-100']
+											],
+											'shadow-[-76px_-13px_244px_-42px_rgba(40,32,72,0.55)]',
+											'dark:shadow-[-76px_-13px_244px_-42px_rgba(0,0,0,0.75)]'
+										)}
+										key={image}
+									>
+										<Image
+											src={image}
+											layout="responsive"
+											objectFit="fill"
+											priority
+											width={2880}
+											height={2840}
+											alt={t('TITLE')}
+											className={
+												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
+											}
+										/>
+									</div>
+								);
+							})}
 						</div>
 					</div>
 

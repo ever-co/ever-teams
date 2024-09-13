@@ -122,7 +122,9 @@ const nextConfig = {
 		COMPANY_NAME: process.env.COMPANY_NAME,
 		COMPANY_LINK: process.env.COMPANY_LINK,
 		TERMS_LINK: process.env.TERMS_LINK,
-		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK
+		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK,
+		MAIN_PICTURE: process.env.MAIN_PICTURE,
+		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK
 	},
 	...sentryConfig
 };
