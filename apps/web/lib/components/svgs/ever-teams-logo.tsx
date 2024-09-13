@@ -13,7 +13,22 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 	return (
 		<Link href={dash ? '/' : appLink!} target="_self">
 			{appLogoUrl ? (
-				<img src={appLogoUrl} alt="EverTeams Logo" width={128.104} height={25} />
+				<img
+					src={appLogoUrl}
+					id="ever-teams-logo"
+					className={clsxm(
+						'cursor-pointer',
+						color === 'auto' && ['dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'],
+						color === 'white' && ['brightness-0 invert'],
+						color === 'dark' && ['brightness-0 invert-0'],
+						color === 'white-black' && ['brightness-0 invert dark:invert-0 fill-white dark:fill-black'],
+						color === 'black-white' && ['brightness-0 invert-0 dark:invert'],
+						className
+					)}
+					alt="EverTeams Logo"
+					width={128.104}
+					height={25}
+				/>
 			) : (
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
