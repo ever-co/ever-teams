@@ -3,7 +3,11 @@ import { useTranslations } from 'next-intl';
 
 const Footer = () => {
 	const appName = process.env.APP_NAME;
+	const appLink = process.env.APP_LINK || 'https://ever.team';
 	const companyName = process.env.COMPANY_NAME;
+	const companyLink = process.env.COMPANY_LINK || 'https://ever.co';
+	const termsLink = process.env.TERMS_LINK;
+	const privacyPolicyLink = process.env.PRIVACY_POLICY_LINK;
 
 	const t = useTranslations();
 	return (
@@ -11,21 +15,11 @@ const Footer = () => {
 			<div className="flex flex-col space-x-1 text-center text-light sm:flex-row md:flex-start sm:items-center md:flex-row">
 				<div className="flex items-center justify-between space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>
-					<a
-						href={process.env.NEXT_PUBLIC_EVER_TEAMS_LINK || 'https://ever.team'}
-						target="_blank"
-						className="text-primary dark:text-gray-300"
-						rel="noreferrer"
-					>
+					<a href={appLink} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
 						{appName}
 					</a>
 					<div>by</div>
-					<a
-						href={process.env.NEXT_PUBLIC_EVER_PLATFORM_LINK || 'https://ever.co'}
-						target="_blank"
-						className="text-primary dark:text-gray-300"
-						rel="noreferrer"
-					>
+					<a href={companyLink} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
 						{companyName}
 					</a>{' '}
 					<div className="hidden space-x-2 xs:flex sm:hidden">
@@ -40,16 +34,11 @@ const Footer = () => {
 
 			<div className="flex flex-col items-center xs:flex-row sm:flex-col md:flex-row">
 				<div className="flex justify-center w-full space-x-4 text-center">
-					<a
-						href={process.env.NEXT_PUBLIC_EVER_LEGAL_TERM}
-						target="_blank"
-						className="text-primary dark:text-gray-300"
-						rel="noreferrer"
-					>
+					<a href={termsLink} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
 						{t('layout.footer.TERMS')}
 					</a>
 					<a
-						href={process.env.NEXT_PUBLIC_EVER_LEGAL_PRIVACY}
+						href={privacyPolicyLink}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"

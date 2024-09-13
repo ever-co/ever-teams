@@ -118,7 +118,11 @@ const nextConfig = {
 		APP_NAME: process.env.APP_NAME,
 		APP_SIGNATURE: process.env.APP_SIGNATURE,
 		APP_LOGO_URL: process.env.APP_LOGO_URL,
-		COMPANY_NAME: process.env.COMPANY_NAME
+		APP_LINK: process.env.APP_LINK,
+		COMPANY_NAME: process.env.COMPANY_NAME,
+		COMPANY_LINK: process.env.COMPANY_LINK,
+		TERMS_LINK: process.env.TERMS_LINK,
+		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK
 	},
 	...sentryConfig
 };
