@@ -39,7 +39,7 @@ export class PackageUtil {
 		if (pkg) {
 			const packager = PackagerFactory.packager(this.instance.desktop);
 			const packed = packager?.prepare(pkg);
-			console.log('packaed', packed);
+
 			fs.writeFileSync(
 				this.instance.filePath,
 				JSON.stringify(packed, null, 4)

@@ -15,9 +15,8 @@ export class PlatformLogoGenerator
 			'apps',
 			this.desktop,
 			'src',
-			'assets',
-			'images',
-			'logos'
+			'recourses',
+			'icons'
 		);
 	}
 
@@ -26,7 +25,7 @@ export class PlatformLogoGenerator
 		console.log('✔ Resizing and converting platform logo...', extName);
 		const platformLogoFilePath = path.join(
 			this.destination,
-			`platform_logo${extName}`
+			`platform-logo${extName}`
 		);
 		await new Promise((resolve, reject) =>
 			fs.copyFile(filePath, platformLogoFilePath, async (err) => {
@@ -39,7 +38,7 @@ export class PlatformLogoGenerator
 					return;
 				}
 				// load image from assets
-				DesktopEnvironmentManager.environment.PLATFORM_LOGO = `./assets/images/logos/platform_logo${extName}`;
+				DesktopEnvironmentManager.environment.PLATFORM_LOGO = `../../../resources/icons/platform-logo${extName}`;
 				// remove downloaded file
 				await this.remove(filePath);
 				console.log(`✔ ${extName} copied successfully.`);

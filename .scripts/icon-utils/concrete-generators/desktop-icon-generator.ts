@@ -14,7 +14,7 @@ export class DesktopIconGenerator
 	constructor() {
 		super();
 		this.imageUrl = env.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512;
-		this.destination = path.join('apps', this.desktop, 'src', 'icons');
+		this.destination = path.join('apps', this.desktop, 'assets');
 	}
 	generateMenuIcon(originalImage: Jimp): Promise<void> {
 		throw new Error('Method not implemented.');
@@ -38,7 +38,7 @@ export class DesktopIconGenerator
 					);
 					reject(error);
 				} else {
-					DesktopEnvironmentManager.environment.GAUZY_DESKTOP_LOGO_512X512 =
+					DesktopEnvironmentManager.environment.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512 =
 						'./assets/icons/desktop_logo_512x512.png';
 					console.log(
 						'✔ desktop logo 512x512 icons generated successfully.'
@@ -107,10 +107,8 @@ export class DesktopIconGenerator
 		const pngFilePath = path.join(
 			'apps',
 			this.desktop,
-			'src',
-			'resources',
-			'icons',
-			'tray'
+			'assets',
+			'icons'
 		);
 		for (const scale of scales) {
 			const size = REF_SIZE * scale;
