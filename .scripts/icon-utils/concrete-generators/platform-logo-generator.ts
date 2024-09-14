@@ -15,7 +15,7 @@ export class PlatformLogoGenerator
 			'apps',
 			this.desktop,
 			'src',
-			'recourses',
+			'resources',
 			'icons'
 		);
 	}
