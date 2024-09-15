@@ -82,8 +82,8 @@ export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity
 export const COMPANY_NAME = process.env.COMPANY_NAME || 'Ever Co. LTD';
 export const COMPANY_LINK = process.env.COMPANY_LINK || 'https://ever.co';
 
-export const TERMS_LINK = process.env.TERMS_LINK || 'https://demo.gauzy.co/#/pages/legal/terms';
-export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK || 'https://demo.gauzy.co/#/pages/legal/privacy';
+export const TERMS_LINK = process.env.TERMS_LINK || 'https://ever.team/tos';
+export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy';
 
 export const MAIN_PICTURE = process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
 export const MAIN_PICTURE_DARK = process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
@@ -285,7 +285,7 @@ export const TASKS_ESTIMATE_HOURS_MODAL_DATE = 'tasks-estimate-hours-modal-date'
 export const DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE = 'daily-plan-estimate-hours-modal';
 export const DEFAULT_PLANNED_TASK_ID = 'default-planned-task-id';
 
-// OAuth providers keys
+// OAuth provider's keys
 
 export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
 export const APPLE_CLIENT_SECRET = process.env.APPLE_CLIENT_SECRET;
