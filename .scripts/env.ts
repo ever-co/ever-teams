@@ -6,7 +6,7 @@ import {
 export type Env = Readonly<{
     PLATFORM_LOGO: string;
     DESKTOP_SERVER_WEB_APP_NAME: string;
-    DEKSTOP_SERVER_WEB_APP_DESCRIPTION: string;
+    DESKTOP_SERVER_WEB_APP_DESCRIPTION: string;
     DESKTOP_SERVER_WEB_APP_ID: string;
     DESKTOP_SERVER_WEB_APP_REPO_NAME: string;
     DESKTOP_SERVER_WEB_APP_REPO_OWNER: string;
@@ -34,7 +34,7 @@ export const env = cleanEnv(process.env, {
     DESKTOP_SERVER_WEB_APP_NAME: str({
         default: 'ever-teams-server-web'
     }),
-    DEKSTOP_SERVER_WEB_APP_DESCRIPTION: str({
+    DESKTOP_SERVER_WEB_APP_DESCRIPTION: str({
         default: 'Ever Teams Server Web'
     }),
     DESKTOP_SERVER_WEB_APP_ID: str({

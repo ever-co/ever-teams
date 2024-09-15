@@ -37,7 +37,7 @@ export class PackageUtil {
 		return null;
 	}
 
-	public static get pacakgeBuild(): IPackageBuild | null {
+	public static get packageBuild(): IPackageBuild | null {
 		if (fs.existsSync(this.instance.buildFilePath)) {
 			return JSON.parse(
 				fs.readFileSync(this.instance.buildFilePath, { encoding: 'utf8' })
@@ -48,7 +48,7 @@ export class PackageUtil {
 
 	public static update(): void {
 		const pkg = this.package;
-		const pkgBuild = this.pacakgeBuild;
+		const pkgBuild = this.packageBuild;
 		if (pkg) {
 			const packager = PackagerFactory.packager(this.instance.desktop);
 			const packed = packager?.prepare(pkg);

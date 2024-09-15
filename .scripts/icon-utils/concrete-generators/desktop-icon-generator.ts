@@ -185,7 +185,7 @@ export class DesktopIconGenerator
 			}
 			await this.updateLogoPath();
 		} catch (error) {
-			console.error('erropr gernerate', error);
+			console.error('error generate', error);
 		}
 	}
 }
