@@ -1,5 +1,6 @@
 import { IPackage } from '../interfaces/i-package';
 import { IPackager } from '../interfaces/i-packager';
+import { IPackageBuild } from '../interfaces/i-package-build';
 import { env } from '../../env';
 
 export class DesktopPackager implements IPackager {
@@ -13,6 +14,12 @@ export class DesktopPackager implements IPackager {
 			env.DEKSTOP_SERVER_WEB_APP_DESCRIPTION || pkg.build.productName;
 		pkg.build.linux.executableName =
 			env.DESKTOP_SERVER_WEB_APP_NAME || pkg.build.linux.executableName;
+		return pkg;
+	}
+
+	public prepareBuild(pkg: IPackageBuild): IPackageBuild {
+		pkg.description = env.DEKSTOP_SERVER_WEB_APP_DESCRIPTION || pkg.description;
+		pkg.name = env.DESKTOP_SERVER_WEB_APP_NAME || pkg.name;
 		return pkg;
 	}
 }

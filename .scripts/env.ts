@@ -29,7 +29,7 @@ export const env = cleanEnv(process.env, {
         default: 'https://github.com/ever-co/ever-teams'
     }),
     PLATFORM_LOGO: str({
-        default: 'assets/icon.png'
+        default: 'src/resources/icons/platform-logo.png'
     }),
     DESKTOP_SERVER_WEB_APP_NAME: str({
         default: 'ever-teams-server-web'
@@ -53,7 +53,7 @@ export const env = cleanEnv(process.env, {
         default: 'Ever Teams Web Server is a web application that allows you to manage your teams and projects.'
     }),
     DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512: str({
-        default: 'assets/icon.png'
+        default: 'assets/icons/desktop_logo_512x512.png'
     }),
     DESKTOP_SERVER_WEB_APP_DEFAULT_PORT: num({
         default: 3333
