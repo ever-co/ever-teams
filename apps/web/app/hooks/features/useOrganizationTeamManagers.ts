@@ -2,18 +2,21 @@ import { useRecoilValue } from 'recoil';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { filterValue } from '@app/stores/all-teams';
+import { useMemo } from 'react';
 
 export function useOrganizationAndTeamManagers() {
 	const { user } = useAuthenticateUser();
 	const { teams } = useOrganizationTeams();
 	const { value: filtered } = useRecoilValue(filterValue);
 
-	const userManagedTeams = teams.filter((team) =>
-		team.members.some((member) => member.employee?.user?.id === user?.id && member.role?.name === 'MANAGER')
-	);
+	const userManagedTeams = useMemo(() => {
+		return teams.filter((team) =>
+			team.members.some((member) => member.employee?.user?.id === user?.id && member.role?.name === 'MANAGER')
+		);
+	}, [teams, user]);
 
-	const filteredTeams =
-		filtered === 'all'
+	const filteredTeams = useMemo(() => {
+		return filtered === 'all'
 			? userManagedTeams
 			: filtered === 'pause'
 				? userManagedTeams.map((team) => ({
@@ -36,6 +39,7 @@ export function useOrganizationAndTeamManagers() {
 									members: team.members.filter((member) => member.employee.acceptDate)
 								}))
 							: userManagedTeams;
+	}, [filtered, userManagedTeams]);
 
 	return {
 		userManagedTeams,

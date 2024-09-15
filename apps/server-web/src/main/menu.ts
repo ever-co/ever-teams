@@ -5,6 +5,7 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
+import { config } from '../configs/config';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -54,10 +55,10 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: app.getName(),
+      label: config.DESCRIPTION || app.getName(),
       submenu: [
         {
-          label: `About ${app.getName()}`,
+          label: `About ${config.DESCRIPTION || app.getName()}`,
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
@@ -148,7 +149,7 @@ export default class MenuBuilder {
 
     const subMenuView =
       process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true'
+        process.env.DEBUG_PROD === 'true'
         ? subMenuViewDev
         : subMenuViewProd;
 
@@ -173,23 +174,23 @@ export default class MenuBuilder {
         label: '&View',
         submenu:
           process.env.NODE_ENV === 'development' ||
-          process.env.DEBUG_PROD === 'true'
+            process.env.DEBUG_PROD === 'true'
             ? [
-                {
-                  label: '&Reload',
-                  accelerator: 'Ctrl+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  },
+              {
+                label: '&Reload',
+                accelerator: 'Ctrl+R',
+                click: () => {
+                  this.mainWindow.webContents.reload();
                 },
-                {
-                  label: 'Toggle &Developer Tools',
-                  accelerator: 'Alt+Ctrl+I',
-                  click: () => {
-                    this.mainWindow.webContents.toggleDevTools();
-                  },
+              },
+              {
+                label: 'Toggle &Developer Tools',
+                accelerator: 'Alt+Ctrl+I',
+                click: () => {
+                  this.mainWindow.webContents.toggleDevTools();
                 },
-              ]
+              },
+            ]
             : [
               {
                 label: 'Toggle &Developer Tools',
@@ -198,7 +199,7 @@ export default class MenuBuilder {
                   this.mainWindow.webContents.toggleDevTools();
                 },
               },
-              ],
+            ],
       },
       {
         label: 'Help',
@@ -206,21 +207,15 @@ export default class MenuBuilder {
           {
             label: 'Learn More',
             click() {
-              shell.openExternal('https://ever.team/');
+              shell.openExternal(config.COMPANY_SITE_LINK);
             },
           },
           {
             label: 'Documentation',
             click() {
               shell.openExternal(
-                'https://github.com/ever-co/ever-teams/blob/develop/README.md',
+                config.COMPANY_GITHUB_LINK
               );
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/ever-co/ever-teams/issues');
             },
           },
         ],

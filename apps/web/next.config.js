@@ -114,6 +114,19 @@ const nextConfig = {
 			}
 		];
 	},
+	env: {
+		APP_NAME: process.env.APP_NAME,
+		APP_SIGNATURE: process.env.APP_SIGNATURE,
+		APP_LOGO_URL: process.env.APP_LOGO_URL,
+		APP_LINK: process.env.APP_LINK,
+		APP_SLOGAN_TEXT: process.env.APP_SLOGAN_TEXT,
+		COMPANY_NAME: process.env.COMPANY_NAME,
+		COMPANY_LINK: process.env.COMPANY_LINK,
+		TERMS_LINK: process.env.TERMS_LINK,
+		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK,
+		MAIN_PICTURE: process.env.MAIN_PICTURE,
+		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK
+	},
 	...sentryConfig
 };
 

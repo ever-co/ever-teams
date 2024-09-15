@@ -92,7 +92,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 			}
 
 			inviteUser(selectedEmail.title, form.get('name')?.toString() || selectedEmail.name || '')
-				.then(({ data }) => {
+				.then(() => {
 					closeModal();
 					e.currentTarget.reset();
 

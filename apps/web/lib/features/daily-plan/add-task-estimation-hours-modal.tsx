@@ -51,10 +51,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
-	const { startTimer } = useTimerView();
+	const { startTimer, timerStatus } = useTimerView();
 	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
-	const [workTimePlanned, setWorkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
+	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
@@ -65,6 +65,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		() => plan.tasks?.some((task) => task.id == activeTeamTask?.id),
 		[activeTeamTask?.id, plan.tasks]
 	);
+	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -222,6 +223,27 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		setWorkTimePlanned(plan.workTimePlanned);
 	}, [plan]);
 
+	const StartWorkingButton = (
+		<Button
+			disabled={warning || loading || timerStatus?.running ? true : false}
+			variant="default"
+			type="submit"
+			className={clsxm(
+				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
+				warning && 'bg-gray-400'
+			)}
+			onClick={handleSubmit}
+		>
+			{loading ? (
+				<SpinnerLoader variant="light" size={20} />
+			) : canStartWorking ? (
+				t('timer.todayPlanSettings.START_WORKING_BUTTON')
+			) : (
+				'Edit plan'
+			)}
+		</Button>
+	);
+
 	const content = (
 		<div className="flex w-full flex-col justify-between">
 			<div className="w-full flex flex-col gap-4">
@@ -249,12 +271,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
 								className="h-full"
 								wrapperClassName=" h-full"
-								onChange={(e) => setWorkTimePlanned(parseFloat(e.target.value))}
+								onChange={(e) => {
+									!isNaN(parseInt(e.target.value))
+										? setWorkTimePlanned(parseInt(e.target.value))
+										: setWorkTimePlanned(0);
+								}}
 								required
 								noWrapper
 								min={0}
-								value={workTimePlanned}
-								defaultValue={plan.workTimePlanned ?? 0}
+								value={
+									!isNaN(workTimePlanned) && workTimePlanned.toString() !== '0'
+										? workTimePlanned.toString().replace(/^0+/, '')
+										: isWorkingTimeInputFocused
+											? ''
+											: 0
+								}
+								onFocus={() => setWorkingTimeInputFocused(true)}
+								onBlur={() => setWorkingTimeInputFocused(false)}
+								defaultValue={plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0}
 							/>
 							<button
 								onClick={() => {
@@ -318,24 +352,13 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 					>
 						{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
 					</Button>
-					<Button
-						disabled={warning || loading ? true : false}
-						variant="default"
-						type="submit"
-						className={clsxm(
-							'py-3 px-5 w-40 rounded-md font-light flex items-center justify-center text-md dark:text-white',
-							warning && 'bg-gray-400'
-						)}
-						onClick={handleSubmit}
-					>
-						{loading ? (
-							<SpinnerLoader variant="light" size={20} />
-						) : canStartWorking ? (
-							t('timer.todayPlanSettings.START_WORKING_BUTTON')
-						) : (
-							'Edit plan'
-						)}
-					</Button>
+					{timerStatus?.running ? (
+						<Tooltip className="w-40" label="The timer is already running">
+							{StartWorkingButton}
+						</Tooltip>
+					) : (
+						<div className="w-40 h-full">{StartWorkingButton}</div>
+					)}
 				</div>
 			</div>
 		</div>

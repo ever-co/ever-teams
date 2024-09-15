@@ -1,6 +1,6 @@
-import { useModal, useSyncRef, useTeamTasks } from '@app/hooks';
+import { useModal, useTeamTasks } from '@app/hooks';
 import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
-import { detailedTaskState, taskVersionListState } from '@app/stores';
+import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Modal, Tooltip } from 'lib/components';
 import {
@@ -27,8 +27,6 @@ type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
 	const task = useRecoilValue(detailedTaskState);
-	const taskVersion = useRecoilValue(taskVersionListState);
-	const $taskVersion = useSyncRef(taskVersion);
 	const { updateTask } = useTeamTasks();
 
 	const { handleStatusUpdate } = useTeamTasks();
@@ -52,7 +50,7 @@ const TaskSecondaryInfo = () => {
 		(version: ITaskVersionCreate) => {
 			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
 		},
-		[$taskVersion, task, handleStatusUpdate]
+		[task, handleStatusUpdate]
 	);
 
 	const onTaskSelect = useCallback(

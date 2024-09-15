@@ -19,11 +19,12 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 
 	const view = useRecoilValue(dailyPlanViewHeaderTabs);
 	const [pastTasks, setPastTasks] = useState<IDailyPlan[]>(pastPlans);
-	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
+	const { date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 
 	useEffect(() => {
 		setPastTasks(filterDailyPlan(date as any, pastPlans));
-	}, [date, setDate]);
+	}, [date, pastPlans]);
+
 	return (
 		<div className="flex flex-col gap-6">
 			{pastTasks?.length > 0 ? (

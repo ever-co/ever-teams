@@ -9,14 +9,15 @@ import { SixSquareGridIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 
 const SortTasksStatusSettings = ({ arr, onClose }: { arr: ITaskStatusItemList[]; onClose: () => void }) => {
 	const [items, setItems] = useState(arr);
 	const [saveLoader, setSaveLoader] = useState(false);
 	const [saveCheck, setSaveCheck] = useState(false);
 	const organizationId = getOrganizationIdCookie();
-	const [_, setState] = useRecoilState(taskStatusListState);
+	const setState = useSetRecoilState(taskStatusListState);
+
 	const t = useTranslations();
 	const { reOrderQueryCall } = useTaskStatus();
 	const onDragEnd = (result: DropResult) => {
