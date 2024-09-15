@@ -5,6 +5,7 @@ import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Footer } from './footer';
+import { MAIN_PICTURE, MAIN_PICTURE_DARK } from '@app/constants';
 
 type Props = {
 	title?: string;
@@ -35,14 +36,15 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 
 						<div className="relative w-[110%] h-full min-h-[800px]">
-							{['auth-bg-cover.png', 'auth-bg-cover-dark.png'].map((image) => {
+							{[MAIN_PICTURE!, MAIN_PICTURE_DARK!].map((image, index) => {
+								const isDarkModeImage = index === 1; // The second image is the dark mode one
 								return (
 									<div
 										className={clsxm(
 											'ml-[12%] rounded-3xl absolute w-full h-full inset-0',
 											[
-												!image.endsWith('dark.png') && ['opacity-100 dark:opacity-0'],
-												image.endsWith('dark.png') && ['opacity-0 dark:opacity-100']
+												!isDarkModeImage && ['opacity-100 dark:opacity-0'],
+												isDarkModeImage && ['opacity-0 dark:opacity-100']
 											],
 											'shadow-[-76px_-13px_244px_-42px_rgba(40,32,72,0.55)]',
 											'dark:shadow-[-76px_-13px_244px_-42px_rgba(0,0,0,0.75)]'
@@ -50,7 +52,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 										key={image}
 									>
 										<Image
-											src={`/assets/cover/${image}`}
+											src={image}
 											layout="responsive"
 											objectFit="fill"
 											priority
