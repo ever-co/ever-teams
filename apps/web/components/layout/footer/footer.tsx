@@ -1,26 +1,20 @@
+import { APP_LINK, APP_NAME, COMPANY_LINK, COMPANY_NAME, PRIVACY_POLICY_LINK, TERMS_LINK } from '@app/constants';
 import ToggleThemeContainer from '../toggleThemeBtns';
 import { useTranslations } from 'next-intl';
 
 const Footer = () => {
-	const appName = process.env.APP_NAME;
-	const appLink = process.env.APP_LINK || 'https://ever.team';
-	const companyName = process.env.COMPANY_NAME;
-	const companyLink = process.env.COMPANY_LINK || 'https://ever.co';
-	const termsLink = process.env.TERMS_LINK;
-	const privacyPolicyLink = process.env.PRIVACY_POLICY_LINK;
-
 	const t = useTranslations();
 	return (
 		<footer className="flex flex-col items-center justify-between py-2 text-sm font-light text-center md:flex-row lg:text-base sm:text-start x-container-fluid">
 			<div className="flex flex-col space-x-1 text-center text-light sm:flex-row md:flex-start sm:items-center md:flex-row">
 				<div className="flex items-center justify-between space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>
-					<a href={appLink} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
-						{appName}
+					<a href={APP_LINK} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
+						{APP_NAME}
 					</a>
 					<div>by</div>
-					<a href={companyLink} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
-						{companyName}
+					<a href={COMPANY_LINK} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
+						{COMPANY_NAME}
 					</a>{' '}
 					<div className="hidden space-x-2 xs:flex sm:hidden">
 						<ToggleThemeContainer />
@@ -34,11 +28,11 @@ const Footer = () => {
 
 			<div className="flex flex-col items-center xs:flex-row sm:flex-col md:flex-row">
 				<div className="flex justify-center w-full space-x-4 text-center">
-					<a href={termsLink} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
+					<a href={TERMS_LINK} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
 						{t('layout.footer.TERMS')}
 					</a>
 					<a
-						href={privacyPolicyLink}
+						href={PRIVACY_POLICY_LINK}
 						target="_blank"
 						className="text-primary dark:text-gray-300"
 						rel="noreferrer"

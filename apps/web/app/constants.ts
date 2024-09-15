@@ -77,6 +77,16 @@ export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
 export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
 export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png';
 export const APP_LINK = process.env.APP_LINK || 'https://ever.team/';
+export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT;
+
+export const COMPANY_NAME = process.env.COMPANY_NAME;
+export const COMPANY_LINK = process.env.COMPANY_LINK;
+
+export const TERMS_LINK = process.env.TERMS_LINK;
+export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK;
+
+export const MAIN_PICTURE = process.env.MAIN_PICTURE;
+export const MAIN_PICTURE_DARK = process.env.MAIN_PICTURE_DARK;
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 

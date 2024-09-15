@@ -1,3 +1,4 @@
+import { APP_LINK, APP_LOGO_URL } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
@@ -8,13 +9,11 @@ type Props = IClassName<{
 }>;
 
 export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
-	const appLogoUrl = process.env.APP_LOGO_URL;
-	const appLink = process.env.APP_LINK;
 	return (
-		<Link href={dash ? '/' : appLink!} target="_self">
-			{appLogoUrl ? (
+		<Link href={dash ? '/' : APP_LINK!} target="_self">
+			{APP_LOGO_URL ? (
 				<img
-					src={appLogoUrl}
+					src={APP_LOGO_URL}
 					id="ever-teams-logo"
 					className={clsxm(
 						'cursor-pointer',

@@ -1,14 +1,13 @@
+import { APP_LINK, APP_LOGO_URL } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
 
 export function AppLogo({ className, dash }: IClassName & { dash?: boolean }) {
-	const appLogoUrl = process.env.APP_LOGO_URL;
-	const appLink = process.env.APP_LINK;
 	return (
-		<Link href={dash ? '/' : appLink!} target="_self">
-			{appLogoUrl ? (
-				<img src={appLogoUrl} alt="EverTeams Logo" width={128.104} height={25} />
+		<Link href={dash ? '/' : APP_LINK!} target="_self">
+			{APP_LOGO_URL ? (
+				<img src={APP_LOGO_URL} alt="EverTeams Logo" width={128.104} height={25} />
 			) : (
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

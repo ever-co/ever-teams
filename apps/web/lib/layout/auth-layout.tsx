@@ -5,6 +5,7 @@ import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Footer } from './footer';
+import { MAIN_PICTURE, MAIN_PICTURE_DARK } from '@app/constants';
 
 type Props = {
 	title?: string;
@@ -13,8 +14,6 @@ type Props = {
 } & PropsWithChildren;
 
 export function AuthLayout({ children, title, description, isAuthPage = true }: Props) {
-	const mainPicture = process.env.MAIN_PICTURE;
-	const mainPictureDark = process.env.MAIN_PICTURE_DARK;
 	const t = useTranslations();
 
 	return (
@@ -37,7 +36,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 
 						<div className="relative w-[110%] h-full min-h-[800px]">
-							{[mainPicture!, mainPictureDark!].map((image, index) => {
+							{[MAIN_PICTURE!, MAIN_PICTURE_DARK!].map((image, index) => {
 								const isDarkModeImage = index === 1; // The second image is the dark mode one
 								return (
 									<div
