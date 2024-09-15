@@ -87,7 +87,7 @@ export class DesktopEnvironmentManager {
                 this.instance.content(environment, isProd)
             );
 
-            `✔ Generated desktop ${isProd} environment file: ${filePath}`
+            console.log(`✔ Generated desktop ${isProd} environment file: ${filePath}`)
         }
     }
 

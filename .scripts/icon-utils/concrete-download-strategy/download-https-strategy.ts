@@ -2,7 +2,6 @@ import { IDownloadStrategy } from '../interfaces/i-download-strategy';
 import fetch from 'node-fetch';
 import * as path from 'path';
 import * as fs from 'fs';
-import { MIMEType } from 'util';
 
 export class DownloadHttpsStrategy implements IDownloadStrategy {
 	public async download(

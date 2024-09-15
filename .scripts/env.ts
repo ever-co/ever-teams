@@ -1,5 +1,5 @@
 import {
-    cleanEnv, str, bool, num
+    cleanEnv, str, num
 } from 'envalid';
 
 
