@@ -51,7 +51,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
-	const { startTimer } = useTimerView();
+	const { startTimer, timerStatus } = useTimerView();
 	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan.workTimePlanned);
@@ -223,6 +223,27 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		setWorkTimePlanned(plan.workTimePlanned);
 	}, [plan]);
 
+	const StartWorkingButton = (
+		<Button
+			disabled={warning || loading || timerStatus?.running ? true : false}
+			variant="default"
+			type="submit"
+			className={clsxm(
+				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
+				warning && 'bg-gray-400'
+			)}
+			onClick={handleSubmit}
+		>
+			{loading ? (
+				<SpinnerLoader variant="light" size={20} />
+			) : canStartWorking ? (
+				t('timer.todayPlanSettings.START_WORKING_BUTTON')
+			) : (
+				'Edit plan'
+			)}
+		</Button>
+	);
+
 	const content = (
 		<div className="flex w-full flex-col justify-between">
 			<div className="w-full flex flex-col gap-4">
@@ -331,24 +352,13 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 					>
 						{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
 					</Button>
-					<Button
-						disabled={warning || loading ? true : false}
-						variant="default"
-						type="submit"
-						className={clsxm(
-							'py-3 px-5 w-40 rounded-md font-light flex items-center justify-center text-md dark:text-white',
-							warning && 'bg-gray-400'
-						)}
-						onClick={handleSubmit}
-					>
-						{loading ? (
-							<SpinnerLoader variant="light" size={20} />
-						) : canStartWorking ? (
-							t('timer.todayPlanSettings.START_WORKING_BUTTON')
-						) : (
-							'Edit plan'
-						)}
-					</Button>
+					{timerStatus?.running ? (
+						<Tooltip className="w-40" label="The timer is already running">
+							{StartWorkingButton}
+						</Tooltip>
+					) : (
+						<div className="w-40 h-full">{StartWorkingButton}</div>
+					)}
 				</div>
 			</div>
 		</div>
