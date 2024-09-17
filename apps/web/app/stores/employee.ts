@@ -14,5 +14,5 @@ export const workingEmployeesEmailState = atom<string[]>({
 
 export const employeeUpdateState = atom<IUpdateEmployee>({
 	key: 'employeeUpdateState',
-	default: null!,
+	default: undefined,
 })

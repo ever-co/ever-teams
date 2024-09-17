@@ -296,7 +296,8 @@
 			"LOGIN": "Accesso",
 			"SELECT_WORKSPACE": "Seleziona Spazio di Lavoro",
 			"ENTER_EMAIL": "Inserisci l'Email",
-			"WORKSPACES_NOT_FOUND": "Spazi di Lavoro Non Trovati"
+			"WORKSPACES_NOT_FOUND": "Spazi di Lavoro Non Trovati",
+			"INVALID_CODE_TRY_AGAIN": "Codice non valido. Riprova."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",

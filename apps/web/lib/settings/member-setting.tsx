@@ -2,7 +2,7 @@ import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks'
 import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { MemberTable } from './member-table';
 
@@ -15,12 +15,15 @@ export const MemberSetting = () => {
 	const { user } = useAuthenticateUser();
 	const { isOpen, closeModal } = useModal();
 
-	const members =
-		activeTeam?.members.filter(
-			(member) =>
-				member.employee.fullName.toLowerCase().includes(filterString) ||
-				member.employee.user?.email.toLowerCase().includes(filterString)
-		) || [];
+	const members = useMemo(() => {
+		return (
+			activeTeam?.members.filter(
+				(member) =>
+					member.employee.fullName.toLowerCase().includes(filterString) ||
+					member.employee.user?.email.toLowerCase().includes(filterString)
+			) || []
+		);
+	}, [activeTeam, filterString]);
 
 	return (
 		<div className="flex flex-col">

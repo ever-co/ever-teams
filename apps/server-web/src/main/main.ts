@@ -14,10 +14,14 @@ import { WebServer } from './helpers/interfaces';
 import { replaceConfig } from './helpers';
 import Log from 'electron-log';
 import MenuBuilder from './menu';
+import { config } from '../configs/config';
 
 
 console.log = Log.log;
 Object.assign(console, Log.functions);
+
+
+app.name = config.DESCRIPTION;
 
 
 
@@ -90,8 +94,8 @@ i18nextMainBackend.on('initialized', () => {
 let trayMenuItems: any = [];
 
 const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'assets/icons/gauzy')
-  : path.join(__dirname, '../../assets/icons/gauzy');
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../../assets');
 
 const getAssetPath = (...paths: string[]): string => {
   return path.join(RESOURCES_PATH, ...paths);
@@ -111,7 +115,7 @@ const resourceDir = {
 };
 const resourcesFiles = {
   webServer: 'standalone/apps/web/server.js',
-  iconTray: 'icons/tray/icon.png'
+  iconTray: 'icons/icon.png'
 }
 
 const devServerPath = path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer);
@@ -151,10 +155,11 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
   }
 
   const defaultOptionWindow = {
+    title: app.name,
     show: false,
     width: 1024,
     height: 728,
-    icon: getAssetPath('icon.png'),
+    icon: getAssetPath('icons/icon.png'),
     maximizable: false,
     resizable: false,
     webPreferences: {
@@ -249,7 +254,7 @@ const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
   createIntervalAutoUpdate()
   trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-  tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
+  tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
   i18nextMainBackend.on('languageChanged', (lng) => {
     if (i18nextMainBackend.isInitialized) {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);

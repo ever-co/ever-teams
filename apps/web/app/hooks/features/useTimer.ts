@@ -104,7 +104,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 
 	// THis is form constant update of the progress line
 	timerSecondsRef.current = useMemo(() => {
-		// if (!firstLoad) return 0;
+		if (!firstLoad) return 0;
 		if (seconds > timerSecondsRef.current) {
 			return seconds;
 		}

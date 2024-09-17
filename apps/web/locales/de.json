@@ -296,7 +296,8 @@
 			"LOGIN": "Anmelden",
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
-			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden"
+			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden",
+			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",

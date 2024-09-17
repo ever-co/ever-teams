@@ -170,13 +170,17 @@ export function useTaskInput({
 		[updateTask, userRef]
 	);
 
-	const closedTaskCount = filteredTasks2.filter((f_task) => {
-		return f_task.status === 'closed';
-	}).length;
+	const closedTaskCount = useMemo(() => {
+		return filteredTasks2.filter((f_task) => {
+			return f_task.status === 'closed';
+		}).length;
+	}, [filteredTasks2]);
 
-	const openTaskCount = filteredTasks2.filter((f_task) => {
-		return f_task.status !== 'closed';
-	}).length;
+	const openTaskCount = useMemo(() => {
+		return filteredTasks2.filter((f_task) => {
+			return f_task.status !== 'closed';
+		}).length;
+	}, [filteredTasks2]);
 
 	useEffect(() => {
 		setTaskIssue('');

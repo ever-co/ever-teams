@@ -191,7 +191,7 @@ export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string, n
     return (
         <div className='w-full flex items-center'>
             <div className='w-full flex items-center space-x-2 p-1 cursor-pointer hover:bg-gray-100 rounded dark:hover:bg-gray-700'>
-                <Image className='text-white p-1 rounded-full flex items-center justify-center h-8 w-8' src={imageUrl!} alt='' width={90} height={90} />
+                <Image className='text-white p-1 rounded-full flex items-center justify-center h-8 w-8' src={imageUrl ? imageUrl : ''} alt='' width={90} height={90} />
                 <div className='flex items-center space-x-1 w-full'>
                     <span className='text-[14px] font-normal'>{name}</span>
                 </div>
@@ -208,7 +208,7 @@ export const CardItemsProjects = ({ logo, title, totalHours }: { logo?: string, 
     return (
         <div className='flex items-center justify-start space-x-2 w-full pb-2'>
             <div className='flex items-center w-full'>
-                <Image src={logo!} alt='logos' width={100} height={100} className='h-8 w-8 bg-cover rounded-lg flex items-center justify-center' />
+                <Image src={logo ? logo : ''} alt='logos' width={100} height={100} className='h-8 w-8 bg-cover rounded-lg flex items-center justify-center' />
                 <div className='flex items-start flex-col justify-center p-1'>
                     <span className='font-bold text-[14px] sm:text-[16px] overflow-hidden leading-4'>{title}</span>
                     <span className='text-gray-400 text-[12px] leading-4'>{totalHours}</span>

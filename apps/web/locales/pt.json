@@ -296,7 +296,8 @@
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Selecionar Espaço de Trabalho",
 			"ENTER_EMAIL": "Inserir E-mail",
-			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados"
+			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados",
+			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",

@@ -70,10 +70,16 @@ export function HeadTimeSheet({ timesheet, isOpen, openModal, closeModal }: { ti
     return (
 
         <div>
-            <TimeSheetFilter
-                closeModal={closeModal!}
-                isOpen={isOpen!}
-            />
+            {
+                closeModal ? (
+                    <TimeSheetFilter
+                        closeModal={closeModal}
+                        isOpen={isOpen ?? false}
+                    />
+                ) :
+                    <></>
+            }
+
             <div className='flex items-center justify-between w-full  dark:!bg-dark--theme h-28'>
                 {timesheet === 'TimeSheet' && (
                     <div className="flex justify-between items-center w-full p-2  gap-x-3">

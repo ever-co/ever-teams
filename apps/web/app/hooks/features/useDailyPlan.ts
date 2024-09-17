@@ -1,7 +1,7 @@
 'use client';
 
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery } from '../useQuery';
 import {
 	activeTeamState,
@@ -269,77 +269,87 @@ export function useDailyPlan() {
 		]
 	);
 
-	const ascSortedPlans =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-	const futurePlans = ascSortedPlans?.filter((plan) => {
-		const planDate = new Date(plan.date);
-		const today = new Date();
-		today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-		return planDate.getTime() >= today.getTime();
-	});
+	const ascSortedPlans = useMemo(() => {
+		return [...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	}, [profileDailyPlans]);
 
-	const descSortedPlans =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-	const pastPlans = descSortedPlans?.filter((plan) => {
-		const planDate = new Date(plan.date);
-		const today = new Date();
-		today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
-		return planDate.getTime() < today.getTime();
-	});
+	const futurePlans = useMemo(() => {
+		return ascSortedPlans?.filter((plan) => {
+			const planDate = new Date(plan.date);
+			const today = new Date();
+			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+			return planDate.getTime() >= today.getTime();
+		});
+	}, [ascSortedPlans]);
 
-	const todayPlan =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items].filter((plan) =>
+	const descSortedPlans = useMemo(() => {
+		return [...profileDailyPlans.items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+	}, [profileDailyPlans]);
+
+	const pastPlans = useMemo(() => {
+		return descSortedPlans?.filter((plan) => {
+			const planDate = new Date(plan.date);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
+			return planDate.getTime() < today.getTime();
+		});
+	}, [descSortedPlans]);
+
+	const todayPlan = useMemo(() => {
+		return [...profileDailyPlans.items].filter((plan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
 		);
+	}, [profileDailyPlans]);
 
-	const todayTasks = todayPlan
-		.map((plan) => {
-			return plan.tasks ? plan.tasks : [];
-		})
-		.flat();
-
-	const futureTasks =
-		futurePlans &&
-		futurePlans
+	const todayTasks = useMemo(() => {
+		return todayPlan
 			.map((plan) => {
 				return plan.tasks ? plan.tasks : [];
 			})
 			.flat();
+	}, [todayPlan]);
 
-	const outstandingPlans =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items]
-			// Exclude today plans
-			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
-
-			// Exclude future plans
-			.filter((plan) => {
-				const planDate = new Date(plan.date);
-				const today = new Date();
-				today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-				return planDate.getTime() <= today.getTime();
+	const futureTasks = useMemo(() => {
+		return futurePlans
+			.map((plan) => {
+				return plan.tasks ? plan.tasks : [];
 			})
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-			.map((plan) => ({
-				...plan,
-				// Include only no completed tasks
-				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-			}))
-			.map((plan) => ({
-				...plan,
-				// Include only tasks that are not added yet to the today plan or future plans
-				tasks: plan.tasks?.filter(
-					(_task) => ![...todayTasks, ...futureTasks].find((task) => task.id === _task.id)
-				)
-			}))
-			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
+			.flat();
+	}, [futurePlans]);
 
-	const sortedPlans =
-		profileDailyPlans.items &&
-		[...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	const outstandingPlans = useMemo(() => {
+		return (
+			[...profileDailyPlans.items]
+				// Exclude today plans
+				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+
+				// Exclude future plans
+				.filter((plan) => {
+					const planDate = new Date(plan.date);
+					const today = new Date();
+					today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+					return planDate.getTime() <= today.getTime();
+				})
+				.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+				.map((plan) => ({
+					...plan,
+					// Include only no completed tasks
+					tasks: plan.tasks?.filter((task) => task.status !== 'completed')
+				}))
+				.map((plan) => ({
+					...plan,
+					// Include only tasks that are not added yet to the today plan or future plans
+					tasks: plan.tasks?.filter(
+						(_task) => ![...todayTasks, ...futureTasks].find((task) => task.id === _task.id)
+					)
+				}))
+				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
+		);
+	}, [profileDailyPlans, todayTasks, futureTasks]);
+
+	const sortedPlans = useMemo(() => {
+		return [...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	}, [profileDailyPlans]);
 
 	useEffect(() => {
 		if (firstLoad) {
