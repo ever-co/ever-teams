@@ -19,7 +19,7 @@ export const SidebarAccordian = ({ children, title, className, wrapperClassName,
 					{({ open }) => (
 						<>
 							<Disclosure.Button
-								className={`flex w-full justify-between rounded-lg px-4 py-2 text-left font-medium items-center ${wrapperClassName} pt-[0.15rem] pb-0`}
+								className={`flex w-full justify-between rounded-lg px-4 py-2 text-left font-medium items-center ${wrapperClassName} pt-[0.15rem] pb-0 ${open ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-[#6755C9]' : 'border-l-transparent'}`}
 							>
 								<Text
 									className={`text-base dark:text-white  text-center sm:text-left flex items-center gap-2 ${textClassName}`}
@@ -34,7 +34,7 @@ export const SidebarAccordian = ({ children, title, className, wrapperClassName,
 								/>
 							</Disclosure.Button>
 							{children && (
-								<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 ">
+								<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 dark:bg-dark--theme shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light ">
 									{children}
 								</Disclosure.Panel>
 							)}
