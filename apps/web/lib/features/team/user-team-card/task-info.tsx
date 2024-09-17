@@ -19,9 +19,8 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayP
 
 			<div
 				className={clsxm(
-					'h-full w-full flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
-					className,
-					'!min-w-[461px] !max-w-[461px]'
+					'h-full min-w-[20rem] w-fit flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
+					className
 				)}
 			>
 				{/* task */}

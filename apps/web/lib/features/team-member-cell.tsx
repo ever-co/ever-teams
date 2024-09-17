@@ -24,8 +24,8 @@ export function TaskCell({ row }: { row: any }) {
 			edition={taskEdition}
 			memberInfo={memberInfo}
 			className={clsxm(
-				'flex-1 flex justify-center items-center  w-full px-2',
-				fullWidth ? 'max-w-[40vw]' : 'max-w-[30vw]'
+				'flex-1 flex justify-center items-center px-2',
+				fullWidth ? 'max-w-[40rem]' : 'max-w-[30rem]'
 			)}
 			publicTeam={publicTeam}
 		/>
@@ -38,13 +38,12 @@ export function UserInfoCell({ cell }: { cell: any }) {
 	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
 	const memberInfo = useTeamMemberCard(member);
 
-	return <UserInfo memberInfo={memberInfo} className="" publicTeam={publicTeam} />;
+	return <UserInfo memberInfo={memberInfo} className="w-fit" publicTeam={publicTeam} />;
 }
 
 export function WorkedOnTaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
 	const memberInfo = useTeamMemberCard(member);
-	const fullWidth = useRecoilValue(fullWidthState);
 
 	return (
 		<TaskTimes
@@ -52,10 +51,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			task={memberInfo.memberTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className={clsxm(
-				'flex flex-col justify-center items-center mx-auto',
-				fullWidth ? '2xl:w-[7rem] 3xl:w-[11rem]' : '2xl:w-[7rem]  3xl:w-[10rem]'
-			)}
+			className={clsxm('flex flex-col justify-center items-center mx-auto')}
 		/>
 	);
 }
@@ -70,9 +66,7 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className={clsxm(
-				'flex flex-col justify-center items-center 2xl:w-[7rem]  3xl:w-[10rem]'
-			)}
+			className={clsxm('flex flex-col justify-center items-center')}
 		/>
 	);
 }
