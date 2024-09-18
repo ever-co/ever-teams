@@ -45,7 +45,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState, useTransition } from 'react';
-import { SetterOrUpdater, useAtomValue } from 'jotai';
+import { SetStateAction, useAtomValue } from 'jotai';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -66,6 +66,7 @@ import {
   EnforcePlanedTaskModal,
   SuggestDailyPlanModal
 } from '../daily-plan';
+import { SetAtom } from 'types';
 
 type Props = {
   active?: boolean;
@@ -75,7 +76,7 @@ type Props = {
   viewType?: 'default' | 'unassign' | 'dailyplan';
   profile?: I_UserProfilePage;
   editTaskId?: string | null;
-  setEditTaskId?: SetterOrUpdater<string | null>;
+  setEditTaskId?: SetAtom<[SetStateAction<string | null>], void>;
   taskBadgeClassName?: string;
   taskTitleClassName?: string;
   plan?: IDailyPlan;
@@ -202,7 +203,7 @@ export function TaskCard(props: Props) {
           {/* Task information */}
           <TaskInfo
             task={task}
-            className="px-4 w-full"
+            className="w-full px-4"
             taskBadgeClassName={clsxm(taskBadgeClassName)}
             taskTitleClassName={clsxm(taskTitleClassName)}
             dayPlanTab={planMode}
@@ -263,9 +264,9 @@ export function TaskCard(props: Props) {
         </div>
         <VerticalSeparator />
 
-        <div className="flex  h-full justify-center items-center xl:justify-between w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
+        <div className="flex items-center justify-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
           {/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-          <div className=" flex items-center justify-center">
+          <div className="flex items-center justify-center ">
             <ActiveTaskStatusDropdown
               task={task}
               onChangeLoading={(load) => setLoading(load)}
@@ -273,7 +274,7 @@ export function TaskCard(props: Props) {
             />
           </div>
           {/* TaskCardMenu */}
-          <div className=" shrink-0  flex items-end justify-end mt-2 xl:mt-0 text-end">
+          <div className="flex items-end justify-end mt-2  shrink-0 xl:mt-0 text-end">
             {task && currentMember && (
               <TaskCardMenu
                 task={task}
@@ -307,13 +308,13 @@ export function TaskCard(props: Props) {
         <div className="flex flex-wrap items-start justify-between pb-4 border-b">
           <TaskInfo
             task={task}
-            className="px-4 mb-4 w-full"
+            className="w-full px-4 mb-4"
             tab={viewType}
             dayPlanTab={planMode}
           />{' '}
           {viewType === 'default' && (
             <>
-              <div className="flex items-end mx-auto py-4 space-x-2">
+              <div className="flex items-end py-4 mx-auto space-x-2">
                 <TaskEstimateInfo
                   memberInfo={memberInfo}
                   edition={taskEdition}
@@ -328,12 +329,12 @@ export function TaskCard(props: Props) {
         {viewType === 'unassign' && (
           <>
             <UsersTaskAssigned
-              className="px-3 mx-auto w-full py-4"
+              className="w-full px-3 py-4 mx-auto"
               task={task}
             />
           </>
         )}
-        <div className="flex justify-between items-center mt-4 mb-4 space-x-5">
+        <div className="flex items-center justify-between mt-4 mb-4 space-x-5">
           <div className="flex space-x-4">
             {todayWork}
             {isTrackingEnabled && isAuthUser && task && (
@@ -372,7 +373,7 @@ function UsersTaskAssigned({
 
   return (
     <div className={clsxm('flex justify-center items-center', className)}>
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col items-center justify-center">
         {members.length > 0 && (
           <span className="mb-1 text-xs text-center">
             {t('common.ASSIGNED')}
@@ -871,7 +872,7 @@ export function PlanTask({
         {planMode === 'today' && !taskPlannedToday && (
           <span className="">
             {isPending || createDailyPlanLoading ? (
-              <ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+              <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               t('dailyPlan.PLAN_FOR_TODAY')
             )}
@@ -880,7 +881,7 @@ export function PlanTask({
         {planMode === 'tomorow' && !taskPlannedForTomorrow && (
           <span>
             {isPending || createDailyPlanLoading ? (
-              <ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+              <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               t('dailyPlan.PLAN_FOR_TOMORROW')
             )}

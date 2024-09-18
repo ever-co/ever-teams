@@ -12,8 +12,8 @@ import {
 import { DateRange } from 'react-day-picker';
 import { SetStateAction } from 'jotai';
 import moment from 'moment';
+import { SetAtom } from 'types';
 
-type SetAtom<Args extends unknown[], Result> = (...args: Args) => Result;
 interface ITaskDatePickerWithRange {
   className?: string;
   date?: DateRange;
