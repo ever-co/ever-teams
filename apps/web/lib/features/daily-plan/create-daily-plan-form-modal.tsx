@@ -36,10 +36,9 @@ export function CreateDailyPlanFormModal({
 	const { user } = useAuthenticateUser();
 	const { activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const { createDailyPlan, createDailyPlanLoading, profileDailyPlans } = useDailyPlan();
-	const latestOption: 'Select' | 'Select & Close' | null = useMemo(
-		() => window.localStorage.getItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL) as 'Select' | 'Select & Close',
-		[]
-	);
+	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
+		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
+	) as 'Select' | 'Select & Close';
 
 	const existingPlanDates = useMemo(
 		() => profileDailyPlans.items.map((plan) => new Date(plan.date)),
@@ -69,9 +68,11 @@ export function CreateDailyPlanFormModal({
 	}, [reset]);
 
 	const handleSelectAndClose = useCallback(() => {
-		handleCloseModal();
+		if (!createDailyPlanLoading) {
+			handleCloseModal();
+		}
 		window.localStorage.setItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL, 'Select & Close');
-	}, [handleCloseModal]);
+	}, [createDailyPlanLoading, handleCloseModal]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
