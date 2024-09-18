@@ -221,7 +221,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	// Update the working planned time
 	useEffect(() => {
 		setWorkTimePlanned(plan.workTimePlanned);
-	}, [plan]);
+	}, [plan.id, plan.workTimePlanned]);
 
 	const StartWorkingButton = (
 		<Button
