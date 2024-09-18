@@ -1,11 +1,5 @@
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const isDataSyncState = atom<boolean>({
-	key: 'isDataSyncState',
-	default: true
-});
+export const isDataSyncState = atom<boolean>(true);
 
-export const dataSyncModeState = atom<'REAL_TIME' | 'PULL'>({
-	key: 'dataSyncModeState',
-	default: 'PULL'
-});
+export const dataSyncModeState = atom<'REAL_TIME' | 'PULL'>('PULL');

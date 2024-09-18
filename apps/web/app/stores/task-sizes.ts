@@ -1,26 +1,14 @@
 import { ITaskSizesItemList } from '@app/interfaces/ITaskSizes';
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const taskSizesListState = atom<ITaskSizesItemList[]>({
-	key: 'taskSizesListState',
-	default: []
-});
+export const taskSizesListState = atom<ITaskSizesItemList[]>([]);
 
-export const activeTaskSizesIdState = atom<string | null>({
-	key: 'activeTaskSizesIdState',
-	default: null
-});
+export const activeTaskSizesIdState = atom<string | null>(null);
 
-export const taskSizesFetchingState = atom<boolean>({
-	key: 'taskSizesFetchingState',
-	default: false
-});
+export const taskSizesFetchingState = atom<boolean>(false);
 
-export const activeTaskSizesState = selector<ITaskSizesItemList | null>({
-	key: 'activeTaskSizesState',
-	get: ({ get }) => {
-		const taskSizes = get(taskSizesListState);
-		const activeId = get(activeTaskSizesIdState);
-		return taskSizes.find((size) => size.id === activeId) || taskSizes[0] || null;
-	}
+export const activeTaskSizesState = atom<ITaskSizesItemList | null>((get) => {
+  const taskSizes = get(taskSizesListState);
+  const activeId = get(activeTaskSizesIdState);
+  return taskSizes.find((size) => size.id === activeId) || taskSizes[0] || null;
 });
