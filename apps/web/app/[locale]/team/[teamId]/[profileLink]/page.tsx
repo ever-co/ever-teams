@@ -10,73 +10,87 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const Team = () => {
-	const router = useRouter();
-	const params = useParams();
+  const router = useRouter();
+  const params = useParams();
 
-	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
-	const t = useTranslations();
-	const [publicTeam, setPublic] = useRecoilState(publicState);
-	const fullWidth = useRecoilValue(fullWidthState);
+  const {
+    loadPublicTeamData,
+    loadPublicTeamMiscData,
+    publicTeam: publicTeamData
+  } = usePublicOrganizationTeams();
+  const t = useTranslations();
+  const [publicTeam, setPublic] = useAtom(publicState);
+  const fullWidth = useAtomValue(fullWidthState);
 
-	useEffect(() => {
-		const userId = getActiveUserIdCookie();
+  useEffect(() => {
+    const userId = getActiveUserIdCookie();
 
-		if (userId && publicTeamData && publicTeamData.members.find((member) => member.employee.userId === userId)) {
-			router.replace('/');
-		}
-	}, [publicTeamData, router]);
+    if (
+      userId &&
+      publicTeamData &&
+      publicTeamData.members.find((member) => member.employee.userId === userId)
+    ) {
+      router.replace('/');
+    }
+  }, [publicTeamData, router]);
 
-	const loadData = useCallback(() => {
-		if (params?.teamId && params?.profileLink) {
-			loadPublicTeamData(params?.profileLink as string, params?.teamId as string).then((res: any) => {
-				if (res?.data?.data?.status === 404) {
-					notFound();
-				}
-			});
-			setPublic(true);
-		}
-	}, [loadPublicTeamData, setPublic, params?.teamId, params?.profileLink]);
-	const loadMicsData = useCallback(() => {
-		if (params?.teamId && params?.profileLink) {
-			loadPublicTeamMiscData(params?.profileLink as string, params?.teamId as string);
-		}
-	}, [loadPublicTeamMiscData, params?.teamId, params?.profileLink]);
+  const loadData = useCallback(() => {
+    if (params?.teamId && params?.profileLink) {
+      loadPublicTeamData(
+        params?.profileLink as string,
+        params?.teamId as string
+      ).then((res: any) => {
+        if (res?.data?.data?.status === 404) {
+          notFound();
+        }
+      });
+      setPublic(true);
+    }
+  }, [loadPublicTeamData, setPublic, params?.teamId, params?.profileLink]);
+  const loadMicsData = useCallback(() => {
+    if (params?.teamId && params?.profileLink) {
+      loadPublicTeamMiscData(
+        params?.profileLink as string,
+        params?.teamId as string
+      );
+    }
+  }, [loadPublicTeamMiscData, params?.teamId, params?.profileLink]);
 
-	useEffect(() => {
-		loadData();
-	}, [loadData]);
-	useEffect(() => {
-		loadMicsData();
-	}, [loadMicsData]);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+  useEffect(() => {
+    loadMicsData();
+  }, [loadMicsData]);
 
-	useRefreshIntervalV2(loadData, 10 * 1000, true);
-	useRefreshIntervalV2(loadMicsData, 30 * 1000, true);
+  useRefreshIntervalV2(loadData, 10 * 1000, true);
+  useRefreshIntervalV2(loadMicsData, 30 * 1000, true);
 
-	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
-	return (
-		<MainLayout publicTeam={publicTeam}>
-			<MainHeader fullWidth={fullWidth}>
-				<Breadcrumb paths={breadcrumb} className="text-sm" />
+  const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
+  return (
+    <MainLayout publicTeam={publicTeam}>
+      <MainHeader fullWidth={fullWidth}>
+        <Breadcrumb paths={breadcrumb} className="text-sm" />
 
-				<UnverifiedEmail />
+        <UnverifiedEmail />
 
-				{/* Header user card list */}
-				<UserTeamCardHeader />
-			</MainHeader>
+        {/* Header user card list */}
+        <UserTeamCardHeader />
+      </MainHeader>
 
-			{/* Divider */}
-			<div className="h-0.5 bg-[#FFFFFF14]"></div>
+      {/* Divider */}
+      <div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-			<Container fullWidth={fullWidth}>
-				<TeamMembers publicTeam={publicTeam} />
-			</Container>
-		</MainLayout>
-	);
+      <Container fullWidth={fullWidth}>
+        <TeamMembers publicTeam={publicTeam} />
+      </Container>
+    </MainLayout>
+  );
 };
 
 export default Team;
