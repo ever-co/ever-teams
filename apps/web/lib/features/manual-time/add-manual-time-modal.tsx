@@ -144,10 +144,11 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 	}, [addManualTimeLoading, closeModal, timeLog]);
 
 	const memberItemsLists = {
-		Project: activeTeam?.projects,
-		Employee: activeTeam?.members,
+		Project: activeTeam?.projects as [],
+		Employee: activeTeam?.members as [],
 		Task: tasks
 	};
+
 	const selectedValues = {
 		Teams: null,
 		Members: null,
@@ -164,15 +165,15 @@ export function AddManualTimeModal(props: IAddManualTimeModalProps) {
 		},
 		...(timeSheetStatus === 'ManagerTimesheet'
 			? [
-					{
-						label: t('manualTime.EMPLOYEE'),
-						placeholder: 'Select an employee',
-						isRequired: true,
-						valueKey: 'id',
-						displayKey: 'employee.fullName',
-						element: 'Employee'
-					}
-				]
+				{
+					label: t('manualTime.EMPLOYEE'),
+					placeholder: 'Select an employee',
+					isRequired: true,
+					valueKey: 'id',
+					displayKey: 'employee.fullName',
+					element: 'Employee'
+				}
+			]
 			: []),
 		{
 			label: t('manualTime.TASK'),
