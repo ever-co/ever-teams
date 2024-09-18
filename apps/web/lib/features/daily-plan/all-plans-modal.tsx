@@ -31,7 +31,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
 	const [customDate, setCustomDate] = useState<Date>();
-	const { futurePlans, myDailyPlans } = useDailyPlan();
+	const { myDailyPlans, pastPlans } = useDailyPlan();
 
 	// Utility function for checking if two dates are the same
 	const isSameDate = useCallback(
@@ -87,6 +87,26 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				return undefined;
 		}
 	}, [selectedTab, todayPlan, tomorrowPlan, selectedFuturePlan]);
+
+	// Set the related tab for today and tomorrow dates
+	const handleCalendarSelect = useCallback(() => {
+		if (customDate) {
+			if (
+				new Date(customDate).toLocaleDateString('en') === new Date(moment().toDate()).toLocaleDateString('en')
+			) {
+				setSelectedTab('Today');
+			} else if (
+				new Date(customDate).toLocaleDateString('en') ===
+				new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en')
+			) {
+				setSelectedTab('Tomorrow');
+			} else {
+				setShowCalendar(false);
+				setShowCustomPlan(true);
+			}
+		}
+	}, [customDate]);
+
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} className={clsxm('w-[36rem]')}>
 			<Card className="w-full  h-full overflow-hidden" shadow="custom">
@@ -140,9 +160,10 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										<p className=" text-sm font-medium">Select a date to be able to see a plan</p>
 										<div className="p-3 border flex  items-center  justify-center rounded-md">
 											<FuturePlansCalendar
-												futurePlans={futurePlans}
-												selectedFuturePlan={customDate}
-												setSelectedFuturePlan={setCustomDate}
+												selectedPlan={customDate}
+												setSelectedPlan={setCustomDate}
+												plans={myDailyPlans.items}
+												pastPlans={pastPlans}
 											/>
 										</div>
 									</div>
@@ -162,10 +183,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										variant="default"
 										type="submit"
 										className={clsxm('py-3 px-5 rounded-md font-light text-md dark:text-white')}
-										onClick={() => {
-											setShowCalendar(false);
-											setShowCustomPlan(true);
-										}}
+										onClick={handleCalendarSelect}
 									>
 										Select
 									</Button>
@@ -200,31 +218,32 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
  */
 
 interface ICalendarProps {
-	setSelectedFuturePlan: Dispatch<SetStateAction<Date | undefined>>;
-	selectedFuturePlan: Date | undefined;
-	futurePlans: IDailyPlan[];
+	setSelectedPlan: Dispatch<SetStateAction<Date | undefined>>;
+	selectedPlan: Date | undefined;
+	plans: IDailyPlan[];
+	pastPlans: IDailyPlan[];
 }
 
 /**
- * The component tha handles the selection of a future plan
+ * The component that handles the selection of a plan
  *
  * @param {Object} props - The props object
  * @param {Dispatch<SetStateAction<IDailyPlan>>} props.setSelectedFuturePlan - A function that set the selected plan
  * @param {IDailyPlan} props.selectedFuturePlan - The selected plan
+ * @param {IDailyPlan[]} props.plans - Available plans
+ * @param {IDailyPlan[]} props.pastPlans - Past plans
+ *
+ * @returns {JSX.Element} The Calendar component.
  */
 const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarProps) {
-	const { futurePlans, selectedFuturePlan, setSelectedFuturePlan } = props;
+	const { selectedPlan, setSelectedPlan, plans, pastPlans } = props;
 
-	const sortedFuturePlans = useMemo(
+	const sortedPlans = useMemo(
 		() =>
-			futurePlans
-				.filter(
-					(plan) =>
-						new Date(plan.date).toLocaleDateString('en') !==
-						new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en')
-				)
-				.sort((plan1, plan2) => (new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1)),
-		[futurePlans]
+			[...plans].sort((plan1, plan2) =>
+				new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1
+			),
+		[plans]
 	);
 
 	/**
@@ -236,46 +255,43 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 	 */
 	const isDateUnplanned = useCallback(
 		(dateToCheck: Date) => {
-			return !futurePlans
-				// Start from the day after tomorrow (Tomorrow has a tab)
-				.filter(
-					(plan) =>
-						new Date(plan.date).toLocaleDateString('en') !==
-						new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en')
-				)
+			return !plans
 				.map((plan) => new Date(plan.date))
 				.some(
 					(date) => new Date(date).toLocaleDateString('en') == new Date(dateToCheck).toLocaleDateString('en')
 				);
 		},
-		[futurePlans]
+		[plans]
 	);
 
 	return (
 		<Calendar
 			mode="single"
 			captionLayout="dropdown"
-			selected={selectedFuturePlan ? new Date(selectedFuturePlan) : undefined}
+			selected={selectedPlan ? new Date(selectedPlan) : undefined}
 			onSelect={(date) => {
 				if (date) {
-					setSelectedFuturePlan(date);
+					setSelectedPlan(date);
 				}
 			}}
 			initialFocus
 			disabled={isDateUnplanned}
 			modifiers={{
-				booked: sortedFuturePlans?.map((plan) => new Date(plan.date))
+				booked: sortedPlans?.map((plan) => new Date(plan.date)),
+				pastDay: pastPlans?.map((plan) => new Date(plan.date))
 			}}
 			modifiersClassNames={{
 				booked: clsxm(
 					'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full'
 				),
-				selected: clsxm('bg-primary text-white !rounded-full')
+				selected: clsxm('bg-primary after:hidden text-white !rounded-full'),
+
+				pastDay: clsxm(
+					'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-yellow-600 after:rounded-full'
+				)
 			}}
-			fromMonth={new Date(sortedFuturePlans?.[0]?.date ?? Date.now())}
-			toMonth={new Date(sortedFuturePlans?.[sortedFuturePlans?.length - 1]?.date ?? Date.now())}
-			fromYear={new Date(sortedFuturePlans?.[0]?.date ?? Date.now())?.getFullYear()}
-			toYear={new Date(sortedFuturePlans?.[sortedFuturePlans?.length - 1]?.date ?? Date.now())?.getFullYear()}
+			fromYear={new Date(sortedPlans?.[0]?.date ?? Date.now())?.getFullYear()}
+			toYear={new Date(sortedPlans?.[sortedPlans?.length - 1]?.date ?? Date.now())?.getFullYear() + 5}
 		/>
 	);
 });

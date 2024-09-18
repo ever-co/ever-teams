@@ -33,7 +33,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
-			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
+			className={clsxm('flex items-center lg:space-x-4 space-x-2 w-fit', className)}
 		>
 			<div
 				className={clsxm(
