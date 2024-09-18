@@ -32,9 +32,7 @@ import {
   // employeeTasksState,
   memberActiveTaskIdState,
   myDailyPlanListState,
-  userState
-} from '@app/stores';
-import {
+  userState,
   activeTeamTaskState,
   tasksByTeamState,
   tasksFetchingState,
