@@ -8,7 +8,7 @@ import {
   timezonesFetchingState
 } from '@app/stores';
 import { useCallback } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 export function useTimezoneSettings() {
   const [timezones] = useAtom(timezoneListState);

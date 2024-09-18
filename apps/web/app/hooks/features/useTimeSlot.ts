@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useQuery } from '../useQuery';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { timeSlotsState } from '@app/stores/time-slot';
 import moment from 'moment';
 import { useAuthenticateUser } from './useAuthenticateUser';

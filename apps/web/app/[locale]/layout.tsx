@@ -1,23 +1,25 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
-import clsx from 'clsx';
-import {
-  notFound,
-  useRouter,
-  usePathname,
-  useSearchParams
-} from 'next/navigation';
-import { ReactNode, useEffect } from 'react';
-import { NextIntlClientProvider } from 'next-intl';
-import { Provider } from 'jotai';
-import { AppState } from 'lib/app/init-state';
-
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
-import { ThemeProvider } from 'next-themes';
+
+import clsx from 'clsx';
+import { Provider } from 'jotai';
+import { AppState } from 'lib/app/init-state';
+import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+import { NextIntlClientProvider } from 'next-intl';
+import { ThemeProvider } from 'next-themes';
+import dynamic from 'next/dynamic';
+import { Poppins } from 'next/font/google';
+import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { PropsWithChildren, useEffect } from 'react';
+
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
+import GlobalSkeleton from '@components/ui/global-skeleton';
+import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+
+import { PHProvider } from './integration/posthog/provider';
 
 const locales = [
   'en',
@@ -36,7 +38,6 @@ const locales = [
   'fr'
 ];
 interface Props {
-  children: ReactNode;
   params: { locale: string };
 
   pageProps: {
@@ -46,12 +47,6 @@ interface Props {
     user?: any;
   };
 }
-
-import { Poppins } from 'next/font/google';
-import GlobalSkeleton from '@components/ui/global-skeleton';
-import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
-import dynamic from 'next/dynamic';
-import { PHProvider } from './integration/posthog/provider';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -79,9 +74,9 @@ const PostHogPageView = dynamic(
 // 	};
 // }
 
-const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
+const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChildren<Props>) => {
   // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale as any)) notFound();
+  if (!locales.includes(locale as string)) notFound();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

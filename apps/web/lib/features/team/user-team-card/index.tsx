@@ -30,7 +30,7 @@ import {
   useTaskFilter
 } from 'lib/features';
 import { useTranslations } from 'next-intl';
-import { useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
@@ -192,7 +192,7 @@ export function UserTeamCard({
           className
         )}
       >
-        <div className="flex m-0 relative items-center">
+        <div className="relative flex items-center m-0">
           <div className="absolute left-0 cursor-pointer">
             <SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
           </div>
@@ -233,14 +233,14 @@ export function UserTeamCard({
             <TaskInfo
               edition={taskEdition}
               memberInfo={memberInfo}
-              className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+              className="flex-1 px-2 overflow-y-hidden lg:px-4"
               publicTeam={publicTeam}
               tab="default"
             />
 
             {isManagerConnectedUser != 1 ? (
               <p
-                className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
+                className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
                 onClick={() => {
                   showActivityFilter('TICKET', memberInfo.member ?? null);
                   setUserDetailAccordion('');
@@ -288,7 +288,7 @@ export function UserTeamCard({
                 onClick={() =>
                   showActivityFilter('DATE', memberInfo.member ?? null)
                 }
-                className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
+                className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
               >
                 {!showActivity ? (
                   <ExpandIcon height={24} width={24} />
@@ -304,7 +304,7 @@ export function UserTeamCard({
         {userDetailAccordion == memberInfo.memberUser?.id &&
         memberInfo.memberUser.id == profile.userProfile?.id &&
         !showActivity ? (
-          <div className="h-96 overflow-y-auto">
+          <div className="overflow-y-auto h-96">
             {canSeeActivity && (
               <Container fullWidth={fullWidth} className="py-8">
                 <div
@@ -315,7 +315,7 @@ export function UserTeamCard({
                   {Object.keys(activityScreens).map((filter, i) => (
                     <div
                       key={i}
-                      className="flex cursor-pointer justify-start items-center gap-4"
+                      className="flex items-center justify-start gap-4 cursor-pointer"
                     >
                       {i !== 0 && <VerticalSeparator />}
                       <div
@@ -338,7 +338,7 @@ export function UserTeamCard({
             {activityScreens[activityFilter] ?? null}
           </div>
         ) : userDetailAccordion == memberInfo.memberUser?.id ? (
-          <div className="h-20 w-full flex justify-center items-center">
+          <div className="flex items-center justify-center w-full h-20">
             <Loader className="animate-spin" />
           </div>
         ) : null}

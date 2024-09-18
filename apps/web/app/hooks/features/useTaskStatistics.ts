@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask, Nullable } from '@app/interfaces';
 import {
   activeTaskTimesheetStatisticsAPI,
   allTaskTimesheetStatisticsAPI,
@@ -15,12 +15,11 @@ import {
   timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { useSyncRef } from '../useSyncRef';
-import { Nullable } from '@app/interfaces';
 import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';

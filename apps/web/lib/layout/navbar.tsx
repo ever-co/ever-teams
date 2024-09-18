@@ -14,7 +14,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const HeaderSkeleton = () => {
@@ -103,7 +103,7 @@ export function Navbar({
                   )}
                   {showTimer && <MinTimerFrame />}
 
-                  <div className="hidden md:flex gap-4 items-center">
+                  <div className="items-center hidden gap-4 md:flex">
                     {!publicTeam && <Collaborate />}
 
                     {isTeamMember && isTeamDropdownAllowed ? (

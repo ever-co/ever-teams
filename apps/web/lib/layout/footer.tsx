@@ -1,18 +1,13 @@
-import {
-  APP_LINK,
-  APP_NAME,
-  CHATWOOT_API_KEY,
-  COMPANY_LINK,
-  COMPANY_NAME
-} from '@app/constants';
-import { IClassName } from '@app/interfaces';
-import { fullWidthState } from '@app/stores/fullWidth';
-import { clsxm } from '@app/utils';
+import { useAtomValue } from 'jotai';
 import { Text, ThemeToggler } from 'lib/components';
 import { LanguageDropDownWithFlags } from 'lib/settings/language-dropdown-flags';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { useAtomValue } from 'jotai';
+
+import { APP_LINK, APP_NAME, CHATWOOT_API_KEY, COMPANY_LINK, COMPANY_NAME } from '@app/constants';
+import { IClassName } from '@app/interfaces';
+import { fullWidthState } from '@app/stores/fullWidth';
+import { clsxm } from '@app/utils';
 
 export function Footer({ className }: IClassName) {
   const t = useTranslations();

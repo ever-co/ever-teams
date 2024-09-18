@@ -23,7 +23,7 @@ import {
   timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';

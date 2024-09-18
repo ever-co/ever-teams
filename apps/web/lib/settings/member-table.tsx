@@ -11,7 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';

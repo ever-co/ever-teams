@@ -1,14 +1,9 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom } from 'jotai';
 import {
-  useAuthenticateUser,
-  useCanSeeActivityScreen,
-  useDailyPlan,
-  useUserProfilePage
-} from '@app/hooks';
-import { TaskCard } from './task/task-card';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+  EditPenBoxIcon,
+  CheckCircleTickIcon as TickSaveIcon
+} from 'assets/svg';
+import { useAtom, useAtomValue } from 'jotai';
 import {
   AlertPopup,
   Container,
@@ -17,15 +12,42 @@ import {
   ProgressBar,
   VerticalSeparator
 } from 'lib/components';
-import { clsxm } from '@app/utils';
+import { checkPastDate } from 'lib/utils';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DroppableProvided,
+  DroppableStateSnapshot
+} from 'react-beautiful-dnd';
+import { IoCalendarOutline } from 'react-icons/io5';
+
+import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
+import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
+import {
+  useAuthenticateUser,
+  useCanSeeActivityScreen,
+  useDailyPlan,
+  useUserProfilePage
+} from '@app/hooks';
+import { useDateRange } from '@app/hooks/useDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+import { HAS_VISITED_OUTSTANDING_TAB } from '@app/constants';
+import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
+import { clsxm } from '@app/utils';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@components/ui/accordion';
+import { Button } from '@components/ui/button';
 import {
   Select,
   SelectContent,
@@ -33,41 +55,20 @@ import {
   SelectTrigger,
   SelectValue
 } from '@components/ui/select';
-import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
-import {
-  EditPenBoxIcon,
-  CheckCircleTickIcon as TickSaveIcon
-} from 'assets/svg';
 import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
+
 import {
-  OutstandingAll,
-  PastTasks,
-  Outstanding,
-  OutstandingFilterDate,
   estimatedTotalTime,
-  getTotalTasks
+  getTotalTasks,
+  Outstanding,
+  OutstandingAll,
+  OutstandingFilterDate,
+  PastTasks
 } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
-import { Button } from '@components/ui/button';
-import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
-import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
-import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
-import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DroppableProvided,
-  DroppableStateSnapshot
-} from 'react-beautiful-dnd';
-import { useDateRange } from '@app/hooks/useDateRange';
-import { checkPastDate } from 'lib/utils';
-
-import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
-import { HAS_VISITED_OUTSTANDING_TAB } from '@app/constants';
+import { TaskCard } from './task/task-card';
 
 export type FilterTabs =
   | 'Today Tasks'
@@ -169,14 +170,14 @@ export function UserProfilePlans() {
         <>
           {profileDailyPlans?.items?.length > 0 ? (
             <div>
-              <div className="w-full mt-10 mb-5 items-start flex justify-between">
+              <div className="flex items-start justify-between w-full mt-10 mb-5">
                 <div
                   className={clsxm('flex justify-start items-center gap-4 ')}
                 >
                   {Object.keys(tabsScreens).map((filter, i) => (
                     <div
                       key={i}
-                      className="flex cursor-pointer justify-start items-center gap-4"
+                      className="flex items-center justify-start gap-4 cursor-pointer"
                     >
                       {i !== 0 && (
                         <VerticalSeparator className="border-slate-400" />
@@ -235,7 +236,7 @@ export function UserProfilePlans() {
                       <SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
                         <SelectValue placeholder="Filter" />
                       </SelectTrigger>
-                      <SelectContent className="cursor-pointer dark:bg-dark--theme-light border-none dark:border-dark--theme-light">
+                      <SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
                         {Object.keys(screenOutstanding).map((item, index) => (
                           <SelectItem key={index} value={item}>
                             <div className="flex items-center space-x-1">
@@ -329,7 +330,7 @@ function AllPlans({
                 className="dark:border-slate-600 !border-none"
               >
                 <AccordionTrigger className="!min-w-full text-start hover:no-underline">
-                  <div className="flex items-center justify-between gap-3 w-full">
+                  <div className="flex items-center justify-between w-full gap-3">
                     <div className="text-lg min-w-max">
                       {formatDayPlanDate(plan.date.toString())} (
                       {plan.tasks?.length})
@@ -452,7 +453,7 @@ function AllPlans({
                                     className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
                                   >
                                     {deleteDailyPlanLoading && (
-                                      <ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+                                      <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
                                     )}
                                     Delete
                                   </Button>
@@ -578,7 +579,7 @@ export function PlanHeader({
             />
             <span>
               {updateDailyPlanLoading ? (
-                <ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+                <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <TickSaveIcon
                   className="w-5 cursor-pointer"
@@ -673,7 +674,7 @@ export function PlanHeader({
   );
 }
 
-export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
+export function EmptyPlans({ planMode }: Readonly<{ planMode?: FilterTabs }>) {
   const t = useTranslations();
 
   return (
