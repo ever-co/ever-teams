@@ -54,7 +54,7 @@ function InitState() {
 	const { firstLoadIssueTypeData } = useIssueType();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
-	const { firstLoadDailyPlanData } = useDailyPlan();
+	const { firstLoadDailyPlanData, getAllDayPlans, getMyDailyPlans, getEmployeeDayPlans } = useDailyPlan();
 	const { firstLoadTimeLogs } = useTimeLogs();
 
 	const { firstLoadDataEmployee } = useEmployee();
@@ -124,6 +124,10 @@ function InitState() {
 			useRefreshIntervalV2(loadTaskLabels, sixty_two_seconds, true);
 			useRefreshIntervalV2(loadTaskRelatedIssueTypeData, sixty_two_seconds, true);
 			useRefreshIntervalV2(loadTaskVersionData, sixty_two_seconds, true);
+
+			useRefreshIntervalV2(getAllDayPlans, sixty_two_seconds, true);
+			useRefreshIntervalV2(getMyDailyPlans, sixty_two_seconds, true);
+			useRefreshIntervalV2(getEmployeeDayPlans, sixty_two_seconds, true);
 
 			return <></>;
 		};

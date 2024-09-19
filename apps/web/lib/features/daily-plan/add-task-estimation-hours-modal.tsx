@@ -20,6 +20,7 @@ import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
+import { checkPastDate } from 'lib/utils';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -58,6 +59,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
+	const totalWorkedTime = useMemo(
+		() =>
+			plan.tasks?.reduce((acc, cur) => {
+				const totalWorkedTime = cur.totalWorkedTime ?? 0;
+
+				return acc + totalWorkedTime;
+			}, 0),
+		[plan]
+	);
 	const [warning, setWarning] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
@@ -221,7 +231,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	// Update the working planned time
 	useEffect(() => {
 		setWorkTimePlanned(plan.workTimePlanned);
-	}, [plan]);
+	}, [plan.id, plan.workTimePlanned]);
 
 	const StartWorkingButton = (
 		<Button
@@ -261,44 +271,76 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						selectedPlan={plan}
 					/>
 				) : (
-					<div className=" w-full flex flex-col gap-2">
-						<span className="text-sm">
-							{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
-						</span>
-						<div className="w-full flex gap-3 h-[3rem]">
-							<InputField
-								type="number"
-								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-								className="h-full"
-								wrapperClassName=" h-full"
-								onChange={(e) => {
-									!isNaN(parseInt(e.target.value))
-										? setWorkTimePlanned(parseInt(e.target.value))
-										: setWorkTimePlanned(0);
-								}}
-								required
-								noWrapper
-								min={0}
-								value={
-									!isNaN(workTimePlanned) && workTimePlanned.toString() !== '0'
-										? workTimePlanned.toString().replace(/^0+/, '')
-										: isWorkingTimeInputFocused
-											? ''
-											: 0
-								}
-								onFocus={() => setWorkingTimeInputFocused(true)}
-								onBlur={() => setWorkingTimeInputFocused(false)}
-								defaultValue={plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0}
-							/>
-							<button
-								onClick={() => {
-									setShowSearchInput(true);
-								}}
-								className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
-							>
-								<AddIcon className="w-4 h-4 text-dark dark:text-white" />
-							</button>
+					<div
+						className={clsxm(
+							'w-full',
+							checkPastDate(plan.date) && 'flex items-center justify-between gap-2'
+						)}
+					>
+						<div className=" w-full flex flex-col gap-2">
+							{checkPastDate(plan.date) ? (
+								<span className="text-sm">{t('dailyPlan.PLANNED_TIME')}</span>
+							) : (
+								<span className="text-sm">
+									{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+									<span className="text-red-600">*</span>
+								</span>
+							)}
+							<div className="w-full flex gap-3 h-[3rem]">
+								{checkPastDate(plan.date) ? (
+									<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-full">
+										{formatIntegerToHour(tasksEstimationTimes)}
+									</div>
+								) : (
+									<InputField
+										type="number"
+										placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+										className="h-full"
+										wrapperClassName=" h-full"
+										onChange={(e) => {
+											!isNaN(parseInt(e.target.value))
+												? setWorkTimePlanned(parseInt(e.target.value))
+												: setWorkTimePlanned(0);
+										}}
+										required
+										noWrapper
+										min={0}
+										value={
+											!isNaN(workTimePlanned) && workTimePlanned.toString() !== '0'
+												? workTimePlanned.toString().replace(/^0+/, '')
+												: isWorkingTimeInputFocused
+													? ''
+													: 0
+										}
+										onFocus={() => setWorkingTimeInputFocused(true)}
+										onBlur={() => setWorkingTimeInputFocused(false)}
+										defaultValue={
+											plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0
+										}
+										readOnly={checkPastDate(plan.date)}
+									/>
+								)}
+
+								{!checkPastDate(plan.date) && (
+									<button
+										onClick={() => {
+											setShowSearchInput(true);
+										}}
+										className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
+									>
+										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+									</button>
+								)}
+							</div>
 						</div>
+						{checkPastDate(plan.date) && (
+							<div className=" w-full flex flex-col gap-2">
+								<span className="text-sm">Tracked time</span>
+								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
+									{formatIntegerToHour(totalWorkedTime ?? 0)}
+								</div>
+							</div>
+						)}
 					</div>
 				)}
 
@@ -308,10 +350,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<div className="w-full flex items-center justify-between gap-2">
 								<div className="flex items-center justify-center gap-1">
 									<span>{t('task.TITLE_PLURAL')}</span>
-									<span className="text-red-600">*</span>
+									{!checkPastDate(plan.date) && <span className="text-red-600">*</span>}
 								</div>
 								<div className="flex items-center justify-center gap-1">
-									<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+									{checkPastDate(plan.date) ? (
+										<span>{t('dailyPlan.ESTIMATED')} :</span>
+									) : (
+										<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+									)}
 									<span className=" font-medium">{formatIntegerToHour(tasksEstimationTimes)}</span>
 								</div>
 							</div>
@@ -333,7 +379,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							</div>
 						</div>
 						<div className="flex gap-2 items-center text-sm h-6 text-red-500">
-							{warning && (
+							{!checkPastDate(plan.date) && warning && (
 								<>
 									<PiWarningCircleFill />
 									<span className=" text-xs">{warning}</span>
@@ -584,6 +630,8 @@ function TaskCard(props: ITaskCardProps) {
 
 	const t = useTranslations();
 
+	const status = useTaskStatus();
+
 	/**
 	 * The function that adds the task to the selected plan
 	 */
@@ -599,11 +647,13 @@ function TaskCard(props: ITaskCardProps) {
 		}
 	}, [addTaskToPlan, plan.id, task.id]);
 
+	console.log(status.taskStatus);
+
 	return (
 		<Card
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center gap-2 justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
 				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>
@@ -626,8 +676,22 @@ function TaskCard(props: ITaskCardProps) {
 					</Button>
 				) : (
 					<>
-						<div className="h-full flex items-center justify-center gap-1">
-							<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
+						<div className="h-full flex w-full items-center justify-between gap-1">
+							{checkPastDate(plan.date) ? (
+								<span
+									className="h-6 w-28 flex items-center justify-center"
+									style={{
+										backgroundColor: status.taskStatus.filter((s) => s.value === task.status)[0]
+											.color
+									}}
+								>
+									{task.status}
+								</span>
+							) : (
+								<span>{t('dailyPlan.ESTIMATED')} :</span>
+							)}
+
+							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
 						</div>
 						<span className="w-4 h-full flex items-center justify-center">
 							<TaskCardActions
@@ -713,33 +777,44 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						return (
 							<Card shadow="custom" className=" shadow-xlcard  !p-3 !rounded-lg !border-2">
 								<ul className=" flex flex-col justify-end gap-3">
-									<li onClick={openTaskDetailsModal} className="">
+									<li
+										onClick={openTaskDetailsModal}
+										className={clsxm('hover:font-semibold hover:transition-all')}
+									>
 										View
 									</li>
-									<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
+									{checkPastDate(selectedPlan.date) ? null : (
+										<>
+											<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
 
-									{selectedPlan && selectedPlan.id && (
-										<li>
-											{otherPlanIds.length ? (
-												<UnplanTask
-													taskId={task.id}
-													selectedPlanId={selectedPlan.id}
-													planIds={[selectedPlan.id, ...otherPlanIds]}
-													closeActionPopover={close}
-												/>
-											) : (
-												<span
-													onClick={() => unplanSelectedDate(close)}
-													className={clsxm(
-														' text-red-600',
-														!removeTaskFromPlanLoading &&
-															' hover:font-semibold hover:transition-all'
+											{selectedPlan.id && (
+												<li>
+													{otherPlanIds.length ? (
+														<UnplanTask
+															taskId={task.id}
+															selectedPlanId={selectedPlan.id}
+															planIds={[selectedPlan.id, ...otherPlanIds]}
+															closeActionPopover={close}
+														/>
+													) : (
+														<span
+															onClick={() => unplanSelectedDate(close)}
+															className={clsxm(
+																' text-red-600',
+																!removeTaskFromPlanLoading &&
+																	' hover:font-semibold hover:transition-all'
+															)}
+														>
+															{removeTaskFromPlanLoading ? (
+																<SpinnerLoader size={10} />
+															) : (
+																'Unplan'
+															)}
+														</span>
 													)}
-												>
-													{removeTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan'}
-												</span>
+												</li>
 											)}
-										</li>
+										</>
 									)}
 								</ul>
 							</Card>
