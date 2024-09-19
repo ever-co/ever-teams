@@ -1,22 +1,31 @@
 import qs from 'qs';
-import { ICreateDailyPlan, IDailyPlan, IDailyPlanTasksUpdate, IRemoveTaskFromManyPlans, IUpdateDailyPlan } from '@app/interfaces/IDailyPlan';
+import {
+	ICreateDailyPlan,
+	IDailyPlan,
+	IDailyPlanTasksUpdate,
+	IRemoveTaskFromManyPlans,
+	IUpdateDailyPlan
+} from '@app/interfaces/IDailyPlan';
 import { serverFetch } from '../fetch';
-import { DeleteResponse } from '@app/interfaces';
+import { DeleteResponse, ID } from '@app/interfaces';
 
 export function getAllDayPlans({
 	organizationId,
 	tenantId,
+	organizationTeamId,
 	bearer_token,
 	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
 }: {
-	organizationId: string;
-	tenantId: string;
+	organizationId: ID;
+	tenantId: ID;
+	organizationTeamId: ID;
 	bearer_token: string;
 	relations?: string[];
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': organizationTeamId
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -35,17 +44,20 @@ export function getAllDayPlans({
 export function getMyDailyPlansRequest({
 	organizationId,
 	tenantId,
+	organizationTeamId,
 	bearer_token,
 	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
 }: {
-	organizationId: string;
-	tenantId: string;
+	organizationId: ID;
+	tenantId: ID;
+	organizationTeamId: ID;
 	bearer_token: string;
 	relations?: string[];
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': organizationTeamId
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -65,18 +77,21 @@ export function getDayPlansByEmployee({
 	employeeId,
 	organizationId,
 	tenantId,
+	organizationTeamId,
 	bearer_token,
 	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
 }: {
-	employeeId: string;
-	organizationId: string;
-	tenantId: string;
+	employeeId: ID;
+	organizationId: ID;
+	tenantId: ID;
+	organizationTeamId: ID;
 	bearer_token: string;
 	relations?: string[];
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': organizationTeamId
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -96,16 +111,19 @@ export function getPlansByTask({
 	taskId,
 	organizationId,
 	tenantId,
+	organizationTeamId,
 	bearer_token
 }: {
 	taskId: string;
-	organizationId: string;
-	tenantId: string;
+	organizationId: ID;
+	tenantId: ID;
+	organizationTeamId: ID;
 	bearer_token: string;
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'where[organizationTeamId]': organizationTeamId
 	} as Record<string, string>;
 
 	const query = qs.stringify(obj);
@@ -203,11 +221,19 @@ export function deleteDailyPlanRequest({ planId, bearer_token }: { planId: strin
 	});
 }
 
-export function deleteDailyPlansManyRequest({ bearer_token, taskId, data }: { bearer_token?: string, taskId: string, data: IRemoveTaskFromManyPlans }) {
+export function deleteDailyPlansManyRequest({
+	bearer_token,
+	taskId,
+	data
+}: {
+	bearer_token?: string;
+	taskId: string;
+	data: IRemoveTaskFromManyPlans;
+}) {
 	return serverFetch<IDailyPlan[]>({
 		method: 'PUT',
 		path: `/daily-plan/${taskId}/remove`,
 		body: data,
-		bearer_token,
+		bearer_token
 	});
 }
