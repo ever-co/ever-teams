@@ -10,14 +10,22 @@ export async function GET(req: Request, { params }: INextParams) {
 		return;
 	}
 
-	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
+	const {
+		$res,
+		user,
+		tenantId,
+		organizationId,
+		teamId: organizationTeamId,
+		access_token
+	} = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
 	const response = await getDayPlansByEmployee({
 		bearer_token: access_token,
 		employeeId: id,
 		organizationId,
-		tenantId
+		tenantId,
+		organizationTeamId
 	});
 
 	return $res(response.data);

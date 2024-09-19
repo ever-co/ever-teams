@@ -29,7 +29,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 
 	const planned = useMemo(() => {
 		const outStandingTasksCount = estimatedTotalTime(
-			outstandingPlans.map((plan) => plan.tasks?.map((task) => task))
+			outstandingPlans?.map((plan) => plan.tasks?.map((task) => task))
 		).totalTasks;
 
 		const todayTasksCOunt = getTotalTasks(todayPlan);

@@ -301,6 +301,7 @@ export function useDailyPlan() {
 		);
 	}, [profileDailyPlans]);
 
+
 	const todayTasks = useMemo(() => {
 		return todayPlan
 			.map((plan) => {
@@ -355,8 +356,9 @@ export function useDailyPlan() {
 		if (firstLoad) {
 			getMyDailyPlans();
 			getAllDayPlans();
+			getEmployeeDayPlans(user?.employee.id || '');
 		}
-	}, [getMyDailyPlans, getAllDayPlans, firstLoad]);
+	}, [getMyDailyPlans, activeTeam?.id, getAllDayPlans, firstLoad, getEmployeeDayPlans, user?.employee.id]);
 
 	return {
 		dailyPlan,
