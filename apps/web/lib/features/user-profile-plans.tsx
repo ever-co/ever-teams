@@ -35,6 +35,7 @@ import { checkPastDate } from 'lib/utils';
 
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+import { HAS_VISITED_OUTSTANDING_TAB } from '@app/constants';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -89,6 +90,8 @@ export function UserProfilePlans() {
 		} else if (currentTab === 'Future Tasks') {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
+		} else if (currentTab === 'Outstanding') {
+			window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TAB, JSON.stringify(true));
 		}
 	}, [currentTab, setCurrentDataDailyPlan, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
 
