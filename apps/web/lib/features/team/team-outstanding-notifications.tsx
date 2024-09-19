@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { estimatedTotalTime } from '../task/daily-plan';
+import { HAS_VISITED_OUTSTANDING_TAB } from '@app/constants';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
@@ -53,15 +54,22 @@ function UserOutstandingNotification({ outstandingPlans, user }: { outstandingPl
 	useEffect(() => {
 		const checkNotification = () => {
 			const alreadySeen = window && parseInt(window?.localStorage.getItem(DISMISSAL_TIMESTAMP_KEY) || '0', 10);
+			const hasVisitedOutstandingTab =
+				window && JSON.parse(window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TAB) as string);
 			const currentTime = new Date().getTime();
 
-			if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
+			if (hasVisitedOutstandingTab) {
+				setVisible(false);
+			} else if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
 				setVisible(true);
 			}
 		};
 
 		checkNotification();
-		const intervalId = setInterval(checkNotification, REAPPEAR_INTERVAL);
+		const intervalId = setInterval(function () {
+			window && window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TAB, JSON.stringify(false));
+			checkNotification();
+		}, REAPPEAR_INTERVAL);
 		return () => clearInterval(intervalId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -154,15 +162,22 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 		const checkNotification = () => {
 			const alreadySeen =
 				window && parseInt(window?.localStorage.getItem(MANAGER_DISMISSAL_TIMESTAMP_KEY) || '0', 10);
+			const hasVisitedOutstandingTab =
+				window && JSON.parse(window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TAB) as string);
 			const currentTime = new Date().getTime();
 
-			if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
+			if (hasVisitedOutstandingTab) {
+				setVisible(false);
+			} else if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
 				setVisible(true);
 			}
 		};
 
 		checkNotification();
-		const intervalId = setInterval(checkNotification, REAPPEAR_INTERVAL);
+		const intervalId = setInterval(function () {
+			window && window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TAB, JSON.stringify(false));
+			checkNotification();
+		}, REAPPEAR_INTERVAL);
 		return () => clearInterval(intervalId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
