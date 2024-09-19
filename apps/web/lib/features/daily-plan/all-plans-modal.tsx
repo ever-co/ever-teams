@@ -16,6 +16,8 @@ interface IAllPlansModal {
 	isOpen: boolean;
 }
 
+type CalendarTab = 'Today' | 'Tomorrow' | 'Calendar';
+
 /**
  * A modal that displays all the plans available to the user (Today, Tomorrow and Future).
  *
@@ -62,15 +64,15 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [closeModal]);
 
 	// Define tabs for plan selection
-	const tabs = useMemo(() => ['Today', 'Tomorrow', 'Future'], []);
+	const tabs: CalendarTab[] = useMemo(() => ['Today', 'Tomorrow', 'Calendar'], []);
 
 	// State to track the active tab
 	const [selectedTab, setSelectedTab] = useState(tabs[0]);
 
 	// Handle tab switching
-	const handleTabClick = (tab: string) => {
+	const handleTabClick = (tab: CalendarTab) => {
 		setSelectedTab(tab);
-		setShowCalendar(tab === 'Future');
+		setShowCalendar(tab === 'Calendar');
 		setShowCustomPlan(false);
 	};
 
@@ -81,7 +83,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				return todayPlan;
 			case 'Tomorrow':
 				return tomorrowPlan;
-			case 'Future':
+			case 'Calendar':
 				return selectedFuturePlan;
 			default:
 				return undefined;
@@ -112,7 +114,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			<Card className="w-full  h-full overflow-hidden" shadow="custom">
 				<div className="w-full flex flex-col gap-3 ">
 					<div className="relative w-full h-12  flex items-center justify-center">
-						{selectedTab === 'Future' && showCustomPlan && (
+						{selectedTab === 'Calendar' && showCustomPlan && (
 							<Tooltip label="Go back to the calendar">
 								<button
 									onClick={() => {
@@ -130,10 +132,10 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						)}
 
 						<Text.Heading as="h3" className="uppercase text-center">
-							{selectedTab == 'Future'
+							{selectedTab == 'Calendar'
 								? showCustomPlan && selectedFuturePlan
 									? `PLAN FOR ${new Date(selectedFuturePlan.date).toLocaleDateString('en-GB')}`
-									: `${selectedTab} PLAN`
+									: `PLANS`
 								: `${selectedTab}'S PLAN`}
 						</Text.Heading>
 					</div>
@@ -153,7 +155,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 					</div>
 
 					<div className="w-full flex   items-center justify-center h-[34rem]">
-						{selectedTab === 'Future' && showCalendar ? (
+						{selectedTab === 'Calendar' && showCalendar ? (
 							<div className="w-full h-full flex-col flex items-center justify-between">
 								<div className="w-full grow">
 									<div className="w-full h-full flex flex-col gap-4 items-center justify-center">
