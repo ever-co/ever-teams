@@ -39,3 +39,4 @@ export * from './position/position-item';
 
 
 export * from './integrations/calendar/setup-full-calendar'
+export * from './multiple-select'

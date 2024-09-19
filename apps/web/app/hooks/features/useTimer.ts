@@ -104,7 +104,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 
 	// THis is form constant update of the progress line
 	timerSecondsRef.current = useMemo(() => {
-		// if (!firstLoad) return 0;
+		if (!firstLoad) return 0;
 		if (seconds > timerSecondsRef.current) {
 			return seconds;
 		}
@@ -299,6 +299,16 @@ export function useTimer() {
 		const promise = startTimerQueryCall().then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 			return;
+		});
+
+		promise.catch(() => {
+			if (taskId.current) {
+				updateLocalTimerStatus({
+					lastTaskId: taskId.current,
+					runnedDateTime: 0,
+					running: false
+				});
+			}
 		});
 
 		/**

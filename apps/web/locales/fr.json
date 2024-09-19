@@ -200,7 +200,9 @@
 		"PAUSED": "En pause",
 		"ONLINE": "En ligne",
 		"SKIP_ADD_LATER": "Ajouter plus tard",
-		"DAILYPLAN": "Planifié"
+		"DAILYPLAN": "Planifié",
+		"INVITATION_SENT": "Invitation envoyée avec succès",
+		"INVITATION_SENT_TO_USER": "Une invitation a été envoyée à {email}."
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -294,7 +296,8 @@
 			"LOGIN": "Connexion",
 			"SELECT_WORKSPACE": "Sélectionner un espace de travail",
 			"ENTER_EMAIL": "Saisissez votre adresse e-mail",
-			"WORKSPACES_NOT_FOUND": "Aucun espace de travail trouvé"
+			"WORKSPACES_NOT_FOUND": "Aucun espace de travail trouvé",
+			"INVALID_CODE_TRY_AGAIN": "Code invalide. Veuillez réessayer."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Rejoindre une équipe existante",
@@ -539,6 +542,7 @@
 	},
 	"task": {
 		"TITLE": "Tâche",
+		"TITLE_PLURAL": "Tâches",
 		"ASSIGN_NEW_TASK": "Assigner une nouvelle tâche",
 		"ASSIGNED_BY": "Assigné par",
 		"NO_ONE_FOR_TASK": "Personne n'est assigné à cette tâche",
@@ -602,9 +606,22 @@
 		"COMPLETION": "Achèvement",
 		"PLANNED_TASKS": "Tâche planifiées",
 		"ESTIMATED": "Estimé",
+		"TOTAL_ESTIMATED": "Total estimé",
 		"TOTAL_TASK": "Tâches totales",
 		"DAILY_PLAN_DESCRIPTION": "'Plan quotidien' aide à organiser le processus de travail pour obtenir les meilleurs résultats",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Cette tâche n'était pas prévue dans le planning d'aujourd'hui. Souhaitez-vous l'ajouter au planning ?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Cette tâche n'était pas prévue dans le planning d'aujourd'hui. Souhaitez-vous l'ajouter au planning ?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Veuillez ajouter le temps planifié",
+				"TASKS_ESTIMATION": "Veuillez estimer toutes les tâches",
+				"OPTIMIZE_PLAN": "Le temps total estimé dépasse votre temps planifié, veuillez optimiser votre plan",
+				"PLAN_MORE_TASKS": "Veuillez ajouter plus de tâches au plan"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Changer de tâche active",
+			"MESSAGE": "Vous êtes sur le point de commencer à travailler sur le plan d'aujourd'hui {defaultPlannedTask}, mais vous avez encore une tâche active {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Entrez votre nom",

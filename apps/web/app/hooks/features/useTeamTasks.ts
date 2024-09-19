@@ -15,14 +15,18 @@ import {
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
 	getTasksByIdAPI,
-	getTasksByEmployeeIdAPI
+	getTasksByEmployeeIdAPI,
+	getAllDayPlansAPI,
+	getMyDailyPlansAPI
 } from '@app/services/client/api';
 import {
 	activeTeamState,
 	activeTeamTaskId,
+	dailyPlanListState,
 	detailedTaskState,
 	// employeeTasksState,
 	memberActiveTaskIdState,
+	myDailyPlanListState,
 	userState
 } from '@app/stores';
 import { activeTeamTaskState, tasksByTeamState, tasksFetchingState, teamTasksState } from '@app/stores';
@@ -59,6 +63,9 @@ export function useTeamTasks() {
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
+	const setDailyPlan = useSetRecoilState(dailyPlanListState);
+	const setMyDailyPlans = useSetRecoilState(myDailyPlanListState);
+
 	// Queries hooks
 	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
 	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
@@ -71,8 +78,29 @@ export function useTeamTasks() {
 
 	const { queryCall: updateQueryCall, loading: updateLoading } = useQuery(updateTaskAPI);
 
+	const { queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
+	const { queryCall: getMyDailyPlansQueryCall } = useQuery(getMyDailyPlansAPI);
+
 	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } =
 		useQuery(deleteEmployeeFromTasksAPI);
+
+	const getAllDayPlans = useCallback(async () => {
+		const response = await getAllQueryCall();
+
+		if (response.data.items.length) {
+			const { items, total } = response.data;
+			setDailyPlan({ items, total });
+		}
+	}, [getAllQueryCall, setDailyPlan]);
+
+	const getMyDailyPlans = useCallback(async () => {
+		const response = await getMyDailyPlansQueryCall();
+
+		if (response.data.items.length) {
+			const { items, total } = response.data;
+			setMyDailyPlans({ items, total });
+		}
+	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
 
 	const getTaskById = useCallback(
 		(taskId: string) => {
@@ -87,7 +115,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[getTasksByIdQueryCall, setDetailedTask]
+		[getTasksByIdQueryCall, setDetailedTask, tasksRef]
 	);
 
 	const getTasksByEmployeeId = useCallback(
@@ -126,13 +154,16 @@ export function useTeamTasks() {
 				const activeTeamTasks = tasksRef.current.slice().sort((a, b) => a.title.localeCompare(b.title));
 
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
+					// Fetch plans with updated task(s)
+					getMyDailyPlans();
+					getAllDayPlans();
 					setAllTasks(responseTasks);
 				}
 			} else {
 				setAllTasks(responseTasks);
 			}
 		},
-		[activeTeamRef, setAllTasks, tasksRef]
+		[activeTeamRef, getAllDayPlans, getMyDailyPlans, setAllTasks, tasksRef]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -254,8 +285,8 @@ export function useTeamTasks() {
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 					...(activeTeam?.projects && activeTeam?.projects.length > 0
 						? {
-								projectId: activeTeam.projects[0].id
-							}
+							projectId: activeTeam.projects[0].id
+						}
 						: {}),
 					...(description ? { description: `<p>${description}</p>` } : {}),
 					...(members ? { members } : {}),
@@ -420,7 +451,17 @@ export function useTeamTasks() {
 				}
 			}
 		},
-		[setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, activeTeam, authUser]
+		[
+			setActiveTeamTask,
+			setActiveUserTaskCookieCb,
+			updateOrganizationTeamEmployeeActiveTask,
+			activeTeam,
+			authUser,
+			$memberActiveTaskId,
+			$user,
+			tasksRef,
+			updateTask
+		]
 	);
 
 	const deleteEmployeeFromTasks = useCallback(

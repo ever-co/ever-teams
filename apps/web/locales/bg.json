@@ -200,7 +200,9 @@
 		"PAUSED": "Пауза",
 		"ONLINE": "Онлайн",
 		"SKIP_ADD_LATER": "Добави по-късно",
-		"DAILYPLAN": "Планирано"
+		"DAILYPLAN": "Планирано",
+		"INVITATION_SENT": "Покана е изпратена успешно",
+		"INVITATION_SENT_TO_USER": "Покана е изпратена на {email}."
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -294,7 +296,8 @@
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
-			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени"
+			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени",
+			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",
@@ -539,6 +542,7 @@
 	},
 	"task": {
 		"TITLE": "Задача",
+		"TITLE_PLURAL": "Задачи",
 		"ASSIGN_NEW_TASK": "Възлагане на нова задача",
 		"ASSIGNED_BY": "Възложено от",
 		"NO_ONE_FOR_TASK": "Няма отговорник за тази задача",
@@ -602,9 +606,22 @@
 		"COMPLETION": "Завършване",
 		"PLANNED_TASKS": "Планирана задача",
 		"ESTIMATED": "Оценено",
+		"TOTAL_ESTIMATED": "Общо предвидено",
 		"TOTAL_TASK": "Общо задачи",
 		"DAILY_PLAN_DESCRIPTION": "'Дневният план' помага да се организира работният процес за постигане на най-добри резултати",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Тази задача не беше планирана за днешния план. Искате ли да добавите към плана?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Тази задача не беше планирана за днешния план. Искате ли да добавите към плана?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Моля, добавете планираното време",
+				"TASKS_ESTIMATION": "Моля, оценете всички задачи",
+				"OPTIMIZE_PLAN": "Общото прогнозирано време надвишава планираното време, моля оптимизирайте плана си",
+				"PLAN_MORE_TASKS": "Моля, добавете още задачи към плана"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Промяна на активната задача",
+			"MESSAGE": "Вие сте на път да започнете работа по днешния план {defaultPlannedTask}, но все още имате активна задача {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Въведете името си",

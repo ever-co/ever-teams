@@ -6,11 +6,13 @@ import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { IUpdateEmployee } from '@app/interfaces';
+import { useFirstLoad } from '../useFirstLoad';
 
 export const useEmployee = () => {
 	const { user } = useAuthenticateUser();
 	const [workingEmployees, setWorkingEmployees] = useRecoilState(workingEmployeesState);
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useRecoilState(workingEmployeesEmailState);
+	const { firstLoad, firstLoadData: firstLoadDataEmployee } = useFirstLoad();
 
 	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } =
 		useQuery(getWorkingEmployeesAPI);
@@ -30,10 +32,13 @@ export const useEmployee = () => {
 	}, [getWorkingEmployeeQueryCall, setWorkingEmployees, setWorkingEmployeesEmail, user]);
 
 	useEffect(() => {
-		getWorkingEmployee();
-	}, [getWorkingEmployee]);
+		if (firstLoad) {
+			getWorkingEmployee();
+		}
+	}, [getWorkingEmployee, firstLoad]);
 
 	return {
+		firstLoadDataEmployee,
 		getWorkingEmployeeQueryCall,
 		getWorkingEmployeeLoading,
 		workingEmployees,
@@ -41,18 +46,16 @@ export const useEmployee = () => {
 	};
 };
 
-
 export const useEmployeeUpdate = () => {
 	const { queryCall: employeeUpdateQuery, loading: isLoading } = useQuery(updateEmployeeAPI);
 
-	const updateEmployee = useCallback(({ id, data
-	}: { id: string, data: IUpdateEmployee }) => {
+	const updateEmployee = useCallback(({ id, data }: { id: string; data: IUpdateEmployee }) => {
 		employeeUpdateQuery({ id, data })
 			.then((res) => res.data)
 			.catch((error) => {
 				console.log(error);
 			});
-	}, []);
+	}, [employeeUpdateQuery]);
 
-	return { updateEmployee, isLoading }
-}
+	return { updateEmployee, isLoading };
+};

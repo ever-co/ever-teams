@@ -18,6 +18,7 @@ import React from "react";
 import { DateRange } from "react-day-picker";
 import { LuCalendarDays } from "react-icons/lu";
 import { Input } from "@components/ui/input";
+import { SettingFilterIcon } from "assets/svg";
 
 export function HeadCalendar({
     openModal,
@@ -60,14 +61,25 @@ export function HeadCalendar({
 }
 
 
-export function HeadTimeSheet({ timesheet }: { timesheet?: timesheetCalendar }) {
+export function HeadTimeSheet({ timesheet, isOpen, openModal, closeModal }: { timesheet?: timesheetCalendar, isOpen?: boolean, openModal?: () => void, closeModal?: () => void }) {
 
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: new Date(2022, 0, 20),
         to: addDays(new Date(2022, 0, 20), 20)
-    });
+    })
     return (
+
         <div>
+            {
+                closeModal ? (
+                    <TimeSheetFilter
+                        closeModal={closeModal}
+                        isOpen={isOpen ?? false}
+                    />
+                ) :
+                    <></>
+            }
+
             <div className='flex items-center justify-between w-full  dark:!bg-dark--theme h-28'>
                 {timesheet === 'TimeSheet' && (
                     <div className="flex justify-between items-center w-full p-2  gap-x-3">
@@ -123,7 +135,17 @@ export function HeadTimeSheet({ timesheet }: { timesheet?: timesheetCalendar }) 
                                 />
                             </div>
                             <div>
-                                <TimeSheetFilter />
+                                <Button
+                                    onClick={openModal}
+                                    className='flex items-center justify-center h-10 rounded-lg bg-white dark:bg-dark--theme-light gap-x-3 border dark:border-gray-700 hover:bg-white' >
+                                    <SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
+                                    <div className="gap-x-2 flex items-center w-full">
+                                        <span className="text-gray-700 dark:text-white">Filter</span>
+                                        <div className="bg-gray-700 dark:bg-white h-6 w-6 rounded-full flex items-center  justify-center text-whiten dark:text-gray-700">
+                                            <span>6</span>
+                                        </div>
+                                    </div>
+                                </Button>
                             </div>
                         </div>
                     </div>

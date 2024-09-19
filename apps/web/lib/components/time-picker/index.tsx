@@ -31,7 +31,7 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
 
     const handleTimeChange = (newTime: any) => {
         setTime(newTime);
-        onChange!(newTime)
+        onChange && onChange(newTime);
     };
     return (
         <Popover>

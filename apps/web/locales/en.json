@@ -200,7 +200,9 @@
 		"PAUSED": "Paused",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Add later",
-		"DAILYPLAN": "Planned"
+		"DAILYPLAN": "Planned",
+		"INVITATION_SENT": "Invitation Sent Successfully",
+		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -294,7 +296,8 @@
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Select Workspace",
 			"ENTER_EMAIL": "Enter Email",
-			"WORKSPACES_NOT_FOUND": "Workspaces Not Found"
+			"WORKSPACES_NOT_FOUND": "Workspaces Not Found",
+			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",
@@ -539,6 +542,7 @@
 	},
 	"task": {
 		"TITLE": "Task",
+		"TITLE_PLURAL": "Tasks",
 		"ASSIGN_NEW_TASK": "Assign new task",
 		"ASSIGNED_BY": "Assigned By",
 		"NO_ONE_FOR_TASK": "No One Assigned to this Task",
@@ -602,9 +606,22 @@
 		"COMPLETION": "Completion",
 		"PLANNED_TASKS": "Planned task",
 		"ESTIMATED": "Estimated",
+		"TOTAL_ESTIMATED": "Total Estimated",
 		"TOTAL_TASK": "Total tasks",
 		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Please, add planned time",
+				"TASKS_ESTIMATION": "Please, estimate all tasks",
+				"OPTIMIZE_PLAN": "Total estimated time exceeds your Planned time, please optimize your plan",
+				"PLAN_MORE_TASKS": "Please add more tasks to the plan"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Change Active Task",
+			"MESSAGE": "You are about to start working on Today's plan {defaultPlannedTask}, but still have active {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Enter your name",

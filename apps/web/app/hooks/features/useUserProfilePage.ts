@@ -23,11 +23,13 @@ export function useUserProfilePage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params, userMemberId]);
 
-	const members = activeTeam?.members || [];
+	const members = useMemo(() => activeTeam?.members || [], [activeTeam]);
 
-	const matchUser = members.find((m) => {
-		return m.employee.userId === memberId;
-	});
+	const matchUser = useMemo(() => {
+		return members.find((m) => {
+			return m.employee.userId === memberId;
+		});
+	}, [members, memberId]);
 
 	const isAuthUser = auth?.employee?.userId === memberId;
 

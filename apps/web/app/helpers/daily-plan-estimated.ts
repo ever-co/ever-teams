@@ -20,9 +20,10 @@ export const dailyPlanCompareEstimated = (plans: IDailyPlan[]): IDailyPlanCompar
         };
     }
 
-    const workTimePlanned = convertHourToSeconds(plan.workTimePlanned!);
+    const workTimePlanned = plan.workTimePlanned ? convertHourToSeconds(plan.workTimePlanned) : 0;
     const times = plan.tasks?.map((task) => task.estimate).filter((time): time is number => typeof time === 'number') ?? [];
-    const estimated = plan.tasks?.map((task) => task.estimate! > 0);
+    const estimated = plan.tasks?.map((task) => (task.estimate ?? 0) > 0);
+
 
     let estimatedTime = 0;
     if (times.length > 0) {

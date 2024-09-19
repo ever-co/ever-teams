@@ -43,7 +43,6 @@ export function useTimeLogs() {
 			profile.member?.employeeId,
 			queryTimerLogsDailyReport,
 			setTimerLogsDailyReport,
-			user?.employee.id,
 			user?.employee.organizationId,
 			user?.tenantId,
 		]

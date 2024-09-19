@@ -200,7 +200,9 @@
 		"PAUSED": "Pausiert",
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Später hinzufügen",
-		"DAILYPLAN": "Plan dzienny"
+		"DAILYPLAN": "Plan dzienny",
+		"INVITATION_SENT": "Einladung erfolgreich gesendet",
+		"INVITATION_SENT_TO_USER": "Eine Teameinladung wurde an {email} gesendet."
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -294,7 +296,8 @@
 			"LOGIN": "Anmelden",
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
-			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden"
+			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden",
+			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",
@@ -539,6 +542,7 @@
 	},
 	"task": {
 		"TITLE": "Aufgabe",
+		"TITLE_PLURAL": "Aufgaben",
 		"ASSIGN_NEW_TASK": "Neue Aufgabe zuweisen",
 		"ASSIGNED_BY": "Zugewiesen von",
 		"NO_ONE_FOR_TASK": "Niemand dieser Aufgabe zugewiesen",
@@ -602,9 +606,22 @@
 		"COMPLETION": "Abschluss",
 		"PLANNED_TASKS": "Geplante Aufgabe",
 		"ESTIMATED": "Geschätzt",
+		"TOTAL_ESTIMATED": "Gesamtschätzung",
 		"TOTAL_TASK": "Gesamte Aufgaben",
 		"DAILY_PLAN_DESCRIPTION": "'Tagesplan' hilft, den Arbeitsprozess zu organisieren, um die besten Ergebnisse zu erzielen",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Deze taak was niet gepland voor het plan van vandaag. Wilt u iets toevoegen aan het plan?"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Deze taak was niet gepland voor het plan van vandaag. Wilt u iets toevoegen aan het plan?",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "Bitte fügen Sie die geplante Zeit hinzu",
+				"TASKS_ESTIMATION": "Bitte schätzen Sie alle Aufgaben",
+				"OPTIMIZE_PLAN": "Die geschätzte Gesamtzeit übersteigt Ihre geplante Zeit, bitte optimieren Sie Ihren Plan",
+				"PLAN_MORE_TASKS": "Bitte fügen Sie dem Plan mehr Aufgaben hinzu"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "Aktive Aufgabe ändern",
+			"MESSAGE": "Sie sind dabei, mit dem heutigen Plan {defaultPlannedTask} zu beginnen, haben aber noch eine aktive Aufgabe {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "Ihren Namen eingeben",

@@ -200,7 +200,9 @@
 		"PAUSED": "暂停",
 		"ONLINE": "在线",
 		"SKIP_ADD_LATER": "稍后添加",
-		"DAILYPLAN": "計劃中"
+		"DAILYPLAN": "計劃中",
+		"INVITATION_SENT": "邀请已发送",
+		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -294,7 +296,8 @@
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
-			"WORKSPACES_NOT_FOUND": "工作区未找到"
+			"WORKSPACES_NOT_FOUND": "工作区未找到",
+			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
@@ -539,6 +542,7 @@
 	},
 	"task": {
 		"TITLE": "任务",
+		"TITLE_PLURAL": "任务",
 		"ASSIGN_NEW_TASK": "分配新任务",
 		"ASSIGNED_BY": "分配者",
 		"NO_ONE_FOR_TASK": "此任务未分配",
@@ -602,9 +606,22 @@
 		"COMPLETION": "完成度",
 		"PLANNED_TASKS": "计划任务",
 		"ESTIMATED": "预计",
+		"TOTAL_ESTIMATED": "总预计",
 		"TOTAL_TASK": "总任务",
 		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
-		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？"
+		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？",
+		"planned_tasks_popup": {
+			"warning": {
+				"PLANNED_TIME": "请添加计划时间",
+				"TASKS_ESTIMATION": "请估算所有任务",
+				"OPTIMIZE_PLAN": "总预计时间超过您的计划时间，请优化您的计划",
+				"PLAN_MORE_TASKS": "请在计划中添加更多任务"
+			}
+		},
+		"chang_active_task_popup": {
+			"TITLE": "更改活动任务",
+			"MESSAGE": "您即将开始今天的计划 {defaultPlannedTask}，但仍有未完成的活动任务 {activeTask}"
+		}
 	},
 	"form": {
 		"NAME_PLACEHOLDER": "输入您的姓名",

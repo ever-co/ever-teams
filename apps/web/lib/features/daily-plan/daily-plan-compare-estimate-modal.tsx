@@ -38,7 +38,7 @@ export function DailyPlanCompareEstimatedModal({
 	const hour = dh.toString()?.padStart(2, '0');
 	const minute = dm.toString()?.padStart(2, '0');
 	const [times, setTimes] = useState<TimePickerValue>({
-		hours: (workTimePlanned! / 3600).toString(),
+		hours: workTimePlanned ? (workTimePlanned / 3600).toString() : '--',
 		meridiem: 'PM',
 		minute: '--'
 	});

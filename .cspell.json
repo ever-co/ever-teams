@@ -4,6 +4,7 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"Unplan",
 		"nivo",
 		"accepte",
 		"Accordian",
@@ -367,7 +368,14 @@
 		"posthog",
 		"pageviews",
 		"pageleave",
-		"pageview"
+		"pageview",
+		"serverweb",
+		"intefaces",
+		"Environtment",
+		"asar",
+		"icns",
+		"nsis",
+		"WARNING️"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
@@ -414,6 +422,7 @@
 		"apps/mobile/android/**",
 		"apps/mobile/ios/**",
 		"apps/desktop/i18n/**",
-		"apps/**/*.{svg,css,scss}"
+		"apps/**/*.{svg,css,scss}",
+		".scripts/icon-utils/icons/**",
 	]
 }
