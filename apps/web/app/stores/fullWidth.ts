@@ -1,6 +1,3 @@
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const fullWidthState = atom<boolean>({
-	key: 'fullWidth',
-	default: true
-});
+export const fullWidthState = atom<boolean>(true);

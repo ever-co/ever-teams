@@ -1,11 +1,15 @@
 'use client';
 
-import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@app/helpers';
+import {
+  getActiveTaskIdCookie,
+  setActiveTaskIdCookie,
+  setActiveUserTaskCookie
+} from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { useOutsideClick } from '../useOutsideClick';
 import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
@@ -20,226 +24,257 @@ import cloneDeep from 'lodash/cloneDeep';
  * @param {IOrganizationTeamList['members'][number] | undefined} member -
  * IOrganizationTeamList['members'][number] | undefined
  */
-export function useTeamMemberCard(member: IOrganizationTeamList['members'][number] | undefined) {
-	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
-	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
-	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
-	const publicTeam = useRecoilValue(getPublicState);
-	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
+export function useTeamMemberCard(
+  member: IOrganizationTeamList['members'][number] | undefined
+) {
+  const {
+    updateTask,
+    tasks,
+    setActiveTask,
+    deleteEmployeeFromTasks,
+    unassignAuthActiveTask
+  } = useTeamTasks();
+  const [assignTaskLoading, setAssignTaskLoading] = useState(false);
+  const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
+  const publicTeam = useAtomValue(getPublicState);
+  const allTaskStatistics = useAtomValue(allTaskStatisticsState);
 
-	const { user: authUser, isTeamManager: isAuthTeamManager } = useAuthenticateUser();
+  const {
+    user: authUser,
+    isTeamManager: isAuthTeamManager
+  } = useAuthenticateUser();
 
-	const activeTeamTask = useRecoilValue(activeTeamTaskState);
+  const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
+  const {
+    activeTeam,
+    updateOrganizationTeam,
+    updateOTeamLoading
+  } = useOrganizationTeams();
 
-	const activeTeamRef = useSyncRef(activeTeam);
+  const activeTeamRef = useSyncRef(activeTeam);
 
-	const memberUser = member?.employee.user;
+  const memberUser = member?.employee.user;
 
-	// const memberUserRef = useSyncRef(memberUser);
-	const isAuthUser = member?.employee.userId === authUser?.id;
-	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
+  // const memberUserRef = useSyncRef(memberUser);
+  const isAuthUser = member?.employee.userId === authUser?.id;
+  const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
-	const memberTaskRef = useRef<Nullable<ITeamTask>>(null);
+  const memberTaskRef = useRef<Nullable<ITeamTask>>(null);
 
-	const setActiveUserTaskCookieCb = useCallback(
-		(task: ITeamTask | null) => {
-			if (task?.id && authUser?.id) {
-				setActiveUserTaskCookie({
-					taskId: task.id,
-					userId: authUser.id
-				});
-				setActiveTaskIdCookie(task.id);
-			}
-		},
-		[authUser]
-	);
+  const setActiveUserTaskCookieCb = useCallback(
+    (task: ITeamTask | null) => {
+      if (task?.id && authUser?.id) {
+        setActiveUserTaskCookie({
+          taskId: task.id,
+          userId: authUser.id
+        });
+        setActiveTaskIdCookie(task.id);
+      }
+    },
+    [authUser]
+  );
 
-	memberTaskRef.current = useMemo(() => {
-		let cTask;
-		let find;
+  memberTaskRef.current = useMemo(() => {
+    let cTask;
+    let find;
 
-		if (!member) {
-			return null;
-		}
-		const active_task_id = getActiveTaskIdCookie();
+    if (!member) {
+      return null;
+    }
+    const active_task_id = getActiveTaskIdCookie();
 
-		if (active_task_id && isAuthUser) {
-			cTask = tasks.find((t) => active_task_id === t.id || publicTeam);
-			find = cTask;
-		} else if (member.lastWorkedTask) {
-			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
-			find = cTask?.members.some((m) => m.id === member.employee.id);
-		} else {
-			cTask = tasks.find((t) => t.members.some((m) => m.userId === member.employee.userId));
-			find = cTask?.members.some((m) => m.id === member.employee.id);
-		}
+    if (active_task_id && isAuthUser) {
+      cTask = tasks.find((t) => active_task_id === t.id || publicTeam);
+      find = cTask;
+    } else if (member.lastWorkedTask) {
+      cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+      find = cTask?.members.some((m) => m.id === member.employee.id);
+    } else {
+      cTask = tasks.find((t) =>
+        t.members.some((m) => m.userId === member.employee.userId)
+      );
+      find = cTask?.members.some((m) => m.id === member.employee.id);
+    }
 
-		if (isAuthUser && member.lastWorkedTask && !active_task_id) {
-			setActiveUserTaskCookieCb(member.lastWorkedTask);
-		} else if (isAuthUser && find && cTask && !active_task_id) {
-			setActiveUserTaskCookieCb(cTask);
-		}
+    if (isAuthUser && member.lastWorkedTask && !active_task_id) {
+      setActiveUserTaskCookieCb(member.lastWorkedTask);
+    } else if (isAuthUser && find && cTask && !active_task_id) {
+      setActiveUserTaskCookieCb(cTask);
+    }
 
-		const responseTask = find ? cloneDeep(cTask) : null;
+    const responseTask = find ? cloneDeep(cTask) : null;
 
-		if (responseTask) {
-			const taskStatistics = allTaskStatistics.find((statistics) => statistics.id === responseTask.id);
-			responseTask.totalWorkedTime = taskStatistics?.duration || 0;
-		}
+    if (responseTask) {
+      const taskStatistics = allTaskStatistics.find(
+        (statistics) => statistics.id === responseTask.id
+      );
+      responseTask.totalWorkedTime = taskStatistics?.duration || 0;
+    }
 
-		return responseTask;
-	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb]);
+    return responseTask;
+  }, [
+    isAuthUser,
+    member,
+    tasks,
+    publicTeam,
+    allTaskStatistics,
+    setActiveUserTaskCookieCb
+  ]);
 
-	/**
-	 * Give the manager role to the member
-	 */
-	const makeMemberManager = useCallback(() => {
-		const employeeId = member?.employee?.id;
+  /**
+   * Give the manager role to the member
+   */
+  const makeMemberManager = useCallback(() => {
+    const employeeId = member?.employee?.id;
 
-		if (!activeTeamRef.current || !employeeId) return;
-		const team = activeTeamRef.current;
+    if (!activeTeamRef.current || !employeeId) return;
+    const team = activeTeamRef.current;
 
-		updateOrganizationTeam(activeTeamRef.current, {
-			managerIds: team.members
-				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.map((r) => r.employee.id)
-				.concat(employeeId)
-		});
-	}, [updateOrganizationTeam, member, activeTeamRef]);
+    updateOrganizationTeam(activeTeamRef.current, {
+      managerIds: team.members
+        .filter((r) => r.role && r.role.name === 'MANAGER')
+        .map((r) => r.employee.id)
+        .concat(employeeId)
+    });
+  }, [updateOrganizationTeam, member, activeTeamRef]);
 
-	/**
-	 * remove manager role to the member
-	 */
-	const unMakeMemberManager = useCallback(() => {
-		const employeeId = member?.employee?.id;
+  /**
+   * remove manager role to the member
+   */
+  const unMakeMemberManager = useCallback(() => {
+    const employeeId = member?.employee?.id;
 
-		if (!activeTeamRef.current || !employeeId) return;
-		const team = activeTeamRef.current;
+    if (!activeTeamRef.current || !employeeId) return;
+    const team = activeTeamRef.current;
 
-		updateOrganizationTeam(activeTeamRef.current, {
-			managerIds: team.members
-				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id)
-				.filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
-		});
-	}, [updateOrganizationTeam, member, activeTeamRef]);
+    updateOrganizationTeam(activeTeamRef.current, {
+      managerIds: team.members
+        .filter((r) => r.role && r.role.name === 'MANAGER')
+        .filter((r) => r.employee.id !== employeeId)
+        .map((r) => r.employee.id)
+        .filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
+    });
+  }, [updateOrganizationTeam, member, activeTeamRef]);
 
-	/**
-	 * Remove member from team API call
-	 */
-	const removeMemberFromTeam = useCallback(() => {
-		const employeeId = member?.employee?.id;
+  /**
+   * Remove member from team API call
+   */
+  const removeMemberFromTeam = useCallback(() => {
+    const employeeId = member?.employee?.id;
 
-		if (!activeTeamRef.current || !employeeId) return;
-		const team = activeTeamRef.current;
+    if (!activeTeamRef.current || !employeeId) return;
+    const team = activeTeamRef.current;
 
-		deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
-		updateOrganizationTeam(activeTeamRef.current, {
-			// remove from members
-			memberIds: team.members.filter((r) => r.employee.id !== employeeId).map((r) => r.employee.id),
+    deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
+    updateOrganizationTeam(activeTeamRef.current, {
+      // remove from members
+      memberIds: team.members
+        .filter((r) => r.employee.id !== employeeId)
+        .map((r) => r.employee.id),
 
-			// remove from managers
-			managerIds: team.members
-				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id)
-		});
-	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
+      // remove from managers
+      managerIds: team.members
+        .filter((r) => r.role && r.role.name === 'MANAGER')
+        .filter((r) => r.employee.id !== employeeId)
+        .map((r) => r.employee.id)
+    });
+  }, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 
-	/**
-	 * Returns all tasks not assigned to the member
-	 */
-	const memberUnassignTasks = useMemo(() => {
-		if (!memberUser) return [];
+  /**
+   * Returns all tasks not assigned to the member
+   */
+  const memberUnassignTasks = useMemo(() => {
+    if (!memberUser) return [];
 
-		return tasks.filter((task) => {
-			return !task.members.some((m) => m.userId === memberUser.id);
-		});
-	}, [tasks, memberUser]);
+    return tasks.filter((task) => {
+      return !task.members.some((m) => m.userId === memberUser.id);
+    });
+  }, [tasks, memberUser]);
 
-	/**
-	 * Assign task to the member
-	 */
-	const assignTask = useCallback(
-		(task: ITeamTask) => {
-			if (!member?.employeeId) {
-				return Promise.resolve();
-			}
-			setAssignTaskLoading(true);
-			return updateTask({
-				...task,
-				members: [...task.members, (member?.employeeId ? { id: member?.employeeId } : {}) as any]
-			}).then(() => {
-				if (isAuthUser && !activeTeamTask) {
-					setActiveTask(task);
-				}
-				setAssignTaskLoading(false);
-			});
-		},
-		[updateTask, member, isAuthUser, setActiveTask, activeTeamTask]
-	);
+  /**
+   * Assign task to the member
+   */
+  const assignTask = useCallback(
+    (task: ITeamTask) => {
+      if (!member?.employeeId) {
+        return Promise.resolve();
+      }
+      setAssignTaskLoading(true);
+      return updateTask({
+        ...task,
+        members: [
+          ...task.members,
+          (member?.employeeId ? { id: member?.employeeId } : {}) as any
+        ]
+      }).then(() => {
+        if (isAuthUser && !activeTeamTask) {
+          setActiveTask(task);
+        }
+        setAssignTaskLoading(false);
+      });
+    },
+    [updateTask, member, isAuthUser, setActiveTask, activeTeamTask]
+  );
 
-	const unassignTask = useCallback(
-		(task: ITeamTask) => {
-			if (!member?.employeeId) {
-				return Promise.resolve();
-			}
-			setUnAssignTaskLoading(true);
+  const unassignTask = useCallback(
+    (task: ITeamTask) => {
+      if (!member?.employeeId) {
+        return Promise.resolve();
+      }
+      setUnAssignTaskLoading(true);
 
-			return updateTask({
-				...task,
-				members: task.members.filter((m) => m.id !== member.employeeId)
-			}).finally(() => {
-				isAuthUser && unassignAuthActiveTask();
-				setUnAssignTaskLoading(false);
-			});
-		},
-		[updateTask, member, isAuthUser, unassignAuthActiveTask]
-	);
+      return updateTask({
+        ...task,
+        members: task.members.filter((m) => m.id !== member.employeeId)
+      }).finally(() => {
+        isAuthUser && unassignAuthActiveTask();
+        setUnAssignTaskLoading(false);
+      });
+    },
+    [updateTask, member, isAuthUser, unassignAuthActiveTask]
+  );
 
-	return {
-		assignTask,
-		memberUnassignTasks,
-		isTeamManager,
-		memberUser,
-		assignTaskLoading,
-		unAssignTaskLoading,
-		member,
-		memberTask: memberTaskRef.current,
-		isAuthUser,
-		isAuthTeamManager,
-		makeMemberManager,
-		updateOTeamLoading,
-		removeMemberFromTeam,
-		unMakeMemberManager,
-		isTeamCreator,
-		unassignTask,
-		isTeamOwner: activeTeam?.createdBy?.id === memberUser?.id
-	};
+  return {
+    assignTask,
+    memberUnassignTasks,
+    isTeamManager,
+    memberUser,
+    assignTaskLoading,
+    unAssignTaskLoading,
+    member,
+    memberTask: memberTaskRef.current,
+    isAuthUser,
+    isAuthTeamManager,
+    makeMemberManager,
+    updateOTeamLoading,
+    removeMemberFromTeam,
+    unMakeMemberManager,
+    isTeamCreator,
+    unassignTask,
+    isTeamOwner: activeTeam?.createdBy?.id === memberUser?.id
+  };
 }
 
 export function useTMCardTaskEdit(task: Nullable<ITeamTask>) {
-	const [editMode, setEditMode] = useState(false);
-	const [estimateEditMode, setEstimateEditMode] = useState(false);
-	const [loading, setLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [estimateEditMode, setEstimateEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-	const estimateEditIgnoreElement = useOutsideClick<any>();
-	const taskEditIgnoreElement = useOutsideClick<any>();
+  const estimateEditIgnoreElement = useOutsideClick<any>();
+  const taskEditIgnoreElement = useOutsideClick<any>();
 
-	return {
-		editMode,
-		setEditMode,
-		task,
-		estimateEditMode,
-		setEstimateEditMode,
-		estimateEditIgnoreElement,
-		taskEditIgnoreElement,
-		loading,
-		setLoading
-	};
+  return {
+    editMode,
+    setEditMode,
+    task,
+    estimateEditMode,
+    setEstimateEditMode,
+    estimateEditIgnoreElement,
+    taskEditIgnoreElement,
+    loading,
+    setLoading
+  };
 }
 
 export type I_TMCardTaskEditHook = ReturnType<typeof useTMCardTaskEdit>;

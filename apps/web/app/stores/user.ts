@@ -1,11 +1,5 @@
 import { IUser } from '@app/interfaces/IUserData';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const userState = atom<IUser | null>({
-	key: 'userState',
-	default: null
-});
-export const userDetailAccordion = atom<string>({
-	key: 'userDetailAccordion',
-	default: ''
-});
+export const userState = atom<IUser | null>(null);
+export const userDetailAccordion = atom<string>('');

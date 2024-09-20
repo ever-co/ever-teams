@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import '../../../styles/style.css';
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
-import { clsxm } from '@app/utils';
-import { DatePicker } from '@components/ui/DatePicker';
+
 import { format } from 'date-fns';
-import { useState, useEffect, FormEvent, useCallback } from 'react';
-import { Button, SelectItems, Modal } from 'lib/components';
-import { manualTimeReasons } from '@app/constants';
-import { useTranslations } from 'next-intl';
-import { IOrganizationTeamList } from '@app/interfaces';
-import { useManualTime } from '@app/hooks/features/useManualTime';
-import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
+import { Button, Modal, SelectItems } from 'lib/components';
 import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { IoTime } from 'react-icons/io5';
-import { Item, ManageOrMemberComponent, getNestedValue } from './manage-member-component';
+
+import { manualTimeReasons } from '@app/constants';
+import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useManualTime } from '@app/hooks/features/useManualTime';
+import { IOrganizationTeamList } from '@app/interfaces';
+import { IAddManualTimeRequest } from '@app/interfaces/timer/ITimerLogs';
+import { clsxm } from '@app/utils';
+import { DatePicker } from '@components/ui/DatePicker';
+
+import { getNestedValue, Item, ManageOrMemberComponent } from './manage-member-component';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -34,7 +37,7 @@ interface IAddManualTimeModalProps {
 	closeModal: () => void;
 }
 
-export function AddManualTimeModal(props: IAddManualTimeModalProps) {
+export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { closeModal, isOpen, params, timeSheetStatus } = props;
 	const t = useTranslations();
 	const [isBillable, setIsBillable] = useState<boolean>(false);

@@ -1,26 +1,18 @@
 import { IIssueTypesItemList } from '@app/interfaces/IIssueTypes';
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const issueTypesListState = atom<IIssueTypesItemList[]>({
-	key: 'issueTypesListState',
-	default: []
-});
+export const issueTypesListState = atom<IIssueTypesItemList[]>([]);
 
-export const activeIssueTypesIdState = atom<string | null>({
-	key: 'activeIssueTypesIdState',
-	default: null
-});
+export const activeIssueTypesIdState = atom<string | null>(null);
 
-export const issueTypesFetchingState = atom<boolean>({
-	key: 'issueTypesFetchingState',
-	default: false
-});
+export const issueTypesFetchingState = atom<boolean>(false);
 
-export const activeIssueTypesState = selector<IIssueTypesItemList | null>({
-	key: 'activeIssueTypesState',
-	get: ({ get }) => {
-		const issueTypes = get(issueTypesListState);
-		const activeId = get(activeIssueTypesIdState);
-		return issueTypes.find((issueType) => issueType.id === activeId) || issueTypes[0] || null;
-	}
+export const activeIssueTypesState = atom<IIssueTypesItemList | null>((get) => {
+  const issueTypes = get(issueTypesListState);
+  const activeId = get(activeIssueTypesIdState);
+  return (
+    issueTypes.find((issueType) => issueType.id === activeId) ||
+    issueTypes[0] ||
+    null
+  );
 });

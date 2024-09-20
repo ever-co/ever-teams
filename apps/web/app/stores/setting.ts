@@ -1,6 +1,3 @@
-import { atom } from "recoil";
+import { atom } from 'jotai';
 
-export const activeSettingTeamTab = atom<string>({
-	key: 'activeSettingTeamTab',
-	default: ''
-});
+export const activeSettingTeamTab = atom<string>('');

@@ -1,44 +1,59 @@
-import { editOrganizationProjectSettingAPI, editOrganizationProjectAPI } from '@app/services/client/api';
+import {
+	editOrganizationProjectSettingAPI,
+	editOrganizationProjectAPI
+} from '@app/services/client/api';
 import { userState } from '@app/stores';
 import { useCallback } from 'react';
-import { useRecoilState } from 'recoil';
+import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 
 export function useOrganizationProjects() {
-	const [user] = useRecoilState(userState);
+  const [user] = useAtom(userState);
 
-	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } =
-		useQuery(editOrganizationProjectAPI);
+  const {
+    loading: editOrganizationProjectLoading,
+    queryCall: editOrganizationProjectQueryCall
+  } = useQuery(editOrganizationProjectAPI);
 
-	const { loading: editOrganizationProjectSettingLoading, queryCall: editOrganizationProjectSettingQueryCall } =
-		useQuery(editOrganizationProjectSettingAPI);
+  const {
+    loading: editOrganizationProjectSettingLoading,
+    queryCall: editOrganizationProjectSettingQueryCall
+  } = useQuery(editOrganizationProjectSettingAPI);
 
-	const editOrganizationProjectSetting = useCallback(
-		(id: string, data: any) => {
-			if (user?.tenantId) {
-				return editOrganizationProjectSettingQueryCall(id, data, user?.tenantId || '').then((res) => {
-					return res;
-				});
-			}
-		},
-		[user, editOrganizationProjectSettingQueryCall]
-	);
+  const editOrganizationProjectSetting = useCallback(
+    (id: string, data: any) => {
+      if (user?.tenantId) {
+        return editOrganizationProjectSettingQueryCall(
+          id,
+          data,
+          user?.tenantId || ''
+        ).then((res) => {
+          return res;
+        });
+      }
+    },
+    [user, editOrganizationProjectSettingQueryCall]
+  );
 
-	const editOrganizationProject = useCallback(
-		(id: string, data: any) => {
-			if (user?.tenantId) {
-				return editOrganizationProjectQueryCall(id, data, user?.tenantId || '').then((res) => {
-					return res;
-				});
-			}
-		},
-		[user, editOrganizationProjectQueryCall]
-	);
+  const editOrganizationProject = useCallback(
+    (id: string, data: any) => {
+      if (user?.tenantId) {
+        return editOrganizationProjectQueryCall(
+          id,
+          data,
+          user?.tenantId || ''
+        ).then((res) => {
+          return res;
+        });
+      }
+    },
+    [user, editOrganizationProjectQueryCall]
+  );
 
-	return {
-		editOrganizationProjectSetting,
-		editOrganizationProjectSettingLoading,
-		editOrganizationProject,
-		editOrganizationProjectLoading
-	};
+  return {
+    editOrganizationProjectSetting,
+    editOrganizationProjectSettingLoading,
+    editOrganizationProject,
+    editOrganizationProjectLoading
+  };
 }

@@ -1,7 +1,4 @@
 import { IKanban } from '@app/interfaces/IKanban';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const kanbanBoardState = atom<IKanban>({
-	key: 'kanbanBoardState',
-	default: {}
-});
+export const kanbanBoardState = atom<IKanban>({});

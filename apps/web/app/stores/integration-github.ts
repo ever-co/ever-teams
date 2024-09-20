@@ -1,12 +1,10 @@
 import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const integrationGithubMetadataState = atom<IGithubMetadata | null>({
-	key: 'integrationGithubMetadataState',
-	default: null
-});
+export const integrationGithubMetadataState = atom<IGithubMetadata | null>(
+  null
+);
 
-export const integrationGithubRepositoriesState = atom<IGithubRepositories | null>({
-	key: 'integrationGithubRepositoriesState',
-	default: null
-});
+export const integrationGithubRepositoriesState = atom<IGithubRepositories | null>(
+  null
+);
