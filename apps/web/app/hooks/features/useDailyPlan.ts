@@ -1,6 +1,6 @@
 'use client';
 
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery } from '../useQuery';
 import {
@@ -32,7 +32,7 @@ export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Ta
 
 export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
@@ -48,12 +48,12 @@ export function useDailyPlan() {
 
 	const { loading: deleteDailyPlanLoading, queryCall: deleteDailyPlanQueryCall } = useQuery(deleteDailyPlanAPI);
 
-	const [dailyPlan, setDailyPlan] = useRecoilState(dailyPlanListState);
-	const [myDailyPlans, setMyDailyPlans] = useRecoilState(myDailyPlanListState);
-	const [profileDailyPlans, setProfileDailyPlans] = useRecoilState(profileDailyPlanListState);
-	const [employeePlans, setEmployeePlans] = useRecoilState(employeePlansListState);
-	const [taskPlanList, setTaskPlans] = useRecoilState(taskPlans);
-	const [dailyPlanFetching, setDailyPlanFetching] = useRecoilState(dailyPlanFetchingState);
+	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);
+	const [myDailyPlans, setMyDailyPlans] = useAtom(myDailyPlanListState);
+	const [profileDailyPlans, setProfileDailyPlans] = useAtom(profileDailyPlanListState);
+	const [employeePlans, setEmployeePlans] = useAtom(employeePlansListState);
+	const [taskPlanList, setTaskPlans] = useAtom(taskPlans);
+	const [dailyPlanFetching, setDailyPlanFetching] = useAtom(dailyPlanFetchingState);
 	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
@@ -153,7 +153,10 @@ export function useDailyPlan() {
 			const res = await updateQueryCall(data, planId);
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
-			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			setProfileDailyPlans({
+				total: profileDailyPlans.total,
+				items: [...updated, res.data]
+			});
 			setEmployeePlans([...updatedEmployee, res.data]);
 			// Fetch updated plans
 			getMyDailyPlans();
@@ -177,7 +180,10 @@ export function useDailyPlan() {
 			const res = await addTaskToPlanQueryCall(data, planId);
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
-			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			setProfileDailyPlans({
+				total: profileDailyPlans.total,
+				items: [...updated, res.data]
+			});
 			setEmployeePlans([...updatedEmployee, res.data]);
 			getMyDailyPlans();
 			return res;
@@ -197,7 +203,10 @@ export function useDailyPlan() {
 			const res = await removeTAskFromPlanQueryCall(data, planId);
 			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
-			setProfileDailyPlans({ total: profileDailyPlans.total, items: [...updated, res.data] });
+			setProfileDailyPlans({
+				total: profileDailyPlans.total,
+				items: [...updated, res.data]
+			});
 			setEmployeePlans([...updatedEmployee, res.data]);
 			getMyDailyPlans();
 			return res;

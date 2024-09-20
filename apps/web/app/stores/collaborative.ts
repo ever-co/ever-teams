@@ -1,12 +1,6 @@
 import { IUser } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const collaborativeSelectState = atom<boolean>({
-	key: 'collaborativeSelectState',
-	default: false
-});
+export const collaborativeSelectState = atom<boolean>(false);
 
-export const collaborativeMembersState = atom<IUser[]>({
-	key: 'collaborativeMembersState',
-	default: []
-});
+export const collaborativeMembersState = atom<IUser[]>([]);

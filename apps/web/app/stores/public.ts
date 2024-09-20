@@ -1,13 +1,7 @@
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const publicState = atom<boolean>({
-	key: 'publicState',
-	default: false
-});
+export const publicState = atom<boolean>(false);
 
-export const getPublicState = selector<boolean>({
-	key: 'getPublicState',
-	get: ({ get }) => {
-		return get(publicState);
-	}
+export const getPublicState = atom<boolean>((get) => {
+  return get(publicState);
 });

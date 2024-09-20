@@ -1,7 +1,8 @@
 import { ITeamsMembersFilter } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
 export const filterValue = atom<ITeamsMembersFilter>({
-	key: 'allTeamsFilterValue',
-	default: { label: 'All', value: 'all', bg: 'transparent' }
+  label: 'All',
+  value: 'all',
+  bg: 'transparent'
 });

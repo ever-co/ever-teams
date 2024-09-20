@@ -1,26 +1,18 @@
 import { ITaskLabelsItemList } from '@app/interfaces/ITaskLabels';
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const taskLabelsListState = atom<ITaskLabelsItemList[]>({
-	key: 'taskLabelsListState',
-	default: []
-});
+export const taskLabelsListState = atom<ITaskLabelsItemList[]>([]);
 
-export const activeTaskLabelsIdState = atom<string | null>({
-	key: 'activeTaskLabelsIdState',
-	default: null
-});
+export const activeTaskLabelsIdState = atom<string | null>(null);
 
-export const taskLabelsFetchingState = atom<boolean>({
-	key: 'taskLabelsFetchingState',
-	default: false
-});
+export const taskLabelsFetchingState = atom<boolean>(false);
 
-export const activeTaskLabelsState = selector<ITaskLabelsItemList | null>({
-	key: 'activeTaskLabelsState',
-	get: ({ get }) => {
-		const taskLabels = get(taskLabelsListState);
-		const activeId = get(activeTaskLabelsIdState);
-		return taskLabels.find((priority) => priority.id === activeId) || taskLabels[0] || null;
-	}
+export const activeTaskLabelsState = atom<ITaskLabelsItemList | null>((get) => {
+  const taskLabels = get(taskLabelsListState);
+  const activeId = get(activeTaskLabelsIdState);
+  return (
+    taskLabels.find((priority) => priority.id === activeId) ||
+    taskLabels[0] ||
+    null
+  );
 });

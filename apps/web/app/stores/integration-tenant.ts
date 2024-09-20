@@ -1,7 +1,4 @@
 import { IIntegrationTenant } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const integrationTenantState = atom<IIntegrationTenant[]>({
-	key: 'integrationTenantState',
-	default: []
-});
+export const integrationTenantState = atom<IIntegrationTenant[]>([]);

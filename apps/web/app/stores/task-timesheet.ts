@@ -1,7 +1,4 @@
 import { ITaskTimesheet } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const taskTimesheetState = atom<ITaskTimesheet[]>({
-	key: 'taskTimesheetState',
-	default: []
-});
+export const taskTimesheetState = atom<ITaskTimesheet[]>([]);

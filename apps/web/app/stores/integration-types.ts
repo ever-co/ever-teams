@@ -1,7 +1,4 @@
 import { IIntegrationType } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const integrationTypesState = atom<IIntegrationType[]>({
-	key: 'integrationTypesState',
-	default: []
-});
+export const integrationTypesState = atom<IIntegrationType[]>([]);

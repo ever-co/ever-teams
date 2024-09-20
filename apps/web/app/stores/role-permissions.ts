@@ -1,14 +1,8 @@
 import { IRolePermissions } from '@app/interfaces/';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const rolePermissionsState = atom<IRolePermissions[]>({
-	key: 'rolePermissionsState',
-	default: []
-});
+export const rolePermissionsState = atom<IRolePermissions[]>([]);
 
 export const rolePermissionsFormatedState = atom<{
-	[key: string]: IRolePermissions;
-}>({
-	key: 'rolePermissionsFormatedState',
-	default: {}
-});
+  [key: string]: IRolePermissions;
+}>({});
