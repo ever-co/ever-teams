@@ -270,7 +270,9 @@ export function useDailyPlan() {
 	);
 
 	const ascSortedPlans = useMemo(() => {
-		return [...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
+			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+		);
 	}, [profileDailyPlans]);
 
 	const futurePlans = useMemo(() => {
@@ -283,7 +285,9 @@ export function useDailyPlan() {
 	}, [ascSortedPlans]);
 
 	const descSortedPlans = useMemo(() => {
-		return [...profileDailyPlans.items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
+			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+		);
 	}, [profileDailyPlans]);
 
 	const pastPlans = useMemo(() => {
@@ -296,11 +300,10 @@ export function useDailyPlan() {
 	}, [descSortedPlans]);
 
 	const todayPlan = useMemo(() => {
-		return [...profileDailyPlans.items].filter((plan) =>
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
 		);
 	}, [profileDailyPlans]);
-
 
 	const todayTasks = useMemo(() => {
 		return todayPlan
@@ -320,7 +323,7 @@ export function useDailyPlan() {
 
 	const outstandingPlans = useMemo(() => {
 		return (
-			[...profileDailyPlans.items]
+			[...(profileDailyPlans.items ? profileDailyPlans.items : [])]
 				// Exclude today plans
 				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
 
@@ -349,7 +352,9 @@ export function useDailyPlan() {
 	}, [profileDailyPlans, todayTasks, futureTasks]);
 
 	const sortedPlans = useMemo(() => {
-		return [...profileDailyPlans.items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
+			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+		);
 	}, [profileDailyPlans]);
 
 	useEffect(() => {
