@@ -1,6 +1,3 @@
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const isPermissionModalOpenState = atom<boolean>({
-	key: 'isPermissionModalOpen',
-	default: false
-});
+export const isPermissionModalOpenState = atom<boolean>(false);

@@ -1,17 +1,8 @@
 import { IssuesView } from '@app/constants';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const headerTabs = atom<IssuesView>({
-	key: 'headerTabs',
-	default: IssuesView.CARDS
-});
+export const headerTabs = atom<IssuesView>(IssuesView.CARDS);
 
-export const allTeamsHeaderTabs = atom<IssuesView>({
-	key: 'allTeamsHeaderTabs',
-	default: IssuesView.CARDS
-});
+export const allTeamsHeaderTabs = atom<IssuesView>(IssuesView.CARDS);
 
-export const dailyPlanViewHeaderTabs = atom<IssuesView>({
-	key: 'dailyPlanViewHeaderTabs',
-	default: IssuesView.CARDS
-});
+export const dailyPlanViewHeaderTabs = atom<IssuesView>(IssuesView.CARDS);

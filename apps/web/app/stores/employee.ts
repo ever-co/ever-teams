@@ -1,18 +1,8 @@
 import { IUpdateEmployee, IWorkingEmployee } from '@app/interfaces';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const workingEmployeesState = atom<IWorkingEmployee[]>({
-	key: 'workingEmployeesState',
-	default: []
-});
+export const workingEmployeesState = atom<IWorkingEmployee[]>([]);
 
-export const workingEmployeesEmailState = atom<string[]>({
-	key: 'workingEmployeesEmailState',
-	default: []
-});
+export const workingEmployeesEmailState = atom<string[]>([]);
 
-
-export const employeeUpdateState = atom<IUpdateEmployee>({
-	key: 'employeeUpdateState',
-	default: undefined,
-})
+export const employeeUpdateState = atom<IUpdateEmployee>();

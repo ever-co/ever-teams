@@ -1,25 +1,15 @@
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const timezoneListState = atom<string[]>({
-	key: 'timezoneListState',
-	default: []
-});
+export const timezoneListState = atom<string[]>([]);
 
-export const activeTimezoneIdState = atom<string | null>({
-	key: 'activeTimezoneIdState',
-	default: null
-});
+export const activeTimezoneIdState = atom<string | null>(null);
 
-export const timezonesFetchingState = atom<boolean>({
-	key: 'timezonesFetchingState',
-	default: false
-});
+export const timezonesFetchingState = atom<boolean>(false);
 
-export const activeTimezoneState = selector<string | null>({
-	key: 'activeTimezoneState',
-	get: ({ get }) => {
-		const timezones = get(timezoneListState);
-		const activeId = get(activeTimezoneIdState);
-		return timezones.find((timezone) => timezone === activeId) || timezones[0] || null;
-	}
+export const activeTimezoneState = atom<string | null>((get) => {
+  const timezones = get(timezoneListState);
+  const activeId = get(activeTimezoneIdState);
+  return (
+    timezones.find((timezone) => timezone === activeId) || timezones[0] || null
+  );
 });

@@ -1,30 +1,24 @@
 import { ITaskRelatedIssueTypeItemList } from '@app/interfaces';
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const taskRelatedIssueTypeListState = atom<ITaskRelatedIssueTypeItemList[]>({
-	key: 'taskRelatedIssueTypeListState',
-	default: []
-});
+export const taskRelatedIssueTypeListState = atom<
+  ITaskRelatedIssueTypeItemList[]
+>([]);
 
-export const activeTaskRelatedIssueTypeIdState = atom<string | null>({
-	key: 'activeTaskRelatedIssueTypeIdState',
-	default: null
-});
+export const activeTaskRelatedIssueTypeIdState = atom<string | null>(null);
 
-export const taskRelatedIssueTypeFetchingState = atom<boolean>({
-	key: 'taskRelatedIssueTypeFetchingState',
-	default: false
-});
+export const taskRelatedIssueTypeFetchingState = atom<boolean>(false);
 
-export const activeTaskRelatedIssueTypeState = selector<ITaskRelatedIssueTypeItemList | null>({
-	key: 'activeTaskRelatedIssueTypeState',
-	get: ({ get }) => {
-		const taskRelatedIssueType = get(taskRelatedIssueTypeListState);
-		const activeId = get(activeTaskRelatedIssueTypeIdState);
-		return (
-			taskRelatedIssueType.find((relatedIssueType) => relatedIssueType.id === activeId) ||
-			taskRelatedIssueType[0] ||
-			null
-		);
-	}
-});
+export const activeTaskRelatedIssueTypeState = atom<ITaskRelatedIssueTypeItemList | null>(
+  (get) => {
+    const taskRelatedIssueType = get(taskRelatedIssueTypeListState);
+    const activeId = get(activeTaskRelatedIssueTypeIdState);
+    return (
+      taskRelatedIssueType.find(
+        (relatedIssueType) => relatedIssueType.id === activeId
+      ) ||
+      taskRelatedIssueType[0] ||
+      null
+    );
+  }
+);

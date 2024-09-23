@@ -1,10 +1,7 @@
 import { IActivityFilter } from '@app/interfaces/IActivityFilter';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
 export const activityTypeState = atom<IActivityFilter>({
-	key: 'activityTypeState',
-	default: {
-		type: 'DATE',
-		member: null
-	}
+  type: 'DATE',
+  member: null
 });

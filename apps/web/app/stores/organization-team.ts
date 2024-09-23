@@ -1,75 +1,45 @@
-import { IOrganizationTeamList, OT_Member, RoleNameEnum } from '@app/interfaces/IOrganizationTeam';
-import { atom, selector } from 'recoil';
+import {
+  IOrganizationTeamList,
+  OT_Member,
+  RoleNameEnum
+} from '@app/interfaces/IOrganizationTeam';
+import { atom } from 'jotai';
 
-export const organizationTeamsState = atom<IOrganizationTeamList[]>({
-	key: 'organizationTeamsState',
-	default: []
-});
+export const organizationTeamsState = atom<IOrganizationTeamList[]>([]);
 
-export const activeTeamIdState = atom<string | null>({
-	key: 'activeTeamIdState',
-	default: null
-});
+export const activeTeamIdState = atom<string | null>(null);
 
-export const teamsFetchingState = atom<boolean>({
-	key: 'teamsFetchingState',
-	default: false
-});
+export const teamsFetchingState = atom<boolean>(false);
 
-export const isTeamMemberState = atom<boolean>({
-	key: 'isTeamMember',
-	default: true
-});
+export const isTeamMemberState = atom<boolean>(true);
 
-export const isTeamMemberJustDeletedState = atom<boolean>({
-	key: 'isTeamMemberJustDeletedState',
-	default: false
-});
+export const isTeamMemberJustDeletedState = atom<boolean>(false);
 
-export const isTeamJustDeletedState = atom<boolean>({
-	key: 'isTeamJustDeletedState',
-	default: false
-});
+export const isTeamJustDeletedState = atom<boolean>(false);
 
-export const isOTRefreshingState = atom<boolean>({
-	key: 'isOTRefreshing',
-	default: false
-});
-export const OTRefreshIntervalState = atom<number>({
-	key: 'OTRefreshInterval',
-	default: undefined
-});
+export const isOTRefreshingState = atom<boolean>(false);
+export const OTRefreshIntervalState = atom<number>();
 
-export const activeTeamState = selector<IOrganizationTeamList | null>({
-	key: 'activeTeamState',
-	get: ({ get }) => {
-		const teams = get(organizationTeamsState);
-		const activeId = get(activeTeamIdState);
-		return teams.find((team) => team.id === activeId) || teams[0] || null;
-	}
+export const activeTeamState = atom<IOrganizationTeamList | null>((get) => {
+  const teams = get(organizationTeamsState);
+  const activeId = get(activeTeamIdState);
+  return teams.find((team) => team.id === activeId) || teams[0] || null;
 });
-export const memberActiveTaskIdState = atom<string | null>({
-	key: 'memberActiveTaskIdState',
-	default: null
-});
+export const memberActiveTaskIdState = atom<string | null>(null);
 
-export const publicactiveTeamState = atom<IOrganizationTeamList | undefined>({
-	key: 'publicactiveTeamState',
-	default: undefined
-});
+export const publicactiveTeamState = atom<IOrganizationTeamList | undefined>(
+  undefined
+);
 
-export const activeTeamManagersState = selector<OT_Member[]>({
-	key: 'activeTeamManagersState',
-	get: ({ get }) => {
-		const activeTeam = get(activeTeamState);
-		const members = activeTeam?.members;
-		return (
-			members?.filter(
-				(member) =>
-					member?.role?.name === RoleNameEnum.MANAGER ||
-					member?.role?.name === RoleNameEnum.SUPER_ADMIN ||
-					member?.role?.name === RoleNameEnum.ADMIN
-			) || []
-		);
-	}
+export const activeTeamManagersState = atom<OT_Member[]>((get) => {
+  const activeTeam = get(activeTeamState);
+  const members = activeTeam?.members;
+  return (
+    members?.filter(
+      (member) =>
+        member?.role?.name === RoleNameEnum.MANAGER ||
+        member?.role?.name === RoleNameEnum.SUPER_ADMIN ||
+        member?.role?.name === RoleNameEnum.ADMIN
+    ) || []
+  );
 });
