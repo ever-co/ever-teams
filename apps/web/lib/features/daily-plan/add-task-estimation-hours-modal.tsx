@@ -644,7 +644,7 @@ function TaskCard(props: ITaskCardProps) {
 	const {
 		isOpen: isUnplanActiveTaskModalOpen,
 		closeModal: closeUnplanActiveTaskModal,
-		openModal: openUplanActiveTaskModal
+		openModal: openUnplanActiveTaskModal
 	} = useModal();
 
 	const handleOpenTaskDetailsModal = useCallback(() => {
@@ -719,7 +719,7 @@ function TaskCard(props: ITaskCardProps) {
 						<span className="w-4 h-full flex items-center justify-center">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
-								openUplanActiveTaskModal={openUplanActiveTaskModal}
+								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
 							/>
@@ -744,7 +744,7 @@ interface ITaskCardActionsProps {
 	task: ITeamTask;
 	selectedPlan: IDailyPlan;
 	openTaskDetailsModal: () => void;
-	openUplanActiveTaskModal: () => void;
+	openUnplanActiveTaskModal: () => void;
 }
 
 /**
@@ -754,17 +754,17 @@ interface ITaskCardActionsProps {
  * @param {ITeamTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
- * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActivrTask modal
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal, openUplanActiveTaskModal } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
 	const { user } = useAuthenticateUser();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
 	const { activeTeamTask } = useTeamTasks();
-
+	const { timerStatus } = useTimerView();
 	const otherPlanIds = useMemo(
 		() =>
 			[...futurePlans, ...todayPlan]
@@ -774,6 +774,12 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan.id, task.id, todayPlan]
 	);
+	const isTodayPLan = useMemo(
+		() =>
+			new Date(selectedPlan?.date).toLocaleDateString('en') ==
+			new Date(todayPlan[0]?.date).toLocaleDateString('en'),
+		[selectedPlan.date, todayPlan]
+	);
 
 	/**
 	 * Unplan selected task
@@ -781,9 +787,16 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	const unplanSelectedDate = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				// await wantsToUnplanActiveTask([task.id]);
 				if (task.id == activeTeamTask?.id) {
-					openUplanActiveTaskModal();
+					if (timerStatus?.running && isTodayPLan) {
+						openUnplanActiveTaskModal();
+					} else {
+						selectedPlan?.id &&
+							(await removeTaskFromPlan(
+								{ taskId: task.id, employeeId: user?.employee.id },
+								selectedPlan?.id
+							));
+					}
 				} else {
 					selectedPlan?.id &&
 						(await removeTaskFromPlan(
@@ -797,7 +810,16 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				console.log(error);
 			}
 		},
-		[activeTeamTask?.id, openUplanActiveTaskModal, removeTaskFromPlan, selectedPlan?.id, task.id, user?.employee.id]
+		[
+			activeTeamTask?.id,
+			isTodayPLan,
+			openUnplanActiveTaskModal,
+			removeTaskFromPlan,
+			selectedPlan.id,
+			task.id,
+			timerStatus?.running,
+			user?.employee.id
+		]
 	);
 
 	return (
@@ -838,8 +860,9 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 															selectedPlanId={selectedPlan.id}
 															planIds={[selectedPlan.id, ...otherPlanIds]}
 															closeActionPopover={close}
-															openUplanActiveTaskModal={openUplanActiveTaskModal}
+															openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 															unplanSelectedDate={unplanSelectedDate}
+															unPlanSelectedDateLoading={removeTaskFromPlanLoading}
 														/>
 													) : (
 														<span
@@ -877,7 +900,8 @@ interface IUnplanTaskProps {
 	planIds: string[];
 	closeActionPopover: () => void;
 	unplanSelectedDate: (closePopover: () => void) => Promise<void>;
-	openUplanActiveTaskModal: () => void;
+	unPlanSelectedDateLoading: boolean;
+	openUnplanActiveTaskModal: () => void;
 }
 
 /**
@@ -888,8 +912,8 @@ interface IUnplanTaskProps {
  * @param {string} props.selectedPlanId - The currently selected plan id
  * @param {string[]} [props.planIds] - Others plans's ids
  * @param {() => void} props.closeActionPopover - The function to close the task card actions popover
- * @param {(taskIds: string[]) => void} props.wantsToUplanActiveTask - Will be called when the user wants to unplan the activeTas
- * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActivrTask modal
+ * @param {(taskIds: string[]) => void} props.wantsToUnplanActiveTask - Will be called when the user wants to unplan the activeTas
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
  *
  *
  *
@@ -897,10 +921,22 @@ interface IUnplanTaskProps {
  */
 
 function UnplanTask(props: IUnplanTaskProps) {
-	const { taskId, planIds, closeActionPopover, unplanSelectedDate, openUplanActiveTaskModal } = props;
+	const {
+		taskId,
+		planIds,
+		closeActionPopover,
+		unplanSelectedDate,
+		openUnplanActiveTaskModal,
+		unPlanSelectedDateLoading
+	} = props;
 	const { user } = useAuthenticateUser();
-	const { removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading, todayPlan } = useDailyPlan();
 	const { activeTeamTask } = useTeamTasks();
+	const { timerStatus } = useTimerView();
+	const isActiveTaskPlannedToday = useMemo(
+		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
+		[activeTeamTask?.id, todayPlan]
+	);
 
 	/**
 	 * Unplan all tasks
@@ -910,7 +946,12 @@ function UnplanTask(props: IUnplanTaskProps) {
 			try {
 				// First, check if the user wants to unplan the active task
 				if (taskId == activeTeamTask?.id) {
-					openUplanActiveTaskModal();
+					if (timerStatus?.running && isActiveTaskPlannedToday) {
+						openUnplanActiveTaskModal();
+						// TODO: Unplan from all plans after clicks 'YES'
+					} else {
+						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+					}
 				} else {
 					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
 				}
@@ -925,10 +966,12 @@ function UnplanTask(props: IUnplanTaskProps) {
 		[
 			activeTeamTask?.id,
 			closeActionPopover,
-			openUplanActiveTaskModal,
+			isActiveTaskPlannedToday,
+			openUnplanActiveTaskModal,
 			planIds,
 			removeManyTaskPlans,
 			taskId,
+			timerStatus?.running,
 			user?.employee.id
 		]
 	);
@@ -960,10 +1003,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(
 											'shrink-0',
-											!removeTaskFromPlanLoading && 'hover:font-semibold hover:transition-all '
+											!unPlanSelectedDateLoading && 'hover:font-semibold hover:transition-all '
 										)}
 									>
-										{removeTaskFromPlanLoading ? (
+										{unPlanSelectedDateLoading ? (
 											<SpinnerLoader size={10} />
 										) : (
 											'Unplan selected date'

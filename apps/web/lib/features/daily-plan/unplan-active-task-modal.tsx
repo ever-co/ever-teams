@@ -11,7 +11,7 @@ interface UnplanActiveTaskModalProps {
 }
 
 /**
- * A Modal that gives the posibility to unplan the active task.
+ * A Modal that gives the possibility to unplan the active task.
  *
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
