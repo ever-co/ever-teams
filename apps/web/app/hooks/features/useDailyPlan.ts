@@ -131,7 +131,7 @@ export function useDailyPlan() {
 					});
 				}
 
-				setEmployeePlans([...employeePlans, res.data]);
+				setEmployeePlans([...(employeePlans ? employeePlans : []), res.data]);
 				getMyDailyPlans();
 				return res;
 			}
@@ -183,7 +183,7 @@ export function useDailyPlan() {
 			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
 				(plan) => plan.id != planId
 			);
-			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
+			const updatedEmployee = [...(employeePlans ? employeePlans : [])].filter((plan) => plan.id != planId);
 			setProfileDailyPlans({
 				total: profileDailyPlans.total,
 				items: [...updated, res.data]
@@ -208,7 +208,7 @@ export function useDailyPlan() {
 			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
 				(plan) => plan.id != planId
 			);
-			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
+			const updatedEmployee = [...(employeePlans ? employeePlans : [])].filter((plan) => plan.id != planId);
 			setProfileDailyPlans({
 				total: profileDailyPlans.total,
 				items: [...updated, res.data]
@@ -237,7 +237,7 @@ export function useDailyPlan() {
 				})
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 			// Delete plans without tasks
-			const updatedEmployeePlans = employeePlans
+			const updatedEmployeePlans = [...(employeePlans ? employeePlans : [])]
 				.map((plan) => {
 					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
 					return { ...plan, tasks: updatedTasks };
@@ -268,7 +268,7 @@ export function useDailyPlan() {
 			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
 				(plan) => plan.id != planId
 			);
-			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
+			const updatedEmployee = [...(employeePlans ? employeePlans : [])].filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: updated.length, items: [...updated] });
 			setEmployeePlans([...updatedEmployee]);
 

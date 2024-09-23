@@ -21,6 +21,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
+import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -640,6 +641,11 @@ function TaskCard(props: ITaskCardProps) {
 		closeModal: closeTaskDetailsModal,
 		openModal: openTaskDetailsModal
 	} = useModal();
+	const {
+		isOpen: isUnplanActiveTaskModalOpen,
+		closeModal: closeUnplanActiveTaskModal,
+		openModal: openUplanActiveTaskModal
+	} = useModal();
 
 	const handleOpenTaskDetailsModal = useCallback(() => {
 		// Update the detailed task state
@@ -648,8 +654,8 @@ function TaskCard(props: ITaskCardProps) {
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
-
 	const status = useTaskStatus();
+	const { activeTeamTask } = useTeamTasks();
 
 	/**
 	 * The function that adds the task to the selected plan
@@ -713,6 +719,7 @@ function TaskCard(props: ITaskCardProps) {
 						<span className="w-4 h-full flex items-center justify-center">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
+								openUplanActiveTaskModal={openUplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
 							/>
@@ -721,6 +728,14 @@ function TaskCard(props: ITaskCardProps) {
 				)}
 			</div>
 			<TaskDetailsModal task={task} isOpen={isTaskDetailsModalOpen} closeModal={closeTaskDetailsModal} />
+			{activeTeamTask && (
+				<UnplanActiveTaskModal
+					open={isUnplanActiveTaskModalOpen}
+					task={activeTeamTask}
+					plan={plan}
+					closeModal={closeUnplanActiveTaskModal}
+				/>
+			)}
 		</Card>
 	);
 }
@@ -729,6 +744,7 @@ interface ITaskCardActionsProps {
 	task: ITeamTask;
 	selectedPlan: IDailyPlan;
 	openTaskDetailsModal: () => void;
+	openUplanActiveTaskModal: () => void;
 }
 
 /**
@@ -738,14 +754,16 @@ interface ITaskCardActionsProps {
  * @param {ITeamTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActivrTask modal
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUplanActiveTaskModal } = props;
 	const { user } = useAuthenticateUser();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
+	const { activeTeamTask } = useTeamTasks();
 
 	const otherPlanIds = useMemo(
 		() =>
@@ -763,15 +781,23 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	const unplanSelectedDate = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				selectedPlan?.id &&
-					(await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, selectedPlan?.id));
+				// await wantsToUnplanActiveTask([task.id]);
+				if (task.id == activeTeamTask?.id) {
+					openUplanActiveTaskModal();
+				} else {
+					selectedPlan?.id &&
+						(await removeTaskFromPlan(
+							{ taskId: task.id, employeeId: user?.employee.id },
+							selectedPlan?.id
+						));
+				}
 
 				closePopover();
 			} catch (error) {
 				console.log(error);
 			}
 		},
-		[removeTaskFromPlan, selectedPlan.id, task.id, user?.employee.id]
+		[activeTeamTask?.id, openUplanActiveTaskModal, removeTaskFromPlan, selectedPlan?.id, task.id, user?.employee.id]
 	);
 
 	return (
@@ -812,6 +838,8 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 															selectedPlanId={selectedPlan.id}
 															planIds={[selectedPlan.id, ...otherPlanIds]}
 															closeActionPopover={close}
+															openUplanActiveTaskModal={openUplanActiveTaskModal}
+															unplanSelectedDate={unplanSelectedDate}
 														/>
 													) : (
 														<span
@@ -848,6 +876,8 @@ interface IUnplanTaskProps {
 	selectedPlanId: string;
 	planIds: string[];
 	closeActionPopover: () => void;
+	unplanSelectedDate: (closePopover: () => void) => Promise<void>;
+	openUplanActiveTaskModal: () => void;
 }
 
 /**
@@ -858,33 +888,19 @@ interface IUnplanTaskProps {
  * @param {string} props.selectedPlanId - The currently selected plan id
  * @param {string[]} [props.planIds] - Others plans's ids
  * @param {() => void} props.closeActionPopover - The function to close the task card actions popover
+ * @param {(taskIds: string[]) => void} props.wantsToUplanActiveTask - Will be called when the user wants to unplan the activeTas
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActivrTask modal
+ *
+ *
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function UnplanTask(props: IUnplanTaskProps) {
-	const { taskId, selectedPlanId, planIds, closeActionPopover } = props;
+	const { taskId, planIds, closeActionPopover, unplanSelectedDate, openUplanActiveTaskModal } = props;
 	const { user } = useAuthenticateUser();
-	const { removeTaskFromPlan, removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } =
-		useDailyPlan();
-
-	/**
-	 * Unplan selected task
-	 */
-	const unplanSelectedDate = useCallback(
-		async (closePopover: () => void) => {
-			try {
-				await removeTaskFromPlan({ taskId: taskId, employeeId: user?.employee.id }, selectedPlanId);
-
-				closePopover();
-				// Close the task card actions popover as well
-				closeActionPopover();
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		[closeActionPopover, removeTaskFromPlan, selectedPlanId, taskId, user?.employee.id]
-	);
+	const { removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
+	const { activeTeamTask } = useTeamTasks();
 
 	/**
 	 * Unplan all tasks
@@ -892,7 +908,12 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const unplanAll = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+				// First, check if the user wants to unplan the active task
+				if (taskId == activeTeamTask?.id) {
+					openUplanActiveTaskModal();
+				} else {
+					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+				}
 
 				closePopover();
 				// Close the task card actions popover as well
@@ -901,7 +922,15 @@ function UnplanTask(props: IUnplanTaskProps) {
 				console.log(error);
 			}
 		},
-		[closeActionPopover, planIds, removeManyTaskPlans, taskId, user?.employee.id]
+		[
+			activeTeamTask?.id,
+			closeActionPopover,
+			openUplanActiveTaskModal,
+			planIds,
+			removeManyTaskPlans,
+			taskId,
+			user?.employee.id
+		]
 	);
 
 	return (
