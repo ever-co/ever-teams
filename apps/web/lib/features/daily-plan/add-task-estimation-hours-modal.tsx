@@ -76,6 +76,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		[activeTeamTask?.id, plan.tasks]
 	);
 	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
+	const [planEditState, setPlanEditState] = useState<{ draft: boolean; saved: boolean }>({
+		draft: false,
+		saved: false
+	});
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -139,7 +143,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			// Update the plan work time only if the user changed it
 			plan.workTimePlanned !== workTimePlanned && (await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
 
-			if (canStartWorking) {
+			setPlanEditState({ draft: false, saved: true });
+
+			if (canStartWorking && !timerStatus?.running) {
 				handleChangeActiveTask();
 
 				if (isRenderedInSoftFlow) {
@@ -152,14 +158,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(false);
 		}
 	}, [
-		canStartWorking,
-		handleChangeActiveTask,
-		handleCloseModal,
-		plan.id,
 		plan.workTimePlanned,
-		isRenderedInSoftFlow,
+		plan.id,
+		workTimePlanned,
 		updateDailyPlan,
-		workTimePlanned
+		canStartWorking,
+		timerStatus?.running,
+		handleChangeActiveTask,
+		isRenderedInSoftFlow,
+		handleCloseModal
 	]);
 
 	/**
@@ -235,7 +242,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const StartWorkingButton = (
 		<Button
-			disabled={warning || loading || timerStatus?.running ? true : false}
+			disabled={warning || loading || timerStatus?.running ? (planEditState.draft ? false : true) : false}
 			variant="default"
 			type="submit"
 			className={clsxm(
@@ -247,7 +254,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			{loading ? (
 				<SpinnerLoader variant="light" size={20} />
 			) : canStartWorking ? (
-				t('timer.todayPlanSettings.START_WORKING_BUTTON')
+				timerStatus?.running && planEditState.draft ? (
+					'Save Changes'
+				) : (
+					t('timer.todayPlanSettings.START_WORKING_BUTTON')
+				)
 			) : (
 				'Edit plan'
 			)}
@@ -301,6 +312,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 											!isNaN(parseInt(e.target.value))
 												? setWorkTimePlanned(parseInt(e.target.value))
 												: setWorkTimePlanned(0);
+
+											if (
+												parseInt(e.target.value) !== parseInt(plan.workTimePlanned.toString())
+											) {
+												setPlanEditState({ draft: true, saved: false });
+											} else {
+												setPlanEditState({ draft: false, saved: false });
+											}
 										}}
 										required
 										noWrapper
@@ -646,8 +665,6 @@ function TaskCard(props: ITaskCardProps) {
 			setAddToPlanLoading(false);
 		}
 	}, [addTaskToPlan, plan.id, task.id]);
-
-	console.log(status.taskStatus);
 
 	return (
 		<Card

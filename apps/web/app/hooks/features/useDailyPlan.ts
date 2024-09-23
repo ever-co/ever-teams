@@ -108,11 +108,11 @@ export function useDailyPlan() {
 					user?.tenantId || ''
 				);
 				//Check if there is an existing plan
-				const isPlanExist = profileDailyPlans.items.find((plan) =>
+				const isPlanExist = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].find((plan) =>
 					plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])
 				);
 				if (isPlanExist) {
-					const updatedPlans = profileDailyPlans.items.map((plan) => {
+					const updatedPlans = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].map((plan) => {
 						if (plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])) {
 							return res.data;
 						}
@@ -127,7 +127,7 @@ export function useDailyPlan() {
 				} else {
 					setProfileDailyPlans({
 						total: profileDailyPlans.total + 1,
-						items: [...profileDailyPlans.items, res.data]
+						items: [...(profileDailyPlans.items ? profileDailyPlans.items : []), res.data]
 					});
 				}
 
@@ -151,8 +151,10 @@ export function useDailyPlan() {
 	const updateDailyPlan = useCallback(
 		async (data: IUpdateDailyPlan, planId: string) => {
 			const res = await updateQueryCall(data, planId);
-			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
-			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
+			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
+				(plan) => plan.id != planId
+			);
+			const updatedEmployee = [...(employeePlans ? employeePlans : [])].filter((plan) => plan.id != planId);
 			setProfileDailyPlans({
 				total: profileDailyPlans.total,
 				items: [...updated, res.data]
@@ -178,7 +180,9 @@ export function useDailyPlan() {
 	const addTaskToPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
 			const res = await addTaskToPlanQueryCall(data, planId);
-			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
+				(plan) => plan.id != planId
+			);
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({
 				total: profileDailyPlans.total,
@@ -201,7 +205,9 @@ export function useDailyPlan() {
 	const removeTaskFromPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
 			const res = await removeTAskFromPlanQueryCall(data, planId);
-			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
+				(plan) => plan.id != planId
+			);
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({
 				total: profileDailyPlans.total,
@@ -224,7 +230,7 @@ export function useDailyPlan() {
 	const removeManyTaskPlans = useCallback(
 		async (data: IRemoveTaskFromManyPlans, taskId: string) => {
 			const res = await removeManyTaskPlanQueryCall({ taskId, data });
-			const updatedProfileDailyPlans = profileDailyPlans.items
+			const updatedProfileDailyPlans = [...(profileDailyPlans.items ? profileDailyPlans.items : [])]
 				.map((plan) => {
 					const updatedTasks = plan.tasks ? plan.tasks.filter((task) => task.id !== taskId) : [];
 					return { ...plan, tasks: updatedTasks };
@@ -259,7 +265,9 @@ export function useDailyPlan() {
 	const deleteDailyPlan = useCallback(
 		async (planId: string) => {
 			const res = await deleteDailyPlanQueryCall(planId);
-			const updated = profileDailyPlans.items.filter((plan) => plan.id != planId);
+			const updated = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter(
+				(plan) => plan.id != planId
+			);
 			const updatedEmployee = employeePlans.filter((plan) => plan.id != planId);
 			setProfileDailyPlans({ total: updated.length, items: [...updated] });
 			setEmployeePlans([...updatedEmployee]);
