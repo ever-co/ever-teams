@@ -462,7 +462,7 @@ interface ISearchTaskInputProps {
  *
  * @returns The Search input component
  */
-function SearchTaskInput(props: ISearchTaskInputProps) {
+export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask } = props;
 	const { tasks: teamTasks, createTask } = useTeamTasks();
 	const { taskStatus } = useTaskStatus();

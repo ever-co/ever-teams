@@ -1,15 +1,16 @@
-import { Card, Modal, NoData, Tooltip, VerticalSeparator } from 'lib/components';
+import { Card, InputField, Modal, NoData, Tooltip, VerticalSeparator } from 'lib/components';
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
-import { ChevronRightIcon } from 'assets/svg';
-import { AddTasksEstimationHoursModal } from './add-task-estimation-hours-modal';
+import { AddIcon, ChevronRightIcon } from 'assets/svg';
+import { AddTasksEstimationHoursModal, SearchTaskInput } from './add-task-estimation-hours-modal';
 import { useDailyPlan } from '@app/hooks';
 import { Button } from '@components/ui/button';
 import { Calendar } from '@components/ui/calendar';
-import { IDailyPlan } from '@app/interfaces';
+import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
+import { useTranslations } from 'next-intl';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -90,6 +91,12 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		}
 	}, [selectedTab, todayPlan, tomorrowPlan, selectedFuturePlan]);
 
+	const [showSearchInput, setShowSearchInput] = useState(false);
+	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
+	const [workTimePlanned, setWorkTimePlanned] = useState<number>(0);
+	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
+	const t = useTranslations();
+
 	// Set the related tab for today and tomorrow dates
 	const handleCalendarSelect = useCallback(() => {
 		if (customDate) {
@@ -154,7 +161,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						</ul>
 					</div>
 
-					<div className="w-full flex   items-center justify-center h-[34rem]">
+					<div className="w-full flex flex-col items-center justify-center h-[34rem]">
 						{selectedTab === 'Calendar' && showCalendar ? (
 							<div className="w-full h-full flex-col flex items-center justify-between">
 								<div className="w-full grow">
@@ -202,7 +209,63 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										closeModal={handleCloseModal}
 									/>
 								) : (
-									<NoData component={<ValueNoneIcon />} text="Plan not found " />
+									<>
+										{showSearchInput ? (
+											<SearchTaskInput
+												defaultTask={defaultTask}
+												setDefaultTask={setDefaultTask}
+												setShowSearchInput={setShowSearchInput}
+												selectedPlan={myDailyPlans.items[0]}
+											/>
+										) : (
+											<div className=" w-full flex flex-col gap-2">
+												<span className="text-sm">
+													{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+													<span className="text-red-600">*</span>
+												</span>
+												<div className="w-full flex gap-3 h-[3rem]">
+													<InputField
+														type="number"
+														placeholder={t(
+															'timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER'
+														)}
+														className="h-full"
+														wrapperClassName=" h-full"
+														onChange={(e) => {
+															!isNaN(parseInt(e.target.value))
+																? setWorkTimePlanned(parseInt(e.target.value))
+																: setWorkTimePlanned(0);
+														}}
+														required
+														noWrapper
+														min={0}
+														value={
+															!isNaN(workTimePlanned) &&
+															workTimePlanned.toString() !== '0'
+																? workTimePlanned.toString().replace(/^0+/, '')
+																: isWorkingTimeInputFocused
+																	? ''
+																	: 0
+														}
+														onFocus={() => setWorkingTimeInputFocused(true)}
+														onBlur={() => setWorkingTimeInputFocused(false)}
+														defaultValue={0}
+													/>
+													<button
+														onClick={() => {
+															setShowSearchInput(true);
+														}}
+														className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
+													>
+														<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+													</button>
+												</div>
+											</div>
+										)}
+										<div className="flex justify-center items-center h-full">
+											<NoData component={<ValueNoneIcon />} text="Plan not found " />
+										</div>
+									</>
 								)}
 							</>
 						)}
