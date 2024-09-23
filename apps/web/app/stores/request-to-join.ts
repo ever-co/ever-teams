@@ -1,7 +1,4 @@
 import { IRequestToJoin } from '@app/interfaces/';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const requestToJoinState = atom<IRequestToJoin[]>({
-	key: 'requestToJoinState',
-	default: []
-});
+export const requestToJoinState = atom<IRequestToJoin[]>([]);

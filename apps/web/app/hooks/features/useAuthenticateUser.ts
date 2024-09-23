@@ -3,10 +3,13 @@
 import { DEFAULT_APP_PATH, LAST_WORSPACE_AND_TEAM } from '@app/constants';
 import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';
-import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@app/services/client/api/auth';
+import {
+  getAuthenticatedUserDataAPI,
+  refreshTokenAPI
+} from '@app/services/client/api/auth';
 import { activeTeamState, userState } from '@app/stores';
 import { useCallback, useMemo, useRef } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { useQuery } from '../useQuery';
 import { useIsMemberManager } from './useTeamMember';
@@ -14,63 +17,67 @@ import { useOrganizationTeams } from './useOrganizationTeams';
 import { useUserProfilePage } from './useUserProfilePage';
 
 export const useAuthenticateUser = (defaultUser?: IUser) => {
-	const [user, setUser] = useRecoilState(userState);
-	const $user = useRef(defaultUser);
-	const intervalRt = useRef(0);
-	const activeTeam = useRecoilValue(activeTeamState);
+  const [user, setUser] = useAtom(userState);
+  const $user = useRef(defaultUser);
+  const intervalRt = useRef(0);
+  const activeTeam = useAtomValue(activeTeamState);
 
-	const { isTeamManager } = useIsMemberManager(user);
+  const { isTeamManager } = useIsMemberManager(user);
 
-	const {
-		queryCall: refreshUserQueryCall,
-		loading: refreshUserLoading,
-		loadingRef: refreshUserLoadingRef
-	} = useQuery(getAuthenticatedUserDataAPI);
+  const {
+    queryCall: refreshUserQueryCall,
+    loading: refreshUserLoading,
+    loadingRef: refreshUserLoadingRef
+  } = useQuery(getAuthenticatedUserDataAPI);
 
-	const updateUserFromAPI = useCallback(() => {
-		if (refreshUserLoadingRef.current) {
-			return;
-		}
-		refreshUserQueryCall().then((res) => {
-			setUser(res.data);
-		});
-	}, [refreshUserQueryCall, setUser, refreshUserLoadingRef]);
+  const updateUserFromAPI = useCallback(() => {
+    if (refreshUserLoadingRef.current) {
+      return;
+    }
+    refreshUserQueryCall().then((res) => {
+      setUser(res.data);
+    });
+  }, [refreshUserQueryCall, setUser, refreshUserLoadingRef]);
 
-	$user.current = useMemo(() => {
-		return user || $user.current;
-	}, [user]);
+  $user.current = useMemo(() => {
+    return user || $user.current;
+  }, [user]);
 
-	const logOut = useCallback(() => {
-		window && window?.localStorage.setItem(LAST_WORSPACE_AND_TEAM, activeTeam?.id ?? '');
-		removeAuthCookies();
-		window.clearInterval(intervalRt.current);
-		window.location.replace(DEFAULT_APP_PATH);
-	}, [activeTeam?.id]);
+  const logOut = useCallback(() => {
+    window &&
+      window?.localStorage.setItem(
+        LAST_WORSPACE_AND_TEAM,
+        activeTeam?.id ?? ''
+      );
+    removeAuthCookies();
+    window.clearInterval(intervalRt.current);
+    window.location.replace(DEFAULT_APP_PATH);
+  }, [activeTeam?.id]);
 
-	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
-		window.clearInterval(intervalRt.current);
-		intervalRt.current = window.setInterval(refreshTokenAPI, interval);
+  const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
+    window.clearInterval(intervalRt.current);
+    intervalRt.current = window.setInterval(refreshTokenAPI, interval);
 
-		return () => {
-			window.clearInterval(intervalRt.current);
-		};
-	}, []);
+    return () => {
+      window.clearInterval(intervalRt.current);
+    };
+  }, []);
 
-	const refreshToken = useCallback(async () => {
-		await refreshTokenAPI();
-	}, []);
+  const refreshToken = useCallback(async () => {
+    await refreshTokenAPI();
+  }, []);
 
-	return {
-		$user,
-		user: $user.current,
-		setUser,
-		isTeamManager,
-		updateUserFromAPI,
-		refreshUserLoading,
-		logOut,
-		timeToTimeRefreshToken,
-		refreshToken
-	};
+  return {
+    $user,
+    user: $user.current,
+    setUser,
+    isTeamManager,
+    updateUserFromAPI,
+    refreshUserLoading,
+    logOut,
+    timeToTimeRefreshToken,
+    refreshToken
+  };
 };
 
 /**
@@ -81,10 +88,12 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
  */
 
 export const useCanSeeActivityScreen = () => {
-	const { user } = useAuthenticateUser();
-	const { activeTeamManagers } = useOrganizationTeams();
-	const profile = useUserProfilePage();
+  const { user } = useAuthenticateUser();
+  const { activeTeamManagers } = useOrganizationTeams();
+  const profile = useUserProfilePage();
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
-	return profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
+  const isManagerConnectedUser = activeTeamManagers.findIndex(
+    (member) => member.employee?.user?.id == user?.id
+  );
+  return profile.userProfile?.id === user?.id || isManagerConnectedUser != -1;
 };

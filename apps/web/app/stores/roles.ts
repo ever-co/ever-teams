@@ -1,7 +1,4 @@
 import { IRole } from '@app/interfaces/';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const rolesState = atom<IRole[]>({
-	key: 'rolesState',
-	default: []
-});
+export const rolesState = atom<IRole[]>([]);

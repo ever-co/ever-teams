@@ -1,6 +1,3 @@
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const avatarState = atom<any>({
-	key: 'avatarState',
-	default: {}
-});
+export const avatarState = atom<any>({});
