@@ -285,7 +285,7 @@ export const TASKS_ESTIMATE_HOURS_MODAL_DATE = 'tasks-estimate-hours-modal-date'
 export const DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE = 'daily-plan-estimate-hours-modal';
 export const DEFAULT_PLANNED_TASK_ID = 'default-planned-task-id';
 export const LAST_OPTION__CREATE_DAILY_PLAN_MODAL = 'last-option--create-daily-plan-modal';
-export const HAS_VISITED_OUTSTANDING_TAB = 'has-visited-outstanding-tab';
+export const HAS_VISITED_OUTSTANDING_TASKS = 'has-visited-outstanding-tasks';
 
 // OAuth provider's keys
 

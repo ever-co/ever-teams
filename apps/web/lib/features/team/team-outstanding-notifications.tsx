@@ -5,9 +5,10 @@ import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { estimatedTotalTime } from '../task/daily-plan';
-import { HAS_VISITED_OUTSTANDING_TAB } from '@app/constants';
+import { HAS_VISITED_OUTSTANDING_TASKS } from '@app/constants';
+import moment from 'moment';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
@@ -37,45 +38,45 @@ export function TeamOutstandingNotifications() {
 	);
 }
 
-function UserOutstandingNotification({ outstandingPlans, user }: { outstandingPlans: IDailyPlan[]; user?: IUser }) {
+const UserOutstandingNotification = memo(function UserOutstandingNotification({
+	outstandingPlans,
+	user
+}: {
+	outstandingPlans: IDailyPlan[];
+	user?: IUser;
+}) {
 	const t = useTranslations();
 
-	// Notification will be displayed 6 hours after the user closed it
-	const REAPPEAR_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds;
-	const DISMISSAL_TIMESTAMP_KEY = 'user-saw-notif';
+	// Notification will be displayed by next day
 
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const [visible, setVisible] = useState(false);
+
 	const outStandingTasksCount = estimatedTotalTime(
 		outstandingPlans.map((plan) => plan.tasks?.map((task) => task))
 	).totalTasks;
 
+	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
+
 	useEffect(() => {
-		const checkNotification = () => {
-			const alreadySeen = window && parseInt(window?.localStorage.getItem(DISMISSAL_TIMESTAMP_KEY) || '0', 10);
-			const hasVisitedOutstandingTab =
-				window && JSON.parse(window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TAB) as string);
-			const currentTime = new Date().getTime();
-
-			if (hasVisitedOutstandingTab) {
-				setVisible(false);
-			} else if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
-				setVisible(true);
+		if (lastVisited == moment().toDate().toLocaleDateString('en')) {
+			setVisible(false);
+		} else {
+			setVisible(true);
+			if (!lastVisited) {
+				window?.localStorage.setItem(
+					HAS_VISITED_OUTSTANDING_TASKS,
+					moment().subtract(1, 'days').toDate().toLocaleDateString('en')
+				);
 			}
-		};
+		}
 
-		checkNotification();
-		const intervalId = setInterval(function () {
-			window && window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TAB, JSON.stringify(false));
-			checkNotification();
-		}, REAPPEAR_INTERVAL);
-		return () => clearInterval(intervalId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onClose = () => {
-		window && window?.localStorage.setItem(DISMISSAL_TIMESTAMP_KEY, new Date().getTime().toString());
+		window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, moment().toDate().toLocaleDateString('en'));
 		setVisible(false);
 	};
 
@@ -113,15 +114,17 @@ function UserOutstandingNotification({ outstandingPlans, user }: { outstandingPl
 			)}
 		</>
 	);
-}
+});
 
-function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstandingTasks: IDailyPlan[] }) {
+const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUsersNotification({
+	outstandingTasks
+}: {
+	outstandingTasks: IDailyPlan[];
+}) {
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
-	// Notification will be displayed 6 hours after the user closed it
-	const REAPPEAR_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds;
-	const MANAGER_DISMISSAL_TIMESTAMP_KEY = 'manager-saw-outstanding-notif';
+	// Notification will be displayed by next day
 
 	const [visible, setVisible] = useState(false);
 
@@ -158,32 +161,26 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 		[]
 	);
 
+	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
+
 	useEffect(() => {
-		const checkNotification = () => {
-			const alreadySeen =
-				window && parseInt(window?.localStorage.getItem(MANAGER_DISMISSAL_TIMESTAMP_KEY) || '0', 10);
-			const hasVisitedOutstandingTab =
-				window && JSON.parse(window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TAB) as string);
-			const currentTime = new Date().getTime();
-
-			if (hasVisitedOutstandingTab) {
-				setVisible(false);
-			} else if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
-				setVisible(true);
+		if (lastVisited == moment().toDate().toLocaleDateString('en')) {
+			setVisible(false);
+		} else {
+			setVisible(true);
+			if (!lastVisited) {
+				window?.localStorage.setItem(
+					HAS_VISITED_OUTSTANDING_TASKS,
+					moment().subtract(1, 'days').toDate().toLocaleDateString('en')
+				);
 			}
-		};
+		}
 
-		checkNotification();
-		const intervalId = setInterval(function () {
-			window && window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TAB, JSON.stringify(false));
-			checkNotification();
-		}, REAPPEAR_INTERVAL);
-		return () => clearInterval(intervalId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onClose = () => {
-		window && window?.localStorage.setItem(MANAGER_DISMISSAL_TIMESTAMP_KEY, new Date().getTime().toString());
+		window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, moment().toDate().toLocaleDateString('en'));
 		setVisible(false);
 	};
 	return (
@@ -214,4 +211,4 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 			)}
 		</>
 	);
-}
+});
