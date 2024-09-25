@@ -3,22 +3,14 @@ import { Disclosure } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 
-function CheckRender({ children }: IProps) {
-	return children ? true : false;
-}
-
-interface IProps {
-	children: React.ReactNode;
-}
-
 /**
- * A dropdown component that displays user notiications.
+ * A dropdown component that displays user notifications.
  *
  * @param {object} props - The props object
  *
  * @returns {JSX.Element} The Notification dropdown component
  */
-export default function NotificationsDropdown(props: IProps) {
+export default function NotificationsDropdown(props: { children: React.ReactNode }) {
 	const { children } = props;
 
 	const childrenArray = React.Children.toArray(children).map((child) => {

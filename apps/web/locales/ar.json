@@ -589,6 +589,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",
+		"TASK_TIME": "وقت المهمة",
+		"TOTAL_TODAY": "الإجمالي اليوم",
 		"PLAN_FOR_TOMORROW": "خطة الغد",
 		"PLAN_FOR_SOME_DAY": "خطة ليوم ما",
 		"ADD_TASK_TO_PLAN": "أضف هذه المهمة إلى الخطة",

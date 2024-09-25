@@ -61,7 +61,7 @@ export function UserTeamCardHeader() {
 					<div className="w-4 self-stretch border-l-[0.125rem] border-l-transparent " />
 					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 !pl-6 lg:!pl-8  flex flex-col items-center text-center  justify-center">
 						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-							{t('common.TASK')} Time
+							{t('dailyPlan.TASK_TIME')}
 						</Tooltip>
 					</div>
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
@@ -69,7 +69,7 @@ export function UserTeamCardHeader() {
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] !pl-14 text-center">
 						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
-							Total {t('common.TODAY')}
+							{t('dailyPlan.TOTAL_TODAY')}
 						</Tooltip>
 					</div>
 				</div>

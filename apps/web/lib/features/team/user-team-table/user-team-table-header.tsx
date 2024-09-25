@@ -13,7 +13,7 @@ function UserTeamTableHeader() {
 				<th className="!w-[39%] font-normal">{t('common.TASK')}</th>
 				<th className={`!w-[16%] font-normal`}>
 					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-						{t('common.TASK')} Time
+						{t('dailyPlan.TASK_TIME')}
 					</Tooltip>
 				</th>
 				<th className="!w-[16%] font-normal">{t('common.ESTIMATE')}</th>
