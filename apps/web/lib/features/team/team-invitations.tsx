@@ -10,7 +10,12 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 
-export function TeamInvitations() {
+interface IProps {
+	className?: string;
+}
+
+export function TeamInvitations(props: IProps) {
+	const { className } = props;
 	const t = useTranslations();
 	const {
 		myInvitationsList,
@@ -61,7 +66,7 @@ export function TeamInvitations() {
 	);
 
 	return (
-		<div className="mt-6">
+		<div className={clsxm('mt-6', className)}>
 			{myInvitationsList
 				.filter((invitation) => !removedInvitations.includes(invitation.id))
 				.map((invitation, index) => (

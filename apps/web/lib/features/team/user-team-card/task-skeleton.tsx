@@ -43,7 +43,7 @@ export function InviteUserTeamSkeleton() {
 export function UserTeamCardHeader() {
 	const t = useTranslations();
 	return (
-		<div className="w-full h-16  dark:text-[#7B8089] font-normal  -mt-1 z-50 dark:bg-dark-high px-8 m-0">
+		<div className="w-full h-14  dark:text-[#7B8089] font-normal  -mt-1 z-50 dark:bg-dark-high px-8 m-0">
 			<div className="px-4 md:px-8 ml-4 h-full">
 				<div className="flex h-full m-0 relative items-center">
 					<a className="flex items-center space-x-2 2xl:w-[20.625rem] w-1/4">

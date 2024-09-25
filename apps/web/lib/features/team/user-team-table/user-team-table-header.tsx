@@ -5,7 +5,7 @@ import React from 'react';
 function UserTeamTableHeader() {
 	const t = useTranslations();
 	return (
-		<thead className="font-normal h-16 w-full dark:text-[#7B8089] dark:bg-dark-high px-8 pb-[18px] mb-[11px] pt-3">
+		<thead className="font-normal h-14 w-full dark:text-[#7B8089] dark:bg-dark-high px-8 pb-[18px] mb-[11px] pt-3">
 			<tr className="text-center w-full items-center">
 				<th className="w-[32%] 2xl:!w-[28%] pl-10 font-normal text-left">
 					{t('common.TEAM')} {t('common.MEMBER')}

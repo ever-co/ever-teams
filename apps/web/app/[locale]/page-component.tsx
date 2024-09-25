@@ -94,9 +94,11 @@ function MainPage() {
 											</div>
 										</div>
 										<div className="mb-1 mx-8-container">
-											<UnverifiedEmail />
-											<TeamInvitations />
-											<TeamOutstandingNotifications />
+											<div className="w-full mt-3">
+												<UnverifiedEmail />
+												<TeamInvitations className="!m-0" />
+												<TeamOutstandingNotifications />
+											</div>
 											{isTeamMember ? (
 												<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
 											) : null}
