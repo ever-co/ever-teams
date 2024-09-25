@@ -18,108 +18,93 @@ import { useAtom, useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 
 const HeaderSkeleton = () => {
-  return (
-    <nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[999]">
-      <Container>
-        <div className="w-full flex justify-between items-center min-h-[70px]">
-          <Skeleton
-            height={45}
-            width={200}
-            borderRadius={20}
-            className="dark:bg-[#272930]"
-          />
-          <div className="flex items-center space-x-5">
-            <div className="hidden sm:block">
-              <Skeleton
-                height={45}
-                width={175}
-                borderRadius={20}
-                className="dark:bg-[#272930]"
-              />
-            </div>
+	return (
+		<nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[999]">
+			<Container>
+				<div className="w-full flex justify-between items-center min-h-[70px]">
+					<Skeleton height={45} width={200} borderRadius={20} className="dark:bg-[#272930]" />
+					<div className="flex items-center space-x-5">
+						<div className="hidden sm:block">
+							<Skeleton height={45} width={175} borderRadius={20} className="dark:bg-[#272930]" />
+						</div>
 
-            <Skeleton
-              circle={true}
-              height={45}
-              width={45}
-              className="dark:bg-[#272930]"
-            />
-          </div>
-        </div>
-      </Container>
-    </nav>
-  );
+						<Skeleton circle={true} height={45} width={45} className="dark:bg-[#272930]" />
+					</div>
+				</div>
+			</Container>
+		</nav>
+	);
 };
 
 export function Navbar({
-  className,
-  showTimer,
-  publicTeam,
-  notFound
+	className,
+	showTimer,
+	publicTeam,
+	notFound
 }: IClassName & {
-  showTimer?: boolean;
-  publicTeam?: boolean;
-  notFound?: boolean;
+	showTimer?: boolean;
+	publicTeam?: boolean;
+	notFound?: boolean;
 }) {
-  const t = useTranslations();
-  const { isTeamMember } = useOrganizationTeams();
-  const [user] = useAtom(userState);
-  const { isOpen, closeModal, openModal } = useModal();
-  const fullWidth = useAtomValue(fullWidthState);
+	const t = useTranslations();
+	const { isTeamMember } = useOrganizationTeams();
+	const [user] = useAtom(userState);
+	const { isOpen, closeModal, openModal } = useModal();
+	const fullWidth = useAtomValue(fullWidthState);
 
-  const pathname = usePathname();
+	const pathname = usePathname();
 
-  const isTeamDropdownAllowed = useMemo(() => {
-    if (!pathname) {
-      return false;
-    }
-    const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
-    return !notAllowedList.includes(pathname);
-  }, [pathname]);
+	const isTeamDropdownAllowed = useMemo(() => {
+		if (!pathname) {
+			return false;
+		}
+		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
+		return !notAllowedList.includes(pathname);
+	}, [pathname]);
 
-  return (
-    <div>
-      {!user && !notFound && !publicTeam ? (
-        <HeaderSkeleton />
-      ) : (
-        <nav
-          className={clsxm(
-            'bg-white dark:bg-dark-high w-full nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
-            className
-          )}
-        >
-          <Container fullWidth={fullWidth}>
-            <div className="w-full flex justify-between items-center min-h-[90px]">
-              <EverTeamsLogo dash />
-              {!notFound && (
-                <div className="flex items-center gap-10">
-                  {publicTeam && (
-                    <Button
-                      className="py-3.5 px-4 gap-3 rounded-xl outline-none"
-                      onClick={openModal}
-                    >
-                      {t('common.JOIN_REQUEST')}
-                    </Button>
-                  )}
-                  {showTimer && <MinTimerFrame />}
+	return (
+		<div>
+			{!user && !notFound && !publicTeam ? (
+				<HeaderSkeleton />
+			) : (
+				<nav
+					className={clsxm(
+						'bg-white dark:bg-dark-high w-full nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
+						className
+					)}
+				>
+					<Container fullWidth={fullWidth}>
+						<div className="w-full flex justify-between items-center min-h-[90px]">
+							<EverTeamsLogo dash />
+							{!notFound && (
+								<div className="flex items-center gap-10">
+									{publicTeam && (
+										<Button
+											className="py-3.5 px-4 gap-3 rounded-xl outline-none"
+											onClick={openModal}
+										>
+											{t('common.JOIN_REQUEST')}
+										</Button>
+									)}
+									{showTimer && <MinTimerFrame />}
 
-                  <div className="items-center hidden gap-4 md:flex">
-                    {!publicTeam && <Collaborate />}
+									<div className="items-center hidden gap-4 md:flex">
+										{!publicTeam && <Collaborate />}
 
-                    {isTeamMember && isTeamDropdownAllowed ? (
-                      <TeamsDropDown publicTeam={publicTeam || false} />
-                    ) : null}
+										{isTeamMember && isTeamDropdownAllowed ? (
+											<TeamsDropDown publicTeam={publicTeam || false} />
+										) : null}
 
-                    <KeyboardShortcuts />
-                  </div>
-                  {!publicTeam && <UserNavAvatar />}
-                </div>
-              )}
-            </div>
-          </Container>
-          <RequestToJoinModal open={isOpen} closeModal={closeModal} />
-        </nav>
-      )}
-    </div>
-  );
+										<KeyboardShortcuts />
+									</div>
+									{!publicTeam && <UserNavAvatar />}
+								</div>
+							)}
+						</div>
+					</Container>
+					<RequestToJoinModal open={isOpen} closeModal={closeModal} />
+				</nav>
+			)}
+		</div>
+	);
 }

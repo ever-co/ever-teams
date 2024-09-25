@@ -106,7 +106,7 @@ export function TeamInvitations() {
 								handleCloseInvitation(invitation.id);
 							}}
 						>
-							<CrossIcon className="w-5 h-5"/>
+							<CrossIcon className="w-5 h-5" />
 						</button>
 					</Card>
 				))}
