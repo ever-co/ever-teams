@@ -2,7 +2,7 @@
 import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { setNextPublicEnv } from '@app/env';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { JitsuAnalytics } from 'lib/components/services/jitsu-analytics';
 
 type MyAppProps = {
@@ -17,33 +17,34 @@ type MyAppProps = {
 
 export function JitsuRoot({ pageProps, children }: MyAppProps) {
 	pageProps?.envs && setNextPublicEnv(pageProps?.envs);
-	const jitsuConf = pageProps?.jitsuConf || {
-		host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL,
-		writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY,
-		debug: false,
-		cookieDomain: process.env.NEXT_PUBLIC_JITSU_COOKIE_DOMAIN,
-		echoEvents: false
-	};
-	const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey;
-	console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
-	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
+
+	const options = useMemo(() => {
+		const jitsuConf = pageProps?.jitsuConf || {
+			host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL,
+			writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY,
+			debug: false,
+			cookieDomain: process.env.NEXT_PUBLIC_JITSU_COOKIE_DOMAIN,
+			echoEvents: false
+		};
+
+		const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey;
+
+		console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
+		console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
+
+		return isJitsuEnvs
+			? {
+					host: jitsuConf.host ?? '',
+					writeKey: jitsuConf.writeKey ?? undefined,
+					debug: jitsuConf.debug,
+					cookieDomain: jitsuConf.cookieDomain ?? undefined,
+					echoEvents: jitsuConf.echoEvents
+				}
+			: { disabled: true };
+	}, [pageProps?.jitsuConf]);
 
 	return (
-		<JitsuProvider
-			options={
-				isJitsuEnvs
-					? {
-							host: jitsuConf.host ?? '',
-							writeKey: jitsuConf.writeKey ?? undefined,
-							debug: jitsuConf.debug,
-							cookieDomain: jitsuConf.cookieDomain ?? undefined,
-							echoEvents: jitsuConf.echoEvents
-						}
-					: {
-							disabled: true
-						}
-			}
-		>
+		<JitsuProvider options={options as any}>
 			<JitsuAnalytics user={pageProps?.user} />
 			{children}
 		</JitsuProvider>
