@@ -82,11 +82,13 @@ export function useDailyPlan() {
 
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
-			queryCall(employeeId).then((response) => {
-				const { items, total } = response.data;
-				setProfileDailyPlans({ items, total });
-				setEmployeePlans(items);
-			});
+			if (employeeId && typeof employeeId === 'string') {
+				queryCall(employeeId).then((response) => {
+					const { items, total } = response.data;
+					setProfileDailyPlans({ items, total });
+					setEmployeePlans(items);
+				});
+			}
 		},
 		[queryCall, setEmployeePlans, setProfileDailyPlans]
 	);
