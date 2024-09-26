@@ -22,6 +22,7 @@ import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
+import moment from 'moment';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -81,6 +82,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		draft: false,
 		saved: false
 	});
+	const isTomorrowPlan = useMemo(
+		() =>
+			new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en') ==
+			new Date(plan.date).toLocaleDateString('en'),
+		[plan.date]
+	);
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -243,12 +250,18 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const StartWorkingButton = (
 		<Button
-			disabled={warning || loading || timerStatus?.running ? (planEditState.draft ? false : true) : false}
+			disabled={
+				(!isTomorrowPlan ? warning : false) || loading || timerStatus?.running
+					? planEditState.draft
+						? false
+						: true
+					: false
+			}
 			variant="default"
 			type="submit"
 			className={clsxm(
 				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
-				warning && 'bg-gray-400'
+				(!isTomorrowPlan ? warning : false) && 'bg-gray-400'
 			)}
 			onClick={handleSubmit}
 		>
