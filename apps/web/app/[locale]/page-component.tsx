@@ -105,7 +105,7 @@ function MainPage() {
                       !fullWidth && 'x-container'
                     )}
                   >
-                    <div className="mx-8-container pt-9 !px-0 flex flex-row items-start justify-between ">
+                    <div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
                       <div className="flex items-center justify-center h-10 gap-8">
                         <PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
                         <Breadcrumb paths={breadcrumb} className="text-sm" />
@@ -115,9 +115,11 @@ function MainPage() {
                       </div>
                     </div>
                     <div className="mb-1 mx-8-container">
-                      <UnverifiedEmail />
-                      <TeamInvitations />
-                      <TeamOutstandingNotifications />
+					<div className="w-full mt-3">
+						<UnverifiedEmail />
+						<TeamInvitations className="!m-0" />
+						<TeamOutstandingNotifications />
+					</div>
                       {isTeamMember ? (
                         <TaskTimerSection
                           isTrackingEnabled={isTrackingEnabled}

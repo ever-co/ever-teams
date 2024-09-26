@@ -284,7 +284,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				className="w-full"
 				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
 			>
-				{hook.filterType !== undefined && <Divider className="mt-4" />}
+				{hook.filterType !== undefined && <Divider className="mt-1" />}
 				{hook.filterType === 'status' && (
 					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
 				)}
@@ -389,7 +389,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex justify-center md:justify-start items-center mt-4 space-x-1 w-full md:space-x-4 md:mt-0">
+		<nav className="flex justify-center md:justify-start items-center space-x-1 w-full md:space-x-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -398,7 +398,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								`md:text-lg text-xs text-gray-500 font-normal outline-none md:py-[1.5rem] px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
+								`md:text-lg text-xs text-gray-500 font-normal outline-none md:py-[.5rem] px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
 								active && ['text-primary dark:text-white']
 							)}
 						>
@@ -415,7 +415,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 								<div
 									className={clsxm(
 										'bg-primary dark:bg-white',
-										'h-[0.1875rem] absolute -bottom-3 left-0 right-0 w-full'
+										'h-[0.1875rem] absolute -bottom-4 left-0 right-0 w-full'
 									)}
 								/>
 							)}
