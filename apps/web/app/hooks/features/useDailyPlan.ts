@@ -106,7 +106,11 @@ export function useDailyPlan() {
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(
-					{ ...data, organizationTeamId: activeTeam?.id },
+					{
+						...data,
+						organizationTeamId: activeTeam?.id,
+						employeeId: user?.employee?.id
+					},
 					user?.tenantId || ''
 				);
 				//Check if there is an existing plan
