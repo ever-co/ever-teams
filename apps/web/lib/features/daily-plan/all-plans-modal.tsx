@@ -11,6 +11,7 @@ import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { useTranslations } from 'next-intl';
+import { checkPastDate } from 'lib/utils';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -340,7 +341,9 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 				}
 			}}
 			initialFocus
-			disabled={isDateUnplanned}
+			disabled={(date) => {
+				return checkPastDate(date) && isDateUnplanned(date);
+			}}
 			modifiers={{
 				booked: sortedPlans?.map((plan) => new Date(plan.date)),
 				pastDay: pastPlans?.map((plan) => new Date(plan.date))
