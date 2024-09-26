@@ -242,7 +242,10 @@ const CustomCalendar = memo(function CustomCalendar({
 			modifiers={{
 				booked: existingPlanDates
 			}}
-			modifiersClassNames={{ booked: 'bg-primary text-white' }}
+			modifiersClassNames={{
+				booked: 'bg-primary text-white',
+				today: clsxm('border-2 !border-yellow-700 rounded')
+			}}
 			fromYear={new Date().getUTCFullYear()}
 			toYear={new Date().getUTCFullYear() + 5}
 		/>

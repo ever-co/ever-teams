@@ -353,7 +353,8 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 
 				pastDay: clsxm(
 					'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-yellow-600 after:rounded-full'
-				)
+				),
+				today: clsxm('border-2 !border-yellow-700 rounded')
 			}}
 			fromYear={new Date(sortedPlans?.[0]?.date ?? Date.now())?.getFullYear()}
 			toYear={new Date(sortedPlans?.[sortedPlans?.length - 1]?.date ?? Date.now())?.getFullYear() + 5}
