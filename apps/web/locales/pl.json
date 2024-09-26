@@ -589,6 +589,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan na dzisiaj",
+		"TASK_TIME": "czas zadania",
+		"TOTAL_TODAY": "Całkowity Dzisiaj",
 		"PLAN_FOR_TOMORROW": "Plan na jutro",
 		"PLAN_FOR_SOME_DAY": "Plan na pewien dzień",
 		"ADD_TASK_TO_PLAN": "Dodaj tę zadanie do planu",

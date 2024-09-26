@@ -589,6 +589,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "План за днес",
+		"TASK_TIME": "време за задача",
+		"TOTAL_TODAY": "Общо Днес",
 		"PLAN_FOR_TOMORROW": "План за утре",
 		"PLAN_FOR_SOME_DAY": "План за някой ден",
 		"ADD_TASK_TO_PLAN": "Добави тази задача към плана",

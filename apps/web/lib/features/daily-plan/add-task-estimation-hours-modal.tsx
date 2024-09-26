@@ -21,6 +21,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
+import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -76,6 +77,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		[activeTeamTask?.id, plan.tasks]
 	);
 	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
+	const [planEditState, setPlanEditState] = useState<{ draft: boolean; saved: boolean }>({
+		draft: false,
+		saved: false
+	});
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -139,7 +144,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			// Update the plan work time only if the user changed it
 			plan.workTimePlanned !== workTimePlanned && (await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
 
-			if (canStartWorking) {
+			setPlanEditState({ draft: false, saved: true });
+
+			if (canStartWorking && !timerStatus?.running) {
 				handleChangeActiveTask();
 
 				if (isRenderedInSoftFlow) {
@@ -152,14 +159,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(false);
 		}
 	}, [
-		canStartWorking,
-		handleChangeActiveTask,
-		handleCloseModal,
-		plan.id,
 		plan.workTimePlanned,
-		isRenderedInSoftFlow,
+		plan.id,
+		workTimePlanned,
 		updateDailyPlan,
-		workTimePlanned
+		canStartWorking,
+		timerStatus?.running,
+		handleChangeActiveTask,
+		isRenderedInSoftFlow,
+		handleCloseModal
 	]);
 
 	/**
@@ -235,7 +243,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const StartWorkingButton = (
 		<Button
-			disabled={warning || loading || timerStatus?.running ? true : false}
+			disabled={warning || loading || timerStatus?.running ? (planEditState.draft ? false : true) : false}
 			variant="default"
 			type="submit"
 			className={clsxm(
@@ -247,7 +255,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			{loading ? (
 				<SpinnerLoader variant="light" size={20} />
 			) : canStartWorking ? (
-				t('timer.todayPlanSettings.START_WORKING_BUTTON')
+				timerStatus?.running && planEditState.draft ? (
+					'Save Changes'
+				) : (
+					t('timer.todayPlanSettings.START_WORKING_BUTTON')
+				)
 			) : (
 				'Edit plan'
 			)}
@@ -301,6 +313,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 											!isNaN(parseInt(e.target.value))
 												? setWorkTimePlanned(parseInt(e.target.value))
 												: setWorkTimePlanned(0);
+
+											if (
+												parseInt(e.target.value) !== parseInt(plan.workTimePlanned.toString())
+											) {
+												setPlanEditState({ draft: true, saved: false });
+											} else {
+												setPlanEditState({ draft: false, saved: false });
+											}
 										}}
 										required
 										noWrapper
@@ -462,7 +482,7 @@ interface ISearchTaskInputProps {
  *
  * @returns The Search input component
  */
-function SearchTaskInput(props: ISearchTaskInputProps) {
+export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask } = props;
 	const { tasks: teamTasks, createTask } = useTeamTasks();
 	const { taskStatus } = useTaskStatus();
@@ -621,6 +641,11 @@ function TaskCard(props: ITaskCardProps) {
 		closeModal: closeTaskDetailsModal,
 		openModal: openTaskDetailsModal
 	} = useModal();
+	const {
+		isOpen: isUnplanActiveTaskModalOpen,
+		closeModal: closeUnplanActiveTaskModal,
+		openModal: openUnplanActiveTaskModal
+	} = useModal();
 
 	const handleOpenTaskDetailsModal = useCallback(() => {
 		// Update the detailed task state
@@ -629,8 +654,8 @@ function TaskCard(props: ITaskCardProps) {
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
-
 	const status = useTaskStatus();
+	const { activeTeamTask } = useTeamTasks();
 
 	/**
 	 * The function that adds the task to the selected plan
@@ -646,8 +671,6 @@ function TaskCard(props: ITaskCardProps) {
 			setAddToPlanLoading(false);
 		}
 	}, [addTaskToPlan, plan.id, task.id]);
-
-	console.log(status.taskStatus);
 
 	return (
 		<Card
@@ -696,6 +719,7 @@ function TaskCard(props: ITaskCardProps) {
 						<span className="w-4 h-full flex items-center justify-center">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
+								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
 							/>
@@ -704,6 +728,14 @@ function TaskCard(props: ITaskCardProps) {
 				)}
 			</div>
 			<TaskDetailsModal task={task} isOpen={isTaskDetailsModalOpen} closeModal={closeTaskDetailsModal} />
+			{activeTeamTask && (
+				<UnplanActiveTaskModal
+					open={isUnplanActiveTaskModalOpen}
+					task={activeTeamTask}
+					plan={plan}
+					closeModal={closeUnplanActiveTaskModal}
+				/>
+			)}
 		</Card>
 	);
 }
@@ -712,6 +744,7 @@ interface ITaskCardActionsProps {
 	task: ITeamTask;
 	selectedPlan: IDailyPlan;
 	openTaskDetailsModal: () => void;
+	openUnplanActiveTaskModal: () => void;
 }
 
 /**
@@ -721,15 +754,17 @@ interface ITaskCardActionsProps {
  * @param {ITeamTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
 	const { user } = useAuthenticateUser();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
-
+	const { activeTeamTask } = useTeamTasks();
+	const { timerStatus } = useTimerView();
 	const otherPlanIds = useMemo(
 		() =>
 			[...futurePlans, ...todayPlan]
@@ -739,6 +774,12 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan.id, task.id, todayPlan]
 	);
+	const isTodayPLan = useMemo(
+		() =>
+			new Date(selectedPlan?.date).toLocaleDateString('en') ==
+			new Date(todayPlan[0]?.date).toLocaleDateString('en'),
+		[selectedPlan.date, todayPlan]
+	);
 
 	/**
 	 * Unplan selected task
@@ -746,15 +787,39 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	const unplanSelectedDate = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				selectedPlan?.id &&
-					(await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, selectedPlan?.id));
+				if (task.id == activeTeamTask?.id) {
+					if (timerStatus?.running && isTodayPLan) {
+						openUnplanActiveTaskModal();
+					} else {
+						selectedPlan?.id &&
+							(await removeTaskFromPlan(
+								{ taskId: task.id, employeeId: user?.employee.id },
+								selectedPlan?.id
+							));
+					}
+				} else {
+					selectedPlan?.id &&
+						(await removeTaskFromPlan(
+							{ taskId: task.id, employeeId: user?.employee.id },
+							selectedPlan?.id
+						));
+				}
 
 				closePopover();
 			} catch (error) {
 				console.log(error);
 			}
 		},
-		[removeTaskFromPlan, selectedPlan.id, task.id, user?.employee.id]
+		[
+			activeTeamTask?.id,
+			isTodayPLan,
+			openUnplanActiveTaskModal,
+			removeTaskFromPlan,
+			selectedPlan.id,
+			task.id,
+			timerStatus?.running,
+			user?.employee.id
+		]
 	);
 
 	return (
@@ -795,6 +860,9 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 															selectedPlanId={selectedPlan.id}
 															planIds={[selectedPlan.id, ...otherPlanIds]}
 															closeActionPopover={close}
+															openUnplanActiveTaskModal={openUnplanActiveTaskModal}
+															unplanSelectedDate={unplanSelectedDate}
+															unPlanSelectedDateLoading={removeTaskFromPlanLoading}
 														/>
 													) : (
 														<span
@@ -831,6 +899,9 @@ interface IUnplanTaskProps {
 	selectedPlanId: string;
 	planIds: string[];
 	closeActionPopover: () => void;
+	unplanSelectedDate: (closePopover: () => void) => Promise<void>;
+	unPlanSelectedDateLoading: boolean;
+	openUnplanActiveTaskModal: () => void;
 }
 
 /**
@@ -841,32 +912,30 @@ interface IUnplanTaskProps {
  * @param {string} props.selectedPlanId - The currently selected plan id
  * @param {string[]} [props.planIds] - Others plans's ids
  * @param {() => void} props.closeActionPopover - The function to close the task card actions popover
+ * @param {(taskIds: string[]) => void} props.wantsToUnplanActiveTask - Will be called when the user wants to unplan the activeTas
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
+ *
+ *
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function UnplanTask(props: IUnplanTaskProps) {
-	const { taskId, selectedPlanId, planIds, closeActionPopover } = props;
+	const {
+		taskId,
+		planIds,
+		closeActionPopover,
+		unplanSelectedDate,
+		openUnplanActiveTaskModal,
+		unPlanSelectedDateLoading
+	} = props;
 	const { user } = useAuthenticateUser();
-	const { removeTaskFromPlan, removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } =
-		useDailyPlan();
-
-	/**
-	 * Unplan selected task
-	 */
-	const unplanSelectedDate = useCallback(
-		async (closePopover: () => void) => {
-			try {
-				await removeTaskFromPlan({ taskId: taskId, employeeId: user?.employee.id }, selectedPlanId);
-
-				closePopover();
-				// Close the task card actions popover as well
-				closeActionPopover();
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		[closeActionPopover, removeTaskFromPlan, selectedPlanId, taskId, user?.employee.id]
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading, todayPlan } = useDailyPlan();
+	const { activeTeamTask } = useTeamTasks();
+	const { timerStatus } = useTimerView();
+	const isActiveTaskPlannedToday = useMemo(
+		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
+		[activeTeamTask?.id, todayPlan]
 	);
 
 	/**
@@ -875,7 +944,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const unplanAll = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+				// First, check if the user wants to unplan the active task
+				if (taskId == activeTeamTask?.id) {
+					if (timerStatus?.running && isActiveTaskPlannedToday) {
+						openUnplanActiveTaskModal();
+						// TODO: Unplan from all plans after clicks 'YES'
+					} else {
+						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+					}
+				} else {
+					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+				}
 
 				closePopover();
 				// Close the task card actions popover as well
@@ -884,7 +963,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 				console.log(error);
 			}
 		},
-		[closeActionPopover, planIds, removeManyTaskPlans, taskId, user?.employee.id]
+		[
+			activeTeamTask?.id,
+			closeActionPopover,
+			isActiveTaskPlannedToday,
+			openUnplanActiveTaskModal,
+			planIds,
+			removeManyTaskPlans,
+			taskId,
+			timerStatus?.running,
+			user?.employee.id
+		]
 	);
 
 	return (
@@ -914,10 +1003,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(
 											'shrink-0',
-											!removeTaskFromPlanLoading && 'hover:font-semibold hover:transition-all '
+											!unPlanSelectedDateLoading && 'hover:font-semibold hover:transition-all '
 										)}
 									>
-										{removeTaskFromPlanLoading ? (
+										{unPlanSelectedDateLoading ? (
 											<SpinnerLoader size={10} />
 										) : (
 											'Unplan selected date'
