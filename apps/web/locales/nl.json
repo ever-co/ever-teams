@@ -589,6 +589,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan voor vandaag",
+		"TASK_TIME": "taken tijd",
+		"TOTAL_TODAY": "Totaal Vandaag",
 		"PLAN_FOR_TOMORROW": "Plan voor morgen",
 		"PLAN_FOR_SOME_DAY": "Plan voor een dag",
 		"ADD_TASK_TO_PLAN": "Voeg deze taak toe aan een plan",
