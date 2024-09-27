@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@app/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
@@ -645,7 +645,8 @@ interface ITaskCardProps {
 function TaskCard(props: ITaskCardProps) {
 	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask } = props;
 	const { getTaskById } = useTeamTasks();
-	const { addTaskToPlan } = useDailyPlan();
+	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
+	const { user } = useAuthenticateUser();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 	const isTaskRenderedInTodayPlan =
 		new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
@@ -677,13 +678,35 @@ function TaskCard(props: ITaskCardProps) {
 		try {
 			setAddToPlanLoading(true);
 
-			if (plan.id) await addTaskToPlan({ taskId: task.id }, plan.id);
+			console.log(plan);
+
+			if (plan.id) {
+				await addTaskToPlan({ taskId: task.id }, plan.id);
+			} else {
+				await createDailyPlan({
+					workTimePlanned: 0,
+					taskId: task.id,
+					date: moment(plan.date).toDate(),
+					status: DailyPlanStatusEnum.OPEN,
+					tenantId: user?.tenantId ?? '',
+					employeeId: user?.employee.id,
+					organizationId: user?.employee.organizationId
+				});
+			}
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setAddToPlanLoading(false);
 		}
-	}, [addTaskToPlan, plan.id, task.id]);
+	}, [
+		addTaskToPlan,
+		createDailyPlan,
+		plan,
+		task.id,
+		user?.employee.id,
+		user?.employee.organizationId,
+		user?.tenantId
+	]);
 
 	return (
 		<Card

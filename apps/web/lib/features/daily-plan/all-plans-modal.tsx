@@ -1,16 +1,15 @@
-import { Card, InputField, Modal, NoData, Tooltip, VerticalSeparator } from 'lib/components';
+import { Card, Modal, NoData, SpinnerLoader, Tooltip, VerticalSeparator } from 'lib/components';
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
-import { AddIcon, ChevronRightIcon } from 'assets/svg';
-import { AddTasksEstimationHoursModal, SearchTaskInput } from './add-task-estimation-hours-modal';
-import { useDailyPlan } from '@app/hooks';
+import { ChevronRightIcon } from 'assets/svg';
+import { AddTasksEstimationHoursModal } from './add-task-estimation-hours-modal';
+import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
 import { Button } from '@components/ui/button';
 import { Calendar } from '@components/ui/calendar';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { DailyPlanStatusEnum, IDailyPlan } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
-import { useTranslations } from 'next-intl';
 import { checkPastDate } from 'lib/utils';
 
 interface IAllPlansModal {
@@ -55,7 +54,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		[isSameDate, myDailyPlans.items]
 	);
 
-	const selectedFuturePlan = useMemo(
+	const selectedPlan = useMemo(
 		() => customDate && myDailyPlans.items.find((plan) => isSameDate(plan.date, customDate)),
 		[isSameDate, myDailyPlans.items, customDate]
 	);
@@ -86,17 +85,14 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			case 'Tomorrow':
 				return tomorrowPlan;
 			case 'Calendar':
-				return selectedFuturePlan;
+				return selectedPlan;
 			default:
 				return undefined;
 		}
-	}, [selectedTab, todayPlan, tomorrowPlan, selectedFuturePlan]);
+	}, [selectedTab, todayPlan, tomorrowPlan, selectedPlan]);
 
-	const [showSearchInput, setShowSearchInput] = useState(false);
-	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
-	const [workTimePlanned, setWorkTimePlanned] = useState<number>(0);
-	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
-	const t = useTranslations();
+	const { user } = useAuthenticateUser();
+	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 
 	// Set the related tab for today and tomorrow dates
 	const handleCalendarSelect = useCallback(() => {
@@ -116,6 +112,21 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			}
 		}
 	}, [customDate]);
+
+	const createEmptyPlan = useCallback(async () => {
+		try {
+			await createDailyPlan({
+				workTimePlanned: 0,
+				date: moment(customDate).toDate(),
+				status: DailyPlanStatusEnum.OPEN,
+				tenantId: user?.tenantId ?? '',
+				employeeId: user?.employee.id,
+				organizationId: user?.employee.organizationId
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}, [createDailyPlan, customDate, user?.employee.id, user?.employee.organizationId, user?.tenantId]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} className={clsxm('w-[36rem]')}>
@@ -141,8 +152,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 						<Text.Heading as="h3" className="uppercase text-center">
 							{selectedTab == 'Calendar'
-								? showCustomPlan && selectedFuturePlan
-									? `PLAN FOR ${new Date(selectedFuturePlan.date).toLocaleDateString('en-GB')}`
+								? showCustomPlan && selectedPlan
+									? `PLAN FOR ${new Date(selectedPlan.date).toLocaleDateString('en-GB')}`
 									: `PLANS`
 								: `${selectedTab}'S PLAN`}
 						</Text.Heading>
@@ -189,13 +200,19 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										Cancel
 									</Button>
 									<Button
-										disabled={!selectedFuturePlan}
+										disabled={!customDate || createDailyPlanLoading}
 										variant="default"
 										type="submit"
 										className={clsxm('py-3 px-5 rounded-md font-light text-md dark:text-white')}
-										onClick={handleCalendarSelect}
+										onClick={selectedPlan ? handleCalendarSelect : createEmptyPlan}
 									>
-										Select
+										{selectedPlan ? (
+											'Select'
+										) : createDailyPlanLoading ? (
+											<SpinnerLoader variant="light" size={20} />
+										) : (
+											'Add plan'
+										)}
 									</Button>
 								</div>
 							</div>
@@ -210,63 +227,9 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										closeModal={handleCloseModal}
 									/>
 								) : (
-									<>
-										{showSearchInput ? (
-											<SearchTaskInput
-												defaultTask={defaultTask}
-												setDefaultTask={setDefaultTask}
-												setShowSearchInput={setShowSearchInput}
-												selectedPlan={myDailyPlans.items[0]}
-											/>
-										) : (
-											<div className=" w-full flex flex-col gap-2">
-												<span className="text-sm">
-													{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
-													<span className="text-red-600">*</span>
-												</span>
-												<div className="w-full flex gap-3 h-[3rem]">
-													<InputField
-														type="number"
-														placeholder={t(
-															'timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER'
-														)}
-														className="h-full"
-														wrapperClassName=" h-full"
-														onChange={(e) => {
-															!isNaN(parseInt(e.target.value))
-																? setWorkTimePlanned(parseInt(e.target.value))
-																: setWorkTimePlanned(0);
-														}}
-														required
-														noWrapper
-														min={0}
-														value={
-															!isNaN(workTimePlanned) &&
-															workTimePlanned.toString() !== '0'
-																? workTimePlanned.toString().replace(/^0+/, '')
-																: isWorkingTimeInputFocused
-																	? ''
-																	: 0
-														}
-														onFocus={() => setWorkingTimeInputFocused(true)}
-														onBlur={() => setWorkingTimeInputFocused(false)}
-														defaultValue={0}
-													/>
-													<button
-														onClick={() => {
-															setShowSearchInput(true);
-														}}
-														className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
-													>
-														<AddIcon className="w-4 h-4 text-dark dark:text-white" />
-													</button>
-												</div>
-											</div>
-										)}
-										<div className="flex justify-center items-center h-full">
-											<NoData component={<ValueNoneIcon />} text="Plan not found " />
-										</div>
-									</>
+									<div className="flex justify-center items-center h-full">
+										<NoData component={<ValueNoneIcon />} text="Plan not found " />
+									</div>
 								)}
 							</>
 						)}
@@ -295,7 +258,7 @@ interface ICalendarProps {
  *
  * @param {Object} props - The props object
  * @param {Dispatch<SetStateAction<IDailyPlan>>} props.setSelectedFuturePlan - A function that set the selected plan
- * @param {IDailyPlan} props.selectedFuturePlan - The selected plan
+ * @param {IDailyPlan} props.selectedPlan - The selected plan
  * @param {IDailyPlan[]} props.plans - Available plans
  * @param {IDailyPlan[]} props.pastPlans - Past plans
  *
