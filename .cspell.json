@@ -375,7 +375,17 @@
 		"asar",
 		"icns",
 		"nsis",
-		"WARNING️"
+		"WARNING️",
+		"Periode",
+		"maximizable",
+		"mainconfig",
+		"electronmon",
+		"languagedetector",
+		"teamsupercell",
+		"pmmmwh",
+		"compat",
+		"webm",
+		"webp"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
@@ -424,5 +434,8 @@
 		"apps/desktop/i18n/**",
 		"apps/**/*.{svg,css,scss}",
 		".scripts/icon-utils/icons/**",
+		"apps/server-web/src/locales/**/*.json",
+		"apps/server-web/src/resources/*",
+		"apps/server-web/assets/*"
 	]
 }

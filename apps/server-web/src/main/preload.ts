@@ -23,6 +23,9 @@ const electronHandler = {
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
+    invoke(channel: Channels, ...args: unknown[]) {
+      return ipcRenderer.invoke(channel, ...args);
+    },
     removeEventListener(channel: Channels) {
       ipcRenderer.removeAllListeners(channel)
     }
@@ -33,8 +36,14 @@ contextBridge.exposeInMainWorld('electron', electronHandler);
 contextBridge.exposeInMainWorld('languageChange', {
   language: (callback: any) => ipcRenderer.on('languageSignal', (_event, value) => callback(value))
 })
+contextBridge.exposeInMainWorld('themeChange', {
+  theme: (callback: any) => ipcRenderer.on('themeSignal', (_event, value) => callback(value))
+})
 
 export type ElectronHandler = typeof electronHandler;
 export type languageChange = {
   language: (callback: any) => void
+}
+export type themeChange = {
+  theme: (callback: any) => void
 }
