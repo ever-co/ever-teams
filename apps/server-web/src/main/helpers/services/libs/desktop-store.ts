@@ -29,7 +29,7 @@ export const LocalStore = {
 			const config: WebServer = {
 				server: {
 					PORT: 3002,
-					GAUZY_API_SERVER_URL: 'htpp://localhost:3000',
+					GAUZY_API_SERVER_URL: 'http://localhost:3000',
 					NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'http://localhost:3000'
 				},
 				general: {
