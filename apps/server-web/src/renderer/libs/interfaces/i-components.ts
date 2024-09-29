@@ -55,6 +55,12 @@ type ISidebarComponent = {
   lang: string;
 };
 
+export type IClassName<T = object> = {
+  className?: string;
+  fullWidth?: boolean;
+  type?: 'VERTICAL' | 'HORIZONTAL';
+} & T;
+
 export {
   IToastComponent,
   IProgressComponent,

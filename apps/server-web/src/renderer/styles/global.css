@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:ital,wght@0,300;0,500;0,700;0,800;1,400;1,600&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;1,100;1,200;1,300;1,400;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --tw-color-dark--theme: #1e2025;
+    --tooltipBackground: #000;
+}
+
+body {
+    @apply bg-[#F2F2F2];
+}
+
+html.dark {
+    --tooltipBackground: #000;
+}
+
+.font-poppins {
+    font-family: 'Poppins' !important;
+}
+
+@layer base {
+    html {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        font-style: normal;
+        font-weight: 300;
+        font-size: 16px;
+        line-height: 160%;
+        @apply text-default dark:text-white;
+    }
+
+    .x-container {
+        @apply 3xl:max-w-[1540px] 2xl:max-w-[1320px] xl:max-w-[1140px];
+    }
+
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+
+        --primary: 222.2 47.4% 11.2%;
+        --primary-foreground: 210 40% 98%;
+
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+
+        --ring: 215 20.2% 65.1%;
+
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+
+        --primary: 210 40% 98%;
+        --primary-foreground: 222.2 47.4% 11.2%;
+
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 85.7% 97.3%;
+
+        --ring: 217.2 32.6% 17.5%;
+    }
+}
+
+@layer components {
+
+    /* Colors custom */
+    .bg-gray-lighter {
+        @apply bg-[#F2F2F2] dark:bg-dark--theme-light;
+    }
+
+    /* --------------------- Container ------------------------------------ */
+    .x-container {
+        --tblr-gutter-x: 1.5rem;
+        --tblr-gutter-y: 0;
+        width: 100%;
+        padding-right: calc(var(--tblr-gutter-x) * 0.5);
+        padding-left: calc(var(--tblr-gutter-x) * 0.5);
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    /* ----------------Fade IN and Fade out */
+
+    .fade-out {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        transition:
+            width 0.5s 0.5s,
+            height 0.5s 0.5s,
+            opacity 0.5s;
+    }
+
+    .fade-in {
+        opacity: 1;
+        width: 100%;
+        height: 100%;
+        transition:
+            width 0.2s,
+            height 0.2s,
+            opacity 0.2s 0.2s;
+    }
+
+    /* ------------------- Input ----------------------- */
+    .input-border {
+        @apply border-[#00000021] dark:border-[#3b3c44] border-solid border;
+        @apply dark:bg-[#1B1D22];
+    }
+
+    /* Shadow */
+    .nav-items--shadow {
+        box-shadow: 0px 14px 24px -10px rgba(0, 0, 0, 0.04);
+    }
+
+    .main--card-border {
+        @apply border dark:border-[#28292F];
+    }
+
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        display: block;
+        width: 8px;
+        height: 5px;
+        @apply dark:bg-[#7b7b7c] bg-gray-400;
+    }
+
+    .custom-scrollbar:hover::-webkit-scrollbar {
+        padding: 1px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply dark:bg-[#484848] bg-gray-300;
+    }
+
+    /* Details Aside Bar */
+
+    .details-label {
+        @apply not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#A5A2B2] 2xl:text-xs;
+    }
+}
+
+/* input */
+.search-border {
+    height: 33px;
+}
+
+.search-border .input-border {
+    border-width: 0px !important;
+    height: 40px;
+}
+
+.search-border .input-border input {
+    height: 40px;
+}
+
+.search-border .input-border input::placeholder {
+    color: #7e7991;
+    font-size: 15px !important;
+    /* font-weight: 500; */
+    letter-spacing: 0.8px;
+}
+
+#file-upload input[type='file'] {
+    display: none;
+}
+
+@font-face {
+    font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
+    src: url('./styles/fonts/PlusJakartaSans-VariableFont_wght.ttf');
+}
+
+@font-face {
+    font-family: 'Plus-Jakarta-Sans-Regular';
+    src: url('./styles/fonts/PlusJakartaSans-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Plus-Jakarta-Sans-Bold';
+    src: url('./styles/fonts/PlusJakartaSans-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Plus-Jakarta-Sans-Light';
+    src: url('./styles/fonts/PlusJakartaSans-Light.ttf');
+}
+
+@font-face {
+    font-family: 'Plus-Jakarta-Sans-Medium';
+    src: url('./styles/fonts/PlusJakartaSans-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Plus-Jakarta-Sans-SemiBold';
+    src: url('./styles/fonts/PlusJakartaSans-SemiBold.ttf');
+}
+
+.search-class {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: #fcfcfc;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.theme-popup-scrollbar ::-webkit-scrollbar {
+    display: none;
+}
+
+/* React Date picker */
+
+.prose {
+    max-width: unset !important;
+}
+
+
+@keyframes zoom-in-out {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* @keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.2);
+	}
+} */
+
+.progress-ring__circle {
+    stroke-dasharray: 400, 400;
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+@layer utilities {
+    @layer responsive {
+        .no-scrollbar::-webkit-scrollbar {
+            display: block;
+        }
+
+        .no-scrollbar:hover::-webkit-scrollbar {
+            display: block;
+            width: 8px;
+            height: 5px;
+            @apply dark:bg-[#606062] bg-gray-300;
+        }
+
+        .no-scrollbar::-webkit-scrollbar-thumb {
+            @apply dark:bg-dark--theme-light bg-gray-400;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .no-scrollbar:hover {
+            -ms-overflow-style: auto;
+            scrollbar-width: auto;
+        }
+    }
+}
