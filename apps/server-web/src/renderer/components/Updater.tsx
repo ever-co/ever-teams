@@ -139,7 +139,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                   htmlFor="airplane-mode"
                   style={{ paddingLeft: 15 }}
                 >
-                  {t('FORM.LABELS.AUTO_UPDATE_TOGLE')}
+                  {t('FORM.LABELS.AUTO_UPDATE_TOGGLE')}
                 </label>
               </div>
               <div className="flex w-2/2">
@@ -212,9 +212,9 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
               >
                 <div className="ml-1 mt-1">
                   {updateLogs.length > 0 &&
-                    updateLogs.map((ulog, i) => (
+                    updateLogs.map((uLog, i) => (
                       <div className="py-1" key={i}>
-                        <span>{ulog}</span>
+                        <span>{uLog}</span>
                       </div>
                     ))}
                 </div>

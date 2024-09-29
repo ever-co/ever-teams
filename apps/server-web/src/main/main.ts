@@ -531,10 +531,10 @@ const createIntervalAutoUpdate = () => {
   if (setting.general?.autoUpdate && setting.general.updateCheckPeriode) {
     const checkIntervalSecond = parseInt(setting.general.updateCheckPeriode);
     if (!Number.isNaN(checkIntervalSecond)) {
-      const intevalMS = checkIntervalSecond * 60 * 1000;
+      const intervalMS = checkIntervalSecond * 60 * 1000;
       intervalUpdate = setInterval(() => {
         updater.checkUpdateNotify();
-      }, intevalMS)
+      }, intervalMS)
     }
   }
 }

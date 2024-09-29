@@ -12,7 +12,7 @@ export default function App() {
 
   const setTheme = async (htmlElement: HTMLElement) => {
     const currentTheme = await window.electron.ipcRenderer.invoke('current-theme');
-    htmlElement.classList.remove('dark', 'ligth');
+    htmlElement.classList.remove('dark', 'light');
     htmlElement.classList.toggle(currentTheme || theme);
   }
 
@@ -24,7 +24,7 @@ export default function App() {
     });
     window.themeChange.theme((value: any) => {
       console.log(value);
-      htmlElement.classList.remove('dark', 'ligth');
+      htmlElement.classList.remove('dark', 'light');
       htmlElement.classList.toggle(value.data);
     })
     i18next.changeLanguage(language);

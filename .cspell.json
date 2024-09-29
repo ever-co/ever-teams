@@ -375,7 +375,10 @@
 		"asar",
 		"icns",
 		"nsis",
-		"WARNING️"
+		"WARNING️",
+		"Periode",
+		"maximizable",
+		"mainconfig"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
