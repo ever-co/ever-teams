@@ -202,7 +202,23 @@
 		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
 		"DAILYPLAN": "מְתוּכנָן",
 		"INVITATION_SENT": "ההזמנה נשלחה בהצלחה",
-		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}."
+		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}.",
+		"CALENDAR": "לוח שנה",
+		"SELECT": "בחר",
+		"SAVE_CHANGES": "שמור שינויים",
+		"plan": {
+			"SINGULAR": "תכנית",
+			"PLURAL": "תכניות",
+			"CHOOSE_DATE": "בחר תאריך כדי לראות תוכנית",
+			"PLAN_NOT_FOUND": "התוכנית לא נמצאה",
+			"FOR_DATE": "תכנית ל-{date}",
+			"FOR_TODAY": "תכנית להיום",
+			"FOR_TOMORROW": "תכנית למחר",
+			"EDIT_PLAN": "ערוך תוכנית",
+			"TRACKED_TIME": "זמן מעקב",
+			"SEE_PLANS": "ראה תוכניות",
+			"ADD_PLAN": "הוסף תוכנית"
+		}
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -537,6 +553,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "זמן עבודה מתוכנן להיום",
 			"TASKS_WITH_NO_ESTIMATIONS": "משימות בלי הערכת זמן",
 			"START_WORKING_BUTTON": "התחל לעבוד",
+			"TIMER_RUNNING": "הטיימר כבר פועל",
 			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
 		}
 	},

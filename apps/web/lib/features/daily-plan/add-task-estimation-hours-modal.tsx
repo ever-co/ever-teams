@@ -69,7 +69,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const totalWorkedTime = useMemo(
 		() =>
 			plan && plan.tasks
-				? plan.tasks?.reduce((acc, cur) => {
+				? plan.tasks.reduce((acc, cur) => {
 						const totalWorkedTime = cur.totalWorkedTime ?? 0;
 
 						return acc + totalWorkedTime;
@@ -81,7 +81,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const [loading, setLoading] = useState(false);
 	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
 	const isActiveTaskPlanned = useMemo(
-		() => plan && plan.tasks && plan.tasks?.some((task) => task.id == activeTeamTask?.id),
+		() => plan && plan.tasks && plan.tasks.some((task) => task.id == activeTeamTask?.id),
 		[activeTeamTask?.id, plan]
 	);
 	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
@@ -278,12 +278,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 				<SpinnerLoader variant="light" size={20} />
 			) : canStartWorking ? (
 				timerStatus?.running && planEditState.draft ? (
-					'Save Changes'
+					t('common.SAVE_CHANGES')
 				) : (
 					t('timer.todayPlanSettings.START_WORKING_BUTTON')
 				)
 			) : (
-				'Edit plan'
+				t('common.plan.EDIT_PLAN')
 			)}
 		</Button>
 	);
@@ -381,7 +381,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						{checkPastDate(plan?.date ?? selectedDate) && (
 							<div className=" w-full flex flex-col gap-2">
-								<span className="text-sm">Tracked time</span>
+								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
 									{formatIntegerToHour(totalWorkedTime ?? 0)}
 								</div>
@@ -449,11 +449,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
 							</Button>
 							{timerStatus?.running && !planEditState.draft ? (
-								<Tooltip className="w-40" label="The timer is already running">
+								<Tooltip className="min-w-[10rem]" label={t('timer.todayPlanSettings.TIMER_RUNNING')}>
 									{StartWorkingButton}
 								</Tooltip>
 							) : (
-								<div className="w-40 h-full">{StartWorkingButton}</div>
+								<div className="min-w-[10rem] h-full">{StartWorkingButton}</div>
 							)}
 						</div>
 					</>

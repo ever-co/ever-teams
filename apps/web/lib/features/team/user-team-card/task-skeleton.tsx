@@ -59,7 +59,7 @@ export function UserTeamCardHeader() {
 						</div>
 					</div>
 					<div className="w-4 self-stretch border-l-[0.125rem] border-l-transparent " />
-					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 !pl-6 lg:!pl-8  flex flex-col items-center text-center  justify-center">
+					<div className="2xl:w-48 3xl:w-[12rem] capitalize w-1/5 lg:px-4 !pl-6 lg:!pl-8  flex flex-col items-center text-center  justify-center">
 						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
 							{t('dailyPlan.TASK_TIME')}
 						</Tooltip>

@@ -11,6 +11,7 @@ import { DailyPlanStatusEnum, IDailyPlan } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -35,6 +36,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 	const { myDailyPlans, pastPlans } = useDailyPlan();
+	const t = useTranslations();
 
 	// Utility function for checking if two dates are the same
 	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
@@ -106,7 +108,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		if (customDate) {
 			if (isSameDate(customDate, moment().startOf('day').toDate())) {
 				setSelectedTab('Today');
-				setCustomDate(moment.utc().toDate());
+				setCustomDate(moment().toDate());
 			} else if (isSameDate(customDate, moment().add(1, 'days').startOf('day').toDate())) {
 				setSelectedTab('Tomorrow');
 				setCustomDate(moment().add(1, 'days').toDate());
@@ -149,7 +151,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									<span className="rotate-180">
 										<ChevronRightIcon className="w-4  h-4 stroke-[#B1AEBC]" />
 									</span>
-									<span>Back</span>
+									<span>{t('common.BACK')}</span>
 								</button>
 							</Tooltip>
 						)}
@@ -157,9 +159,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						<Text.Heading as="h3" className="uppercase text-center">
 							{selectedTab == 'Calendar'
 								? showCustomPlan && selectedPlan
-									? `PLAN FOR ${new Date(selectedPlan.date).toLocaleDateString('en-GB')}`
-									: `PLANS`
-								: `${selectedTab}'S PLAN`}
+									? t('common.plan.FOR_DATE', {
+											date: new Date(selectedPlan.date).toLocaleDateString('en-GB')
+										})
+									: t('common.plan.PLURAL')
+								: `${selectedTab === 'Today' ? t('common.plan.FOR_TODAY') : selectedTab === 'Tomorrow' ? t('common.plan.FOR_TOMORROW') : ''}`}
 						</Text.Heading>
 					</div>
 					<div className="w-full h-12 flex items-center">
@@ -170,7 +174,13 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									className={`flex justify-center gap-4 items-center hover:text-primary cursor-pointer ${selectedTab === tab ? 'text-primary font-medium' : ''}`}
 									onClick={() => handleTabClick(tab)}
 								>
-									<span>{tab}</span>
+									<span>
+										{tab === 'Today'
+											? t('common.TODAY')
+											: tab === 'Tomorrow'
+												? t('common.TOMORROW')
+												: t('common.CALENDAR')}
+									</span>
 									{index + 1 < tabs.length && <VerticalSeparator className="w-full" />}
 								</li>
 							))}
@@ -182,7 +192,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 							<div className="w-full h-full flex-col flex items-center justify-between">
 								<div className="w-full grow">
 									<div className="w-full h-full flex flex-col gap-4 items-center justify-center">
-										<p className=" text-sm font-medium">Select a date to be able to see a plan</p>
+										<p className=" text-sm font-medium">{t('common.plan.CHOOSE_DATE')}</p>
 										<div className="p-3 border flex  items-center  justify-center rounded-md">
 											<FuturePlansCalendar
 												selectedPlan={customDate}
@@ -201,7 +211,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										className="py-3 px-5 min-w-[8rem] rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 										onClick={handleCloseModal}
 									>
-										Cancel
+										{t('common.CANCEL')}
 									</Button>
 									<Button
 										disabled={!customDate || createDailyPlanLoading}
@@ -213,11 +223,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										onClick={selectedPlan ? handleCalendarSelect : createEmptyPlan}
 									>
 										{selectedPlan ? (
-											'Select'
+											t('common.SELECT')
 										) : createDailyPlanLoading ? (
 											<SpinnerLoader variant="light" size={20} />
 										) : (
-											'Add plan'
+											t('common.plan.ADD_PLAN')
 										)}
 									</Button>
 								</div>
@@ -235,8 +245,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									/>
 								) : customDate ? (
 									<AddTasksEstimationHoursModal
-										plan={plan}
-										tasks={plan?.tasks ?? []}
+										tasks={[]}
 										isRenderedInSoftFlow={false}
 										isOpen={isOpen}
 										closeModal={handleCloseModal}
@@ -244,7 +253,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									/>
 								) : (
 									<div className="flex justify-center items-center h-full">
-										<NoData component={<ValueNoneIcon />} text="Plan not found " />
+										<NoData component={<ValueNoneIcon />} text={t('common.plan.PLAN_NOT_FOUND')} />
 									</div>
 								)}
 							</>
