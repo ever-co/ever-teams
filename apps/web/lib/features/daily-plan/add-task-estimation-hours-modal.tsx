@@ -89,13 +89,6 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		draft: false,
 		saved: false
 	});
-	const isTomorrowPlan = useMemo(
-		() =>
-			plan &&
-			new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en') ==
-				new Date(plan.date).toLocaleDateString('en'),
-		[plan]
-	);
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -261,7 +254,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		<Button
 			disabled={
 				(canStartWorking && warning) || loading || (canStartWorking && timerStatus?.running)
-					? planEditState.draft
+					? planEditState.draft && !warning
 						? false
 						: true
 					: false
@@ -464,41 +457,23 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								disabled={loading}
 								variant="outline"
 								type="submit"
-								className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 								onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
 							</Button>
-							{timerStatus?.running && !planEditState.draft ? (
+							{canStartWorking && timerStatus?.running && !planEditState.draft ? (
 								<Tooltip className="min-w-[10rem]" label={t('timer.todayPlanSettings.TIMER_RUNNING')}>
 									{StartWorkingButton}
 								</Tooltip>
 							) : (
-								<div className="min-w-[10rem] h-full">{StartWorkingButton}</div>
+								<div className="w-40 border h-full">
+									{checkPastDate(plan.date) ? TimeSheetsButton : StartWorkingButton}
+								</div>
 							)}
 						</div>
 					</>
 				) : null}
-				<div className=" flex justify-between items-center">
-					<Button
-						disabled={loading}
-						variant="outline"
-						type="submit"
-						className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-						onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
-					>
-						{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
-					</Button>
-					{timerStatus?.running ? (
-						<Tooltip className="w-40" label="The timer is already running">
-							{StartWorkingButton}
-						</Tooltip>
-					) : (
-						<div className="w-40 border h-full">
-							{checkPastDate(plan?.date) ? TimeSheetsButton : StartWorkingButton}
-						</div>
-					)}
-				</div>
 			</div>
 		</div>
 	);
