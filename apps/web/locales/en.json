@@ -218,6 +218,10 @@
 			"TRACKED_TIME": "Tracked time",
 			"SEE_PLANS": "See plans",
 			"ADD_PLAN": "Add Plan"
+		},
+		"timesheets": {
+			"SINGULAR": "Timesheet",
+			"PLURAL": "Timesheets"
 		}
 	},
 	"hotkeys": {

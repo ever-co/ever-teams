@@ -260,7 +260,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const StartWorkingButton = (
 		<Button
 			disabled={
-				(!isTomorrowPlan ? warning : false) || loading || timerStatus?.running
+				(canStartWorking && warning) || loading || (canStartWorking && timerStatus?.running)
 					? planEditState.draft
 						? false
 						: true
@@ -270,7 +270,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			type="submit"
 			className={clsxm(
 				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
-				(!isTomorrowPlan ? warning : false) && 'bg-gray-400'
+				canStartWorking && warning && 'bg-gray-400'
 			)}
 			onClick={handleSubmit}
 		>
@@ -285,6 +285,13 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			) : (
 				t('common.plan.EDIT_PLAN')
 			)}
+		</Button>
+	);
+
+	// TODO: Add onclick handler
+	const TimeSheetsButton = (
+		<Button className="py-3 px-5 w-full rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+			{t('common.timesheets.PLURAL')}
 		</Button>
 	);
 
@@ -324,7 +331,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<div className="w-full flex gap-3 h-[3rem]">
 								{checkPastDate(plan?.date ?? selectedDate) ? (
 									<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-full">
-										{formatIntegerToHour(tasksEstimationTimes)}
+										{/**Create a space between hours and minutes for past plans view */}
+										{formatIntegerToHour(plan?.workTimePlanned ?? 0).replace(
+											/(\d+h)(\d+m)/,
+											'$1 $2'
+										)}
 									</div>
 								) : (
 									<InputField
@@ -383,7 +394,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<div className=" w-full flex flex-col gap-2">
 								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
-									{formatIntegerToHour(totalWorkedTime ?? 0)}
+									{formatIntegerToHour(totalWorkedTime ?? 0).replace(/(\d+h)(\d+m)/, '$1 $2')}
 								</div>
 							</div>
 						)}
@@ -402,13 +413,23 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</div>
 										<div className="flex items-center justify-center gap-1">
 											{checkPastDate(plan.date) ? (
-												<span>{t('dailyPlan.ESTIMATED')} :</span>
+												<>
+													<span>{t('dailyPlan.ESTIMATED')} :</span>
+													<span className=" font-medium">
+														{formatIntegerToHour(tasksEstimationTimes).replace(
+															/(\d+h)(\d+m)/,
+															'$1 $2'
+														)}
+													</span>
+												</>
 											) : (
-												<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+												<>
+													<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+													<span className=" font-medium">
+														{formatIntegerToHour(tasksEstimationTimes)}
+													</span>
+												</>
 											)}
-											<span className=" font-medium">
-												{formatIntegerToHour(tasksEstimationTimes)}
-											</span>
 										</div>
 									</div>
 									<div className="h-80">
@@ -458,6 +479,26 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 					</>
 				) : null}
+				<div className=" flex justify-between items-center">
+					<Button
+						disabled={loading}
+						variant="outline"
+						type="submit"
+						className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+						onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
+					>
+						{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
+					</Button>
+					{timerStatus?.running ? (
+						<Tooltip className="w-40" label="The timer is already running">
+							{StartWorkingButton}
+						</Tooltip>
+					) : (
+						<div className="w-40 border h-full">
+							{checkPastDate(plan?.date) ? TimeSheetsButton : StartWorkingButton}
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
@@ -769,7 +810,7 @@ function TaskCard(props: ITaskCardProps) {
 					</Button>
 				) : plan ? (
 					<>
-						<div className="h-full flex w-full items-center justify-between gap-1">
+						<div className="h-full flex w-full items-center gap-1">
 							{checkPastDate(plan.date) ? (
 								<span
 									className="h-6 w-28 flex items-center justify-center"

@@ -218,6 +218,10 @@
 			"TRACKED_TIME": "الوقت المتعقب",
 			"SEE_PLANS": "عرض الخطط",
 			"ADD_PLAN": "إضافة خطة"
+		},
+		"timesheets": {
+			"SINGULAR": "ورقة الحضور",
+			"PLURAL": "ورقات الحضور"
 		}
 	},
 	"hotkeys": {

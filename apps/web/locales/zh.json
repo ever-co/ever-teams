@@ -203,6 +203,10 @@
 		"DAILYPLAN": "計劃中",
 		"INVITATION_SENT": "邀请已发送",
 		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。",
+		"timesheets": {
+			"SINGULAR": "时间表",
+			"PLURAL": "时间表"
+		},
 		"CALENDAR": "日历",
 		"SELECT": "Select",
 		"SAVE_CHANGES": "保存更改",

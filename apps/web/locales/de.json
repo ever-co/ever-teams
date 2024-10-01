@@ -218,6 +218,10 @@
 			"TRACKED_TIME": "Verfolgte Zeit",
 			"SEE_PLANS": "Pläne anzeigen",
 			"ADD_PLAN": "Plan hinzufügen"
+		},
+		"timesheets": {
+			"SINGULAR": "Stundenzettel",
+			"PLURAL": "Stundenzettel"
 		}
 	},
 	"hotkeys": {

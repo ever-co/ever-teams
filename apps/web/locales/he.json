@@ -218,6 +218,10 @@
 			"TRACKED_TIME": "זמן מעקב",
 			"SEE_PLANS": "ראה תוכניות",
 			"ADD_PLAN": "הוסף תוכנית"
+		},
+		"timesheets": {
+			"SINGULAR": "דוח שעות",
+			"PLURAL": "דוחות שעות"
 		}
 	},
 	"hotkeys": {
