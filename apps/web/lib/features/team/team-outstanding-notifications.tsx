@@ -60,14 +60,14 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 
 	useEffect(() => {
-		if (lastVisited == moment().toDate().toLocaleDateString('en')) {
+		if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
 			setVisible(false);
 		} else {
 			setVisible(true);
 			if (!lastVisited) {
 				window?.localStorage.setItem(
 					HAS_VISITED_OUTSTANDING_TASKS,
-					moment().subtract(1, 'days').toDate().toLocaleDateString('en')
+					new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
 				);
 			}
 		}
@@ -76,7 +76,10 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	}, []);
 
 	const onClose = () => {
-		window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, moment().toDate().toLocaleDateString('en'));
+		window.localStorage.setItem(
+			HAS_VISITED_OUTSTANDING_TASKS,
+			new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+		);
 		setVisible(false);
 	};
 
@@ -164,14 +167,14 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 
 	useEffect(() => {
-		if (lastVisited == moment().toDate().toLocaleDateString('en')) {
+		if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
 			setVisible(false);
 		} else {
 			setVisible(true);
 			if (!lastVisited) {
 				window?.localStorage.setItem(
 					HAS_VISITED_OUTSTANDING_TASKS,
-					moment().subtract(1, 'days').toDate().toLocaleDateString('en')
+					new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
 				);
 			}
 		}
@@ -180,7 +183,10 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	}, []);
 
 	const onClose = () => {
-		window?.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, moment().toDate().toLocaleDateString('en'));
+		window.localStorage.setItem(
+			HAS_VISITED_OUTSTANDING_TASKS,
+			new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+		);
 		setVisible(false);
 	};
 	return (

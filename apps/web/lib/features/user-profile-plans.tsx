@@ -93,7 +93,10 @@ export function UserProfilePlans() {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
 		} else if (currentTab === 'Outstanding') {
-			window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, moment().toDate().toLocaleDateString('en'));
+			window.localStorage.setItem(
+				HAS_VISITED_OUTSTANDING_TASKS,
+				new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+			);
 		}
 	}, [currentTab, setCurrentDataDailyPlan, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
 
