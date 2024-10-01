@@ -202,7 +202,23 @@
 		"SKIP_ADD_LATER": "Добавить позже",
 		"DAILYPLAN": "Планируется",
 		"INVITATION_SENT": "Приглашение отправлено успешно",
-		"INVITATION_SENT_TO_USER": "Приглашение к команде было отправлено на {email}."
+		"INVITATION_SENT_TO_USER": "Приглашение к команде было отправлено на {email}.",
+		"CALENDAR": "Календарь",
+		"SELECT": "Выбрать",
+		"SAVE_CHANGES": "Сохранить изменения",
+		"plan": {
+			"SINGULAR": "План",
+			"PLURAL": "Планы",
+			"CHOOSE_DATE": "Выберите дату, чтобы увидеть план",
+			"PLAN_NOT_FOUND": "План не найден",
+			"FOR_DATE": "ПЛАН НА {date}",
+			"FOR_TODAY": "Сегодняшний план",
+			"FOR_TOMORROW": "Завтрашний план",
+			"EDIT_PLAN": "Редактировать план",
+			"TRACKED_TIME": "Отслеживаемое время",
+			"SEE_PLANS": "Посмотреть планы",
+			"ADD_PLAN": "Agregar Plan"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -520,6 +536,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Запланированное время работы на сегодня",
 			"TASKS_WITH_NO_ESTIMATIONS": "Задачи без оценки времени",
 			"START_WORKING_BUTTON": "Начать работу",
+			"TIMER_RUNNING": "Таймер уже запущен",
 			"WARNING_PLAN_ESTIMATION": "Пожалуйста, исправьте запланированные часы работы или пересчитайте задание(я)"
 		},
 		"TIME_ACTIVITY": "Активность",

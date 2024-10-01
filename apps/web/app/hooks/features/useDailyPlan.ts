@@ -147,9 +147,11 @@ export function useDailyPlan() {
 			createQueryCall,
 			employeePlans,
 			getMyDailyPlans,
-			profileDailyPlans,
+			profileDailyPlans.items,
+			profileDailyPlans.total,
 			setEmployeePlans,
 			setProfileDailyPlans,
+			user?.employee?.id,
 			user?.tenantId
 		]
 	);
