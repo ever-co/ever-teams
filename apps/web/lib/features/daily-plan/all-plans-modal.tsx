@@ -11,6 +11,7 @@ import { DailyPlanStatusEnum, IDailyPlan } from '@app/interfaces';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -33,15 +34,14 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const { isOpen, closeModal } = props;
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
-	const [customDate, setCustomDate] = useState<Date>();
+	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 	const { myDailyPlans, pastPlans } = useDailyPlan();
+	const t = useTranslations();
 
 	// Utility function for checking if two dates are the same
-	const isSameDate = useCallback(
-		(date1: Date, date2: Date) =>
-			new Date(date1).toLocaleDateString('en') === new Date(date2).toLocaleDateString('en'),
-		[]
-	);
+	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
+		return moment(date1).toISOString().split('T')[0] === moment(date2).toISOString().split('T')[0];
+	}, []);
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
@@ -55,8 +55,12 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	);
 
 	const selectedPlan = useMemo(
-		() => customDate && myDailyPlans.items.find((plan) => isSameDate(plan.date, customDate)),
-		[isSameDate, myDailyPlans.items, customDate]
+		() =>
+			customDate &&
+			myDailyPlans.items.find((plan) => {
+				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
+			}),
+		[customDate, myDailyPlans.items, isSameDate]
 	);
 
 	// Handle modal close
@@ -72,6 +76,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Handle tab switching
 	const handleTabClick = (tab: CalendarTab) => {
+		if (tab === 'Today') {
+			setCustomDate(moment().toDate());
+		} else if (tab === 'Tomorrow') {
+			setCustomDate(moment().add(1, 'days').toDate());
+		}
 		setSelectedTab(tab);
 		setShowCalendar(tab === 'Calendar');
 		setShowCustomPlan(false);
@@ -97,27 +106,24 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	// Set the related tab for today and tomorrow dates
 	const handleCalendarSelect = useCallback(() => {
 		if (customDate) {
-			if (
-				new Date(customDate).toLocaleDateString('en') === new Date(moment().toDate()).toLocaleDateString('en')
-			) {
+			if (isSameDate(customDate, moment().startOf('day').toDate())) {
 				setSelectedTab('Today');
-			} else if (
-				new Date(customDate).toLocaleDateString('en') ===
-				new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en')
-			) {
+				setCustomDate(moment().toDate());
+			} else if (isSameDate(customDate, moment().add(1, 'days').startOf('day').toDate())) {
 				setSelectedTab('Tomorrow');
+				setCustomDate(moment().add(1, 'days').toDate());
 			} else {
 				setShowCalendar(false);
 				setShowCustomPlan(true);
 			}
 		}
-	}, [customDate]);
+	}, [customDate, isSameDate]);
 
 	const createEmptyPlan = useCallback(async () => {
 		try {
 			await createDailyPlan({
 				workTimePlanned: 0,
-				date: moment(customDate).toDate(),
+				date: new Date(moment(customDate).format('YYYY-MM-DD')),
 				status: DailyPlanStatusEnum.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee.id,
@@ -145,7 +151,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									<span className="rotate-180">
 										<ChevronRightIcon className="w-4  h-4 stroke-[#B1AEBC]" />
 									</span>
-									<span>Back</span>
+									<span>{t('common.BACK')}</span>
 								</button>
 							</Tooltip>
 						)}
@@ -153,9 +159,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						<Text.Heading as="h3" className="uppercase text-center">
 							{selectedTab == 'Calendar'
 								? showCustomPlan && selectedPlan
-									? `PLAN FOR ${new Date(selectedPlan.date).toLocaleDateString('en-GB')}`
-									: `PLANS`
-								: `${selectedTab}'S PLAN`}
+									? t('common.plan.FOR_DATE', {
+											date: new Date(selectedPlan.date).toLocaleDateString('en-GB')
+										})
+									: t('common.plan.PLURAL')
+								: `${selectedTab === 'Today' ? t('common.plan.FOR_TODAY') : selectedTab === 'Tomorrow' ? t('common.plan.FOR_TOMORROW') : ''}`}
 						</Text.Heading>
 					</div>
 					<div className="w-full h-12 flex items-center">
@@ -166,19 +174,25 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									className={`flex justify-center gap-4 items-center hover:text-primary cursor-pointer ${selectedTab === tab ? 'text-primary font-medium' : ''}`}
 									onClick={() => handleTabClick(tab)}
 								>
-									<span>{tab}</span>
+									<span>
+										{tab === 'Today'
+											? t('common.TODAY')
+											: tab === 'Tomorrow'
+												? t('common.TOMORROW')
+												: t('common.CALENDAR')}
+									</span>
 									{index + 1 < tabs.length && <VerticalSeparator className="w-full" />}
 								</li>
 							))}
 						</ul>
 					</div>
 
-					<div className="w-full flex flex-col items-center justify-center h-[34rem]">
+					<div className="w-full flex flex-col items-center h-[34rem]">
 						{selectedTab === 'Calendar' && showCalendar ? (
 							<div className="w-full h-full flex-col flex items-center justify-between">
 								<div className="w-full grow">
 									<div className="w-full h-full flex flex-col gap-4 items-center justify-center">
-										<p className=" text-sm font-medium">Select a date to be able to see a plan</p>
+										<p className=" text-sm font-medium">{t('common.plan.CHOOSE_DATE')}</p>
 										<div className="p-3 border flex  items-center  justify-center rounded-md">
 											<FuturePlansCalendar
 												selectedPlan={customDate}
@@ -194,41 +208,52 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									<Button
 										variant="outline"
 										type="submit"
-										className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+										className="py-3 px-5 min-w-[8rem] rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 										onClick={handleCloseModal}
 									>
-										Cancel
+										{t('common.CANCEL')}
 									</Button>
 									<Button
 										disabled={!customDate || createDailyPlanLoading}
 										variant="default"
 										type="submit"
-										className={clsxm('py-3 px-5 rounded-md font-light text-md dark:text-white')}
+										className={clsxm(
+											'py-3 min-w-[8rem] px-5 rounded-md font-light text-md dark:text-white'
+										)}
 										onClick={selectedPlan ? handleCalendarSelect : createEmptyPlan}
 									>
 										{selectedPlan ? (
-											'Select'
+											t('common.SELECT')
 										) : createDailyPlanLoading ? (
 											<SpinnerLoader variant="light" size={20} />
 										) : (
-											'Add plan'
+											t('common.plan.ADD_PLAN')
 										)}
 									</Button>
 								</div>
 							</div>
 						) : (
 							<>
-								{plan ? (
+								{selectedPlan ? (
 									<AddTasksEstimationHoursModal
 										plan={plan}
-										tasks={plan.tasks ?? []}
+										tasks={plan?.tasks ?? []}
 										isRenderedInSoftFlow={false}
 										isOpen={isOpen}
 										closeModal={handleCloseModal}
+										selectedDate={customDate}
+									/>
+								) : customDate ? (
+									<AddTasksEstimationHoursModal
+										tasks={[]}
+										isRenderedInSoftFlow={false}
+										isOpen={isOpen}
+										closeModal={handleCloseModal}
+										selectedDate={customDate}
 									/>
 								) : (
 									<div className="flex justify-center items-center h-full">
-										<NoData component={<ValueNoneIcon />} text="Plan not found " />
+										<NoData component={<ValueNoneIcon />} text={t('common.plan.PLAN_NOT_FOUND')} />
 									</div>
 								)}
 							</>
@@ -247,7 +272,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
  */
 
 interface ICalendarProps {
-	setSelectedPlan: Dispatch<SetStateAction<Date | undefined>>;
+	setSelectedPlan: Dispatch<SetStateAction<Date>>;
 	selectedPlan: Date | undefined;
 	plans: IDailyPlan[];
 	pastPlans: IDailyPlan[];
@@ -257,7 +282,7 @@ interface ICalendarProps {
  * The component that handles the selection of a plan
  *
  * @param {Object} props - The props object
- * @param {Dispatch<SetStateAction<IDailyPlan>>} props.setSelectedFuturePlan - A function that set the selected plan
+ * @param {Dispatch<SetStateAction<IDailyPlan>>} props.setSelectedPlan - A function that set the selected plan
  * @param {IDailyPlan} props.selectedPlan - The selected plan
  * @param {IDailyPlan[]} props.plans - Available plans
  * @param {IDailyPlan[]} props.pastPlans - Past plans
@@ -285,10 +310,12 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 	const isDateUnplanned = useCallback(
 		(dateToCheck: Date) => {
 			return !plans
-				.map((plan) => new Date(plan.date))
-				.some(
-					(date) => new Date(date).toLocaleDateString('en') == new Date(dateToCheck).toLocaleDateString('en')
-				);
+				.map((plan) => {
+					return moment(plan.date.toString().split('T')[0]).toISOString().split('T')[0];
+				})
+				.some((date) => {
+					return date === moment(dateToCheck).toISOString().split('T')[0];
+				});
 		},
 		[plans]
 	);
@@ -297,10 +324,10 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 		<Calendar
 			mode="single"
 			captionLayout="dropdown"
-			selected={selectedPlan ? new Date(selectedPlan) : undefined}
+			selected={selectedPlan ? selectedPlan : undefined}
 			onSelect={(date) => {
 				if (date) {
-					setSelectedPlan(date);
+					setSelectedPlan(moment(date).toDate());
 				}
 			}}
 			initialFocus
@@ -308,8 +335,8 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 				return checkPastDate(date) && isDateUnplanned(date);
 			}}
 			modifiers={{
-				booked: sortedPlans?.map((plan) => new Date(plan.date)),
-				pastDay: pastPlans?.map((plan) => new Date(plan.date))
+				booked: sortedPlans?.map((plan) => moment.utc(plan.date.toString().split('T')[0]).toDate()),
+				pastDay: pastPlans?.map((plan) => moment.utc(plan.date.toString().split('T')[0]).toDate())
 			}}
 			modifiersClassNames={{
 				booked: clsxm(

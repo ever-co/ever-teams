@@ -202,7 +202,23 @@
 		"SKIP_ADD_LATER": "Add later",
 		"DAILYPLAN": "Planned",
 		"INVITATION_SENT": "Invitation Sent Successfully",
-		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}."
+		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}.",
+		"CALENDAR": "Calendar",
+		"SELECT": "Select",
+		"SAVE_CHANGES": "Save changes",
+		"plan": {
+			"SINGULAR": "Plan",
+			"PLURAL": "Plans",
+			"CHOOSE_DATE": "Select a date to be able to see a plan",
+			"PLAN_NOT_FOUND": "Plan not found",
+			"FOR_DATE": "PLAN FOR {date}",
+			"FOR_TODAY": "Today's plan",
+			"FOR_TOMORROW": "Tomorrow's plan",
+			"EDIT_PLAN": "Edit Plan",
+			"TRACKED_TIME": "Tracked time",
+			"SEE_PLANS": "See plans",
+			"ADD_PLAN": "Add Plan"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -537,6 +553,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Working time planned for today",
 			"TASKS_WITH_NO_ESTIMATIONS": "Tasks with no time estimations",
 			"START_WORKING_BUTTON": "Start working",
+			"TIMER_RUNNING": "The timer is already running",
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		}
 	},
