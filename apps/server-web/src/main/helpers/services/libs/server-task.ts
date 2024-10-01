@@ -19,7 +19,7 @@ export abstract class ServerTask {
 	protected isRunning: boolean;
 	protected signal: AbortSignal;
 	private criticalMessageError = ['[CRITICAL::ERROR]', 'EADDRINUSE'];
-	public eventEmmitter: EventEmitter;
+	public eventEmitter: EventEmitter;
 
 	protected constructor(
 		processPath: string,
@@ -28,7 +28,7 @@ export abstract class ServerTask {
 		successMessage: string,
 		errorMessage: string,
 		signal: AbortSignal,
-		eventEmmitter: EventEmitter
+		eventEmitter: EventEmitter
 	) {
 		this.processPath = processPath;
 		this.args = args;
@@ -39,7 +39,7 @@ export abstract class ServerTask {
 		this.pid = `${this.args.serviceName}Pid`;
 		this.signal = signal;
 		this.isRunning = false;
-		this.eventEmmitter = eventEmmitter;
+		this.eventEmitter = eventEmitter;
 
 		this.loggerObserver = new Observer((msg: string) => {
 			console.log('Sending log_state:', msg);
@@ -99,8 +99,8 @@ export abstract class ServerTask {
 
 				service.on('disconnect', () => {
 					console.log(LOG_TYPES.SERVER_LOG, 'Webserver disconnected');
-					if (this.eventEmmitter) {
-						this.eventEmmitter.emit(EventLists.webServerStopped);
+					if (this.eventEmitter) {
+						this.eventEmitter.emit(EventLists.webServerStopped);
 					}
 				})
 
@@ -108,8 +108,8 @@ export abstract class ServerTask {
 					console.log('child process error', err);
 				})
 
-				if (this.eventEmmitter) {
-					this.eventEmmitter.emit(EventLists.webServerStarted);
+				if (this.eventEmitter) {
+					this.eventEmitter.emit(EventLists.webServerStarted);
 				}
 				this.config.setting = { server: { ...this.config.setting.server, [this.pid]: service.pid } };
 			} catch (error) {

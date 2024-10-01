@@ -82,11 +82,13 @@ export function useDailyPlan() {
 
 	const getEmployeeDayPlans = useCallback(
 		(employeeId: string) => {
-			queryCall(employeeId).then((response) => {
-				const { items, total } = response.data;
-				setProfileDailyPlans({ items, total });
-				setEmployeePlans(items);
-			});
+			if (employeeId && typeof employeeId === 'string') {
+				queryCall(employeeId).then((response) => {
+					const { items, total } = response.data;
+					setProfileDailyPlans({ items, total });
+					setEmployeePlans(items);
+				});
+			}
 		},
 		[queryCall, setEmployeePlans, setProfileDailyPlans]
 	);
@@ -104,7 +106,11 @@ export function useDailyPlan() {
 		async (data: ICreateDailyPlan) => {
 			if (user?.tenantId) {
 				const res = await createQueryCall(
-					{ ...data, organizationTeamId: activeTeam?.id },
+					{
+						...data,
+						organizationTeamId: activeTeam?.id,
+						employeeId: user?.employee?.id
+					},
 					user?.tenantId || ''
 				);
 				//Check if there is an existing plan

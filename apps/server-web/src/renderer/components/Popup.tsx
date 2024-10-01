@@ -19,7 +19,7 @@ export function Popup(props: IPopupComponent) {
           &#8203;
         </span>
         <div
-          className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-1/3"
+          className="inline-block align-bottom bg-white dark:bg-[#25272D] dark:text-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-1/3"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-headline"
@@ -90,7 +90,7 @@ export function Popup(props: IPopupComponent) {
             </div>
             <div className="mt-3 text-center sm:mt-5">
               <h3
-                className="text-lg leading-6 font-medium text-gray-900"
+                className="text-lg leading-6 font-medium text-gray-900 dark:text-white"
                 id="modal-headline"
               >
                 {props.type == 'success' || 'warning'
@@ -106,7 +106,7 @@ export function Popup(props: IPopupComponent) {
           </div>
           <div className="flex flex-row mt-5 sm:mt-6">
             <button
-              className="mx-auto mt-10 block rounded-xl border-4 border-transparent bg-blue-400 px-6 py-3 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
+              className="mx-auto mt-10 block rounded-lg border-4 border-transparent bg-blue-400 px-6 py-3 text-center text-base font-medium text-blue-100 outline-8"
               onClick={props.modalAction}
             >
               {t('FORM.BUTTON.OK')}

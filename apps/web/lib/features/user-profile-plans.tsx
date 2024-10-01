@@ -99,12 +99,12 @@ export function UserProfilePlans() {
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
-			<Container fullWidth={fullWidth} className="pb-8 mb-5">
+			<Container fullWidth={fullWidth} className="">
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
-						<div>
-							<div className="flex items-start justify-between w-full mt-10 mb-5">
-								<div className={clsxm('flex justify-start items-center gap-4 ')}>
+						<div className=" space-y-4">
+							<div className="flex items-center justify-between w-full">
+								<div className={clsxm('flex items-center gap-4 ')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
@@ -144,8 +144,7 @@ export function UserProfilePlans() {
 										</div>
 									))}
 								</div>
-								<div className="flex flex-col items-end gap-2">
-									<ViewsHeaderTabs />
+								<div className="flex  items-center gap-2">
 									{currentTab === 'Outstanding' && (
 										<Select
 											onValueChange={(value) => {
@@ -167,6 +166,7 @@ export function UserProfilePlans() {
 											</SelectContent>
 										</Select>
 									)}
+									<ViewsHeaderTabs />
 								</div>
 							</div>
 							{tabsScreens[currentTab]}

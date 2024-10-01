@@ -364,6 +364,16 @@ const onInitApplication = () => {
     })
   })
 
+  eventEmitter.on(EventLists.CHANGE_THEME, (data) => {
+    LocalStore.updateConfigSetting({
+      general: {
+        theme: data
+      }
+    })
+    logWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
+    settingWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
+  })
+
   eventEmitter.on(EventLists.gotoAbout, async () => {
     if (!settingWindow) {
       await createWindow('SETTING_WINDOW');
@@ -467,6 +477,9 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
     case SettingPageTypeMessage.restartServer:
       eventEmitter.emit(EventLists.RESTART_SERVER)
       break;
+    case SettingPageTypeMessage.themeChange:
+      eventEmitter.emit(EventLists.CHANGE_THEME, arg.data)
+      break;
     default:
       break;
   }
@@ -505,6 +518,11 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
   }
 })
 
+ipcMain.handle('current-theme', async () => {
+  const setting: WebServer = LocalStore.getStore('config');
+  return setting.general?.theme;;
+})
+
 const createIntervalAutoUpdate = () => {
   if (intervalUpdate) {
     clearInterval(intervalUpdate)
@@ -513,10 +531,10 @@ const createIntervalAutoUpdate = () => {
   if (setting.general?.autoUpdate && setting.general.updateCheckPeriode) {
     const checkIntervalSecond = parseInt(setting.general.updateCheckPeriode);
     if (!Number.isNaN(checkIntervalSecond)) {
-      const intevalMS = checkIntervalSecond * 60 * 1000;
+      const intervalMS = checkIntervalSecond * 60 * 1000;
       intervalUpdate = setInterval(() => {
         updater.checkUpdateNotify();
-      }, intevalMS)
+      }, intervalMS)
     }
   }
 }
