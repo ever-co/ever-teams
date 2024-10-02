@@ -135,7 +135,12 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [createDailyPlan, customDate, user?.employee.id, user?.employee.organizationId, user?.tenantId]);
 
 	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal} className={clsxm('w-[36rem]')}>
+		<Modal
+			isOpen={isOpen}
+			customCloseModal={handleCloseModal}
+			closeModal={() => null}
+			className={clsxm('w-[36rem]')}
+		>
 			<Card className="w-full  h-full overflow-hidden" shadow="custom">
 				<div className="w-full flex flex-col gap-3 ">
 					<div className="relative w-full h-12  flex items-center justify-center">

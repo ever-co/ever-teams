@@ -89,13 +89,6 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		draft: false,
 		saved: false
 	});
-	const isTomorrowPlan = useMemo(
-		() =>
-			plan &&
-			new Date(moment().add(1, 'days').toDate()).toLocaleDateString('en') ==
-				new Date(plan.date).toLocaleDateString('en'),
-		[plan]
-	);
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
@@ -260,8 +253,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const StartWorkingButton = (
 		<Button
 			disabled={
-				(!isTomorrowPlan ? warning : false) || loading || timerStatus?.running
-					? planEditState.draft
+				(canStartWorking && warning) || loading || (canStartWorking && timerStatus?.running)
+					? planEditState.draft && !warning
 						? false
 						: true
 					: false
@@ -270,7 +263,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			type="submit"
 			className={clsxm(
 				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
-				(!isTomorrowPlan ? warning : false) && 'bg-gray-400'
+				canStartWorking && warning && 'bg-gray-400'
 			)}
 			onClick={handleSubmit}
 		>
@@ -704,21 +697,13 @@ function TaskCard(props: ITaskCardProps) {
 			if (plan && plan.id) {
 				await addTaskToPlan({ taskId: task.id }, plan.id);
 			} else {
-				if (plan) {
+				const planDate = plan ? plan.date : selectedDate;
+
+				if (planDate) {
 					await createDailyPlan({
 						workTimePlanned: 0,
 						taskId: task.id,
-						date: new Date(moment(plan.date).format('YYYY-MM-DD')),
-						status: DailyPlanStatusEnum.OPEN,
-						tenantId: user?.tenantId ?? '',
-						employeeId: user?.employee.id,
-						organizationId: user?.employee.organizationId
-					});
-				} else if (selectedDate) {
-					await createDailyPlan({
-						workTimePlanned: 0,
-						taskId: task.id,
-						date: new Date(moment(selectedDate).format('YYYY-MM-DD')),
+						date: new Date(moment(planDate).format('YYYY-MM-DD')),
 						status: DailyPlanStatusEnum.OPEN,
 						tenantId: user?.tenantId ?? '',
 						employeeId: user?.employee.id,
@@ -809,6 +794,12 @@ function TaskCard(props: ITaskCardProps) {
 		</Card>
 	);
 }
+
+/**
+ * ----------------------------------------------------------------
+ * 		----------------- TASK CARD ACTIONS -------------------
+ * ----------------------------------------------------------------
+ */
 
 interface ITaskCardActionsProps {
 	task: ITeamTask;
@@ -963,6 +954,12 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		</Popover>
 	);
 }
+
+/**
+ * ----------------------------------------------------------------
+ * 		---------------- UNPLAN TASK ACTIONS ----------------
+ * ----------------------------------------------------------------
+ */
 
 interface IUnplanTaskProps {
 	taskId: string;
