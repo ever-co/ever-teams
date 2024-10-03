@@ -720,21 +720,13 @@ function TaskCard(props: ITaskCardProps) {
 			if (plan && plan.id) {
 				await addTaskToPlan({ taskId: task.id }, plan.id);
 			} else {
-				if (plan) {
+				const planDate = plan ? plan.date : selectedDate;
+
+				if (planDate) {
 					await createDailyPlan({
 						workTimePlanned: 0,
 						taskId: task.id,
-						date: new Date(moment(plan.date).format('YYYY-MM-DD')),
-						status: DailyPlanStatusEnum.OPEN,
-						tenantId: user?.tenantId ?? '',
-						employeeId: user?.employee.id,
-						organizationId: user?.employee.organizationId
-					});
-				} else if (selectedDate) {
-					await createDailyPlan({
-						workTimePlanned: 0,
-						taskId: task.id,
-						date: new Date(moment(selectedDate).format('YYYY-MM-DD')),
+						date: new Date(moment(planDate).format('YYYY-MM-DD')),
 						status: DailyPlanStatusEnum.OPEN,
 						tenantId: user?.tenantId ?? '',
 						employeeId: user?.employee.id,
@@ -825,6 +817,12 @@ function TaskCard(props: ITaskCardProps) {
 		</Card>
 	);
 }
+
+/**
+ * ----------------------------------------------------------------
+ * 		----------------- TASK CARD ACTIONS -------------------
+ * ----------------------------------------------------------------
+ */
 
 interface ITaskCardActionsProps {
 	task: ITeamTask;
@@ -979,6 +977,12 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		</Popover>
 	);
 }
+
+/**
+ * ----------------------------------------------------------------
+ * 		---------------- UNPLAN TASK ACTIONS ----------------
+ * ----------------------------------------------------------------
+ */
 
 interface IUnplanTaskProps {
 	taskId: string;
