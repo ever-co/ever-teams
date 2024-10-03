@@ -1,5 +1,5 @@
 import { Card, Modal, NoData, SpinnerLoader, Tooltip, VerticalSeparator } from 'lib/components';
-import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { ChevronRightIcon } from 'assets/svg';
@@ -12,6 +12,7 @@ import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from 'lib/utils';
 import { useTranslations } from 'next-intl';
+import { ActiveModifiers } from 'react-day-picker';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -204,6 +205,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 												setSelectedPlan={setCustomDate}
 												plans={myDailyPlans.items}
 												pastPlans={pastPlans}
+												handleCalendarSelect={handleCalendarSelect}
+												createEmptyPlan={createEmptyPlan}
 											/>
 										</div>
 									</div>
@@ -281,6 +284,8 @@ interface ICalendarProps {
 	selectedPlan: Date | undefined;
 	plans: IDailyPlan[];
 	pastPlans: IDailyPlan[];
+	handleCalendarSelect: () => void;
+	createEmptyPlan: () => Promise<void>;
 }
 
 /**
@@ -291,11 +296,15 @@ interface ICalendarProps {
  * @param {IDailyPlan} props.selectedPlan - The selected plan
  * @param {IDailyPlan[]} props.plans - Available plans
  * @param {IDailyPlan[]} props.pastPlans - Past plans
+ * @param {() => void} props.handleCalendarSelect - Handle plan selection
+ * @param {() => Promise<void>} props.createEmptyPlan - Create empty plan
  *
  * @returns {JSX.Element} The Calendar component.
  */
 const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarProps) {
-	const { selectedPlan, setSelectedPlan, plans, pastPlans } = props;
+	const { selectedPlan, setSelectedPlan, plans, pastPlans, createEmptyPlan, handleCalendarSelect } = props;
+	const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const clickCountRef = useRef<number>(0);
 
 	const sortedPlans = useMemo(
 		() =>
@@ -325,9 +334,46 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 		[plans]
 	);
 
+	/**
+	 * onDayClick handler - A function that handles clicks on a day (date)
+	 *
+	 * @param {Date} day - The clicked date
+	 * @param {ActiveModifiers} activeModifiers - The active modifiers
+	 * @param {React.MouseEvent} e - The event
+	 *
+	 * @returns {void} Nothing
+	 */
+	const handleDayClick = useCallback(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		(day: Date, activeModifiers: ActiveModifiers, e: React.MouseEvent) => {
+			if (activeModifiers.disabled) return;
+
+			clickCountRef.current += 1;
+
+			if (clickCountRef.current === 1) {
+				clickTimeoutRef.current = setTimeout(() => {
+					// Single click
+					clickCountRef.current = 0;
+				}, 300);
+			} else if (clickCountRef.current === 2) {
+				if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+				// Double click
+				if (selectedPlan) {
+					handleCalendarSelect();
+				} else {
+					setSelectedPlan(moment(day).toDate());
+					createEmptyPlan();
+				}
+				clickCountRef.current = 0;
+			}
+		},
+		[createEmptyPlan, handleCalendarSelect, selectedPlan, setSelectedPlan]
+	);
+
 	return (
 		<Calendar
 			mode="single"
+			onDayClick={handleDayClick}
 			captionLayout="dropdown"
 			selected={selectedPlan ? selectedPlan : undefined}
 			onSelect={(date) => {
