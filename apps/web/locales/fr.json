@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "Ajouter plus tard",
 		"DAILYPLAN": "Planifié",
 		"INVITATION_SENT": "Invitation envoyée avec succès",
-		"INVITATION_SENT_TO_USER": "Une invitation a été envoyée à {email}."
+		"INVITATION_SENT_TO_USER": "Une invitation a été envoyée à {email}.",
+		"CALENDAR": "Calendrier",
+		"SELECT": "Sélectionner",
+		"SAVE_CHANGES": "Enregistrer les modifications",
+		"plan": {
+			"SINGULAR": "Plan",
+			"PLURAL": "Plans",
+			"CHOOSE_DATE": "Sélectionnez une date pour pouvoir voir un plan",
+			"PLAN_NOT_FOUND": "Plan non trouvé",
+			"FOR_DATE": "PLAN POUR {date}",
+			"FOR_TODAY": "Le plan d'aujourd'hui",
+			"FOR_TOMORROW": "Le plan de demain",
+			"EDIT_PLAN": "Modifier le plan",
+			"TRACKED_TIME": "Temps suivi",
+			"SEE_PLANS": "Voir les plans",
+			"ADD_PLAN": "Ajouter un plan"
+		},
+		"timesheets": {
+			"SINGULAR": "Feuille de temps",
+			"PLURAL": "Feuilles de temps"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -520,6 +540,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Temps de travail prévu pour aujourd'hui",
 			"TASKS_WITH_NO_ESTIMATIONS": "Tâches sans estimations de temps",
 			"START_WORKING_BUTTON": "Commencer à travailler",
+			"TIMER_RUNNING": "Le minuteur fonctionne déjà",
 			"WARNING_PLAN_ESTIMATION": "Veuillez corriger les heures de travail prévues ou réévaluer la/les tâche(s)"
 		},
 		"TIME_ACTIVITY": "Activité",

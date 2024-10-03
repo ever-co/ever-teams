@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "Dodaj później",
 		"DAILYPLAN": "Planowane",
 		"INVITATION_SENT": "Zaproszenie wysłane",
-		"INVITATION_SENT_TO_USER": "Zaproszenie zespołu zostało wysłane do {email}."
+		"INVITATION_SENT_TO_USER": "Zaproszenie zespołu zostało wysłane do {email}.",
+		"timesheets": {
+			"SINGULAR": "Karta pracy",
+			"PLURAL": "Karty pracy"
+		},
+		"CALENDAR": "Kalendarz",
+		"SELECT": "Wybierz",
+		"SAVE_CHANGES": "Zapisz zmiany",
+		"plan": {
+			"SINGULAR": "Plan",
+			"PLURAL": "Plany",
+			"CHOOSE_DATE": "Wybierz datę, aby móc zobaczyć plan",
+			"PLAN_NOT_FOUND": "Plan nie znaleziony",
+			"FOR_DATE": "PLAN NA {date}",
+			"FOR_TODAY": "Dzienny plan",
+			"FOR_TOMORROW": "Jutro plan",
+			"EDIT_PLAN": "Edytuj plan",
+			"TRACKED_TIME": "Śledzony czas",
+			"SEE_PLANS": "Zobacz plany",
+			"ADD_PLAN": "Dodaj plan"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -520,6 +540,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Zaplanowany czas pracy na dziś",
 			"TASKS_WITH_NO_ESTIMATIONS": "Zadania bez oszacowania czasu",
 			"START_WORKING_BUTTON": "Rozpocznij pracę",
+			"TIMER_RUNNING": "Timer już działa",
 			"WARNING_PLAN_ESTIMATION": "Popraw planowane godziny pracy lub ponownie oszacuj zadania"
 		},
 		"TIME_ACTIVITY": "Aktywność",

@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "稍后添加",
 		"DAILYPLAN": "計劃中",
 		"INVITATION_SENT": "邀请已发送",
-		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。"
+		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。",
+		"timesheets": {
+			"SINGULAR": "时间表",
+			"PLURAL": "时间表"
+		},
+		"CALENDAR": "日历",
+		"SELECT": "Select",
+		"SAVE_CHANGES": "保存更改",
+		"plan": {
+			"SINGULAR": "计划",
+			"PLURAL": "计划",
+			"CHOOSE_DATE": "选择一个日期以查看计划",
+			"PLAN_NOT_FOUND": "未找到计划",
+			"FOR_DATE": "针对日期 {date}",
+			"FOR_TODAY": "今天的计划",
+			"FOR_TOMORROW": "明天的计划",
+			"EDIT_PLAN": "编辑计划",
+			"TRACKED_TIME": "跟踪时间",
+			"SEE_PLANS": "查看计划",
+			"ADD_PLAN": "添加计划"
+		}
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -537,6 +557,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "今天计划的工作时间",
 			"TASKS_WITH_NO_ESTIMATIONS": "没有时间估算的任务",
 			"START_WORKING_BUTTON": "开始工作",
+			"TIMER_RUNNING": "计时器已经在运行",
 			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
 		}
 	},

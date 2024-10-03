@@ -11,6 +11,7 @@ type Props = {
 	description?: string;
 	isOpen: boolean;
 	closeModal: () => void;
+	customCloseModal?: () => void;
 	className?: string;
 	alignCloseIcon?: boolean;
 	showCloseIcon?: boolean;
@@ -19,6 +20,7 @@ type Props = {
 export function Modal({
 	isOpen,
 	closeModal,
+	customCloseModal,
 	children,
 	title,
 	titleClass,
@@ -54,7 +56,10 @@ export function Modal({
 						{description && <Dialog.Description>{description}</Dialog.Description>}
 						{showCloseIcon && (
 							<div
-								onClick={closeModal}
+								onClick={() => {
+									closeModal();
+									customCloseModal?.();
+								}}
 								className={`absolute ${
 									alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
 								}  md:right-2 md:top-3 cursor-pointer z-50`}

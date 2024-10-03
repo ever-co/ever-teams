@@ -30,7 +30,7 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 
 								<ChevronUpIcon
 									className={`${
-										open ? 'rotate-180 transform' : ''
+										!open ? 'rotate-180 transform' : ''
 									} h-5 w-5 text-[#292D32] dark:text-white`}
 								/>
 							</Disclosure.Button>

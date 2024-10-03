@@ -194,7 +194,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 													'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all'
 												)}
 											>
-												See Plan
+												{t('common.plan.SEE_PLANS')}
 											</button>
 										</ul>
 									</ul>
