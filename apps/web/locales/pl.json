@@ -203,6 +203,10 @@
 		"DAILYPLAN": "Planowane",
 		"INVITATION_SENT": "Zaproszenie wysłane",
 		"INVITATION_SENT_TO_USER": "Zaproszenie zespołu zostało wysłane do {email}.",
+		"timesheets": {
+			"SINGULAR": "Karta pracy",
+			"PLURAL": "Karty pracy"
+		},
 		"CALENDAR": "Kalendarz",
 		"SELECT": "Wybierz",
 		"SAVE_CHANGES": "Zapisz zmiany",

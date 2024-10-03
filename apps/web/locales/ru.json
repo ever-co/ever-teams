@@ -203,6 +203,10 @@
 		"DAILYPLAN": "Планируется",
 		"INVITATION_SENT": "Приглашение отправлено успешно",
 		"INVITATION_SENT_TO_USER": "Приглашение к команде было отправлено на {email}.",
+		"timesheets": {
+			"SINGULAR": "Табель",
+			"PLURAL": "Табели"
+		},
 		"CALENDAR": "Календарь",
 		"SELECT": "Выбрать",
 		"SAVE_CHANGES": "Сохранить изменения",

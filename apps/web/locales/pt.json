@@ -203,6 +203,10 @@
 		"DAILYPLAN": "Planeado",
 		"INVITATION_SENT": "Convite enviado com sucesso",
 		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}.",
+		"timesheets": {
+			"SINGULAR": "Folha de ponto",
+			"PLURAL": "Folhas de ponto"
+		},
 		"CALENDAR": "Calendário",
 		"SELECT": "Selecionar",
 		"SAVE_CHANGES": "Salvar alterações",

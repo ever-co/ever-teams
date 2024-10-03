@@ -218,6 +218,10 @@
 			"TRACKED_TIME": "Проследено време",
 			"SEE_PLANS": "Виж планове",
 			"ADD_PLAN": "Добави план"
+		},
+		"timesheets": {
+			"SINGULAR": "Работен лист",
+			"PLURAL": "Работни листове"
 		}
 	},
 	"hotkeys": {

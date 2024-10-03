@@ -203,6 +203,10 @@
 		"DAILYPLAN": "Pianificato",
 		"INVITATION_SENT": "Invito inviato con successo",
 		"INVITATION_SENT_TO_USER": "Un invito alla squadra è stato inviato a {email}.",
+		"timesheets": {
+			"SINGULAR": "Scheda attività",
+			"PLURAL": "Schede attività"
+		},
 		"CALENDAR": "Calendario",
 		"SELECT": "Seleziona",
 		"SAVE_CHANGES": "Salva modifiche",

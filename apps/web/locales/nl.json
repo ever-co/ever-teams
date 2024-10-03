@@ -203,6 +203,10 @@
 		"DAILYPLAN": "Gepland",
 		"INVITATION_SENT": "Uitnodiging verzonden",
 		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}.",
+		"timesheets": {
+			"SINGULAR": "Urenstaat",
+			"PLURAL": "Urenstaten"
+		},
 		"CALENDAR": "Kalender",
 		"SELECT": "Selecteren",
 		"SAVE_CHANGES": "Wijzigingen opslaan",
