@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "Добави по-късно",
 		"DAILYPLAN": "Планирано",
 		"INVITATION_SENT": "Покана е изпратена успешно",
-		"INVITATION_SENT_TO_USER": "Покана е изпратена на {email}."
+		"INVITATION_SENT_TO_USER": "Покана е изпратена на {email}.",
+		"CALENDAR": "Календар",
+		"SELECT": "Изберете",
+		"SAVE_CHANGES": "Запази промените",
+		"plan": {
+			"SINGULAR": "План",
+			"PLURAL": "Планове",
+			"CHOOSE_DATE": "Изберете дата, за да видите план",
+			"PLAN_NOT_FOUND": "Не е намерен план",
+			"FOR_DATE": "ПЛАН ЗА {date}",
+			"FOR_TODAY": "Днешният план",
+			"FOR_TOMORROW": "Утрешният план",
+			"EDIT_PLAN": "Редактиране на план",
+			"TRACKED_TIME": "Проследено време",
+			"SEE_PLANS": "Виж планове",
+			"ADD_PLAN": "Добави план"
+		},
+		"timesheets": {
+			"SINGULAR": "Работен лист",
+			"PLURAL": "Работни листове"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -537,6 +557,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Планирано работно време за днес",
 			"TASKS_WITH_NO_ESTIMATIONS": "Такси без оценки на времето",
 			"START_WORKING_BUTTON": "Започнете работа",
+			"TIMER_RUNNING": "Таймерът вече работи",
 			"WARNING_PLAN_ESTIMATION": "Моля, коригирайте планираните работни часове или преоценете задачата(ите) "
 		}
 	},

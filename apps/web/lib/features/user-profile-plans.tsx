@@ -14,7 +14,7 @@ import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProf
 import { useDateRange } from '@app/hooks/useDateRange';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
-import { HAS_VISITED_OUTSTANDING_TAB } from '@app/constants';
+import { HAS_VISITED_OUTSTANDING_TASKS } from '@app/constants';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -37,6 +37,7 @@ import { FutureTasks } from './task/daily-plan/future-tasks';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
 import TaskBlockCard from './task/task-block-card';
 import { TaskCard } from './task/task-card';
+import moment from 'moment';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -92,7 +93,10 @@ export function UserProfilePlans() {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
 		} else if (currentTab === 'Outstanding') {
-			window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TAB, JSON.stringify(true));
+			window.localStorage.setItem(
+				HAS_VISITED_OUTSTANDING_TASKS,
+				new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+			);
 		}
 	}, [currentTab, setCurrentDataDailyPlan, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
 

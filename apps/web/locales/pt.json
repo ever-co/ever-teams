@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "Adicionar depois",
 		"DAILYPLAN": "Planeado",
 		"INVITATION_SENT": "Convite enviado com sucesso",
-		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}."
+		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}.",
+		"timesheets": {
+			"SINGULAR": "Folha de ponto",
+			"PLURAL": "Folhas de ponto"
+		},
+		"CALENDAR": "Calendário",
+		"SELECT": "Selecionar",
+		"SAVE_CHANGES": "Salvar alterações",
+		"plan": {
+			"SINGULAR": "Plano",
+			"PLURAL": "Planos",
+			"CHOOSE_DATE": "Selecione uma data para poder ver um plano",
+			"PLAN_NOT_FOUND": "Plano não encontrado",
+			"FOR_DATE": "PLANO PARA {date}",
+			"FOR_TODAY": "Plano de hoje",
+			"FOR_TOMORROW": "Plano de amanhã",
+			"EDIT_PLAN": "Editar Plano",
+			"TRACKED_TIME": "Tempo rastreado",
+			"SEE_PLANS": "Ver planos",
+			"ADD_PLAN": "Adicionar Plano"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -520,6 +540,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Tempo de trabalho planejado para hoje",
 			"TASKS_WITH_NO_ESTIMATIONS": "Tarefas sem estimativas de tempo",
 			"START_WORKING_BUTTON": "Começar a trabalhar",
+			"TIMER_RUNNING": "O temporizador já está em execução",
 			"WARNING_PLAN_ESTIMATION": "Corrigir as horas de trabalho planeadas ou fazer uma nova estimativa da(s) tarefa(s)"
 		},
 		"TIME_ACTIVITY": "Atividade",

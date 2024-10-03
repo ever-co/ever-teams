@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "Aggiungi dopo",
 		"DAILYPLAN": "Pianificato",
 		"INVITATION_SENT": "Invito inviato con successo",
-		"INVITATION_SENT_TO_USER": "Un invito alla squadra è stato inviato a {email}."
+		"INVITATION_SENT_TO_USER": "Un invito alla squadra è stato inviato a {email}.",
+		"timesheets": {
+			"SINGULAR": "Scheda attività",
+			"PLURAL": "Schede attività"
+		},
+		"CALENDAR": "Calendario",
+		"SELECT": "Seleziona",
+		"SAVE_CHANGES": "Salva modifiche",
+		"plan": {
+			"SINGULAR": "Piano",
+			"PLURAL": "Piani",
+			"CHOOSE_DATE": "Seleziona una data per poter vedere un piano",
+			"PLAN_NOT_FOUND": "Piano non trovato",
+			"FOR_DATE": "PIANO PER {date}",
+			"FOR_TODAY": "Piano di oggi",
+			"FOR_TOMORROW": "Piano di domani",
+			"EDIT_PLAN": "Modifica Piano",
+			"TRACKED_TIME": "Tempo tracciato",
+			"SEE_PLANS": "Vedi piani",
+			"ADD_PLAN": "Aggiungi Piano"
+		}
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -520,6 +540,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Tempo di lavoro pianificato per oggi",
 			"TASKS_WITH_NO_ESTIMATIONS": "Compiti senza stime di tempo",
 			"START_WORKING_BUTTON": "Inizia a lavorare",
+			"TIMER_RUNNING": "Il timer è già in esecuzione",
 			"WARNING_PLAN_ESTIMATION": "Correggere le ore di lavoro previste o rivalutare il/i compito/i."
 		},
 		"TIME_ACTIVITY": "Attività",

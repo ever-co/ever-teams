@@ -202,7 +202,27 @@
 		"SKIP_ADD_LATER": "أضف لاحقًا",
 		"DAILYPLAN": "مخطط",
 		"INVITATION_SENT": "تم إرسال دعوة بنجاح",
-		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}."
+		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}.",
+		"CALENDAR": "تقويم",
+		"SELECT": "اختر",
+		"SAVE_CHANGES": "حفظ التغييرات",
+		"plan": {
+			"SINGULAR": "خطة",
+			"PLURAL": "خطط",
+			"CHOOSE_DATE": "اختر تاريخًا لتتمكن من رؤية خطة",
+			"PLAN_NOT_FOUND": "لم يتم العثور على خطة",
+			"FOR_DATE": "خطة لِـ {date}",
+			"FOR_TODAY": "خطة اليوم",
+			"FOR_TOMORROW": "خطة الغد",
+			"EDIT_PLAN": "تعديل الخطة",
+			"TRACKED_TIME": "الوقت المتعقب",
+			"SEE_PLANS": "عرض الخطط",
+			"ADD_PLAN": "إضافة خطة"
+		},
+		"timesheets": {
+			"SINGULAR": "ورقة الحضور",
+			"PLURAL": "ورقات الحضور"
+		}
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -537,6 +557,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "وقت العمل المخطط له اليوم",
 			"TASKS_WITH_NO_ESTIMATIONS": "تاكس مع عدم وجود تقديرات زمنية",
 			"START_WORKING_BUTTON": "ابدأ العمل",
+			"TIMER_RUNNING": "المؤقت قيد التشغيل بالفعل",
 			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
 		}
 	},
