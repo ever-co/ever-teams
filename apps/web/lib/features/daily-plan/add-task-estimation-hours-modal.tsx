@@ -198,13 +198,20 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// Handle warning messages
 	useEffect(() => {
-		if (!workTimePlanned || workTimePlanned <= 0) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
-		} else if (plan?.tasks?.find((task) => !task.estimate)) {
+		// First, check if there are tasks without estimates and show the corresponding warning
+		if (plan?.tasks?.find((task) => !task.estimate)) {
 			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
-		} else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+		}
+		// Next, check if no work time is planned or if planned time is invalid
+		else if (!workTimePlanned || workTimePlanned <= 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+		}
+		// If the difference between planned and estimated times is significant, check further
+		else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
 			checkPlannedAndEstimateTimeDiff();
-		} else {
+		}
+		// If all checks pass, clear the warning
+		else {
 			setWarning('');
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
