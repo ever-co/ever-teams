@@ -1,5 +1,5 @@
 import { Card, Modal, NoData, SpinnerLoader, Tooltip, VerticalSeparator } from 'lib/components';
-import { Dispatch, memo, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { ChevronRightIcon } from 'assets/svg';
@@ -134,27 +134,35 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		}
 	}, [createDailyPlan, customDate, user?.employee.id, user?.employee.organizationId, user?.tenantId]);
 
-	const handleArrowNavigation = useCallback(async () => {
-		if (isSameDate(customDate, moment().startOf('day').toDate())) {
-			setSelectedTab('Today');
-		} else if (isSameDate(customDate, moment().add(1, 'days').startOf('day').toDate())) {
-			setSelectedTab('Tomorrow');
-		} else {
-			if (selectedPlan) {
-				setShowCalendar(false);
-				setShowCustomPlan(true);
-			} else {
-				await createEmptyPlan();
-				setShowCalendar(false);
-				setShowCustomPlan(true);
-			}
-		}
-	}, [createEmptyPlan, customDate, isSameDate, selectedPlan]);
+	// Handle narrow navigation
+	const arrowNavigationHandler = useCallback(
+		async (date: Date) => {
+			const existPlan = myDailyPlans.items.find((plan) => {
+				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
+			});
 
-	useEffect(() => {
-		console.log(customDate);
-		handleArrowNavigation();
-	}, [customDate, handleArrowNavigation]);
+			setCustomDate(date);
+
+			if (selectedPlan) {
+				if (isSameDate(date, moment().startOf('day').toDate())) {
+					setSelectedTab('Today');
+				} else if (isSameDate(date, moment().add(1, 'days').startOf('day').toDate())) {
+					setSelectedTab('Tomorrow');
+				} else {
+					setSelectedTab('Calendar');
+					if (existPlan) {
+						setShowCalendar(false);
+						setShowCustomPlan(true);
+					} else {
+						setCustomDate(date);
+						setShowCalendar(true);
+						setShowCustomPlan(false);
+					}
+				}
+			}
+		},
+		[isSameDate, myDailyPlans.items, selectedPlan]
+	);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} className={clsxm('w-[36rem]')}>
@@ -207,19 +215,19 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
-						<div className="flex h-10 items-center justify-between border rounded ">
+						<div className="flex h-8 items-center justify-between border rounded ">
 							<span
-								onClick={() => setCustomDate(moment(customDate).subtract(1, 'days').toDate())}
+								onClick={() => arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())}
 								className="rotate-180 cursor-pointer px-2 h-full flex items-center justify-center"
 							>
-								<ChevronRightIcon className="w-6  h-6 stroke-[#B1AEBC]" />
+								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
 							<VerticalSeparator />
 							<span
-								onClick={() => setCustomDate(moment(customDate).add(1, 'days').toDate())}
+								onClick={() => arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())}
 								className=" h-full cursor-pointer flex  px-2 items-center justify-center"
 							>
-								<ChevronRightIcon className="w-6  h-6 stroke-[#B1AEBC]" />
+								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
 						</div>
 					</div>
