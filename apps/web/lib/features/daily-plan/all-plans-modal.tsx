@@ -1,5 +1,5 @@
 import { Card, Modal, NoData, SpinnerLoader, Tooltip, VerticalSeparator } from 'lib/components';
-import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { ChevronRightIcon } from 'assets/svg';
@@ -134,6 +134,28 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		}
 	}, [createDailyPlan, customDate, user?.employee.id, user?.employee.organizationId, user?.tenantId]);
 
+	const handleArrowNavigation = useCallback(async () => {
+		if (isSameDate(customDate, moment().startOf('day').toDate())) {
+			setSelectedTab('Today');
+		} else if (isSameDate(customDate, moment().add(1, 'days').startOf('day').toDate())) {
+			setSelectedTab('Tomorrow');
+		} else {
+			if (selectedPlan) {
+				setShowCalendar(false);
+				setShowCustomPlan(true);
+			} else {
+				await createEmptyPlan();
+				setShowCalendar(false);
+				setShowCustomPlan(true);
+			}
+		}
+	}, [createEmptyPlan, customDate, isSameDate, selectedPlan]);
+
+	useEffect(() => {
+		console.log(customDate);
+		handleArrowNavigation();
+	}, [customDate, handleArrowNavigation]);
+
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} className={clsxm('w-[36rem]')}>
 			<Card className="w-full  h-full overflow-hidden" shadow="custom">
@@ -166,7 +188,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								: `${selectedTab === 'Today' ? t('common.plan.FOR_TODAY') : selectedTab === 'Tomorrow' ? t('common.plan.FOR_TOMORROW') : ''}`}
 						</Text.Heading>
 					</div>
-					<div className="w-full h-12 flex items-center">
+					<div className="w-full h-12 flex items-center justify-between">
 						<ul className="w-full flex items-center gap-3">
 							{tabs.map((tab, index) => (
 								<li
@@ -185,6 +207,21 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
+						<div className="flex h-10 items-center justify-between border rounded ">
+							<span
+								onClick={() => setCustomDate(moment(customDate).subtract(1, 'days').toDate())}
+								className="rotate-180 cursor-pointer px-2 h-full flex items-center justify-center"
+							>
+								<ChevronRightIcon className="w-6  h-6 stroke-[#B1AEBC]" />
+							</span>
+							<VerticalSeparator />
+							<span
+								onClick={() => setCustomDate(moment(customDate).add(1, 'days').toDate())}
+								className=" h-full cursor-pointer flex  px-2 items-center justify-center"
+							>
+								<ChevronRightIcon className="w-6  h-6 stroke-[#B1AEBC]" />
+							</span>
+						</div>
 					</div>
 
 					<div className="w-full flex flex-col items-center h-[34rem]">
