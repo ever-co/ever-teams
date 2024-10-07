@@ -222,7 +222,13 @@
 		"timesheets": {
 			"SINGULAR": "דוח שעות",
 			"PLURAL": "דוחות שעות"
-		}
+		},
+		"COPY_ISSUE_LINK": "העתק קישור לבעיה",
+		"MAKE_A_COPY": "בצע עותק",
+		"ASSIGNEE": "נמען",
+		"CHANGE_RELATIONS": "שנה יחסים",
+		"SET_AS_NEXT": "הגדר כהבא",
+		"MOVE_TO": "העבר אל"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

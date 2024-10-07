@@ -222,7 +222,13 @@
 		"timesheets": {
 			"SINGULAR": "Stundenzettel",
 			"PLURAL": "Stundenzettel"
-		}
+		},
+		"COPY_ISSUE_LINK": "Problemlink kopieren",
+		"MAKE_A_COPY": "Eine Kopie erstellen",
+		"ASSIGNEE": "Zessionar",
+		"CHANGE_RELATIONS": "Beziehungen ändern",
+		"SET_AS_NEXT": "Als nächstes festlegen",
+		"MOVE_TO": "Verschieben nach"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
