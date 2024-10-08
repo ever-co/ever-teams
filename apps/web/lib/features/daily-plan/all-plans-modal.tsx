@@ -135,6 +135,36 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		}
 	}, [createDailyPlan, customDate, user?.employee.id, user?.employee.organizationId, user?.tenantId]);
 
+	// Handle narrow navigation
+	const arrowNavigationHandler = useCallback(
+		async (date: Date) => {
+			const existPlan = myDailyPlans.items.find((plan) => {
+				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
+			});
+
+			setCustomDate(date);
+
+			if (selectedPlan) {
+				if (isSameDate(date, moment().startOf('day').toDate())) {
+					setSelectedTab('Today');
+				} else if (isSameDate(date, moment().add(1, 'days').startOf('day').toDate())) {
+					setSelectedTab('Tomorrow');
+				} else {
+					setSelectedTab('Calendar');
+					if (existPlan) {
+						setShowCalendar(false);
+						setShowCustomPlan(true);
+					} else {
+						setCustomDate(date);
+						setShowCalendar(true);
+						setShowCustomPlan(false);
+					}
+				}
+			}
+		},
+		[isSameDate, myDailyPlans.items, selectedPlan]
+	);
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -172,7 +202,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								: `${selectedTab === 'Today' ? t('common.plan.FOR_TODAY') : selectedTab === 'Tomorrow' ? t('common.plan.FOR_TOMORROW') : ''}`}
 						</Text.Heading>
 					</div>
-					<div className="w-full h-12 flex items-center">
+					<div className="w-full h-12 flex items-center justify-between">
 						<ul className="w-full flex items-center gap-3">
 							{tabs.map((tab, index) => (
 								<li
@@ -191,6 +221,21 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
+						<div className="flex h-8 items-center justify-between border rounded ">
+							<span
+								onClick={() => arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())}
+								className="rotate-180 cursor-pointer px-2 h-full flex items-center justify-center"
+							>
+								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
+							</span>
+							<VerticalSeparator />
+							<span
+								onClick={() => arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())}
+								className=" h-full cursor-pointer flex  px-2 items-center justify-center"
+							>
+								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
+							</span>
+						</div>
 					</div>
 
 					<div className="w-full flex flex-col items-center h-[34rem]">
