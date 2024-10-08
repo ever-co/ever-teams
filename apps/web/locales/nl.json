@@ -377,7 +377,7 @@
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
 			"TIME_TRACKING": "Tijd bijhouden",
-			"REQUIRE_PLAN_TO_TRACK": "Vereist een plan om bij te houden",
+			"ENFORCE_PLAN": "Plan afdwingen",
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "Rollen/posities wijzigen",
 			"VIEW_DETAILS": "Details bekijken",
 			"NO_INVITATIONS": "Er zijn op dit moment geen uitnodigingen!",
-			"NO_MEMBERS": "Er zijn op dit moment geen leden!"
+			"NO_MEMBERS": "Er zijn op dit moment geen leden!",
+			"GO_TO_PERSONAL_SETTINGS": "Ga naar persoonlijke instellingen",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Deel profielweergaven van leden"
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",

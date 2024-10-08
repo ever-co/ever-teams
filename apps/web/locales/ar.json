@@ -377,7 +377,7 @@
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
 			"TIME_TRACKING": "تتبع الوقت",
-			"REQUIRE_PLAN_TO_TRACK": "طلب خطة للتتبع",
+			"ENFORCE_PLAN": "فرض الخطة",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "تغيير الأدوار/المناصب",
 			"VIEW_DETAILS": "عرض التفاصيل",
 			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
-			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!"
+			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!",
+			"GO_TO_PERSONAL_SETTINGS": "الانتقال إلى الإعدادات الشخصية",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء"
 		},
 		"invite": {
 			"HEADING_TITLE": "دعوة عضو لفريقك",

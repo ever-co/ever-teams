@@ -377,7 +377,7 @@
 			"TEAM_NAME": "团队名称",
 			"TEAM_TYPE": "团队类型",
 			"TIME_TRACKING": "时间跟踪",
-			"REQUIRE_PLAN_TO_TRACK": "需要一个计划来跟踪",
+			"ENFORCE_PLAN": "强制计划",
 			"ADD_NEW_MEMBER": "添加新成员",
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "角色/职位更改",
 			"VIEW_DETAILS": "查看详情",
 			"NO_INVITATIONS": "目前没有邀请!",
-			"NO_MEMBERS": "目前没有成员!"
+			"NO_MEMBERS": "目前没有成员!",
+			"GO_TO_PERSONAL_SETTINGS": "转到个人设置",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "共享成员资料视图"
 		},
 		"unauthorized": {
 			"TITLE": "未經授權",

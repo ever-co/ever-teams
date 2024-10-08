@@ -39,7 +39,7 @@ const Team = () => {
         <>
           <Link href={'/settings/personal'} className="w-full">
             <button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
-              Go to Personnal settings
+              {t("pages.settingsTeam.GO_TO_PERSONAL_SETTINGS")}
             </button>
           </Link>
           {/* General Settings */}
