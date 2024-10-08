@@ -11,10 +11,11 @@ import { Combobox, Transition } from '@headlessui/react';
 import { Fragment, useCallback } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 
-export default function MenuKanbanCard({ item: task }: { item: ITeamTask; member: any }) {
+export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask; member: any }) {
 	const t = useTranslations();
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useTeamTasks();
+	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
 	const { taskStatus } = useTaskStatus();
 	const { activeTeam } = useOrganizationTeams();
 	const menu = [
@@ -28,6 +29,34 @@ export default function MenuKanbanCard({ item: task }: { item: ITeamTask; member
 					id: task.id
 				});
 			}
+		},
+		{
+			name: t('common.ESTIMATE'),
+			closable: true,
+			action: 'estimate',
+			onClick: () => {
+				// TODO: Implement estimate task after fixing the time estimate issue
+			},
+			active: true
+		},
+		{
+			name: t('common.ASSIGN_TASK'),
+			action: 'assign',
+			active: true,
+			onClick: () => {
+				assignTask(task);
+			},
+			loading: assignTaskLoading
+		},
+		{
+			name: t('common.UNASSIGN_TASK'),
+			action: 'unassign',
+			closable: true,
+			active: true,
+			onClick: () => {
+				unassignTask(task);
+			},
+			loading: unAssignTaskLoading
 		},
 		{
 			name: t('common.COPY_ISSUE_LINK'),
