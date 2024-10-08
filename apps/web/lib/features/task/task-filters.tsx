@@ -31,6 +31,7 @@ import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
 import { estimatedTotalTime, getTotalTasks } from './daily-plan';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
+import { usePathname } from 'next/navigation';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
@@ -68,6 +69,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
 		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
+	const path = usePathname();
 
 	// const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked');
@@ -172,20 +174,22 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
 	useEffect(() => {
-		if (dailyPlanSuggestionModalDate) {
-			if (!getTotalTasks(todayPlan)) {
-				if (estimatedTotalTime(outstandingPlans).totalTasks) {
-					setTab('dailyplan');
-				} else if (profile.tasksGrouped.assignedTasks.length) {
-					setTab('assigned');
-				} else {
-					setTab('unassigned');
+		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
+			if (estimatedTotalTime(outstandingPlans).totalTasks) {
+				setTab('dailyplan');
+			} else {
+				if (!getTotalTasks(todayPlan)) {
+					if (profile.tasksGrouped.assignedTasks.length) {
+						setTab('assigned');
+					} else {
+						setTab('unassigned');
+					}
 				}
 			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dailyPlanSuggestionModalDate]);
+	}, []);
 
 	// Reset status applied filter status when filter changed
 	useEffect(() => {
