@@ -454,7 +454,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						<div className=" flex justify-between items-center">
 							<Button
-								disabled={loading}
+								disabled={
+									loading || isRenderedInSoftFlow
+										? canStartWorking && requirePlan
+										: timerStatus?.running
+											? canStartWorking && requirePlan && (planEditState.draft || warning)
+												? true
+												: false
+											: canStartWorking && requirePlan
+								}
 								variant="outline"
 								type="submit"
 								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
