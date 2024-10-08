@@ -377,7 +377,7 @@
 			"TEAM_NAME": "Nome da Equipe",
 			"TEAM_TYPE": "Tipo de Equipe",
 			"TIME_TRACKING": "Rastreamento de Tempo",
-			"REQUIRE_PLAN_TO_TRACK": "Exigir um plano para rastrear",
+			"ENFORCE_PLAN": "Fazer cumprir o plano",
 			"ADD_NEW_MEMBER": "Adicionar novo membro",
 			"MANAGE_ASSIGNEES": "Gerenciar Designados",
 			"SEARCH_MEMBER": "Procurar Membro",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "Alterar Funções/Posições",
 			"VIEW_DETAILS": "Ver Detalhes",
 			"NO_INVITATIONS": "Não há convites no momento!",
-			"NO_MEMBERS": "Não há membros no momento!"
+			"NO_MEMBERS": "Não há membros no momento!",
+			"GO_TO_PERSONAL_SETTINGS": "Ir para configurações pessoais",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Compartilhar visualizações de perfil de membros"
 		},
 		"invite": {
 			"HEADING_TITLE": "Convidar membro para sua equipe",

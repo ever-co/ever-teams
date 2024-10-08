@@ -377,7 +377,7 @@
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
 			"TIME_TRACKING": "מעקב זמן",
-			"REQUIRE_PLAN_TO_TRACK": "דרוש תוכנית למעקב",
+			"ENFORCE_PLAN": "אכוף את התוכנית",
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",
 			"MANAGE_ASSIGNEES": "נהל מוקצים",
 			"SEARCH_MEMBER": "חפש חבר",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "שינוי תפקידים/תחנות",
 			"VIEW_DETAILS": "צפה בפרטים",
 			"NO_INVITATIONS": "אין הזמנות כרגע!",
-			"NO_MEMBERS": "אין חברים כרגע!"
+			"NO_MEMBERS": "אין חברים כרגע!",
+			"GO_TO_PERSONAL_SETTINGS": "עבור להגדרות האישיות",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "שתף תצוגות פרופיל של חברים"
 		},
 		"invite": {
 			"HEADING_TITLE": "הזמן חבר לצוות שלך",

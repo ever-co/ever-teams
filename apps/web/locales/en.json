@@ -377,7 +377,7 @@
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
 			"TIME_TRACKING": "Time Tracking",
-			"REQUIRE_PLAN_TO_TRACK": "Require a Plan to track",
+			"ENFORCE_PLAN": "Enforce plan",
 			"ADD_NEW_MEMBER": "Add new member",
 			"MANAGE_ASSIGNEES": "Manage Assignees",
 			"SEARCH_MEMBER": "Search Member",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "Roles/Positions change",
 			"VIEW_DETAILS": "View Details",
 			"NO_INVITATIONS": "There are no Invitations at the moment!",
-			"NO_MEMBERS": "There are no Members at the moment!"
+			"NO_MEMBERS": "There are no Members at the moment!",
+			"GO_TO_PERSONAL_SETTINGS": "Go to Personal settings",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Share members profile views"
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",

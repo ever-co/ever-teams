@@ -377,7 +377,7 @@
 			"TEAM_NAME": "Име на отбора",
 			"TEAM_TYPE": "Тип отбор",
 			"TIME_TRACKING": "Проследяване на времето",
-			"REQUIRE_PLAN_TO_TRACK": "Изискване за план за проследяване",
+			"ENFORCE_PLAN": "Принудете плана",
 			"ADD_NEW_MEMBER": "Добави нов член",
 			"MANAGE_ASSIGNEES": "Управление на отговорници",
 			"SEARCH_MEMBER": "Търсене на член",
@@ -471,7 +471,9 @@
 			"ROLES_POSITIONS_CHANGE": "Промяна на роли/позиции",
 			"VIEW_DETAILS": "Преглед на детайли",
 			"NO_INVITATIONS": "В момента няма покани!",
-			"NO_MEMBERS": "В момента няма членове!"
+			"NO_MEMBERS": "В момента няма членове!",
+			"GO_TO_PERSONAL_SETTINGS": "Отидете в лични настройки",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете"
 		},
 		"invite": {
 			"HEADING_TITLE": "Поканете член в отбора ви",
