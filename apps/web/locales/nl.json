@@ -222,7 +222,13 @@
 			"TRACKED_TIME": "Gegeneraliseerde tijd",
 			"SEE_PLANS": "Plannen bekijken",
 			"ADD_PLAN": "Plan toevoegen"
-		}
+		},
+		"COPY_ISSUE_LINK": "Probleemlink kopiëren",
+		"MAKE_A_COPY": "Maak een kopie",
+		"ASSIGNEE": "Cessionaris",
+		"CHANGE_RELATIONS": "Verander relaties",
+		"SET_AS_NEXT": "Instellen als volgende",
+		"MOVE_TO": "Verplaatsen naar"
 	},
 	"hotkeys": {
 		"HELP": "Help",

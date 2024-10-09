@@ -222,7 +222,13 @@
 			"TRACKED_TIME": "Отслеживаемое время",
 			"SEE_PLANS": "Посмотреть планы",
 			"ADD_PLAN": "Agregar Plan"
-		}
+		},
+		"COPY_ISSUE_LINK": "Скопировать ссылку на проблему",
+		"MAKE_A_COPY": "Сделать копию",
+		"ASSIGNEE": "Исполнитель",
+		"CHANGE_RELATIONS": "Изменить отношения",
+		"SET_AS_NEXT": "Установить следующим",
+		"MOVE_TO": "Переместить в"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

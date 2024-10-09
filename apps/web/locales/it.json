@@ -222,7 +222,13 @@
 			"TRACKED_TIME": "Tempo tracciato",
 			"SEE_PLANS": "Vedi piani",
 			"ADD_PLAN": "Aggiungi Piano"
-		}
+		},
+		"COPY_ISSUE_LINK": "Copia collegamento problema",
+		"MAKE_A_COPY": "Fai una copia",
+		"ASSIGNEE": "Assegnatario",
+		"CHANGE_RELATIONS": "Cambia relazioni",
+		"SET_AS_NEXT": "Imposta come successivo",
+		"MOVE_TO": "Sposta a"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

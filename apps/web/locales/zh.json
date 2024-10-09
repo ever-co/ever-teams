@@ -222,7 +222,13 @@
 			"TRACKED_TIME": "跟踪时间",
 			"SEE_PLANS": "查看计划",
 			"ADD_PLAN": "添加计划"
-		}
+		},
+		"COPY_ISSUE_LINK": "复制问题链接",
+		"MAKE_A_COPY": "制作副本",
+		"ASSIGNEE": "受让人",
+		"CHANGE_RELATIONS": "更改关系",
+		"SET_AS_NEXT": "设置为下一个",
+		"MOVE_TO": "移动到"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
