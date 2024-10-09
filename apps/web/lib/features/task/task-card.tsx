@@ -534,6 +534,7 @@ function TimerButtonCall({
           plan={hasPlan}
           open={modals.isEnforceTaskModalOpen}
           task={activeTeamTask}
+		openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
         />
       )}
     </>

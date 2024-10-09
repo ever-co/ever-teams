@@ -394,7 +394,7 @@ export const TeamSettingForm = () => {
                   </div>
                   <div className="flex items-center justify-between w-full gap-12 mt-8">
                     <Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
-                      Share members profile views
+                      {t("pages.settingsTeam.SHARE_MEMBERS_PROFILE_VIEWS")}
                     </Text>
                     <div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
                       <ShareProfileViewsToggle />
@@ -402,7 +402,7 @@ export const TeamSettingForm = () => {
                   </div>
                   <div className="flex items-center justify-between w-full gap-12 mt-8">
                     <Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
-                      {t('pages.settingsTeam.REQUIRE_PLAN_TO_TRACK')}
+                      {t('pages.settingsTeam.ENFORCE_PLAN')}
                     </Text>
                     <div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
                       <RequireDailyPlanToTrack />

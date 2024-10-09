@@ -5,7 +5,9 @@ import {
   useAuthenticateUser,
   useOrganizationTeams,
   useTaskStatistics,
-  useTeamMemberCard
+  useTeamMemberCard,
+  useTeamTasks,
+  useTimerView
 } from '@app/hooks';
 import ImageComponent, { ImageOverlapperProps } from './image-overlapper';
 import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
@@ -13,7 +15,6 @@ import Link from 'next/link';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from './separator';
 import { secondsToTime } from '@app/helpers';
-import { TaskStatus } from '@app/constants';
 import MenuKanbanCard from '@components/pages/kanban/menu-kanban-card';
 import { activeTeamTaskId } from '@app/stores';
 import { useAtom } from 'jotai';
@@ -158,6 +159,8 @@ export default function Item(props: ItemProps) {
   const { user } = useAuthenticateUser();
   const { getEstimation } = useTaskStatistics(0);
   const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
+  const {activeTeamTask} = useTeamTasks()
+  const {timerStatus} = useTimerView()
 
   const members = activeTeam?.members || [];
   const currentUser = members.find((m) => m.employee.userId === user?.id);
@@ -285,7 +288,7 @@ export default function Item(props: ItemProps) {
         </div>
         <div className="w-full h-10 flex items-center justify-between">
           <div>
-            {item.status === TaskStatus.INPROGRESS ? (
+            {item.id === activeTeamTask?.id && timerStatus?.running ? (
               <div className="flex items-center gap-2">
                 <small className="text-grey text-xs text-normal">Live:</small>
                 <p className="text-[#219653] font-medium text-sm">
@@ -295,8 +298,8 @@ export default function Item(props: ItemProps) {
             ) : (
               <div className="flex items-center gap-2">
                 <small className="text-grey text-xs text-normal">Worked:</small>
-                <p className="text-black dark:text-white font-medium w-20 text-sm">
-                  {h}h : {m}m : {s}s
+                <p className="text-black dark:text-white font-medium text-sm">
+                  {h}h : {m}m
                 </p>
               </div>
             )}
