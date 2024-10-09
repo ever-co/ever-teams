@@ -222,7 +222,13 @@
 			"TRACKED_TIME": "Śledzony czas",
 			"SEE_PLANS": "Zobacz plany",
 			"ADD_PLAN": "Dodaj plan"
-		}
+		},
+		"COPY_ISSUE_LINK": "Skopiuj link do zgłoszenia",
+		"MAKE_A_COPY": "Zrób kopię",
+		"ASSIGNEE": "Cesjonariusz",
+		"CHANGE_RELATIONS": "Zmień relacje",
+		"SET_AS_NEXT": "Ustaw jako następny",
+		"MOVE_TO": "Przenieś do"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -377,7 +383,7 @@
 			"TEAM_NAME": "Nazwa Zespołu",
 			"TEAM_TYPE": "Typ Zespołu",
 			"TIME_TRACKING": "Śledzenie Czasu",
-			"REQUIRE_PLAN_TO_TRACK": "Wymagaj planu do śledzenia",
+			"ENFORCE_PLAN": "Wymuś plan",
 			"ADD_NEW_MEMBER": "Dodaj nowego członka",
 			"MANAGE_ASSIGNEES": "Zarządzaj Przydzielonymi",
 			"SEARCH_MEMBER": "Szukaj Członka",
@@ -471,7 +477,9 @@
 			"ROLES_POSITIONS_CHANGE": "Zmiana Ról/Pozycji",
 			"VIEW_DETAILS": "Pokaż Szczegóły",
 			"NO_INVITATIONS": "Obecnie nie ma żadnych zaproszeń!",
-			"NO_MEMBERS": "Obecnie nie ma żadnych członków!"
+			"NO_MEMBERS": "Obecnie nie ma żadnych członków!",
+			"GO_TO_PERSONAL_SETTINGS": "Przejdź do ustawień osobistych",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Udostępnij widoki profili członków"
 		},
 		"invite": {
 			"HEADING_TITLE": "Zaproś członka do swojego zespołu",

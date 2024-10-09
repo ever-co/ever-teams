@@ -188,6 +188,7 @@ export function Timer({ className }: IClassName) {
 						plan={hasPlan}
 						open={modals.isEnforceTaskModalOpen}
 						task={activeTeamTask}
+						openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
 					/>
 				)}
 			</div>
@@ -287,6 +288,7 @@ export function MinTimerFrame({ className }: IClassName) {
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}
 					task={activeTeamTask}
+					openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
 				/>
 			)}
 		</div>

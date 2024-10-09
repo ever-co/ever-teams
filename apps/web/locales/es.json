@@ -222,7 +222,13 @@
 		"timesheets": {
 			"SINGULAR": "Hoja de horas",
 			"PLURAL": "Hojas de horas"
-		}
+		},
+		"COPY_ISSUE_LINK": "Copiar enlace del problema",
+		"MAKE_A_COPY": "Hacer una copia",
+		"ASSIGNEE": "Cesionario",
+		"CHANGE_RELATIONS": "Cambiar relaciones",
+		"SET_AS_NEXT": "Establecer como siguiente",
+		"MOVE_TO": "Mover a"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -377,7 +383,7 @@
 			"TEAM_NAME": "Nombre del equipo",
 			"TEAM_TYPE": "Tipo de equipo",
 			"TIME_TRACKING": "Seguimiento de tiempo",
-			"REQUIRE_PLAN_TO_TRACK": "Exigir un Plan de seguimiento",
+			"ENFORCE_PLAN": "Hacer cumplir el plan",
 			"ADD_NEW_MEMBER": "Agregar nuevo miembro",
 			"MANAGE_ASSIGNEES": "Administrar asignados",
 			"SEARCH_MEMBER": "Buscar miembro",
@@ -471,7 +477,9 @@
 			"ROLES_POSITIONS_CHANGE": "Cambios de roles/posiciones",
 			"VIEW_DETAILS": "Ver detalles",
 			"NO_INVITATIONS": "¡No hay invitaciones en este momento!",
-			"NO_MEMBERS": "¡No hay miembros en este momento!"
+			"NO_MEMBERS": "¡No hay miembros en este momento!",
+			"GO_TO_PERSONAL_SETTINGS": "Ir a la configuración personal",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Compartir vistas de perfil de miembros"
 		},
 		"invite": {
 			"HEADING_TITLE": "Invitar miembro a tu equipo",

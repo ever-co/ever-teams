@@ -13,7 +13,7 @@ import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
 import { clsxm } from '@app/utils';
-import { formatIntegerToHour } from '@app/helpers';
+import { formatIntegerToHour, formatTimeString } from '@app/helpers';
 import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from './task-details-modal';
@@ -331,11 +331,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<div className="w-full flex gap-3 h-[3rem]">
 								{checkPastDate(plan?.date ?? selectedDate) ? (
 									<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-full">
-										{/**Create a space between hours and minutes for past plans view */}
-										{formatIntegerToHour(plan?.workTimePlanned ?? 0).replace(
-											/(\d+h)(\d+m)/,
-											'$1 $2'
-										)}
+										{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 									</div>
 								) : (
 									<InputField
@@ -394,7 +390,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							<div className=" w-full flex flex-col gap-2">
 								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
-									{formatIntegerToHour(totalWorkedTime ?? 0).replace(/(\d+h)(\d+m)/, '$1 $2')}
+									{formatTimeString(formatIntegerToHour(totalWorkedTime ?? 0))}
 								</div>
 							</div>
 						)}
@@ -416,20 +412,17 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 												<>
 													<span>{t('dailyPlan.ESTIMATED')} :</span>
 													<span className=" font-medium">
-														{formatIntegerToHour(tasksEstimationTimes).replace(
-															/(\d+h)(\d+m)/,
-															'$1 $2'
-														)}
+														{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 													</span>
 												</>
-											) : (
+											) : tasksEstimationTimes ? (
 												<>
 													<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
 													<span className=" font-medium">
-														{formatIntegerToHour(tasksEstimationTimes)}
+														{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 													</span>
 												</>
-											)}
+											) : null}
 										</div>
 									</div>
 									<div className="h-80">
@@ -461,7 +454,15 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						<div className=" flex justify-between items-center">
 							<Button
-								disabled={loading}
+								disabled={
+									loading || isRenderedInSoftFlow
+										? canStartWorking && requirePlan
+										: timerStatus?.running
+											? canStartWorking && requirePlan && (planEditState.draft || warning)
+												? true
+												: false
+											: canStartWorking && requirePlan
+								}
 								variant="outline"
 								type="submit"
 								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
