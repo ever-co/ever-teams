@@ -1,7 +1,8 @@
-import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useTeamTasks, useTimer } from '@app/hooks';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { ReactNode, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
+import { ReactNode, useCallback, useMemo } from 'react';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
@@ -10,21 +11,56 @@ interface IEnforcePlannedTaskModalProps {
 	plan: IDailyPlan;
 	content: ReactNode;
 	onOK?: () => void;
+	openDailyPlanModal?: () => void;
 }
 
 export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
-	const { closeModal, task, open, plan, content, onOK } = props;
+	const { closeModal, task, open, plan, content, onOK, openDailyPlanModal } = props;
 	const { addTaskToPlan, addTaskToPlanLoading } = useDailyPlan();
 	const { user } = useAuthenticateUser();
+	const t = useTranslations();
+
+	const { hasPlan } = useTimer();
+	const { activeTeam } = useTeamTasks();
+
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+
+	const hasWorkedHours = useMemo(
+		() => hasPlan?.workTimePlanned && hasPlan?.workTimePlanned > 0,
+		[hasPlan?.workTimePlanned]
+	);
+	const areAllTasksEstimated = useMemo(
+		() => hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el?.estimate > 0),
+		[hasPlan?.tasks]
+	);
 
 	const handleAddTaskToPlan = useCallback(() => {
 		if (user?.employee && task && plan.id) {
 			addTaskToPlan({ employeeId: user.employee.id, taskId: task.id }, plan.id).then(() => {
 				closeModal();
-				onOK?.();
+				if (requirePlan) {
+					if (hasWorkedHours && areAllTasksEstimated && task.estimate) {
+						onOK?.();
+					} else {
+						openDailyPlanModal?.();
+					}
+				} else {
+					onOK?.();
+				}
 			});
 		}
-	}, [addTaskToPlan, closeModal, onOK, plan.id, task, user?.employee]);
+	}, [
+		addTaskToPlan,
+		areAllTasksEstimated,
+		closeModal,
+		hasWorkedHours,
+		onOK,
+		openDailyPlanModal,
+		plan.id,
+		requirePlan,
+		task,
+		user?.employee
+	]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
@@ -40,7 +76,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 							onClick={closeModal}
 							className="rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 						>
-							No
+							{t('common.NO')}
 						</Button>
 						<Button
 							onClick={handleAddTaskToPlan}
@@ -49,7 +85,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 							type="submit"
 							className=" rounded-md font-light text-md dark:text-white"
 						>
-							Yes
+							{t('common.YES')}
 						</Button>
 					</div>
 				</div>
