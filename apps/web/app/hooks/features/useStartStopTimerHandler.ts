@@ -88,13 +88,13 @@ export function useStartStopTimerHandler() {
 					if (tasksEstimateHoursModalDate != currentDate) {
 						openAddTasksEstimationHoursModal();
 					} else {
-						handleWarnings();
+						startTimerOrAskEstimate();
 					}
 				} else {
 					openEnforcePlannedTaskSoftModal();
 				}
 			} else {
-				handleWarnings();
+				startTimerOrAskEstimate();
 			}
 		};
 
@@ -106,10 +106,10 @@ export function useStartStopTimerHandler() {
 				if (!hasWorkedHours) {
 					openAddDailyPlanWorkHoursModal();
 				} else {
-					handleWarnings();
+					startTimerOrAskEstimate();
 				}
 			} else {
-				handleWarnings();
+				startTimerOrAskEstimate();
 			}
 		};
 
@@ -124,17 +124,17 @@ export function useStartStopTimerHandler() {
 					if (dailyPlanEstimateHoursModalDate != currentDate) {
 						handleMissingDailyPlanWorkHour();
 					} else {
-						handleWarnings();
+						startTimerOrAskEstimate();
 					}
 				} else {
 					if (tasksEstimateHoursModalDate != currentDate) {
 						openAddTasksEstimationHoursModal();
 					} else {
-						handleWarnings();
+						startTimerOrAskEstimate();
 					}
 				}
 			} else {
-				handleWarnings();
+				startTimerOrAskEstimate();
 			}
 		};
 
@@ -142,7 +142,7 @@ export function useStartStopTimerHandler() {
 		 * Check if there is warning for 'enforce' mode. If not,
 		 * start tracking
 		 */
-		const handleWarnings = () => {
+		const startTimerOrAskEstimate = () => {
 			if (
 				requirePlan &&
 				(!areAllTasksEstimated ||
@@ -170,7 +170,7 @@ export function useStartStopTimerHandler() {
 				tasksEstimateHoursModalDate == currentDate &&
 				dailyPlanEstimateHoursModalDate == currentDate
 			) {
-				handleWarnings();
+				startTimerOrAskEstimate();
 			} else {
 				if (dailyPlanSuggestionModalDate != currentDate) {
 					if (!hasPlan) {
@@ -185,13 +185,13 @@ export function useStartStopTimerHandler() {
 						if (areAllTasksEstimated) {
 							handleMissingDailyPlanWorkHour();
 						} else {
-							handleWarnings();
+							startTimerOrAskEstimate();
 						}
 					} else {
-						handleWarnings();
+						startTimerOrAskEstimate();
 					}
 				} else {
-					handleWarnings();
+					startTimerOrAskEstimate();
 				}
 			}
 		}

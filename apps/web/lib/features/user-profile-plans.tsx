@@ -14,7 +14,11 @@ import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProf
 import { useDateRange } from '@app/hooks/useDateRange';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE, HAS_VISITED_OUTSTANDING_TASKS } from '@app/constants';
+import {
+	DAILY_PLAN_SUGGESTION_MODAL_DATE,
+	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
+	HAS_VISITED_OUTSTANDING_TASKS
+} from '@app/constants';
 import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -72,6 +76,7 @@ export function UserProfilePlans() {
 	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
+	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
 
 	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
 	useEffect(() => {
@@ -79,7 +84,9 @@ export function UserProfilePlans() {
 			if (estimatedTotalTime(outstandingPlans).totalTasks) {
 				setCurrentTab('Outstanding');
 			}
-			window.localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, new Date().toISOString().split('T')[0]);
+			if (haveSeenDailyPlanSuggestionModal == new Date().toISOString().split('T')[0]) {
+				window.localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, new Date().toISOString().split('T')[0]);
+			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
