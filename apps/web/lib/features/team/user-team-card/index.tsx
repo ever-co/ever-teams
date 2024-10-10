@@ -168,29 +168,31 @@ export function UserTeamCard({
 					{/* Show user name, email and image */}
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
-						<div
-							onClick={() => {
-								setUserDetailAccordion(
-									userDetailAccordion == memberInfo.memberUser?.id
-										? ''
-										: memberInfo.memberUser?.id ?? ''
-								);
-								setShowActivity(false);
-							}}
-							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
-						>
-							<ChevronDoubleDownIcon
-								className={clsxm(
-									'h-4 w-4 transition-all',
-									userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
-								)}
-							/>
-						</div>
+						{!publicTeam && (
+							<div
+								onClick={() => {
+									setUserDetailAccordion(
+										userDetailAccordion == memberInfo.memberUser?.id
+											? ''
+											: memberInfo.memberUser?.id ?? ''
+									);
+									setShowActivity(false);
+								}}
+								className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
+							>
+								<ChevronDoubleDownIcon
+									className={clsxm(
+										'h-4 w-4 transition-all',
+										userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
+									)}
+								/>
+							</div>
+						)}
 					</div>
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1 min-w-[38%]">
+					<div className="flex justify-between items-center flex-1 md:min-w-[37%] xl:min-w-[40%]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}

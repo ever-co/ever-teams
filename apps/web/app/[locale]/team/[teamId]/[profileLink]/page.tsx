@@ -67,8 +67,6 @@ const Team = () => {
 
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
 
-	console.log(publicTeamData);
-
 	return (
 		<MainLayout publicTeam={publicTeam}>
 			<MainHeader fullWidth={fullWidth}>
