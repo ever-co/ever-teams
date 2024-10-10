@@ -1,5 +1,6 @@
 import {
 	APPLICATION_DEFAULT_LANGUAGE,
+	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,
 	DEFAULT_MAIN_PATH,
 	PROTECTED_APP_URL_PATHS,
@@ -34,7 +35,7 @@ export { auth as authMiddleware } from './auth';
 export async function middleware(request: NextRequest) {
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
-		locales: ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'],
+		locales: APPLICATION_LANGUAGES_CODE,
 		// pathnames,
 		localePrefix: 'as-needed'
 	});
@@ -42,6 +43,15 @@ export async function middleware(request: NextRequest) {
 	// Setting cookies on the response
 	// let response = NextResponse.next();
 	let response = nextIntlMiddleware(request);
+
+	const paths = new URL(request.url).pathname.split('/').filter(Boolean);
+
+	if (
+		!paths.includes('join') &&
+		(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))
+	) {
+		return response;
+	}
 
 	let access_token = null;
 
