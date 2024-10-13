@@ -52,7 +52,6 @@ const TeamMembersCardView: React.FC<Props> = ({
 	return (
 		<>
 			<ul className="mt-7">
-
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}

@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { API_BASE_URL, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { API_BASE_URL, APPLICATION_LANGUAGES_CODE, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import {
 	getAccessTokenCookie,
 	getActiveTeamIdCookie,
@@ -70,6 +70,14 @@ apiDirect.interceptors.response.use(
 		const statusCode = error.response?.status;
 
 		if (statusCode === 401) {
+			const paths = location.pathname.split('/').filter(Boolean);
+			if (
+				!paths.includes('join') &&
+				(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))
+			) {
+				return error.response;
+			}
+
 			window.location.assign(DEFAULT_APP_PATH);
 		}
 
