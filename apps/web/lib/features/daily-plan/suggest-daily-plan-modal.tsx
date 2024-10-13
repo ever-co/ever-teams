@@ -1,10 +1,11 @@
 import { Modal, Card, Text } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useCallback, useMemo } from 'react';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE, HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL } from '@app/constants';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAuthenticateUser } from '@app/hooks';
+import { usePathname } from 'next/navigation';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -19,15 +20,18 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 		() => user?.name || user?.firstName || user?.lastName || user?.username || '',
 		[user?.firstName, user?.lastName, user?.name, user?.username]
 	);
-
+	const path = usePathname();
 	const t = useTranslations();
 
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 
 	const handleCloseModal = useCallback(() => {
-		localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate);
+		localStorage.setItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL, currentDate);
+		if (path.split('/')[1] == 'profile') {
+			localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate);
+		}
 		closeModal();
-	}, [closeModal, currentDate]);
+	}, [closeModal, currentDate, path]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={false}>
