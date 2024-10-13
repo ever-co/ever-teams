@@ -461,7 +461,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 											? canStartWorking && requirePlan && (planEditState.draft || warning)
 												? true
 												: false
-											: canStartWorking && requirePlan
+											: canStartWorking && requirePlan && Boolean(warning)
 								}
 								variant="outline"
 								type="submit"
