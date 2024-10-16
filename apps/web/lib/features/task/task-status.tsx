@@ -1075,7 +1075,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									<Listbox.Options className="outline-none">
 										<Card
 											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 h-[206px] overflow-x-scroll"
+											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 max-h-[206px] overflow-x-scroll"
 										>
 											{items.map((item, i) => {
 												const item_value = item?.value || item?.name;
