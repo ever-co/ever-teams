@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { useSettings } from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
-import { OT_Member, OT_Role } from '@app/interfaces';
+import { OT_Member, OT_Role} from '@app/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Avatar, InputField, Text, Tooltip } from 'lib/components';
@@ -15,6 +15,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
+import {EditUserRoleDropdown} from "./edit-role-dropdown";
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
   const t = useTranslations();
@@ -37,6 +38,24 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
   const handleEdit = (member: OT_Member) => {
     setEditMember(member);
   };
+
+const handleRoleChange = (newRoleId: string) => {
+	// Mettez à jour le rôle de l'utilisateur ici
+	const teamIndex = organizationTeams.findIndex(
+		(team) => team.id === activeTeamId
+	);
+	const tempOrganizationTeams = cloneDeep(organizationTeams);
+	const memberIndex = tempOrganizationTeams[teamIndex].members.findIndex(
+		(member) => member.id === editMember?.id
+	);
+
+	// @ts-ignore
+	tempOrganizationTeams[teamIndex].members[memberIndex] = { ...editMember, roleId: newRoleId };
+	setOrganizationTeams(tempOrganizationTeams);
+	setEditMember(null);
+};
+
+
   const handelNameChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const name = event.target.value || '';
@@ -221,9 +240,13 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
                   {/* TODO Position */}-
                 </td>
                 <td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
-                  <span className="capitalize">
-                    {getRoleString(member.role)}
-                  </span>
+					{
+						editMember && editMember.id === member.id ?
+							<EditUserRoleDropdown member={member} handleRoleChange={handleRoleChange}/> :
+							<span className="capitalize">
+								{getRoleString(member.role)}
+							</span>
+					}
                 </td>
                 <td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
                   {/* 12 Feb 2020 12:00 pm */}
