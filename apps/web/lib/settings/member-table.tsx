@@ -40,7 +40,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
   };
 
 const handleRoleChange = (newRoleId: string) => {
-	// Mettez à jour le rôle de l'utilisateur ici
 	const teamIndex = organizationTeams.findIndex(
 		(team) => team.id === activeTeamId
 	);

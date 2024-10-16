@@ -23,7 +23,7 @@ export const EditUserRoleDropdown = ({ member, handleRoleChange }: { member: OT_
 				setRoleItem(item);
 			}
 			if(item?.data?.id)
-				handleRoleChange(item.data?.id)
+				handleRoleChange(item?.data?.id)
 		},
 		[]
 	);
