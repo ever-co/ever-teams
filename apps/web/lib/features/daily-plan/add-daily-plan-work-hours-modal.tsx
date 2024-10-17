@@ -87,7 +87,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						<Button
 							variant="default"
 							type="submit"
-							disabled={requirePlan ? (hasWorkHours ? false : true) : false}
+							disabled={loading || (requirePlan ? (hasWorkHours ? false : true) : false)}
 							className="py-3 px-5 min-w-[10rem] rounded-md font-light text-md dark:text-white"
 							onClick={handleSubmit}
 						>
