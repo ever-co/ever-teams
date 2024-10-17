@@ -108,12 +108,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	/**
 	 * The function that close the Planned tasks modal when the user ignores the modal (Today's plan)
 	 */
-	const closeModalAndStartTimer = useCallback(() => {
-		handleCloseModal();
-		if (canStartWorking) {
-			startTimer();
+	const closeModalAndSubmit = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			// Update the plan work time only if the user changed it
+			plan &&
+				plan.workTimePlanned !== workTimePlanned &&
+				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+
+			setPlanEditState({ draft: false, saved: true });
+
+			handleCloseModal();
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
 		}
-	}, [canStartWorking, handleCloseModal, startTimer]);
+	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned]);
 
 	/**
 	 * The function that opens the Change task modal if conditions are met (or start the timer)
@@ -466,7 +478,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								variant="outline"
 								type="submit"
 								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-								onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
+								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
 							</Button>
@@ -489,7 +501,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	return (
 		<>
 			{isRenderedInSoftFlow ? (
-				<Modal isOpen={isOpen} closeModal={closeModalAndStartTimer} showCloseIcon={requirePlan ? false : true}>
+				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon={requirePlan ? false : true}>
 					<Card className="w-[36rem]" shadow="custom">
 						{content}
 					</Card>
