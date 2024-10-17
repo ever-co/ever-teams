@@ -7,63 +7,55 @@ import { useAtomValue } from 'jotai';
 import { TaskEstimate } from './task/task-estimate';
 import { TaskInput } from './task/task-input';
 import { TaskLabels } from './task/task-labels';
-import {
-  ActiveTaskPropertiesDropdown,
-  ActiveTaskSizesDropdown,
-  ActiveTaskStatusDropdown
-} from './task/task-status';
+import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task/task-status';
 import { useTranslations } from 'next-intl';
 
 export function AuthUserTaskInput({ className }: IClassName) {
-  const t = useTranslations();
-  const activeTeamTask = useAtomValue(activeTeamTaskState);
-  const { isTrackingEnabled } = useOrganizationTeams();
+	const t = useTranslations();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { isTrackingEnabled } = useOrganizationTeams();
 
-  return (
-    <div
-      className={clsxm('flex-1 flex flex-col mr-10 lg:mt-0 mt-8', className)}
-    >
-      <TaskInput
-        fullWidthCombobox={true}
-        createOnEnterClick={true}
-        showTaskNumber={true}
-        autoAssignTaskAuth={isTrackingEnabled}
-      />
-      <div className="flex gap-5 flex-row lg:items-center justify-between ml-2">
-        <div className="xl:flex mb-4 lg:mb-0">
-          <span className="font-normal text-gray-500 pr-2">
-            {t('common.ESTIMATE')}:
-          </span>
-          <TaskEstimate />
-        </div>
+	return (
+		<div className={clsxm('flex-1 flex flex-col mr-10 lg:mt-0 mt-8', className)}>
+			<TaskInput
+				fullWidthCombobox={true}
+				createOnEnterClick={true}
+				showTaskNumber={true}
+				autoAssignTaskAuth={isTrackingEnabled}
+			/>
+			<div className="flex gap-5 flex-row lg:items-center justify-between ml-2">
+				<div className="xl:flex mb-4 lg:mb-0">
+					<span className="font-normal text-gray-500 pr-2">{t('common.ESTIMATE')}:</span>
+					<TaskEstimate />
+				</div>
 
-        <div className="flex-grow justify-end hidden flex-1 gap-2 md:flex">
-          <ActiveTaskStatusDropdown
-            className="lg:max-w-[190px] w-full"
-            disabled={!activeTeamTask}
-            taskStatusClassName="text-xs py-1.5 w-full"
-          />
+				<div className="flex-grow justify-end hidden flex-1 gap-2 md:flex">
+					<ActiveTaskStatusDropdown
+						className="lg:max-w-[190px] w-full"
+						disabled={!activeTeamTask}
+						taskStatusClassName="text-xs py-1.5 w-full"
+					/>
 
-          <ActiveTaskPropertiesDropdown
-            className="lg:max-w-[190px] w-full"
-            disabled={!activeTeamTask}
-            taskStatusClassName="w-full py-1.5 text-xs"
-          />
+					<ActiveTaskPropertiesDropdown
+						className="lg:max-w-[190px] w-full"
+						disabled={!activeTeamTask}
+						taskStatusClassName="w-full py-1.5 text-xs"
+					/>
 
-          <ActiveTaskSizesDropdown
-            className="lg:max-w-[190px] w-full"
-            disabled={!activeTeamTask}
-            taskStatusClassName="w-full py-1.5 text-xs"
-          />
+					<ActiveTaskSizesDropdown
+						className="lg:max-w-[190px] w-full"
+						disabled={!activeTeamTask}
+						taskStatusClassName="w-full py-1.5 text-xs"
+					/>
 
-          <TaskLabels
-            task={activeTeamTask}
-            className="lg:max-w-[170px] w-full text-xs"
-            forDetails={false}
-            taskStatusClassName="dark:bg-[#1B1D22] dark:border py-[7px] dark:border-[#FFFFFF33] text-xs"
-          />
-        </div>
-        {/* <div className="grid justify-items-center md:hidden">
+					<TaskLabels
+						task={activeTeamTask}
+						className="lg:max-w-[170px] w-full text-xs"
+						forDetails={false}
+						taskStatusClassName="dark:bg-[#1B1D22] dark:border py-[7px] dark:border-[#FFFFFF33] text-xs"
+					/>
+				</div>
+				{/* <div className="grid justify-items-center md:hidden">
 					<div className="flex">
 						<ActiveTaskStatusDropdown className="w-32 mr-2" disabled={!activeTeamTask} />
 						<ActiveTaskPropertiesDropdown className="w-32" disabled={!activeTeamTask} />
@@ -73,7 +65,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						<TaskLabels task={activeTeamTask} className="lg:min-w-[170px]" forDetails={false} />
 					</div>
 				</div> */}
-      </div>
-    </div>
-  );
+			</div>
+		</div>
+	);
 }
