@@ -165,6 +165,27 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		[isSameDate, myDailyPlans.items, selectedPlan]
 	);
 
+	// A handler function to display the plan title
+	const displayPlanTitle = () => {
+		const isCalendarTab = selectedTab === 'Calendar';
+		const planDate = selectedPlan?.date ? new Date(selectedPlan.date).toLocaleDateString('en-GB') : '';
+		const hasTasks = selectedPlan?.tasks?.length;
+		const isTodayOrTomorrow =
+			selectedTab === 'Today'
+				? t('common.plan.FOR_TODAY')
+				: selectedTab === 'Tomorrow'
+					? t('common.plan.FOR_TOMORROW')
+					: '';
+
+		return isCalendarTab
+			? showCustomPlan && selectedPlan
+				? hasTasks
+					? t('common.plan.FOR_DATE', { date: planDate })
+					: planDate
+				: t('common.plan.PLURAL')
+			: isTodayOrTomorrow;
+	};
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -193,13 +214,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						)}
 
 						<Text.Heading as="h3" className="uppercase text-center">
-							{selectedTab == 'Calendar'
-								? showCustomPlan && selectedPlan
-									? t('common.plan.FOR_DATE', {
-											date: new Date(selectedPlan.date).toLocaleDateString('en-GB')
-										})
-									: t('common.plan.PLURAL')
-								: `${selectedTab === 'Today' ? t('common.plan.FOR_TODAY') : selectedTab === 'Tomorrow' ? t('common.plan.FOR_TOMORROW') : ''}`}
+							{displayPlanTitle()}
 						</Text.Heading>
 					</div>
 					<div className="w-full h-12 flex items-center justify-between">
