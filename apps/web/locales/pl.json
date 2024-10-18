@@ -646,7 +646,8 @@
 				"PLANNED_TIME": "Proszę dodać planowany czas",
 				"TASKS_ESTIMATION": "Proszę oszacować wszystkie zadania",
 				"OPTIMIZE_PLAN": "Całkowity szacowany czas przekracza planowany czas, proszę zoptymalizować swój plan",
-				"PLAN_MORE_TASKS": "Proszę dodać więcej zadań do planu"
+				"PLAN_MORE_TASKS": "Proszę dodać więcej zadań do planu",
+				"PLEASE_ADD_TASKS": "Proszę dodać zadania"
 			}
 		},
 		"chang_active_task_popup": {
