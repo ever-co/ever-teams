@@ -5,6 +5,7 @@ import { Switch } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Text } from './typography';
 import { useTranslations } from 'next-intl';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: OT_Member | undefined }) {
 	const t = useTranslations();
@@ -129,6 +130,9 @@ export function RequireDailyPlanToTrack() {
 					.filter((value, index, array) => array.indexOf(value) === index)
 			});
 			setEnabled(!enabled);
+			if (!enabled) {
+				localStorage.removeItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
+			}
 		}
 	}, [activeTeam, editOrganizationTeam, enabled]);
 

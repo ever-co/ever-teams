@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "Plan bearbeiten",
 			"TRACKED_TIME": "Verfolgte Zeit",
 			"SEE_PLANS": "Pläne anzeigen",
-			"ADD_PLAN": "Plan hinzufügen"
+			"ADD_PLAN": "Plan hinzufügen",
+			"DELETE_THIS_PLAN": "Diesen Plan löschen"
 		},
 		"timesheets": {
 			"SINGULAR": "Stundenzettel",

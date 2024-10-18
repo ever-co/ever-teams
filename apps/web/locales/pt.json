@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "Editar Plano",
 			"TRACKED_TIME": "Tempo rastreado",
 			"SEE_PLANS": "Ver planos",
-			"ADD_PLAN": "Adicionar Plano"
+			"ADD_PLAN": "Adicionar Plano",
+			"DELETE_THIS_PLAN": "Excluir este plano"
 		},
 		"COPY_ISSUE_LINK": "Copiar link do problema",
 		"MAKE_A_COPY": "Fazer uma cópia",

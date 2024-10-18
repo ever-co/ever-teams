@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "Редактировать план",
 			"TRACKED_TIME": "Отслеживаемое время",
 			"SEE_PLANS": "Посмотреть планы",
-			"ADD_PLAN": "Agregar Plan"
+			"ADD_PLAN": "Agregar Plan",
+			"DELETE_THIS_PLAN": "Удалить этот план"
 		},
 		"COPY_ISSUE_LINK": "Скопировать ссылку на проблему",
 		"MAKE_A_COPY": "Сделать копию",

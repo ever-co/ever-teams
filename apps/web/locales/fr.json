@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "Modifier le plan",
 			"TRACKED_TIME": "Temps suivi",
 			"SEE_PLANS": "Voir les plans",
-			"ADD_PLAN": "Ajouter un plan"
+			"ADD_PLAN": "Ajouter un plan",
+			"DELETE_THIS_PLAN": "Supprimer ce plan"
 		},
 		"timesheets": {
 			"SINGULAR": "Feuille de temps",

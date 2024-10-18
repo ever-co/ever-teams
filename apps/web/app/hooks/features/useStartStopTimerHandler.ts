@@ -162,7 +162,7 @@ export function useStartStopTimerHandler() {
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
-		} else if (requirePlan && !isActiveTaskPlaned) {
+		} else if (requirePlan && hasPlan && !isActiveTaskPlaned) {
 			openEnforcePlannedTaskModal();
 		} else {
 			if (

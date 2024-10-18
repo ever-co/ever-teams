@@ -217,7 +217,8 @@
 			"ADD_PLAN": "Agregar Plan",
 			"TRACKED_TIME": "Tiempo registrado",
 			"SEE_PLANS": "Ver planes",
-			"FOR_TOMORROW": "Plan de mañana"
+			"FOR_TOMORROW": "Plan de mañana",
+			"DELETE_THIS_PLAN": "Eliminar este plan"
 		},
 		"timesheets": {
 			"SINGULAR": "Hoja de horas",

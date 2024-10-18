@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "Edit Plan",
 			"TRACKED_TIME": "Tracked time",
 			"SEE_PLANS": "See plans",
-			"ADD_PLAN": "Add Plan"
+			"ADD_PLAN": "Add Plan",
+			"DELETE_THIS_PLAN": "Delete this plan"
 		},
 		"timesheets": {
 			"SINGULAR": "Timesheet",

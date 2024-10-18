@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "تعديل الخطة",
 			"TRACKED_TIME": "الوقت المتعقب",
 			"SEE_PLANS": "عرض الخطط",
-			"ADD_PLAN": "إضافة خطة"
+			"ADD_PLAN": "إضافة خطة",
+			"DELETE_THIS_PLAN": "احذف هذه الخطة"
 		},
 		"timesheets": {
 			"SINGULAR": "ورقة الحضور",

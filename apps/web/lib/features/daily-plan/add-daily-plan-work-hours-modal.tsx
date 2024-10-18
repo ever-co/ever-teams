@@ -50,7 +50,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	}, [handleCloseModal, plan, startTimer, updateDailyPlan, workTimePlanned]);
 
 	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
+		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon>
 			<Card className="w-full" shadow="custom">
 				<div className="flex flex-col justify-between">
 					<div className="mb-7">
