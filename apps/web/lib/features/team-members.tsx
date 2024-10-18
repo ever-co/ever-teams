@@ -40,23 +40,14 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 				: orderedMembers.filter((m) => m.timerStatus === activeFilter);
 	}, [activeFilter, orderedMembers]);
 
-	const currentUser = members.find((m) => m.employee.userId === user?.id);
-
-	const $members = useMemo(() => {
-		return members
-			.filter((member) => member.id !== currentUser?.id)
-			.sort((a, b) => {
-				if (a.order && b.order) return a.order > b.order ? -1 : 1;
-				else return -1;
-			});
-	}, [members, currentUser]);
+	const currentUser = useMemo(() => members.find((m) => m.employee.userId === user?.id), [members, user?.id]);
 
 	const $teamsFetching = teamsFetching && members.length === 0;
 
 	return (
 		<TeamMembersView
 			teamsFetching={$teamsFetching}
-			members={$members}
+			members={members}
 			currentUser={currentUser}
 			fullWidth={fullWidth}
 			publicTeam={publicTeam}
@@ -90,6 +81,15 @@ export function TeamMembersView({
 }: TeamMembersViewProps) {
 	let teamMembersView;
 
+	const $members = useMemo(() => {
+		return members
+			.filter((member) => member.id !== currentUser?.id)
+			.sort((a, b) => {
+				if (a.order && b.order) return a.order > b.order ? -1 : 1;
+				else return -1;
+			});
+	}, [members, currentUser]);
+
 	switch (true) {
 		case members.length === 0:
 			teamMembersView = (
@@ -112,7 +112,7 @@ export function TeamMembersView({
 					{/* <UserTeamCardHeader /> */}
 					<Container fullWidth={fullWidth}>
 						<TeamMembersCardView
-							teamMembers={members}
+							teamMembers={$members}
 							currentUser={currentUser}
 							publicTeam={publicTeam}
 							teamsFetching={teamsFetching}
@@ -134,7 +134,7 @@ export function TeamMembersView({
 						leaveTo="opacity-0"
 					>
 						<TeamMembersTableView
-							teamMembers={members}
+							teamMembers={$members}
 							currentUser={currentUser}
 							publicTeam={publicTeam}
 							active={isMemberActive}
@@ -160,7 +160,7 @@ export function TeamMembersView({
 			teamMembersView = (
 				<Container fullWidth={fullWidth}>
 					<TeamMembersCardView
-						teamMembers={members}
+						teamMembers={$members}
 						currentUser={currentUser}
 						publicTeam={publicTeam}
 						teamsFetching={teamsFetching}
