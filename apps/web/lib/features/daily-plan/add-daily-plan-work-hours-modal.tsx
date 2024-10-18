@@ -1,4 +1,4 @@
-import { Card, InputField, Modal, Text } from 'lib/components';
+import { Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@app/constants';
@@ -19,25 +19,38 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	const { updateDailyPlan } = useDailyPlan();
 	const { startTimer } = useTimerView();
 	const { activeTeam } = useTeamTasks();
-
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const hasWorkHours = useMemo(() => plan.workTimePlanned && plan.workTimePlanned > 0, [plan.workTimePlanned]);
+	const [loading, setLoading] = useState(false);
 
 	const handleCloseModal = useCallback(() => {
 		localStorage.setItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, currentDate);
 		closeModal();
-		startTimer();
-	}, [closeModal, currentDate, startTimer]);
+	}, [closeModal, currentDate]);
 
-	const handleSubmit = useCallback(() => {
-		updateDailyPlan({ workTimePlanned }, plan.id ?? '');
-		handleCloseModal();
-	}, [handleCloseModal, plan.id, updateDailyPlan, workTimePlanned]);
+	const handleSubmit = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			// Update the plan work time only if the user changed it
+			if (plan && plan.workTimePlanned !== workTimePlanned) {
+				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+			}
+
+			startTimer();
+
+			handleCloseModal();
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	}, [handleCloseModal, plan, startTimer, updateDailyPlan, workTimePlanned]);
 
 	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={requirePlan ? false : true}>
+		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon>
 			<Card className="w-full" shadow="custom">
 				<div className="flex flex-col justify-between">
 					<div className="mb-7">
@@ -66,7 +79,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						<Button
 							variant="outline"
 							type="submit"
-							className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							className="py-3 px-5 min-w-[10rem] rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 							onClick={handleCloseModal}
 						>
 							{t('common.SKIP_ADD_LATER')}
@@ -74,11 +87,15 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						<Button
 							variant="default"
 							type="submit"
-							disabled={requirePlan ? (hasWorkHours ? false : true) : false}
-							className="py-3 px-5 rounded-md font-light text-md dark:text-white"
+							disabled={loading || (requirePlan && !hasWorkHours)}
+							className="py-3 px-5 min-w-[10rem] rounded-md font-light text-md dark:text-white"
 							onClick={handleSubmit}
 						>
-							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
+							{loading ? (
+								<SpinnerLoader variant="light" size={20} />
+							) : (
+								t('timer.todayPlanSettings.START_WORKING_BUTTON')
+							)}
 						</Button>
 					</div>
 				</div>

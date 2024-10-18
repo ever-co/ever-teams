@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "Редактиране на план",
 			"TRACKED_TIME": "Проследено време",
 			"SEE_PLANS": "Виж планове",
-			"ADD_PLAN": "Добави план"
+			"ADD_PLAN": "Добави план",
+			"DELETE_THIS_PLAN": "Изтрийте този план"
 		},
 		"timesheets": {
 			"SINGULAR": "Работен лист",
