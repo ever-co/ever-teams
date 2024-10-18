@@ -57,11 +57,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const t = useTranslations();
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
 	const { startTimer, timerStatus } = useTimerView();
-	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
+	const { activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const tasksEstimationTimes = useMemo(
 		() => (plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0),
 		[plan]
@@ -466,15 +465,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						<div className=" flex justify-between items-center">
 							<Button
-								disabled={
-									loading || isRenderedInSoftFlow
-										? canStartWorking && requirePlan
-										: timerStatus?.running
-											? canStartWorking && requirePlan && (planEditState.draft || warning)
-												? true
-												: false
-											: canStartWorking && requirePlan && Boolean(warning)
-								}
+								disabled={loading}
 								variant="outline"
 								type="submit"
 								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
@@ -501,7 +492,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	return (
 		<>
 			{isRenderedInSoftFlow ? (
-				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon={requirePlan ? false : true}>
+				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon>
 					<Card className="w-[36rem]" shadow="custom">
 						{content}
 					</Card>

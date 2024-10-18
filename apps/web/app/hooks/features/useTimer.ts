@@ -265,9 +265,7 @@ export function useTimer() {
     user?.isEmailVerified &&
     ((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
       // If timer is running at some other source and user may or may not have selected the task
-      timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS) &&
-    // If team settings require to have a plan to be able track
-    canTrack;
+      timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS)
 
   // Local time status
   const {
