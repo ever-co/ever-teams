@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "Modifica Piano",
 			"TRACKED_TIME": "Tempo tracciato",
 			"SEE_PLANS": "Vedi piani",
-			"ADD_PLAN": "Aggiungi Piano"
+			"ADD_PLAN": "Aggiungi Piano",
+			"DELETE_THIS_PLAN": "Elimina questo piano"
 		},
 		"COPY_ISSUE_LINK": "Copia collegamento problema",
 		"MAKE_A_COPY": "Fai una copia",

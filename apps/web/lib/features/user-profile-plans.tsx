@@ -10,7 +10,14 @@ import { IoCalendarOutline } from 'react-icons/io5';
 
 import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
 import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
-import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useCanSeeActivityScreen,
+	useDailyPlan,
+	useTeamTasks,
+	useTimer,
+	useUserProfilePage
+} from '@app/hooks';
 import { useDateRange } from '@app/hooks/useDateRange';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
@@ -54,9 +61,7 @@ export function UserProfilePlans() {
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
-
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useAtom(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
 
@@ -77,6 +82,9 @@ export function UserProfilePlans() {
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
+	const { hasPlan } = useTimer();
+	const { activeTeam } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
 	useEffect(() => {
@@ -85,7 +93,12 @@ export function UserProfilePlans() {
 				setCurrentTab('Outstanding');
 			}
 			if (haveSeenDailyPlanSuggestionModal == new Date().toISOString().split('T')[0]) {
-				window.localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, new Date().toISOString().split('T')[0]);
+				if (!requirePlan || (requirePlan && hasPlan)) {
+					window.localStorage.setItem(
+						DAILY_PLAN_SUGGESTION_MODAL_DATE,
+						new Date().toISOString().split('T')[0]
+					);
+				}
 			}
 		}
 
@@ -207,6 +220,9 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
 	const { date } = useDateRange(currentTab);
+	const { activeTeam } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const t = useTranslations();
 
 	if (currentTab === 'Today Tasks') {
 		filteredPlans.current = todayPlan;
@@ -338,21 +354,28 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																			variant="outline"
 																			className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 																		>
-																			Delete this plan
+																			{t('common.plan.DELETE_THIS_PLAN')}
 																		</Button>
 																	}
 																>
 																	{/*button confirm*/}
 																	<Button
 																		disabled={deleteDailyPlanLoading}
-																		onClick={() => deleteDailyPlan(plan.id ?? '')}
+																		onClick={() => {
+																			if (requirePlan) {
+																				localStorage.removeItem(
+																					DAILY_PLAN_SUGGESTION_MODAL_DATE
+																				);
+																			}
+																			deleteDailyPlan(plan.id ?? '');
+																		}}
 																		variant="destructive"
 																		className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																	>
 																		{deleteDailyPlanLoading && (
 																			<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 																		)}
-																		Delete
+																		{t('common.DELETE')}
 																	</Button>
 																	{/*button cancel*/}
 																	<Button
@@ -360,7 +383,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																		variant="outline"
 																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 																	>
-																		Cancel
+																		{t('common.CANCEL')}
 																	</Button>
 																</AlertPopup>
 															</div>
