@@ -35,9 +35,9 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 			setLoading(true);
 
 			// Update the plan work time only if the user changed it
-			plan &&
-				plan.workTimePlanned !== workTimePlanned &&
-				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+			if (plan && plan.workTimePlanned !== workTimePlanned) {
+				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+			}
 
 			startTimer();
 
@@ -87,7 +87,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						<Button
 							variant="default"
 							type="submit"
-							disabled={loading || (requirePlan ? (hasWorkHours ? false : true) : false)}
+							disabled={loading || (requirePlan && !hasWorkHours)}
 							className="py-3 px-5 min-w-[10rem] rounded-md font-light text-md dark:text-white"
 							onClick={handleSubmit}
 						>
