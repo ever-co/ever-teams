@@ -646,7 +646,8 @@
 				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",
 				"TASKS_ESTIMATION": "Schat alstublieft alle taken in",
 				"OPTIMIZE_PLAN": "De totale geschatte tijd overschrijdt uw geplande tijd, optimaliseer uw plan alstublieft",
-				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe"
+				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe",
+				"PLEASE_ADD_TASKS": "Voeg alstublieft taken toe"
 			}
 		},
 		"chang_active_task_popup": {

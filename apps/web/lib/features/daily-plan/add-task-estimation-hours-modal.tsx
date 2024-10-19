@@ -198,8 +198,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// Handle warning messages
 	useEffect(() => {
-		// First, check if there are tasks without estimates and show the corresponding warning
-		if (plan?.tasks?.find((task) => !task.estimate)) {
+		// First,  Check if there are no tasks in the plan
+		if (!plan?.tasks || plan.tasks.length === 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS')); // New warning for no tasks
+		}
+		//Check if there are tasks without estimates and show the corresponding warning
+		else if (plan.tasks.find((task) => !task.estimate)) {
 			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
 		}
 		// Next, check if no work time is planned or if planned time is invalid
