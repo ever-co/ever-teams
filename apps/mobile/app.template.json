@@ -44,7 +44,7 @@
 		],
 		"android": {
 			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
-			"package": "ever.team",
+			"package": "$EXPO_PROJECT_PACKAGE_NAME",
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground-ever.png",
 				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
@@ -63,7 +63,7 @@
 		"ios": {
 			"icon": "./assets/images/app-icon-ios-ever-teams.png",
 			"supportsTablet": true,
-			"bundleIdentifier": "co.ever.teams",
+			"bundleIdentifier": "$EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER",
 			"splash": {
 				"image": "./assets/images/splash-ever-teams.png",
 				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",

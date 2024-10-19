@@ -59,6 +59,7 @@
 		"apisauce": "3.0.0",
 		"axios": "^1.6.0",
 		"date-fns": "^2.29.2",
+		"eas": "^0.1.0",
 		"expo": "~48.0.9",
 		"expo-application": "~5.1.1",
 		"expo-blur": "~12.2.2",
