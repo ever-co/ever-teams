@@ -646,7 +646,8 @@
 				"PLANNED_TIME": "אנא הוסף זמן מתוכנן",
 				"TASKS_ESTIMATION": "אנא הערך את כל המשימות",
 				"OPTIMIZE_PLAN": "הזמן הכולל המשוער חורג מהזמן המתוכנן, אנא מיטב את התוכנית שלך",
-				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית"
+				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית",
+				"PLEASE_ADD_TASKS": "אנא הוסף משימות"
 			}
 		},
 		"chang_active_task_popup": {
