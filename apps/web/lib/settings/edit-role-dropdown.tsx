@@ -15,7 +15,7 @@ export const EditUserRoleDropdown = ({ member, handleRoleChange }: { member: OT_
 
 	useEffect(() => {
 		setRoleItem(items.find(t => t.key === member?.roleId) || null);
-	}, [items]);
+	}, [items, member?.roleId]);
 
 	const onChange = useCallback(
 		(item: RoleItem) => {
@@ -25,7 +25,7 @@ export const EditUserRoleDropdown = ({ member, handleRoleChange }: { member: OT_
 			if(item.data?.id)
 				handleRoleChange(item.data?.id)
 		},
-		[]
+		[handleRoleChange]
 	);
 
 	return (

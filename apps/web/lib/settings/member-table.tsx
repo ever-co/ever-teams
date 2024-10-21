@@ -1,8 +1,8 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
-import { useSettings } from '@app/hooks';
+import { useOrganizationEmployeeTeams, useOrganizationTeams, useSettings, useSyncRef } from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
-import { OT_Member, OT_Role} from '@app/interfaces';
+import { OT_Member, OT_Role } from '@app/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Avatar, InputField, Text, Tooltip } from 'lib/components';
@@ -15,276 +15,271 @@ import { useAtom, useAtomValue } from 'jotai';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
-import {EditUserRoleDropdown} from "./edit-role-dropdown";
+import { EditUserRoleDropdown } from './edit-role-dropdown';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
-  const t = useTranslations();
-  const {
-    total,
-    onPageChange,
-    itemsPerPage,
-    itemOffset,
-    endOffset,
-    setItemsPerPage,
-    currentItems
-  } = usePagination<OT_Member>(members);
-  const { updateAvatar } = useSettings();
+	const t = useTranslations();
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
+		usePagination<OT_Member>(members);
+	const { activeTeam, } = useOrganizationTeams();
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { updateAvatar } = useSettings();
 
-  const activeTeamId = useAtomValue(activeTeamIdState);
-  const [organizationTeams, setOrganizationTeams] = useAtom(
-    organizationTeamsState
-  );
-  const [editMember, setEditMember] = useState<OT_Member | null>(null);
-  const handleEdit = (member: OT_Member) => {
-    setEditMember(member);
-  };
+	const activeTeamRef = useSyncRef(activeTeam);
 
-const handleRoleChange = (newRoleId: string) => {
-	const teamIndex = organizationTeams.findIndex(
-		(team) => team.id === activeTeamId
+	const activeTeamId = useAtomValue(activeTeamIdState);
+	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
+	const [editMember, setEditMember] = useState<OT_Member | null>(null);
+
+	const updateTeamMember = (updatedMember: OT_Member) => {
+		const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
+		if (teamIndex === -1) return;
+
+		const tempTeams = cloneDeep(organizationTeams);
+		const memberIndex = tempTeams[teamIndex].members.findIndex(
+			(member) => member.id === updatedMember.id);
+
+		if (memberIndex === -1) return;
+
+		tempTeams[teamIndex].members[memberIndex] = updatedMember;
+		setOrganizationTeams(tempTeams);
+	};
+
+	const handleEdit = useCallback((member: OT_Member) => {
+		console.log('member', member);
+		setEditMember(member);
+	}, []);
+
+	const handleRoleChange = useCallback((newRoleId: string) => {
+		console.log('newRoleId', newRoleId);
+
+		if (!editMember || !activeTeamRef.current) return;
+
+		const { employeeId, organizationId, organizationTeamId, tenantId } = editMember;
+
+		// Update employee Team Role
+		updateOrganizationTeamEmployee(employeeId, {
+			roleId: newRoleId,
+			organizationId: organizationId,
+			organizationTeamId: organizationTeamId,
+			tenantId: tenantId,
+			employeeId: employeeId
+		});
+
+		// Update Organization Team
+		const updatedMember = { ...editMember, roleId: newRoleId };
+		updateTeamMember(updatedMember);
+		setEditMember(null);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeTeamRef, editMember, updateOrganizationTeamEmployee]);
+
+	const handelNameChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
+			const name = event.target.value || '';
+			if (name === editMember?.employee.fullName) {
+				return;
+			}
+
+			const names = name.split(' ');
+			const tempMember: OT_Member | null = cloneDeep(editMember);
+
+			if (tempMember && tempMember.employee.user) {
+				tempMember.employee.fullName = name;
+				tempMember.employee.user.firstName = names[0] || '';
+				tempMember.employee.user.lastName = names[1] || '';
+				setEditMember(tempMember);
+			}
+		},
+		[editMember]
 	);
-	const tempOrganizationTeams = cloneDeep(organizationTeams);
-	const memberIndex = tempOrganizationTeams[teamIndex].members.findIndex(
-		(member) => member.id === editMember?.id
+	const handleEditMemberSave = useCallback(() => {
+		if (editMember) {
+			updateAvatar({
+				firstName: editMember?.employee?.user?.firstName || '',
+				lastName: editMember?.employee?.user?.lastName || '',
+				id: editMember?.employee?.userId
+			}).then(() => {
+				updateTeamMember(editMember);
+				setEditMember(null);
+			});
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [editMember, updateAvatar]);
+
+	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
+		if (event.key === 'Enter') {
+			handleEditMemberSave();
+			setEditMember(null);
+		}
+	};
+
+	return (
+		<div>
+			<div className="sm:rounded-lg">
+				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
+					<thead className="text-xs text-gray-700 uppercase border-b">
+						<tr>
+							<th
+								scope="col"
+								className="pl-0 py-3 text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-56"
+							>
+								{t('common.NAME')}
+							</th>
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-40"
+							>
+								{t('common.POSITION')}
+							</th>
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-44"
+							>
+								{t('common.ROLES')}
+							</th>
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-48"
+							>
+								{t('common.JOIN_OR_LEFT')}
+							</th>
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-32"
+							>
+								{t('common.STATUS')}
+							</th>
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize  text-[#B1AEBC] dark:text-white w-6"
+							></th>
+						</tr>
+					</thead>
+					<tbody className="dark:bg-dark--theme-light">
+						{currentItems.map((member, index) => (
+							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700" key={index}>
+								<th
+									scope="row"
+									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
+								>
+									{member.employee.user?.imageId ? (
+										<Avatar
+											size={35}
+											className="relative cursor-pointer"
+											imageUrl={
+												member.employee.user?.image?.thumbUrl ||
+												member.employee.user?.image?.fullUrl ||
+												member.employee.user?.imageUrl
+											}
+											alt="User Avatar"
+										/>
+									) : member.employee.user?.name ? (
+										<div
+											className={clsxm(
+												'w-[35px] h-[35px]',
+												'flex justify-center items-center',
+												'rounded-full text-xs text-default dark:text-white',
+												'shadow-md font-normal'
+											)}
+											style={{
+												backgroundColor: `${stc(member.employee.user?.name || '')}80`
+											}}
+										>
+											{imgTitle(member.employee.user?.name)}
+										</div>
+									) : (
+										''
+									)}
+									<div className="flex flex-col gap-1 pl-3 ">
+										{editMember && editMember.id === member.id ? (
+											<InputField
+												type="text"
+												placeholder={'Enter Name'}
+												className="mb-0 h-5 border-none max-w-[12rem] 3xl:max-w-[14rem] pl-0 py-0 rounded-none border-b-1"
+												noWrapper
+												autoFocus
+												defaultValue={member.employee.fullName}
+												onBlur={handleEditMemberSave}
+												onChange={handelNameChange}
+												onKeyUp={handleOnKeyUp}
+											/>
+										) : (
+											<Tooltip
+												label={member.employee.fullName.trim()}
+												placement="auto"
+												enabled={
+													member.employee.fullName.trim().length > CHARACTER_LIMIT_TO_SHOW
+												}
+											>
+												<div
+													className="text-sm font-semibold text-[#282048] dark:text-white max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap"
+													onDoubleClick={() => {
+														handleEdit(member);
+													}}
+												>
+													{member.employee.fullName}
+												</div>
+											</Tooltip>
+										)}
+
+										<Tooltip
+											label={(member.employee.user?.email || '').trim()}
+											placement="auto"
+											enabled={
+												(member.employee.user?.email || '').trim().length >
+												CHARACTER_LIMIT_TO_SHOW
+											}
+										>
+											<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap">
+												{member.employee.user?.email || ''}
+											</Text>
+										</Tooltip>
+									</div>
+								</th>
+								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+									{/* TODO Position */}-
+								</td>
+								<td
+									className="text-sm font-semibold py-4 text-[#282048] dark:text-white"
+									onDoubleClick={() => handleEdit(member)}
+								>
+									{editMember && editMember.id === member.id ? (
+										<EditUserRoleDropdown member={member} handleRoleChange={handleRoleChange} />
+									) : (
+										<span className="capitalize">{getRoleString(member.role)}</span>
+									)}
+								</td>
+								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+									{/* 12 Feb 2020 12:00 pm */}
+									{moment(member.employee.createdAt).format('DD MMM YYYY hh:mm a')}
+								</td>
+								<td className="py-4 text-sm font-semibold">
+									{/* TODO dynamic */}
+									<MemberTableStatus status={member.employee.isActive ? 'Member' : 'Suspended'} />
+								</td>
+								<td className="flex items-center justify-center py-4">
+									<TableActionPopover member={member} handleEdit={handleEdit} status="settings" />
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+
+			<Paginate
+				total={total}
+				onPageChange={onPageChange}
+				pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
+				itemsPerPage={itemsPerPage}
+				itemOffset={itemOffset}
+				endOffset={endOffset}
+				setItemsPerPage={setItemsPerPage}
+			/>
+		</div>
 	);
-
-	// @ts-ignore
-	tempOrganizationTeams[teamIndex].members[memberIndex] = { ...editMember, roleId: newRoleId };
-	setOrganizationTeams(tempOrganizationTeams);
-	setEditMember(null);
-};
-
-
-  const handelNameChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const name = event.target.value || '';
-      if (name === editMember?.employee.fullName) {
-        return;
-      }
-
-      const names = name.split(' ');
-      const tempMember: OT_Member | null = cloneDeep(editMember);
-      if (tempMember && tempMember.employee.user) {
-        tempMember.employee.fullName = name;
-        tempMember.employee.user.firstName = names[0] || '';
-        tempMember.employee.user.lastName = names[1] || '';
-        setEditMember(tempMember);
-      }
-    },
-    [editMember]
-  );
-  const handleEditMemberSave = useCallback(() => {
-    if (editMember) {
-      updateAvatar({
-        firstName: editMember?.employee?.user?.firstName || '',
-        lastName: editMember?.employee?.user?.lastName || '',
-        id: editMember?.employee?.userId
-      }).then(() => {
-        const teamIndex = organizationTeams.findIndex(
-          (team) => team.id === activeTeamId
-        );
-        const tempOrganizationTeams = cloneDeep(organizationTeams);
-        const memberIndex = tempOrganizationTeams[teamIndex].members.findIndex(
-          (member) => member.id === editMember.id
-        );
-
-        tempOrganizationTeams[teamIndex].members[memberIndex] = editMember;
-        setOrganizationTeams(tempOrganizationTeams);
-        setEditMember(null);
-      });
-    }
-  }, [
-    editMember,
-    organizationTeams,
-    activeTeamId,
-    setOrganizationTeams,
-    updateAvatar
-  ]);
-  const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key === 'Enter') {
-      handleEditMemberSave();
-    }
-  };
-
-  return (
-    <div>
-      <div className="sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
-          <thead className="text-xs text-gray-700 uppercase border-b">
-            <tr>
-              <th
-                scope="col"
-                className="pl-0 py-3 text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-56"
-              >
-                {t('common.NAME')}
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-40"
-              >
-                {t('common.POSITION')}
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-44"
-              >
-                {t('common.ROLES')}
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-normal capitalize min-w-[15rem] text-[#B1AEBC] dark:text-white w-48"
-              >
-                {t('common.JOIN_OR_LEFT')}
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-normal capitalize min-w-[10rem] text-[#B1AEBC] dark:text-white w-32"
-              >
-                {t('common.STATUS')}
-              </th>
-              <th
-                scope="col"
-                className="text-sm font-normal capitalize  text-[#B1AEBC] dark:text-white w-6"
-              ></th>
-            </tr>
-          </thead>
-          <tbody className="dark:bg-dark--theme-light">
-            {currentItems.map((member, index) => (
-              <tr
-                className="bg-white dark:bg-dark--theme-light dark:border-gray-700"
-                key={index}
-              >
-                <th
-                  scope="row"
-                  className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  {member.employee.user?.imageId ? (
-                    <Avatar
-                      size={35}
-                      className="relative cursor-pointer"
-                      imageUrl={
-                        member.employee.user?.image?.thumbUrl ||
-                        member.employee.user?.image?.fullUrl ||
-                        member.employee.user?.imageUrl
-                      }
-                      alt="User Avatar"
-                    />
-                  ) : member.employee.user?.name ? (
-                    <div
-                      className={clsxm(
-                        'w-[35px] h-[35px]',
-                        'flex justify-center items-center',
-                        'rounded-full text-xs text-default dark:text-white',
-                        'shadow-md font-normal'
-                      )}
-                      style={{
-                        backgroundColor: `${stc(
-                          member.employee.user?.name || ''
-                        )}80`
-                      }}
-                    >
-                      {imgTitle(member.employee.user?.name)}
-                    </div>
-                  ) : (
-                    ''
-                  )}
-                  <div className="flex flex-col gap-1 pl-3 ">
-                    {editMember && editMember.id === member.id ? (
-                      <InputField
-                        type="text"
-                        placeholder={'Enter Name'}
-                        className="mb-0 h-5 border-none max-w-[12rem] 3xl:max-w-[14rem] pl-0 py-0 rounded-none border-b-1"
-                        noWrapper
-                        autoFocus
-                        defaultValue={member.employee.fullName}
-                        onBlur={handleEditMemberSave}
-                        onChange={handelNameChange}
-                        onKeyUp={handleOnKeyUp}
-                      />
-                    ) : (
-                      <Tooltip
-                        label={member.employee.fullName.trim()}
-                        placement="auto"
-                        enabled={
-                          member.employee.fullName.trim().length >
-                          CHARACTER_LIMIT_TO_SHOW
-                        }
-                      >
-                        <div
-                          className="text-sm font-semibold text-[#282048] dark:text-white max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap"
-                          onDoubleClick={() => {
-                            handleEdit(member);
-                          }}
-                        >
-                          {member.employee.fullName}
-                        </div>
-                      </Tooltip>
-                    )}
-
-                    <Tooltip
-                      label={(member.employee.user?.email || '').trim()}
-                      placement="auto"
-                      enabled={
-                        (member.employee.user?.email || '').trim().length >
-                        CHARACTER_LIMIT_TO_SHOW
-                      }
-                    >
-                      <Text className="text-xs dark:text-white text-[#B1AEBC] font-normal max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap">
-                        {member.employee.user?.email || ''}
-                      </Text>
-                    </Tooltip>
-                  </div>
-                </th>
-                <td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
-                  {/* TODO Position */}-
-                </td>
-                <td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
-					{
-						editMember && editMember.id === member.id ?
-							<EditUserRoleDropdown member={member} handleRoleChange={handleRoleChange}/> :
-							<span className="capitalize">
-								{getRoleString(member.role)}
-							</span>
-					}
-                </td>
-                <td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
-                  {/* 12 Feb 2020 12:00 pm */}
-                  {moment(member.employee.createdAt).format(
-                    'DD MMM YYYY hh:mm a'
-                  )}
-                </td>
-                <td className="py-4 text-sm font-semibold">
-                  {/* TODO dynamic */}
-                  <MemberTableStatus
-                    status={member.employee.isActive ? 'Member' : 'Suspended'}
-                  />
-                </td>
-                <td className="flex items-center justify-center py-4">
-                  <TableActionPopover
-                    member={member}
-                    handleEdit={handleEdit}
-                    status="settings"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <Paginate
-        total={total}
-        onPageChange={onPageChange}
-        pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
-        itemsPerPage={itemsPerPage}
-        itemOffset={itemOffset}
-        endOffset={endOffset}
-        setItemsPerPage={setItemsPerPage}
-      />
-    </div>
-  );
 };
 
 const getRoleString = (role: OT_Role | undefined) => {
-  return role?.name || 'MEMBER';
+	return role?.name || 'MEMBER';
 };
