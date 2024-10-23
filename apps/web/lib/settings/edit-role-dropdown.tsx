@@ -1,15 +1,15 @@
 import { Dropdown } from 'lib/components';
 import { clsxm } from '@app/utils';
 import {useRoles} from "@app/hooks/features/useRoles";
-import { IRoleList, OT_Member } from "@app/interfaces";
+import { IRole, IRoleList, OT_Member } from "@app/interfaces";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {mapRoleItems, RoleItem} from "../features/roles/role-item";
 
 
-export const EditUserRoleDropdown = ({ member, handleRoleChange }: { member: OT_Member,handleRoleChange : (newRoleId: string) => void}) => {
+export const EditUserRoleDropdown = ({ member, handleRoleChange }: { member: OT_Member,handleRoleChange : (newRole: IRole) => void}) => {
 	const {roles} =  useRoles()
 
-	const items = useMemo(() => mapRoleItems(roles as IRoleList[]), [roles]);
+	const items = useMemo(() => mapRoleItems(roles.filter(role => ['MANAGER', 'EMPLOYEE'].includes(role.name)) as IRoleList[]), [roles]);
 
 	const [roleItem, setRoleItem] = useState<RoleItem | null>(null);
 
@@ -22,8 +22,10 @@ export const EditUserRoleDropdown = ({ member, handleRoleChange }: { member: OT_
 			if (item.data) {
 				setRoleItem(item);
 			}
-			if(item.data?.id)
-				handleRoleChange(item.data?.id)
+			if (item.data?.id) {
+				console.log({ item })
+				handleRoleChange(item.data?.data)
+			}
 		},
 		[handleRoleChange]
 	);

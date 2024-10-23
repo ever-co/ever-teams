@@ -1,15 +1,15 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
-import { useOrganizationEmployeeTeams, useOrganizationTeams, useSettings, useSyncRef } from '@app/hooks';
+import { useOrganizationTeams, useSettings, useSyncRef } from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
-import { OT_Member, OT_Role } from '@app/interfaces';
+import { IRole, OT_Member, OT_Role } from '@app/interfaces';
 import { activeTeamIdState, organizationTeamsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Avatar, InputField, Text, Tooltip } from 'lib/components';
 import { Paginate } from 'lib/components/pagination';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue } from 'jotai';
 import stc from 'string-to-color';
@@ -21,17 +21,16 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<OT_Member>(members);
-	const { activeTeam, } = useOrganizationTeams();
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { activeTeam, updateOrganizationTeam,} = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
-	const [editMember, setEditMember] = useState<OT_Member | null>(null);
+	const editMemberRef = useRef<OT_Member | null>(null);
 
-	const updateTeamMember = (updatedMember: OT_Member) => {
+	const updateTeamMember = useCallback((updatedMember: OT_Member) => {
 		const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
 		if (teamIndex === -1) return;
 
@@ -43,74 +42,99 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 		tempTeams[teamIndex].members[memberIndex] = updatedMember;
 		setOrganizationTeams(tempTeams);
-	};
+	}, [activeTeamId, organizationTeams, setOrganizationTeams]);
 
 	const handleEdit = useCallback((member: OT_Member) => {
-		console.log('member', member);
-		setEditMember(member);
+		editMemberRef.current = member;
 	}, []);
 
-	const handleRoleChange = useCallback((newRoleId: string) => {
-		console.log('newRoleId', newRoleId);
 
-		if (!editMember || !activeTeamRef.current) return;
+	const handleManagerRoleUpdate = useCallback((employeeId: string, isPromotingToManager: boolean) => {
+		if (!activeTeamRef.current) return;
 
-		const { employeeId, organizationId, organizationTeamId, tenantId } = editMember;
+		// Get current managers
+		const currentManagers: string[] = activeTeamRef.current?.members
+			.filter((member: OT_Member) => member.role?.name === 'MANAGER')
+			.map((manager: OT_Member) => manager.employee.id) || [];
 
-		// Update employee Team Role
-		updateOrganizationTeamEmployee(employeeId, {
-			roleId: newRoleId,
-			organizationId: organizationId,
-			organizationTeamId: organizationTeamId,
-			tenantId: tenantId,
-			employeeId: employeeId
-		});
+		if (isPromotingToManager) {
+			// Add new manager
+			const updatedManagerIds = [...new Set([...currentManagers, employeeId])];
+
+			return updateOrganizationTeam(activeTeamRef.current, {
+				...activeTeamRef.current,
+				managerIds: updatedManagerIds
+			});
+		} else {
+			// Remove manager
+			const updatedMemberIds = [...new Set([...currentManagers, employeeId])];
+			const updatedManagerIds = currentManagers.filter(id => id !== employeeId);
+
+			return updateOrganizationTeam(activeTeamRef.current, {
+				...activeTeamRef.current,
+				memberIds: updatedMemberIds,
+				managerIds: updatedManagerIds,
+			});
+		}
+
+	}, [updateOrganizationTeam, activeTeamRef]);
+
+
+	const handleRoleChange = useCallback((newRole: IRole) => {
+		if (!editMemberRef.current || !activeTeamRef.current) return;
+
+		console.log({ newRole })
+
+		const { employeeId, role } = editMemberRef.current;
+
+		const isPromotingToManager = role?.name !== 'MANAGER' || newRole?.name === 'MANAGER';
+		handleManagerRoleUpdate(employeeId, isPromotingToManager);
 
 		// Update Organization Team
-		const updatedMember = { ...editMember, roleId: newRoleId };
-		updateTeamMember(updatedMember);
-		setEditMember(null);
+		// const updatedMember = { ...editMemberRef.current, roleId: !isPromotingToManager ? '' :  };
+		// updateTeamMember(updatedMember);
+		editMemberRef.current = null;
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [activeTeamRef, editMember, updateOrganizationTeamEmployee]);
+	}, [activeTeamRef, handleManagerRoleUpdate]);
 
 	const handelNameChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
 			const name = event.target.value || '';
-			if (name === editMember?.employee.fullName) {
+			if (name === editMemberRef.current?.employee.fullName) {
 				return;
 			}
 
 			const names = name.split(' ');
-			const tempMember: OT_Member | null = cloneDeep(editMember);
+			const tempMember: OT_Member | null = cloneDeep(editMemberRef.current);
 
 			if (tempMember && tempMember.employee.user) {
 				tempMember.employee.fullName = name;
 				tempMember.employee.user.firstName = names[0] || '';
 				tempMember.employee.user.lastName = names[1] || '';
-				setEditMember(tempMember);
+				editMemberRef.current = tempMember;
 			}
 		},
-		[editMember]
+		[]
 	);
 	const handleEditMemberSave = useCallback(() => {
-		if (editMember) {
+		if (editMemberRef.current) {
 			updateAvatar({
-				firstName: editMember?.employee?.user?.firstName || '',
-				lastName: editMember?.employee?.user?.lastName || '',
-				id: editMember?.employee?.userId
+				firstName: editMemberRef.current?.employee?.user?.firstName || '',
+				lastName: editMemberRef.current?.employee?.user?.lastName || '',
+				id: editMemberRef.current?.employee?.userId || ''
 			}).then(() => {
-				updateTeamMember(editMember);
-				setEditMember(null);
+				if (editMemberRef.current) {
+					updateTeamMember(editMemberRef.current);
+				}
 			});
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [editMember, updateAvatar]);
+	}, [editMemberRef.current, updateAvatar]);
 
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleEditMemberSave();
-			setEditMember(null);
+			editMemberRef.current = null;
 		}
 	};
 
@@ -192,7 +216,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 										''
 									)}
 									<div className="flex flex-col gap-1 pl-3 ">
-										{editMember && editMember.id === member.id ? (
+										{editMemberRef.current && editMemberRef.current.id === member.id ? (
 											<InputField
 												type="text"
 												placeholder={'Enter Name'}
@@ -244,7 +268,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									className="text-sm font-semibold py-4 text-[#282048] dark:text-white"
 									onDoubleClick={() => handleEdit(member)}
 								>
-									{editMember && editMember.id === member.id ? (
+									{editMemberRef.current && editMemberRef.current.id === member.id ? (
 										<EditUserRoleDropdown member={member} handleRoleChange={handleRoleChange} />
 									) : (
 										<span className="capitalize">{getRoleString(member.role)}</span>
