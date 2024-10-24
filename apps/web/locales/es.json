@@ -217,7 +217,8 @@
 			"ADD_PLAN": "Agregar Plan",
 			"TRACKED_TIME": "Tiempo registrado",
 			"SEE_PLANS": "Ver planes",
-			"FOR_TOMORROW": "Plan de mañana"
+			"FOR_TOMORROW": "Plan de mañana",
+			"DELETE_THIS_PLAN": "Eliminar este plan"
 		},
 		"timesheets": {
 			"SINGULAR": "Hoja de horas",
@@ -646,7 +647,8 @@
 				"PLANNED_TIME": "Por favor, añade tiempo planificado",
 				"TASKS_ESTIMATION": "Por favor, estima todas las tareas",
 				"OPTIMIZE_PLAN": "El tiempo total estimado excede tu tiempo planificado, por favor optimiza tu plan",
-				"PLAN_MORE_TASKS": "Por favor, añade más tareas al plan"
+				"PLAN_MORE_TASKS": "Por favor, añade más tareas al plan",
+				"PLEASE_ADD_TASKS": "Por favor, añade tareas"
 			}
 		},
 		"chang_active_task_popup": {

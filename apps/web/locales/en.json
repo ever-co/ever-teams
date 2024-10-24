@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "Edit Plan",
 			"TRACKED_TIME": "Tracked time",
 			"SEE_PLANS": "See plans",
-			"ADD_PLAN": "Add Plan"
+			"ADD_PLAN": "Add Plan",
+			"DELETE_THIS_PLAN": "Delete this plan"
 		},
 		"timesheets": {
 			"SINGULAR": "Timesheet",
@@ -646,7 +647,8 @@
 				"PLANNED_TIME": "Please, add planned time",
 				"TASKS_ESTIMATION": "Please, estimate all tasks",
 				"OPTIMIZE_PLAN": "Total estimated time exceeds your Planned time, please optimize your plan",
-				"PLAN_MORE_TASKS": "Please add more tasks to the plan"
+				"PLAN_MORE_TASKS": "Please add more tasks to the plan",
+				"PLEASE_ADD_TASKS": "Please, add tasks"
 			}
 		},
 		"chang_active_task_popup": {

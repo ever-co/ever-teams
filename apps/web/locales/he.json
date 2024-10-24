@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "ערוך תוכנית",
 			"TRACKED_TIME": "זמן מעקב",
 			"SEE_PLANS": "ראה תוכניות",
-			"ADD_PLAN": "הוסף תוכנית"
+			"ADD_PLAN": "הוסף תוכנית",
+			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
 		},
 		"timesheets": {
 			"SINGULAR": "דוח שעות",
@@ -646,7 +647,8 @@
 				"PLANNED_TIME": "אנא הוסף זמן מתוכנן",
 				"TASKS_ESTIMATION": "אנא הערך את כל המשימות",
 				"OPTIMIZE_PLAN": "הזמן הכולל המשוער חורג מהזמן המתוכנן, אנא מיטב את התוכנית שלך",
-				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית"
+				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית",
+				"PLEASE_ADD_TASKS": "אנא הוסף משימות"
 			}
 		},
 		"chang_active_task_popup": {

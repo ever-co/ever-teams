@@ -23,7 +23,9 @@ fs.copyFile(templatePath, appJsonPath, (err) => {
       .replace(/\$EXPO_PROJECT_SLUG/g, process.env.EXPO_PROJECT_SLUG)
       .replace(/\$EXPO_PROJECT_NAME/g, process.env.EXPO_PROJECT_NAME)
       .replace(/\$EXPO_PROJECT_OWNER/g, process.env.EXPO_PROJECT_OWNER)
-      .replace(/\$EXPO_PROJECT_ID/g, process.env.EXPO_PROJECT_ID);
+      .replace(/\$EXPO_PROJECT_ID/g, process.env.EXPO_PROJECT_ID)
+      .replace(/\$EXPO_PROJECT_PACKAGE_NAME/g, process.env.EXPO_PROJECT_PACKAGE_NAME)
+      .replace(/\$EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER/g, process.env.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER);
 
     fs.writeFile(appJsonPath, updatedData, (err) => {
       if (err) {

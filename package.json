@@ -157,7 +157,7 @@
 	"resolutions": {},
 	"dependencies": {
 		"@lexical/react": "^0.8.0",
-		"dotenv": "^16.0.3",
+		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
 		"yargs": "^17.5.0"
 	},
@@ -190,6 +190,7 @@
 		"@semantic-release/github": "^9.2.6",
 		"@semantic-release/npm": "^11.0.0",
 		"@types/detox": "^18.1.0",
+		"@types/electron": "^1.6.10",
 		"@types/node": "^20.12.2",
 		"@types/yargs": "^17.0.32",
 		"@typescript-eslint/eslint-plugin": "5.60.1",
@@ -212,21 +213,20 @@
 		"eslint-plugin-prettier": "^4.2.1",
 		"eslint-plugin-react": "^7.31.8",
 		"husky": "^9.0.11",
+		"jimp": "^0.22.7",
 		"lerna": "^8.1.2",
 		"lerna-changelog": "^2.2.0",
 		"lint-staged": "^10.4.0",
 		"nx": "16.7.4",
 		"nx-cloud": "16.3.0",
+		"png-to-ico": "^2.1.8",
 		"prettier": "^3.2.5",
 		"prettier-eslint-cli": "^8.0.1",
 		"pretty-quick": "^4.0.0",
 		"rimraf": "^5.0.5",
 		"semantic-release": "^22.0.12",
 		"simple-git": "^3.20.0",
-		"ts-node": "^10.9.2",
-		"@types/electron": "^1.6.10",
-		"jimp": "^0.22.7",
-		"png-to-ico": "^2.1.8"
+		"ts-node": "^10.9.2"
 	},
 	"overrides": {
 		"prebuild": {
