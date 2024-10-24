@@ -217,7 +217,8 @@
 			"EDIT_PLAN": "ערוך תוכנית",
 			"TRACKED_TIME": "זמן מעקב",
 			"SEE_PLANS": "ראה תוכניות",
-			"ADD_PLAN": "הוסף תוכנית"
+			"ADD_PLAN": "הוסף תוכנית",
+			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
 		},
 		"timesheets": {
 			"SINGULAR": "דוח שעות",

@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "编辑计划",
 			"TRACKED_TIME": "跟踪时间",
 			"SEE_PLANS": "查看计划",
-			"ADD_PLAN": "添加计划"
+			"ADD_PLAN": "添加计划",
+			"DELETE_THIS_PLAN": "删除此计划"
 		},
 		"COPY_ISSUE_LINK": "复制问题链接",
 		"MAKE_A_COPY": "制作副本",
