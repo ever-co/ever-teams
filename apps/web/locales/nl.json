@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "Plan bewerken",
 			"TRACKED_TIME": "Gegeneraliseerde tijd",
 			"SEE_PLANS": "Plannen bekijken",
-			"ADD_PLAN": "Plan toevoegen"
+			"ADD_PLAN": "Plan toevoegen",
+			"DELETE_THIS_PLAN": "Verwijder dit plan"
 		},
 		"COPY_ISSUE_LINK": "Probleemlink kopiëren",
 		"MAKE_A_COPY": "Maak een kopie",
@@ -646,7 +647,8 @@
 				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",
 				"TASKS_ESTIMATION": "Schat alstublieft alle taken in",
 				"OPTIMIZE_PLAN": "De totale geschatte tijd overschrijdt uw geplande tijd, optimaliseer uw plan alstublieft",
-				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe"
+				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe",
+				"PLEASE_ADD_TASKS": "Voeg alstublieft taken toe"
 			}
 		},
 		"chang_active_task_popup": {

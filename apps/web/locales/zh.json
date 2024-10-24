@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "编辑计划",
 			"TRACKED_TIME": "跟踪时间",
 			"SEE_PLANS": "查看计划",
-			"ADD_PLAN": "添加计划"
+			"ADD_PLAN": "添加计划",
+			"DELETE_THIS_PLAN": "删除此计划"
 		},
 		"COPY_ISSUE_LINK": "复制问题链接",
 		"MAKE_A_COPY": "制作副本",
@@ -646,7 +647,8 @@
 				"PLANNED_TIME": "请添加计划时间",
 				"TASKS_ESTIMATION": "请估算所有任务",
 				"OPTIMIZE_PLAN": "总预计时间超过您的计划时间，请优化您的计划",
-				"PLAN_MORE_TASKS": "请在计划中添加更多任务"
+				"PLAN_MORE_TASKS": "请在计划中添加更多任务",
+				"PLEASE_ADD_TASKS": "请添加任务"
 			}
 		},
 		"chang_active_task_popup": {

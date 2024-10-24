@@ -221,7 +221,8 @@
 			"EDIT_PLAN": "Modifica Piano",
 			"TRACKED_TIME": "Tempo tracciato",
 			"SEE_PLANS": "Vedi piani",
-			"ADD_PLAN": "Aggiungi Piano"
+			"ADD_PLAN": "Aggiungi Piano",
+			"DELETE_THIS_PLAN": "Elimina questo piano"
 		},
 		"COPY_ISSUE_LINK": "Copia collegamento problema",
 		"MAKE_A_COPY": "Fai una copia",
@@ -646,7 +647,8 @@
 				"PLANNED_TIME": "Per favore, aggiungi il tempo pianificato",
 				"TASKS_ESTIMATION": "Per favore, stima tutte le attività",
 				"OPTIMIZE_PLAN": "Il tempo totale stimato supera il tempo pianificato, per favore ottimizza il tuo piano",
-				"PLAN_MORE_TASKS": "Per favore, aggiungi più attività al piano"
+				"PLAN_MORE_TASKS": "Per favore, aggiungi più attività al piano",
+				"PLEASE_ADD_TASKS": "Per favore, aggiungi attività"
 			}
 		},
 		"chang_active_task_popup": {
