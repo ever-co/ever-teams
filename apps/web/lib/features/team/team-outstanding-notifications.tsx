@@ -1,11 +1,11 @@
 'use client';
-import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
 import { IDailyPlan, IEmployee, IUser } from '@app/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { estimatedTotalTime } from '../task/daily-plan';
 import { HAS_VISITED_OUTSTANDING_TASKS } from '@app/constants';
 import moment from 'moment';
@@ -16,14 +16,13 @@ interface IEmployeeWithOutstanding {
 }
 
 export function TeamOutstandingNotifications() {
-	const { dailyPlan, getEmployeeDayPlans, outstandingPlans } = useDailyPlan();
-
+	const { dailyPlan, getAllDayPlans, outstandingPlans } = useDailyPlan();
+	const { activeTeam } = useOrganizationTeams();
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	useEffect(() => {
-		// getAllDayPlans();
-		getEmployeeDayPlans(user?.employee.id || '');
-	}, [getEmployeeDayPlans, user?.employee.id]);
+		getAllDayPlans();
+	}, [activeTeam, getAllDayPlans, outstandingPlans]);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -53,9 +52,10 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 
 	const [visible, setVisible] = useState(false);
 
-	const outStandingTasksCount = estimatedTotalTime(
-		outstandingPlans.map((plan) => plan.tasks?.map((task) => task))
-	).totalTasks;
+	const outStandingTasksCount = useMemo(
+		() => estimatedTotalTime(outstandingPlans.map((plan) => plan.tasks?.map((task) => task))).totalTasks,
+		[outstandingPlans]
+	);
 
 	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 
@@ -131,22 +131,26 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 
 	const [visible, setVisible] = useState(false);
 
-	const employeeWithOutstanding = outstandingTasks
-		.filter((plan) => plan.employeeId !== user?.employee.id)
-		.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+	const employeeWithOutstanding = useMemo(
+		() =>
+			outstandingTasks
+				.filter((plan) => plan.employeeId !== user?.employee.id)
+				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
 
-		.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0);
-			return planDate.getTime() <= today.getTime();
-		})
-		.map((plan) => ({
-			...plan,
-			tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-		}))
-		.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
-		.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee }));
+				.filter((plan) => {
+					const planDate = new Date(plan.date);
+					const today = new Date();
+					today.setHours(23, 59, 59, 0);
+					return planDate.getTime() <= today.getTime();
+				})
+				.map((plan) => ({
+					...plan,
+					tasks: plan.tasks?.filter((task) => task.status !== 'completed')
+				}))
+				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
+				.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee })),
+		[outstandingTasks, user?.employee.id]
+	);
 
 	const uniqueEmployees: IEmployeeWithOutstanding[] = employeeWithOutstanding.reduce(
 		(acc: IEmployeeWithOutstanding[], current) => {
