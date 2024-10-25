@@ -33,16 +33,20 @@ export function NavMain({
 	const { state } = useSidebar();
 	return (
 		<SidebarGroup>
-			<SidebarMenu className={cn(state === 'collapsed' ? 'items-center' : '', 'gap-y-4')}>
+			<SidebarMenu className={cn(state === 'collapsed' ? 'items-center' : '', 'gap-y-5')}>
 				{items.map((item) => (
 					<Collapsible key={item.title} asChild defaultOpen={item.isActive}>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip={item.title}>
+							<SidebarMenuButton
+								className="hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300"
+								asChild
+								tooltip={item.title}
+							>
 								<a href={item.url}>
 									<item.icon />
 									<span
 										className={cn(
-											'transition-all',
+											'transition-all font-medium',
 											state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
 										)}
 									>
@@ -59,14 +63,17 @@ export function NavMain({
 										</SidebarMenuAction>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
-										<SidebarMenuSub>
+										<SidebarMenuSub className={cn('flex flex-col gap-y-5')}>
 											{item.items?.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title}>
-													<SidebarMenuSubButton asChild>
+													<SidebarMenuSubButton
+														className="hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300"
+														asChild
+													>
 														<a href={subItem.url}>
 															<span
 																className={cn(
-																	'transition-all',
+																	'transition-all font-medium',
 																	state === 'collapsed'
 																		? 'opacity-0 hidden'
 																		: 'opacity-100'
