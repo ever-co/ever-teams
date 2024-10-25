@@ -63,7 +63,7 @@ export function NavMain({
 										</SidebarMenuAction>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
-										<SidebarMenuSub className={cn('flex flex-col gap-y-5')}>
+										<SidebarMenuSub className={cn('flex flex-col gap-y-3')}>
 											{item.items?.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title}>
 													<SidebarMenuSubButton
