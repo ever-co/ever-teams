@@ -7,24 +7,15 @@ import {
 	FolderKanban,
 	SquareActivity,
 	Command,
-	Frame,
 	GalleryVerticalEnd,
-	Map,
-	PieChart,
-	LifeBuoy,
-	Send,
 	Files
 } from 'lucide-react';
 
 import { EverTeamsLogo, SymbolAppLogo } from '@/lib/components/svgs';
 import { NavMain } from '@/components/nav-main';
-import { NavProjects } from '@/components/nav-projects';
-import { NavUser } from '@/components/nav-user';
-import { NavSecondary } from '@/components/nav-secondary';
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarFooter,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
