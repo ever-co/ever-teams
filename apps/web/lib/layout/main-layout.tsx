@@ -60,9 +60,9 @@ export function MainLayout({
 				<AppSidebar />
 
 				<SidebarInset>
-					<header className="flex flex-1 sticky z-50 my-auto inset-x-0 w-full  top-0 h-16 shrink-0 items-center justify-end gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+					<header className="flex max-h-fit flex-col flex-1 sticky z-50 my-auto inset-x-0 w-full  top-0 h-16 shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
 						<Navbar
-							className="flex items-center justify-end w-full h-full"
+							className="flex items-center justify-end w-full h-max"
 							showTimer={showTimer}
 							publicTeam={publicTeam || false}
 							notFound={notFound || false}
