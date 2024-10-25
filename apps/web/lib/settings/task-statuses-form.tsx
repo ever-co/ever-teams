@@ -31,6 +31,7 @@ export const TaskStatusesForm = ({
   const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
   const t = useTranslations();
   const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
+  const [randomColor, setRandomColor] = useState<string | undefined>(undefined);
 
   const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
     'open',
@@ -58,6 +59,7 @@ export const TaskStatusesForm = ({
     ...taskStatusIconList,
     ...taskSizesIconList,
     ...taskPrioritiesIconList
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   ],[]) ;
 
   const {
@@ -181,6 +183,12 @@ export const TaskStatusesForm = ({
     return color;
   }, []);
 
+  useEffect(() => {
+	if (!edit && selectedStatusType) {
+	  setRandomColor(getRandomColor());
+	}
+  }, [selectedStatusType, edit, getRandomColor]);
+
   return (
     <>
       <Modal isOpen={isOpen} closeModal={closeModal}>
@@ -261,7 +269,7 @@ export const TaskStatusesForm = ({
                       }
                     />
                     <ColorPicker
-                      defaultColor={edit ? edit.color : selectedStatusType ? getRandomColor() : undefined}
+                      defaultColor={edit ? edit.color : randomColor}
                       onChange={(color) => setValue('color', color)}
                       className=" shrink-0"
                     />
