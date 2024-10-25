@@ -5,7 +5,9 @@ const { MOBILE } = BREAKPOINTS;
 
 export function useIsMobile() {
 	const [isMobile, setIsMobile] = React.useState<boolean | undefined>(false);
-
+	if (typeof window === 'undefined') {
+		return false;
+	}
 	React.useEffect(() => {
 		const mql = window.matchMedia(`(max-width: ${MOBILE - 1}px)`);
 		const onChange = () => {
