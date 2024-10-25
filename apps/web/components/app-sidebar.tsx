@@ -63,7 +63,7 @@ const data = {
 	navMain: [
 		{
 			title: 'Dashboard',
-			url: '#',
+			url: '/',
 			icon: LayoutDashboard,
 			isActive: true
 		},
@@ -180,10 +180,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarTrigger
 				className={cn(
 					state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-					'absolute  top-[8%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
+					'absolute  top-[10.5%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
 				)}
 			/>
-			<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
+			<SidebarHeader className={cn('mb-[1.4rem]', state === 'collapsed' ? 'items-center' : '')}>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
@@ -191,7 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							size="lg"
 							asChild
 						>
-							<Link href="#">
+							<Link href="/">
 								<div className="flex items-center justify-center rounded-lg aspect-square size-8 text-sidebar-primary-foreground">
 									<SymbolAppLogo className="size-5" />
 								</div>

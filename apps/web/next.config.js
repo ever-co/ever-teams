@@ -75,160 +75,139 @@ const nextConfig = {
 			{
 				protocol: 'https',
 				hostname: 'dummyimage.com',
-				port: '',
-				pathname: ''
+				port: ''
 			},
-			{ protocol: 'https', hostname: 'res.cloudinary.com', port: '', pathname: '' },
+			{ protocol: 'https', hostname: 'res.cloudinary.com', port: '' },
 			{
 				protocol: 'https',
 				hostname: 'gauzy.sfo2.digitaloceanspaces.com',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'http',
 				hostname: 'localhost',
-				port: '3030',
-				pathname: ''
+				port: '3030'
 			},
 			{
 				protocol: 'http',
 				hostname: '127.0.0.1',
-				port: '3030',
-				pathname: ''
+				port: '3030'
 			},
 			{
 				// Remove this domain once the Backend Icons list is added
 				protocol: 'https',
 				hostname: 'cdn-icons-png.flaticon.com',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'api.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apida.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apicw.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apicivo.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidev.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidemo.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidemocw.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidemodt.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidemodts.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidemocivo.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidemoda.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apistage.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apistagecivo.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apistagecw.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apistageda.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apistagedt.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apistagedts.gauzy.co',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'api.ever.team',
-				port: '',
-				pathname: ''
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'app.ever.team',
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'apidev.ever.team',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'gauzy.s3.wasabisys.com',
-				port: '',
-				pathname: ''
+				port: ''
 			},
 			{
 				protocol: 'https',
 				hostname: 'gauzystage.s3.wasabisys.com',
-				port: '',
-				pathname: ''
+				port: ''
 			}
 		]
 	},

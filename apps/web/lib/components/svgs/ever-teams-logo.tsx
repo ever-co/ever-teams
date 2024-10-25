@@ -17,7 +17,7 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 					src={APP_LOGO_URL}
 					id="ever-teams-logo"
 					className={clsxm(
-						'cursor-pointer w-[128.104px] h-[25px]',
+						'cursor-pointer w-[128.104px] h-[25px] object-contain',
 						color === 'auto' && ['dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'],
 						color === 'white' && ['brightness-0 invert'],
 						color === 'dark' && ['brightness-0 invert-0'],
