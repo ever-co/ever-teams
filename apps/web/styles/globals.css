@@ -22,6 +22,12 @@ html.dark {
 }
 
 @layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 	html {
 		font-family: 'Poppins', sans-serif;
 	}
@@ -331,7 +337,6 @@ html.dark {
 
 .nivo-calendar .nivo-calendar-month-legend text {
 	@apply text-black font-bold text-sm;
-
 }
 
 @keyframes zoom-in-out {
@@ -389,14 +394,5 @@ html.dark {
 			-ms-overflow-style: auto;
 			scrollbar-width: auto;
 		}
-	}
-}
-
-@layer base {
-  * {
-    @apply border-border;
-	}
-  body {
-    @apply bg-background text-foreground;
 	}
 }
