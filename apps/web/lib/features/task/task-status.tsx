@@ -33,6 +33,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
+import { getTextColor } from '@app/helpers';
 import { cn } from '@/lib/utils';
 
 export type TStatusItem = {
@@ -854,7 +855,8 @@ export function TaskStatus({
 				className
 			)}
 			style={{
-				backgroundColor: active ? backgroundColor : undefined
+				backgroundColor: active ? backgroundColor : undefined,
+				color: getTextColor(backgroundColor ?? 'white')
 			}}
 		>
 			<div
@@ -1028,6 +1030,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										<Tooltip
 											enabled={hasBtnIcon && (value?.name || '').length > 10}
 											label={capitalize(value?.name) || ''}
+											className="h-full"
 										>
 											{button}
 										</Tooltip>

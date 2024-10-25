@@ -54,3 +54,8 @@ export function serverFetch<T>({
 		};
 	});
 }
+
+export async function svgFetch(url: string): Promise<Response> {
+	// Fetch the SVG
+	return await fetch(url);
+}

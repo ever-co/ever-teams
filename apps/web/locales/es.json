@@ -255,6 +255,8 @@
 		"MOVE_TO": "Mover a",
 		"SELECT_DATE": "Seleccionar fecha",
 		"SELECT_AND_CLOSE": "Seleccionar y cerrar",
+		"SORT": "Ordenar",
+		"ICON": "Ícono",
 		"SELECT_ROLE": "Por favor, selecciona un rol",
 		"ADD_TIME": "Agregar tiempo",
 		"VIEW_TIMESHEET": "Ver hoja de tiempo",
