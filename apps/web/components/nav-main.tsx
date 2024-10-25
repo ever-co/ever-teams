@@ -14,6 +14,7 @@ import {
 	SidebarMenuSubItem,
 	useSidebar
 } from '@/components/ui/sidebar';
+import Link from 'next/link';
 
 export function NavMain({
 	items
@@ -41,7 +42,7 @@ export function NavMain({
 								asChild
 								tooltip={item.title}
 							>
-								<a href={item.url}>
+								<Link href={item.url}>
 									<item.icon />
 									<span
 										className={cn(
@@ -51,7 +52,7 @@ export function NavMain({
 									>
 										{item.title}
 									</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 							{item.items?.length ? (
 								<>
@@ -69,7 +70,7 @@ export function NavMain({
 														className="hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300"
 														asChild
 													>
-														<a href={subItem.url}>
+														<Link href={subItem.url}>
 															<span
 																className={cn(
 																	'transition-all font-medium',
@@ -80,7 +81,7 @@ export function NavMain({
 															>
 																{subItem.title}
 															</span>
-														</a>
+														</Link>
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
 											))}
