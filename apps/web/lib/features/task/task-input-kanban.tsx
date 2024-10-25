@@ -169,9 +169,9 @@ export function TaskInputKanban(props: Props) {
   }, [editMode, setFilter]);
 
   /*
-		If task is passed then we don't want to set the active task for the authenticated user.
-		after task creation
-	 */
+    If task is passed then we don't want to set the active task for the authenticated user.
+    after task creation
+   */
   const handleTaskCreation = useCallback(async () => {
     /* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
     datas &&

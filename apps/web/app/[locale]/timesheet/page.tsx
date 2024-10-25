@@ -1,0 +1,120 @@
+"use client"
+import React, { useMemo } from 'react';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+
+import { withAuthentication } from 'lib/app/authenticator';
+import { Breadcrumb, Container, Divider } from 'lib/components';
+import { Footer, MainLayout } from 'lib/layout';
+
+import { useLocalStorageState, useOrganizationTeams } from '@app/hooks';
+import { clsxm } from '@app/utils';
+import { fullWidthState } from '@app/stores/fullWidth';
+import { useAtomValue } from 'jotai';
+import { ArrowLeftIcon } from 'assets/svg';
+import { CalendarView, TimesheetCard, TimesheetView } from './components';
+import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
+import { GrTask } from "react-icons/gr";
+
+type typeNavigator = "ListView" | "CalendarView"
+function TimeSheetPage() {
+    const t = useTranslations();
+    const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<typeNavigator>('typetimesheet', 'ListView');
+
+    const fullWidth = useAtomValue(fullWidthState);
+    const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+
+    const params = useParams<{ locale: string }>();
+    const currentLocale = params ? params.locale : null;
+    const breadcrumbPath = useMemo(
+        () => [
+            { title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+            { title: activeTeam?.name || '', href: '/' },
+            { title: 'Timesheet', href: `/${currentLocale}/timesheet` }
+        ],
+        [activeTeam?.name, currentLocale, t]
+    );
+    return (
+        < >
+            <MainLayout
+                showTimer={isTrackingEnabled}
+                footerClassName="hidden"
+                className="h-[calc(100vh-_22px)]">
+                <div className="top-14 fixed flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-gray-800 ">
+                    <Container fullWidth={fullWidth}>
+                        <div className="flex flex-row items-start justify-between mt-12 bg-white  dark:bg-dark-high">
+                            <div className="flex items-center justify-center h-10 gap-8">
+                                <ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+                                <Breadcrumb paths={breadcrumbPath} className="text-sm" />
+                            </div>
+                        </div>
+                    </Container>
+                </div>
+                <div className="h-full ">
+                    <Container fullWidth={fullWidth} className='h-full pt-14'>
+                        <div className='py-5'>
+                            <div className='flex flex-col justify-start items-start gap-y-2'>
+                                <h1 className='!text-[23px] font-bold text-[#282048]'>Good morning, Ruslan !</h1>
+                                <span className='text-[16px] text-[#3D5A80]'>This is your personal timesheet dashboard, showing you what needs your attention now.</span>
+                            </div>
+                            <div className='flex items-center w-full justify-between gap-6 pt-4'>
+                                <TimesheetCard
+                                    count={72}
+                                    title='Pending Tasks'
+                                    description='Tasks waiting for your approval'
+                                    icon={<GrTask className='text-[12px] font-bold' />}
+                                    classNameIcon='bg-[#FBB650] shadow-[#fbb75095]'
+                                />
+                                <TimesheetCard
+                                    hours='63:00h'
+                                    title='Men Hours'
+                                    date='10.04.2024 - 11.04.2024'
+                                    icon={<Clock className='text-[14px] text-white font-bold' />}
+                                    classNameIcon='bg-[#3D5A80] shadow-[#3d5a809c] '
+                                />
+                                <TimesheetCard
+                                    count={8}
+                                    title='Members Worked'
+                                    description='People worked since last time'
+                                    icon={<User2 className='text-[16px] font-bold' />}
+                                    classNameIcon='bg-[#30B366] shadow-[#30b3678f]'
+                                />
+                            </div>
+                        </div>
+                        <div className='border-b-2 border-b-[#E2E8F0] w-full  flex'>
+                            <button onClick={() => setTimesheetNavigator('ListView')} className={clsxm(`text-[#7E7991] font-medium w-[191px] h-[30px] flex items-center gap-x-4`, `${timesheetNavigator === 'ListView' && 'border-b-primary text-primary border-b-2'}`)}>
+                                <GrTask />
+                                <span>List View</span>
+                            </button>
+                            <button onClick={() => setTimesheetNavigator('CalendarView')} className={clsxm(`text-[#7E7991]  font-medium w-[191px] h-[30px] flex items-center gap-x-4`, `${timesheetNavigator === 'CalendarView' && 'border-b-primary text-primary border-b-2'}`)}>
+                                <CalendarDaysIcon />
+                                <span>Calendar View</span>
+                            </button>
+                        </div>
+                        {timesheetNavigator === 'ListView' ?
+                            <TimesheetView />
+                            : <CalendarView />
+                        }
+                    </Container>
+                </div>
+            </MainLayout>
+            <FooterTimeSheet fullWidth={fullWidth} />
+        </>
+    )
+}
+
+export default withAuthentication(TimeSheetPage, { displayName: 'TimeSheet' });
+
+
+const FooterTimeSheet = ({ fullWidth }: { fullWidth: boolean }) => {
+    return (
+        <div className="bg-white dark:bg-[#1e2025] w-screen z-[5000] fixed bottom-0">
+            <Divider />
+            <Footer
+                className={clsxm(
+                    'justify-between w-full px-0 mx-auto',
+                    fullWidth ? 'px-8' : 'x-container'
+                )} />
+        </div>
+    )
+}
