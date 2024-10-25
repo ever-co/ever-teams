@@ -13,8 +13,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Skeleton from 'react-loading-skeleton';
-import { useAtom, useAtomValue } from 'jotai';
-import { fullWidthState } from '@app/stores/fullWidth';
+import { useAtom } from 'jotai';
 
 const HeaderSkeleton = () => {
 	return (
@@ -49,7 +48,6 @@ export function Navbar({
 	const { isTeamMember } = useOrganizationTeams();
 	const [user] = useAtom(userState);
 	const { isOpen, closeModal, openModal } = useModal();
-	const fullWidth = useAtomValue(fullWidthState);
 
 	const pathname = usePathname();
 
@@ -66,7 +64,7 @@ export function Navbar({
 	) : (
 		<nav
 			className={clsxm(
-				'bg-white dark:bg-dark-high transition-all px-8 mt-auto !mx-0 w-full nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
+				'bg-white dark:bg-dark-high transition-all px-8 !mx-0 w-full nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
 				className
 			)}
 		>
