@@ -164,9 +164,15 @@ export const TaskStatusesForm = ({
    */
   const getIcon = useCallback((iconName: string) => {
 	const name = iconName == "ready-for-review" ? "ready" : iconName;
+	const icon =  iconList.find(icon => icon.title === name)
 
-	return iconList.find(icon => icon.title === name)
-  },[iconList])
+	if(icon){
+		setValue("icon", icon.path)
+	}
+
+	return icon
+
+  },[iconList, setValue])
 
 
   /**
