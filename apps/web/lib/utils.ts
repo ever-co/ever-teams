@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
-
+import React, { ReactNode } from 'react';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -76,4 +76,15 @@ export function checkPastDate(dateToBeChecked?: Date): boolean {
 	} else {
 		return false; // Return false if dateToBeChecked is not provided or is null or undefined.
 	}
+}
+export function isJSXElement(node: any | ReactNode): node is JSX.Element | JSX.Element[] {
+	if (React.isValidElement(node)) {
+		return true;
+	}
+
+	if (Array.isArray(node)) {
+		return node.every((item) => React.isValidElement(item));
+	}
+
+	return false;
 }

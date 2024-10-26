@@ -11,6 +11,7 @@ import {
 	Files
 } from 'lucide-react';
 
+import { TeamItem } from '@/lib/features/team/team-item';
 import { EverTeamsLogo, SymbolAppLogo } from '@/lib/components/svgs';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -22,150 +23,195 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 	SidebarTrigger,
-	useSidebar
+	useSidebar,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-
-// This is sample data.
-const data = {
-	user: {
-		name: 'evereq',
-		email: 'evereq@ever.co',
-		avatar: '/assets/svg/profile.svg'
-	},
-	teams: [
-		{
-			name: 'Strive Team',
-			logo: GalleryVerticalEnd,
-			plan: 'Enterprise'
-		},
-		{
-			name: 'Ever Websites',
-			logo: AudioWaveform,
-			plan: 'Startup'
-		},
-		{
-			name: 'Ever Team.',
-			logo: Command,
-			plan: 'Free'
-		}
-	],
-	navMain: [
-		{
-			title: 'Dashboard',
-			url: '/',
-			icon: LayoutDashboard,
-			isActive: true
-		},
-		{
-			title: 'Favorites',
-			url: '#',
-			icon: Heart,
-			items: [
-				{
-					title: 'Working on UI Design ...',
-					url: '#'
-				},
-				{
-					title: 'As a team manager, I ...',
-					url: '#'
-				},
-				{
-					title: 'As a team manager, I ...',
-					url: '#'
-				}
-			]
-		},
-		{
-			title: 'Tasks',
-			url: '#',
-			icon: Files,
-			items: [
-				{
-					title: "Team's Tasks",
-					url: '#'
-				},
-				{
-					title: 'My Tasks',
-					url: '#'
-				}
-			]
-		},
-		{
-			title: 'Projects',
-			url: '#',
-			icon: FolderKanban,
-			items: [
-				{
-					title: 'Teams',
-					url: '#'
-				},
-				{
-					title: 'Gauzy',
-					url: '#'
-				},
-				{
-					title: 'IQ',
-					url: '#'
-				}
-			]
-		},
-		{
-			title: 'My Works',
-			url: '#',
-			icon: MonitorSmartphone,
-			items: [
-				{
-					title: 'Time & Activity',
-					url: '#'
-				},
-				{
-					title: 'Work Diary',
-					url: '#'
-				}
-			]
-		},
-		{
-			title: 'Reports',
-			url: '#',
-			icon: SquareActivity,
-			items: [
-				{
-					title: 'Timesheets',
-					url: '#'
-				},
-				{
-					title: 'Manual Time Edit',
-					url: '#'
-				},
-				{
-					title: 'Weekly Limit',
-					url: '#'
-				},
-				{
-					title: 'Actual & Expected Hours',
-					url: '#'
-				},
-				{
-					title: 'Payments Due',
-					url: '#'
-				},
-				{
-					title: 'Project Budget',
-					url: '#'
-				},
-				{
-					title: 'Time & Activity',
-					url: '#'
-				}
-			]
-		}
-	]
-};
+import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
+import { useOrganizationTeams } from '@/app/hooks';
+import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
+import { SettingOutlineIcon } from '@/assets/svg';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
+	const { teams, isTeamManager } = useOrganizationTeams();
 	const { state } = useSidebar();
+	const { onChangeActiveTeam, activeTeam } = useActiveTeam();
+	// This is sample data.
+	const data = {
+		user: {
+			name: 'evereq',
+			email: 'evereq@ever.co',
+			avatar: '/assets/svg/profile.svg'
+		},
+		teams: [
+			{
+				name: 'Strive Team',
+				logo: GalleryVerticalEnd,
+				plan: 'Enterprise'
+			},
+			{
+				name: 'Ever Websites',
+				logo: AudioWaveform,
+				plan: 'Startup'
+			},
+			{
+				name: 'Ever Team.',
+				logo: Command,
+				plan: 'Free'
+			}
+		],
+		navMain: [
+			{
+				title: 'Dashboard',
+				url: '/',
+				icon: LayoutDashboard,
+				isActive: true,
+				label: 'dashboard'
+			},
+			{
+				title: 'Favorites',
+				url: '#',
+				icon: Heart,
+				label: 'favorites',
+				items: [
+					{
+						title: 'Working on UI Design ...',
+						url: '#'
+					},
+					{
+						title: 'As a team manager, I ...',
+						url: '#'
+					},
+					{
+						title: 'As a team manager, I ...',
+						url: '#'
+					}
+				]
+			},
+			{
+				title: 'Tasks',
+				url: '#',
+				icon: Files,
+				label: 'tasks',
+				items: [
+					{
+						title: "Team's Tasks",
+						url: '#'
+					},
+					{
+						title: 'My Tasks',
+						url: '#'
+					}
+				]
+			},
+			...(userManagedTeams && userManagedTeams.length > 0
+				? [
+						{
+							title: 'Projects',
+							label: 'projects',
+							url: '#',
+							icon: FolderKanban,
+							items: userManagedTeams.map((team, index) => ({
+								title: team.name,
+								url: '#',
+								component: (
+									<SidebarMenuSubButton
+										key={index}
+										className={cn(
+											'hover:bg-[#eaeef4] first:mt-2 last:mb-2 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
+											activeTeam?.name === team.name ? ' dark:bg-sidebar-accent bg-[#eaeef4]' : ''
+										)}
+										asChild
+									>
+										<Link
+											className="flex items-center justify-between w-full "
+											onClick={() => {
+												onChangeActiveTeam({
+													data: team
+												} as TeamItem);
+											}}
+											href="/"
+										>
+											<span className="max-w-[90%] flex items-center">
+												<TeamItem
+													title={team.name}
+													count={team.members?.length}
+													className={cn(
+														activeTeam?.name === team.name && 'font-medium',
+														'flex items-center !mb-0'
+													)}
+													logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+													color={team.color}
+												/>
+											</span>
+											<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
+										</Link>
+									</SidebarMenuSubButton>
+								)
+							}))
+						}
+					]
+				: []),
+			{
+				title: 'My Works',
+				url: '#',
+				icon: MonitorSmartphone,
+				items: [
+					{
+						title: 'Time & Activity',
+						url: '#'
+					},
+					{
+						title: 'Work Diary',
+						url: '#'
+					}
+				]
+			},
+			...(isTeamManager
+				? [
+						{
+							title: 'Reports',
+							url: '#',
+							icon: SquareActivity,
+							items: [
+								{
+									title: 'Timesheets',
+									url: '#'
+								},
+								{
+									title: 'Manual Time Edit',
+									url: '#'
+								},
+								{
+									title: 'Weekly Limit',
+									url: '#'
+								},
+								{
+									title: 'Actual & Expected Hours',
+									url: '#'
+								},
+								{
+									title: 'Payments Due',
+									url: '#'
+								},
+								{
+									title: 'Project Budget',
+									url: '#'
+								},
+								{
+									title: 'Time & Activity',
+									url: '#'
+								}
+							]
+						}
+					]
+				: [])
+		]
+	};
+
 	return (
 		<Sidebar className={cn('z-[9999]', state === 'collapsed' ? 'items-center' : '')} collapsible="icon" {...props}>
 			<SidebarTrigger
