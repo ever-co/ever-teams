@@ -26,7 +26,7 @@ type ViewToggleButtonProps = {
 
 function TimeSheetPage() {
     const t = useTranslations();
-    const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('typetimesheet', 'ListView');
+    const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
     const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
