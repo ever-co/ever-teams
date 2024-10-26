@@ -57,11 +57,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const t = useTranslations();
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
 	const { startTimer, timerStatus } = useTimerView();
-	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
+	const { activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const tasksEstimationTimes = useMemo(
 		() => (plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0),
 		[plan]
@@ -108,12 +107,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	/**
 	 * The function that close the Planned tasks modal when the user ignores the modal (Today's plan)
 	 */
-	const closeModalAndStartTimer = useCallback(() => {
-		handleCloseModal();
-		if (canStartWorking) {
-			startTimer();
+	const closeModalAndSubmit = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			// Update the plan work time only if the user changed it
+			plan &&
+				plan.workTimePlanned !== workTimePlanned &&
+				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+
+			setPlanEditState({ draft: false, saved: true });
+
+			handleCloseModal();
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
 		}
-	}, [canStartWorking, handleCloseModal, startTimer]);
+	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned]);
 
 	/**
 	 * The function that opens the Change task modal if conditions are met (or start the timer)
@@ -198,22 +209,28 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// Handle warning messages
 	useEffect(() => {
-		// First, check if there are tasks without estimates and show the corresponding warning
-		if (plan?.tasks?.find((task) => !task.estimate)) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+		// First,  Check if there are no tasks in the plan
+		if (!plan?.tasks || plan.tasks.length === 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS')); // New warning for no tasks
+		} else {
+			//Check if there are tasks without estimates and show the corresponding warning
+			if (plan.tasks.find((task) => !task.estimate)) {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+			}
+			// Next, check if no work time is planned or if planned time is invalid
+			else if (!workTimePlanned || workTimePlanned <= 0) {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+			}
+			// If the difference between planned and estimated times is significant, check further
+			else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+				checkPlannedAndEstimateTimeDiff();
+			}
+			// If all checks pass, clear the warning
+			else {
+				setWarning('');
+			}
 		}
-		// Next, check if no work time is planned or if planned time is invalid
-		else if (!workTimePlanned || workTimePlanned <= 0) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
-		}
-		// If the difference between planned and estimated times is significant, check further
-		else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
-			checkPlannedAndEstimateTimeDiff();
-		}
-		// If all checks pass, clear the warning
-		else {
-			setWarning('');
-		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, myDailyPlans]);
 
@@ -454,19 +471,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						</div>
 						<div className=" flex justify-between items-center">
 							<Button
-								disabled={
-									loading || isRenderedInSoftFlow
-										? canStartWorking && requirePlan
-										: timerStatus?.running
-											? canStartWorking && requirePlan && (planEditState.draft || warning)
-												? true
-												: false
-											: canStartWorking && requirePlan && Boolean(warning)
-								}
+								disabled={loading}
 								variant="outline"
 								type="submit"
 								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-								onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
+								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
 							</Button>
@@ -489,7 +498,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	return (
 		<>
 			{isRenderedInSoftFlow ? (
-				<Modal isOpen={isOpen} closeModal={closeModalAndStartTimer} showCloseIcon={requirePlan ? false : true}>
+				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon>
 					<Card className="w-[36rem]" shadow="custom">
 						{content}
 					</Card>

@@ -1,57 +1,30 @@
-import type React from 'react';
-import type * as PopperJS from '@popperjs/core';
-import { useCallback, useRef, useState } from 'react';
-import { usePopper } from 'react-popper';
+'use client';
 
-type TooltipProps = {
-	label: React.ReactElement;
-	placement?: PopperJS.Placement;
-	enterDelay?: number;
-	leaveDelay?: number;
-} & React.HTMLAttributes<HTMLDivElement>;
+import * as React from 'react';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
-const Tooltip: React.FC<TooltipProps> = (props) => {
-	const { children, label, enterDelay = 250, leaveDelay = 150, placement = 'bottom' } = props;
+import { cn } from '@/lib/utils';
 
-	const [isOpen, setIsOpen] = useState(false);
-	const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
-	const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-	const { styles, attributes } = usePopper(referenceElement, popperElement, {
-		placement,
-		modifiers: [{ name: 'offset', options: { offset: [0, 4] } }]
-	});
+const TooltipProvider = TooltipPrimitive.Provider;
 
-	const enterTimeout = useRef<NodeJS.Timeout>();
-	const leaveTimeout = useRef<NodeJS.Timeout>();
-	const handleMouseEnter = useCallback(() => {
-		leaveTimeout.current && clearTimeout(leaveTimeout.current);
-		enterTimeout.current = setTimeout(() => setIsOpen(true), enterDelay);
-	}, [enterDelay]);
-	const handleMouseLeave = useCallback(() => {
-		enterTimeout.current && clearTimeout(enterTimeout.current);
-		leaveTimeout.current = setTimeout(() => setIsOpen(false), leaveDelay);
-	}, [leaveDelay]);
+const Tooltip = TooltipPrimitive.Root;
 
-	return (
-		<div>
-			<div
-				ref={setReferenceElement}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-				className="relative"
-			>
-				{children}
-			</div>
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
-			<div
-				ref={setPopperElement}
-				style={styles.popper}
-				{...attributes.popper}
-				className={`transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'} mt-[5px]`}
-			>
-				{label}
-			</div>
-		</div>
-	);
-};
-export default Tooltip;
+const TooltipContent = React.forwardRef<
+	React.ElementRef<typeof TooltipPrimitive.Content>,
+	React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+	<TooltipPrimitive.Content
+		ref={ref}
+		sideOffset={sideOffset}
+		className={cn(
+			'z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+			className
+		)}
+		{...props}
+	/>
+));
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
