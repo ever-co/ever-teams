@@ -16,10 +16,17 @@ import { CalendarView, TimesheetCard, TimesheetView } from './components';
 import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from "react-icons/gr";
 
-type typeNavigator = "ListView" | "CalendarView"
+type TimesheetViewMode = "ListView" | "CalendarView"
+type ViewToggleButtonProps = {
+    mode: TimesheetViewMode;
+    active: boolean;
+    icon: React.ReactNode;
+    onClick: () => void;
+};
+
 function TimeSheetPage() {
     const t = useTranslations();
-    const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<typeNavigator>('typetimesheet', 'ListView');
+    const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('typetimesheet', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
     const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -82,14 +89,18 @@ function TimeSheetPage() {
                             </div>
                         </div>
                         <div className='border-b-2 border-b-[#E2E8F0] w-full  flex'>
-                            <button onClick={() => setTimesheetNavigator('ListView')} className={clsxm(`text-[#7E7991] font-medium w-[191px] h-[30px] flex items-center gap-x-4`, `${timesheetNavigator === 'ListView' && 'border-b-primary text-primary border-b-2'}`)}>
-                                <GrTask />
-                                <span>List View</span>
-                            </button>
-                            <button onClick={() => setTimesheetNavigator('CalendarView')} className={clsxm(`text-[#7E7991]  font-medium w-[191px] h-[30px] flex items-center gap-x-4`, `${timesheetNavigator === 'CalendarView' && 'border-b-primary text-primary border-b-2'}`)}>
-                                <CalendarDaysIcon />
-                                <span>Calendar View</span>
-                            </button>
+                            <ViewToggleButton
+                                icon={<GrTask />}
+                                mode='ListView'
+                                active={timesheetNavigator === 'ListView'}
+                                onClick={() => setTimesheetNavigator('ListView')}
+                            />
+                            <ViewToggleButton
+                                icon={<CalendarDaysIcon />}
+                                mode='CalendarView'
+                                active={timesheetNavigator === 'CalendarView'}
+                                onClick={() => setTimesheetNavigator('CalendarView')}
+                            />
                         </div>
                         {timesheetNavigator === 'ListView' ?
                             <TimesheetView />
@@ -118,3 +129,20 @@ const FooterTimeSheet = ({ fullWidth }: { fullWidth: boolean }) => {
         </div>
     )
 }
+const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
+    mode,
+    active,
+    icon,
+    onClick
+}) => (
+    <button
+        onClick={onClick}
+        className={clsxm(
+            'text-[#7E7991] font-medium w-[191px] h-[30px] flex items-center gap-x-4',
+            active && 'border-b-primary text-primary border-b-2'
+        )}
+    >
+        {icon}
+        <span>{mode === 'ListView' ? 'List View' : 'Calendar View'}</span>
+    </button>
+);

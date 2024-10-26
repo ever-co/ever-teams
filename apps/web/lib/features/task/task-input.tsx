@@ -237,7 +237,7 @@ export function TaskInput(props: Props) {
     If task is passed then we don't want to set the active task for the authenticated user.
     after task creation
    */
-  const autoActiveTask = props.task !== undefined ? false : true;
+  const autoActiveTask: boolean = props.task === undefined;
   const handleTaskCreation = useCallback(() => {
     /* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
     datas &&
@@ -323,13 +323,13 @@ export function TaskInput(props: Props) {
     setEditMode
   ]);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
-  const handlePopoverToggle = (popoverId: string) => {
+  const handlePopoverToggle = useCallback((popoverId: string) => {
     if (openPopoverId === popoverId) {
       setOpenPopoverId(null);
     } else {
       setOpenPopoverId(popoverId);
     }
-  };
+  }, [openPopoverId]);;
 
   // Handling Hotkeys
   const handleCommandKeySequence = useCallback(() => {
