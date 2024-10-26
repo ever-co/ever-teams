@@ -329,7 +329,7 @@ export function TaskInput(props: Props) {
     } else {
       setOpenPopoverId(popoverId);
     }
-  }, [openPopoverId]);;
+  }, [openPopoverId]);
 
   // Handling Hotkeys
   const handleCommandKeySequence = useCallback(() => {
