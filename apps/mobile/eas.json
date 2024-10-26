@@ -17,7 +17,6 @@
   },
   "submit": {
     "production": {
-      "production": {
 			"android": {
 				"track": "internal",
 				"releaseStatus": "draft",
@@ -30,6 +29,5 @@
 				"ascApiKeyPath": "./AuthKey_8A3H79GTF8.p8"
 			}
     }
-  }
   }
 }
