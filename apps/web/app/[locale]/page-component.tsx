@@ -84,7 +84,7 @@ function MainPage() {
 								)}
 								onResize={(size) => setHeaderSize(size)}
 							>
-								<div className="sticky z-50 bg-white dark:bg-dark-high">
+								<div className="sticky z-40 bg-white dark:bg-dark-high">
 									<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 										<div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
 											<div className="flex items-center justify-center h-10 gap-8">

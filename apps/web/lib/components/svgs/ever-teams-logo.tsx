@@ -1,6 +1,7 @@
 import { APP_LINK, APP_LOGO_URL } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import Image from 'next/image';
 import Link from 'next/link';
 
 type Props = IClassName<{
@@ -10,13 +11,13 @@ type Props = IClassName<{
 
 export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 	return (
-		<Link href={dash ? '/' : APP_LINK!} target="_self">
+		<Link href={dash ? '/' : APP_LINK!} target="_self" className="text-[#3E1DAD] dark:text-white">
 			{APP_LOGO_URL ? (
-				<img
+				<Image
 					src={APP_LOGO_URL}
 					id="ever-teams-logo"
 					className={clsxm(
-						'cursor-pointer',
+						'cursor-pointer w-[128.104px] h-[25px] object-contain',
 						color === 'auto' && ['dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'],
 						color === 'white' && ['brightness-0 invert'],
 						color === 'dark' && ['brightness-0 invert-0'],
@@ -25,8 +26,8 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 						className
 					)}
 					alt="EverTeams Logo"
-					width={128.104}
-					height={25}
+					width={350}
+					height={350}
 				/>
 			) : (
 				<svg
@@ -37,7 +38,7 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 					id="ever-teams-logo"
 					className={clsxm(
 						'cursor-pointer',
-						color === 'auto' && ['dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'],
+						color === 'auto' && ['dark:brightness-0 dark:invert !fill-[#3E1DAD] dark:fill-white'],
 						color === 'white' && ['brightness-0 invert'],
 						color === 'dark' && ['brightness-0 invert-0'],
 						color === 'white-black' && ['brightness-0 invert dark:invert-0 fill-white dark:fill-black'],
@@ -64,7 +65,7 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 							/>
 						</g>
 						<text
-							className="g-gauzy-text"
+							className="text-current g-gauzy-text"
 							transform="translate(292.794 3681.039)"
 							fontFamily="Fira Sans, sans-serif"
 							fontSize="21"
