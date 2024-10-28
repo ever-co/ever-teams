@@ -229,7 +229,9 @@
 		"ASSIGNEE": "Zessionar",
 		"CHANGE_RELATIONS": "Beziehungen ändern",
 		"SET_AS_NEXT": "Als nächstes festlegen",
-		"MOVE_TO": "Verschieben nach"
+		"MOVE_TO": "Verschieben nach",
+		"SELECT_DATE": "Datum auswählen",
+		"SELECT_AND_CLOSE": "Auswählen und schließen"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",

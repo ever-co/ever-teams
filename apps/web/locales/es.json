@@ -229,7 +229,9 @@
 		"ASSIGNEE": "Cesionario",
 		"CHANGE_RELATIONS": "Cambiar relaciones",
 		"SET_AS_NEXT": "Establecer como siguiente",
-		"MOVE_TO": "Mover a"
+		"MOVE_TO": "Mover a",
+		"SELECT_DATE": "Seleccionar fecha",
+		"SELECT_AND_CLOSE": "Seleccionar y cerrar"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",

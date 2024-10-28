@@ -229,7 +229,9 @@
 		"ASSIGNEE": "Assignee",
 		"CHANGE_RELATIONS": "Change relations",
 		"SET_AS_NEXT": "Set as next",
-		"MOVE_TO": "Move to"
+		"MOVE_TO": "Move to",
+		"SELECT_DATE": "Select date",
+		"SELECT_AND_CLOSE": "Select & Close"
 	},
 	"hotkeys": {
 		"HELP": "Help",

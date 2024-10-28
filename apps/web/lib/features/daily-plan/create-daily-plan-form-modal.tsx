@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { DailyPlanStatusEnum, IDailyPlanMode, IOrganizationTeamList, OT_Member } from '@app/interfaces';
 import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
 import { Avatar, Card, Modal, Text } from 'lib/components';
-import { imgTitle, tomorrowDate } from '@app/helpers';
+import { imgTitle, tomorrowDate, yesterdayDate } from '@app/helpers';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { Calendar } from '@components/ui/calendar';
@@ -16,6 +16,7 @@ import { Check } from 'lucide-react';
 import { cn } from 'lib/utils';
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@app/constants';
+import { useTranslations } from 'next-intl';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -39,7 +40,7 @@ export function CreateDailyPlanFormModal({
 	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
 		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
 	) as 'Select' | 'Select & Close';
-
+	const t = useTranslations();
 	const existingPlanDates = useMemo(
 		() => profileDailyPlans?.items?.map((plan) => new Date(plan.date)),
 		[profileDailyPlans.items]
@@ -92,6 +93,7 @@ export function CreateDailyPlanFormModal({
 				organizationId: user?.employee.organizationId
 			}).then(() => {
 				reset();
+				setIsOpen(false);
 			});
 		},
 		[
@@ -121,7 +123,7 @@ export function CreateDailyPlanFormModal({
 						{/* Form header */}
 						<div className="mb-3">
 							<Text.Heading as="h3" className="text-start">
-								Select Date
+								{t('common.SELECT_DATE')}
 							</Text.Heading>
 						</div>
 
@@ -151,7 +153,7 @@ export function CreateDailyPlanFormModal({
 									className="px-7 py-4 w-36 font-light rounded-md"
 									onClick={() => closeModal()}
 								>
-									Cancel
+									{t('common.CANCEL')}
 								</Button>
 								<div
 									className={clsxm(
@@ -197,7 +199,7 @@ export function CreateDailyPlanFormModal({
 													type="submit"
 													className="w-full text-xs"
 												>
-													Select
+													{t('common.SELECT')}
 												</Button>
 												<Button
 													disabled={createDailyPlanLoading}
@@ -207,7 +209,7 @@ export function CreateDailyPlanFormModal({
 													type="submit"
 													className="w-full text-xs"
 												>
-													Select & Close
+													{t('common.SELECT_AND_CLOSE')}
 												</Button>
 											</div>
 										</div>
@@ -238,7 +240,7 @@ const CustomCalendar = memo(function CustomCalendar({
 			selected={date}
 			onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
 			initialFocus
-			disabled={[...existingPlanDates, { from: new Date(1970, 1, 1), to: tomorrowDate }]}
+			disabled={[{ from: new Date(1970, 1, 1), to: yesterdayDate }]}
 			modifiers={{
 				booked: existingPlanDates
 			}}
@@ -290,12 +292,12 @@ function MembersList({
 									{(member?.employee?.user?.image?.thumbUrl ||
 										member?.employee?.user?.image?.fullUrl ||
 										member?.employee?.user?.imageUrl) &&
-										isValidUrl(
-											member?.employee?.user?.image?.thumbUrl ||
+									isValidUrl(
+										member?.employee?.user?.image?.thumbUrl ||
 											member?.employee?.user?.image?.fullUrl ||
 											member?.employee?.user?.imageUrl ||
 											''
-										) ? (
+									) ? (
 										<Avatar
 											size={36}
 											className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"

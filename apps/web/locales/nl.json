@@ -229,7 +229,9 @@
 		"ASSIGNEE": "Cessionaris",
 		"CHANGE_RELATIONS": "Verander relaties",
 		"SET_AS_NEXT": "Instellen als volgende",
-		"MOVE_TO": "Verplaatsen naar"
+		"MOVE_TO": "Verplaatsen naar",
+		"SELECT_DATE": "Selecteer datum",
+		"SELECT_AND_CLOSE": "Selecteren en sluiten"
 	},
 	"hotkeys": {
 		"HELP": "Help",
