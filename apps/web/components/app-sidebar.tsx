@@ -237,7 +237,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 									url: '#'
 								},
 								{
-									title: t('sidebar.MANUEL_TIME_EDIT'),
+									title: t('sidebar.MANUAL_TIME_EDIT'),
 									url: '#'
 								},
 								{
