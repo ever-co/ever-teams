@@ -1,5 +1,14 @@
 import * as React from 'react';
-import { MonitorSmartphone, LayoutDashboard, Heart, FolderKanban, SquareActivity, PlusIcon, Files } from 'lucide-react';
+import {
+	MonitorSmartphone,
+	LayoutDashboard,
+	Heart,
+	FolderKanban,
+	SquareActivity,
+	PlusIcon,
+	Files,
+	X
+} from 'lucide-react';
 
 import { TeamItem } from '@/lib/features/team/team-item';
 import { EverTeamsLogo, SymbolAppLogo } from '@/lib/components/svgs';
@@ -24,7 +33,7 @@ import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
 import { SettingOutlineIcon } from '@/assets/svg';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 import { Button } from '@/lib/components/button';
-import { CreateTeamModal } from '@/lib/features';
+import { CreateTeamModal, TaskIssueStatus } from '@/lib/features';
 import { useTranslations } from 'next-intl';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
@@ -32,7 +41,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { isTeamManager } = useOrganizationTeams();
-	const { favoriteTasks } = useFavoritesTask();
+	const { favoriteTasks, toggleFavorite } = useFavoritesTask();
 	const { state } = useSidebar();
 	const { onChangeActiveTeam, activeTeam } = useActiveTeam();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -59,15 +68,57 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				label: 'favorites',
 				items:
 					favoriteTasks && favoriteTasks.length > 0
-						? favoriteTasks.map((task) => {
-								return {
-									title: task.title,
-									url: `/tasks/${task.id}`
-								};
-							})
+						? favoriteTasks
+								.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
+								.map((task, index) => ({
+									title: task?.title,
+									url: '#',
+									component: (
+										<SidebarMenuSubButton
+											key={index}
+											className={cn(
+												'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300'
+											)}
+											asChild
+										>
+											<span className="flex items-center justify-between w-full min-w-fit">
+												<Link href={`/task/${task?.id}`} className="flex items-center">
+													{task && (
+														// Show task issue and task number
+														<TaskIssueStatus
+															showIssueLabels={false}
+															className={cn('w-full px-2 flex items-center gap-1 mr-1')}
+															task={task}
+														/>
+													)}
+													<span className={cn('font-normal flex items-center')}>
+														<small
+															className={cn(
+																'text-gray-300 text-nowrap whitespace-nowrap text-xs mr-1 font-normal'
+															)}
+														>
+															#{task?.taskNumber}
+														</small>
+														<span
+															className={cn(
+																'text-normal text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
+															)}
+														>
+															{task?.title}
+														</span>
+													</span>
+												</Link>
+												<X
+													className="w-5 h-5 cursor-pointer"
+													onClick={() => toggleFavorite(task)}
+												/>
+											</span>
+										</SidebarMenuSubButton>
+									)
+								}))
 						: [
 								{
-									title: 'No Favorites Yet',
+									title: t('common.NO_FAVORITE_TASK'),
 									url: '#',
 									label: 'no-task'
 								}
@@ -139,7 +190,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 										)
 									})),
 								{
-									title: 'No Project',
+									title: t('common.NO_PROJECT'),
 									url: '#',
 									component: (
 										<SidebarMenuSubButton asChild>

@@ -1,6 +1,7 @@
 import { useTeamTasks } from '@/app/hooks/features/useTeamTasks';
 import { ITeamTask } from '@/app/interfaces/ITask';
-import { useState } from 'react';
+import { useAtom } from 'jotai';
+import { favoriteTasksStorageAtom } from '@/app/stores/team-tasks';
 /**
  * A React hook that manages a list of favorite tasks for a team.
  *
@@ -15,21 +16,24 @@ import { useState } from 'react';
 
 export const useFavoritesTask = () => {
 	const { tasks } = useTeamTasks();
-	const [favoriteTasks, setFavoriteTasks] = useState<ITeamTask[]>([]);
+	const [favoriteTasks, setFavoriteTasks] = useAtom(favoriteTasksStorageAtom);
+
 	const toggleFavorite = (task: ITeamTask) => {
-		if (favoriteTasks.includes(task)) {
-			setFavoriteTasks((prev) => prev.filter((t) => t.id !== task.id));
-		} else {
+		setFavoriteTasks((prev) =>
+			prev.some((t) => t.id === task.id) ? prev.filter((t) => t.id !== task.id) : [...prev, task]
+		);
+	};
+
+	const isFavorite = (task: ITeamTask) => favoriteTasks.some((t) => t.id === task.id);
+
+	const addFavorite = (task: ITeamTask) => {
+		if (!isFavorite(task)) {
 			setFavoriteTasks((prev) => [...prev, task]);
 		}
 	};
-	const isFavorite = (task: ITeamTask) => favoriteTasks.includes(task);
-
-	const addFavorite = (task: ITeamTask) => {
-		toggleFavorite(task);
-	};
 
 	return {
+		tasks,
 		favoriteTasks,
 		toggleFavorite,
 		isFavorite,
