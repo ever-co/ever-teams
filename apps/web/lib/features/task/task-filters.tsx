@@ -226,9 +226,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-									statusFilters[k],
-									task['tags'].map((item) => item.name)
-								).length === statusFilters[k].length
+								statusFilters[k],
+								task['tags'].map((item) => item.name)
+							).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});

@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Panel",
+		"PROJECTS": "Projekty",
+		"FAVORITES": "Ulubione",
+		"TASKS": "Zadania",
+		"MY_TASKS": "Moje zadania",
+		"TEAMTASKS": "Zadania zespołu",
+		"MY_WORKS": "Moje prace",
+		"TIME_AND_ACTIVITY": "Czas i aktywność",
+		"WORK_DIARY": "Dziennik pracy",
+		"REPORTS": "Raporty",
+		"TIMESHEETS": "Karty czasu",
+		"MANUAL_TIME_EDIT": "Ręczna edycja czasu",
+		"WEEKLY_LIMIT": "Limit tygodniowy",
+		"ACTUAL_AND_EXPECTED_HOURS": "Rzeczywiste i oczekiwane godziny",
+		"PAYMENTS_DUE": "Należne płatności",
+		"PROJECT_BUDGET": "Budżet projektu"
+	},
 	"common": {
 		"ACCEPT": "Akceptuj",
 		"ACCEPTED": "Zaakceptowane",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Upublicznij",
 		"PRIVATE_TASK_LABEL": "Ustaw jako prywatne",
 		"CREATE_TASK": "Utwórz nowe zadanie",
+		"REMOVE_FAVORITE_TASK": "Usuń zadanie z ulubionych",
+		"ADD_FAVORITE_TASK": "Dodaj zadanie do ulubionych",
+		"NO_PROJECT": "Brak projektu",
+		"NO_FAVORITE_TASK": "Brak ulubionych zadań",
 		"LINK_TASK": "Wybierz powiązany problem",
 		"LINK": "Link",
 		"LINKS": "Linki",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Opis",
 		"CHILD_ISSUE_TASK": "Wybierz zadanie podrzędne",
 		"CREATE_TEAM": "Utwórz nowy zespół",
+		"CREATE_PROJECT": "Utwórz nowy projekt",
 		"ALL_TEAMS": "Wszystkie zespoły",
 		"VERIFY_ACCOUNT_MSG": "Zweryfikuj swoje konto przed rozpoczęciem korzystania z aplikacji",
 		"CREATE_ROLE": "Utwórz rolę",
@@ -229,7 +252,9 @@
 		"ASSIGNEE": "Cesjonariusz",
 		"CHANGE_RELATIONS": "Zmień relacje",
 		"SET_AS_NEXT": "Ustaw jako następny",
-		"MOVE_TO": "Przenieś do"
+		"MOVE_TO": "Przenieś do",
+		"SELECT_DATE": "Wybierz datę",
+		"SELECT_AND_CLOSE": "Wybierz i zamknij"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Cruscotto",
+		"PROJECTS": "Progetti",
+		"FAVORITES": "Preferiti",
+		"TASKS": "Compiti",
+		"MY_TASKS": "I miei compiti",
+		"TEAMTASKS": "Compiti del team",
+		"MY_WORKS": "I miei lavori",
+		"TIME_AND_ACTIVITY": "Tempo e attività",
+		"WORK_DIARY": "Diario di lavoro",
+		"REPORTS": "Report",
+		"TIMESHEETS": "Fogli di presenza",
+		"MANUAL_TIME_EDIT": "Modifica manuale del tempo",
+		"WEEKLY_LIMIT": "Limite settimanale",
+		"ACTUAL_AND_EXPECTED_HOURS": "Ore effettive e previste",
+		"PAYMENTS_DUE": "Pagamenti dovuti",
+		"PROJECT_BUDGET": "Budget di progetto"
+	},
 	"common": {
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Rendi pubblico",
 		"PRIVATE_TASK_LABEL": "Rendi privato",
 		"CREATE_TASK": "Crea Nuovo Compito",
+		"REMOVE_FAVORITE_TASK": "Rimuovi attività dai preferiti",
+		"ADD_FAVORITE_TASK": "Aggiungi attività ai preferiti",
+		"NO_PROJECT": "Nessun progetto",
+		"NO_FAVORITE_TASK": "Nessuna attività preferita ancora",
 		"LINK_TASK": "Seleziona Problema Correlato",
 		"LINK": "Collega",
 		"LINKS": "Collegamenti",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Descrizione",
 		"CHILD_ISSUE_TASK": "Seleziona Problema Figlio",
 		"CREATE_TEAM": "Crea Nuovo Team",
+		"CREATE_PROJECT": "Crea nuovo progetto",
 		"ALL_TEAMS": "Tutti i team",
 		"VERIFY_ACCOUNT_MSG": "Verifica il tuo account prima di iniziare ad utilizzare l'app",
 		"CREATE_ROLE": "Crea Ruolo",
@@ -229,7 +252,9 @@
 		"ASSIGNEE": "Assegnatario",
 		"CHANGE_RELATIONS": "Cambia relazioni",
 		"SET_AS_NEXT": "Imposta come successivo",
-		"MOVE_TO": "Sposta a"
+		"MOVE_TO": "Sposta a",
+		"SELECT_DATE": "Seleziona data",
+		"SELECT_AND_CLOSE": "Seleziona e chiudi"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

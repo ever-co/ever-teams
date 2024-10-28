@@ -256,8 +256,7 @@ export function DataTableTimeSheet() {
                                 <TableRow>
                                     <TableCell
                                         colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
+                                        className="h-24 text-center">
                                         No results.
                                     </TableCell>
                                 </TableRow>
@@ -417,7 +416,7 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
             <span className="capitalize font-bold !text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
                 {name}
             </span>
-            <div style={{display: 'none'}}>{description}</div>
+            <div style={{ display: 'none' }}>{description}</div>
         </div>
     );
 };

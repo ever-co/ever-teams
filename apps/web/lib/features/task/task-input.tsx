@@ -234,10 +234,10 @@ export function TaskInput(props: Props) {
   }, [editMode, setFilter]);
 
   /*
-		If task is passed then we don't want to set the active task for the authenticated user.
-		after task creation
-	 */
-  const autoActiveTask = props.task !== undefined ? false : true;
+    If task is passed then we don't want to set the active task for the authenticated user.
+    after task creation
+   */
+  const autoActiveTask: boolean = props.task === undefined;
   const handleTaskCreation = useCallback(() => {
     /* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
     datas &&
@@ -322,6 +322,14 @@ export function TaskInput(props: Props) {
     inputTaskTitle,
     setEditMode
   ]);
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
+  const handlePopoverToggle = useCallback((popoverId: string) => {
+    if (openPopoverId === popoverId) {
+      setOpenPopoverId(null);
+    } else {
+      setOpenPopoverId(popoverId);
+    }
+  }, [openPopoverId]);
 
   // Handling Hotkeys
   const handleCommandKeySequence = useCallback(() => {
@@ -424,7 +432,7 @@ export function TaskInput(props: Props) {
                 defaultIssueType
                   ? defaultIssueType.name
                   : (localStorage.getItem('lastTaskIssue') as ITaskIssue) ||
-                    null
+                  null
               }
             />
           )}
@@ -461,7 +469,9 @@ export function TaskInput(props: Props) {
   return viewType === 'one-view' ? (
     taskCard
   ) : (
-    <Popover className="relative z-20 w-full" ref={inputRef}>
+    <Popover
+      onClick={() => handlePopoverToggle('popover1')}
+      className="relative z-20 w-full" ref={inputRef}>
       <Tooltip
         label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
         placement="top"

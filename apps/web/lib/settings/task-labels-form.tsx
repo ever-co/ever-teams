@@ -132,9 +132,10 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
   return (
     <>
       <form
-        className="w-full"
+        className="w-full z-50"
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
+        onProgressCapture={(e) => e.stopPropagation()}
       >
         <div className="flex justify-center sm:justify-start">
           <div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
@@ -186,8 +187,8 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
                       active={
                         edit
                           ? (iconList.find(
-                              (icon) => icon.path === edit.icon
-                            ) as IIcon)
+                            (icon) => icon.path === edit.icon
+                          ) as IIcon)
                           : null
                       }
                     />

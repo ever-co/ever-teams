@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Отбори",
+	"sidebar": {
+		"DASHBOARD": "Табло",
+		"PROJECTS": "Проекти",
+		"FAVORITES": "Любими",
+		"TASKS": "Задачи",
+		"MY_TASKS": "Моите задачи",
+		"TEAMTASKS": "Задачи на екипа",
+		"MY_WORKS": "Моите работи",
+		"TIME_AND_ACTIVITY": "Време и активност",
+		"WORK_DIARY": "Работен дневник",
+		"REPORTS": "Доклади",
+		"TIMESHEETS": "Отчети за време",
+		"MANUAL_TIME_EDIT": "Ръчно редактиране на време",
+		"WEEKLY_LIMIT": "Седмичен лимит",
+		"ACTUAL_AND_EXPECTED_HOURS": "Реални и очаквани часове",
+		"PAYMENTS_DUE": "Дължими плащания",
+		"PROJECT_BUDGET": "Бюджет на проекта"
+	},
 	"common": {
 		"ACCEPT": "Приемам",
 		"ACCEPTED": "Приет",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Направи я публична",
 		"PRIVATE_TASK_LABEL": "Направи я частна",
 		"CREATE_TASK": "Създаване на нова задача",
+		"REMOVE_FAVORITE_TASK": "Премахване на задачата от любими",
+		"ADD_FAVORITE_TASK": "Добавяне на задачата към любими",
+		"NO_PROJECT": "Няма проект",
+		"NO_FAVORITE_TASK": "Няма любими задачи все още",
 		"LINK_TASK": "Избери свързан проблем",
 		"LINK": "Връзка",
 		"LINKS": "Връзки",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Описание",
 		"CHILD_ISSUE_TASK": "Избери детски проблем",
 		"CREATE_TEAM": "Създаване на нов отбор",
+		"CREATE_PROJECT": "Създаване на нов проект",
 		"ALL_TEAMS": "Всички екипи",
 		"VERIFY_ACCOUNT_MSG": "Моля, потвърдете профила си, преди да започнете да използвате приложението",
 		"CREATE_ROLE": "Създаване на роля",
@@ -229,7 +252,9 @@
 		"ASSIGNEE": "Назначен",
 		"CHANGE_RELATIONS": "Променете отношенията",
 		"SET_AS_NEXT": "Задайте като следващо",
-		"MOVE_TO": "Преместете в"
+		"MOVE_TO": "Преместете в",
+		"SELECT_DATE": "Изберете дата",
+		"SELECT_AND_CLOSE": "Изберете и затворете"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
