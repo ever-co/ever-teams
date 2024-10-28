@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever צוותים",
+	"sidebar": {
+		"DASHBOARD": "לוח מחוונים",
+		"PROJECTS": "פרויקטים",
+		"FAVORITES": "מועדפים",
+		"TASKS": "משימות",
+		"MY_TASKS": "המשימות שלי",
+		"TEAMTASKS": "משימות הצוות",
+		"MY_WORKS": "העבודות שלי",
+		"TIME_AND_ACTIVITY": "זמן ופעילות",
+		"WORK_DIARY": "יומן עבודה",
+		"REPORTS": "דוחות",
+		"TIMESHEETS": "גיליונות זמנים",
+		"MANUAL_TIME_EDIT": "עריכת זמן ידנית",
+		"WEEKLY_LIMIT": "מגבלה שבועית",
+		"ACTUAL_AND_EXPECTED_HOURS": "שעות בפועל וצפויות",
+		"PAYMENTS_DUE": "תשלומים מגיעים",
+		"PROJECT_BUDGET": "תקציב פרויקט"
+	},
 	"common": {
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
@@ -84,6 +102,10 @@
 		"PUBLIC_TASK_LABEL": "הפוך לפומבית",
 		"PRIVATE_TASK_LABEL": "הפוך לפרטית",
 		"CREATE_TASK": "צור משימה חדשה",
+		"REMOVE_FAVORITE_TASK": "הסר משימה מהמועדפים",
+		"ADD_FAVORITE_TASK": "הוסף משימה למועדפים",
+		"NO_PROJECT": "אין פרויקט",
+		"NO_FAVORITE_TASK": "אין משימות מועדפות עדיין",
 		"LINK_TASK": "בחר בעיה קשורה",
 		"LINK": "קישור",
 		"LINKS": "קישורים",
@@ -93,6 +115,7 @@
 		"DESCRIPTION": "תיאור",
 		"CHILD_ISSUE_TASK": "בחר בעיה ילדה",
 		"CREATE_TEAM": "צור צוות חדש",
+		"CREATE_PROJECT": "צור פרויקט חדש",
 		"ALL_TEAMS": "כל הקבוצות",
 		"VERIFY_ACCOUNT_MSG": "אנא אמת את החשבון שלך לפני שתתחיל להשתמש באפליקציה",
 		"CREATE_ROLE": "צור תפקיד",
@@ -229,7 +252,9 @@
 		"ASSIGNEE": "נמען",
 		"CHANGE_RELATIONS": "שנה יחסים",
 		"SET_AS_NEXT": "הגדר כהבא",
-		"MOVE_TO": "העבר אל"
+		"MOVE_TO": "העבר אל",
+		"SELECT_DATE": "בחר תאריך",
+		"SELECT_AND_CLOSE": "בחר וסגור"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

@@ -3,7 +3,7 @@
 import { useModal, useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { userState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { cn } from '@/lib/utils';
 import { RequestToJoinModal } from '@components/layout/header/request-to-join-modal';
 import Collaborate from '@components/shared/collaborate';
 import { Button, Container } from 'lib/components';
@@ -62,14 +62,9 @@ export function Navbar({
 	return !user && !notFound && !publicTeam ? (
 		<HeaderSkeleton />
 	) : (
-		<nav
-			className={clsxm(
-				'bg-white dark:bg-dark-high transition-all px-8 !mx-0 w-full nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
-				className
-			)}
-		>
+		<nav className={cn(className)}>
 			{!notFound && (
-				<div className="flex items-center gap-10 min-h-[90px]">
+				<div className="flex ml-auto items-center gap-10 min-h-[90px]">
 					{publicTeam && (
 						<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
 							{t('common.JOIN_REQUEST')}

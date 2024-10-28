@@ -33,6 +33,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
+import { cn } from '@/lib/utils';
 
 export type TStatusItem = {
 	id?: string;
@@ -488,7 +489,7 @@ export function EpicPropertiesDropdown({
 					value: task.id,
 					icon: (
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
+							<Square4OutlineIcon className="w-full mn-w-2 min-h-2 aspect-square max-w-[10px] text-white" />
 						</div>
 					)
 				};
@@ -857,7 +858,7 @@ export function TaskStatus({
 			}}
 		>
 			<div
-				className={clsxm(
+				className={cn(
 					'flex items-center space-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
 					titleClassName
 				)}
@@ -866,9 +867,9 @@ export function TaskStatus({
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
-						width="20px"
-						height="20px"
-						className={`fill-[${readableColorHex}]`}
+						width={20}
+						height={20}
+						className={cn(`fill-[${readableColorHex}]`)}
 					>
 						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
 					</svg>
@@ -952,7 +953,7 @@ export function StatusDropdown<T extends TStatusItem>({
 		bgColor: undefined,
 		icon: (
 			<span>
-				<CircleIcon className="h-4 w-4" />
+				<CircleIcon className="w-4 h-4" />
 			</span>
 		),
 		name: defaultItem
@@ -1087,7 +1088,7 @@ export function StatusDropdown<T extends TStatusItem>({
 														as={Fragment}
 														disabled={disabled}
 													>
-														<li className="cursor-pointer outline-none relative">
+														<li className="relative outline-none cursor-pointer">
 															<TaskStatus
 																showIcon={showIcon}
 																{...item}
@@ -1195,7 +1196,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		bgColor: undefined,
 		icon: (
 			<span>
-				<CircleIcon className="h-4 w-4" />
+				<CircleIcon className="w-4 h-4" />
 			</span>
 		),
 		name: defaultItem
@@ -1261,7 +1262,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 												as={Fragment}
 												disabled={disabled}
 											>
-												<li className="cursor-pointer outline-none relative">
+												<li className="relative outline-none cursor-pointer">
 													<TaskStatus
 														showIcon={showIcon}
 														{...item}

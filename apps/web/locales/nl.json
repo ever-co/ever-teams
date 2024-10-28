@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Dashboard",
+		"PROJECTS": "Projecten",
+		"FAVORITES": "Favorieten",
+		"TASKS": "Taken",
+		"MY_TASKS": "Mijn Taken",
+		"TEAMTASKS": "Taken van het Team",
+		"MY_WORKS": "Mijn Werk",
+		"TIME_AND_ACTIVITY": "Tijd & Activiteit",
+		"WORK_DIARY": "Werkdagboek",
+		"REPORTS": "Rapporten",
+		"TIMESHEETS": "Urenstaten",
+		"MANUAL_TIME_EDIT": "Handmatige Tijd Bewerken",
+		"WEEKLY_LIMIT": "Wekelijkse Limiet",
+		"ACTUAL_AND_EXPECTED_HOURS": "Werkelijke & Verwachte Uren",
+		"PAYMENTS_DUE": "Te Betalen Bedragen",
+		"PROJECT_BUDGET": "Projectbudget"
+	},
 	"common": {
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
@@ -86,6 +104,10 @@
 		"PUBLIC_TASK_LABEL": "Maak openbaar",
 		"PRIVATE_TASK_LABEL": "Maak privé",
 		"CREATE_TASK": "Nieuwe taak maken",
+		"REMOVE_FAVORITE_TASK": "Taak uit favorieten verwijderen",
+		"ADD_FAVORITE_TASK": "Taak toevoegen aan favorieten",
+		"NO_PROJECT": "Geen project",
+		"NO_FAVORITE_TASK": "Nog geen favoriete taak",
 		"LINK_TASK": "Gerelateerde kwestie selecteren",
 		"LINK": "Link",
 		"LINKS": "Links",
@@ -95,6 +117,7 @@
 		"DESCRIPTION": "Beschrijving",
 		"CHILD_ISSUE_TASK": "Selecteer onderliggend probleem",
 		"CREATE_TEAM": "Nieuw team maken",
+		"CREATE_PROJECT": "Nieuw project aanmaken",
 		"ALL_TEAMS": "Alle teams",
 		"VERIFY_ACCOUNT_MSG": "Verifieer uw account voordat u de app gaat gebruiken",
 		"CREATE_ROLE": "Rol maken",
@@ -229,7 +252,9 @@
 		"ASSIGNEE": "Cessionaris",
 		"CHANGE_RELATIONS": "Verander relaties",
 		"SET_AS_NEXT": "Instellen als volgende",
-		"MOVE_TO": "Verplaatsen naar"
+		"MOVE_TO": "Verplaatsen naar",
+		"SELECT_DATE": "Selecteer datum",
+		"SELECT_AND_CLOSE": "Selecteren en sluiten"
 	},
 	"hotkeys": {
 		"HELP": "Help",

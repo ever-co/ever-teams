@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Панель управления",
+		"PROJECTS": "Проекты",
+		"FAVORITES": "Избранное",
+		"TASKS": "Задачи",
+		"MY_TASKS": "Мои задачи",
+		"TEAMTASKS": "Задачи команды",
+		"MY_WORKS": "Мои работы",
+		"TIME_AND_ACTIVITY": "Время и активность",
+		"WORK_DIARY": "Рабочий дневник",
+		"REPORTS": "Отчеты",
+		"TIMESHEETS": "Табели учета рабочего времени",
+		"MANUAL_TIME_EDIT": "Ручное редактирование времени",
+		"WEEKLY_LIMIT": "Еженедельный лимит",
+		"ACTUAL_AND_EXPECTED_HOURS": "Фактические и ожидаемые часы",
+		"PAYMENTS_DUE": "Задолженность по платежам",
+		"PROJECT_BUDGET": "Бюджет проекта"
+	},
 	"common": {
 		"ACCEPT": "Принять",
 		"ACCEPTED": "Принято",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Сделать общедоступной",
 		"PRIVATE_TASK_LABEL": "Сделать закрытой",
 		"CREATE_TASK": "Создать новую задачу",
+		"REMOVE_FAVORITE_TASK": "Удалить задачу из избранного",
+		"ADD_FAVORITE_TASK": "Добавить задачу в избранное",
+		"NO_PROJECT": "Нет проекта",
+		"NO_FAVORITE_TASK": "Избранных задач пока нет",
 		"LINK_TASK": "Выбрать связанный вопрос",
 		"LINK": "Ссылка",
 		"LINKS": "Ссылки",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Описание",
 		"CHILD_ISSUE_TASK": "Выбрать дочерний вопрос",
 		"CREATE_TEAM": "Создать новую команду",
+		"CREATE_PROJECT": "Создать новый проект",
 		"ALL_TEAMS": "Все команды",
 		"VERIFY_ACCOUNT_MSG": "Пожалуйста, подтвердите свою учетную запись перед началом использования приложения",
 		"CREATE_ROLE": "Создать роль",
@@ -229,7 +252,9 @@
 		"ASSIGNEE": "Исполнитель",
 		"CHANGE_RELATIONS": "Изменить отношения",
 		"SET_AS_NEXT": "Установить следующим",
-		"MOVE_TO": "Переместить в"
+		"MOVE_TO": "Переместить в",
+		"SELECT_DATE": "Выберите дату",
+		"SELECT_AND_CLOSE": "Выбрать и закрыть"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

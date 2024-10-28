@@ -27,6 +27,7 @@ export function NavMain({
 		items?: {
 			title: string;
 			url: string;
+			component?: JSX.Element;
 		}[];
 	}[];
 }>) {
@@ -38,7 +39,10 @@ export function NavMain({
 					<Collapsible key={item.title} asChild defaultOpen={item.isActive}>
 						<SidebarMenuItem>
 							<SidebarMenuButton
-								className="hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300"
+								className={cn(
+									'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
+									state === 'collapsed' ? ' justify-center' : ''
+								)}
 								asChild
 								tooltip={item.title}
 							>
@@ -64,25 +68,27 @@ export function NavMain({
 									</CollapsibleTrigger>
 									<CollapsibleContent>
 										<SidebarMenuSub className={cn('flex flex-col gap-y-3')}>
-											{item.items?.map((subItem) => (
-												<SidebarMenuSubItem key={subItem.title}>
-													<SidebarMenuSubButton
-														className="hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300"
-														asChild
-													>
-														<Link href={subItem.url}>
-															<span
-																className={cn(
-																	'transition-all font-medium',
-																	state === 'collapsed'
-																		? 'opacity-0 hidden'
-																		: 'opacity-100'
-																)}
-															>
-																{subItem.title}
-															</span>
-														</Link>
-													</SidebarMenuSubButton>
+											{item.items.map((subItem, key) => (
+												<SidebarMenuSubItem key={key}>
+													{subItem?.component || (
+														<SidebarMenuSubButton
+															className="hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300"
+															asChild
+														>
+															<Link href={subItem.url}>
+																<span
+																	className={cn(
+																		'transition-all font-medium',
+																		state === 'collapsed'
+																			? 'opacity-0 hidden'
+																			: 'opacity-100'
+																	)}
+																>
+																	{subItem.title}
+																</span>
+															</Link>
+														</SidebarMenuSubButton>
+													)}
 												</SidebarMenuSubItem>
 											))}
 										</SidebarMenuSub>

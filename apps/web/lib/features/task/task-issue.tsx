@@ -15,28 +15,30 @@ import {
 } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
+const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
-		icon: <BugIcon className="w-full max-w-[12px] text-white" />,
+		icon: <BugIcon className={cn(defaultTaskClasses)} />,
 		name: 'Bug',
 		bgColor: '#923535',
 		className: 'min-w-[5rem]'
 	},
 	Task: {
-		icon: <Square4StackIcon className="w-full max-w-[12px] text-white" />,
+		icon: <Square4StackIcon className={cn(defaultTaskClasses)} />,
 		name: 'Task',
 		bgColor: '#5483BA',
 		className: 'min-w-[5rem]'
 	},
 	Story: {
-		icon: <NoteIcon className="w-full max-w-[12px] text-white" />,
+		icon: <NoteIcon className={cn(defaultTaskClasses)} />,
 		name: 'Story',
 		bgColor: '#66BB97',
 		className: 'min-w-[5rem]'
 	},
 	Epic: {
-		icon: <Square4OutlineIcon className="w-full max-w-[12px] text-white" />,
+		icon: <Square4OutlineIcon className={cn(defaultTaskClasses)} />,
 		name: 'Custom',
 		bgColor: '#8154BA',
 		className: 'min-w-[5rem]'
