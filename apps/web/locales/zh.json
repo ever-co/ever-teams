@@ -252,7 +252,9 @@
 		"ASSIGNEE": "受让人",
 		"CHANGE_RELATIONS": "更改关系",
 		"SET_AS_NEXT": "设置为下一个",
-		"MOVE_TO": "移动到"
+		"MOVE_TO": "移动到",
+		"SELECT_DATE": "选择日期",
+		"SELECT_AND_CLOSE": "选择并关闭"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

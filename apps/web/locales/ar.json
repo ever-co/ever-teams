@@ -234,7 +234,9 @@
 		"ASSIGNEE": "المسند إليه",
 		"CHANGE_RELATIONS": "تغيير العلاقات",
 		"SET_AS_NEXT": "تعيين كالتالي",
-		"MOVE_TO": "نقل إلى"
+		"MOVE_TO": "نقل إلى",
+		"SELECT_DATE": "اختر التاريخ",
+		"SELECT_AND_CLOSE": "اختر وأغلق"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

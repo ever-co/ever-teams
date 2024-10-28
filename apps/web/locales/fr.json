@@ -252,7 +252,9 @@
 		"ASSIGNEE": "Cessionnaire",
 		"CHANGE_RELATIONS": "Changer les relations",
 		"SET_AS_NEXT": "Définir comme suivant",
-		"MOVE_TO": "Déplacer vers"
+		"MOVE_TO": "Déplacer vers",
+		"SELECT_DATE": "Sélectionner la date",
+		"SELECT_AND_CLOSE": "Sélectionner et fermer"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
