@@ -7,7 +7,7 @@ import { PropsWithChildren } from 'react';
 import { Footer, Navbar } from '.';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { SidebarProvider, SidebarInset, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@components/app-sidebar';
 import MainSidebarTrigger from './MainSidebarTrigger';
 
