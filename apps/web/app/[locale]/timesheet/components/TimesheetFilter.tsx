@@ -11,6 +11,7 @@ export function TimesheetFilter() {
                 <FilterWithStatus
                     activeStatus="Rejected"
                     onToggle={(label) => {
+                        console.log(label)
                     }}
                 />
             </div>
