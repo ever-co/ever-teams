@@ -30,13 +30,15 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
-import { useOrganizationTeams } from '@/app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@/app/hooks';
 import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
 import { SettingOutlineIcon } from '@/assets/svg';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
-	const { teams, isTeamManager } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+	const username = user?.name || user?.firstName || user?.lastName || user?.username;
+	const { isTeamManager } = useOrganizationTeams();
 	const { state } = useSidebar();
 	const { onChangeActiveTeam, activeTeam } = useActiveTeam();
 	// This is sample data.
@@ -46,23 +48,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			email: 'evereq@ever.co',
 			avatar: '/assets/svg/profile.svg'
 		},
-		teams: [
-			{
-				name: 'Strive Team',
-				logo: GalleryVerticalEnd,
-				plan: 'Enterprise'
-			},
-			{
-				name: 'Ever Websites',
-				logo: AudioWaveform,
-				plan: 'Startup'
-			},
-			{
-				name: 'Ever Team.',
-				logo: Command,
-				plan: 'Free'
-			}
-		],
 		navMain: [
 			{
 				title: 'Dashboard',
@@ -99,11 +84,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				items: [
 					{
 						title: "Team's Tasks",
-						url: '#'
+						url: '/'
 					},
 					{
 						title: 'My Tasks',
-						url: '#'
+						url: `/profile/${user?.id}?name=${username || ''}`
 					}
 				]
 			},
@@ -114,44 +99,47 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							label: 'projects',
 							url: '#',
 							icon: FolderKanban,
-							items: userManagedTeams.map((team, index) => ({
-								title: team.name,
-								url: '#',
-								component: (
-									<SidebarMenuSubButton
-										key={index}
-										className={cn(
-											'hover:bg-[#eaeef4] first:mt-2 last:mb-2 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
-											activeTeam?.name === team.name ? ' dark:bg-sidebar-accent bg-[#eaeef4]' : ''
-										)}
-										asChild
-									>
-										<Link
-											className="flex items-center justify-between w-full "
-											onClick={() => {
-												onChangeActiveTeam({
-													data: team
-												} as TeamItem);
-											}}
-											href="/"
+							items: userManagedTeams
+								.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+								.map((team, index) => ({
+									title: team.name,
+									url: '#',
+									component: (
+										<SidebarMenuSubButton
+											key={index}
+											className={cn(
+												'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
+												activeTeam?.name === team.name
+													? ' dark:bg-sidebar-accent bg-[#eaeef4]'
+													: ''
+											)}
+											asChild
 										>
-											<span className="max-w-[90%] flex items-center">
-												<TeamItem
-													title={team.name}
-													count={team.members?.length}
-													className={cn(
-														activeTeam?.name === team.name && 'font-medium',
-														'flex items-center !mb-0'
-													)}
-													logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-													color={team.color}
-												/>
-											</span>
-											<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
-										</Link>
-									</SidebarMenuSubButton>
-								)
-							}))
+											<button
+												className="flex items-center justify-between w-full "
+												onClick={() => {
+													onChangeActiveTeam({
+														data: team
+													} as TeamItem);
+												}}
+											>
+												<span className="max-w-[90%] flex items-center">
+													<TeamItem
+														title={team.name}
+														count={team.members?.length}
+														className={cn(
+															activeTeam?.name === team.name && 'font-medium',
+															'flex items-center !mb-0'
+														)}
+														logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+														color={team.color}
+													/>
+												</span>
+												<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
+											</button>
+										</SidebarMenuSubButton>
+									)
+								}))
 						}
 					]
 				: []),

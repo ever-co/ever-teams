@@ -337,7 +337,6 @@ export function useOrganizationTeams() {
 		const $u = user;
 		const isM = members.find((member) => {
 			const isUser = member.employee.userId === $u?.id;
-			console.log('USER ROLE', user, member, member.role, member.role && member.role.name === 'MANAGER');
 			return isUser && member.role && member.role.name === 'MANAGER';
 		});
 		setIsTeamManager(!!isM);
@@ -444,7 +443,6 @@ export function useOrganizationTeams() {
 				!loadingTeamsRef.current && setTeamsUpdate(res.data);
 			});
 		}
-		isManager();
 	}, [
 		activeTeamId,
 		firstLoad,
@@ -493,6 +491,7 @@ export function useOrganizationTeams() {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
+		isManager();
 	}, [activeTeam]);
 
 	return {
