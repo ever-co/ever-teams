@@ -9,6 +9,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@components/app-sidebar';
+import MainSidebarTrigger from './MainSidebarTrigger';
 
 type Props = PropsWithChildren<{
 	title?: string;
@@ -57,18 +58,27 @@ export function MainLayout({
 
 			<Meta title={title} />
 			<SidebarProvider>
-				<AppSidebar />
+				<AppSidebar publicTeam={publicTeam || false} />
 
 				<SidebarInset>
-					<header className="flex max-h-fit flex-col flex-1 sticky z-50 my-auto inset-x-0 w-full  top-0 h-16 shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+					<header
+						className={cn(
+							'flex max-h-fit flex-col flex-1 sticky z-50 my-auto inset-x-0 w-full  top-0 h-16 shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 bg-white dark:bg-dark-high  !mx-0 nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
+							!fullWidth ? 'lg:px-8' : 'px-8'
+						)}
+					>
 						<Navbar
-							className="flex items-center justify-end w-full h-max"
+							className={cn(
+								'flex items-center justify-end w-full transition-all h-max',
+								!fullWidth ? 'x-container mx-auto' : '!mx-0'
+							)}
 							showTimer={showTimer}
 							publicTeam={publicTeam || false}
 							notFound={notFound || false}
 						/>
 					</header>
 					<div className={cn('flex flex-1 flex-col gap-4 p-4 h-max pt-5', className)}>
+						<MainSidebarTrigger />
 						<div className={cn('min-h-[100vh] flex-1', childrenClassName)}>{children}</div>
 					</div>
 					<Container
