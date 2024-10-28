@@ -15,12 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useMemo } from 'react';
-import {
-	AddDailyPlanWorkHourModal,
-	AddTasksEstimationHoursModal,
-	EnforcePlanedTaskModal,
-	SuggestDailyPlanModal
-} from '../daily-plan';
+import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
 
 export function Timer({ className }: IClassName) {
@@ -168,14 +163,6 @@ export function Timer({ className }: IClassName) {
 					/>
 				)}
 
-				{hasPlan && (
-					<AddDailyPlanWorkHourModal
-						isOpen={modals.isDailyPlanWorkHoursModalOpen}
-						closeModal={modals.dailyPlanWorkHoursCloseModal}
-						plan={hasPlan}
-					/>
-				)}
-
 				{/**
 				 * Track time on planned task (REQUIRE PLAN)
 				 */}
@@ -265,14 +252,6 @@ export function MinTimerFrame({ className }: IClassName) {
 					closeModal={modals.tasksEstimationHoursCloseModal}
 					plan={hasPlan}
 					tasks={hasPlan.tasks}
-				/>
-			)}
-
-			{hasPlan && (
-				<AddDailyPlanWorkHourModal
-					isOpen={modals.isDailyPlanWorkHoursModalOpen}
-					closeModal={modals.dailyPlanWorkHoursCloseModal}
-					plan={hasPlan}
 				/>
 			)}
 
