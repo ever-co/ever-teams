@@ -65,6 +65,7 @@ import {
 	SuggestDailyPlanModal
 } from '../daily-plan';
 import { SetAtom } from 'types';
+import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 
 type Props = {
 	active?: boolean;
@@ -543,6 +544,8 @@ function TaskCardMenu({
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
+
+	const { toggleFavorite, isFavorite } = useFavoritesTask();
 	const handleAssignment = useCallback(() => {
 		if (viewType === 'unassign') {
 			memberInfo?.assignTask(task);
@@ -613,6 +616,19 @@ function TaskCardMenu({
 										>
 											{t('common.TASK_DETAILS')}
 										</Link>
+									</li>
+									<li className="mb-2">
+										<span
+											onClick={() => toggleFavorite(task)}
+											className={clsxm(
+												'font-normal whitespace-nowrap transition-all',
+												'hover:font-semibold hover:transition-all'
+											)}
+										>
+											{isFavorite(task)
+												? t('common.REMOVE_FAVORITE_TASK')
+												: t('common.ADD_FAVORITE_TASK')}
+										</span>
 									</li>
 									<li className="mb-3">
 										<span

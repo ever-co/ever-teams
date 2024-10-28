@@ -101,7 +101,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 														</small>
 														<span
 															className={cn(
-																'text-normal text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
+																'!font-light text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
 															)}
 														>
 															{task?.title}
