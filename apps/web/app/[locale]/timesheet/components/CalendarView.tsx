@@ -2,7 +2,7 @@ import React from 'react'
 
 export function CalendarView() {
     return (
-        <div className='bg-red-300 h-screen w-full'>
+        <div className='grow h-full w-full bg-[#FFFFFF]'>
 
         </div>
     )

@@ -23,7 +23,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
         <Card
             aria-label={`Timesheet card for ${title}`}
             shadow='custom'
-            className='w-full h-[180px] rounded-md border border-gray-200 flex  gap-8 shadow shadow-gray-100 p-3'>
+            className='w-full h-[175px] rounded-md border border-gray-200 flex  gap-8 shadow shadow-gray-100 p-3'>
             <div className='!gap-8 w-full space-y-4 '>
                 <div className='flex flex-col gap-1 justify-start items-start'>
                     <h1 className='text-2xl md:text-[25px] font-bold truncate w-full'>{hours ?? count}</h1>
@@ -51,7 +51,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
             <Card
                 shadow='custom'
                 className={clsxm(
-                    'h-9 w-9',
+                    'h-7 w-7',
                     'flex items-center justify-center',
                     'text-white font-bold text-sm',
                     'shadow-lg',

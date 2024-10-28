@@ -12,9 +12,10 @@ import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 import { ArrowLeftIcon } from 'assets/svg';
-import { CalendarView, TimesheetCard, TimesheetView } from './components';
+import { CalendarView, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from "react-icons/gr";
+import { GoSearch } from "react-icons/go";
 
 type TimesheetViewMode = "ListView" | "CalendarView"
 type ViewToggleButtonProps = {
@@ -57,7 +58,7 @@ function TimeSheetPage() {
                         </div>
                     </Container>
                 </div>
-                <div className="h-full ">
+                <div className="h-full py-4 ">
                     <Container fullWidth={fullWidth} className='h-full pt-14'>
                         <div className='py-5'>
                             <div className='flex flex-col justify-start items-start gap-y-2'>
@@ -88,24 +89,38 @@ function TimeSheetPage() {
                                 />
                             </div>
                         </div>
-                        <div className='border-b-2 border-b-[#E2E8F0] w-full  flex'>
-                            <ViewToggleButton
-                                icon={<GrTask />}
-                                mode='ListView'
-                                active={timesheetNavigator === 'ListView'}
-                                onClick={() => setTimesheetNavigator('ListView')}
-                            />
-                            <ViewToggleButton
-                                icon={<CalendarDaysIcon />}
-                                mode='CalendarView'
-                                active={timesheetNavigator === 'CalendarView'}
-                                onClick={() => setTimesheetNavigator('CalendarView')}
-                            />
+                        <div className='border-b-2 border-b-[#E2E8F0] w-full  flex justify-between pt-2'>
+                            <div className='w-full flex'>
+                                <ViewToggleButton
+                                    icon={<GrTask className='text-sm' />}
+                                    mode='ListView'
+                                    active={timesheetNavigator === 'ListView'}
+                                    onClick={() => setTimesheetNavigator('ListView')}
+                                />
+                                <ViewToggleButton
+                                    icon={<CalendarDaysIcon size={20} className='!text-sm' />}
+                                    mode='CalendarView'
+                                    active={timesheetNavigator === 'CalendarView'}
+                                    onClick={() => setTimesheetNavigator('CalendarView')}
+                                />
+                            </div>
+                            <div className='flex items-center h-9 w-[700px] bg-white gap-x-2 px-2 border border-gray-200 rounded-sm mb-2'>
+                                <GoSearch className='text-[#7E7991]' />
+                                <input
+                                    className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 outline-none"
+                                    placeholder="Search.." />
+                            </div>
                         </div>
-                        {timesheetNavigator === 'ListView' ?
-                            <TimesheetView />
-                            : <CalendarView />
-                        }
+                        {/* <DropdownMenuDemo /> */}
+                        <div className='flex flex-col min-h-screen w-full border-1 rounded-lg bg-[#FFFFFF]  p-4 mt-4'>
+                            <TimesheetFilter />
+                            <div className='pt-4'>
+                                {timesheetNavigator === 'ListView' ?
+                                    <TimesheetView />
+                                    : <CalendarView />
+                                }
+                            </div>
+                        </div>
                     </Container>
                 </div>
             </MainLayout>
@@ -138,10 +153,9 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
     <button
         onClick={onClick}
         className={clsxm(
-            'text-[#7E7991] font-medium w-[191px] h-[30px] flex items-center gap-x-4',
-            active && 'border-b-primary text-primary border-b-2'
-        )}
-    >
+            'text-[#7E7991]  font-medium w-[191px] h-[40px] flex items-center gap-x-4 text-[14px]',
+            active && 'border-b-primary text-primary border-b-2 bg-[#F1F5F9]'
+        )}>
         {icon}
         <span>{mode === 'ListView' ? 'List View' : 'Calendar View'}</span>
     </button>

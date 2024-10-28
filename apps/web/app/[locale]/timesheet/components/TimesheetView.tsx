@@ -1,9 +1,10 @@
+import { DataTableTimeSheet } from 'lib/features/integrations/calendar'
 import React from 'react'
 
 export function TimesheetView() {
     return (
-        <div className='bg-black h-screen w-full'>
-
+        <div className='grow h-full w-full bg-[#FFFFFF]'>
+            <DataTableTimeSheet />
         </div>
     )
 }

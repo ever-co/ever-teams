@@ -47,8 +47,6 @@ export function SetupFullCalendar() {
             extendedProps: {
                 icon: <PiTimerBold className="inline-block mr-1 text-[#16a34a]" />,
             },
-
-
         },
         {
             id: '13',
