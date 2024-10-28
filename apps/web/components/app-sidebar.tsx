@@ -1,15 +1,5 @@
 import * as React from 'react';
-import {
-	AudioWaveform,
-	MonitorSmartphone,
-	LayoutDashboard,
-	Heart,
-	FolderKanban,
-	SquareActivity,
-	Command,
-	GalleryVerticalEnd,
-	Files
-} from 'lucide-react';
+import { MonitorSmartphone, LayoutDashboard, Heart, FolderKanban, SquareActivity, PlusIcon, Files } from 'lucide-react';
 
 import { TeamItem } from '@/lib/features/team/team-item';
 import { EverTeamsLogo, SymbolAppLogo } from '@/lib/components/svgs';
@@ -24,23 +14,29 @@ import {
 	SidebarRail,
 	SidebarTrigger,
 	useSidebar,
-	SidebarMenuSubButton,
-	SidebarMenuSubItem
+	SidebarMenuSubButton
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
-import { useAuthenticateUser, useOrganizationTeams } from '@/app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/app/hooks';
 import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
 import { SettingOutlineIcon } from '@/assets/svg';
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
+import { Button } from '@/lib/components/button';
+import { CreateTeamModal } from '@/lib/features';
+import { useTranslations } from 'next-intl';
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
+export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { user } = useAuthenticateUser();
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { isTeamManager } = useOrganizationTeams();
+	const { favoriteTasks } = useFavoritesTask();
 	const { state } = useSidebar();
 	const { onChangeActiveTeam, activeTeam } = useActiveTeam();
+	const { isOpen, closeModal, openModal } = useModal();
+	const t = useTranslations();
 	// This is sample data.
 	const data = {
 		user: {
@@ -50,44 +46,45 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		navMain: [
 			{
-				title: 'Dashboard',
+				title: t('sidebar.DASHBOARD'),
 				url: '/',
 				icon: LayoutDashboard,
 				isActive: true,
 				label: 'dashboard'
 			},
 			{
-				title: 'Favorites',
+				title: t('sidebar.FAVORITES'),
 				url: '#',
 				icon: Heart,
 				label: 'favorites',
-				items: [
-					{
-						title: 'Working on UI Design ...',
-						url: '#'
-					},
-					{
-						title: 'As a team manager, I ...',
-						url: '#'
-					},
-					{
-						title: 'As a team manager, I ...',
-						url: '#'
-					}
-				]
+				items:
+					favoriteTasks && favoriteTasks.length > 0
+						? favoriteTasks.map((task) => {
+								return {
+									title: task.title,
+									url: `/tasks/${task.id}`
+								};
+							})
+						: [
+								{
+									title: 'No Favorites Yet',
+									url: '#',
+									label: 'no-task'
+								}
+							]
 			},
 			{
-				title: 'Tasks',
+				title: t('sidebar.TASKS'),
 				url: '#',
 				icon: Files,
 				label: 'tasks',
 				items: [
 					{
-						title: "Team's Tasks",
+						title: t('sidebar.TEAMTASKS'),
 						url: '/'
 					},
 					{
-						title: 'My Tasks',
+						title: t('sidebar.MY_TASKS'),
 						url: `/profile/${user?.id}?name=${username || ''}`
 					}
 				]
@@ -95,65 +92,84 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			...(userManagedTeams && userManagedTeams.length > 0
 				? [
 						{
-							title: 'Projects',
+							title: t('sidebar.PROJECTS'),
 							label: 'projects',
 							url: '#',
 							icon: FolderKanban,
-							items: userManagedTeams
-								.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-								.map((team, index) => ({
-									title: team.name,
+							items: [
+								...userManagedTeams
+									.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+									.map((team, index) => ({
+										title: team.name,
+										url: '#',
+										component: (
+											<SidebarMenuSubButton
+												key={index}
+												className={cn(
+													'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
+													activeTeam?.name === team.name
+														? ' dark:bg-sidebar-accent bg-[#eaeef4]'
+														: ''
+												)}
+												asChild
+											>
+												<button
+													className="flex items-center justify-between w-full min-w-fit"
+													onClick={() => {
+														onChangeActiveTeam({
+															data: team
+														} as TeamItem);
+													}}
+												>
+													<span className="max-w-[90%] flex items-center">
+														<TeamItem
+															title={team.name}
+															count={team.members?.length}
+															className={cn(
+																activeTeam?.name === team.name && 'font-medium',
+																'flex items-center !mb-0'
+															)}
+															logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+															color={team.color}
+														/>
+													</span>
+													<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
+												</button>
+											</SidebarMenuSubButton>
+										)
+									})),
+								{
+									title: 'No Project',
 									url: '#',
 									component: (
-										<SidebarMenuSubButton
-											key={index}
-											className={cn(
-												'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
-												activeTeam?.name === team.name
-													? ' dark:bg-sidebar-accent bg-[#eaeef4]'
-													: ''
-											)}
-											asChild
-										>
-											<button
-												className="flex items-center justify-between w-full "
-												onClick={() => {
-													onChangeActiveTeam({
-														data: team
-													} as TeamItem);
-												}}
+										<SidebarMenuSubButton asChild>
+											<Button
+												className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
+												variant="outline"
+												onClick={openModal}
+												disabled={!user?.isEmailVerified}
 											>
-												<span className="max-w-[90%] flex items-center">
-													<TeamItem
-														title={team.name}
-														count={team.members?.length}
-														className={cn(
-															activeTeam?.name === team.name && 'font-medium',
-															'flex items-center !mb-0'
-														)}
-														logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-														color={team.color}
-													/>
-												</span>
-												<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
-											</button>
+												<PlusIcon className="w-4 h-4" />
+												{t('common.CREATE_PROJECT')}
+											</Button>
 										</SidebarMenuSubButton>
 									)
-								}))
+								}
+							]
 						}
 					]
 				: []),
 			{
-				title: 'My Works',
+				title: t('sidebar.MY_WORKS'),
 				url: '#',
 				icon: MonitorSmartphone,
 				items: [
 					{
-						title: 'Time & Activity',
+						title: t('sidebar.TIME_AND_ACTIVITY'),
 						url: '#'
 					},
 					{
-						title: 'Work Diary',
+						title: t('sidebar.WORK_DIARY'),
 						url: '#'
 					}
 				]
@@ -161,36 +177,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			...(isTeamManager
 				? [
 						{
-							title: 'Reports',
+							title: t('sidebar.REPORTS'),
 							url: '#',
 							icon: SquareActivity,
 							items: [
 								{
-									title: 'Timesheets',
+									title: t('sidebar.TIMESHEETS'),
 									url: '#'
 								},
 								{
-									title: 'Manual Time Edit',
+									title: t('sidebar.MANUEL_TIME_EDIT'),
 									url: '#'
 								},
 								{
-									title: 'Weekly Limit',
+									title: t('sidebar.WEEKLY_LIMIT'),
 									url: '#'
 								},
 								{
-									title: 'Actual & Expected Hours',
+									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
 									url: '#'
 								},
 								{
-									title: 'Payments Due',
+									title: t('sidebar.PAYMENTS_DUE'),
 									url: '#'
 								},
 								{
-									title: 'Project Budget',
+									title: t('sidebar.PROJECT_BUDGET'),
 									url: '#'
 								},
 								{
-									title: 'Time & Activity',
+									title: t('sidebar.TIME_AND_ACTIVITY'),
 									url: '#'
 								}
 							]
@@ -201,35 +217,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	};
 
 	return (
-		<Sidebar className={cn('z-[9999]', state === 'collapsed' ? 'items-center' : '')} collapsible="icon" {...props}>
-			<SidebarTrigger
-				className={cn(
-					state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-					'absolute  top-[10.5%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
-				)}
-			/>
-			<SidebarHeader className={cn('mb-[1.4rem]', state === 'collapsed' ? 'items-center' : '')}>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							className={cn(state === 'collapsed' ? 'items-center justify-center' : '')}
-							size="lg"
-							asChild
-						>
-							<Link href="/">
-								<div className="flex items-center justify-center rounded-lg aspect-square size-8 text-sidebar-primary-foreground">
-									<SymbolAppLogo className="size-5" />
-								</div>
-								{state === 'expanded' && <EverTeamsLogo dash />}
-							</Link>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarHeader>
-			<SidebarContent>
-				<NavMain items={data.navMain} />
-			</SidebarContent>
-			<SidebarRail />
-		</Sidebar>
+		<>
+			<Sidebar
+				className={cn('z-[9999]', state === 'collapsed' ? 'items-center' : '')}
+				collapsible="icon"
+				{...props}
+			>
+				<SidebarTrigger
+					className={cn(
+						state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
+						'absolute  top-[10.5%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
+					)}
+				/>
+				<SidebarHeader className={cn('mb-[1.4rem]', state === 'collapsed' ? 'items-center' : '')}>
+					<SidebarMenu>
+						<SidebarMenuItem>
+							<SidebarMenuButton
+								className={cn(state === 'collapsed' ? 'items-center justify-center' : '')}
+								size="lg"
+								asChild
+							>
+								<Link href="/">
+									<div className="flex items-center justify-center rounded-lg aspect-square size-8 text-sidebar-primary-foreground">
+										<SymbolAppLogo className="size-5" />
+									</div>
+									{state === 'expanded' && <EverTeamsLogo dash />}
+								</Link>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					</SidebarMenu>
+				</SidebarHeader>
+				<SidebarContent>
+					<NavMain items={data.navMain} />
+				</SidebarContent>
+				<SidebarRail />
+			</Sidebar>
+
+			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
+		</>
 	);
 }

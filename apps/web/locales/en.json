@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Dashboard",
+		"PROJECTS": "Projects",
+		"FAVORITES": "Favorites",
+		"TASKS": "Tasks",
+		"MY_TASKS": "My Tasks",
+		"TEAMTASKS": "Team's Tasks",
+		"MY_WORKS": "My Works",
+		"TIME_AND_ACTIVITY": "Time & Activity",
+		"WORK_DIARY": "Work Diary",
+		"REPORTS": "Reports",
+		"TIMESHEETS": "Timesheets",
+		"MANUEL_TIME_EDIT": "Manual Time Edit",
+		"WEEKLY_LIMIT": "Weekly Limit",
+		"ACTUAL_AND_EXPECTED_HOURS": "Actual & Expected Hours",
+		"PAYMENTS_DUE": "Payments Due",
+		"PROJECT_BUDGET": "Project Budget"
+	},
 	"common": {
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
@@ -94,6 +112,7 @@
 		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Select Child Issue",
 		"CREATE_TEAM": "Create New Team",
+		"CREATE_PROJECT": "Create New Project",
 		"ALL_TEAMS": "All Teams",
 		"VERIFY_ACCOUNT_MSG": "Please Verify your account before start using the app",
 		"CREATE_ROLE": "Create Role",

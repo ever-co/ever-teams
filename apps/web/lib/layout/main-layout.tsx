@@ -58,7 +58,7 @@ export function MainLayout({
 
 			<Meta title={title} />
 			<SidebarProvider>
-				<AppSidebar />
+				<AppSidebar publicTeam={publicTeam || false} />
 
 				<SidebarInset>
 					<header

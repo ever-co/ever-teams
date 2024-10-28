@@ -1,5 +1,23 @@
 {
 	"TITLE": "永恒团队",
+	"sidebar": {
+		"DASHBOARD": "仪表板",
+		"PROJECTS": "项目",
+		"FAVORITES": "收藏夹",
+		"TASKS": "任务",
+		"MY_TASKS": "我的任务",
+		"TEAMTASKS": "团队任务",
+		"MY_WORKS": "我的工作",
+		"TIME_AND_ACTIVITY": "时间和活动",
+		"WORK_DIARY": "工作日志",
+		"REPORTS": "报告",
+		"TIMESHEETS": "时间表",
+		"MANUEL_TIME_EDIT": "手动时间编辑",
+		"WEEKLY_LIMIT": "每周限制",
+		"ACTUAL_AND_EXPECTED_HOURS": "实际和预期小时",
+		"PAYMENTS_DUE": "到期付款",
+		"PROJECT_BUDGET": "项目预算"
+	},
 	"common": {
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
@@ -95,6 +113,7 @@
 		"DESCRIPTION": "描述",
 		"CHILD_ISSUE_TASK": "选择子议题",
 		"CREATE_TEAM": "创建新团队",
+		"CREATE_PROJECT": "创建新项目",
 		"ALL_TEAMS": "所有团队",
 		"VERIFY_ACCOUNT_MSG": "使用应用前请先验证您的账户",
 		"CREATE_ROLE": "创建角色",

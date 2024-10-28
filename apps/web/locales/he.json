@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever צוותים",
+	"sidebar": {
+		"DASHBOARD": "לוח מחוונים",
+		"PROJECTS": "פרויקטים",
+		"FAVORITES": "מועדפים",
+		"TASKS": "משימות",
+		"MY_TASKS": "המשימות שלי",
+		"TEAMTASKS": "משימות הצוות",
+		"MY_WORKS": "העבודות שלי",
+		"TIME_AND_ACTIVITY": "זמן ופעילות",
+		"WORK_DIARY": "יומן עבודה",
+		"REPORTS": "דוחות",
+		"TIMESHEETS": "גיליונות זמנים",
+		"MANUEL_TIME_EDIT": "עריכת זמן ידנית",
+		"WEEKLY_LIMIT": "מגבלה שבועית",
+		"ACTUAL_AND_EXPECTED_HOURS": "שעות בפועל וצפויות",
+		"PAYMENTS_DUE": "תשלומים מגיעים",
+		"PROJECT_BUDGET": "תקציב פרויקט"
+	},
 	"common": {
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
@@ -93,6 +111,7 @@
 		"DESCRIPTION": "תיאור",
 		"CHILD_ISSUE_TASK": "בחר בעיה ילדה",
 		"CREATE_TEAM": "צור צוות חדש",
+		"CREATE_PROJECT": "צור פרויקט חדש",
 		"ALL_TEAMS": "כל הקבוצות",
 		"VERIFY_ACCOUNT_MSG": "אנא אמת את החשבון שלך לפני שתתחיל להשתמש באפליקציה",
 		"CREATE_ROLE": "צור תפקיד",

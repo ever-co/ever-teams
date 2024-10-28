@@ -95,6 +95,7 @@
 		"DESCRIPTION": "وصف",
 		"CHILD_ISSUE_TASK": "تحديد القضية الفرعية",
 		"CREATE_TEAM": "إنشاء فريق جديد",
+		"CREATE_PROJECT": "إنشاء مشروع جديد",
 		"ALL_TEAMS": "جميع الفرق",
 		"VERIFY_ACCOUNT_MSG": "يرجى التحقق من حسابك قبل البدء في استخدام التطبيق",
 		"CREATE_ROLE": "إنشاء دور",
@@ -230,6 +231,24 @@
 		"CHANGE_RELATIONS": "تغيير العلاقات",
 		"SET_AS_NEXT": "تعيين كالتالي",
 		"MOVE_TO": "نقل إلى"
+	},
+	"sidebar": {
+		"DASHBOARD": "لوحة التحكم",
+		"PROJECTS": "المشاريع",
+		"FAVORITES": "المفضلات",
+		"TASKS": "المهام",
+		"MY_TASKS": "مهامي",
+		"TEAMTASKS": "مهام الفريق",
+		"MY_WORKS": "أعمالي",
+		"TIME_AND_ACTIVITY": "الوقت والنشاط",
+		"WORK_DIARY": "يومية العمل",
+		"REPORTS": "التقارير",
+		"TIMESHEETS": "جداول الوقت",
+		"MANUEL_TIME_EDIT": "تحرير الوقت يدويًا",
+		"WEEKLY_LIMIT": "الحد الأسبوعي",
+		"ACTUAL_AND_EXPECTED_HOURS": "الساعات الفعلية والمتوقعة",
+		"PAYMENTS_DUE": "المدفوعات المستحقة",
+		"PROJECT_BUDGET": "ميزانية المشروع"
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
