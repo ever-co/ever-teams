@@ -1,7 +1,26 @@
 export const BREAKPOINTS = {
 	MOBILE: 768
 };
-export const ROLES = [
+type RoleName =
+	| 'SUPER_ADMIN'
+	| 'ADMIN'
+	| 'DATA_ENTRY'
+	| 'EMPLOYEE'
+	| 'CANDIDATE'
+	| 'MANAGER'
+	| 'VIEWER'
+	| 'INTERVIEWER';
+
+interface Role {
+	isActive: boolean;
+	isArchived: boolean;
+	name: RoleName;
+	isSystem: boolean;
+}
+type PermissionMap = {
+	[K in RoleName]?: RoleName[];
+};
+export const ROLES: Role[] = [
 	{
 		isActive: true,
 		isArchived: false,
@@ -51,7 +70,7 @@ export const ROLES = [
 		isSystem: false
 	}
 ];
-export const PERMISSION_ROLES = {
+export const PERMISSION_ROLES: PermissionMap = {
 	MANAGER: ['SUPER_ADMIN', 'ADMIN', 'MANAGER'],
 	DATA_ENTRY: ['SUPER_ADMIN', 'ADMIN', 'DATA_ENTRY', 'MANAGER'],
 	EMPLOYEE: ['SUPER_ADMIN', 'ADMIN', 'EMPLOYEE', 'MANAGER'],
