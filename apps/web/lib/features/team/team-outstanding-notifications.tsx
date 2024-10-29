@@ -22,7 +22,7 @@ export function TeamOutstandingNotifications() {
 
 	useEffect(() => {
 		getAllDayPlans();
-	}, [activeTeam, getAllDayPlans, outstandingPlans]);
+	}, [activeTeam, getAllDayPlans]);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -134,20 +134,17 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	const employeeWithOutstanding = useMemo(
 		() =>
 			outstandingTasks
-				.filter((plan) => plan.employeeId !== user?.employee.id)
-				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
 
 				.filter((plan) => {
-					const planDate = new Date(plan.date);
-					const today = new Date();
-					today.setHours(23, 59, 59, 0);
-					return planDate.getTime() <= today.getTime();
+					if (plan.employeeId === user?.employee.id) return false;
+					if (!plan.date) return false;
+
+					const isTodayOrBefore = moment(plan.date).isSameOrBefore(moment().endOf('day'));
+					if (!isTodayOrBefore) return false;
+
+					const hasIncompleteTasks = plan.tasks?.some((task) => task.status !== 'completed');
+					return hasIncompleteTasks;
 				})
-				.map((plan) => ({
-					...plan,
-					tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-				}))
-				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
 				.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee })),
 		[outstandingTasks, user?.employee.id]
 	);
