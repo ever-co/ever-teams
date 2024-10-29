@@ -1,19 +1,23 @@
 import { IRoleList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
+import React, { HTMLAttributes } from 'react';
 
 export type RoleItem = DropdownItem<IRoleList>;
 
 export function mapRoleItems(roles: IRoleList[]) {
+	// eslint-disable-next-line react/display-name
+	const RoleLabel = React.memo(({ selected, name }: { selected: boolean | undefined; name: string }) => (
+		<div className="flex justify-between">
+			<RoleItem title={name} className={selected ? 'font-medium' : ''} />
+		</div>
+	));
 	const items = roles.map<RoleItem>((role: IRoleList) => {
+		const name = role.name || 'Unnamed Role';
 		return {
 			key: role.id,
-			Label: ({ selected }) => (
-				<div className="flex justify-between">
-					<RoleItem title={role.name} className={selected ? 'font-medium' : ''} />
-				</div>
-			),
-			selectedLabel: <RoleItem title={role.name} className="py-2 mb-0" />,
+			Label: ({ selected }) => <RoleLabel selected={selected} name={name} />,
+			selectedLabel: <RoleItem title={name} className="py-2 mb-0" />,
 			data: role
 		};
 	});
@@ -27,13 +31,18 @@ export function RoleItem({
 }: {
 	title?: string;
 	count?: number;
-	className?: string;
+	className?: HTMLAttributes<HTMLDivElement>['className'];
 	color?: string;
 	disabled?: boolean;
 }) {
 	return (
-		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
-			<span className={clsxm('text-normal dark:text-white')}>{title}</span>
+		<div
+			role="menuitem"
+			aria-label={title}
+			className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
+			<span className={clsxm('text-normal dark:text-white')} title={title}>
+				{title}
+			</span>
 		</div>
 	);
 }
