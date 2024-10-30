@@ -2,11 +2,9 @@
 import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
-
 import { useLocalStorageState, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -17,12 +15,17 @@ import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from "react-icons/gr";
 import { GoSearch } from "react-icons/go";
 
-type TimesheetViewMode = "ListView" | "CalendarView"
+type TimesheetViewMode = "ListView" | "CalendarView";
+
 type ViewToggleButtonProps = {
     mode: TimesheetViewMode;
     active: boolean;
     icon: React.ReactNode;
     onClick: () => void;
+};
+
+interface FooterTimeSheetProps {
+    fullWidth: boolean;
 };
 
 function TimeSheetPage() {
@@ -108,6 +111,8 @@ function TimeSheetPage() {
                             <div className='flex items-center h-9 w-[700px] bg-white gap-x-2 px-2 border border-gray-200 rounded-sm mb-2'>
                                 <GoSearch className='text-[#7E7991]' />
                                 <input
+                                    role="searchbox"
+                                    aria-label="Search timesheet"
                                     className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
                                     placeholder="Search.." />
                             </div>
@@ -132,8 +137,7 @@ function TimeSheetPage() {
 
 export default withAuthentication(TimeSheetPage, { displayName: 'TimeSheet' });
 
-
-const FooterTimeSheet = ({ fullWidth }: { fullWidth: boolean }) => {
+const FooterTimeSheet: React.FC<FooterTimeSheetProps> = ({ fullWidth }) => {
     return (
         <div className="bg-white dark:bg-[#1e2025] w-screen z-[5000] fixed bottom-0">
             <Divider />
@@ -145,6 +149,7 @@ const FooterTimeSheet = ({ fullWidth }: { fullWidth: boolean }) => {
         </div>
     )
 }
+
 const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
     mode,
     active,

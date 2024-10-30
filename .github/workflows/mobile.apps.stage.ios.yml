@@ -2,9 +2,9 @@ name: Mobile Build, Deploy and Publish Apps iOS
 on:
   push:
     branches:
-      - apps
+      - apps-stage
     paths:
-      - '.github/workflows/mobile.apps.yml'
+      - '.github/workflows/mobile.apps.stage.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
@@ -80,10 +80,10 @@ jobs:
           EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER }}
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --profile production --platform ios --non-interactive
+        run: cd apps/mobile && eas build --profile internal --platform ios --non-interactive
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --profile production --platform ios --non-interactive
+        run: cd apps/mobile && eas update --auto --profile internal --platform ios --non-interactive
 
       - name: Upload App build to App store
-        run: cd apps/mobile && eas submit --profile production --platform ios --latest --non-interactive
+        run: cd apps/mobile && eas submit --profile internal --platform ios --latest --non-interactive
