@@ -26,7 +26,7 @@ type ViewToggleButtonProps = {
 
 interface FooterTimeSheetProps {
     fullWidth: boolean;
-};
+}
 
 function TimeSheetPage() {
     const t = useTranslations();
