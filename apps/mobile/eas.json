@@ -1,27 +1,49 @@
 {
-  "cli": {
-    "version": ">= 12.5.3",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {
-      "autoIncrement": true
-    }
-  },
-  "submit": {
-    "production": {
+	"cli": {
+		"version": ">= 12.5.3",
+		"appVersionSource": "remote"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal"
+		},
+		"preview": {
+			"distribution": "internal"
+		},
+		"production": {
+			"autoIncrement": true
+		},
+		"internal": {
+			"distribution": "internal"
+		}
+	},
+	"submit": {
+		"production": {
 			"android": {
 				"track": "internal",
 				"releaseStatus": "draft",
 				"changesNotSentForReview": false
+			},
+			"ios": {
+				"ascAppId": "APPLE_ID_PLACEHOLDER",
+				"ascApiKeyIssuerId": "APPSTORE_ISSUER_ID_PLACEHOLDER",
+				"ascApiKeyId": "APPSTORE_API_KEY_ID_PLACEHOLDER",
+				"ascApiKeyPath": "./AuthKey_8A3H79GTF8.p8"
 			}
-    }
-  }
+		},
+		"internal": {
+			"android": {
+				"track": "internal",
+				"releaseStatus": "draft",
+				"changesNotSentForReview": false
+			},
+			"ios": {
+				"ascAppId": "APPLE_ID_PLACEHOLDER",
+				"ascApiKeyIssuerId": "APPSTORE_ISSUER_ID_PLACEHOLDER",
+				"ascApiKeyId": "APPSTORE_API_KEY_ID_PLACEHOLDER",
+				"ascApiKeyPath": "./AuthKey_8A3H79GTF8.p8"
+			}
+		}
+	}
 }

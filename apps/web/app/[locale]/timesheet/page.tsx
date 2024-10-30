@@ -2,11 +2,9 @@
 import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
-
 import { useLocalStorageState, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -17,7 +15,8 @@ import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from "react-icons/gr";
 import { GoSearch } from "react-icons/go";
 
-type TimesheetViewMode = "ListView" | "CalendarView"
+type TimesheetViewMode = "ListView" | "CalendarView";
+
 type ViewToggleButtonProps = {
     mode: TimesheetViewMode;
     active: boolean;
@@ -25,8 +24,13 @@ type ViewToggleButtonProps = {
     onClick: () => void;
 };
 
+interface FooterTimeSheetProps {
+    fullWidth: boolean;
+}
+
 function TimeSheetPage() {
     const t = useTranslations();
+
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
@@ -70,21 +74,21 @@ function TimeSheetPage() {
                                     count={72}
                                     title='Pending Tasks'
                                     description='Tasks waiting for your approval'
-                                    icon={<GrTask className='text-[12px] font-bold' />}
+                                    icon={<GrTask className='font-bold' />}
                                     classNameIcon='bg-[#FBB650] shadow-[#fbb75095]'
                                 />
                                 <TimesheetCard
                                     hours='63:00h'
                                     title='Men Hours'
                                     date='10.04.2024 - 11.04.2024'
-                                    icon={<Clock className='text-[14px] text-white font-bold' />}
+                                    icon={<Clock className='font-bold' />}
                                     classNameIcon='bg-[#3D5A80] shadow-[#3d5a809c] '
                                 />
                                 <TimesheetCard
                                     count={8}
                                     title='Members Worked'
                                     description='People worked since last time'
-                                    icon={<User2 className='text-[16px] font-bold' />}
+                                    icon={<User2 className='font-bold' />}
                                     classNameIcon='bg-[#30B366] shadow-[#30b3678f]'
                                 />
                             </div>
@@ -107,7 +111,9 @@ function TimeSheetPage() {
                             <div className='flex items-center h-9 w-[700px] bg-white gap-x-2 px-2 border border-gray-200 rounded-sm mb-2'>
                                 <GoSearch className='text-[#7E7991]' />
                                 <input
-                                    className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 outline-none"
+                                    role="searchbox"
+                                    aria-label="Search timesheet"
+                                    className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
                                     placeholder="Search.." />
                             </div>
                         </div>
@@ -131,8 +137,7 @@ function TimeSheetPage() {
 
 export default withAuthentication(TimeSheetPage, { displayName: 'TimeSheet' });
 
-
-const FooterTimeSheet = ({ fullWidth }: { fullWidth: boolean }) => {
+const FooterTimeSheet: React.FC<FooterTimeSheetProps> = ({ fullWidth }) => {
     return (
         <div className="bg-white dark:bg-[#1e2025] w-screen z-[5000] fixed bottom-0">
             <Divider />
@@ -144,6 +149,7 @@ const FooterTimeSheet = ({ fullWidth }: { fullWidth: boolean }) => {
         </div>
     )
 }
+
 const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
     mode,
     active,

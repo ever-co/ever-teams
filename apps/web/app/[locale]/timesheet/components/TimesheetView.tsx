@@ -1,5 +1,4 @@
 import { DataTableTimeSheet } from 'lib/features/integrations/calendar'
-import React from 'react'
 
 export function TimesheetView() {
     return (

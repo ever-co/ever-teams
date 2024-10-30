@@ -130,10 +130,19 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				employeeId: user?.employee.id,
 				organizationId: user?.employee.organizationId
 			});
+
+			handleCalendarSelect();
 		} catch (error) {
 			console.log(error);
 		}
-	}, [createDailyPlan, customDate, user?.employee.id, user?.employee.organizationId, user?.tenantId]);
+	}, [
+		createDailyPlan,
+		customDate,
+		handleCalendarSelect,
+		user?.employee.id,
+		user?.employee.organizationId,
+		user?.tenantId
+	]);
 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(

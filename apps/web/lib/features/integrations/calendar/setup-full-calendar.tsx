@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { LuCalendarPlus } from "react-icons/lu";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
