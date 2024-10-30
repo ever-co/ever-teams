@@ -7,7 +7,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
 
-import { useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+import { useLocalStorageState, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -27,11 +27,7 @@ type ViewToggleButtonProps = {
 
 function TimeSheetPage() {
     const t = useTranslations();
-    const {
-        isOpen: isManualTimeModalOpen,
-        openModal: openManualTimeModal,
-        closeModal: closeManualTimeModal
-    } = useModal()
+
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
@@ -118,10 +114,7 @@ function TimeSheetPage() {
                         </div>
                         {/* <DropdownMenuDemo /> */}
                         <div className='flex flex-col min-h-screen w-full border-1 rounded-lg bg-[#FFFFFF]  p-4 mt-4'>
-                            <TimesheetFilter
-                                closeModal={closeManualTimeModal}
-                                openModal={openManualTimeModal}
-                                isOpen={isManualTimeModalOpen} />
+                            <TimesheetFilter />
                             <div className='pt-4'>
                                 {timesheetNavigator === 'ListView' ?
                                     <TimesheetView />

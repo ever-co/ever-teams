@@ -4,7 +4,7 @@ import { Button } from 'lib/components';
 import { TimeSheetFilterPopover } from './time-sheet-filter-popover';
 import { Cross2Icon } from '@radix-ui/react-icons';
 
-export function TimesheetFilter({ isOpen, openModal, closeModal }: { isOpen?: boolean, openModal?: () => void, closeModal?: () => void }) {
+export function TimesheetFilter() {
     return (
         <>
 
