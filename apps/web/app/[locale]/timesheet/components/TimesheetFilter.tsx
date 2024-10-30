@@ -22,7 +22,12 @@ export function TimesheetFilter() {
                         <FrequencySelect />
                         <div className='flex items-center border border-gray-100 rounded-md h-10 '>
                             <FilterTaskActionMenu />
-                            <button className='border-l h-10 w-10 font-normal flex items-center justify-center text-gray-400'>
+                            <button
+                                aria-label="Clear filters"
+                                onClick={() => {
+                                    // TODO: Implement clear filters logic
+                                }}
+                                className='border-l h-10 w-10 font-normal flex items-center justify-center text-gray-400 hover:bg-gray-50'>
                                 <Cross2Icon />
                             </button>
                         </div>

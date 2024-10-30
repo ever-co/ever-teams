@@ -23,6 +23,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { PiCalendarDotsThin } from "react-icons/pi";
 
+interface DatePickerInputProps {
+    date: Date | null;
+    label: string;
+}
 
 export function FrequencySelect() {
     const [selectedValue, setSelectedValue] = React.useState<string | undefined>(undefined);
@@ -100,6 +104,9 @@ export const CustomDateRange = () => {
     };
 
     const handleToChange = (toDate: Date | null) => {
+        if (dateRange.from && toDate && toDate < dateRange.from) {
+            return;
+        }
         setDateRange((prev) => ({ ...prev, to: toDate }));
     };
     return (
@@ -133,6 +140,20 @@ export const CustomDateRange = () => {
     )
 }
 
+const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
+    <>
+        <Button
+            variant="outline"
+            className={cn(
+                "w-[150px] justify-start text-left font-normal text-black h-10 border border-transparent dark:border-transparent",
+                !date && "text-muted-foreground"
+            )}
+        >
+            {date ? format(date, "LLL dd, y") : <span>{label}</span>}
+        </Button>
+        <PiCalendarDotsThin className="h-5 w-5 dark:text-gray-500" />
+    </>
+);
 
 export function DynamicDatePicker({
     label,
@@ -148,28 +169,13 @@ export function DynamicDatePicker({
             <DatePicker
                 buttonVariant={'link'}
                 className="dark:bg-dark--theme-light rounded-lg bg-white"
-                buttonClassName={'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black h-10 border dark:border-slate-600 rounded-md'} customInput={
-                    <>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-[150px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent ",
-                                !date && "text-muted-foreground"
-                            )}>
-                            {date ? (
-                                format(date, "LLL dd, y")
-                            ) : (
-                                <span>{label}</span>
-                            )}
-                        </Button>
-                        <PiCalendarDotsThin className="h-5 w-5 dark:text-gray-500" />
-                    </>
-                }
+                buttonClassName={'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black h-10 border dark:border-slate-600 rounded-md'}
+                customInput={<DatePickerInput date={date} label={label} />}
                 mode="single"
                 numberOfMonths={1}
                 initialFocus
-                defaultMonth={date || new Date()}
-                selected={date!}
+                defaultMonth={date ?? new Date()}
+                selected={date ?? new Date()}
                 onSelect={(selectedDate) => selectedDate && setDate(selectedDate)}
             />
         </div>
