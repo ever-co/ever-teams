@@ -44,9 +44,6 @@ export function FrequencySelect() {
     );
 }
 
-
-
-
 export const FilterTaskActionMenu = () => {
     return (
         <DropdownMenu open={true} >
@@ -83,7 +80,7 @@ export const CustomDateRange = () => {
                 <span>Custom Date Range</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-                <DropdownMenuSubContent  >
+                <DropdownMenuSubContent>
                     <DropdownMenuItem className="cursor-pointer">
                         <div className="flex items-center gap-3">
                             <div className="h-1 w-1 rounded-full bg-black dark:bg-white"></div>
