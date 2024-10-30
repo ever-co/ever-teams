@@ -50,8 +50,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
             </div>
             <div
                 className={clsxm(
-                    'rounded-[16px] p-5 ',
-                    'h-16 w-16 rounded-lg',
+                    'h-16 w-16 rounded-lg p-5',
                     'flex items-center justify-center',
                     'text-white font-bold text-sm',
                     'shadow-lg',

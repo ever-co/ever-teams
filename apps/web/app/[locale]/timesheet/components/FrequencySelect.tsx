@@ -89,6 +89,9 @@ export const CustomDateRange = () => {
     });
     const [isDropdownOpen, setDropdownOpen] = React.useState(true);
 
+    const cancelChanges = () => {
+        setDropdownOpen(false);
+    };
     const applyChanges = () => {
         setDropdownOpen(false);
     };
@@ -119,7 +122,7 @@ export const CustomDateRange = () => {
                                 setDate={handleToChange}
                             />
                             <div className="flex w-full justify-end gap-4">
-                                <button className="text-primary" onClick={applyChanges}>Cancel</button>
+                                <button className="text-primary" onClick={cancelChanges}>Cancel</button>
                                 <button className="text-primary" onClick={applyChanges}>Apply</button>
                             </div>
                         </div>
@@ -145,8 +148,7 @@ export function DynamicDatePicker({
             <DatePicker
                 buttonVariant={'link'}
                 className="dark:bg-dark--theme-light rounded-lg bg-white"
-                buttonClassName={'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'}
-                customInput={
+                buttonClassName={'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black h-10 border dark:border-slate-600 rounded-md'} customInput={
                     <>
                         <Button
                             variant={"outline"}

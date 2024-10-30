@@ -8,17 +8,16 @@ export function TimesheetFilter() {
     return (
         <>
 
-            <div className="grid grid-cols-3 w-full">
-                <div className="col-span-1">
+            <div className="flex flex-col md:flex-row w-full gap-4">
+                <div className="flex-1">
                     <FilterWithStatus
                         activeStatus="All Tasks"
                         onToggle={(label) => {
-                            console.log(label)
+                            // TODO: Implement filter toggle handler
                         }}
                     />
                 </div>
-                <div className="col-span-1"></div>
-                <div className="col-span-1">
+                <div className="flex-1 flex justify-end">
                     <div className='flex gap-2'>
                         <FrequencySelect />
                         <div className='flex items-center border border-gray-100 rounded-md h-10 '>
