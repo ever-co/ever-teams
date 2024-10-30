@@ -98,6 +98,17 @@ export interface ILanguageItemList {
 	data: any;
 }
 
+export interface IRoleList {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	tenantId: string;
+	name: string;
+	isSystem: boolean;
+	items: [];
+	data: any;
+}
+
 //export timezone list interface
 export interface ITimezoneItemList {
 	length: number | undefined;
