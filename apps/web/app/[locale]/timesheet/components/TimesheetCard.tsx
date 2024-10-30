@@ -48,10 +48,9 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
                     )} />
                 </Button>
             </div>
-            <Card
-                shadow='custom'
+            <div
                 className={clsxm(
-                    'h-7 w-7',
+                    'h-16 w-16 rounded-lg p-5',
                     'flex items-center justify-center',
                     'text-white font-bold text-sm',
                     'shadow-lg',
@@ -59,7 +58,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
                 )}
                 aria-hidden="true">
                 {icon}
-            </Card>
+            </div>
         </Card>
     )
 }
