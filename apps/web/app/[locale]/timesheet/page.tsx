@@ -7,7 +7,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
 
-import { useLocalStorageState, useOrganizationTeams } from '@app/hooks';
+import { useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -27,6 +27,11 @@ type ViewToggleButtonProps = {
 
 function TimeSheetPage() {
     const t = useTranslations();
+    const {
+        isOpen: isManualTimeModalOpen,
+        openModal: openManualTimeModal,
+        closeModal: closeManualTimeModal
+    } = useModal()
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
@@ -70,21 +75,21 @@ function TimeSheetPage() {
                                     count={72}
                                     title='Pending Tasks'
                                     description='Tasks waiting for your approval'
-                                    icon={<GrTask className='text-[12px] font-bold' />}
+                                    icon={<GrTask className='font-bold' />}
                                     classNameIcon='bg-[#FBB650] shadow-[#fbb75095]'
                                 />
                                 <TimesheetCard
                                     hours='63:00h'
                                     title='Men Hours'
                                     date='10.04.2024 - 11.04.2024'
-                                    icon={<Clock className='text-[14px] text-white font-bold' />}
+                                    icon={<Clock className='font-bold' />}
                                     classNameIcon='bg-[#3D5A80] shadow-[#3d5a809c] '
                                 />
                                 <TimesheetCard
                                     count={8}
                                     title='Members Worked'
                                     description='People worked since last time'
-                                    icon={<User2 className='text-[16px] font-bold' />}
+                                    icon={<User2 className='font-bold' />}
                                     classNameIcon='bg-[#30B366] shadow-[#30b3678f]'
                                 />
                             </div>
@@ -107,13 +112,16 @@ function TimeSheetPage() {
                             <div className='flex items-center h-9 w-[700px] bg-white gap-x-2 px-2 border border-gray-200 rounded-sm mb-2'>
                                 <GoSearch className='text-[#7E7991]' />
                                 <input
-                                    className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 outline-none"
+                                    className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
                                     placeholder="Search.." />
                             </div>
                         </div>
                         {/* <DropdownMenuDemo /> */}
                         <div className='flex flex-col min-h-screen w-full border-1 rounded-lg bg-[#FFFFFF]  p-4 mt-4'>
-                            <TimesheetFilter />
+                            <TimesheetFilter
+                                closeModal={closeManualTimeModal}
+                                openModal={openManualTimeModal}
+                                isOpen={isManualTimeModalOpen} />
                             <div className='pt-4'>
                                 {timesheetNavigator === 'ListView' ?
                                     <TimesheetView />

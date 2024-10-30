@@ -11,7 +11,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@components/ui/select"
+} from "@components/ui/select";
 import { cn } from "lib/utils";
 import { CalendarDays } from "lucide-react";
 import React from "react";
