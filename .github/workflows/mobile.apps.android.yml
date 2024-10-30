@@ -74,7 +74,7 @@ jobs:
           EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER }}
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --platform android --non-interactive
+        run: cd apps/mobile && eas build --profile production --platform android --non-interactive
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto --platform android --non-interactive
@@ -91,4 +91,4 @@ jobs:
           project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
-        run: cd apps/mobile && eas submit --platform android --latest --non-interactive
+        run: cd apps/mobile && eas submit --profile production --platform android --latest --non-interactive
