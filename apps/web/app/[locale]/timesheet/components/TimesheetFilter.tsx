@@ -1,6 +1,5 @@
-import React from 'react'
-import { FilterWithStatus } from './FilterWithStatus'
-import { FrequencySelect } from '.';
+import { FilterWithStatus } from './FilterWithStatus';
+import { FrequencySelect, TimesheetFilterDate } from '.';
 import { Button } from 'lib/components';
 import { SettingFilterIcon } from 'assets/svg';
 
@@ -25,6 +24,7 @@ export function TimesheetFilter() {
                         <SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
                         <span className="text-gray-700 dark:text-white">Filter</span>
                     </button>
+                    <TimesheetFilterDate />
                     <Button
                         onClick={() => null}
                         variant='outline'
