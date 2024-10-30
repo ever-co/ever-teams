@@ -2,7 +2,7 @@
 import { clsxm } from '@app/utils';
 import { ArrowRightIcon } from 'assets/svg';
 import { Button, Card } from 'lib/components';
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react';
 
 interface ITimesheetCard {
     title?: string;
