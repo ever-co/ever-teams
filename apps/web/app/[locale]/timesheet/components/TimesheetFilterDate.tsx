@@ -16,15 +16,31 @@ interface DatePickerInputProps {
     date: Date | null;
     label: string;
 }
-export function TimesheetFilterDate() {
+interface TimesheetFilterDateProps {
+    onChange?: (range: { from: Date | null; to: Date | null }) => void;
+    initialRange?: { from: Date | null; to: Date | null };
+    minDate?: Date;
+    maxDate?: Date;
+}
+
+export function TimesheetFilterDate({
+    onChange,
+    initialRange,
+    minDate,
+    maxDate
+}: TimesheetFilterDateProps) {
 
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
-        from: new Date(),
-        to: new Date(),
+        from: initialRange?.from ?? new Date(),
+        to: initialRange?.to ?? new Date(),
     });
 
     const handleFromChange = (fromDate: Date | null) => {
+        if (maxDate && fromDate && fromDate > maxDate) {
+            return;
+        }
         setDateRange((prev) => ({ ...prev, from: fromDate }));
+        onChange?.({ ...dateRange, from: fromDate });
     };
 
     const handleToChange = (toDate: Date | null) => {
@@ -34,11 +50,47 @@ export function TimesheetFilterDate() {
         setDateRange((prev) => ({ ...prev, to: toDate }));
     };
 
+    const handlePresetClick = (preset: string) => {
+        const today = new Date();
+        switch (preset) {
+            case 'Today':
+                setDateRange({ from: today, to: today });
+                break;
+            case 'Last 7 days':
+                setDateRange({
+                    from: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
+                    to: today
+                });
+                break;
+            case 'Last 30 days':
+                setDateRange({
+                    from: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30),
+                    to: today
+                });
+                break;
+            case `This year (${today.getFullYear()})`:
+                setDateRange({
+                    from: new Date(today.getFullYear(), 0, 1),
+                    to: today
+                });
+                break;
+            case 'Custom Date Range':
+                setDateRange({ from: null, to: null });
+                break;
+            default:
+                break;
+        }
+    };
+
+
     return (<>
         <Popover>
             <PopoverTrigger asChild>
                 <Button
                     variant={"outline"}
+                    role="combobox"
+                    aria-label="Select date range"
+                    aria-expanded="false"
                     className={cn(
                         "w-[240px] justify-start text-left font-normal",
                         !dateRange.from && "text-muted-foreground"
@@ -49,12 +101,12 @@ export function TimesheetFilterDate() {
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 flex">
                 <div className="flex flex-col p-2 gap-2">
-                    <DynamicDatePicker
+                    <DatePickerFilter
                         label="From"
                         date={dateRange.from}
                         setDate={handleFromChange}
                     />
-                    <DynamicDatePicker
+                    <DatePickerFilter
                         label="To"
                         date={dateRange.to}
                         setDate={handleToChange}
@@ -62,8 +114,12 @@ export function TimesheetFilterDate() {
                     />
                 </div>
                 <div className="flex flex-col p-2">
-                    {["Today", "Last 7 days", "Last 30 days", "This year (2024)", "Custom Date Range"].map((label, index) => (
-                        <Button key={index} variant="outline" className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700">
+                    {["Today", "Last 7 days", "Last 30 days", `This year (${new Date().getFullYear()})`, "Custom Date Range"].map((label, index) => (
+                        <Button
+                            key={index}
+                            variant="outline"
+                            className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700"
+                            onClick={() => handlePresetClick(label)}>
                             <span> {label}</span>
                             {label === 'Custom Date Range' && <MdKeyboardArrowRight />}
                         </Button>
@@ -91,18 +147,26 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
     </>
 );
 
-export function DynamicDatePicker({
+export function DatePickerFilter({
     label,
     date,
     setDate,
-    minDate
+    minDate,
+    maxDate
 }: {
     label: string;
     date: Date | null;
     setDate: (date: Date | null) => void;
     minDate?: Date | null;
+    maxDate?: Date | null
 
 }) {
+    const isDateDisabled = React.useCallback((date: Date) => {
+        if (minDate && date < minDate) return true;
+        if (maxDate && date > maxDate) return true;
+        return false;
+    }, [minDate, maxDate]);
+
     return (
         <div>
             <DatePicker
@@ -116,15 +180,17 @@ export function DynamicDatePicker({
                 defaultMonth={date ?? new Date()}
                 selected={date ?? new Date()}
                 onSelect={(selectedDate) => {
-                    if (selectedDate && (!minDate || selectedDate >= minDate)) {
+                    if (selectedDate && !isDateDisabled(selectedDate)) {
                         setDate(selectedDate);
                     }
                 }}
                 modifiersClassNames={{
                     disabled: 'bg-[#d6d3d1] text-gray-300 cursor-not-allowed',
                 }}
-                disabled={minDate ? [{ before: minDate }] : []}
-
+                disabled={[
+                    ...(minDate ? [{ before: minDate }] : []),
+                    ...(maxDate ? [{ after: maxDate }] : [])
+                ]}
             />
         </div>
     );
