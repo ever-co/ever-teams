@@ -97,10 +97,7 @@ export const columns: ColumnDef<ITeamTask>[] = [
 					<span className="text-sm font-medium text-[#BAB8C4] dark:text-stone-300">No issue Type</span>
 				)}
 			</div>
-		),
-		filterFn: (row, id, value) => {
-			return value.includes(row.getValue(id));
-		}
+		)
 	},
 	{
 		accessorKey: 'title',
@@ -108,10 +105,7 @@ export const columns: ColumnDef<ITeamTask>[] = [
 		cell: ({ row }) => (
 			<div className="text-sm font-semibold text-indigo-950 dark:text-gray-200">{row.original.title}</div>
 		),
-		enableColumnFilter: true,
-		filterFn: (row, id, value) => {
-			return value.includes(row.getValue(id));
-		}
+		enableColumnFilter: true
 	},
 	{
 		accessorKey: 'user',
@@ -129,10 +123,7 @@ export const columns: ColumnDef<ITeamTask>[] = [
 				className="lg:max-w-[190px] w-full"
 				taskStatusClassName="text-xs py-1.5 w-full"
 			/>
-		),
-		filterFn: (row, id, value) => {
-			return value.includes(row.getValue(id));
-		}
+		)
 	},
 	{
 		id: 'actions',

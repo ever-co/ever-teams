@@ -8,7 +8,7 @@ const AssigneeUser: FC<{ users: IEmployee[] }> = ({ users }) => {
 		<div className="flex items-center gap-1.5 h-full">
 			{employee ? (
 				<div className="flex items-center gap-2.5">
-					<Avatar className="h-8 w-8 rounded-full">
+					<Avatar className="h-6 w-6 rounded-full">
 						{employee?.user?.imageUrl && (
 							<AvatarImage src={employee?.user?.imageUrl} alt={`${employee.fullName}'s avatar`} />
 						)}
