@@ -132,7 +132,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				items: [
 					{
 						title: t('sidebar.TEAMTASKS'),
-						url: '/'
+						url: '/team/tasks'
 					},
 					{
 						title: t('sidebar.MY_TASKS'),

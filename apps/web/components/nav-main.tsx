@@ -38,26 +38,52 @@ export function NavMain({
 				{items.map((item) => (
 					<Collapsible key={item.title} asChild defaultOpen={item.isActive}>
 						<SidebarMenuItem>
-							<SidebarMenuButton
-								className={cn(
-									'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
-									state === 'collapsed' ? ' justify-center' : ''
-								)}
-								asChild
-								tooltip={item.title}
-							>
-								<Link href={item.url}>
-									<item.icon />
-									<span
+							{item.items?.length ? (
+								<CollapsibleTrigger className="cursor-pointer" asChild>
+									<SidebarMenuButton
 										className={cn(
-											'transition-all font-medium',
-											state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+											'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
+											state === 'collapsed' ? ' justify-center' : ''
 										)}
+										asChild
+										tooltip={item.title}
 									>
-										{item.title}
-									</span>
-								</Link>
-							</SidebarMenuButton>
+										<span>
+											<item.icon />
+											<span
+												className={cn(
+													'transition-all font-medium',
+													state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+												)}
+											>
+												{item.title}
+											</span>
+										</span>
+									</SidebarMenuButton>
+								</CollapsibleTrigger>
+							) : (
+								<SidebarMenuButton
+									className={cn(
+										'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
+										state === 'collapsed' ? ' justify-center' : ''
+									)}
+									asChild
+									tooltip={item.title}
+								>
+									<Link href={item.url}>
+										<item.icon />
+										<span
+											className={cn(
+												'transition-all font-medium',
+												state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+											)}
+										>
+											{item.title}
+										</span>
+									</Link>
+								</SidebarMenuButton>
+							)}
+
 							{item.items?.length ? (
 								<>
 									<CollapsibleTrigger asChild>
