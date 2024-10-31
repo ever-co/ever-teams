@@ -93,11 +93,11 @@ export function StatusBadge({ selectedStatus, filterNumber }: { selectedStatus?:
     const getColorClass = () => {
         switch (selected) {
             case "Rejected":
-                return `text-red-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : " border-red-500"} `;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-red-500"} `;
             case "Approved":
-                return `text-green-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : "border-green-500"}`;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-green-500"}`;
             case "Pending":
-                return `text-orange-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : "border-orange-500"} `;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-orange-500"} `;
             default:
                 return `text-gray-500 dark:text-gray-200 border-gray-200 dark:border-gray-700 !py-0 font-normal`;
         }

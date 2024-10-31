@@ -48,10 +48,10 @@ import {
     MdKeyboardDoubleArrowRight,
     MdKeyboardArrowLeft,
     MdKeyboardArrowRight
-} from "react-icons/md";
+} from "react-icons/md"
 import { ConfirmStatusChange, StatusBadge, TimeSheet, dataSourceTimeSheet, statusOptions } from "."
 import { useModal } from "@app/hooks"
-import { Checkbox } from "@components/ui/checkbox";
+import { Checkbox } from "@components/ui/checkbox"
 
 
 
@@ -214,8 +214,8 @@ export function DataTableTimeSheet() {
 
             <div className="w-full">
                 <div className="rounded-md">
-                    <Table className=" border dark:border-gray-700">
-                        <TableHeader className="w-full border dark:border-gray-700">
+                    <Table className=" border dark:border-gray-700 rounded-md">
+                        <TableHeader className="w-full border dark:border-gray-700 rounded-md">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {

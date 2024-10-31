@@ -1,7 +1,7 @@
 import { FilterWithStatus } from './FilterWithStatus';
 import { FrequencySelect, TimesheetFilterDate } from '.';
 import { Button } from 'lib/components';
-import { SettingFilterIcon } from 'assets/svg';
+import { SettingFilterIcon } from '@/assets/svg';
 
 export function TimesheetFilter() {
     return (
