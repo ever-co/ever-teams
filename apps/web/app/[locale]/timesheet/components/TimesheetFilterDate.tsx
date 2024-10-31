@@ -185,7 +185,7 @@ export function DatePickerFilter({
                     }
                 }}
                 modifiersClassNames={{
-                    disabled: 'bg-[#d6d3d1] text-gray-300 cursor-not-allowed',
+                    disabled: 'text-gray-300 cursor-not-allowed',
                 }}
                 disabled={[
                     ...(minDate ? [{ before: minDate }] : []),
