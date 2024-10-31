@@ -1,16 +1,22 @@
-import React from 'react';
 import { Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Input } from '@components/ui/input';
 
-interface SearchButtonProps {}
+import { Table } from '@tanstack/react-table';
+interface SearchButtonProps<TData> {
+	table: Table<TData>;
+}
 
-const SearchButton: React.FC<SearchButtonProps> = () => {
+export default function SearchButton<TData>({ table }: Readonly<SearchButtonProps<TData>>) {
 	return (
-		<Button variant="outline" className="flex gap-2.5 items-center w-[122px]">
-			<Search className="h-4 w-4" />
-			<span className="font-bold">Search</span>
-		</Button>
-	);
-};
+		<div className="flex gap-2.5 items-center relative min-w-[122px] border border-gray-200 dark:border-gray-300 rounded-lg">
+			<Search className="absolute w-4 h-4 left-3" />
 
-export default SearchButton;
+			<Input
+				placeholder="Search tasks..."
+				value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+				onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
+				className="max-w-sm pl-10 bg-transparent border-none placeholder:font-normal"
+			/>
+		</div>
+	);
+}

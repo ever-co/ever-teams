@@ -108,6 +108,7 @@ export const columns: ColumnDef<ITeamTask>[] = [
 		cell: ({ row }) => (
 			<div className="text-sm font-semibold text-indigo-950 dark:text-gray-200">{row.original.title}</div>
 		),
+		enableColumnFilter: true,
 		filterFn: (row, id, value) => {
 			return value.includes(row.getValue(id));
 		}

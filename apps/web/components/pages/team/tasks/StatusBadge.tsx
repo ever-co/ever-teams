@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import React from 'react';
 
 interface StatusBadgeProps {
@@ -8,7 +9,12 @@ interface StatusBadgeProps {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ label, count, color }) => {
 	return (
-		<div className={`gap-0.5 self-stretch px-3.5 py-1 ${color} min-h-[26px] rounded-[40px]`}>
+		<div
+			className={cn(
+				'gap-0.5 self-stretch py-1.5 justify-center md:px-3 px-2 flex items-center capitalize text-sm relative min-h-[26px] rounded-[40px]',
+				color
+			)}
+		>
 			{label} ({count})
 		</div>
 	);
