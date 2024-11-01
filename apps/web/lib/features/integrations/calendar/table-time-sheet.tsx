@@ -57,18 +57,13 @@ import {
 } from "@components/ui/accordion"
 import { clsxm } from "@/app/utils"
 
-function getStatusColor(status: string) {
-    switch (status) {
-        case 'Rejected':
-            return "text-red-400";
-        case 'Approved':
-            return "text-gray-500";
-        case 'Pending':
-            return "text-[#FBB650]";
-        default:
-            return "";
-    }
-}
+const statusColor = (status: string) => {
+    return status === 'Pending'
+        ? { bg: 'bg-[#FBB650]', text: 'text-[#FBB650]', bgOpacity: 'rgba(251, 182, 80, 0.1)' }
+        : status === 'Approved'
+            ? { bg: 'bg-[#30B366]', text: 'text-[#30B366]', bgOpacity: 'rgba(48, 179, 102, 0.1)' }
+            : { bg: 'bg-[#dc2626]', text: 'text-[#dc2626]', bgOpacity: 'rgba(220, 38, 38, 0.1)' };
+};
 
 
 export const columns: ColumnDef<TimeSheet>[] = [
@@ -161,7 +156,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
             <div className="text-center w-full text-sm sm:text-base">Time</div>
         ),
         cell: ({ row }) => (
-            <div className={`text-center font-sans w-full text-sm sm:text-base ${getStatusColor(row.original.status)}`}>
+            <div className={`text-center font-sans w-full text-sm sm:text-base ${statusColor(row.original.status).text}`}>
                 {row.original.time}
             </div>
         ),
@@ -210,13 +205,6 @@ export function DataTableTimeSheet() {
         Pending: table.getRowModel().rows.filter(row => row.original.status === "Pending"),
         Approved: table.getRowModel().rows.filter(row => row.original.status === "Approved"),
         Rejected: table.getRowModel().rows.filter(row => row.original.status === "Rejected")
-    };
-    const statusColor = (status: string) => {
-        return status === 'Pending'
-            ? { bg: 'bg-[#FBB650]', text: 'text-[#FBB650]', bgOpacity: 'rgba(251, 182, 80, 0.1)' }
-            : status === 'Approved'
-                ? { bg: 'bg-[#30B366]', text: 'text-[#30B366]', bgOpacity: 'rgba(48, 179, 102, 0.1)' }
-                : { bg: 'bg-[#dc2626]', text: 'text-[#dc2626]', bgOpacity: 'rgba(220, 38, 38, 0.1)' };
     };
 
 
@@ -288,36 +276,25 @@ export function DataTableTimeSheet() {
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
                 <div className="gap-x-3 flex items-center">
-                    <span className="text-sm font-medium">Page 1 of 10</span>
-                    <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
+                    <span className="text-sm font-medium">
+                        Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                    </span>                    <Button
+                        onClick={() => table.setPageIndex(0)}
                         disabled={!table.getCanPreviousPage()}>
                         <MdKeyboardDoubleArrowLeft />
                     </Button>
                     <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}>
                         <MdKeyboardArrowLeft />
                     </Button>
                     <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}>
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}>
                         <MdKeyboardArrowRight />
                     </Button>
                     <Button
-                        className="border dark:border-gray-700 text-xl flex items-center justify-center cursor-pointer"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
+                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                         disabled={!table.getCanNextPage()}>
                         <MdKeyboardDoubleArrowRight />
                     </Button>

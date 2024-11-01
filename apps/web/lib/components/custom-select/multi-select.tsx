@@ -1,3 +1,4 @@
+import { clsxm } from '@/app/utils';
 import { Button } from '@components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
@@ -134,7 +135,7 @@ export function MultiSelect<T>({
                     {selectedItems.map((item) => (
                         <div
                             key={itemId(item)}
-                            className="flex items-center justify-between bg-gray-100 dark:bg-slate-700 px-2 py-[0.5px] rounded text-[12px] dark:text-white"
+                            className={clsxm("flex items-center justify-between bg-gray-100 dark:bg-slate-700 px-2 py-[0.5px] rounded text-[12px] dark:text-white", statusColor(itemToString(item)).bg!)}
                         >
                             <span>{itemToString(item)}</span>
                             <button
@@ -151,3 +152,11 @@ export function MultiSelect<T>({
         </div>
     );
 }
+
+const statusColor = (status: string) => {
+    return status === 'Pending'
+        ? { bg: 'bg-[#FBB650]', text: 'text-[#FBB650]', bgOpacity: 'rgba(251, 182, 80, 0.1)' }
+        : status === 'Approved'
+            ? { bg: 'bg-[#30B366]', text: 'text-[#30B366]', bgOpacity: 'rgba(48, 179, 102, 0.1)' }
+            : status === 'Rejected' ? { bg: 'bg-[#dc2626]', text: 'text-[#dc2626]', bgOpacity: 'rgba(220, 38, 38, 0.1)' } : {};
+};

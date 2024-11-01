@@ -116,6 +116,9 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                 <input
                                     role="searchbox"
                                     aria-label="Search timesheet"
+                                    type="search"
+                                    name="timesheet-search"
+                                    id="timesheet-search"
                                     className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
                                     placeholder="Search.." />
                             </div>

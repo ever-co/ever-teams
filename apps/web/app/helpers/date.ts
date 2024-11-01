@@ -200,11 +200,16 @@ export function formatTimeString(timeString: string): string {
 }
 
 export const getGreeting = () => {
+	const GREETING_TIMES = {
+		MORNING_START: 5,
+		AFTERNOON_START: 12,
+		EVENING_START: 18
+	} as const
 	const currentHour = new Date().getHours();
 
-	if (currentHour >= 5 && currentHour < 12) {
+	if (currentHour >= GREETING_TIMES.MORNING_START && currentHour < GREETING_TIMES.AFTERNOON_START) {
 		return "Good morning";
-	} else if (currentHour >= 12 && currentHour < 18) {
+	} else if (currentHour >= GREETING_TIMES.AFTERNOON_START && currentHour < GREETING_TIMES.EVENING_START) {
 		return "Good afternoon";
 	} else {
 		return "Good evening";
