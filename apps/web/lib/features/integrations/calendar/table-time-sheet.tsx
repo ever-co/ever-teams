@@ -56,14 +56,9 @@ import {
     AccordionTrigger,
 } from "@components/ui/accordion"
 import { clsxm } from "@/app/utils"
+import { statusColor } from "@/lib/components"
 
-const statusColor = (status: string) => {
-    return status === 'Pending'
-        ? { bg: 'bg-[#FBB650]', text: 'text-[#FBB650]', bgOpacity: 'rgba(251, 182, 80, 0.1)' }
-        : status === 'Approved'
-            ? { bg: 'bg-[#30B366]', text: 'text-[#30B366]', bgOpacity: 'rgba(48, 179, 102, 0.1)' }
-            : { bg: 'bg-[#dc2626]', text: 'text-[#dc2626]', bgOpacity: 'rgba(220, 38, 38, 0.1)' };
-};
+
 
 
 export const columns: ColumnDef<TimeSheet>[] = [
@@ -86,7 +81,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
         ),
         cell: ({ row }) => (
 
-            <div className="flex items-center  gap-x-4 w-[640px]" >
+            <div className="flex items-center gap-x-4 w-full max-w-[640px]" >
                 <Checkbox
                     checked={row.getIsSelected()}
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -278,22 +273,27 @@ export function DataTableTimeSheet() {
                 <div className="gap-x-3 flex items-center">
                     <span className="text-sm font-medium">
                         Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-                    </span>                    <Button
+                    </span>
+                    <Button
+                        variant={'outline'}
                         onClick={() => table.setPageIndex(0)}
                         disabled={!table.getCanPreviousPage()}>
                         <MdKeyboardDoubleArrowLeft />
                     </Button>
                     <Button
+                        variant={'outline'}
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}>
                         <MdKeyboardArrowLeft />
                     </Button>
                     <Button
+                        variant={'outline'}
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}>
                         <MdKeyboardArrowRight />
                     </Button>
                     <Button
+                        variant={'outline'}
                         onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                         disabled={!table.getCanNextPage()}>
                         <MdKeyboardDoubleArrowRight />
