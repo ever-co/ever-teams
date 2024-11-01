@@ -19,8 +19,8 @@ export type TimeSheet = {
 export const dataSourceTimeSheet: TimeSheet[] = [
     {
         id: 1,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
-        name: "Gauzy Platform SaaS",
+        task: "#324 Working on UI Design & making prototype for user testing tomorrow  & making prototype for user testing tomorrow",
+        name: "Ever Gauzy",
         description: "Members count 11",
         employee: "Ruslan Konviser",
         status: "Approved",
@@ -28,7 +28,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
     },
     {
         id: 2,
-        task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
+        task: "#321 Spike for creating calendar views on mobile",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
         employee: "Ruslan Konviser",

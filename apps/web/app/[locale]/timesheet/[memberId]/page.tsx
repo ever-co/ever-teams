@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
-import { useLocalStorageState, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useLocalStorageState, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -14,6 +14,7 @@ import { CalendarView, TimesheetCard, TimesheetFilter, TimesheetView } from './c
 import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from "react-icons/gr";
 import { GoSearch } from "react-icons/go";
+import { getGreeting } from '@/app/helpers';
 
 type TimesheetViewMode = "ListView" | "CalendarView";
 
@@ -28,21 +29,23 @@ interface FooterTimeSheetProps {
     fullWidth: boolean;
 }
 
-function TimeSheetPage() {
+const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
     const t = useTranslations();
+    const { user } = useAuthenticateUser();
+    const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
     const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
-    const params = useParams<{ locale: string }>();
-    const currentLocale = params ? params.locale : null;
+    const paramsUrl = useParams<{ locale: string }>();
+    const currentLocale = paramsUrl ? paramsUrl.locale : null;
     const breadcrumbPath = useMemo(
         () => [
             { title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
             { title: activeTeam?.name || '', href: '/' },
-            { title: 'Timesheet', href: `/${currentLocale}/timesheet` }
+            { title: 'Timesheet', href: `/${currentLocale}/timesheet/${params.memberId}` }
         ],
         [activeTeam?.name, currentLocale, t]
     );
@@ -66,7 +69,7 @@ function TimeSheetPage() {
                     <Container fullWidth={fullWidth} className='h-full pt-14'>
                         <div className='py-5'>
                             <div className='flex flex-col justify-start items-start gap-y-2'>
-                                <h1 className='!text-[23px] font-bold text-[#282048]'>Good morning, Ruslan !</h1>
+                                <h1 className='!text-[23px] font-bold text-[#282048]'>{getGreeting()}, {username} !</h1>
                                 <span className='text-[16px] text-[#3D5A80]'>This is your personal timesheet dashboard, showing you what needs your attention now.</span>
                             </div>
                             <div className='flex items-center w-full justify-between gap-6 pt-4'>
@@ -133,9 +136,9 @@ function TimeSheetPage() {
             <FooterTimeSheet fullWidth={fullWidth} />
         </>
     )
-}
+})
 
-export default withAuthentication(TimeSheetPage, { displayName: 'TimeSheet' });
+export default withAuthentication(TimeSheet, { displayName: 'TimeSheet' });
 
 const FooterTimeSheet: React.FC<FooterTimeSheetProps> = ({ fullWidth }) => {
     return (

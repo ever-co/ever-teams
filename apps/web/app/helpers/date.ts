@@ -198,3 +198,15 @@ export function formatTimeString(timeString: string): string {
 
 	return result.length ? result : '0h 00m';
 }
+
+export const getGreeting = () => {
+	const currentHour = new Date().getHours();
+
+	if (currentHour >= 5 && currentHour < 12) {
+		return "Good morning";
+	} else if (currentHour >= 12 && currentHour < 18) {
+		return "Good afternoon";
+	} else {
+		return "Good evening";
+	}
+}
