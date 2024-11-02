@@ -1,8 +1,10 @@
+import { clsxm } from '@/app/utils';
 import { Button } from '@components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { cn } from 'lib/utils';
 import { useEffect, useState, useRef } from 'react';
 import { MdOutlineKeyboardArrowDown, MdClose } from 'react-icons/md';
+import { statusColor } from '..';
 
 interface MultiSelectProps<T> {
     items: T[];
@@ -134,7 +136,11 @@ export function MultiSelect<T>({
                     {selectedItems.map((item) => (
                         <div
                             key={itemId(item)}
-                            className="flex items-center justify-between bg-gray-100 dark:bg-slate-700 px-2 py-[0.5px] rounded text-[12px] dark:text-white"
+                            className={clsxm(
+                                "flex items-center justify-between px-2 py-[0.5px] rounded text-[12px]",
+                                "dark:text-white",
+                                statusColor(itemToString(item))?.bg || "bg-gray-100 dark:bg-slate-700"
+                            )}
                         >
                             <span>{itemToString(item)}</span>
                             <button

@@ -8,7 +8,7 @@ import {
 } from "@components/ui/popover"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
-import React from "react"
+import React, { useState } from "react"
 import { MdKeyboardArrowRight } from "react-icons/md"
 import { PiCalendarDotsThin } from "react-icons/pi"
 
@@ -34,7 +34,7 @@ export function TimesheetFilterDate({
         from: initialRange?.from ?? new Date(),
         to: initialRange?.to ?? new Date(),
     });
-
+    const [isVisible, setIsVisible] = useState(false)
     const handleFromChange = (fromDate: Date | null) => {
         if (maxDate && fromDate && fromDate > maxDate) {
             return;
@@ -92,34 +92,57 @@ export function TimesheetFilterDate({
                     aria-label="Select date range"
                     aria-expanded="false"
                     className={cn(
-                        "w-[240px] justify-start text-left font-normal",
+                        "w-[240px] justify-start text-left font-normal overflow-hidden text-clip",
                         !dateRange.from && "text-muted-foreground"
                     )}>
                     <CalendarIcon />
-                    {dateRange.from ? format(dateRange.from, "PPP") : <span>Pick a date</span>}
+                    {dateRange.from ? (
+                        dateRange.to ? (
+                            <>
+                                {format(dateRange.from, "LLL d")}-{format(dateRange.to, "d, yyyy")}
+                            </>
+                        ) : (
+                            format(dateRange.from, "LLL d, yyyy")
+                        )
+                    ) : (
+                        <span>Pick a date</span>
+                    )}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 flex">
-                <div className="flex flex-col p-2 gap-2">
-                    <DatePickerFilter
-                        label="From"
-                        date={dateRange.from}
-                        setDate={handleFromChange}
-                    />
-                    <DatePickerFilter
-                        label="To"
-                        date={dateRange.to}
-                        setDate={handleToChange}
-                        minDate={dateRange.from}
-                    />
-                </div>
+                {isVisible && (
+                    <div className="flex flex-col p-2 gap-2 translate-x-0 justify-between">
+                        <div className="flex flex-col gap-2">
+                            <DatePickerFilter
+                                label="From"
+                                date={dateRange.from}
+                                setDate={handleFromChange}
+                            />
+                            <DatePickerFilter
+                                label="To"
+                                date={dateRange.to}
+                                setDate={handleToChange}
+                                minDate={dateRange.from}
+                            />
+                        </div>
+                        <div className="flex w-full justify-end items-end">
+                            <Button variant={'outline'} className="h-4 border-none text-primary hover:bg-transparent hover:text-primary hover:underline">Cancel</Button>
+                            <Button variant={'outline'} className="h-4 border-none text-primary hover:bg-transparent hover:text-primary hover:underline">Apply</Button>
+                        </div>
+                    </div>
+                )
+                }
+                <div className="border border-slate-100 my-1"></div>
                 <div className="flex flex-col p-2">
                     {["Today", "Last 7 days", "Last 30 days", `This year (${new Date().getFullYear()})`, "Custom Date Range"].map((label, index) => (
                         <Button
                             key={index}
                             variant="outline"
                             className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700"
-                            onClick={() => handlePresetClick(label)}>
+                            onClick={() => {
+                                label === 'Custom Date Range' && setIsVisible((prev) => !prev)
+                                handlePresetClick(label)
+                            }}>
                             <span> {label}</span>
                             {label === 'Custom Date Range' && <MdKeyboardArrowRight />}
                         </Button>
@@ -185,7 +208,9 @@ export function DatePickerFilter({
                     }
                 }}
                 modifiersClassNames={{
-                    disabled: 'text-gray-300 cursor-not-allowed',
+                    disabled: 'text-[#6989AA] cursor-not-allowed',
+                    selected: '!rounded-full bg-primary text-white',
+                    today: '!rounded-full bg-[#BCCAD9] text-white'
                 }}
                 disabled={[
                     ...(minDate ? [{ before: minDate }] : []),

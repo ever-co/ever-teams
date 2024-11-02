@@ -26,11 +26,11 @@ export function FilterWithStatus({
                     key={index}
                     className={clsxm(
                         'group flex items-center justify-start h-[2.2rem] rounded-xl border w-full',
-                        'dark:bg-dark--theme-light dark:border-gray-700 bg-[#e2e8f0aa] text[#71717A] w-[80px]',
+                        'dark:bg-dark--theme-light dark:border-gray-700 bg-transparent text[#71717A] w-[80px]',
                         activeStatus === label && 'text-primary bg-white shadow-lg font-bold'
                     )}
                     onClick={() => onToggle(label)}>
-                    <span className={clsxm('font-medium ml-1 text-[#71717A]', `${activeStatus === label ? "text-primary" : ""}`)}>{label}</span>
+                    <span className={clsxm('font-medium ml-1 text-[#7E7991]', `${activeStatus === label ? "text-primary" : ""}`)}>{label}</span>
                     <span className='font-medium ml-1 text-[#71717A]'>{count}</span>
                 </Button>
             ))}
