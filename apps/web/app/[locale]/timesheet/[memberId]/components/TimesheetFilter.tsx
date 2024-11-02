@@ -17,12 +17,12 @@ export function TimesheetFilter() {
             <div className="col-span-1">
                 <div className='flex gap-2'>
                     <FrequencySelect />
-                    <TimeSheetFilterPopover />
                     <TimesheetFilterDate />
+                    <TimeSheetFilterPopover />
                     <Button
                         onClick={() => null}
                         variant='outline'
-                        className='bg-primary/5 dark:bg-primary-light h-10 w-[2.5rem] font-medium'>
+                        className='bg-primary/5 dark:bg-primary-light h-10 font-medium'>
                         Add Time
                     </Button>
                 </div>

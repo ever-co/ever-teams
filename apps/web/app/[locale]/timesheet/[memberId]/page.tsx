@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
-import { useAuthenticateUser, useLocalStorageState, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useLocalStorageState, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -32,6 +32,9 @@ interface FooterTimeSheetProps {
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
     const t = useTranslations();
     const { user } = useAuthenticateUser();
+
+    const { sortedPlans } = useDailyPlan();
+
     const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
@@ -128,7 +131,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                             <TimesheetFilter />
                             <div className='pt-4'>
                                 {timesheetNavigator === 'ListView' ?
-                                    <TimesheetView />
+                                    <TimesheetView data={sortedPlans} />
                                     : <CalendarView />
                                 }
                             </div>

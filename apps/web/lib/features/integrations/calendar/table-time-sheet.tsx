@@ -46,7 +46,7 @@ import {
     MdKeyboardArrowLeft,
     MdKeyboardArrowRight
 } from "react-icons/md"
-import { ConfirmStatusChange, StatusBadge, TimeSheet, dataSourceTimeSheet, statusOptions } from "."
+import { ConfirmStatusChange, StatusBadge, statusOptions, dataSourceTimeSheet, TimeSheet } from "."
 import { useModal } from "@app/hooks"
 import { Checkbox } from "@components/ui/checkbox"
 import {
@@ -57,6 +57,9 @@ import {
 } from "@components/ui/accordion"
 import { clsxm } from "@/app/utils"
 import { statusColor } from "@/lib/components"
+import { Badge } from '@components/ui/badge'
+import { IDailyPlan } from "@/app/interfaces"
+import { StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 
 
 
@@ -87,7 +90,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
                     aria-label="Select row"
                 />
-                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">{row.original.task}</span>
+                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">{row.original.id}</span>
             </div>
         ),
     },
@@ -170,13 +173,11 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 
 
-export function DataTableTimeSheet() {
+export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
-
-
     const table = useReactTable({
         data: dataSourceTimeSheet,
         columns,
@@ -227,17 +228,26 @@ export function DataTableTimeSheet() {
                                         style={{ backgroundColor: statusColor(status).bgOpacity }}
                                         type="button"
                                         className={clsxm(
-                                            "flex flex-row-reverse justify-end items-center w-full h-9 rounded-sm gap-x-2 hover:no-underline",
+                                            "flex flex-row-reverse justify-end items-center w-full h-9 rounded-sm gap-x-2 hover:no-underline px-2",
                                             statusColor(status).text,
                                         )}
                                     >
-                                        <div className="flex items-center space-x-1">
-                                            <div className={clsxm("p-2 rounded", statusColor(status).bg)}></div>
-                                            <div className="flex items-center gap-x-1">
-                                                <span className="text-base font-normal uppercase text-gray-400">
-                                                    {status}
-                                                </span>
-                                                <span className="text-gray-400 text-[14px]">({rows.length})</span>
+                                        <div className="flex items-center space-x-1 justify-between w-full">
+                                            <div className="flex items-center space-x-1">
+                                                <div className={clsxm("p-2 rounded", statusColor(status).bg)}></div>
+                                                <div className="flex items-center gap-x-1">
+                                                    <span className="text-base font-normal uppercase text-gray-400">
+                                                        {status}
+                                                    </span>
+                                                    <span className="text-gray-400 text-[14px]">({rows.length})</span>
+                                                </div>
+                                                <Badge variant={'outline'} className="flex items-center gap-x-2 rounded-md bg-[#E4E4E7]">
+                                                    <span className="text-[#71717A]">Total</span>
+                                                    <span>24:30h</span>
+                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center gap-2 p-x-1">
+                                                {getTimesheetButtons(status as StatusType)}
                                             </div>
                                         </div>
                                     </AccordionTrigger>
@@ -412,22 +422,43 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 
 export const StatusTask = () => {
     return (
-        <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-                <span>Status</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                    {statusOptions?.map((status, index) => (
-                        <DropdownMenuItem key={index} textValue={status.value} className="cursor-pointer">
+        <>
+            <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                    <span>Change status</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                        {statusOptions?.map((status, index) => (
+                            <DropdownMenuItem key={index} textValue={status.value} className="cursor-pointer">
+                                <div className="flex items-center gap-3">
+                                    <div className={clsxm("h-2 w-2 rounded-full", statusColor(status.value).bg)}></div>
+                                    <span>{status.label}</span>
+                                </div>
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                    <span>Billable</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                        <DropdownMenuItem textValue={'Oui'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <div className="h-1 w-1 rounded-full bg-black dark:bg-white"></div>
-                                <span>{status.label}</span>
+                                <span>Oui</span>
                             </div>
                         </DropdownMenuItem>
-                    ))}
-                </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-        </DropdownMenuSub>
+                        <DropdownMenuItem textValue={'No'} className="cursor-pointer">
+                            <div className="flex items-center gap-3">
+                                <span>No</span>
+                            </div>
+                        </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+            </DropdownMenuSub>
+        </>
     )
 }

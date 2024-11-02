@@ -1,9 +1,10 @@
+import { IDailyPlan } from '@/app/interfaces'
 import { DataTableTimeSheet } from 'lib/features/integrations/calendar'
 
-export function TimesheetView() {
+export function TimesheetView({ data }: { data?: IDailyPlan[] }) {
     return (
         <div className='grow h-full w-full bg-[#FFFFFF]'>
-            <DataTableTimeSheet />
+            <DataTableTimeSheet data={data} />
         </div>
     )
 }
