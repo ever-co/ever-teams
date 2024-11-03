@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as momentTimezone from 'moment-timezone';
-import { useTranslations } from 'next-intl';
+import { TranslationHooks } from 'next-intl';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -200,8 +200,7 @@ export function formatTimeString(timeString: string): string {
 	return result.length ? result : '0h 00m';
 }
 
-export const getGreeting = () => {
-	const t = useTranslations();
+export const getGreeting = (t: TranslationHooks) => {
 	const GREETING_TIMES = {
 		MORNING_START: 5,
 		AFTERNOON_START: 12,

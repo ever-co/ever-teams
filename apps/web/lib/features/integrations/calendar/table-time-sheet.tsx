@@ -60,6 +60,7 @@ import { statusColor } from "@/lib/components"
 import { Badge } from '@components/ui/badge'
 import { IDailyPlan } from "@/app/interfaces"
 import { StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
+import { useTranslations } from "next-intl"
 
 
 
@@ -174,6 +175,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 
 export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
+    const t = useTranslations();
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -247,7 +249,7 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                 </Badge>
                                             </div>
                                             <div className="flex items-center gap-2 p-x-1">
-                                                {getTimesheetButtons(status as StatusType)}
+                                                {getTimesheetButtons(status as StatusType, t)}
                                             </div>
                                         </div>
                                     </AccordionTrigger>

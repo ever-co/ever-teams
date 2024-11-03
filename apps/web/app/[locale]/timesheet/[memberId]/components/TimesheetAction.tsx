@@ -1,5 +1,5 @@
 import { clsxm } from "@/app/utils";
-import { useTranslations } from "next-intl";
+import { TranslationHooks } from "next-intl";
 import { ReactNode } from "react";
 import { FaClipboardCheck } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
@@ -26,8 +26,8 @@ export const TimesheetButton = ({ className, icon, onClick, title }: ITimesheetB
 export type StatusType = "Pending" | "Approved" | "Rejected";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const getTimesheetButtons = (status: StatusType) => {
-    const t = useTranslations();
+export const getTimesheetButtons = (status: StatusType, t: TranslationHooks) => {
+
     const buttonsConfig: Record<StatusType, { icon: JSX.Element; title: string }[]> = {
         Pending: [
             { icon: <FaClipboardCheck className="!text-[#2932417c] rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED') },
