@@ -551,12 +551,12 @@
 			"HEADING_DESCRIPTION": "Stiamo attualmente aggiornando il nostro sito web per servirti meglio. Per favore controllare più tardi."
 		},
 		"timesheet": {
-			"TIMESHEET_TITLE": "Registro ore",
+			"TIMESHEET_TITLE": "Foglio presenze",
 			"TIMESHEET_VIEW_DETAILS": "Visualizza dettagli",
 			"TIMESHEET_ACTION_APPROVE_SELECTED": "Approva selezionati",
 			"TIMESHEET_ACTION_REJECT_SELECTED": "Rifiuta selezionati",
 			"TIMESHEET_ACTION_DELETE_SELECTED": "Elimina selezionati",
-			"HEADING_DESCRIPTION": "Questo è il tuo cruscotto personale del registro ore, che mostra cosa richiede la tua attenzione adesso.",
+			"HEADING_DESCRIPTION": "Questo è il tuo cruscotto personale del foglio presenze, che mostra cosa richiede la tua attenzione adesso.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Buongiorno",
 				"GOOD_AFTERNOON": "Buon pomeriggio",
@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Sì",
 				"NO": "No"
-			}
+			},
+			"LOADING": "Caricamento dati della registrazione ore...",
+			"NO_ENTRIES_FOUND": "Nessuna voce di registrazione ore trovata"
 		}
 	},
 	"timer": {

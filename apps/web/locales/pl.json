@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Tak",
 				"NO": "Nie"
-			}
+			},
+			"LOADING": "Ładowanie danych rejestru czasu...",
+			"NO_ENTRIES_FOUND": "Nie znaleziono żadnych wpisów w rejestrze czasu"
 		}
 	},
 	"timer": {

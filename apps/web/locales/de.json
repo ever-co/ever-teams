@@ -547,8 +547,8 @@
 			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
 		},
 		"maintenance": {
-			"HEADING_TITLE": "We zijn in onderhoud ",
-			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
+			"HEADING_TITLE": "Wir führen Wartungsarbeiten durch",
+			"HEADING_DESCRIPTION": "Wir aktualisieren derzeit unsere Website, um Ihnen einen noch besseren Service bieten zu können. Bitte versuchen Sie es später erneut."
 		},
 		"timesheet": {
 			"TIMESHEET_TITLE": "Zeiterfassung",
@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Ja",
 				"NO": "Nein"
-			}
+			},
+			"LOADING": "Lade Zeiterfassungsdaten...",
+			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden"
 		}
 	},
 	"timer": {

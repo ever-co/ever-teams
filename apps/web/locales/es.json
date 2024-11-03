@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Sí",
 				"NO": "No"
-			}
+			},
+			"LOADING": "Cargando datos del registro de horas...",
+			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas"
 		}
 	},
 	"timer": {

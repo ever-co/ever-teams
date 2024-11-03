@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Oui",
 				"NO": "Non"
-			}
+			},
+			"LOADING": "Chargement des données de la feuille de temps...",
+			"NO_ENTRIES_FOUND": "Aucune entrée de feuille de temps trouvée"
 		}
 	},
 	"timer": {

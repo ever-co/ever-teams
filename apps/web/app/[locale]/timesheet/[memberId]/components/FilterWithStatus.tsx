@@ -26,7 +26,7 @@ export function FilterWithStatus({
                     key={index}
                     className={clsxm(
                         'group flex items-center justify-start h-[2.2rem] rounded-xl w-full',
-                        'dark:bg-dark--theme-light dark:border-gray-700 bg-transparent text[#71717A] w-[80px]',
+                        'dark:bg-dark--theme-light dark:border-gray-700 bg-transparent text-[#71717A] w-[80px]',
                         activeStatus === label && 'text-primary bg-white shadow-lg font-bold border'
                     )}
                     onClick={() => onToggle(label)}>

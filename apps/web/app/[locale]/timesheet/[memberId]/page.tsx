@@ -35,7 +35,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
     const t = useTranslations();
     const { user } = useAuthenticateUser();
 
-    const { sortedPlans } = useDailyPlan();
+    const { sortedPlans, loading } = useDailyPlan();
 
     const username = user?.name || user?.firstName || user?.lastName || user?.username;
 

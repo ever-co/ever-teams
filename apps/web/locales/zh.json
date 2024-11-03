@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "是",
 				"NO": "否"
-			}
+			},
+			"LOADING": "Cargando datos de registro de horas...",
+			"NO_ENTRIES_FOUND": "No se encontraron entradas de registro de horas"
 		}
 	},
 	"timer": {

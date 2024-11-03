@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Ja",
 				"NO": "Nee"
-			}
+			},
+			"LOADING": "Tijdregistratiegegevens laden...",
+			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden"
 		}
 	},
 	"timer": {

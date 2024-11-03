@@ -569,7 +569,9 @@
 			"BILLABLE": {
 				"YES": "Yes",
 				"NO": "No"
-			}
+			},
+			"LOADING": "Loading timesheet data...",
+			"NO_ENTRIES_FOUND": "No timesheet entries found"
 		}
 	},
 	"timer": {
