@@ -549,6 +549,19 @@
 		"maintenance": {
 			"HEADING_TITLE": "نحن تحت الصيانة",
 			"HEADING_DESCRIPTION": "نقوم حاليًا بتحديث موقعنا الإلكتروني لخدمتك بشكل أفضل. يرجى التحقق مرة أخرى في وقت لاحق."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "ورقة الوقت",
+			"TIMESHEET_VIEW_DETAILS": "عرض التفاصيل",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "الموافقة على المحدد",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "رفض المحدد",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "حذف المحدد",
+			"HEADING_DESCRIPTION": "هذه هي لوحة التحكم الشخصية لورقة الوقت الخاصة بك، وتوضح لك ما يحتاج إلى انتباهك الآن.",
+			"GREETINGS": {
+				"GOOD_MORNING": "صباح الخير",
+				"GOOD_AFTERNOON": "مساء الخير",
+				"GOOD_EVENING": "مساء الخير"
+			}
 		}
 	},
 	"timer": {

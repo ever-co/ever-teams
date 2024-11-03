@@ -549,6 +549,19 @@
 		"maintenance": {
 			"HEADING_TITLE": "Мы на обслуживании ",
 			"HEADING_DESCRIPTION": "В настоящее время мы обновляем наш веб-сайт, чтобы лучше обслуживать вас. Пожалуйста, зайдите позже."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Табель рабочего времени",
+			"TIMESHEET_VIEW_DETAILS": "Посмотреть детали",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Утвердить выбранное",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Отклонить выбранное",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Удалить выбранное",
+			"HEADING_DESCRIPTION": "Это ваша личная панель табеля, показывающая, что требует вашего внимания сейчас.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Доброе утро",
+				"GOOD_AFTERNOON": "Добрый день",
+				"GOOD_EVENING": "Добрый вечер"
+			}
 		}
 	},
 	"timer": {

@@ -90,7 +90,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
                     aria-label="Select row"
                 />
-                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">{row.original.id}</span>
+                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">{row.original.task}</span>
             </div>
         ),
     },
@@ -448,7 +448,7 @@ export const StatusTask = () => {
                     <DropdownMenuSubContent>
                         <DropdownMenuItem textValue={'Oui'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <span>Oui</span>
+                                <span>Yes</span>
                             </div>
                         </DropdownMenuItem>
                         <DropdownMenuItem textValue={'No'} className="cursor-pointer">

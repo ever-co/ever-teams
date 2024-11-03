@@ -549,6 +549,19 @@
 		"maintenance": {
 			"HEADING_TITLE": "אנחנו בשלבי תחזוקה ",
 			"HEADING_DESCRIPTION": "אנו מעדכנים כעת את האתר שלנו כדי לשרת אותך טוב יותר. אנא בדוק שוב מאוחר יותר."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "גיליון שעות",
+			"TIMESHEET_VIEW_DETAILS": "הצג פרטים",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "אשר נבחרים",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "דחה נבחרים",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "מחק נבחרים",
+			"HEADING_DESCRIPTION": "זוהי לוח המחוונים האישי של גיליון השעות שלך, המציג את מה שדורש את תשומת הלב שלך כעת.",
+			"GREETINGS": {
+				"GOOD_MORNING": "בוקר טוב",
+				"GOOD_AFTERNOON": "צהריים טובים",
+				"GOOD_EVENING": "ערב טוב"
+			}
 		}
 	},
 	"timer": {

@@ -549,6 +549,19 @@
 		"maintenance": {
 			"HEADING_TITLE": "Ние сме в процес на поддръжка",
 			"HEADING_DESCRIPTION": "В момента актуализираме нашия уебсайт, за да ви служим по-добре. Моля, проверете отново по-късно."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Таблица за време",
+			"TIMESHEET_VIEW_DETAILS": "Вижте подробности",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Одобряване на избраното",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Отхвърляне на избраното",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Изтриване на избраното",
+			"HEADING_DESCRIPTION": "Това е вашето лично табло за таблицата с време, показващо какво изисква вашето внимание сега.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Добро утро",
+				"GOOD_AFTERNOON": "Добър ден",
+				"GOOD_EVENING": "Добър вечер"
+			}
 		}
 	},
 	"timer": {

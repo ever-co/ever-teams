@@ -1,5 +1,6 @@
 import moment from 'moment';
 import * as momentTimezone from 'moment-timezone';
+import { useTranslations } from 'next-intl';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -200,6 +201,7 @@ export function formatTimeString(timeString: string): string {
 }
 
 export const getGreeting = () => {
+	const t = useTranslations();
 	const GREETING_TIMES = {
 		MORNING_START: 5,
 		AFTERNOON_START: 12,
@@ -208,10 +210,10 @@ export const getGreeting = () => {
 	const currentHour = new Date().getHours();
 
 	if (currentHour >= GREETING_TIMES.MORNING_START && currentHour < GREETING_TIMES.AFTERNOON_START) {
-		return "Good morning";
+		return t('pages.timesheet.GREETINGS.GOOD_MORNING');
 	} else if (currentHour >= GREETING_TIMES.AFTERNOON_START && currentHour < GREETING_TIMES.EVENING_START) {
-		return "Good afternoon";
+		return t('pages.timesheet.GREETINGS.GOOD_AFTERNOON');
 	} else {
-		return "Good evening";
+		return t('pages.timesheet.GREETINGS.GOOD_MORNING');
 	}
 }

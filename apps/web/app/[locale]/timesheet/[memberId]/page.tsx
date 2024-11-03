@@ -73,7 +73,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                         <div className='py-5'>
                             <div className='flex flex-col justify-start items-start gap-y-2'>
                                 <h1 className='!text-[23px] font-bold text-[#282048]'>{getGreeting()}, {username} !</h1>
-                                <span className='text-[16px] text-[#3D5A80]'>This is your personal timesheet dashboard, showing you what needs your attention now.</span>
+                                <span className='text-[16px] text-[#3D5A80]'>{t('pages.timesheet.HEADING_DESCRIPTION')}</span>
                             </div>
                             <div className='flex items-center w-full justify-between gap-6 pt-4'>
                                 <TimesheetCard

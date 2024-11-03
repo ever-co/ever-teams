@@ -549,6 +549,19 @@
 		"maintenance": {
 			"HEADING_TITLE": "Estamos en Mantenimiento",
 			"HEADING_DESCRIPTION": "Actualmente estamos actualizando nuestro sitio web para brindarle un mejor servicio. Por favor, vuelva más tarde."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Hoja de horas",
+			"TIMESHEET_VIEW_DETAILS": "Ver detalles",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Aprobar seleccionados",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Rechazar seleccionados",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Eliminar seleccionados",
+			"HEADING_DESCRIPTION": "Este es tu panel de control de hoja de horas personal, que muestra lo que necesita tu atención ahora.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Buenos días",
+				"GOOD_AFTERNOON": "Buenas tardes",
+				"GOOD_EVENING": "Buenas noches"
+			}
 		}
 	},
 	"timer": {

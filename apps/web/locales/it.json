@@ -549,6 +549,19 @@
 		"maintenance": {
 			"HEADING_TITLE": "Siamo in manutenzione",
 			"HEADING_DESCRIPTION": "Stiamo attualmente aggiornando il nostro sito web per servirti meglio. Per favore controllare più tardi."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Foglio ore",
+			"TIMESHEET_VIEW_DETAILS": "Visualizza dettagli",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Approva selezionati",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Rifiuta selezionati",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Elimina selezionati",
+			"HEADING_DESCRIPTION": "Questa è la tua dashboard personale del foglio ore, che ti mostra cosa richiede la tua attenzione ora.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Buongiorno",
+				"GOOD_AFTERNOON": "Buon pomeriggio",
+				"GOOD_EVENING": "Buonasera"
+			}
 		}
 	},
 	"timer": {
