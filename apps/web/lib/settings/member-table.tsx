@@ -59,18 +59,19 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 		if (isPromotingToManager) {
 			// Add new manager
+			const updatedManagerIds = [...new Set([...currentManagers, employeeId])];
+
+			return updateOrganizationTeam(activeTeamRef.current, {
+				...activeTeamRef.current,
+				managerIds: updatedManagerIds
+			});
+		} else {
+			// Remove manager
 			const updatedMemberIds = [...new Set([
 				...(activeTeamRef.current?.members || []).map((member: OT_Member) => member.employee.id),
 				employeeId
 			])];
 
-			return updateOrganizationTeam(activeTeamRef.current, {
-				...activeTeamRef.current,
-				memberIds: updatedMemberIds
-			});
-		} else {
-			// Remove manager
-			const updatedMemberIds = [...new Set([...currentManagers, employeeId])];
 			const updatedManagerIds = currentManagers.filter(id => id !== employeeId);
 
 			return updateOrganizationTeam(activeTeamRef.current, {
