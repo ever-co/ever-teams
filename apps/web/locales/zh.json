@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "我們正在維護中",
 			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "工时表",
+			"TIMESHEET_VIEW_DETAILS": "查看详情",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "批准选定的",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "拒绝选定的",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "删除选定的",
+			"HEADING_DESCRIPTION": "这是您的个人工时表仪表板，显示需要您注意的事项。",
+			"GREETINGS": {
+				"GOOD_MORNING": "早上好",
+				"GOOD_AFTERNOON": "下午好",
+				"GOOD_EVENING": "晚上好"
+			},
+			"VIEWS": {
+				"LIST": "列表视图",
+				"CALENDAR": "日历视图"
+			},
+			"BILLABLE": {
+				"YES": "是",
+				"NO": "否"
+			},
+			"LOADING": "Cargando datos de registro de horas...",
+			"NO_ENTRIES_FOUND": "No se encontraron entradas de registro de horas"
 		}
 	},
 	"timer": {

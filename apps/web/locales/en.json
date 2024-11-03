@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "We are Under Maintenance",
 			"HEADING_DESCRIPTION": "We are updating our website to serve you better. Please check back later."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Timesheet",
+			"TIMESHEET_VIEW_DETAILS": "View Details",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Approve selected",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Reject selected",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Delete selected",
+			"HEADING_DESCRIPTION": "This is your personal timesheet dashboard, showing you what needs your attention now.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Good morning",
+				"GOOD_AFTERNOON": "Good afternoon",
+				"GOOD_EVENING": "Good evening"
+			},
+			"VIEWS": {
+				"LIST": "List View",
+				"CALENDAR": "Calendar View"
+			},
+			"BILLABLE": {
+				"YES": "Yes",
+				"NO": "No"
+			},
+			"LOADING": "Loading timesheet data...",
+			"NO_ENTRIES_FOUND": "No timesheet entries found"
 		}
 	},
 	"timer": {

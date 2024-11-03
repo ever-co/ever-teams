@@ -60,6 +60,7 @@ import { statusColor } from "@/lib/components"
 import { Badge } from '@components/ui/badge'
 import { IDailyPlan } from "@/app/interfaces"
 import { StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
+import { useTranslations } from "next-intl"
 
 
 
@@ -90,7 +91,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
                     onCheckedChange={(value) => row.toggleSelected(!!value)}
                     aria-label="Select row"
                 />
-                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">{row.original.id}</span>
+                <span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">{row.original.task}</span>
             </div>
         ),
     },
@@ -174,6 +175,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 
 export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
+    const t = useTranslations();
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -247,7 +249,7 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                 </Badge>
                                             </div>
                                             <div className="flex items-center gap-2 p-x-1">
-                                                {getTimesheetButtons(status as StatusType)}
+                                                {getTimesheetButtons(status as StatusType, t)}
                                             </div>
                                         </div>
                                     </AccordionTrigger>
@@ -421,6 +423,7 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 };
 
 export const StatusTask = () => {
+    const t = useTranslations();
     return (
         <>
             <DropdownMenuSub>
@@ -448,12 +451,12 @@ export const StatusTask = () => {
                     <DropdownMenuSubContent>
                         <DropdownMenuItem textValue={'Oui'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <span>Oui</span>
+                                <span>{t('pages.timesheet.BILLABLE.YES')}</span>
                             </div>
                         </DropdownMenuItem>
                         <DropdownMenuItem textValue={'No'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <span>No</span>
+                                <span>{t('pages.timesheet.BILLABLE.NO')}</span>
                             </div>
                         </DropdownMenuItem>
                     </DropdownMenuSubContent>

@@ -15,6 +15,7 @@ import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from "react-icons/gr";
 import { GoSearch } from "react-icons/go";
 import { getGreeting } from '@/app/helpers';
+import { TranslationHooks } from 'next-intl';
 
 type TimesheetViewMode = "ListView" | "CalendarView";
 
@@ -23,6 +24,7 @@ type ViewToggleButtonProps = {
     active: boolean;
     icon: React.ReactNode;
     onClick: () => void;
+    t: TranslationHooks
 };
 
 interface FooterTimeSheetProps {
@@ -48,7 +50,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
         () => [
             { title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
             { title: activeTeam?.name || '', href: '/' },
-            { title: 'Timesheet', href: `/${currentLocale}/timesheet/${params.memberId}` }
+            { title: t("pages.timesheet.TIMESHEET_TITLE"), href: `/${currentLocale}/timesheet/${params.memberId}` }
         ],
         [activeTeam?.name, currentLocale, t]
     );
@@ -72,8 +74,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                     <Container fullWidth={fullWidth} className='h-full pt-14'>
                         <div className='py-5'>
                             <div className='flex flex-col justify-start items-start gap-y-2'>
-                                <h1 className='!text-[23px] font-bold text-[#282048]'>{getGreeting()}, {username} !</h1>
-                                <span className='text-[16px] text-[#3D5A80]'>This is your personal timesheet dashboard, showing you what needs your attention now.</span>
+                                <h1 className='!text-[23px] font-bold text-[#282048]'>{getGreeting(t)}, {username} !</h1>
+                                <span className='text-[16px] text-[#3D5A80]'>{t('pages.timesheet.HEADING_DESCRIPTION')}</span>
                             </div>
                             <div className='flex items-center w-full justify-between gap-6 pt-4'>
                                 <TimesheetCard
@@ -106,12 +108,14 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                     mode='ListView'
                                     active={timesheetNavigator === 'ListView'}
                                     onClick={() => setTimesheetNavigator('ListView')}
+                                    t={t}
                                 />
                                 <ViewToggleButton
                                     icon={<CalendarDaysIcon size={20} className='!text-sm' />}
                                     mode='CalendarView'
                                     active={timesheetNavigator === 'CalendarView'}
                                     onClick={() => setTimesheetNavigator('CalendarView')}
+                                    t={t}
                                 />
                             </div>
                             <div className='flex items-center h-9 w-[700px] bg-white gap-x-2 px-2 border border-gray-200 rounded-sm mb-2'>
@@ -163,7 +167,8 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
     mode,
     active,
     icon,
-    onClick
+    onClick,
+    t
 }) => (
     <button
         onClick={onClick}
@@ -172,6 +177,6 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
             active && 'border-b-primary text-primary border-b-2 bg-[#F1F5F9]'
         )}>
         {icon}
-        <span>{mode === 'ListView' ? 'List View' : 'Calendar View'}</span>
+        <span>{mode === 'ListView' ? t('pages.timesheet.VIEWS.LIST') : t('pages.timesheet.VIEWS.CALENDAR')}</span>
     </button>
 );

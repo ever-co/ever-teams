@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "نحن تحت الصيانة",
 			"HEADING_DESCRIPTION": "نقوم حاليًا بتحديث موقعنا الإلكتروني لخدمتك بشكل أفضل. يرجى التحقق مرة أخرى في وقت لاحق."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "سجل الساعات",
+			"TIMESHEET_VIEW_DETAILS": "عرض التفاصيل",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "الموافقة على المحدد",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "رفض المحدد",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "حذف المحدد",
+			"HEADING_DESCRIPTION": "هذا هو لوحة المعلومات الشخصية الخاصة بك، تظهر لك ما يحتاج إلى انتباهك الآن.",
+			"GREETINGS": {
+				"GOOD_MORNING": "صباح الخير",
+				"GOOD_AFTERNOON": "مساء الخير",
+				"GOOD_EVENING": "مساء الخير"
+			},
+			"VIEWS": {
+				"LIST": "عرض القائمة",
+				"CALENDAR": "عرض التقويم"
+			},
+			"BILLABLE": {
+				"YES": "نعم",
+				"NO": "لا"
+			},
+			"LOADING": "جارٍ تحميل بيانات سجل الزمن...",
+			"NO_ENTRIES_FOUND": "لم يتم العثور على إدخالات سجل الزمن"
 		}
 	},
 	"timer": {

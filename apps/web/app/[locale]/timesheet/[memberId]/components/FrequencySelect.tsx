@@ -39,7 +39,7 @@ export function FrequencySelect() {
         <Select
             value={selectedValue}
             onValueChange={handleSelectChange}>
-            <SelectTrigger className="w-[170px] overflow-hidden text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+            <SelectTrigger className="w-auto overflow-hidden text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
                 <SelectValue placeholder="Select a daily" />
             </SelectTrigger>
             <SelectContent>
