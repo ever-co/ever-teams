@@ -3,18 +3,20 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { Setting } from './pages/Setting';
 import i18next from 'i18next';
-import { ServerPage } from './pages/Server';
 import { ThemeProvider, useTheme } from './ThemeContext';
+import SetupPage from './pages/Setup';
+import { ServerPage } from './pages/Server';
 
 export default function App() {
   const [language, setLanguage] = useState<string>('en');
   const { theme } = useTheme();
 
   const setTheme = async (htmlElement: HTMLElement) => {
-    const currentTheme = await window.electron.ipcRenderer.invoke('current-theme');
+    const currentTheme =
+      await window.electron.ipcRenderer.invoke('current-theme');
     htmlElement.classList.remove('dark', 'light');
     htmlElement.classList.toggle(currentTheme || theme);
-  }
+  };
 
   useEffect(() => {
     const htmlElement = document.documentElement;
@@ -26,7 +28,7 @@ export default function App() {
       console.log(value);
       htmlElement.classList.remove('dark', 'light');
       htmlElement.classList.toggle(value.data);
-    })
+    });
     i18next.changeLanguage(language);
   }, [language]);
   return (
@@ -35,6 +37,7 @@ export default function App() {
         <Routes>
           <Route path="/setting" element={<Setting />} />
           <Route path="/history-console" element={<ServerPage />} />
+          <Route path="/setup" element={<SetupPage />} />
         </Routes>
       </Router>
     </ThemeProvider>
