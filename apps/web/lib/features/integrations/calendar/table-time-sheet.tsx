@@ -61,6 +61,7 @@ import { Badge } from '@components/ui/badge'
 import { IDailyPlan } from "@/app/interfaces"
 import { StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 import { useTranslations } from "next-intl"
+import { formatDate } from "@/app/helpers"
 
 
 
@@ -223,57 +224,66 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                         ))}
                     </TableHeader> */}
                     <TableBody className="w-full rounded-md">
-                        <Accordion type="single" collapsible>
-                            {Object.entries(groupedRows).map(([status, rows]) => (
-                                <AccordionItem key={status} value={status} className="p-1 rounded">
-                                    <AccordionTrigger
-                                        style={{ backgroundColor: statusColor(status).bgOpacity }}
-                                        type="button"
-                                        className={clsxm(
-                                            "flex flex-row-reverse justify-end items-center w-full h-9 rounded-sm gap-x-2 hover:no-underline px-2",
-                                            statusColor(status).text,
-                                        )}
-                                    >
-                                        <div className="flex items-center space-x-1 justify-between w-full">
-                                            <div className="flex items-center space-x-1">
-                                                <div className={clsxm("p-2 rounded", statusColor(status).bg)}></div>
-                                                <div className="flex items-center gap-x-1">
-                                                    <span className="text-base font-normal uppercase text-gray-400">
-                                                        {status}
-                                                    </span>
-                                                    <span className="text-gray-400 text-[14px]">({rows.length})</span>
+                        {data?.map((plan, index) => (
+                            <div key={index}>
+                                <div className="h-10 flex justify-between items-center w-full bg-[#eeeef1cc] rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">
+                                    <span>{formatDate(plan?.date)}</span>
+                                    <span>64:30h</span>
+                                </div>
+                                <Accordion type="single" collapsible>
+                                    {Object.entries(groupedRows).map(([status, rows]) => (
+                                        <AccordionItem key={status} value={status} className="p-1 rounded">
+                                            <AccordionTrigger
+                                                style={{ backgroundColor: statusColor(status).bgOpacity }}
+                                                type="button"
+                                                className={clsxm(
+                                                    "flex flex-row-reverse justify-end items-center w-full h-9 rounded-sm gap-x-2 hover:no-underline px-2",
+                                                    statusColor(status).text,
+                                                )}
+                                            >
+                                                <div className="flex items-center space-x-1 justify-between w-full">
+                                                    <div className="flex items-center space-x-1">
+                                                        <div className={clsxm("p-2 rounded", statusColor(status).bg)}></div>
+                                                        <div className="flex items-center gap-x-1">
+                                                            <span className="text-base font-normal uppercase text-gray-400">
+                                                                {status}
+                                                            </span>
+                                                            <span className="text-gray-400 text-[14px]">({rows.length})</span>
+                                                        </div>
+                                                        <Badge variant={'outline'} className="flex items-center gap-x-2 rounded-md bg-[#E4E4E7]">
+                                                            <span className="text-[#71717A]">Total</span>
+                                                            <span>24:30h</span>
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 p-x-1">
+                                                        {getTimesheetButtons(status as StatusType, t)}
+                                                    </div>
                                                 </div>
-                                                <Badge variant={'outline'} className="flex items-center gap-x-2 rounded-md bg-[#E4E4E7]">
-                                                    <span className="text-[#71717A]">Total</span>
-                                                    <span>24:30h</span>
-                                                </Badge>
-                                            </div>
-                                            <div className="flex items-center gap-2 p-x-1">
-                                                {getTimesheetButtons(status as StatusType, t)}
-                                            </div>
-                                        </div>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="flex flex-col w-full">
-                                        {rows.length ? (
-                                            rows.map((row) => (
-                                                <TableRow style={{ backgroundColor: statusColor(status).bgOpacity }}
-                                                    key={row.id} className="min-w-full w-auto">
-                                                    {row.getVisibleCells().map((cell) => (
-                                                        <TableCell key={cell.id} className="w-full">
-                                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                        </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={columns.length} className="text-center">No results.</TableCell>
-                                            </TableRow>
-                                        )}
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
-                        </Accordion>
+                                            </AccordionTrigger>
+                                            <AccordionContent className="flex flex-col w-full">
+                                                {rows.length ? (
+                                                    rows.map((row) => (
+                                                        <TableRow style={{ backgroundColor: statusColor(status).bgOpacity }}
+                                                            key={row.id} className="min-w-full w-auto">
+                                                            {row.getVisibleCells().map((cell) => (
+                                                                <TableCell key={cell.id} className="w-full">
+                                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))
+                                                ) : (
+                                                    <TableRow>
+                                                        <TableCell colSpan={columns.length} className="text-center">No results.</TableCell>
+                                                    </TableRow>
+                                                )}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
+                            </div>
+                        ))}
+
                     </TableBody>
                 </Table>
             </div>
