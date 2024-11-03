@@ -213,6 +213,6 @@ export const getGreeting = (t: TranslationHooks) => {
 	} else if (currentHour >= GREETING_TIMES.AFTERNOON_START && currentHour < GREETING_TIMES.EVENING_START) {
 		return t('pages.timesheet.GREETINGS.GOOD_AFTERNOON');
 	} else {
-		return t('pages.timesheet.GREETINGS.GOOD_MORNING');
+		return t('pages.timesheet.GREETINGS.GOOD_EVENING');
 	}
 }
