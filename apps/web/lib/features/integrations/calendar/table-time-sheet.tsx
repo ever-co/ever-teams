@@ -423,6 +423,7 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 };
 
 export const StatusTask = () => {
+    const t = useTranslations();
     return (
         <>
             <DropdownMenuSub>
@@ -450,12 +451,12 @@ export const StatusTask = () => {
                     <DropdownMenuSubContent>
                         <DropdownMenuItem textValue={'Oui'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <span>Yes</span>
+                                <span>{t('pages.timesheet.BILLABLE.YES')}</span>
                             </div>
                         </DropdownMenuItem>
                         <DropdownMenuItem textValue={'No'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <span>No</span>
+                                <span>{t('pages.timesheet.BILLABLE.NO')}</span>
                             </div>
                         </DropdownMenuItem>
                     </DropdownMenuSubContent>

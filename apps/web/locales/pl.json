@@ -551,16 +551,24 @@
 			"HEADING_DESCRIPTION": "Obecnie aktualizujemy naszą stronę internetową, aby lepiej Ci służyć. Sprawdź ponownie później."
 		},
 		"timesheet": {
-			"TIMESHEET_TITLE": "Harmonogram",
+			"TIMESHEET_TITLE": "Arkusz czasu",
 			"TIMESHEET_VIEW_DETAILS": "Zobacz szczegóły",
-			"TIMESHEET_ACTION_APPROVE_SELECTED": "Zatwierdź wybrane",
-			"TIMESHEET_ACTION_REJECT_SELECTED": "Odrzuć wybrane",
-			"TIMESHEET_ACTION_DELETE_SELECTED": "Usuń wybrane",
-			"HEADING_DESCRIPTION": "To jest twój osobisty pulpit harmonogramu, który pokazuje, co teraz wymaga twojej uwagi.",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Zatwierdź zaznaczone",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Odrzuć zaznaczone",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Usuń zaznaczone",
+			"HEADING_DESCRIPTION": "To jest Twoje osobiste dashboard arkusza czasu, pokazujące, co wymaga Twojej uwagi teraz.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Dzień dobry",
-				"GOOD_AFTERNOON": "Dzień dobry",
+				"GOOD_AFTERNOON": "Dobry wieczór",
 				"GOOD_EVENING": "Dobry wieczór"
+			},
+			"VIEWS": {
+				"LIST": "Widok listy",
+				"CALENDAR": "Widok kalendarza"
+			},
+			"BILLABLE": {
+				"YES": "Tak",
+				"NO": "Nie"
 			}
 		}
 	},

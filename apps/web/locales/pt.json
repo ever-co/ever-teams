@@ -556,11 +556,19 @@
 			"TIMESHEET_ACTION_APPROVE_SELECTED": "Aprovar selecionados",
 			"TIMESHEET_ACTION_REJECT_SELECTED": "Rejeitar selecionados",
 			"TIMESHEET_ACTION_DELETE_SELECTED": "Excluir selecionados",
-			"HEADING_DESCRIPTION": "Este é o seu painel pessoal de folha de ponto, mostrando o que precisa de sua atenção agora.",
+			"HEADING_DESCRIPTION": "Este é o seu painel de controle pessoal de folha de ponto, mostrando o que precisa da sua atenção agora.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Bom dia",
 				"GOOD_AFTERNOON": "Boa tarde",
 				"GOOD_EVENING": "Boa noite"
+			},
+			"VIEWS": {
+				"LIST": "Visualização em lista",
+				"CALENDAR": "Visualização em calendário"
+			},
+			"BILLABLE": {
+				"YES": "Sim",
+				"NO": "Não"
 			}
 		}
 	},

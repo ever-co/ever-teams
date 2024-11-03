@@ -551,16 +551,24 @@
 			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
 		},
 		"timesheet": {
-			"TIMESHEET_TITLE": "Stundenzettel",
+			"TIMESHEET_TITLE": "Zeiterfassung",
 			"TIMESHEET_VIEW_DETAILS": "Details anzeigen",
-			"TIMESHEET_ACTION_APPROVE_SELECTED": "Auswahl genehmigen",
-			"TIMESHEET_ACTION_REJECT_SELECTED": "Auswahl ablehnen",
-			"TIMESHEET_ACTION_DELETE_SELECTED": "Auswahl löschen",
-			"HEADING_DESCRIPTION": "Dies ist Ihr persönliches Stundenzettel-Dashboard, das Ihnen zeigt, was jetzt Ihre Aufmerksamkeit benötigt.",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Ausgewählte genehmigen",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Ausgewählte ablehnen",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Ausgewählte löschen",
+			"HEADING_DESCRIPTION": "Dies ist Ihr persönliches Zeiterfassungs-Dashboard, das Ihnen zeigt, was jetzt Ihre Aufmerksamkeit erfordert.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Guten Morgen",
-				"GOOD_AFTERNOON": "Guten Tag",
+				"GOOD_AFTERNOON": "Guten Nachmittag",
 				"GOOD_EVENING": "Guten Abend"
+			},
+			"VIEWS": {
+				"LIST": "Listenansicht",
+				"CALENDAR": "Kalenderansicht"
+			},
+			"BILLABLE": {
+				"YES": "Ja",
+				"NO": "Nein"
 			}
 		}
 	},

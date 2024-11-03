@@ -551,16 +551,24 @@
 			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
 		},
 		"timesheet": {
-			"TIMESHEET_TITLE": "Urenstaat",
+			"TIMESHEET_TITLE": "Urenregistratie",
 			"TIMESHEET_VIEW_DETAILS": "Bekijk details",
-			"TIMESHEET_ACTION_APPROVE_SELECTED": "Keur geselecteerde goed",
-			"TIMESHEET_ACTION_REJECT_SELECTED": "Weiger geselecteerde",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Goedkeuren geselecteerde",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Afwijzen geselecteerde",
 			"TIMESHEET_ACTION_DELETE_SELECTED": "Verwijder geselecteerde",
-			"HEADING_DESCRIPTION": "Dit is je persoonlijke urenstaat-dashboard, dat je laat zien wat nu je aandacht nodig heeft.",
+			"HEADING_DESCRIPTION": "Dit is jouw persoonlijke urenregistratie-dashboard, dat laat zien wat jouw aandacht nu vereist.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Goedemorgen",
 				"GOOD_AFTERNOON": "Goedemiddag",
 				"GOOD_EVENING": "Goedenavond"
+			},
+			"VIEWS": {
+				"LIST": "Lijstweergave",
+				"CALENDAR": "Kalenderweergave"
+			},
+			"BILLABLE": {
+				"YES": "Ja",
+				"NO": "Nee"
 			}
 		}
 	},

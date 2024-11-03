@@ -556,11 +556,19 @@
 			"TIMESHEET_ACTION_APPROVE_SELECTED": "Aprobar seleccionados",
 			"TIMESHEET_ACTION_REJECT_SELECTED": "Rechazar seleccionados",
 			"TIMESHEET_ACTION_DELETE_SELECTED": "Eliminar seleccionados",
-			"HEADING_DESCRIPTION": "Este es tu panel de control de hoja de horas personal, que muestra lo que necesita tu atención ahora.",
+			"HEADING_DESCRIPTION": "Este es tu panel personal de hoja de horas, que muestra lo que necesita tu atención ahora.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Buenos días",
 				"GOOD_AFTERNOON": "Buenas tardes",
 				"GOOD_EVENING": "Buenas noches"
+			},
+			"VIEWS": {
+				"LIST": "Vista de lista",
+				"CALENDAR": "Vista de calendario"
+			},
+			"BILLABLE": {
+				"YES": "Sí",
+				"NO": "No"
 			}
 		}
 	},

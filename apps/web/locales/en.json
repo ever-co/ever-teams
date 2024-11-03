@@ -561,6 +561,14 @@
 				"GOOD_MORNING": "Good morning",
 				"GOOD_AFTERNOON": "Good afternoon",
 				"GOOD_EVENING": "Good evening"
+			},
+			"VIEWS": {
+				"LIST": "List View",
+				"CALENDAR": "Calendar View"
+			},
+			"BILLABLE": {
+				"YES": "Yes",
+				"NO": "No"
 			}
 		}
 	},
