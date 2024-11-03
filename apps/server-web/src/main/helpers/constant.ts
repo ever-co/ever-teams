@@ -17,6 +17,7 @@ export const EventLists = {
   SERVER_WINDOW: 'SERVER_WINDOW',
   RESTART_SERVER: 'RESTART_SERVER',
   CHANGE_THEME: 'CHANGE_THEME',
+  SETUP_WINDOW: 'SETUP_WINDOW'
 }
 
 export const SettingPageTypeMessage = {

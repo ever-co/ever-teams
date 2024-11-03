@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path';
 import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
@@ -40,6 +40,7 @@ let intervalUpdate: NodeJS.Timeout;
 let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
+let setupWindow: BrowserWindow | any = null;
 let SettingMenu: any = null;
 let ServerWindowMenu: any = null;
 
@@ -149,13 +150,14 @@ const installExtensions = async () => {
 };
 
 
-const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
+const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDOW') => {
   if (isDebug) {
     await installExtensions();
   }
 
   const defaultOptionWindow = {
     title: app.name,
+    frame: true,
     show: false,
     width: 1024,
     height: 728,
@@ -198,6 +200,15 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
         ServerWindowMenu = new MenuBuilder(logWindow);
       }
       ServerWindowMenu.buildMenu();
+      break;
+    case 'SETUP_WINDOW':
+      setupWindow = new BrowserWindow(defaultOptionWindow);
+      url = resolveHtmlPath('index.html', 'setup');
+      setupWindow?.loadURL(url);
+      mainBindings(ipcMain, setupWindow, fs);
+      setupWindow.on('closed', () => {
+        setupWindow = null;
+      })
       break;
     default:
       break;
@@ -418,7 +429,17 @@ const onInitApplication = () => {
 
 (async () => {
   await app.whenReady()
-  onInitApplication();
+  const storeConfig:WebServer = LocalStore.getStore('config');
+  if (storeConfig?.general?.setup) {
+    onInitApplication();
+  } else {
+    if (!setupWindow) {
+      await createWindow('SETUP_WINDOW');
+    }
+    if (setupWindow) {
+      setupWindow?.show()
+    }
+  }
 })()
 
 app.on('window-all-closed', () => {
@@ -453,12 +474,23 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
           }
         }
       )
-      event.sender.send(IPC_TYPES.SETTING_PAGE, {
-        type: SettingPageTypeMessage.mainResponse, data: {
-          status: true,
-          isServerRun: isServerRun
-        }
-      });
+      if (arg.isSetup) {
+        LocalStore.updateConfigSetting({
+          general: {
+            setup: true
+          }
+        });
+        setupWindow?.close();
+        onInitApplication();
+        eventEmitter.emit(EventLists.SERVER_WINDOW);
+      } else {
+        event.sender.send(IPC_TYPES.SETTING_PAGE, {
+          type: SettingPageTypeMessage.mainResponse, data: {
+            status: true,
+            isServerRun: isServerRun
+          }
+        });
+      }
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
