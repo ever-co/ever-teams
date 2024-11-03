@@ -217,13 +217,11 @@ export const getGreeting = (t: TranslationHooks) => {
 	}
 }
 
-export const formatDate = (dateStr: string | Date) => {
-	const date = new Date(dateStr);
-	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-	const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-	const dayOfWeek = days[date.getUTCDay()];
-	const day = String(date.getUTCDate()).padStart(2, '0');
-	const month = months[date.getUTCMonth()];
-	const year = date.getUTCFullYear();
-	return `${dayOfWeek} ${day} ${month} ${year}`;
+export const formatDate = (dateStr: string | Date): string => {
+	try {
+		return moment(dateStr).format('ddd DD MMM YYYY');
+	} catch (error) {
+		console.error('Invalid date format:', error);
+		return '';
+	}
 }
