@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "Мы на обслуживании ",
 			"HEADING_DESCRIPTION": "В настоящее время мы обновляем наш веб-сайт, чтобы лучше обслуживать вас. Пожалуйста, зайдите позже."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Учёт рабочего времени",
+			"TIMESHEET_VIEW_DETAILS": "Просмотреть детали",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Одобрить выбранные",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Отклонить выбранные",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Удалить выбранные",
+			"HEADING_DESCRIPTION": "Это ваша личная панель учёта рабочего времени, показывающая, что требует вашего внимания сейчас.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Доброе утро",
+				"GOOD_AFTERNOON": "Добрый день",
+				"GOOD_EVENING": "Добрый вечер"
+			},
+			"VIEWS": {
+				"LIST": "Список",
+				"CALENDAR": "Календарь"
+			},
+			"BILLABLE": {
+				"YES": "Да",
+				"NO": "Нет"
+			},
+			"LOADING": "Загрузка данных учета времени...",
+			"NO_ENTRIES_FOUND": "Записи учета времени не найдены"
 		}
 	},
 	"timer": {

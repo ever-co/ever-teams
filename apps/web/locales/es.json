@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "Estamos en Mantenimiento",
 			"HEADING_DESCRIPTION": "Actualmente estamos actualizando nuestro sitio web para brindarle un mejor servicio. Por favor, vuelva más tarde."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Hoja de horas",
+			"TIMESHEET_VIEW_DETAILS": "Ver detalles",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Aprobar seleccionados",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Rechazar seleccionados",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Eliminar seleccionados",
+			"HEADING_DESCRIPTION": "Este es tu panel personal de hoja de horas, que muestra lo que necesita tu atención ahora.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Buenos días",
+				"GOOD_AFTERNOON": "Buenas tardes",
+				"GOOD_EVENING": "Buenas noches"
+			},
+			"VIEWS": {
+				"LIST": "Vista de lista",
+				"CALENDAR": "Vista de calendario"
+			},
+			"BILLABLE": {
+				"YES": "Sí",
+				"NO": "No"
+			},
+			"LOADING": "Cargando datos del registro de horas...",
+			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas"
 		}
 	},
 	"timer": {

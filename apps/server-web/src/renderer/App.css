@@ -453,7 +453,7 @@ html.dark {
 }
 
 .switch-root[data-state='checked'] {
-  background-color: rgb(96 165 250/var(--tw-bg-opacity));
+  @apply bg-violet-800
 }
 
 .switch-thumb {

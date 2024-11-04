@@ -1,8 +1,8 @@
 import { clsxm } from '@app/utils';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
-import { Modal } from 'lib/components'
-import React from 'react'
+import { Modal } from 'lib/components';
+import React from 'react';
 
 interface ConfirmStatusChangeProps {
     isOpen?: boolean;
@@ -93,11 +93,11 @@ export function StatusBadge({ selectedStatus, filterNumber }: { selectedStatus?:
     const getColorClass = () => {
         switch (selected) {
             case "Rejected":
-                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-red-500"} `;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-[#dc2626]"} `;
             case "Approved":
-                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-green-500"}`;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-[#30B366]"}`;
             case "Pending":
-                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-orange-500"} `;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-[#FBB650]"} `;
             default:
                 return `text-gray-500 dark:text-gray-200 border-gray-200 dark:border-gray-700 !py-0 font-normal`;
         }

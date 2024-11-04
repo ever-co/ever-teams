@@ -2,6 +2,7 @@
 import { clsxm } from '@app/utils';
 import { ArrowRightIcon } from 'assets/svg';
 import { Button, Card } from 'lib/components';
+import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 
 interface ITimesheetCard {
@@ -19,6 +20,7 @@ interface ITimesheetCard {
 
 export function TimesheetCard({ ...props }: ITimesheetCard) {
     const { icon, title, date, description, hours, count, onClick, classNameIcon } = props;
+    const t = useTranslations();
     return (
         <Card
             aria-label={`Timesheet card for ${title}`}
@@ -41,7 +43,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
                     )}
                     aria-label="View timesheet details"
                     onClick={onClick}>
-                    <span>View Details</span>
+                    <span>{t('pages.timesheet.TIMESHEET_VIEW_DETAILS')}</span>
                     <ArrowRightIcon className={clsxm(
                         'h-6 w-6',
                         'text-[#282048] dark:text-[#6b7280]'

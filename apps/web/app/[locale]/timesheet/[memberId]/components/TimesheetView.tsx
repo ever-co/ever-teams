@@ -1,0 +1,24 @@
+import { IDailyPlan } from '@/app/interfaces';
+import { DataTableTimeSheet } from 'lib/features/integrations/calendar';
+import { useTranslations } from 'next-intl';
+
+export function TimesheetView({ data }: { data?: IDailyPlan[] }) {
+    const t = useTranslations();
+    return (
+        <div className='grow h-full w-full bg-[#FFFFFF]'>
+            {data ? (
+                data.length > 0 ? (
+                    <DataTableTimeSheet data={data} />
+                ) : (
+                    <div className="flex items-center justify-center h-full">
+                        <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
+                    </div>
+                )
+            ) : (
+                <div className="flex items-center justify-center h-full">
+                    <p>{t('pages.timesheet.LOADING')}</p>
+                </div>
+            )}
+        </div>
+    )
+}

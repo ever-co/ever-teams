@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "Ние сме в процес на поддръжка",
 			"HEADING_DESCRIPTION": "В момента актуализираме нашия уебсайт, за да ви служим по-добре. Моля, проверете отново по-късно."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Таблица на часовете",
+			"TIMESHEET_VIEW_DETAILS": "Преглед на детайлите",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Одобрете избраното",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Отхвърлете избраното",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Изтрийте избраното",
+			"HEADING_DESCRIPTION": "Това е вашата лична табло на часовете, показваща какво изисква вашето внимание сега.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Добро утро",
+				"GOOD_AFTERNOON": "Добър следобед",
+				"GOOD_EVENING": "Добър вечер"
+			},
+			"VIEWS": {
+				"LIST": "Списъчен изглед",
+				"CALENDAR": "Календарен изглед"
+			},
+			"BILLABLE": {
+				"YES": "Да",
+				"NO": "Не"
+			},
+			"LOADING": "Зареждане на данни за таблицата на работното време...",
+			"NO_ENTRIES_FOUND": "Няма намерени записи за таблицата на работното време"
 		}
 	},
 	"timer": {

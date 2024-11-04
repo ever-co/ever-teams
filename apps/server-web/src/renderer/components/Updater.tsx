@@ -112,12 +112,12 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
             {t('FORM.LABELS.AUTO_UPDATE_SUBTITLE')}
           </span>
         </div>
-        <div className="bg-gray-50 dark:bg-[#25272D] dark:text-white px-16 py-14 mt-10 w-full rounded-lg">
+        <div className="bg-gray-50 dark:bg-[#25272D] dark:text-white px-16 py-14 mt-10 w-full rounded-lg border-2 border-gray-200 dark:border-gray-600">
           <form>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div className="flex w-1/2">
                 <Switch.Root
-                  className="switch-root"
+                  className="switch-root has-[:checked]:bg-violet-800"
                   id="airplane-mode"
                   onCheckedChange={(value) => {
                     setOpen();
@@ -172,7 +172,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
           </div>
         </div>
         <button
-          className="mt-10 block rounded-lg border-4 border-transparent bg-blue-400 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8"
+          className="mt-10 block rounded-lg border-4 border-transparent bg-violet-800 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8"
           onClick={props.checkForUpdate}
           disabled={props.loading}
         >
@@ -181,7 +181,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
           )}
           {!props.loading && t(`FORM.LABELS.${props.updateStates.label}`)}
         </button>
-        <div className="grid divide-y divide-neutral-200 shadow-lg mx-auto mt-8 dark:bg-[#25272D] dark:text-white rounded-lg">
+        <div className="grid divide-y divide-neutral-200 mx-auto mt-8 dark:bg-[#25272D] dark:text-white rounded-lg border-2 border-gray-200 dark:border-gray-600">
           <div className="py-5 px-5">
             <details className="group">
               <summary className="flex justify-between items-center font-medium cursor-pointer list-none">

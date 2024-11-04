@@ -49,17 +49,17 @@ export function ServerPage() {
         </div>
       </div>
       <button
-        className="block rounded-lg border-4 border-transparent bg-blue-400 px-6 py-2 text-center text-base font-medium text-100 w-fit mx-auto my-5"
+        className="block rounded-lg border-4 border-transparent bg-violet-800 px-6 py-2 text-center text-base font-medium text-100 w-fit mx-auto my-5 text-gray-200"
         onClick={runServer}
         disabled={loading}
       >
         {isRun ? t('FORM.BUTTON.STOP') : t('FORM.BUTTON.START')}
       </button>
-      <div className="grid divide-y divide-neutral-200 dark:bg-[#25272D] dark:text-white shadow-lg mx-auto w-10/12 rounded-lg">
+      <div className="grid divide-y divide-neutral-200 dark:bg-[#25272D] dark:text-white mx-auto w-10/12 rounded-lg border-2 border-gray-200 dark:border-gray-600">
         <div className="py-5 px-5">
           <details className="group">
             <summary className="flex justify-between items-center font-medium cursor-pointer list-none">
-              <span> Server Logs</span>
+              <span className="p-2"> Server Logs</span>
               <span className="transition group-open:rotate-180">
                 <svg
                   fill="none"
@@ -79,12 +79,12 @@ export function ServerPage() {
             <div
               className="inline-block w-full bg-black dark:bg-black text-white text-xs leading-3 rounded-lg"
               style={{
-                minHeight: '400px',
-                maxHeight: '400px',
+                minHeight: '350px',
+                maxHeight: '350px',
                 overflowY: 'auto',
               }}
             >
-              <div className="ml-1 mt-1">
+              <div className="ml-1 mt-1 p-2">
                 {logs.length > 0 &&
                   logs.map((log, i) => (
                     <div className="py-1" key={i}>
