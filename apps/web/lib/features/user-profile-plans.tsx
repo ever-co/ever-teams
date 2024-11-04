@@ -444,9 +444,8 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-6 flex ${
-				planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
-			}  items-center gap-5`}
+			className={`mb-6 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
+				}  items-center gap-5`}
 		>
 			{/* Planned Time */}
 

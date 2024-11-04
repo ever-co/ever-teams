@@ -547,8 +547,31 @@
 			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
 		},
 		"maintenance": {
-			"HEADING_TITLE": "We zijn in onderhoud ",
-			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
+			"HEADING_TITLE": "Wir führen Wartungsarbeiten durch",
+			"HEADING_DESCRIPTION": "Wir aktualisieren derzeit unsere Website, um Ihnen einen noch besseren Service bieten zu können. Bitte versuchen Sie es später erneut."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Zeiterfassung",
+			"TIMESHEET_VIEW_DETAILS": "Details anzeigen",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Ausgewählte genehmigen",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Ausgewählte ablehnen",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Ausgewählte löschen",
+			"HEADING_DESCRIPTION": "Dies ist Ihr persönliches Zeiterfassungs-Dashboard, das Ihnen zeigt, was jetzt Ihre Aufmerksamkeit erfordert.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Guten Morgen",
+				"GOOD_AFTERNOON": "Guten Nachmittag",
+				"GOOD_EVENING": "Guten Abend"
+			},
+			"VIEWS": {
+				"LIST": "Listenansicht",
+				"CALENDAR": "Kalenderansicht"
+			},
+			"BILLABLE": {
+				"YES": "Ja",
+				"NO": "Nein"
+			},
+			"LOADING": "Lade Zeiterfassungsdaten...",
+			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden"
 		}
 	},
 	"timer": {

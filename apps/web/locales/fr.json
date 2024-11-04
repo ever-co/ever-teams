@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "Nous sommes en cours de maintenance",
 			"HEADING_DESCRIPTION": "Nous mettons actuellement à jour notre site Web pour mieux vous servir. Veuillez revenir plus tard."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Feuille de temps",
+			"TIMESHEET_VIEW_DETAILS": "Voir les détails",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Approuver sélectionné",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Rejeter sélectionné",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Supprimer sélectionné",
+			"HEADING_DESCRIPTION": "Ceci est votre tableau de bord de feuille de temps personnel, montrant ce qui nécessite votre attention maintenant.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Bonjour",
+				"GOOD_AFTERNOON": "Bon après-midi",
+				"GOOD_EVENING": "Bonsoir"
+			},
+			"VIEWS": {
+				"LIST": "Vue en liste",
+				"CALENDAR": "Vue calendrier"
+			},
+			"BILLABLE": {
+				"YES": "Oui",
+				"NO": "Non"
+			},
+			"LOADING": "Chargement des données de la feuille de temps...",
+			"NO_ENTRIES_FOUND": "Aucune entrée de feuille de temps trouvée"
 		}
 	},
 	"timer": {

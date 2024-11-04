@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "אנחנו בשלבי תחזוקה ",
 			"HEADING_DESCRIPTION": "אנו מעדכנים כעת את האתר שלנו כדי לשרת אותך טוב יותר. אנא בדוק שוב מאוחר יותר."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "דוח שעות",
+			"TIMESHEET_VIEW_DETAILS": "ראה פרטים",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "אשר נבחרים",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "דחה נבחרים",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "מחק נבחרים",
+			"HEADING_DESCRIPTION": "זהו לוח הבקרה האישי שלך לדוח שעות, שמראה לך מה דורש את תשומת הלב שלך עכשיו.",
+			"GREETINGS": {
+				"GOOD_MORNING": "בוקר טוב",
+				"GOOD_AFTERNOON": "אחר הצהריים טובים",
+				"GOOD_EVENING": "ערב טוב"
+			},
+			"VIEWS": {
+				"LIST": "תצוגת רשימה",
+				"CALENDAR": "תצוגת לוח שנה"
+			},
+			"BILLABLE": {
+				"YES": "כן",
+				"NO": "לא"
+			},
+			"LOADING": "טוען נתוני רשומת זמן...",
+			"NO_ENTRIES_FOUND": "לא נמצאו רשומות זמן"
 		}
 	},
 	"timer": {

@@ -26,6 +26,10 @@ export function TimeSheetFilterPopover() {
                 </PopoverTrigger>
                 <PopoverContent className="w-96">
                     <div className="w-full flex flex-col">
+                        <div className="flex mb-3 text-xl font-bold gap-2">
+                            <SettingFilterIcon className="text-gray-700 dark:text-white w-4" strokeWidth="1.8" />
+                            <span className="text-gray-700 dark:text-white">Filters</span>
+                        </div>
                         <div className="grid gap-5">
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
@@ -83,14 +87,14 @@ export function TimeSheetFilterPopover() {
                                     triggerClassName="dark:border-gray-700"
                                 />
                             </div>
-                            <div className="flex items-center justify-between gap-x-4 w-full">
+                            <div className="flex items-center justify-end gap-x-4 w-full">
                                 <Button
                                     variant={'outline'}
-                                    className='flex items-center text-sm justify-center h-10 w-full rounded-lg  dark:text-gray-300' >
+                                    className='flex items-center text-sm justify-center h-10   rounded-lg  dark:text-gray-300' >
                                     <span className="text-sm">Clear Filter</span>
                                 </Button>
                                 <Button
-                                    className='flex items-center text-sm justify-center h-10 w-full rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300' >
+                                    className='flex items-center text-sm justify-center h-10  rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300' >
                                     <span className="text-sm">Apply Filter</span>
                                 </Button>
                             </div>

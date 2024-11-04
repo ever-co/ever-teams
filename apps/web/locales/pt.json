@@ -549,6 +549,29 @@
 		"maintenance": {
 			"HEADING_TITLE": "Estamos em manutenção",
 			"HEADING_DESCRIPTION": "Estamos atualizando nosso site para melhor atendê-lo. Por favor, volte mais tarde."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Folha de ponto",
+			"TIMESHEET_VIEW_DETAILS": "Ver detalhes",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Aprovar selecionados",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Rejeitar selecionados",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Excluir selecionados",
+			"HEADING_DESCRIPTION": "Este é o seu painel de controle pessoal de folha de ponto, mostrando o que precisa da sua atenção agora.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Bom dia",
+				"GOOD_AFTERNOON": "Boa tarde",
+				"GOOD_EVENING": "Boa noite"
+			},
+			"VIEWS": {
+				"LIST": "Visualização em lista",
+				"CALENDAR": "Visualização em calendário"
+			},
+			"BILLABLE": {
+				"YES": "Sim",
+				"NO": "Não"
+			},
+			"LOADING": "Загрузка данных учета рабочего времени...",
+			"NO_ENTRIES_FOUND": "Записи учета рабочего времени не найдены"
 		}
 	},
 	"timer": {

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import * as momentTimezone from 'moment-timezone';
+import { TranslationHooks } from 'next-intl';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -197,4 +198,30 @@ export function formatTimeString(timeString: string): string {
 	}
 
 	return result.length ? result : '0h 00m';
+}
+
+export const getGreeting = (t: TranslationHooks) => {
+	const GREETING_TIMES = {
+		MORNING_START: 5,
+		AFTERNOON_START: 12,
+		EVENING_START: 18
+	} as const
+	const currentHour = new Date().getHours();
+
+	if (currentHour >= GREETING_TIMES.MORNING_START && currentHour < GREETING_TIMES.AFTERNOON_START) {
+		return t('pages.timesheet.GREETINGS.GOOD_MORNING');
+	} else if (currentHour >= GREETING_TIMES.AFTERNOON_START && currentHour < GREETING_TIMES.EVENING_START) {
+		return t('pages.timesheet.GREETINGS.GOOD_AFTERNOON');
+	} else {
+		return t('pages.timesheet.GREETINGS.GOOD_EVENING');
+	}
+}
+
+export const formatDate = (dateStr: string | Date): string => {
+	try {
+		return moment(dateStr).format('ddd DD MMM YYYY');
+	} catch (error) {
+		console.error('Invalid date format:', error);
+		return '';
+	}
 }
