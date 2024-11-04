@@ -216,3 +216,12 @@ export const getGreeting = (t: TranslationHooks) => {
 		return t('pages.timesheet.GREETINGS.GOOD_EVENING');
 	}
 }
+
+export const formatDate = (dateStr: string | Date): string => {
+	try {
+		return moment(dateStr).format('ddd DD MMM YYYY');
+	} catch (error) {
+		console.error('Invalid date format:', error);
+		return '';
+	}
+}

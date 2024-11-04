@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container, Divider } from 'lib/components';
 import { Footer, MainLayout } from 'lib/layout';
-import { useAuthenticateUser, useDailyPlan, useLocalStorageState, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -36,7 +36,11 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
     const { user } = useAuthenticateUser();
 
     const { sortedPlans } = useDailyPlan();
-
+    const {
+        isOpen: isManualTimeModalOpen,
+        openModal: openManualTimeModal,
+        closeModal: closeManualTimeModal
+    } = useModal();
     const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
@@ -132,7 +136,11 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                         </div>
                         {/* <DropdownMenuDemo /> */}
                         <div className='flex flex-col min-h-screen w-full border-1 rounded-lg bg-[#FFFFFF]  p-4 mt-4'>
-                            <TimesheetFilter />
+                            <TimesheetFilter
+                                closeModal={closeManualTimeModal}
+                                openModal={openManualTimeModal}
+                                isOpen={isManualTimeModalOpen}
+                            />
                             <div className='pt-4'>
                                 {timesheetNavigator === 'ListView' ?
                                     <TimesheetView data={sortedPlans} />
