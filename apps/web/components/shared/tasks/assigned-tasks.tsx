@@ -46,17 +46,15 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
   const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
   return (
     <div
-      className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
-        now === true
-          ? '  border-primary dark:border-gray-100'
-          : ' hover:border hover:border-primary dark:border-[#202023]'
-      } bg-[#FFFFFF] my-[15px] dark:bg-[#202023] justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
+      className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${now === true
+        ? '  border-primary dark:border-gray-100'
+        : ' hover:border hover:border-primary dark:border-[#202023]'
+        } bg-[#FFFFFF] my-[15px] dark:bg-[#202023] justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
     >
       <div className="flex items-center justify-between ">
         <div
-          className={`text-black dark:text-[#FFFFFF] text-[14px] ${
-            now == true ? 'font-semibold' : 'font-normal'
-          } w-[413px]`}
+          className={`text-black dark:text-[#FFFFFF] text-[14px] ${now == true ? 'font-semibold' : 'font-normal'
+            } w-[413px]`}
         >
           {`#${task && task.taskNumber} `} {task && task.title}
         </div>

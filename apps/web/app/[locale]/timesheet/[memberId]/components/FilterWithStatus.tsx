@@ -20,18 +20,21 @@ export function FilterWithStatus({
     ];
 
     return (
-        <div className={clsxm('flex flex-nowrap h-[2.2rem] items-center bg-[#e2e8f0aa] rounded-xl w-[520px]', className)}>
+        <div className={clsxm('flex flex-nowrap h-[2.2rem] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-xl ', className)}>
             {buttonData.map(({ label, count, icon }, index) => (
                 <Button
                     key={index}
                     className={clsxm(
                         'group flex items-center justify-start h-[2.2rem] rounded-xl w-full',
-                        'dark:bg-dark--theme-light dark:border-gray-700 bg-transparent text-[#71717A] w-[80px]',
-                        activeStatus === label && 'text-primary bg-white shadow-lg font-bold border'
+                        'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A] w-[80px]',
+                        activeStatus === label && 'text-primary bg-white shadow-2xl dark:text-primary-light font-bold  border'
                     )}
                     onClick={() => onToggle(label)}>
-                    <span className={clsxm('font-medium ml-1 text-[#7E7991]', `${activeStatus === label ? "text-primary" : ""}`)}>{label}</span>
-                    <span className='font-medium ml-1 text-[#71717A]'>{count}</span>
+                    <span className={clsxm(
+                        'font-medium ml-1 text-gray-500 dark:text-gray-200',
+                        activeStatus === label && 'text-primary font-bold dark:text-primary-light'
+                    )}>{label}</span>
+                    <span className='font-medium ml-1 text-gray-500 dark:text-gray-400'>{count}</span>
                 </Button>
             ))}
         </div>

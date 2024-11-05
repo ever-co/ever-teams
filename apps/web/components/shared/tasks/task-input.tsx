@@ -140,10 +140,9 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 											<Combobox.Option
 												key={task.id}
 												className={({ active }) =>
-													`relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${
-														active
-															? 'bg-[#F9FAFB] text-opacity-80 dark:text-white dark:bg-[#202023] cursor-pointer'
-															: ' dark:text-white text-opacity-100'
+													`relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${active
+														? 'bg-[#F9FAFB] text-opacity-80 dark:text-white dark:bg-[#202023] cursor-pointer'
+														: ' dark:text-white text-opacity-100'
 													}`
 												}
 												value={task}

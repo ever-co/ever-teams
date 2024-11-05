@@ -19,7 +19,7 @@ export function TimeSheetFilterPopover() {
             <Popover>
                 <PopoverTrigger asChild>
                     <Button variant="outline"
-                        className='flex items-center justify-center h-10 rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2'>
+                        className='flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2'>
                         <SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
                         <span className="text-gray-700 dark:text-white">Filter</span>
                     </Button>
