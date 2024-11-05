@@ -207,10 +207,10 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
 
 
     return (
-        <div className="w-full dark:dark:bg-dark--theme">
+        <div className="w-full dark:bg-dark--theme">
             <div className="rounded-md">
-                <Table className="border rounded-md dark:bg-dark--theme-light">
-                    <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:dark:bg-dark--theme">
+                <Table className="order rounded-md dark:bg-dark--theme-light">
+                    <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:bg-dark--theme">
                         {data?.map((plan, index) => (
                             <div key={index}>
                                 <div className="h-10 flex justify-between items-center w-full bg-[#eeeef1cc] dark:bg-dark--theme rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">

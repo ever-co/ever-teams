@@ -22,7 +22,7 @@ export function TimesheetFilter({ closeModal, isOpen, openModal }: ITimesheetFil
                     <FilterWithStatus
                         activeStatus="Rejected"
                         onToggle={(label) => {
-                            console.log(label);
+                            // If logging is needed, use proper logging service
                         }}
                     />
                 </div>

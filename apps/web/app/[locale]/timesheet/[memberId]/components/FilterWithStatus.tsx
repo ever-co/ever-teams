@@ -30,8 +30,11 @@ export function FilterWithStatus({
                         activeStatus === label && 'text-primary bg-white shadow-2xl dark:text-primary-light font-bold  border'
                     )}
                     onClick={() => onToggle(label)}>
-                    <span className={clsxm('font-medium ml-1 text-[#7E7991] dark:text-gray-200', `${activeStatus === label ? "text-primary font-bold dark:text-primary-light" : ""}`)}>{label}</span>
-                    <span className='font-medium ml-1 text-[#71717A] dark:text-gray-400'>{count}</span>
+                    <span className={clsxm(
+                        'font-medium ml-1 text-gray-500 dark:text-gray-200',
+                        activeStatus === label && 'text-primary font-bold dark:text-primary-light'
+                    )}>{label}</span>
+                    <span className='font-medium ml-1 text-gray-500 dark:text-gray-400'>{count}</span>
                 </Button>
             ))}
         </div>

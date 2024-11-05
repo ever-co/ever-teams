@@ -4,13 +4,41 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
     const res = new NextResponse();
+    const { searchParams } = new URL(req.url);
+
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    if (!startDate || !endDate) {
+        return NextResponse.json(
+            { error: 'startDate and endDate are required' },
+            { status: 400 }
+        );
+    }
     const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
     if (!user) return $res('Unauthorized');
-    const { data } = await getTaskTimesheetRequest({
-        tenantId,
-        organizationId,
-        employeeIds: []
-    }, access_token)
+    try {
+        const { data } = await getTaskTimesheetRequest({
+            tenantId,
+            organizationId,
+            employeeIds: [],
+            startDate,
+            endDate
+        }, access_token);
 
-    return $res(data)
+        if (!data) {
+            return NextResponse.json(
+                { error: 'No data found' },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json(data);
+    } catch (error) {
+        console.error('Error fetching timesheet:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch timesheet data' },
+            { status: 500 }
+        );
+    }
+
 }

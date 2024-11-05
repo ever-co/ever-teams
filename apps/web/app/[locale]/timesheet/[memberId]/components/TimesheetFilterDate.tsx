@@ -82,6 +82,7 @@ export function TimesheetFilterDate({
         }
     };
 
+    const actionButtonClass = "h-4 border-none dark:bg-dark-theme-light text-primary hover:bg-transparent hover:underline"
 
     return (<>
         <Popover>
@@ -92,7 +93,7 @@ export function TimesheetFilterDate({
                     aria-label="Select date range"
                     aria-expanded="false"
                     className={cn(
-                        "w-44 justify-start dark:dark:bg-dark--theme-light h-[2.2rem]  items-center gap-x-2 text-left font-normal overflow-hidden text-clip dark:bg-dark--theme",
+                        "w-44 justify-start dark:bg-dark-theme h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip dark:bg-dark-theme-light",
                         !dateRange.from && "text-muted-foreground"
                     )}>
                     <CalendarIcon />
@@ -109,7 +110,7 @@ export function TimesheetFilterDate({
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 flex dark:bg-dark--theme-light">
+            <PopoverContent className="w-auto p-0 flex dark:bg-dark-theme-light">
                 {isVisible && (
                     <div className="flex flex-col p-2 gap-2 translate-x-0 justify-between">
                         <div className="flex flex-col gap-2">
@@ -126,8 +127,8 @@ export function TimesheetFilterDate({
                             />
                         </div>
                         <div className="flex w-full justify-end items-end">
-                            <Button variant={'outline'} className="h-4 border-none hover:dark:dark:bg-dark--theme-light dark:dark:bg-dark--theme-light text-primary hover:bg-transparent hover:text-primary hover:underline">Cancel</Button>
-                            <Button variant={'outline'} className="h-4 border-none hover:dark:dark:bg-dark--theme-light dark:dark:bg-dark--theme-light text-primary hover:bg-transparent hover:text-primary hover:underline">Apply</Button>
+                            <Button variant={'outline'} className={`${actionButtonClass} hover:text-gray-500`}>Cancel</Button>
+                            <Button variant={'outline'} className={`${actionButtonClass} hover:text-primary-dark`}>Apply</Button>
                         </div>
                     </div>
                 )
@@ -138,7 +139,7 @@ export function TimesheetFilterDate({
                         <Button
                             key={index}
                             variant="outline"
-                            className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700 dark:dark:bg-dark--theme-light "
+                            className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700 dark:dark:bg-dark--theme-light"
                             onClick={() => {
                                 label === 'Custom Date Range' && setIsVisible((prev) => !prev)
                                 handlePresetClick(label)
