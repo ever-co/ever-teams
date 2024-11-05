@@ -1,6 +1,7 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
+import { ITimeSheet } from '@/app/interfaces/timer/ITimerLog';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -51,4 +52,15 @@ export function taskActivityRequest(params: TTaskActivityParams, bearer_token: s
 		bearer_token,
 		tenantId: params.tenantId
 	});
+}
+
+
+export function getTaskTimesheetRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
+	const queries = qs.stringify(params);
+	return serverFetch<ITimeSheet[]>({
+		path: `/timesheet/time-log/report/daily?${queries.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: params.tenantId
+	})
 }

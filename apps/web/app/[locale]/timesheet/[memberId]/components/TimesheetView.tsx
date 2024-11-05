@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 export function TimesheetView({ data }: { data?: IDailyPlan[] }) {
     const t = useTranslations();
     return (
-        <div className='grow h-full w-full bg-[#FFFFFF]'>
+        <div className='grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme'>
             {data ? (
                 data.length > 0 ? (
                     <DataTableTimeSheet data={data} />

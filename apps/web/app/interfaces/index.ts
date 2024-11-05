@@ -41,3 +41,4 @@ export * from './integrations/IGithubMetadata';
 export * from './integrations/IIntegrationTenant';
 export * from './integrations/IIntegrationType';
 export * from './integrations/IIntegration';
+export * from './timer'
