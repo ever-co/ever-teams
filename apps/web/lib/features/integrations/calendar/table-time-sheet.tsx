@@ -5,13 +5,11 @@ import {
     ColumnDef,
     ColumnFiltersState,
     SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
+    VisibilityState, getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    useReactTable,
+    useReactTable
 } from "@tanstack/react-table"
 import { ArrowUpDownIcon, MoreHorizontal } from "lucide-react"
 import { Button } from "@components/ui/button"
@@ -28,8 +26,7 @@ import {
 } from "@components/ui/dropdown-menu"
 import {
     Table,
-    TableBody,
-    TableCell, TableRow
+    TableBody
 } from "@components/ui/table"
 import {
     Select,
@@ -62,6 +59,7 @@ import { IDailyPlan } from "@/app/interfaces"
 import { StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 import { useTranslations } from "next-intl"
 import { formatDate } from "@/app/helpers"
+import { TaskNameInfoDisplay } from "../../task/task-displays"
 
 
 
@@ -209,27 +207,17 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
 
 
     return (
-        <div className="w-full">
+        <div className="w-full dark:dark:bg-dark--theme">
             <div className="rounded-md">
-                <Table className="border rounded-md">
-                    {/* <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder ? null : flexRender(header.column.````columnDef.header, header.getContext())}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader> */}
-                    <TableBody className="w-full rounded-md">
+                <Table className="border rounded-md dark:bg-dark--theme-ligh">
+                    <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:dark:bg-dark--theme">
                         {data?.map((plan, index) => (
                             <div key={index}>
-                                <div className="h-10 flex justify-between items-center w-full bg-[#eeeef1cc] rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">
+                                <div className="h-10 flex justify-between items-center w-full bg-[#eeeef1cc] dark:bg-dark--theme rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">
                                     <span>{formatDate(plan?.date)}</span>
                                     <span>64:30h</span>
                                 </div>
+
                                 <Accordion type="single" collapsible>
                                     {Object.entries(groupedRows).map(([status, rows]) => (
                                         <AccordionItem key={status} value={status} className="p-1 rounded">
@@ -250,9 +238,9 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                             </span>
                                                             <span className="text-gray-400 text-[14px]">({rows.length})</span>
                                                         </div>
-                                                        <Badge variant={'outline'} className="flex items-center gap-x-2 rounded-md bg-[#E4E4E7]">
-                                                            <span className="text-[#71717A]">Total</span>
-                                                            <span>24:30h</span>
+                                                        <Badge variant={'outline'} className="flex items-center gap-x-2 rounded-md bg-[#E4E4E7] dark:bg-gray-800">
+                                                            <span className="text-[#5f5f61]">Total</span>
+                                                            <span className="text-[#868688]">24:30h</span>
                                                         </Badge>
                                                     </div>
                                                     <div className="flex items-center gap-2 p-x-1">
@@ -261,29 +249,37 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                 </div>
                                             </AccordionTrigger>
                                             <AccordionContent className="flex flex-col w-full">
-                                                {rows.length ? (
-                                                    rows.map((row) => (
-                                                        <TableRow style={{ backgroundColor: statusColor(status).bgOpacity }}
-                                                            key={row.id} className="min-w-full w-auto">
-                                                            {row.getVisibleCells().map((cell) => (
-                                                                <TableCell key={cell.id} className="w-full">
-                                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                                </TableCell>
-                                                            ))}
-                                                        </TableRow>
-                                                    ))
-                                                ) : (
-                                                    <TableRow>
-                                                        <TableCell colSpan={columns.length} className="text-center">No results.</TableCell>
-                                                    </TableRow>
-                                                )}
+                                                {plan.tasks?.map((task) => (
+                                                    <div
+                                                        key={task.id}
+                                                        style={{ backgroundColor: statusColor(status).bgOpacity }}
+                                                        className="flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1"
+                                                    >
+                                                        <Checkbox className="h-5 w-5" />
+                                                        <div className="flex-[2]">
+                                                            <TaskNameInfoDisplay
+                                                                task={task}
+                                                                className={clsxm('shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent')}
+                                                                taskTitleClassName={clsxm('text-sm')}
+                                                                showSize={true}
+                                                                dash
+                                                                taskNumberClassName="text-sm"
+                                                            />
+                                                        </div>
+                                                        <span className="flex-1">{task.status}</span>
+                                                        <span className="flex-1">{plan.employee?.fullName}</span>
+                                                        <span className="flex-1">
+                                                            {task.estimateHours}h, {task.estimateDays}j, {task.estimateMinutes}m
+                                                        </span>
+                                                        <TaskActionMenu idTasks={task.id} />
+                                                    </div>
+                                                ))}
                                             </AccordionContent>
                                         </AccordionItem>
                                     ))}
                                 </Accordion>
                             </div>
                         ))}
-
                     </TableBody>
                 </Table>
             </div>
@@ -299,30 +295,35 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                     <Button
                         variant={'outline'}
                         onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}>
+                        disabled={!table.getCanPreviousPage()}
+                    >
                         <MdKeyboardDoubleArrowLeft />
                     </Button>
                     <Button
                         variant={'outline'}
                         onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}>
+                        disabled={!table.getCanPreviousPage()}
+                    >
                         <MdKeyboardArrowLeft />
                     </Button>
                     <Button
                         variant={'outline'}
                         onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}>
+                        disabled={!table.getCanNextPage()}
+                    >
                         <MdKeyboardArrowRight />
                     </Button>
                     <Button
                         variant={'outline'}
                         onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}>
+                        disabled={!table.getCanNextPage()}
+                    >
                         <MdKeyboardDoubleArrowRight />
                     </Button>
                 </div>
             </div>
         </div>
+
 
     )
 }
@@ -459,7 +460,7 @@ export const StatusTask = () => {
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                     <DropdownMenuSubContent>
-                        <DropdownMenuItem textValue={'Oui'} className="cursor-pointer">
+                        <DropdownMenuItem textValue={'Yes'} className="cursor-pointer">
                             <div className="flex items-center gap-3">
                                 <span>{t('pages.timesheet.BILLABLE.YES')}</span>
                             </div>

@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Container, Divider } from 'lib/components';
-import { Footer, MainLayout } from 'lib/layout';
+import { Breadcrumb, Container } from 'lib/components';
+import { MainLayout } from 'lib/layout';
 import { useAuthenticateUser, useDailyPlan, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
@@ -26,10 +26,6 @@ type ViewToggleButtonProps = {
     onClick: () => void;
     t: TranslationHooks
 };
-
-interface FooterTimeSheetProps {
-    fullWidth: boolean;
-}
 
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
     const t = useTranslations();
@@ -62,9 +58,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
         < >
             <MainLayout
                 showTimer={isTrackingEnabled}
-                footerClassName="hidden"
-                className="h-[calc(100vh-_22px)]">
-                <div className="top-14 fixed flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-gray-800 ">
+                className="items-start pb-1 !overflow-hidden w-full"
+                childrenClassName="h-[calc(100vh-_300px)] !overflow-hidden w-full"
+            >
+                <div className="top-14 fixed flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-transparent ">
                     <Container fullWidth={fullWidth}>
                         <div className="flex flex-row items-start justify-between mt-12 bg-white  dark:bg-dark-high">
                             <div className="flex items-center justify-center h-10 gap-8">
@@ -78,8 +75,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                     <Container fullWidth={fullWidth} className='h-full pt-14'>
                         <div className='py-5'>
                             <div className='flex flex-col justify-start items-start gap-y-2'>
-                                <h1 className='!text-[23px] font-bold text-[#282048]'>{getGreeting(t)}, {username} !</h1>
-                                <span className='text-[16px] text-[#3D5A80]'>{t('pages.timesheet.HEADING_DESCRIPTION')}</span>
+                                <h1 className='!text-[23px] font-bold text-[#282048] dark:text-white'>{getGreeting(t)}, {username} !</h1>
+                                <span className='text-[16px] text-[#3D5A80] dark:text-gray-500'>{t('pages.timesheet.HEADING_DESCRIPTION')}</span>
                             </div>
                             <div className='flex items-center w-full justify-between gap-6 pt-4'>
                                 <TimesheetCard
@@ -105,7 +102,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                 />
                             </div>
                         </div>
-                        <div className='border-b-2 border-b-[#E2E8F0] w-full  flex justify-between pt-2'>
+                        <div className='border-b-2 border-b-[#E2E8F0] dark:border-b-gray-700 w-full  flex justify-between pt-2 overflow-hidden'>
                             <div className='w-full flex'>
                                 <ViewToggleButton
                                     icon={<GrTask className='text-sm' />}
@@ -122,7 +119,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                     t={t}
                                 />
                             </div>
-                            <div className='flex items-center h-9 w-[700px] bg-white gap-x-2 px-2 border border-gray-200 rounded-sm mb-2'>
+                            <div className='flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2'>
                                 <GoSearch className='text-[#7E7991]' />
                                 <input
                                     role="searchbox"
@@ -130,18 +127,18 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                     type="search"
                                     name="timesheet-search"
                                     id="timesheet-search"
-                                    className="h-10 w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
+                                    className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
                                     placeholder="Search.." />
                             </div>
                         </div>
                         {/* <DropdownMenuDemo /> */}
-                        <div className='flex flex-col min-h-screen w-full border-1 rounded-lg bg-[#FFFFFF]  p-4 mt-4'>
+                        <div className='flex flex-col overflow-y-auto  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme p-4 mt-4'>
                             <TimesheetFilter
                                 closeModal={closeManualTimeModal}
                                 openModal={openManualTimeModal}
                                 isOpen={isManualTimeModalOpen}
                             />
-                            <div className='pt-4'>
+                            <div className='h-[calc(100vh-_291px)] mt-3 p-10 overflow-y-auto'>
                                 {timesheetNavigator === 'ListView' ?
                                     <TimesheetView data={sortedPlans} />
                                     : <CalendarView />
@@ -151,25 +148,12 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                     </Container>
                 </div>
             </MainLayout>
-            <FooterTimeSheet fullWidth={fullWidth} />
         </>
     )
 })
 
 export default withAuthentication(TimeSheet, { displayName: 'TimeSheet' });
 
-const FooterTimeSheet: React.FC<FooterTimeSheetProps> = ({ fullWidth }) => {
-    return (
-        <div className="bg-white dark:bg-[#1e2025] w-screen z-[5000] fixed bottom-0">
-            <Divider />
-            <Footer
-                className={clsxm(
-                    'justify-between w-full px-0 mx-auto',
-                    fullWidth ? 'px-8' : 'x-container'
-                )} />
-        </div>
-    )
-}
 
 const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
     mode,
@@ -181,8 +165,8 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
     <button
         onClick={onClick}
         className={clsxm(
-            'text-[#7E7991]  font-medium w-[191px] h-[40px] flex items-center gap-x-4 text-[14px]',
-            active && 'border-b-primary text-primary border-b-2 bg-[#F1F5F9]'
+            'text-[#7E7991]  font-medium w-[191px] h-[40px] flex items-center gap-x-4 text-[14px] px-2 rounded',
+            active && 'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-bold'
         )}>
         {icon}
         <span>{mode === 'ListView' ? t('pages.timesheet.VIEWS.LIST') : t('pages.timesheet.VIEWS.CALENDAR')}</span>

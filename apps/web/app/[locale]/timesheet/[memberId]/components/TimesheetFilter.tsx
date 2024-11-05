@@ -17,30 +17,29 @@ export function TimesheetFilter({ closeModal, isOpen, openModal }: ITimesheetFil
                     params="AddManuelTime"
                     timeSheetStatus="ManagerTimesheet"
                 />}
-            <div className="grid grid-cols-3 w-full">
-                <div className="col-span-1">
+            <div className="flex w-full justify-between items-center">
+                <div>
                     <FilterWithStatus
                         activeStatus="Rejected"
                         onToggle={(label) => {
-                            console.log(label)
+                            console.log(label);
                         }}
                     />
                 </div>
-                <div className="col-span-1"></div>
-                <div className="col-span-1">
-                    <div className='flex gap-2'>
-                        <FrequencySelect />
-                        <TimesheetFilterDate />
-                        <TimeSheetFilterPopover />
-                        <Button
-                            onClick={openModal}
-                            variant='outline'
-                            className='bg-primary/5 dark:bg-primary-light h-10 font-medium'>
-                            Add Time
-                        </Button>
-                    </div>
+
+                <div className="flex gap-2">
+                    <FrequencySelect />
+                    <TimesheetFilterDate />
+                    <TimeSheetFilterPopover />
+                    <Button
+                        onClick={openModal}
+                        variant="outline"
+                        className="bg-primary/5 dark:bg-primary-light dark:border-transparent  !h-[2.2rem] font-medium">
+                        Add Time
+                    </Button>
                 </div>
             </div>
+
         </>
     )
 }
