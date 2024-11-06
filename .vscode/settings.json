@@ -19,7 +19,7 @@
 		"source.organizeImports": "never",
 		"source.sortMembers": "never",
 		"organizeImports": "never",
-		"source.removeUnusedImports": "always"
+		// "source.removeUnusedImports": "always"
 	},
 	"vsicons.presets.angular": true,
 	"deepscan.enable": true,

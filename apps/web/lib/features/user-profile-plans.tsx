@@ -282,7 +282,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 													view === 'CARDS' && 'flex-col',
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-scroll',
+													view === 'BLOCKS' && 'overflow-x-auto',
 													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 												)}
 											>
@@ -444,8 +444,9 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-6 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
-				}  items-center gap-5`}
+			className={`mb-6 flex ${
+				planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
+			}  items-center gap-5`}
 		>
 			{/* Planned Time */}
 

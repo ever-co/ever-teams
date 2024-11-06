@@ -61,8 +61,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                 className="items-start pb-1 !overflow-hidden w-full"
                 childrenClassName="h-[calc(100vh-_300px)] !overflow-hidden w-full"
             >
-                <div className="top-14 fixed flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-transparent ">
-                    <Container fullWidth={fullWidth}>
+                <div className="top-14 fixed flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-transparent">
+                    <Container fullWidth={fullWidth} className='bg-white'>
                         <div className="flex flex-row items-start justify-between mt-12 bg-white  dark:bg-dark-high">
                             <div className="flex items-center justify-center h-10 gap-8">
                                 <ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -138,7 +138,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                 openModal={openManualTimeModal}
                                 isOpen={isManualTimeModalOpen}
                             />
-                            <div className='h-[calc(100vh-_291px)] mt-3 p-10 overflow-y-auto'>
+                            <div className='h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800'>
                                 {timesheetNavigator === 'ListView' ?
                                     <TimesheetView data={sortedPlans} />
                                     : <CalendarView />
@@ -172,3 +172,4 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
         <span>{mode === 'ListView' ? t('pages.timesheet.VIEWS.LIST') : t('pages.timesheet.VIEWS.CALENDAR')}</span>
     </button>
 );
+// https://demo.gauzy.co/#/pages/employees/timesheets/daily?organizationId=e4a6eeb6-3f13-4712-b880-34aa9ef1dd2f&date=2024-11-02&date_end=2024-11-02&unit_of_time=day&is_custom_date=false

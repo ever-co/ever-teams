@@ -26,31 +26,30 @@ export const TimesheetButton = ({ className, icon, onClick, title }: ITimesheetB
 export type StatusType = "Pending" | "Approved" | "Rejected";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const getTimesheetButtons = (status: StatusType, t: TranslationHooks) => {
+export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, onClick: (action: StatusType) => void) => {
 
-    const buttonsConfig: Record<StatusType, { icon: JSX.Element; title: string }[]> = {
+    const buttonsConfig: Record<StatusType, { icon: JSX.Element; title: string; action: StatusType }[]> = {
         Pending: [
-            { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED') },
-            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED') },
-            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED') }
+            { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
+            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Rejected" },
+            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Pending" }
         ],
         Approved: [
-            { icon: <IoClose className="!bg-[#2932417c] rounded dark:!bg-gray-400" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED') },
-            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] rounded dark:!text-gray-400" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED') }
+            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Rejected" },
+            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Pending" }
         ],
         Rejected: [
-            { icon: <FaClipboardCheck className="!text-[#2932417c] rounded dark:!text-gray-400" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED') },
-            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] rounded dark:!text-gray-400" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED') }
+            { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
+            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Pending" }
         ]
     };
 
     return (buttonsConfig[status] || buttonsConfig.Rejected).map((button, index) => (
         <TimesheetButton
+            className="hover:underline"
             key={index}
             icon={button.icon}
-            onClick={() => {
-                // TODO: Implement the onClick functionality
-            }}
+            onClick={() => onClick(button.action)}
             title={button.title}
         />
     ));

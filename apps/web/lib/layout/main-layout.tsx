@@ -33,7 +33,7 @@ export function MainLayout({
 }: Props) {
 	const fullWidth = useAtomValue(fullWidthState);
 	return (
-		<div className="w-full h-full">
+		<div className="w-full h-full overflow-x-hidden min-w-fit">
 			<style jsx global>
 				{`
 					:root {

@@ -34,7 +34,7 @@ export type ITeamTask = {
 	label?: string;
 	parentId?: string;
 	parent?: ITeamTask;
-	issueType?: string;
+	issueType?: ITaskIssue;
 	rootEpic?: ITeamTask | null;
 } & Omit<ITaskStatusStack, 'tags'>;
 
