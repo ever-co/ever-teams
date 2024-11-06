@@ -201,7 +201,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			isOpen={isOpen}
 			closeModal={closeModal}
 			title={'Add Time'}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start shadow-xl"
+			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start"
 			titleClass="font-bold"
 		>
 			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-4">

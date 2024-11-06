@@ -56,7 +56,7 @@ import { clsxm } from "@/app/utils"
 import { statusColor } from "@/lib/components"
 import { Badge } from '@components/ui/badge'
 import { IDailyPlan } from "@/app/interfaces"
-import { StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
+import { RejectSelectedModal, StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 import { useTranslations } from "next-intl"
 import { formatDate } from "@/app/helpers"
 import { TaskNameInfoDisplay } from "../../task/task-displays"
@@ -174,6 +174,12 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 
 export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
+    const {
+        isOpen,
+        openModal,
+        closeModal
+    } = useModal();
+
     const t = useTranslations();
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -204,16 +210,34 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
         Rejected: table.getRowModel().rows.filter(row => row.original.status === "Rejected")
     };
 
+    const handleButtonClick = (action: StatusType) => {
+        switch (action) {
+            case 'Approved':
+                console.log("Approbation en cours");
+                break;
+            case 'Rejected':
+                openModal()
+                break;
+            case 'Pending':
+                console.log("Suppression en cours");
+                break;
+            default:
+                console.log("Action inconnue");
+        }
+    };
 
 
     return (
         <div className="w-full dark:bg-dark--theme">
+            {<RejectSelectedModal
+                closeModal={closeModal}
+                isOpen={isOpen} />}
             <div className="rounded-md">
                 <Table className="order rounded-md dark:bg-dark--theme-light">
                     <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:bg-dark--theme">
                         {data?.map((plan, index) => (
                             <div key={index}>
-                                <div className="h-10 flex justify-between items-center w-full bg-[#eeeef1cc] dark:bg-dark--theme rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">
+                                <div className="h-[48px] flex justify-between items-center w-full bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">
                                     <span>{formatDate(plan?.date)}</span>
                                     <span>64:30h</span>
                                 </div>
@@ -225,7 +249,7 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                 style={{ backgroundColor: statusColor(status).bgOpacity }}
                                                 type="button"
                                                 className={clsxm(
-                                                    "flex flex-row-reverse justify-end items-center w-full h-9 rounded-sm gap-x-2 hover:no-underline px-2",
+                                                    "flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2",
                                                     statusColor(status).text,
                                                 )}
                                             >
@@ -238,13 +262,13 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                             </span>
                                                             <span className="text-gray-400 text-[14px]">({rows.length})</span>
                                                         </div>
-                                                        <Badge variant={'outline'} className="flex items-center gap-x-2 rounded-md bg-[#E4E4E7] dark:bg-gray-800">
+                                                        <Badge variant={'outline'} className="flex items-center gap-x-2 h-[25px] rounded-md bg-[#E4E4E7] dark:bg-gray-800">
                                                             <span className="text-[#5f5f61]">Total</span>
                                                             <span className="text-[#868688]">24:30h</span>
                                                         </Badge>
                                                     </div>
                                                     <div className="flex items-center gap-2 p-x-1">
-                                                        {getTimesheetButtons(status as StatusType, t)}
+                                                        {getTimesheetButtons(status as StatusType, t, handleButtonClick)}
                                                     </div>
                                                 </div>
                                             </AccordionTrigger>
@@ -252,8 +276,8 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                 {plan.tasks?.map((task) => (
                                                     <div
                                                         key={task.id}
-                                                        style={{ backgroundColor: statusColor(status).bgOpacity }}
-                                                        className="flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1"
+                                                        style={{ backgroundColor: statusColor(status).bgOpacity, borderBottomColor: statusColor(status).bg }}
+                                                        className={clsxm("flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]")}
                                                     >
                                                         <Checkbox className="h-5 w-5" />
                                                         <div className="flex-[2]">
