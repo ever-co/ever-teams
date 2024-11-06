@@ -177,7 +177,7 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
         <Button
             variant="outline"
             className={cn(
-                "w-[150px] justify-start text-left font-normal bg-transparent hover:bg-transparent text-black h-8 border border-transparent dark:border-transparent",
+                "w-[150px] justify-start text-left font-normal bg-transparent hover:bg-transparent text-black dark:text-gray-100 h-8 border border-transparent dark:border-transparent",
                 !date && "text-muted-foreground"
             )}
         >

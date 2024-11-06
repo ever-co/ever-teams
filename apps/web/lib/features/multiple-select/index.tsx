@@ -82,3 +82,66 @@ export function MultipleSelect({
         </div>
     );
 }
+
+
+
+
+type CustomSelectProps = {
+    /**
+     * Array of string options to be displayed in the dropdown.
+     * Each string represents a selectable , such as "daily" or "weekly".
+     */
+    options: string[];
+
+    /**
+     * Optional render function that customizes the display of each option.
+     * Receives the option string as an argument and returns a ReactNode to render.
+     * If not provided, options will display with the first letter capitalized.
+     */
+    renderOption?: (option: string) => React.ReactNode;
+};
+
+/**
+ * CustomSelect Component
+ *
+ * This component renders a customizable dropdown select menu for choosing a .
+ * It allows passing an array of options and optionally customizes the appearance of each option.
+ *
+ * @component
+ * @param {CustomSelectProps} props - Props for configuring the select component.
+ * @param {string[]} props.options - Array of selectable options to be displayed in the dropdown.
+ * @param {(option: string) => React.ReactNode} [props.renderOption] - Optional function for custom rendering of each option.
+ *
+ * @example
+ * <CustomSelect
+ *    options={['daily', 'weekly', 'monthly']}
+ *    renderOption={(option) => (
+ *       <div className="flex items-center">
+ *          <span className="text-blue-500">{option.charAt(0).toUpperCase()}</span>
+ *          <span className="ml-1">{option.slice(1)}</span>
+ *       </div>
+ *    )}
+ * />
+ */
+export function CustomSelect({ options, renderOption }: CustomSelectProps) {
+    // State to store the currently selected value in the dropdown.
+    const [selectedValue, setSelectedValue] = React.useState<string>();
+
+    // Render the select component with dynamic options and optional custom rendering.
+    return (
+        <Select value={selectedValue} onValueChange={setSelectedValue} >
+            <SelectTrigger className="w-32 h-[2.2rem] overflow-hidden text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+                <SelectValue placeholder="Select a " />
+            </SelectTrigger>
+            <SelectContent className='z-[10000] dark:bg-dark--theme-light'>
+                <SelectGroup>
+                    {options.map((value) => (
+                        <SelectItem key={value} value={value}>
+                            {renderOption ? renderOption(value) : value.charAt(0).toUpperCase() + value.slice(1)}
+                        </SelectItem>
+                    ))}
+                </SelectGroup>
+            </SelectContent>
+        </Select>
+    );
+}
