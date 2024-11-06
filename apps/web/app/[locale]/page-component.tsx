@@ -120,7 +120,7 @@ function MainPage() {
 
 							{/* </Container> */}
 							<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
-								<>{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</>
+								{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 							</ResizablePanel>
 						</ResizablePanelGroup>
 					</div>
