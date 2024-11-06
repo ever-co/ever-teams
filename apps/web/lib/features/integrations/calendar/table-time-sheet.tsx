@@ -213,16 +213,16 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
     const handleButtonClick = (action: StatusType) => {
         switch (action) {
             case 'Approved':
-                console.log("Approbation");
+                // TODO: Implement approval logic
                 break;
             case 'Rejected':
                 openModal()
                 break;
             case 'Pending':
-                console.log("Suppression");
+                // TODO: Implement pending logic
                 break;
             default:
-                console.log("Action inconnue");
+                console.error(`Unsupported action: ${action}`);
         }
     };
 
@@ -230,6 +230,11 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
     return (
         <div className="w-full dark:bg-dark--theme">
             {<RejectSelectedModal
+                onReject={() => {
+                    // Pending implementation
+                }}
+                maxReasonLength={120}
+                minReasonLength={0}
                 closeModal={closeModal}
                 isOpen={isOpen} />}
             <div className="rounded-md">

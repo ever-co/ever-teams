@@ -93,7 +93,7 @@ export function TimesheetFilterDate({
                     aria-label="Select date range"
                     aria-expanded="false"
                     className={cn(
-                        "w-44 justify-start dark:bg-dark-theme dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip dark:bg-dark--theme-light",
+                        "w-44 justify-start dark:bg-dark--theme-light dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip",
                         !dateRange.from && "text-muted-foreground"
                     )}>
                     <CalendarIcon />
@@ -127,8 +127,24 @@ export function TimesheetFilterDate({
                             />
                         </div>
                         <div className="flex w-full justify-end items-end">
-                            <Button variant={'outline'} className={`${actionButtonClass} hover:text-primary-dark`}>Cancel</Button>
-                            <Button variant={'outline'} className={`${actionButtonClass} hover:text-primary-dark`}>Apply</Button>
+                            <Button
+                                variant={'outline'}
+                                className={actionButtonClass}
+                                onClick={() => {
+                                    setDateRange(initialRange ?? { from: new Date(), to: new Date() });
+                                    setIsVisible(false);
+                                }}>
+                                Cancel
+                            </Button>
+                            <Button
+                                variant={'outline'}
+                                className={actionButtonClass}
+                                onClick={() => {
+                                    onChange?.(dateRange);
+                                    setIsVisible(false);
+                                }} >
+                                Apply
+                            </Button>
                         </div>
                     </div>
                 )
