@@ -133,7 +133,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					},
 					{
 						title: t('sidebar.MY_TASKS'),
-						url: `/profile/${user?.id}?name=${username || ''}`,
+						url: `/profile/${user?.id}?name=${encodeURIComponent(username || '')}`,
 						label: 'my-tasks'
 					}
 				]
@@ -195,7 +195,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 							items: [
 								{
 									title: t('sidebar.TIMESHEETS'),
-									url: `/timesheet/${user?.id}?name=${username || ''}`,
+									url: `/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
 									label: 'timesheets'
 								},
 								{
