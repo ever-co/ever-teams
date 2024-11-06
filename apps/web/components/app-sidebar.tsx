@@ -155,6 +155,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 									.map((team, index) => ({
 										title: team.name,
 										url: '#',
+										label: team.name.trim().replace(' ', '-'),
 										component: (
 											<SidebarMenuSubButton
 												key={index}
@@ -193,6 +194,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 									})),
 								{
 									title: t('common.NO_PROJECT'),
+									label: 'no-project',
 									url: '#',
 									component: (
 										<SidebarMenuSubButton asChild>
@@ -216,13 +218,16 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				title: t('sidebar.MY_WORKS'),
 				url: '#',
 				icon: MonitorSmartphone,
+				label: 'my-work',
 				items: [
 					{
 						title: t('sidebar.TIME_AND_ACTIVITY'),
+						label: 'time-and-activity',
 						url: '#'
 					},
 					{
 						title: t('sidebar.WORK_DIARY'),
+						label: 'work-and-diary',
 						url: '#'
 					}
 				]
@@ -231,35 +236,43 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				? [
 						{
 							title: t('sidebar.REPORTS'),
+							label: 'reports',
 							url: '#',
 							icon: SquareActivity,
 							items: [
 								{
 									title: t('sidebar.TIMESHEETS'),
-									url: `/timesheet/${user?.id}?name=${username || ''}`
+									url: `/timesheet/${user?.id}?name=${username || ''}`,
+									label: 'timesheets'
 								},
 								{
 									title: t('sidebar.MANUAL_TIME_EDIT'),
+									label: 'manual-time-edit',
 									url: '#'
 								},
 								{
 									title: t('sidebar.WEEKLY_LIMIT'),
+									label: 'weekly-limit',
 									url: '#'
 								},
 								{
 									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
+									label: 'actual-and-expected-hours',
 									url: '#'
 								},
 								{
 									title: t('sidebar.PAYMENTS_DUE'),
+									label: 'payments-due',
 									url: '#'
 								},
 								{
 									title: t('sidebar.PROJECT_BUDGET'),
+									label: 'project-budget',
 									url: '#'
 								},
 								{
 									title: t('sidebar.TIME_AND_ACTIVITY'),
+									label: 'time-and-activity',
 									url: '#'
 								}
 							]

@@ -26,11 +26,9 @@ export function NavMain({
 		url: string;
 		icon: LucideIcon;
 		isActive?: boolean;
-		label?: string;
 		items?: {
 			title: string;
 			url: string;
-			label?: string;
 			component?: JSX.Element;
 		}[];
 	}[];
@@ -73,7 +71,7 @@ export function NavMain({
 						asChild
 						defaultOpen={item.isActive}
 						open={item.isActive || openMenus[item.title] || false}
-						onOpenChange={() => handleMenuToggle(item.label || item.title, index)}
+						onOpenChange={() => handleMenuToggle(item.title, index)}
 					>
 						<SidebarMenuItem>
 							{item.items?.length ? (
