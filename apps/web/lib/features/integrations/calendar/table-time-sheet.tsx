@@ -213,13 +213,13 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
     const handleButtonClick = (action: StatusType) => {
         switch (action) {
             case 'Approved':
-                console.log("Approbation en cours");
+                console.log("Approbation");
                 break;
             case 'Rejected':
                 openModal()
                 break;
             case 'Pending':
-                console.log("Suppression en cours");
+                console.log("Suppression");
                 break;
             default:
                 console.log("Action inconnue");
