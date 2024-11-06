@@ -10,7 +10,6 @@ import {
 	X
 } from 'lucide-react';
 
-import { TeamItem } from '@/lib/features/team/team-item';
 import { EverTeamsLogo, SymbolAppLogo } from '@/lib/components/svgs';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -29,8 +28,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/app/hooks';
-import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
-import { SettingOutlineIcon } from '@/assets/svg';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 import { Button } from '@/lib/components/button';
 import { CreateTeamModal, TaskIssueStatus } from '@/lib/features';
@@ -43,8 +40,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { isTeamManager } = useOrganizationTeams();
 	const { favoriteTasks, toggleFavorite } = useFavoritesTask();
 	const { state } = useSidebar();
-	const { onChangeActiveTeam, activeTeam } = useActiveTeam();
-	const { isOpen, closeModal, openModal } = useModal();
+	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	// This is sample data.
 	const data = {
@@ -69,60 +65,60 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				items:
 					favoriteTasks && favoriteTasks.length > 0
 						? favoriteTasks
-							.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
-							.map((task, index) => ({
-								title: task?.title,
-								url: '#',
-								component: (
-									<SidebarMenuSubButton
-										key={index}
-										className={cn(
-											'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300'
-										)}
-										asChild
-									>
-										<span className="flex items-center justify-between w-full min-w-fit">
-											<Link href={`/task/${task?.id}`} className="flex items-center">
-												{task && (
-													// Show task issue and task number
-													<TaskIssueStatus
-														showIssueLabels={false}
-														className={cn('w-full px-2 flex items-center gap-1 mr-1')}
-														task={task}
-													/>
-												)}
-												<span className={cn('font-normal flex items-center')}>
-													<small
-														className={cn(
-															'text-gray-300 text-nowrap whitespace-nowrap text-xs mr-1 font-normal'
-														)}
-													>
-														#{task?.taskNumber}
-													</small>
-													<span
-														className={cn(
-															'!font-light text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
-														)}
-													>
-														{task?.title}
+								.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
+								.map((task, index) => ({
+									title: task?.title,
+									url: '#',
+									component: (
+										<SidebarMenuSubButton
+											key={index}
+											className={cn(
+												'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300'
+											)}
+											asChild
+										>
+											<span className="flex items-center justify-between w-full min-w-fit">
+												<Link href={`/task/${task?.id}`} className="flex items-center">
+													{task && (
+														// Show task issue and task number
+														<TaskIssueStatus
+															showIssueLabels={false}
+															className={cn('w-full px-2 flex items-center gap-1 mr-1')}
+															task={task}
+														/>
+													)}
+													<span className={cn('font-normal flex items-center')}>
+														<small
+															className={cn(
+																'text-gray-300 text-nowrap whitespace-nowrap text-xs mr-1 font-normal'
+															)}
+														>
+															#{task?.taskNumber}
+														</small>
+														<span
+															className={cn(
+																'!font-light text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
+															)}
+														>
+															{task?.title}
+														</span>
 													</span>
-												</span>
-											</Link>
-											<X
-												className="w-5 h-5 cursor-pointer"
-												onClick={() => toggleFavorite(task)}
-											/>
-										</span>
-									</SidebarMenuSubButton>
-								)
-							}))
+												</Link>
+												<X
+													className="w-5 h-5 cursor-pointer"
+													onClick={() => toggleFavorite(task)}
+												/>
+											</span>
+										</SidebarMenuSubButton>
+									)
+								}))
 						: [
-							{
-								title: t('common.NO_FAVORITE_TASK'),
-								url: '#',
-								label: 'no-task'
-							}
-						]
+								{
+									title: t('common.NO_FAVORITE_TASK'),
+									url: '#',
+									label: 'no-task'
+								}
+							]
 			},
 			{
 				title: t('sidebar.TASKS'),
@@ -132,137 +128,109 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				items: [
 					{
 						title: t('sidebar.TEAMTASKS'),
-						url: '/'
+						url: '/team/tasks',
+						label: 'team-tasks'
 					},
 					{
 						title: t('sidebar.MY_TASKS'),
-						url: `/profile/${user?.id}?name=${username || ''}`
+						url: `/profile/${user?.id}?name=${encodeURIComponent(username || '')}`,
+						label: 'my-tasks'
 					}
 				]
 			},
 			...(userManagedTeams && userManagedTeams.length > 0
 				? [
-					{
-						title: t('sidebar.PROJECTS'),
-						label: 'projects',
-						url: '#',
-						icon: FolderKanban,
-						items: [
-							...userManagedTeams
-								.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-								.map((team, index) => ({
-									title: team.name,
+						{
+							title: t('sidebar.PROJECTS'),
+							label: 'projects',
+							url: '#',
+							icon: FolderKanban,
+							items: [
+								{
+									title: t('common.NO_PROJECT'),
+									label: 'no-project',
 									url: '#',
 									component: (
-										<SidebarMenuSubButton
-											key={index}
-											className={cn(
-												'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
-												activeTeam?.name === team.name
-													? ' dark:bg-sidebar-accent bg-[#eaeef4]'
-													: ''
-											)}
-											asChild
-										>
-											<button
-												className="flex items-center justify-between w-full min-w-fit"
-												onClick={() => {
-													onChangeActiveTeam({
-														data: team
-													} as TeamItem);
-												}}
+										<SidebarMenuSubButton asChild>
+											<Button
+												className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
+												variant="outline"
+												disabled={!user?.isEmailVerified}
 											>
-												<span className="max-w-[90%] flex items-center">
-													<TeamItem
-														title={team.name}
-														count={team.members?.length}
-														className={cn(
-															activeTeam?.name === team.name && 'font-medium',
-															'flex items-center !mb-0'
-														)}
-														logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-														color={team.color}
-													/>
-												</span>
-												<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
-											</button>
+												<PlusIcon className="w-4 h-4" />
+												{t('common.CREATE_PROJECT')}
+											</Button>
 										</SidebarMenuSubButton>
 									)
-								})),
-							{
-								title: t('common.NO_PROJECT'),
-								url: '#',
-								component: (
-									<SidebarMenuSubButton asChild>
-										<Button
-											className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
-											variant="outline"
-											onClick={openModal}
-											disabled={!user?.isEmailVerified}
-										>
-											<PlusIcon className="w-4 h-4" />
-											{t('common.CREATE_PROJECT')}
-										</Button>
-									</SidebarMenuSubButton>
-								)
-							}
-						]
-					}
-				]
+								}
+							]
+						}
+					]
 				: []),
 			{
 				title: t('sidebar.MY_WORKS'),
 				url: '#',
 				icon: MonitorSmartphone,
+				label: 'my-work',
 				items: [
 					{
 						title: t('sidebar.TIME_AND_ACTIVITY'),
+						label: 'time-and-activity',
 						url: '#'
 					},
 					{
 						title: t('sidebar.WORK_DIARY'),
+						label: 'work-and-diary',
 						url: '#'
 					}
 				]
 			},
 			...(isTeamManager
 				? [
-					{
-						title: t('sidebar.REPORTS'),
-						url: '#',
-						icon: SquareActivity,
-						items: [
-							{
-								title: t('sidebar.TIMESHEETS'),
-								url: `/timesheet/${user?.id}?name=${username || ''}`
-							},
-							{
-								title: t('sidebar.MANUAL_TIME_EDIT'),
-								url: '#'
-							},
-							{
-								title: t('sidebar.WEEKLY_LIMIT'),
-								url: '#'
-							},
-							{
-								title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
-								url: '#'
-							},
-							{
-								title: t('sidebar.PAYMENTS_DUE'),
-								url: '#'
-							},
-							{
-								title: t('sidebar.PROJECT_BUDGET'),
-								url: '#'
-							},
-							{
-								title: t('sidebar.TIME_AND_ACTIVITY'),
-								url: '#'
-							}
-						]
-					}
-				]
+						{
+							title: t('sidebar.REPORTS'),
+							label: 'reports',
+							url: '#',
+							icon: SquareActivity,
+							items: [
+								{
+									title: t('sidebar.TIMESHEETS'),
+									url: `/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
+									label: 'timesheets'
+								},
+								{
+									title: t('sidebar.MANUAL_TIME_EDIT'),
+									label: 'manual-time-edit',
+									url: '#'
+								},
+								{
+									title: t('sidebar.WEEKLY_LIMIT'),
+									label: 'weekly-limit',
+									url: '#'
+								},
+								{
+									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
+									label: 'actual-and-expected-hours',
+									url: '#'
+								},
+								{
+									title: t('sidebar.PAYMENTS_DUE'),
+									label: 'payments-due',
+									url: '#'
+								},
+								{
+									title: t('sidebar.PROJECT_BUDGET'),
+									label: 'project-budget',
+									url: '#'
+								},
+								{
+									title: t('sidebar.TIME_AND_ACTIVITY'),
+									label: 'time-and-activity',
+									url: '#'
+								}
+							]
+						}
+					]
 				: [])
 		]
 	};

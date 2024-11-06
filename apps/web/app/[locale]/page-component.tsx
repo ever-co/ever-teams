@@ -62,7 +62,7 @@ function MainPage() {
 	}
 	return (
 		<>
-			<div className="flex flex-col justify-between h-screen">
+			<div className="flex flex-col justify-between h-full min-h-screen">
 				{/* <div className="flex-grow "> */}
 				<MainLayout
 					showTimer={headerSize <= 11.8 && isTrackingEnabled}
@@ -119,12 +119,8 @@ function MainPage() {
 							<ResizableHandle withHandle />
 
 							{/* </Container> */}
-							<ResizablePanel
-								defaultSize={65}
-								maxSize={95}
-								className="!overflow-y-scroll custom-scrollbar"
-							>
-								<div>{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</div>
+							<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
+								{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 							</ResizablePanel>
 						</ResizablePanelGroup>
 					</div>
