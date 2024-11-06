@@ -25,11 +25,12 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const t = useTranslations();
 
 	const handleAssignment = useCallback(() => {
-		if (!memberInfo) return;
-		if (memberInfo.member?.employee?.user?.id === user?.id) {
-			memberInfo.unassignTask(task);
-		} else {
-			memberInfo.assignTask(task);
+		if (memberInfo) {
+			if (memberInfo.member?.employee?.user?.id === user?.id) {
+				memberInfo.unassignTask(task);
+			} else {
+				memberInfo.assignTask(task);
+			}
 		}
 	}, [memberInfo, task]);
 
