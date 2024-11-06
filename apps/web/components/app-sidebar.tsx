@@ -10,7 +10,6 @@ import {
 	X
 } from 'lucide-react';
 
-import { TeamItem } from '@/lib/features/team/team-item';
 import { EverTeamsLogo, SymbolAppLogo } from '@/lib/components/svgs';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -29,8 +28,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/app/hooks';
-import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
-import { SettingOutlineIcon } from '@/assets/svg';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 import { Button } from '@/lib/components/button';
 import { CreateTeamModal, TaskIssueStatus } from '@/lib/features';
@@ -43,8 +40,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { isTeamManager } = useOrganizationTeams();
 	const { favoriteTasks, toggleFavorite } = useFavoritesTask();
 	const { state } = useSidebar();
-	const { onChangeActiveTeam, activeTeam } = useActiveTeam();
-	const { isOpen, closeModal, openModal } = useModal();
+	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	// This is sample data.
 	const data = {
@@ -150,48 +146,6 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 							url: '#',
 							icon: FolderKanban,
 							items: [
-								...userManagedTeams
-									.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-									.map((team, index) => ({
-										title: team.name,
-										url: '#',
-										label: team.name.trim().replace(' ', '-'),
-										component: (
-											<SidebarMenuSubButton
-												key={index}
-												className={cn(
-													'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
-													activeTeam?.name === team.name
-														? ' dark:bg-sidebar-accent bg-[#eaeef4]'
-														: ''
-												)}
-												asChild
-											>
-												<button
-													className="flex items-center justify-between w-full min-w-fit"
-													onClick={() => {
-														onChangeActiveTeam({
-															data: team
-														} as TeamItem);
-													}}
-												>
-													<span className="max-w-[90%] flex items-center">
-														<TeamItem
-															title={team.name}
-															count={team.members?.length}
-															className={cn(
-																activeTeam?.name === team.name && 'font-medium',
-																'flex items-center !mb-0'
-															)}
-															logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
-															color={team.color}
-														/>
-													</span>
-													<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
-												</button>
-											</SidebarMenuSubButton>
-										)
-									})),
 								{
 									title: t('common.NO_PROJECT'),
 									label: 'no-project',
@@ -201,7 +155,6 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											<Button
 												className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
 												variant="outline"
-												onClick={openModal}
 												disabled={!user?.isEmailVerified}
 											>
 												<PlusIcon className="w-4 h-4" />
