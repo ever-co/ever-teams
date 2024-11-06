@@ -157,7 +157,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 							</div> */}
 				</ResizablePanel>
 				<ResizableHandle withHandle />
-				<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+				<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
 					{hook.tab == 'worked' && canSeeActivity && (
 						<Container fullWidth={fullWidth} className="py-8">
 							<div className={cn('flex justify-start items-center gap-4 mt-3')}>

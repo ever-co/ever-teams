@@ -19,7 +19,7 @@ type TeamMembersProps = {
 	kanbanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: Readonly<TeamMembersProps>) {
 	const { user } = useAuthenticateUser();
 	const activeFilter = useAtomValue(taskBlockFilterState);
 	const fullWidth = useAtomValue(fullWidthState);
@@ -93,7 +93,7 @@ export function TeamMembersView({
 	switch (true) {
 		case members.length === 0:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
 						<InviteUserTeamCardSkeleton />
@@ -110,7 +110,7 @@ export function TeamMembersView({
 			teamMembersView = (
 				<>
 					{/* <UserTeamCardHeader /> */}
-					<Container fullWidth={fullWidth}>
+					<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 						<TeamMembersCardView
 							teamMembers={$members}
 							currentUser={currentUser}
@@ -123,7 +123,7 @@ export function TeamMembersView({
 			break;
 		case view === IssuesView.TABLE:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<Transition
 						show={!!currentUser}
 						enter="transition-opacity duration-75"
@@ -146,7 +146,7 @@ export function TeamMembersView({
 
 		case view == IssuesView.BLOCKS:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<TeamMembersBlockView
 						teamMembers={blockViewMembers}
 						currentUser={currentUser}
@@ -158,7 +158,7 @@ export function TeamMembersView({
 			break;
 		default:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<TeamMembersCardView
 						teamMembers={$members}
 						currentUser={currentUser}

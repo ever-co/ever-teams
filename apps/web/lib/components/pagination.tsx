@@ -2,6 +2,7 @@ import { PaginationDropdown } from 'lib/settings/page-dropdown';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
 import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
+import { cn } from '@/lib/utils';
 
 type Props = {
 	total: number;
@@ -9,15 +10,24 @@ type Props = {
 	itemOffset: number;
 	endOffset: number;
 	setItemsPerPage: Dispatch<SetStateAction<number>>;
+	className?: string;
 } & ReactPaginateProps;
 
-export function Paginate({ total, itemsPerPage = 10, onPageChange, itemOffset, endOffset, setItemsPerPage }: Props) {
+export function Paginate({
+	total,
+	itemsPerPage = 10,
+	onPageChange,
+	itemOffset,
+	endOffset,
+	setItemsPerPage,
+	className
+}: Props) {
 	const t = useTranslations();
 	const pageCount: number = Math.ceil(total / itemsPerPage);
 
 	return (
 		<div
-			className="flex flex-col md:flex-row gap-2 items-center justify-between pt-4 relative"
+			className={cn('flex flex-col md:flex-row gap-2 items-center justify-between pt-4 relative', className)}
 			aria-label="Table navigation"
 		>
 			<ReactPaginate

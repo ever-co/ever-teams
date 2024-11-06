@@ -1,13 +1,20 @@
 import { APP_LINK, APP_LOGO_URL } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export function AppLogo({ className, dash }: IClassName & { dash?: boolean }) {
 	return (
 		<Link href={dash ? '/' : APP_LINK!} target="_self">
 			{APP_LOGO_URL ? (
-				<img src={APP_LOGO_URL} alt="EverTeams Logo" width={128.104} height={25} />
+				<Image
+					src={APP_LOGO_URL}
+					alt="EverTeams Logo"
+					className="w-[128.104px] h-[25px] object-contain"
+					width={350}
+					height={250}
+				/>
 			) : (
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
