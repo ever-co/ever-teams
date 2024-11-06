@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Modal, ProgressBar, Tooltip } from 'lib/components';
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
@@ -23,7 +22,7 @@ const ScreenshotDetailsModal = ({
 			closeModal={closeModal}
 			className="bg-white dark:bg-[#343434d4] p-4 rounded-lg lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw] m-8"
 		>
-			<div className="w-full p-4 overflow-x-scroll">
+			<div className="w-full p-4 overflow-x-auto">
 				<h1 className="py-2 font-semibold text-lg">
 					{new Date(slot.startedAt).toLocaleTimeString()} - {new Date(slot.stoppedAt).toLocaleTimeString()}
 				</h1>
