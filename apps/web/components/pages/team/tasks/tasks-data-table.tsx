@@ -31,12 +31,12 @@ export function TasksDataTable<TData, TValue>({ columns, data, className }: Read
 					<nav className="flex flex-wrap gap-3.5 items-center self-stretch my-auto text-sm font-medium tracking-tight min-w-[240px] text-indigo-950 max-md:max-w-full">
 						<div className="flex gap-2.5 justify-center items-center self-stretch my-auto font-medium text-slate-800">
 							<div className="flex items-start self-stretch gap-1 my-auto">
-								{tasks.map((taskStatus, index) => (
+								{Array.from(new Set(tasks.map((status) => status.status))).map((taskStatus, index) => (
 									<StatusBadge
 										key={index}
-										color={getStatusColor(taskStatus.status)}
-										label={taskStatus.status?.split('-').join(' ')}
-										count={tasks.filter((item) => item.status === taskStatus.status).length}
+										color={getStatusColor(taskStatus)}
+										label={taskStatus.split('-').join(' ')}
+										count={tasks.filter((item) => item.status === taskStatus).length}
 									/>
 								))}
 							</div>
