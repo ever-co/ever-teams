@@ -12,6 +12,7 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
+	SidebarTriggerButton,
 	useSidebar
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
@@ -49,7 +50,14 @@ export function NavMain({
 										tooltip={item.title}
 									>
 										<span>
-											<item.icon />
+											{state === 'collapsed' ? (
+												<SidebarTriggerButton className="!p-0 !bg-inherit !text-inherit">
+													<item.icon />
+												</SidebarTriggerButton>
+											) : (
+												<item.icon />
+											)}
+
 											<span
 												className={cn(
 													'transition-all font-medium',
