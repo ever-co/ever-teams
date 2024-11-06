@@ -4,13 +4,11 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuLabel
+	DropdownMenuSeparator
 } from '@components/ui/dropdown-menu';
 import { useAuthenticateUser, useOrganizationTeams, useTeamMemberCard, useTMCardTaskEdit } from '@app/hooks';
 import { useTranslations } from 'next-intl';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
-import { Link, MoreHorizontal } from 'lucide-react';
 import { ITeamTask } from '@app/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -41,7 +39,7 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 				<Button variant="ghost" className="h-8 w-8 p-0 dark:text-gray-200 text-[#292D32]">
 					<span className="sr-only">Open menu</span>
 					<svg
-						className="h-6 w-6"
+						className="w-6 h-6"
 						width={24}
 						height={25}
 						viewBox="0 0 24 25"
