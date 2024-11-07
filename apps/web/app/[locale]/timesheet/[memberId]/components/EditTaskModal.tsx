@@ -24,7 +24,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
     const [endTime, setEndTime] = useState<string>('');
     const [startTime, setStartTime] = useState<string>('');
     const [isBillable, setIsBillable] = useState<boolean>(false);
-    const [reason, setReason] = useState('');
+    const [notes, setNotes] = useState('');
     const memberItemsLists = {
         Project: activeTeam?.projects as [],
     };
@@ -85,6 +85,8 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                                 <span className="text-[#de5505e1] ml-1">*</span>
                             </label>
                             <input
+                                aria-label="Start time"
+                                aria-describedby="start-time-error"
                                 type="time"
                                 value={startTime}
                                 onChange={(e) => setStartTime(e.target.value)}
@@ -100,6 +102,8 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                             </label>
 
                             <input
+                                aria-label="End time"
+                                aria-describedby="end-time-error"
                                 type="time"
                                 value={endTime}
                                 onChange={(e) => setEndTime(e.target.value)}
@@ -167,14 +171,14 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                     <div className="w-full flex flex-col">
                         <span>Notes</span>
                         <textarea
-                            value={reason}
-                            onChange={(e) => setReason(e.target.value)}
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
                             placeholder="Insert notes here..."
                             className={clsxm(
                                 "bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent",
                                 "placeholder-gray-300 placeholder:font-normal resize-none p-2 grow w-full",
                                 "border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-40",
-                                reason.length < 0! && "border-red-500"
+                                notes.length === 0 && "border-red-500"
                             )}
                             maxLength={120}
                             minLength={0}
@@ -182,7 +186,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                             required
                         />
                         <div className="text-sm text-gray-500 text-right">
-                            {reason.length}/{120}
+                            {notes.length}/{120}
                         </div>
                     </div>
                     <div className="border-t border-t-gray-200 dark:border-t-gray-700 w-full"></div>

@@ -87,6 +87,10 @@ export function MultipleSelect({
 
 
 type CustomSelectProps = {
+
+
+    className?: string,
+    ariaLabel?: string
     /**
      * Array of string options to be displayed in the dropdown.
      * Each string represents a selectable , such as "daily" or "weekly".
@@ -123,15 +127,21 @@ type CustomSelectProps = {
  *    )}
  * />
  */
-export function CustomSelect({ options, renderOption }: CustomSelectProps) {
+export function CustomSelect({ options, renderOption, ariaLabel, className }: CustomSelectProps) {
     // State to store the currently selected value in the dropdown.
     const [selectedValue, setSelectedValue] = React.useState<string>();
 
     // Render the select component with dynamic options and optional custom rendering.
     return (
-        <Select value={selectedValue} onValueChange={setSelectedValue} >
-            <SelectTrigger className="w-32 h-[2.2rem] overflow-hidden text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
-                <SelectValue placeholder="Select a " />
+        <Select
+            value={selectedValue}
+            onValueChange={setSelectedValue}
+            aria-label={ariaLabel || "Select an option"} >
+
+            <SelectTrigger
+                className={`overflow-hidden text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent ${className}`}
+            >
+                <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent className='z-[10000] dark:bg-dark--theme-light'>
                 <SelectGroup>

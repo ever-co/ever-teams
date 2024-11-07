@@ -229,17 +229,15 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
 
     return (
         <div className="w-full dark:bg-dark--theme">
-            {<>
-                <RejectSelectedModal
-                    onReject={() => {
-                        // Pending implementation
-                    }}
-                    maxReasonLength={120}
-                    minReasonLength={0}
-                    closeModal={closeModal}
-                    isOpen={isOpen} />
-            </>
-            }
+            <RejectSelectedModal
+                onReject={() => {
+                    // Pending implementation
+                }}
+                maxReasonLength={120}
+                minReasonLength={0}
+                closeModal={closeModal}
+                isOpen={isOpen}
+            />
             <div className="rounded-md">
                 <Table className="order rounded-md dark:bg-dark--theme-light">
                     <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:bg-dark--theme">
@@ -428,7 +426,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
     );
 }
 
-const TaskActionMenu = ({ idTasks }: { idTasks: any }) => {
+const TaskActionMenu = ({ idTasks }: { idTasks: string | number }) => {
     const {
         isOpen: isEditTask,
         openModal: isOpenModalEditTask,
