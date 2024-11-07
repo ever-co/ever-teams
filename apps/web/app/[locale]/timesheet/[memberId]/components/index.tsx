@@ -7,4 +7,5 @@ export * from './FilterWithStatus';
 export * from './TimesheetFilterDate';
 export * from './TimeSheetFilterPopover'
 export * from './TimesheetAction';
-export * from './RejectSelectedModal'
+export * from './RejectSelectedModal';
+export * from './EditTaskModal';

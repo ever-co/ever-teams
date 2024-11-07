@@ -54,3 +54,9 @@ export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, onC
         />
     ));
 };
+
+export const statusTable: { label: StatusType; description: string }[] = [
+    { label: "Pending", description: "Awaiting approval or review" },
+    { label: "Approved", description: "The item has been approved" },
+    { label: "Rejected", description: "The item has been rejected" },
+];
