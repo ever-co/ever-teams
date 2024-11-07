@@ -68,19 +68,26 @@ const tasksStatusSvgCache = new Map<
 >();
 
 export async function svgFetch(url: string): Promise<Response> {
-	const cached = tasksStatusSvgCache.get(url);
-	const now = Date.now();
+	try {
+		//Url validation
+		new URL(url);
 
-	if (cached && now - cached.timestamp < tasksStatusSvgCacheDuration) {
-		return cached.content.clone();
+		const cached = tasksStatusSvgCache.get(url);
+		const now = Date.now();
+
+		if (cached && now - cached.timestamp < tasksStatusSvgCacheDuration) {
+			return cached.content.clone();
+		}
+
+		// Fetch the SVG
+		const response = await fetch(url);
+
+		tasksStatusSvgCache.set(url, {
+			content: response.clone(),
+			timestamp: now
+		});
+		return response;
+	} catch {
+		throw new Error('Invalid URL provided');
 	}
-
-	// Fetch the SVG
-	const response = await fetch(url);
-
-	tasksStatusSvgCache.set(url, {
-		content: response.clone(),
-		timestamp: now
-	});
-	return response;
 }
