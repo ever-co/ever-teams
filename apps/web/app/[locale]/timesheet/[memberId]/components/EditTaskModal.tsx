@@ -29,14 +29,14 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
         Project: activeTeam?.projects as [],
     };
     const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
-        console.log(values);
+        // Handle value changes
     };
     const selectedValues = {
         Teams: null,
     };
 
     const handleChange = (field: string, selectedItem: Item | null) => {
-        console.log(`Field: ${field}, Selected Item:`, selectedItem);
+        // Handle field changes
     };
 
     const fields = [
@@ -135,37 +135,16 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                     <div className=" flex flex-col items-center">
                         <label className="text-gray-500 mr-6 ">Billable</label>
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-x-2">
-                                <div
-                                    className={clsxm(`w-6 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer`, 'bg-white')}
-                                    onClick={() => setIsBillable && setIsBillable(!isBillable)}
-                                    style={
-                                        isBillable
-                                            ? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
-                                            : { background: '#6c57f4b7' }
-                                    } >
-                                    <div
-                                        className={(`bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform translate-x-0`)}
-                                    />
-                                </div>
-                                <span>{t('pages.timesheet.BILLABLE.YES')}</span>
-                            </div>
-                            <div className="flex items-center gap-x-2">
-                                <div
-                                    className={(`w-6 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer`)}
-                                    onClick={() => setIsBillable && setIsBillable(!isBillable)}
-                                    style={
-                                        isBillable
-                                            ? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
-                                            : { background: '#6c57f4b7' }
-                                    } >
-                                    <div
-                                        className={(`bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform translate-x-0`)}
-                                    />
-                                </div>
-                                <span>{t('pages.timesheet.BILLABLE.NO')}</span>
-                            </div>
-
+                            <ToggleButton
+                                isActive={isBillable}
+                                onClick={() => setIsBillable(!isBillable)}
+                                label={t('pages.timesheet.BILLABLE.YES')}
+                            />
+                            <ToggleButton
+                                isActive={!isBillable}
+                                onClick={() => setIsBillable(!isBillable)}
+                                label={t('pages.timesheet.BILLABLE.NO')}
+                            />
                         </div>
                     </div>
                     <div className="w-full flex flex-col">
@@ -178,7 +157,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                                 "bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent",
                                 "placeholder-gray-300 placeholder:font-normal resize-none p-2 grow w-full",
                                 "border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-40",
-                                notes.length === 0 && "border-red-500"
+                                notes.trim().length === 0 && "border-red-500"
                             )}
                             maxLength={120}
                             minLength={0}
@@ -227,3 +206,26 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
         </Modal>
     )
 }
+
+interface ToggleButtonProps {
+    isActive: boolean;
+    onClick: () => void;
+    label: string;
+}
+
+const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) => (
+    <div className="flex items-center gap-x-2">
+        <div
+            className="w-6 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer"
+            onClick={onClick}
+            style={{
+                background: isActive
+                    ? 'linear-gradient(to right, #9d91efb7, #8a7bedb7)'
+                    : '#6c57f4b7'
+            }}
+        >
+            <div className="bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform translate-x-0" />
+        </div>
+        <span>{label}</span>
+    </div>
+);
