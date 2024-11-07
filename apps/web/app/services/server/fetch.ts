@@ -1,4 +1,4 @@
-import { GAUZY_API_SERVER_URL } from '@app/constants';
+import { GAUZY_API_SERVER_URL, tasksStatusSvgCacheDuration } from '@app/constants';
 
 export function serverFetch<T>({
 	path,
@@ -55,7 +55,32 @@ export function serverFetch<T>({
 	});
 }
 
+/** Tasks status SVG icons fetch */
+
+// In memory cache for performance
+
+const tasksStatusSvgCache = new Map<
+	string,
+	{
+		content: Response;
+		timestamp: number;
+	}
+>();
+
 export async function svgFetch(url: string): Promise<Response> {
+	const cached = tasksStatusSvgCache.get(url);
+	const now = Date.now();
+
+	if (cached && now - cached.timestamp < tasksStatusSvgCacheDuration) {
+		return cached.content.clone();
+	}
+
 	// Fetch the SVG
-	return await fetch(url);
+	const response = await fetch(url);
+
+	tasksStatusSvgCache.set(url, {
+		content: response.clone(),
+		timestamp: now
+	});
+	return response;
 }

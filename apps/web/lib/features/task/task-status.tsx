@@ -977,10 +977,10 @@ export function StatusDropdown<T extends TStatusItem>({
 			className={clsxm(
 				`justify-between capitalize`,
 				sidebarUI && ['text-xs'],
-				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
+				!value && ['!text-dark/40 dark:text-white'],
 				isVersion || (forDetails && !value)
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-					: 'bg-[#F2F2F2] ',
+					: 'bg-white border',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
 				isVersion && 'dark:text-white',

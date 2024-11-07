@@ -29,8 +29,10 @@ export const StatusesListCard = ({
 	const t = useTranslations();
 
 	useEffect(() => {
-		loadSVG(statusIcon, 'icon-container' + statusTitle, textColor);
-	}, []);
+		if (statusIcon) {
+			loadSVG(statusIcon, 'icon-container' + statusTitle, textColor);
+		}
+	}, [statusIcon, statusTitle, textColor]);
 
 	return (
 		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
@@ -103,6 +105,7 @@ const loadSVG = async (url: string, containerId: string, color: string): Promise
 		const container = document.getElementById(containerId);
 
 		if (container) {
+			console.log(container);
 			container.innerHTML = svgContent;
 		} else {
 			console.error(`Container with ID "${containerId}" not found.`);
