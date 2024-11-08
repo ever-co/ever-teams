@@ -8,7 +8,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 
-import { useAuthenticateUser, useDailyPlan, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -42,11 +42,12 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
         to: endOfDay(new Date()),
     });
 
-    const { sortedPlans } = useDailyPlan();
     const { timesheet } = useTimesheet({
         startDate: dateRange.from ?? "",
         endDate: dateRange.to ?? ""
     });
+
+
     const {
         isOpen: isManualTimeModalOpen,
         openModal: openManualTimeModal,
@@ -162,7 +163,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                             />
                             <div className='h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800'>
                                 {timesheetNavigator === 'ListView' ?
-                                    <TimesheetView data={sortedPlans} />
+                                    <TimesheetView data={timesheet} />
                                     : <CalendarView />
                                 }
                             </div>

@@ -5,11 +5,14 @@ import { useQuery } from '../useQuery';
 import { useCallback, useEffect } from 'react';
 import { getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
+import { ITimeSheet } from '@/app/interfaces';
 
 interface TimesheetParams {
     startDate: Date | string;
     endDate: Date | string;
 }
+
+
 
 export function useTimesheet({
     startDate,
@@ -42,9 +45,26 @@ export function useTimesheet({
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
     }, [getTaskTimesheet, startDate, endDate]);
+
+
+    const groupByDate = (items: ITimeSheet[]) => {
+        const groupedByDate = items.reduce((acc: Record<string, ITimeSheet[]>, item) => {
+            const date = new Date(item.createdAt).toISOString().split('T')[0];
+            if (!acc[date]) {
+                acc[date] = [];
+            }
+            acc[date].push(item);
+            return acc;
+        }, {});
+        return Object.keys(groupedByDate).map((date) => ({
+            date,
+            tasks: groupedByDate[date]
+        })) as [];
+    }
+
     return {
         loadingTimesheet,
-        timesheet,
+        timesheet: groupByDate(timesheet),
         getTaskTimesheet,
     };
 }
