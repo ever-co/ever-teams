@@ -14,15 +14,15 @@ export async function GET(req: Request) {
             { status: 400 }
         );
     }
-    const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
+    const { $res, user, tenantId, organizationId, access_token, } = await authenticatedGuard(req, res);
     if (!user) return $res('Unauthorized');
     try {
         const { data } = await getTaskTimesheetRequest({
             tenantId,
             organizationId,
-            employeeIds: [],
             startDate,
-            endDate
+            endDate,
+
         }, access_token);
 
         if (!data) {

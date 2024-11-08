@@ -45,6 +45,13 @@ export function CreateDailyPlanFormModal({
 		() => profileDailyPlans?.items?.map((plan) => new Date(plan.date)),
 		[profileDailyPlans.items]
 	);
+	const existingTaskPlanDates = useMemo(
+		() =>
+			profileDailyPlans?.items
+				?.filter((plan) => plan.tasks?.some((task) => task.id === taskId))
+				.map((plan) => new Date(plan.date)),
+		[profileDailyPlans.items, taskId]
+	);
 
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.find((member) => member.employee?.user?.id === user?.id),
@@ -143,6 +150,7 @@ export function CreateDailyPlanFormModal({
 										date={date}
 										setDate={setDate}
 										existingPlanDates={existingPlanDates}
+										existingTaskPlanDates={existingTaskPlanDates}
 									/>
 								</div>
 							)}
@@ -227,11 +235,13 @@ export function CreateDailyPlanFormModal({
 const CustomCalendar = memo(function CustomCalendar({
 	date,
 	setDate,
-	existingPlanDates
+	existingPlanDates,
+	existingTaskPlanDates
 }: {
 	date: Date;
 	setDate: Dispatch<SetStateAction<Date>>;
 	existingPlanDates: Date[];
+	existingTaskPlanDates: Date[];
 }) {
 	return (
 		<Calendar
@@ -240,7 +250,7 @@ const CustomCalendar = memo(function CustomCalendar({
 			selected={date}
 			onSelect={(day) => setDate(day ? day : new Date(tomorrowDate))}
 			initialFocus
-			disabled={[{ from: new Date(1970, 1, 1), to: yesterdayDate }]}
+			disabled={[{ from: new Date(1970, 1, 1), to: yesterdayDate }, ...existingTaskPlanDates]}
 			modifiers={{
 				booked: existingPlanDates
 			}}

@@ -27,6 +27,7 @@ import {
 import { ICreateDailyPlan, IDailyPlanTasksUpdate, IRemoveTaskFromManyPlans, IUpdateDailyPlan } from '@app/interfaces';
 import { useFirstLoad } from '../useFirstLoad';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { removeDuplicateItems } from '@/app/utils/remove-duplicate-item';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -120,7 +121,7 @@ export function useDailyPlan() {
 				if (isPlanExist) {
 					const updatedPlans = [...(profileDailyPlans.items ? profileDailyPlans.items : [])].map((plan) => {
 						if (plan.date?.toString()?.startsWith(new Date(data.date)?.toISOString().split('T')[0])) {
-							return res.data;
+							return { ...res.data, tasks: removeDuplicateItems(res.data.tasks) };
 						}
 
 						return plan;
@@ -133,11 +134,17 @@ export function useDailyPlan() {
 				} else {
 					setProfileDailyPlans({
 						total: profileDailyPlans.total + 1,
-						items: [...(profileDailyPlans.items ? profileDailyPlans.items : []), res.data]
+						items: [
+							...(profileDailyPlans.items ? profileDailyPlans.items : []),
+							{ ...res.data, tasks: removeDuplicateItems(res.data.tasks) }
+						]
 					});
 				}
 
-				setEmployeePlans([...(employeePlans ? employeePlans : []), res.data]);
+				setEmployeePlans([
+					...(employeePlans ? employeePlans : []),
+					{ ...res.data, tasks: removeDuplicateItems(res.data.tasks) }
+				]);
 				getMyDailyPlans();
 				return res;
 			}

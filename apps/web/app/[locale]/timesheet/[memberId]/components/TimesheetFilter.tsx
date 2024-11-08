@@ -1,15 +1,18 @@
 import { FilterWithStatus } from './FilterWithStatus';
-import { FrequencySelect, TimeSheetFilterPopover, TimesheetFilterDate } from '.';
+import { FrequencySelect, TimeSheetFilterPopover, TimesheetFilterDate, TimesheetFilterDateProps } from '.';
 import { Button } from 'lib/components';
 import { AddManualTimeModal } from '@/lib/features/manual-time/add-manual-time-modal';
 import { TranslationHooks } from 'next-intl';
+
 interface ITimesheetFilter {
     isOpen: boolean,
     openModal: () => void,
     closeModal: () => void,
-    t: TranslationHooks
+    t: TranslationHooks,
+    initDate?: TimesheetFilterDateProps
 }
-export function TimesheetFilter({ closeModal, isOpen, openModal, t }: ITimesheetFilter) {
+    
+export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate }: ITimesheetFilter,) {
     return (
         <>
             {
@@ -31,7 +34,7 @@ export function TimesheetFilter({ closeModal, isOpen, openModal, t }: ITimesheet
 
                 <div className="flex gap-2">
                     <FrequencySelect />
-                    <TimesheetFilterDate t={t} />
+                    <TimesheetFilterDate t={t} {...initDate} />
                     <TimeSheetFilterPopover />
                     <Button
                         onClick={openModal}
@@ -41,7 +44,6 @@ export function TimesheetFilter({ closeModal, isOpen, openModal, t }: ITimesheet
                     </Button>
                 </div>
             </div>
-
         </>
     )
 }

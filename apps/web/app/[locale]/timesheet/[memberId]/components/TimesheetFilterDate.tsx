@@ -9,7 +9,7 @@ import {
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
 import { TranslationHooks } from "next-intl"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { MdKeyboardArrowRight } from "react-icons/md"
 import { PiCalendarDotsThin } from "react-icons/pi"
 
@@ -17,7 +17,8 @@ interface DatePickerInputProps {
     date: Date | null;
     label: string;
 }
-interface TimesheetFilterDateProps {
+
+export interface TimesheetFilterDateProps {
     onChange?: (range: { from: Date | null; to: Date | null }) => void;
     initialRange?: { from: Date | null; to: Date | null };
     minDate?: Date;
@@ -32,12 +33,13 @@ export function TimesheetFilterDate({
     maxDate,
     t
 }: TimesheetFilterDateProps) {
-
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
         from: initialRange?.from ?? new Date(),
         to: initialRange?.to ?? new Date(),
     });
-    const [isVisible, setIsVisible] = useState(false)
+  
+    const [isVisible, setIsVisible] = useState(false);
+    
     const handleFromChange = (fromDate: Date | null) => {
         if (maxDate && fromDate && fromDate > maxDate) {
             return;
@@ -84,6 +86,12 @@ export function TimesheetFilterDate({
                 break;
         }
     };
+  
+    useEffect(() => {
+        if (dateRange.from && dateRange.to) {
+            onChange?.(dateRange);
+        }
+    }, [dateRange, onChange]);
 
     const actionButtonClass = "h-4 border-none dark:bg-dark--theme-light text-primary hover:bg-transparent hover:underline"
 
