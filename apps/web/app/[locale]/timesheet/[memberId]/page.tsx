@@ -53,7 +53,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
         closeModal: closeManualTimeModal
     } = useModal();
     const username = user?.name || user?.firstName || user?.lastName || user?.username;
-    console.log("=SPACE===============>", timesheet)
+
     const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>('timesheet-viewMode', 'ListView');
 
     const fullWidth = useAtomValue(fullWidthState);
