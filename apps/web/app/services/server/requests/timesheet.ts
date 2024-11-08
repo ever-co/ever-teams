@@ -54,13 +54,20 @@ export function taskActivityRequest(params: TTaskActivityParams, bearer_token: s
 	});
 }
 
+type ITimesheetProps = {
+	organizationId: string
+	tenantId: string,
+	startDate: string | Date
+	endDate: string | Date
+	timeZone?: string
+}
 
-export function getTaskTimesheetRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
+export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: string) {
 	const queries = qs.stringify(params);
 	return serverFetch<ITimeSheet[]>({
-		path: `/timesheet/time-log/report/daily?${queries.toString()}`,
+		path: `/timesheet/time-log?activityLevel?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId: params.tenantId
+		tenantId: params?.tenantId
 	})
 }
