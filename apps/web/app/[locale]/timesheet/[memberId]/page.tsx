@@ -158,6 +158,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                 closeModal={closeManualTimeModal}
                                 openModal={openManualTimeModal}
                                 isOpen={isManualTimeModalOpen}
+                                t={t}
                             />
                             <div className='h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800'>
                                 {timesheetNavigator === 'ListView' ?

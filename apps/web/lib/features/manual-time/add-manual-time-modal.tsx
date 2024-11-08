@@ -200,7 +200,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
-			title={'Add Time'}
+			title={t('common.ADD_TIME')}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start"
 			titleClass="font-bold"
 		>
@@ -239,7 +239,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				</div>
 
 				<div className=" flex items-center">
-					<label className="block text-gray-500 mr-2">Billable</label>
+					<label className="block text-gray-500 mr-2">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
 					<div
 						className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
 						onClick={() => setIsBillable(!isBillable)}
@@ -411,7 +411,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								type="button"
 								className="dark:text-primary border-gray-300 dark:border-slate-600 font-bold dark:bg-dark--theme-light"
 							>
-								View timesheet
+								{t('common.VIEW_TIMESHEET')}
 							</Button>
 						)}
 						<Button
@@ -423,7 +423,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								`${params === 'AddManuelTime' && 'w-full'}`
 							)}
 						>
-							Add Time
+							{t('common.ADD_TIME')}
 						</Button>
 					</>
 				</div>

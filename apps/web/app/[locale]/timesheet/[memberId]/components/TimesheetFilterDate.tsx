@@ -8,6 +8,7 @@ import {
 } from "@components/ui/popover"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
+import { TranslationHooks } from "next-intl"
 import React, { useEffect, useState } from "react"
 import { MdKeyboardArrowRight } from "react-icons/md"
 import { PiCalendarDotsThin } from "react-icons/pi"
@@ -16,25 +17,29 @@ interface DatePickerInputProps {
     date: Date | null;
     label: string;
 }
+
 export interface TimesheetFilterDateProps {
     onChange?: (range: { from: Date | null; to: Date | null }) => void;
     initialRange?: { from: Date | null; to: Date | null };
     minDate?: Date;
     maxDate?: Date;
+    t: TranslationHooks
 }
 
 export function TimesheetFilterDate({
     onChange,
     initialRange,
     minDate,
-    maxDate
+    maxDate,
+    t
 }: TimesheetFilterDateProps) {
-
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
         from: initialRange?.from ?? new Date(),
         to: initialRange?.to ?? new Date(),
     });
-    const [isVisible, setIsVisible] = useState(false)
+  
+    const [isVisible, setIsVisible] = useState(false);
+    
     const handleFromChange = (fromDate: Date | null) => {
         if (maxDate && fromDate && fromDate > maxDate) {
             return;
@@ -53,34 +58,35 @@ export function TimesheetFilterDate({
     const handlePresetClick = (preset: string) => {
         const today = new Date();
         switch (preset) {
-            case 'Today':
+            case t('common.FILTER_TODAY'):
                 setDateRange({ from: today, to: today });
                 break;
-            case 'Last 7 days':
+            case t('common.FILTER_LAST_7_DAYS'):
                 setDateRange({
                     from: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
                     to: today
                 });
                 break;
-            case 'Last 30 days':
+            case t('common.FILTER_LAST_30_DAYS'):
                 setDateRange({
                     from: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30),
                     to: today
                 });
                 break;
-            case `This year (${today.getFullYear()})`:
+            case t('common.FILTER_THIS_YEAR', { year: new Date().getFullYear() }):
                 setDateRange({
                     from: new Date(today.getFullYear(), 0, 1),
                     to: today
                 });
                 break;
-            case 'Custom Date Range':
+            case t('common.FILTER_CUSTOM_RANGE'):
                 setDateRange({ from: null, to: null });
                 break;
             default:
                 break;
         }
     };
+  
     useEffect(() => {
         if (dateRange.from && dateRange.to) {
             onChange?.(dateRange);
@@ -111,7 +117,7 @@ export function TimesheetFilterDate({
                             format(dateRange.from, "LLL d, yyyy")
                         )
                     ) : (
-                        <span>Pick a date</span>
+                        <span>{t('manualTime.PICK_A_DATE')}</span>
                     )}
                 </Button>
             </PopoverTrigger>
@@ -139,7 +145,7 @@ export function TimesheetFilterDate({
                                     setDateRange(initialRange ?? { from: new Date(), to: new Date() });
                                     setIsVisible(false);
                                 }}>
-                                Cancel
+                                {t('common.CANCEL')}
                             </Button>
                             <Button
                                 variant={'outline'}
@@ -148,7 +154,7 @@ export function TimesheetFilterDate({
                                     onChange?.(dateRange);
                                     setIsVisible(false);
                                 }} >
-                                Apply
+                                {t('common.APPLY')}
                             </Button>
                         </div>
                     </div>
@@ -156,17 +162,23 @@ export function TimesheetFilterDate({
                 }
                 <div className="border border-slate-100 dark:border-gray-800 my-1"></div>
                 <div className="flex flex-col p-2">
-                    {["Today", "Last 7 days", "Last 30 days", `This year (${new Date().getFullYear()})`, "Custom Date Range"].map((label, index) => (
+                    {[
+                        t('common.FILTER_TODAY'),
+                        t('common.FILTER_LAST_7_DAYS'),
+                        t('common.FILTER_LAST_30_DAYS'),
+                        t('common.FILTER_THIS_YEAR', ({ year: new Date().getFullYear() })),
+                        t('common.FILTER_CUSTOM_RANGE')
+                    ].map((label, index) => (
                         <Button
                             key={index}
                             variant="outline"
                             className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700 dark:dark:bg-dark--theme-light"
                             onClick={() => {
-                                label === 'Custom Date Range' && setIsVisible((prev) => !prev)
+                                label === t('common.FILTER_CUSTOM_RANGE') && setIsVisible((prev) => !prev)
                                 handlePresetClick(label)
                             }}>
                             <span> {label}</span>
-                            {label === 'Custom Date Range' && <MdKeyboardArrowRight />}
+                            {label === t('common.FILTER_CUSTOM_RANGE') && <MdKeyboardArrowRight />}
                         </Button>
                     ))}
                 </div>

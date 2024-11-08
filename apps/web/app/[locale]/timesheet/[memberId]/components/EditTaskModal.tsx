@@ -114,7 +114,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
 
                     </div>
                     <div>
-                        <span className="block text-gray-500 mr-2">Date</span>
+                        <span className="block text-gray-500 mr-2">{t("manualTime.DATE")}</span>
                         <DatePickerFilter
                             date={dateRange.from}
                             setDate={handleFromChange}
@@ -133,7 +133,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                         />
                     </div>
                     <div className=" flex flex-col items-center">
-                        <label className="text-gray-500 mr-6 ">Billable</label>
+                        <label className="text-gray-500 mr-6 capitalize">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
                         <div className="flex items-center gap-3">
                             <ToggleButton
                                 isActive={isBillable}
@@ -186,7 +186,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                                 variant="outline"
                                 type="button"
                                 className={clsxm("dark:text-primary h-[2.3rem] border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light")}>
-                                Cancel
+                                {t('common.CANCEL')}
                             </Button>
 
                             <Button
@@ -195,7 +195,7 @@ export function EditTaskModal({ isOpen, closeModal }: IEditTaskModalProps) {
                                     'bg-[#3826A6] h-[2.3rem] font-normal flex items-center text-white',
                                 )}
                             >
-                                Save
+                                {t('common.SAVE')}
                             </Button>
                         </div>
 
@@ -221,10 +221,10 @@ const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) => (
             style={{
                 background: isActive
                     ? 'linear-gradient(to right, #9d91efb7, #8a7bedb7)'
-                    : '#6c57f4b7'
+                    : '#1f2937'
             }}
         >
-            <div className="bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform translate-x-0" />
+            <div className={clsxm("bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform translate-x-0", isActive && "bg-white")} />
         </div>
         <span>{label}</span>
     </div>

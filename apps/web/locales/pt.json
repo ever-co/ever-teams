@@ -254,7 +254,15 @@
 		"SET_AS_NEXT": "Definir como o próximo",
 		"MOVE_TO": "Mover para",
 		"SELECT_DATE": "Selecionar data",
-		"SELECT_AND_CLOSE": "Selecionar e fechar"
+		"SELECT_AND_CLOSE": "Selecionar e fechar",
+		"SELECT_ROLE": "Por favor, selecione um cargo",
+		"ADD_TIME": "Adicionar tempo",
+		"VIEW_TIMESHEET": "Ver folha de ponto",
+		"FILTER_TODAY": "Hoje",
+		"FILTER_LAST_7_DAYS": "Últimos 7 dias",
+		"FILTER_LAST_30_DAYS": "Últimos 30 dias",
+		"FILTER_THIS_YEAR": "Este ano {year}",
+		"FILTER_CUSTOM_RANGE": "Faixa personalizada"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -568,10 +576,12 @@
 			},
 			"BILLABLE": {
 				"YES": "Sim",
-				"NO": "Não"
+				"NO": "Não",
+				"BILLABLE": "Faturável"
 			},
 			"LOADING": "Загрузка данных учета рабочего времени...",
-			"NO_ENTRIES_FOUND": "Записи учета рабочего времени не найдены"
+			"NO_ENTRIES_FOUND": "Записи учета рабочего времени не найдены",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Você está prestes a rejeitar a entrada selecionada, deseja continuar?"
 		}
 	},
 	"timer": {

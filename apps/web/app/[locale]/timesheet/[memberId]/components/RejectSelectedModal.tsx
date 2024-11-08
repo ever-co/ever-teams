@@ -1,5 +1,6 @@
 import { clsxm } from "@/app/utils";
 import { Modal } from "@/lib/components";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 export interface IRejectSelectedModalProps {
     isOpen: boolean;
@@ -11,7 +12,7 @@ export interface IRejectSelectedModalProps {
 export function RejectSelectedModal({ isOpen, closeModal, maxReasonLength, onReject, minReasonLength }: IRejectSelectedModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [reason, setReason] = useState('');
-
+    const t = useTranslations();
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -33,7 +34,7 @@ export function RejectSelectedModal({ isOpen, closeModal, maxReasonLength, onRej
             <form onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4">
                     <span className="text-[#71717A] text-center">
-                        You are about to reject the selected entry, would you like to proceed?
+                        {t('pages.timesheet.YOU_ARE_ABOUT_TO_REJECT_ENTRY')}
                     </span>
                     <textarea
                         value={reason}
@@ -59,9 +60,8 @@ export function RejectSelectedModal({ isOpen, closeModal, maxReasonLength, onRej
                             type="button"
                             disabled={isSubmitting}
                             aria-label="Cancel rejection"
-                            className="dark:text-primary border-[#E2E8F0] dark:border-slate-600 font-normal dark:bg-dark--theme-light h-[2.2rem] text-gray-700 border px-2 rounded-lg"
-                        >
-                            Cancel
+                            className="dark:text-primary border-[#E2E8F0] dark:border-slate-600 font-normal dark:bg-dark--theme-light h-[2.2rem] text-gray-700 border px-2 rounded-lg">
+                            {t('common.CANCEL')}
                         </button>
                         <button
                             type="submit"
