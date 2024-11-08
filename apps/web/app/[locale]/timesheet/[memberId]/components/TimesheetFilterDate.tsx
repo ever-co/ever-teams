@@ -8,7 +8,7 @@ import {
 } from "@components/ui/popover"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { MdKeyboardArrowRight } from "react-icons/md"
 import { PiCalendarDotsThin } from "react-icons/pi"
 
@@ -16,7 +16,7 @@ interface DatePickerInputProps {
     date: Date | null;
     label: string;
 }
-interface TimesheetFilterDateProps {
+export interface TimesheetFilterDateProps {
     onChange?: (range: { from: Date | null; to: Date | null }) => void;
     initialRange?: { from: Date | null; to: Date | null };
     minDate?: Date;
@@ -81,6 +81,11 @@ export function TimesheetFilterDate({
                 break;
         }
     };
+    useEffect(() => {
+        if (dateRange.from && dateRange.to) {
+            onChange?.(dateRange);
+        }
+    }, [dateRange, onChange]);
 
     const actionButtonClass = "h-4 border-none dark:bg-dark--theme-light text-primary hover:bg-transparent hover:underline"
 
