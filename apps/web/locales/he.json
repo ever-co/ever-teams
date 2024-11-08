@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "בחר וסגור",
 		"SELECT_ROLE": "אנא בחר תפקיד",
 		"ADD_TIME": "הוסף זמן",
-		"VIEW_TIMESHEET": "הצג גיליון זמן"
+		"VIEW_TIMESHEET": "הצג גיליון זמן",
+		"FILTER_TODAY": "היום",
+		"FILTER_LAST_7_DAYS": "ה-7 ימים האחרונים",
+		"FILTER_LAST_30_DAYS": "ה-30 ימים האחרונים",
+		"FILTER_THIS_YEAR": "שנה זו {year}",
+		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

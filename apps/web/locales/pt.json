@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Selecionar e fechar",
 		"SELECT_ROLE": "Por favor, selecione um cargo",
 		"ADD_TIME": "Adicionar tempo",
-		"VIEW_TIMESHEET": "Ver folha de ponto"
+		"VIEW_TIMESHEET": "Ver folha de ponto",
+		"FILTER_TODAY": "Hoje",
+		"FILTER_LAST_7_DAYS": "Últimos 7 dias",
+		"FILTER_LAST_30_DAYS": "Últimos 30 dias",
+		"FILTER_THIS_YEAR": "Este ano {year}",
+		"FILTER_CUSTOM_RANGE": "Faixa personalizada"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",

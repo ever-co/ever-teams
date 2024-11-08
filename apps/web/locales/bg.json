@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Изберете и затворете",
 		"SELECT_ROLE": "Моля, изберете роля",
 		"ADD_TIME": "Добавете време",
-		"VIEW_TIMESHEET": "Преглед на работния час"
+		"VIEW_TIMESHEET": "Преглед на работния час",
+		"FILTER_TODAY": "Днес",
+		"FILTER_LAST_7_DAYS": "Последните 7 дни",
+		"FILTER_LAST_30_DAYS": "Последните 30 дни",
+		"FILTER_THIS_YEAR": "Тази година {year}",
+		"FILTER_CUSTOM_RANGE": "Потребителски диапазон"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

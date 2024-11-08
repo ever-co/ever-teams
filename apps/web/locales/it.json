@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Seleziona e chiudi",
 		"SELECT_ROLE": "Seleziona un ruolo",
 		"ADD_TIME": "Aggiungi tempo",
-		"VIEW_TIMESHEET": "Vedi foglio ore"
+		"VIEW_TIMESHEET": "Vedi foglio ore",
+		"FILTER_TODAY": "Oggi",
+		"FILTER_LAST_7_DAYS": "Ultimi 7 giorni",
+		"FILTER_LAST_30_DAYS": "Ultimi 30 giorni",
+		"FILTER_THIS_YEAR": "Quest'anno {year}",
+		"FILTER_CUSTOM_RANGE": "Intervallo personalizzato"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

@@ -56,28 +56,28 @@ export function TimesheetFilterDate({
     const handlePresetClick = (preset: string) => {
         const today = new Date();
         switch (preset) {
-            case 'Today':
+            case t('common.FILTER_TODAY'):
                 setDateRange({ from: today, to: today });
                 break;
-            case 'Last 7 days':
+            case t('common.FILTER_LAST_7_DAYS'):
                 setDateRange({
                     from: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
                     to: today
                 });
                 break;
-            case 'Last 30 days':
+            case t('common.FILTER_LAST_30_DAYS'):
                 setDateRange({
                     from: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30),
                     to: today
                 });
                 break;
-            case `This year (${today.getFullYear()})`:
+            case t('common.FILTER_THIS_YEAR', { year: new Date().getFullYear() }):
                 setDateRange({
                     from: new Date(today.getFullYear(), 0, 1),
                     to: today
                 });
                 break;
-            case 'Custom Date Range':
+            case t('common.FILTER_CUSTOM_RANGE'):
                 setDateRange({ from: null, to: null });
                 break;
             default:
@@ -154,17 +154,23 @@ export function TimesheetFilterDate({
                 }
                 <div className="border border-slate-100 dark:border-gray-800 my-1"></div>
                 <div className="flex flex-col p-2">
-                    {["Today", "Last 7 days", "Last 30 days", `This year (${new Date().getFullYear()})`, "Custom Date Range"].map((label, index) => (
+                    {[
+                        t('common.FILTER_TODAY'),
+                        t('common.FILTER_LAST_7_DAYS'),
+                        t('common.FILTER_LAST_30_DAYS'),
+                        t('common.FILTER_THIS_YEAR', ({ year: new Date().getFullYear() })),
+                        t('common.FILTER_CUSTOM_RANGE')
+                    ].map((label, index) => (
                         <Button
                             key={index}
                             variant="outline"
                             className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700 dark:dark:bg-dark--theme-light"
                             onClick={() => {
-                                label === 'Custom Date Range' && setIsVisible((prev) => !prev)
+                                label === t('common.FILTER_CUSTOM_RANGE') && setIsVisible((prev) => !prev)
                                 handlePresetClick(label)
                             }}>
                             <span> {label}</span>
-                            {label === 'Custom Date Range' && <MdKeyboardArrowRight />}
+                            {label === t('common.FILTER_CUSTOM_RANGE') && <MdKeyboardArrowRight />}
                         </Button>
                     ))}
                 </div>

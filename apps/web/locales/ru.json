@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Выбрать и закрыть",
 		"SELECT_ROLE": "Пожалуйста, выберите роль",
 		"ADD_TIME": "Добавить время",
-		"VIEW_TIMESHEET": "Просмотреть табель"
+		"VIEW_TIMESHEET": "Просмотреть табель",
+		"FILTER_TODAY": "Сегодня",
+		"FILTER_LAST_7_DAYS": "Последние 7 дней",
+		"FILTER_LAST_30_DAYS": "Последние 30 дней",
+		"FILTER_THIS_YEAR": "Этот год {year}",
+		"FILTER_CUSTOM_RANGE": "Пользовательский диапазон"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "选择并关闭",
 		"SELECT_ROLE": "请选择角色",
 		"ADD_TIME": "添加时间",
-		"VIEW_TIMESHEET": "查看工时表"
+		"VIEW_TIMESHEET": "查看工时表",
+		"FILTER_TODAY": "今天",
+		"FILTER_LAST_7_DAYS": "过去7天",
+		"FILTER_LAST_30_DAYS": "过去30天",
+		"FILTER_THIS_YEAR": "今年 {year}",
+		"FILTER_CUSTOM_RANGE": "自定义范围"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

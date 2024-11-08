@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Select & Close",
 		"SELECT_ROLE": "Please Select any Role",
 		"ADD_TIME": "Add Time",
-		"VIEW_TIMESHEET": "View timesheet"
+		"VIEW_TIMESHEET": "View timesheet",
+		"FILTER_TODAY": "Today",
+		"FILTER_LAST_7_DAYS": "Last 7 Days",
+		"FILTER_LAST_30_DAYS": "Last 30 Days",
+		"FILTER_THIS_YEAR": "This year {year}",
+		"FILTER_CUSTOM_RANGE": "Custom Range"
 	},
 	"hotkeys": {
 		"HELP": "Help",

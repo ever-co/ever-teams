@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Selecteren en sluiten",
 		"SELECT_ROLE": "Selecteer een rol",
 		"ADD_TIME": "Tijd toevoegen",
-		"VIEW_TIMESHEET": "Bekijk tijdregistratie"
+		"VIEW_TIMESHEET": "Bekijk tijdregistratie",
+		"FILTER_TODAY": "Vandaag",
+		"FILTER_LAST_7_DAYS": "Laatste 7 dagen",
+		"FILTER_LAST_30_DAYS": "Laatste 30 dagen",
+		"FILTER_THIS_YEAR": "Dit jaar {year}",
+		"FILTER_CUSTOM_RANGE": "Aangepast bereik"
 	},
 	"hotkeys": {
 		"HELP": "Help",

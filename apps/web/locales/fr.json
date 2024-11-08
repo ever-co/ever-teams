@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Sélectionner et fermer",
 		"SELECT_ROLE": "Veuillez sélectionner un rôle",
 		"ADD_TIME": "Ajouter du temps",
-		"VIEW_TIMESHEET": "Voir la feuille de temps"
+		"VIEW_TIMESHEET": "Voir la feuille de temps",
+		"FILTER_TODAY": "Aujourd'hui",
+		"FILTER_LAST_7_DAYS": "Derniers 7 jours",
+		"FILTER_LAST_30_DAYS": "Derniers 30 jours",
+		"FILTER_THIS_YEAR": "Cette année {year}",
+		"FILTER_CUSTOM_RANGE": "Plage personnalisée"
 	},
 	"hotkeys": {
 		"HELP": "Aide",

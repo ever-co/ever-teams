@@ -257,7 +257,12 @@
 		"SELECT_AND_CLOSE": "Auswählen und schließen",
 		"SELECT_ROLE": "Bitte wählen Sie eine Rolle",
 		"ADD_TIME": "Zeit hinzufügen",
-		"VIEW_TIMESHEET": "Zeiterfassung anzeigen"
+		"VIEW_TIMESHEET": "Zeiterfassung anzeigen",
+		"FILTER_TODAY": "Heute",
+		"FILTER_LAST_7_DAYS": "Letzte 7 Tage",
+		"FILTER_LAST_30_DAYS": "Letzte 30 Tage",
+		"FILTER_THIS_YEAR": "Dieses Jahr {year}",
+		"FILTER_CUSTOM_RANGE": "Benutzerdefinierter Bereich"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
