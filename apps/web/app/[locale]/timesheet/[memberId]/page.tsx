@@ -21,6 +21,7 @@ import { GoSearch } from 'react-icons/go';
 
 import { getGreeting } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { endOfDay, startOfDay } from 'date-fns';
 
 type TimesheetViewMode = "ListView" | "CalendarView";
 
@@ -37,8 +38,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
     const { user } = useAuthenticateUser();
 
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
-        from: new Date(),
-        to: new Date(),
+        from: startOfDay(new Date()),
+        to: endOfDay(new Date()),
     });
 
     const { sortedPlans } = useDailyPlan();

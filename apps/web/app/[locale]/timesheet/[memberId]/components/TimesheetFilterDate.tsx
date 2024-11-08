@@ -83,9 +83,10 @@ export function TimesheetFilterDate({
     };
     useEffect(() => {
         if (dateRange.from && dateRange.to) {
-            onChange?.({ ...dateRange, from: dateRange.from });
+            onChange?.(dateRange);
         }
-    }, [dateRange]);
+    }, [dateRange, onChange]);
+
     const actionButtonClass = "h-4 border-none dark:bg-dark--theme-light text-primary hover:bg-transparent hover:underline"
 
     return (<>

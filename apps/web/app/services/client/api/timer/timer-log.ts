@@ -28,8 +28,15 @@ export async function getTaskTimesheetLogsApi({
 	endDate: string | Date,
 	timeZone?: string
 }) {
-	const start = typeof startDate === 'string' ? startDate : startDate.toISOString();
-	const end = typeof endDate === 'string' ? endDate : endDate.toISOString();
+
+	if (!organizationId || !tenantId || !startDate || !endDate) {
+		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
+	}
+	const start = typeof startDate === 'string' ? new Date(startDate).toISOString() : startDate.toISOString();
+	const end = typeof endDate === 'string' ? new Date(endDate).toISOString() : endDate.toISOString();
+	if (isNaN(new Date(start).getTime()) || isNaN(new Date(end).getTime())) {
+		throw new Error('Invalid date format provided');
+	}
 
 	const params = new URLSearchParams({
 		'activityLevel[start]': '0',
