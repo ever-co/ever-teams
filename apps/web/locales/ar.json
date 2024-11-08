@@ -236,7 +236,10 @@
 		"SET_AS_NEXT": "تعيين كالتالي",
 		"MOVE_TO": "نقل إلى",
 		"SELECT_DATE": "اختر التاريخ",
-		"SELECT_AND_CLOSE": "اختر وأغلق"
+		"SELECT_AND_CLOSE": "اختر وأغلق",
+		"SELECT_ROLE": "يرجى اختيار أي دور",
+		"ADD_TIME": "إضافة وقت",
+		"VIEW_TIMESHEET": "عرض جدول الزمن"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -551,12 +554,12 @@
 			"HEADING_DESCRIPTION": "نقوم حاليًا بتحديث موقعنا الإلكتروني لخدمتك بشكل أفضل. يرجى التحقق مرة أخرى في وقت لاحق."
 		},
 		"timesheet": {
-			"TIMESHEET_TITLE": "سجل الساعات",
+			"TIMESHEET_TITLE": "جدول العمل",
 			"TIMESHEET_VIEW_DETAILS": "عرض التفاصيل",
 			"TIMESHEET_ACTION_APPROVE_SELECTED": "الموافقة على المحدد",
 			"TIMESHEET_ACTION_REJECT_SELECTED": "رفض المحدد",
 			"TIMESHEET_ACTION_DELETE_SELECTED": "حذف المحدد",
-			"HEADING_DESCRIPTION": "هذا هو لوحة المعلومات الشخصية الخاصة بك، تظهر لك ما يحتاج إلى انتباهك الآن.",
+			"HEADING_DESCRIPTION": "هذه لوحة التحكم الخاصة بجداولك الزمنية، تعرض ما يحتاج إلى اهتمامك الآن.",
 			"GREETINGS": {
 				"GOOD_MORNING": "صباح الخير",
 				"GOOD_AFTERNOON": "مساء الخير",
@@ -568,10 +571,12 @@
 			},
 			"BILLABLE": {
 				"YES": "نعم",
-				"NO": "لا"
+				"NO": "لا",
+				"BILLABLE": "قابل للفوترة"
 			},
-			"LOADING": "جارٍ تحميل بيانات سجل الزمن...",
-			"NO_ENTRIES_FOUND": "لم يتم العثور على إدخالات سجل الزمن"
+			"LOADING": "جار تحميل بيانات الجدول الزمني...",
+			"NO_ENTRIES_FOUND": "لم يتم العثور على مدخلات في الجدول الزمني",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "أنت على وشك رفض الإدخال المحدد، هل ترغب في المتابعة؟"
 		}
 	},
 	"timer": {

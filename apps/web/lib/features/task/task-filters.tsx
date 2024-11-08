@@ -357,7 +357,7 @@ function InputFilters({ hook, profile }: Props) {
 				)}
 			>
 				<span className="text-xl">+</span>
-				Add time
+				{t('common.ADD_TIME')}
 			</Button>
 
 			{/* Assign task combobox */}

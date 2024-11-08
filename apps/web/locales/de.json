@@ -254,7 +254,10 @@
 		"SET_AS_NEXT": "Als nächstes festlegen",
 		"MOVE_TO": "Verschieben nach",
 		"SELECT_DATE": "Datum auswählen",
-		"SELECT_AND_CLOSE": "Auswählen und schließen"
+		"SELECT_AND_CLOSE": "Auswählen und schließen",
+		"SELECT_ROLE": "Bitte wählen Sie eine Rolle",
+		"ADD_TIME": "Zeit hinzufügen",
+		"VIEW_TIMESHEET": "Zeiterfassung anzeigen"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -568,10 +571,12 @@
 			},
 			"BILLABLE": {
 				"YES": "Ja",
-				"NO": "Nein"
+				"NO": "Nein",
+				"BILLABLE": "ABRECHNUNGSFÄHIG"
 			},
 			"LOADING": "Lade Zeiterfassungsdaten...",
-			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden"
+			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Sie sind dabei, den ausgewählten Eintrag abzulehnen. Möchten Sie fortfahren?"
 		}
 	},
 	"timer": {

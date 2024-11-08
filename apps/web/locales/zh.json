@@ -254,7 +254,10 @@
 		"SET_AS_NEXT": "设置为下一个",
 		"MOVE_TO": "移动到",
 		"SELECT_DATE": "选择日期",
-		"SELECT_AND_CLOSE": "选择并关闭"
+		"SELECT_AND_CLOSE": "选择并关闭",
+		"SELECT_ROLE": "请选择角色",
+		"ADD_TIME": "添加时间",
+		"VIEW_TIMESHEET": "查看工时表"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -568,10 +571,12 @@
 			},
 			"BILLABLE": {
 				"YES": "是",
-				"NO": "否"
+				"NO": "否",
+				"BILLABLE": "可计费"
 			},
-			"LOADING": "Cargando datos de registro de horas...",
-			"NO_ENTRIES_FOUND": "No se encontraron entradas de registro de horas"
+			"LOADING": "加载时间表数据...",
+			"NO_ENTRIES_FOUND": "未找到时间表记录",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "你即将拒绝选定的条目，是否继续？"
 		}
 	},
 	"timer": {

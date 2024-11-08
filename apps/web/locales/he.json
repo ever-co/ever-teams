@@ -254,7 +254,10 @@
 		"SET_AS_NEXT": "הגדר כהבא",
 		"MOVE_TO": "העבר אל",
 		"SELECT_DATE": "בחר תאריך",
-		"SELECT_AND_CLOSE": "בחר וסגור"
+		"SELECT_AND_CLOSE": "בחר וסגור",
+		"SELECT_ROLE": "אנא בחר תפקיד",
+		"ADD_TIME": "הוסף זמן",
+		"VIEW_TIMESHEET": "הצג גיליון זמן"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -568,10 +571,12 @@
 			},
 			"BILLABLE": {
 				"YES": "כן",
-				"NO": "לא"
+				"NO": "לא",
+				"BILLABLE": "חיוב"
 			},
 			"LOADING": "טוען נתוני רשומת זמן...",
-			"NO_ENTRIES_FOUND": "לא נמצאו רשומות זמן"
+			"NO_ENTRIES_FOUND": "לא נמצאו רשומות זמן",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "אתה עומד לדחות את הרשומה הנבחרת, האם ברצונך להמשיך?"
 		}
 	},
 	"timer": {

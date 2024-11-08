@@ -254,7 +254,10 @@
 		"SET_AS_NEXT": "Imposta come successivo",
 		"MOVE_TO": "Sposta a",
 		"SELECT_DATE": "Seleziona data",
-		"SELECT_AND_CLOSE": "Seleziona e chiudi"
+		"SELECT_AND_CLOSE": "Seleziona e chiudi",
+		"SELECT_ROLE": "Seleziona un ruolo",
+		"ADD_TIME": "Aggiungi tempo",
+		"VIEW_TIMESHEET": "Vedi foglio ore"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -568,10 +571,12 @@
 			},
 			"BILLABLE": {
 				"YES": "Sì",
-				"NO": "No"
+				"NO": "No",
+				"BILLABLE": "FATTURABILE"
 			},
 			"LOADING": "Caricamento dati della registrazione ore...",
-			"NO_ENTRIES_FOUND": "Nessuna voce di registrazione ore trovata"
+			"NO_ENTRIES_FOUND": "Nessuna voce di registrazione ore trovata",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Stai per rifiutare l'elemento selezionato, vuoi procedere?"
 		}
 	},
 	"timer": {

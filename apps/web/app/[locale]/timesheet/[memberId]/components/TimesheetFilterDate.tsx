@@ -8,6 +8,7 @@ import {
 } from "@components/ui/popover"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
+import { TranslationHooks } from "next-intl"
 import React, { useState } from "react"
 import { MdKeyboardArrowRight } from "react-icons/md"
 import { PiCalendarDotsThin } from "react-icons/pi"
@@ -21,13 +22,15 @@ interface TimesheetFilterDateProps {
     initialRange?: { from: Date | null; to: Date | null };
     minDate?: Date;
     maxDate?: Date;
+    t: TranslationHooks
 }
 
 export function TimesheetFilterDate({
     onChange,
     initialRange,
     minDate,
-    maxDate
+    maxDate,
+    t
 }: TimesheetFilterDateProps) {
 
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
@@ -106,7 +109,7 @@ export function TimesheetFilterDate({
                             format(dateRange.from, "LLL d, yyyy")
                         )
                     ) : (
-                        <span>Pick a date</span>
+                        <span>{t('manualTime.PICK_A_DATE')}</span>
                     )}
                 </Button>
             </PopoverTrigger>
@@ -134,7 +137,7 @@ export function TimesheetFilterDate({
                                     setDateRange(initialRange ?? { from: new Date(), to: new Date() });
                                     setIsVisible(false);
                                 }}>
-                                Cancel
+                                {t('common.CANCEL')}
                             </Button>
                             <Button
                                 variant={'outline'}
@@ -143,7 +146,7 @@ export function TimesheetFilterDate({
                                     onChange?.(dateRange);
                                     setIsVisible(false);
                                 }} >
-                                Apply
+                                {t('common.APPLY')}
                             </Button>
                         </div>
                     </div>
