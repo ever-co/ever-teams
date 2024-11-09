@@ -74,6 +74,9 @@
 				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
 				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
 				"NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
+			},
+			"config": {
+				"usesNonExemptEncryption": false
 			}
 		},
 		"web": {
