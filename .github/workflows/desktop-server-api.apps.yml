@@ -76,6 +76,7 @@ jobs:
           SENTRY_TRACES_SAMPLE_RATE: '${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}'
           SENTRY_HTTP_TRACING_ENABLED: '${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}'
           SENTRY_POSTGRES_TRACKING_ENABLED: '${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}'
+          SENTRY_PROFILING_ENABLED: '${{ secrets.SENTRY_PROFILING_ENABLED }}'
           DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
@@ -93,8 +94,8 @@ jobs:
           DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
-          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+          PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -154,6 +155,7 @@ jobs:
           SENTRY_TRACES_SAMPLE_RATE: '${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}'
           SENTRY_HTTP_TRACING_ENABLED: '${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}'
           SENTRY_POSTGRES_TRACKING_ENABLED: '${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}'
+          SENTRY_PROFILING_ENABLED: '${{ secrets.SENTRY_PROFILING_ENABLED }}'
           DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
@@ -171,8 +173,8 @@ jobs:
           DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
-          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+          PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -237,6 +239,7 @@ jobs:
           SENTRY_TRACES_SAMPLE_RATE: '${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}'
           SENTRY_HTTP_TRACING_ENABLED: '${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}'
           SENTRY_POSTGRES_TRACKING_ENABLED: '${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}'
+          SENTRY_PROFILING_ENABLED: '${{ secrets.SENTRY_PROFILING_ENABLED }}'
           DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
@@ -254,5 +257,5 @@ jobs:
           DESKTOP_API_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_API_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n'
-          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
+          PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'

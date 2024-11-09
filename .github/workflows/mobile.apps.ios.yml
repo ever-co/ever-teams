@@ -76,8 +76,8 @@ jobs:
           EXPO_PROJECT_NAME: ${{ secrets.EXPO_PROJECT_NAME }}
           EXPO_PROJECT_OWNER: ${{ secrets.EXPO_PROJECT_OWNER }}
           EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
-          EXPO_PROJECT_PACKAGE_NAME: ${{ secrets.EXPO_PROJECT_PACKAGE_NAME }}
-          EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER }}
+          EXPO_PROJECT_PACKAGE_NAME: ${{ secrets.EXPO_PROJECT_PACKAGE_NAME || 'ever.teams' }}
+          EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER || 'co.ever.teams' }}
 
       - name: Build on EAS
         run: cd apps/mobile && eas build --profile production --platform ios --non-interactive
