@@ -3,7 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { EmptyPlans, FilterTabs, PlanHeader } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { HorizontalSeparator } from 'lib/components';
 import { clsxm } from '@app/utils';
@@ -17,13 +17,14 @@ import { useDateRange } from '@app/hooks/useDateRange';
 export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	const { pastPlans } = useDailyPlan();
 
-	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const [pastTasks, setPastTasks] = useState<IDailyPlan[]>(pastPlans);
-	const { setDate, date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
+	const { date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 
 	useEffect(() => {
 		setPastTasks(filterDailyPlan(date as any, pastPlans));
-	}, [date, setDate]);
+	}, [date, pastPlans]);
+
 	return (
 		<div className="flex flex-col gap-6">
 			{pastTasks?.length > 0 ? (
@@ -64,7 +65,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 													view === 'CARDS' && 'flex-col',
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-scroll',
+													view === 'BLOCKS' && 'overflow-x-auto',
 													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 												)}
 											>

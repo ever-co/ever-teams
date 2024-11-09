@@ -1,8 +1,8 @@
 import { clsxm } from '@app/utils';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
-import { Modal } from 'lib/components'
-import React from 'react'
+import { Modal } from 'lib/components';
+import React from 'react';
 
 interface ConfirmStatusChangeProps {
     isOpen?: boolean;
@@ -24,29 +24,36 @@ export function ConfirmStatusChange({ closeModal, isOpen, newStatus, oldStatus }
     const oldStatusClass = getStatusClasses(oldStatus);
 
     return (
-        <Modal
-            isOpen={isOpen!}
-            closeModal={closeModal!}
-            title={"Confirm Change"}
-            className="bg-light--theme-light text-xl0 dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start !shadow-2xl"
-            titleClass="font-bold"
-        >
-            <div className='flex flex-col gap-y-4 items-center'>
-                <span className='font-medium'>Time entry will be changed from</span>
-                <StatusTransition
-                    currentStatus={newStatus || ""}
-                    previousStatus={oldStatus || ""}
-                    currentStatusClass={newStatusClass}
-                    previousStatusClass={oldStatusClass}
-                />
+        <>
+            {
+                closeModal ? (
+                    <Modal
+                        isOpen={isOpen ? isOpen : false}
+                        closeModal={closeModal}
+                        title={"Confirm Change"}
+                        className="bg-light--theme-light text-xl0 dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start !shadow-2xl"
+                        titleClass="font-bold"
+                    >
+                        <div className='flex flex-col gap-y-4 items-center'>
+                            <span className='font-medium'>Time entry will be changed from</span>
+                            <StatusTransition
+                                currentStatus={newStatus || ""}
+                                previousStatus={oldStatus || ""}
+                                currentStatusClass={newStatusClass}
+                                previousStatusClass={oldStatusClass}
+                            />
 
-                <CommentInputArea />
-                <ConfirmationButtons onCancel={closeModal} />
-            </div>
-        </Modal>
+                            <CommentInputArea />
+                            <ConfirmationButtons onCancel={closeModal} />
+                        </div>
+                    </Modal>
+                )
+                    :
+                    <></>
+            }
+        </>
     )
 }
-
 
 const StatusTransition = ({ previousStatus, currentStatus, currentStatusClass, previousStatusClass }: { previousStatus: string; currentStatus: string; currentStatusClass: string; previousStatusClass: string }) => (
     <div className="flex items-center gap-x-2 font-medium">
@@ -86,11 +93,11 @@ export function StatusBadge({ selectedStatus, filterNumber }: { selectedStatus?:
     const getColorClass = () => {
         switch (selected) {
             case "Rejected":
-                return `text-red-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : " border-red-500"} `;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-[#dc2626]"} `;
             case "Approved":
-                return `text-green-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : "border-green-500"}`;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-[#30B366]"}`;
             case "Pending":
-                return `text-orange-500 ${filterNumber ? "border-gray-200 dark:border-gray-700" : "border-orange-500"} `;
+                return `text-black ${filterNumber ? "border-gray-200 dark:border-gray-700" : "!bg-[#FBB650]"} `;
             default:
                 return `text-gray-500 dark:text-gray-200 border-gray-200 dark:border-gray-700 !py-0 font-normal`;
         }

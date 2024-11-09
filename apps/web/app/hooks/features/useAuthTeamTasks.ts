@@ -1,13 +1,13 @@
 import { IUser } from '@app/interfaces';
 import { tasksByTeamState } from '@app/stores';
 import { useMemo } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useDailyPlan } from './useDailyPlan';
 import { estimatedTotalTime, getTotalTasks } from 'lib/features/task/daily-plan';
 
 export function useAuthTeamTasks(user: IUser | undefined) {
-	const tasks = useRecoilValue(tasksByTeamState);
+	const tasks = useAtomValue(tasksByTeamState);
 	const { outstandingPlans, todayPlan, futurePlans } = useDailyPlan();
 
 	const { activeTeam } = useOrganizationTeams();
@@ -29,7 +29,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 
 	const planned = useMemo(() => {
 		const outStandingTasksCount = estimatedTotalTime(
-			outstandingPlans.map((plan) => plan.tasks?.map((task) => task))
+			outstandingPlans?.map((plan) => plan.tasks?.map((task) => task))
 		).totalTasks;
 
 		const todayTasksCOunt = getTotalTasks(todayPlan);
@@ -57,6 +57,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 		assignedTasks,
 		unassignedTasks,
 		workedTasks,
-		planned
+		planned,
+		tasks
 	};
 }

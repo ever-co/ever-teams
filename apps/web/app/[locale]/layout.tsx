@@ -1,24 +1,28 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
-
-import clsx from 'clsx';
-import { notFound, useRouter } from 'next/navigation';
-import { ReactNode, useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { NextIntlClientProvider } from 'next-intl';
-import { RecoilRoot } from 'recoil';
-import { AppState } from 'lib/app/init-state';
-
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
-import { ThemeProvider } from 'next-themes';
+
+import clsx from 'clsx';
+import { Provider } from 'jotai';
+import { AppState } from 'lib/app/init-state';
+import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
 import { JitsuRoot } from 'lib/settings/JitsuRoot';
-import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+import { NextIntlClientProvider } from 'next-intl';
+import { ThemeProvider } from 'next-themes';
+import dynamic from 'next/dynamic';
+import { Poppins } from 'next/font/google';
+import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { PropsWithChildren, useEffect } from 'react';
+
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
+import GlobalSkeleton from '@components/ui/global-skeleton';
+import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+
+import { PHProvider } from './integration/posthog/provider';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props {
-	children: ReactNode;
 	params: { locale: string };
 
 	pageProps: {
@@ -28,12 +32,6 @@ interface Props {
 		user?: any;
 	};
 }
-
-import { Poppins } from 'next/font/google';
-import GlobalSkeleton from '@components/ui/global-skeleton';
-import NextAuthSessionProvider from 'lib/layout/next-auth-provider';
-import dynamic from 'next/dynamic';
-import { PHProvider } from './integration/posthog/provider';
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -58,9 +56,9 @@ const PostHogPageView = dynamic(() => import('./integration/posthog/page-view'),
 // 	};
 // }
 
-const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
+const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChildren<Props>) => {
 	// Validate that the incoming `locale` parameter is valid
-	if (!locales.includes(locale as any)) notFound();
+	if (!locales.includes(locale as string)) notFound();
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -132,11 +130,11 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
 				<PHProvider>
-					<body className={clsx('flex h-full flex-col dark:bg-[#191A20]')}>
+					<body className={clsx('flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:bg-[#191A20]')}>
 						<PostHogPageView />
 
 						<NextAuthSessionProvider>
-							<RecoilRoot>
+							<Provider>
 								<ThemeProvider
 									attribute="class"
 									defaultTheme="system"
@@ -152,7 +150,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: Props) => {
 										</>
 									)}
 								</ThemeProvider>
-							</RecoilRoot>
+							</Provider>
 						</NextAuthSessionProvider>
 					</body>
 				</PHProvider>

@@ -1,12 +1,15 @@
 'use client';
 
-import { clsxm } from '@app/utils';
+import { cn } from '@/lib/utils';
 import { Toaster, ToastMessageManager } from '@components/ui/toaster';
 import { Container, Divider, Meta } from 'lib/components';
 import { PropsWithChildren } from 'react';
 import { Footer, Navbar } from '.';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AppSidebar } from '@components/app-sidebar';
+import MainSidebarTrigger from './MainSidebarTrigger';
 
 type Props = PropsWithChildren<{
 	title?: string;
@@ -28,9 +31,9 @@ export function MainLayout({
 	childrenClassName,
 	footerClassName = ''
 }: Props) {
-	const fullWidth = useRecoilValue(fullWidthState);
+	const fullWidth = useAtomValue(fullWidthState);
 	return (
-		<div className="w-full h-full">
+		<div className="w-full h-full overflow-x-hidden min-w-fit">
 			<style jsx global>
 				{`
 					:root {
@@ -54,30 +57,41 @@ export function MainLayout({
 			</style>
 
 			<Meta title={title} />
-			<Navbar
-				showTimer={showTimer}
-				className="fixed z-[999]"
-				publicTeam={publicTeam || false}
-				notFound={notFound || false}
-			/>
+			<SidebarProvider>
+				<AppSidebar publicTeam={publicTeam || false} />
 
-			<div
-				className={clsxm(
-					'w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px] pt-20',
-					className
-				)}
-			>
-				<div className={clsxm('lg:flex-1 lg:w-full ', childrenClassName)}>{children}</div>
-				<Container
-					fullWidth={fullWidth}
-					className={clsxm('w-full px-8', fullWidth && '!mx-0', footerClassName)}
-				>
-					<Divider />
-					<Footer className="justify-between w-full px-0  mx-auto" />
-				</Container>
-			</div>
-			<Toaster />
-			<ToastMessageManager />
+				<SidebarInset>
+					<header
+						className={cn(
+							'flex max-h-fit flex-col flex-1 sticky z-50 my-auto inset-x-0 w-full  top-0 h-16 shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 bg-white dark:bg-dark-high  !mx-0 nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
+							!fullWidth ? 'lg:px-8' : 'px-8'
+						)}
+					>
+						<Navbar
+							className={cn(
+								'flex items-center justify-end w-full transition-all h-max',
+								!fullWidth ? 'x-container mx-auto' : '!mx-0'
+							)}
+							showTimer={showTimer}
+							publicTeam={publicTeam || false}
+							notFound={notFound || false}
+						/>
+					</header>
+					<div className={cn('flex flex-1 flex-col gap-4 p-4 h-max pt-5', className)}>
+						<MainSidebarTrigger />
+						<div className={cn('min-h-[100vh] flex-1', childrenClassName)}>{children}</div>
+					</div>
+					<Container
+						fullWidth={fullWidth}
+						className={cn('w-full px-8 mt-auto', fullWidth && '!mx-0', footerClassName)}
+					>
+						<Divider />
+						<Footer className="justify-between w-full px-0 mx-auto" />
+					</Container>
+				</SidebarInset>
+				<Toaster />
+				<ToastMessageManager />
+			</SidebarProvider>
 		</div>
 	);
 }

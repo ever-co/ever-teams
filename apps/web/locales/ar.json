@@ -86,6 +86,10 @@
 		"PUBLIC_TASK_LABEL": "جعل عامة",
 		"PRIVATE_TASK_LABEL": "جعل خاصة",
 		"CREATE_TASK": "إنشاء مهمة جديدة",
+		"REMOVE_FAVORITE_TASK": "إزالة المهمة من المفضلة",
+		"ADD_FAVORITE_TASK": "إضافة المهمة إلى المفضلة",
+		"NO_PROJECT": "لا يوجد مشروع",
+		"NO_FAVORITE_TASK": "لا توجد مهام مفضلة حتى الآن",
 		"LINK_TASK": "تحديد القضية ذات الصلة",
 		"LINK": "رابط",
 		"LINKS": "روابط",
@@ -95,6 +99,7 @@
 		"DESCRIPTION": "وصف",
 		"CHILD_ISSUE_TASK": "تحديد القضية الفرعية",
 		"CREATE_TEAM": "إنشاء فريق جديد",
+		"CREATE_PROJECT": "إنشاء مشروع جديد",
 		"ALL_TEAMS": "جميع الفرق",
 		"VERIFY_ACCOUNT_MSG": "يرجى التحقق من حسابك قبل البدء في استخدام التطبيق",
 		"CREATE_ROLE": "إنشاء دور",
@@ -202,7 +207,62 @@
 		"SKIP_ADD_LATER": "أضف لاحقًا",
 		"DAILYPLAN": "مخطط",
 		"INVITATION_SENT": "تم إرسال دعوة بنجاح",
-		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}."
+		"INVITATION_SENT_TO_USER": "تم إرسال دعوة فريق إلى {email}.",
+		"CALENDAR": "تقويم",
+		"SELECT": "اختر",
+		"SAVE_CHANGES": "حفظ التغييرات",
+		"plan": {
+			"SINGULAR": "خطة",
+			"PLURAL": "خطط",
+			"CHOOSE_DATE": "اختر تاريخًا لتتمكن من رؤية خطة",
+			"PLAN_NOT_FOUND": "لم يتم العثور على خطة",
+			"FOR_DATE": "خطة لِـ {date}",
+			"FOR_TODAY": "خطة اليوم",
+			"FOR_TOMORROW": "خطة الغد",
+			"EDIT_PLAN": "تعديل الخطة",
+			"TRACKED_TIME": "الوقت المتعقب",
+			"SEE_PLANS": "عرض الخطط",
+			"ADD_PLAN": "إضافة خطة",
+			"DELETE_THIS_PLAN": "احذف هذه الخطة"
+		},
+		"timesheets": {
+			"SINGULAR": "ورقة الحضور",
+			"PLURAL": "ورقات الحضور"
+		},
+		"COPY_ISSUE_LINK": "نسخ رابط المشكلة",
+		"MAKE_A_COPY": "إنشاء نسخة",
+		"ASSIGNEE": "المسند إليه",
+		"CHANGE_RELATIONS": "تغيير العلاقات",
+		"SET_AS_NEXT": "تعيين كالتالي",
+		"MOVE_TO": "نقل إلى",
+		"SELECT_DATE": "اختر التاريخ",
+		"SELECT_AND_CLOSE": "اختر وأغلق",
+		"SELECT_ROLE": "يرجى اختيار أي دور",
+		"ADD_TIME": "إضافة وقت",
+		"VIEW_TIMESHEET": "عرض جدول الزمن",
+		"FILTER_TODAY": "اليوم",
+		"FILTER_LAST_7_DAYS": "آخر 7 أيام",
+		"FILTER_LAST_30_DAYS": "آخر 30 يومًا",
+		"FILTER_THIS_YEAR": "هذا العام {year}",
+		"FILTER_CUSTOM_RANGE": "نطاق مخصص"
+	},
+	"sidebar": {
+		"DASHBOARD": "لوحة التحكم",
+		"PROJECTS": "المشاريع",
+		"FAVORITES": "المفضلات",
+		"TASKS": "المهام",
+		"MY_TASKS": "مهامي",
+		"TEAMTASKS": "مهام الفريق",
+		"MY_WORKS": "أعمالي",
+		"TIME_AND_ACTIVITY": "الوقت والنشاط",
+		"WORK_DIARY": "يومية العمل",
+		"REPORTS": "التقارير",
+		"TIMESHEETS": "جداول الوقت",
+		"MANUAL_TIME_EDIT": "تحرير الوقت يدويًا",
+		"WEEKLY_LIMIT": "الحد الأسبوعي",
+		"ACTUAL_AND_EXPECTED_HOURS": "الساعات الفعلية والمتوقعة",
+		"PAYMENTS_DUE": "المدفوعات المستحقة",
+		"PROJECT_BUDGET": "ميزانية المشروع"
 	},
 	"hotkeys": {
 		"HELP": "مساعدة",
@@ -296,7 +356,8 @@
 			"LOGIN": "تسجيل الدخول",
 			"SELECT_WORKSPACE": "تحديد مساحة العمل",
 			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
-			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل"
+			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل",
+			"INVALID_CODE_TRY_AGAIN": "رمز غير صالح. الرجاء المحاولة مرة أخرى."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
 			"TIME_TRACKING": "تتبع الوقت",
-			"REQUIRE_PLAN_TO_TRACK": "طلب خطة للتتبع",
+			"ENFORCE_PLAN": "فرض الخطة",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
 			"MANAGE_ASSIGNEES": "إدارة المعينين",
 			"SEARCH_MEMBER": "البحث عن عضو",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "تغيير الأدوار/المناصب",
 			"VIEW_DETAILS": "عرض التفاصيل",
 			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
-			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!"
+			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!",
+			"GO_TO_PERSONAL_SETTINGS": "الانتقال إلى الإعدادات الشخصية",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء"
 		},
 		"invite": {
 			"HEADING_TITLE": "دعوة عضو لفريقك",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "نحن تحت الصيانة",
 			"HEADING_DESCRIPTION": "نقوم حاليًا بتحديث موقعنا الإلكتروني لخدمتك بشكل أفضل. يرجى التحقق مرة أخرى في وقت لاحق."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "جدول العمل",
+			"TIMESHEET_VIEW_DETAILS": "عرض التفاصيل",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "الموافقة على المحدد",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "رفض المحدد",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "حذف المحدد",
+			"HEADING_DESCRIPTION": "هذه لوحة التحكم الخاصة بجداولك الزمنية، تعرض ما يحتاج إلى اهتمامك الآن.",
+			"GREETINGS": {
+				"GOOD_MORNING": "صباح الخير",
+				"GOOD_AFTERNOON": "مساء الخير",
+				"GOOD_EVENING": "مساء الخير"
+			},
+			"VIEWS": {
+				"LIST": "عرض القائمة",
+				"CALENDAR": "عرض التقويم"
+			},
+			"BILLABLE": {
+				"YES": "نعم",
+				"NO": "لا",
+				"BILLABLE": "قابل للفوترة"
+			},
+			"LOADING": "جار تحميل بيانات الجدول الزمني...",
+			"NO_ENTRIES_FOUND": "لم يتم العثور على مدخلات في الجدول الزمني",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "أنت على وشك رفض الإدخال المحدد، هل ترغب في المتابعة؟"
 		}
 	},
 	"timer": {
@@ -536,6 +624,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "وقت العمل المخطط له اليوم",
 			"TASKS_WITH_NO_ESTIMATIONS": "تاكس مع عدم وجود تقديرات زمنية",
 			"START_WORKING_BUTTON": "ابدأ العمل",
+			"TIMER_RUNNING": "المؤقت قيد التشغيل بالفعل",
 			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
 		}
 	},
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",
+		"TASK_TIME": "وقت المهمة",
+		"TOTAL_TODAY": "الإجمالي اليوم",
 		"PLAN_FOR_TOMORROW": "خطة الغد",
 		"PLAN_FOR_SOME_DAY": "خطة ليوم ما",
 		"ADD_TASK_TO_PLAN": "أضف هذه المهمة إلى الخطة",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "يرجى إضافة الوقت المخطط",
 				"TASKS_ESTIMATION": "يرجى تقدير جميع المهام",
 				"OPTIMIZE_PLAN": "الوقت المقدر الإجمالي يتجاوز الوقت المخطط له، يرجى تحسين خطتك",
-				"PLAN_MORE_TASKS": "يرجى إضافة المزيد من المهام إلى الخطة"
+				"PLAN_MORE_TASKS": "يرجى إضافة المزيد من المهام إلى الخطة",
+				"PLEASE_ADD_TASKS": "يرجى إضافة مهام"
 			}
 		},
 		"chang_active_task_popup": {

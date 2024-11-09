@@ -10,7 +10,7 @@ export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
 	const element = outstandingPlans?.map((plan: IDailyPlan) => plan.tasks?.map((task) => task));
 	const { timesEstimated, totalTasks } = estimatedTotalTime(element || []);
 	const { h: hour, m: minute } = secondsToTime(timesEstimated || 0);
-	const t = useTranslations()
+	const t = useTranslations();
 
 	return (
 		<div className="flex space-x-10">
@@ -31,7 +31,7 @@ export function TaskEstimatedCount({ outstandingPlans }: ITaskEstimatedCount) {
 
 export function estimatedTotalTime(data: any) {
 	// Flatten the data and reduce to calculate the sum of estimates without duplicates
-	const uniqueTasks = data.flat().reduce((acc: any, task: any) => {
+	const uniqueTasks = data?.flat().reduce((acc: any, task: any) => {
 		if (!acc[task.id]) {
 			acc[task.id] = task.estimate;
 		}
@@ -39,9 +39,10 @@ export function estimatedTotalTime(data: any) {
 	}, {});
 
 	// Calculate the total of estimates
-	const timesEstimated = Object.values(uniqueTasks)?.reduce((total: number, estimate: any) => total + estimate, 0);
+	const timesEstimated =
+		uniqueTasks && Object.values(uniqueTasks)?.reduce((total: number, estimate: any) => total + estimate, 0);
 	// Calculate the total of tasks
-	const totalTasks = Object.values(uniqueTasks)?.length;
+	const totalTasks = uniqueTasks && Object.values(uniqueTasks)?.length;
 
 	return { timesEstimated, totalTasks };
 }

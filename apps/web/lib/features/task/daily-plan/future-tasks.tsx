@@ -5,7 +5,7 @@ import { TaskCard } from '../task-card';
 import { Button } from '@components/ui/button';
 import { useCanSeeActivityScreen, useDailyPlan } from '@app/hooks';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
@@ -27,8 +27,8 @@ export function FutureTasks({ profile }: { profile: any }) {
 	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<IDailyPlan[]>(futurePlans);
 	useEffect(() => {
 		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
-	}, [date, setDate]);
-	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+	}, [date, setDate, futurePlans]);
+	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -66,7 +66,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 													view === 'CARDS' && 'flex-col',
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-scroll'
+													view === 'BLOCKS' && 'overflow-x-auto'
 												)}
 											>
 												{plan.tasks?.map((task, index) =>

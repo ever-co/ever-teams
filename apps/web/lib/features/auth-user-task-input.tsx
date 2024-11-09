@@ -3,7 +3,7 @@ import { useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { TaskEstimate } from './task/task-estimate';
 import { TaskInput } from './task/task-input';
 import { TaskLabels } from './task/task-labels';
@@ -12,7 +12,7 @@ import { useTranslations } from 'next-intl';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();
-	const activeTeamTask = useRecoilValue(activeTeamTaskState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (

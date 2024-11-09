@@ -16,7 +16,7 @@ import { clsxm } from '@app/utils';
 import { Card, Container, InputField, Text, VerticalSeparator } from 'lib/components';
 import { TaskTimes, TodayWorkedTime, UserProfileTask, useTaskFilter } from 'lib/features';
 import { useTranslations } from 'next-intl';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
@@ -60,15 +60,15 @@ export function UserTeamCard({
 }: IUserTeamCard) {
 	const t = useTranslations();
 	const profile = useUserProfilePage();
-	const [userDetailAccordion, setUserDetailAccordion] = useRecoilState(userAccordion);
+	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	const hook = useTaskFilter(profile);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
-	const fullWidth = useRecoilValue(fullWidthState);
+	const fullWidth = useAtomValue(fullWidthState);
 
-	const seconds = useRecoilValue(timerSecondsState);
-	const setActivityFilter = useSetRecoilState(activityTypeState);
+	const seconds = useAtomValue(timerSecondsState);
+	const setActivityFilter = useSetAtom(activityTypeState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 	const { activeTeamManagers } = useOrganizationTeams();
@@ -160,7 +160,7 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex m-0 relative items-center">
+				<div className="relative flex items-center m-0">
 					<div className="absolute left-0 cursor-pointer">
 						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
@@ -168,40 +168,42 @@ export function UserTeamCard({
 					{/* Show user name, email and image */}
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
-						<div
-							onClick={() => {
-								setUserDetailAccordion(
-									userDetailAccordion == memberInfo.memberUser?.id
-										? ''
-										: memberInfo.memberUser?.id ?? ''
-								);
-								setShowActivity(false);
-							}}
-							className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
-						>
-							<ChevronDoubleDownIcon
-								className={clsxm(
-									'h-4 w-4 transition-all',
-									userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
-								)}
-							/>
-						</div>
+						{!publicTeam && (
+							<div
+								onClick={() => {
+									setUserDetailAccordion(
+										userDetailAccordion == memberInfo.memberUser?.id
+											? ''
+											: memberInfo.memberUser?.id ?? ''
+									);
+									setShowActivity(false);
+								}}
+								className={clsxm('h-6 w-6 absolute right-4 top-0 cursor-pointer p-[3px]')}
+							>
+								<ChevronDoubleDownIcon
+									className={clsxm(
+										'h-4 w-4 transition-all',
+										userDetailAccordion == memberInfo.memberUser?.id && 'rotate-180'
+									)}
+								/>
+							</div>
+						)}
 					</div>
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1 min-w-[40%]">
+					<div className="flex justify-between items-center flex-1 md:min-w-[37%] xl:min-w-[40%]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+							className="flex-1 px-2 overflow-y-hidden lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{isManagerConnectedUser != 1 ? (
 							<p
-								className="flex cursor-pointer w-8 h-8 border dark:border-gray-800 rounded justify-center items-center text-center"
+								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -243,7 +245,7 @@ export function UserTeamCard({
 						{isManagerConnectedUser != -1 ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex items-center w-8 h-8 border dark:border-gray-800 rounded  justify-center cursor-pointer text-center"
+								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -259,12 +261,12 @@ export function UserTeamCard({
 				{userDetailAccordion == memberInfo.memberUser?.id &&
 				memberInfo.memberUser.id == profile.userProfile?.id &&
 				!showActivity ? (
-					<div className="h-96 overflow-y-auto">
+					<div className="overflow-y-auto h-96">
 						{canSeeActivity && (
 							<Container fullWidth={fullWidth} className="py-8">
 								<div className={clsxm('flex justify-start items-center gap-4 mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(
@@ -283,7 +285,7 @@ export function UserTeamCard({
 						{activityScreens[activityFilter] ?? null}
 					</div>
 				) : userDetailAccordion == memberInfo.memberUser?.id ? (
-					<div className="h-20 w-full flex justify-center items-center">
+					<div className="flex items-center justify-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}

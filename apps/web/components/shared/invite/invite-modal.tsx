@@ -54,7 +54,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 		}
 
 		inviteUser(formData.email, formData.name)
-			.then((data) => {
+			.then(() => {
 				setFormData(initalValues);
 				closeModal();
 				toast({

@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Dashboard",
+		"PROJECTS": "Projecten",
+		"FAVORITES": "Favorieten",
+		"TASKS": "Taken",
+		"MY_TASKS": "Mijn Taken",
+		"TEAMTASKS": "Taken van het Team",
+		"MY_WORKS": "Mijn Werk",
+		"TIME_AND_ACTIVITY": "Tijd & Activiteit",
+		"WORK_DIARY": "Werkdagboek",
+		"REPORTS": "Rapporten",
+		"TIMESHEETS": "Urenstaten",
+		"MANUAL_TIME_EDIT": "Handmatige Tijd Bewerken",
+		"WEEKLY_LIMIT": "Wekelijkse Limiet",
+		"ACTUAL_AND_EXPECTED_HOURS": "Werkelijke & Verwachte Uren",
+		"PAYMENTS_DUE": "Te Betalen Bedragen",
+		"PROJECT_BUDGET": "Projectbudget"
+	},
 	"common": {
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
@@ -86,6 +104,10 @@
 		"PUBLIC_TASK_LABEL": "Maak openbaar",
 		"PRIVATE_TASK_LABEL": "Maak privé",
 		"CREATE_TASK": "Nieuwe taak maken",
+		"REMOVE_FAVORITE_TASK": "Taak uit favorieten verwijderen",
+		"ADD_FAVORITE_TASK": "Taak toevoegen aan favorieten",
+		"NO_PROJECT": "Geen project",
+		"NO_FAVORITE_TASK": "Nog geen favoriete taak",
 		"LINK_TASK": "Gerelateerde kwestie selecteren",
 		"LINK": "Link",
 		"LINKS": "Links",
@@ -95,6 +117,7 @@
 		"DESCRIPTION": "Beschrijving",
 		"CHILD_ISSUE_TASK": "Selecteer onderliggend probleem",
 		"CREATE_TEAM": "Nieuw team maken",
+		"CREATE_PROJECT": "Nieuw project aanmaken",
 		"ALL_TEAMS": "Alle teams",
 		"VERIFY_ACCOUNT_MSG": "Verifieer uw account voordat u de app gaat gebruiken",
 		"CREATE_ROLE": "Rol maken",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "Later toevoegen",
 		"DAILYPLAN": "Gepland",
 		"INVITATION_SENT": "Uitnodiging verzonden",
-		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}."
+		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}.",
+		"timesheets": {
+			"SINGULAR": "Urenstaat",
+			"PLURAL": "Urenstaten"
+		},
+		"CALENDAR": "Kalender",
+		"SELECT": "Selecteren",
+		"SAVE_CHANGES": "Wijzigingen opslaan",
+		"plan": {
+			"SINGULAR": "Plan",
+			"PLURAL": "Plannen",
+			"CHOOSE_DATE": "Selecteer een datum om een plan te kunnen zien",
+			"PLAN_NOT_FOUND": "Plan niet gevonden",
+			"FOR_DATE": "PLAN VOOR {date}",
+			"FOR_TODAY": "Vandaag's plan",
+			"FOR_TOMORROW": "Morgen's plan",
+			"EDIT_PLAN": "Plan bewerken",
+			"TRACKED_TIME": "Gegeneraliseerde tijd",
+			"SEE_PLANS": "Plannen bekijken",
+			"ADD_PLAN": "Plan toevoegen",
+			"DELETE_THIS_PLAN": "Verwijder dit plan"
+		},
+		"COPY_ISSUE_LINK": "Probleemlink kopiëren",
+		"MAKE_A_COPY": "Maak een kopie",
+		"ASSIGNEE": "Cessionaris",
+		"CHANGE_RELATIONS": "Verander relaties",
+		"SET_AS_NEXT": "Instellen als volgende",
+		"MOVE_TO": "Verplaatsen naar",
+		"SELECT_DATE": "Selecteer datum",
+		"SELECT_AND_CLOSE": "Selecteren en sluiten",
+		"SELECT_ROLE": "Selecteer een rol",
+		"ADD_TIME": "Tijd toevoegen",
+		"VIEW_TIMESHEET": "Bekijk tijdregistratie",
+		"FILTER_TODAY": "Vandaag",
+		"FILTER_LAST_7_DAYS": "Laatste 7 dagen",
+		"FILTER_LAST_30_DAYS": "Laatste 30 dagen",
+		"FILTER_THIS_YEAR": "Dit jaar {year}",
+		"FILTER_CUSTOM_RANGE": "Aangepast bereik"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -296,7 +356,8 @@
 			"LOGIN": "Inloggen",
 			"SELECT_WORKSPACE": "Selecteer werkruimte",
 			"ENTER_EMAIL": "Voer e-mail in",
-			"WORKSPACES_NOT_FOUND": "Werkruimtes niet gevonden"
+			"WORKSPACES_NOT_FOUND": "Werkruimtes niet gevonden",
+			"INVALID_CODE_TRY_AGAIN": "Ongeldige code. Probeer opnieuw."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
 			"TIME_TRACKING": "Tijd bijhouden",
-			"REQUIRE_PLAN_TO_TRACK": "Vereist een plan om bij te houden",
+			"ENFORCE_PLAN": "Plan afdwingen",
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",
 			"MANAGE_ASSIGNEES": "Toegewezenen beheren",
 			"SEARCH_MEMBER": "Lid zoeken",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "Rollen/posities wijzigen",
 			"VIEW_DETAILS": "Details bekijken",
 			"NO_INVITATIONS": "Er zijn op dit moment geen uitnodigingen!",
-			"NO_MEMBERS": "Er zijn op dit moment geen leden!"
+			"NO_MEMBERS": "Er zijn op dit moment geen leden!",
+			"GO_TO_PERSONAL_SETTINGS": "Ga naar persoonlijke instellingen",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Deel profielweergaven van leden"
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "Wij zijn in onderhoud",
 			"HEADING_DESCRIPTION": "Momenteel zijn wij onze website aan het vernieuwen om u nog beter van dienst te kunnen zijn. Kom later nog eens terug."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Urenregistratie",
+			"TIMESHEET_VIEW_DETAILS": "Bekijk details",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Goedkeuren geselecteerde",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Afwijzen geselecteerde",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Verwijder geselecteerde",
+			"HEADING_DESCRIPTION": "Dit is jouw persoonlijke urenregistratie-dashboard, dat laat zien wat jouw aandacht nu vereist.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Goedemorgen",
+				"GOOD_AFTERNOON": "Goedemiddag",
+				"GOOD_EVENING": "Goedenavond"
+			},
+			"VIEWS": {
+				"LIST": "Lijstweergave",
+				"CALENDAR": "Kalenderweergave"
+			},
+			"BILLABLE": {
+				"YES": "Ja",
+				"NO": "Nee",
+				"BILLABLE": "Factureerbaar"
+			},
+			"LOADING": "Tijdregistratiegegevens laden...",
+			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?"
 		}
 	},
 	"timer": {
@@ -536,6 +624,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Geplande werktijd voor vandaag",
 			"TASKS_WITH_NO_ESTIMATIONS": "Taken zonder tijdschattingen",
 			"START_WORKING_BUTTON": "Begin met werken",
+			"TIMER_RUNNING": "De timer loopt al",
 			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
 		}
 	},
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan voor vandaag",
+		"TASK_TIME": "taken tijd",
+		"TOTAL_TODAY": "Totaal Vandaag",
 		"PLAN_FOR_TOMORROW": "Plan voor morgen",
 		"PLAN_FOR_SOME_DAY": "Plan voor een dag",
 		"ADD_TASK_TO_PLAN": "Voeg deze taak toe aan een plan",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",
 				"TASKS_ESTIMATION": "Schat alstublieft alle taken in",
 				"OPTIMIZE_PLAN": "De totale geschatte tijd overschrijdt uw geplande tijd, optimaliseer uw plan alstublieft",
-				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe"
+				"PLAN_MORE_TASKS": "Voeg alstublieft meer taken aan het plan toe",
+				"PLEASE_ADD_TASKS": "Voeg alstublieft taken toe"
 			}
 		},
 		"chang_active_task_popup": {

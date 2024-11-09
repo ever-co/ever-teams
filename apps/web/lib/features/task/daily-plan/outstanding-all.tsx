@@ -2,11 +2,11 @@ import { EmptyPlans } from 'lib/features/user-profile-plans';
 import { TaskCard } from '../task-card';
 import { useDailyPlan } from '@app/hooks';
 import { TaskEstimatedCount } from '.';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import { useState } from 'react';
 import { ITeamTask } from '@app/interfaces';
 import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';
@@ -16,11 +16,11 @@ interface OutstandingAll {
 }
 export function OutstandingAll({ profile }: OutstandingAll) {
 	const { outstandingPlans } = useDailyPlan();
-	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const displayedTaskId = new Set();
 
 	const tasks = outstandingPlans.map((plan) => plan.tasks).reduce((red, curr) => red?.concat(curr || []), []);
-	const [task, setTask] = useState<ITeamTask[]>(tasks!);
+	const [task, setTask] = useState<ITeamTask[]>(() => tasks ?? []);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -37,14 +37,14 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 							type="COLUMN"
 							direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
 						>
-							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+							{(provided: DroppableProvided) => (
 								<ul
 									ref={provided.innerRef}
 									{...provided.droppableProps}
 									className={clsxm(
 										view === 'CARDS' && 'flex-col',
 										view === 'TABLE' || (view === 'BLOCKS' && 'flex-wrap'),
-										'flex gap-2 pb-[1.5rem] overflow-x-scroll'
+										'flex gap-2 pb-[1.5rem] overflow-x-auto'
 									)}
 								>
 									{tasks?.map((task, index) => {

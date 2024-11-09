@@ -33,10 +33,12 @@ export * from './ITheme';
 export * from './IRolePermissions';
 export * from './ITimer';
 export * from './IProject';
-export * from './ILiveKiteCredentials'
+export * from './ILiveKiteCredentials';
+export * from './IBaseModel';
 
 export * from './integrations/IGithubRepositories';
 export * from './integrations/IGithubMetadata';
 export * from './integrations/IIntegrationTenant';
 export * from './integrations/IIntegrationType';
 export * from './integrations/IIntegration';
+export * from './timer'

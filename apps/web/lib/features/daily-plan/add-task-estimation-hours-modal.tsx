@@ -8,18 +8,21 @@ import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useDailyPlan, useModal, useTaskStatus, useTeamTasks, useTimerView } from '@app/hooks';
 import { TaskNameInfoDisplay } from '../task/task-displays';
 import { TaskEstimate } from '../task/task-estimate';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { DailyPlanStatusEnum, IDailyPlan, ITeamTask } from '@app/interfaces';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { estimatedTotalTime } from '../task/daily-plan';
 import { clsxm } from '@app/utils';
-import { formatIntegerToHour } from '@app/helpers';
+import { formatIntegerToHour, formatTimeString } from '@app/helpers';
 import { DEFAULT_PLANNED_TASK_ID } from '@app/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from './task-details-modal';
 import { Popover, Transition } from '@headlessui/react';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { Cross2Icon } from '@radix-ui/react-icons';
+import { checkPastDate } from 'lib/utils';
+import { UnplanActiveTaskModal } from './unplan-active-task-modal';
+import moment from 'moment';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -30,19 +33,21 @@ import { Cross2Icon } from '@radix-ui/react-icons';
  * @param {IDailyPlan} props.plan - The selected plan
  * @param {ITeamTask[]} props.tasks - The list of planned tasks
  * @param {boolean} props.isRenderedInSoftFlow - If true use the soft flow logic.
+ * @param {Date} props.selectedDate - A date on which the user can create the plan
  *
  * @returns {JSX.Element} The modal element
  */
 interface IAddTasksEstimationHoursModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
-	plan: IDailyPlan;
+	plan?: IDailyPlan;
 	tasks: ITeamTask[];
 	isRenderedInSoftFlow?: boolean;
+	selectedDate?: Date;
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
-	const { isOpen, closeModal, plan, tasks, isRenderedInSoftFlow = true } = props;
+	const { isOpen, closeModal, plan, tasks, isRenderedInSoftFlow = true, selectedDate } = props;
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
 		closeModal: closeActiveTaskHandlerModal,
@@ -51,28 +56,46 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 	const { updateDailyPlan, myDailyPlans } = useDailyPlan();
-	const { startTimer } = useTimerView();
-	const { activeTeam, activeTeamTask, setActiveTask } = useTeamTasks();
+	const { startTimer, timerStatus } = useTimerView();
+	const { activeTeamTask, setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
-	const [workTimePlanned, setWorkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
+	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-	const tasksEstimationTimes = useMemo(() => estimatedTotalTime(plan.tasks).timesEstimated / 3600, [plan.tasks]);
+	const tasksEstimationTimes = useMemo(
+		() => (plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0),
+		[plan]
+	);
+	const totalWorkedTime = useMemo(
+		() =>
+			plan && plan.tasks
+				? plan.tasks.reduce((acc, cur) => {
+						const totalWorkedTime = cur.totalWorkedTime ?? 0;
+
+						return acc + totalWorkedTime;
+					}, 0)
+				: 0,
+		[plan]
+	);
 	const [warning, setWarning] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [defaultTask, setDefaultTask] = useState<ITeamTask | null>(null);
 	const isActiveTaskPlanned = useMemo(
-		() => plan.tasks?.some((task) => task.id == activeTeamTask?.id),
-		[activeTeamTask?.id, plan.tasks]
+		() => plan && plan.tasks && plan.tasks.some((task) => task.id == activeTeamTask?.id),
+		[activeTeamTask?.id, plan]
 	);
+	const [isWorkingTimeInputFocused, setWorkingTimeInputFocused] = useState(false);
+	const [planEditState, setPlanEditState] = useState<{ draft: boolean; saved: boolean }>({
+		draft: false,
+		saved: false
+	});
 
 	const canStartWorking = useMemo(() => {
 		const isTodayPlan =
-			new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+			plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 
 		return isTodayPlan;
 		// Can add others conditions
-	}, [plan.date]);
+	}, [plan]);
 
 	const handleCloseModal = useCallback(() => {
 		if (canStartWorking) {
@@ -84,12 +107,24 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	/**
 	 * The function that close the Planned tasks modal when the user ignores the modal (Today's plan)
 	 */
-	const closeModalAndStartTimer = useCallback(() => {
-		handleCloseModal();
-		if (canStartWorking) {
-			startTimer();
+	const closeModalAndSubmit = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			// Update the plan work time only if the user changed it
+			plan &&
+				plan.workTimePlanned !== workTimePlanned &&
+				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+
+			setPlanEditState({ draft: false, saved: true });
+
+			handleCloseModal();
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
 		}
-	}, [canStartWorking, handleCloseModal, startTimer]);
+	}, [handleCloseModal, plan, updateDailyPlan, workTimePlanned]);
 
 	/**
 	 * The function that opens the Change task modal if conditions are met (or start the timer)
@@ -126,9 +161,13 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(true);
 
 			// Update the plan work time only if the user changed it
-			plan.workTimePlanned !== workTimePlanned && (await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
+			plan &&
+				plan.workTimePlanned !== workTimePlanned &&
+				(await updateDailyPlan({ workTimePlanned }, plan.id ?? ''));
 
-			if (canStartWorking) {
+			setPlanEditState({ draft: false, saved: true });
+
+			if (canStartWorking && !timerStatus?.running) {
 				handleChangeActiveTask();
 
 				if (isRenderedInSoftFlow) {
@@ -141,14 +180,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			setLoading(false);
 		}
 	}, [
-		canStartWorking,
-		handleChangeActiveTask,
-		handleCloseModal,
-		plan.id,
-		plan.workTimePlanned,
-		isRenderedInSoftFlow,
+		plan,
+		workTimePlanned,
 		updateDailyPlan,
-		workTimePlanned
+		canStartWorking,
+		timerStatus?.running,
+		handleChangeActiveTask,
+		isRenderedInSoftFlow,
+		handleCloseModal
 	]);
 
 	/**
@@ -170,17 +209,30 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// Handle warning messages
 	useEffect(() => {
-		if (!workTimePlanned || workTimePlanned <= 0) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
-		} else if (plan.tasks?.find((task) => !task.estimate)) {
-			setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
-		} else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
-			checkPlannedAndEstimateTimeDiff();
+		// First,  Check if there are no tasks in the plan
+		if (!plan?.tasks || plan.tasks.length === 0) {
+			setWarning(t('dailyPlan.planned_tasks_popup.warning.PLEASE_ADD_TASKS')); // New warning for no tasks
 		} else {
-			setWarning('');
+			//Check if there are tasks without estimates and show the corresponding warning
+			if (plan.tasks.find((task) => !task.estimate)) {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.TASKS_ESTIMATION'));
+			}
+			// Next, check if no work time is planned or if planned time is invalid
+			else if (!workTimePlanned || workTimePlanned <= 0) {
+				setWarning(t('dailyPlan.planned_tasks_popup.warning.PLANNED_TIME'));
+			}
+			// If the difference between planned and estimated times is significant, check further
+			else if (Math.abs(workTimePlanned - tasksEstimationTimes) > 1) {
+				checkPlannedAndEstimateTimeDiff();
+			}
+			// If all checks pass, clear the warning
+			else {
+				setWarning('');
+			}
 		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [workTimePlanned, tasksEstimationTimes, plan.tasks, myDailyPlans]);
+	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, myDailyPlans]);
 
 	// Put tasks without estimates at the top of the list
 	const sortedTasks = useMemo(
@@ -219,8 +271,46 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// Update the working planned time
 	useEffect(() => {
-		setWorkTimePlanned(plan.workTimePlanned);
-	}, [plan]);
+		setWorkTimePlanned(plan?.workTimePlanned ?? 0);
+	}, [plan?.id, plan?.workTimePlanned]);
+
+	const StartWorkingButton = (
+		<Button
+			disabled={
+				(canStartWorking && warning) || loading || (canStartWorking && timerStatus?.running)
+					? planEditState.draft && !warning
+						? false
+						: true
+					: false
+			}
+			variant="default"
+			type="submit"
+			className={clsxm(
+				'py-3 px-5 w-full  rounded-md font-light flex items-center justify-center text-md dark:text-white',
+				canStartWorking && warning && 'bg-gray-400'
+			)}
+			onClick={handleSubmit}
+		>
+			{loading ? (
+				<SpinnerLoader variant="light" size={20} />
+			) : canStartWorking ? (
+				timerStatus?.running && planEditState.draft ? (
+					t('common.SAVE_CHANGES')
+				) : (
+					t('timer.todayPlanSettings.START_WORKING_BUTTON')
+				)
+			) : (
+				t('common.plan.EDIT_PLAN')
+			)}
+		</Button>
+	);
+
+	// TODO: Add onclick handler
+	const TimeSheetsButton = (
+		<Button className="py-3 px-5 w-full rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+			{t('common.timesheets.PLURAL')}
+		</Button>
+	);
 
 	const content = (
 		<div className="flex w-full flex-col justify-between">
@@ -237,106 +327,170 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						setDefaultTask={setDefaultTask}
 						setShowSearchInput={setShowSearchInput}
 						selectedPlan={plan}
+						selectedDate={selectedDate}
 					/>
-				) : (
-					<div className=" w-full flex flex-col gap-2">
-						<span className="text-sm">
-							{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
-						</span>
-						<div className="w-full flex gap-3 h-[3rem]">
-							<InputField
-								type="number"
-								placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
-								className="h-full"
-								wrapperClassName=" h-full"
-								onChange={(e) => setWorkTimePlanned(parseFloat(e.target.value))}
-								required
-								noWrapper
-								min={0}
-								value={workTimePlanned}
-								defaultValue={plan.workTimePlanned ?? 0}
-							/>
-							<button
-								onClick={() => {
-									setShowSearchInput(true);
-								}}
-								className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
-							>
-								<AddIcon className="w-4 h-4 text-dark dark:text-white" />
-							</button>
-						</div>
-					</div>
-				)}
-
-				<div className="text-sm flex flex-col gap-3">
-					<div className="text-sm flex flex-col gap-3">
-						<div className="text-sm flex flex-col gap-2">
-							<div className="w-full flex items-center justify-between gap-2">
-								<div className="flex items-center justify-center gap-1">
-									<span>{t('task.TITLE_PLURAL')}</span>
+				) : plan || selectedDate ? (
+					<div
+						className={clsxm(
+							'w-full',
+							checkPastDate(plan?.date ?? selectedDate) && 'flex items-center justify-between gap-2'
+						)}
+					>
+						<div className=" w-full flex flex-col gap-2">
+							{checkPastDate(plan?.date ?? selectedDate) ? (
+								<span className="text-sm">{t('dailyPlan.PLANNED_TIME')}</span>
+							) : (
+								<span className="text-sm">
+									{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
 									<span className="text-red-600">*</span>
-								</div>
-								<div className="flex items-center justify-center gap-1">
-									<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
-									<span className=" font-medium">{formatIntegerToHour(tasksEstimationTimes)}</span>
-								</div>
-							</div>
-							<div className="h-80">
-								<ScrollArea className="w-full h-full">
-									<ul className=" flex flex-col gap-2">
-										{sortedTasks.map((task, index) => (
-											<TaskCard
-												plan={plan}
-												key={index}
-												task={task}
-												setDefaultTask={setDefaultTask}
-												isDefaultTask={task.id == defaultTask?.id}
-											/>
-										))}
-									</ul>
-									<ScrollBar className="-pr-20" />
-								</ScrollArea>
+								</span>
+							)}
+							<div className="w-full flex gap-3 h-[3rem]">
+								{checkPastDate(plan?.date ?? selectedDate) ? (
+									<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-full">
+										{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
+									</div>
+								) : (
+									<InputField
+										type="number"
+										placeholder={t('timer.todayPlanSettings.WORK_TIME_PLANNED_PLACEHOLDER')}
+										className="h-full"
+										wrapperClassName=" h-full"
+										onChange={(e) => {
+											!isNaN(parseInt(e.target.value))
+												? setWorkTimePlanned(parseInt(e.target.value))
+												: setWorkTimePlanned(0);
+
+											if (plan) {
+												if (
+													parseInt(e.target.value) !==
+													parseInt(plan.workTimePlanned.toString())
+												) {
+													setPlanEditState({ draft: true, saved: false });
+												} else {
+													setPlanEditState({ draft: false, saved: false });
+												}
+											}
+										}}
+										required
+										noWrapper
+										min={0}
+										value={
+											!isNaN(workTimePlanned) && workTimePlanned.toString() !== '0'
+												? workTimePlanned.toString().replace(/^0+/, '')
+												: isWorkingTimeInputFocused
+													? ''
+													: 0
+										}
+										onFocus={() => setWorkingTimeInputFocused(true)}
+										onBlur={() => setWorkingTimeInputFocused(false)}
+										defaultValue={
+											plan && plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0
+										}
+										readOnly={checkPastDate(plan?.date ?? selectedDate)}
+									/>
+								)}
+
+								{!checkPastDate(plan?.date ?? selectedDate) && (
+									<button
+										onClick={() => {
+											setShowSearchInput(true);
+										}}
+										className="h-full shrink-0 rounded-lg border w-10 flex items-center justify-center"
+									>
+										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
+									</button>
+								)}
 							</div>
 						</div>
-						<div className="flex gap-2 items-center text-sm h-6 text-red-500">
-							{warning && (
-								<>
-									<PiWarningCircleFill />
-									<span className=" text-xs">{warning}</span>
-								</>
+						{checkPastDate(plan?.date ?? selectedDate) && (
+							<div className=" w-full flex flex-col gap-2">
+								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
+								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
+									{formatTimeString(formatIntegerToHour(totalWorkedTime ?? 0))}
+								</div>
+							</div>
+						)}
+					</div>
+				) : null}
+
+				{plan ? (
+					<>
+						<div className="text-sm flex flex-col gap-3">
+							<div className="text-sm flex flex-col gap-3">
+								<div className="text-sm flex flex-col gap-2">
+									<div className="w-full flex items-center justify-between gap-2">
+										<div className="flex items-center justify-center gap-1">
+											<span>{t('task.TITLE_PLURAL')}</span>
+											{!checkPastDate(plan.date) && <span className="text-red-600">*</span>}
+										</div>
+										<div className="flex items-center justify-center gap-1">
+											{checkPastDate(plan.date) ? (
+												<>
+													<span>{t('dailyPlan.ESTIMATED')} :</span>
+													<span className=" font-medium">
+														{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
+													</span>
+												</>
+											) : tasksEstimationTimes ? (
+												<>
+													<span>{t('dailyPlan.TOTAL_ESTIMATED')} :</span>
+													<span className=" font-medium">
+														{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
+													</span>
+												</>
+											) : null}
+										</div>
+									</div>
+									<div className="h-80">
+										<ScrollArea className="w-full h-full">
+											<ul className=" flex flex-col gap-2">
+												{sortedTasks.map((task, index) => (
+													<TaskCard
+														plan={plan}
+														key={index}
+														task={task}
+														setDefaultTask={setDefaultTask}
+														isDefaultTask={task.id == defaultTask?.id}
+													/>
+												))}
+											</ul>
+											<ScrollBar className="-pr-20" />
+										</ScrollArea>
+									</div>
+								</div>
+								<div className="flex gap-2 items-center text-sm h-6 text-red-500">
+									{!checkPastDate(plan.date) && warning && (
+										<>
+											<PiWarningCircleFill />
+											<span className=" text-xs">{warning}</span>
+										</>
+									)}
+								</div>
+							</div>
+						</div>
+						<div className=" flex justify-between items-center">
+							<Button
+								disabled={loading}
+								variant="outline"
+								type="submit"
+								className="py-3 px-5 w-40 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
+							>
+								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
+							</Button>
+							{canStartWorking && timerStatus?.running && !planEditState.draft ? (
+								<Tooltip className="min-w-[10rem]" label={t('timer.todayPlanSettings.TIMER_RUNNING')}>
+									{StartWorkingButton}
+								</Tooltip>
+							) : (
+								<div className="w-40 border h-full">
+									{checkPastDate(plan.date) ? TimeSheetsButton : StartWorkingButton}
+								</div>
 							)}
 						</div>
-					</div>
-				</div>
-				<div className=" flex justify-between items-center">
-					<Button
-						disabled={loading}
-						variant="outline"
-						type="submit"
-						className="py-3 px-5 rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-						onClick={isRenderedInSoftFlow ? closeModalAndStartTimer : handleCloseModal}
-					>
-						{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
-					</Button>
-					<Button
-						disabled={warning || loading ? true : false}
-						variant="default"
-						type="submit"
-						className={clsxm(
-							'py-3 px-5 w-40 rounded-md font-light flex items-center justify-center text-md dark:text-white',
-							warning && 'bg-gray-400'
-						)}
-						onClick={handleSubmit}
-					>
-						{loading ? (
-							<SpinnerLoader variant="light" size={20} />
-						) : canStartWorking ? (
-							t('timer.todayPlanSettings.START_WORKING_BUTTON')
-						) : (
-							'Edit plan'
-						)}
-					</Button>
-				</div>
+					</>
+				) : null}
 			</div>
 		</div>
 	);
@@ -344,7 +498,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	return (
 		<>
 			{isRenderedInSoftFlow ? (
-				<Modal isOpen={isOpen} closeModal={closeModalAndStartTimer} showCloseIcon={requirePlan ? false : true}>
+				<Modal isOpen={isOpen} closeModal={closeModalAndSubmit} showCloseIcon>
 					<Card className="w-[36rem]" shadow="custom">
 						{content}
 					</Card>
@@ -376,10 +530,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
  */
 
 interface ISearchTaskInputProps {
-	selectedPlan: IDailyPlan;
+	selectedPlan?: IDailyPlan;
 	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
 	setDefaultTask: Dispatch<SetStateAction<ITeamTask | null>>;
 	defaultTask: ITeamTask | null;
+	selectedDate?: Date;
 }
 
 /**
@@ -390,11 +545,12 @@ interface ISearchTaskInputProps {
  * @param {Dispatch<SetStateAction<boolean>>} props.setShowSearchInput - A setter for (showing / hiding) the input
  * @param {Dispatch<SetStateAction<ITeamTask>>} props.setDefaultTask - A function that sets default planned task
  * @param {ITeamTask} props.defaultTask - The default planned task
+ * @param {Date} props.selectedDate - A date on which the user can create the plan
  *
  * @returns The Search input component
  */
-function SearchTaskInput(props: ISearchTaskInputProps) {
-	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask } = props;
+export function SearchTaskInput(props: ISearchTaskInputProps) {
+	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate } = props;
 	const { tasks: teamTasks, createTask } = useTeamTasks();
 	const { taskStatus } = useTaskStatus();
 	const [taskName, setTaskName] = useState('');
@@ -408,9 +564,9 @@ function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	const isTaskPlanned = useCallback(
 		(taskId: string) => {
-			return selectedPlan?.tasks?.some((task) => task.id == taskId);
+			return selectedPlan && selectedPlan?.tasks?.some((task) => task.id == taskId);
 		},
-		[selectedPlan.tasks]
+		[selectedPlan]
 	);
 
 	useEffect(() => {
@@ -428,7 +584,7 @@ function SearchTaskInput(props: ISearchTaskInputProps) {
 					}
 				})
 		);
-	}, [isTaskPlanned, selectedPlan.tasks, taskName, teamTasks]);
+	}, [isTaskPlanned, selectedPlan?.tasks, taskName, teamTasks]);
 
 	const handleCreateTask = useCallback(async () => {
 		try {
@@ -503,6 +659,7 @@ function SearchTaskInput(props: ISearchTaskInputProps) {
 											plan={selectedPlan}
 											setDefaultTask={setDefaultTask}
 											isDefaultTask={task.id == defaultTask?.id}
+											selectedDate={selectedDate}
 										/>
 									</li>
 								))}
@@ -536,21 +693,28 @@ interface ITaskCardProps {
 	task: ITeamTask;
 	setDefaultTask: Dispatch<SetStateAction<ITeamTask | null>>;
 	isDefaultTask: boolean;
-	plan: IDailyPlan;
+	plan?: IDailyPlan;
 	viewListMode?: 'planned' | 'searched';
+	selectedDate?: Date;
 }
 
 function TaskCard(props: ITaskCardProps) {
-	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask } = props;
+	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate } = props;
 	const { getTaskById } = useTeamTasks();
-	const { addTaskToPlan } = useDailyPlan();
+	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
+	const { user } = useAuthenticateUser();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 	const isTaskRenderedInTodayPlan =
-		new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {
 		isOpen: isTaskDetailsModalOpen,
 		closeModal: closeTaskDetailsModal,
 		openModal: openTaskDetailsModal
+	} = useModal();
+	const {
+		isOpen: isUnplanActiveTaskModalOpen,
+		closeModal: closeUnplanActiveTaskModal,
+		openModal: openUnplanActiveTaskModal
 	} = useModal();
 
 	const handleOpenTaskDetailsModal = useCallback(() => {
@@ -560,6 +724,8 @@ function TaskCard(props: ITaskCardProps) {
 	}, [getTaskById, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
+	const status = useTaskStatus();
+	const { activeTeamTask } = useTeamTasks();
 
 	/**
 	 * The function that adds the task to the selected plan
@@ -568,19 +734,44 @@ function TaskCard(props: ITaskCardProps) {
 		try {
 			setAddToPlanLoading(true);
 
-			if (plan.id) await addTaskToPlan({ taskId: task.id }, plan.id);
+			if (plan && plan.id) {
+				await addTaskToPlan({ taskId: task.id }, plan.id);
+			} else {
+				const planDate = plan ? plan.date : selectedDate;
+
+				if (planDate) {
+					await createDailyPlan({
+						workTimePlanned: 0,
+						taskId: task.id,
+						date: new Date(moment(planDate).format('YYYY-MM-DD')),
+						status: DailyPlanStatusEnum.OPEN,
+						tenantId: user?.tenantId ?? '',
+						employeeId: user?.employee.id,
+						organizationId: user?.employee.organizationId
+					});
+				}
+			}
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setAddToPlanLoading(false);
 		}
-	}, [addTaskToPlan, plan.id, task.id]);
+	}, [
+		addTaskToPlan,
+		createDailyPlan,
+		plan,
+		selectedDate,
+		task.id,
+		user?.employee.id,
+		user?.employee.organizationId,
+		user?.tenantId
+	]);
 
 	return (
 		<Card
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center gap-2 justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
 				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>
@@ -601,30 +792,60 @@ function TaskCard(props: ITaskCardProps) {
 					<Button onClick={handleAddTask} variant="outline" className=" mon-h-12" type="button">
 						{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
 					</Button>
-				) : (
+				) : plan ? (
 					<>
-						<div className="h-full flex items-center justify-center gap-1">
-							<span>{t('dailyPlan.ESTIMATED')} :</span> <TaskEstimate _task={task} />
+						<div className="h-full flex w-full items-center gap-1">
+							{checkPastDate(plan.date) ? (
+								<span
+									className="h-6 w-28 flex items-center justify-center"
+									style={{
+										backgroundColor: status.taskStatus.filter((s) => s.value === task.status)[0]
+											.color
+									}}
+								>
+									{task.status}
+								</span>
+							) : (
+								<span>{t('dailyPlan.ESTIMATED')} :</span>
+							)}
+
+							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
 						</div>
 						<span className="w-4 h-full flex items-center justify-center">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
+								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
 							/>
 						</span>
 					</>
-				)}
+				) : null}
 			</div>
 			<TaskDetailsModal task={task} isOpen={isTaskDetailsModalOpen} closeModal={closeTaskDetailsModal} />
+			{plan && activeTeamTask && (
+				<UnplanActiveTaskModal
+					open={isUnplanActiveTaskModalOpen}
+					task={activeTeamTask}
+					plan={plan}
+					closeModal={closeUnplanActiveTaskModal}
+				/>
+			)}
 		</Card>
 	);
 }
+
+/**
+ * ----------------------------------------------------------------
+ * 		----------------- TASK CARD ACTIONS -------------------
+ * ----------------------------------------------------------------
+ */
 
 interface ITaskCardActionsProps {
 	task: ITeamTask;
 	selectedPlan: IDailyPlan;
 	openTaskDetailsModal: () => void;
+	openUnplanActiveTaskModal: () => void;
 }
 
 /**
@@ -634,15 +855,17 @@ interface ITaskCardActionsProps {
  * @param {ITeamTask} props.task - The task on which actions will be performed
  * @param {IDailyPlan} props.selectedPlan - The currently selected plan
  * @param {() => void} props.openTaskDetailsModal - A function that opens a task details modal
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
 	const { user } = useAuthenticateUser();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
-
+	const { activeTeamTask } = useTeamTasks();
+	const { timerStatus } = useTimerView();
 	const otherPlanIds = useMemo(
 		() =>
 			[...futurePlans, ...todayPlan]
@@ -652,6 +875,12 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan.id, task.id, todayPlan]
 	);
+	const isTodayPLan = useMemo(
+		() =>
+			new Date(selectedPlan?.date).toLocaleDateString('en') ==
+			new Date(todayPlan[0]?.date).toLocaleDateString('en'),
+		[selectedPlan.date, todayPlan]
+	);
 
 	/**
 	 * Unplan selected task
@@ -659,15 +888,39 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	const unplanSelectedDate = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				selectedPlan?.id &&
-					(await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee.id }, selectedPlan?.id));
+				if (task.id == activeTeamTask?.id) {
+					if (timerStatus?.running && isTodayPLan) {
+						openUnplanActiveTaskModal();
+					} else {
+						selectedPlan?.id &&
+							(await removeTaskFromPlan(
+								{ taskId: task.id, employeeId: user?.employee.id },
+								selectedPlan?.id
+							));
+					}
+				} else {
+					selectedPlan?.id &&
+						(await removeTaskFromPlan(
+							{ taskId: task.id, employeeId: user?.employee.id },
+							selectedPlan?.id
+						));
+				}
 
 				closePopover();
 			} catch (error) {
 				console.log(error);
 			}
 		},
-		[removeTaskFromPlan, selectedPlan.id, task.id, user?.employee.id]
+		[
+			activeTeamTask?.id,
+			isTodayPLan,
+			openUnplanActiveTaskModal,
+			removeTaskFromPlan,
+			selectedPlan.id,
+			task.id,
+			timerStatus?.running,
+			user?.employee.id
+		]
 	);
 
 	return (
@@ -690,33 +943,47 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						return (
 							<Card shadow="custom" className=" shadow-xlcard  !p-3 !rounded-lg !border-2">
 								<ul className=" flex flex-col justify-end gap-3">
-									<li onClick={openTaskDetailsModal} className="">
+									<li
+										onClick={openTaskDetailsModal}
+										className={clsxm('hover:font-semibold hover:transition-all')}
+									>
 										View
 									</li>
-									<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
+									{checkPastDate(selectedPlan.date) ? null : (
+										<>
+											<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
 
-									{selectedPlan && selectedPlan.id && (
-										<li>
-											{otherPlanIds.length ? (
-												<UnplanTask
-													taskId={task.id}
-													selectedPlanId={selectedPlan.id}
-													planIds={[selectedPlan.id, ...otherPlanIds]}
-													closeActionPopover={close}
-												/>
-											) : (
-												<span
-													onClick={() => unplanSelectedDate(close)}
-													className={clsxm(
-														' text-red-600',
-														!removeTaskFromPlanLoading &&
-															' hover:font-semibold hover:transition-all'
+											{selectedPlan.id && (
+												<li>
+													{otherPlanIds.length ? (
+														<UnplanTask
+															taskId={task.id}
+															selectedPlanId={selectedPlan.id}
+															planIds={[selectedPlan.id, ...otherPlanIds]}
+															closeActionPopover={close}
+															openUnplanActiveTaskModal={openUnplanActiveTaskModal}
+															unplanSelectedDate={unplanSelectedDate}
+															unPlanSelectedDateLoading={removeTaskFromPlanLoading}
+														/>
+													) : (
+														<span
+															onClick={() => unplanSelectedDate(close)}
+															className={clsxm(
+																' text-red-600',
+																!removeTaskFromPlanLoading &&
+																	' hover:font-semibold hover:transition-all'
+															)}
+														>
+															{removeTaskFromPlanLoading ? (
+																<SpinnerLoader size={10} />
+															) : (
+																'Unplan'
+															)}
+														</span>
 													)}
-												>
-													{removeTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan'}
-												</span>
+												</li>
 											)}
-										</li>
+										</>
 									)}
 								</ul>
 							</Card>
@@ -728,11 +995,20 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	);
 }
 
+/**
+ * ----------------------------------------------------------------
+ * 		---------------- UNPLAN TASK ACTIONS ----------------
+ * ----------------------------------------------------------------
+ */
+
 interface IUnplanTaskProps {
 	taskId: string;
 	selectedPlanId: string;
 	planIds: string[];
 	closeActionPopover: () => void;
+	unplanSelectedDate: (closePopover: () => void) => Promise<void>;
+	unPlanSelectedDateLoading: boolean;
+	openUnplanActiveTaskModal: () => void;
 }
 
 /**
@@ -743,32 +1019,30 @@ interface IUnplanTaskProps {
  * @param {string} props.selectedPlanId - The currently selected plan id
  * @param {string[]} [props.planIds] - Others plans's ids
  * @param {() => void} props.closeActionPopover - The function to close the task card actions popover
+ * @param {(taskIds: string[]) => void} props.wantsToUnplanActiveTask - Will be called when the user wants to unplan the activeTas
+ * @param {() => void} props.openUnplanActiveTaskModal - A function to open the unplanActiveTask modal
+ *
+ *
  *
  * @returns {JSX.Element} The Popover component.
  */
 
 function UnplanTask(props: IUnplanTaskProps) {
-	const { taskId, selectedPlanId, planIds, closeActionPopover } = props;
+	const {
+		taskId,
+		planIds,
+		closeActionPopover,
+		unplanSelectedDate,
+		openUnplanActiveTaskModal,
+		unPlanSelectedDateLoading
+	} = props;
 	const { user } = useAuthenticateUser();
-	const { removeTaskFromPlan, removeTaskFromPlanLoading, removeManyTaskPlans, removeManyTaskFromPlanLoading } =
-		useDailyPlan();
-
-	/**
-	 * Unplan selected task
-	 */
-	const unplanSelectedDate = useCallback(
-		async (closePopover: () => void) => {
-			try {
-				await removeTaskFromPlan({ taskId: taskId, employeeId: user?.employee.id }, selectedPlanId);
-
-				closePopover();
-				// Close the task card actions popover as well
-				closeActionPopover();
-			} catch (error) {
-				console.log(error);
-			}
-		},
-		[closeActionPopover, removeTaskFromPlan, selectedPlanId, taskId, user?.employee.id]
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading, todayPlan } = useDailyPlan();
+	const { activeTeamTask } = useTeamTasks();
+	const { timerStatus } = useTimerView();
+	const isActiveTaskPlannedToday = useMemo(
+		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
+		[activeTeamTask?.id, todayPlan]
 	);
 
 	/**
@@ -777,7 +1051,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const unplanAll = useCallback(
 		async (closePopover: () => void) => {
 			try {
-				await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+				// First, check if the user wants to unplan the active task
+				if (taskId == activeTeamTask?.id) {
+					if (timerStatus?.running && isActiveTaskPlannedToday) {
+						openUnplanActiveTaskModal();
+						// TODO: Unplan from all plans after clicks 'YES'
+					} else {
+						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+					}
+				} else {
+					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee.id }, taskId);
+				}
 
 				closePopover();
 				// Close the task card actions popover as well
@@ -786,7 +1070,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 				console.log(error);
 			}
 		},
-		[closeActionPopover, planIds, removeManyTaskPlans, taskId, user?.employee.id]
+		[
+			activeTeamTask?.id,
+			closeActionPopover,
+			isActiveTaskPlannedToday,
+			openUnplanActiveTaskModal,
+			planIds,
+			removeManyTaskPlans,
+			taskId,
+			timerStatus?.running,
+			user?.employee.id
+		]
 	);
 
 	return (
@@ -816,10 +1110,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(
 											'shrink-0',
-											!removeTaskFromPlanLoading && 'hover:font-semibold hover:transition-all '
+											!unPlanSelectedDateLoading && 'hover:font-semibold hover:transition-all '
 										)}
 									>
-										{removeTaskFromPlanLoading ? (
+										{unPlanSelectedDateLoading ? (
 											<SpinnerLoader size={10} />
 										) : (
 											'Unplan selected date'

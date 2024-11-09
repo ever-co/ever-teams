@@ -71,39 +71,144 @@ const nextConfig = {
 		return config;
 	},
 	images: {
-		domains: [
-			'dummyimage.com',
-			'res.cloudinary.com',
-			'gauzy.sfo2.digitaloceanspaces.com',
-			'localhost',
-			'127.0.0.1',
-			'cdn-icons-png.flaticon.com', // Remove this domain once the Backend Icons list is added
-
-			'api.gauzy.co',
-			'apida.gauzy.co',
-			'apicw.gauzy.co',
-			'apicivo.gauzy.co',
-
-			'apidev.gauzy.co',
-			'apidemo.gauzy.co',
-			'apidemocw.gauzy.co',
-			'apidemodt.gauzy.co',
-			'apidemodts.gauzy.co',
-			'apidemocivo.gauzy.co',
-			'apidemoda.gauzy.co',
-
-			'apistage.gauzy.co',
-			'apistagecivo.gauzy.co',
-			'apistagecw.gauzy.co',
-			'apistageda.gauzy.co',
-			'apistagedt.gauzy.co',
-			'apistagedts.gauzy.co',
-
-			'api.ever.team',
-
-			'apidev.ever.team',
-			'gauzy.s3.wasabisys.com',
-			'gauzystage.s3.wasabisys.com'
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'dummyimage.com',
+				port: ''
+			},
+			{ protocol: 'https', hostname: 'res.cloudinary.com', port: '' },
+			{
+				protocol: 'https',
+				hostname: 'gauzy.sfo2.digitaloceanspaces.com',
+				port: ''
+			},
+			{
+				protocol: 'http',
+				hostname: 'localhost',
+				port: '3030'
+			},
+			{
+				protocol: 'http',
+				hostname: '127.0.0.1',
+				port: '3030'
+			},
+			{
+				// Remove this domain once the Backend Icons list is added
+				protocol: 'https',
+				hostname: 'cdn-icons-png.flaticon.com',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'api.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apida.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apicw.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apicivo.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidev.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidemo.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidemocw.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidemodt.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidemodts.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidemocivo.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidemoda.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apistage.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apistagecivo.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apistagecw.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apistageda.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apistagedt.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apistagedts.gauzy.co',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'api.ever.team',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'app.ever.team',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'apidev.ever.team',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'gauzy.s3.wasabisys.com',
+				port: ''
+			},
+			{
+				protocol: 'https',
+				hostname: 'gauzystage.s3.wasabisys.com',
+				port: ''
+			}
 		]
 	},
 	async rewrites() {
@@ -113,6 +218,19 @@ const nextConfig = {
 				destination: '/assets/fonts/:path*'
 			}
 		];
+	},
+	env: {
+		APP_NAME: process.env.APP_NAME,
+		APP_SIGNATURE: process.env.APP_SIGNATURE,
+		APP_LOGO_URL: process.env.APP_LOGO_URL,
+		APP_LINK: process.env.APP_LINK,
+		APP_SLOGAN_TEXT: process.env.APP_SLOGAN_TEXT,
+		COMPANY_NAME: process.env.COMPANY_NAME,
+		COMPANY_LINK: process.env.COMPANY_LINK,
+		TERMS_LINK: process.env.TERMS_LINK,
+		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK,
+		MAIN_PICTURE: process.env.MAIN_PICTURE,
+		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK
 	},
 	...sentryConfig
 };

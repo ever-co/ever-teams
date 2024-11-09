@@ -1,12 +1,12 @@
 import Toolbar from './editor-toolbar';
 import { TextEditorService, withHtml, withChecklists, isValidSlateObject } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement, Descendant, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
-import { useRecoilState } from 'recoil';
+import { useAtom } from 'jotai';
 import { detailedTaskState } from '@app/stores';
 import { htmlToSlate } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
@@ -31,7 +31,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 	const editor = useMemo(() => withChecklists(withHtml(withHistory(withReact(createEditor())))), []);
-	const [task] = useRecoilState(detailedTaskState);
+	const [task] = useAtom(detailedTaskState);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const [editorValue, setEditorValue] = useState<any>();
 	const editorRef = useRef<HTMLDivElement>(null);
@@ -84,13 +84,13 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 
 	const selectEmoji = (emoji: { native: string }) => {
 		const { selection } = editor;
-        if (selection) {
-            const [start] = Editor.edges(editor, selection);
-            Transforms.insertText(editor, emoji.native, { at: start });
-            Transforms.collapse(editor, { edge: 'end' });
-        }
-        setIsUpdated(false);
-	}
+		if (selection) {
+			const [start] = Editor.edges(editor, selection);
+			Transforms.insertText(editor, emoji.native, { at: start });
+			Transforms.collapse(editor, { edge: 'end' });
+		}
+		setIsUpdated(false);
+	};
 
 	return (
 		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
@@ -104,18 +104,24 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						setIsUpdated(true);
 					}}
 				>
-					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} showEmojiIcon={true} selectEmoji={selectEmoji} />
+					<Toolbar
+						isMarkActive={isMarkActive}
+						isBlockActive={isBlockActive}
+						showEmojiIcon={true}
+						selectEmoji={selectEmoji}
+					/>
 					<div className="h-[0.0625rem] bg-[#0000001A] dark:bg-[#FFFFFF29]"></div>
 
 					<Editable
-						className={`${readonly
+						className={`${
+							readonly
 								? ''
-								: 'textarea resize-y block w-full bg-transparent dark:text-white h-64 overflow-y-scroll scrollbar-hide'
-							}`}
+								: 'textarea resize-y block w-full bg-transparent dark:text-white h-64 overflow-y-auto scrollbar-hide'
+						}`}
 						id="editor-container"
 						renderPlaceholder={({ children, attributes }) => (
 							<div {...attributes}>
-								<div className="mt-0 p-0">{children}</div>
+								<div className="p-0 mt-0">{children}</div>
 							</div>
 						)}
 						renderElement={renderElement}

@@ -7,7 +7,7 @@ import { publicactiveTeamState } from '@app/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback } from 'react';
-import { useRecoilState } from 'recoil';
+import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTaskLabels } from './useTaskLabels';
@@ -19,13 +19,13 @@ import { useTeamTasks } from './useTeamTasks';
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall, loadingRef } = useQuery(getPublicOrganizationTeamsAPI);
 	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(getPublicOrganizationTeamsMiscDataAPI);
-	const { activeTeam, teams, setTeams } = useOrganizationTeams();
+	const { activeTeam, teams, setTeams, teamsFetching } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
 	const { setTaskStatus } = useTaskStatus();
 	const { setTaskSizes } = useTaskSizes();
 	const { setTaskPriorities } = useTaskPriorities();
 	const { setTaskLabels } = useTaskLabels();
-	const [publicTeam, setPublicTeam] = useRecoilState(publicactiveTeamState);
+	const [publicTeam, setPublicTeam] = useAtom(publicactiveTeamState);
 
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {
@@ -112,6 +112,7 @@ export function usePublicOrganizationTeams() {
 	);
 
 	return {
+		teamsFetching,
 		loadPublicTeamData,
 		loadPublicTeamMiscData,
 		loading,

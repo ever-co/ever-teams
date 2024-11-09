@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever צוותים",
+	"sidebar": {
+		"DASHBOARD": "לוח מחוונים",
+		"PROJECTS": "פרויקטים",
+		"FAVORITES": "מועדפים",
+		"TASKS": "משימות",
+		"MY_TASKS": "המשימות שלי",
+		"TEAMTASKS": "משימות הצוות",
+		"MY_WORKS": "העבודות שלי",
+		"TIME_AND_ACTIVITY": "זמן ופעילות",
+		"WORK_DIARY": "יומן עבודה",
+		"REPORTS": "דוחות",
+		"TIMESHEETS": "גיליונות זמנים",
+		"MANUAL_TIME_EDIT": "עריכת זמן ידנית",
+		"WEEKLY_LIMIT": "מגבלה שבועית",
+		"ACTUAL_AND_EXPECTED_HOURS": "שעות בפועל וצפויות",
+		"PAYMENTS_DUE": "תשלומים מגיעים",
+		"PROJECT_BUDGET": "תקציב פרויקט"
+	},
 	"common": {
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
@@ -84,6 +102,10 @@
 		"PUBLIC_TASK_LABEL": "הפוך לפומבית",
 		"PRIVATE_TASK_LABEL": "הפוך לפרטית",
 		"CREATE_TASK": "צור משימה חדשה",
+		"REMOVE_FAVORITE_TASK": "הסר משימה מהמועדפים",
+		"ADD_FAVORITE_TASK": "הוסף משימה למועדפים",
+		"NO_PROJECT": "אין פרויקט",
+		"NO_FAVORITE_TASK": "אין משימות מועדפות עדיין",
 		"LINK_TASK": "בחר בעיה קשורה",
 		"LINK": "קישור",
 		"LINKS": "קישורים",
@@ -93,6 +115,7 @@
 		"DESCRIPTION": "תיאור",
 		"CHILD_ISSUE_TASK": "בחר בעיה ילדה",
 		"CREATE_TEAM": "צור צוות חדש",
+		"CREATE_PROJECT": "צור פרויקט חדש",
 		"ALL_TEAMS": "כל הקבוצות",
 		"VERIFY_ACCOUNT_MSG": "אנא אמת את החשבון שלך לפני שתתחיל להשתמש באפליקציה",
 		"CREATE_ROLE": "צור תפקיד",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "הוסף מאוחר יותר",
 		"DAILYPLAN": "מְתוּכנָן",
 		"INVITATION_SENT": "ההזמנה נשלחה בהצלחה",
-		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}."
+		"INVITATION_SENT_TO_USER": "ההזמנה נשלחה ל{email}.",
+		"CALENDAR": "לוח שנה",
+		"SELECT": "בחר",
+		"SAVE_CHANGES": "שמור שינויים",
+		"plan": {
+			"SINGULAR": "תכנית",
+			"PLURAL": "תכניות",
+			"CHOOSE_DATE": "בחר תאריך כדי לראות תוכנית",
+			"PLAN_NOT_FOUND": "התוכנית לא נמצאה",
+			"FOR_DATE": "תכנית ל-{date}",
+			"FOR_TODAY": "תכנית להיום",
+			"FOR_TOMORROW": "תכנית למחר",
+			"EDIT_PLAN": "ערוך תוכנית",
+			"TRACKED_TIME": "זמן מעקב",
+			"SEE_PLANS": "ראה תוכניות",
+			"ADD_PLAN": "הוסף תוכנית",
+			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
+		},
+		"timesheets": {
+			"SINGULAR": "דוח שעות",
+			"PLURAL": "דוחות שעות"
+		},
+		"COPY_ISSUE_LINK": "העתק קישור לבעיה",
+		"MAKE_A_COPY": "בצע עותק",
+		"ASSIGNEE": "נמען",
+		"CHANGE_RELATIONS": "שנה יחסים",
+		"SET_AS_NEXT": "הגדר כהבא",
+		"MOVE_TO": "העבר אל",
+		"SELECT_DATE": "בחר תאריך",
+		"SELECT_AND_CLOSE": "בחר וסגור",
+		"SELECT_ROLE": "אנא בחר תפקיד",
+		"ADD_TIME": "הוסף זמן",
+		"VIEW_TIMESHEET": "הצג גיליון זמן",
+		"FILTER_TODAY": "היום",
+		"FILTER_LAST_7_DAYS": "ה-7 ימים האחרונים",
+		"FILTER_LAST_30_DAYS": "ה-30 ימים האחרונים",
+		"FILTER_THIS_YEAR": "שנה זו {year}",
+		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -296,7 +356,8 @@
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
-			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו"
+			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו",
+			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
 			"TIME_TRACKING": "מעקב זמן",
-			"REQUIRE_PLAN_TO_TRACK": "דרוש תוכנית למעקב",
+			"ENFORCE_PLAN": "אכוף את התוכנית",
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",
 			"MANAGE_ASSIGNEES": "נהל מוקצים",
 			"SEARCH_MEMBER": "חפש חבר",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "שינוי תפקידים/תחנות",
 			"VIEW_DETAILS": "צפה בפרטים",
 			"NO_INVITATIONS": "אין הזמנות כרגע!",
-			"NO_MEMBERS": "אין חברים כרגע!"
+			"NO_MEMBERS": "אין חברים כרגע!",
+			"GO_TO_PERSONAL_SETTINGS": "עבור להגדרות האישיות",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "שתף תצוגות פרופיל של חברים"
 		},
 		"invite": {
 			"HEADING_TITLE": "הזמן חבר לצוות שלך",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "אנחנו בשלבי תחזוקה ",
 			"HEADING_DESCRIPTION": "אנו מעדכנים כעת את האתר שלנו כדי לשרת אותך טוב יותר. אנא בדוק שוב מאוחר יותר."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "דוח שעות",
+			"TIMESHEET_VIEW_DETAILS": "ראה פרטים",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "אשר נבחרים",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "דחה נבחרים",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "מחק נבחרים",
+			"HEADING_DESCRIPTION": "זהו לוח הבקרה האישי שלך לדוח שעות, שמראה לך מה דורש את תשומת הלב שלך עכשיו.",
+			"GREETINGS": {
+				"GOOD_MORNING": "בוקר טוב",
+				"GOOD_AFTERNOON": "אחר הצהריים טובים",
+				"GOOD_EVENING": "ערב טוב"
+			},
+			"VIEWS": {
+				"LIST": "תצוגת רשימה",
+				"CALENDAR": "תצוגת לוח שנה"
+			},
+			"BILLABLE": {
+				"YES": "כן",
+				"NO": "לא",
+				"BILLABLE": "חיוב"
+			},
+			"LOADING": "טוען נתוני רשומת זמן...",
+			"NO_ENTRIES_FOUND": "לא נמצאו רשומות זמן",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "אתה עומד לדחות את הרשומה הנבחרת, האם ברצונך להמשיך?"
 		}
 	},
 	"timer": {
@@ -536,6 +624,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "זמן עבודה מתוכנן להיום",
 			"TASKS_WITH_NO_ESTIMATIONS": "משימות בלי הערכת זמן",
 			"START_WORKING_BUTTON": "התחל לעבוד",
+			"TIMER_RUNNING": "הטיימר כבר פועל",
 			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
 		}
 	},
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "תוכנית להיום",
+		"TASK_TIME": "זמן משימה",
+		"TOTAL_TODAY": "סך הכול היום",
 		"PLAN_FOR_TOMORROW": "תוכנית למחר",
 		"PLAN_FOR_SOME_DAY": "תוכנית ליום כלשהו",
 		"ADD_TASK_TO_PLAN": "הוסף משימה זו לתוכנית",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "אנא הוסף זמן מתוכנן",
 				"TASKS_ESTIMATION": "אנא הערך את כל המשימות",
 				"OPTIMIZE_PLAN": "הזמן הכולל המשוער חורג מהזמן המתוכנן, אנא מיטב את התוכנית שלך",
-				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית"
+				"PLAN_MORE_TASKS": "אנא הוסף עוד משימות לתוכנית",
+				"PLEASE_ADD_TASKS": "אנא הוסף משימות"
 			}
 		},
 		"chang_active_task_popup": {

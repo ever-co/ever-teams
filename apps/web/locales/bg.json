@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Отбори",
+	"sidebar": {
+		"DASHBOARD": "Табло",
+		"PROJECTS": "Проекти",
+		"FAVORITES": "Любими",
+		"TASKS": "Задачи",
+		"MY_TASKS": "Моите задачи",
+		"TEAMTASKS": "Задачи на екипа",
+		"MY_WORKS": "Моите работи",
+		"TIME_AND_ACTIVITY": "Време и активност",
+		"WORK_DIARY": "Работен дневник",
+		"REPORTS": "Доклади",
+		"TIMESHEETS": "Отчети за време",
+		"MANUAL_TIME_EDIT": "Ръчно редактиране на време",
+		"WEEKLY_LIMIT": "Седмичен лимит",
+		"ACTUAL_AND_EXPECTED_HOURS": "Реални и очаквани часове",
+		"PAYMENTS_DUE": "Дължими плащания",
+		"PROJECT_BUDGET": "Бюджет на проекта"
+	},
 	"common": {
 		"ACCEPT": "Приемам",
 		"ACCEPTED": "Приет",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Направи я публична",
 		"PRIVATE_TASK_LABEL": "Направи я частна",
 		"CREATE_TASK": "Създаване на нова задача",
+		"REMOVE_FAVORITE_TASK": "Премахване на задачата от любими",
+		"ADD_FAVORITE_TASK": "Добавяне на задачата към любими",
+		"NO_PROJECT": "Няма проект",
+		"NO_FAVORITE_TASK": "Няма любими задачи все още",
 		"LINK_TASK": "Избери свързан проблем",
 		"LINK": "Връзка",
 		"LINKS": "Връзки",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Описание",
 		"CHILD_ISSUE_TASK": "Избери детски проблем",
 		"CREATE_TEAM": "Създаване на нов отбор",
+		"CREATE_PROJECT": "Създаване на нов проект",
 		"ALL_TEAMS": "Всички екипи",
 		"VERIFY_ACCOUNT_MSG": "Моля, потвърдете профила си, преди да започнете да използвате приложението",
 		"CREATE_ROLE": "Създаване на роля",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "Добави по-късно",
 		"DAILYPLAN": "Планирано",
 		"INVITATION_SENT": "Покана е изпратена успешно",
-		"INVITATION_SENT_TO_USER": "Покана е изпратена на {email}."
+		"INVITATION_SENT_TO_USER": "Покана е изпратена на {email}.",
+		"CALENDAR": "Календар",
+		"SELECT": "Изберете",
+		"SAVE_CHANGES": "Запази промените",
+		"plan": {
+			"SINGULAR": "План",
+			"PLURAL": "Планове",
+			"CHOOSE_DATE": "Изберете дата, за да видите план",
+			"PLAN_NOT_FOUND": "Не е намерен план",
+			"FOR_DATE": "ПЛАН ЗА {date}",
+			"FOR_TODAY": "Днешният план",
+			"FOR_TOMORROW": "Утрешният план",
+			"EDIT_PLAN": "Редактиране на план",
+			"TRACKED_TIME": "Проследено време",
+			"SEE_PLANS": "Виж планове",
+			"ADD_PLAN": "Добави план",
+			"DELETE_THIS_PLAN": "Изтрийте този план"
+		},
+		"timesheets": {
+			"SINGULAR": "Работен лист",
+			"PLURAL": "Работни листове"
+		},
+		"COPY_ISSUE_LINK": "Копирай връзката на проблема",
+		"MAKE_A_COPY": "Направете копие",
+		"ASSIGNEE": "Назначен",
+		"CHANGE_RELATIONS": "Променете отношенията",
+		"SET_AS_NEXT": "Задайте като следващо",
+		"MOVE_TO": "Преместете в",
+		"SELECT_DATE": "Изберете дата",
+		"SELECT_AND_CLOSE": "Изберете и затворете",
+		"SELECT_ROLE": "Моля, изберете роля",
+		"ADD_TIME": "Добавете време",
+		"VIEW_TIMESHEET": "Преглед на работния час",
+		"FILTER_TODAY": "Днес",
+		"FILTER_LAST_7_DAYS": "Последните 7 дни",
+		"FILTER_LAST_30_DAYS": "Последните 30 дни",
+		"FILTER_THIS_YEAR": "Тази година {year}",
+		"FILTER_CUSTOM_RANGE": "Потребителски диапазон"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -296,7 +356,8 @@
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
-			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени"
+			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени",
+			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "Име на отбора",
 			"TEAM_TYPE": "Тип отбор",
 			"TIME_TRACKING": "Проследяване на времето",
-			"REQUIRE_PLAN_TO_TRACK": "Изискване за план за проследяване",
+			"ENFORCE_PLAN": "Принудете плана",
 			"ADD_NEW_MEMBER": "Добави нов член",
 			"MANAGE_ASSIGNEES": "Управление на отговорници",
 			"SEARCH_MEMBER": "Търсене на член",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "Промяна на роли/позиции",
 			"VIEW_DETAILS": "Преглед на детайли",
 			"NO_INVITATIONS": "В момента няма покани!",
-			"NO_MEMBERS": "В момента няма членове!"
+			"NO_MEMBERS": "В момента няма членове!",
+			"GO_TO_PERSONAL_SETTINGS": "Отидете в лични настройки",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете"
 		},
 		"invite": {
 			"HEADING_TITLE": "Поканете член в отбора ви",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "Ние сме в процес на поддръжка",
 			"HEADING_DESCRIPTION": "В момента актуализираме нашия уебсайт, за да ви служим по-добре. Моля, проверете отново по-късно."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Таблица за работно време",
+			"TIMESHEET_VIEW_DETAILS": "Виж подробности",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Одобрете избраното",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Отхвърлете избраното",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Изтрийте избраното",
+			"HEADING_DESCRIPTION": "Това е вашето лично табло за работно време, показващо какво изисква вашето внимание сега.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Добро утро",
+				"GOOD_AFTERNOON": "Добър следобед",
+				"GOOD_EVENING": "Добър вечер"
+			},
+			"VIEWS": {
+				"LIST": "Изглед на списък",
+				"CALENDAR": "Изглед на календар"
+			},
+			"BILLABLE": {
+				"YES": "Да",
+				"NO": "Не",
+				"BILLABLE": "Фактурируемо"
+			},
+			"LOADING": "Зареждане на данни за таблицата за работно време...",
+			"NO_ENTRIES_FOUND": "Няма намерени записи в таблицата за работно време",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Вие ще отхвърлите избрания запис, искате ли да продължите?"
 		}
 	},
 	"timer": {
@@ -536,6 +624,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Планирано работно време за днес",
 			"TASKS_WITH_NO_ESTIMATIONS": "Такси без оценки на времето",
 			"START_WORKING_BUTTON": "Започнете работа",
+			"TIMER_RUNNING": "Таймерът вече работи",
 			"WARNING_PLAN_ESTIMATION": "Моля, коригирайте планираните работни часове или преоценете задачата(ите) "
 		}
 	},
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "План за днес",
+		"TASK_TIME": "време за задача",
+		"TOTAL_TODAY": "Общо Днес",
 		"PLAN_FOR_TOMORROW": "План за утре",
 		"PLAN_FOR_SOME_DAY": "План за някой ден",
 		"ADD_TASK_TO_PLAN": "Добави тази задача към плана",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "Моля, добавете планираното време",
 				"TASKS_ESTIMATION": "Моля, оценете всички задачи",
 				"OPTIMIZE_PLAN": "Общото прогнозирано време надвишава планираното време, моля оптимизирайте плана си",
-				"PLAN_MORE_TASKS": "Моля, добавете още задачи към плана"
+				"PLAN_MORE_TASKS": "Моля, добавете още задачи към плана",
+				"PLEASE_ADD_TASKS": "Моля, добавете задачи"
 			}
 		},
 		"chang_active_task_popup": {

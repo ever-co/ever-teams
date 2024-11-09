@@ -14,6 +14,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -24,6 +25,7 @@ export function useAuthenticationPasscode() {
 	const router = useRouter();
 	const pathname = usePathname();
 	const query = useSearchParams();
+	const t = useTranslations();
 
 	const queryTeamId = query?.get('teamId');
 
@@ -72,83 +74,104 @@ export function useAuthenticationPasscode() {
 		setFormValues((prevState) => ({ ...prevState, [name]: value }));
 	};
 
+	const signInToWorkspaceRequest = useCallback(
+		(params: {
+			email: string;
+			token: string;
+			selectedTeam: string;
+			code?: string;
+			defaultTeamId?: string;
+			lastTeamId?: string;
+		}) => {
+			signInWorkspaceQueryCall(params)
+				.then(() => {
+					setAuthenticated(true);
+					router.push('/');
+				})
+				.catch((err: AxiosError) => {
+					if (err.response?.status === 400) {
+						setErrors((err.response?.data as any)?.errors || {});
+					}
+
+					inputCodeRef.current?.clear();
+				});
+		},
+		[signInWorkspaceQueryCall, router]
+	);
+
 	/**
 	 * Verify auth request
 	 */
-	const verifySignInEmailConfirmRequest = async ({
-		email,
-		code,
-		lastTeamId
-	}: {
-		email: string;
-		code: string;
-		lastTeamId?: string;
-	}) => {
-		signInEmailConfirmQueryCall(email, code)
-			.then((res) => {
-				if ('team' in res.data) {
-					router.replace('/');
-					return;
-				}
+	const verifySignInEmailConfirmRequest = useCallback(
+		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
+			signInEmailConfirmQueryCall(email, code)
+				.then((res) => {
+					if ('team' in res.data) {
+						router.replace('/');
+						return;
+					}
 
-				const checkError: {
-					message: string;
-				} = res.data as any;
+					const checkError: {
+						message: string;
+					} = res.data as any;
 
-				const isError = checkError.message === 'Unauthorized';
+					const isError = checkError.message === 'Unauthorized';
 
-				if (isError) {
-					setErrors({
-						code: 'Invalid code. Please try again.'
-					});
-				} else {
-					setErrors({});
-				}
-
-				const data = res.data as ISigninEmailConfirmResponse;
-				if (!data.workspaces) {
-					return;
-				}
-
-				if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
-					setWorkspaces(data.workspaces);
-					setDefaultTeamId(data.defaultTeamId);
-
-					setScreen('workspace');
-				}
-
-				// If user tries to login from public Team Page as an Already a Member
-				// Redirect to the current team automatically
-				if (pathname === '/team/[teamId]/[profileLink]' && data.workspaces.length) {
-					if (queryTeamId) {
-						const currentWorkspace = data.workspaces.find((workspace) =>
-							workspace.current_teams.map((item) => item.team_id).includes(queryTeamId as string)
-						);
-
-						signInToWorkspaceRequest({
-							email: email,
-							code: code,
-							token: currentWorkspace?.token as string,
-							selectedTeam: queryTeamId as string,
-							lastTeamId
+					if (isError) {
+						setErrors({
+							code: t('pages.auth.INVALID_CODE_TRY_AGAIN')
 						});
+					} else {
+						setErrors({});
 					}
-				}
 
-				// if (res.data?.status !== 200 && res.data?.status !== 201) {
-				// 	setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
-				// }
-			})
-			.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
-				if (isAxiosError(err)) {
-					if (err.response?.status === 400) {
-						setErrors(err.response.data?.errors || {});
+					const data = res.data as ISigninEmailConfirmResponse;
+					if (!data.workspaces) {
+						return;
 					}
-				} else {
-					setErrors(err.errors || {});
-				}
-			});
-	};
+
+					if (data && Array.isArray(data.workspaces) && data.workspaces.length > 0) {
+						setWorkspaces(data.workspaces);
+						setDefaultTeamId(data.defaultTeamId);
+
+						setScreen('workspace');
+					}
+
+					// If user tries to login from public Team Page as an Already a Member
+					// Redirect to the current team automatically
+					if (pathname === '/team/[teamId]/[profileLink]' && data.workspaces.length) {
+						if (queryTeamId) {
+							const currentWorkspace = data.workspaces.find((workspace) =>
+								workspace.current_teams.map((item) => item.team_id).includes(queryTeamId as string)
+							);
+
+							signInToWorkspaceRequest({
+								email: email,
+								code: code,
+								token: currentWorkspace?.token as string,
+								selectedTeam: queryTeamId as string,
+								lastTeamId
+							});
+						}
+					}
+
+					// if (res.data?.status !== 200 && res.data?.status !== 201) {
+					// 	setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
+					// }
+				})
+				.catch((err: AxiosError<{ errors: Record<string, any> }, any> | { errors: Record<string, any> }) => {
+					if (isAxiosError(err)) {
+						if (err.response?.status === 400) {
+							setErrors(err.response.data?.errors || {});
+						}
+					} else {
+						setErrors(err.errors || {});
+					}
+				});
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		},
+		[signInEmailConfirmQueryCall, t, signInToWorkspaceRequest, router, pathname, queryTeamId]
+	);
 
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
@@ -174,28 +197,6 @@ export function useAuthenticationPasscode() {
 		},
 		[queryCall]
 	);
-
-	const signInToWorkspaceRequest = (params: {
-		email: string;
-		token: string;
-		selectedTeam: string;
-		code?: string;
-		defaultTeamId?: string;
-		lastTeamId?: string;
-	}) => {
-		signInWorkspaceQueryCall(params)
-			.then(() => {
-				setAuthenticated(true);
-				router.push('/');
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
-
-				inputCodeRef.current?.clear();
-			});
-	};
 
 	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

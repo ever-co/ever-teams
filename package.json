@@ -80,7 +80,11 @@
 		"postinstall.web": "yarn node tools/web/postinstall",
 		"spell": "cspell . --config .cspell.json",
 		"spellcheck": "cspell .",
-		"dev:server-web": "yarn build:web:desktop && yarn run prepare:server-web && yarn copy:build:web && yarn run start:server-web",
+		"config:electron": "yarn ts-node ./.scripts/electron.env.ts",
+		"pack": "yarn ts-node .scripts/electron-package-utils/package-util.ts",
+		"pack:server-web": "yarn run pack --desktop=server-web",
+		"config:server-web": "yarn run config:electron -- --environment=prod --desktop=server-web",
+		"dev:server-web": "cross-env NODE_ENV=production yarn prepare:config:server-web && yarn build:web:desktop && yarn run prepare:server-web && yarn copy:build:web && yarn run start:server-web",
 		"build:web:desktop": "cross-env NEXT_BUILD_OUTPUT_TYPE=standalone NEXT_SHARP_PATH=/temp/node_modules/sharp yarn build:web",
 		"copy:build:web": "pwd && cp -r  apps/web/.next/standalone apps/server-web/release/app/dist && cp -r apps/web/.next/static apps/server-web/release/app/dist/standalone/apps/web/.next && cp -r apps/web/public apps/server-web/release/app/dist/standalone/apps/web/",
 		"start:server-web": "cd apps/server-web && yarn run start",
@@ -92,11 +96,14 @@
 		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web:mac",
 		"package:server-web:win": "yarn build:server-web && yarn pack:server-web:win",
 		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux",
-		"build:web-server:linux:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:linux",
-		"build:web-server:linux:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:linux",
-		"build:web-server:mac:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:mac",
-		"build:web-server:windows:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:win",
-		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win"
+		"generate:icons": "yarn ts-node .scripts/icon-utils/icon-factory.ts",
+		"generate:icons:server-web": "yarn run generate:icons --desktop=server-web",
+		"prepare:config:server-web": "cross-env NODE_ENV=production yarn config:server-web && yarn pack:server-web && yarn generate:icons:server-web",
+		"build:web-server:linux:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:linux:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:mac:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:mac",
+		"build:web-server:windows:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:win",
+		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn prepare:config:server-web && yarn build:server-web && yarn pack:server-web:win"
 	},
 	"config": {
 		"commitizen": {
@@ -150,7 +157,7 @@
 	"resolutions": {},
 	"dependencies": {
 		"@lexical/react": "^0.8.0",
-		"dotenv": "^16.0.3",
+		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
 		"yargs": "^17.5.0"
 	},
@@ -183,6 +190,7 @@
 		"@semantic-release/github": "^9.2.6",
 		"@semantic-release/npm": "^11.0.0",
 		"@types/detox": "^18.1.0",
+		"@types/electron": "^1.6.10",
 		"@types/node": "^20.12.2",
 		"@types/yargs": "^17.0.32",
 		"@typescript-eslint/eslint-plugin": "5.60.1",
@@ -205,19 +213,20 @@
 		"eslint-plugin-prettier": "^4.2.1",
 		"eslint-plugin-react": "^7.31.8",
 		"husky": "^9.0.11",
+		"jimp": "^0.22.7",
 		"lerna": "^8.1.2",
 		"lerna-changelog": "^2.2.0",
 		"lint-staged": "^10.4.0",
 		"nx": "16.7.4",
 		"nx-cloud": "16.3.0",
+		"png-to-ico": "^2.1.8",
 		"prettier": "^3.2.5",
 		"prettier-eslint-cli": "^8.0.1",
 		"pretty-quick": "^4.0.0",
 		"rimraf": "^5.0.5",
 		"semantic-release": "^22.0.12",
 		"simple-git": "^3.20.0",
-		"ts-node": "^10.9.2",
-		"@types/electron": "^1.6.10"
+		"ts-node": "^10.9.2"
 	},
 	"overrides": {
 		"prebuild": {

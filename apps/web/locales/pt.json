@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Painel",
+		"PROJECTS": "Projetos",
+		"FAVORITES": "Favoritos",
+		"TASKS": "Tarefas",
+		"MY_TASKS": "Minhas Tarefas",
+		"TEAMTASKS": "Tarefas da Equipe",
+		"MY_WORKS": "Meus Trabalhos",
+		"TIME_AND_ACTIVITY": "Tempo e Atividade",
+		"WORK_DIARY": "Diário de Trabalho",
+		"REPORTS": "Relatórios",
+		"TIMESHEETS": "Folhas de Ponto",
+		"MANUAL_TIME_EDIT": "Edição de Tempo Manual",
+		"WEEKLY_LIMIT": "Limite Semanal",
+		"ACTUAL_AND_EXPECTED_HOURS": "Horas Reais e Previstas",
+		"PAYMENTS_DUE": "Pagamentos Devidos",
+		"PROJECT_BUDGET": "Orçamento do Projeto"
+	},
 	"common": {
 		"ACCEPT": "Aceitar",
 		"ACCEPTED": "Aceito",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Tornar Pública",
 		"PRIVATE_TASK_LABEL": "Tornar Privada",
 		"CREATE_TASK": "Criar Nova Tarefa",
+		"REMOVE_FAVORITE_TASK": "Remover tarefa dos favoritos",
+		"ADD_FAVORITE_TASK": "Adicionar tarefa aos favoritos",
+		"NO_PROJECT": "Nenhum projeto",
+		"NO_FAVORITE_TASK": "Ainda não há tarefas favoritas",
 		"LINK_TASK": "Selecionar Problema Relacionado",
 		"LINK": "Link",
 		"LINKS": "Links",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Descrição",
 		"CHILD_ISSUE_TASK": "Selecionar Problema Filho",
 		"CREATE_TEAM": "Criar Nova Equipe",
+		"CREATE_PROJECT": "Criar novo projeto",
 		"ALL_TEAMS": "Todos os times",
 		"VERIFY_ACCOUNT_MSG": "Por favor, verifique sua conta antes de começar a usar o aplicativo",
 		"CREATE_ROLE": "Criar Função",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "Adicionar depois",
 		"DAILYPLAN": "Planeado",
 		"INVITATION_SENT": "Convite enviado com sucesso",
-		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}."
+		"INVITATION_SENT_TO_USER": "Um convite de equipe foi enviado para {email}.",
+		"timesheets": {
+			"SINGULAR": "Folha de ponto",
+			"PLURAL": "Folhas de ponto"
+		},
+		"CALENDAR": "Calendário",
+		"SELECT": "Selecionar",
+		"SAVE_CHANGES": "Salvar alterações",
+		"plan": {
+			"SINGULAR": "Plano",
+			"PLURAL": "Planos",
+			"CHOOSE_DATE": "Selecione uma data para poder ver um plano",
+			"PLAN_NOT_FOUND": "Plano não encontrado",
+			"FOR_DATE": "PLANO PARA {date}",
+			"FOR_TODAY": "Plano de hoje",
+			"FOR_TOMORROW": "Plano de amanhã",
+			"EDIT_PLAN": "Editar Plano",
+			"TRACKED_TIME": "Tempo rastreado",
+			"SEE_PLANS": "Ver planos",
+			"ADD_PLAN": "Adicionar Plano",
+			"DELETE_THIS_PLAN": "Excluir este plano"
+		},
+		"COPY_ISSUE_LINK": "Copiar link do problema",
+		"MAKE_A_COPY": "Fazer uma cópia",
+		"ASSIGNEE": "Cessionário",
+		"CHANGE_RELATIONS": "Alterar relações",
+		"SET_AS_NEXT": "Definir como o próximo",
+		"MOVE_TO": "Mover para",
+		"SELECT_DATE": "Selecionar data",
+		"SELECT_AND_CLOSE": "Selecionar e fechar",
+		"SELECT_ROLE": "Por favor, selecione um cargo",
+		"ADD_TIME": "Adicionar tempo",
+		"VIEW_TIMESHEET": "Ver folha de ponto",
+		"FILTER_TODAY": "Hoje",
+		"FILTER_LAST_7_DAYS": "Últimos 7 dias",
+		"FILTER_LAST_30_DAYS": "Últimos 30 dias",
+		"FILTER_THIS_YEAR": "Este ano {year}",
+		"FILTER_CUSTOM_RANGE": "Faixa personalizada"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -296,7 +356,8 @@
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Selecionar Espaço de Trabalho",
 			"ENTER_EMAIL": "Inserir E-mail",
-			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados"
+			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados",
+			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "Nome da Equipe",
 			"TEAM_TYPE": "Tipo de Equipe",
 			"TIME_TRACKING": "Rastreamento de Tempo",
-			"REQUIRE_PLAN_TO_TRACK": "Exigir um plano para rastrear",
+			"ENFORCE_PLAN": "Fazer cumprir o plano",
 			"ADD_NEW_MEMBER": "Adicionar novo membro",
 			"MANAGE_ASSIGNEES": "Gerenciar Designados",
 			"SEARCH_MEMBER": "Procurar Membro",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "Alterar Funções/Posições",
 			"VIEW_DETAILS": "Ver Detalhes",
 			"NO_INVITATIONS": "Não há convites no momento!",
-			"NO_MEMBERS": "Não há membros no momento!"
+			"NO_MEMBERS": "Não há membros no momento!",
+			"GO_TO_PERSONAL_SETTINGS": "Ir para configurações pessoais",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Compartilhar visualizações de perfil de membros"
 		},
 		"invite": {
 			"HEADING_TITLE": "Convidar membro para sua equipe",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "Estamos em manutenção",
 			"HEADING_DESCRIPTION": "Estamos atualizando nosso site para melhor atendê-lo. Por favor, volte mais tarde."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Folha de ponto",
+			"TIMESHEET_VIEW_DETAILS": "Ver detalhes",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Aprovar selecionados",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Rejeitar selecionados",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Excluir selecionados",
+			"HEADING_DESCRIPTION": "Este é o seu painel de controle pessoal de folha de ponto, mostrando o que precisa da sua atenção agora.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Bom dia",
+				"GOOD_AFTERNOON": "Boa tarde",
+				"GOOD_EVENING": "Boa noite"
+			},
+			"VIEWS": {
+				"LIST": "Visualização em lista",
+				"CALENDAR": "Visualização em calendário"
+			},
+			"BILLABLE": {
+				"YES": "Sim",
+				"NO": "Não",
+				"BILLABLE": "Faturável"
+			},
+			"LOADING": "Загрузка данных учета рабочего времени...",
+			"NO_ENTRIES_FOUND": "Записи учета рабочего времени не найдены",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Você está prestes a rejeitar a entrada selecionada, deseja continuar?"
 		}
 	},
 	"timer": {
@@ -519,6 +607,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Tempo de trabalho planejado para hoje",
 			"TASKS_WITH_NO_ESTIMATIONS": "Tarefas sem estimativas de tempo",
 			"START_WORKING_BUTTON": "Começar a trabalhar",
+			"TIMER_RUNNING": "O temporizador já está em execução",
 			"WARNING_PLAN_ESTIMATION": "Corrigir as horas de trabalho planeadas ou fazer uma nova estimativa da(s) tarefa(s)"
 		},
 		"TIME_ACTIVITY": "Atividade",
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plano para hoje",
+		"TASK_TIME": "tempo de tarefa",
+		"TOTAL_TODAY": "Total Hoje",
 		"PLAN_FOR_TOMORROW": "Plano para amanhã",
 		"PLAN_FOR_SOME_DAY": "Plano para algum dia",
 		"ADD_TASK_TO_PLAN": "Adicionar esta tarefa ao plano",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "Por favor, adicione o tempo planejado",
 				"TASKS_ESTIMATION": "Por favor, estime todas as tarefas",
 				"OPTIMIZE_PLAN": "O tempo total estimado excede o seu tempo planejado, por favor otimize seu plano",
-				"PLAN_MORE_TASKS": "Por favor, adicione mais tarefas ao plano"
+				"PLAN_MORE_TASKS": "Por favor, adicione mais tarefas ao plano",
+				"PLEASE_ADD_TASKS": "Por favor, adicione tarefas"
 			}
 		},
 		"chang_active_task_popup": {

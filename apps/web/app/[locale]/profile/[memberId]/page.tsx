@@ -11,7 +11,7 @@ import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
@@ -31,9 +31,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
 	const { getEmployeeDayPlans } = useDailyPlan();
-	const fullWidth = useRecoilValue(fullWidthState);
+	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
-	const setActivityTypeFilter = useSetRecoilState(activityTypeState);
+	const setActivityTypeFilter = useSetAtom(activityTypeState);
 	const hook = useTaskFilter(profile);
 
 	const isManagerConnectedUser = useMemo(
@@ -49,7 +49,10 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const breadcrumb = useMemo(
 		() => [
 			{ title: activeTeam?.name || '', href: '/' },
-			{ title: JSON.parse(t('pages.profile.BREADCRUMB')) || '', href: `/profile/${params.memberId}` }
+			{
+				title: JSON.parse(t('pages.profile.BREADCRUMB')) || '',
+				href: `/profile/${params.memberId}`
+			}
 		],
 		[activeTeam?.name, params.memberId, t]
 	);
@@ -93,12 +96,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					ref={profile.loadTaskStatsIObserverRef}
 					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
 				>
-					<div className="flex flex-col justify-center items-center gap-5">
+					<div className="flex flex-col items-center justify-center gap-5">
 						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
 							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
 						</Text>
 
-						<Text className=" font-light text-center text-gray-400">
+						<Text className="font-light text-center text-gray-400 ">
 							{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
 						</Text>
 
@@ -120,44 +123,46 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					className={cn(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
 					onResize={(size) => setHeaderSize(size)}
 				>
-					<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], 'pb-2')}>
-						{/* Breadcrumb */}
-						<div className="flex items-center gap-8">
-							<Link href="/">
-								<ArrowLeftIcon className="w-6 h-6" />
-							</Link>
+					<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], 'pb-2 !-mt-12')}>
+						<div className="w-full space-y-4">
+							{/* Breadcrumb */}
+							<div className="flex  items-center gap-8">
+								<Link href="/">
+									<ArrowLeftIcon className="w-6 h-6" />
+								</Link>
 
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
+								<Breadcrumb paths={breadcrumb} className="text-sm" />
+							</div>
+
+							{/* User Profile Detail */}
+							<div className="flex flex-col items-center justify-between md:flex-row">
+								<UserProfileDetail member={profile.member} />
+
+								{profileIsAuthUser && isTrackingEnabled && (
+									<Timer
+										className={cn(
+											'p-5 rounded-2xl shadow-xlcard',
+											'dark:border-[0.125rem] dark:border-[#28292F]',
+											'dark:bg-[#1B1D22]'
+										)}
+									/>
+								)}
+							</div>
+							{/* TaskFilter */}
+							<TaskFilter profile={profile} hook={hook} />
 						</div>
-
-						{/* User Profile Detail */}
-						<div className="flex flex-col items-center justify-between py-5 md:py-10 md:flex-row">
-							<UserProfileDetail member={profile.member} />
-
-							{profileIsAuthUser && isTrackingEnabled && (
-								<Timer
-									className={cn(
-										'p-5 rounded-2xl shadow-xlcard',
-										'dark:border-[0.125rem] dark:border-[#28292F]',
-										'dark:bg-[#1B1D22]'
-									)}
-								/>
-							)}
-						</div>
-						{/* TaskFilter */}
-						<TaskFilter profile={profile} hook={hook} />
 					</MainHeader>
 					{/* <div className="p-1">
 								<ActivityCalendar />
 							</div> */}
 				</ResizablePanel>
 				<ResizableHandle withHandle />
-				<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-scroll custom-scrollbar">
+				<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
 					{hook.tab == 'worked' && canSeeActivity && (
 						<Container fullWidth={fullWidth} className="py-8">
 							<div className={cn('flex justify-start items-center gap-4 mt-3')}>
 								{Object.keys(activityScreens).map((filter, i) => (
-									<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+									<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 										{i !== 0 && <VerticalSeparator />}
 										<div
 											className={cn(
@@ -174,7 +179,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						</Container>
 					)}
 
-					<Container fullWidth={fullWidth} className="mb-10">
+					<Container fullWidth={fullWidth} className="mb-10 -mt-6">
 						{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
 							<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
 						) : (

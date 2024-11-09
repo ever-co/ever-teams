@@ -8,7 +8,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import { Fragment, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useAtom } from 'jotai';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
 
@@ -18,7 +18,7 @@ import { useTranslations } from 'next-intl';
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 
 const TaskMainInfo = () => {
-	const [task] = useRecoilState(detailedTaskState);
+	const [task] = useAtom(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
 
@@ -72,7 +72,7 @@ DateCustomInput.displayName = 'DateCustomInput';
 
 function DueDates() {
 	const { updateTask } = useTeamTasks();
-	const [task] = useRecoilState(detailedTaskState);
+	const [task] = useAtom(detailedTaskState);
 	const t = useTranslations();
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [dueDate, setDueDate] = useState<Date | null>(null);
@@ -121,7 +121,7 @@ function DueDates() {
 							) : task?.startDate ? (
 								formatDateString(task?.startDate)
 							) : (
-								<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
+								<PencilSquareIcon className="w-4 h-4 dark:text-white text-dark" />
 							)}
 						</div>
 					}
@@ -169,7 +169,7 @@ function DueDates() {
 							) : task?.dueDate ? (
 								formatDateString(task?.dueDate)
 							) : (
-								<PencilSquareIcon className="dark:text-white text-dark w-4 h-4" />
+								<PencilSquareIcon className="w-4 h-4 dark:text-white text-dark" />
 							)}
 						</div>
 					}
@@ -225,7 +225,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			memberList.filter((member) =>
 				member.employee
 					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
-					member.employee?.isActive
+						member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -236,7 +236,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 			memberList.filter((member) =>
 				member.employee
 					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
-					member.employee?.isActive
+						member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -286,7 +286,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
 							{({ close }) => (
-								<div className="overflow-y-scroll max-h-72 scrollbar-hide">
+								<div className="overflow-y-auto max-h-72 scrollbar-hide">
 									{assignedTaskMembers.map((member, index) => (
 										<div
 											className="flex items-center justify-between w-auto h-8 gap-1 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"

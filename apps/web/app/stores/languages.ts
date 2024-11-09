@@ -1,30 +1,19 @@
 import { ILanguageItemList } from '@app/interfaces/IUserData';
-import { atom, selector } from 'recoil';
+import { atom } from 'jotai';
 
-export const languageListState = atom<ILanguageItemList[]>({
-	key: 'languageListState',
-	default: []
-});
+export const languageListState = atom<ILanguageItemList[]>([]);
 
-export const activeLanguageIdState = atom<string | null>({
-	key: 'activeLanguageIdState',
-	default: null
-});
+export const activeLanguageIdState = atom<string | null>(null);
 
-export const languagesFetchingState = atom<boolean>({
-	key: 'languagesFetchingState',
-	default: false
-});
+export const languagesFetchingState = atom<boolean>(false);
 
-export const activeLanguageState = selector<ILanguageItemList | null>({
-	key: 'activeLanguageState',
-	get: ({ get }) => {
-		const languages = get(languageListState);
-		const activeId = get(activeLanguageIdState);
-		return languages.find((language) => language.code === activeId) || languages[0] || null;
-	}
+export const activeLanguageState = atom<ILanguageItemList | null>((get) => {
+  const languages = get(languageListState);
+  const activeId = get(activeLanguageIdState);
+  return (
+    languages.find((language) => language.code === activeId) ||
+    languages[0] ||
+    null
+  );
 });
-export const currentLanguageState = atom({
-	key: 'languageState',
-	default: 'en'
-});
+export const currentLanguageState = atom('en');

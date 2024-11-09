@@ -112,12 +112,12 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
             {t('FORM.LABELS.AUTO_UPDATE_SUBTITLE')}
           </span>
         </div>
-        <div className="bg-gray-50 px-16 py-14 mt-10 w-full">
+        <div className="bg-gray-50 dark:bg-[#25272D] dark:text-white px-16 py-14 mt-10 w-full rounded-lg border-2 border-gray-200 dark:border-gray-600">
           <form>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div className="flex w-1/2">
                 <Switch.Root
-                  className="switch-root"
+                  className="switch-root has-[:checked]:bg-violet-800"
                   id="airplane-mode"
                   onCheckedChange={(value) => {
                     setOpen();
@@ -139,7 +139,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                   htmlFor="airplane-mode"
                   style={{ paddingLeft: 15 }}
                 >
-                  {t('FORM.LABELS.AUTO_UPDATE_TOGLE')}
+                  {t('FORM.LABELS.AUTO_UPDATE_TOGGLE')}
                 </label>
               </div>
               <div className="flex w-2/2">
@@ -172,7 +172,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
           </div>
         </div>
         <button
-          className="mt-10 block rounded-full border-4 border-transparent bg-blue-400 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
+          className="mt-10 block rounded-lg border-4 border-transparent bg-violet-800 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8"
           onClick={props.checkForUpdate}
           disabled={props.loading}
         >
@@ -181,7 +181,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
           )}
           {!props.loading && t(`FORM.LABELS.${props.updateStates.label}`)}
         </button>
-        <div className="grid divide-y divide-neutral-200 shadow-lg mx-auto mt-8">
+        <div className="grid divide-y divide-neutral-200 mx-auto mt-8 dark:bg-[#25272D] dark:text-white rounded-lg border-2 border-gray-200 dark:border-gray-600">
           <div className="py-5 px-5">
             <details className="group">
               <summary className="flex justify-between items-center font-medium cursor-pointer list-none">
@@ -203,18 +203,18 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                 </span>
               </summary>
               <div
-                className="inline-block w-full bg-black text-white text-xs leading-3"
+                className="inline-block w-full bg-black text-white text-xs leading-3 rounded-lg mt-3"
                 style={{
-                  minHeight: '150px',
+                  minHeight: '100px',
                   maxHeight: '150px',
                   overflowY: 'auto',
                 }}
               >
                 <div className="ml-1 mt-1">
                   {updateLogs.length > 0 &&
-                    updateLogs.map((ulog, i) => (
+                    updateLogs.map((uLog, i) => (
                       <div className="py-1" key={i}>
-                        <span>{ulog}</span>
+                        <span>{uLog}</span>
                       </div>
                     ))}
                 </div>

@@ -76,12 +76,14 @@ jobs:
           EXPO_PROJECT_NAME: ${{ secrets.EXPO_PROJECT_NAME }}
           EXPO_PROJECT_OWNER: ${{ secrets.EXPO_PROJECT_OWNER }}
           EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
+          EXPO_PROJECT_PACKAGE_NAME: ${{ secrets.EXPO_PROJECT_PACKAGE_NAME }}
+          EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER }}
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --platform ios --non-interactive
+        run: cd apps/mobile && eas build --profile production --platform ios --non-interactive
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --platform ios --non-interactive
+        run: cd apps/mobile && eas update --auto --profile production --platform ios --non-interactive
 
       - name: Upload App build to App store
-        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
+        run: cd apps/mobile && eas submit --profile production --platform ios --latest --non-interactive

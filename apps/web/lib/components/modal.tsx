@@ -11,21 +11,25 @@ type Props = {
 	description?: string;
 	isOpen: boolean;
 	closeModal: () => void;
+	customCloseModal?: () => void;
 	className?: string;
 	alignCloseIcon?: boolean;
 	showCloseIcon?: boolean;
+	closeOnOutsideClick?: boolean;
 } & PropsWithChildren;
 
 export function Modal({
 	isOpen,
 	closeModal,
+	customCloseModal,
 	children,
 	title,
 	titleClass,
 	description,
 	className,
 	alignCloseIcon,
-	showCloseIcon = true
+	showCloseIcon = true,
+	closeOnOutsideClick = false
 }: Props) {
 	const refDiv = useRef(null);
 
@@ -42,7 +46,7 @@ export function Modal({
 		>
 			<Dialog
 				initialFocus={refDiv}
-				onClose={closeModal}
+				onClose={closeOnOutsideClick ? closeModal : () => null}
 				as="div"
 				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[9999] w-full h-full"
 			>
@@ -50,25 +54,32 @@ export function Modal({
 					<Dialog.Overlay
 						className={clsxm('flex justify-center items-center flex-col space-y-1 relative', className)}
 					>
-						{title && <Dialog.Title className={clsxm(titleClass)}>{title}</Dialog.Title>}
-						{description && <Dialog.Description>{description}</Dialog.Description>}
-						{showCloseIcon && (
-							<div
-								onClick={closeModal}
-								className={`absolute ${
-									alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
-								}  md:right-2 md:top-3 cursor-pointer z-50`}
-							>
-								<Image
-									src={'/assets/svg/close.svg'}
-									alt="close"
-									width={28}
-									height={28}
-									className="w-6 md:w-7"
-								/>
-							</div>
-						)}
-						{children}
+						<Dialog.Panel
+							className={clsxm('flex justify-center items-center flex-col space-y-1 relative', className)}
+						>
+							{title && <Dialog.Title className={clsxm(titleClass)}>{title}</Dialog.Title>}
+							{description && <Dialog.Description>{description}</Dialog.Description>}
+							{showCloseIcon && (
+								<div
+									onClick={() => {
+										closeModal();
+										customCloseModal?.();
+									}}
+									className={`absolute ${
+										alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
+									}  md:right-2 md:top-3 cursor-pointer z-50`}
+								>
+									<Image
+										src={'/assets/svg/close.svg'}
+										alt="close"
+										width={28}
+										height={28}
+										className="w-6 md:w-7"
+									/>
+								</div>
+							)}
+							{children}
+						</Dialog.Panel>
 					</Dialog.Overlay>
 				</div>
 			</Dialog>

@@ -15,7 +15,7 @@ import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import stc from 'string-to-color';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
@@ -36,7 +36,7 @@ export function UserNavAvatar() {
 	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
 	const { timerStatus } = useTimer();
 	const { activeTeam } = useOrganizationTeams();
-	const publicTeam = useRecoilValue(publicState);
+	const publicTeam = useAtomValue(publicState);
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
 		return m.employee.userId === user?.id;
@@ -129,7 +129,7 @@ function UserNavMenu() {
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { timerStatus } = useTimer();
 	const { activeTeam, isTeamMember } = useOrganizationTeams();
-	const publicTeam = useRecoilValue(publicState);
+	const publicTeam = useAtomValue(publicState);
 
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {

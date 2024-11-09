@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Dashboard",
+		"PROJECTS": "Projects",
+		"FAVORITES": "Favorites",
+		"TASKS": "Tasks",
+		"MY_TASKS": "My Tasks",
+		"TEAMTASKS": "Team's Tasks",
+		"MY_WORKS": "My Work",
+		"TIME_AND_ACTIVITY": "Time & Activity",
+		"WORK_DIARY": "Work Diary",
+		"REPORTS": "Reports",
+		"TIMESHEETS": "Timesheets",
+		"MANUAL_TIME_EDIT": "Manual Time Edit",
+		"WEEKLY_LIMIT": "Weekly Limit",
+		"ACTUAL_AND_EXPECTED_HOURS": "Actual & Expected Hours",
+		"PAYMENTS_DUE": "Payments Due",
+		"PROJECT_BUDGET": "Project Budget"
+	},
 	"common": {
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Make a public",
 		"PRIVATE_TASK_LABEL": "Make a private",
 		"CREATE_TASK": "Create New Task",
+		"REMOVE_FAVORITE_TASK": "Remove Task from Favorites",
+		"ADD_FAVORITE_TASK": "Add Task to Favorites",
+		"NO_PROJECT": "No Project",
+		"NO_FAVORITE_TASK": "No Favorite Tasks Yet",
 		"LINK_TASK": "Select Related Issue",
 		"LINK": "Link",
 		"LINKS": "Links",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Select Child Issue",
 		"CREATE_TEAM": "Create New Team",
+		"CREATE_PROJECT": "Create New Project",
 		"ALL_TEAMS": "All Teams",
 		"VERIFY_ACCOUNT_MSG": "Please Verify your account before start using the app",
 		"CREATE_ROLE": "Create Role",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "Add later",
 		"DAILYPLAN": "Planned",
 		"INVITATION_SENT": "Invitation Sent Successfully",
-		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}."
+		"INVITATION_SENT_TO_USER": "A team invitation has been sent to {email}.",
+		"CALENDAR": "Calendar",
+		"SELECT": "Select",
+		"SAVE_CHANGES": "Save changes",
+		"plan": {
+			"SINGULAR": "Plan",
+			"PLURAL": "Plans",
+			"CHOOSE_DATE": "Select a date to be able to see a plan",
+			"PLAN_NOT_FOUND": "Plan not found",
+			"FOR_DATE": "PLAN FOR {date}",
+			"FOR_TODAY": "Today's plan",
+			"FOR_TOMORROW": "Tomorrow's plan",
+			"EDIT_PLAN": "Edit Plan",
+			"TRACKED_TIME": "Tracked time",
+			"SEE_PLANS": "See plans",
+			"ADD_PLAN": "Add Plan",
+			"DELETE_THIS_PLAN": "Delete this plan"
+		},
+		"timesheets": {
+			"SINGULAR": "Timesheet",
+			"PLURAL": "Timesheets"
+		},
+		"COPY_ISSUE_LINK": "Copy issue link",
+		"MAKE_A_COPY": "Make a copy",
+		"ASSIGNEE": "Assignee",
+		"CHANGE_RELATIONS": "Change relations",
+		"SET_AS_NEXT": "Set as next",
+		"MOVE_TO": "Move to",
+		"SELECT_DATE": "Select date",
+		"SELECT_AND_CLOSE": "Select & Close",
+		"SELECT_ROLE": "Please Select any Role",
+		"ADD_TIME": "Add Time",
+		"VIEW_TIMESHEET": "View timesheet",
+		"FILTER_TODAY": "Today",
+		"FILTER_LAST_7_DAYS": "Last 7 Days",
+		"FILTER_LAST_30_DAYS": "Last 30 Days",
+		"FILTER_THIS_YEAR": "This year {year}",
+		"FILTER_CUSTOM_RANGE": "Custom Range"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -296,7 +356,8 @@
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Select Workspace",
 			"ENTER_EMAIL": "Enter Email",
-			"WORKSPACES_NOT_FOUND": "Workspaces Not Found"
+			"WORKSPACES_NOT_FOUND": "Workspaces Not Found",
+			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
 			"TIME_TRACKING": "Time Tracking",
-			"REQUIRE_PLAN_TO_TRACK": "Require a Plan to track",
+			"ENFORCE_PLAN": "Enforce plan",
 			"ADD_NEW_MEMBER": "Add new member",
 			"MANAGE_ASSIGNEES": "Manage Assignees",
 			"SEARCH_MEMBER": "Search Member",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "Roles/Positions change",
 			"VIEW_DETAILS": "View Details",
 			"NO_INVITATIONS": "There are no Invitations at the moment!",
-			"NO_MEMBERS": "There are no Members at the moment!"
+			"NO_MEMBERS": "There are no Members at the moment!",
+			"GO_TO_PERSONAL_SETTINGS": "Go to Personal settings",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Share members profile views"
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "We are Under Maintenance",
 			"HEADING_DESCRIPTION": "We are updating our website to serve you better. Please check back later."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Timesheet",
+			"TIMESHEET_VIEW_DETAILS": "View Details",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Approve selected",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Reject selected",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Delete selected",
+			"HEADING_DESCRIPTION": "This is your personal timesheet dashboard, showing you what needs your attention now.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Good morning",
+				"GOOD_AFTERNOON": "Good afternoon",
+				"GOOD_EVENING": "Good evening"
+			},
+			"VIEWS": {
+				"LIST": "List View",
+				"CALENDAR": "Calendar View"
+			},
+			"BILLABLE": {
+				"YES": "Yes",
+				"NO": "No",
+				"BILLABLE": "BILLABLE"
+			},
+			"LOADING": "Loading timesheet data...",
+			"NO_ENTRIES_FOUND": "No timesheet entries found",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?"
 		}
 	},
 	"timer": {
@@ -536,6 +624,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Working time planned for today",
 			"TASKS_WITH_NO_ESTIMATIONS": "Tasks with no time estimations",
 			"START_WORKING_BUTTON": "Start working",
+			"TIMER_RUNNING": "The timer is already running",
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		}
 	},
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",
+		"TASK_TIME": "task time",
+		"TOTAL_TODAY": "Total Today",
 		"PLAN_FOR_TOMORROW": "Plan for tomorrow",
 		"PLAN_FOR_SOME_DAY": "Plan for selected day",
 		"ADD_TASK_TO_PLAN": "Add this task to a plan",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "Please, add planned time",
 				"TASKS_ESTIMATION": "Please, estimate all tasks",
 				"OPTIMIZE_PLAN": "Total estimated time exceeds your Planned time, please optimize your plan",
-				"PLAN_MORE_TASKS": "Please add more tasks to the plan"
+				"PLAN_MORE_TASKS": "Please add more tasks to the plan",
+				"PLEASE_ADD_TASKS": "Please, add tasks"
 			}
 		},
 		"chang_active_task_popup": {

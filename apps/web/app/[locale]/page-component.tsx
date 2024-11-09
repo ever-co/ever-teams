@@ -21,7 +21,7 @@ import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../styles/globals.css';
 
-import { useRecoilState } from 'recoil';
+import { useAtom } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ChevronDown } from 'lucide-react';
 import HeaderTabs from '@components/pages/main/header-tabs';
@@ -36,8 +36,8 @@ function MainPage() {
 	const t = useTranslations();
 	const [headerSize, setHeaderSize] = useState(10);
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const [fullWidth, setFullWidth] = useRecoilState(fullWidthState);
-	const [view, setView] = useRecoilState(headerTabs);
+	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
+	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -62,7 +62,7 @@ function MainPage() {
 	}
 	return (
 		<>
-			<div className="flex flex-col h-screen justify-between">
+			<div className="flex flex-col justify-between h-full min-h-screen">
 				{/* <div className="flex-grow "> */}
 				<MainLayout
 					showTimer={headerSize <= 11.8 && isTrackingEnabled}
@@ -70,9 +70,11 @@ function MainPage() {
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-					<div className=" h-full">
+
+					<div className="h-full ">
 						<ResizablePanelGroup direction="vertical">
 							{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
+
 							<ResizablePanel
 								defaultSize={30}
 								maxSize={48}
@@ -82,21 +84,29 @@ function MainPage() {
 								)}
 								onResize={(size) => setHeaderSize(size)}
 							>
-								<div className="bg-white sticky z-50 dark:bg-dark-high">
+								<div className="sticky z-40 bg-white dark:bg-dark-high">
 									<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
-										<div className="mx-8-container pt-9 !px-0 flex flex-row items-start justify-between ">
-											<div className="flex justify-center items-center gap-8 h-10">
+										<div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
+											<div className="flex items-center justify-center h-10 gap-8">
 												<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+
 												<Breadcrumb paths={breadcrumb} className="text-sm" />
 											</div>
-											<div className="flex h-10 w-max items-center justify-center  gap-1">
+
+											<div className="flex items-center justify-center h-10 gap-1 w-max">
 												<HeaderTabs linkAll={false} />
 											</div>
 										</div>
-										<div className="mx-8-container mb-1">
-											<UnverifiedEmail />
-											<TeamInvitations />
-											<TeamOutstandingNotifications />
+
+										<div className="mb-1 mx-8-container">
+											<div className="w-full mt-3">
+												<UnverifiedEmail />
+
+												<TeamInvitations className="!m-0" />
+
+												<TeamOutstandingNotifications />
+											</div>
+
 											{isTeamMember ? (
 												<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
 											) : null}
@@ -105,14 +115,12 @@ function MainPage() {
 									</div>
 								</div>
 							</ResizablePanel>
+
 							<ResizableHandle withHandle />
+
 							{/* </Container> */}
-							<ResizablePanel
-								defaultSize={65}
-								maxSize={95}
-								className="!overflow-y-scroll custom-scrollbar"
-							>
-								<div>{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</div>
+							<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
+								{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 							</ResizablePanel>
 						</ResizablePanelGroup>
 					</div>

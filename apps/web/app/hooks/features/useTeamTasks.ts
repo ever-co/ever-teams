@@ -27,12 +27,15 @@ import {
 	// employeeTasksState,
 	memberActiveTaskIdState,
 	myDailyPlanListState,
-	userState
+	userState,
+	activeTeamTaskState,
+	tasksByTeamState,
+	tasksFetchingState,
+	teamTasksState
 } from '@app/stores';
-import { activeTeamTaskState, tasksByTeamState, tasksFetchingState, teamTasksState } from '@app/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
@@ -40,31 +43,64 @@ import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useTaskStatus } from './useTaskStatus';
 
+/**
+ * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
+ *
+ * @returns {Object} An object containing various functions and state related to team tasks.
+ * @property {ITeamTask[]} tasks - The list of team tasks.
+ * @property {boolean} loading - Indicates whether the tasks are currently being loaded.
+ * @property {boolean} tasksFetching - Indicates whether the tasks are currently being fetched.
+ * @property {(task: ITeamTask) => Promise<any>} deleteTask - A function to delete a task.
+ * @property {boolean} deleteLoading - Indicates whether a task is currently being deleted.
+ * @property {(taskData: { taskName: string; issueType?: string; status?: string; taskStatusId: string; priority?: string; size?: string; tags?: ITaskLabelsItemList[]; description?: string | null; }, members?: { id: string }[]) => Promise<any>} createTask - A function to create a new task.
+ * @property {boolean} createLoading - Indicates whether a task is currently being created.
+ * @property {(task: Partial<ITeamTask> & { id: string }) => Promise<any>} updateTask - A function to update an existing task.
+ * @property {boolean} updateLoading - Indicates whether a task is currently being updated.
+ * @property {(task: ITeamTask | null) => void} setActiveTask - A function to set the active task.
+ * @property {ITeamTask | null} activeTeamTask - The currently active team task.
+ * @property {any} firstLoadTasksData - Data related to the first load of tasks.
+ * @property {(newTitle: string, task?: ITeamTask | null, loader?: boolean) => Promise<any>} updateTitle - A function to update the title of a task.
+ * @property {(newDescription: string, task?: ITeamTask | null, loader?: boolean) => Promise<any>} updateDescription - A function to update the description of a task.
+ * @property {(publicity: boolean, task?: ITeamTask | null, loader?: boolean) => Promise<any>} updatePublicity - A function to update the publicity of a task.
+ * @property {<T extends ITaskStatusField>(status: ITaskStatusStack[T], field: T, taskStatusId: ITeamTask['taskStatusId'], task?: ITeamTask | null, loader?: boolean) => Promise<any>} handleStatusUpdate - A function to update the status of a task.
+ * @property {(employeeId: string, organizationTeamId: string) => void} getTasksByEmployeeId - A function to fetch tasks by employee ID.
+ * @property {boolean} getTasksByEmployeeIdLoading - Indicates whether tasks are currently being fetched by employee ID.
+ * @property {ITeamTask['organizationId']} activeTeamId - The ID of the active team.
+ * @property {() => void} unassignAuthActiveTask - A function to unassign the active task of the authenticated user.
+ * @property {(tasks: ITeamTask[]) => void} setAllTasks - A function to set all the tasks.
+ * @property {(deepCheck?: boolean) => Promise<any>} loadTeamTasksData - A function to load the team tasks data.
+ * @property {(employeeId: string, organizationTeamId: string) => void} deleteEmployeeFromTasks - A function to delete an employee from tasks.
+ * @property {boolean} deleteEmployeeFromTasksLoading - Indicates whether an employee is currently being deleted from tasks.
+ * @property {(taskId: string) => Promise<any>} getTaskById - A function to fetch a task by its ID.
+ * @property {boolean} getTasksByIdLoading - Indicates whether a task is currently being fetched by its ID.
+ * @property {ITeamTask | null} detailedTask - The detailed task.
+ */
+
 export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
 
-	const setAllTasks = useSetRecoilState(teamTasksState);
-	const tasks = useRecoilValue(tasksByTeamState);
-	const [detailedTask, setDetailedTask] = useRecoilState(detailedTaskState);
-	// const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
+	const setAllTasks = useSetAtom(teamTasksState);
+	const tasks = useAtomValue(tasksByTeamState);
+	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	// const allTaskStatistics = useAtomValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
-	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
-	const authUser = useSyncRef(useRecoilValue(userState));
-	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
+	const [tasksFetching, setTasksFetching] = useAtom(tasksFetchingState);
+	const authUser = useSyncRef(useAtomValue(userState));
+	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	// const [employeeState, setEmployeeState] = useRecoilState(employeeTasksState);
+	// const [employeeState, setEmployeeState] = useAtom(employeeTasksState);
 	const { taskStatus } = useTaskStatus();
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 
-	const [activeTeamTask, setActiveTeamTask] = useRecoilState(activeTeamTaskState);
+	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
-	const setDailyPlan = useSetRecoilState(dailyPlanListState);
-	const setMyDailyPlans = useSetRecoilState(myDailyPlanListState);
+	const setDailyPlan = useSetAtom(dailyPlanListState);
+	const setMyDailyPlans = useSetAtom(myDailyPlanListState);
 
 	// Queries hooks
 	const { queryCall, loading, loadingRef } = useQuery(getTeamTasksAPI);
@@ -115,7 +151,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[getTasksByIdQueryCall, setDetailedTask]
+		[getTasksByIdQueryCall, setDetailedTask, tasksRef]
 	);
 
 	const getTasksByEmployeeId = useCallback(
@@ -219,7 +255,7 @@ export function useTeamTasks() {
 			loadTeamTasksData();
 		}
 	}, [activeTeam?.id, firstLoad, loadTeamTasksData]);
-	const setActive = useSetRecoilState(activeTeamTaskId);
+	const setActive = useSetAtom(activeTeamTaskId);
 
 	// Get the active task from cookie and put on global store
 	useEffect(() => {
@@ -451,7 +487,17 @@ export function useTeamTasks() {
 				}
 			}
 		},
-		[setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, activeTeam, authUser]
+		[
+			setActiveTeamTask,
+			setActiveUserTaskCookieCb,
+			updateOrganizationTeamEmployeeActiveTask,
+			activeTeam,
+			authUser,
+			$memberActiveTaskId,
+			$user,
+			tasksRef,
+			updateTask
+		]
 	);
 
 	const deleteEmployeeFromTasks = useCallback(

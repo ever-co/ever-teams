@@ -1,38 +1,21 @@
 {
 	"cli": {
+		"version": ">= 12.5.3",
 		"appVersionSource": "remote"
 	},
 	"build": {
 		"development": {
-			"extends": "production",
 			"developmentClient": true,
-			"distribution": "internal",
-			"ios": {
-				"simulator": true
-			},
-			"android": {
-				"buildType": "apk"
-			},
-			"channel": "development"
+			"distribution": "internal"
 		},
 		"preview": {
-			"extends": "production",
-			"distribution": "internal",
-			"channel": "preview",
-			"ios": {
-				"simulator": true
-			},
-			"android": {
-				"buildType": "apk"
-			}
+			"distribution": "internal"
 		},
 		"production": {
-			"autoIncrement": true,
-			"channel": "production",
-			"env": {
-				"GAUZY_API_URL": "https://api.ever.team",
-				"INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode"
-			}
+			"autoIncrement": true
+		},
+		"internal": {
+			"distribution": "internal"
 		}
 	},
 	"submit": {
@@ -46,7 +29,20 @@
 				"ascAppId": "APPLE_ID_PLACEHOLDER",
 				"ascApiKeyIssuerId": "APPSTORE_ISSUER_ID_PLACEHOLDER",
 				"ascApiKeyId": "APPSTORE_API_KEY_ID_PLACEHOLDER",
-				"ascApiKeyPath": "./AuthKey_R9QZ5LP8NK.p8"
+				"ascApiKeyPath": "./AuthKey_8A3H79GTF8.p8"
+			}
+		},
+		"internal": {
+			"android": {
+				"track": "internal",
+				"releaseStatus": "draft",
+				"changesNotSentForReview": false
+			},
+			"ios": {
+				"ascAppId": "APPLE_ID_PLACEHOLDER",
+				"ascApiKeyIssuerId": "APPSTORE_ISSUER_ID_PLACEHOLDER",
+				"ascApiKeyId": "APPSTORE_API_KEY_ID_PLACEHOLDER",
+				"ascApiKeyPath": "./AuthKey_8A3H79GTF8.p8"
 			}
 		}
 	}

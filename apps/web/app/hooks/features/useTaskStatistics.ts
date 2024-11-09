@@ -1,6 +1,6 @@
 'use client';
 
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask, Nullable } from '@app/interfaces';
 import {
 	activeTaskTimesheetStatisticsAPI,
 	allTaskTimesheetStatisticsAPI,
@@ -15,22 +15,21 @@ import {
 	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { useSyncRef } from '../useSyncRef';
-import { Nullable } from '@app/interfaces';
 import { useRefreshIntervalV2 } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { user } = useAuthenticateUser();
-	const [statActiveTask, setStatActiveTask] = useRecoilState(activeTaskStatisticsState);
-	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
-	const setTasksFetching = useSetRecoilState(tasksFetchingState);
-	const [allTaskStatistics, setAllTaskStatistics] = useRecoilState(allTaskStatisticsState);
+	const [statActiveTask, setStatActiveTask] = useAtom(activeTaskStatisticsState);
+	const [statTasks, setStatTasks] = useAtom(tasksStatisticsState);
+	const setTasksFetching = useSetAtom(tasksFetchingState);
+	const [allTaskStatistics, setAllTaskStatistics] = useAtom(allTaskStatisticsState);
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
@@ -41,8 +40,8 @@ export function useTaskStatistics(addSeconds = 0) {
 	const statTasksRef = useSyncRef(statTasks);
 
 	// Dep status
-	const timerStatus = useRecoilValue(timerStatusState);
-	const activeTeamTask = useRecoilValue(activeTeamTaskState);
+	const timerStatus = useAtomValue(timerStatusState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	/**
 	 * Get employee all tasks statistics  (API Call)

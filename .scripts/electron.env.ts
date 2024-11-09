@@ -1,6 +1,2 @@
-import { argv } from 'yargs';
-
-const environment = argv.environment;
-const isProd = environment === 'prod';
-
-console.log('Is Production: ' + isProd);
+import { DesktopEnvironmentManager } from './electron-desktop-environment/desktop-environment-manager';
+DesktopEnvironmentManager.generate();

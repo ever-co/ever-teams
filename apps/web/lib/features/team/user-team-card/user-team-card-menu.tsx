@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { AllPlansModal } from 'lib/features/daily-plan/all-plans-modal';
+import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -24,7 +25,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		edition,
 		memberInfo
 	});
-
+	const { toggleFavorite, isFavorite } = useFavoritesTask();
 	const t = useTranslations();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
 
@@ -36,6 +37,18 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			closable: true,
 			onClick: () => {
 				edition.task && edition.setEditMode(true);
+			},
+			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
+		},
+		{
+			name: edition.task
+				? isFavorite(edition.task)
+					? t('common.REMOVE_FAVORITE_TASK')
+					: t('common.ADD_FAVORITE_TASK')
+				: t('common.ADD_FAVORITE_TASK'),
+			closable: true,
+			onClick: () => {
+				edition.task && toggleFavorite(edition.task);
 			},
 			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 		},
@@ -81,7 +94,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	return (
 		<>
 			<Popover
-				className="relative w-full flex flex-col items-center justify-center"
+				className="relative flex flex-col items-center justify-center w-full"
 				ref={mergeRefs([
 					edition.estimateEditIgnoreElement.ignoreElementRef,
 					edition.taskEditIgnoreElement.ignoreElementRef
@@ -114,9 +127,9 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 							return (
 								<Card
 									shadow="custom"
-									className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-[10.75rem]"
+									className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-fit min-w-[10.75rem]"
 								>
-									<ul className="flex flex-col items-start">
+									<ul className="flex flex-col items-start w-full">
 										{menu.map((item, i) => {
 											const text = (
 												<Text
@@ -187,14 +200,14 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											);
 										})}
 										<HorizontalSeparator className="-mx-2" />
-										<ul className="w-full py-1 flex flex-col items-start">
+										<ul className="flex flex-col items-start w-full py-1">
 											<button
 												onClick={openAllPlansModal}
 												className={clsxm(
 													'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all'
 												)}
 											>
-												See Plan
+												{t('common.plan.SEE_PLANS')}
 											</button>
 										</ul>
 									</ul>

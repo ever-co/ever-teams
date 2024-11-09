@@ -47,12 +47,11 @@ const TeamMembersCardView: React.FC<Props> = ({
 		// TODO: update teamMembers index
 		handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
 		handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
-	}, [memberOrdereds, dragTeamMember, draggedOverTeamMember]);
+	}, [memberOrdereds, dragTeamMember, draggedOverTeamMember, handleChangeOrder]);
 
 	return (
 		<>
 			<ul className="mt-7">
-
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}

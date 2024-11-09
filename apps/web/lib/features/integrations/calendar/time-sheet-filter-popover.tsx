@@ -1,5 +1,5 @@
 import { useOrganizationTeams, useTeamTasks } from "@app/hooks";
-import { Button } from "@components/ui/button"
+import { Button } from "@components/ui/button";
 import { Modal } from "lib/components";
 import { statusOptions } from "@app/constants";
 import { MultiSelect } from "lib/components/custom-select/multi-select";

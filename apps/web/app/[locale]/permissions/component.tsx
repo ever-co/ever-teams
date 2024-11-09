@@ -10,7 +10,7 @@ import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from 'lib/co
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { fullWidthState } from '@app/stores/fullWidth';
 
@@ -20,9 +20,9 @@ const Permissions = () => {
 	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
 
 	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
-	const fullWidth = useRecoilValue(fullWidthState);
+	const fullWidth = useAtomValue(fullWidthState);
 
-	const [user] = useRecoilState(userState);
+	const [user] = useAtom(userState);
 	const { isTeamManager } = useIsMemberManager(user);
 
 	useEffect(() => {
@@ -63,14 +63,13 @@ const Permissions = () => {
 			</MainHeader>
 			<Container fullWidth={fullWidth} className="flex">
 				<Card className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
-					<div className="flex flex-col w-[35%] overflow-scroll gap-2 mt-5">
+					<div className="flex flex-col w-[35%] overflow-auto gap-2 mt-5">
 						{roles.map((role) => (
 							<div
-								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${
-									selectedRole && selectedRole.id === role.id
-										? 'bg-primary dark:bg-primary-light text-white'
-										: ''
-								}`}
+								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${selectedRole && selectedRole.id === role.id
+									? 'bg-primary dark:bg-primary-light text-white'
+									: ''
+									}`}
 								key={role?.id}
 								onClick={() => {
 									setSelectedRole(role);
@@ -83,9 +82,9 @@ const Permissions = () => {
 
 					<Divider type="VERTICAL" />
 
-					<div className="flex flex-col w-full pt-3 pl-5 overflow-scroll">
+					<div className="flex flex-col w-full pt-3 pl-5 overflow-auto">
 						{selectedRole && (
-							<div className="overflow-y-scroll">
+							<div className="overflow-y-auto">
 								<div className="flex w-full items-center justify-between gap-[2rem]">
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.TRACK_TIME')}
@@ -103,7 +102,7 @@ const Permissions = () => {
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
 									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										Estimate issue
+										{t('pages.settingsTeam.ESTIMATE_ISSUE')}
 									</Text>
 									<div className="flex flex-row items-center justify-between flex-grow-0 w-full">
 										<CommonToggle
@@ -275,6 +274,8 @@ const Permissions = () => {
 };
 
 function SelectRole() {
+	const t = useTranslations();
+
 	return (
 		<div className="mt-28">
 			<div className="m-auto w-[218px] h-[218px] rounded-full relative flex justify-center items-center text-center p-5 bg-[#6755c933] dark:bg-light--theme-light">
@@ -282,7 +283,7 @@ function SelectRole() {
 			</div>
 
 			<Text className="text-2xl font-normal text-center mt-10 text-[#282048] dark:text-light--theme">
-				Please Select any Role
+				{t("common.SELECT_ROLE")}
 			</Text>
 		</div>
 	);

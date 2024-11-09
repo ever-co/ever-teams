@@ -3,7 +3,7 @@ import { IInputProps } from '@app/interfaces/hooks';
 const Input = ({
 	label,
 	name,
-	type,
+	type = 'text',
 	placeholder,
 	required,
 	onChange,
@@ -38,10 +38,6 @@ const Input = ({
 			{errors && errors[name] && <span className="text-sm text-red-600 font-light">{errors[name]}</span>}
 		</div>
 	);
-};
-
-Input.defaultProps = {
-	type: 'text'
 };
 
 export default Input;

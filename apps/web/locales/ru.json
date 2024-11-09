@@ -1,5 +1,23 @@
 {
 	"TITLE": "Ever Teams",
+	"sidebar": {
+		"DASHBOARD": "Панель управления",
+		"PROJECTS": "Проекты",
+		"FAVORITES": "Избранное",
+		"TASKS": "Задачи",
+		"MY_TASKS": "Мои задачи",
+		"TEAMTASKS": "Задачи команды",
+		"MY_WORKS": "Мои работы",
+		"TIME_AND_ACTIVITY": "Время и активность",
+		"WORK_DIARY": "Рабочий дневник",
+		"REPORTS": "Отчеты",
+		"TIMESHEETS": "Табели учета рабочего времени",
+		"MANUAL_TIME_EDIT": "Ручное редактирование времени",
+		"WEEKLY_LIMIT": "Еженедельный лимит",
+		"ACTUAL_AND_EXPECTED_HOURS": "Фактические и ожидаемые часы",
+		"PAYMENTS_DUE": "Задолженность по платежам",
+		"PROJECT_BUDGET": "Бюджет проекта"
+	},
 	"common": {
 		"ACCEPT": "Принять",
 		"ACCEPTED": "Принято",
@@ -85,6 +103,10 @@
 		"PUBLIC_TASK_LABEL": "Сделать общедоступной",
 		"PRIVATE_TASK_LABEL": "Сделать закрытой",
 		"CREATE_TASK": "Создать новую задачу",
+		"REMOVE_FAVORITE_TASK": "Удалить задачу из избранного",
+		"ADD_FAVORITE_TASK": "Добавить задачу в избранное",
+		"NO_PROJECT": "Нет проекта",
+		"NO_FAVORITE_TASK": "Избранных задач пока нет",
 		"LINK_TASK": "Выбрать связанный вопрос",
 		"LINK": "Ссылка",
 		"LINKS": "Ссылки",
@@ -94,6 +116,7 @@
 		"DESCRIPTION": "Описание",
 		"CHILD_ISSUE_TASK": "Выбрать дочерний вопрос",
 		"CREATE_TEAM": "Создать новую команду",
+		"CREATE_PROJECT": "Создать новый проект",
 		"ALL_TEAMS": "Все команды",
 		"VERIFY_ACCOUNT_MSG": "Пожалуйста, подтвердите свою учетную запись перед началом использования приложения",
 		"CREATE_ROLE": "Создать роль",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "Добавить позже",
 		"DAILYPLAN": "Планируется",
 		"INVITATION_SENT": "Приглашение отправлено успешно",
-		"INVITATION_SENT_TO_USER": "Приглашение к команде было отправлено на {email}."
+		"INVITATION_SENT_TO_USER": "Приглашение к команде было отправлено на {email}.",
+		"timesheets": {
+			"SINGULAR": "Табель",
+			"PLURAL": "Табели"
+		},
+		"CALENDAR": "Календарь",
+		"SELECT": "Выбрать",
+		"SAVE_CHANGES": "Сохранить изменения",
+		"plan": {
+			"SINGULAR": "План",
+			"PLURAL": "Планы",
+			"CHOOSE_DATE": "Выберите дату, чтобы увидеть план",
+			"PLAN_NOT_FOUND": "План не найден",
+			"FOR_DATE": "ПЛАН НА {date}",
+			"FOR_TODAY": "Сегодняшний план",
+			"FOR_TOMORROW": "Завтрашний план",
+			"EDIT_PLAN": "Редактировать план",
+			"TRACKED_TIME": "Отслеживаемое время",
+			"SEE_PLANS": "Посмотреть планы",
+			"ADD_PLAN": "Agregar Plan",
+			"DELETE_THIS_PLAN": "Удалить этот план"
+		},
+		"COPY_ISSUE_LINK": "Скопировать ссылку на проблему",
+		"MAKE_A_COPY": "Сделать копию",
+		"ASSIGNEE": "Исполнитель",
+		"CHANGE_RELATIONS": "Изменить отношения",
+		"SET_AS_NEXT": "Установить следующим",
+		"MOVE_TO": "Переместить в",
+		"SELECT_DATE": "Выберите дату",
+		"SELECT_AND_CLOSE": "Выбрать и закрыть",
+		"SELECT_ROLE": "Пожалуйста, выберите роль",
+		"ADD_TIME": "Добавить время",
+		"VIEW_TIMESHEET": "Просмотреть табель",
+		"FILTER_TODAY": "Сегодня",
+		"FILTER_LAST_7_DAYS": "Последние 7 дней",
+		"FILTER_LAST_30_DAYS": "Последние 30 дней",
+		"FILTER_THIS_YEAR": "Этот год {year}",
+		"FILTER_CUSTOM_RANGE": "Пользовательский диапазон"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -296,7 +356,8 @@
 			"LOGIN": "Войти",
 			"SELECT_WORKSPACE": "Выберите рабочее пространство",
 			"ENTER_EMAIL": "Введите электронную почту",
-			"WORKSPACES_NOT_FOUND": "Рабочие пространства не найдены"
+			"WORKSPACES_NOT_FOUND": "Рабочие пространства не найдены",
+			"INVALID_CODE_TRY_AGAIN": "Неверный код. Пожалуйста, попробуйте еще раз."
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присоединиться к существующей команде",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "Название команды",
 			"TEAM_TYPE": "Тип команды",
 			"TIME_TRACKING": "Отслеживание времени",
-			"REQUIRE_PLAN_TO_TRACK": "Требовать план для отслеживания",
+			"ENFORCE_PLAN": "Принудить план",
 			"ADD_NEW_MEMBER": "Добавить нового участника",
 			"MANAGE_ASSIGNEES": "Управление назначенными",
 			"SEARCH_MEMBER": "Поиск участника",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "Изменение ролей/позиций",
 			"VIEW_DETAILS": "Просмотр деталей",
 			"NO_INVITATIONS": "На данный момент нет приглашений!",
-			"NO_MEMBERS": "На данный момент нет участников!"
+			"NO_MEMBERS": "На данный момент нет участников!",
+			"GO_TO_PERSONAL_SETTINGS": "Перейти в личные настройки",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Поделиться просмотрами профилей участников"
 		},
 		"invite": {
 			"HEADING_TITLE": "Пригласить участника в вашу команду",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "Мы на обслуживании ",
 			"HEADING_DESCRIPTION": "В настоящее время мы обновляем наш веб-сайт, чтобы лучше обслуживать вас. Пожалуйста, зайдите позже."
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "Учёт рабочего времени",
+			"TIMESHEET_VIEW_DETAILS": "Просмотреть детали",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "Одобрить выбранные",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "Отклонить выбранные",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "Удалить выбранные",
+			"HEADING_DESCRIPTION": "Это ваша личная панель учёта рабочего времени, показывающая, что требует вашего внимания сейчас.",
+			"GREETINGS": {
+				"GOOD_MORNING": "Доброе утро",
+				"GOOD_AFTERNOON": "Добрый день",
+				"GOOD_EVENING": "Добрый вечер"
+			},
+			"VIEWS": {
+				"LIST": "Список",
+				"CALENDAR": "Календарь"
+			},
+			"BILLABLE": {
+				"YES": "Да",
+				"NO": "Нет",
+				"BILLABLE": "Подлежащий оплате"
+			},
+			"LOADING": "Загрузка данных учета времени...",
+			"NO_ENTRIES_FOUND": "Записи учета времени не найдены",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Вы собираетесь отклонить выбранную запись, хотите продолжить?"
 		}
 	},
 	"timer": {
@@ -519,6 +607,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "Запланированное время работы на сегодня",
 			"TASKS_WITH_NO_ESTIMATIONS": "Задачи без оценки времени",
 			"START_WORKING_BUTTON": "Начать работу",
+			"TIMER_RUNNING": "Таймер уже запущен",
 			"WARNING_PLAN_ESTIMATION": "Пожалуйста, исправьте запланированные часы работы или пересчитайте задание(я)"
 		},
 		"TIME_ACTIVITY": "Активность",
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "План на сегодня",
+		"TASK_TIME": "время задачи",
+		"TOTAL_TODAY": "Итого сегодня",
 		"PLAN_FOR_TOMORROW": "План на завтра",
 		"PLAN_FOR_SOME_DAY": "План на какой-то день",
 		"ADD_TASK_TO_PLAN": "Добавить эту задачу в план",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "Пожалуйста, добавьте запланированное время",
 				"TASKS_ESTIMATION": "Пожалуйста, оцените все задачи",
 				"OPTIMIZE_PLAN": "Общее время оценки превышает запланированное время, пожалуйста, оптимизируйте ваш план",
-				"PLAN_MORE_TASKS": "Пожалуйста, добавьте больше задач в план"
+				"PLAN_MORE_TASKS": "Пожалуйста, добавьте больше задач в план",
+				"PLEASE_ADD_TASKS": "Пожалуйста, добавьте задачи"
 			}
 		},
 		"chang_active_task_popup": {

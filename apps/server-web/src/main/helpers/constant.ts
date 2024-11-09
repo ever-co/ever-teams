@@ -15,7 +15,9 @@ export const EventLists = {
   CHANGE_LANGUAGE: 'CHANGE_LANGUAGE',
   OPEN_WEB: 'OPEN_WEB',
   SERVER_WINDOW: 'SERVER_WINDOW',
-  RESTART_SERVER: 'RESTART_SERVER'
+  RESTART_SERVER: 'RESTART_SERVER',
+  CHANGE_THEME: 'CHANGE_THEME',
+  SETUP_WINDOW: 'SETUP_WINDOW'
 }
 
 export const SettingPageTypeMessage = {
@@ -35,7 +37,8 @@ export const SettingPageTypeMessage = {
   updateSetting: 'update-setting',
   updateSettingResponse: 'update-setting-response',
   updateCancel: 'update-cancel',
-  restartServer: 'restart-server'
+  restartServer: 'restart-server',
+  themeChange: 'theme-change'
 }
 
 export const ServerPageTypeMessage = {

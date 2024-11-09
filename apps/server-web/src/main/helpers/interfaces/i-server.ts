@@ -2,6 +2,8 @@ interface GeneralConfig {
     lang?: string
     autoUpdate?: boolean
     updateCheckPeriode?: string
+    theme?: string
+    setup?: boolean
     [key: string]: any
 }
 

@@ -1,40 +1,55 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { useAuthenticateUser, useCanSeeActivityScreen, useDailyPlan, useUserProfilePage } from '@app/hooks';
-import { TaskCard } from './task/task-card';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
+import { useAtom, useAtomValue } from 'jotai';
 import { AlertPopup, Container, HorizontalSeparator, NoData, ProgressBar, VerticalSeparator } from 'lib/components';
-import { clsxm } from '@app/utils';
+import { checkPastDate } from 'lib/utils';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { IoCalendarOutline } from 'react-icons/io5';
+
+import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
+import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
+import {
+	useAuthenticateUser,
+	useCanSeeActivityScreen,
+	useDailyPlan,
+	useTeamTasks,
+	useTimer,
+	useUserProfilePage
+} from '@app/hooks';
+import { useDateRange } from '@app/hooks/useDateRange';
+import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
+import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+import {
+	DAILY_PLAN_SUGGESTION_MODAL_DATE,
+	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
+	HAS_VISITED_OUTSTANDING_TASKS
+} from '@app/constants';
+import { IDailyPlan, ITeamTask } from '@app/interfaces';
 import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
+import { clsxm } from '@app/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { Button } from '@components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { formatDayPlanDate, formatIntegerToHour } from '@app/helpers';
-import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
 import { ReaderIcon, ReloadIcon, StarIcon } from '@radix-ui/react-icons';
+
 import {
-	OutstandingAll,
-	PastTasks,
-	Outstanding,
-	OutstandingFilterDate,
 	estimatedTotalTime,
-	getTotalTasks
+	getTotalTasks,
+	Outstanding,
+	OutstandingAll,
+	OutstandingFilterDate,
+	PastTasks
 } from './task/daily-plan';
 import { FutureTasks } from './task/daily-plan/future-tasks';
-import { Button } from '@components/ui/button';
-import { IoCalendarOutline } from 'react-icons/io5';
 import ViewsHeaderTabs from './task/daily-plan/views-header-tabs';
-import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from './task/task-block-card';
-import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
-import { handleDragAndDrop } from '@app/helpers/drag-and-drop';
-import { DragDropContext, Droppable, Draggable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { useDateRange } from '@app/hooks/useDateRange';
-import { checkPastDate } from 'lib/utils';
-
-import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useLocalStorageState } from '@app/hooks/useLocalStorageState';
+import { TaskCard } from './task/task-card';
+import moment from 'moment';
+import { usePathname } from 'next/navigation';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -44,13 +59,10 @@ export function UserProfilePlans() {
 
 	const profile = useUserProfilePage();
 	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
-	const fullWidth = useRecoilValue(fullWidthState);
+	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
-
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-
-
-	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useRecoilState(dataDailyPlanState);
+	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useAtom(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
 
 	const screenOutstanding = {
@@ -67,14 +79,29 @@ export function UserProfilePlans() {
 	const [filterFuturePlanData, setFilterFuturePlanData] = useState<IDailyPlan[]>(futurePlans);
 	const [filterPastPlanData, setFilteredPastPlanData] = useState<IDailyPlan[]>(pastPlans);
 	const [filterAllPlanData, setFilterAllPlanData] = useState<IDailyPlan[]>(sortedPlans);
+	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
+	const path = usePathname();
+	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
+	const { hasPlan } = useTimer();
+	const { activeTeam } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
 	useEffect(() => {
-		if (!getTotalTasks(todayPlan)) {
+		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
 			if (estimatedTotalTime(outstandingPlans).totalTasks) {
 				setCurrentTab('Outstanding');
 			}
+			if (haveSeenDailyPlanSuggestionModal == new Date().toISOString().split('T')[0]) {
+				if (!requirePlan || (requirePlan && hasPlan)) {
+					window.localStorage.setItem(
+						DAILY_PLAN_SUGGESTION_MODAL_DATE,
+						new Date().toISOString().split('T')[0]
+					);
+				}
+			}
 		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -90,19 +117,24 @@ export function UserProfilePlans() {
 		} else if (currentTab === 'Future Tasks') {
 			setCurrentDataDailyPlan(futurePlans);
 			setFilterFuturePlanData(filterDailyPlan(date as any, futurePlans));
+		} else if (currentTab === 'Outstanding') {
+			window.localStorage.setItem(
+				HAS_VISITED_OUTSTANDING_TASKS,
+				new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+			);
 		}
-	}, [currentTab, setCurrentDataDailyPlan, setDate, date]);
+	}, [currentTab, setCurrentDataDailyPlan, date, currentDataDailyPlan, futurePlans, pastPlans, sortedPlans]);
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
-			<Container fullWidth={fullWidth} className="pb-8 mb-5">
+			<Container fullWidth={fullWidth} className="">
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
-						<div>
-							<div className="w-full mt-10 mb-5 items-start flex justify-between">
-								<div className={clsxm('flex justify-start items-center gap-4 ')}>
+						<div className=" space-y-4">
+							<div className="flex items-center justify-between w-full">
+								<div className={clsxm('flex items-center gap-4 ')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
-										<div key={i} className="flex cursor-pointer justify-start items-center gap-4">
+										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 											<div
 												className={clsxm(
@@ -115,7 +147,9 @@ export function UserProfilePlans() {
 												}}
 											>
 												{t(
-													`task.tabFilter.${filter.toUpperCase().replace(' ', '_')}` as DottedLanguageObjectStringPaths
+													`task.tabFilter.${filter
+														.toUpperCase()
+														.replace(' ', '_')}` as DottedLanguageObjectStringPaths
 												)}
 												<span
 													className={clsxm(
@@ -138,8 +172,7 @@ export function UserProfilePlans() {
 										</div>
 									))}
 								</div>
-								<div className="flex flex-col items-end gap-2">
-									<ViewsHeaderTabs />
+								<div className="flex  items-center gap-2">
 									{currentTab === 'Outstanding' && (
 										<Select
 											onValueChange={(value) => {
@@ -149,7 +182,7 @@ export function UserProfilePlans() {
 											<SelectTrigger className="w-[120px] h-9 dark:border-dark--theme-light dark:bg-dark-high">
 												<SelectValue placeholder="Filter" />
 											</SelectTrigger>
-											<SelectContent className="cursor-pointer dark:bg-dark--theme-light border-none dark:border-dark--theme-light">
+											<SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
 												{Object.keys(screenOutstanding).map((item, index) => (
 													<SelectItem key={index} value={item}>
 														<div className="flex items-center space-x-1">
@@ -161,6 +194,7 @@ export function UserProfilePlans() {
 											</SelectContent>
 										</Select>
 									)}
+									<ViewsHeaderTabs />
 								</div>
 							</div>
 							{tabsScreens[currentTab]}
@@ -181,22 +215,29 @@ export function UserProfilePlans() {
  */
 function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	// Filter plans
-	let filteredPlans: IDailyPlan[] = [];
+	const filteredPlans = useRef<IDailyPlan[]>([]);
 	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
 	const [popupOpen, setPopupOpen] = useState(false);
 	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
-	const { setDate, date } = useDateRange(currentTab);
+	const { date } = useDateRange(currentTab);
+	const { activeTeam } = useTeamTasks();
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const t = useTranslations();
 
-	filteredPlans = sortedPlans;
-	if (currentTab === 'Today Tasks') filteredPlans = todayPlan;
+	if (currentTab === 'Today Tasks') {
+		filteredPlans.current = todayPlan;
+	} else {
+		filteredPlans.current = sortedPlans;
+	}
 
 	const canSeeActivity = useCanSeeActivityScreen();
-	const view = useRecoilValue(dailyPlanViewHeaderTabs);
+	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
-	const [plans, setPlans] = useState<IDailyPlan[]>(filteredPlans);
+	const [plans, setPlans] = useState(filteredPlans.current);
+
 	useEffect(() => {
-		setPlans(filterDailyPlan(date as any, filteredPlans));
-	}, [date, setDate]);
+		setPlans(filterDailyPlan(date as any, filteredPlans.current));
+	}, [date, filteredPlans.current]);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -218,7 +259,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between gap-3 w-full">
+									<div className="flex items-center justify-between w-full gap-3">
 										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
@@ -241,7 +282,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 													view === 'CARDS' && 'flex-col',
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-scroll',
+													view === 'BLOCKS' && 'overflow-x-auto',
 													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 												)}
 											>
@@ -313,21 +354,28 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																			variant="outline"
 																			className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 																		>
-																			Delete this plan
+																			{t('common.plan.DELETE_THIS_PLAN')}
 																		</Button>
 																	}
 																>
 																	{/*button confirm*/}
 																	<Button
 																		disabled={deleteDailyPlanLoading}
-																		onClick={() => deleteDailyPlan(plan.id ?? '')}
+																		onClick={() => {
+																			if (requirePlan) {
+																				localStorage.removeItem(
+																					DAILY_PLAN_SUGGESTION_MODAL_DATE
+																				);
+																			}
+																			deleteDailyPlan(plan.id ?? '');
+																		}}
 																		variant="destructive"
 																		className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																	>
 																		{deleteDailyPlanLoading && (
-																			<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+																			<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 																		)}
-																		Delete
+																		{t('common.DELETE')}
 																	</Button>
 																	{/*button cancel*/}
 																	<Button
@@ -335,7 +383,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 																		variant="outline"
 																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 																	>
-																		Cancel
+																		{t('common.CANCEL')}
 																	</Button>
 																</AlertPopup>
 															</div>
@@ -364,22 +412,29 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	const [time, setTime] = useState<number>(0);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
-	const t = useTranslations()
+	const t = useTranslations();
 	// Get all tasks's estimations time
 	// Helper function to sum times
-	const sumTimes = (tasks: ITeamTask[], key: any) =>
-		tasks
-			?.map((task: any) => task[key])
-			.filter((time): time is number => typeof time === 'number')
-			.reduce((acc, cur) => acc + cur, 0) ?? 0;
+	const sumTimes = useCallback((tasks: ITeamTask[], key: any) => {
+		return (
+			tasks
+				?.map((task: any) => task[key])
+				.filter((time): time is number => typeof time === 'number')
+				.reduce((acc, cur) => acc + cur, 0) ?? 0
+		);
+	}, []);
 
 	// Get all tasks' estimation and worked times
-	const estimatedTime = sumTimes(plan.tasks!, 'estimate');
-	const totalWorkTime = sumTimes(plan.tasks!, 'totalWorkedTime');
+	const estimatedTime = useMemo(() => (plan.tasks ? sumTimes(plan.tasks, 'estimate') : 0), [plan.tasks]);
+	const totalWorkTime = useMemo(() => (plan.tasks ? sumTimes(plan.tasks, 'totalWorkedTime') : 0), [plan.tasks]);
 
 	// Get completed and ready tasks from a plan
-	const completedTasks = plan.tasks?.filter((task) => task.status === 'completed').length ?? 0;
-	const readyTasks = plan.tasks?.filter((task) => task.status === 'ready').length ?? 0;
+	const completedTasks = useMemo(
+		() => plan.tasks?.filter((task) => task.status === 'completed').length ?? 0,
+		[plan.tasks]
+	);
+
+	const readyTasks = useMemo(() => plan.tasks?.filter((task) => task.status === 'ready').length ?? 0, [plan.tasks]);
 
 	// Total tasks for the plan
 	const totalTasks = plan.tasks?.length ?? 0;
@@ -389,7 +444,9 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-6 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'}  items-center gap-5`}
+			className={`mb-6 flex ${
+				planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
+			}  items-center gap-5`}
 		>
 			{/* Planned Time */}
 
@@ -419,7 +476,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 						/>
 						<span>
 							{updateDailyPlanLoading ? (
-								<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+								<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 							) : (
 								<TickSaveIcon
 									className="w-5 cursor-pointer"
@@ -498,15 +555,13 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 	);
 }
 
-export function EmptyPlans({ planMode }: { planMode?: FilterTabs }) {
-	const t = useTranslations()
+export function EmptyPlans({ planMode }: Readonly<{ planMode?: FilterTabs }>) {
+	const t = useTranslations();
 
 	return (
 		<div className="xl:mt-20">
 			<NoData
-				text={planMode == 'Today Tasks' ?
-					t('dailyPlan.NO_TASK_PLANNED_TODAY') :
-					t('dailyPlan.NO_TASK_PLANNED')}
+				text={planMode == 'Today Tasks' ? t('dailyPlan.NO_TASK_PLANNED_TODAY') : t('dailyPlan.NO_TASK_PLANNED')}
 				component={<ReaderIcon className="w-14 h-14" />}
 			/>
 		</div>

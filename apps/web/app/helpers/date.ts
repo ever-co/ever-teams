@@ -1,5 +1,6 @@
 import moment from 'moment';
 import * as momentTimezone from 'moment-timezone';
+import { TranslationHooks } from 'next-intl';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -151,7 +152,6 @@ export const formatIntegerToHour = (number: number) => {
 	return formattedHour;
 };
 
-
 export const isTestDateRange = (itemDate: Date, from?: Date, to?: Date) => {
 	if (from && to) {
 		return itemDate >= from && itemDate <= to;
@@ -162,9 +162,66 @@ export const isTestDateRange = (itemDate: Date, from?: Date, to?: Date) => {
 	} else {
 		return true; // or false, depending on your default logic
 	}
-}
-
+};
 
 export function convertHourToSeconds(hours: number) {
 	return hours * 60 * 60;
+}
+
+/**
+ * A helper function to parse a time string
+ *
+ * @param timeString - The time string to be formated.
+ *
+ * @returns {string} The formated time string
+ */
+export function formatTimeString(timeString: string): string {
+	// Extract hours and minutes using regex
+	const matches = timeString.match(/(\d+)h\s*(\d+)m|\b(\d+)m\b|\b(\d+)h\b/);
+
+	let result = '';
+
+	if (matches) {
+		const hours = matches[1] || matches[4]; // Group 1 for hours when both exist, Group 4 for hours only
+		const minutes = matches[2] || matches[3]; // Group 2 for minutes when both exist, Group 3 for minutes only
+
+		if (parseInt(hours) > 0) {
+			result += `${hours}h`;
+		}
+
+		if (parseInt(minutes) > 0) {
+			if (result) {
+				result += ' '; // Add space if hours were included
+			}
+			result += `${minutes}m`;
+		}
+	}
+
+	return result.length ? result : '0h 00m';
+}
+
+export const getGreeting = (t: TranslationHooks) => {
+	const GREETING_TIMES = {
+		MORNING_START: 5,
+		AFTERNOON_START: 12,
+		EVENING_START: 18
+	} as const
+	const currentHour = new Date().getHours();
+
+	if (currentHour >= GREETING_TIMES.MORNING_START && currentHour < GREETING_TIMES.AFTERNOON_START) {
+		return t('pages.timesheet.GREETINGS.GOOD_MORNING');
+	} else if (currentHour >= GREETING_TIMES.AFTERNOON_START && currentHour < GREETING_TIMES.EVENING_START) {
+		return t('pages.timesheet.GREETINGS.GOOD_AFTERNOON');
+	} else {
+		return t('pages.timesheet.GREETINGS.GOOD_EVENING');
+	}
+}
+
+export const formatDate = (dateStr: string | Date): string => {
+	try {
+		return moment(dateStr).format('ddd DD MMM YYYY');
+	} catch (error) {
+		console.error('Invalid date format:', error);
+		return '';
+	}
 }

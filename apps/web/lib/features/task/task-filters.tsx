@@ -31,6 +31,7 @@ import { AddManualTimeModal } from '../manual-time/add-manual-time-modal';
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
 import { estimatedTotalTime, getTotalTasks } from './daily-plan';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
+import { usePathname } from 'next/navigation';
 
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
@@ -68,9 +69,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
 		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
+	const path = usePathname();
 
 	// const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
-	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked')
+	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>({} as StatusFilter);
@@ -125,7 +127,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'dailyplan',
 			name: t('common.DAILYPLAN' as DottedLanguageObjectStringPaths),
 			description: t('task.tabFilter.DAILYPLAN_DESCRIPTION' as DottedLanguageObjectStringPaths),
-			count: profile.tasksGrouped.planned
+			count: isNaN(profile.tasksGrouped.planned) ? 0 : profile.tasksGrouped.planned
 		});
 		tabs.push({
 			tab: 'stats',
@@ -172,20 +174,22 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
 	useEffect(() => {
-		if (dailyPlanSuggestionModalDate) {
-			if (!getTotalTasks(todayPlan)) {
-				if (estimatedTotalTime(outstandingPlans).totalTasks) {
-					setTab('dailyplan');
-				} else if (profile.tasksGrouped.assignedTasks.length) {
-					setTab('assigned');
-				} else {
-					setTab('unassigned');
+		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
+			if (estimatedTotalTime(outstandingPlans).totalTasks) {
+				setTab('dailyplan');
+			} else {
+				if (!getTotalTasks(todayPlan)) {
+					if (profile.tasksGrouped.assignedTasks.length) {
+						setTab('assigned');
+					} else {
+						setTab('unassigned');
+					}
 				}
 			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dailyPlanSuggestionModalDate]);
+	}, []);
 
 	// Reset status applied filter status when filter changed
 	useEffect(() => {
@@ -284,7 +288,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				className="w-full"
 				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
 			>
-				{hook.filterType !== undefined && <Divider className="mt-4" />}
+				{hook.filterType !== undefined && <Divider className="mt-1" />}
 				{hook.filterType === 'status' && (
 					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
 				)}
@@ -353,7 +357,7 @@ function InputFilters({ hook, profile }: Props) {
 				)}
 			>
 				<span className="text-xl">+</span>
-				Add time
+				{t('common.ADD_TIME')}
 			</Button>
 
 			{/* Assign task combobox */}
@@ -389,7 +393,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex justify-center md:justify-start items-center mt-4 space-x-1 w-full md:space-x-4 md:mt-0">
+		<nav className="flex justify-center md:justify-start items-center space-x-1 w-full md:space-x-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -398,7 +402,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								`md:text-lg text-xs text-gray-500 font-normal outline-none md:py-[1.5rem] px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
+								`md:text-lg text-xs text-gray-500 font-normal outline-none md:py-[.5rem] px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
 								active && ['text-primary dark:text-white']
 							)}
 						>
@@ -415,7 +419,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 								<div
 									className={clsxm(
 										'bg-primary dark:bg-white',
-										'h-[0.1875rem] absolute -bottom-3 left-0 right-0 w-full'
+										'h-[0.1875rem] absolute -bottom-4 left-0 right-0 w-full'
 									)}
 								/>
 							)}

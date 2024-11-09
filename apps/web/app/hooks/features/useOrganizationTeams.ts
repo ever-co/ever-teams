@@ -26,8 +26,8 @@ import {
 	teamsFetchingState,
 	timerStatusState
 } from '@app/stores';
-import { useCallback, useEffect } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useCallback, useEffect, useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
@@ -44,7 +44,7 @@ import { LAST_WORSPACE_AND_TEAM } from '@app/constants';
  * setTeamUpdate: A function that can be used to update the teams state.
  */
 function useTeamsState() {
-	const [teams, setTeams] = useRecoilState(organizationTeamsState);
+	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 
 	const setTeamsUpdate = useCallback(
@@ -73,11 +73,11 @@ function useTeamsState() {
  */
 function useCreateOrganizationTeam() {
 	const { loading, queryCall } = useQuery(createOrganizationTeamAPI);
-	const [teams, setTeams] = useRecoilState(organizationTeamsState);
+	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
-	const setActiveTeamId = useSetRecoilState(activeTeamIdState);
+	const setActiveTeamId = useSetAtom(activeTeamIdState);
 	const { refreshToken, $user } = useAuthenticateUser();
-	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
+	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 
 	const createOrganizationTeam = useCallback(
 		(name: string) => {
@@ -158,10 +158,126 @@ function useUpdateOrganizationTeam() {
 
 	return { updateOrganizationTeam, loading };
 }
-
 /**
- * It returns an object with all the data and functions needed to manage the teams in the organization
+ * A powerful hook for managing organization teams with complete CRUD operations and state management.
+ * This hook centralizes all team-related operations and states in one place.
+ *
+ * @returns {Object} An object containing the following properties and methods:
+ *
+ * @property {() => Promise<void>} loadTeamsData
+ * Function that fetches and synchronizes the latest teams data. It handles:
+ * - Loading the initial teams data
+ * - Updating the active team
+ * - Managing team cookies
+ * - Syncing with local storage
+ *
+ * @property {boolean} loading
+ * Global loading state for team operations
+ *
+ * @property {IOrganizationTeamList[]} teams
+ * Array containing all teams in the organization. Each team includes:
+ * - Team details (id, name, etc.)
+ * - Member information
+ * - Projects associated
+ * - Roles and permissions
+ *
+ * @property {boolean} teamsFetching
+ * Specific loading state for team fetching operations
+ *
+ * @property {IOrganizationTeamList} activeTeam
+ * Currently selected team with all its details
+ *
+ * @property {(team: IOrganizationTeamList) => void} setActiveTeam
+ * Sets the active team and handles:
+ * - Cookie updates
+ * - Local storage sync
+ * - Organization ID updates
+ * - Project ID updates
+ *
+ * @property {(name: string) => Promise<any>} createOrganizationTeam
+ * Creates a new team with validation:
+ * - Checks for duplicate names
+ * - Validates name length
+ * - Updates necessary cookies
+ * - Refreshes authentication token
+ *
+ * @property {boolean} createOTeamLoading
+ * Loading state for team creation
+ *
+ * @property {any} firstLoadTeamsData
+ * Initial data loaded when the hook is first initialized
+ *
+ * @property {(data: IOrganizationTeamUpdate) => Promise<any>} editOrganizationTeam
+ * Updates existing team information with full validation
+ *
+ * @property {boolean} editOrganizationTeamLoading
+ * Loading state for team editing operations
+ *
+ * @property {(id: string) => Promise<any>} deleteOrganizationTeam
+ * Deletes a team and handles cleanup operations
+ *
+ * @property {boolean} deleteOrganizationTeamLoading
+ * Loading state for team deletion
+ *
+ * @property {ITeamManager[]} activeTeamManagers
+ * List of managers for the active team with their roles and permissions
+ *
+ * @property {(team: IOrganizationTeamList, data?: Partial<IOrganizationTeamUpdate>) => void} updateOrganizationTeam
+ * Updates team details with partial data support
+ *
+ * @property {boolean} updateOTeamLoading
+ * Loading state for team updates
+ *
+ * @property {(teams: IOrganizationTeamList[]) => void} setTeams
+ * Updates the entire teams list with proper state management
+ *
+ * @property {boolean} isTeamMember
+ * Indicates if current user is a team member
+ *
+ * @property {boolean} removeUserFromAllTeamLoading
+ * Loading state for user removal operations
+ *
+ * @property {(userId: string) => Promise<any>} removeUserFromAllTeam
+ * Removes user from all teams with proper cleanup:
+ * - Updates user permissions
+ * - Refreshes authentication
+ * - Updates team states
+ *
+ * @property {boolean} loadingTeam
+ * Loading state for single team operations
+ *
+ * @property {boolean} isTrackingEnabled
+ * Indicates if time tracking is enabled for current user
+ *
+ * @property {string | null} memberActiveTaskId
+ * ID of current user's active task, null if no active task
+ *
+ * @property {boolean} isTeamMemberJustDeleted
+ * Flag indicating recent member deletion
+ *
+ * @property {boolean}  isTeamManager
+ * If the active user is a team manager
+ *
+ * @property {(value: boolean) => void} setIsTeamMemberJustDeleted
+ * Updates the member deletion state
+ *
+ * @example
+ * ```typescript
+ * const {
+ *   teams,
+ *   activeTeam,
+ *   createOrganizationTeam,
+ *   updateOrganizationTeam
+ * } = useOrganizationTeams();
+ *
+ * // Create new team
+ * await createOrganizationTeam("New Team Name");
+ *
+ * // Update team
+ * await updateOrganizationTeam(activeTeam, { name: "Updated Name" });
+ * ```
  */
+
 export function useOrganizationTeams() {
 	const { loading, queryCall, loadingRef } = useQuery(getOrganizationTeamsAPI);
 	const {
@@ -170,24 +286,26 @@ export function useOrganizationTeams() {
 		loadingRef: loadingRefTeam
 	} = useQuery(getOrganizationTeamAPI);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeam = useAtomValue(activeTeamState);
 
-	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
 	const loadingTeamsRef = useSyncRef(loading);
 
-	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
-	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
-	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useRecoilState(isTeamMemberJustDeletedState);
-	// const [isTeamJustDeleted, setIsTeamJustDeleted] = useRecoilState(isTeamJustDeletedState);
+	const [activeTeamId, setActiveTeamId] = useAtom(activeTeamIdState);
+	const [teamsFetching, setTeamsFetching] = useAtom(teamsFetchingState);
+	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
+	// const [isTeamJustDeleted, setIsTeamJustDeleted] = useAtom(isTeamJustDeletedState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
-	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
+	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
-	const timerStatus = useRecoilValue(timerStatusState);
+	const timerStatus = useAtomValue(timerStatusState);
 
-	// const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
+	const [isTeamManager, setIsTeamManager] = useState(false);
+	// const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
 
+	const members = activeTeam?.members || [];
 	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
 
 	const memberActiveTaskId =
@@ -215,6 +333,14 @@ export function useOrganizationTeams() {
 	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } =
 		useQuery(removeUserFromAllTeamAPI);
 
+	const isManager = useCallback(() => {
+		const $u = user;
+		const isM = members.find((member) => {
+			const isUser = member.employee.userId === $u?.id;
+			return isUser && member.role && member.role.name === 'MANAGER';
+		});
+		setIsTeamManager(!!isM);
+	}, [user, members]);
 	useEffect(() => {
 		setTeamsFetching(loading);
 	}, [loading, setTeamsFetching]);
@@ -365,6 +491,7 @@ export function useOrganizationTeams() {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
+		isManager();
 	}, [activeTeam]);
 
 	return {
@@ -386,6 +513,7 @@ export function useOrganizationTeams() {
 		updateOTeamLoading,
 		setTeams,
 		isTeamMember,
+		isTeamManager,
 		removeUserFromAllTeamLoading,
 		removeUserFromAllTeamQueryCall,
 		removeUserFromAllTeam,

@@ -5,23 +5,29 @@ import { useRefreshIntervalV2 } from '@app/hooks';
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
-import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
+import { TeamMembersView, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { fullWidthState } from '@app/stores/fullWidth';
+import { IssuesView } from '@app/constants';
 
 const Team = () => {
 	const router = useRouter();
 	const params = useParams();
 
-	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
+	const {
+		loadPublicTeamData,
+		loadPublicTeamMiscData,
+		teamsFetching,
+		publicTeam: publicTeamData
+	} = usePublicOrganizationTeams();
 	const t = useTranslations();
-	const [publicTeam, setPublic] = useRecoilState(publicState);
-	const fullWidth = useRecoilValue(fullWidthState);
+	const [publicTeam, setPublic] = useAtom(publicState);
+	const fullWidth = useAtomValue(fullWidthState);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
@@ -41,6 +47,7 @@ const Team = () => {
 			setPublic(true);
 		}
 	}, [loadPublicTeamData, setPublic, params?.teamId, params?.profileLink]);
+
 	const loadMicsData = useCallback(() => {
 		if (params?.teamId && params?.profileLink) {
 			loadPublicTeamMiscData(params?.profileLink as string, params?.teamId as string);
@@ -50,6 +57,7 @@ const Team = () => {
 	useEffect(() => {
 		loadData();
 	}, [loadData]);
+
 	useEffect(() => {
 		loadMicsData();
 	}, [loadMicsData]);
@@ -58,6 +66,7 @@ const Team = () => {
 	useRefreshIntervalV2(loadMicsData, 30 * 1000, true);
 
 	const breadcrumb = [...JSON.parse(t('pages.home.BREADCRUMB'))];
+
 	return (
 		<MainLayout publicTeam={publicTeam}>
 			<MainHeader fullWidth={fullWidth}>
@@ -73,7 +82,16 @@ const Team = () => {
 			<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
 			<Container fullWidth={fullWidth}>
-				<TeamMembers publicTeam={publicTeam} />
+				<TeamMembersView
+					teamsFetching={teamsFetching}
+					fullWidth={fullWidth}
+					members={publicTeamData?.members || []}
+					view={IssuesView.CARDS}
+					blockViewMembers={[]}
+					publicTeam={publicTeam}
+				/>
+
+				{/* <TeamMembers publicTeam={publicTeam} /> */}
 			</Container>
 		</MainLayout>
 	);

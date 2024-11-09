@@ -1,32 +1,14 @@
 import { ILocalTimerStatus, ITimerStatus } from '@app/interfaces/ITimer';
-import { atom } from 'recoil';
+import { atom } from 'jotai';
 
-export const timerStatusState = atom<ITimerStatus | null>({
-	key: 'timerStatusState',
-	default: null
-});
+export const timerStatusState = atom<ITimerStatus | null>(null);
 
-export const timerStatusFetchingState = atom<boolean>({
-	key: 'timerStatusFetchingState',
-	default: false
-});
+export const timerStatusFetchingState = atom<boolean>(false);
 
-export const timeCounterState = atom<number>({
-	key: 'timeCounterState',
-	default: 0
-});
+export const timeCounterState = atom<number>(0);
 
-export const timerSecondsState = atom<number>({
-	key: 'timerSecondsState',
-	default: 0
-});
+export const timerSecondsState = atom<number>(0);
 
-export const timeCounterIntervalState = atom<number>({
-	key: 'timeCounterIntervalState',
-	default: 0
-});
+export const timeCounterIntervalState = atom<number>(0);
 
-export const localTimerStatusState = atom<ILocalTimerStatus | null>({
-	key: 'localTimerStatusState',
-	default: null
-});
+export const localTimerStatusState = atom<ILocalTimerStatus | null>(null);

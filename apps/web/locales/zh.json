@@ -1,5 +1,23 @@
 {
 	"TITLE": "永恒团队",
+	"sidebar": {
+		"DASHBOARD": "仪表板",
+		"PROJECTS": "项目",
+		"FAVORITES": "收藏夹",
+		"TASKS": "任务",
+		"MY_TASKS": "我的任务",
+		"TEAMTASKS": "团队任务",
+		"MY_WORKS": "我的工作",
+		"TIME_AND_ACTIVITY": "时间和活动",
+		"WORK_DIARY": "工作日志",
+		"REPORTS": "报告",
+		"TIMESHEETS": "时间表",
+		"MANUAL_TIME_EDIT": "手动时间编辑",
+		"WEEKLY_LIMIT": "每周限制",
+		"ACTUAL_AND_EXPECTED_HOURS": "实际和预期小时",
+		"PAYMENTS_DUE": "到期付款",
+		"PROJECT_BUDGET": "项目预算"
+	},
 	"common": {
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
@@ -86,6 +104,10 @@
 		"PUBLIC_TASK_LABEL": "设为公开",
 		"PRIVATE_TASK_LABEL": "设为私密",
 		"CREATE_TASK": "创建新任务",
+		"REMOVE_FAVORITE_TASK": "从收藏夹中移除任务",
+		"ADD_FAVORITE_TASK": "添加任务到收藏夹",
+		"NO_PROJECT": "没有项目",
+		"NO_FAVORITE_TASK": "尚无收藏任务",
 		"LINK_TASK": "选择相关议题",
 		"LINK": "链接",
 		"LINKS": "链接",
@@ -95,6 +117,7 @@
 		"DESCRIPTION": "描述",
 		"CHILD_ISSUE_TASK": "选择子议题",
 		"CREATE_TEAM": "创建新团队",
+		"CREATE_PROJECT": "创建新项目",
 		"ALL_TEAMS": "所有团队",
 		"VERIFY_ACCOUNT_MSG": "使用应用前请先验证您的账户",
 		"CREATE_ROLE": "创建角色",
@@ -202,7 +225,44 @@
 		"SKIP_ADD_LATER": "稍后添加",
 		"DAILYPLAN": "計劃中",
 		"INVITATION_SENT": "邀请已发送",
-		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。"
+		"INVITATION_SENT_TO_USER": "团队邀请已发送给 {email}。",
+		"timesheets": {
+			"SINGULAR": "时间表",
+			"PLURAL": "时间表"
+		},
+		"CALENDAR": "日历",
+		"SELECT": "Select",
+		"SAVE_CHANGES": "保存更改",
+		"plan": {
+			"SINGULAR": "计划",
+			"PLURAL": "计划",
+			"CHOOSE_DATE": "选择一个日期以查看计划",
+			"PLAN_NOT_FOUND": "未找到计划",
+			"FOR_DATE": "针对日期 {date}",
+			"FOR_TODAY": "今天的计划",
+			"FOR_TOMORROW": "明天的计划",
+			"EDIT_PLAN": "编辑计划",
+			"TRACKED_TIME": "跟踪时间",
+			"SEE_PLANS": "查看计划",
+			"ADD_PLAN": "添加计划",
+			"DELETE_THIS_PLAN": "删除此计划"
+		},
+		"COPY_ISSUE_LINK": "复制问题链接",
+		"MAKE_A_COPY": "制作副本",
+		"ASSIGNEE": "受让人",
+		"CHANGE_RELATIONS": "更改关系",
+		"SET_AS_NEXT": "设置为下一个",
+		"MOVE_TO": "移动到",
+		"SELECT_DATE": "选择日期",
+		"SELECT_AND_CLOSE": "选择并关闭",
+		"SELECT_ROLE": "请选择角色",
+		"ADD_TIME": "添加时间",
+		"VIEW_TIMESHEET": "查看工时表",
+		"FILTER_TODAY": "今天",
+		"FILTER_LAST_7_DAYS": "过去7天",
+		"FILTER_LAST_30_DAYS": "过去30天",
+		"FILTER_THIS_YEAR": "今年 {year}",
+		"FILTER_CUSTOM_RANGE": "自定义范围"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -296,7 +356,8 @@
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
-			"WORKSPACES_NOT_FOUND": "工作区未找到"
+			"WORKSPACES_NOT_FOUND": "工作区未找到",
+			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
@@ -356,7 +417,7 @@
 			"TEAM_NAME": "团队名称",
 			"TEAM_TYPE": "团队类型",
 			"TIME_TRACKING": "时间跟踪",
-			"REQUIRE_PLAN_TO_TRACK": "需要一个计划来跟踪",
+			"ENFORCE_PLAN": "强制计划",
 			"ADD_NEW_MEMBER": "添加新成员",
 			"MANAGE_ASSIGNEES": "管理受分配者",
 			"SEARCH_MEMBER": "搜索成员",
@@ -450,7 +511,9 @@
 			"ROLES_POSITIONS_CHANGE": "角色/职位更改",
 			"VIEW_DETAILS": "查看详情",
 			"NO_INVITATIONS": "目前没有邀请!",
-			"NO_MEMBERS": "目前没有成员!"
+			"NO_MEMBERS": "目前没有成员!",
+			"GO_TO_PERSONAL_SETTINGS": "转到个人设置",
+			"SHARE_MEMBERS_PROFILE_VIEWS": "共享成员资料视图"
 		},
 		"unauthorized": {
 			"TITLE": "未經授權",
@@ -494,6 +557,31 @@
 		"maintenance": {
 			"HEADING_TITLE": "我們正在維護中",
 			"HEADING_DESCRIPTION": "目前，我們正在更新我們的網站，以便更好地為您服務。請稍後再回來查看。"
+		},
+		"timesheet": {
+			"TIMESHEET_TITLE": "工时表",
+			"TIMESHEET_VIEW_DETAILS": "查看详情",
+			"TIMESHEET_ACTION_APPROVE_SELECTED": "批准选定的",
+			"TIMESHEET_ACTION_REJECT_SELECTED": "拒绝选定的",
+			"TIMESHEET_ACTION_DELETE_SELECTED": "删除选定的",
+			"HEADING_DESCRIPTION": "这是您的个人工时表仪表板，显示需要您注意的事项。",
+			"GREETINGS": {
+				"GOOD_MORNING": "早上好",
+				"GOOD_AFTERNOON": "下午好",
+				"GOOD_EVENING": "晚上好"
+			},
+			"VIEWS": {
+				"LIST": "列表视图",
+				"CALENDAR": "日历视图"
+			},
+			"BILLABLE": {
+				"YES": "是",
+				"NO": "否",
+				"BILLABLE": "可计费"
+			},
+			"LOADING": "加载时间表数据...",
+			"NO_ENTRIES_FOUND": "未找到时间表记录",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "你即将拒绝选定的条目，是否继续？"
 		}
 	},
 	"timer": {
@@ -536,6 +624,7 @@
 			"WORK_TIME_PLANNED_PLACEHOLDER": "今天计划的工作时间",
 			"TASKS_WITH_NO_ESTIMATIONS": "没有时间估算的任务",
 			"START_WORKING_BUTTON": "开始工作",
+			"TIMER_RUNNING": "计时器已经在运行",
 			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
 		}
 	},
@@ -588,6 +677,8 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "今日计划",
+		"TASK_TIME": "任务时间",
+		"TOTAL_TODAY": "今天的总计",
 		"PLAN_FOR_TOMORROW": "明日计划",
 		"PLAN_FOR_SOME_DAY": "未来计划",
 		"ADD_TASK_TO_PLAN": "添加此任务到计划",
@@ -614,7 +705,8 @@
 				"PLANNED_TIME": "请添加计划时间",
 				"TASKS_ESTIMATION": "请估算所有任务",
 				"OPTIMIZE_PLAN": "总预计时间超过您的计划时间，请优化您的计划",
-				"PLAN_MORE_TASKS": "请在计划中添加更多任务"
+				"PLAN_MORE_TASKS": "请在计划中添加更多任务",
+				"PLEASE_ADD_TASKS": "请添加任务"
 			}
 		},
 		"chang_active_task_popup": {

@@ -7,48 +7,93 @@ import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
 import { IssuesView } from '@app/constants';
 import TeamMembersBlockView from './team-members-block-view';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@app/stores/task-filter';
 import { OT_Member } from '@app/interfaces';
 import { Container } from 'lib/components';
 import { fullWidthState } from '@app/stores/fullWidth';
+import { useMemo } from 'react';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
 	kanbanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: Readonly<TeamMembersProps>) {
 	const { user } = useAuthenticateUser();
-	const activeFilter = useRecoilValue(taskBlockFilterState);
-	const fullWidth = useRecoilValue(fullWidthState);
-	const { activeTeam } = useOrganizationTeams();
-	const { teamsFetching } = useOrganizationTeams();
-	const members = (activeTeam?.members || []).filter(member => member.employee !== null);
-	const orderedMembers = [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
+	const activeFilter = useAtomValue(taskBlockFilterState);
+	const fullWidth = useAtomValue(fullWidthState);
+	const { activeTeam, teamsFetching } = useOrganizationTeams();
 
-	const blockViewMembers =
-		activeFilter == 'all'
+	const [members, orderedMembers] = useMemo(() => {
+		const members = (activeTeam?.members || []).filter((member) => member.employee !== null);
+		const orderedMembers = [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
+
+		return [members, orderedMembers];
+	}, [activeTeam]);
+
+	const blockViewMembers = useMemo(() => {
+		return activeFilter == 'all'
 			? orderedMembers
 			: activeFilter == 'idle'
 				? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
 				: orderedMembers.filter((m) => m.timerStatus === activeFilter);
+	}, [activeFilter, orderedMembers]);
 
-	const currentUser = members.find((m) => m.employee.userId === user?.id);
-	const $members = members
-		.filter((member) => member.id !== currentUser?.id)
-		.sort((a, b) => {
-			if (a.order && b.order) return a.order > b.order ? -1 : 1;
-			else return -1;
-		});
+	const currentUser = useMemo(() => members.find((m) => m.employee.userId === user?.id), [members, user?.id]);
+
 	const $teamsFetching = teamsFetching && members.length === 0;
 
+	return (
+		<TeamMembersView
+			teamsFetching={$teamsFetching}
+			members={members}
+			currentUser={currentUser}
+			fullWidth={fullWidth}
+			publicTeam={publicTeam}
+			view={view}
+			blockViewMembers={blockViewMembers}
+			isMemberActive={user?.isEmailVerified}
+		/>
+	);
+}
+
+type TeamMembersViewProps = {
+	fullWidth?: boolean;
+	members: OT_Member[];
+	currentUser?: OT_Member;
+	teamsFetching: boolean;
+	view: IssuesView;
+	blockViewMembers: OT_Member[];
+	publicTeam: boolean;
+	isMemberActive?: boolean;
+};
+
+export function TeamMembersView({
+	fullWidth,
+	members,
+	currentUser,
+	teamsFetching,
+	view,
+	blockViewMembers,
+	publicTeam,
+	isMemberActive
+}: TeamMembersViewProps) {
 	let teamMembersView;
+
+	const $members = useMemo(() => {
+		return members
+			.filter((member) => member.id !== currentUser?.id)
+			.sort((a, b) => {
+				if (a.order && b.order) return a.order > b.order ? -1 : 1;
+				else return -1;
+			});
+	}, [members, currentUser]);
 
 	switch (true) {
 		case members.length === 0:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
 						<InviteUserTeamCardSkeleton />
@@ -65,12 +110,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 			teamMembersView = (
 				<>
 					{/* <UserTeamCardHeader /> */}
-					<Container fullWidth={fullWidth}>
+					<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 						<TeamMembersCardView
 							teamMembers={$members}
 							currentUser={currentUser}
 							publicTeam={publicTeam}
-							teamsFetching={$teamsFetching}
+							teamsFetching={teamsFetching}
 						/>
 					</Container>
 				</>
@@ -78,7 +123,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 			break;
 		case view === IssuesView.TABLE:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<Transition
 						show={!!currentUser}
 						enter="transition-opacity duration-75"
@@ -92,7 +137,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 							teamMembers={$members}
 							currentUser={currentUser}
 							publicTeam={publicTeam}
-							active={user?.isEmailVerified}
+							active={isMemberActive}
 						/>
 					</Transition>
 				</Container>
@@ -101,28 +146,29 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 
 		case view == IssuesView.BLOCKS:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<TeamMembersBlockView
 						teamMembers={blockViewMembers}
 						currentUser={currentUser}
 						publicTeam={publicTeam}
-						teamsFetching={$teamsFetching}
+						teamsFetching={teamsFetching}
 					/>
 				</Container>
 			);
 			break;
 		default:
 			teamMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<TeamMembersCardView
 						teamMembers={$members}
 						currentUser={currentUser}
 						publicTeam={publicTeam}
-						teamsFetching={$teamsFetching}
+						teamsFetching={teamsFetching}
 					/>
 				</Container>
 			);
 	}
+
 	return teamMembersView;
 }
 

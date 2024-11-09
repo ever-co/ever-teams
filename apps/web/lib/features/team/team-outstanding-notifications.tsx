@@ -1,12 +1,14 @@
 'use client';
-import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
 import { IDailyPlan, IEmployee, IUser } from '@app/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { estimatedTotalTime } from '../task/daily-plan';
+import { HAS_VISITED_OUTSTANDING_TASKS } from '@app/constants';
+import moment from 'moment';
 
 interface IEmployeeWithOutstanding {
 	employeeId: string | undefined;
@@ -14,18 +16,17 @@ interface IEmployeeWithOutstanding {
 }
 
 export function TeamOutstandingNotifications() {
-	const { dailyPlan, getEmployeeDayPlans, outstandingPlans } = useDailyPlan();
-
+	const { dailyPlan, getAllDayPlans, outstandingPlans } = useDailyPlan();
+	const { activeTeam } = useOrganizationTeams();
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	useEffect(() => {
-		// getAllDayPlans();
-		getEmployeeDayPlans(user?.employee.id || '');
-	}, [getEmployeeDayPlans, user?.employee.id]);
+		getAllDayPlans();
+	}, [activeTeam, getAllDayPlans]);
 
 	return (
 		<div className="flex flex-col gap-4">
-			{outstandingPlans && outstandingPlans.length > 0 && (
+			{outstandingPlans.length > 0 && (
 				<UserOutstandingNotification outstandingPlans={outstandingPlans} user={user} />
 			)}
 
@@ -36,38 +37,49 @@ export function TeamOutstandingNotifications() {
 	);
 }
 
-function UserOutstandingNotification({ outstandingPlans, user }: { outstandingPlans: IDailyPlan[]; user?: IUser }) {
+const UserOutstandingNotification = memo(function UserOutstandingNotification({
+	outstandingPlans,
+	user
+}: {
+	outstandingPlans: IDailyPlan[];
+	user?: IUser;
+}) {
 	const t = useTranslations();
 
-	// Notification will be displayed 6 hours after the user closed it
-	const REAPPEAR_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds;
-	const DISMISSAL_TIMESTAMP_KEY = 'user-saw-notif';
+	// Notification will be displayed by next day
 
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const [visible, setVisible] = useState(false);
-	const outStandingTasksCount = estimatedTotalTime(
-		outstandingPlans.map((plan) => plan.tasks?.map((task) => task))
-	).totalTasks;
+
+	const outStandingTasksCount = useMemo(
+		() => estimatedTotalTime(outstandingPlans.map((plan) => plan.tasks?.map((task) => task))).totalTasks,
+		[outstandingPlans]
+	);
+
+	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 
 	useEffect(() => {
-		const checkNotification = () => {
-			const alreadySeen = window && parseInt(window?.localStorage.getItem(DISMISSAL_TIMESTAMP_KEY) || '0', 10);
-			const currentTime = new Date().getTime();
-
-			if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
-				setVisible(true);
+		if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
+			setVisible(false);
+		} else {
+			setVisible(true);
+			if (!lastVisited) {
+				window?.localStorage.setItem(
+					HAS_VISITED_OUTSTANDING_TASKS,
+					new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
+				);
 			}
-		};
+		}
 
-		checkNotification();
-		const intervalId = setInterval(checkNotification, REAPPEAR_INTERVAL);
-		return () => clearInterval(intervalId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onClose = () => {
-		window && window?.localStorage.setItem(DISMISSAL_TIMESTAMP_KEY, new Date().getTime().toString());
+		window.localStorage.setItem(
+			HAS_VISITED_OUTSTANDING_TASKS,
+			new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+		);
 		setVisible(false);
 	};
 
@@ -105,34 +117,37 @@ function UserOutstandingNotification({ outstandingPlans, user }: { outstandingPl
 			)}
 		</>
 	);
-}
+});
 
-function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstandingTasks: IDailyPlan[] }) {
+const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUsersNotification({
+	outstandingTasks
+}: {
+	outstandingTasks: IDailyPlan[];
+}) {
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
-	// Notification will be displayed 6 hours after the user closed it
-	const REAPPEAR_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds;
-	const MANAGER_DISMISSAL_TIMESTAMP_KEY = 'manager-saw-outstanding-notif';
+	// Notification will be displayed by next day
 
 	const [visible, setVisible] = useState(false);
 
-	const employeeWithOutstanding = outstandingTasks
-		.filter((plan) => plan.employeeId !== user?.employee.id)
-		.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+	const employeeWithOutstanding = useMemo(
+		() =>
+			outstandingTasks
 
-		.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0);
-			return planDate.getTime() <= today.getTime();
-		})
-		.map((plan) => ({
-			...plan,
-			tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-		}))
-		.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
-		.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee }));
+				.filter((plan) => {
+					if (plan.employeeId === user?.employee.id) return false;
+					if (!plan.date) return false;
+
+					const isTodayOrBefore = moment(plan.date).isSameOrBefore(moment().endOf('day'));
+					if (!isTodayOrBefore) return false;
+
+					const hasIncompleteTasks = plan.tasks?.some((task) => task.status !== 'completed');
+					return hasIncompleteTasks;
+				})
+				.map((plan) => ({ employeeId: plan.employeeId, employee: plan.employee })),
+		[outstandingTasks, user?.employee.id]
+	);
 
 	const uniqueEmployees: IEmployeeWithOutstanding[] = employeeWithOutstanding.reduce(
 		(acc: IEmployeeWithOutstanding[], current) => {
@@ -150,25 +165,29 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 		[]
 	);
 
+	const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
+
 	useEffect(() => {
-		const checkNotification = () => {
-			const alreadySeen =
-				window && parseInt(window?.localStorage.getItem(MANAGER_DISMISSAL_TIMESTAMP_KEY) || '0', 10);
-			const currentTime = new Date().getTime();
-
-			if (!alreadySeen || currentTime - alreadySeen > REAPPEAR_INTERVAL) {
-				setVisible(true);
+		if (lastVisited == new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]) {
+			setVisible(false);
+		} else {
+			setVisible(true);
+			if (!lastVisited) {
+				window?.localStorage.setItem(
+					HAS_VISITED_OUTSTANDING_TASKS,
+					new Date(moment().subtract(1, 'days').format('YYYY-MM-DD')).toISOString().split('T')[0]
+				);
 			}
-		};
+		}
 
-		checkNotification();
-		const intervalId = setInterval(checkNotification, REAPPEAR_INTERVAL);
-		return () => clearInterval(intervalId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onClose = () => {
-		window && window?.localStorage.setItem(MANAGER_DISMISSAL_TIMESTAMP_KEY, new Date().getTime().toString());
+		window.localStorage.setItem(
+			HAS_VISITED_OUTSTANDING_TASKS,
+			new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0]
+		);
 		setVisible(false);
 	};
 	return (
@@ -199,4 +218,4 @@ function ManagerOutstandingUsersNotification({ outstandingTasks }: { outstanding
 			)}
 		</>
 	);
-}
+});

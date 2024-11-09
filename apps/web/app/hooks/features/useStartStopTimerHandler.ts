@@ -7,6 +7,7 @@ import {
 	TASKS_ESTIMATE_HOURS_MODAL_DATE,
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@app/constants';
+import { estimatedTotalTime } from 'lib/features/task/daily-plan';
 
 export function useStartStopTimerHandler() {
 	const {
@@ -60,6 +61,11 @@ export function useStartStopTimerHandler() {
 		[activeTeamTask?.id, hasPlan?.tasks]
 	);
 
+	const tasksEstimationTimes = useMemo(
+		() => (hasPlan && hasPlan.tasks ? estimatedTotalTime(hasPlan.tasks).timesEstimated / 3600 : 0),
+		[hasPlan]
+	);
+
 	const enforceTaskSoftCloseModal = () => {
 		_enforceTaskSoftCloseModal();
 		openAddTasksEstimationHoursModal();
@@ -82,13 +88,13 @@ export function useStartStopTimerHandler() {
 					if (tasksEstimateHoursModalDate != currentDate) {
 						openAddTasksEstimationHoursModal();
 					} else {
-						startTimer();
+						startTimerOrAskEstimate();
 					}
 				} else {
 					openEnforcePlannedTaskSoftModal();
 				}
 			} else {
-				startTimer();
+				startTimerOrAskEstimate();
 			}
 		};
 
@@ -100,10 +106,10 @@ export function useStartStopTimerHandler() {
 				if (!hasWorkedHours) {
 					openAddDailyPlanWorkHoursModal();
 				} else {
-					startTimer();
+					startTimerOrAskEstimate();
 				}
 			} else {
-				startTimer();
+				startTimerOrAskEstimate();
 			}
 		};
 
@@ -118,15 +124,32 @@ export function useStartStopTimerHandler() {
 					if (dailyPlanEstimateHoursModalDate != currentDate) {
 						handleMissingDailyPlanWorkHour();
 					} else {
-						startTimer();
+						startTimerOrAskEstimate();
 					}
 				} else {
 					if (tasksEstimateHoursModalDate != currentDate) {
 						openAddTasksEstimationHoursModal();
 					} else {
-						startTimer();
+						startTimerOrAskEstimate();
 					}
 				}
+			} else {
+				startTimerOrAskEstimate();
+			}
+		};
+
+		/**
+		 * Check if there is warning for 'enforce' mode. If not,
+		 * start tracking
+		 */
+		const startTimerOrAskEstimate = () => {
+			if (
+				requirePlan &&
+				(!areAllTasksEstimated ||
+					!hasWorkedHours ||
+					Math.abs(Number(hasPlan?.workTimePlanned) - tasksEstimationTimes) > 1)
+			) {
+				openAddTasksEstimationHoursModal();
 			} else {
 				startTimer();
 			}
@@ -139,7 +162,7 @@ export function useStartStopTimerHandler() {
 		if (timerStatusFetching || !canRunTimer) return;
 		if (timerStatus?.running) {
 			stopTimer();
-		} else if (requirePlan && !isActiveTaskPlaned) {
+		} else if (requirePlan && hasPlan && !isActiveTaskPlaned) {
 			openEnforcePlannedTaskModal();
 		} else {
 			if (
@@ -147,7 +170,7 @@ export function useStartStopTimerHandler() {
 				tasksEstimateHoursModalDate == currentDate &&
 				dailyPlanEstimateHoursModalDate == currentDate
 			) {
-				startTimer();
+				startTimerOrAskEstimate();
 			} else {
 				if (dailyPlanSuggestionModalDate != currentDate) {
 					if (!hasPlan) {
@@ -162,14 +185,13 @@ export function useStartStopTimerHandler() {
 						if (areAllTasksEstimated) {
 							handleMissingDailyPlanWorkHour();
 						} else {
-							startTimer();
+							startTimerOrAskEstimate();
 						}
 					} else {
-						startTimer();
+						startTimerOrAskEstimate();
 					}
 				} else {
-					// Default action to start the timer
-					startTimer();
+					startTimerOrAskEstimate();
 				}
 			}
 		}
@@ -187,6 +209,7 @@ export function useStartStopTimerHandler() {
 		requirePlan,
 		startTimer,
 		stopTimer,
+		tasksEstimationTimes,
 		timerStatus?.running,
 		timerStatusFetching
 	]);

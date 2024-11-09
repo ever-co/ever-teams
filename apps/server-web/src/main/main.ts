@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path';
 import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
@@ -14,10 +14,14 @@ import { WebServer } from './helpers/interfaces';
 import { replaceConfig } from './helpers';
 import Log from 'electron-log';
 import MenuBuilder from './menu';
+import { config } from '../configs/config';
 
 
 console.log = Log.log;
 Object.assign(console, Log.functions);
+
+
+app.name = config.DESCRIPTION;
 
 
 
@@ -36,6 +40,7 @@ let intervalUpdate: NodeJS.Timeout;
 let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
+let setupWindow: BrowserWindow | any = null;
 let SettingMenu: any = null;
 let ServerWindowMenu: any = null;
 
@@ -90,8 +95,8 @@ i18nextMainBackend.on('initialized', () => {
 let trayMenuItems: any = [];
 
 const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'assets/icons/gauzy')
-  : path.join(__dirname, '../../assets/icons/gauzy');
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../../assets');
 
 const getAssetPath = (...paths: string[]): string => {
   return path.join(RESOURCES_PATH, ...paths);
@@ -111,7 +116,7 @@ const resourceDir = {
 };
 const resourcesFiles = {
   webServer: 'standalone/apps/web/server.js',
-  iconTray: 'icons/tray/icon.png'
+  iconTray: 'icons/icon.png'
 }
 
 const devServerPath = path.join(__dirname, resourceDir.webServer, resourcesFiles.webServer);
@@ -145,16 +150,18 @@ const installExtensions = async () => {
 };
 
 
-const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
+const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDOW') => {
   if (isDebug) {
     await installExtensions();
   }
 
   const defaultOptionWindow = {
+    title: app.name,
+    frame: true,
     show: false,
     width: 1024,
     height: 728,
-    icon: getAssetPath('icon.png'),
+    icon: getAssetPath('icons/icon.png'),
     maximizable: false,
     resizable: false,
     webPreferences: {
@@ -193,6 +200,15 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW') => {
         ServerWindowMenu = new MenuBuilder(logWindow);
       }
       ServerWindowMenu.buildMenu();
+      break;
+    case 'SETUP_WINDOW':
+      setupWindow = new BrowserWindow(defaultOptionWindow);
+      url = resolveHtmlPath('index.html', 'setup');
+      setupWindow?.loadURL(url);
+      mainBindings(ipcMain, setupWindow, fs);
+      setupWindow.on('closed', () => {
+        setupWindow = null;
+      })
       break;
     default:
       break;
@@ -249,7 +265,7 @@ const onInitApplication = () => {
   LocalStore.setDefaultServerConfig(); // check and set default config
   createIntervalAutoUpdate()
   trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-  tray = _initTray(trayMenuItems, getAssetPath('icon.png'));
+  tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
   i18nextMainBackend.on('languageChanged', (lng) => {
     if (i18nextMainBackend.isInitialized) {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
@@ -359,6 +375,16 @@ const onInitApplication = () => {
     })
   })
 
+  eventEmitter.on(EventLists.CHANGE_THEME, (data) => {
+    LocalStore.updateConfigSetting({
+      general: {
+        theme: data
+      }
+    })
+    logWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
+    settingWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
+  })
+
   eventEmitter.on(EventLists.gotoAbout, async () => {
     if (!settingWindow) {
       await createWindow('SETTING_WINDOW');
@@ -403,7 +429,17 @@ const onInitApplication = () => {
 
 (async () => {
   await app.whenReady()
-  onInitApplication();
+  const storeConfig:WebServer = LocalStore.getStore('config');
+  if (storeConfig?.general?.setup) {
+    onInitApplication();
+  } else {
+    if (!setupWindow) {
+      await createWindow('SETUP_WINDOW');
+    }
+    if (setupWindow) {
+      setupWindow?.show()
+    }
+  }
 })()
 
 app.on('window-all-closed', () => {
@@ -438,12 +474,23 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
           }
         }
       )
-      event.sender.send(IPC_TYPES.SETTING_PAGE, {
-        type: SettingPageTypeMessage.mainResponse, data: {
-          status: true,
-          isServerRun: isServerRun
-        }
-      });
+      if (arg.isSetup) {
+        LocalStore.updateConfigSetting({
+          general: {
+            setup: true
+          }
+        });
+        setupWindow?.close();
+        onInitApplication();
+        eventEmitter.emit(EventLists.SERVER_WINDOW);
+      } else {
+        event.sender.send(IPC_TYPES.SETTING_PAGE, {
+          type: SettingPageTypeMessage.mainResponse, data: {
+            status: true,
+            isServerRun: isServerRun
+          }
+        });
+      }
       break;
     case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
@@ -461,6 +508,9 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
       break;
     case SettingPageTypeMessage.restartServer:
       eventEmitter.emit(EventLists.RESTART_SERVER)
+      break;
+    case SettingPageTypeMessage.themeChange:
+      eventEmitter.emit(EventLists.CHANGE_THEME, arg.data)
       break;
     default:
       break;
@@ -500,6 +550,11 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
   }
 })
 
+ipcMain.handle('current-theme', async () => {
+  const setting: WebServer = LocalStore.getStore('config');
+  return setting.general?.theme;;
+})
+
 const createIntervalAutoUpdate = () => {
   if (intervalUpdate) {
     clearInterval(intervalUpdate)
@@ -508,10 +563,10 @@ const createIntervalAutoUpdate = () => {
   if (setting.general?.autoUpdate && setting.general.updateCheckPeriode) {
     const checkIntervalSecond = parseInt(setting.general.updateCheckPeriode);
     if (!Number.isNaN(checkIntervalSecond)) {
-      const intevalMS = checkIntervalSecond * 60 * 1000;
+      const intervalMS = checkIntervalSecond * 60 * 1000;
       intervalUpdate = setInterval(() => {
         updater.checkUpdateNotify();
-      }, intevalMS)
+      }, intervalMS)
     }
   }
 }

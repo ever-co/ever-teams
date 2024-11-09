@@ -9,13 +9,15 @@ import Image from 'next/image';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
 
 import Link from 'next/link';
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { ChangeEvent, useCallback, useEffect, useRef, useMemo, useState } from 'react';
+import { useAtom } from 'jotai';
 import CreateParentTask from '../ParentTask';
 import TitleLoader from './title-loader';
 import { useTranslations } from 'next-intl';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@app/utils';
+import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
+import { Heart } from 'lucide-react';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -31,9 +33,11 @@ const TaskTitleBlock = () => {
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
-	const [task] = useRecoilState(detailedTaskState);
+	const [task] = useAtom(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
+	const { toggleFavorite, isFavorite } = useFavoritesTask();
+	const isFavoriteTask = useMemo(() => (task ? isFavorite(task) : false), [task, isFavorite]);
 	//Hooks and functions
 	useEffect(() => {
 		if (!edit) {
@@ -137,7 +141,7 @@ const TaskTitleBlock = () => {
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col justify-start items-center gap-2">
+						<div className="flex flex-col items-center justify-start gap-2">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
@@ -214,6 +218,28 @@ const TaskTitleBlock = () => {
 						<ParentTaskBadge task={task} />
 						<ParentTaskInput task={task} />
 					</div>
+					{/* Favorites */}
+					{task ? (
+						<button
+							className="flex items-center gap-1 cursor-pointer w-fit h-fit"
+							onClick={() => toggleFavorite(task)}
+						>
+							{isFavoriteTask ? (
+								<svg
+									className="w-5 h-5"
+									fill="currentColor"
+									width={20}
+									height={20}
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path d="M14 20.408c-.492.308-.903.546-1.192.709-.153.086-.308.17-.463.252h-.002a.75.75 0 01-.686 0 16.709 16.709 0 01-.465-.252 31.147 31.147 0 01-4.803-3.34C3.8 15.572 1 12.331 1 8.513 1 5.052 3.829 2.5 6.736 2.5 9.03 2.5 10.881 3.726 12 5.605 13.12 3.726 14.97 2.5 17.264 2.5 20.17 2.5 23 5.052 23 8.514c0 3.818-2.801 7.06-5.389 9.262A31.146 31.146 0 0114 20.408z" />
+								</svg>
+							) : (
+								<Heart className="w-5 h-5" />
+							)}
+						</button>
+					) : null}
 				</div>
 
 				<CopyTooltip text={task?.taskNumber || ''}>

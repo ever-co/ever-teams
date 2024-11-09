@@ -1,10 +1,11 @@
 import { Modal, Card, Text } from 'lib/components';
 import { Button } from '@components/ui/button';
 import { useCallback, useMemo } from 'react';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@app/constants';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE, HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL } from '@app/constants';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useAuthenticateUser } from '@app/hooks';
+import { useAuthenticateUser, useTeamTasks, useTimer } from '@app/hooks';
+import { usePathname } from 'next/navigation';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -13,24 +14,38 @@ interface ISuggestDailyPlanModalProps {
 
 export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const { isOpen, closeModal } = props;
-
+	const { hasPlan } = useTimer();
+	const { activeTeam } = useTeamTasks();
 	const { user } = useAuthenticateUser();
 	const name = useMemo(
 		() => user?.name || user?.firstName || user?.lastName || user?.username || '',
 		[user?.firstName, user?.lastName, user?.name, user?.username]
 	);
-
+	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const path = usePathname();
 	const t = useTranslations();
 
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 
 	const handleCloseModal = useCallback(() => {
-		localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate);
+		if (!requirePlan || (requirePlan && hasPlan)) {
+			localStorage.setItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL, currentDate);
+		}
+		if (path.split('/')[1] == 'profile') {
+			if (!requirePlan || (requirePlan && hasPlan)) {
+				localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate);
+			}
+		}
 		closeModal();
-	}, [closeModal, currentDate]);
+	}, [closeModal, currentDate, hasPlan, path, requirePlan]);
 
 	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon={false}>
+		<Modal
+			closeOnOutsideClick={requirePlan}
+			isOpen={isOpen}
+			closeModal={handleCloseModal}
+			showCloseIcon={requirePlan}
+		>
 			<Card className="w-full" shadow="custom">
 				<div className="flex flex-col items-center justify-between">
 					<div className="mb-7">

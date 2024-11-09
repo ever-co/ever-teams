@@ -6,7 +6,7 @@ import { useDailyPlan } from '@app/hooks';
 import { HorizontalSeparator } from 'lib/components';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { useRecoilValue } from 'recoil';
+import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useState } from 'react';
@@ -17,21 +17,25 @@ interface IOutstandingFilterDate {
 }
 export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
-	const view = useRecoilValue(dailyPlanViewHeaderTabs);
-	const [outstandingTasks, setOutstandingTasks] = useState<IDailyPlan[]>(outstandingPlans)
+	const view = useAtomValue(dailyPlanViewHeaderTabs);
+	const [outstandingTasks, setOutstandingTasks] = useState<IDailyPlan[]>(outstandingPlans);
 	return (
 		<div className="flex flex-col gap-6">
 			{outstandingTasks?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, outstandingTasks, setOutstandingTasks)}>
+				<DragDropContext
+					onDragEnd={(result) => handleDragAndDrop(result, outstandingTasks, setOutstandingTasks)}
+				>
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={outstandingTasks?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}>
+						defaultValue={outstandingTasks?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
+					>
 						{outstandingTasks?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
-								className="dark:border-slate-600 !border-none">
+								className="dark:border-slate-600 !border-none"
+							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
 									<div className="flex items-center justify-between gap-3 w-full">
 										<div className="text-lg min-w-max">
@@ -52,7 +56,7 @@ export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 													view === 'CARDS' && 'flex-col',
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-scroll'
+													view === 'BLOCKS' && 'overflow-x-auto'
 												)}
 											>
 												{plan.tasks?.map((task, index) =>
@@ -82,7 +86,6 @@ export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 																	/>
 																</div>
 															)}
-
 														</Draggable>
 													) : (
 														<Draggable key={task.id} draggableId={task.id} index={index}>

@@ -53,7 +53,7 @@ export function LazyRender<T extends object>({ items, children, itemsPerPage = 1
 		return () => {
 			window.cancelIdleCallback(cancelableIdlCallback);
 		};
-	}, [page, items, itemsRef]);
+	}, [page, items, itemsRef, itemsPerPage]);
 
 	return (
 		<>

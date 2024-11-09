@@ -20,7 +20,7 @@ export const ServerComponent = (props: IServerComponent) => {
     <>
       <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12 min-h-screen">
         <form method="post" onSubmit={saveSetting}>
-          <div className="rounded-lg bg-gray-50 px-16 py-10 mt-5">
+          <div className="rounded-lg bg-gray-50 dark:bg-[#25272D] px-16 py-10 mt-5 border-2 border-gray-200 dark:border-gray-600">
             <div className="flex items-center">
               <div className="flex w-full flex-wrap">
                 <div className="md:flex md:items-center mb-5 w-full">
@@ -97,7 +97,7 @@ export const ServerComponent = (props: IServerComponent) => {
             </div>
           </div>
           <button
-            className="ml-2 mt-10 block rounded-full border-4 border-transparent bg-blue-400 px-6 py-2 text-center text-base font-medium text-blue-100 outline-8 hover:outline hover:duration-300"
+            className="ml-2 mt-10 block rounded-lg border-4 border-transparent bg-violet-800 px-6 py-2 text-center text-base font-medium text-gray-200 outline-8"
             type="submit"
           >
             {t('FORM.BUTTON.SAVE_SETTING')}

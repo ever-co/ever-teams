@@ -43,7 +43,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState, useTransition } from 'react';
-import { SetterOrUpdater, useRecoilValue } from 'recoil';
+import { SetStateAction, useAtomValue } from 'jotai';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -64,6 +64,8 @@ import {
 	EnforcePlanedTaskModal,
 	SuggestDailyPlanModal
 } from '../daily-plan';
+import { SetAtom } from 'types';
+import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 
 type Props = {
 	active?: boolean;
@@ -73,7 +75,7 @@ type Props = {
 	viewType?: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	editTaskId?: string | null;
-	setEditTaskId?: SetterOrUpdater<string | null>;
+	setEditTaskId?: SetAtom<[SetStateAction<string | null>], void>;
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
 	plan?: IDailyPlan;
@@ -98,7 +100,7 @@ export function TaskCard(props: Props) {
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
-	const seconds = useRecoilValue(timerSecondsState);
+	const seconds = useAtomValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
@@ -178,7 +180,7 @@ export function TaskCard(props: Props) {
 					{/* Task information */}
 					<TaskInfo
 						task={task}
-						className="px-4 w-full"
+						className="w-full px-4"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
 						dayPlanTab={planMode}
@@ -235,9 +237,9 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex  h-full justify-center items-center xl:justify-between w-1/5 lg:px-3 2xl:w-52 3xl:w-80">
+				<div className="flex items-center justify-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<div className=" flex items-center justify-center">
+					<div className="flex items-center justify-center ">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load) => setLoading(load)}
@@ -245,7 +247,7 @@ export function TaskCard(props: Props) {
 						/>
 					</div>
 					{/* TaskCardMenu */}
-					<div className=" shrink-0  flex items-end justify-end mt-2 xl:mt-0 text-end">
+					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0 text-start">
 						{task && currentMember && (
 							<TaskCardMenu
 								task={task}
@@ -277,10 +279,10 @@ export function TaskCard(props: Props) {
 					)} */}
 				</div>
 				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
+					<TaskInfo task={task} className="w-full px-4 mb-4" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
-							<div className="flex items-end mx-auto py-4 space-x-2">
+							<div className="flex items-end py-4 mx-auto space-x-2">
 								<TaskEstimateInfo
 									memberInfo={memberInfo}
 									edition={taskEdition}
@@ -294,10 +296,10 @@ export function TaskCard(props: Props) {
 
 				{viewType === 'unassign' && (
 					<>
-						<UsersTaskAssigned className="px-3 mx-auto w-full py-4" task={task} />
+						<UsersTaskAssigned className="w-full px-3 py-4 mx-auto" task={task} />
 					</>
 				)}
-				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
+				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
@@ -326,7 +328,7 @@ function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & 
 
 	return (
 		<div className={clsxm('flex justify-center items-center', className)}>
-			<div className="flex flex-col justify-center items-center">
+			<div className="flex flex-col items-center justify-center">
 				{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
 				<span className="text-sm font-medium text-center">
 					{members.length > 0
@@ -469,6 +471,7 @@ function TimerButtonCall({
 					plan={hasPlan}
 					open={modals.isEnforceTaskModalOpen}
 					task={activeTeamTask}
+					openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
 				/>
 			)}
 		</>
@@ -541,6 +544,8 @@ function TaskCardMenu({
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
+
+	const { toggleFavorite, isFavorite } = useFavoritesTask();
 	const handleAssignment = useCallback(() => {
 		if (viewType === 'unassign') {
 			memberInfo?.assignTask(task);
@@ -611,6 +616,19 @@ function TaskCardMenu({
 										>
 											{t('common.TASK_DETAILS')}
 										</Link>
+									</li>
+									<li className="mb-2">
+										<span
+											onClick={() => toggleFavorite(task)}
+											className={clsxm(
+												'font-normal whitespace-nowrap transition-all',
+												'hover:font-semibold hover:transition-all'
+											)}
+										>
+											{isFavorite(task)
+												? t('common.REMOVE_FAVORITE_TASK')
+												: t('common.ADD_FAVORITE_TASK')}
+										</span>
 									</li>
 									<li className="mb-3">
 										<span
@@ -788,7 +806,7 @@ export function PlanTask({
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TODAY')
 						)}
@@ -797,7 +815,7 @@ export function PlanTask({
 				{planMode === 'tomorow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TOMORROW')
 						)}
@@ -829,7 +847,10 @@ export function AddTaskToPlanComponent({ task, employee }: { task: ITeamTask; em
 export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; member?: OT_Member; plan?: IDailyPlan }) {
 	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
-	const data: IDailyPlanTasksUpdate = { taskId: task.id, employeeId: member?.employeeId };
+	const data: IDailyPlanTasksUpdate = {
+		taskId: task.id,
+		employeeId: member?.employeeId
+	};
 	const onClick = () => {
 		removeTaskFromPlan(data, plan?.id ?? '');
 	};
@@ -849,7 +870,10 @@ export function RemoveTaskFromPlan({ task, plan, member }: { task: ITeamTask; me
 export function RemoveManyTaskFromPlan({ task, member }: { task: ITeamTask; member?: OT_Member }) {
 	// const t = useTranslations();
 	const { removeManyTaskPlans } = useDailyPlan();
-	const data: IRemoveTaskFromManyPlans = { plansIds: [], employeeId: member?.employeeId };
+	const data: IRemoveTaskFromManyPlans = {
+		plansIds: [],
+		employeeId: member?.employeeId
+	};
 	const onClick = () => {
 		removeManyTaskPlans(data, task.id ?? '');
 	};
