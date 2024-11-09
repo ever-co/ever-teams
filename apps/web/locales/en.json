@@ -254,7 +254,15 @@
 		"SET_AS_NEXT": "Set as next",
 		"MOVE_TO": "Move to",
 		"SELECT_DATE": "Select date",
-		"SELECT_AND_CLOSE": "Select & Close"
+		"SELECT_AND_CLOSE": "Select & Close",
+		"SELECT_ROLE": "Please Select any Role",
+		"ADD_TIME": "Add Time",
+		"VIEW_TIMESHEET": "View timesheet",
+		"FILTER_TODAY": "Today",
+		"FILTER_LAST_7_DAYS": "Last 7 Days",
+		"FILTER_LAST_30_DAYS": "Last 30 Days",
+		"FILTER_THIS_YEAR": "This year {year}",
+		"FILTER_CUSTOM_RANGE": "Custom Range"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -568,10 +576,12 @@
 			},
 			"BILLABLE": {
 				"YES": "Yes",
-				"NO": "No"
+				"NO": "No",
+				"BILLABLE": "BILLABLE"
 			},
 			"LOADING": "Loading timesheet data...",
-			"NO_ENTRIES_FOUND": "No timesheet entries found"
+			"NO_ENTRIES_FOUND": "No timesheet entries found",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?"
 		}
 	},
 	"timer": {

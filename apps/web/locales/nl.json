@@ -254,7 +254,15 @@
 		"SET_AS_NEXT": "Instellen als volgende",
 		"MOVE_TO": "Verplaatsen naar",
 		"SELECT_DATE": "Selecteer datum",
-		"SELECT_AND_CLOSE": "Selecteren en sluiten"
+		"SELECT_AND_CLOSE": "Selecteren en sluiten",
+		"SELECT_ROLE": "Selecteer een rol",
+		"ADD_TIME": "Tijd toevoegen",
+		"VIEW_TIMESHEET": "Bekijk tijdregistratie",
+		"FILTER_TODAY": "Vandaag",
+		"FILTER_LAST_7_DAYS": "Laatste 7 dagen",
+		"FILTER_LAST_30_DAYS": "Laatste 30 dagen",
+		"FILTER_THIS_YEAR": "Dit jaar {year}",
+		"FILTER_CUSTOM_RANGE": "Aangepast bereik"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -568,10 +576,12 @@
 			},
 			"BILLABLE": {
 				"YES": "Ja",
-				"NO": "Nee"
+				"NO": "Nee",
+				"BILLABLE": "Factureerbaar"
 			},
 			"LOADING": "Tijdregistratiegegevens laden...",
-			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden"
+			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?"
 		}
 	},
 	"timer": {

@@ -2,20 +2,26 @@
 import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { TranslationHooks } from 'next-intl';
+
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
-import { useAuthenticateUser, useDailyPlan, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+
+import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
+
 import { ArrowLeftIcon } from 'assets/svg';
 import { CalendarView, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
-import { GrTask } from "react-icons/gr";
-import { GoSearch } from "react-icons/go";
+import { GrTask } from 'react-icons/gr';
+import { GoSearch } from 'react-icons/go';
+
 import { getGreeting } from '@/app/helpers';
-import { TranslationHooks } from 'next-intl';
+import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { endOfDay, startOfDay } from 'date-fns';
 
 type TimesheetViewMode = "ListView" | "CalendarView";
 
@@ -31,7 +37,17 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
     const t = useTranslations();
     const { user } = useAuthenticateUser();
 
-    const { sortedPlans } = useDailyPlan();
+    const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
+        from: startOfDay(new Date()),
+        to: endOfDay(new Date()),
+    });
+
+    const { timesheet } = useTimesheet({
+        startDate: dateRange.from ?? "",
+        endDate: dateRange.to ?? ""
+    });
+
+
     const {
         isOpen: isManualTimeModalOpen,
         openModal: openManualTimeModal,
@@ -134,13 +150,20 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                         {/* <DropdownMenuDemo /> */}
                         <div className='flex flex-col overflow-y-auto  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme p-4 mt-4'>
                             <TimesheetFilter
+                                initDate={{
+                                    initialRange: dateRange,
+                                    onChange(range) {
+                                        setDateRange(range)
+                                    },
+                                }}
                                 closeModal={closeManualTimeModal}
                                 openModal={openManualTimeModal}
                                 isOpen={isManualTimeModalOpen}
+                                t={t}
                             />
                             <div className='h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800'>
                                 {timesheetNavigator === 'ListView' ?
-                                    <TimesheetView data={sortedPlans} />
+                                    <TimesheetView data={timesheet} />
                                     : <CalendarView />
                                 }
                             </div>
@@ -172,4 +195,3 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({
         <span>{mode === 'ListView' ? t('pages.timesheet.VIEWS.LIST') : t('pages.timesheet.VIEWS.CALENDAR')}</span>
     </button>
 );
-// https://demo.gauzy.co/#/pages/employees/timesheets/daily?organizationId=e4a6eeb6-3f13-4712-b880-34aa9ef1dd2f&date=2024-11-02&date_end=2024-11-02&unit_of_time=day&is_custom_date=false

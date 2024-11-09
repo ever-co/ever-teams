@@ -254,7 +254,15 @@
 		"SET_AS_NEXT": "Establecer como siguiente",
 		"MOVE_TO": "Mover a",
 		"SELECT_DATE": "Seleccionar fecha",
-		"SELECT_AND_CLOSE": "Seleccionar y cerrar"
+		"SELECT_AND_CLOSE": "Seleccionar y cerrar",
+		"SELECT_ROLE": "Por favor, selecciona un rol",
+		"ADD_TIME": "Agregar tiempo",
+		"VIEW_TIMESHEET": "Ver hoja de tiempo",
+		"FILTER_TODAY": "Hoy",
+		"FILTER_LAST_7_DAYS": "Últimos 7 días",
+		"FILTER_LAST_30_DAYS": "Últimos 30 días",
+		"FILTER_THIS_YEAR": "Este año {year}",
+		"FILTER_CUSTOM_RANGE": "Rango personalizado"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -568,10 +576,12 @@
 			},
 			"BILLABLE": {
 				"YES": "Sí",
-				"NO": "No"
+				"NO": "No",
+				"BILLABLE": "FACTURABLE"
 			},
 			"LOADING": "Cargando datos del registro de horas...",
-			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas"
+			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Estás a punto de rechazar la entrada seleccionada, ¿te gustaría continuar?"
 		}
 	},
 	"timer": {

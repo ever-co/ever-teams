@@ -56,7 +56,7 @@ import { clsxm } from "@/app/utils"
 import { statusColor } from "@/lib/components"
 import { Badge } from '@components/ui/badge'
 import { IDailyPlan } from "@/app/interfaces"
-import { RejectSelectedModal, StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
+import { EditTaskModal, RejectSelectedModal, StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 import { useTranslations } from "next-intl"
 import { formatDate } from "@/app/helpers"
 import { TaskNameInfoDisplay } from "../../task/task-displays"
@@ -226,17 +226,17 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
         }
     };
 
-
     return (
         <div className="w-full dark:bg-dark--theme">
-            {<RejectSelectedModal
+            <RejectSelectedModal
                 onReject={() => {
                     // Pending implementation
                 }}
                 maxReasonLength={120}
                 minReasonLength={0}
                 closeModal={closeModal}
-                isOpen={isOpen} />}
+                isOpen={isOpen}
+            />
             <div className="rounded-md">
                 <Table className="order rounded-md dark:bg-dark--theme-light">
                     <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:bg-dark--theme">
@@ -425,26 +425,39 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
     );
 }
 
-const TaskActionMenu = ({ idTasks }: { idTasks: any }) => {
-    const handleCopyPaymentId = () => navigator.clipboard.writeText(idTasks);
-
+const TaskActionMenu = ({ idTasks }: { idTasks: string | number }) => {
+    const {
+        isOpen: isEditTask,
+        openModal: isOpenModalEditTask,
+        closeModal: isCloseModalEditTask
+    } = useModal();
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0  text-sm sm:text-base">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem className="cursor-pointer" onClick={handleCopyPaymentId}>
-                    Edit
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <StatusTask />
-                <DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+            {
+                <EditTaskModal
+                    closeModal={isCloseModalEditTask}
+                    isOpen={isEditTask}
+                />
+            }
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0  text-sm sm:text-base">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
+                        Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <StatusTask />
+                    <DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">Delete</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+        </>
+
     );
 };
 
