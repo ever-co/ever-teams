@@ -8,12 +8,14 @@ import {
     PopoverTrigger,
 } from "@components/ui/popover";
 import { SettingFilterIcon } from "@/assets/svg";
+import { useTranslations } from "next-intl";
 
 
 
 export function TimeSheetFilterPopover() {
     const { activeTeam } = useOrganizationTeams();
     const { tasks } = useTeamTasks();
+    const t = useTranslations();
     return (
         <>
             <Popover>
@@ -21,19 +23,19 @@ export function TimeSheetFilterPopover() {
                     <Button variant="outline"
                         className='flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2'>
                         <SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
-                        <span className="text-gray-700 dark:text-white">Filter</span>
+                        <span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-96">
                     <div className="w-full flex flex-col">
                         <div className="flex mb-3 text-xl font-bold gap-2">
                             <SettingFilterIcon className="text-gray-700 dark:text-white w-4" strokeWidth="1.8" />
-                            <span className="text-gray-700 dark:text-white">Filters</span>
+                            <span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
                         </div>
                         <div className="grid gap-5">
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
-                                    <span className="text-[12px]">Employee</span>
+                                    <span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
                                     <span className="text-primary/10">Clear</span>
                                 </label>
                                 <MultiSelect
@@ -47,7 +49,7 @@ export function TimeSheetFilterPopover() {
                             </div>
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
-                                    <span className="text-[12px]">Project</span>
+                                    <span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
                                     <span className="text-primary/10">Clear</span>
                                 </label>
                                 <MultiSelect
@@ -61,7 +63,7 @@ export function TimeSheetFilterPopover() {
                             </div>
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
-                                    <span className="text-[12px]">Task</span>
+                                    <span className="text-[12px]">{t('hotkeys.TASK')}</span>
                                     <span className="text-primary/10">Clear</span>
                                 </label>
                                 <MultiSelect
@@ -75,7 +77,7 @@ export function TimeSheetFilterPopover() {
                             </div>
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
-                                    <span className="text-[12px]">Status</span>
+                                    <span className="text-[12px]">{t('common.STATUS')}</span>
                                     <span className="text-primary/10">Clear</span>
                                 </label>
                                 <MultiSelect

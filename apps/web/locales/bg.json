@@ -254,7 +254,15 @@
 		"SET_AS_NEXT": "Задайте като следващо",
 		"MOVE_TO": "Преместете в",
 		"SELECT_DATE": "Изберете дата",
-		"SELECT_AND_CLOSE": "Изберете и затворете"
+		"SELECT_AND_CLOSE": "Изберете и затворете",
+		"SELECT_ROLE": "Моля, изберете роля",
+		"ADD_TIME": "Добавете време",
+		"VIEW_TIMESHEET": "Преглед на работния час",
+		"FILTER_TODAY": "Днес",
+		"FILTER_LAST_7_DAYS": "Последните 7 дни",
+		"FILTER_LAST_30_DAYS": "Последните 30 дни",
+		"FILTER_THIS_YEAR": "Тази година {year}",
+		"FILTER_CUSTOM_RANGE": "Потребителски диапазон"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -551,27 +559,29 @@
 			"HEADING_DESCRIPTION": "В момента актуализираме нашия уебсайт, за да ви служим по-добре. Моля, проверете отново по-късно."
 		},
 		"timesheet": {
-			"TIMESHEET_TITLE": "Таблица на часовете",
-			"TIMESHEET_VIEW_DETAILS": "Преглед на детайлите",
+			"TIMESHEET_TITLE": "Таблица за работно време",
+			"TIMESHEET_VIEW_DETAILS": "Виж подробности",
 			"TIMESHEET_ACTION_APPROVE_SELECTED": "Одобрете избраното",
 			"TIMESHEET_ACTION_REJECT_SELECTED": "Отхвърлете избраното",
 			"TIMESHEET_ACTION_DELETE_SELECTED": "Изтрийте избраното",
-			"HEADING_DESCRIPTION": "Това е вашата лична табло на часовете, показваща какво изисква вашето внимание сега.",
+			"HEADING_DESCRIPTION": "Това е вашето лично табло за работно време, показващо какво изисква вашето внимание сега.",
 			"GREETINGS": {
 				"GOOD_MORNING": "Добро утро",
 				"GOOD_AFTERNOON": "Добър следобед",
 				"GOOD_EVENING": "Добър вечер"
 			},
 			"VIEWS": {
-				"LIST": "Списъчен изглед",
-				"CALENDAR": "Календарен изглед"
+				"LIST": "Изглед на списък",
+				"CALENDAR": "Изглед на календар"
 			},
 			"BILLABLE": {
 				"YES": "Да",
-				"NO": "Не"
+				"NO": "Не",
+				"BILLABLE": "Фактурируемо"
 			},
-			"LOADING": "Зареждане на данни за таблицата на работното време...",
-			"NO_ENTRIES_FOUND": "Няма намерени записи за таблицата на работното време"
+			"LOADING": "Зареждане на данни за таблицата за работно време...",
+			"NO_ENTRIES_FOUND": "Няма намерени записи в таблицата за работно време",
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Вие ще отхвърлите избрания запис, искате ли да продължите?"
 		}
 	},
 	"timer": {
