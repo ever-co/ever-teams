@@ -91,8 +91,8 @@ jobs:
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
-          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/src/assets/icons/icon_512x512.png'
+          PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -167,8 +167,8 @@ jobs:
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
-          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/src/assets/icons/icon_512x512.png'
+          PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -248,5 +248,5 @@ jobs:
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
-          PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
-          GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/src/assets/icons/icon_512x512.png'
+          PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
+          GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
