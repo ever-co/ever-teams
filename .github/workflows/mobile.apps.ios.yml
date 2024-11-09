@@ -83,7 +83,7 @@ jobs:
         run: cd apps/mobile && eas build --profile production --platform ios --non-interactive
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --profile production --platform ios --non-interactive
+        run: cd apps/mobile && eas update --auto --platform ios --non-interactive
 
       - name: Upload App build to App store
         run: cd apps/mobile && eas submit --profile production --platform ios --latest --non-interactive
