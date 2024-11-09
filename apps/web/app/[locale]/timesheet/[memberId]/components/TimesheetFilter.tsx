@@ -9,9 +9,9 @@ interface ITimesheetFilter {
     openModal: () => void,
     closeModal: () => void,
     t: TranslationHooks,
-    initDate?: TimesheetFilterDateProps
+    initDate?: Pick<TimesheetFilterDateProps, 'initialRange' | 'onChange' | 'maxDate' | 'minDate'>
 }
-    
+
 export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate }: ITimesheetFilter,) {
     return (
         <>

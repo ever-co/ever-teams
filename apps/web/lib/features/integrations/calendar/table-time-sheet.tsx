@@ -225,7 +225,6 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                 console.error(`Unsupported action: ${action}`);
         }
     };
-    console.log("================>", data)
 
     return (
         <div className="w-full dark:bg-dark--theme">
