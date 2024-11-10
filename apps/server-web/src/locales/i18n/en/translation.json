@@ -32,7 +32,8 @@
       "CANCEL": "Cancel",
       "CLOSE": "Close",
       "START": "Start",
-      "STOP": "Stop"
+      "STOP": "Stop",
+      "LETS_GO": "Let's Go"
     },
     "LABELS": {
       "CHECKING": "Checking",
@@ -64,7 +65,9 @@
     "UPDATE_AVAILABLE": "New Update is available! Please click button Download Now below.",
     "EXIT_MESSAGE": "Server web still running, Are you sure to exit the app ?",
     "UPDATE_SUCCESS": "Update Successfully",
-    "SERVER_RUN_DIALOG": "Server web currently running, You want to restart the server ?"
+    "SERVER_RUN_DIALOG": "Server web currently running, You want to restart the server ?",
+    "CONNECTION_SUCCESS": "Server API success to connect",
+    "CONNECTION_ERROR": "Server API failed to connect"
   },
   "LANGUAGES": {
     "en": "English",

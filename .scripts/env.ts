@@ -5,21 +5,23 @@ import {
 
 export type Env = Readonly<{
     PLATFORM_LOGO: string;
-    DESKTOP_SERVER_WEB_APP_NAME: string;
-    DESKTOP_SERVER_WEB_APP_DESCRIPTION: string;
-    DESKTOP_SERVER_WEB_APP_ID: string;
-    DESKTOP_SERVER_WEB_APP_REPO_NAME: string;
-    DESKTOP_SERVER_WEB_APP_REPO_OWNER: string;
-    DESKTOP_SERVER_WEB_APP_WELCOME_TITLE: string;
-    DESKTOP_SERVER_WEB_APP_WELCOME_CONTENT: string;
-    DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512: string;
-    DESKTOP_SERVER_WEB_APP_DEFAULT_PORT: number;
-    DESKTOP_SERVER_WEB_APP_DEFAULT_API_URL: string;
+    DESKTOP_WEB_SERVER_APP_NAME: string;
+    DESKTOP_WEB_SERVER_APP_DESCRIPTION: string;
+    DESKTOP_WEB_SERVER_APP_ID: string;
+    DESKTOP_WEB_SERVER_APP_REPO_NAME: string;
+    DESKTOP_WEB_SERVER_APP_REPO_OWNER: string;
+    DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: string;
+    DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: string;
+    GAUZY_DESKTOP_LOGO_512X512: string;
+    DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: number;
+    DESKTOP_WEB_SERVER_APP_DEFAULT_API_URL: string;
     I18N_FILES_URL: string;
     COMPANY_SITE_LINK: string;
     COMPANY_GITHUB_LINK: string;
+    GAUZY_API_SERVER_URL: string;
+    NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
+    DESKTOP_WEB_SERVER_HOSTNAME: string;
 }>
-
 
 export const env = cleanEnv(process.env, {
     COMPANY_SITE_LINK: str({
@@ -31,35 +33,40 @@ export const env = cleanEnv(process.env, {
     PLATFORM_LOGO: str({
         default: 'src/resources/icons/platform-logo.png'
     }),
-    DESKTOP_SERVER_WEB_APP_NAME: str({
+    DESKTOP_WEB_SERVER_APP_NAME: str({
         default: 'ever-teams-server-web'
     }),
-    DESKTOP_SERVER_WEB_APP_DESCRIPTION: str({
+    DESKTOP_WEB_SERVER_APP_DESCRIPTION: str({
         default: 'Ever Teams Server Web'
     }),
-    DESKTOP_SERVER_WEB_APP_ID: str({
+    DESKTOP_WEB_SERVER_APP_ID: str({
         default: 'com.ever.teams.serverweb'
     }),
-    DESKTOP_SERVER_WEB_APP_REPO_NAME: str({
+    DESKTOP_WEB_SERVER_APP_REPO_NAME: str({
         default: 'ever-teams-web-server'
     }),
-    DESKTOP_SERVER_WEB_APP_REPO_OWNER: str({
+    DESKTOP_WEB_SERVER_APP_REPO_OWNER: str({
         default: 'ever-co'
     }),
-    DESKTOP_SERVER_WEB_APP_WELCOME_TITLE: str({
+    DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: str({
         default: 'Welcome to Ever Teams Web Server'
     }),
-    DESKTOP_SERVER_WEB_APP_WELCOME_CONTENT: str({
+    DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: str({
         default: 'Ever Teams Web Server is a web application that allows you to manage your teams and projects.'
     }),
-    DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512: str({
+    DESKTOP_WEB_SERVER_APP_DESKTOP_APP_LOGO_512X512: str({
         default: 'assets/icons/desktop_logo_512x512.png'
     }),
-    DESKTOP_SERVER_WEB_APP_DEFAULT_PORT: num({
+    DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: num({
         default: 3333
     }),
-    DESKTOP_SERVER_WEB_APP_DEFAULT_API_URL: str({
+    DESKTOP_WEB_SERVER_APP_DEFAULT_API_URL: str({
         default: 'http://localhost:3000'
     }),
     I18N_FILES_URL: str({ default: '' }),
+    GAUZY_API_SERVER_URL: str({ default: 'http://localhost:3000' }),
+    NEXT_PUBLIC_GAUZY_API_SERVER_URL: str({ default: 'http://localhost:3000' }),
+    DESKTOP_WEB_SERVER_HOSTNAME: str({
+        default: '0.0.0.0'
+    })
 });
