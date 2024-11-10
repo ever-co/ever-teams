@@ -25,7 +25,7 @@ const AdvancedSetting = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const saveSetting = (e: any) => {
     e.preventDefault();
-
+    setLoading(true);
     window.electron.ipcRenderer.sendMessage('setting-page', {
       data: serverSetting,
       type: SettingPageTypeMessage.saveSetting,
@@ -179,7 +179,12 @@ const AdvancedSetting = (props: Props) => {
               type="submit"
               className="flex items-center bg-purple-600 text-white py-3 px-6 rounded-full hover:bg-purple-700 ml-8"
             >
-              <span className="mr-2">💾</span> Save
+              {loading ? (
+                <div className="w-5 h-5 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
+              ) : (
+                <span className="mr-2">💾</span>
+              )}
+              Save
             </button>
           </div>
         </div>
