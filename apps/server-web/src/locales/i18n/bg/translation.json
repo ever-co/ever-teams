@@ -33,7 +33,7 @@
       "CLOSE": "Близо",
       "START": "Започнете",
       "STOP": "Спри се",
-      "LETS_GO": "Let's Go"
+      "LETS_GO": "Да започваме"
     },
     "LABELS": {
       "CHECKING": "Проверка",
@@ -66,8 +66,8 @@
     "EXIT_MESSAGE": "Мрежата на сървъра все още работи, сигурни ли сте, че ще излезете от приложението?",
     "UPDATE_SUCCESS": "Актуализирайте успешно",
     "SERVER_RUN_DIALOG": "Сървърната мрежа работи в момента, искате ли да рестартирате сървъра?",
-    "CONNECTION_SUCCESS": "Server API success to connect",
-    "CONNECTION_ERROR": "Server API failed to connect"
+    "CONNECTION_SUCCESS": "Успешно свързване със сървъра",
+    "CONNECTION_ERROR": "Неуспешно свързване със сървъра"
   },
   "LANGUAGES": {
     "en": "Английски",

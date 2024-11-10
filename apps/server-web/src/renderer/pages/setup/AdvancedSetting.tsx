@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { IPopup, IServerSetting } from '../../libs/interfaces';
+import { IServerSetting } from '../../libs/interfaces';
 import { useState } from 'react';
 import { SettingPageTypeMessage } from '../../libs/constant';
 import { config } from '../../../configs/config';
@@ -36,7 +36,7 @@ const AdvancedSetting = (props: Props) => {
   const checkConnection = async () => {
     try {
       setLoading(true);
-      const response = await get(serverSetting.GAUZY_API_SERVER_URL, '/api');
+      await get(serverSetting.GAUZY_API_SERVER_URL, '/api');
       setLoading(false);
       setErrorConnection(false);
       setToastShow(true);
