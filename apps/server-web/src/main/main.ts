@@ -251,7 +251,7 @@ const restartServer = async () => {
 
 const getEnvApi = () => {
   const setting: WebServer = LocalStore.getStore('config')
-  return setting.server;
+  return setting?.server;
 };
 
 const SendMessageToSettingWindow = (type: string, data: any) => {
@@ -467,10 +467,10 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
         diFilesPath,
         {
           before: {
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL || config.NEXT_PUBLIC_GAUZY_API_SERVER_URL
           },
           after: {
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL || config.NEXT_PUBLIC_GAUZY_API_SERVER_URL
           }
         }
       )
@@ -552,7 +552,7 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
 
 ipcMain.handle('current-theme', async () => {
   const setting: WebServer = LocalStore.getStore('config');
-  return setting.general?.theme;;
+  return setting?.general?.theme;;
 })
 
 const createIntervalAutoUpdate = () => {

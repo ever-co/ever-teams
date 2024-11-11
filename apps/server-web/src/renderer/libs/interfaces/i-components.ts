@@ -6,6 +6,7 @@ type IToastComponent = {
   show: boolean;
   autoClose: boolean;
   timeout: number;
+  type?: 'error' | 'success';
   onClose: () => void;
 };
 

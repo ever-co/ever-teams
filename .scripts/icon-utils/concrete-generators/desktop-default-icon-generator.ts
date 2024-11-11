@@ -33,8 +33,8 @@ export class DesktopDefaultIconGenerator implements IIconGeneratorBase {
 						reject(error);
 						return;
 					}
-					DesktopEnvironmentManager.environment.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512 =
-						env.DESKTOP_SERVER_WEB_APP_DESKTOP_APP_LOGO_512X512;
+					DesktopEnvironmentManager.environment.GAUZY_DESKTOP_LOGO_512X512 =
+						env.GAUZY_DESKTOP_LOGO_512X512;
 					DesktopEnvironmentManager.environment.PLATFORM_LOGO =
 						env.PLATFORM_LOGO;
 					console.log('✔ default icons generated successfully!');
