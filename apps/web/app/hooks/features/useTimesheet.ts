@@ -17,13 +17,19 @@ export interface GroupedTimesheet {
     tasks: ITimeSheet[];
 }
 
+
 const groupByDate = (items: ITimeSheet[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
-
-    const groupedByDate = items.reduce<Record<string, ITimeSheet[]>>((acc, item) => {
+    type GroupedMap = Record<string, ITimeSheet[]>;
+    const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
         if (!item?.createdAt) return acc;
-        const date = moment(item.createdAt).format('YYYY-MM-DD');
-        acc[date] = [...(acc[date] || []), item];
+        try {
+            const date = new Date(item.createdAt).toISOString().split('T')[0];
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(item);
+        } catch (error) {
+            console.error('Invalid date format:', item.createdAt);
+        }
         return acc;
     }, {});
 

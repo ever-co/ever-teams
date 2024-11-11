@@ -283,7 +283,7 @@ interface ICalendarProps<T extends { date: string | Date }> {
     endYear?: number;
 }
 
-export const FilterCaledar = memo(function FuturePlansCalendar<T extends { date: string | Date }>({
+export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date: string | Date }>({
     setSelectedPlan,
     selectedPlan,
     plans,

@@ -50,12 +50,15 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
         endDate: dateRange.to ?? ""
     });
 
-    const lowerCaseSearch = search?.toLowerCase();
-    const filterDataTimesheet = timesheet.filter((v) =>
-        v.tasks.some((task) => task.task?.title.toLowerCase().includes(lowerCaseSearch)) ||
-        v.tasks.some((task) => task.employee?.fullName.toLowerCase().includes(lowerCaseSearch)) ||
-        v.tasks.some((task) => task.project?.name.toLowerCase().includes(lowerCaseSearch))
-    );
+    const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
+    const filterDataTimesheet = useMemo(() =>
+        timesheet.filter((v) =>
+            v.tasks.some((task) => (
+                (task.task?.title?.toLowerCase()?.includes(lowerCaseSearch)) ||
+                (task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch)) ||
+                (task.project?.name?.toLowerCase()?.includes(lowerCaseSearch))
+            ))
+        ), [timesheet, lowerCaseSearch]);
 
     const {
         isOpen: isManualTimeModalOpen,

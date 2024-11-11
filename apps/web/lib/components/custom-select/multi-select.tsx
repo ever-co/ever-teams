@@ -71,10 +71,16 @@ export function MultiSelect<T>({
     };
 
     useEffect(() => {
+        let mounted = true;
         if (removeItems) {
-            removeAllItems();
+            if (mounted) {
+                removeAllItems();
+            }
         }
-    }, [removeItems])
+        return () => {
+            mounted = false;
+        };
+    }, [removeItems, removeAllItems])
 
 
     useEffect(() => {

@@ -28,7 +28,7 @@ export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate, fi
                 <div>
                     <FilterWithStatus
                         activeStatus={filterStatus || "All Tasks"}
-                        onToggle={(label) => onChangeStatus!(label)}
+                        onToggle={(label) => onChangeStatus?.(label)}
                     />
                 </div>
 
