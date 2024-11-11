@@ -299,14 +299,13 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
     const sortedPlansByDateDesc = useMemo(
         () => [...plans].sort((plan1, plan2) => new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1),
         [plans]);
-
+    const createDateKey = (date: string | Date) =>
+        moment(date.toString().split('T')[0]).toISOString().split('T')[0];
     const isDateAvailableForPlanning = useCallback(
         (dateToCheck: Date) => {
-            const formattedDateToCheck = moment(dateToCheck).toISOString().split('T')[0];
-            return !plans.some(plan => {
-                const formattedPlanDate = moment(plan.date.toString().split('T')[0]).toISOString().split('T')[0];
-                return formattedPlanDate === formattedDateToCheck;
-            });
+            const dateKey = createDateKey(dateToCheck);
+            const planDates = new Set(plans.map(plan => createDateKey(plan.date)));
+            return !planDates.has(dateKey);
         },
         [plans]
     );
