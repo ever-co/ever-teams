@@ -1,3 +1,5 @@
+import { ITaskIssue } from "..";
+
 interface Project {
     id: string;
     name: string;
@@ -69,4 +71,5 @@ export interface ITimeSheet {
     employee: Employee;
     duration: number;
     isEdited: boolean;
+    issueType?: ITaskIssue;
 }

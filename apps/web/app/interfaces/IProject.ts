@@ -24,6 +24,7 @@ export interface IProject {
 	isTasksAutoSync?: boolean;
 	isTasksAutoSyncOnLabel?: boolean;
 	syncTag?: string;
+	name?: string
 }
 
 export interface IProjectCreate {

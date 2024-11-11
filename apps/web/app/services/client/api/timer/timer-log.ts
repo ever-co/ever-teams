@@ -49,7 +49,8 @@ export async function getTaskTimesheetLogsApi({
 		'relations[0]': 'project',
 		'relations[1]': 'task',
 		'relations[2]': 'organizationContact',
-		'relations[3]': 'employee.user'
+		'relations[3]': 'employee.user',
+		'relations[4]': 'task.taskStatus'
 	});
 
 	const endpoint = `/timesheet/time-log?${params.toString()}`;

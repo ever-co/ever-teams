@@ -158,7 +158,7 @@ export interface ICreateTask {
 	priority?: string;
 	taskStatusId?: string;
 	issueType?: string;
-	members?: { id: string; [x: string]: any }[];
+	members?: { id: string;[x: string]: any }[];
 	estimateDays?: number;
 	estimateHours?: string;
 	estimateMinutes?: string;

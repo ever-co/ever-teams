@@ -16,6 +16,7 @@ interface MultiSelectProps<T> {
     renderItem?: (item: T, onClick: () => void, isSelected: boolean) => JSX.Element;
     defaultValue?: T | T[];
     multiSelect?: boolean;
+    removeItems?: boolean
 }
 
 export function MultiSelect<T>({
@@ -28,6 +29,7 @@ export function MultiSelect<T>({
     renderItem,
     defaultValue,
     multiSelect = false,
+    removeItems
 }: MultiSelectProps<T>) {
     const [selectedItems, setSelectedItems] = useState<T[]>(Array.isArray(defaultValue) ? defaultValue : defaultValue ? [defaultValue] : []);
     const [isPopoverOpen, setPopoverOpen] = useState(false);
@@ -52,6 +54,7 @@ export function MultiSelect<T>({
         }
     };
 
+
     const removeItem = (item: T) => {
         const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
         setSelectedItems(newSelectedItems);
@@ -59,6 +62,26 @@ export function MultiSelect<T>({
             onValueChange(multiSelect ? newSelectedItems : newSelectedItems.length > 0 ? newSelectedItems[0] : null);
         }
     };
+
+    const removeAllItems = () => {
+        setSelectedItems([]);
+        if (onValueChange) {
+            onValueChange(null);
+        }
+    };
+
+    useEffect(() => {
+        let mounted = true;
+        if (removeItems) {
+            if (mounted) { // deepscan-disable-line
+                removeAllItems();
+            }
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [removeItems, removeAllItems]) // deepscan-disable-line
+
 
     useEffect(() => {
         const initialItems = Array.isArray(defaultValue) ? defaultValue : defaultValue ? [defaultValue] : [];
@@ -68,6 +91,7 @@ export function MultiSelect<T>({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [defaultValue]);
+
 
     useEffect(() => {
         if (triggerRef.current) {

@@ -1,5 +1,5 @@
 import { useModal } from '@app/hooks';
-import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
+import { IClassName, IssueType, ITaskIssue, ITeamTask, ITimeSheet, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -210,5 +210,21 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 				</Card>
 			</form>
 		</Modal>
+	);
+}
+
+
+export function TaskIssueStatusTimesheet({
+	task,
+	className,
+	showIssueLabels
+}: { task: Nullable<ITimeSheet>; showIssueLabels?: boolean } & IClassName) {
+	return (
+		<TaskStatus
+			{...taskIssues[task?.issueType || 'Task']}
+			showIssueLabels={showIssueLabels}
+			issueType="issue"
+			className={clsxm('rounded-md px-2 text-white', className)}
+		/>
 	);
 }

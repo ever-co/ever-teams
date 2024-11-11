@@ -12,6 +12,31 @@ interface TimesheetParams {
     endDate: Date | string;
 }
 
+export interface GroupedTimesheet {
+    date: string;
+    tasks: ITimeSheet[];
+}
+
+
+const groupByDate = (items: ITimeSheet[]): GroupedTimesheet[] => {
+    if (!items?.length) return [];
+    type GroupedMap = Record<string, ITimeSheet[]>;
+    const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
+        if (!item?.createdAt) return acc;
+        try {
+            const date = new Date(item.createdAt).toISOString().split('T')[0];
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(item);
+        } catch (error) {
+            console.error('Invalid date format:', item.createdAt);
+        }
+        return acc;
+    }, {});
+
+    return Object.entries(groupedByDate)
+        .map(([date, tasks]) => ({ date, tasks }))
+        .sort((a, b) => b.date.localeCompare(a.date));
+}
 
 
 export function useTimesheet({
@@ -47,20 +72,6 @@ export function useTimesheet({
     }, [getTaskTimesheet, startDate, endDate]);
 
 
-    const groupByDate = (items: ITimeSheet[]) => {
-        const groupedByDate = items.reduce((acc: Record<string, ITimeSheet[]>, item) => {
-            const date = new Date(item.createdAt).toISOString().split('T')[0];
-            if (!acc[date]) {
-                acc[date] = [];
-            }
-            acc[date].push(item);
-            return acc;
-        }, {});
-        return Object.keys(groupedByDate).map((date) => ({
-            date,
-            tasks: groupedByDate[date]
-        })) as [];
-    }
 
     return {
         loadingTimesheet,

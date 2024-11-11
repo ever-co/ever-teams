@@ -1,8 +1,8 @@
-import { IDailyPlan } from '@/app/interfaces';
+import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DataTableTimeSheet } from 'lib/features/integrations/calendar';
 import { useTranslations } from 'next-intl';
 
-export function TimesheetView({ data }: { data?: IDailyPlan[] }) {
+export function TimesheetView({ data }: { data?: GroupedTimesheet[] }) {
     const t = useTranslations();
     return (
         <div className='grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme'>
