@@ -67,11 +67,12 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			});
 		} else {
 			// Remove manager
-			const updatedMemberIds = [...new Set([
-				...(activeTeamRef.current?.members || []).map((member: OT_Member) => member.employee.id),
-				employeeId
-			])];
+			const updatedManagerIds = currentManagers.filter(id => id !== employeeId);
 
+			return updateOrganizationTeam(activeTeamRef.current, {
+				...activeTeamRef.current,
+				managerIds: updatedManagerIds,
+			});
 			const updatedManagerIds = currentManagers.filter(id => id !== employeeId);
 
 			return updateOrganizationTeam(activeTeamRef.current, {
