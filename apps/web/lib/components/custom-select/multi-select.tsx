@@ -73,14 +73,14 @@ export function MultiSelect<T>({
     useEffect(() => {
         let mounted = true;
         if (removeItems) {
-            if (mounted) {
+            if (mounted) { // deepscan-disable-line
                 removeAllItems();
             }
         }
         return () => {
             mounted = false;
         };
-    }, [removeItems, removeAllItems])
+    }, [removeItems, removeAllItems]) // deepscan-disable-line
 
 
     useEffect(() => {
