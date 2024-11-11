@@ -232,8 +232,8 @@ export function DatePickerFilter({
             <DatePicker
                 captionLayout="dropdown"
                 buttonVariant={'link'}
-                className="dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200"
-                buttonClassName={'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md'}
+                className="dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200 "
+                buttonClassName={'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md hover:border-primary'}
                 customInput={<DatePickerInput date={date} label={label} />}
                 mode="single"
                 numberOfMonths={1}

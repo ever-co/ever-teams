@@ -8,13 +8,13 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 
-import { useAuthenticateUser, useLocalStorageState, useDailyPlan, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
-import { CalendarView, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
+import { CalendarView, FilterStatus, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from 'react-icons/gr';
 import { GoSearch } from 'react-icons/go';
@@ -38,16 +38,12 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
     const t = useTranslations();
     const { user } = useAuthenticateUser();
     const [search, setSearch] = useState<string>('')
+    const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>("timesheet-filter-status", "All Tasks")
 
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
         from: startOfDay(new Date()),
         to: endOfDay(new Date()),
     });
-
-
-    const { sortedPlans } = useDailyPlan();
-
-    console.log("||||||||||||||||||=======================>", sortedPlans)
 
     const { timesheet } = useTimesheet({
         startDate: dateRange.from ?? "",
@@ -164,6 +160,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                         {/* <DropdownMenuDemo /> */}
                         <div className='flex flex-col overflow-y-auto  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme p-4 mt-4'>
                             <TimesheetFilter
+                                onChangeStatus={setFilterStatus}
+                                filterStatus={filterStatus}
                                 initDate={{
                                     initialRange: dateRange,
                                     onChange(range) {
