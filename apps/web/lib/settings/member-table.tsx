@@ -73,13 +73,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 				...activeTeamRef.current,
 				managerIds: updatedManagerIds,
 			});
-			const updatedManagerIds = currentManagers.filter(id => id !== employeeId);
-
-			return updateOrganizationTeam(activeTeamRef.current, {
-				...activeTeamRef.current,
-				memberIds: updatedMemberIds,
-				managerIds: updatedManagerIds,
-			});
 		}
 
 	}, [updateOrganizationTeam, activeTeamRef]);
