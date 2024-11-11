@@ -332,6 +332,9 @@
 			"TASK_IS_ALREADY_EPIC": "Epic Task Type can not be changed.",
 			"TASK_HAS_PARENT": "Task Type can not be changed as Task has already Parent."
 		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "You are about to Delete the Status {statusName} that is used by active tasks; please confirm action"
+		},
 		"auth": {
 			"SEND_CODE": "send code",
 			"RESEND_CODE": "Resend Code",
