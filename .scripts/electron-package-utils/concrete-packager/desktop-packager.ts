@@ -6,7 +6,7 @@ import { env } from '../../env';
 export class DesktopPackager implements IPackager {
 	public prepare(pkg: IPackage): IPackage {
 		pkg.name = env.DESKTOP_WEB_SERVER_APP_NAME || pkg.name;
-		pkg.productName = env.DESKTOP_WEB_SERVER_APP_DESCRIPTION || pkg.productName;
+		pkg.productName = env.DESKTOP_WEB_SERVER_APP_NAME || pkg.productName;
 		pkg.description = env.DESKTOP_WEB_SERVER_APP_DESCRIPTION || pkg.description;
 		pkg.homepage = env.COMPANY_SITE_LINK || pkg.homepage;
 		pkg.build.appId = env.DESKTOP_WEB_SERVER_APP_ID || pkg.build.appId;
