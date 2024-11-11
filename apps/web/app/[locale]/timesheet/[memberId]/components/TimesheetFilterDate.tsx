@@ -322,7 +322,7 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
             customInput={<DatePickerInput date={new Date()} label={''} />}
             selected={selectedPlan || undefined}
             onSelect={(date) => date && setSelectedPlan(moment(date).toDate())}
-            disabled={(date) => checkPastDate(date) && isDateAvailableForPlanning(date)}
+            disabled={(date) => checkPastDate(date) || !isDateAvailableForPlanning(date)}
             modifiers={{
                 booked: sortedPlansByDateDesc.map(plan => moment.utc(plan.date.toString().split('T')[0]).toDate()),
                 pastDay: pastPlans.map(plan => moment.utc(plan.date.toString().split('T')[0]).toDate())
