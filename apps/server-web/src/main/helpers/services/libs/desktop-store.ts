@@ -7,14 +7,14 @@ export const LocalStore = {
 	},
 
 	updateConfigSetting: (values: WebServer) => {
-		let config: WebServer | any = store.get('config');
+		let config: WebServer | any = store.get('config') || {};
 		Object.keys(values).forEach((key: string) => {
 			if (key === 'server') {
-				config[key] = { ...config[key], ...values.server }
+				config[key] = { ...(config[key] || {}), ...values.server }
 			}
 
 			if (key === 'general') {
-				config[key] = { ...config[key], ...values.general }
+				config[key] = { ...(config[key] || {}), ...values.general }
 			}
 		})
 		store.set({
@@ -30,7 +30,8 @@ export const LocalStore = {
 				server: {
 					PORT: 3002,
 					GAUZY_API_SERVER_URL: 'http://localhost:3000',
-					NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'http://localhost:3000'
+					NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'http://localhost:3000',
+					DESKTOP_WEB_SERVER_HOSTNAME: '0.0.0.0'
 				},
 				general: {
 					lang: 'en',

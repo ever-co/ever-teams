@@ -49,11 +49,14 @@ export function ServerPage() {
         </div>
       </div>
       <button
-        className="block rounded-lg border-4 border-transparent bg-violet-800 px-6 py-2 text-center text-base font-medium text-100 w-fit mx-auto my-5 text-gray-200"
+        className="flex block rounded-lg border-4 border-transparent items-center bg-violet-800 px-6 py-2 text-center text-base font-medium text-100 w-fit mx-auto my-5 text-gray-200"
         onClick={runServer}
         disabled={loading}
       >
-        {isRun ? t('FORM.BUTTON.STOP') : t('FORM.BUTTON.START')}
+        {loading && (
+          <div className="w-4 h-4 border-4 border-blue-500 border-dotted rounded-full animate-spin m-auto"></div>
+        )}
+        <span>{isRun ? t('FORM.BUTTON.STOP') : t('FORM.BUTTON.START')}</span>
       </button>
       <div className="grid divide-y divide-neutral-200 dark:bg-[#25272D] dark:text-white mx-auto w-10/12 rounded-lg border-2 border-gray-200 dark:border-gray-600">
         <div className="py-5 px-5">
