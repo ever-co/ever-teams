@@ -1,8 +1,11 @@
 import { EverTeamsLogo } from '../../components/svgs/index';
+import { config } from '../../../configs/config';
+import { useTranslation } from 'react-i18next';
 type props = {
   nextAction: () => void;
 };
 const Landing = (props: props) => {
+  const { t } = useTranslation();
   return (
     <div className="w-full">
       <div className="mb-6 ml-10">
@@ -17,14 +20,10 @@ const Landing = (props: props) => {
           <EverTeamsLogo />
         </div>
         <h1 className="text-2xl font-bold mb-4 dark:text-gray-400 text-gray-700">
-          Welcome to Ever® Teams - Open-Source Business Management Platform
-          (ERP/CRM/HRM)
+          {config.WELCOME_TITLE}
         </h1>
         <p className="dark:text-gray-400 text-gray-500">
-          Ever Teams Desktop App provides the full functionality of the Gauzy
-          Platform available directly on your desktop computer or a laptop. In
-          addition, it allows tracking work time, activity recording, and the
-          ability to receive tracking reminders/notifications.
+          {config.WELCOME_CONTENT}
         </p>
       </div>
 
@@ -36,7 +35,7 @@ const Landing = (props: props) => {
           }}
           className="bg-purple-600 hover:bg-purple-700 text-white py-3 px-8 rounded-full m-auto"
         >
-          Let's go
+          {t('FORM.BUTTON.LETS_GO')}
         </button>
       </div>
     </div>

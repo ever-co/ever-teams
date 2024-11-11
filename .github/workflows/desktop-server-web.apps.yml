@@ -93,6 +93,9 @@ jobs:
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
           PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
           GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
+          DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
+          GAUZY_API_SERVER_URL: 'https://api.ever.team'
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'https://api.ever.team'
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -169,6 +172,9 @@ jobs:
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
           PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
           GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
+          DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
+          GAUZY_API_SERVER_URL: 'https://api.ever.team'
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'https://api.ever.team'
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -250,3 +256,6 @@ jobs:
           I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n'
           PLATFORM_LOGO: 'https://ever.team/assets/ever-teams.png'
           GAUZY_DESKTOP_LOGO_512X512: 'https://ever.team/assets/ever-teams-512x512.png'
+          DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
+          GAUZY_API_SERVER_URL: 'https://api.ever.team'
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'https://api.ever.team'
