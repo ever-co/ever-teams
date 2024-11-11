@@ -1,14 +1,14 @@
 "use client"
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { TranslationHooks } from 'next-intl';
+import moment from 'moment';
+import { useTranslations, TranslationHooks } from 'next-intl';
 
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 
-import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useLocalStorageState, useDailyPlan, useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -23,6 +23,7 @@ import { getGreeting } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { endOfDay, startOfDay } from 'date-fns';
 
+
 type TimesheetViewMode = "ListView" | "CalendarView";
 
 type ViewToggleButtonProps = {
@@ -36,17 +37,29 @@ type ViewToggleButtonProps = {
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
     const t = useTranslations();
     const { user } = useAuthenticateUser();
+    const [search, setSearch] = useState<string>('')
 
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
         from: startOfDay(new Date()),
         to: endOfDay(new Date()),
     });
 
+
+    const { sortedPlans } = useDailyPlan();
+
+    console.log("||||||||||||||||||=======================>", sortedPlans)
+
     const { timesheet } = useTimesheet({
         startDate: dateRange.from ?? "",
         endDate: dateRange.to ?? ""
     });
 
+    const lowerCaseSearch = search?.toLowerCase();
+    const filterDataTimesheet = timesheet.filter((v) =>
+        v.tasks.some((task) => task.task?.title.toLowerCase().includes(lowerCaseSearch)) ||
+        v.tasks.some((task) => task.employee?.fullName.toLowerCase().includes(lowerCaseSearch)) ||
+        v.tasks.some((task) => task.project?.name.toLowerCase().includes(lowerCaseSearch))
+    );
 
     const {
         isOpen: isManualTimeModalOpen,
@@ -105,7 +118,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                 <TimesheetCard
                                     hours='63:00h'
                                     title='Men Hours'
-                                    date='10.04.2024 - 11.04.2024'
+                                    date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
                                     icon={<Clock className='font-bold' />}
                                     classNameIcon='bg-[#3D5A80] shadow-[#3d5a809c] '
                                 />
@@ -138,13 +151,14 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                             <div className='flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2'>
                                 <GoSearch className='text-[#7E7991]' />
                                 <input
+                                    onChange={(v) => setSearch(v.target.value)}
                                     role="searchbox"
                                     aria-label="Search timesheet"
                                     type="search"
                                     name="timesheet-search"
                                     id="timesheet-search"
                                     className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
-                                    placeholder="Search.." />
+                                    placeholder={t('common.SEARCH')} />
                             </div>
                         </div>
                         {/* <DropdownMenuDemo /> */}
@@ -163,7 +177,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                             />
                             <div className='h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800'>
                                 {timesheetNavigator === 'ListView' ?
-                                    <TimesheetView data={timesheet} />
+                                    <TimesheetView data={filterDataTimesheet} />
                                     : <CalendarView />
                                 }
                             </div>

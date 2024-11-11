@@ -55,11 +55,10 @@ import {
 import { clsxm } from "@/app/utils"
 import { statusColor } from "@/lib/components"
 import { Badge } from '@components/ui/badge'
-import { IDailyPlan } from "@/app/interfaces"
 import { EditTaskModal, RejectSelectedModal, StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 import { useTranslations } from "next-intl"
 import { formatDate } from "@/app/helpers"
-import { TaskNameInfoDisplay } from "../../task/task-displays"
+import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet"
 
 
 
@@ -173,7 +172,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 
 
-export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
+export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
     const {
         isOpen,
         openModal,
@@ -286,19 +285,19 @@ export function DataTableTimeSheet({ data }: { data?: IDailyPlan[] }) {
                                                     >
                                                         <Checkbox className="h-5 w-5" />
                                                         <div className="flex-[2]">
-                                                            <TaskNameInfoDisplay
+                                                            {/* <TaskNameInfoDisplay
                                                                 task={task}
                                                                 className={clsxm('shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent')}
                                                                 taskTitleClassName={clsxm('text-sm')}
                                                                 showSize={true}
                                                                 dash
                                                                 taskNumberClassName="text-sm"
-                                                            />
+                                                            /> */}
                                                         </div>
-                                                        <span className="flex-1">{task.status}</span>
-                                                        <span className="flex-1">{plan.employee?.fullName}</span>
+                                                        <span className="flex-1">{task.isActive}</span>
+                                                        <span className="flex-1">{task.employee.fullName}</span>
                                                         <span className="flex-1">
-                                                            {task.estimateHours}h, {task.estimateDays}j, {task.estimateMinutes}m
+                                                            {/* {task.}h, {task.estimateDays}j, {task.estimateMinutes}m */}
                                                         </span>
                                                         <TaskActionMenu idTasks={task.id} />
                                                     </div>

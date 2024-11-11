@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils"
+import { clsxm } from "@/app/utils"
+import { checkPastDate, cn } from "@/lib/utils"
 import { DatePicker } from "@components/ui/DatePicker"
 import { Button } from "@components/ui/button"
 import {
@@ -12,6 +13,8 @@ import { TranslationHooks } from "next-intl"
 import React, { useEffect, useState } from "react"
 import { MdKeyboardArrowRight } from "react-icons/md"
 import { PiCalendarDotsThin } from "react-icons/pi"
+import { Dispatch, SetStateAction, useCallback, useMemo, memo } from 'react';
+import moment from 'moment';
 
 interface DatePickerInputProps {
     date: Date | null;
@@ -37,9 +40,9 @@ export function TimesheetFilterDate({
         from: initialRange?.from ?? new Date(),
         to: initialRange?.to ?? new Date(),
     });
-  
+
     const [isVisible, setIsVisible] = useState(false);
-    
+
     const handleFromChange = (fromDate: Date | null) => {
         if (maxDate && fromDate && fromDate > maxDate) {
             return;
@@ -86,7 +89,7 @@ export function TimesheetFilterDate({
                 break;
         }
     };
-  
+
     useEffect(() => {
         if (dateRange.from && dateRange.to) {
             onChange?.(dateRange);
@@ -204,19 +207,19 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
     </>
 );
 
+
 export function DatePickerFilter({
     label,
     date,
     setDate,
     minDate,
-    maxDate
+    maxDate,
 }: {
     label: string;
     date: Date | null;
     setDate: (date: Date | null) => void;
     minDate?: Date | null;
-    maxDate?: Date | null
-
+    maxDate?: Date | null;
 }) {
     const isDateDisabled = React.useCallback((date: Date) => {
         if (minDate && date < minDate) return true;
@@ -227,6 +230,7 @@ export function DatePickerFilter({
     return (
         <div>
             <DatePicker
+                captionLayout="dropdown"
                 buttonVariant={'link'}
                 className="dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200"
                 buttonClassName={'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md'}
@@ -242,15 +246,95 @@ export function DatePickerFilter({
                     }
                 }}
                 modifiersClassNames={{
-                    disabled: 'text-[#6989AA] cursor-not-allowed',
-                    selected: '!rounded-full bg-primary text-white',
-                    today: '!rounded-full bg-[#BCCAD9] text-white'
+                    booked: clsxm(
+                        'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full'
+                    ),
+                    selected: clsxm('bg-primary after:hidden text-white !rounded-full'),
+                    pastDay: clsxm(
+                        'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-yellow-600 after:rounded-full'
+                    ),
+                    today: clsxm('border-2 !border-yellow-700 rounded')
                 }}
                 disabled={[
                     ...(minDate ? [{ before: minDate }] : []),
                     ...(maxDate ? [{ after: maxDate }] : [])
                 ]}
+
             />
         </div>
     );
 }
+
+
+
+interface ICalendarProps<T extends { date: string | Date }> {
+    setSelectedPlan: Dispatch<SetStateAction<Date>>;
+    selectedPlan: Date | undefined;
+    plans: T[];
+    pastPlans: T[];
+    handleCalendarSelect: () => void;
+    createEmptyPlan: () => Promise<void>;
+    bookedDayClassName?: string;
+    selectedDayClassName?: string;
+    pastDayClassName?: string;
+    currentDayClassName?: string;
+    clickDebounceInterval?: number;
+    startYear?: number;
+    endYear?: number;
+}
+
+export const FilterCaledar = memo(function FuturePlansCalendar<T extends { date: string | Date }>({
+    setSelectedPlan,
+    selectedPlan,
+    plans,
+    pastPlans,
+    bookedDayClassName = 'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full',
+    selectedDayClassName = 'bg-primary after:hidden text-white !rounded-full',
+    pastDayClassName = 'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-yellow-600 after:rounded-full',
+    currentDayClassName = 'border-2 !border-yellow-700 rounded',
+    startYear,
+    endYear
+}: ICalendarProps<T>) {
+
+    const sortedPlansByDateDesc = useMemo(
+        () => [...plans].sort((plan1, plan2) => new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1),
+        [plans]);
+
+    const isDateAvailableForPlanning = useCallback(
+        (dateToCheck: Date) => {
+            const formattedDateToCheck = moment(dateToCheck).toISOString().split('T')[0];
+            return !plans.some(plan => {
+                const formattedPlanDate = moment(plan.date.toString().split('T')[0]).toISOString().split('T')[0];
+                return formattedPlanDate === formattedDateToCheck;
+            });
+        },
+        [plans]
+    );
+    return (
+        <DatePicker
+            mode="single"
+            captionLayout="dropdown"
+            buttonVariant={'link'}
+            className={"dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200"}
+            buttonClassName={'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md'}
+            numberOfMonths={1}
+            initialFocus
+            customInput={<DatePickerInput date={new Date()} label={''} />}
+            selected={selectedPlan || undefined}
+            onSelect={(date) => date && setSelectedPlan(moment(date).toDate())}
+            disabled={(date) => checkPastDate(date) && isDateAvailableForPlanning(date)}
+            modifiers={{
+                booked: sortedPlansByDateDesc.map(plan => moment.utc(plan.date.toString().split('T')[0]).toDate()),
+                pastDay: pastPlans.map(plan => moment.utc(plan.date.toString().split('T')[0]).toDate())
+            }}
+            modifiersClassNames={{
+                booked: clsxm(bookedDayClassName),
+                selected: clsxm(selectedDayClassName),
+                pastDay: clsxm(pastDayClassName),
+                today: clsxm(currentDayClassName)
+            }}
+            fromYear={startYear || new Date(sortedPlansByDateDesc?.[0]?.date ?? Date.now()).getFullYear()}
+            toYear={endYear || new Date(sortedPlansByDateDesc?.[sortedPlansByDateDesc?.length - 1]?.date ?? Date.now()).getFullYear() + 10}
+        />
+    );
+});
