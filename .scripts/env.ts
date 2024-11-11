@@ -67,6 +67,7 @@ export const env = cleanEnv(process.env, {
     GAUZY_API_SERVER_URL: str({ default: 'http://localhost:3000' }),
     NEXT_PUBLIC_GAUZY_API_SERVER_URL: str({ default: 'http://localhost:3000' }),
     DESKTOP_WEB_SERVER_HOSTNAME: str({
-        default: '0.0.0.0'
+        default: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost',
+        desc: 'WARNING: Using 0.0.0.0 binds to all network interfaces. Use with caution in production.'
     })
 });
