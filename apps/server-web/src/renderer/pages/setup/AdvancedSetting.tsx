@@ -2,6 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { IServerSetting } from '../../libs/interfaces';
 import { useState } from 'react';
 import { SettingPageTypeMessage } from '../../libs/constant';
+import { config } from '../../../configs/config';
+import { get } from '../../libs/utils/api';
+import { ToastComponent } from '../../components/Toast';
 type Props = {
   back: () => void;
 };
@@ -9,23 +12,51 @@ type Props = {
 const AdvancedSetting = (props: Props) => {
   const { t } = useTranslation();
   const [serverSetting, setServerSetting] = useState<IServerSetting>({
-    PORT: 3000,
-    GAUZY_API_SERVER_URL: 'http://localhost:3030',
-    NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'http://localhost:3030',
+    PORT: Number(config.DESKTOP_WEB_SERVER_APP_DEFAULT_PORT || 3001),
+    GAUZY_API_SERVER_URL:
+      config.GAUZY_API_SERVER_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_GAUZY_API_SERVER_URL:
+      config.NEXT_PUBLIC_GAUZY_API_SERVER_URL || 'http://localhost:3000',
+    DESKTOP_WEB_SERVER_HOSTNAME:
+      config.DESKTOP_WEB_SERVER_HOSTNAME || '127.0.0.1',
   });
+
+  const [errorConnection, setErrorConnection] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const saveSetting = (e: any) => {
     e.preventDefault();
-
+    setLoading(true);
     window.electron.ipcRenderer.sendMessage('setting-page', {
       data: serverSetting,
       type: SettingPageTypeMessage.saveSetting,
       isSetup: true,
     });
   };
+
+  const checkConnection = async () => {
+    try {
+      setLoading(true);
+      await get(serverSetting.GAUZY_API_SERVER_URL, '/api');
+      setLoading(false);
+      setErrorConnection(false);
+      setToastShow(true);
+    } catch (error) {
+      console.log(error);
+      setErrorConnection(true);
+      setToastShow(true);
+      setLoading(false);
+    }
+  };
   const handleChange = (event: any) => {
     const { id, value } = event.target;
     setServerSetting((prevData: any) => ({ ...prevData, [id]: value }));
   };
+
+  const closeToast = () => {
+    setToastShow(false);
+  };
+
+  const [toastShow, setToastShow] = useState<boolean>(false);
   return (
     <>
       <div className="text-center mt-8 mb-12 text-gray-700 dark:text-gray-200">
@@ -119,6 +150,7 @@ const AdvancedSetting = (props: Props) => {
         {/* Buttons */}
         <div className="flex justify-between items-center w-full mx-auto mt-auto mb-8 mt-16">
           <button
+            type="button"
             onClick={() => {
               props.back();
             }}
@@ -128,22 +160,50 @@ const AdvancedSetting = (props: Props) => {
           </button>
           <div className="flex">
             <button
+              type="button"
               onClick={() => {
-                // props.check();
+                checkConnection();
               }}
               className="flex items-center bg-green-600 text-white py-3 px-6 rounded-full hover:bg-green-700 ml-8"
+              disabled={loading}
             >
-              <span className="mr-2">✔</span> Check
+              {loading ? (
+                <div className="w-5 h-5 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
+              ) : (
+                <span className="mr-2">✔</span>
+              )}
+              Check
             </button>
             <button
+              name="save_setting"
               type="submit"
               className="flex items-center bg-purple-600 text-white py-3 px-6 rounded-full hover:bg-purple-700 ml-8"
             >
-              <span className="mr-2">💾</span> Save
+              {loading ? (
+                <div className="w-5 h-5 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
+              ) : (
+                <span className="mr-2">💾</span>
+              )}
+              Save
             </button>
           </div>
         </div>
       </form>
+      <div className="absolute top-0 right-0">
+        <ToastComponent
+          show={toastShow}
+          title="MESSAGE.INFO"
+          message={
+            errorConnection
+              ? 'MESSAGE.CONNECTION_ERROR'
+              : 'MESSAGE.CONNECTION_SUCCESS'
+          }
+          onClose={closeToast}
+          autoClose={true}
+          timeout={2000}
+          type={errorConnection ? 'error' : 'success'}
+        />
+      </div>
     </>
   );
 };

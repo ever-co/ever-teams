@@ -9,6 +9,7 @@ export const ToastComponent = ({
   autoClose,
   timeout,
   onClose,
+  type = 'success',
 }: IToastComponent) => {
   const timerRef = React.useRef(0);
   const { t } = useTranslation();
@@ -19,18 +20,15 @@ export const ToastComponent = ({
         onClose();
       }, timeout);
     }
-  }, []);
+  }, [show]);
 
   return (
-    <Toast.Provider swipeDirection="up">
+    <Toast.Provider swipeDirection="down">
       <Toast.Root
-        className="bg-gray dark:bg-[#25272D] dark:text-white rounded-lg shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] p-[15px] grid [grid-template-areas:_'title_action'_'description_action'] grid-cols-[auto_max-content] gap-x-[15px] items-center data-[state=open]:animate-slideIn data-[state=closed]:animate-hide data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out] data-[swipe=end]:animate-swipeOut"
+        className={`${type === 'success' ? 'bg-green-700' : 'bg-red-700'} rounded-lg shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] p-[15px] grid [grid-template-areas:_'title_action'_'description_action'] grid-cols-[auto_max-content] gap-x-[15px] items-center data-[state=open]:animate-slideIn data-[state=closed]:animate-hide data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out] data-[swipe=end]:animate-swipeOut absolute top-0 right-0`}
         open={show}
-        duration={timeout}
+        duration={1000}
       >
-        <Toast.Title className="[grid-area:_title] mb-[5px] font-medium text-slate12 text-[15px] text-bold">
-          {t(title)}
-        </Toast.Title>
         <Toast.Description asChild>
           <span className="text-base fs-4">{t(message)}</span>
         </Toast.Description>
@@ -47,7 +45,7 @@ export const ToastComponent = ({
           </button>
         </Toast.Action>
       </Toast.Root>
-      <Toast.Viewport className="[--viewport-padding:_25px] fixed bottom-0 right-0 flex flex-col p-[var(--viewport-padding)] gap-[10px] w-[390px] max-w-[100vw] m-0 list-none z-[2147483647] outline-none" />
+      <Toast.Viewport className="[--viewport-padding:_25px] fixed bottom-0 right-0 flex flex-col p-[var(--viewport-padding)] gap-[10px] w-[390px] max-w-[100vw] m-0 list-none z-[2147483647] outline-none absolute top-1 right-1" />
     </Toast.Provider>
   );
 };
