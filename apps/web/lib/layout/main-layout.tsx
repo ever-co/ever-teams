@@ -83,7 +83,7 @@ export function MainLayout({
 								notFound={notFound || false}
 							/>
 						</header>
-						{mainHeaderSlot ? <div className={cn(mainHeaderSlotClassName)}></div> : null}
+						{mainHeaderSlot ? <div className={cn(mainHeaderSlotClassName)}>{mainHeaderSlot}</div> : null}
 					</div>
 
 					<div className={cn('flex flex-1 flex-col gap-4 p-4 h-max pt-5', className)}>
