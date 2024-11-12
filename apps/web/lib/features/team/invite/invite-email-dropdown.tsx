@@ -19,8 +19,8 @@ export const InviteEmailDropdown = ({
 	selectedEmail: IInviteEmail | undefined;
 	error: string;
 	handleAddNew: (email: string) => void;
-	}) => {
-	const t = useTranslations()
+}) => {
+	const t = useTranslations();
 	const items = useMemo(() => mapTeamMemberItems(emails), [emails]);
 	const $items = useSyncRef(items);
 
@@ -54,6 +54,8 @@ export const InviteEmailDropdown = ({
 				error={error}
 				handleAddNew={handleAddNew}
 				useHandleKeyUp={true}
+				setSelectedEmail={setSelectedEmail}
+				selectedEmail={selectedEmail}
 			/>
 		</>
 	);

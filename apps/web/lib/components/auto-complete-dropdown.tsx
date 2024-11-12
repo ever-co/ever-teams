@@ -3,8 +3,8 @@
 import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
 import { Transition, Combobox } from '@headlessui/react';
 import { clsxm } from '@app/utils';
-import { Card } from './card';
 import { Text } from './typography';
+import { IInviteEmail } from '@/app/interfaces';
 
 type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
@@ -29,6 +29,8 @@ type Props<T extends DropdownItem> = {
 	disabled?: boolean;
 	error?: string;
 	useHandleKeyUp?: boolean;
+	setSelectedEmail?: Dispatch<SetStateAction<IInviteEmail | undefined>>;
+	selectedEmail?: IInviteEmail | undefined;
 } & PropsWithChildren;
 
 export function AutoCompleteDropdown<T extends DropdownItem>({
@@ -43,7 +45,9 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	handleAddNew,
 	disabled = false,
 	error = '',
-	useHandleKeyUp = false
+	useHandleKeyUp = false,
+	setSelectedEmail,
+	selectedEmail
 }: Props<T>) {
 	const [query, setQuery] = useState('');
 	let filteredItem = items;
@@ -68,11 +72,14 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	);
 
 	return (
-		<div className={clsxm('relative', className)}>
-			<Combobox value={Value} onChange={onChange} disabled={disabled}>
+		<div className={clsxm('', className)}>
+			<Combobox nullable value={Value} onChange={onChange} disabled={disabled}>
 				<Combobox.Input
 					placeholder={placeholder}
-					onChange={(event) => setQuery(event.target.value)}
+					onChange={(event) => {
+						setQuery(event.target.value);
+						setSelectedEmail?.({ name: selectedEmail?.name ?? '', title: event.target.value });
+					}}
 					className={clsxm(
 						'input-border ',
 						'w-full flex justify-between rounded-[0.625rem] px-3 py-2 text-sm items-center bg-transparent',
@@ -83,6 +90,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					displayValue={(item: T) => item?.data?.title}
 					autoFocus
 					onKeyUp={handleKeyUp}
+					value={query}
 				/>
 
 				<Transition
@@ -95,16 +103,12 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 				>
 					<Combobox.Options
 						className={clsxm(
-							'absolute mt-3 min-w-full max-h-64',
+							'mt-3 min-w-full max-h-64',
 							'overflow-hidden overflow-y-auto',
 							optionsClassName
 						)}
 					>
-						<Card
-							shadow="bigger"
-							className="md:px-4 py-4 rounded-[12px]"
-							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.15)' }}
-						>
+						<div className="md:px-4 py-2 bg-slate-50  rounded-none">
 							{/* This should only show when New item needs to be created */}
 							{query && handleAddNew && (
 								<Combobox.Option
@@ -113,7 +117,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 									onClick={() => {
 										handleAddNew(query);
 									}}
-									className="font-medium cursor-pointer mb-3"
+									className="font-medium cursor-pointer mb-3 flex items-center h-full"
 								>
 									<div className="flex justify-between">{`${query}`}</div>
 								</Combobox.Option>
@@ -132,7 +136,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 
 							{/* Additional content */}
 							<Combobox.Button as="div">{children}</Combobox.Button>
-						</Card>
+						</div>
 					</Combobox.Options>
 				</Transition>
 			</Combobox>
