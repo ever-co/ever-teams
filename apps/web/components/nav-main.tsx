@@ -113,7 +113,7 @@ export function NavMain({
 										'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
 										state === 'collapsed' ? ' justify-center' : '',
 										index === activeMenuIndex
-											? 'font-medium dark:text-gray-50 dark:hover:bg-sidebar-accent'
+											? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
 											: '!font-normal'
 									)}
 									asChild
