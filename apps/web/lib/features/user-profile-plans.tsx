@@ -58,7 +58,16 @@ export function UserProfilePlans() {
 	const t = useTranslations();
 
 	const profile = useUserProfilePage();
-	const { todayPlan, futurePlans, pastPlans, outstandingPlans, sortedPlans, profileDailyPlans } = useDailyPlan();
+	const {
+		todayPlan,
+		futurePlans,
+		pastPlans,
+		outstandingPlans,
+		sortedPlans,
+		profileDailyPlans,
+		deleteDailyPlan,
+		deleteDailyPlanLoading
+	} = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
@@ -85,6 +94,8 @@ export function UserProfilePlans() {
 	const { hasPlan } = useTimer();
 	const { activeTeam } = useTeamTasks();
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const [popupOpen, setPopupOpen] = useState(false);
+	const canSeeActivity = useCanSeeActivityScreen();
 
 	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
 	useEffect(() => {
@@ -132,7 +143,7 @@ export function UserProfilePlans() {
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div className=" space-y-4">
 							<div className="flex items-center justify-between w-full">
-								<div className={clsxm('flex items-center gap-4 ')}>
+								<div className={clsxm('flex items-center gap-4')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
@@ -173,6 +184,66 @@ export function UserProfilePlans() {
 									))}
 								</div>
 								<div className="flex  items-center gap-2">
+									{currentTab === 'Today Tasks' && todayPlan[0] && (
+										<>
+											{canSeeActivity ? (
+												<div className="flex justify-end">
+													<AlertPopup
+														open={popupOpen}
+														buttonOpen={
+															//button open popup
+															<Button
+																onClick={() => {
+																	setPopupOpen((prev) => !prev);
+																}}
+																variant="outline"
+																className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+															>
+																{t('common.plan.DELETE_THIS_PLAN')}
+															</Button>
+														}
+													>
+														{/*button confirm*/}
+														<Button
+															disabled={deleteDailyPlanLoading}
+															onClick={async () => {
+																try {
+																	if (requirePlan) {
+																		localStorage.removeItem(
+																			DAILY_PLAN_SUGGESTION_MODAL_DATE
+																		);
+																	}
+																	todayPlan[0].id &&
+																		(await deleteDailyPlan(todayPlan[0].id));
+																} catch (error) {
+																	console.error(error);
+																} finally {
+																	setPopupOpen(false);
+																}
+															}}
+															variant="destructive"
+															className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+														>
+															{deleteDailyPlanLoading && (
+																<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+															)}
+															{t('common.DELETE')}
+														</Button>
+														{/*button cancel*/}
+														<Button
+															onClick={() => setPopupOpen(false)}
+															variant="outline"
+															className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+														>
+															{t('common.CANCEL')}
+														</Button>
+													</AlertPopup>
+												</div>
+											) : (
+												<></>
+											)}
+										</>
+									)}
 									{currentTab === 'Outstanding' && (
 										<Select
 											onValueChange={(value) => {
@@ -216,13 +287,8 @@ export function UserProfilePlans() {
 function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; currentTab?: FilterTabs }) {
 	// Filter plans
 	const filteredPlans = useRef<IDailyPlan[]>([]);
-	const { deleteDailyPlan, deleteDailyPlanLoading, sortedPlans, todayPlan } = useDailyPlan();
-	const [popupOpen, setPopupOpen] = useState(false);
-	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
+	const { sortedPlans, todayPlan } = useDailyPlan();
 	const { date } = useDateRange(currentTab);
-	const { activeTeam } = useTeamTasks();
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-	const t = useTranslations();
 
 	if (currentTab === 'Today Tasks') {
 		filteredPlans.current = todayPlan;
@@ -230,14 +296,13 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 		filteredPlans.current = sortedPlans;
 	}
 
-	const canSeeActivity = useCanSeeActivityScreen();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	const [plans, setPlans] = useState(filteredPlans.current);
 
 	useEffect(() => {
 		setPlans(filterDailyPlan(date as any, filteredPlans.current));
-	}, [date, filteredPlans.current]);
+	}, [date, todayPlan]);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -252,7 +317,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 								: [plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 						}
 					>
-						{plans.map((plan, index) => (
+						{plans.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
@@ -338,60 +403,6 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 													)
 												)}
 												<>{provided.placeholder}</>
-												{currentTab === 'Today Tasks' && (
-													<>
-														{canSeeActivity ? (
-															<div className="flex justify-end">
-																<AlertPopup
-																	open={currentDeleteIndex === index && popupOpen}
-																	buttonOpen={
-																		//button open popup
-																		<Button
-																			onClick={() => {
-																				setCurrentDeleteIndex(index);
-																				setPopupOpen((prev) => !prev);
-																			}}
-																			variant="outline"
-																			className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-																		>
-																			{t('common.plan.DELETE_THIS_PLAN')}
-																		</Button>
-																	}
-																>
-																	{/*button confirm*/}
-																	<Button
-																		disabled={deleteDailyPlanLoading}
-																		onClick={() => {
-																			if (requirePlan) {
-																				localStorage.removeItem(
-																					DAILY_PLAN_SUGGESTION_MODAL_DATE
-																				);
-																			}
-																			deleteDailyPlan(plan.id ?? '');
-																		}}
-																		variant="destructive"
-																		className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-																	>
-																		{deleteDailyPlanLoading && (
-																			<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
-																		)}
-																		{t('common.DELETE')}
-																	</Button>
-																	{/*button cancel*/}
-																	<Button
-																		onClick={() => setPopupOpen(false)}
-																		variant="outline"
-																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-																	>
-																		{t('common.CANCEL')}
-																	</Button>
-																</AlertPopup>
-															</div>
-														) : (
-															<></>
-														)}
-													</>
-												)}
 											</ul>
 										)}
 									</Droppable>
