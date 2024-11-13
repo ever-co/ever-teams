@@ -153,7 +153,12 @@ export const DynamicSelect = React.memo(function DynamicSelect<T>({
 				</SelectGroup>
 			</SelectContent>
 			{error && (
-				<p className="mt-1 text-sm text-red-500">{error}</p>
+				<p
+					className="mt-1 text-sm text-red-500"
+					role="alert"
+					aria-live="polite">
+					{error}
+				</p>
 			)}
 		</Select>
 	)
