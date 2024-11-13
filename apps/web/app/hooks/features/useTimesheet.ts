@@ -6,10 +6,11 @@ import { useCallback, useEffect } from 'react';
 import { getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { ITimeSheet } from '@/app/interfaces';
+import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 interface TimesheetParams {
-    startDate: Date | string;
-    endDate: Date | string;
+    startDate?: Date | string;
+    endDate?: Date | string;
 }
 
 export interface GroupedTimesheet {
@@ -45,7 +46,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-
+    const { employee, project } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
 
     const getTaskTimesheet = useCallback(
@@ -59,13 +60,15 @@ export function useTimesheet({
                 organizationId: user.employee?.organizationId,
                 tenantId: user.tenantId ?? '',
                 timeZone: user.timeZone?.split('(')[0].trim(),
+                employeeIds: employee?.map((member) => member.employee.id).filter((id) => id !== undefined),
+                projectIds: project?.map((project) => project.id).filter((id) => id !== undefined)
             }).then((response) => {
                 setTimesheet(response.data);
             }).catch((error) => {
                 console.error('Error fetching timesheet:', error);
             });
         },
-        [user, queryTimesheet, setTimesheet]
+        [user, queryTimesheet, setTimesheet, employee, project]
     );
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });

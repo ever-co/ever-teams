@@ -271,7 +271,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
                                                             <span className="text-[#868688]">24:30h</span>
                                                         </Badge>
                                                     </div>
-                                                    <div className="flex items-center gap-2 p-x-1">
+                                                    <div className={clsxm("flex items-center gap-2 p-x-1", 'disabled:bg-black')}>
                                                         {getTimesheetButtons(status as StatusType, t, handleButtonClick)}
                                                     </div>
                                                 </div>

@@ -11,7 +11,9 @@ interface Project {
 interface Task {
     id: string;
     title: string;
+    issueType: string | null;
     estimate: number | null;
+    taskStatus: string | null;
     taskNumber: string;
 }
 
