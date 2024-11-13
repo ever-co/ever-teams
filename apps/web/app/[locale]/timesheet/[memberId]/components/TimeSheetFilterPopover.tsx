@@ -19,7 +19,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
     const { activeTeam } = useOrganizationTeams();
     const { tasks } = useTeamTasks();
     const t = useTranslations();
-    const { setEmployeeState, setProjectState, setStatuState, setTaskState, employee, project, statuState, task } = useTimelogFilterOptions();
+    const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } = useTimelogFilterOptions();
 
     React.useEffect(() => {
         if (shouldRemoveItems) {
@@ -54,7 +54,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                     items={activeTeam?.members ?? []}
                                     itemToString={(members) => (members ? members.employee.fullName : '')}
                                     itemId={(item) => item.id}
-                                    onValueChange={(selectedItems) => setEmployeeState(selectedItems)}
+                                    onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
                                     multiSelect={true}
                                     triggerClassName="dark:border-gray-700"
                                 />
@@ -69,7 +69,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                     items={activeTeam?.projects ?? []}
                                     itemToString={(project) => (activeTeam?.projects ? project.name! : '')}
                                     itemId={(item) => item.id}
-                                    onValueChange={(selectedItems) => setProjectState(selectedItems)}
+                                    onValueChange={(selectedItems) => setProjectState(selectedItems as any)}
                                     multiSelect={true}
                                     triggerClassName="dark:border-gray-700"
                                 />
@@ -82,7 +82,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                 <MultiSelect
                                     removeItems={shouldRemoveItems}
                                     items={tasks}
-                                    onValueChange={(selectedItems) => setTaskState(selectedItems)}
+                                    onValueChange={(selectedItems) => setTaskState(selectedItems as any)}
                                     itemId={(task) => (task ? task.id : '')}
                                     itemToString={(task) => (task ? task.title : '')}
                                     multiSelect={true}
@@ -92,14 +92,14 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('common.STATUS')}</span>
-                                    <span className={clsxm("text-primary/10", statuState && "text-primary dark:text-primary-light")}>Clear</span>
+                                    <span className={clsxm("text-primary/10", statusState && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
                                     removeItems={shouldRemoveItems}
                                     items={statusOptions}
                                     itemToString={(status) => (status ? status.value : '')}
                                     itemId={(item) => item.value}
-                                    onValueChange={(selectedItems) => setStatuState(selectedItems)}
+                                    onValueChange={(selectedItems) => setStatusState(selectedItems)}
                                     multiSelect={true}
                                     triggerClassName="dark:border-gray-700"
                                 />

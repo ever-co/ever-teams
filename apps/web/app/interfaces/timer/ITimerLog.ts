@@ -11,7 +11,7 @@ interface Project {
 interface Task {
     id: string;
     title: string;
-    issueType: string | null;
+    issueType?: ITaskIssue | null;
     estimate: number | null;
     taskStatus: string | null;
     taskNumber: string;
@@ -73,5 +73,4 @@ export interface ITimeSheet {
     employee: Employee;
     duration: number;
     isEdited: boolean;
-    issueType?: ITaskIssue;
 }

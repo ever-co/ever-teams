@@ -134,7 +134,7 @@ export function MultiSelect<T>({
                     style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
                 >
                     <div className="w-full max-h-[80vh] overflow-auto flex flex-col">
-                        {items?.map((item) => {
+                        {items.map((item) => {
                             const isSelected = selectedItems.some((selectedItem) => itemId(selectedItem) === itemId(item));
                             return renderItem ? (
                                 renderItem(item, () => onClick(item), isSelected)

@@ -68,7 +68,13 @@ export function useTimesheet({
                 console.error('Error fetching timesheet:', error);
             });
         },
-        [user, queryTimesheet, setTimesheet, employee, project]
+        [
+            user,
+            queryTimesheet,
+            setTimesheet,
+            employee,
+            project
+        ]
     );
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
