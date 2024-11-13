@@ -206,7 +206,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 								{
 									title: t('sidebar.WEEKLY_LIMIT'),
 									label: 'weekly-limit',
-									url: '#'
+									url: '/reports/weekly'
 								},
 								{
 									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),

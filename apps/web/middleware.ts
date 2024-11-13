@@ -23,6 +23,7 @@ export const config = {
 		'/profile/:path*',
 		'/settings/(.*)',
 		'/task(.*)',
+		'/reports/(.*)',
 		'/meet(.*)',
 		'/board(.*)',
 		'/kanban(.*)',
