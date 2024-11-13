@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Últimos 7 días",
 		"FILTER_LAST_30_DAYS": "Últimos 30 días",
 		"FILTER_THIS_YEAR": "Este año {year}",
-		"FILTER_CUSTOM_RANGE": "Rango personalizado"
+		"FILTER_CUSTOM_RANGE": "Rango personalizado",
+		"CLEAR_FILTER": "Borrar filtro",
+		"CLEAR": "Borrar",
+		"APPLY_FILTER": "Aplicar filtro"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",

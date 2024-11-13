@@ -46,7 +46,7 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10")}>{t('common.CLEAR')}</span>
                                 </label>
                                 <MultiSelect
                                     removeItems={shouldRemoveItems}
@@ -61,7 +61,7 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10")}>{t('common.CLEAR')}</span>
                                 </label>
                                 <MultiSelect
                                     removeItems={shouldRemoveItems}
@@ -76,7 +76,7 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('hotkeys.TASK')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10")}>{t('common.CLEAR')}</span>
                                 </label>
                                 <MultiSelect
                                     removeItems={shouldRemoveItems}
@@ -91,7 +91,7 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('common.STATUS')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10")}>{t('common.CLEAR')}</span>
                                 </label>
                                 <MultiSelect
                                     removeItems={shouldRemoveItems}
@@ -108,11 +108,11 @@ export function TimeSheetFilterPopover() {
                                     onClick={() => setShouldRemoveItems(true)}
                                     variant={'outline'}
                                     className='flex items-center text-sm justify-center h-10   rounded-lg  dark:text-gray-300' >
-                                    <span className="text-sm">Clear Filter</span>
+                                    <span className="text-sm">{t('common.CLEAR_FILTER')}</span>
                                 </Button>
                                 <Button
                                     className='flex items-center text-sm justify-center h-10  rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300' >
-                                    <span className="text-sm">Apply Filter</span>
+                                    <span className="text-sm">{t('common.APPLY_FILTER')}</span>
                                 </Button>
                             </div>
                         </div>
