@@ -39,7 +39,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
                         'border border-gray-200 ',
                         'text-[#282048] text-sm',
                         'flex items-center',
-                        'hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 dark:border-gray-600'
+                        'hover:bg-gray-50 hover:dark:bg-primary-light/40 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 dark:border-gray-600'
                     )}
                     aria-label="View timesheet details"
                     onClick={onClick}>

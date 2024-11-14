@@ -20,13 +20,17 @@ export async function getTaskTimesheetLogsApi({
 	tenantId,
 	startDate,
 	endDate,
-	timeZone
+	timeZone,
+	projectIds = [],
+	employeeIds = []
 }: {
 	organizationId: string,
 	tenantId: string,
 	startDate: string | Date,
 	endDate: string | Date,
-	timeZone?: string
+	timeZone?: string,
+	projectIds?: string[],
+	employeeIds?: string[]
 }) {
 
 	if (!organizationId || !tenantId || !startDate || !endDate) {
@@ -37,7 +41,6 @@ export async function getTaskTimesheetLogsApi({
 	if (isNaN(new Date(start).getTime()) || isNaN(new Date(end).getTime())) {
 		throw new Error('Invalid date format provided');
 	}
-
 	const params = new URLSearchParams({
 		'activityLevel[start]': '0',
 		'activityLevel[end]': '100',
@@ -49,9 +52,17 @@ export async function getTaskTimesheetLogsApi({
 		'relations[0]': 'project',
 		'relations[1]': 'task',
 		'relations[2]': 'organizationContact',
-		'relations[3]': 'employee.user'
+		'relations[3]': 'employee.user',
+		'relations[4]': 'task.taskStatus'
 	});
 
+	projectIds.forEach((id, index) => {
+		params.append(`projectIds[${index}]`, id);
+	});
+
+	employeeIds.forEach((id, index) => {
+		params.append(`employeeIds[${index}]`, id);
+	});
 	const endpoint = `/timesheet/time-log?${params.toString()}`;
 	return get<ITimeSheet[]>(endpoint, { tenantId });
 }

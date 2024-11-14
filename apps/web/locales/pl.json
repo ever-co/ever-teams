@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Ostatnie 7 dni",
 		"FILTER_LAST_30_DAYS": "Ostatnie 30 dni",
 		"FILTER_THIS_YEAR": "Ten rok {year}",
-		"FILTER_CUSTOM_RANGE": "Zakres niestandardowy"
+		"FILTER_CUSTOM_RANGE": "Zakres niestandardowy",
+		"CLEAR_FILTER": "Wyczyść filtr",
+		"CLEAR": "Wyczyść",
+		"APPLY_FILTER": "Zastosuj filtr"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Tytuł Zadania nie może przekraczać 255 znaków.",
 			"TASK_IS_ALREADY_EPIC": "Typ Zadania jako 'Epic' nie może zostać zmieniony.",
 			"TASK_HAS_PARENT": "Typ Zadania nie może zostać zmieniony, ponieważ Zadanie ma już przypisanego rodzica."
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Zaraz usuniesz status {statusName}, który jest używany przez aktywne zadania; proszę potwierdzić akcję"
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",

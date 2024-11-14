@@ -31,18 +31,18 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 		>
 			<div className="transition-all">
 				<HorizontalSeparator className="my-4" />
-				<h2 className="text-xl font-semibold py-2 px-4">Activity for Today</h2>
-				<div className="flex justify-between overflow-hidden">
-					<div className="w-56 ">
-						<div className="shadow rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
+				<h2 className="px-4 py-2 text-xl font-semibold">Activity for Today</h2>
+				<div className="flex flex-col justify-between overflow-hidden gap-y-5">
+					<div className="flex items-center gap-3 wrap">
+						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md w-full p-4 m-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
-							<h2 className="text-3xl font-bold my-3">
+							<h2 className="my-3 text-3xl font-bold">
 								{activityPercent ? activityPercent.toFixed(2) : '00'} %
 							</h2>
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>
 					</div>
-					<div className="p-4 flex-1 overflow-hidden">
+					<div className="flex-1 overflow-hidden">
 						<Tab.Group>
 							<Tab.List className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2 mx-4">
 								{Object.values(ActivityFilters).map((filter: string) => (
@@ -63,16 +63,16 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 								))}
 							</Tab.List>
 							<Tab.Panels>
-								<Tab.Panel className="w-full mx-4 p-2 overflow-hidden">
+								<Tab.Panel className="w-full p-2 mx-4 overflow-hidden">
 									<UserWorkedTaskTab member={member} />
 								</Tab.Panel>
-								<Tab.Panel className="w-full mx-4 p-2">
+								<Tab.Panel className="w-full p-2 mx-4">
 									<ScreenshootTeamTab />
 								</Tab.Panel>
-								<Tab.Panel className="w-full mx-4 p-2">
+								<Tab.Panel className="w-full p-2 mx-4">
 									<AppsTab />
 								</Tab.Panel>
-								<Tab.Panel className="w-full mx-4 p-2">
+								<Tab.Panel className="w-full p-2 mx-4">
 									<VisitedSitesTab />
 								</Tab.Panel>
 							</Tab.Panels>

@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "过去7天",
 		"FILTER_LAST_30_DAYS": "过去30天",
 		"FILTER_THIS_YEAR": "今年 {year}",
-		"FILTER_CUSTOM_RANGE": "自定义范围"
+		"FILTER_CUSTOM_RANGE": "自定义范围",
+		"CLEAR_FILTER": "清除筛选",
+		"CLEAR": "清除",
+		"APPLY_FILTER": "应用筛选"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "任务标题不能超过255个字符。",
 			"TASK_IS_ALREADY_EPIC": "史诗类型任务无法更改。",
 			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "您即将删除正在被活跃任务使用的状态 {statusName}；请确认操作"
 		},
 		"auth": {
 			"SEND_CODE": "发送验证码",

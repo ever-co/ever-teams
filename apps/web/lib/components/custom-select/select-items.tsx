@@ -3,6 +3,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { cn } from 'lib/utils';
 import { useEffect, useState } from 'react';
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select"
+import React from 'react';
 
 interface SelectItemsProps<T> {
 	items: T[];
@@ -94,3 +104,62 @@ export function SelectItems<T>({
 		</Popover>
 	);
 }
+
+
+type DynamicSelectProps<T> = {
+	items: T[]
+	label: string
+	placeholder: string
+	getItemLabel: (item: T) => string
+	getItemValue: (item: T) => string
+	onChange?: (value: string) => void
+	disabled?: boolean
+	error?: string
+	defaultValue?: string
+}
+
+export const DynamicSelect = React.memo(function DynamicSelect<T>({
+	items,
+	label,
+	placeholder,
+	getItemLabel,
+	getItemValue,
+	onChange,
+	disabled,
+	error,
+	defaultValue
+}: DynamicSelectProps<T>) {
+	return (
+		<Select
+			onValueChange={onChange}
+			disabled={disabled}
+			defaultValue={defaultValue}>
+			<SelectTrigger
+				className={cn(
+					"w-full",
+					error && "border-red-500 focus:ring-red-500"
+				)}
+			>
+				<SelectValue placeholder={placeholder} />
+			</SelectTrigger>
+			<SelectContent className='z-[10000]'>
+				<SelectGroup>
+					<SelectLabel>{label}</SelectLabel>
+					{items.map((item, index) => (
+						<SelectItem key={getItemValue(item)} value={getItemValue(item)}>
+							{getItemLabel(item)}
+						</SelectItem>
+					))}
+				</SelectGroup>
+			</SelectContent>
+			{error && (
+				<p
+					className="mt-1 text-sm text-red-500"
+					role="alert"
+					aria-live="polite">
+					{error}
+				</p>
+			)}
+		</Select>
+	)
+})

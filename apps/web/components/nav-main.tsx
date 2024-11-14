@@ -80,7 +80,9 @@ export function NavMain({
 										className={cn(
 											'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
 											state === 'collapsed' ? ' justify-center' : '',
-											index === activeMenuIndex ? 'font-medium bg-[#eaeef4]' : '!font-normal' // Style for active menu
+											index === activeMenuIndex
+												? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+												: '!font-normal' // Style for active menu
 										)}
 										asChild
 										tooltip={item.title}
@@ -110,7 +112,9 @@ export function NavMain({
 									className={cn(
 										'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
 										state === 'collapsed' ? ' justify-center' : '',
-										index === activeMenuIndex ? 'font-medium' : '!font-normal'
+										index === activeMenuIndex
+											? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+											: '!font-normal'
 									)}
 									asChild
 									tooltip={item.title}
@@ -154,7 +158,7 @@ export function NavMain({
 
 																// Style for active sub-menu
 																key === activeSubMenuIndex
-																	? 'font-medium bg-[#eaeef4]'
+																	? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
 																	: '!font-light'
 															)}
 															onClick={() => handleSubMenuToggle(key)}
