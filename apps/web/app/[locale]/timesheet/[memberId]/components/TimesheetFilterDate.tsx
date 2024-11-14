@@ -175,7 +175,7 @@ export function TimesheetFilterDate({
                         <Button
                             key={index}
                             variant="outline"
-                            className="h-7 flex items-center justify-between border-none text-[12px] text-gray-700 dark:dark:bg-dark--theme-light"
+                            className={clsxm("h-6 flex items-center justify-between border-none text-[12px] text-gray-700 dark:bg-dark--theme-light hover:bg-primary  hover:text-white hover:dark:bg-primary-light")}
                             onClick={() => {
                                 label === t('common.FILTER_CUSTOM_RANGE') && setIsVisible((prev) => !prev)
                                 handlePresetClick(label)

@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Последните 7 дни",
 		"FILTER_LAST_30_DAYS": "Последните 30 дни",
 		"FILTER_THIS_YEAR": "Тази година {year}",
-		"FILTER_CUSTOM_RANGE": "Потребителски диапазон"
+		"FILTER_CUSTOM_RANGE": "Потребителски диапазон",
+		"CLEAR_FILTER": "Изчисти филтъра",
+		"CLEAR": "Изчисти",
+		"APPLY_FILTER": "Приложи филтър"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

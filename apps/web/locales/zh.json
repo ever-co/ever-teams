@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "过去7天",
 		"FILTER_LAST_30_DAYS": "过去30天",
 		"FILTER_THIS_YEAR": "今年 {year}",
-		"FILTER_CUSTOM_RANGE": "自定义范围"
+		"FILTER_CUSTOM_RANGE": "自定义范围",
+		"CLEAR_FILTER": "清除筛选",
+		"CLEAR": "清除",
+		"APPLY_FILTER": "应用筛选"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

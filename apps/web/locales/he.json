@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "ה-7 ימים האחרונים",
 		"FILTER_LAST_30_DAYS": "ה-30 ימים האחרונים",
 		"FILTER_THIS_YEAR": "שנה זו {year}",
-		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית"
+		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית",
+		"CLEAR_FILTER": "נקה סינון",
+		"CLEAR": "נקה",
+		"APPLY_FILTER": "החל סינון"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
