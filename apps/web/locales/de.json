@@ -340,6 +340,9 @@
 			"TASK_IS_ALREADY_EPIC": "Epische Aufgabentypen können nicht geändert werden.",
 			"TASK_HAS_PARENT": "Der Aufgabentyp kann nicht geändert werden, da die Aufgabe bereits ein übergeordnetes Element hat."
 		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Sie sind dabei, den Status {statusName} zu löschen, der von aktiven Aufgaben verwendet wird; bitte bestätigen Sie die Aktion"
+		},
 		"auth": {
 			"SEND_CODE": "Code senden",
 			"RESEND_CODE": "Code erneut senden",
