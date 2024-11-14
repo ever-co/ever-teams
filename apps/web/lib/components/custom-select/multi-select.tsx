@@ -33,37 +33,45 @@ export function MultiSelect<T>({
     removeItems,
     localStorageKey = "select-items-selected",
 }: MultiSelectProps<T>) {
-    const [selectedItems, setSelectedItems] = useState<T[]>(
-        JSON.parse(typeof window !== 'undefined'
-            && window.localStorage.getItem(localStorageKey) as any) || []
-    );
+    const [selectedItems, setSelectedItems] = useState<T[]>(() => {
+        if (typeof window === 'undefined') return [];
+        try {
+            const saved = localStorage.getItem(localStorageKey);
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    });
     const [isPopoverOpen, setPopoverOpen] = useState(false);
     const [popoverWidth, setPopoverWidth] = useState<number | null>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
 
     // Load selected items from localStorage on component mount
     useEffect(() => {
-        const savedItems = localStorage.getItem(localStorageKey);
-        if (savedItems) {
-            setSelectedItems(typeof window !== 'undefined' && JSON.parse(savedItems));
-        } else if (defaultValue) {
+        if (defaultValue) {
             const initialItems = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
             setSelectedItems(initialItems);
-            if (onValueChange) onValueChange(multiSelect ? initialItems : initialItems[0]);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [defaultValue, setSelectedItems]);
+
+    useEffect(() => {
+        if (onValueChange) {
+            onValueChange(multiSelect ? selectedItems : selectedItems[0] || null);
+        }
+    }, [selectedItems, multiSelect, onValueChange]);
 
     // Save selected items to localStorage whenever they change
+    // Handle persistence
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem(localStorageKey, JSON.stringify(selectedItems));
-            if (onValueChange) {
-                onValueChange(multiSelect ? selectedItems : selectedItems[0] || null);
+            try {
+                localStorage.setItem(localStorageKey, JSON.stringify(selectedItems));
+            } catch (error) {
+                console.error('Failed to save to localStorage:', error);
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedItems]);
+    }, [selectedItems, localStorageKey]);
 
     const onClick = (item: T) => {
         let newSelectedItems: T[];
