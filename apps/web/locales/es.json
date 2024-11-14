@@ -343,6 +343,9 @@
 			"TASK_IS_ALREADY_EPIC": "La tarea de tipo Épico no se puede cambiar.",
 			"TASK_HAS_PARENT": "El tipo de tarea no se puede cambiar porque la tarea ya tiene un padre."
 		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Está a punto de eliminar el estado {statusName} que está siendo utilizado por tareas activas; por favor confirme la acción"
+		},
 		"auth": {
 			"SEND_CODE": "enviar código",
 			"RESEND_CODE": "Reenviar código",

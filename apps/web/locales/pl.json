@@ -343,6 +343,9 @@
 			"TASK_IS_ALREADY_EPIC": "Typ Zadania jako 'Epic' nie może zostać zmieniony.",
 			"TASK_HAS_PARENT": "Typ Zadania nie może zostać zmieniony, ponieważ Zadanie ma już przypisanego rodzica."
 		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Zaraz usuniesz status {statusName}, który jest używany przez aktywne zadania; proszę potwierdzić akcję"
+		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",
 			"RESEND_CODE": "Wyślij ponownie kod",

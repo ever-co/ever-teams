@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus } from '@app/hooks';
+import { useModal, useRefetchData, useTaskStatus, useTeamTasks } from '@app/hooks';
 import { IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
@@ -15,6 +15,7 @@ import IconPopover from './icon-popover';
 import { StatusesListCard } from './list-card';
 import SortTasksStatusSettings from '@components/pages/kanban/sort-tasks-status-settings';
 import { StandardTaskStatusDropDown } from 'lib/features';
+import { DeleteTaskStatusConfirmationModal } from '../features/task-status/delete-status-confirmation-modal';
 
 type StatusForm = {
   formOnly?: boolean;
@@ -152,6 +153,9 @@ export const TaskStatusesForm = ({
       ? updateArray.sort((a: any, b: any) => a.order - b.order)
       : [];
   const { isOpen, closeModal, openModal } = useModal();
+  const {isOpen : isDeleteConfirmationOpen , closeModal : closeDeleteConfirmationModal, openModal : openDeleteConfirmationModal} = useModal()
+  const [statusToDelete, setStatusToDelete] = useState<ITaskStatusItemList | null>(null)
+  const {tasks} = useTeamTasks()
 
   return (
     <>
@@ -282,8 +286,20 @@ export const TaskStatusesForm = ({
                             setCreateNew(false);
                             setEdit(status);
                           }}
-                          onDelete={() => {
-                            deleteTaskStatus(status.id);
+                          onDelete={async () => {
+							try {
+								const isStatusUsed = tasks.find(
+									(t) => t.status?.toLowerCase() === status.name?.toLowerCase()
+								);
+								if (isStatusUsed) {
+									setStatusToDelete(status);
+									openDeleteConfirmationModal();
+								} else {
+									await deleteTaskStatus(status.id);
+								}
+							} catch (error) {
+								console.error(error);
+							}
                           }}
                           isStatus={true}
                         />
@@ -298,6 +314,7 @@ export const TaskStatusesForm = ({
           </div>
         </div>
       </form>
+	  {statusToDelete && <DeleteTaskStatusConfirmationModal onCancel={() => setStatusToDelete(null)} status={statusToDelete} open={isDeleteConfirmationOpen} closeModal={closeDeleteConfirmationModal}/>}
     </>
   );
 };

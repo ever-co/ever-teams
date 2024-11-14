@@ -343,6 +343,9 @@
 			"TASK_IS_ALREADY_EPIC": "史诗类型任务无法更改。",
 			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。"
 		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "您即将删除正在被活跃任务使用的状态 {statusName}；请确认操作"
+		},
 		"auth": {
 			"SEND_CODE": "发送验证码",
 			"RESEND_CODE": "重新发送验证码",

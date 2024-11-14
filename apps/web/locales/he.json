@@ -343,6 +343,9 @@
 			"TASK_IS_ALREADY_EPIC": "לא ניתן לשנות סוג משימה אפית.",
 			"TASK_HAS_PARENT": "לא ניתן לשנות סוג משימה מכיוון שלמשימה כבר יש הורה."
 		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "אתה עומד למחוק את המצב {statusName} המשמש במשימות פעילות; נא לאשר פעולה"
+		},
 		"auth": {
 			"SEND_CODE": "שלח קוד",
 			"RESEND_CODE": "שלח קוד מחדש",
