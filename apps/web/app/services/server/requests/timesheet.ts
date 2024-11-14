@@ -79,3 +79,20 @@ export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: s
 		tenantId: params.tenantId
 	})
 }
+
+type IDeleteTimesheetProps = {
+	organizationId: string;
+	tenantId: string;
+	logIds?: string[]
+}
+
+export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer_token: string) {
+	const queries = qs.stringify(params);
+	return serverFetch<ITimeSheet[]>({
+		path: `/timesheet/time-log?${queries.toString()}`,
+		method: 'DELETE',
+		bearer_token: bearer_token,
+		tenantId: params.tenantId,
+		body: params
+	})
+}

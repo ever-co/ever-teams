@@ -1,5 +1,5 @@
 import { ITimeSheet, ITimerStatus } from '@app/interfaces';
-import { get } from '../../axios';
+import { get, deleteApi } from '../../axios';
 
 export async function getTimerLogs(
 	tenantId: string,
@@ -65,4 +65,27 @@ export async function getTaskTimesheetLogsApi({
 	});
 	const endpoint = `/timesheet/time-log?${params.toString()}`;
 	return get<ITimeSheet[]>(endpoint, { tenantId });
+}
+
+
+export async function deleteTaskTimesheetLogsApi({
+	logIds,
+	organizationId,
+	tenantId
+}: {
+	organizationId: string,
+	tenantId: string,
+	logIds: string[]
+}) {
+	const params = new URLSearchParams({
+		organizationId,
+		tenantId
+	});
+	logIds.forEach((id, index) => {
+		params.append(`logIds[${index}]`, id);
+	});
+
+	const endPoint = `/timesheet/time-log?${params.toString()}`;
+	return deleteApi<ITimeSheet[]>(endPoint, { tenantId });
+
 }

@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect } from 'react';
-import { getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
+import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { ITimeSheet } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
@@ -48,6 +48,7 @@ export function useTimesheet({
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
     const { employee, project } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
+    const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi)
 
     const getTaskTimesheet = useCallback(
         ({ startDate, endDate }: TimesheetParams) => {
@@ -76,6 +77,18 @@ export function useTimesheet({
             project
         ]
     );
+
+
+    const deleteTaskTimesheet = useCallback(() => {
+        if (!user) return;
+        queryDeleteTimesheet({
+            organizationId: user.employee.organizationId,
+            tenantId: user.tenantId ?? "",
+            logIds: []
+        })
+    }, [])
+
+
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
     }, [getTaskTimesheet, startDate, endDate]);
@@ -86,5 +99,7 @@ export function useTimesheet({
         loadingTimesheet,
         timesheet: groupByDate(timesheet),
         getTaskTimesheet,
+        loadingDeleteTimesheet,
+        deleteTaskTimesheet
     };
 }
