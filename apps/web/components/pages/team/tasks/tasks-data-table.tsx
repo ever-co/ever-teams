@@ -7,6 +7,7 @@ import StatusBadge from './StatusBadge';
 import { ITaskStatus, ITeamTask } from '@/app/interfaces';
 import { Input } from '@components/ui/input';
 import { Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
@@ -21,12 +22,13 @@ export function TasksDataTable<TData, TValue>({ columns, data, className }: Read
 		getFilteredRowModel: getFilteredRowModel()
 	});
 	const tasks = data as ITeamTask[];
+	const t = useTranslations();
 	return (
 		<>
 			<div className="flex flex-col my-5 leading-snug">
 				<div className="flex flex-wrap items-center justify-between w-full gap-10 py-2 max-md:max-w-full">
-					<h1 className="self-stretch my-auto text-4xl font-medium tracking-tighter text-indigo-950">
-						Team Tasks
+					<h1 className="self-stretch my-auto text-4xl font-medium tracking-tighter text-indigo-950 dark:text-gray-50">
+						{t('sidebar.TEAMTASKS')}
 					</h1>
 					<nav className="flex flex-wrap gap-3.5 items-center self-stretch my-auto text-sm font-medium tracking-tight min-w-[240px] text-indigo-950 max-md:max-w-full">
 						<div className="flex gap-2.5 justify-center items-center self-stretch my-auto font-medium text-slate-800">
@@ -42,15 +44,15 @@ export function TasksDataTable<TData, TValue>({ columns, data, className }: Read
 							</div>
 						</div>
 						<FilterButton table={table} />
-						<div className="w-px h-6 bg-gray-200" />
-						<div className="flex gap-2.5 items-center relative min-w-[122px] border border-gray-200 dark:border-gray-300 rounded-lg">
+						<div className="w-px h-6 bg-gray-200 dark:bg-gray-400" />
+						<div className="flex gap-2.5 items-center relative min-w-[122px] text-muted-foreground border border-gray-200 dark:border-gray-400 rounded-md">
 							<Search className="absolute w-4 h-4 left-3" />
 
 							<Input
 								placeholder="Search tasks..."
 								value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
 								onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
-								className="max-w-sm pl-10 bg-transparent border-none placeholder:font-normal"
+								className="max-w-sm pl-10 bg-transparent border-none dark:focus-visible:!border-[#c8c8c8] transition-all duration-200  placeholder:font-normal"
 							/>
 						</div>
 						<Button className="text-[#B1AEBC]" variant="ghost" size="icon" aria-label="More options">
