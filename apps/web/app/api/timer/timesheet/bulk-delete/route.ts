@@ -2,8 +2,17 @@ import { deleteTaskTimesheetRequest } from '@/app/services/server/requests';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function DELETE(req: Request) {
     const res = new NextResponse();
+    const body = await req.json();
+    const { logIds = [] } = body;
+
+    if (!Array.isArray(logIds) || logIds.length === 0) {
+        return NextResponse.json(
+            { error: 'logIds must be a non-empty array' },
+            { status: 400 }
+        );
+    }
 
     const { $res, user, tenantId, organizationId, access_token, } = await authenticatedGuard(req, res);
     if (!user) return $res('Unauthorized');
@@ -11,7 +20,7 @@ export async function GET(req: Request) {
         const { data } = await deleteTaskTimesheetRequest({
             tenantId,
             organizationId,
-            logIds: [],
+            logIds,
         }, access_token);
 
         if (!data) {

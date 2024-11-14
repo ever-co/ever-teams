@@ -87,12 +87,11 @@ type IDeleteTimesheetProps = {
 }
 
 export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer_token: string) {
-	const queries = qs.stringify(params);
-	return serverFetch<ITimeSheet[]>({
-		path: `/timesheet/time-log?${queries.toString()}`,
+	const { logIds = [] } = params;
+	return serverFetch<void>({
+		path: `/timesheet/time-log/${logIds.join(',')}`,
 		method: 'DELETE',
-		bearer_token: bearer_token,
-		tenantId: params.tenantId,
-		body: params
-	})
+		bearer_token,
+		tenantId: params.tenantId
+	});
 }
