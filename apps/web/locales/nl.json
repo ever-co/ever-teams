@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Laatste 7 dagen",
 		"FILTER_LAST_30_DAYS": "Laatste 30 dagen",
 		"FILTER_THIS_YEAR": "Dit jaar {year}",
-		"FILTER_CUSTOM_RANGE": "Aangepast bereik"
+		"FILTER_CUSTOM_RANGE": "Aangepast bereik",
+		"CLEAR_FILTER": "Filter wissen",
+		"CLEAR": "Wissen",
+		"APPLY_FILTER": "Filter toepassen"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "De taaktitel kan niet langer zijn dan 255 tekens.",
 			"TASK_IS_ALREADY_EPIC": "Epic taaktype kan niet worden gewijzigd.",
 			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft."
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"
 		},
 		"auth": {
 			"SEND_CODE": "code verzenden",

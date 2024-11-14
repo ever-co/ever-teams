@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Letzte 7 Tage",
 		"FILTER_LAST_30_DAYS": "Letzte 30 Tage",
 		"FILTER_THIS_YEAR": "Dieses Jahr {year}",
-		"FILTER_CUSTOM_RANGE": "Benutzerdefinierter Bereich"
+		"FILTER_CUSTOM_RANGE": "Benutzerdefinierter Bereich",
+		"CLEAR_FILTER": "Filter löschen",
+		"CLEAR": "Löschen",
+		"APPLY_FILTER": "Filter anwenden"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Die Aufgabenbezeichnung darf nicht mehr als 255 Zeichen umfassen.",
 			"TASK_IS_ALREADY_EPIC": "Epische Aufgabentypen können nicht geändert werden.",
 			"TASK_HAS_PARENT": "Der Aufgabentyp kann nicht geändert werden, da die Aufgabe bereits ein übergeordnetes Element hat."
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Sie sind dabei, den Status {statusName} zu löschen, der von aktiven Aufgaben verwendet wird; bitte bestätigen Sie die Aktion"
 		},
 		"auth": {
 			"SEND_CODE": "Code senden",

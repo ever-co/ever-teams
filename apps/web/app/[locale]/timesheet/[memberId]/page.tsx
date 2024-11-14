@@ -1,8 +1,8 @@
 "use client"
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { TranslationHooks } from 'next-intl';
+import moment from 'moment';
+import { useTranslations, TranslationHooks } from 'next-intl';
 
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
@@ -14,7 +14,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
-import { CalendarView, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
+import { CalendarView, FilterStatus, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from 'react-icons/gr';
 import { GoSearch } from 'react-icons/go';
@@ -22,6 +22,7 @@ import { GoSearch } from 'react-icons/go';
 import { getGreeting } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { endOfDay, startOfDay } from 'date-fns';
+
 
 type TimesheetViewMode = "ListView" | "CalendarView";
 
@@ -36,6 +37,8 @@ type ViewToggleButtonProps = {
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
     const t = useTranslations();
     const { user } = useAuthenticateUser();
+    const [search, setSearch] = useState<string>('')
+    const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>("timesheet-filter-status", "All Tasks")
 
     const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
         from: startOfDay(new Date()),
@@ -47,6 +50,15 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
         endDate: dateRange.to ?? ""
     });
 
+    const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
+    const filterDataTimesheet = useMemo(() =>
+        timesheet.filter((v) =>
+            v.tasks.some((task) => (
+                (task.task?.title?.toLowerCase()?.includes(lowerCaseSearch)) ||
+                (task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch)) ||
+                (task.project?.name?.toLowerCase()?.includes(lowerCaseSearch))
+            ))
+        ), [timesheet, lowerCaseSearch]);
 
     const {
         isOpen: isManualTimeModalOpen,
@@ -105,7 +117,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                                 <TimesheetCard
                                     hours='63:00h'
                                     title='Men Hours'
-                                    date='10.04.2024 - 11.04.2024'
+                                    date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
                                     icon={<Clock className='font-bold' />}
                                     classNameIcon='bg-[#3D5A80] shadow-[#3d5a809c] '
                                 />
@@ -138,18 +150,21 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                             <div className='flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2'>
                                 <GoSearch className='text-[#7E7991]' />
                                 <input
+                                    onChange={(v) => setSearch(v.target.value)}
                                     role="searchbox"
                                     aria-label="Search timesheet"
                                     type="search"
                                     name="timesheet-search"
                                     id="timesheet-search"
                                     className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
-                                    placeholder="Search.." />
+                                    placeholder={t('common.SEARCH')} />
                             </div>
                         </div>
                         {/* <DropdownMenuDemo /> */}
                         <div className='flex flex-col overflow-y-auto  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme p-4 mt-4'>
                             <TimesheetFilter
+                                onChangeStatus={setFilterStatus}
+                                filterStatus={filterStatus}
                                 initDate={{
                                     initialRange: dateRange,
                                     onChange(range) {
@@ -163,7 +178,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
                             />
                             <div className='h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800'>
                                 {timesheetNavigator === 'ListView' ?
-                                    <TimesheetView data={timesheet} />
+                                    <TimesheetView data={filterDataTimesheet} />
                                     : <CalendarView />
                                 }
                             </div>

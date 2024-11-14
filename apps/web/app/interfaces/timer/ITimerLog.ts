@@ -1,3 +1,5 @@
+import { ITaskIssue } from "..";
+
 interface Project {
     id: string;
     name: string;
@@ -9,7 +11,9 @@ interface Project {
 interface Task {
     id: string;
     title: string;
+    issueType?: ITaskIssue | null;
     estimate: number | null;
+    taskStatus: string | null;
     taskNumber: string;
 }
 

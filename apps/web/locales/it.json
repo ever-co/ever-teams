@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Ultimi 7 giorni",
 		"FILTER_LAST_30_DAYS": "Ultimi 30 giorni",
 		"FILTER_THIS_YEAR": "Quest'anno {year}",
-		"FILTER_CUSTOM_RANGE": "Intervallo personalizzato"
+		"FILTER_CUSTOM_RANGE": "Intervallo personalizzato",
+		"CLEAR_FILTER": "Cancella filtro",
+		"CLEAR": "Cancella",
+		"APPLY_FILTER": "Applica filtro"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Il Titolo del Compito non può superare i 255 caratteri.",
 			"TASK_IS_ALREADY_EPIC": "Il tipo di Compito Epico non può essere cambiato.",
 			"TASK_HAS_PARENT": "Il tipo di Compito non può essere cambiato poiché il Compito ha già un Genitore."
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Stai per eliminare lo stato {statusName} utilizzato da attività attive; per favore conferma l'azione"
 		},
 		"auth": {
 			"SEND_CODE": "Invia Codice",

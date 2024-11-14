@@ -1243,14 +1243,14 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						leaveFrom="transform scale-100 opacity-100"
 						leaveTo="transform scale-95 opacity-0"
 						className={clsxm(
-							'absolute right-0 left-0 z-40 min-w-min outline-none',
+							'absolute right-0 left-0 z-[999] min-w-min outline-none',
 							issueType === 'issue' && ['left-auto right-auto']
 						)}
 					>
 						<Listbox.Options className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col"
+								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
 							>
 								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
 									{items.map((item, i) => {

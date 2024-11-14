@@ -52,7 +52,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						task={activeTeamTask}
 						className="lg:max-w-[170px] w-full text-xs"
 						forDetails={false}
-						taskStatusClassName="dark:bg-[#1B1D22] dark:border py-[7px] dark:border-[#FFFFFF33] text-xs"
+						taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] text-xs"
 					/>
 				</div>
 				{/* <div className="grid justify-items-center md:hidden">

@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Последните 7 дни",
 		"FILTER_LAST_30_DAYS": "Последните 30 дни",
 		"FILTER_THIS_YEAR": "Тази година {year}",
-		"FILTER_CUSTOM_RANGE": "Потребителски диапазон"
+		"FILTER_CUSTOM_RANGE": "Потребителски диапазон",
+		"CLEAR_FILTER": "Изчисти филтъра",
+		"CLEAR": "Изчисти",
+		"APPLY_FILTER": "Приложи филтър"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Заглавието на задачата не може да надвишава 255 символа.",
 			"TASK_IS_ALREADY_EPIC": "Епичният тип задача не може да бъде променен.",
 			"TASK_HAS_PARENT": "Типът задача не може да бъде променен, тъй като задачата вече има родител."
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Вие сте на път да изтриете състоянието {statusName}, което се използва от активни задачи; моля, потвърдете действието"
 		},
 		"auth": {
 			"SEND_CODE": "изпрати код",

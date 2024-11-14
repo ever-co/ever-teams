@@ -262,7 +262,10 @@
 		"FILTER_LAST_7_DAYS": "Derniers 7 jours",
 		"FILTER_LAST_30_DAYS": "Derniers 30 jours",
 		"FILTER_THIS_YEAR": "Cette année {year}",
-		"FILTER_CUSTOM_RANGE": "Plage personnalisée"
+		"FILTER_CUSTOM_RANGE": "Plage personnalisée",
+		"CLEAR_FILTER": "Effacer le filtre",
+		"CLEAR": "Effacer",
+		"APPLY_FILTER": "Appliquer le filtre"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -339,6 +342,9 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Le titre de la tâche ne peut pas dépasser 255 caractères.",
 			"TASK_IS_ALREADY_EPIC": "Le type de tâche épique ne peut pas être modifié.",
 			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent."
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Vous êtes sur le point de supprimer le statut {statusName} qui est utilisé par des tâches actives ; veuillez confirmer l'action"
 		},
 		"auth": {
 			"SEND_CODE": "envoyer le code",

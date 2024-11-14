@@ -19,7 +19,8 @@ interface IAllPlansModal {
 	isOpen: boolean;
 }
 
-type CalendarTab = 'Today' | 'Tomorrow' | 'Calendar';
+type TCalendarTab = 'Today' | 'Tomorrow' | 'Calendar';
+type TNavigationMode = 'DATE' | 'PLAN';
 
 /**
  * A modal that displays all the plans available to the user (Today, Tomorrow and Future).
@@ -32,17 +33,41 @@ type CalendarTab = 'Today' | 'Tomorrow' | 'Calendar';
  * @returns {JSX.Element} The modal element
  */
 export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) {
+	// Utility function for checking if two dates are the same
+	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
+		return moment(date1).toISOString().split('T')[0] === moment(date2).toISOString().split('T')[0];
+	}, []);
+
 	const { isOpen, closeModal } = props;
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 	const { myDailyPlans, pastPlans } = useDailyPlan();
 	const t = useTranslations();
-
-	// Utility function for checking if two dates are the same
-	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
-		return moment(date1).toISOString().split('T')[0] === moment(date2).toISOString().split('T')[0];
-	}, []);
+	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
+	const sortedPlans = useMemo(
+		() =>
+			[...myDailyPlans.items].sort((plan1, plan2) =>
+				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
+			),
+		[myDailyPlans.items]
+	);
+	const currentPlanIndex = useMemo(
+		() => sortedPlans.findIndex((plan) => isSameDate(plan.date, moment(customDate).toDate())),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[customDate, myDailyPlans.items]
+	);
+	const nextPlan = useMemo(
+		() =>
+			currentPlanIndex >= 0 && currentPlanIndex < myDailyPlans.items.length - 1
+				? sortedPlans[currentPlanIndex + 1]
+				: null,
+		[currentPlanIndex, myDailyPlans.items.length, sortedPlans]
+	);
+	const previousPlan = useMemo(
+		() => (currentPlanIndex > 0 ? sortedPlans[currentPlanIndex - 1] : null),
+		[currentPlanIndex, sortedPlans]
+	);
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
@@ -70,21 +95,27 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [closeModal]);
 
 	// Define tabs for plan selection
-	const tabs: CalendarTab[] = useMemo(() => ['Today', 'Tomorrow', 'Calendar'], []);
+	const tabs: TCalendarTab[] = useMemo(() => ['Today', 'Tomorrow', 'Calendar'], []);
 
 	// State to track the active tab
 	const [selectedTab, setSelectedTab] = useState(tabs[0]);
 
 	// Handle tab switching
-	const handleTabClick = (tab: CalendarTab) => {
+	const handleTabClick = (tab: TCalendarTab) => {
 		if (tab === 'Today') {
 			setCustomDate(moment().toDate());
+			setNavigationMode('PLAN');
 		} else if (tab === 'Tomorrow') {
 			setCustomDate(moment().add(1, 'days').toDate());
+			setNavigationMode('PLAN');
 		}
 		setSelectedTab(tab);
 		setShowCalendar(tab === 'Calendar');
 		setShowCustomPlan(false);
+
+		if (tab === 'Calendar') {
+			setNavigationMode('DATE');
+		}
 	};
 
 	// Determine which plan to display based on the selected tab
@@ -117,6 +148,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				setShowCalendar(false);
 				setShowCustomPlan(true);
 			}
+
+			setNavigationMode('PLAN');
 		}
 	}, [customDate, isSameDate]);
 
@@ -155,12 +188,12 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 			if (selectedPlan) {
 				if (isSameDate(date, moment().startOf('day').toDate())) {
-					setSelectedTab('Today');
+					navigationMode == 'PLAN' && setSelectedTab('Today');
 				} else if (isSameDate(date, moment().add(1, 'days').startOf('day').toDate())) {
-					setSelectedTab('Tomorrow');
+					navigationMode == 'PLAN' && setSelectedTab('Tomorrow');
 				} else {
 					setSelectedTab('Calendar');
-					if (existPlan) {
+					if (existPlan && navigationMode == 'PLAN') {
 						setShowCalendar(false);
 						setShowCustomPlan(true);
 					} else {
@@ -171,11 +204,35 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				}
 			}
 		},
-		[isSameDate, myDailyPlans.items, selectedPlan]
+		[isSameDate, myDailyPlans.items, navigationMode, selectedPlan]
+	);
+
+	// Handle navigation  between plans
+	const moveBetweenPlans = useCallback(
+		(direction: boolean) => {
+			if (direction) {
+				// Select the next plan
+				if (nextPlan) {
+					setCustomDate(moment(nextPlan.date).toDate());
+					setSelectedTab('Calendar');
+					setShowCalendar(false);
+					setShowCustomPlan(true);
+				}
+			} else {
+				// Select the previous plan
+				if (previousPlan) {
+					setCustomDate(moment(previousPlan.date).toDate());
+					setSelectedTab('Calendar');
+					setShowCalendar(false);
+					setShowCustomPlan(true);
+				}
+			}
+		},
+		[nextPlan, previousPlan]
 	);
 
 	// A handler function to display the plan title
-	const displayPlanTitle = (selectedTab: CalendarTab, selectedPlan?: IDailyPlan) => {
+	const displayPlanTitle = (selectedTab: TCalendarTab, selectedPlan?: IDailyPlan) => {
 		const isCalendarTab = selectedTab === 'Calendar';
 		const planDate = selectedPlan?.date ? new Date(selectedPlan.date).toLocaleDateString('en-GB') : '';
 		const hasTasks = selectedPlan?.tasks?.length;
@@ -247,14 +304,22 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 						</ul>
 						<div className="flex h-8 items-center justify-between border rounded ">
 							<span
-								onClick={() => arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())}
+								onClick={() =>
+									navigationMode === 'DATE'
+										? arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())
+										: moveBetweenPlans(false)
+								}
 								className="rotate-180 cursor-pointer px-2 h-full flex items-center justify-center"
 							>
 								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
 							<VerticalSeparator />
 							<span
-								onClick={() => arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())}
+								onClick={() =>
+									navigationMode === 'DATE'
+										? arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())
+										: moveBetweenPlans(true)
+								}
 								className=" h-full cursor-pointer flex  px-2 items-center justify-center"
 							>
 								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
