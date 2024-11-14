@@ -221,7 +221,7 @@ export function TaskIssueStatusTimesheet({
 }: { task: Nullable<ITimeSheet>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
-			{...taskIssues[task?.issueType || 'Task']}
+			{...taskIssues[task?.task.issueType || 'Task']}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('rounded-md px-2 text-white', className)}

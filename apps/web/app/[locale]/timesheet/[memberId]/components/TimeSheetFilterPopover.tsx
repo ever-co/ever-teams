@@ -1,8 +1,8 @@
+import React from "react";
 import { useOrganizationTeams, useTeamTasks } from "@app/hooks";
 import { Button } from "@components/ui/button";
 import { statusOptions } from "@app/constants";
 import { MultiSelect } from "lib/components/custom-select";
-import React, { useEffect } from "react";
 import {
     Popover,
     PopoverContent,
@@ -11,16 +11,17 @@ import {
 import { SettingFilterIcon } from "@/assets/svg";
 import { useTranslations } from "next-intl";
 import { clsxm } from "@/app/utils";
+import { useTimelogFilterOptions } from "@/app/hooks";
 
 
-
-export function TimeSheetFilterPopover() {
+export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
     const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
     const { activeTeam } = useOrganizationTeams();
     const { tasks } = useTeamTasks();
     const t = useTranslations();
+    const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } = useTimelogFilterOptions();
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (shouldRemoveItems) {
             setShouldRemoveItems(false);
         }
@@ -46,14 +47,15 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10", employee?.length > 0 && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-employee"
                                     removeItems={shouldRemoveItems}
                                     items={activeTeam?.members ?? []}
                                     itemToString={(members) => (members ? members.employee.fullName : '')}
                                     itemId={(item) => item.id}
-                                    onValueChange={(selectedItems) => console.log(selectedItems)}
+                                    onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
                                     multiSelect={true}
                                     triggerClassName="dark:border-gray-700"
                                 />
@@ -61,14 +63,15 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10", project?.length > 0 && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-projects"
                                     removeItems={shouldRemoveItems}
                                     items={activeTeam?.projects ?? []}
                                     itemToString={(project) => (activeTeam?.projects ? project.name! : '')}
                                     itemId={(item) => item.id}
-                                    onValueChange={(selectedItems) => console.log(selectedItems)}
+                                    onValueChange={(selectedItems) => setProjectState(selectedItems as any)}
                                     multiSelect={true}
                                     triggerClassName="dark:border-gray-700"
                                 />
@@ -76,12 +79,13 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('hotkeys.TASK')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10", task?.length > 0 && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-task"
                                     removeItems={shouldRemoveItems}
                                     items={tasks}
-                                    onValueChange={(task) => task}
+                                    onValueChange={(selectedItems) => setTaskState(selectedItems as any)}
                                     itemId={(task) => (task ? task.id : '')}
                                     itemToString={(task) => (task ? task.title : '')}
                                     multiSelect={true}
@@ -91,14 +95,15 @@ export function TimeSheetFilterPopover() {
                             <div className="">
                                 <label className="flex justify-between text-gray-600 mb-1 text-sm">
                                     <span className="text-[12px]">{t('common.STATUS')}</span>
-                                    <span className={clsxm("text-primary/10")}>Clear</span>
+                                    <span className={clsxm("text-primary/10", statusState && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-status"
                                     removeItems={shouldRemoveItems}
                                     items={statusOptions}
                                     itemToString={(status) => (status ? status.value : '')}
                                     itemId={(item) => item.value}
-                                    onValueChange={(selectedItems) => console.log(selectedItems)}
+                                    onValueChange={(selectedItems) => setStatusState(selectedItems)}
                                     multiSelect={true}
                                     triggerClassName="dark:border-gray-700"
                                 />
@@ -121,4 +126,4 @@ export function TimeSheetFilterPopover() {
             </Popover>
         </>
     )
-}
+})
