@@ -50,6 +50,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                     <span className={clsxm("text-primary/10", employee?.length > 0 && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-employee"
                                     removeItems={shouldRemoveItems}
                                     items={activeTeam?.members ?? []}
                                     itemToString={(members) => (members ? members.employee.fullName : '')}
@@ -65,6 +66,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                     <span className={clsxm("text-primary/10", project?.length > 0 && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-projects"
                                     removeItems={shouldRemoveItems}
                                     items={activeTeam?.projects ?? []}
                                     itemToString={(project) => (activeTeam?.projects ? project.name! : '')}
@@ -80,6 +82,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                     <span className={clsxm("text-primary/10", task?.length > 0 && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-task"
                                     removeItems={shouldRemoveItems}
                                     items={tasks}
                                     onValueChange={(selectedItems) => setTaskState(selectedItems as any)}
@@ -95,6 +98,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
                                     <span className={clsxm("text-primary/10", statusState && "text-primary dark:text-primary-light")}>Clear</span>
                                 </label>
                                 <MultiSelect
+                                    localStorageKey="timesheet-select-filter-status"
                                     removeItems={shouldRemoveItems}
                                     items={statusOptions}
                                     itemToString={(status) => (status ? status.value : '')}

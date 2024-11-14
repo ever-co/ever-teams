@@ -16,7 +16,8 @@ interface MultiSelectProps<T> {
     renderItem?: (item: T, onClick: () => void, isSelected: boolean) => JSX.Element;
     defaultValue?: T | T[];
     multiSelect?: boolean;
-    removeItems?: boolean
+    removeItems?: boolean;
+    localStorageKey?: string;
 }
 
 export function MultiSelect<T>({
@@ -29,12 +30,40 @@ export function MultiSelect<T>({
     renderItem,
     defaultValue,
     multiSelect = false,
-    removeItems
+    removeItems,
+    localStorageKey = "select-items-selected",
 }: MultiSelectProps<T>) {
-    const [selectedItems, setSelectedItems] = useState<T[]>(Array.isArray(defaultValue) ? defaultValue : defaultValue ? [defaultValue] : []);
+    const [selectedItems, setSelectedItems] = useState<T[]>(
+        JSON.parse(typeof window !== 'undefined'
+            && window.localStorage.getItem(localStorageKey) as any) || []
+    );
     const [isPopoverOpen, setPopoverOpen] = useState(false);
     const [popoverWidth, setPopoverWidth] = useState<number | null>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
+
+    // Load selected items from localStorage on component mount
+    useEffect(() => {
+        const savedItems = localStorage.getItem(localStorageKey);
+        if (savedItems) {
+            setSelectedItems(typeof window !== 'undefined' && JSON.parse(savedItems));
+        } else if (defaultValue) {
+            const initialItems = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
+            setSelectedItems(initialItems);
+            if (onValueChange) onValueChange(multiSelect ? initialItems : initialItems[0]);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Save selected items to localStorage whenever they change
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(localStorageKey, JSON.stringify(selectedItems));
+            if (onValueChange) {
+                onValueChange(multiSelect ? selectedItems : selectedItems[0] || null);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedItems]);
 
     const onClick = (item: T) => {
         let newSelectedItems: T[];
@@ -49,25 +78,15 @@ export function MultiSelect<T>({
             setPopoverOpen(false);
         }
         setSelectedItems(newSelectedItems);
-        if (onValueChange) {
-            onValueChange(multiSelect ? newSelectedItems : newSelectedItems[0]);
-        }
     };
-
 
     const removeItem = (item: T) => {
         const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
         setSelectedItems(newSelectedItems);
-        if (onValueChange) {
-            onValueChange(multiSelect ? newSelectedItems : newSelectedItems.length > 0 ? newSelectedItems[0] : null);
-        }
     };
 
     const removeAllItems = () => {
         setSelectedItems([]);
-        if (onValueChange) {
-            onValueChange(null);
-        }
     };
 
     useEffect(() => {
@@ -81,16 +100,6 @@ export function MultiSelect<T>({
             mounted = false;
         };
     }, [removeItems, removeAllItems]) // deepscan-disable-line
-
-
-    useEffect(() => {
-        const initialItems = Array.isArray(defaultValue) ? defaultValue : defaultValue ? [defaultValue] : [];
-        setSelectedItems(initialItems);
-        if (onValueChange) {
-            onValueChange(multiSelect ? initialItems : initialItems[0] || null);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [defaultValue]);
 
 
     useEffect(() => {
