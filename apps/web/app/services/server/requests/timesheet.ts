@@ -88,7 +88,7 @@ type IDeleteTimesheetProps = {
 
 export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer_token: string) {
 	const { logIds = [] } = params;
-	return serverFetch<void>({
+	return serverFetch<ITimeSheet[]>({
 		path: `/timesheet/time-log/${logIds.join(',')}`,
 		method: 'DELETE',
 		bearer_token,
