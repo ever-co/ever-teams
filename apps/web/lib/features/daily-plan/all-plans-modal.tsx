@@ -47,8 +47,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
 		() =>
-			myDailyPlans.items.sort((plan1, plan2) =>
-				new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1
+			[...myDailyPlans.items].sort((plan1, plan2) =>
+				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
 			),
 		[myDailyPlans.items]
 	);
@@ -307,7 +307,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								onClick={() =>
 									navigationMode === 'DATE'
 										? arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())
-										: moveBetweenPlans(true)
+										: moveBetweenPlans(false)
 								}
 								className="rotate-180 cursor-pointer px-2 h-full flex items-center justify-center"
 							>
@@ -318,7 +318,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								onClick={() =>
 									navigationMode === 'DATE'
 										? arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())
-										: moveBetweenPlans(false)
+										: moveBetweenPlans(true)
 								}
 								className=" h-full cursor-pointer flex  px-2 items-center justify-center"
 							>
