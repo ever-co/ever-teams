@@ -20,7 +20,6 @@ import GlobalSkeleton from '@components/ui/global-skeleton';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './integration/posthog/provider';
-import { SidebarProvider } from '@components/ui/sidebar';
 
 const locales = ['en', 'de', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es', 'fr'];
 interface Props {
@@ -142,16 +141,14 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChil
 									enableSystem
 									disableTransitionOnChange
 								>
-									<SidebarProvider>
-										{loading && !pathname?.startsWith('/auth') ? (
-											<GlobalSkeleton />
-										) : (
-											<>
-												<AppState />
-												<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
-											</>
-										)}
-									</SidebarProvider>
+									{loading && !pathname?.startsWith('/auth') ? (
+										<GlobalSkeleton />
+									) : (
+										<>
+											<AppState />
+											<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+										</>
+									)}
 								</ThemeProvider>
 							</Provider>
 						</NextAuthSessionProvider>

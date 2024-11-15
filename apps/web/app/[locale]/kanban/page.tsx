@@ -121,7 +121,7 @@ const Kanban = () => {
 				mainHeaderSlot={
 					<div
 						className={
-							'top-20 flex flex-col min-h-[263.4px] h-fit border-b-[1px] dark:border-[#26272C]  z-10 mx-[0px] w-full bg-white dark:bg-dark-high'
+							'top-20 flex flex-col min-h-[263.4px] h-fit border-b-[1px] dark:border-[#26272C] z-10 mx-[0px] w-full bg-white dark:bg-dark-high'
 						}
 					>
 						<Container fullWidth={fullWidth}>
@@ -160,7 +160,7 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="relative flex flex-col items-center justify-between pt-10 bg-white lg:flex-row dark:bg-dark-high">
+							<div className="relative flex flex-col items-center justify-between pt-10 bg-white z10 lg:flex-row dark:bg-dark-high">
 								<div className="flex flex-row">
 									{tabs.map((tab) => (
 										<div
@@ -189,7 +189,7 @@ const Kanban = () => {
 										/>
 									</div>
 									{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"> */}
-									<div className="relative">
+									<div className="relative z-10">
 										<div className="bg-[#F2F2F2] dark:bg-dark--theme-light absolute flex items-center p-2 justify-between w-40 h-11 border input-border rounded-xl">
 											<span className="flex">
 												<div
@@ -212,7 +212,7 @@ const Kanban = () => {
 															value: ''
 														})
 													}
-													className="w-5 h-5 z-50 p-0.5 cursor-pointer"
+													className="w-5 h-5 z-10 p-0.5 cursor-pointer"
 												>
 													<XMarkIcon className="w-4 h-4 dark:text-white" />
 												</div>

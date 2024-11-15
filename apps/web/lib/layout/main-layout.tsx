@@ -42,7 +42,7 @@ export function MainLayout({
 
 	return (
 		<AppContainer title={title}>
-			<SidebarProvider>
+			<SidebarProvider className="w-full h-full">
 				<AppSidebar publicTeam={publicTeam || false} />
 
 				<SidebarInset className="relative flex-1 overflow-x-hidden">
