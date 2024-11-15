@@ -20,9 +20,13 @@ const GlobalHeader = forwardRef(
 			<div
 				ref={ref as LegacyRef<HTMLDivElement>}
 				className={cn(
-					'fixed top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background ',
-					`lg:pl-[${state === 'expanded' ? '--sidebar-width' : '--sidebar-icon-width'}]`
+					'fixed flex flex-col top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background ',
+					`!lg:pl-[${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'}]`,
+					`!lg:pl-[var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})]`
 				)}
+				style={{
+					paddingLeft: `var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})`
+				}}
 			>
 				<header
 					className={cn(
@@ -40,7 +44,9 @@ const GlobalHeader = forwardRef(
 						notFound={notFound || false}
 					/>
 				</header>
-				{mainHeaderSlot ? <div className={cn(mainHeaderSlotClassName)}>{mainHeaderSlot}</div> : null}
+				{mainHeaderSlot ? (
+					<div className={cn('flex-1 w-full', mainHeaderSlotClassName)}>{mainHeaderSlot}</div>
+				) : null}
 			</div>
 		);
 	}
