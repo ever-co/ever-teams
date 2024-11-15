@@ -1,16 +1,16 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { Toaster, ToastMessageManager } from '@components/ui/toaster';
 import { Container, Divider } from 'lib/components';
 import { PropsWithChildren, useRef, ReactNode } from 'react';
-import { Footer, Navbar } from '.';
+import { Footer } from '.';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@components/app-sidebar';
 import MainSidebarTrigger from './MainSidebarTrigger';
 import AppContainer from './AppContainer';
+import GlobalHeader from './GlobalHeader';
 
 type Props = PropsWithChildren<{
 	title?: string;
@@ -38,38 +38,38 @@ export function MainLayout({
 }: Props) {
 	const fullWidth = useAtomValue(fullWidthState);
 	const headerRef = useRef<HTMLDivElement>(null);
+
 	return (
 		<AppContainer title={title}>
 			<SidebarProvider>
 				<AppSidebar publicTeam={publicTeam || false} />
 
-				<SidebarInset className="overflow-x-hidden">
-					<div ref={headerRef} className="sticky top-0 z-50 border-b min-h-fit shrink-0 h-max bg-background ">
-						<header
-							className={cn(
-								'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-[80px] top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 bg-white dark:bg-dark-high  !mx-0 nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
-								!fullWidth ? 'lg:px-8' : 'px-8'
-							)}
-						>
-							<Navbar
-								className={cn(
-									'flex items-center justify-end w-full transition-all h-max',
-									!fullWidth ? 'x-container mx-auto' : '!mx-0'
-								)}
-								showTimer={showTimer}
-								publicTeam={publicTeam || false}
-								notFound={notFound || false}
-							/>
-						</header>
-						{mainHeaderSlot ? <div className={cn(mainHeaderSlotClassName)}>{mainHeaderSlot}</div> : null}
-					</div>
+				<SidebarInset className="relative flex-1 overflow-x-hidden">
+					<GlobalHeader
+						ref={headerRef}
+						fullWidth={fullWidth}
+						showTimer={showTimer}
+						publicTeam={publicTeam || false}
+						notFound={notFound || false}
+						mainHeaderSlot={mainHeaderSlot}
+						mainHeaderSlotClassName={mainHeaderSlotClassName}
+					/>
 
-					<div className={cn('flex flex-1 flex-col gap-4 p-4 pt-5', className)}>
+					<div
+						className={cn('flex flex-1 flex-col gap-4 p-4 pt-20', className)}
+						style={{
+							paddingTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight + 25 : 115}px`
+						}}
+					>
 						<MainSidebarTrigger />
 						{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
 						<div
 							className={cn('min-h-[calc(100vh_-_240px)] h-full flex flex-col flex-1', childrenClassName)}
-							style={mainHeaderSlot ? { marginTop: `${headerRef?.current?.offsetHeight}px` } : undefined}
+							style={
+								mainHeaderSlot && headerRef.current
+									? { marginTop: `${headerRef.current.offsetHeight}px` }
+									: undefined
+							}
 						>
 							{children}
 						</div>
@@ -81,8 +81,6 @@ export function MainLayout({
 						</Container>
 					</div>
 				</SidebarInset>
-				<Toaster />
-				<ToastMessageManager />
 			</SidebarProvider>
 		</AppContainer>
 	);
