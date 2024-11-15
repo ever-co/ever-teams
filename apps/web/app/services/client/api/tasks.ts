@@ -116,6 +116,8 @@ export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: st
 		const projectId = getActiveProjectIdCookie();
 		const title = body.title.trim() || '';
 
+		console.log(body.members)
+
 		const datas: ICreateTask = {
 			description: '',
 			members: user?.employee?.id ? [{ id: user.employee.id }] : [],

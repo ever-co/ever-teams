@@ -20,12 +20,13 @@ import {
   ITaskSize,
   ITaskStatus,
   ITeamTask,
-  Nullable
+  Nullable,
+  OT_Member
 } from '@app/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Popover, Transition } from '@headlessui/react';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Combobox, Popover, Transition } from '@headlessui/react';
+import { CheckIcon, ChevronUpDownIcon, PlusIcon } from '@heroicons/react/20/solid';
 import {
   Button,
   Card,
@@ -37,8 +38,11 @@ import {
 } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import {
+	Dispatch,
+  Fragment,
   MutableRefObject,
   PropsWithChildren,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -86,7 +90,8 @@ type Props = {
   onTaskCreated?: (task: ITeamTask | undefined) => void;
   cardWithoutShadow?: boolean;
   assignTaskPopup?: boolean;
-
+  setAssignees? :  Dispatch<SetStateAction<string[]>>
+  assignees? : string[]
   forParentChildRelationship?: boolean;
 } & PropsWithChildren;
 
@@ -107,7 +112,9 @@ export function TaskInput(props: Props) {
   const {
     viewType = 'input-trigger',
     showTaskNumber = false,
-    showCombobox = true
+    showCombobox = true,
+	setAssignees,
+	assignees
   } = props;
 
   const datas = useTaskInput({
@@ -448,23 +455,21 @@ export function TaskInput(props: Props) {
     />
   );
 
-  const taskCard = (
-    <TaskCard
-      datas={datas}
-      onItemClick={
-        props.task !== undefined || props.onTaskClick
-          ? onTaskClick
-          : setAuthActiveTask
-      }
-      inputField={viewType === 'one-view' ? inputField : undefined}
-      fullWidth={props.fullWidthCombobox}
-      fullHeight={props.fullHeightCombobox}
-      handleTaskCreation={handleTaskCreation}
-      cardWithoutShadow={props.cardWithoutShadow}
-      assignTaskPopup={props.assignTaskPopup}
-      updatedTaskList={updatedTaskList}
-      forParentChildRelationship={props.forParentChildRelationship}
-    />
+  const taskCard = setAssignees && (
+		<TaskCard
+			datas={datas}
+			onItemClick={props.task !== undefined || props.onTaskClick ? onTaskClick : setAuthActiveTask}
+			inputField={viewType === 'one-view' ? inputField : undefined}
+			fullWidth={props.fullWidthCombobox}
+			fullHeight={props.fullHeightCombobox}
+			handleTaskCreation={handleTaskCreation}
+			cardWithoutShadow={props.cardWithoutShadow}
+			assignTaskPopup={props.assignTaskPopup}
+			updatedTaskList={updatedTaskList}
+			forParentChildRelationship={props.forParentChildRelationship}
+			setAssignees={setAssignees}
+			assignees={assignees ?? []}
+		/>
   );
 
   return viewType === 'one-view' ? (
@@ -518,7 +523,9 @@ function TaskCard({
   cardWithoutShadow,
   forParentChildRelationship,
   updatedTaskList,
-  assignTaskPopup
+  assignTaskPopup,
+  setAssignees,
+  assignees
 }: {
   datas: Partial<RTuseTaskInput>;
   onItemClick?: (task: ITeamTask) => void;
@@ -530,11 +537,14 @@ function TaskCard({
   forParentChildRelationship?: boolean;
   updatedTaskList?: ITeamTask[];
   assignTaskPopup?: boolean;
+  setAssignees: Dispatch<SetStateAction<string[]>>
+  assignees : string[];
 }) {
   const [, setCount] = useState(0);
   const t = useTranslations();
   const activeTaskEl = useRef<HTMLLIElement | null>(null);
   const { taskLabels: taskLabelsData } = useTaskLabels();
+  const { activeTeam } = useOrganizationTeams();
 
   const {
     taskStatus,
@@ -642,6 +652,9 @@ function TaskCard({
                     }}
                     task={datas.inputTask}
                   />
+
+					<AssigneesSelect assignees={assignees} teamMembers={activeTeam?.members ?? []} setAssignees={setAssignees}/>
+
 
 					<ProjectDropDown
 						styles={{
@@ -796,4 +809,104 @@ function TaskCard({
       <div className="w-2 h-5 opacity-0">{'|'}</div>
     </>
   );
+}
+
+
+/**
+ * ----------------------------------------------
+ * ----------- ASSINGEES MULTI SELECT -----------
+ * ----------------------------------------------
+ */
+
+interface ITeamMemberSelectProps {
+	teamMembers: OT_Member[];
+	setAssignees: Dispatch<SetStateAction<string[]>>
+	assignees : string[]
+}
+/**
+ * A multi select component for assingees
+ *
+ * @param {object} props - The props object
+ * @param {string[]} props.teamMembers - Members of the current team
+ * @param {Dispatch<SetStateAction<string[]>>} props.setAssigneea - Assignees setter
+ * @param {string[]} props.assignees - Assigned members
+ *
+ * @return {JSX.Element} The multi select component
+ */
+ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
+	const { teamMembers, setAssignees , assignees} = props;
+	const t = useTranslations();
+	const {user} = useAuthenticateUser()
+	const authMember = useMemo(() => teamMembers.find(member => member.employee.user?.id == user?.id), [teamMembers, user?.id])
+
+	return (
+		<div className=" w-40 rounded-xl bg-[#F2F2F2] py-2 px-3">
+			<Combobox multiple={true}>
+				<div className="relative my-auto">
+					<div className="relative w-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Input readOnly className="w-0 h-0" />
+						<Combobox.Button className="absolute hover:transition-all inset-y-0 right-0 flex justify-between w-full items-center">
+							<span>{t('common.ASSIGNEE')}</span>
+							<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+						</Combobox.Button>
+					</div>
+					<Transition
+						as={Fragment}
+						leave="transition ease-in duration-100"
+						leaveFrom="opacity-100"
+						leaveTo="opacity-0"
+					>
+						<Combobox.Options className="absolute mt-1 max-h-60 h-auto w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+							{authMember && (
+								<Combobox.Option
+									className={({ active }) =>
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${
+											active ? 'bg-primary/5' : 'text-gray-900'
+										}`
+									}
+									value={authMember}
+								>
+									<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
+										<CheckIcon className="h-5 w-5" aria-hidden="true" />
+									</span>
+									{authMember.employee.fullName}
+								</Combobox.Option>
+							)}
+
+							{teamMembers
+								.filter((member) => member.employee.user?.id != user?.id)
+								.map((member) => (
+									<Combobox.Option
+										key={member.id}
+										className={({ active }) =>
+											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+												active ? 'bg-primary/5' : 'text-gray-900'
+											}`
+										}
+										onClick={() => {
+											const isAssigned = assignees.includes(member.id);
+
+											if (isAssigned) {
+												setAssignees((prev) => prev.filter((id) => id != member.id));
+											} else {
+												setAssignees((prev) => [...prev, member.id]);
+											}
+										}}
+										value={member}
+									>
+										{assignees.includes(member.id) && (
+											<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
+												<CheckIcon className="h-5 w-5" aria-hidden="true" />
+											</span>
+										)}
+
+										{member.employee.fullName}
+									</Combobox.Option>
+								))}
+						</Combobox.Options>
+					</Transition>
+				</div>
+			</Combobox>
+		</div>
+	);
 }

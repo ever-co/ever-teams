@@ -201,7 +201,7 @@ interface ITeamMemberSelectProps {
  *
  * @return {JSX.Element} The multi select component
  */
-function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
+export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 	const { teamMembers, task } = props;
 	const t = useTranslations();
 

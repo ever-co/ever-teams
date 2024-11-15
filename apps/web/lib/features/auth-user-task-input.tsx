@@ -9,12 +9,14 @@ import { TaskInput } from './task/task-input';
 import { TaskLabels } from './task/task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task/task-status';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { isTrackingEnabled } = useOrganizationTeams();
+	const [assignees, setAssignees] = useState<string[]>([])
 
 	return (
 		<div className={clsxm('flex-1 flex flex-col mr-10 lg:mt-0 mt-8', className)}>
@@ -23,6 +25,9 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				createOnEnterClick={true}
 				showTaskNumber={true}
 				autoAssignTaskAuth={isTrackingEnabled}
+				usersTaskCreatedAssignTo={assignees.map(id => ({id}))}
+				setAssignees={setAssignees}
+				assignees={assignees}
 			/>
 			<div className="flex gap-5 flex-row lg:items-center justify-between ml-2">
 				<div className="xl:flex mb-4 lg:mb-0">

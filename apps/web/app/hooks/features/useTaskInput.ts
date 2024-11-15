@@ -164,7 +164,7 @@ export function useTaskInput({
         description: taskDescription.current,
 		projectId : taskProject.current
       },
-      !autoAssignTaskAuth ? assignToUsers : undefined
+      assignToUsers
     ).then((res) => {
       setQuery('');
       localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
