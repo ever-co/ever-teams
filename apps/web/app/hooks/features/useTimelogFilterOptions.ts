@@ -1,4 +1,5 @@
-import { timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState } from '@/app/stores';
+import { ITimeSheet } from '@/app/interfaces';
+import { timesheetDeleteState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState } from '@/app/stores';
 import { useAtom } from 'jotai';
 
 export function useTimelogFilterOptions() {
@@ -6,11 +7,15 @@ export function useTimelogFilterOptions() {
     const [projectState, setProjectState] = useAtom(timesheetFilterProjectState);
     const [statusState, setStatusState] = useAtom(timesheetFilterStatusState);
     const [taskState, setTaskState] = useAtom(timesheetFilterTaskState);
+    const [selectTimesheet, setSelectTimesheet] = useAtom(timesheetDeleteState);
 
     const employee = employeeState;
     const project = projectState;
     const task = taskState
 
+    const handleSelectRowTimesheet = (items: ITimeSheet) => {
+        setSelectTimesheet((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
+    }
 
     return {
         statusState,
@@ -20,6 +25,8 @@ export function useTimelogFilterOptions() {
         setEmployeeState,
         setProjectState,
         setTaskState,
-        setStatusState
+        setStatusState,
+        handleSelectRowTimesheet,
+        selectTimesheet
     };
 }

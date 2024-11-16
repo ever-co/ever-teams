@@ -52,6 +52,7 @@
 		"@opentelemetry/semantic-conventions": "^1.18.1",
 		"@popperjs/core": "^2.11.6",
 		"@radix-ui/react-accordion": "^1.1.2",
+		"@radix-ui/react-alert-dialog": "^1.1.2",
 		"@radix-ui/react-avatar": "^1.1.1",
 		"@radix-ui/react-checkbox": "^1.1.1",
 		"@radix-ui/react-collapsible": "^1.1.1",
@@ -98,7 +99,7 @@
 		"moment": "^2.29.4",
 		"moment-timezone": "^0.5.42",
 		"nanoid": "5.0.1",
-    	"next": "14.2.17",
+		"next": "14.2.17",
 		"next-auth": "^5.0.0-beta.18",
 		"next-intl": "^3.3.2",
 		"next-themes": "^0.2.1",
@@ -132,9 +133,6 @@
 		"tailwind-merge": "^1.14.0"
 	},
 	"devDependencies": {
-		"tailwindcss-animate": "^1.0.6",
-		"tailwindcss": "^3.4.1",
-		"postcss": "^8.4.19",
 		"@svgr/webpack": "^8.1.0",
 		"@tailwindcss/typography": "^0.5.9",
 		"@types/cookie": "^0.5.1",
@@ -151,6 +149,9 @@
 		"eslint": "^8.28.0",
 		"eslint-config-next": "^14.0.4",
 		"eslint-plugin-unused-imports": "^3.0.0",
+		"postcss": "^8.4.19",
+		"tailwindcss": "^3.4.1",
+		"tailwindcss-animate": "^1.0.6",
 		"typescript": "^4.9.4"
 	},
 	"prettier": {

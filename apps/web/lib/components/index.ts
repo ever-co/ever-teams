@@ -30,3 +30,4 @@ export * from './inputs/auth-code-input';
 export * from './services/recaptcha';
 export * from './copy-tooltip';
 export * from './alert-popup'
+export * from './alert-dialog-confirmation'

@@ -75,7 +75,7 @@ export async function deleteTaskTimesheetLogsApi({
 }: {
 	organizationId: string,
 	tenantId: string,
-	logIds: string[]
+	logIds: ITimeSheet[]
 }) {
 	// Validate required parameters
 	if (!organizationId || !tenantId || !logIds?.length) {
@@ -91,11 +91,11 @@ export async function deleteTaskTimesheetLogsApi({
 		organizationId,
 		tenantId
 	});
-	logIds.forEach((id, index) => {
-		if (!id) {
+	logIds.forEach((items, index) => {
+		if (!items) {
 			throw new Error(`Invalid logId at index ${index}`);
 		}
-		params.append(`logIds[${index}]`, id);
+		params.append(`logIds[${index}]`, items.id);
 	});
 
 	const endPoint = `/timesheet/time-log?${params.toString()}`;

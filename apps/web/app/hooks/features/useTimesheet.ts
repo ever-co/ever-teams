@@ -20,7 +20,7 @@ export interface GroupedTimesheet {
 interface DeleteTimesheetParams {
     organizationId: string;
     tenantId: string;
-    logIds: string[];
+    logIds: ITimeSheet[];
 }
 
 const groupByDate = (items: ITimeSheet[]): GroupedTimesheet[] => {
@@ -50,7 +50,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project } = useTimelogFilterOptions();
+    const { employee, project, selectTimesheet: logIds } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi)
 
@@ -84,35 +84,34 @@ export function useTimesheet({
     );
 
 
-    const handleDeleteTimesheet = async (params: DeleteTimesheetParams) => {
+
+    const handleDeleteTimesheet = (params: DeleteTimesheetParams) => {
         try {
-            return await queryDeleteTimesheet(params);
+            return queryDeleteTimesheet(params);
         } catch (error) {
             console.error('Error deleting timesheet:', error);
             throw error;
         }
     };
 
-    const deleteTaskTimesheet = useCallback(
-        async ({ logIds }: DeleteTimesheetParams): Promise<void> => {
-            if (!user) {
-                throw new Error('User not authenticated');
-            }
-            if (!logIds.length) {
-                throw new Error('No timesheet IDs provided for deletion');
-            }
-
-            try {
-                await handleDeleteTimesheet({
-                    organizationId: user.employee.organizationId,
-                    tenantId: user.tenantId ?? "",
-                    logIds
-                });
-            } catch (error) {
-                console.error('Failed to delete timesheets:', error);
-                throw error;
-            }
-        },
+    const deleteTaskTimesheet = useCallback(() => {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
+        if (!logIds.length) {
+            throw new Error('No timesheet IDs provided for deletion');
+        }
+        try {
+            handleDeleteTimesheet({
+                organizationId: user.employee.organizationId,
+                tenantId: user.tenantId ?? "",
+                logIds
+            });
+        } catch (error) {
+            console.error('Failed to delete timesheets:', error);
+            throw error;
+        }
+    },
         [user, queryDeleteTimesheet]
     );
 

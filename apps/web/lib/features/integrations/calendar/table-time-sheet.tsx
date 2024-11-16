@@ -44,7 +44,7 @@ import {
     MdKeyboardArrowRight
 } from "react-icons/md"
 import { ConfirmStatusChange, StatusBadge, statusOptions, dataSourceTimeSheet, TimeSheet } from "."
-import { useModal } from "@app/hooks"
+import { useModal, useTimelogFilterOptions } from "@app/hooks"
 import { Checkbox } from "@components/ui/checkbox"
 import {
     Accordion,
@@ -53,12 +53,12 @@ import {
     AccordionTrigger,
 } from "@components/ui/accordion"
 import { clsxm } from "@/app/utils"
-import { statusColor } from "@/lib/components"
+import { AlertDialogConfirmation, statusColor } from "@/lib/components"
 import { Badge } from '@components/ui/badge'
-import { EditTaskModal, RejectSelectedModal, StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
+import { EditTaskModal, RejectSelectedModal, StatusAction, StatusType, getTimesheetButtons } from "@/app/[locale]/timesheet/[memberId]/components"
 import { useTranslations } from "next-intl"
 import { formatDate } from "@/app/helpers"
-import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet"
+import { GroupedTimesheet, useTimesheet } from "@/app/hooks/features/useTimesheet"
 
 
 
@@ -178,6 +178,16 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
         openModal,
         closeModal
     } = useModal();
+    const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({})
+    const { handleSelectRowTimesheet, selectTimesheet } = useTimelogFilterOptions()
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const handleConfirm = () => {
+        deleteTaskTimesheet();
+        setIsDialogOpen(false);
+    };
+    const handleCancel = () => {
+        setIsDialogOpen(false);
+    };
 
     const t = useTranslations();
     const [sorting, setSorting] = React.useState<SortingState>([])
@@ -209,7 +219,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
         Rejected: table.getRowModel().rows.filter(row => row.original.status === "Rejected")
     };
 
-    const handleButtonClick = (action: StatusType) => {
+    const handleButtonClick = (action: StatusAction) => {
         switch (action) {
             case 'Approved':
                 // TODO: Implement approval logic
@@ -217,7 +227,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
             case 'Rejected':
                 openModal()
                 break;
-            case 'Pending':
+            case 'Deleted':
                 // TODO: Implement pending logic
                 break;
             default:
@@ -227,6 +237,17 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 
     return (
         <div className="w-full dark:bg-dark--theme">
+            <AlertDialogConfirmation
+                title="Are you sure you want to delete this?"
+                description="This action is irreversible. All related data will be lost."
+                confirmText="Yes, delete"
+                cancelText="No, cancel"
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                loading={loadingDeleteTimesheet}
+            />
             <RejectSelectedModal
                 onReject={() => {
                     // Pending implementation
@@ -283,7 +304,10 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
                                                         style={{ backgroundColor: statusColor(status).bgOpacity, borderBottomColor: statusColor(status).bg }}
                                                         className={clsxm("flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]")}
                                                     >
-                                                        <Checkbox className="h-5 w-5" />
+                                                        <Checkbox className="h-5 w-5"
+                                                            onClick={() => handleSelectRowTimesheet(task)}
+                                                            checked={selectTimesheet.includes(task)}
+                                                        />
                                                         <div className="flex-[2]">
                                                             {/* <TaskNameInfoDisplay
                                                                 task={task}
