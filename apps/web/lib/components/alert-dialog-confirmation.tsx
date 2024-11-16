@@ -37,20 +37,30 @@ export function AlertDialogConfirmation({
     loading
 }: AlertDialogConfirmationProps) {
     return (
-        <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+        <AlertDialog
+            open={isOpen}
+            onOpenChange={onOpenChange}
+            defaultOpen={false}
+        >
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>{title}</AlertDialogTitle>
                     <AlertDialogDescription>{description}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={onCancel}>{cancelText}</AlertDialogCancel>
-                    <AlertDialogAction
-                        className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-                        aria-label={loading ? "Confirming action..." : confirmText}
-                        disabled={loading} onClick={onConfirm}
+                    <AlertDialogCancel
+                        onClick={onCancel}
+                        autoFocus
                     >
-                        {!loading && (
+                        {cancelText}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        className="px-4 py-2 text-sm hover:bg-red-600 hover:text-white font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+                        aria-label={loading ? "Confirming action..." : confirmText}
+                        disabled={loading}
+                        onClick={onConfirm}
+                    >
+                        {loading && (
                             <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
                         )}
                         {loading ? "Processing..." : confirmText}

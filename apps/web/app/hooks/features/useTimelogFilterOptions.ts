@@ -1,5 +1,6 @@
 import { timesheetDeleteState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState } from '@/app/stores';
 import { useAtom } from 'jotai';
+import React from 'react';
 
 export function useTimelogFilterOptions() {
     const [employeeState, setEmployeeState] = useAtom(timesheetFilterEmployeeState);
@@ -15,6 +16,9 @@ export function useTimelogFilterOptions() {
     const handleSelectRowTimesheet = (items: string) => {
         setSelectTimesheet((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
+    React.useEffect(() => {
+        return () => setSelectTimesheet([]);
+    }, []);
 
     return {
         statusState,
