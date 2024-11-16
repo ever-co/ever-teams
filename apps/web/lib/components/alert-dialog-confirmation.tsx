@@ -46,11 +46,14 @@ export function AlertDialogConfirmation({
                 <AlertDialogFooter>
                     <AlertDialogCancel onClick={onCancel}>{cancelText}</AlertDialogCancel>
                     <AlertDialogAction
-                        className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light" disabled={loading} onClick={onConfirm}>
-                        {loading && (
+                        className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
+                        aria-label={loading ? "Confirming action..." : confirmText}
+                        disabled={loading} onClick={onConfirm}
+                    >
+                        {!loading && (
                             <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
                         )}
-                        {confirmText}
+                        {loading ? "Processing..." : confirmText}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

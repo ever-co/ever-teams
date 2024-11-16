@@ -20,7 +20,7 @@ export interface GroupedTimesheet {
 interface DeleteTimesheetParams {
     organizationId: string;
     tenantId: string;
-    logIds: ITimeSheet[];
+    logIds: string[];
 }
 
 const groupByDate = (items: ITimeSheet[]): GroupedTimesheet[] => {
@@ -85,16 +85,16 @@ export function useTimesheet({
 
 
 
-    const handleDeleteTimesheet = (params: DeleteTimesheetParams) => {
+    const handleDeleteTimesheet = async (params: DeleteTimesheetParams) => {
         try {
-            return queryDeleteTimesheet(params);
+            return await queryDeleteTimesheet(params);
         } catch (error) {
             console.error('Error deleting timesheet:', error);
             throw error;
         }
     };
 
-    const deleteTaskTimesheet = useCallback(() => {
+    const deleteTaskTimesheet = useCallback(async () => {
         if (!user) {
             throw new Error('User not authenticated');
         }
@@ -102,7 +102,7 @@ export function useTimesheet({
             throw new Error('No timesheet IDs provided for deletion');
         }
         try {
-            handleDeleteTimesheet({
+            await handleDeleteTimesheet({
                 organizationId: user.employee.organizationId,
                 tenantId: user.tenantId ?? "",
                 logIds
@@ -112,7 +112,7 @@ export function useTimesheet({
             throw error;
         }
     },
-        [user, queryDeleteTimesheet]
+        [user, queryDeleteTimesheet, logIds, handleDeleteTimesheet] // deepscan-disable-line
     );
 
     useEffect(() => {

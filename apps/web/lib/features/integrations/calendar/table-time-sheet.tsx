@@ -179,11 +179,21 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
         closeModal
     } = useModal();
     const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({})
-    const { handleSelectRowTimesheet, selectTimesheet } = useTimelogFilterOptions()
+    const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet } = useTimelogFilterOptions()
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const handleConfirm = () => {
-        deleteTaskTimesheet();
-        setIsDialogOpen(false);
+        try {
+            deleteTaskTimesheet()
+                .then(() => {
+                    setSelectTimesheet([])
+                    setIsDialogOpen(false);
+                })
+                .catch((error) => {
+                    console.error('Delete timesheet error:', error);
+                });
+        } catch (error) {
+            console.error('Delete timesheet error:', error);
+        }
     };
     const handleCancel = () => {
         setIsDialogOpen(false);
@@ -228,7 +238,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
                 openModal()
                 break;
             case 'Deleted':
-                // TODO: Implement pending logic
+                setIsDialogOpen(true)
                 break;
             default:
                 console.error(`Unsupported action: ${action}`);
@@ -239,7 +249,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
         <div className="w-full dark:bg-dark--theme">
             <AlertDialogConfirmation
                 title="Are you sure you want to delete this?"
-                description="This action is irreversible. All related data will be lost."
+                description={`This action is irreversible. All related data will be lost. (${selectTimesheet.length})`}
                 confirmText="Yes, delete"
                 cancelText="No, cancel"
                 isOpen={isDialogOpen}
@@ -305,8 +315,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
                                                         className={clsxm("flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]")}
                                                     >
                                                         <Checkbox className="h-5 w-5"
-                                                            onClick={() => handleSelectRowTimesheet(task)}
-                                                            checked={selectTimesheet.includes(task)}
+                                                            onClick={() => handleSelectRowTimesheet(task.id)}
+                                                            checked={selectTimesheet.includes(task.id)}
                                                         />
                                                         <div className="flex-[2]">
                                                             {/* <TaskNameInfoDisplay
