@@ -42,10 +42,10 @@ export function MainLayout({
 
 	return (
 		<AppContainer title={title}>
-			<SidebarProvider className="w-full h-full">
+			<SidebarProvider className="flex-1 w-full h-full">
 				<AppSidebar publicTeam={publicTeam || false} />
 
-				<SidebarInset className="relative flex-1 overflow-x-hidden">
+				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
 					<GlobalHeader
 						ref={headerRef}
 						fullWidth={fullWidth}
@@ -56,11 +56,11 @@ export function MainLayout({
 						mainHeaderSlotClassName={mainHeaderSlotClassName}
 					/>
 
-					<div className={cn('flex flex-1 flex-col gap-4 p-4', className)}>
+					<div className={cn('flex-1 p-4', className)}>
 						<MainSidebarTrigger />
 						{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
 						<div
-							className={cn('min-h-[calc(100vh_-_240px)] h-full flex flex-col flex-1', childrenClassName)}
+							className={cn('min-h-[calc(100vh_-_240px)] h-full flex-1', childrenClassName)}
 							style={{
 								marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,
 								marginBottom: `${isFooterFixed ? (footerRef?.current?.offsetHeight ? footerRef.current.offsetHeight : 96) : 0}px`

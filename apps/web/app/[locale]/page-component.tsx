@@ -119,7 +119,12 @@ function MainPage() {
 							<ResizableHandle withHandle />
 
 							{/* </Container> */}
-							<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
+							<ResizablePanel
+								defaultSize={100}
+								maxSize={100}
+								className="!overflow-y-auto custom-scrollbar"
+								style={{ flex: 'none' }}
+							>
 								{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
 							</ResizablePanel>
 						</ResizablePanelGroup>
@@ -131,19 +136,19 @@ function MainPage() {
 	);
 }
 
-function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean }) {
+function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = React.useState(false);
 	return (
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row flex-col-reverse justify-center md:justify-between items-center py-4',
+				'w-full flex lg:flex-row gap-4 lg:gap-5 xl:gap-8 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4',
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
 			<AuthUserTaskInput
 				className={clsxm(
-					'mx-auto w-full lg:w-3/4 lg:mr-10',
+					'w-full lg:basis-3/4 max-w-fit',
 					!showInput && '!hidden md:!flex',
 					!isTrackingEnabled && 'md:w-full'
 				)}
@@ -157,7 +162,7 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 				</ChevronDown>
 			</div>
 			{isTrackingEnabled ? (
-				<div className="w-full lg:w-1/4">
+				<div className="w-full max-w-fit lg:basis-1/4">
 					<Timer />
 				</div>
 			) : null}

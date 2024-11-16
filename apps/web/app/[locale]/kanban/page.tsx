@@ -117,6 +117,7 @@ const Kanban = () => {
 				showTimer={isTrackingEnabled}
 				isFooterFixed
 				footerClassName={cn('bg-white dark:bg-[#1e2025]')}
+				childrenClassName="flex flex-col w-full h-full overflow-hidden"
 				// footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark-high",!fullWidth && 'left-0 right-0')}
 				mainHeaderSlot={
 					<div
@@ -265,7 +266,7 @@ const Kanban = () => {
 			>
 				{/** TODO:fetch teamtask based on days */}
 				{activeTab && ( // add filter for today, yesterday and tomorrow
-					<div>
+					<div className="flex flex-col flex-1 w-full h-full">
 						{Object.keys(data).length > 0 ? (
 							<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
 						) : (

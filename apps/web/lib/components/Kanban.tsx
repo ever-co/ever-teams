@@ -70,7 +70,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 
 	return (
 		<>
-			<section className="flex flex-col pb-2 relative">
+			<section className="relative flex flex-col items-center pb-2">
 				{Array.isArray(items) &&
 					items.length > 0 &&
 					items.map((item: ITeamTask, index: number) => (
@@ -96,15 +96,15 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 						</Draggable>
 					))}
 				{Array.isArray(items) && items?.length == 0 && (
-					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute">
+					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full">
 						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
 							{t('common.NOT_FOUND')}!
 						</div>
 						<div
 							onClick={openModal}
-							className="h-[52px] mt-4 w-[340px] flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+							className="h-[52px] mt-4 w-full flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
 						>
-							<AddIcon className=" h-5 w-5" />
+							<AddIcon className="w-5 h-5 " />
 							<p>{t('common.CREATE_TASK')}</p>
 						</div>
 					</div>
@@ -134,7 +134,7 @@ function InnerList(props: {
 	return (
 		<div style={getBackgroundColor(dropSnapshot)} ref={dropProvided.innerRef}>
 			<InnerItemList items={items} title={title} dropSnapshot={dropSnapshot} />
-			<>{dropProvided.placeholder}</>
+			<>{dropProvided.placeholder as React.ReactElement}</>
 		</div>
 	);
 }
@@ -224,7 +224,7 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row px-2 w-fit h-40"
+							className="flex flex-row h-40 px-2 w-fit"
 						>
 							{title.length > 0 ? (
 								<>
@@ -293,7 +293,7 @@ export const EmptyKanbanDroppable = ({
 												</div>
 												<div>
 													<h2
-														className="flex flex-row font-semibold text-sm not-italic h-full text-black capitalize font-poppins"
+														className="flex flex-row h-full text-sm not-italic font-semibold text-black capitalize font-poppins"
 														{...provided.dragHandleProps}
 														aria-label={`${title}`}
 													>
@@ -353,7 +353,7 @@ const KanbanDraggableHeader = ({
 					<div className="flex flex-row gap-2.5 items-center">
 						<Image alt={title} src={icon} width={20} height={20} />
 						<h2
-							className="text-sm font-semibold not-italic text-black font-poppins capitalize"
+							className="text-sm not-italic font-semibold text-black capitalize font-poppins"
 							{...provided.dragHandleProps}
 							aria-label={`${title} quote list`}
 						>
@@ -441,7 +441,7 @@ const KanbanDraggable = ({
 	//
 
 	return (
-		<>
+		<div className="h-full min-h-[720px]">
 			{title && (
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
@@ -450,7 +450,7 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col px-2 h-fit w-[355px]"
+							className="relative flex flex-col min-h-[720px] h-full w-[355px] max-h-[820px] overflow-y-auto"
 						>
 							{title ? (
 								<>
@@ -477,9 +477,9 @@ const KanbanDraggable = ({
 										/>
 										<button
 											onClick={() => openModal()}
-											className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+											className="flex flex-row items-center gap-4 p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
 										>
-											<AddIcon className=" h-5 w-5" />
+											<AddIcon className="w-5 h-5 " />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>
@@ -492,7 +492,7 @@ const KanbanDraggable = ({
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
-		</>
+		</div>
 	);
 };
 
