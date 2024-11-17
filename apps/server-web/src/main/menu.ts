@@ -2,8 +2,6 @@ import {
   app,
   Menu,
   shell,
-  BrowserWindow,
-  MenuItemConstructorOptions,
 } from 'electron';
 import { config } from '../configs/config';
 import { EventEmitter } from 'events';
