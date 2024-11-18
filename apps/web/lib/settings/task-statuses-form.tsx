@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, InputField, Modal, Text } from 'lib/components';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
@@ -31,6 +31,8 @@ export const TaskStatusesForm = ({
   const [createNew, setCreateNew] = useState(formOnly);
   const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
   const t = useTranslations();
+  const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
+  const [randomColor, setRandomColor] = useState<string | undefined>(undefined);
 
   const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
     'open',
@@ -38,14 +40,15 @@ export const TaskStatusesForm = ({
     'ready',
     'in-review',
     'blocked',
-    'completed'
+    'completed',
+	'backlog',
   ]);
   const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-    'x-large'
-    // 'large',
-    // 'medium',
-    // 'small',
-    // 'tiny',
+    'x-large',
+    'large',
+    'medium',
+    'small',
+    'tiny',
   ]);
   const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
     'urgent',
@@ -54,11 +57,12 @@ export const TaskStatusesForm = ({
     'low'
   ]);
 
-  const iconList: IIcon[] = [
+  const iconList: IIcon[] = useMemo(() => [
     ...taskStatusIconList,
     ...taskSizesIconList,
     ...taskPrioritiesIconList
-  ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ],[]) ;
 
   const {
     loading,
@@ -157,6 +161,53 @@ export const TaskStatusesForm = ({
   const [statusToDelete, setStatusToDelete] = useState<ITaskStatusItemList | null>(null)
   const {tasks} = useTeamTasks()
 
+  /**
+   * Get Icon by status name
+   *
+   * @param {string} iconName - Name of the icon
+   * @returns {IIcon} - Icon of the status
+   */
+  const getIcon = useCallback(
+		(iconName: string | null) => {
+			if (!iconName) return null;
+
+			const STATUS_MAPPINGS: Record<string, string> = {
+				'ready-for-review': 'ready'
+			};
+
+			const name = STATUS_MAPPINGS[iconName] || iconName;
+
+			const icon = iconList.find((icon) => icon.title === name);
+			
+			if (icon) {
+				setValue('icon', icon.path);
+			}
+			return icon;
+		},
+		[iconList, setValue]
+  );
+
+
+  /**
+   * Get random color for new status
+   *
+   * @returns {string} - Random color
+   */
+  const getRandomColor = useCallback(() => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }, []);
+
+  useEffect(() => {
+	if (!edit && selectedStatusType) {
+	  setRandomColor(getRandomColor());
+	}
+  }, [selectedStatusType, edit, getRandomColor]);
+
   return (
     <>
       <Modal isOpen={isOpen} closeModal={closeModal}>
@@ -195,7 +246,7 @@ export const TaskStatusesForm = ({
                   variant="outline"
                   className="rounded-[10px]"
                 >
-                  Sort
+                  {t('common.SORT')}
                 </Button>
               </div>
               {(createNew || edit) && (
@@ -218,22 +269,26 @@ export const TaskStatusesForm = ({
                       {...register('name')}
                     />
                     <StandardTaskStatusDropDown
-                      onValueChange={(status) => setValue('template', status)}
-                      className=" h-14 shrink-0"
+                      onValueChange={(status) => {
+						setValue('template', status)
+						setSelectedStatusType(status)
+					  } }
+                      className="h-14 shrink-0"
+					  defaultValue={edit?.value}
                     />
                     <IconPopover
                       iconList={iconList}
                       setValue={setValue}
                       active={
-                        edit
+						selectedStatusType ? getIcon(selectedStatusType)
+                          : edit
                           ? (iconList.find(
                               (icon) => icon.path === edit.icon
-                            ) as IIcon)
-                          : null
+                            ) as IIcon) : null
                       }
                     />
                     <ColorPicker
-                      defaultColor={edit ? edit.color : undefined}
+                      defaultColor={edit ? edit.color : randomColor}
                       onChange={(color) => setValue('color', color)}
                       className=" shrink-0"
                     />
@@ -247,6 +302,9 @@ export const TaskStatusesForm = ({
                         createTaskStatusLoading || editTaskStatusLoading
                       }
                       loading={createTaskStatusLoading || editTaskStatusLoading}
+					  onClick={() => {
+						setSelectedStatusType(null);
+					  }}
                     >
                       {edit ? t('common.SAVE') : t('common.CREATE')}
                     </Button>
@@ -257,6 +315,7 @@ export const TaskStatusesForm = ({
                         onClick={() => {
                           setCreateNew(false);
                           setEdit(null);
+						  setSelectedStatusType(null);
                         }}
                       >
                         {t('common.CANCEL')}

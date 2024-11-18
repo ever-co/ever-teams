@@ -23,9 +23,7 @@
 	},
 	"vsicons.presets.angular": true,
 	"deepscan.enable": true,
-	"cSpell.words": [
-		"Timepicker"
-	],
+	"cSpell.words": ["Timepicker"],
 	"files.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,

@@ -209,6 +209,8 @@ export const TaskStatus = {
 	INPROGRESS: 'in-progress'
 };
 
+export const tasksStatusSvgCacheDuration = 1000 * 60 * 60;
+
 export const languagesFlags = [
 	{
 		Flag: US,
