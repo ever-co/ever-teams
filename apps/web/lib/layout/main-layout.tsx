@@ -61,11 +61,19 @@ export function MainLayout({
 						{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
 						<div
 							className={cn('min-h-[calc(100vh_-_240px)] h-full flex-1', childrenClassName)}
-							style={{
+							/* style={{
 								marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,
 								marginBottom: `${isFooterFixed ? (footerRef?.current?.offsetHeight ? footerRef.current.offsetHeight : 96) : 0}px`
-							}}
+							}} */
 						>
+							{headerRef?.current?.offsetHeight && (
+								<div
+									className="w-full"
+									style={{
+										height: `${(headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95) + (isFooterFixed ? (footerRef?.current?.offsetHeight ? footerRef.current.offsetHeight : 96) : 0)}px`
+									}}
+								></div>
+							)}
 							{children}
 						</div>
 					</div>
