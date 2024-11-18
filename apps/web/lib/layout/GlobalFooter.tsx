@@ -11,13 +11,13 @@ interface GlobalFooterProps {
 	isFixed?: boolean;
 }
 
-const GlobalFooter = forwardRef(({ fullWidth, footerClassName, isFixed }: GlobalFooterProps, ref) => {
+const GlobalFooter = forwardRef(({ fullWidth, footerClassName, isFixed = false }: GlobalFooterProps, ref) => {
 	const { state } = useSidebar();
 	return (
 		<div
 			ref={ref as LegacyRef<HTMLDivElement>}
 			className={cn(
-				'bg-white dark:bg-[#1e2025] shrink-0 flex-1 transition-all duration-300',
+				'bg-white dark:bg-[#1e2025] shrink-0 transition-all duration-300',
 				footerClassName,
 				isFixed
 					? `fixed z-50 bottom-0 left-0 right-0 !lg:pl-[${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'}] !lg:pl-[var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})]`

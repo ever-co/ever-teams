@@ -22,13 +22,13 @@ export default function TeamsMembersCardView({ teams }: { teams: IOrganizationTe
 
 							<AccordionContent className="bg-light--theme border-none dark:bg-dark--theme flex flex-col gap-2 mt-4">
 								{team.members.length > 0 ? (
-									<ul>
+									<ul className="w-full">
 										{team.members.map((member) => {
 											return (
-												<li key={member.id} className='mb-4'>
+												<li key={member.id} className="mb-4 w-full">
 													<UserTeamCard key={`${member.id}${team.id}`} member={member} />
 												</li>
-											)
+											);
 										})}
 									</ul>
 								) : (

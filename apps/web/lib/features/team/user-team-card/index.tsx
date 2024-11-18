@@ -192,7 +192,7 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1 md:min-w-[37%] xl:min-w-[40%]">
+					<div className="flex justify-between items-center flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}

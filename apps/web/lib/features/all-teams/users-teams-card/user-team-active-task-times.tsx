@@ -1,9 +1,10 @@
+import { cn } from '@/lib/utils';
 import { useTeamMemberCard, useTeamTasks } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { TaskTimes } from 'lib/features/task/task-times';
 import { useEffect, useState } from 'react';
 
-export default function UserTeamActiveTaskTimes({ member }: { member: OT_Member }) {
+export default function UserTeamActiveTaskTimes({ member, className }: { member: OT_Member; className?: string }) {
 	const memberInfo = useTeamMemberCard(member);
 
 	const { getTaskById } = useTeamTasks();
@@ -24,7 +25,10 @@ export default function UserTeamActiveTaskTimes({ member }: { member: OT_Member 
 			memberInfo={memberInfo}
 			task={activeTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+			className={cn(
+				'2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center',
+				className
+			)}
 		/>
 	);
 }
