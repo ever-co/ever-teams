@@ -1,4 +1,4 @@
-import { ITimeSheet, ITimerStatus } from '@app/interfaces';
+import { TimesheetLog, ITimerStatus } from '@app/interfaces';
 import { get, deleteApi } from '../../axios';
 
 export async function getTimerLogs(
@@ -53,7 +53,9 @@ export async function getTaskTimesheetLogsApi({
 		'relations[1]': 'task',
 		'relations[2]': 'organizationContact',
 		'relations[3]': 'employee.user',
-		'relations[4]': 'task.taskStatus'
+		'relations[4]': 'task.taskStatus',
+		'relations[5]': 'timesheet'
+
 	});
 
 	projectIds.forEach((id, index) => {
@@ -64,7 +66,7 @@ export async function getTaskTimesheetLogsApi({
 		params.append(`employeeIds[${index}]`, id);
 	});
 	const endpoint = `/timesheet/time-log?${params.toString()}`;
-	return get<ITimeSheet[]>(endpoint, { tenantId });
+	return get<TimesheetLog[]>(endpoint, { tenantId });
 }
 
 

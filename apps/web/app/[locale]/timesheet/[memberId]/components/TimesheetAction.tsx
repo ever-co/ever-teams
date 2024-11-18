@@ -8,12 +8,15 @@ type ITimesheetButton = {
     title?: string,
     onClick?: () => void,
     className?: string,
-    icon?: ReactNode
+    icon?: ReactNode,
+    disabled?: boolean
 
 }
-export const TimesheetButton = ({ className, icon, onClick, title }: ITimesheetButton) => {
+export const TimesheetButton = ({ className, icon, onClick, title, disabled }: ITimesheetButton) => {
     return (
-        <button onClick={onClick} className={clsxm("flex items-center gap-1 text-gray-400 font-normal leading-3", className)}>
+        <button disabled={disabled}
+            onClick={onClick}
+            className={clsxm("flex items-center gap-1 text-gray-400 font-normal leading-3", className)}>
             <div className="w-[16px] h-[16px] text-[#293241]">
                 {icon}
             </div>
@@ -23,32 +26,33 @@ export const TimesheetButton = ({ className, icon, onClick, title }: ITimesheetB
 }
 
 
-export type StatusType = "Pending" | "Approved" | "Rejected";
-export type StatusAction = "Deleted" | "Approved" | "Rejected";
+export type StatusType = "Pending" | "Approved" | "Denied";
+export type StatusAction = "Deleted" | "Approved" | "Denied";
 
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, onClick: (action: StatusAction) => void) => {
+export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, disabled: boolean, onClick: (action: StatusAction) => void) => {
 
     const buttonsConfig: Record<StatusType, { icon: JSX.Element; title: string; action: StatusAction }[]> = {
         Pending: [
             { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
-            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Rejected" },
+            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },
             { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
         ],
         Approved: [
-            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Rejected" },
+            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },
             { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
         ],
-        Rejected: [
+        Denied: [
             { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
             { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
         ]
     };
 
-    return (buttonsConfig[status] || buttonsConfig.Rejected).map((button, index) => (
+    return (buttonsConfig[status] || buttonsConfig.Denied).map((button, index) => (
         <TimesheetButton
-            className="hover:underline"
+            className="hover:underline text-sm gap-2"
+            disabled={disabled}
             key={index}
             icon={button.icon}
             onClick={() => onClick(button.action)}
@@ -60,5 +64,5 @@ export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, onC
 export const statusTable: { label: StatusType; description: string }[] = [
     { label: "Pending", description: "Awaiting approval or review" },
     { label: "Approved", description: "The item has been approved" },
-    { label: "Rejected", description: "The item has been rejected" },
+    { label: "Denied", description: "The item has been rejected" },
 ];

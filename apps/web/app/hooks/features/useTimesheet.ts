@@ -5,7 +5,7 @@ import { useQuery } from '../useQuery';
 import { useCallback, useEffect } from 'react';
 import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
-import { ITimeSheet } from '@/app/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 interface TimesheetParams {
@@ -15,25 +15,35 @@ interface TimesheetParams {
 
 export interface GroupedTimesheet {
     date: string;
-    tasks: ITimeSheet[];
+    tasks: TimesheetLog[];
 }
+
+
 interface DeleteTimesheetParams {
     organizationId: string;
     tenantId: string;
     logIds: string[];
 }
 
-const groupByDate = (items: ITimeSheet[]): GroupedTimesheet[] => {
+
+const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
-    type GroupedMap = Record<string, ITimeSheet[]>;
+    type GroupedMap = Record<string, TimesheetLog[]>;
+
     const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.createdAt) return acc;
+        if (!item?.timesheet?.createdAt) {
+            console.warn('Skipping item with missing timesheet or createdAt:', item);
+            return acc;
+        }
         try {
-            const date = new Date(item.createdAt).toISOString().split('T')[0];
+            const date = new Date(item.timesheet.createdAt).toISOString().split('T')[0];
             if (!acc[date]) acc[date] = [];
             acc[date].push(item);
         } catch (error) {
-            console.error('Invalid date format:', item.createdAt);
+            console.error(
+                `Failed to process date for timesheet ${item.timesheet.id}:`,
+                { createdAt: item.timesheet.createdAt, error }
+            );
         }
         return acc;
     }, {});
@@ -83,6 +93,37 @@ export function useTimesheet({
         ]
     );
 
+    const getStatusTimesheet = (items: TimesheetLog[] = []) => {
+        const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
+            PENDING: [],
+            APPROVED: [],
+            DENIED: [],
+            DRAFT: [],
+            'IN REVIEW': []
+        };
+
+        return items.reduce((acc, item) => {
+            const status = item.timesheet.status;
+            if (isTimesheetStatus(status)) {
+                acc[status].push(item);
+            } else {
+                console.warn(`Invalid timesheet status: ${status}`);
+            }
+            return acc;
+        }, STATUS_MAP);
+    }
+
+    // Type guard
+    function isTimesheetStatus(status: unknown): status is TimesheetStatus {
+        const timesheetStatusValues: TimesheetStatus[] = [
+            "DRAFT",
+            "PENDING",
+            "IN REVIEW",
+            "DENIED",
+            "APPROVED"
+        ];
+        return Object.values(timesheetStatusValues).includes(status as TimesheetStatus);
+    }
 
 
     const handleDeleteTimesheet = async (params: DeleteTimesheetParams) => {
@@ -126,6 +167,7 @@ export function useTimesheet({
         timesheet: groupByDate(timesheet),
         getTaskTimesheet,
         loadingDeleteTimesheet,
-        deleteTaskTimesheet
+        deleteTaskTimesheet,
+        getStatusTimesheet
     };
 }

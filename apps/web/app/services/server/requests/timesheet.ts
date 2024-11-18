@@ -1,7 +1,7 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITimeSheet } from '@/app/interfaces/timer/ITimerLog';
+import { TimesheetLog } from '@/app/interfaces/timer/ITimerLog';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -72,7 +72,7 @@ type ITimesheetProps = {
 
 export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: string) {
 	const queries = qs.stringify(params);
-	return serverFetch<ITimeSheet[]>({
+	return serverFetch<TimesheetLog[]>({
 		path: `/timesheet/time-log?activityLevel?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
@@ -88,7 +88,7 @@ type IDeleteTimesheetProps = {
 
 export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer_token: string) {
 	const { logIds = [] } = params;
-	return serverFetch<ITimeSheet[]>({
+	return serverFetch<TimesheetLog[]>({
 		path: `/timesheet/time-log/${logIds.join(',')}`,
 		method: 'DELETE',
 		bearer_token,
