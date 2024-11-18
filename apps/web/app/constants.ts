@@ -209,6 +209,8 @@ export const TaskStatus = {
 	INPROGRESS: 'in-progress'
 };
 
+export const tasksStatusSvgCacheDuration = 1000 * 60 * 60;
+
 export const languagesFlags = [
 	{
 		Flag: US,
@@ -316,6 +318,8 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
+
+export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
 
 // Add manual timer reason
 

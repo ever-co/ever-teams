@@ -255,6 +255,8 @@
 		"MOVE_TO": "Move to",
 		"SELECT_DATE": "Select date",
 		"SELECT_AND_CLOSE": "Select & Close",
+		"SORT": "Sort",
+		"ICON": "Icon",
 		"SELECT_ROLE": "Please Select any Role",
 		"ADD_TIME": "Add Time",
 		"VIEW_TIMESHEET": "View timesheet",

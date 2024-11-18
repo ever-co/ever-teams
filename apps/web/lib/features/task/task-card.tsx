@@ -480,7 +480,7 @@ function TimerButtonCall({
 
 //* Task Estimate info *
 //* Task Info FC *
-function TaskInfo({
+export function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,
@@ -526,7 +526,7 @@ function TaskInfo({
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */
-function TaskCardMenu({
+export function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,
@@ -646,39 +646,39 @@ function TaskCardMenu({
 
 									{(viewType == 'default' ||
 										(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
-										<>
-											<Divider type="HORIZONTAL" />
-											<div className="mt-3">
-												{!taskPlannedToday && (
+											<>
+												<Divider type="HORIZONTAL" />
+												<div className="mt-3">
+													{!taskPlannedToday && (
+														<li className="mb-2">
+															<PlanTask
+																planMode="today"
+																taskId={task.id}
+																employeeId={profile?.member?.employeeId ?? ''}
+																taskPlannedToday={taskPlannedToday}
+															/>
+														</li>
+													)}
+													{!taskPlannedTomorrow && (
+														<li className="mb-2">
+															<PlanTask
+																planMode="tomorrow"
+																taskId={task.id}
+																employeeId={profile?.member?.employeeId ?? ''}
+																taskPlannedForTomorrow={taskPlannedTomorrow}
+															/>
+														</li>
+													)}
 													<li className="mb-2">
 														<PlanTask
-															planMode="today"
+															planMode="custom"
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
-															taskPlannedToday={taskPlannedToday}
 														/>
 													</li>
-												)}
-												{!taskPlannedTomorrow && (
-													<li className="mb-2">
-														<PlanTask
-															planMode="tomorow"
-															taskId={task.id}
-															employeeId={profile?.member?.employeeId ?? ''}
-															taskPlannedForTomorrow={taskPlannedTomorrow}
-														/>
-													</li>
-												)}
-												<li className="mb-2">
-													<PlanTask
-														planMode="custom"
-														taskId={task.id}
-														employeeId={profile?.member?.employeeId ?? ''}
-													/>
-												</li>
-											</div>
-										</>
-									)}
+												</div>
+											</>
+										)}
 
 									{viewType === 'dailyplan' &&
 										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
@@ -812,7 +812,7 @@ export function PlanTask({
 						)}
 					</span>
 				)}
-				{planMode === 'tomorow' && !taskPlannedForTomorrow && (
+				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />

@@ -2,6 +2,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@app/constants';
 import { IIcon } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 export type IconItem = DropdownItem<IIcon>;
@@ -53,6 +54,7 @@ export function IconItem({
 	url: string;
 	disabled?: boolean;
 }) {
+	const t = useTranslations();
 	return (
 		<div
 			title={title}
@@ -63,7 +65,7 @@ export function IconItem({
 			)}
 		>
 			<div>
-				{url && (
+				{url ? (
 					<div
 						className={clsxm(
 							'w-[17px] h-[17px]',
@@ -82,11 +84,10 @@ export function IconItem({
 							loading="lazy"
 						/>
 					</div>
+				) : (
+					<span>{t('common.ICON')}</span>
 				)}
 			</div>
-			<span className={clsxm('text-normal', 'whitespace-nowrap text-ellipsis overflow-hidden capitalize')}>
-				{title}
-			</span>
 		</div>
 	);
 }

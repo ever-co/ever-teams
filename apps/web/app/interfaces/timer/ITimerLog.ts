@@ -1,66 +1,99 @@
-import { ITaskIssue } from "..";
+import { ITeamTask } from "../ITask";
 
-interface Project {
+interface BaseEntity {
     id: string;
-    name: string;
-    imageUrl: string;
-    membersCount: number;
+    isActive: boolean;
+    isArchived: boolean;
+    tenantId: string;
+    organizationId: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    archivedAt: string | null;
+}
+
+interface ImageEntity {
+    imageUrl: string | null;
     image: string | null;
 }
 
-interface Task {
-    id: string;
-    title: string;
-    issueType?: ITaskIssue | null;
-    estimate: number | null;
-    taskStatus: string | null;
-    taskNumber: string;
-}
-
-interface OrganizationContact {
-    id: string;
-    name: string;
-    imageUrl: string;
-    image: string | null;
-}
-
-interface User {
-    id: string;
+interface User extends BaseEntity {
     firstName: string;
     lastName: string;
-    imageUrl: string;
-    image: string | null;
     name: string;
+    imageUrl: string | null;
+    image: string | null;
 }
 
-interface Employee {
-    id: string;
+interface Employee extends BaseEntity {
     isOnline: boolean;
     isAway: boolean;
     user: User;
     fullName: string;
 }
 
-export interface ITimeSheet {
-    deletedAt: string | null;
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    isActive: boolean;
-    isArchived: boolean;
-    archivedAt: string | null;
-    tenantId: string;
-    organizationId: string;
+interface TaskStatus extends BaseEntity {
+    name: string;
+    value: string;
+    description: string;
+    order: number;
+    icon: string;
+    color: string;
+    isSystem: boolean;
+    isCollapsed: boolean;
+    isDefault: boolean;
+    isTodo: boolean;
+    isInProgress: boolean;
+    isDone: boolean;
+    projectId: string | null;
+    organizationTeamId: string | null;
+    fullIconUrl: string;
+}
+interface Task extends ITeamTask {
+    taskStatus: TaskStatus | null,
+    number: number;
+    description: string;
+    startDate: string | null;
+}
+
+
+interface Timesheet extends BaseEntity {
+    duration: number;
+    keyboard: number;
+    mouse: number;
+    overall: number;
+    startedAt: string;
+    stoppedAt: string;
+    approvedAt: string | null;
+    submittedAt: string | null;
+    lockedAt: string | null;
+    editedAt: string | null;
+    isBilled: boolean;
+    status: string;
+    employeeId: string;
+    approvedById: string | null;
+    isEdited: boolean;
+}
+interface Project extends BaseEntity, ImageEntity {
+    name: string;
+    membersCount: number;
+}
+
+interface OrganizationContact extends BaseEntity, ImageEntity {
+    name: string;
+}
+
+export interface TimesheetLog extends BaseEntity {
     startedAt: string;
     stoppedAt: string;
     editedAt: string | null;
-    logType: string;
-    source: string;
+    logType: "TRACKED" | "MANUAL";
+    source: "WEB_TIMER" | "MOBILE_APP" | "DESKTOP_APP";
     description: string;
     reason: string | null;
     isBillable: boolean;
     isRunning: boolean;
-    version: number | null;
+    version: string | null;
     employeeId: string;
     timesheetId: string;
     projectId: string;
@@ -71,6 +104,7 @@ export interface ITimeSheet {
     task: Task;
     organizationContact: OrganizationContact;
     employee: Employee;
+    timesheet: Timesheet,
     duration: number;
     isEdited: boolean;
 }
