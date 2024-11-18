@@ -1,5 +1,5 @@
-import { ITimeSheet, ITimerStatus } from '@app/interfaces';
-import { get } from '../../axios';
+import { TimesheetLog, ITimerStatus } from '@app/interfaces';
+import { get, deleteApi } from '../../axios';
 
 export async function getTimerLogs(
 	tenantId: string,
@@ -53,7 +53,9 @@ export async function getTaskTimesheetLogsApi({
 		'relations[1]': 'task',
 		'relations[2]': 'organizationContact',
 		'relations[3]': 'employee.user',
-		'relations[4]': 'task.taskStatus'
+		'relations[4]': 'task.taskStatus',
+		'relations[5]': 'timesheet'
+
 	});
 
 	projectIds.forEach((id, index) => {
@@ -64,5 +66,44 @@ export async function getTaskTimesheetLogsApi({
 		params.append(`employeeIds[${index}]`, id);
 	});
 	const endpoint = `/timesheet/time-log?${params.toString()}`;
-	return get<ITimeSheet[]>(endpoint, { tenantId });
+	return get<TimesheetLog[]>(endpoint, { tenantId });
+}
+
+
+export async function deleteTaskTimesheetLogsApi({
+	logIds,
+	organizationId,
+	tenantId
+}: {
+	organizationId: string,
+	tenantId: string,
+	logIds: string[]
+}) {
+	// Validate required parameters
+	if (!organizationId || !tenantId || !logIds?.length) {
+		throw new Error('Required parameters missing: organizationId, tenantId, and logIds are required');
+	}
+
+	// Limit bulk deletion size for safety
+	if (logIds.length > 100) {
+		throw new Error('Maximum 100 logs can be deleted at once');
+	}
+
+	const params = new URLSearchParams({
+		organizationId,
+		tenantId
+	});
+	logIds.forEach((id, index) => {
+		if (!id) {
+			throw new Error(`Invalid logId at index ${index}`);
+		}
+		params.append(`logIds[${index}]`, id);
+	});
+
+	const endPoint = `/timesheet/time-log?${params.toString()}`;
+	try {
+		return await deleteApi<{ success: boolean; message: string }>(endPoint, { tenantId });
+	} catch (error) {
+		throw new Error(`Failed to delete timesheet logs`);
+	}
 }

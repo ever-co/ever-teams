@@ -91,7 +91,7 @@ export function CreateDailyPlanFormModal({
 				date:
 					planMode == 'today'
 						? toDay
-						: planMode == 'tomorow'
+						: planMode == 'tomorrow'
 							? tomorrowDate
 							: new Date(moment(date).format('YYYY-MM-DD')),
 				status: DailyPlanStatusEnum.OPEN,
@@ -302,12 +302,12 @@ function MembersList({
 									{(member?.employee?.user?.image?.thumbUrl ||
 										member?.employee?.user?.image?.fullUrl ||
 										member?.employee?.user?.imageUrl) &&
-									isValidUrl(
-										member?.employee?.user?.image?.thumbUrl ||
+										isValidUrl(
+											member?.employee?.user?.image?.thumbUrl ||
 											member?.employee?.user?.image?.fullUrl ||
 											member?.employee?.user?.imageUrl ||
 											''
-									) ? (
+										) ? (
 										<Avatar
 											size={36}
 											className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"

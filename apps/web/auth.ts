@@ -2,9 +2,11 @@ import NextAuth from 'next-auth';
 import { filteredProviders } from '@app/utils/check-provider-env-vars';
 import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@app/services/server/requests/OAuth';
 import { NextRequest } from 'next/server';
+import { IS_DESKTOP_APP } from '@app/constants';
 
 export const { handlers, signIn, signOut, auth } = NextAuth((request) => ({
 	providers: filteredProviders,
+	trustHost: IS_DESKTOP_APP,
 	adapter: GauzyAdapter(request as NextRequest),
 	session: { strategy: 'jwt' },
 	callbacks: {

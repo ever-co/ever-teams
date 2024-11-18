@@ -255,6 +255,8 @@
 		"MOVE_TO": "移动到",
 		"SELECT_DATE": "选择日期",
 		"SELECT_AND_CLOSE": "选择并关闭",
+		"SORT": "排序",
+		"ICON": "图标",
 		"SELECT_ROLE": "请选择角色",
 		"ADD_TIME": "添加时间",
 		"VIEW_TIMESHEET": "查看工时表",

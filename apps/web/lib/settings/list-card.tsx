@@ -1,11 +1,12 @@
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { Button, Text, Tooltip } from 'lib/components';
-import Image from 'next/image';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { getTextColor } from '@app/helpers';
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
+import { svgFetch } from '@app/services/server/fetch';
 
 export const StatusesListCard = ({
 	statusIcon,
@@ -27,6 +28,12 @@ export const StatusesListCard = ({
 	const textColor = getTextColor(bgColor);
 	const t = useTranslations();
 
+	useEffect(() => {
+		if (statusIcon) {
+			loadSVG(statusIcon, 'icon-container' + statusTitle, textColor);
+		}
+	}, [statusIcon, statusTitle, textColor]);
+
 	return (
 		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
 			<div
@@ -37,18 +44,7 @@ export const StatusesListCard = ({
 				)}
 				style={{ backgroundColor: bgColor === '' ? undefined : bgColor }}
 			>
-				{statusIcon && (
-					<Image
-						src={statusIcon}
-						alt={statusTitle}
-						width={20}
-						height={20}
-						decoding="async"
-						data-nimg="1"
-						loading="lazy"
-						className="min-h-[20px]"
-					/>
-				)}
+				{statusIcon && <div id={'icon-container' + statusTitle}></div>}
 				<Tooltip
 					label={statusTitle}
 					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
@@ -83,4 +79,38 @@ export const StatusesListCard = ({
 			</div>
 		</div>
 	);
+};
+
+/**
+ * A function to load an SVG and gives the ability to
+ * update its attributes. e.g: fill color
+ *
+ * @param {string} url the URL of the SVG file to load
+ * @param {string} containerId  the ID of the container where the SVG will be inserted
+ * @param {string} color the fill color for the SVG
+ */
+const loadSVG = async (url: string, containerId: string, color: string): Promise<void> => {
+	try {
+		const response = await svgFetch(url);
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch SVG: ${response.statusText}`);
+		}
+
+		let svgContent = await response.text();
+
+		// Update the fill color in the SVG content
+		svgContent = svgContent.replace(/stroke="[^"]*"/g, `stroke="${color}"`);
+
+		const container = document.getElementById(containerId);
+
+		if (container) {
+			console.log(container);
+			container.innerHTML = svgContent;
+		} else {
+			console.error(`Container with ID "${containerId}" not found.`);
+		}
+	} catch (error) {
+		console.error(`Error loading SVG: ${(error as Error).message}`);
+	}
 };

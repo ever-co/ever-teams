@@ -72,7 +72,6 @@ const TeamMembersTableView = ({
 
 	return (
 		<>
-
 			<DataTable
 				isHeader={false}
 				columns={columns as Column<OT_Member>[]}

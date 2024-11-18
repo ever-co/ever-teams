@@ -1,5 +1,5 @@
 import path from 'path';
-import { app, ipcMain, Tray, dialog, BrowserWindow, shell } from 'electron';
+import { app, ipcMain, Tray, dialog, BrowserWindow, shell, Menu } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
@@ -23,8 +23,6 @@ Object.assign(console, Log.functions);
 
 app.name = config.DESCRIPTION;
 
-
-
 const eventEmitter = new EventEmitter();
 
 const controller = new AbortController();
@@ -43,6 +41,7 @@ let logWindow: BrowserWindow | null = null;
 let setupWindow: BrowserWindow | any = null;
 let SettingMenu: any = null;
 let ServerWindowMenu: any = null;
+const appMenu = new MenuBuilder(eventEmitter)
 
 Log.hooks.push((message: any, transport) => {
   if (transport !== Log.transports.file) {
@@ -93,6 +92,7 @@ i18nextMainBackend.on('initialized', () => {
 });
 
 let trayMenuItems: any = [];
+let appMenuItems: any = [];
 
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
@@ -182,10 +182,7 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
         settingWindow = null;
         SettingMenu = null
       });
-      if (!SettingMenu) {
-        SettingMenu = new MenuBuilder(settingWindow);
-      }
-      SettingMenu.buildMenu();
+      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
       break;
     case 'LOG_WINDOW':
       logWindow = new BrowserWindow(defaultOptionWindow);
@@ -196,10 +193,7 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
         logWindow = null;
         ServerWindowMenu = null
       })
-      if (!ServerWindowMenu) {
-        ServerWindowMenu = new MenuBuilder(logWindow);
-      }
-      ServerWindowMenu.buildMenu();
+      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
       break;
     case 'SETUP_WINDOW':
       setupWindow = new BrowserWindow(defaultOptionWindow);
@@ -218,7 +212,7 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
 const runServer = async () => {
   console.log('Run the Server...');
   try {
-    const envVal = getEnvApi();
+    const envVal: any = getEnvApi();
 
     // Instantiate API and UI servers
     await desktopServer.start(
@@ -262,14 +256,18 @@ const SendMessageToSettingWindow = (type: string, data: any) => {
 }
 
 const onInitApplication = () => {
-  LocalStore.setDefaultServerConfig(); // check and set default config
+ // check and set default config
+  LocalStore.setDefaultServerConfig();
   createIntervalAutoUpdate()
   trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+  appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
   tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
   i18nextMainBackend.on('languageChanged', (lng) => {
     if (i18nextMainBackend.isInitialized) {
+
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
     }
   });
   eventEmitter.on(EventLists.webServerStart, async () => {
@@ -425,6 +423,16 @@ const onInitApplication = () => {
     const url = `http://127.0.0.1:${envConfig?.PORT}`
     shell.openExternal(url)
   })
+
+  eventEmitter.on(EventLists.SETTING_WINDOW_DEV, () => {
+    settingWindow?.webContents.toggleDevTools();
+  })
+
+  eventEmitter.on(EventLists.SERVER_WINDOW_DEV, () => {
+    logWindow?.webContents.toggleDevTools();
+  })
+
+  eventEmitter.emit(EventLists.SERVER_WINDOW);
 }
 
 (async () => {
@@ -452,7 +460,6 @@ ipcMain.on('message', async (event, arg) => {
 })
 
 ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
-  console.log('main setting page', arg);
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
       const existingConfig = getEnvApi();
@@ -512,13 +519,6 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
     case SettingPageTypeMessage.themeChange:
       eventEmitter.emit(EventLists.CHANGE_THEME, arg.data)
       break;
-    default:
-      break;
-  }
-})
-
-ipcMain.on(IPC_TYPES.UPDATER_PAGE, (event, arg) => {
-  switch (arg.type) {
     case SettingPageTypeMessage.updateSetting:
       LocalStore.updateConfigSetting({
         general: {
@@ -529,7 +529,6 @@ ipcMain.on(IPC_TYPES.UPDATER_PAGE, (event, arg) => {
       createIntervalAutoUpdate()
       event.sender.send(IPC_TYPES.UPDATER_PAGE, { type: SettingPageTypeMessage.updateSettingResponse, data: true })
       break;
-
     default:
       break;
   }

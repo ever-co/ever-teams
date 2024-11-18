@@ -163,7 +163,7 @@ export function TimesheetFilterDate({
                     </div>
                 )
                 }
-                <div className="border border-slate-100 dark:border-gray-800 my-1"></div>
+                {isVisible && <div className="border border-slate-100 dark:border-gray-800 my-1"></div>}
                 <div className="flex flex-col p-2">
                     {[
                         t('common.FILTER_TODAY'),
