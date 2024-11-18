@@ -51,7 +51,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
-			<ul className="mt-7 max-h-[320px] overflow-y-auto">
+			<ul className="mt-7 overflow-y-auto">
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}
@@ -138,21 +138,21 @@ const TeamMembersCardView: React.FC<Props> = ({
 						<InviteUserTeamSkeleton />
 					</li>
 				</Transition>
+				{/* Invite button */}
+				<Transition
+					show={isTeamManager}
+					enter="transition-opacity duration-75"
+					enterFrom="opacity-0"
+					enterTo="opacity-100"
+					leave="transition-opacity duration-150"
+					leaveFrom="opacity-100"
+					leaveTo="opacity-0"
+				>
+					<li className="mb-4">
+						<Invite />
+					</li>
+				</Transition>
 			</ul>
-			{/* Invite button */}
-			<Transition
-				show={isTeamManager}
-				enter="transition-opacity duration-75"
-				enterFrom="opacity-0"
-				enterTo="opacity-100"
-				leave="transition-opacity duration-150"
-				leaveFrom="opacity-100"
-				leaveTo="opacity-0"
-			>
-				<div className="mb-4">
-					<Invite />
-				</div>
-			</Transition>
 		</>
 	);
 };

@@ -17,6 +17,7 @@ import {
 import { Table, TableHeader, TableRow, TableHead, TableCell, TableBody, TableFooter } from './table';
 import { Tooltip } from 'lib/components';
 import { clsxm } from '@app/utils';
+import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -28,9 +29,15 @@ interface DataTableProps<TData, TValue> {
 		heading: string;
 		content: string;
 	};
+	isScrollable?: boolean;
 }
 
-function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataTableProps<TData, TValue>) {
+function DataTable<TData, TValue>({
+	columns,
+	data,
+	footerRows,
+	isHeader,
+}: Readonly<DataTableProps<TData, TValue>>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -65,7 +72,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 
 	return (
 		<>
-			<Table className="border-transparent mt-0 w-full rounded-2xl">
+			<Table className="w-full mt-0 border-transparent rounded-2xl">
 				{isHeader && (
 					<TableHeader className="">
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -99,7 +106,11 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 					</TableHeader>
 				)}
 				<div className="mt-8"></div>
-				<TableBody className="divide-y h-40 overflow-y-auto divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light">
+				<TableBody
+					className={cn(
+						'divide-y h-40 overflow-y-auto divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light'
+					)}
+				>
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row, i) => {
 							return (
@@ -134,7 +145,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: DataT
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
-								No results.
+								ß No results.
 							</TableCell>
 						</TableRow>
 					)}

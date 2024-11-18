@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
@@ -29,7 +28,6 @@ import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from 'lib/features/team-member-header';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
 
 function MainPage() {
@@ -67,68 +65,40 @@ function MainPage() {
 				<MainLayout
 					showTimer={headerSize <= 11.8 && isTrackingEnabled}
 					className="h-full"
+					mainHeaderSlot={
+						<div className="sticky z-40 bg-white dark:bg-dark-high">
+							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
+								<div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
+									<div className="flex items-center justify-center h-10 gap-8">
+										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+
+										<Breadcrumb paths={breadcrumb} className="text-sm" />
+									</div>
+
+									<div className="flex items-center justify-center h-10 gap-1 w-max">
+										<HeaderTabs linkAll={false} />
+									</div>
+								</div>
+
+								<div className="mb-1 mx-8-container">
+									<div className="w-full mt-3">
+										<UnverifiedEmail />
+
+										<TeamInvitations className="!m-0" />
+
+										<TeamOutstandingNotifications />
+									</div>
+
+									{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+								</div>
+								<TeamMemberHeader view={view} />
+							</div>
+						</div>
+					}
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-
-					<div className="h-full ">
-						<ResizablePanelGroup direction="vertical">
-							{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
-
-							<ResizablePanel
-								defaultSize={30}
-								maxSize={48}
-								className={clsxm(
-									headerSize < 20 ? '!overflow-hidden ' : '!overflow-visible',
-									'dark:bg-dark-high border-b-[0.125rem] dark:border-[#26272C]'
-								)}
-								onResize={(size) => setHeaderSize(size)}
-							>
-								<div className="sticky z-40 bg-white dark:bg-dark-high">
-									<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
-										<div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
-											<div className="flex items-center justify-center h-10 gap-8">
-												<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-
-												<Breadcrumb paths={breadcrumb} className="text-sm" />
-											</div>
-
-											<div className="flex items-center justify-center h-10 gap-1 w-max">
-												<HeaderTabs linkAll={false} />
-											</div>
-										</div>
-
-										<div className="mb-1 mx-8-container">
-											<div className="w-full mt-3">
-												<UnverifiedEmail />
-
-												<TeamInvitations className="!m-0" />
-
-												<TeamOutstandingNotifications />
-											</div>
-
-											{isTeamMember ? (
-												<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
-											) : null}
-										</div>
-										<TeamMemberHeader view={view} />
-									</div>
-								</div>
-							</ResizablePanel>
-
-							<ResizableHandle withHandle />
-
-							{/* </Container> */}
-							<ResizablePanel
-								defaultSize={100}
-								maxSize={100}
-								className="!overflow-y-auto custom-scrollbar"
-								style={{ flex: 'none' }}
-							>
-								{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-							</ResizablePanel>
-						</ResizablePanelGroup>
-					</div>
+					<div className="h-full ">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</div>
 				</MainLayout>
 			</div>
 			<Analytics />
