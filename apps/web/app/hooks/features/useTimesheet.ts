@@ -31,13 +31,19 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     type GroupedMap = Record<string, TimesheetLog[]>;
 
     const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.timesheet.createdAt) return acc;
+        if (!item?.timesheet?.createdAt) {
+            console.warn('Skipping item with missing timesheet or createdAt:', item);
+            return acc;
+        }
         try {
             const date = new Date(item.timesheet.createdAt).toISOString().split('T')[0];
             if (!acc[date]) acc[date] = [];
             acc[date].push(item);
         } catch (error) {
-            console.error('Invalid date format:', item.timesheet.createdAt);
+            console.error(
+                `Failed to process date for timesheet ${item.timesheet.id}:`,
+                { createdAt: item.timesheet.createdAt, error }
+            );
         }
         return acc;
     }, {});
@@ -87,15 +93,36 @@ export function useTimesheet({
         ]
     );
 
-    const getStatusTimesheet = (items?: TimesheetLog[]) => {
-        const groupedData = {
-            'PENDING': items?.filter(item => item.timesheet.status as TimesheetStatus === "PENDING"),
-            'APPROVED': items?.filter(item => item.timesheet.status as TimesheetStatus === "APPROVED"),
-            'DENIED': items?.filter(item => item.timesheet.status as TimesheetStatus === "DENIED"),
-            'DRAFT': items?.filter(item => item.timesheet.status as TimesheetStatus === "DRAFT"),
-            'IN REVIEW': items?.filter(item => item.timesheet.status as TimesheetStatus === "IN REVIEW"),
+    const getStatusTimesheet = (items: TimesheetLog[] = []) => {
+        const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
+            PENDING: [],
+            APPROVED: [],
+            DENIED: [],
+            DRAFT: [],
+            'IN REVIEW': []
         };
-        return groupedData
+
+        return items.reduce((acc, item) => {
+            const status = item.timesheet.status;
+            if (isTimesheetStatus(status)) {
+                acc[status].push(item);
+            } else {
+                console.warn(`Invalid timesheet status: ${status}`);
+            }
+            return acc;
+        }, STATUS_MAP);
+    }
+
+    // Type guard
+    function isTimesheetStatus(status: unknown): status is TimesheetStatus {
+        const timesheetStatusValues: TimesheetStatus[] = [
+            "DRAFT",
+            "PENDING",
+            "IN REVIEW",
+            "DENIED",
+            "APPROVED"
+        ];
+        return Object.values(timesheetStatusValues).includes(status as TimesheetStatus);
     }
 
 

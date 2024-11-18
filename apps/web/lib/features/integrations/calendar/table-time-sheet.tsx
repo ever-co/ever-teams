@@ -225,7 +225,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
             case 'Approved':
                 // TODO: Implement approval logic
                 break;
-            case 'Rejected':
+            case 'Denied':
                 openModal()
                 break;
             case 'Deleted':
@@ -310,7 +310,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
                                                 style={{ backgroundColor: statusColor(status).bgOpacity, borderBottomColor: statusColor(status).bg }}
                                                 className={clsxm("flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]")}>
                                                 <Checkbox className="h-5 w-5"
-                                                    onClick={() => handleSelectRowTimesheet(task.id)}
+                                                    onCheckedChange={() => handleSelectRowTimesheet(task.id)}
                                                     checked={selectTimesheet.includes(task.id)}
                                                 />
                                                 <div className="flex-[2]">

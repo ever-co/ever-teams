@@ -136,6 +136,7 @@ export type ITaskStatusField =
 	| 'team'
 	| 'tags'
 	| 'status type';
+
 export type TimesheetStatus =
 	| "DRAFT"
 	| "PENDING"
