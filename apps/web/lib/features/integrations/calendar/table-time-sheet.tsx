@@ -241,8 +241,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
             <AlertDialogConfirmation
                 title="Are you sure you want to delete this?"
                 description={`This action is irreversible. All related data will be lost. (${selectTimesheet.length})`}
-                confirmText="Yes, delete"
-                cancelText="No, cancel"
+                confirmText={t('common.DELETE')}
+                cancelText={t('common.CANCEL')}
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 onConfirm={handleConfirm}
