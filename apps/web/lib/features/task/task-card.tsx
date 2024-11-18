@@ -480,7 +480,7 @@ function TimerButtonCall({
 
 //* Task Estimate info *
 //* Task Info FC *
-function TaskInfo({
+export function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,
@@ -526,7 +526,7 @@ function TaskInfo({
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */
-function TaskCardMenu({
+export function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,

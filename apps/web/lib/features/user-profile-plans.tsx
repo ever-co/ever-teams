@@ -50,6 +50,7 @@ import TaskBlockCard from './task/task-block-card';
 import { TaskCard } from './task/task-card';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
+import DailyPlanTasksTableView from './task/daily-plan/table-view';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -333,79 +334,95 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 								</AccordionTrigger>
 								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme">
 									<PlanHeader plan={plan} planMode={currentTab as any} />
-									<Droppable
-										droppableId={plan.id as string}
-										key={plan.id}
-										type="task"
-										direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
-									>
-										{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-											<ul
-												ref={provided.innerRef}
-												{...provided.droppableProps}
-												className={clsxm(
-													view === 'CARDS' && 'flex-col',
-													view === 'TABLE' && 'flex-wrap',
-													'flex gap-2 pb-[1.5rem]',
-													view === 'BLOCKS' && 'overflow-x-auto',
-													snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
-												)}
-											>
-												{plan.tasks?.map((task, index) =>
-													view === 'CARDS' ? (
-														<Draggable key={task.id} draggableId={task.id} index={index}>
-															{(provided) => (
-																<div
-																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	{...provided.dragHandleProps}
-																	style={{
-																		...provided.draggableProps.style,
-																		marginBottom: 6
-																	}}
-																>
-																	<TaskCard
-																		isAuthUser={true}
-																		activeAuthTask={true}
-																		viewType={'dailyplan'}
-																		task={task}
-																		profile={profile}
-																		type="HORIZONTAL"
-																		taskBadgeClassName={`rounded-sm`}
-																		taskTitleClassName="mt-[0.0625rem]"
-																		planMode={
-																			currentTab === 'Today Tasks'
-																				? 'Today Tasks'
-																				: undefined
-																		}
-																		plan={plan}
-																		className="shadow-[0px_0px_15px_0px_#e2e8f0]"
-																	/>
-																</div>
-															)}
-														</Draggable>
-													) : (
-														<Draggable key={task.id} draggableId={task.id} index={index}>
-															{(provided) => (
-																<div
-																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	{...provided.dragHandleProps}
-																	style={{
-																		...provided.draggableProps.style,
-																		marginBottom: 8
-																	}}
-																>
-																	<TaskBlockCard task={task} />
-																</div>
-															)}
-														</Draggable>
-													)
-												)}
-												<>{provided.placeholder}</>
-											</ul>
-										)}
-									</Droppable>
+
+									{view === 'TABLE' ? (
+										<DailyPlanTasksTableView
+											profile={profile}
+											plan={plan}
+											data={plan.tasks ?? []}
+										/>
+									) : (
+										<Droppable
+											droppableId={plan.id as string}
+											key={plan.id}
+											type="task"
+											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+										>
+											{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+												<ul
+													ref={provided.innerRef}
+													{...provided.droppableProps}
+													className={clsxm(
+														view === 'CARDS' && 'flex-col',
+														'flex gap-2 pb-[1.5rem]',
+														view === 'BLOCKS' && 'overflow-x-auto',
+														snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
+													)}
+												>
+													{plan.tasks?.map((task, index) =>
+														view === 'CARDS' ? (
+															<Draggable
+																key={task.id}
+																draggableId={task.id}
+																index={index}
+															>
+																{(provided) => (
+																	<div
+																		ref={provided.innerRef}
+																		{...provided.draggableProps}
+																		{...provided.dragHandleProps}
+																		style={{
+																			...provided.draggableProps.style,
+																			marginBottom: 6
+																		}}
+																	>
+																		<TaskCard
+																			isAuthUser={true}
+																			activeAuthTask={true}
+																			viewType={'dailyplan'}
+																			task={task}
+																			profile={profile}
+																			type="HORIZONTAL"
+																			taskBadgeClassName={`rounded-sm`}
+																			taskTitleClassName="mt-[0.0625rem]"
+																			planMode={
+																				currentTab === 'Today Tasks'
+																					? 'Today Tasks'
+																					: undefined
+																			}
+																			plan={plan}
+																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
+																		/>
+																	</div>
+																)}
+															</Draggable>
+														) : (
+															<Draggable
+																key={task.id}
+																draggableId={task.id}
+																index={index}
+															>
+																{(provided) => (
+																	<div
+																		ref={provided.innerRef}
+																		{...provided.draggableProps}
+																		{...provided.dragHandleProps}
+																		style={{
+																			...provided.draggableProps.style,
+																			marginBottom: 8
+																		}}
+																	>
+																		<TaskBlockCard task={task} />
+																	</div>
+																)}
+															</Draggable>
+														)
+													)}
+													<>{provided.placeholder}</>
+												</ul>
+											)}
+										</Droppable>
+									)}
 								</AccordionContent>
 							</AccordionItem>
 						))}
