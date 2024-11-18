@@ -662,7 +662,7 @@ function TaskCardMenu({
 													{!taskPlannedTomorrow && (
 														<li className="mb-2">
 															<PlanTask
-																planMode="tomorow"
+																planMode="tomorrow"
 																taskId={task.id}
 																employeeId={profile?.member?.employeeId ?? ''}
 																taskPlannedForTomorrow={taskPlannedTomorrow}
