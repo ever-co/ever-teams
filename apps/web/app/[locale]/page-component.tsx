@@ -148,7 +148,7 @@ function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: b
 		>
 			<AuthUserTaskInput
 				className={clsxm(
-					'w-full lg:basis-3/4 max-w-fit',
+					'w-full lg:basis-3/4 grow',
 					!showInput && '!hidden md:!flex',
 					!isTrackingEnabled && 'md:w-full'
 				)}
@@ -162,7 +162,7 @@ function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: b
 				</ChevronDown>
 			</div>
 			{isTrackingEnabled ? (
-				<div className="w-full max-w-fit lg:basis-1/4">
+				<div className="w-full max-w-fit lg:basis-1/4 grow">
 					<Timer />
 				</div>
 			) : null}
