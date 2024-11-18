@@ -5,7 +5,7 @@ import { useQuery } from '../useQuery';
 import { useCallback, useEffect } from 'react';
 import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
-import { ITimeSheet } from '@/app/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 interface TimesheetParams {
@@ -15,25 +15,29 @@ interface TimesheetParams {
 
 export interface GroupedTimesheet {
     date: string;
-    tasks: ITimeSheet[];
+    tasks: TimesheetLog[];
 }
+
+
 interface DeleteTimesheetParams {
     organizationId: string;
     tenantId: string;
     logIds: string[];
 }
 
-const groupByDate = (items: ITimeSheet[]): GroupedTimesheet[] => {
+
+const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
-    type GroupedMap = Record<string, ITimeSheet[]>;
+    type GroupedMap = Record<string, TimesheetLog[]>;
+
     const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.createdAt) return acc;
+        if (!item?.timesheet.createdAt) return acc;
         try {
-            const date = new Date(item.createdAt).toISOString().split('T')[0];
+            const date = new Date(item.timesheet.createdAt).toISOString().split('T')[0];
             if (!acc[date]) acc[date] = [];
             acc[date].push(item);
         } catch (error) {
-            console.error('Invalid date format:', item.createdAt);
+            console.error('Invalid date format:', item.timesheet.createdAt);
         }
         return acc;
     }, {});
@@ -83,6 +87,16 @@ export function useTimesheet({
         ]
     );
 
+    const getStatusTimesheet = (items?: TimesheetLog[]) => {
+        const groupedData = {
+            'PENDING': items?.filter(item => item.timesheet.status as TimesheetStatus === "PENDING"),
+            'APPROVED': items?.filter(item => item.timesheet.status as TimesheetStatus === "APPROVED"),
+            'DENIED': items?.filter(item => item.timesheet.status as TimesheetStatus === "DENIED"),
+            'DRAFT': items?.filter(item => item.timesheet.status as TimesheetStatus === "DRAFT"),
+            'IN REVIEW': items?.filter(item => item.timesheet.status as TimesheetStatus === "IN REVIEW"),
+        };
+        return groupedData
+    }
 
 
     const handleDeleteTimesheet = async (params: DeleteTimesheetParams) => {
@@ -126,6 +140,7 @@ export function useTimesheet({
         timesheet: groupByDate(timesheet),
         getTaskTimesheet,
         loadingDeleteTimesheet,
-        deleteTaskTimesheet
+        deleteTaskTimesheet,
+        getStatusTimesheet
     };
 }

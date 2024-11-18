@@ -25,10 +25,6 @@ import {
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
 import {
-    Table,
-    TableBody
-} from "@components/ui/table"
-import {
     Select,
     SelectContent,
     SelectGroup,
@@ -59,8 +55,9 @@ import { EditTaskModal, RejectSelectedModal, StatusAction, StatusType, getTimesh
 import { useTranslations } from "next-intl"
 import { formatDate } from "@/app/helpers"
 import { GroupedTimesheet, useTimesheet } from "@/app/hooks/features/useTimesheet"
-
-
+import { TaskNameInfoDisplay } from "../../task/task-displays"
+import { TimesheetStatus } from "@/app/interfaces"
+import dayjs from 'dayjs';
 
 
 export const columns: ColumnDef<TimeSheet>[] = [
@@ -178,7 +175,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
         openModal,
         closeModal
     } = useModal();
-    const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({})
+    const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet } = useTimesheet({})
     const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet } = useTimelogFilterOptions()
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const handleConfirm = () => {
@@ -198,7 +195,6 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
     const handleCancel = () => {
         setIsDialogOpen(false);
     };
-
     const t = useTranslations();
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -223,11 +219,6 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
         },
     })
 
-    const groupedRows = {
-        Pending: table.getRowModel().rows.filter(row => row.original.status === "Pending"),
-        Approved: table.getRowModel().rows.filter(row => row.original.status === "Approved"),
-        Rejected: table.getRowModel().rows.filter(row => row.original.status === "Rejected")
-    };
 
     const handleButtonClick = (action: StatusAction) => {
         switch (action) {
@@ -268,82 +259,93 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
                 isOpen={isOpen}
             />
             <div className="rounded-md">
-                <Table className="order rounded-md dark:bg-dark--theme-light">
-                    <TableBody className="w-full rounded-md h-[400px] overflow-y-auto dark:bg-dark--theme">
-                        {data?.map((plan, index) => (
-                            <div key={index}>
-                                <div className="h-[48px] flex justify-between items-center w-full bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1 border-gray-400 px-5 text-[#71717A] font-medium">
-                                    <span>{formatDate(plan?.date)}</span>
-                                    <span>64:30h</span>
-                                </div>
+                {data?.map((plan, index) => (
+                    <div key={index}>
+                        <div className={clsxm(
+                            "h-[48px] flex justify-between items-center w-full",
+                            "bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1",
+                            "border-gray-400 px-5 text-[#71717A] font-medium")}>
+                            <span>{formatDate(plan.date)}</span>
+                            <span>64:30h</span>
+                        </div>
 
-                                <Accordion type="single" collapsible>
-                                    {Object.entries(groupedRows).map(([status, rows]) => (
-                                        <AccordionItem key={status} value={status} className="p-1 rounded">
-                                            <AccordionTrigger
-                                                style={{ backgroundColor: statusColor(status).bgOpacity }}
-                                                type="button"
-                                                className={clsxm(
-                                                    "flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2",
-                                                    statusColor(status).text,
-                                                )}
-                                            >
-                                                <div className="flex items-center space-x-1 justify-between w-full">
-                                                    <div className="flex items-center space-x-1">
-                                                        <div className={clsxm("p-2 rounded", statusColor(status).bg)}></div>
-                                                        <div className="flex items-center gap-x-1">
-                                                            <span className="text-base font-normal uppercase text-gray-400">
-                                                                {status}
-                                                            </span>
-                                                            <span className="text-gray-400 text-[14px]">({rows.length})</span>
-                                                        </div>
-                                                        <Badge variant={'outline'} className="flex items-center gap-x-2 h-[25px] rounded-md bg-[#E4E4E7] dark:bg-gray-800">
-                                                            <span className="text-[#5f5f61]">Total</span>
-                                                            <span className="text-[#868688]">24:30h</span>
-                                                        </Badge>
-                                                    </div>
-                                                    <div className={clsxm("flex items-center gap-2 p-x-1")}>
-                                                        {getTimesheetButtons(status as StatusType, t, handleButtonClick)}
-                                                    </div>
+                        <Accordion type="single" collapsible>
+                            {Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
+                                <AccordionItem key={status}
+                                    value={
+                                        status === 'DENIED'
+                                            ? "REJECTED" : status}
+                                    className="p-1 rounded"
+                                >
+                                    <AccordionTrigger
+                                        style={{ backgroundColor: statusColor(status).bgOpacity }}
+                                        type="button"
+                                        className={clsxm(
+                                            "flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2",
+                                            statusColor(status).text,
+                                        )}>
+                                        <div className="flex items-center space-x-1 justify-between w-full">
+                                            <div className="flex items-center space-x-1">
+                                                <div className={clsxm("p-2 rounded", statusColor(status).bg)}></div>
+                                                <div className="flex items-center gap-x-1">
+                                                    <span className="text-base font-normal uppercase text-gray-400">
+                                                        {status === 'DENIED' ? "REJECTED" : status}
+                                                    </span>
+                                                    <span className="text-gray-400 text-[14px]">({rows?.length})</span>
                                                 </div>
-                                            </AccordionTrigger>
-                                            <AccordionContent className="flex flex-col w-full">
-                                                {plan.tasks?.map((task) => (
-                                                    <div
-                                                        key={task.id}
-                                                        style={{ backgroundColor: statusColor(status).bgOpacity, borderBottomColor: statusColor(status).bg }}
-                                                        className={clsxm("flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]")}
-                                                    >
-                                                        <Checkbox className="h-5 w-5"
-                                                            onClick={() => handleSelectRowTimesheet(task.id)}
-                                                            checked={selectTimesheet.includes(task.id)}
-                                                        />
-                                                        <div className="flex-[2]">
-                                                            {/* <TaskNameInfoDisplay
-                                                                task={task}
-                                                                className={clsxm('shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent')}
-                                                                taskTitleClassName={clsxm('text-sm')}
-                                                                showSize={true}
-                                                                dash
-                                                                taskNumberClassName="text-sm"
-                                                            /> */}
-                                                        </div>
-                                                        <span className="flex-1">{task.isActive}</span>
-                                                        <span className="flex-1">{task.employee.fullName}</span>
-                                                        <span className="flex-1">
-                                                            {/* {task.}h, {task.estimateDays}j, {task.estimateMinutes}m */}
-                                                        </span>
-                                                        <TaskActionMenu idTasks={task.id} />
-                                                    </div>
-                                                ))}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    ))}
-                                </Accordion>
-                            </div>
-                        ))}
-                    </TableBody>
-                </Table>
+                                                <Badge variant={'outline'} className="flex items-center gap-x-2 h-[25px] rounded-md bg-[#E4E4E7] dark:bg-gray-800">
+                                                    <span className="text-[#5f5f61]">Total</span>
+                                                    <span className="text-[#868688]">24:30h</span>
+                                                </Badge>
+                                            </div>
+                                            <div className={clsxm("flex items-center gap-2 p-x-1 capitalize")}>
+                                                {getTimesheetButtons(status as StatusType, t, true, handleButtonClick)}
+                                            </div>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="flex flex-col w-full">
+                                        {rows?.map((task) => (
+                                            <div
+                                                key={task.id}
+                                                style={{ backgroundColor: statusColor(status).bgOpacity, borderBottomColor: statusColor(status).bg }}
+                                                className={clsxm("flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]")}>
+                                                <Checkbox className="h-5 w-5"
+                                                    onClick={() => handleSelectRowTimesheet(task.id)}
+                                                    checked={selectTimesheet.includes(task.id)}
+                                                />
+                                                <div className="flex-[2]">
+                                                    <TaskNameInfoDisplay
+                                                        task={task.task}
+                                                        className={clsxm('shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent')}
+                                                        taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden ')}
+                                                        showSize={true}
+                                                        dash
+                                                        taskNumberClassName="text-sm"
+                                                    />
+                                                </div>
+                                                <span className="flex-1">{task.project && task.project.name}</span>
+                                                <div className="flex items-center gap-x-2 flex-1">
+                                                    <img className="h-8 w-8 rounded-full" src={task.employee.user.imageUrl!} alt="" />
+                                                    <span className="flex-1 font-medium">{task.employee.fullName}</span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <Badge className={`${getBadgeColor(task.timesheet.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}>
+                                                        {task.timesheet.status}
+                                                    </Badge>
+
+                                                </div>
+                                                <span className="flex-1 font-medium">
+                                                    {dayjs(task.timesheet.createdAt).format("HH:mm:ss")}
+                                                </span>
+                                                <TaskActionMenu idTasks={task.id} />
+                                            </div>
+                                        ))}
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    </div>
+                ))}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
@@ -551,3 +553,21 @@ export const StatusTask = () => {
         </>
     )
 }
+
+
+const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
+    switch (timesheetStatus) {
+        case 'DRAFT':
+            return 'bg-gray-300';
+        case 'PENDING':
+            return 'bg-yellow-400';
+        case 'IN REVIEW':
+            return 'bg-blue-500';
+        case 'DENIED':
+            return 'bg-red-500';
+        case 'APPROVED':
+            return 'bg-green-500';
+        default:
+            return 'bg-gray-100';
+    }
+};

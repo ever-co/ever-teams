@@ -136,6 +136,13 @@ export type ITaskStatusField =
 	| 'team'
 	| 'tags'
 	| 'status type';
+export type TimesheetStatus =
+	| "DRAFT"
+	| "PENDING"
+	| "IN REVIEW"
+	| "DENIED"
+	| "APPROVED";
+
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;

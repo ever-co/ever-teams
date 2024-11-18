@@ -646,39 +646,39 @@ function TaskCardMenu({
 
 									{(viewType == 'default' ||
 										(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
-										<>
-											<Divider type="HORIZONTAL" />
-											<div className="mt-3">
-												{!taskPlannedToday && (
+											<>
+												<Divider type="HORIZONTAL" />
+												<div className="mt-3">
+													{!taskPlannedToday && (
+														<li className="mb-2">
+															<PlanTask
+																planMode="today"
+																taskId={task.id}
+																employeeId={profile?.member?.employeeId ?? ''}
+																taskPlannedToday={taskPlannedToday}
+															/>
+														</li>
+													)}
+													{!taskPlannedTomorrow && (
+														<li className="mb-2">
+															<PlanTask
+																planMode="tomorow"
+																taskId={task.id}
+																employeeId={profile?.member?.employeeId ?? ''}
+																taskPlannedForTomorrow={taskPlannedTomorrow}
+															/>
+														</li>
+													)}
 													<li className="mb-2">
 														<PlanTask
-															planMode="today"
+															planMode="custom"
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
-															taskPlannedToday={taskPlannedToday}
 														/>
 													</li>
-												)}
-												{!taskPlannedTomorrow && (
-													<li className="mb-2">
-														<PlanTask
-															planMode="tomorow"
-															taskId={task.id}
-															employeeId={profile?.member?.employeeId ?? ''}
-															taskPlannedForTomorrow={taskPlannedTomorrow}
-														/>
-													</li>
-												)}
-												<li className="mb-2">
-													<PlanTask
-														planMode="custom"
-														taskId={task.id}
-														employeeId={profile?.member?.employeeId ?? ''}
-													/>
-												</li>
-											</div>
-										</>
-									)}
+												</div>
+											</>
+										)}
 
 									{viewType === 'dailyplan' &&
 										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
