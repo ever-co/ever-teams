@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Impossible de mettre à jour le titre de la tâche.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Le titre de la tâche ne peut pas dépasser 255 caractères.",
 			"TASK_IS_ALREADY_EPIC": "Le type de tâche épique ne peut pas être modifié.",
-			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent."
+			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent.",
+			"PROJECT": "Projet"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Vous êtes sur le point de supprimer le statut {statusName} qui est utilisé par des tâches actives ; veuillez confirmer l'action"

@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "تعذر علينا تحديث عنوان المهمة.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
 			"TASK_IS_ALREADY_EPIC": "لا يمكن تغيير نوع المهمة الملحمية.",
-			"TASK_HAS_PARENT": "لا يمكن تغيير نوع المهمة حيث أن لديها بالفعل والد."
+			"TASK_HAS_PARENT": "لا يمكن تغيير نوع المهمة حيث أن لديها بالفعل والد.",
+			"PROJECT": "مشروع"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "أنت على وشك حذف الحالة {statusName} التي يتم استخدامها من قبل المهام النشطة؛ يرجى تأكيد الإجراء"

@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Non è stato possibile aggiornare il Titolo del Compito.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Il Titolo del Compito non può superare i 255 caratteri.",
 			"TASK_IS_ALREADY_EPIC": "Il tipo di Compito Epico non può essere cambiato.",
-			"TASK_HAS_PARENT": "Il tipo di Compito non può essere cambiato poiché il Compito ha già un Genitore."
+			"TASK_HAS_PARENT": "Il tipo di Compito non può essere cambiato poiché il Compito ha già un Genitore.",
+			"PROJECT": "Progetto"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Stai per eliminare lo stato {statusName} utilizzato da attività attive; per favore conferma l'azione"

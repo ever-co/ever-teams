@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Die Aufgabenbezeichnung konnte nicht aktualisiert werden.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Die Aufgabenbezeichnung darf nicht mehr als 255 Zeichen umfassen.",
 			"TASK_IS_ALREADY_EPIC": "Epische Aufgabentypen können nicht geändert werden.",
-			"TASK_HAS_PARENT": "Der Aufgabentyp kann nicht geändert werden, da die Aufgabe bereits ein übergeordnetes Element hat."
+			"TASK_HAS_PARENT": "Der Aufgabentyp kann nicht geändert werden, da die Aufgabe bereits ein übergeordnetes Element hat.",
+			"PROJECT": "Projekt"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Sie sind dabei, den Status {statusName} zu löschen, der von aktiven Aufgaben verwendet wird; bitte bestätigen Sie die Aktion"

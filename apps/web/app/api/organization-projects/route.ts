@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard-app';
 
-import { createOrganizationProjectRequest } from '@app/services/server/requests';
+import { createOrganizationProjectRequest, getOrganizationProjectsRequest } from '@app/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -16,6 +16,23 @@ export async function POST(req: Request) {
 	} = await req.json();
 
 	const response = await createOrganizationProjectRequest(body, access_token);
+
+	return $res(response.data);
+}
+
+export async function GET(req: Request) {
+	const res = new NextResponse();
+
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
+
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+
+	const response = await getOrganizationProjectsRequest({
+		bearer_token: access_token,
+		tenantId,
+		organizationId
+	});
 
 	return $res(response.data);
 }

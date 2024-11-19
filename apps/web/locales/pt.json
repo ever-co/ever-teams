@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Não foi possível atualizar o Título da Tarefa.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "O Título da Tarefa não pode exceder 255 caracteres.",
 			"TASK_IS_ALREADY_EPIC": "O Tipo de Tarefa Épica não pode ser alterado.",
-			"TASK_HAS_PARENT": "O Tipo de Tarefa não pode ser alterado, pois a Tarefa já possui um Pai."
+			"TASK_HAS_PARENT": "O Tipo de Tarefa não pode ser alterado, pois a Tarefa já possui um Pai.",
+			"PROJECT": "Projeto"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Está prestes a eliminar o status {statusName} que está a ser usado por tarefas ativas; por favor, confirme a ação"
