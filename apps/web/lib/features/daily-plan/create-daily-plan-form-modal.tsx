@@ -91,7 +91,7 @@ export function CreateDailyPlanFormModal({
 				date:
 					planMode == 'today'
 						? toDay
-						: planMode == 'tomorow'
+						: planMode == 'tomorrow'
 							? tomorrowDate
 							: new Date(moment(date).format('YYYY-MM-DD')),
 				status: DailyPlanStatusEnum.OPEN,

@@ -812,7 +812,7 @@ export function PlanTask({
 						)}
 					</span>
 				)}
-				{planMode === 'tomorow' && !taskPlannedForTomorrow && (
+				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />

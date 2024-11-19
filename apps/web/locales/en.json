@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "We couldn't update Task Title.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Task Title can't exceed 255 characters.",
 			"TASK_IS_ALREADY_EPIC": "Epic Task Type can not be changed.",
-			"TASK_HAS_PARENT": "Task Type can not be changed as Task has already Parent."
+			"TASK_HAS_PARENT": "Task Type can not be changed as Task has already Parent.",
+			"PROJECT": "Project"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "You are about to Delete the Status {statusName} that is used by active tasks; please confirm action"

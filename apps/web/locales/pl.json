@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Nie udało się zaktualizować Tytułu Zadania.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Tytuł Zadania nie może przekraczać 255 znaków.",
 			"TASK_IS_ALREADY_EPIC": "Typ Zadania jako 'Epic' nie może zostać zmieniony.",
-			"TASK_HAS_PARENT": "Typ Zadania nie może zostać zmieniony, ponieważ Zadanie ma już przypisanego rodzica."
+			"TASK_HAS_PARENT": "Typ Zadania nie może zostać zmieniony, ponieważ Zadanie ma już przypisanego rodzica.",
+			"PROJECT": "Projekt"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Zaraz usuniesz status {statusName}, który jest używany przez aktywne zadania; proszę potwierdzić akcję"

@@ -170,7 +170,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 						<PlanTask planMode="today" taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
-						<PlanTask planMode="tomorow" taskId={task.id} chooseMember={true} />
+						<PlanTask planMode="tomorrow" taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
 						<PlanTask planMode="custom" taskId={task.id} chooseMember={true} />

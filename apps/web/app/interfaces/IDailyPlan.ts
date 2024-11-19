@@ -38,4 +38,4 @@ export enum DailyPlanStatusEnum {
 	COMPLETED = 'completed'
 }
 
-export type IDailyPlanMode = 'today' | 'tomorow' | 'custom';
+export type IDailyPlanMode = 'today' | 'tomorrow' | 'custom';
