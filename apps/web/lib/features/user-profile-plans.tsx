@@ -143,7 +143,7 @@ export function UserProfilePlans() {
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
 						<div className="space-y-4 ">
-							<div className="flex items-center justify-between w-full min-w-fit max-w-svw">
+							<div className="flex items-center justify-between w-full min-w-fit max-w-[78svw]">
 								<div className={clsxm('flex items-center gap-4')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
@@ -355,7 +355,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 													className={clsxm(
 														'flex-wrap',
 														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem]',
+														'flex gap-2 pb-[1.5rem] flex-wrap',
 														view === 'BLOCKS' && 'overflow-x-auto',
 														snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 													)}
