@@ -266,7 +266,7 @@ const Kanban = () => {
 			>
 				{/** TODO:fetch teamtask based on days */}
 				{activeTab && ( // add filter for today, yesterday and tomorrow
-					<div className="flex flex-col flex-1 w-full h-full">
+					<div className="flex flex-col flex-1 w-full h-full p-5">
 						{Object.keys(data).length > 0 ? (
 							<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
 						) : (

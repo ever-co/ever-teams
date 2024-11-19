@@ -17,7 +17,6 @@ import { ScreenshootTab } from 'lib/features/activity/screenshoots';
 import { AppsTab } from 'lib/features/activity/apps';
 import { VisitedSitesTab } from 'lib/features/activity/visited-sites';
 import { activityTypeState } from '@app/stores/activity-type';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { UserProfileDetail } from './components/UserProfileDetail';
 import { cn } from 'lib/utils';
 // import { ActivityCalendar } from 'lib/features/activity/calendar';
@@ -115,79 +114,71 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	}
 
 	return (
-		<MainLayout showTimer={(headerSize <= 11.8 && isTrackingEnabled) || !profileIsAuthUser}>
-			<ResizablePanelGroup direction="vertical">
-				<ResizablePanel
-					defaultSize={30}
-					maxSize={48}
-					className={cn(headerSize < 20 ? '!overflow-hidden' : '!overflow-visible')}
-					onResize={(size) => setHeaderSize(size)}
-				>
-					<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], 'pb-2 !-mt-12')}>
-						<div className="w-full space-y-4">
-							{/* Breadcrumb */}
-							<div className="flex  items-center gap-8">
-								<Link href="/">
-									<ArrowLeftIcon className="w-6 h-6" />
-								</Link>
+		<MainLayout
+			showTimer={(headerSize <= 11.8 && isTrackingEnabled) || !profileIsAuthUser}
+			mainHeaderSlot={
+				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], 'pb-2 !-mt-12')}>
+					<div className="w-full space-y-4">
+						{/* Breadcrumb */}
+						<div className="flex  items-center gap-8">
+							<Link href="/">
+								<ArrowLeftIcon className="w-6 h-6" />
+							</Link>
 
-								<Breadcrumb paths={breadcrumb} className="text-sm" />
-							</div>
-
-							{/* User Profile Detail */}
-							<div className="flex flex-col items-center justify-between md:flex-row">
-								<UserProfileDetail member={profile.member} />
-
-								{profileIsAuthUser && isTrackingEnabled && (
-									<Timer
-										className={cn(
-											'p-5 rounded-2xl shadow-xlcard',
-											'dark:border-[0.125rem] dark:border-[#28292F]',
-											'dark:bg-[#1B1D22]'
-										)}
-									/>
-								)}
-							</div>
-							{/* TaskFilter */}
-							<TaskFilter profile={profile} hook={hook} />
+							<Breadcrumb paths={breadcrumb} className="text-sm" />
 						</div>
-					</MainHeader>
-					{/* <div className="p-1">
+
+						{/* User Profile Detail */}
+						<div className="flex flex-col items-center justify-between md:flex-row">
+							<UserProfileDetail member={profile.member} />
+
+							{profileIsAuthUser && isTrackingEnabled && (
+								<Timer
+									className={cn(
+										'p-5 rounded-2xl shadow-xlcard',
+										'dark:border-[0.125rem] dark:border-[#28292F]',
+										'dark:bg-[#1B1D22]'
+									)}
+								/>
+							)}
+						</div>
+						{/* TaskFilter */}
+						<TaskFilter profile={profile} hook={hook} />
+					</div>
+				</MainHeader>
+			}
+		>
+			{/* <div className="p-1">
 								<ActivityCalendar />
 							</div> */}
-				</ResizablePanel>
-				<ResizableHandle withHandle />
-				<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
-					{hook.tab == 'worked' && canSeeActivity && (
-						<Container fullWidth={fullWidth} className="py-8">
-							<div className={cn('flex justify-start items-center gap-4 mt-3')}>
-								{Object.keys(activityScreens).map((filter, i) => (
-									<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
-										{i !== 0 && <VerticalSeparator />}
-										<div
-											className={cn(
-												'text-gray-500',
-												activityFilter == filter && 'text-black dark:text-white'
-											)}
-											onClick={() => changeActivityFilter(filter as FilterTab)}
-										>
-											{filter}
-										</div>
-									</div>
-								))}
+			{hook.tab == 'worked' && canSeeActivity && (
+				<Container fullWidth={fullWidth} className="py-8">
+					<div className={cn('flex justify-start items-center gap-4 mt-3')}>
+						{Object.keys(activityScreens).map((filter, i) => (
+							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+								{i !== 0 && <VerticalSeparator />}
+								<div
+									className={cn(
+										'text-gray-500',
+										activityFilter == filter && 'text-black dark:text-white'
+									)}
+									onClick={() => changeActivityFilter(filter as FilterTab)}
+								>
+									{filter}
+								</div>
 							</div>
-						</Container>
-					)}
+						))}
+					</div>
+				</Container>
+			)}
 
-					<Container fullWidth={fullWidth} className="mb-10 -mt-6">
-						{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
-							<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
-						) : (
-							activityScreens[activityFilter] ?? null
-						)}
-					</Container>
-				</ResizablePanel>
-			</ResizablePanelGroup>
+			<Container fullWidth={fullWidth} className="mb-10 -mt-6">
+				{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
+					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+				) : (
+					activityScreens[activityFilter] ?? null
+				)}
+			</Container>
 		</MainLayout>
 	);
 });
