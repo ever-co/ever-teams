@@ -1,7 +1,6 @@
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table';
-import { ITaskStatus } from '@/app/interfaces';
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
@@ -74,29 +73,4 @@ export function TasksDataTable<TData, TValue>({ columns, data, className }: Read
 			</Table>
 		</div>
 	);
-}
-
-function getStatusColor(status: ITaskStatus) {
-	switch (status) {
-		case 'in-review':
-			return 'bg-[#f3d8b0]';
-		case 'backlog':
-			return 'bg-[#ffcc00]';
-		case 'open':
-			return 'bg-[#d6e4f9]';
-		case 'in-progress':
-			return 'bg-[#ece8fc]';
-		case 'ready-for-review':
-			return 'bg-[#f5f1cb]';
-		case 'blocked':
-			return 'bg-[#f5b8b8]';
-		case 'done':
-			return 'bg-[#4caf50] text-gray-100';
-		case 'completed':
-			return 'bg-[#d4efdf]';
-		case 'custom':
-			return 'bg-[#d4efdf]';
-		default:
-			return 'bg-gray-100 text-gray-800';
-	}
 }
