@@ -25,6 +25,7 @@ import { ChevronDownIcon, Square4OutlineIcon } from 'assets/svg';
 import { Listbox, Transition } from '@headlessui/react';
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
+import ProjectIcon from '@components/ui/svgs/project-icon';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -319,7 +320,14 @@ const EpicParent = ({ task }: { task: ITeamTask }) => {
 };
 
 interface ITaskProjectDropdownProps {
-	task: ITeamTask;
+	task?: ITeamTask;
+	controlled?: boolean;
+	onChange?: (project: IProject) => void;
+	styles?: {
+		container?: string; // The dropdown element
+		value?: string;
+		listCard?: string; // The listbox
+	};
 }
 
 export default TaskSecondaryInfo;
@@ -329,11 +337,13 @@ export default TaskSecondaryInfo;
  *
  * @param {Object} props - The props object
  * @param {ITeamTask} props.task - The ITeamTask object which
+ * @param {boolean} props.controlled - If [true], changes are managed by external handlers (i.e :props.onChange)
+ * @param {(project: IProject) => void} props.onChange - The function called when user selects a value (external handler)
  *
  * @returns {JSX.Element} - The Dropdown element
  */
-function ProjectDropDown(props: ITaskProjectDropdownProps) {
-	const { task } = props;
+export function ProjectDropDown(props: ITaskProjectDropdownProps) {
+	const { task, controlled = false, onChange, styles } = props;
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
 	const { getOrganizationProjects } = useOrganizationProjects();
@@ -348,20 +358,22 @@ function ProjectDropDown(props: ITaskProjectDropdownProps) {
 
 	// Set the task project if any
 	useEffect(() => {
-		setSelected(
-			organizationProjects.find((project) => {
-				return project.id === task.projectId;
-			})
-		);
-	}, [organizationProjects, task.projectId]);
+		if (task) {
+			setSelected(
+				organizationProjects.find((project) => {
+					return project.id == task.projectId;
+				})
+			);
+		}
+	}, [organizationProjects, task, task?.projectId]);
 
 	// Update the project
 	const handleUpdateProject = useCallback(
 		async (project: IProject) => {
 			try {
-				await updateTask({ ...task, projectId: project.id });
-
-				setSelected(project);
+				if (task) {
+					await updateTask({ ...task, projectId: project.id });
+				}
 			} catch (error) {
 				console.error(error);
 			}
@@ -372,9 +384,11 @@ function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	// Remove the project
 	const handleRemoveProject = useCallback(async () => {
 		try {
-			await updateTask({ ...task, projectId: null });
+			if (task) {
+				await updateTask({ ...task, projectId: null });
 
-			setSelected(undefined);
+				setSelected(undefined);
+			}
 		} catch (error) {
 			console.error(error);
 		}
@@ -383,22 +397,42 @@ function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	return (
 		<div
 			className={clsxm(
-				'relative  text-sm font-medium border text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs'
+				'relative  text-sm font-medium border text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs',
+				styles?.container
 			)}
 		>
-			<Listbox value={selected} onChange={handleUpdateProject}>
+			<Listbox
+				value={selected}
+				onChange={(project) => {
+					if (controlled && onChange) {
+						onChange(project);
+					} else {
+						handleUpdateProject(project);
+					}
+
+					setSelected(project);
+				}}
+			>
 				{({ open }) => {
 					return (
 						<>
 							<Listbox.Button
 								className={clsxm(
-									'cursor-pointer outline-none w-full flex items-center justify-between px-4 h-full '
+									'cursor-pointer outline-none w-full flex items-center justify-between px-4 h-full ',
+									styles?.value
 								)}
 							>
+								{selected && (
+									<div className="">
+										<ProjectIcon />
+									</div>
+								)}
 								{updateLoading ? (
 									<SpinnerLoader size={10} />
 								) : (
-									<p className=" truncate ">{selected?.name ?? 'Project'}</p>
+									<p className={clsxm('truncate', !selected && ' text-slate-400 font-light')}>
+										{selected?.name ?? 'Project'}
+									</p>
 								)}
 								<ChevronDownIcon
 									className={clsxm(
@@ -421,7 +455,10 @@ function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								<Listbox.Options className="outline-none">
 									<Card
 										shadow="bigger"
-										className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 max-h-[206px] overflow-x-auto rounded-none"
+										className={clsxm(
+											'p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 max-h-[206px] overflow-x-auto rounded-none',
+											styles?.listCard
+										)}
 									>
 										{organizationProjects.map((item, i) => {
 											return (
@@ -432,13 +469,15 @@ function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												</Listbox.Option>
 											);
 										})}
-										<Button
-											className=" px-2 py-1 mt-2 !min-w-min rounded-none text-xs dark:text-white dark:border-white"
-											variant="outline"
-											onClick={handleRemoveProject}
-										>
-											{t('common.REMOVE')}
-										</Button>
+										{!controlled && (
+											<Button
+												className=" px-2 py-1 mt-2 !min-w-min rounded-none text-xs dark:text-white dark:border-white"
+												variant="outline"
+												onClick={handleRemoveProject}
+											>
+												{t('common.REMOVE')}
+											</Button>
+										)}
 									</Card>
 								</Listbox.Options>
 							</Transition>

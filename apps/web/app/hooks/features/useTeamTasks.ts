@@ -296,7 +296,8 @@ export function useTeamTasks() {
 				priority,
 				size,
 				tags,
-				description
+				description,
+				projectId
 			}: {
 				taskName: string;
 				issueType?: string;
@@ -306,6 +307,7 @@ export function useTeamTasks() {
 				size?: string;
 				tags?: ITaskLabelsItemList[];
 				description?: string | null;
+				projectId?: string | null;
 			},
 			members?: { id: string }[]
 		) => {
@@ -319,11 +321,13 @@ export function useTeamTasks() {
 					tags,
 					// Set Project Id to cookie
 					// TODO: Make it dynamic when we add Dropdown in Navbar
-					...(activeTeam?.projects && activeTeam?.projects.length > 0
-						? {
-								projectId: activeTeam.projects[0].id
-							}
-						: {}),
+
+					// ...(activeTeam?.projects && activeTeam?.projects.length > 0
+					// 	? {
+					// 			projectId: activeTeam.projects[0].id
+					// 		}
+					// 	: {}),
+					projectId,
 					...(description ? { description: `<p>${description}</p>` } : {}),
 					...(members ? { members } : {}),
 					taskStatusId: taskStatusId
