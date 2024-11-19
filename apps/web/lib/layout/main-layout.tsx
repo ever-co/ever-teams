@@ -11,19 +11,95 @@ import AppContainer from './AppContainer';
 import GlobalHeader from './GlobalHeader';
 import GlobalFooter from './GlobalFooter';
 
+/**
+ * Props interface for the MainLayout component
+ * @interface MainLayoutProps
+ */
 type Props = PropsWithChildren<{
+	/** Page title - updates both document title and header */
 	title?: string;
+
+	/** Displays a timer in the header - useful for timed features */
 	showTimer?: boolean;
+
+	/** Enables public team mode with specific layout adjustments */
 	publicTeam?: boolean;
+
+	/** Indicates if the current route is a 404 page */
 	notFound?: boolean;
+
+	/** Additional CSS classes for the main container */
 	className?: string;
+
+	/** Additional CSS classes for the children wrapper */
 	childrenClassName?: string;
+
+	/** Additional CSS classes for the footer */
 	footerClassName?: string;
+
+	/** Custom content to be rendered in the header slot */
 	mainHeaderSlot?: JSX.Element | ReactNode;
+
+	/** Additional CSS classes for the header slot */
 	mainHeaderSlotClassName?: string;
+
+	/** Controls whether the footer is fixed to the bottom */
 	isFooterFixed?: boolean;
 }>;
 
+/**
+ * MainLayout - A responsive layout component with resizable sidebar
+ *
+ * This component serves as the main layout structure for the application,
+ * providing a consistent layout with header, footer, and resizable sidebar.
+ * It handles complex layout calculations and provides a robust structure
+ * for content organization.
+ *
+ * @component
+ * @example
+ * // Basic usage
+ * <MainLayout title="Dashboard">
+ *   <DashboardContent />
+ * </MainLayout>
+ *
+ * @example
+ * // Advanced usage with custom header content and fixed footer
+ * <MainLayout
+ *   title="Analytics"
+ *   showTimer={true}
+ *   isFooterFixed={true}
+ *   mainHeaderSlot={<AnalyticsHeader />}
+ * >
+ *   <AnalyticsContent />
+ * </MainLayout>
+ *
+ * * USAGE NOTES:
+ *
+ * 1. Content Height Management:
+ *    The layout automatically handles content height calculations.
+ *    Avoid setting fixed heights on direct children.
+ *
+ *    @example
+ *    // ✅ Correct usage
+ *    <MainLayout>
+ *      <div className="h-full">Content</div>
+ *    </MainLayout>
+ *
+ *    // ❌ Avoid
+ *    <MainLayout>
+ *      <div style={{ height: '100vh' }}>Content</div>
+ *    </MainLayout>
+ *
+ * 2. Scroll Behavior:
+ *    The component implements custom scrolling.
+ *    Don't add additional scroll containers.
+ *
+ * 3. Header Customization:
+ *    Use `mainHeaderSlot` for custom header content.
+ *    This ensures proper layout integration.
+ *
+ *
+ */
 export function MainLayout({
 	children,
 	title,
@@ -37,7 +113,10 @@ export function MainLayout({
 	mainHeaderSlotClassName = '',
 	footerClassName = ''
 }: Props) {
+	// Global state for full-width mode
 	const fullWidth = useAtomValue(fullWidthState);
+
+	// Refs for dynamic height calculations
 	const headerRef = useRef<HTMLDivElement>(null);
 	const footerRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +124,7 @@ export function MainLayout({
 		<AppContainer title={title}>
 			<SidebarProvider className="flex-1 w-full h-full">
 				<AppSidebar publicTeam={publicTeam || false} />
+				{/* Layout structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
 					<ResizablePanelGroup direction="vertical" className="min-h-full">
 						<GlobalHeader
