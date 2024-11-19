@@ -123,8 +123,9 @@ export function MainLayout({
 	return (
 		<AppContainer title={title}>
 			<SidebarProvider className="flex-1 w-full h-full">
+				{/* Left sidebar structure implementation */}
 				<AppSidebar publicTeam={publicTeam || false} />
-				{/* Layout structure implementation */}
+				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
 					<ResizablePanelGroup direction="vertical" className="min-h-full">
 						<GlobalHeader
