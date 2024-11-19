@@ -58,6 +58,7 @@ import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 import { ObserverComponent } from '@components/shared/Observer';
 import { LazyRender } from 'lib/components/lazy-render';
+import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
 
 type Props = {
   task?: Nullable<ITeamTask>;
@@ -540,7 +541,8 @@ function TaskCard({
     taskPriority,
     taskSize,
     taskLabels,
-    taskDescription
+    taskDescription,
+	taskProject
   } = datas;
   const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
 
@@ -640,6 +642,20 @@ function TaskCard({
                     }}
                     task={datas.inputTask}
                   />
+
+					<ProjectDropDown
+						styles={{
+							container: 'rounded-xl w-[10.625rem] !max-w-[10.625rem]',
+							listCard: 'rounded-xl'
+						}}
+						controlled
+						onChange={(project) => {
+							if (taskProject) {
+								taskProject.current = project.id
+							}
+						}}
+					/>
+
                 </div>
               </div>
             )}
