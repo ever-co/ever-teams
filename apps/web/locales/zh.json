@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "无法更新任务标题。",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "任务标题不能超过255个字符。",
 			"TASK_IS_ALREADY_EPIC": "史诗类型任务无法更改。",
-			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。"
+			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。",
+			"PROJECT": "项目"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "您即将删除正在被活跃任务使用的状态 {statusName}；请确认操作"

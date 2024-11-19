@@ -343,7 +343,8 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "We konden de taaktitel niet bijwerken.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "De taaktitel kan niet langer zijn dan 255 tekens.",
 			"TASK_IS_ALREADY_EPIC": "Epic taaktype kan niet worden gewijzigd.",
-			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft."
+			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft.",
+			"PROJECT": "Project"
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"
