@@ -304,7 +304,7 @@ function ProjectDropDown (props : ITaskProjectDropdownProps) {
 	// Set the task project if any
 	useEffect(() => {
 		setSelected(organizationProjects.find(project => {
-			return  project.id == task.projectId
+			return  project.id === task.projectId
 		}))
 	},[organizationProjects, task.projectId])
 
