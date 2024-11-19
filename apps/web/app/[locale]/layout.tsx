@@ -132,7 +132,7 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChil
 				<PHProvider>
 					<body
 						className={clsx(
-							'flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:!bg-[#191A20] !bg-gray-50'
+							'flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:!bg-[#191A20] !bg-gray-100'
 						)}
 					>
 						<PostHogPageView />

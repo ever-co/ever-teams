@@ -70,6 +70,7 @@ export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any
 													ref={provided.innerRef}
 													{...provided.droppableProps}
 													className={clsxm(
+														'flex-wrap',
 														view === 'CARDS' && 'flex-col',
 														'flex gap-2 pb-[1.5rem]',
 														view === 'BLOCKS' && 'overflow-x-auto',
