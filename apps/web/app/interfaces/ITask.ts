@@ -18,7 +18,7 @@ export type ITeamTask = {
 	estimateMinutes?: number;
 	dueDate: string;
 	startDate?: string | null;
-	projectId: string;
+	projectId: string | null;
 	public: boolean;
 	taskStatusId?: string;
 	resolvedAt?: string;
