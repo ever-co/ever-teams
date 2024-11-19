@@ -31,8 +31,8 @@ const GlobalFooter = forwardRef(({ fullWidth, footerClassName, isFixed = false }
 					: undefined
 			}
 		>
+			<Divider />
 			<Container fullWidth={fullWidth} className={cn('w-full px-8 mt-auto', fullWidth && '!mx-0')}>
-				<Divider />
 				<Footer className="justify-between w-full px-0 mx-auto" />
 			</Container>
 		</div>
