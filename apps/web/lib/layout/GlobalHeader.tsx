@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import React, { forwardRef, LegacyRef, useState } from 'react';
 import { Navbar } from '.';
 import { cn } from '../utils';

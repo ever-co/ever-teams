@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 'use client';
 import { forwardRef, LegacyRef } from 'react';
 

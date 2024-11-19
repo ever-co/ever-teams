@@ -25,7 +25,7 @@ export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const profile = useUserProfilePage();
-	const [headerSize, setHeaderSize] = useState(10);
+	const [headerSize] = useState(10);
 	const { user } = useAuthenticateUser();
 	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
 	const members = activeTeam?.members;
@@ -120,7 +120,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], 'pb-2 !-mt-12')}>
 					<div className="w-full space-y-4">
 						{/* Breadcrumb */}
-						<div className="flex  items-center gap-8">
+						<div className="flex items-center gap-8">
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />
 							</Link>

@@ -32,7 +32,7 @@ import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding
 
 function MainPage() {
 	const t = useTranslations();
-	const [headerSize, setHeaderSize] = useState(10);
+	const [headerSize] = useState(10);
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);

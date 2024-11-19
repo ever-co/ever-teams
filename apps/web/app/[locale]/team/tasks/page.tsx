@@ -34,7 +34,7 @@ const TeamTask = () => {
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: "Team's Task", href: `/${currentLocale}/team/task` }
 		],
-		[activeTeam?.name, currentLocale]
+		[activeTeam?.name, currentLocale, t]
 	);
 
 	const { tasks } = useTeamTasks();
