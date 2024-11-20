@@ -117,7 +117,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<MainLayout
 			showTimer={(headerSize <= 11.8 && isTrackingEnabled) || !profileIsAuthUser}
 			mainHeaderSlot={
-				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], 'pb-2 !-mt-12')}>
+				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
 					<div className="w-full space-y-4">
 						{/* Breadcrumb */}
 						<div className="flex items-center gap-8">

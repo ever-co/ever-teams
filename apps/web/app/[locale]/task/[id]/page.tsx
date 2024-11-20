@@ -50,7 +50,7 @@ const TaskDetails = () => {
 			showTimer={!profile.isAuthUser && isTrackingEnabled}
 			childrenClassName="bg-white dark:bg-dark--theme"
 			mainHeaderSlot={
-				<div ref={profile.loadTaskStatsIObserverRef} className="pt-20 pb-4 -mt-8 bg-white dark:bg-dark--theme">
+				<div ref={profile.loadTaskStatsIObserverRef} className="py-5 bg-white dark:bg-dark--theme">
 					<Container fullWidth={fullWidth}>
 						<div className="flex items-center gap-8">
 							<span
