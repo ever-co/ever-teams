@@ -24,7 +24,7 @@ export function Footer({ className }: IClassName) {
 	return (
 		<footer
 			className={clsxm(
-				'flex flex-col gap-7 md:gap-2 xs:flex-row justify-around items-center w-full py-6 px-3',
+				'flex flex-col gap-7 md:gap-2 xs:flex-row justify-around items-center w-full py-4 px-3',
 				className
 			)}
 		>

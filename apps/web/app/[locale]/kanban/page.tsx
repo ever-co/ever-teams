@@ -7,7 +7,6 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { KanbanView } from 'lib/features/team-members-kanban-view';
 import { MainLayout } from 'lib/layout';
-import { cn } from '@/lib/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -104,10 +103,8 @@ const Kanban = () => {
 					href: `/${currentLocale}/kanban?employee=${employee}`
 				});
 			}
-		} else {
-			if (lastPath.title !== 'Kanban') {
-				breadcrumbPath.pop();
-			}
+		} else if (lastPath.title !== 'Kanban') {
+			breadcrumbPath.pop();
 		}
 	}, [breadcrumbPath, currentLocale, employee]);
 	return (
@@ -115,16 +112,15 @@ const Kanban = () => {
 			<MainLayout
 				title={`${t('common.KANBAN')} ${t('common.BOARD')}`}
 				showTimer={isTrackingEnabled}
-				footerClassName={cn('bg-white dark:bg-[#1e2025]')}
-				childrenClassName="flex flex-col w-full h-full"
+				childrenClassName="flex flex-col h-hull w-full"
 				mainHeaderSlot={
 					<div
 						className={
-							'top-20 flex flex-col min-h-[263.4px] h-fit border-b-[1px] dark:border-[#26272C] z-10 mx-[0px] w-full bg-white dark:bg-dark-high'
+							'flex flex-col min-h-fit border-b-[1px] dark:border-[#26272C] mx-[0px] w-full bg-white dark:bg-dark-high'
 						}
 					>
-						<Container fullWidth={fullWidth}>
-							<div className="flex flex-row items-start justify-between mt-12 bg-white dark:bg-dark-high">
+						<Container fullWidth={fullWidth} className="!pt-0">
+							<div className="flex flex-row items-start justify-between mt-4 bg-white dark:bg-dark-high">
 								<div className="flex items-center justify-center h-10 gap-8">
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
@@ -133,7 +129,7 @@ const Kanban = () => {
 									<HeaderTabs kanban={true} linkAll={true} />
 								</div>
 							</div>
-							<div className="flex items-center justify-between mt-10 bg-white dark:bg-dark-high">
+							<div className="flex items-center justify-between mt-4 bg-white dark:bg-dark-high">
 								<h1 className="text-4xl font-semibold ">
 									{t('common.KANBAN')} {t('common.BOARD')}
 								</h1>
@@ -159,7 +155,7 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="relative flex flex-col items-center justify-between pt-10 bg-white z10 lg:flex-row dark:bg-dark-high">
+							<div className="relative z-10 flex flex-col-reverse items-center justify-between pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
 								<div className="flex flex-row">
 									{tabs.map((tab) => (
 										<div
@@ -179,7 +175,7 @@ const Kanban = () => {
 										</div>
 									))}
 								</div>
-								<div className="flex mt-5 space-x-2 lg:mt-0">
+								<div className="flex mt-4 space-x-2 lg:mt-0">
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<EpicPropertiesDropdown
 											onValueChange={(_, values) => setEpics(values || [])}
@@ -263,16 +259,17 @@ const Kanban = () => {
 				}
 			>
 				{/** TODO:fetch teamtask based on days */}
-				{activeTab && (
-					// add filter for today, yesterday and tomorrow
-					<div className="flex flex-col flex-1 w-full h-full px-5">
-						{Object.keys(data).length > 0 ? (
+				<div className="pt-10">
+					{activeTab &&
+						(Object.keys(data).length > 0 ? (
 							<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
 						) : (
-							<KanbanBoardSkeleton />
-						)}
-					</div>
-				)}
+							// add filter for today, yesterday and tomorrow
+							<div className="flex flex-col flex-1 w-full h-full">
+								<KanbanBoardSkeleton />
+							</div>
+						))}
+				</div>
 			</MainLayout>
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>

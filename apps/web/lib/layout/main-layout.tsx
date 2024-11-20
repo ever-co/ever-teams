@@ -169,13 +169,13 @@ export function MainLayout({
 								</div>
 							</div>
 						</ResizablePanel>
-						<GlobalFooter
-							ref={footerRef}
-							fullWidth={fullWidth}
-							isFixed={isFooterFixed}
-							footerClassName={footerClassName}
-						/>
 					</ResizablePanelGroup>
+					<GlobalFooter
+						ref={footerRef}
+						fullWidth={fullWidth}
+						isFixed={isFooterFixed}
+						footerClassName={footerClassName}
+					/>
 				</SidebarInset>
 			</SidebarProvider>
 		</AppContainer>

@@ -3,7 +3,6 @@ import { useKanban } from '@app/hooks/features/useKanban';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { clsxm } from '@app/utils';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
@@ -15,7 +14,8 @@ import {
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
 import { useAtomValue } from 'jotai';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@components/ui/scroll-area';
+import { cn } from '../utils';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -200,16 +200,19 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 	if (!enabled) return null; // ['open','close']
 
 	return (
-		<ScrollArea className="w-[100svw] bg-transparent dark:bg-[#181920] min-h-[100svh] h-svh" ref={containerRef}>
-			<DragDropContext onDragEnd={onDragEnd}>
-				{Array.isArray(columns) && columns.length > 0 && (
-					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
-						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-							<div className="flex flex-col justify-between w-full max-w-full min-h-fit">
+		<ScrollArea
+			className="max-w-[82svw] w-full relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-5"
+			ref={containerRef}
+		>
+			<div className="w-max">
+				<DragDropContext onDragEnd={onDragEnd}>
+					{Array.isArray(columns) && columns.length > 0 && (
+						<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
+							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 								<div
-									className={clsxm(
-										'flex flex-row gap-2 h-fit px-8 pt-5 lg:px-0 w-full',
-										snapshot.isDraggingOver ? 'bg-[lightblue]' : 'bg-[#F7F7F8]',
+									className={cn(
+										'flex flex-1 flex-row gap-2 min-h-fit px-8 lg:px-0 w-full h-full',
+										snapshot.isDraggingOver ? 'bg-slate-200 dark:bg-slate-800' : '',
 										!fullWidth && 'x-container pl-0'
 									)}
 									ref={provided.innerRef}
@@ -253,12 +256,12 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 										: null}
 									{provided.placeholder as React.ReactElement}
 								</div>
-							</div>
-						)}
-					</Droppable>
-				)}
-			</DragDropContext>
-			<ScrollBar orientation="horizontal" />
+							)}
+						</Droppable>
+					)}
+				</DragDropContext>
+			</div>
+			<ScrollBar className="fixed bottom-[90px] left-0 w-full bg-transparent" orientation="horizontal" />
 		</ScrollArea>
 	);
 };

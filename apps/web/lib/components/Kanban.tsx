@@ -25,6 +25,7 @@ import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 import Image from 'next/image';
 import EditStatusModal from '@components/pages/kanban/edit-status-modal';
 import { ScrollArea } from '@components/ui/scroll-area';
+import { cn } from '../utils';
 
 const grid = 8;
 
@@ -51,7 +52,7 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
 	};
 };
 
-// this function changes column header color when dragged
+/** This function changes column header color when dragged */
 function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 	const backgroundColor = snapshot.isDragging ? '#3826a6' : bgColor;
 
@@ -139,7 +140,40 @@ function InnerList(props: {
 		</div>
 	);
 }
-
+/**
+ * Calculates the dynamic height of a Kanban column based on the number of items
+ *
+ * @param {number} itemsLength - The number of items in the column
+ * @param {RefObject<HTMLDivElement> | undefined} containerRef - Reference to the container element
+ * @returns {string} The calculated height with 'px' unit
+ *
+ * Rules:
+ * - 2 items or less: fixed height of 320px
+ * - 3 items: fixed height of 520px
+ * - More than 3 items: uses container height or fallback to 720px
+ *
+ * @example
+ * // For 1 items or less
+ * getKanbanColumnHeight(1, containerRef) // returns '320px'
+ *
+ * // For 3 items
+ * getColumnHeight(3, containerRef) // returns '520px'
+ *
+ * // For more than 3 items
+ * getColumnHeight(4, containerRef) // returns container height or '720px'
+ */
+const getKanbanColumnHeight = (itemsLength: number, containerRef: RefObject<HTMLDivElement> | undefined): string => {
+	switch (true) {
+		case itemsLength <= 1:
+			return '320px';
+		case itemsLength <= 3:
+			return '520px';
+		case itemsLength > 3:
+			return `${containerRef?.current?.offsetHeight || 720}px`;
+		default:
+			return '320px';
+	}
+};
 /**
  * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
@@ -453,9 +487,15 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col min-h-fit w-[355px]"
+							className={cn(
+								'relative flex flex-col w-[355px] h-fit',
+								items.length > 4 ? 'min-h-svh' : 'min-h-fit'
+							)}
 							style={{
-								height: `${containerRef && items && items.length > 1 ? containerRef?.current?.offsetHeight : '320'}px`,
+								height:
+									containerRef && items && items.length > 1
+										? getKanbanColumnHeight(items.length, containerRef)
+										: '320px',
 								paddingBottom: `${containerRef && items && items.length > 1 ? 25 : '0'}px`
 							}}
 						>
