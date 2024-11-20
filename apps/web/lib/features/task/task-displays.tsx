@@ -4,6 +4,7 @@ import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
 import { secondsToTime } from '@/app/helpers';
 import { ClockIcon } from "@radix-ui/react-icons"
+import React from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -64,35 +65,39 @@ export function TaskNameInfoDisplay({
 	);
 }
 
-export const DisplayTimeForTimesheet = ({ duration }: number | any) => {
+const formatTime = (hours: number, minutes: number) => (
+	<div className="flex items-center">
+		<span>{String(hours).padStart(2, '0')}</span>
+		<span>:</span>
+		<span>{String(minutes).padStart(2, '0')}</span>
+	</div>
+);
+
+export const DisplayTimeForTimesheet = ({ duration }: { duration: number }) => {
+	if (duration < 0) {
+		console.warn('Negative duration provided to DisplayTimeForTimesheet');
+		duration = 0;
+	}
 	const { h: hours, m: minute } = secondsToTime(duration || 0);
-	const formattedHours = String(hours).padStart(2, '0');
-	const formattedMinutes = String(minute).padStart(2, '0');
 	return (
 		<div className='flex items-center font-medium gap-x-1'>
 			<ClockIcon className='text-green-400 text-[14px] h-4 w-4' />
 			<div className='flex items-center'>
-				<span>{formattedHours}</span>
-				<span>:</span>
-				<span>{formattedMinutes}</span>
+				{formatTime(hours, minute)}
 			</div>
 		</div>
 	)
 
 }
 
-export const TotalTimeDisplay = ({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
+export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
 	const totalDuration = Array.isArray(timesheetLog)
-		? timesheetLog.reduce((acc, curr) => acc + curr.timesheet.duration, 0)
+		? timesheetLog.reduce((acc, curr) => acc + (curr.timesheet?.duration || 0), 0)
 		: 0;
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
-
-	const formattedHours = String(hours).padStart(2, '0');
-	const formattedMinutes = String(minute).padStart(2, '0');
 	return (
-		<div className='flex items-center text-[#868688]'>
-			<span>{formattedHours}</span>
-			<span>:</span>
-			<span>{formattedMinutes}</span>
+		<div className="flex items-center text-[#868688]">
+			{formatTime(hours, minute)}
 		</div>)
-};
+});
+TotalTimeDisplay.displayName = 'TotalTimeDisplay';
