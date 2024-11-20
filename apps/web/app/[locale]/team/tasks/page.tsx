@@ -52,11 +52,11 @@ const TeamTask = () => {
 	return (
 		<MainLayout
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="mt-16">
-					<Breadcrumb paths={breadcrumbPath} className="mb-10 text-sm" />
+				<Container fullWidth={fullWidth} className="mt-5">
+					<Breadcrumb paths={breadcrumbPath} className="mb-5 text-sm" />
 
-					<div className="flex flex-col my-5 leading-snug">
-						<div className="flex flex-wrap items-center justify-between w-full gap-10 py-2 max-md:max-w-full">
+					<div className="flex flex-col my-4 leading-snug">
+						<div className="flex flex-wrap items-center justify-between w-full gap-10 max-md:max-w-full">
 							<h1 className="self-stretch my-auto text-4xl font-medium tracking-tighter text-indigo-950 dark:text-gray-50">
 								{t('sidebar.TEAMTASKS')}
 							</h1>
