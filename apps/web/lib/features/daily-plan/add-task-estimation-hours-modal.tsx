@@ -591,7 +591,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 			setCreateTaskLoading(true);
 			if (taskName.trim().length < 5) return;
 			await createTask({
-				taskName: taskName.trim(),
+				title: taskName.trim(),
 				status: taskStatus[0].name,
 				taskStatusId: taskStatus[0].id,
 				issueType: 'Bug' // TODO: Let the user choose the issue type

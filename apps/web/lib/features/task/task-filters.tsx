@@ -226,9 +226,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 					.every((k) => {
 						return k === 'label'
 							? intersection(
-								statusFilters[k],
-								task['tags'].map((item) => item.name)
-							).length === statusFilters[k].length
+									statusFilters[k],
+									task['tags'].map((item) => item.name)
+								).length === statusFilters[k].length
 							: statusFilters[k].includes(task[k]);
 					});
 			});
@@ -264,7 +264,7 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
-		<div className="relative w-full z-10">
+		<div className="relative z-10 w-full">
 			<div
 				className={clsxm(
 					'flex justify-between flex-col xs:flex-row  items-center w-full flex-wrap-reverse lg:flex-nowrap',
@@ -353,7 +353,7 @@ function InputFilters({ hook, profile }: Props) {
 				onClick={() => openManualTimeModal()}
 				className={clsxm(
 					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base flex items-center space-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
-					'min-w-[8.25rem] h-[2.75rem]'
+					'min-w-[8.25rem] w-fit h-[2.75rem] !text-nowrap whitespace-nowrap'
 				)}
 			>
 				<span className="text-xl">+</span>
@@ -393,7 +393,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex justify-center md:justify-start items-center space-x-1 w-full md:space-x-4 md:mt-0">
+		<nav className="flex items-center justify-center w-full -mb-1 space-x-1 md:justify-start md:space-x-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -402,7 +402,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								`md:text-lg text-xs text-gray-500 font-normal outline-none md:py-[.5rem] px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
+								`md:text-lg text-xs text-gray-500 font-normal outline-none px-[2.5rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem] flex flex-col md:flex-row gap-1 items-center `,
 								active && ['text-primary dark:text-white']
 							)}
 						>
@@ -419,7 +419,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 								<div
 									className={clsxm(
 										'bg-primary dark:bg-white',
-										'h-[0.1875rem] absolute -bottom-4 left-0 right-0 w-full'
+										'h-[0.1875rem] absolute -bottom-8 left-0 right-0 w-full'
 									)}
 								/>
 							)}
@@ -444,7 +444,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 		setDailyPlanTab(window.localStorage.getItem('daily-plan-tab') || 'Future Tasks');
 	}, [dailyPlanTab, date]);
 	return (
-		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row pt-2">
+		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
 			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}

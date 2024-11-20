@@ -4,20 +4,16 @@ import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Modal, SpinnerLoader, Tooltip } from 'lib/components';
 import {
-  ActiveTaskPropertiesDropdown,
-  ActiveTaskSizesDropdown,
-  ActiveTaskStatusDropdown,
-  ActiveTaskVersionDropdown,
-  EpicPropertiesDropdown as TaskEpicDropdown,
-  TaskLabels,
-  TaskStatus,
-  useTaskLabelsValue
+	ActiveTaskPropertiesDropdown,
+	ActiveTaskSizesDropdown,
+	ActiveTaskStatusDropdown,
+	ActiveTaskVersionDropdown,
+	EpicPropertiesDropdown as TaskEpicDropdown,
+	TaskLabels,
+	TaskStatus,
+	useTaskLabelsValue
 } from 'lib/features';
-import {
-  TaskPrioritiesForm,
-  TaskSizesForm,
-  TaskStatusesForm
-} from 'lib/settings';
+import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
 import { cloneDeep } from 'lodash';
 import Link from 'next/link';
@@ -29,69 +25,65 @@ import { ChevronDownIcon, Square4OutlineIcon } from 'assets/svg';
 import { Listbox, Transition } from '@headlessui/react';
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
+import ProjectIcon from '@components/ui/svgs/project-icon';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
-  const task = useAtomValue(detailedTaskState);
-  const { updateTask } = useTeamTasks();
+	const task = useAtomValue(detailedTaskState);
+	const { updateTask } = useTeamTasks();
 
-  const { handleStatusUpdate } = useTeamTasks();
+	const { handleStatusUpdate } = useTeamTasks();
 
-  const t = useTranslations();
+	const t = useTranslations();
 
-  const modal = useModal();
-  const [formTarget, setFormTarget] = useState<StatusType | null>(null);
+	const modal = useModal();
+	const [formTarget, setFormTarget] = useState<StatusType | null>(null);
 
-  const openModalEditionHandle = useCallback(
-    (type: StatusType) => {
-      return () => {
-        setFormTarget(type);
-        modal.openModal();
-      };
-    },
-    [modal]
-  );
+	const openModalEditionHandle = useCallback(
+		(type: StatusType) => {
+			return () => {
+				setFormTarget(type);
+				modal.openModal();
+			};
+		},
+		[modal]
+	);
 
-  const onVersionCreated = useCallback(
-    (version: ITaskVersionCreate) => {
-      handleStatusUpdate(
-        version.value || version.name,
-        'version',
-        task?.taskStatusId,
-        task
-      );
-    },
-    [task, handleStatusUpdate]
-  );
+	const onVersionCreated = useCallback(
+		(version: ITaskVersionCreate) => {
+			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
+		},
+		[task, handleStatusUpdate]
+	);
 
-  const onTaskSelect = useCallback(
-    async (parentTask: ITeamTask | undefined) => {
-      if (!parentTask) return;
-      const childTask = cloneDeep(task);
+	const onTaskSelect = useCallback(
+		async (parentTask: ITeamTask | undefined) => {
+			if (!parentTask) return;
+			const childTask = cloneDeep(task);
 
-      await updateTask({
-        ...childTask,
-        parentId: parentTask.id ? parentTask.id : null,
-        parent: parentTask.id ? parentTask : null
-      } as any);
-    },
-    [task, updateTask]
-  );
+			await updateTask({
+				...childTask,
+				parentId: parentTask.id ? parentTask.id : null,
+				parent: parentTask.id ? parentTask : null
+			} as any);
+		},
+		[task, updateTask]
+	);
 
-  const taskLabels = useTaskLabelsValue();
+	const taskLabels = useTaskLabelsValue();
 
-  const tags = useMemo(() => {
-    return (
-      task?.tags
-        .map((tag) => {
-          return taskLabels[tag.name];
-        })
-        .filter(Boolean) || []
-    );
-  }, [taskLabels, task?.tags]);
+	const tags = useMemo(() => {
+		return (
+			task?.tags
+				.map((tag) => {
+					return taskLabels[tag.name];
+				})
+				.filter(Boolean) || []
+		);
+	}, [taskLabels, task?.tags]);
 
-  return (
+	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			{/* Version */}
 			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
@@ -129,7 +121,25 @@ const TaskSecondaryInfo = () => {
 					/>
 				</TaskRow>
 			)}
+			{/* Epic */}
+			{task && task.issueType === 'Story' && (
+				<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
+					<TaskEpicDropdown
+						onValueChange={(d) => {
+							onTaskSelect({
+								id: d
+							} as ITeamTask);
+						}}
+						className="lg:min-w-[170px] text-black"
+						forDetails={true}
+						sidebarUI={true}
+						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+						defaultValue={task.parentId || ''}
+					/>
+				</TaskRow>
+			)}
 
+			{task && <EpicParent task={task} />}
 			{task && <EpicParent task={task} />}
 
 			{/* Task Status */}
@@ -150,7 +160,53 @@ const TaskSecondaryInfo = () => {
 					</Button>
 				</ActiveTaskStatusDropdown>
 			</TaskRow>
+			{/* Task Status */}
+			<TaskRow labelTitle={t('pages.taskDetails.STATUS')}>
+				<ActiveTaskStatusDropdown
+					task={task}
+					className="lg:min-w-[170px] text-black"
+					forDetails={true}
+					sidebarUI={true}
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+				>
+					<Button
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
+						variant="outline"
+						onClick={openModalEditionHandle('status')}
+					>
+						<PlusIcon className="w-4 h-4" />
+					</Button>
+				</ActiveTaskStatusDropdown>
+			</TaskRow>
 
+			{/* Task Labels */}
+			<TaskRow labelTitle={t('pages.taskDetails.LABELS')}>
+				<TaskLabels
+					task={task}
+					className="lg:min-w-[170px] text-black lg:mt-0"
+					forDetails={true}
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+				/>
+			</TaskRow>
+			{tags.length > 0 && (
+				<TaskRow>
+					<div className="flex flex-row flex-wrap gap-1 max-w-[10rem]">
+						{tags.map((tag, i) => {
+							return (
+								<Tooltip key={i} label={tag.name?.split('-').join(' ') || ''} placement="auto">
+									<TaskStatus
+										{...tag}
+										className="rounded-[0.625rem] h-6 max-w-[8rem]"
+										active={true}
+										name={tag.name?.split('-').join(' ')}
+										titleClassName={'text-[0.625rem] font-[500]'}
+									/>
+								</Tooltip>
+							);
+						})}
+					</div>
+				</TaskRow>
+			)}
 			{/* Task Labels */}
 			<TaskRow labelTitle={t('pages.taskDetails.LABELS')}>
 				<TaskLabels
@@ -235,44 +291,43 @@ const TaskSecondaryInfo = () => {
 				</Card>
 			</Modal>
 		</section>
-  );
+	);
 };
 
 const EpicParent = ({ task }: { task: ITeamTask }) => {
-  const t = useTranslations();
+	const t = useTranslations();
 
-  if (task?.issueType === 'Story') {
-    return <></>;
-  }
+	if (task?.issueType === 'Story') {
+		return <></>;
+	}
 
-  return (!task?.issueType ||
-    task?.issueType === 'Task' ||
-    task?.issueType === 'Bug') &&
-    task?.rootEpic ? (
-    <TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
-      <Tooltip
-        label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}
-        placement="auto"
-      >
-        <Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
-          <div className="flex items-center w-32">
-            <div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-              <Square4OutlineIcon className="w-full max-w-[10px] text-white" />
-            </div>
-            <div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
-          </div>
-        </Link>
-      </Tooltip>
-    </TaskRow>
-  ) : (
-    <></>
-  );
+	return (!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') && task?.rootEpic ? (
+		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
+			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
+				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
+					<div className="flex items-center w-32">
+						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
+						</div>
+						<div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
+					</div>
+				</Link>
+			</Tooltip>
+		</TaskRow>
+	) : (
+		<></>
+	);
 };
 
-
-
 interface ITaskProjectDropdownProps {
-	task: ITeamTask;
+	task?: ITeamTask;
+	controlled?: boolean;
+	onChange?: (project: IProject) => void;
+	styles?: {
+		container?: string; // The dropdown element
+		value?: string;
+		listCard?: string; // The listbox
+	};
 }
 
 export default TaskSecondaryInfo;
@@ -282,50 +337,58 @@ export default TaskSecondaryInfo;
  *
  * @param {Object} props - The props object
  * @param {ITeamTask} props.task - The ITeamTask object which
+ * @param {boolean} props.controlled - If [true], changes are managed by external handlers (i.e :props.onChange)
+ * @param {(project: IProject) => void} props.onChange - The function called when user selects a value (external handler)
  *
  * @returns {JSX.Element} - The Dropdown element
  */
-function ProjectDropDown (props : ITaskProjectDropdownProps) {
+export function ProjectDropDown(props: ITaskProjectDropdownProps) {
+	const { task, controlled = false, onChange, styles } = props;
 
-	const {task} = props
-
-	const organizationProjects = useAtomValue(organizationProjectsState)
-	const {getOrganizationProjects} = useOrganizationProjects()
-	const {updateTask, updateLoading} = useTeamTasks()
-	const t = useTranslations()
+	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { getOrganizationProjects } = useOrganizationProjects();
+	const { updateTask, updateLoading } = useTeamTasks();
+	const t = useTranslations();
 
 	useEffect(() => {
-		getOrganizationProjects()
-	},[getOrganizationProjects])
-
+		getOrganizationProjects();
+	}, [getOrganizationProjects]);
 
 	const [selected, setSelected] = useState<IProject>();
 
 	// Set the task project if any
 	useEffect(() => {
-		setSelected(organizationProjects.find(project => {
-			return  project.id === task.projectId
-		}))
-	},[organizationProjects, task.projectId])
+		if (task) {
+			setSelected(
+				organizationProjects.find((project) => {
+					return project.id == task.projectId;
+				})
+			);
+		}
+	}, [organizationProjects, task, task?.projectId]);
 
 	// Update the project
-	const handleUpdateProject = useCallback(async (project : IProject) => {
-		try {
-			await updateTask({ ...task, projectId: project.id });
-
-			setSelected(project);
-		} catch (error) {
-			console.error(error);
-		}
-	},[task, updateTask])
-
+	const handleUpdateProject = useCallback(
+		async (project: IProject) => {
+			try {
+				if (task) {
+					await updateTask({ ...task, projectId: project.id });
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[task, updateTask]
+	);
 
 	// Remove the project
 	const handleRemoveProject = useCallback(async () => {
 		try {
-			await updateTask({ ...task, projectId: null });
+			if (task) {
+				await updateTask({ ...task, projectId: null });
 
-			setSelected(undefined);
+				setSelected(undefined);
+			}
 		} catch (error) {
 			console.error(error);
 		}
@@ -334,25 +397,42 @@ function ProjectDropDown (props : ITaskProjectDropdownProps) {
 	return (
 		<div
 			className={clsxm(
-				'relative  text-sm font-medium border text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs'
+				'relative  text-sm font-medium border text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs',
+				styles?.container
 			)}
 		>
 			<Listbox
 				value={selected}
-				onChange={handleUpdateProject}
+				onChange={(project) => {
+					if (controlled && onChange) {
+						onChange(project);
+					} else {
+						handleUpdateProject(project);
+					}
+
+					setSelected(project);
+				}}
 			>
 				{({ open }) => {
 					return (
 						<>
 							<Listbox.Button
 								className={clsxm(
-									'cursor-pointer outline-none w-full flex items-center justify-between px-4 h-full '
+									'cursor-pointer outline-none w-full flex items-center justify-between px-4 h-full ',
+									styles?.value
 								)}
 							>
+								{selected && (
+									<div className="">
+										<ProjectIcon />
+									</div>
+								)}
 								{updateLoading ? (
 									<SpinnerLoader size={10} />
 								) : (
-									<p className=" truncate ">{selected?.name ?? 'Project'}</p>
+									<p className={clsxm('truncate', !selected && ' text-slate-400 font-light')}>
+										{selected?.name ?? 'Project'}
+									</p>
 								)}
 								<ChevronDownIcon
 									className={clsxm(
@@ -375,7 +455,10 @@ function ProjectDropDown (props : ITaskProjectDropdownProps) {
 								<Listbox.Options className="outline-none">
 									<Card
 										shadow="bigger"
-										className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 max-h-[206px] overflow-x-auto rounded-none"
+										className={clsxm(
+											'p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 max-h-[206px] overflow-x-auto rounded-none',
+											styles?.listCard
+										)}
 									>
 										{organizationProjects.map((item, i) => {
 											return (
@@ -386,13 +469,15 @@ function ProjectDropDown (props : ITaskProjectDropdownProps) {
 												</Listbox.Option>
 											);
 										})}
-										<Button
-											className=" px-2 py-1 mt-2 !min-w-min rounded-none text-xs dark:text-white dark:border-white"
-											variant="outline"
-											onClick={handleRemoveProject}
-										>
-											{t('common.REMOVE')}
-										</Button>
+										{!controlled && (
+											<Button
+												className=" px-2 py-1 mt-2 !min-w-min rounded-none text-xs dark:text-white dark:border-white"
+												variant="outline"
+												onClick={handleRemoveProject}
+											>
+												{t('common.REMOVE')}
+											</Button>
+										)}
 									</Card>
 								</Listbox.Options>
 							</Transition>

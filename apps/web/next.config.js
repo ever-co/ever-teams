@@ -30,12 +30,21 @@ const sentryConfig = isSentryEnabled && {
 		disableLogger: true
 	}
 };
-
+const eslintBuildConfig = process.env.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
+	? {
+			// Warning: IF TRUE This allows production builds to successfully complete even if
+			// your project has ESLint errors.
+			eslint: {
+				ignoreDuringBuilds: true
+			}
+		}
+	: {};
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
 	reactStrictMode: false,
+	...eslintBuildConfig,
 	swcMinify: true,
 	webpack: (config, { isServer }) => {
 		config.resolve.alias['@app'] = path.join(__dirname, 'app');

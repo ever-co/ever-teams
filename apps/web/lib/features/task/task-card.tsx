@@ -217,7 +217,7 @@ export function TaskCard(props: Props) {
 				<VerticalSeparator />
 
 				{/* TaskTimes */}
-				<div className="flex items-center justify-between gap-[1.125rem]  px-5 w-1/5 lg:px-3 2xl:w-52 3xl:w-72">
+				<div className="flex items-center justify-between gap-[1.125rem] min-w-fit px-5 w-max lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					<TaskTimes
 						activeAuthTask={activeAuthTask}
 						task={task}
@@ -237,7 +237,7 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex items-center justify-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
+				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<div className="flex items-center justify-center ">
 						<ActiveTaskStatusDropdown
@@ -646,39 +646,39 @@ export function TaskCardMenu({
 
 									{(viewType == 'default' ||
 										(viewType === 'dailyplan' && planMode === 'Outstanding')) && (
-											<>
-												<Divider type="HORIZONTAL" />
-												<div className="mt-3">
-													{!taskPlannedToday && (
-														<li className="mb-2">
-															<PlanTask
-																planMode="today"
-																taskId={task.id}
-																employeeId={profile?.member?.employeeId ?? ''}
-																taskPlannedToday={taskPlannedToday}
-															/>
-														</li>
-													)}
-													{!taskPlannedTomorrow && (
-														<li className="mb-2">
-															<PlanTask
-																planMode="tomorrow"
-																taskId={task.id}
-																employeeId={profile?.member?.employeeId ?? ''}
-																taskPlannedForTomorrow={taskPlannedTomorrow}
-															/>
-														</li>
-													)}
+										<>
+											<Divider type="HORIZONTAL" />
+											<div className="mt-3">
+												{!taskPlannedToday && (
 													<li className="mb-2">
 														<PlanTask
-															planMode="custom"
+															planMode="today"
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
+															taskPlannedToday={taskPlannedToday}
 														/>
 													</li>
-												</div>
-											</>
-										)}
+												)}
+												{!taskPlannedTomorrow && (
+													<li className="mb-2">
+														<PlanTask
+															planMode="tomorrow"
+															taskId={task.id}
+															employeeId={profile?.member?.employeeId ?? ''}
+															taskPlannedForTomorrow={taskPlannedTomorrow}
+														/>
+													</li>
+												)}
+												<li className="mb-2">
+													<PlanTask
+														planMode="custom"
+														taskId={task.id}
+														employeeId={profile?.member?.employeeId ?? ''}
+													/>
+												</li>
+											</div>
+										</>
+									)}
 
 									{viewType === 'dailyplan' &&
 										(planMode === 'Today Tasks' || planMode === 'Future Tasks') && (

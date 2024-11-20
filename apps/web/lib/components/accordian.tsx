@@ -16,7 +16,7 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 	return (
 		<div className={`w-full ${isDanger && !isOpen && 'mb-[500px]'}`} id={id}>
 			<div
-				className={`rounded-2xl p-2 ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
+				className={`rounded-2xl p-2 ${className} shadow-[0px_14px_34px_rgba(0,0,0,0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
 			>
 				<Disclosure defaultOpen={defaultOpen}>
 					{({ open }) => {
