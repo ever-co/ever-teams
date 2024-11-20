@@ -289,7 +289,7 @@ export function useTeamTasks() {
 	const createTask = useCallback(
 		(
 			{
-				taskName,
+				title,
 				issueType,
 				taskStatusId,
 				status = taskStatus[0]?.name,
@@ -297,9 +297,10 @@ export function useTeamTasks() {
 				size,
 				tags,
 				description,
-				projectId
+				projectId,
+				members
 			}: {
-				taskName: string;
+				title: string;
 				issueType?: string;
 				status?: string;
 				taskStatusId: string;
@@ -308,12 +309,13 @@ export function useTeamTasks() {
 				tags?: ITaskLabelsItemList[];
 				description?: string | null;
 				projectId?: string | null;
+				members?: { id: string }[]
 			},
-			members?: { id: string }[]
 		) => {
+
 			return createQueryCall(
 				{
-					title: taskName,
+					title,
 					issueType,
 					status,
 					priority,
@@ -322,17 +324,11 @@ export function useTeamTasks() {
 					// Set Project Id to cookie
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 
-					// ...(activeTeam?.projects && activeTeam?.projects.length > 0
-					// 	? {
-					// 			projectId: activeTeam.projects[0].id
-					// 		}
-					// 	: {}),
 					projectId,
 					...(description ? { description: `<p>${description}</p>` } : {}),
-					...(members ? { members } : {}),
+					members,
 					taskStatusId: taskStatusId
 				},
-				$user.current
 			).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;

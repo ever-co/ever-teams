@@ -64,6 +64,7 @@ export function useTaskInput({
   const taskDescription = useRef<null | string>(null);
   const taskLabels = useRef<[] | ITaskLabelsItemList[]>([]);
   const taskProject = useRef<null | string>(null);
+  const taskAssignees = useRef<{id:string}[]>([]);
 
   const tasks = customTasks || teamTasks;
 
@@ -134,7 +135,6 @@ export function useTaskInput({
   const handleTaskCreation = ({
     autoActiveTask = true,
     autoAssignTaskAuth = true,
-    assignToUsers = []
   }: {
     autoActiveTask?: boolean;
     autoAssignTaskAuth?: boolean;
@@ -152,19 +152,20 @@ export function useTaskInput({
     const statusId = taskStatusList.find(
       (item) => item.name === taskStatus.current
     )?.id;
+
     return createTask(
       {
-        taskName: query.trim(),
+        title: query.trim(),
         issueType: taskIssue || 'Bug',
         taskStatusId: statusId || (openId as string),
         status: taskStatus.current || undefined,
         priority: taskPriority.current || undefined,
         size: taskSize.current || undefined,
         tags: taskLabels.current || [],
-        description: taskDescription.current,
-		projectId : taskProject.current
+        description: taskDescription.current ?? '',
+		projectId : taskProject.current,
+		members : [...(autoAssignTaskAuth && user?.employee.id ? [{id : user?.employee.id}] : []  ), ...taskAssignees.current]
       },
-      !autoAssignTaskAuth ? assignToUsers : undefined
     ).then((res) => {
       setQuery('');
       localStorage.setItem('lastTaskIssue', taskIssue || 'Bug');
@@ -237,6 +238,7 @@ export function useTaskInput({
     user,
     userRef,
 	taskProject,
+	taskAssignees
   };
 }
 
