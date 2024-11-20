@@ -13,7 +13,7 @@ export const SidebarAccordian = ({ children, title, className, wrapperClassName,
 	return (
 		<div className="w-full ">
 			<div
-				className={`rounded-2xl bg-[transparent]  ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] dark:bg-dark--theme `}
+				className={`rounded-2xl bg-[transparent]  ${className} shadow-[0px_14px_34px_rgba(0,0,0,0.05)] dark:bg-dark--theme `}
 			>
 				<Disclosure defaultOpen>
 					{({ open }) => (
@@ -34,7 +34,7 @@ export const SidebarAccordian = ({ children, title, className, wrapperClassName,
 								/>
 							</Disclosure.Button>
 							{children && (
-								<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 dark:bg-dark--theme shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light ">
+								<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 dark:bg-dark--theme shadow-[0px_14px_34px_rgba(0,0,0,0.05)] bg-light--theme-light dark:bg-dark--theme-light ">
 									{children}
 								</Disclosure.Panel>
 							)}

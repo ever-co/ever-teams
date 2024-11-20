@@ -9,9 +9,8 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
-import { HorizontalSeparator } from 'lib/components';
+import { HorizontalSeparator, AlertPopup } from 'lib/components';
 import { useEffect, useState } from 'react';
-import { AlertPopup } from 'lib/components';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { IDailyPlan } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -49,7 +48,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between gap-3 w-full">
+									<div className="flex items-center justify-between w-full gap-3">
 										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
@@ -71,6 +70,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 													ref={provided.innerRef}
 													{...provided.droppableProps}
 													className={clsxm(
+														'flex-wrap',
 														view === 'CARDS' && 'flex-col',
 														'flex gap-2 pb-[1.5rem]',
 														view === 'BLOCKS' && 'overflow-x-auto'
@@ -132,9 +132,9 @@ export function FutureTasks({ profile }: { profile: any }) {
 															</Draggable>
 														)
 													)}
-													<>{provided.placeholder}</>
+													<>{provided.placeholder as React.ReactElement}</>
 													{canSeeActivity ? (
-														<div className="flex shrink-0  justify-end">
+														<div className="flex justify-end shrink-0">
 															<AlertPopup
 																open={currentDeleteIndex === index && popupOpen}
 																buttonOpen={
@@ -161,7 +161,7 @@ export function FutureTasks({ profile }: { profile: any }) {
 																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="animate-spin mr-2 h-4 w-4" />
+																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 																	)}
 																	Delete
 																</Button>

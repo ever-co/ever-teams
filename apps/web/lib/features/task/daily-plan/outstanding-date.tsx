@@ -37,14 +37,14 @@ export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between gap-3 w-full">
+									<div className="flex items-center justify-between w-full gap-3">
 										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme pb-12">
+								<AccordionContent className="pb-12 bg-transparent border-none dark:bg-dark--theme">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									<Droppable droppableId={plan.id as string} key={plan.id} type="task">
@@ -53,6 +53,7 @@ export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
 												ref={provided.innerRef}
 												{...provided.droppableProps}
 												className={clsxm(
+													'flex-wrap',
 													view === 'CARDS' && 'flex-col',
 													view === 'TABLE' && 'flex-wrap',
 													'flex gap-2 pb-[1.5rem]',

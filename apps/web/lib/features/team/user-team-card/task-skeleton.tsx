@@ -44,31 +44,36 @@ export function UserTeamCardHeader() {
 	const t = useTranslations();
 	return (
 		<div className="w-full h-14  dark:text-[#7B8089] font-normal  -mt-1 z-50 dark:bg-dark-high px-8 m-0">
-			<div className="px-4 md:px-8 ml-4 h-full">
-				<div className="flex h-full m-0 relative items-center">
-					<a className="flex items-center space-x-2 2xl:w-[20.625rem] w-1/4">
+			<div className="w-full h-full px-4 ml-4 md:px-8">
+				<div className="relative flex items-center justify-around w-full h-full m-0">
+					<div className="inline-flex items-center space-x-2 2xl:w-[20.625rem] w-1/4">
 						<div className="w-[50px] h-full flex justify-center items-center"></div>
-						<div className="lg:w-64 w-1/2 flex flex-col gap-1.5">
+						<div className="lg:w-64 w-1/2 flex flex-col gap-1.5 text-nowrap">
 							{t('common.TEAM')} {t('common.MEMBER')}
 						</div>
-					</a>
+					</div>
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
-					<div className="flex justify-between items-center flex-1 min-w-[40%]">
-						<div className="h-full w-full flex flex-col items-center justify-center gap-[1.0620rem] max-h-full overflow-hidden flex-1 lg:px-4 px-2 overflow-y-hidden">
+					<div className="flex justify-between items-center min-w-[24%]">
+						<div className="h-full w-full flex flex-col items-center justify-center text-nowrap gap-[1.0620rem] max-h-full overflow-hidden flex-1 lg:px-4 px-2 overflow-y-hidden">
 							{t('common.TASK')}
 						</div>
 					</div>
 					<div className="w-4 self-stretch border-l-[0.125rem] border-l-transparent " />
 					<div className="2xl:w-48 3xl:w-[12rem] capitalize w-1/5 lg:px-4 !pl-6 lg:!pl-8  flex flex-col items-center text-center  justify-center">
-						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')} className="text-nowrap">
 							{t('dailyPlan.TASK_TIME')}
 						</Tooltip>
 					</div>
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
-					<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 !pl-14 text-center">{t('common.ESTIMATE')}</div>
+					<div className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64 !pl-14 text-center text-nowrap">
+						{t('common.ESTIMATE')}
+					</div>
 					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem] !pl-14 text-center">
-						<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+						<Tooltip
+							label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}
+							className="text-nowrap"
+						>
 							{t('dailyPlan.TOTAL_TODAY')}
 						</Tooltip>
 					</div>

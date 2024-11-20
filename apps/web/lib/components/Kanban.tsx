@@ -1,5 +1,5 @@
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
-import React from 'react';
+import React, { RefObject } from 'react';
 import { useEffect, useState } from 'react';
 import {
 	Draggable,
@@ -24,6 +24,8 @@ import { Modal } from './modal';
 import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 import Image from 'next/image';
 import EditStatusModal from '@components/pages/kanban/edit-status-modal';
+import { ScrollArea } from '@components/ui/scroll-area';
+import { cn } from '../utils';
 
 const grid = 8;
 
@@ -50,7 +52,7 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
 	};
 };
 
-// this function changes column header color when dragged
+/** This function changes column header color when dragged */
 function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 	const backgroundColor = snapshot.isDragging ? '#3826a6' : bgColor;
 
@@ -70,7 +72,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 
 	return (
 		<>
-			<section className="flex flex-col pb-2 relative">
+			<section className="relative flex flex-col items-center pb-2">
 				{Array.isArray(items) &&
 					items.length > 0 &&
 					items.map((item: ITeamTask, index: number) => (
@@ -96,15 +98,15 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 						</Draggable>
 					))}
 				{Array.isArray(items) && items?.length == 0 && (
-					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute">
+					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full">
 						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
 							{t('common.NOT_FOUND')}!
 						</div>
 						<div
 							onClick={openModal}
-							className="h-[52px] mt-4 w-[340px] flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+							className="h-[52px] mt-4 w-full flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
 						>
-							<AddIcon className=" h-5 w-5" />
+							<AddIcon className="w-5 h-5 " />
 							<p>{t('common.CREATE_TASK')}</p>
 						</div>
 					</div>
@@ -134,11 +136,44 @@ function InnerList(props: {
 	return (
 		<div style={getBackgroundColor(dropSnapshot)} ref={dropProvided.innerRef}>
 			<InnerItemList items={items} title={title} dropSnapshot={dropSnapshot} />
-			<>{dropProvided.placeholder}</>
+			<>{dropProvided.placeholder as React.ReactElement}</>
 		</div>
 	);
 }
-
+/**
+ * Calculates the dynamic height of a Kanban column based on the number of items
+ *
+ * @param {number} itemsLength - The number of items in the column
+ * @param {RefObject<HTMLDivElement> | undefined} containerRef - Reference to the container element
+ * @returns {string} The calculated height with 'px' unit
+ *
+ * Rules:
+ * - 2 items or less: fixed height of 320px
+ * - 3 items: fixed height of 520px
+ * - More than 3 items: uses container height or fallback to 720px
+ *
+ * @example
+ * // For 1 items or less
+ * getKanbanColumnHeight(1, containerRef) // returns '320px'
+ *
+ * // For 3 items
+ * getColumnHeight(3, containerRef) // returns '520px'
+ *
+ * // For more than 3 items
+ * getColumnHeight(4, containerRef) // returns container height or '720px'
+ */
+const getKanbanColumnHeight = (itemsLength: number, containerRef: RefObject<HTMLDivElement> | undefined): string => {
+	switch (true) {
+		case itemsLength <= 1:
+			return '320px';
+		case itemsLength <= 3:
+			return '520px';
+		case itemsLength > 3:
+			return `${containerRef?.current?.offsetHeight || 720}px`;
+		default:
+			return '320px';
+	}
+};
 /**
  * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
@@ -224,7 +259,7 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row px-2 w-fit h-40"
+							className="flex flex-row h-40 px-2 w-fit"
 						>
 							{title.length > 0 ? (
 								<>
@@ -293,7 +328,7 @@ export const EmptyKanbanDroppable = ({
 												</div>
 												<div>
 													<h2
-														className="flex flex-row font-semibold text-sm not-italic h-full text-black capitalize font-poppins"
+														className="flex flex-row h-full text-sm not-italic font-semibold text-black capitalize font-poppins"
 														{...provided.dragHandleProps}
 														aria-label={`${title}`}
 													>
@@ -353,7 +388,7 @@ const KanbanDraggableHeader = ({
 					<div className="flex flex-row gap-2.5 items-center">
 						<Image alt={title} src={icon} width={20} height={20} />
 						<h2
-							className="text-sm font-semibold not-italic text-black font-poppins capitalize"
+							className="text-sm not-italic font-semibold text-black capitalize font-poppins"
 							{...provided.dragHandleProps}
 							aria-label={`${title} quote list`}
 						>
@@ -424,7 +459,8 @@ const KanbanDraggable = ({
 	isLoading,
 	icon,
 	items,
-	backgroundColor
+	backgroundColor,
+	containerRef
 }: {
 	index: number;
 	setColumn: any;
@@ -434,6 +470,7 @@ const KanbanDraggable = ({
 	isLoading: boolean;
 	backgroundColor: any;
 	items: ITeamTask[];
+	containerRef?: RefObject<HTMLDivElement>;
 	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
 	const t = useTranslations();
@@ -445,12 +482,22 @@ const KanbanDraggable = ({
 			{title && (
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-						<div
+						<ScrollArea
 							ref={provided.innerRef}
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col px-2 h-fit w-[355px]"
+							className={cn(
+								'relative flex flex-col w-[355px] h-fit',
+								items.length > 4 ? 'min-h-svh' : 'min-h-fit'
+							)}
+							style={{
+								height:
+									containerRef && items && items.length > 1
+										? getKanbanColumnHeight(items.length, containerRef)
+										: '320px',
+								paddingBottom: `${containerRef && items && items.length > 1 ? 25 : '0'}px`
+							}}
 						>
 							{title ? (
 								<>
@@ -477,15 +524,15 @@ const KanbanDraggable = ({
 										/>
 										<button
 											onClick={() => openModal()}
-											className="flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+											className="flex flex-row items-center gap-4 p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
 										>
-											<AddIcon className=" h-5 w-5" />
+											<AddIcon className="w-5 h-5 " />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>
 								</>
 							) : null}
-						</div>
+						</ScrollArea>
 					)}
 				</Draggable>
 			)}

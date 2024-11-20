@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
 import React, { ReactNode } from 'react';
+import { ITaskStatus } from '@/app/interfaces';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -87,4 +88,29 @@ export function isJSXElement(node: any | ReactNode): node is JSX.Element | JSX.E
 	}
 
 	return false;
+}
+
+export function getStatusColor(status: ITaskStatus) {
+	switch (status) {
+		case 'in-review':
+			return 'bg-[#f3d8b0]';
+		case 'backlog':
+			return 'bg-[#ffcc00]';
+		case 'open':
+			return 'bg-[#d6e4f9]';
+		case 'in-progress':
+			return 'bg-[#ece8fc]';
+		case 'ready-for-review':
+			return 'bg-[#f5f1cb]';
+		case 'blocked':
+			return 'bg-[#f5b8b8]';
+		case 'done':
+			return 'bg-[#4caf50] text-gray-100';
+		case 'completed':
+			return 'bg-[#d4efdf]';
+		case 'custom':
+			return 'bg-[#d4efdf]';
+		default:
+			return 'bg-gray-100 text-gray-800';
+	}
 }
