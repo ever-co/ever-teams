@@ -9,6 +9,7 @@ import { TaskInput } from './task/task-input';
 import { TaskLabels } from './task/task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task/task-status';
 import { useTranslations } from 'next-intl';
+import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const t = useTranslations();
@@ -31,29 +32,38 @@ export function AuthUserTaskInput({ className }: IClassName) {
 
 				<div className="flex-grow justify-end hidden flex-1 gap-2 md:flex">
 					<ActiveTaskStatusDropdown
-						className="lg:max-w-[190px] w-full"
+						className="lg:max-w-[190px] grow"
 						disabled={!activeTeamTask}
 						taskStatusClassName="text-xs py-1.5 w-full"
 					/>
 
 					<ActiveTaskPropertiesDropdown
-						className="lg:max-w-[190px] w-full"
+						className="lg:max-w-[190px] grow"
 						disabled={!activeTeamTask}
 						taskStatusClassName="w-full py-1.5 text-xs"
 					/>
 
 					<ActiveTaskSizesDropdown
-						className="lg:max-w-[190px] w-full"
+						className="lg:max-w-[190px] grow"
 						disabled={!activeTeamTask}
 						taskStatusClassName="w-full py-1.5 text-xs"
 					/>
 
 					<TaskLabels
 						task={activeTeamTask}
-						className="lg:max-w-[170px] w-full text-xs"
+						className="lg:max-w-[170px] grow text-xs"
 						forDetails={false}
 						taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] text-xs"
 					/>
+					{activeTeamTask && (
+						<ProjectDropDown
+							styles={{
+								container: 'rounded-xl grow text-xs !max-w-[10.625rem]',
+								listCard: 'rounded-xl'
+							}}
+							task={activeTeamTask}
+						/>
+					)}
 				</div>
 				{/* <div className="grid justify-items-center md:hidden">
 					<div className="flex">

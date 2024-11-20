@@ -54,12 +54,12 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered }: Props) 
 	}, []);
 
 	return (
-		<div className="mt-10">
+		<div className="flex flex-col w-full h-full mt-10">
 			{tabFiltered.tab === 'worked' &&
 				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 				otherTasks.length > 0 && (
 					/* Displaying the current time. */
-					<div className="flex items-center mb-3 space-x-2">
+					<div className="flex items-center mb-3 gap-x-2 w-fit">
 						<Text className="font-normal">{t('common.NOW')}</Text>
 						<Divider className="flex-1" />
 						<div className="flex items-center space-x-4">

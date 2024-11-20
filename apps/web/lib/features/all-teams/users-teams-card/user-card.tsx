@@ -12,11 +12,14 @@ import { UserTeamCardMenu } from 'lib/features/team/user-team-card/user-team-car
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@app/hooks';
 import { useEffect, useState } from 'react';
 
-export default function UserTeamCard({ member }: { member: OT_Member }) {
+export default function UserTeamCard({
+	member,
+	className = 'max-w-full'
+}: Readonly<{ member: OT_Member; className?: string }>) {
 	return (
 		<Transition
 			show={true}
-			enter="transition-opacity duration-75"
+			enter="transition-opacity duration-75 w-full"
 			enterFrom="opacity-0"
 			enterTo="opacity-100"
 			leave="transition-opacity duration-150"
@@ -26,39 +29,43 @@ export default function UserTeamCard({ member }: { member: OT_Member }) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] !py-4',
-					'dark:border border border-transparent dark:border-[#FFFFFF14]'
+					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] w-full !py-4',
+					'dark:border border border-transparent dark:border-[#FFFFFF14]',
+					className
 				)}
 			>
-				<div className="flex m-0 relative items-center">
-					<div className="absolute left-0 cursor-pointer">
-						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
+				<div className="relative flex items-center w-full m-0">
+					<div className="absolute left-0 cursor-pointer w-fit">
+						<SixSquareGridIcon className="w-2 max-w-fit text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
 					{/* User information */}
-					<div className="relative">
-						<MemberInfo member={member} />
+					<div className="relative w-fit">
+						<MemberInfo member={member} className="!w-fit" />
 					</div>
 
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-center flex-1 min-w-[40%]">
-						<UserTeamActiveTaskInfo member={member} />
+					<div className="flex items-center justify-between flex-initial w-fit min-w-fit">
+						<UserTeamActiveTaskInfo
+							member={member}
+							className="flex-initial !w-fit !min-w-full !max-w-[280px]"
+						/>
 					</div>
 
 					<VerticalSeparator className="ml-2" />
 
 					{/* Task worked Times */}
-					<UserTeamActiveTaskTimes member={member} />
+					<UserTeamActiveTaskTimes member={member} className="!w-fit max-w-fit" />
 
 					<VerticalSeparator />
 
 					{/* Task estimate Info */}
-					<UserTeamActiveTaskEstimate member={member} />
+					<UserTeamActiveTaskEstimate member={member} className="!w-fit" />
 
 					<VerticalSeparator />
 
-					<UserTeamActiveTaskTodayWorked member={member} />
+					<UserTeamActiveTaskTodayWorked member={member} className="!w-fit !max-w-fit" />
 
 					{/* Card Menu */}
 					<div className="absolute hidden right-2">

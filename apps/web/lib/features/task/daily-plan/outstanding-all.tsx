@@ -42,9 +42,10 @@ export function OutstandingAll({ profile }: OutstandingAll) {
 									ref={provided.innerRef}
 									{...provided.droppableProps}
 									className={clsxm(
+										'flex-wrap',
 										view === 'CARDS' && 'flex-col',
 										view === 'TABLE' || (view === 'BLOCKS' && 'flex-wrap'),
-										'flex gap-2 pb-[1.5rem] overflow-x-auto'
+										'flex gap-2 pb-[1.5rem] overflow-x-auto !flex-wrap'
 									)}
 								>
 									{tasks?.map((task, index) => {

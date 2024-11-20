@@ -1,9 +1,13 @@
+import { cn } from '@/lib/utils';
 import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { TaskInfo } from 'lib/features/team/user-team-card/task-info';
 import { useEffect, useState } from 'react';
 
-export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }) {
+export default function UserTeamActiveTaskInfo({
+	member,
+	className
+}: Readonly<{ member: OT_Member; className?: string }>) {
 	const memberInfo = useTeamMemberCard(member);
 	const [activeTask, setActiveTask] = useState<ITeamTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
@@ -24,12 +28,12 @@ export default function UserTeamActiveTaskInfo({ member }: { member: OT_Member }
 				<TaskInfo
 					edition={{ ...taskEdition, task: activeTask }}
 					memberInfo={memberInfo}
-					className="flex-1 lg:px-4 px-2 overflow-y-hidden"
+					className={cn('flex-1 lg:px-4 px-2 overflow-y-hidden w-full max-w-fit', className)}
 					publicTeam={false}
 					tab="default"
 				/>
 			) : (
-				<div className="w-full text-start px-6">--</div>
+				<div className="w-full px-6 text-start">--</div>
 			)}
 		</>
 	);

@@ -41,7 +41,7 @@ export function UnverifiedEmail() {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'w-full mt-6 flex justify-between',
+					'w-full mt-4 flex justify-between',
 					'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]'
 				)}
 			>

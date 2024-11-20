@@ -142,8 +142,8 @@ export function UserProfilePlans() {
 			<Container fullWidth={fullWidth} className="">
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
-						<div className=" space-y-4">
-							<div className="flex items-center justify-between w-full">
+						<div className="space-y-4 ">
+							<div className="flex items-center justify-between w-full min-w-fit max-w-[78svw]">
 								<div className={clsxm('flex items-center gap-4')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
 										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
@@ -184,7 +184,7 @@ export function UserProfilePlans() {
 										</div>
 									))}
 								</div>
-								<div className="flex  items-center gap-2">
+								<div className="flex items-center gap-2">
 									{currentTab === 'Today Tasks' && todayPlan[0] && (
 										<>
 											{canSeeActivity ? (
@@ -353,8 +353,9 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 													ref={provided.innerRef}
 													{...provided.droppableProps}
 													className={clsxm(
+														'flex-wrap',
 														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem]',
+														'flex gap-2 pb-[1.5rem] flex-wrap',
 														view === 'BLOCKS' && 'overflow-x-auto',
 														snapshot.isDraggingOver ? 'lightblue' : '#F7F7F8'
 													)}
@@ -418,7 +419,7 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 															</Draggable>
 														)
 													)}
-													<>{provided.placeholder}</>
+													{provided.placeholder as React.ReactElement}
 												</ul>
 											)}
 										</Droppable>
@@ -472,8 +473,9 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 	return (
 		<div
-			className={`mb-6 flex ${planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
-				}  items-center gap-5`}
+			className={`mb-6 flex ${
+				planMode === 'Future Tasks' ? 'justify-start' : 'justify-around'
+			}  items-center gap-5`}
 		>
 			{/* Planned Time */}
 

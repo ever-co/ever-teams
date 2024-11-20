@@ -840,7 +840,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
+				`py-2 md:px-3 px-2 flex items-center text-sm relative gap-x-2 min-w-fit w-auto`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
@@ -861,7 +861,7 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex items-center space-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
+					'flex items-center gap-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
 					titleClassName
 				)}
 			>

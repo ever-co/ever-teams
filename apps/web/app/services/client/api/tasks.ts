@@ -10,7 +10,6 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@app/helpers';
-import { IUser } from '@app/interfaces';
 import { TTasksTimesheetStatisticsParams } from '@app/services/server/requests';
 import qs from 'qs';
 
@@ -108,7 +107,7 @@ export async function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
 	return put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
 }
 
-export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }, user: IUser | undefined) {
+export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: string }) {
 	if (GAUZY_API_BASE_SERVER_URL.value) {
 		const organizationId = getOrganizationIdCookie();
 		const teamId = getActiveTeamIdCookie();
@@ -118,7 +117,6 @@ export async function createTeamTaskAPI(body: Partial<ICreateTask> & { title: st
 
 		const datas: ICreateTask = {
 			description: '',
-			members: user?.employee?.id ? [{ id: user.employee.id }] : [],
 			teams: [
 				{
 					id: teamId

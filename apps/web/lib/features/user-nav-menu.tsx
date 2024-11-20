@@ -46,7 +46,7 @@ export function UserNavAvatar() {
 	}, [timerStatus, currentMember, publicTeam]);
 
 	return (
-		<Popover className="relative flex items-center">
+		<Popover className="relative z-50 flex items-center">
 			<Popover.Button className="outline-none">
 				<div
 					className={clsxm(
@@ -97,7 +97,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute  right-0 z-50 mt-5 xl:-right-5">
+				<Popover.Panel className="absolute right-0 z-50 mt-5 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>
@@ -284,13 +284,13 @@ function UserNavMenu() {
 					</li>
 				</ul>
 				<Divider className="mt-4 mb-3" />
-				<ul className="md:hidden flex flex-col gap-2 justify-start items-center">
+				<ul className="flex flex-col items-center justify-start gap-2 md:hidden">
 					{!publicTeam && <Collaborate />}
 
 					{isTeamMember && isTeamDropdownAllowed ? <TeamsDropDown publicTeam={publicTeam || false} /> : null}
 
 					<KeyboardShortcuts />
-					<Divider className="mt-1 mb-3 w-full" />
+					<Divider className="w-full mt-1 mb-3" />
 				</ul>
 				<ul className="w-full">
 					{/* Logout menu */}
