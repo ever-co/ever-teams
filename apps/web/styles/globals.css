@@ -34,18 +34,15 @@
 	--tooltipBackground: #000;
 }
 
-
 html.dark {
 	--tooltipBackground: #000;
 }
 
 .font-poppins {
-	font-family: 'Poppins' !important;
+	font-family: 'Poppins', sans-serif !important;
 }
 
 @layer base {
-
-
 	:root {
 		--background: 0 0% 100%;
 		--foreground: 222.2 84% 4.9%;

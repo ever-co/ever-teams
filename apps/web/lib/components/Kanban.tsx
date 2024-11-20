@@ -1,5 +1,5 @@
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
-import React from 'react';
+import React, { RefObject } from 'react';
 import { useEffect, useState } from 'react';
 import {
 	Draggable,
@@ -24,6 +24,7 @@ import { Modal } from './modal';
 import CreateTaskModal from '@components/pages/kanban/create-task-modal';
 import Image from 'next/image';
 import EditStatusModal from '@components/pages/kanban/edit-status-modal';
+import { ScrollArea } from '@components/ui/scroll-area';
 
 const grid = 8;
 
@@ -424,7 +425,8 @@ const KanbanDraggable = ({
 	isLoading,
 	icon,
 	items,
-	backgroundColor
+	backgroundColor,
+	containerRef
 }: {
 	index: number;
 	setColumn: any;
@@ -434,6 +436,7 @@ const KanbanDraggable = ({
 	isLoading: boolean;
 	backgroundColor: any;
 	items: ITeamTask[];
+	containerRef?: RefObject<HTMLDivElement>;
 	addNewTask: (value: ITeamTask, status: string) => void;
 }) => {
 	const t = useTranslations();
@@ -441,16 +444,20 @@ const KanbanDraggable = ({
 	//
 
 	return (
-		<div className="h-full min-h-[720px]">
+		<>
 			{title && (
 				<Draggable key={title} index={index} draggableId={title}>
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-						<div
+						<ScrollArea
 							ref={provided.innerRef}
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="relative flex flex-col min-h-[720px] h-full w-[355px] max-h-[820px] overflow-y-auto"
+							className="relative flex flex-col min-h-fit w-[355px]"
+							style={{
+								height: `${containerRef && items && items.length > 1 ? containerRef?.current?.offsetHeight : '320'}px`,
+								paddingBottom: `${containerRef && items && items.length > 1 ? 25 : '0'}px`
+							}}
 						>
 							{title ? (
 								<>
@@ -485,14 +492,14 @@ const KanbanDraggable = ({
 									</div>
 								</>
 							) : null}
-						</div>
+						</ScrollArea>
 					)}
 				</Draggable>
 			)}
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<CreateTaskModal onClose={closeModal} title={title} initEditMode={false} task={null} tasks={[]} />
 			</Modal>
-		</div>
+		</>
 	);
 };
 
