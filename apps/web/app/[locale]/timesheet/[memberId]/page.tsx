@@ -93,28 +93,22 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 			<MainLayout
 				showTimer={isTrackingEnabled}
 				className="items-start pb-1 !overflow-hidden w-full"
-				childrenClassName="!overflow-y-auto w-full"
+				childrenClassName="w-full"
 				mainHeaderSlot={
-					<div className="flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-transparent">
-						<Container fullWidth={fullWidth} className="bg-white">
-							<div className="flex flex-row items-start justify-between mt-12 bg-white dark:bg-dark-high">
+					<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
+						<Container fullWidth={fullWidth} className="flex flex-col gap-y-2">
+							<div className="flex flex-row items-start justify-between">
 								<div className="flex items-center justify-center h-10 gap-8">
 									<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
 							</div>
-						</Container>
-					</div>
-				}
-			>
-				<div className="h-full pb-4 pt-14">
-					<Container fullWidth={fullWidth} className="h-full">
-						<div className="pb-5">
+
 							<div className="flex flex-col items-start justify-start gap-y-2">
 								<h1 className="!text-[23px] font-bold text-[#282048] dark:text-white">
 									{getGreeting(t)}, {username} !
 								</h1>
-								<span className="text-[16px] text-[#3D5A80] dark:text-gray-500">
+								<span className="text-sm text-[#3D5A80] dark:text-gray-500">
 									{t('pages.timesheet.HEADING_DESCRIPTION')}
 								</span>
 							</div>
@@ -141,40 +135,38 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
 								/>
 							</div>
-						</div>
-						<div className="border-b-2 border-b-[#E2E8F0] dark:border-b-gray-700 w-full  flex justify-between pt-2 overflow-hidden">
-							<div className="flex w-full">
-								<ViewToggleButton
-									icon={<GrTask className="text-sm" />}
-									mode="ListView"
-									active={timesheetNavigator === 'ListView'}
-									onClick={() => setTimesheetNavigator('ListView')}
-									t={t}
-								/>
-								<ViewToggleButton
-									icon={<CalendarDaysIcon size={20} className="!text-sm" />}
-									mode="CalendarView"
-									active={timesheetNavigator === 'CalendarView'}
-									onClick={() => setTimesheetNavigator('CalendarView')}
-									t={t}
-								/>
+							<div className="flex justify-between w-full overflow-hidden">
+								<div className="flex w-full">
+									<ViewToggleButton
+										icon={<GrTask className="text-sm" />}
+										mode="ListView"
+										active={timesheetNavigator === 'ListView'}
+										onClick={() => setTimesheetNavigator('ListView')}
+										t={t}
+									/>
+									<ViewToggleButton
+										icon={<CalendarDaysIcon size={20} className="!text-sm" />}
+										mode="CalendarView"
+										active={timesheetNavigator === 'CalendarView'}
+										onClick={() => setTimesheetNavigator('CalendarView')}
+										t={t}
+									/>
+								</div>
+								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
+									<GoSearch className="text-[#7E7991]" />
+									<input
+										onChange={(v) => setSearch(v.target.value)}
+										role="searchbox"
+										aria-label="Search timesheet"
+										type="search"
+										name="timesheet-search"
+										id="timesheet-search"
+										className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
+										placeholder={t('common.SEARCH')}
+									/>
+								</div>
 							</div>
-							<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
-								<GoSearch className="text-[#7E7991]" />
-								<input
-									onChange={(v) => setSearch(v.target.value)}
-									role="searchbox"
-									aria-label="Search timesheet"
-									type="search"
-									name="timesheet-search"
-									id="timesheet-search"
-									className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
-									placeholder={t('common.SEARCH')}
-								/>
-							</div>
-						</div>
-						{/* <DropdownMenuDemo /> */}
-						<div className="flex flex-col overflow-y-auto  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme p-4 mt-4">
+
 							<TimesheetFilter
 								onChangeStatus={setFilterStatus}
 								filterStatus={filterStatus}
@@ -189,13 +181,19 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								isOpen={isManualTimeModalOpen}
 								t={t}
 							/>
-							<div className="h-[calc(100vh-_291px)] mt-3 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-800">
-								{timesheetNavigator === 'ListView' ? (
-									<TimesheetView data={filterDataTimesheet} />
-								) : (
-									<CalendarView />
-								)}
-							</div>
+						</Container>
+					</div>
+				}
+			>
+				<div className="flex flex-col  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme px-4">
+					<Container fullWidth={fullWidth} className="h-full py-5 mt-3">
+						{/* <DropdownMenuDemo /> */}
+						<div className="border border-gray-200 rounded-lg dark:border-gray-800">
+							{timesheetNavigator === 'ListView' ? (
+								<TimesheetView data={filterDataTimesheet} />
+							) : (
+								<CalendarView />
+							)}
 						</div>
 					</Container>
 				</div>
