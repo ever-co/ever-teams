@@ -1,7 +1,9 @@
-import { ITeamTask, Nullable } from '@app/interfaces';
+import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
+import { secondsToTime } from '@/app/helpers';
+import { ClockIcon } from "@radix-ui/react-icons"
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -61,3 +63,36 @@ export function TaskNameInfoDisplay({
 		</Tooltip>
 	);
 }
+
+export const DisplayTimeForTimesheet = ({ duration }: number | any) => {
+	const { h: hours, m: minute } = secondsToTime(duration || 0);
+	const formattedHours = String(hours).padStart(2, '0');
+	const formattedMinutes = String(minute).padStart(2, '0');
+	return (
+		<div className='flex items-center font-medium gap-x-1'>
+			<ClockIcon className='text-green-400 text-[14px] h-4 w-4' />
+			<div className='flex items-center'>
+				<span>{formattedHours}</span>
+				<span>:</span>
+				<span>{formattedMinutes}</span>
+			</div>
+		</div>
+	)
+
+}
+
+export const TotalTimeDisplay = ({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
+	const totalDuration = Array.isArray(timesheetLog)
+		? timesheetLog.reduce((acc, curr) => acc + curr.timesheet.duration, 0)
+		: 0;
+	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+
+	const formattedHours = String(hours).padStart(2, '0');
+	const formattedMinutes = String(minute).padStart(2, '0');
+	return (
+		<div className='flex items-center text-[#868688]'>
+			<span>{formattedHours}</span>
+			<span>:</span>
+			<span>{formattedMinutes}</span>
+		</div>)
+};
