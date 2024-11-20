@@ -36,12 +36,11 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 				showTimer={isTrackingEnabled}
 				className="items-start w-full pb-1 overflow-hidden"
 				childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
-				isFooterFixed
 				mainHeaderSlot={
 					<div className="w-full py-6 bg-white dark:bg-dark--theme">
 						<Container
 							fullWidth={fullWidth}
-							className={cn('w-full mt-4 flex flex-row items-center justify-start gap-8')}
+							className={cn('w-full flex flex-row items-center justify-start gap-8')}
 						>
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />

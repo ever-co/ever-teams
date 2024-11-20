@@ -94,7 +94,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 				showTimer={isTrackingEnabled}
 				className="items-start pb-1 !overflow-hidden w-full"
 				childrenClassName="!overflow-y-auto w-full"
-				isFooterFixed
 				mainHeaderSlot={
 					<div className="flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-2xl shadow-transparent dark:shadow-transparent">
 						<Container fullWidth={fullWidth} className="bg-white">

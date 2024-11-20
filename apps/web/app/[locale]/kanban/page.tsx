@@ -115,7 +115,6 @@ const Kanban = () => {
 			<MainLayout
 				title={`${t('common.KANBAN')} ${t('common.BOARD')}`}
 				showTimer={isTrackingEnabled}
-				isFooterFixed
 				footerClassName={cn('bg-white dark:bg-[#1e2025]')}
 				childrenClassName="flex flex-col w-full h-full overflow-hidden"
 				// footerClassName={clsxm("fixed flex flex-col  items-end justify-center bottom-0 z-50 bg-white dark:bg-dark-high",!fullWidth && 'left-0 right-0')}

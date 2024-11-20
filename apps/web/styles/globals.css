@@ -1,5 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:ital,wght@0,300;0,500;0,700;0,800;1,400;1,600&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;1,100;1,200;1,300;1,400;1,700&display=swap');
 
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
+	src: url('/assets/fonts/PlusJakartaSans-VariableFont_wght.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Regular';
+	src: url('/assets/fonts/PlusJakartaSans-Regular.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Bold';
+	src: url('/assets/fonts/PlusJakartaSans-Bold.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Light';
+	src: url('/assets/fonts/PlusJakartaSans-Light.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Medium';
+	src: url('/assets/fonts/PlusJakartaSans-Medium.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-SemiBold';
+	src: url('/assets/fonts/PlusJakartaSans-SemiBold.ttf');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,9 +34,6 @@
 	--tooltipBackground: #000;
 }
 
-body {
-	@apply bg-[#F2F2F2];
-}
 
 html.dark {
 	--tooltipBackground: #000;
@@ -22,27 +44,7 @@ html.dark {
 }
 
 @layer base {
-	* {
-		@apply border-border;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
-	html {
-		font-family: 'Poppins', sans-serif;
-	}
 
-	body {
-		font-style: normal;
-		font-weight: 300;
-		font-size: 16px;
-		line-height: 160%;
-		@apply text-default dark:text-white;
-	}
-
-	.x-container {
-		@apply 3xl:max-w-[1540px] 2xl:max-w-[1320px] xl:max-w-[1140px];
-	}
 
 	:root {
 		--background: 0 0% 100%;
@@ -138,6 +140,24 @@ html.dark {
 		--sidebar-border: 240 3.7% 15.9%;
 
 		--sidebar-ring: 217.2 91.2% 59.8%;
+	}
+	* {
+		@apply border-border;
+	}
+	html {
+		font-family: 'Poppins', sans-serif;
+	}
+
+	body {
+		font-style: normal;
+		font-weight: 300;
+		font-size: 16px;
+		line-height: 160%;
+		@apply text-default dark:text-white bg-background text-foreground;
+	}
+
+	.x-container {
+		@apply 3xl:max-w-[1540px] 2xl:max-w-[1320px] xl:max-w-[1140px];
 	}
 }
 
@@ -265,31 +285,6 @@ html.dark {
 
 #file-upload input[type='file'] {
 	display: none;
-}
-
-@font-face {
-	font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
-	src: url('/fonts/PlusJakartaSans-VariableFont_wght.ttf');
-}
-@font-face {
-	font-family: 'Plus-Jakarta-Sans-Regular';
-	src: url('/fonts/PlusJakartaSans-Regular.ttf');
-}
-@font-face {
-	font-family: 'Plus-Jakarta-Sans-Bold';
-	src: url('/fonts/PlusJakartaSans-Bold.ttf');
-}
-@font-face {
-	font-family: 'Plus-Jakarta-Sans-Light';
-	src: url('/fonts/PlusJakartaSans-Light.ttf');
-}
-@font-face {
-	font-family: 'Plus-Jakarta-Sans-Medium';
-	src: url('/fonts/PlusJakartaSans-Medium.ttf');
-}
-@font-face {
-	font-family: 'Plus-Jakarta-Sans-SemiBold';
-	src: url('/fonts/PlusJakartaSans-SemiBold.ttf');
 }
 
 .search-class {
