@@ -82,7 +82,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 					await createTask({
 						...task,
 						taskStatusId: task.taskStatusId ?? taskStatus[0].id,
-						taskName: `Copy ${task.title}`,
+						title: `Copy ${task.title}`,
 						issueType: task.issueType ?? 'Bug'
 					});
 				} catch (error) {

@@ -38,11 +38,9 @@ import {
 } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import {
-	Dispatch,
   Fragment,
   MutableRefObject,
   PropsWithChildren,
-  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -90,8 +88,6 @@ type Props = {
   onTaskCreated?: (task: ITeamTask | undefined) => void;
   cardWithoutShadow?: boolean;
   assignTaskPopup?: boolean;
-  setAssignees? :  Dispatch<SetStateAction<string[]>>
-  assignees? : string[]
   forParentChildRelationship?: boolean;
 } & PropsWithChildren;
 
@@ -113,8 +109,6 @@ export function TaskInput(props: Props) {
     viewType = 'input-trigger',
     showTaskNumber = false,
     showCombobox = true,
-	setAssignees,
-	assignees
   } = props;
 
   const datas = useTaskInput({
@@ -455,7 +449,7 @@ export function TaskInput(props: Props) {
     />
   );
 
-  const taskCard = setAssignees && (
+  const taskCard = (
 		<TaskCard
 			datas={datas}
 			onItemClick={props.task !== undefined || props.onTaskClick ? onTaskClick : setAuthActiveTask}
@@ -467,8 +461,6 @@ export function TaskInput(props: Props) {
 			assignTaskPopup={props.assignTaskPopup}
 			updatedTaskList={updatedTaskList}
 			forParentChildRelationship={props.forParentChildRelationship}
-			setAssignees={setAssignees}
-			assignees={assignees ?? []}
 		/>
   );
 
@@ -524,8 +516,6 @@ function TaskCard({
   forParentChildRelationship,
   updatedTaskList,
   assignTaskPopup,
-  setAssignees,
-  assignees
 }: {
   datas: Partial<RTuseTaskInput>;
   onItemClick?: (task: ITeamTask) => void;
@@ -537,8 +527,6 @@ function TaskCard({
   forParentChildRelationship?: boolean;
   updatedTaskList?: ITeamTask[];
   assignTaskPopup?: boolean;
-  setAssignees: Dispatch<SetStateAction<string[]>>
-  assignees : string[];
 }) {
   const [, setCount] = useState(0);
   const t = useTranslations();
@@ -552,7 +540,8 @@ function TaskCard({
     taskSize,
     taskLabels,
     taskDescription,
-	taskProject
+	taskProject,
+	taskAssignees
   } = datas;
   const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
 
@@ -653,7 +642,7 @@ function TaskCard({
                     task={datas.inputTask}
                   />
 
-					<AssigneesSelect assignees={assignees} teamMembers={activeTeam?.members ?? []} setAssignees={setAssignees}/>
+				{taskAssignees !== undefined && <AssigneesSelect assignees={taskAssignees}  teamMembers={activeTeam?.members ?? []}/>}
 
 
 					<ProjectDropDown
@@ -814,27 +803,27 @@ function TaskCard({
 
 /**
  * ----------------------------------------------
- * ----------- ASSINGEES MULTI SELECT -----------
+ * ----------- ASSIGNEES MULTI SELECT -----------
  * ----------------------------------------------
  */
 
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
-	setAssignees: Dispatch<SetStateAction<string[]>>
-	assignees : string[]
+	assignees : MutableRefObject<{
+		id: string;
+	}[]>
 }
 /**
- * A multi select component for assingees
+ * A multi select component for assignees
  *
  * @param {object} props - The props object
  * @param {string[]} props.teamMembers - Members of the current team
- * @param {Dispatch<SetStateAction<string[]>>} props.setAssigneea - Assignees setter
- * @param {string[]} props.assignees - Assigned members
+ * @param {ITeamMemberSelectProps["assignees"]} props.assignees - Assigned members
  *
  * @return {JSX.Element} The multi select component
  */
  function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
-	const { teamMembers, setAssignees , assignees} = props;
+	const { teamMembers , assignees} = props;
 	const t = useTranslations();
 	const {user} = useAuthenticateUser()
 	const authMember = useMemo(() => teamMembers.find(member => member.employee.user?.id == user?.id), [teamMembers, user?.id])
@@ -884,17 +873,18 @@ interface ITeamMemberSelectProps {
 											}`
 										}
 										onClick={() => {
-											const isAssigned = assignees.includes(member.id);
+											const isAssigned = assignees.current.map(el => el.id).includes(member.employee.id);
+
 
 											if (isAssigned) {
-												setAssignees((prev) => prev.filter((id) => id != member.id));
+												assignees.current = assignees.current.filter((el) => el.id != member.employee.id)
 											} else {
-												setAssignees((prev) => [...prev, member.id]);
+												assignees.current = [...assignees.current, {id:member.employee.id}];
 											}
 										}}
 										value={member}
 									>
-										{assignees.includes(member.id) && (
+										{assignees.current.map(el => el.id).includes(member.employee.id) && (
 											<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
 												<CheckIcon className="h-5 w-5" aria-hidden="true" />
 											</span>
