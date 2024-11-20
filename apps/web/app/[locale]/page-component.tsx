@@ -68,7 +68,7 @@ function MainPage() {
 					mainHeaderSlot={
 						<div className="sticky z-40 bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
-								<div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
+								<div className="mx-8-container pt-3 !px-0 flex flex-row items-start justify-between ">
 									<div className="flex items-center justify-center h-10 gap-8">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
@@ -80,8 +80,8 @@ function MainPage() {
 									</div>
 								</div>
 
-								<div className="mb-1 mx-8-container">
-									<div className="w-full mt-3">
+								<div className="mx-8-container">
+									<div className="w-full">
 										<UnverifiedEmail />
 
 										<TeamInvitations className="!m-0" />
