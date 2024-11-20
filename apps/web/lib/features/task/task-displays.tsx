@@ -2,7 +2,7 @@ import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
-import { secondsToTime } from '@/app/helpers';
+import { formatDate, secondsToTime } from '@/app/helpers';
 import { ClockIcon } from "@radix-ui/react-icons"
 import React from 'react';
 
@@ -101,3 +101,21 @@ export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: Ti
 		</div>)
 });
 TotalTimeDisplay.displayName = 'TotalTimeDisplay';
+
+
+export const TotalDurationByDate = React.memo(
+	({ timesheetLog, createdAt }: { timesheetLog: TimesheetLog[]; createdAt: Date | string }) => {
+		const targetDateISO = new Date(createdAt).toISOString();
+		const filteredLogs = timesheetLog.filter(
+			(item) => formatDate(item.timesheet.createdAt) === formatDate(targetDateISO));
+		const totalDurationInSeconds = filteredLogs.reduce(
+			(total, log) => total + (log.timesheet?.duration || 0), 0);
+		const { h: hours, m: minutes } = secondsToTime(totalDurationInSeconds);
+		return (
+			<div className="flex items-center text-[#868688]">
+				{formatTime(hours, minutes)}
+			</div>
+		);
+	}
+);
+TotalDurationByDate.displayName = 'TotalDurationByDate';
