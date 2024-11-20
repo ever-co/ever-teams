@@ -143,7 +143,7 @@ export function MainLayout({
 						<ResizablePanel
 							defaultSize={75}
 							className="!overflow-y-auto custom-scrollbar w-full min-h-svh h-full"
-							style={{ flex: 'none', minHeight: '100svh' }}
+							style={{ flex: 'none', minHeight: '90svh' }}
 						>
 							<div className={cn('flex-1 p-4 w-full h-full', className)}>
 								<MainSidebarTrigger />
