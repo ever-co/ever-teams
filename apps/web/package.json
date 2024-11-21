@@ -87,7 +87,7 @@
 		"embla-carousel-react": "^8.0.0-rc11",
 		"emoji-mart": "^5.5.2",
 		"eslint-config-next": "^14.0.4",
-		"firebase": "8.3.3",
+		"firebase": "10.9.0",
 		"geist": "^1.3.1",
 		"hotkeys-js": "^3.12.0",
 		"i18next": "^23.6.0",
