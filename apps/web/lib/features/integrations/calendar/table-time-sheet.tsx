@@ -52,7 +52,8 @@ import {
 	RejectSelectedModal,
 	StatusAction,
 	StatusType,
-	getTimesheetButtons
+	getTimesheetButtons,
+	statusTable
 } from '@/app/[locale]/timesheet/[memberId]/components';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
@@ -388,6 +389,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	const { isOpen, closeModal, openModal } = useModal();
 	const [selected] = React.useState(selectedStatus);
 	const [newStatus, setNewStatus] = React.useState('');
+	const t = useTranslations();
 
 	const getColorClass = () => {
 		switch (selected) {
@@ -419,7 +421,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 				</SelectTrigger>
 				<SelectContent>
 					<SelectGroup className="rounded">
-						<SelectLabel>Status</SelectLabel>
+						<SelectLabel>{t('common.STATUS')}</SelectLabel>
 						{statusOptions.map((option, index) => (
 							<div key={option.value}>
 								<SelectItem value={option.value}>{option.label}</SelectItem>
@@ -437,6 +439,8 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 
 const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
+	const t = useTranslations();
+
 	return (
 		<>
 			{<EditTaskModal
@@ -453,12 +457,12 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
-						Edit
+						{t('common.EDIT')}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<StatusTask />
 					<DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">
-						Delete
+						{t('common.DELETE')}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
@@ -490,10 +494,10 @@ export const StatusTask = () => {
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						{statusOptions?.map((status, index) => (
-							<DropdownMenuItem key={index} textValue={status.value} className="cursor-pointer">
+						{statusTable?.map((status, index) => (
+							<DropdownMenuItem key={index} textValue={status.label} className="cursor-pointer">
 								<div className="flex items-center gap-3">
-									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.value).bg)}></div>
+									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>
 								</div>
 							</DropdownMenuItem>
@@ -503,7 +507,7 @@ export const StatusTask = () => {
 			</DropdownMenuSub>
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
-					<span>Billable</span>
+					<span>{t('pages.timesheet.BILLABLE.BILLABLE')}</span>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>

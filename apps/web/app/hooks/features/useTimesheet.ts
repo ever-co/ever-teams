@@ -172,6 +172,7 @@ export function useTimesheet({
         getTaskTimesheet,
         loadingDeleteTimesheet,
         deleteTaskTimesheet,
-        getStatusTimesheet
+        getStatusTimesheet,
+        statusTimesheet: getStatusTimesheet(timesheet.flatMap((data) => data))
     };
 }

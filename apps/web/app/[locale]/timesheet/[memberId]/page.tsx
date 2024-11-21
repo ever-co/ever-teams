@@ -44,7 +44,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		to: endOfDay(new Date())
 	});
 
-	const { timesheet } = useTimesheet({
+	const { timesheet, statusTimesheet } = useTimesheet({
 		startDate: dateRange.from ?? '',
 		endDate: dateRange.to ?? ''
 	});
@@ -168,6 +168,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							</div>
 
 							<TimesheetFilter
+								data={statusTimesheet}
 								onChangeStatus={setFilterStatus}
 								filterStatus={filterStatus}
 								initDate={{
@@ -210,7 +211,7 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon,
 		className={clsxm(
 			'text-[#7E7991]  font-medium w-[191px] h-[40px] flex items-center gap-x-4 text-[14px] px-2 rounded',
 			active &&
-				'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-bold'
+			'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-bold'
 		)}
 	>
 		{icon}

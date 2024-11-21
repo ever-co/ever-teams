@@ -2,23 +2,44 @@
 import React, { HTMLAttributes } from 'react';
 import { Button } from 'lib/components';
 import { clsxm } from '@app/utils';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
-export type FilterStatus = 'All Tasks' | 'Pending' | 'Approved' | 'Rejected';
+export type FilterStatus = 'All Tasks' | 'Pending' | 'Approved' | 'In review' | 'Draft' | 'Rejected';
 export function FilterWithStatus({
 	activeStatus,
 	onToggle,
-	className
+	className,
+	data
 }: Readonly<{
 	activeStatus: FilterStatus;
+	data?: Record<TimesheetStatus, TimesheetLog[]>
+
 	onToggle: (status: FilterStatus) => void;
 	className?: HTMLAttributes<HTMLDivElement>;
 }>) {
-	const buttonData: { label: FilterStatus; count: number; icon: React.ReactNode }[] = [
-		{ label: 'All Tasks', count: 46, icon: <i className="icon-all" /> },
-		{ label: 'Pending', count: 12, icon: <i className="icon-pending" /> },
-		{ label: 'Approved', count: 28, icon: <i className="icon-approved" /> },
-		{ label: 'Rejected', count: 6, icon: <i className="icon-rejected" /> }
-	];
+
+	const statusIcons: Record<FilterStatus, string> = {
+		'All Tasks': 'icon-all',
+		Pending: 'icon-pending',
+		Approved: 'icon-approved',
+		'In review': 'icon-rejected',
+		Draft: 'icon-approved',
+		Rejected: 'icon-rejected',
+	};
+
+	const buttonData = Object.entries({
+		'All Tasks': Object.values(data!).reduce((total, tasks) => total + tasks.length, 0),
+		Pending: data!.PENDING.length,
+		Approved: data!.APPROVED.length,
+		'In review': data!['IN REVIEW'].length,
+		Draft: data!.DRAFT.length,
+		Rejected: data!.DENIED.length,
+	}).map(([label, count]) => ({
+		label: label as FilterStatus,
+		count,
+		icon: <i className={statusIcons[label as FilterStatus]} />,
+	}));
+
 
 	return (
 		<div
@@ -34,7 +55,7 @@ export function FilterWithStatus({
 						'group flex items-center justify-start h-[2.2rem] rounded-xl w-full',
 						'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A] w-[80px]',
 						activeStatus === label &&
-							'text-primary bg-white shadow-2xl dark:text-primary-light font-bold  border'
+						'text-primary bg-white shadow-2xl dark:text-primary-light font-bold  border'
 					)}
 					onClick={() => onToggle(label)}
 				>
