@@ -57,7 +57,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { TaskNameInfoDisplay } from '../../task/task-displays';
+import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
 import { TimesheetStatus } from '@/app/interfaces';
 import dayjs from 'dayjs';
 
@@ -249,10 +249,11 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 								'h-[48px] flex justify-between items-center w-full',
 								'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
 								'border-gray-400 px-5 text-[#71717A] font-medium'
-							)}
-						>
+							)}>
 							<span>{formatDate(plan.date)}</span>
-							<span>64:30h</span>
+							<TotalDurationByDate
+								timesheetLog={plan.tasks}
+								createdAt={formatDate(plan.date)} />
 						</div>
 
 						<Accordion type="single" collapsible>
@@ -283,8 +284,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													variant={'outline'}
 													className="flex items-center gap-x-2 h-[25px] rounded-md bg-[#E4E4E7] dark:bg-gray-800"
 												>
-													<span className="text-[#5f5f61]">Total</span>
-													<span className="text-[#868688]">24:30h</span>
+													<span className="text-[#5f5f61]">{t('timer.TOTAL_HOURS')}</span>
+													<TotalTimeDisplay timesheetLog={rows} />
 												</Badge>
 											</div>
 											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
@@ -339,10 +340,11 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 														{task.timesheet.status}
 													</Badge>
 												</div>
-												<span className="flex-1 font-medium">
-													{dayjs(task.timesheet.createdAt).format('HH:mm:ss')}
-												</span>
-												<TaskActionMenu idTasks={task.id} />
+												<DisplayTimeForTimesheet
+													duration={task.timesheet.duration}
+												/>
+												<TaskActionMenu
+													idTasks={task.id} />
 											</div>
 										))}
 									</AccordionContent>
