@@ -66,7 +66,7 @@ function MainPage() {
 					showTimer={headerSize <= 11.8 && isTrackingEnabled}
 					className="h-full"
 					mainHeaderSlot={
-						<div className="relative z-[55] bg-white dark:bg-dark-high">
+						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
 									<div className="flex items-center justify-center h-10 gap-8">

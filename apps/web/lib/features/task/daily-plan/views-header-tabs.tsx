@@ -21,7 +21,7 @@ export default function ViewsHeaderTabs() {
 			{options.map(({ label, icon: Icon, view: optionView }) => (
 				<Tooltip
 					key={label}
-					className="z-[55]"
+					className="z-20"
 					label={t(`common.${label}` as DottedLanguageObjectStringPaths)}
 					placement="top-start"
 				>

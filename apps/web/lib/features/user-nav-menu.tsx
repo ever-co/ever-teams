@@ -46,7 +46,7 @@ export function UserNavAvatar() {
 	}, [timerStatus, currentMember, publicTeam]);
 
 	return (
-		<Popover className="relative z-50 flex items-center">
+		<Popover className="relative z-[60] flex items-center">
 			<Popover.Button className="outline-none">
 				<div
 					className={clsxm(
@@ -97,7 +97,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute right-0 z-50 mt-5 xl:-right-5">
+				<Popover.Panel className="absolute right-0 z-[60] mt-5 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>

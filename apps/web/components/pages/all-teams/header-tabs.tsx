@@ -19,7 +19,7 @@ export function HeaderTabs() {
 		<>
 			{options.map(({ label, icon: Icon, view: optionView }) => (
 				<Tooltip
-					className="z-[55]"
+					className="z-20"
 					key={label}
 					label={t(`common.${label}` as DottedLanguageObjectStringPaths)}
 					placement="top-start"

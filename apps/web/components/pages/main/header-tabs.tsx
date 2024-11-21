@@ -26,7 +26,7 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 					key={label}
 					label={t(`common.${label}` as DottedLanguageObjectStringPaths)}
 					placement="top-start"
-					className="z-[55]"
+					className="z-20"
 				>
 					<LinkWrapper isRoute={!!links[index]} href={links[index]}>
 						<button
