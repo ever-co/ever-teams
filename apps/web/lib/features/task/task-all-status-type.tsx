@@ -1,9 +1,9 @@
 'use client';
 
-import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@app/hooks';
-import { ITeamTask, Nullable } from '@app/interfaces';
+import { useCustomEmblaCarousel, useDailyPlan, useOrganizationProjects, useSyncRef } from '@app/hooks';
+import { IProject, ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	TaskStatus,
 	useTaskLabelsValue,
@@ -15,6 +15,7 @@ import { clsxm } from '@app/utils';
 import { planBadgeContent, planBadgeContPast } from '@app/helpers';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../user-profile-plans';
+import ProjectIcon from '@components/ui/svgs/project-icon';
 
 export function TaskAllStatusTypes({
 	task,
@@ -35,6 +36,8 @@ export function TaskAllStatusTypes({
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
+	const { getOrganizationProject } = useOrganizationProjects();
+	const [project, setProject] = useState<IProject>();
 
 	const { dailyPlan } = useDailyPlan();
 
@@ -68,6 +71,17 @@ export function TaskAllStatusTypes({
 
 	const taskId = task ? planBadgeContPast(dailyPlan.items, task.id) : '';
 
+	useEffect(() => {
+		const fetchProject = async () => {
+			if (task?.projectId) {
+				const res = await getOrganizationProject(task.projectId);
+				setProject(res?.data);
+			}
+		};
+
+		fetchProject();
+	}, [getOrganizationProject, task?.projectId]);
+
 	return (
 		<div className="relative w-full h-full flex flex-col justify-center">
 			<div ref={viewportRef} className="overflow-hidden w-full relative">
@@ -81,7 +95,6 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-
 					{task?.priority && (
 						<TaskStatus
 							{...taskPriorities[task?.priority || 'Low']}
@@ -91,7 +104,6 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-
 					{task?.size && !toBlockCard && (
 						<TaskStatus
 							{...taskSizes[task?.size || 'Medium']}
@@ -101,7 +113,11 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-
+					{project && (
+						<div className="flex items-center justify-center gap-1 h-full px-2 bg-slate-200">
+							<ProjectIcon /> <span className=" text-xs truncate">{project.name}</span>
+						</div>
+					)}
 					{planBadgeContent(dailyPlan.items, task?.id ?? '', tab) && (
 						<div
 							className={clsxm(
