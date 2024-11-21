@@ -435,14 +435,14 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	);
 }
 
-const TaskActionMenu = ({ datatimesheet }: { datatimesheet: TimesheetLog }) => {
+const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	return (
 		<>
 			{<EditTaskModal
 				closeModal={isCloseModalEditTask}
 				isOpen={isEditTask}
-				dataTimesheet={datatimesheet}
+				dataTimesheet={dataTimesheet}
 			/>}
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
