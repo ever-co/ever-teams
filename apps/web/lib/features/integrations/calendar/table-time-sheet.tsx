@@ -335,7 +335,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												<DisplayTimeForTimesheet
 													duration={task.timesheet.duration}
 												/>
-												<TaskActionMenu datatimesheet={task} />
+												<TaskActionMenu dataTimesheet={task} />
 											</div>
 										))}
 									</AccordionContent>
