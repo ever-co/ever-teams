@@ -196,8 +196,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="!flex items-center justify-between gap-2 w-full">
 						<div className="flex flex-col items-start justify-center ">
 							<CustomSelect
-								defaultValue={dataTimesheet?.timesheet?.status ?? ""}
-								ariaLabel={dataTimesheet?.timesheet?.status ?? ""}
+								defaultValue={dataTimesheet.timesheet?.status ?? ""}
+								ariaLabel={dataTimesheet.timesheet?.status ?? ""}
 								className="ring-offset-sidebar-primary-foreground w-[150px]"
 								options={statusTable?.flatMap((status) => status.label)}
 								renderOption={(option) => (
