@@ -5,11 +5,11 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { AppSidebar } from '@components/app-sidebar';
 import MainSidebarTrigger from './MainSidebarTrigger';
 import AppContainer from './AppContainer';
 import GlobalHeader from './GlobalHeader';
 import GlobalFooter from './GlobalFooter';
+import { AppSidebar } from '@components/app-sidebar';
 
 /**
  * Props interface for the MainLayout component

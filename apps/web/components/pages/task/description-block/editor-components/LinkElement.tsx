@@ -53,7 +53,7 @@ const LinkElement = ({ attributes, element, children }: any) => {
 							href={href}
 							rel="noreferrer"
 							target="_blank"
-							className=" text-[#5000B9] dark:text-primary-light truncate max-w-[240px] overflow-hidden whitespace-nowrap mr-0"
+							className=" text-[#5000B9] dark:text-primary-light truncate max-w-[230px] overflow-hidden whitespace-nowrap mr-0"
 							style={{ textOverflow: 'ellipsis' }}
 						>
 							{element.href}
