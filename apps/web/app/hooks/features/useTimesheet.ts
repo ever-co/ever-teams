@@ -60,7 +60,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, selectTimesheet: logIds } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, selectTimesheet: logIds } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi)
 
@@ -77,7 +77,9 @@ export function useTimesheet({
                 tenantId: user.tenantId ?? '',
                 timeZone: user.timeZone?.split('(')[0].trim(),
                 employeeIds: employee?.map((member) => member.employee.id).filter((id) => id !== undefined),
-                projectIds: project?.map((project) => project.id).filter((id) => id !== undefined)
+                projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
+                taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
+                status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
             }).then((response) => {
                 setTimesheet(response.data);
             }).catch((error) => {
@@ -89,7 +91,8 @@ export function useTimesheet({
             queryTimesheet,
             setTimesheet,
             employee,
-            project
+            project,
+            task
         ]
     );
 
