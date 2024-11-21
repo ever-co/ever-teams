@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 'use client';
 import 'react-loading-skeleton/dist/skeleton.css';
-import '../../styles/globals.css';
+import '@/styles/globals.css';
 
 import clsx from 'clsx';
 import { Provider } from 'jotai';
