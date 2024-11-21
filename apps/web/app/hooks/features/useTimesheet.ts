@@ -92,7 +92,8 @@ export function useTimesheet({
             setTimesheet,
             employee,
             project,
-            task
+            task,
+            statusState
         ]
     );
 

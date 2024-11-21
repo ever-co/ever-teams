@@ -65,7 +65,7 @@ export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, dis
 export const statusTable: { label: TimesheetStatus; description: string }[] = [
     { label: "PENDING", description: "Awaiting approval or review" },
     { label: "IN REVIEW", description: "The item has been approved" },
-    { label: "APPROVED", description: "The item has been rejected" },
-    { label: "DRAFT", description: "The item has been rejected" },
-    { label: "DENIED", description: "The item has been approved" },
+    { label: "APPROVED", description: "The item has been approved" },
+    { label: "DRAFT", description: "The item is saved as draft" },
+    { label: "DENIED", description: "The item has been rejected" },
 ];

@@ -128,16 +128,24 @@ type CustomSelectProps = {
  *    )}
  * />
  */
-export function CustomSelect({ options, renderOption, ariaLabel, className, defaultValue }: CustomSelectProps) {
-    // State to store the currently selected value in the dropdown.
-    const [selectedValue, setSelectedValue] = React.useState<string>();
-
+export function CustomSelect({
+    options,
+    renderOption,
+    ariaLabel,
+    className,
+    value,
+    onChange,
+    defaultValue
+}: CustomSelectProps & {
+    value?: string,
+    onChange?: (value: string) => void
+}) {
     // Render the select component with dynamic options and optional custom rendering.
     return (
         <Select
             defaultValue={defaultValue}
-            value={selectedValue}
-            onValueChange={setSelectedValue}
+            value={value}
+            onValueChange={onChange}
             aria-label={ariaLabel || "Select an option"} >
 
             <SelectTrigger

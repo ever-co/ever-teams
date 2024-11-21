@@ -19,13 +19,29 @@ export interface IEditTaskModalProps {
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
 	const { activeTeam } = useTeamTasks();
 	const t = useTranslations();
+	// const [dateRange, setDateRange] = useState<{ from: Date | null }>({
+	// 	from: new Date(),
+	// });
+	// const [endTime, setEndTime] = useState<string>('');
+	// const [startTime, setStartTime] = useState<string>('');
+	// const [isBillable, setIsBillable] = useState<boolean>(dataTimesheet.isBillable);
+	// const [notes, setNotes] = useState('');
+
 	const [dateRange, setDateRange] = useState<{ from: Date | null }>({
-		from: new Date(),
+		from: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date(),
 	});
-	const [endTime, setEndTime] = useState<string>('');
-	const [startTime, setStartTime] = useState<string>('');
+	const [endTime, setEndTime] = useState<string>(
+		dataTimesheet.timesheet?.stoppedAt
+			? new Date(dataTimesheet.timesheet.stoppedAt).toLocaleTimeString('en-US', { hour12: false }).slice(0, 5)
+			: ''
+	);
+	const [startTime, setStartTime] = useState<string>(
+		dataTimesheet.timesheet?.startedAt
+			? new Date(dataTimesheet.timesheet.startedAt).toLocaleTimeString('en-US', { hour12: false }).slice(0, 5)
+			: ''
+	);
 	const [isBillable, setIsBillable] = useState<boolean>(dataTimesheet.isBillable);
-	const [notes, setNotes] = useState('');
+	const [notes, setNotes] = useState<string>('');
 	const memberItemsLists = {
 		Project: activeTeam?.projects as [],
 	};
@@ -73,13 +89,13 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					/>
 					<div className="flex items-center gap-x-1 ">
 						<span className="text-gray-400">for</span>
-						<span className="text-primary dark:text-primary-light">{dataTimesheet?.employee?.fullName}</span>
+						<span className="text-primary dark:text-primary-light">{dataTimesheet.employee?.fullName ?? ""}</span>
 						<IoMdArrowDropdown className="cursor-pointer" />
 					</div>
 				</div>
 				<div className="flex items-start flex-col justify-center gap-4">
 					<div>
-						<span className="text-[#282048] font-medium">Task Time</span>
+						<span className="text-[#282048] dark:text-gray-500 ">Task Time</span>
 						<div className="flex items-center gap-x-2 ">
 							<FaRegClock className="text-[#30B366]" />
 							<span>08:10h</span>
@@ -87,7 +103,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					</div>
 					<div className="flex items-center w-full">
 						<div className=" w-[48%] mr-[4%]">
-							<label className="block text-[#282048] font-medium mb-1">
+							<label className="block text-[#282048] dark:text-gray-500   mb-1">
 								{t('manualTime.START_TIME')}
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
@@ -103,7 +119,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 
 						<div className=" w-[48%]">
-							<label className="block text-[#282048] font-medium mb-1">
+							<label className="block text-[#282048] dark:text-gray-500   mb-1">
 								{t('manualTime.END_TIME')}
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
@@ -121,7 +137,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 
 					</div>
 					<div>
-						<span className="block text-[#282048] font-medium mr-2">{t("manualTime.DATE")}</span>
+						<span className="block text-[#282048] dark:text-gray-500   mr-2">{t("manualTime.DATE")}</span>
 						<DatePickerFilter
 							date={dateRange.from}
 							setDate={handleFromChange}
@@ -130,7 +146,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					</div>
 					<div className="w-full flex flex-col">
 						<ManageOrMemberComponent
-							classNameTitle={'text-[#282048] font-medium'}
+							classNameTitle={'text-[#282048] dark:text-gray-500  '}
 							fields={fields}
 							itemsLists={memberItemsLists}
 							selectedValues={selectedValues}
@@ -141,7 +157,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						/>
 					</div>
 					<div className=" flex flex-col items-center">
-						<label className="text-[#282048] font-medium mr-12 capitalize">{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}</label>
+						<label className="text-[#282048] dark:text-gray-500   mr-12 capitalize">{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}</label>
 						<div className="flex items-center gap-3">
 							<ToggleButton
 								isActive={isBillable}
@@ -156,7 +172,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 					</div>
 					<div className="w-full flex flex-col">
-						<span className="text-[#282048] font-medium">Notes</span>
+						<span className="text-[#282048] dark:text-gray-500  ">Notes</span>
 						<textarea
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
@@ -172,7 +188,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							aria-label="Insert notes here"
 							required
 						/>
-						<div className="text-sm text-[#282048] font-medium text-right">
+						<div className="text-sm text-[#282048] dark:text-gray-500   text-right">
 							{notes.length}/{120}
 						</div>
 					</div>
@@ -180,8 +196,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="!flex items-center justify-between gap-2 w-full">
 						<div className="flex flex-col items-start justify-center ">
 							<CustomSelect
-								defaultValue={dataTimesheet?.timesheet?.status}
-								ariaLabel={dataTimesheet?.timesheet?.status}
+								defaultValue={dataTimesheet?.timesheet?.status ?? ""}
+								ariaLabel={dataTimesheet?.timesheet?.status ?? ""}
 								className="ring-offset-sidebar-primary-foreground w-[150px]"
 								options={statusTable?.flatMap((status) => status.label)}
 								renderOption={(option) => (
@@ -221,20 +237,23 @@ interface ToggleButtonProps {
 }
 
 export const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) => (
-
-	<div className="flex items-center gap-x-2">
+	<button
+		type="button"
+		onClick={onClick}
+		aria-pressed={isActive}
+		className={clsxm(
+			'flex items-center gap-x-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50',
+			'transition-colors duration-200 ease-in-out'
+		)}
+	>
 		<div
-			className="w-4 h-4 flex items-center justify-center bg-[#3826A6] rounded-full cursor-pointer"
-			onClick={onClick}
-			style={{
-				background: isActive
-					? '#3826A6'
-					: '#e5e7eb'
-			}}>
-			<div className={clsxm("bg-[#3826A6] w-3 h-3 rounded-full flex items-center justify-center shadow-md transform transition-transform translate-x-0", isActive && "bg-white")} >
-				<div className={clsxm("bg-[#3826A6] w-2 h-2 rounded-full shadow-md transform transition-transform translate-x-0", !isActive && "bg-white")} />
-			</div>
-		</div>
-		<span className={clsxm('font-medium', isActive && 'text-[#3826A6]')}>{label}</span>
-	</div>
-);
+			className={clsxm(
+				'w-4 h-4 rounded-full transition-colors duration-200 ease-in-out',
+				isActive ? 'bg-primary' : 'bg-gray-200'
+			)}
+		/>
+		<span className={clsxm('', isActive && 'text-primary')}>
+			{label}
+		</span>
+	</button>
+)
