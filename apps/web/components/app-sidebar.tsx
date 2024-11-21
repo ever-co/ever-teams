@@ -261,7 +261,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				<SidebarTrigger
 					className={cn(
 						state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-						'absolute  top-[10.5%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
+						'absolute  top-[8%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
 					)}
 				/>
 				<SidebarHeader className={cn('mb-[1.4rem]', state === 'collapsed' ? 'items-center' : '')}>
