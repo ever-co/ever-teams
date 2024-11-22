@@ -36,12 +36,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 ENV NEXT_SHARP_PATH=/temp/node_modules/sharp
 
-# Install NPM Globally and install sharp, NextJS image optimization
-# The -p option in the mkdir command ignores the error if the directory already exists.
-RUN npm i -g npm@latest && \
-	mkdir -p /temp && cd /temp && \
-	npm i sharp && \
-	npm cache clean --force
+RUN npm i -g npm@latest
+# Install sharp, NextJS image optimization
+RUN mkdir /temp && cd /temp && \
+	npm i sharp
+
+RUN npm cache clean --force
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
