@@ -58,20 +58,23 @@ const getWeekYearKey = (date: Date): string => {
     return `${date.getFullYear()}-W${week}`;
 };
 
-const groupByWeek = (items: TimesheetLog[]): GroupedTimesheet[] => {
+
+type GroupingKeyFunction = (date: Date) => string;
+
+const createGroupingFunction = (getKey: GroupingKeyFunction) => (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
     type GroupedMap = Record<string, TimesheetLog[]>;
 
-    const groupedByWeek = items.reduce<GroupedMap>((acc, item) => {
+    const grouped = items.reduce<GroupedMap>((acc, item) => {
         if (!item?.timesheet?.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
             return acc;
         }
         try {
             const date = new Date(item.timesheet.createdAt);
-            const weekKey = getWeekYearKey(date);
-            if (!acc[weekKey]) acc[weekKey] = [];
-            acc[weekKey].push(item);
+            const key = getKey(date);
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(item);
         } catch (error) {
             console.error(
                 `Failed to process date for timesheet ${item.timesheet.id}:`,
@@ -81,38 +84,15 @@ const groupByWeek = (items: TimesheetLog[]): GroupedTimesheet[] => {
         return acc;
     }, {});
 
-    return Object.entries(groupedByWeek)
-        .map(([week, tasks]) => ({ date: week, tasks }))
+    return Object.entries(grouped)
+        .map(([key, tasks]) => ({ date: key, tasks }))
         .sort((a, b) => b.date.localeCompare(a.date));
 };
 
-const groupByMonth = (items: TimesheetLog[]): GroupedTimesheet[] => {
-    if (!items?.length) return [];
-    type GroupedMap = Record<string, TimesheetLog[]>;
-
-    const groupedByMonth = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.timesheet?.createdAt) {
-            console.warn('Skipping item with missing timesheet or createdAt:', item);
-            return acc;
-        }
-        try {
-            const date = new Date(item.timesheet.createdAt);
-            const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-            if (!acc[monthKey]) acc[monthKey] = [];
-            acc[monthKey].push(item);
-        } catch (error) {
-            console.error(
-                `Failed to process date for timesheet ${item.timesheet.id}:`,
-                { createdAt: item.timesheet.createdAt, error }
-            );
-        }
-        return acc;
-    }, {});
-
-    return Object.entries(groupedByMonth)
-        .map(([month, tasks]) => ({ date: month, tasks }))
-        .sort((a, b) => b.date.localeCompare(a.date));
-};
+const groupByWeek = createGroupingFunction(date => getWeekYearKey(date));
+const groupByMonth = createGroupingFunction(date =>
+    `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
+);
 
 export function useTimesheet({
     startDate,
@@ -242,6 +222,6 @@ export function useTimesheet({
         deleteTaskTimesheet,
         getStatusTimesheet,
         timesheetGroupByDays,
-        statusTimesheet: getStatusTimesheet(timesheet.flatMap((data) => data))
+        statusTimesheet: getStatusTimesheet(timesheet.flat())
     };
 }

@@ -22,7 +22,7 @@ import { DatePicker } from "@components/ui/DatePicker";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { PiCalendarDotsThin } from "react-icons/pi";
-import { useLocalStorageState, useTimelogFilterOptions } from "@/app/hooks";
+import { useTimelogFilterOptions } from "@/app/hooks";
 import { TimesheetFilterByDays } from "@/app/interfaces";
 
 interface DatePickerInputProps {
@@ -31,8 +31,6 @@ interface DatePickerInputProps {
 }
 
 export function FrequencySelect() {
-    const [] = useLocalStorageState<TimesheetFilterByDays>('timesheet-group-by-day', 'Daily')
-
     const { setTimesheetGroupByDays, timesheetGroupByDays } = useTimelogFilterOptions();
     const handleSelectChange = (value: string) => {
         setTimesheetGroupByDays(value as TimesheetFilterByDays);

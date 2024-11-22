@@ -27,18 +27,21 @@ export function FilterWithStatus({
 		Rejected: 'icon-rejected',
 	};
 
-	const buttonData = Object.entries({
-		'All Tasks': React.useMemo(() => Object.values(data!).reduce((total, tasks) => total + tasks.length, 0), [data]),
-		Pending: data?.PENDING.length ?? 0,
-		Approved: data?.APPROVED.length ?? 0,
-		'In review': data!['IN REVIEW']?.length ?? 0,
-		Draft: data?.DRAFT.length ?? 0,
-		Rejected: data?.DENIED.length ?? 0,
-	}).map(([label, count]) => ({
-		label: label as FilterStatus,
-		count,
-		icon: <i className={statusIcons[label as FilterStatus]} />,
-	}));
+	const buttonData = React.useMemo(() => {
+		const counts = {
+			'All Tasks': Object.values(data ?? {}).reduce((total, tasks) => total + (tasks?.length ?? 0), 0),
+			Pending: data?.PENDING?.length ?? 0,
+			Approved: data?.APPROVED?.length ?? 0,
+			'In review': data?.['IN REVIEW']?.length ?? 0,
+			Draft: data?.DRAFT?.length ?? 0,
+			Rejected: data?.DENIED?.length ?? 0,
+		};
+		return Object.entries(counts).map(([label, count]) => ({
+			label: label as FilterStatus,
+			count,
+			icon: <i className={statusIcons[label as FilterStatus]} />,
+		}));
+	}, [data]);
 
 
 	return (

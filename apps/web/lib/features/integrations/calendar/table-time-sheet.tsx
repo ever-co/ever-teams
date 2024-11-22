@@ -244,13 +244,9 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 								'border-gray-400 px-5 text-[#71717A] font-medium'
 							)}>
 							<div className='flex gap-x-3'>
-								<span>
-									{timesheetGroupByDays === 'Daily'
-										? ''
-										: timesheetGroupByDays === 'Weekly'
-											? `Week ${index + 1}`
-											: ''}
-								</span>
+								{timesheetGroupByDays === 'Weekly' && (
+									<span>Week {index + 1}</span>
+								)}
 								<span>{formatDate(plan.date)}</span>
 							</div>
 							<TotalDurationByDate
