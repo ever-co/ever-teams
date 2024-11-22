@@ -58,7 +58,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimesheetStatus } from '@/app/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
 export const columns: ColumnDef<TimeSheet>[] = [
 	{
@@ -146,13 +146,6 @@ export const columns: ColumnDef<TimeSheet>[] = [
 				{row.original.time}
 			</div>
 		)
-	},
-	{
-		id: 'actions',
-		enableHiding: false,
-		cell: ({ row }) => {
-			return <TaskActionMenu idTasks={row?.original?.id} />;
-		}
 	}
 ];
 
@@ -342,8 +335,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												<DisplayTimeForTimesheet
 													duration={task.timesheet.duration}
 												/>
-												<TaskActionMenu
-													idTasks={task.id} />
+												<TaskActionMenu dataTimesheet={task} />
 											</div>
 										))}
 									</AccordionContent>
@@ -443,11 +435,15 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	);
 }
 
-const TaskActionMenu = ({ idTasks }: { idTasks: string | number }) => {
+const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	return (
 		<>
-			{<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} />}
+			{<EditTaskModal
+				closeModal={isCloseModalEditTask}
+				isOpen={isEditTask}
+				dataTimesheet={dataTimesheet}
+			/>}
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
