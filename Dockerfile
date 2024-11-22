@@ -23,6 +23,7 @@ ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 FROM node:${NODE_VERSION}-slim AS base
 
 # Output the environment variable value
+ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
 RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
 
 LABEL maintainer="ever@ever.co"
@@ -35,12 +36,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 ENV NEXT_SHARP_PATH=/temp/node_modules/sharp
 
-RUN npm i -g npm@latest
-# Install sharp, NextJS image optimization
-RUN mkdir /temp && cd /temp && \
-	npm i sharp
-
-RUN npm cache clean --force
+# Install NPM Globally and install sharp, NextJS image optimization
+# The -p option in the mkdir command ignores the error if the directory already exists.
+RUN npm i -g npm@latest && \
+	mkdir -p /temp && cd /temp && \
+	npm i sharp && \
+	npm cache clean --force
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -62,9 +63,11 @@ ARG NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
 ARG NEXT_PUBLIC_GITHUB_APP_NAME
 ARG NEXT_PUBLIC_CHATWOOT_API_KEY
 
-# Install packages needed to build node modules
+# Install packages needed to build node modules, Remove cache after installing packages
 RUN apt-get update -qq && \
-	apt-get install -y build-essential pkg-config python-is-python3
+	apt-get install -y build-essential pkg-config python-is-python3 && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/*
 
 # Install Yarn
 RUN npm install -g yarn --force
@@ -98,7 +101,6 @@ RUN yarn cache clean
 # Final stage for app image
 FROM base
 
-RUN echo "NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: $NEXT_IGNORE_ESLINT_ERROR_ON_BUILD"
 # Copy built application
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
