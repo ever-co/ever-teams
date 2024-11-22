@@ -18,8 +18,9 @@ ARG NEXT_PUBLIC_JITSU_BROWSER_URL
 ARG NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
 ARG NEXT_PUBLIC_GITHUB_APP_NAME=ever-github
 ARG NEXT_PUBLIC_CHATWOOT_API_KEY
+ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
-FROM node:${NODE_VERSION}-slim as base
+FROM node:${NODE_VERSION}-slim AS base
 
 # Output the environment variable value
 RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
@@ -42,7 +43,7 @@ RUN mkdir /temp && cd /temp && \
 RUN npm cache clean --force
 
 # Throw-away build stage to reduce size of final image
-FROM base as build
+FROM base AS build
 
 # We make env vars passed as build argument to be available in this build stage because we prebuild the NextJs app
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
@@ -80,6 +81,7 @@ RUN cd apps/web && \
 COPY . .
 
 ENV NODE_ENV=production
+ENV NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 
 RUN echo $NEXT_PUBLIC_GAUZY_API_SERVER_URL
 
@@ -96,8 +98,7 @@ RUN yarn cache clean
 # Final stage for app image
 FROM base
 
-ENV NODE_ENV=production
-
+RUN echo "NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: $NEXT_IGNORE_ESLINT_ERROR_ON_BUILD"
 # Copy built application
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static

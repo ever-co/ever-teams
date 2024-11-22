@@ -26,7 +26,7 @@ import {
 	teamsFetchingState,
 	timerStatusState
 } from '@app/stores';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useFirstLoad } from '../useFirstLoad';
@@ -305,8 +305,8 @@ export function useOrganizationTeams() {
 	const [isTeamManager, setIsTeamManager] = useState(false);
 	// const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
 
-	const members = activeTeam?.members || [];
-	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
+	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
+	const currentUser = members.find((member) => member.employee.userId === user?.id);
 
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
@@ -492,7 +492,7 @@ export function useOrganizationTeams() {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
 		isManager();
-	}, [activeTeam]);
+	}, [activeTeam, isManager]);
 
 	return {
 		loadTeamsData,
