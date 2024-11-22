@@ -148,9 +148,8 @@ html.dark {
 	body {
 		font-style: normal;
 		font-weight: 300;
-		font-size: 16px;
 		line-height: 160%;
-		@apply text-default dark:text-white bg-[rgb(242,242,242)] dark:bg-background text-foreground;
+		@apply text-default dark:text-white bg-[rgb(242,242,242)] dark:bg-background text-foreground text-sm;
 	}
 
 	.x-container {

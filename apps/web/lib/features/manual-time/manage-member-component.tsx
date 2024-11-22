@@ -75,6 +75,8 @@ interface ManageOrMemberComponentProps<T extends Item> {
      * @returns {string} - The value string for the item.
      */
     itemToValue: (item: T | null, valueKey: string) => string;
+
+    classNameTitle?: string
 }
 
 /**

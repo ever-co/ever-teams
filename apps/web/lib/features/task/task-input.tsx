@@ -1,61 +1,49 @@
 'use client';
 
 import {
-  HostKeys,
-  RTuseTaskInput,
-  useAuthenticateUser,
-  useCallbackRef,
-  useHotkeys,
-  useIssueType,
-  useOrganizationEmployeeTeams,
-  useOrganizationTeams,
-  useOutsideClick,
-  useTaskInput,
-  useTaskLabels
+	HostKeys,
+	RTuseTaskInput,
+	useAuthenticateUser,
+	useCallbackRef,
+	useHotkeys,
+	useIssueType,
+	useOrganizationEmployeeTeams,
+	useOrganizationTeams,
+	useOutsideClick,
+	useTaskInput,
+	useTaskLabels
 } from '@app/hooks';
 import {
-  IIssueTypesItemList,
-  ITaskIssue,
-  ITaskPriority,
-  ITaskSize,
-  ITaskStatus,
-  ITeamTask,
-  Nullable,
-  OT_Member
+	IIssueTypesItemList,
+	ITaskIssue,
+	ITaskPriority,
+	ITaskSize,
+	ITaskStatus,
+	ITeamTask,
+	Nullable,
+	OT_Member
 } from '@app/interfaces';
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon, PlusIcon } from '@heroicons/react/20/solid';
-import {
-  Button,
-  Card,
-  Divider,
-  InputField,
-  OutlineBadge,
-  SpinnerLoader,
-  Tooltip
-} from 'lib/components';
+import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import {
-  Fragment,
-  MutableRefObject,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
+	Fragment,
+	MutableRefObject,
+	PropsWithChildren,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState
 } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
-import {
-  ActiveTaskPropertiesDropdown,
-  ActiveTaskSizesDropdown,
-  ActiveTaskStatusDropdown
-} from './task-status';
+import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
 import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 import { ObserverComponent } from '@components/shared/Observer';
@@ -63,32 +51,32 @@ import { LazyRender } from 'lib/components/lazy-render';
 import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
 
 type Props = {
-  task?: Nullable<ITeamTask>;
-  tasks?: ITeamTask[];
-  onTaskClick?: (task: ITeamTask) => void;
-  initEditMode?: boolean;
-  onCloseCombobox?: () => void;
-  inputLoader?: boolean;
-  onEnterKey?: (taskName: string, task: ITeamTask) => void;
-  keepOpen?: boolean;
-  loadingRef?: MutableRefObject<boolean>;
-  closeable_fc?: () => void;
-  viewType?: 'input-trigger' | 'one-view';
-  createOnEnterClick?: boolean;
-  showTaskNumber?: boolean;
-  showCombobox?: boolean;
-  showEmoji?: boolean;
-  autoAssignTaskAuth?: boolean;
-  fullWidthCombobox?: boolean;
-  fullHeightCombobox?: boolean;
-  placeholder?: string;
-  autoFocus?: boolean;
-  autoInputSelectText?: boolean;
-  usersTaskCreatedAssignTo?: { id: string }[];
-  onTaskCreated?: (task: ITeamTask | undefined) => void;
-  cardWithoutShadow?: boolean;
-  assignTaskPopup?: boolean;
-  forParentChildRelationship?: boolean;
+	task?: Nullable<ITeamTask>;
+	tasks?: ITeamTask[];
+	onTaskClick?: (task: ITeamTask) => void;
+	initEditMode?: boolean;
+	onCloseCombobox?: () => void;
+	inputLoader?: boolean;
+	onEnterKey?: (taskName: string, task: ITeamTask) => void;
+	keepOpen?: boolean;
+	loadingRef?: MutableRefObject<boolean>;
+	closeable_fc?: () => void;
+	viewType?: 'input-trigger' | 'one-view';
+	createOnEnterClick?: boolean;
+	showTaskNumber?: boolean;
+	showCombobox?: boolean;
+	showEmoji?: boolean;
+	autoAssignTaskAuth?: boolean;
+	fullWidthCombobox?: boolean;
+	fullHeightCombobox?: boolean;
+	placeholder?: string;
+	autoFocus?: boolean;
+	autoInputSelectText?: boolean;
+	usersTaskCreatedAssignTo?: { id: string }[];
+	onTaskCreated?: (task: ITeamTask | undefined) => void;
+	cardWithoutShadow?: boolean;
+	assignTaskPopup?: boolean;
+	forParentChildRelationship?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -99,357 +87,324 @@ type Props = {
  */
 
 export function TaskInput(props: Props) {
-  const t = useTranslations();
-  const { issueTypes } = useIssueType();
-  const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find(
-    (issue) => issue.isDefault
-  );
+	const t = useTranslations();
+	const { issueTypes } = useIssueType();
+	const defaultIssueType: IIssueTypesItemList | undefined = issueTypes.find((issue) => issue.isDefault);
 
-  const {
-    viewType = 'input-trigger',
-    showTaskNumber = false,
-    showCombobox = true,
-  } = props;
+	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
-  const datas = useTaskInput({
-    task: props.task,
-    initEditMode: props.initEditMode,
-    tasks: props.tasks
-  });
+	const datas = useTaskInput({
+		task: props.task,
+		initEditMode: props.initEditMode,
+		tasks: props.tasks
+	});
 
-  const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-  const { activeTeam } = useOrganizationTeams();
-  const { user } = useAuthenticateUser();
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
 
-  const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
-  const closeable_fcRef = useCallbackRef(props.closeable_fc);
-  const $onTaskClick = useCallbackRef(props.onTaskClick);
-  const $onTaskCreated = useCallbackRef(props.onTaskCreated);
-  const inputRef = useRef<HTMLDivElement>(null);
-  const timerStatus = useAtomValue(timerStatusState);
-  const timerRunningStatus = useMemo(() => {
-    return Boolean(timerStatus?.running);
-  }, [timerStatus]);
+	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
+	const closeable_fcRef = useCallbackRef(props.closeable_fc);
+	const $onTaskClick = useCallbackRef(props.onTaskClick);
+	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
+	const inputRef = useRef<HTMLDivElement>(null);
+	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 
-  const onTaskCreated = useCallback(
-    (task: ITeamTask | undefined) =>
-      $onTaskCreated.current && $onTaskCreated.current(task),
-    [$onTaskCreated]
-  );
+	const onTaskCreated = useCallback(
+		(task: ITeamTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
+		[$onTaskCreated]
+	);
 
-  const onTaskClick = useCallback(
-    (task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
-    [$onTaskClick]
-  );
+	const onTaskClick = useCallback(
+		(task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
+		[$onTaskClick]
+	);
 
-  const {
-    inputTask,
-    setTaskIssue,
-    editMode,
-    setEditMode,
-    setQuery,
-    updateLoading,
-    updateTaskTitleHandler,
-    setFilter
-  } = datas;
-  const setActiveTask = useSetAtom(activeTeamTaskId);
+	const {
+		inputTask,
+		setTaskIssue,
+		editMode,
+		setEditMode,
+		setQuery,
+		updateLoading,
+		updateTaskTitleHandler,
+		setFilter
+	} = datas;
+	const setActiveTask = useSetAtom(activeTeamTaskId);
 
-  const inputTaskTitle = useMemo(() => inputTask?.title || '', [
-    inputTask?.title
-  ]);
+	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
-  const [taskName, setTaskName] = useState('');
+	const [taskName, setTaskName] = useState('');
 
-  const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
-    () => !props.keepOpen && setEditMode(false)
-  );
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
+		() => !props.keepOpen && setEditMode(false)
+	);
 
-  useEffect(() => {
-    setQuery(taskName === inputTask?.title ? '' : taskName);
-  }, [taskName, inputTask, setQuery]);
+	useEffect(() => {
+		setQuery(taskName === inputTask?.title ? '' : taskName);
+	}, [taskName, inputTask, setQuery]);
 
-  useEffect(() => {
-    setTaskName(inputTaskTitle);
-  }, [editMode, inputTaskTitle]);
+	useEffect(() => {
+		setTaskName(inputTaskTitle);
+	}, [editMode, inputTaskTitle]);
 
-  useEffect(() => {
-    /**
-     * Call onCloseCombobox only when the menu has been closed
-     */
-    !editMode && onCloseComboboxRef.current && onCloseComboboxRef.current();
-  }, [editMode, onCloseComboboxRef]);
+	useEffect(() => {
+		/**
+		 * Call onCloseCombobox only when the menu has been closed
+		 */
+		!editMode && onCloseComboboxRef.current && onCloseComboboxRef.current();
+	}, [editMode, onCloseComboboxRef]);
 
-  /**
-   * set the active task for the authenticated user
-   */
-  const setAuthActiveTask = useCallback(
-    (task: ITeamTask) => {
-      if (datas.setActiveTask) {
-        datas.setActiveTask(task);
+	/**
+	 * set the active task for the authenticated user
+	 */
+	const setAuthActiveTask = useCallback(
+		(task: ITeamTask) => {
+			if (datas.setActiveTask) {
+				datas.setActiveTask(task);
 
-        // Update Current user's active task to sync across multiple devices
-        const currentEmployeeDetails = activeTeam?.members.find(
-          (member) => member.employeeId === user?.employee?.id
-        );
-        if (currentEmployeeDetails && currentEmployeeDetails.id) {
-          updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
-            organizationId: task.organizationId,
-            activeTaskId: task.id,
-            organizationTeamId: activeTeam?.id,
-            tenantId: activeTeam?.tenantId
-          });
-        }
-      }
-      setEditMode(false);
-    },
-    [datas, setEditMode, activeTeam, user, updateOrganizationTeamEmployee]
-  );
+				// Update Current user's active task to sync across multiple devices
+				const currentEmployeeDetails = activeTeam?.members.find(
+					(member) => member.employeeId === user?.employee?.id
+				);
+				if (currentEmployeeDetails && currentEmployeeDetails.id) {
+					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+						organizationId: task.organizationId,
+						activeTaskId: task.id,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId
+					});
+				}
+			}
+			setEditMode(false);
+		},
+		[datas, setEditMode, activeTeam, user, updateOrganizationTeamEmployee]
+	);
 
-  /**
-   * On update task name
-   */
-  const updateTaskNameHandler = useCallback(
-    (task: ITeamTask, title: string) => {
-      if (task.title !== title) {
-        !updateLoading && updateTaskTitleHandler(task, title);
-      }
-    },
-    [updateLoading, updateTaskTitleHandler]
-  );
+	/**
+	 * On update task name
+	 */
+	const updateTaskNameHandler = useCallback(
+		(task: ITeamTask, title: string) => {
+			if (task.title !== title) {
+				!updateLoading && updateTaskTitleHandler(task, title);
+			}
+		},
+		[updateLoading, updateTaskTitleHandler]
+	);
 
-  /**
-   * Signle parent about updating and close event (that can trigger close component e.g)
-   */
-  useEffect(() => {
-    if (props.loadingRef?.current && !updateLoading) {
-      closeable_fcRef.current && closeable_fcRef.current();
-    }
+	/**
+	 * Signle parent about updating and close event (that can trigger close component e.g)
+	 */
+	useEffect(() => {
+		if (props.loadingRef?.current && !updateLoading) {
+			closeable_fcRef.current && closeable_fcRef.current();
+		}
 
-    if (props.loadingRef) {
-      props.loadingRef.current = updateLoading;
-    }
-  }, [updateLoading, props.loadingRef, closeable_fcRef]);
+		if (props.loadingRef) {
+			props.loadingRef.current = updateLoading;
+		}
+	}, [updateLoading, props.loadingRef, closeable_fcRef]);
 
-  /* Setting the filter to open when the edit mode is true. */
-  useEffect(() => {
-    editMode && setFilter('open');
-  }, [editMode, setFilter]);
+	/* Setting the filter to open when the edit mode is true. */
+	useEffect(() => {
+		editMode && setFilter('open');
+	}, [editMode, setFilter]);
 
-  /*
+	/*
     If task is passed then we don't want to set the active task for the authenticated user.
     after task creation
    */
-  const autoActiveTask: boolean = props.task === undefined;
-  const handleTaskCreation = useCallback(() => {
-    /* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
-    datas &&
-      datas.handleTaskCreation &&
-      datas.hasCreateForm &&
-      datas
-        .handleTaskCreation({
-          autoActiveTask,
-          autoAssignTaskAuth: props.autoAssignTaskAuth,
-          assignToUsers: props.usersTaskCreatedAssignTo || []
-        })
-        ?.then(onTaskCreated)
-        .finally(() => {
-          viewType === 'one-view' && setTaskName('');
-        });
-  }, [datas, props, autoActiveTask, onTaskCreated, viewType]);
+	const autoActiveTask: boolean = props.task === undefined;
+	const handleTaskCreation = useCallback(() => {
+		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
+		datas &&
+			datas.handleTaskCreation &&
+			datas.hasCreateForm &&
+			datas
+				.handleTaskCreation({
+					autoActiveTask,
+					autoAssignTaskAuth: props.autoAssignTaskAuth,
+					assignToUsers: props.usersTaskCreatedAssignTo || []
+				})
+				?.then(onTaskCreated)
+				.finally(() => {
+					viewType === 'one-view' && setTaskName('');
+				});
+	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
-  const updatedTaskList = useMemo(() => {
-    let updatedTaskList: ITeamTask[] = [];
-    if (props.forParentChildRelationship) {
-      if (
-        // Story can have ParentId set to Epic ID
-        props.task?.issueType === 'Story'
-      ) {
-        updatedTaskList = datas.filteredTasks.filter(
-          (item) => item.issueType === 'Epic'
-        );
-      } else if (
-        // TASK|BUG can have ParentId to be set either to Story ID or Epic ID
-        props.task?.issueType === 'Task' ||
-        props.task?.issueType === 'Bug' ||
-        !props.task?.issueType
-      ) {
-        updatedTaskList = datas.filteredTasks.filter(
-          (item) => item.issueType === 'Epic' || item.issueType === 'Story'
-        );
-      } else {
-        updatedTaskList = datas.filteredTasks;
-      }
+	const updatedTaskList = useMemo(() => {
+		let updatedTaskList: ITeamTask[] = [];
+		if (props.forParentChildRelationship) {
+			if (
+				// Story can have ParentId set to Epic ID
+				props.task?.issueType === 'Story'
+			) {
+				updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
+			} else if (
+				// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
+				props.task?.issueType === 'Task' ||
+				props.task?.issueType === 'Bug' ||
+				!props.task?.issueType
+			) {
+				updatedTaskList = datas.filteredTasks.filter(
+					(item) => item.issueType === 'Epic' || item.issueType === 'Story'
+				);
+			} else {
+				updatedTaskList = datas.filteredTasks;
+			}
 
-      if (props.task?.children && props.task?.children?.length) {
-        const childrenTaskIds = props.task?.children?.map((item) => item.id);
-        updatedTaskList = updatedTaskList.filter(
-          (item) => !childrenTaskIds.includes(item.id)
-        );
-      }
-    }
+			if (props.task?.children && props.task?.children?.length) {
+				const childrenTaskIds = props.task?.children?.map((item) => item.id);
+				updatedTaskList = updatedTaskList.filter((item) => !childrenTaskIds.includes(item.id));
+			}
+		}
 
-    return updatedTaskList;
-  }, [props.task, datas.filteredTasks]);
+		return updatedTaskList;
+	}, [props.task, datas.filteredTasks]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node) &&
-        editMode
-      ) {
-        // inputTask && updateTaskNameHandler(inputTask, taskName);
-        if (taskName == inputTaskTitle) {
-          setEditMode(false);
-          setActiveTask({
-            id: ''
-          });
-        }
-      }
-    };
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
+				// inputTask && updateTaskNameHandler(inputTask, taskName);
+				if (taskName == inputTaskTitle) {
+					setEditMode(false);
+					setActiveTask({
+						id: ''
+					});
+				}
+			}
+		};
 
-    // Attach the event listener
-    document.addEventListener('mousedown', handleClickOutside);
+		// Attach the event listener
+		document.addEventListener('mousedown', handleClickOutside);
 
-    // Clean up the event listener on component unmount
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [
-    inputTask,
-    taskName,
-    setActiveTask,
-    updateTaskNameHandler,
-    editMode,
-    inputTaskTitle,
-    setEditMode
-  ]);
-  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
-  const handlePopoverToggle = useCallback((popoverId: string) => {
-    if (openPopoverId === popoverId) {
-      setOpenPopoverId(null);
-    } else {
-      setOpenPopoverId(popoverId);
-    }
-  }, [openPopoverId]);
+		// Clean up the event listener on component unmount
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [inputTask, taskName, setActiveTask, updateTaskNameHandler, editMode, inputTaskTitle, setEditMode]);
+	const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
+	const handlePopoverToggle = useCallback(
+		(popoverId: string) => {
+			if (openPopoverId === popoverId) {
+				setOpenPopoverId(null);
+			} else {
+				setOpenPopoverId(popoverId);
+			}
+		},
+		[openPopoverId]
+	);
 
-  // Handling Hotkeys
-  const handleCommandKeySequence = useCallback(() => {
-    if (!editMode) {
-      setEditMode(true);
-      if (targetEl.current) {
-        targetEl.current.focus();
-      }
-    } else {
-      setEditMode(false);
-    }
-  }, [setEditMode, editMode, targetEl]);
+	// Handling Hotkeys
+	const handleCommandKeySequence = useCallback(() => {
+		if (!editMode) {
+			setEditMode(true);
+			if (targetEl.current) {
+				targetEl.current.focus();
+			}
+		} else {
+			setEditMode(false);
+		}
+	}, [setEditMode, editMode, targetEl]);
 
-  useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
+	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
 
-  useEffect(() => {
-    if (props.autoFocus && targetEl.current) {
-      targetEl.current.focus();
-    }
-  }, [props.autoFocus, targetEl]);
+	useEffect(() => {
+		if (props.autoFocus && targetEl.current) {
+			targetEl.current.focus();
+		}
+	}, [props.autoFocus, targetEl]);
 
-  // const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
+	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
 
-  const inputField = (
-    <InputField
-      value={taskName}
-      disabled={timerRunningStatus}
-      ref={targetEl}
-      emojis={
-        props.showEmoji === undefined || props.showCombobox ? true : false
-      }
-      setTaskName={setTaskName}
-      ignoreElementRefForTitle={
-        (ignoreElementRef as unknown) as MutableRefObject<HTMLDivElement>
-      }
-      autoFocus={props.autoFocus}
-      wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
-      placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
-      onFocus={(e) => {
-        setEditMode(true);
-        props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
-      }}
-      onChange={(event) => {
-        setTaskName(event.target.value);
-      }}
-      onKeyUp={(e) => {
-        if (e.key === 'Enter' && inputTask) {
-          /* If createOnEnterClick is false then updateTaskNameHandler is called. */
-          !props.createOnEnterClick &&
-            updateTaskNameHandler(inputTask, taskName);
+	const inputField = (
+		<InputField
+			value={taskName}
+			disabled={timerRunningStatus}
+			ref={targetEl}
+			emojis={props.showEmoji === undefined || props.showCombobox ? true : false}
+			setTaskName={setTaskName}
+			ignoreElementRefForTitle={ignoreElementRef as unknown as MutableRefObject<HTMLDivElement>}
+			autoFocus={props.autoFocus}
+			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
+			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
+			onFocus={(e) => {
+				setEditMode(true);
+				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
+			}}
+			onChange={(event) => {
+				setTaskName(event.target.value);
+			}}
+			onKeyUp={(e) => {
+				if (e.key === 'Enter' && inputTask) {
+					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
+					!props.createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
 
-          props.onEnterKey && props.onEnterKey(taskName, inputTask);
-        }
-        /* Creating a new task when the enter key is pressed. */
-        if (e.key === 'Enter') {
-          props.createOnEnterClick && handleTaskCreation();
-        }
-      }}
-      trailingNode={
-        /* Showing the spinner when the task is being updated. */
-        <div className="flex items-center justify-center h-full p-2">
-          {props.task ? (
-            (updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
-          ) : (
-            <>{updateLoading && <SpinnerLoader size={25} />}</>
-          )}
-        </div>
-      }
-      className={clsxm(
-        showTaskNumber && inputTask && ['pl-2'],
-        'dark:bg-[#1B1D22]',
-        props.initEditMode && 'h-10'
-      )}
-      /* Showing the task number and issue type */
-      leadingNode={
-        // showTaskNumber &&
-        // inputTask &&
-        <div
-          className="flex items-center pl-3 space-x-2"
-          ref={ignoreElementRef}
-        >
-          {!datas.hasCreateForm ? (
-            <ActiveTaskIssuesDropdown
-              key={(inputTask && inputTask.id) || ''}
-              task={inputTask}
-              forParentChildRelationship={true}
-              taskStatusClassName={clsxm(
-                inputTask && inputTask.issueType === 'Bug'
-                  ? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-                  : '!px-[0.375rem] py-[0.375rem] rounded-sm',
-                'border-none'
-              )}
-            />
-          ) : (
-            <TaskIssuesDropdown
-              taskStatusClassName="!px-1 py-1 rounded-sm"
-              showIssueLabels={false}
-              onValueChange={(v) => setTaskIssue(v)}
-              defaultValue={
-                defaultIssueType
-                  ? defaultIssueType.name
-                  : (localStorage.getItem('lastTaskIssue') as ITaskIssue) ||
-                  null
-              }
-            />
-          )}
+					props.onEnterKey && props.onEnterKey(taskName, inputTask);
+				}
+				/* Creating a new task when the enter key is pressed. */
+				if (e.key === 'Enter') {
+					props.createOnEnterClick && handleTaskCreation();
+				}
+			}}
+			trailingNode={
+				/* Showing the spinner when the task is being updated. */
+				<div className="flex items-center justify-center h-full p-2">
+					{props.task ? (
+						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
+					) : (
+						<>{updateLoading && <SpinnerLoader size={25} />}</>
+					)}
+				</div>
+			}
+			className={clsxm(
+				showTaskNumber && inputTask && ['pl-2'],
+				'dark:bg-[#1B1D22]',
+				props.initEditMode && 'h-10'
+			)}
+			/* Showing the task number and issue type */
+			leadingNode={
+				// showTaskNumber &&
+				// inputTask &&
+				<div className="flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
+					{!datas.hasCreateForm ? (
+						<ActiveTaskIssuesDropdown
+							key={(inputTask && inputTask.id) || ''}
+							task={inputTask}
+							forParentChildRelationship={true}
+							taskStatusClassName={clsxm(
+								inputTask && inputTask.issueType === 'Bug'
+									? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
+									: '!px-[0.375rem] py-[0.375rem] rounded-sm',
+								'border-none'
+							)}
+						/>
+					) : (
+						<TaskIssuesDropdown
+							taskStatusClassName="!px-1 py-1 rounded-sm"
+							showIssueLabels={false}
+							onValueChange={(v) => setTaskIssue(v)}
+							defaultValue={
+								defaultIssueType
+									? defaultIssueType.name
+									: (localStorage.getItem('lastTaskIssue') as ITaskIssue) || null
+							}
+						/>
+					)}
 
-          {!datas.hasCreateForm && (
-            <span className="text-sm text-gray-500">
-              #{(inputTask && inputTask.taskNumber) || ''}
-            </span>
-          )}
-        </div>
-      }
-    />
-  );
+					{!datas.hasCreateForm && (
+						<span className="text-sm text-gray-500">#{(inputTask && inputTask.taskNumber) || ''}</span>
+					)}
+				</div>
+			}
+		/>
+	);
 
-  const taskCard = (
+	const taskCard = (
 		<TaskCard
 			datas={datas}
 			onItemClick={props.task !== undefined || props.onTaskClick ? onTaskClick : setAuthActiveTask}
@@ -462,344 +417,306 @@ export function TaskInput(props: Props) {
 			updatedTaskList={updatedTaskList}
 			forParentChildRelationship={props.forParentChildRelationship}
 		/>
-  );
+	);
 
-  return viewType === 'one-view' ? (
-    taskCard
-  ) : (
-    <Popover
-      onClick={() => handlePopoverToggle('popover1')}
-      className="relative z-20 w-full" ref={inputRef}>
-      <Tooltip
-        label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
-        placement="top"
-        enabled={timerRunningStatus}
-      >
-        {inputField}
-      </Tooltip>
-      {props.children}
+	return viewType === 'one-view' ? (
+		taskCard
+	) : (
+		<Popover onClick={() => handlePopoverToggle('popover1')} className="relative z-20 w-full" ref={inputRef}>
+			<Tooltip
+				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+				placement="top"
+				enabled={timerRunningStatus}
+			>
+				{inputField}
+			</Tooltip>
+			{props.children}
 
-      <Transition
-        show={editMode && showCombobox}
-        enter="transition duration-100 ease-out"
-        enterFrom="transform scale-95 opacity-0"
-        enterTo="transform scale-100 opacity-100"
-        leave="transition duration-75 ease-out"
-        leaveFrom="transform scale-100 opacity-100"
-        leaveTo="transform scale-95 opacity-0"
-      >
-        <Popover.Panel
-          className={clsxm(
-            'absolute -mt-3',
-            props.fullWidthCombobox && ['w-full left-0 right-0']
-          )}
-          ref={ignoreElementRef}
-        >
-          {taskCard}
-        </Popover.Panel>
-      </Transition>
-    </Popover>
-  );
+			<Transition
+				show={editMode && showCombobox}
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+			>
+				<Popover.Panel
+					className={clsxm('absolute -mt-3', props.fullWidthCombobox && ['w-full left-0 right-0'])}
+					ref={ignoreElementRef}
+				>
+					{taskCard}
+				</Popover.Panel>
+			</Transition>
+		</Popover>
+	);
 }
 
 /**
  * A component that is used to render the task list.
  */
 function TaskCard({
-  datas,
-  onItemClick,
-  inputField,
-  fullWidth,
-  fullHeight,
-  handleTaskCreation,
-  cardWithoutShadow,
-  forParentChildRelationship,
-  updatedTaskList,
-  assignTaskPopup,
+	datas,
+	onItemClick,
+	inputField,
+	fullWidth,
+	fullHeight,
+	handleTaskCreation,
+	cardWithoutShadow,
+	forParentChildRelationship,
+	updatedTaskList,
+	assignTaskPopup
 }: {
-  datas: Partial<RTuseTaskInput>;
-  onItemClick?: (task: ITeamTask) => void;
-  inputField?: JSX.Element;
-  fullWidth?: boolean;
-  fullHeight?: boolean;
-  handleTaskCreation: () => void;
-  cardWithoutShadow?: boolean;
-  forParentChildRelationship?: boolean;
-  updatedTaskList?: ITeamTask[];
-  assignTaskPopup?: boolean;
+	datas: Partial<RTuseTaskInput>;
+	onItemClick?: (task: ITeamTask) => void;
+	inputField?: JSX.Element;
+	fullWidth?: boolean;
+	fullHeight?: boolean;
+	handleTaskCreation: () => void;
+	cardWithoutShadow?: boolean;
+	forParentChildRelationship?: boolean;
+	updatedTaskList?: ITeamTask[];
+	assignTaskPopup?: boolean;
 }) {
-  const [, setCount] = useState(0);
-  const t = useTranslations();
-  const activeTaskEl = useRef<HTMLLIElement | null>(null);
-  const { taskLabels: taskLabelsData } = useTaskLabels();
-  const { activeTeam } = useOrganizationTeams();
+	const [, setCount] = useState(0);
+	const t = useTranslations();
+	const activeTaskEl = useRef<HTMLLIElement | null>(null);
+	const { taskLabels: taskLabelsData } = useTaskLabels();
+	const { activeTeam } = useOrganizationTeams();
 
-  const {
-    taskStatus,
-    taskPriority,
-    taskSize,
-    taskLabels,
-    taskDescription,
-	taskProject,
-	taskAssignees
-  } = datas;
-  const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
+	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription, taskProject, taskAssignees } = datas;
+	const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
 
-  useEffect(() => {
-    if (datas.editMode) {
-      window.setTimeout(() => {
-        activeTaskEl?.current?.scrollIntoView({
-          block: 'nearest',
-          inline: 'start'
-        });
-      }, 10);
-    }
-  }, [datas.editMode]);
+	useEffect(() => {
+		if (datas.editMode) {
+			window.setTimeout(() => {
+				activeTaskEl?.current?.scrollIntoView({
+					block: 'nearest',
+					inline: 'start'
+				});
+			}, 10);
+		}
+	}, [datas.editMode]);
 
-  return (
-    <>
-      <Card
-        shadow="custom"
-        className={clsxm(
-          'rounded-xl md:px-4 md:py-4 overflow-hidden',
-          !cardWithoutShadow && ['shadow-xlcard'],
-          fullWidth ? ['w-full'] : ['md:w-[500px]'],
-          fullHeight ? 'h-full' : 'max-h-96'
-        )}
-      >
-        {inputField}
-        <div>
-          {/* Create team button */}
-          <div className="flex flex-col gap-y-2">
-            {datas.hasCreateForm && (
-              <div>
-                <InputField
-                  placeholder="Description"
-                  emojis={true}
-                  onChange={(e) => {
-                    if (taskDescription) {
-                      taskDescription.current = e.target.value;
-                    }
-                  }}
-                  className={'dark:bg-[#1B1D22]'}
-                />
+	return (
+		<>
+			<Card
+				shadow="custom"
+				className={clsxm(
+					'rounded-xl md:px-4 md:py-4 overflow-hidden',
+					!cardWithoutShadow && ['shadow-xlcard'],
+					fullWidth ? ['w-full'] : ['md:w-[500px]'],
+					fullHeight ? 'h-full' : 'max-h-96'
+				)}
+			>
+				{inputField}
+				<div>
+					{/* Create team button */}
+					<div className="flex flex-col gap-y-2">
+						{datas.hasCreateForm && (
+							<div>
+								<InputField
+									placeholder="Description"
+									emojis={true}
+									onChange={(e) => {
+										if (taskDescription) {
+											taskDescription.current = e.target.value;
+										}
+									}}
+									className={'dark:bg-[#1B1D22]'}
+								/>
 
-                <div className="flex justify-start gap-2">
-                  <ActiveTaskStatusDropdown
-                    className="lg:min-w-[170px]"
-                    taskStatusClassName="h-7 text-xs"
-                    onValueChange={(v) => {
-                      if (v && taskStatus) {
-                        taskStatus.current = v;
-                      }
-                      setCount((c) => c + 1);
-                    }}
-                    defaultValue={taskStatus?.current as ITaskStatus}
-                    task={null}
-                  />
+								<div className="flex justify-start gap-2">
+									<ActiveTaskStatusDropdown
+										className="lg:min-w-[170px]"
+										taskStatusClassName="h-7 text-xs"
+										onValueChange={(v) => {
+											if (v && taskStatus) {
+												taskStatus.current = v;
+											}
+											setCount((c) => c + 1);
+										}}
+										defaultValue={taskStatus?.current as ITaskStatus}
+										task={null}
+									/>
 
-                  <ActiveTaskPropertiesDropdown
-                    className="lg:min-w-[170px]"
-                    taskStatusClassName="h-7 text-xs"
-                    onValueChange={(v) => {
-                      if (v && taskPriority) {
-                        taskPriority.current = v;
-                      }
-                      setCount((c) => c + 1);
-                    }}
-                    defaultValue={taskPriority?.current as ITaskPriority}
-                    task={null}
-                  />
+									<ActiveTaskPropertiesDropdown
+										className="lg:min-w-[170px]"
+										taskStatusClassName="h-7 text-xs"
+										onValueChange={(v) => {
+											if (v && taskPriority) {
+												taskPriority.current = v;
+											}
+											setCount((c) => c + 1);
+										}}
+										defaultValue={taskPriority?.current as ITaskPriority}
+										task={null}
+									/>
 
-                  <ActiveTaskSizesDropdown
-                    className="lg:min-w-[170px]"
-                    taskStatusClassName="h-7 text-xs"
-                    onValueChange={(v) => {
-                      if (v && taskSize) {
-                        taskSize.current = v;
-                      }
-                      setCount((c) => c + 1);
-                    }}
-                    defaultValue={taskSize?.current as ITaskSize}
-                    task={null}
-                  />
+									<ActiveTaskSizesDropdown
+										className="lg:min-w-[170px]"
+										taskStatusClassName="h-7 text-xs"
+										onValueChange={(v) => {
+											if (v && taskSize) {
+												taskSize.current = v;
+											}
+											setCount((c) => c + 1);
+										}}
+										defaultValue={taskSize?.current as ITaskSize}
+										task={null}
+									/>
 
-                  <TaskLabels
-                    className="lg:min-w-[170px] text-xs z-[9999]"
-                    forDetails={false}
-                    taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-9 text-xs"
-                    onValueChange={(_: any, values: string[] | undefined) => {
-                      taskLabelsData.filter((tag) =>
-                        tag.name ? values?.includes(tag.name) : false
-                      );
+									<TaskLabels
+										className="lg:min-w-[170px] text-xs z-[9999]"
+										forDetails={false}
+										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-9 text-xs"
+										onValueChange={(_: any, values: string[] | undefined) => {
+											taskLabelsData.filter((tag) =>
+												tag.name ? values?.includes(tag.name) : false
+											);
 
-                      if (taskLabels && values?.length) {
-                        taskLabels.current = taskLabelsData.filter((tag) =>
-                          tag.name ? values?.includes(tag.name) : false
-                        );
-                      }
-                    }}
-                    task={datas.inputTask}
-                  />
+											if (taskLabels && values?.length) {
+												taskLabels.current = taskLabelsData.filter((tag) =>
+													tag.name ? values?.includes(tag.name) : false
+												);
+											}
+										}}
+										task={datas.inputTask}
+									/>
 
-				{taskAssignees !== undefined && <AssigneesSelect assignees={taskAssignees}  teamMembers={activeTeam?.members ?? []}/>}
+									{taskAssignees !== undefined && (
+										<AssigneesSelect
+											assignees={taskAssignees}
+											teamMembers={activeTeam?.members ?? []}
+										/>
+									)}
 
+									<ProjectDropDown
+										styles={{
+											container: 'rounded-xl w-[10.625rem] !max-w-[10.625rem]',
+											listCard: 'rounded-xl'
+										}}
+										controlled
+										onChange={(project) => {
+											if (taskProject) {
+												taskProject.current = project.id;
+											}
+										}}
+									/>
+								</div>
+							</div>
+						)}
 
-					<ProjectDropDown
-						styles={{
-							container: 'rounded-xl w-[10.625rem] !max-w-[10.625rem]',
-							listCard: 'rounded-xl'
-						}}
-						controlled
-						onChange={(project) => {
-							if (taskProject) {
-								taskProject.current = project.id
-							}
-						}}
-					/>
+						<Tooltip
+							enabled={!datas.user?.isEmailVerified}
+							label={t('common.VERIFY_ACCOUNT_MSG')}
+							placement="top-start"
+							className="inline-block"
+						>
+							<Button
+								variant="outline"
+								disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
+								loading={datas.createLoading}
+								className="font-normal text-sm rounded-xl min-w-[240px] max-w-[230px] inline-flex"
+								onClick={handleTaskCreation}
+							>
+								{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}
+								{t('common.CREATE_TASK')}
+							</Button>
+						</Tooltip>
+					</div>
 
-                </div>
-              </div>
-            )}
+					{/* Task filter buttons  */}
+					<div className="flex mt-4 space-x-3">
+						<OutlineBadge
+							className="py-2 text-xs cursor-pointer input-border"
+							onClick={() => datas.setFilter && datas.setFilter('open')}
+						>
+							<div className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')} />
+							<span
+								className={clsxm(
+									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
+								)}
+							>
+								{datas.openTaskCount || 0} {t('common.OPEN')}
+							</span>
+						</OutlineBadge>
 
-            <Tooltip
-              enabled={!datas.user?.isEmailVerified}
-              label={t('common.VERIFY_ACCOUNT_MSG')}
-              placement="top-start"
-              className="inline-block"
-            >
-              <Button
-                variant="outline"
-                disabled={
-                  !datas.hasCreateForm ||
-                  datas.createLoading ||
-                  !datas.user?.isEmailVerified
-                }
-                loading={datas.createLoading}
-                className="font-normal text-sm rounded-xl min-w-[240px] max-w-[240px] inline-flex"
-                onClick={handleTaskCreation}
-              >
-                {!datas.createLoading && (
-                  <PlusIcon className="w-[16px] h-[16px]" />
-                )}
-                {t('common.CREATE_TASK')}
-              </Button>
-            </Tooltip>
-          </div>
+						<OutlineBadge
+							className="py-2 text-xs cursor-pointer input-border"
+							onClick={() => datas.setFilter && datas.setFilter('closed')}
+						>
+							<TickCircleIcon className="opacity-50 w-full max-w-[17px]" />
+							<span
+								className={clsxm(
+									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
+								)}
+							>
+								{datas.closedTaskCount || 0} {t('common.CLOSED')}
+							</span>
+						</OutlineBadge>
+					</div>
+				</div>
 
-          {/* Task filter buttons  */}
-          <div className="flex mt-4 space-x-3">
-            <OutlineBadge
-              className="py-2 text-xs cursor-pointer input-border"
-              onClick={() => datas.setFilter && datas.setFilter('open')}
-            >
-              <div
-                className={clsxm(
-                  'w-4 h-4 rounded-full opacity-50 bg-green-300'
-                )}
-              />
-              <span
-                className={clsxm(
-                  datas.filter === 'open' && [
-                    'text-primary dark:text-primary-light font-semibold'
-                  ]
-                )}
-              >
-                {datas.openTaskCount || 0} {t('common.OPEN')}
-              </span>
-            </OutlineBadge>
+				<Divider className="mt-4" />
+				{/* Task list */}
+				<ul className={assignTaskPopup ? 'py-6 max-h-[40vh] overflow-y-auto' : 'py-6 max-h-56 overflow-y-auto'}>
+					{forParentChildRelationship && (
+						<LazyRender items={data || []}>
+							{(task, i) => {
+								const last = (datas.filteredTasks?.length || 0) - 1 === i;
+								const active = datas.inputTask === task;
 
-            <OutlineBadge
-              className="py-2 text-xs cursor-pointer input-border"
-              onClick={() => datas.setFilter && datas.setFilter('closed')}
-            >
-              <TickCircleIcon className="opacity-50 w-full max-w-[17px]" />
-              <span
-                className={clsxm(
-                  datas.filter === 'closed' && [
-                    'text-primary dark:text-primary-light font-semibold'
-                  ]
-                )}
-              >
-                {datas.closedTaskCount || 0} {t('common.CLOSED')}
-              </span>
-            </OutlineBadge>
-          </div>
-        </div>
+								return (
+									<li key={task.id} ref={active ? activeTaskEl : undefined}>
+										<TaskItem
+											task={task}
+											selected={active}
+											onClick={onItemClick}
+											className="cursor-pointer"
+										/>
+										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
+										{!last && <Divider className="my-5" />}
+									</li>
+								);
+							}}
+						</LazyRender>
+					)}
 
-        <Divider className="mt-4" />
-        {/* Task list */}
-        <ul
-          className={
-            assignTaskPopup
-              ? 'py-6 max-h-[40vh] overflow-y-auto'
-              : 'py-6 max-h-56 overflow-y-auto'
-          }
-        >
-          {forParentChildRelationship && (
-            <LazyRender items={data || []}>
-              {(task, i) => {
-                const last = (datas.filteredTasks?.length || 0) - 1 === i;
-                const active = datas.inputTask === task;
+					{!forParentChildRelationship && (
+						<LazyRender items={datas.filteredTasks || []}>
+							{(task, i) => {
+								const last = (datas.filteredTasks?.length || 0) - 1 === i;
+								const active = datas.inputTask === task;
 
-                return (
-                  <li key={task.id} ref={active ? activeTaskEl : undefined}>
-                    <TaskItem
-                      task={task}
-                      selected={active}
-                      onClick={onItemClick}
-                      className="cursor-pointer"
-                    />
-                    <ObserverComponent
-                      isLast={i === data.length - 1}
-                      getNextData={nextOffset}
-                    />
-                    {!last && <Divider className="my-5" />}
-                  </li>
-                );
-              }}
-            </LazyRender>
-          )}
+								return (
+									<li key={task.id} ref={active ? activeTaskEl : undefined}>
+										<TaskItem
+											task={task}
+											selected={active}
+											onClick={onItemClick}
+											className="cursor-pointer"
+										/>
 
-          {!forParentChildRelationship && (
-            <LazyRender items={datas.filteredTasks || []}>
-              {(task, i) => {
-                const last = (datas.filteredTasks?.length || 0) - 1 === i;
-                const active = datas.inputTask === task;
+										{!last && <Divider className="my-5" />}
+									</li>
+								);
+							}}
+						</LazyRender>
+					)}
 
-                return (
-                  <li key={task.id} ref={active ? activeTaskEl : undefined}>
-                    <TaskItem
-                      task={task}
-                      selected={active}
-                      onClick={onItemClick}
-                      className="cursor-pointer"
-                    />
+					{(forParentChildRelationship && updatedTaskList && updatedTaskList.length === 0) ||
+						(!forParentChildRelationship && datas.filteredTasks && datas.filteredTasks.length === 0 && (
+							<div className="text-center">{t('common.NO_TASKS')}</div>
+						))}
+				</ul>
+			</Card>
 
-                    {!last && <Divider className="my-5" />}
-                  </li>
-                );
-              }}
-            </LazyRender>
-          )}
-
-          {(forParentChildRelationship &&
-            updatedTaskList &&
-            updatedTaskList.length === 0) ||
-            (!forParentChildRelationship &&
-              datas.filteredTasks &&
-              datas.filteredTasks.length === 0 && (
-                <div className="text-center">{t('common.NO_TASKS')}</div>
-              ))}
-        </ul>
-      </Card>
-
-      {/* Just some spaces at the end */}
-      <div className="w-2 h-5 opacity-0">{'|'}</div>
-    </>
-  );
+			{/* Just some spaces at the end */}
+			<div className="w-2 h-5 opacity-0">{'|'}</div>
+		</>
+	);
 }
-
 
 /**
  * ----------------------------------------------
@@ -809,9 +726,11 @@ function TaskCard({
 
 interface ITeamMemberSelectProps {
 	teamMembers: OT_Member[];
-	assignees : MutableRefObject<{
-		id: string;
-	}[]>
+	assignees: MutableRefObject<
+		{
+			id: string;
+		}[]
+	>;
 }
 /**
  * A multi select component for assignees
@@ -822,11 +741,14 @@ interface ITeamMemberSelectProps {
  *
  * @return {JSX.Element} The multi select component
  */
- function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
-	const { teamMembers , assignees} = props;
+function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
+	const { teamMembers, assignees } = props;
 	const t = useTranslations();
-	const {user} = useAuthenticateUser()
-	const authMember = useMemo(() => teamMembers.find(member => member.employee.user?.id == user?.id), [teamMembers, user?.id])
+	const { user } = useAuthenticateUser();
+	const authMember = useMemo(
+		() => teamMembers.find((member) => member.employee.user?.id == user?.id),
+		[teamMembers, user?.id]
+	);
 
 	return (
 		<div className=" w-40 rounded-xl bg-[#F2F2F2] py-2 px-3">
@@ -873,18 +795,21 @@ interface ITeamMemberSelectProps {
 											}`
 										}
 										onClick={() => {
-											const isAssigned = assignees.current.map(el => el.id).includes(member.employee.id);
-
+											const isAssigned = assignees.current
+												.map((el) => el.id)
+												.includes(member.employee.id);
 
 											if (isAssigned) {
-												assignees.current = assignees.current.filter((el) => el.id != member.employee.id)
+												assignees.current = assignees.current.filter(
+													(el) => el.id != member.employee.id
+												);
 											} else {
-												assignees.current = [...assignees.current, {id:member.employee.id}];
+												assignees.current = [...assignees.current, { id: member.employee.id }];
 											}
 										}}
 										value={member}
 									>
-										{assignees.current.map(el => el.id).includes(member.employee.id) && (
+										{assignees.current.map((el) => el.id).includes(member.employee.id) && (
 											<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
 												<CheckIcon className="h-5 w-5" aria-hidden="true" />
 											</span>

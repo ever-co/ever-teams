@@ -25,10 +25,10 @@ export function NavSecondary({
 	return (
 		<SidebarGroup {...props}>
 			<SidebarGroupContent>
-				<SidebarMenu className="gap-y-3">
+				<SidebarMenu className="gap-y-1">
 					{items.map((item) => (
-						<SidebarMenuItem key={item.title}>
-							<SidebarMenuButton asChild size="sm">
+						<SidebarMenuItem key={item.title} className="w-full max-w-[230px]">
+							<SidebarMenuButton asChild size="sm" className="w-full max-w-[230px]">
 								<a href={item.url}>
 									<item.icon className="size-4" />
 									<span

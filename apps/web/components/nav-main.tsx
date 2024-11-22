@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
 	SidebarGroup,
+	SidebarGroupLabel,
 	SidebarMenu,
 	SidebarMenuAction,
 	SidebarMenuButton,
@@ -64,7 +65,10 @@ export function NavMain({
 	};
 	return (
 		<SidebarGroup>
-			<SidebarMenu className={cn(state === 'collapsed' ? 'items-center' : '', 'gap-y-5')}>
+			<SidebarGroupLabel>Platform</SidebarGroupLabel>
+			<SidebarMenu
+				className={cn('w-full max-w-[230px]', state === 'collapsed' ? 'items-center gap-y-2' : '', 'gap-y-1')}
+			>
 				{items.map((item, index) => (
 					<Collapsible
 						key={item.title}
@@ -78,11 +82,11 @@ export function NavMain({
 								<CollapsibleTrigger className="cursor-pointer" asChild>
 									<SidebarMenuButton
 										className={cn(
-											'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
+											'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300 !text-sm',
 											state === 'collapsed' ? ' justify-center' : '',
 											index === activeMenuIndex
-												? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
-												: '!font-normal' // Style for active menu
+												? 'font-normal bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+												: '!font-light' // Style for active menu
 										)}
 										asChild
 										tooltip={item.title}
@@ -98,7 +102,7 @@ export function NavMain({
 
 											<span
 												className={cn(
-													'transition-all font-medium',
+													'transition-all font-light !text-sm',
 													state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
 												)}
 											>
@@ -110,11 +114,11 @@ export function NavMain({
 							) : (
 								<SidebarMenuButton
 									className={cn(
-										'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300',
+										'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300 !text-sm',
 										state === 'collapsed' ? ' justify-center' : '',
 										index === activeMenuIndex
-											? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
-											: '!font-normal'
+											? 'font-normal bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+											: '!font-light'
 									)}
 									asChild
 									tooltip={item.title}
@@ -129,7 +133,7 @@ export function NavMain({
 										)}
 										<span
 											className={cn(
-												'transition-all font-medium',
+												'transition-all font-light text-sm',
 												state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
 											)}
 										>
@@ -142,23 +146,23 @@ export function NavMain({
 							{item.items?.length ? (
 								<>
 									<CollapsibleTrigger asChild>
-										<SidebarMenuAction className="data-[state=open]:rotate-90">
+										<SidebarMenuAction className="data-[state=open]:rotate-90 mt-1">
 											<ChevronRight />
 											<span className="sr-only">Toggle</span>
 										</SidebarMenuAction>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
-										<SidebarMenuSub className={cn('flex flex-col gap-y-3')}>
+										<SidebarMenuSub className={cn('flex flex-col !gap-y-1.5 !px-2')}>
 											{item.items.map((subItem, key) => (
-												<SidebarMenuSubItem key={key}>
+												<SidebarMenuSubItem className="w-full max-w-[230px]" key={key}>
 													{subItem?.component || (
 														<SidebarMenuSubButton
 															className={cn(
-																'hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300',
+																'hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300 !text-sm',
 
 																// Style for active sub-menu
 																key === activeSubMenuIndex
-																	? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
+																	? 'font-normal bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
 																	: '!font-light'
 															)}
 															onClick={() => handleSubMenuToggle(key)}
@@ -167,7 +171,7 @@ export function NavMain({
 															<Link href={subItem.url}>
 																<span
 																	className={cn(
-																		'transition-all font-medium',
+																		'transition-all font-light !text-sm',
 																		state === 'collapsed'
 																			? 'opacity-0 hidden'
 																			: 'opacity-100'

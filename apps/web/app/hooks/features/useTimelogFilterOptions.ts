@@ -31,6 +31,6 @@ export function useTimelogFilterOptions() {
         setStatusState,
         handleSelectRowTimesheet,
         selectTimesheet,
-        setSelectTimesheet
+        setSelectTimesheet,
     };
 }
