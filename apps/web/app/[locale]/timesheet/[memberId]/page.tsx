@@ -8,7 +8,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 
-import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams, useTimelogFilterOptions } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -43,25 +43,30 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		from: startOfDay(new Date()),
 		to: endOfDay(new Date())
 	});
-
-	const { timesheet, statusTimesheet, timesheetGroupByMonth, timesheetGroupByWeek } = useTimesheet({
+	const { timesheet, statusTimesheet } = useTimesheet({
 		startDate: dateRange.from ?? '',
 		endDate: dateRange.to ?? ''
 	});
 
 	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
-	const filterDataTimesheet = useMemo(
-		() =>
-			timesheetGroupByWeek.filter((v) =>
-				v.tasks.some(
-					(task) =>
-						task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
-						task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch) ||
-						task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
-				)
-			),
-		[timesheet, timesheetGroupByMonth, timesheetGroupByWeek, lowerCaseSearch]
-	);
+	const filterDataTimesheet = useMemo(() => {
+		const filteredTimesheet =
+			timesheet
+				.filter((v) =>
+					v.tasks.some(
+						(task) =>
+							task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
+							task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch) ||
+							task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
+					)
+				);
+
+		return filteredTimesheet;
+	}, [
+		timesheet,
+		lowerCaseSearch,
+	]);
+
 
 	const {
 		isOpen: isManualTimeModalOpen,
@@ -166,7 +171,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								</div>
 							</div>
-
 							<TimesheetFilter
 								data={statusTimesheet}
 								onChangeStatus={setFilterStatus}

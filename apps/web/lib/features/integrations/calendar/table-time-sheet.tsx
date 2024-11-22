@@ -153,7 +153,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
 export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const { isOpen, openModal, closeModal } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet } = useTimesheet({});
-	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet } = useTimelogFilterOptions();
+	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays } = useTimelogFilterOptions();
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 	const handleConfirm = () => {
 		try {
@@ -235,20 +235,29 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				isOpen={isOpen}
 			/>
 			<div className="rounded-md">
-				{data?.map((plan, index) => (
-					<div key={index}>
+				{data?.map((plan, index) => {
+					return <div key={index}>
 						<div
 							className={clsxm(
 								'h-[48px] flex justify-between items-center w-full',
 								'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
 								'border-gray-400 px-5 text-[#71717A] font-medium'
 							)}>
-							<span>{formatDate(plan.date)}</span>
+							<div className='flex gap-x-3'>
+								<span>
+									{timesheetGroupByDays === 'Daily'
+										? ''
+										: timesheetGroupByDays === 'Weekly'
+											? `Week ${index + 1}`
+											: ''}
+								</span>
+								<span>{formatDate(plan.date)}</span>
+							</div>
 							<TotalDurationByDate
 								timesheetLog={plan.tasks}
-								createdAt={formatDate(plan.date)} />
+								createdAt={formatDate(plan.date)}
+							/>
 						</div>
-
 						<Accordion type="single" collapsible>
 							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
 								<AccordionItem
@@ -344,7 +353,9 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 							))}
 						</Accordion>
 					</div>
-				))}
+				}
+
+				)}
 			</div>
 			<div className="flex items-center justify-end p-4 space-x-2">
 				<div className="flex-1 text-sm text-muted-foreground">

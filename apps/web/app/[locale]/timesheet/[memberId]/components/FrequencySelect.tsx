@@ -22,6 +22,8 @@ import { DatePicker } from "@components/ui/DatePicker";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { PiCalendarDotsThin } from "react-icons/pi";
+import { useLocalStorageState, useTimelogFilterOptions } from "@/app/hooks";
+import { TimesheetFilterByDays } from "@/app/interfaces";
 
 interface DatePickerInputProps {
     date: Date | null;
@@ -29,24 +31,25 @@ interface DatePickerInputProps {
 }
 
 export function FrequencySelect() {
-    const [selectedValue, setSelectedValue] = React.useState<string | undefined>(undefined);
+    const [] = useLocalStorageState<TimesheetFilterByDays>('timesheet-group-by-day', 'Daily')
 
+    const { setTimesheetGroupByDays, timesheetGroupByDays } = useTimelogFilterOptions();
     const handleSelectChange = (value: string) => {
-        setSelectedValue(value);
+        setTimesheetGroupByDays(value as TimesheetFilterByDays);
     };
 
     return (
         <Select
-            value={selectedValue}
+            value={timesheetGroupByDays}
             onValueChange={handleSelectChange}>
             <SelectTrigger className="w-36 overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
                 <SelectValue placeholder="Select a daily" />
             </SelectTrigger>
             <SelectContent>
                 <SelectGroup>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="Daily">Daily</SelectItem>
+                    <SelectItem value="Weekly">Weekly</SelectItem>
+                    <SelectItem value="Monthly">Monthly</SelectItem>
                 </SelectGroup>
             </SelectContent>
         </Select>

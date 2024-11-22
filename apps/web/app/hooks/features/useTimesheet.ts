@@ -2,7 +2,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
@@ -29,7 +29,6 @@ interface DeleteTimesheetParams {
 const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
     type GroupedMap = Record<string, TimesheetLog[]>;
-
     const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
         if (!item?.timesheet?.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
@@ -115,15 +114,13 @@ const groupByMonth = (items: TimesheetLog[]): GroupedTimesheet[] => {
         .sort((a, b) => b.date.localeCompare(a.date));
 };
 
-
-
 export function useTimesheet({
     startDate,
     endDate,
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, selectTimesheet: logIds } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, selectTimesheet: logIds, timesheetGroupByDays } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi)
 
@@ -222,22 +219,29 @@ export function useTimesheet({
     },
         [user, queryDeleteTimesheet, logIds, handleDeleteTimesheet] // deepscan-disable-line
     );
+    const timesheetElementGroup = useMemo(() => {
+        if (timesheetGroupByDays === 'Daily') {
+            return groupByDate(timesheet);
+        }
+        if (timesheetGroupByDays === 'Weekly') {
+            return groupByWeek(timesheet);
+        }
+        return groupByMonth(timesheet);
+    }, [timesheetGroupByDays, timesheet]);
+
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate]);
-
-
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
 
     return {
         loadingTimesheet,
-        timesheet: groupByDate(timesheet),
-        timesheetGroupByWeek: groupByWeek(timesheet),
-        timesheetGroupByMonth: groupByMonth(timesheet),
+        timesheet: timesheetElementGroup,
         getTaskTimesheet,
         loadingDeleteTimesheet,
         deleteTaskTimesheet,
         getStatusTimesheet,
+        timesheetGroupByDays,
         statusTimesheet: getStatusTimesheet(timesheet.flatMap((data) => data))
     };
 }
