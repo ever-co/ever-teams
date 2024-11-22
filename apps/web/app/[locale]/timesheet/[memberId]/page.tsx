@@ -44,7 +44,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		to: endOfDay(new Date())
 	});
 
-	const { timesheet, statusTimesheet } = useTimesheet({
+	const { timesheet, statusTimesheet, timesheetGroupByMonth, timesheetGroupByWeek } = useTimesheet({
 		startDate: dateRange.from ?? '',
 		endDate: dateRange.to ?? ''
 	});
@@ -52,7 +52,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
 	const filterDataTimesheet = useMemo(
 		() =>
-			timesheet.filter((v) =>
+			timesheetGroupByWeek.filter((v) =>
 				v.tasks.some(
 					(task) =>
 						task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
@@ -60,7 +60,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 						task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
 				)
 			),
-		[timesheet, lowerCaseSearch]
+		[timesheet, timesheetGroupByMonth, timesheetGroupByWeek, lowerCaseSearch]
 	);
 
 	const {

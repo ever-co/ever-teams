@@ -28,12 +28,12 @@ export function FilterWithStatus({
 	};
 
 	const buttonData = Object.entries({
-		'All Tasks': Object.values(data!).reduce((total, tasks) => total + tasks.length, 0),
-		Pending: data!.PENDING.length,
-		Approved: data!.APPROVED.length,
-		'In review': data!['IN REVIEW'].length,
-		Draft: data!.DRAFT.length,
-		Rejected: data!.DENIED.length,
+		'All Tasks': React.useMemo(() => Object.values(data!).reduce((total, tasks) => total + tasks.length, 0), [data]),
+		Pending: data?.PENDING.length ?? 0,
+		Approved: data?.APPROVED.length ?? 0,
+		'In review': data!['IN REVIEW']?.length ?? 0,
+		Draft: data?.DRAFT.length ?? 0,
+		Rejected: data?.DENIED.length ?? 0,
 	}).map(([label, count]) => ({
 		label: label as FilterStatus,
 		count,

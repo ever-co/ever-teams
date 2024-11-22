@@ -19,13 +19,14 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
     const [isBillable, setIsBillable] = React.useState<boolean>(true);
 
     const projectItemsLists = {
-        Project: activeTeam?.projects as [],
+        Project: activeTeam?.projects ?? [],
     };
+
     const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
         // Handle value changes
     };
     const selectedValues = {
-        Preject: null,
+        Project: null,
     };
     const handleChange = (field: string, selectedItem: Item | null) => {
         // Handle field changes

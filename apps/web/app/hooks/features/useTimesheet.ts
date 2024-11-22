@@ -52,6 +52,69 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
         .map(([date, tasks]) => ({ date, tasks }))
         .sort((a, b) => b.date.localeCompare(a.date));
 }
+const getWeekYearKey = (date: Date): string => {
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const daysSinceStart = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+    const week = Math.ceil((daysSinceStart + startOfYear.getDay() + 1) / 7);
+    return `${date.getFullYear()}-W${week}`;
+};
+
+const groupByWeek = (items: TimesheetLog[]): GroupedTimesheet[] => {
+    if (!items?.length) return [];
+    type GroupedMap = Record<string, TimesheetLog[]>;
+
+    const groupedByWeek = items.reduce<GroupedMap>((acc, item) => {
+        if (!item?.timesheet?.createdAt) {
+            console.warn('Skipping item with missing timesheet or createdAt:', item);
+            return acc;
+        }
+        try {
+            const date = new Date(item.timesheet.createdAt);
+            const weekKey = getWeekYearKey(date);
+            if (!acc[weekKey]) acc[weekKey] = [];
+            acc[weekKey].push(item);
+        } catch (error) {
+            console.error(
+                `Failed to process date for timesheet ${item.timesheet.id}:`,
+                { createdAt: item.timesheet.createdAt, error }
+            );
+        }
+        return acc;
+    }, {});
+
+    return Object.entries(groupedByWeek)
+        .map(([week, tasks]) => ({ date: week, tasks }))
+        .sort((a, b) => b.date.localeCompare(a.date));
+};
+
+const groupByMonth = (items: TimesheetLog[]): GroupedTimesheet[] => {
+    if (!items?.length) return [];
+    type GroupedMap = Record<string, TimesheetLog[]>;
+
+    const groupedByMonth = items.reduce<GroupedMap>((acc, item) => {
+        if (!item?.timesheet?.createdAt) {
+            console.warn('Skipping item with missing timesheet or createdAt:', item);
+            return acc;
+        }
+        try {
+            const date = new Date(item.timesheet.createdAt);
+            const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+            if (!acc[monthKey]) acc[monthKey] = [];
+            acc[monthKey].push(item);
+        } catch (error) {
+            console.error(
+                `Failed to process date for timesheet ${item.timesheet.id}:`,
+                { createdAt: item.timesheet.createdAt, error }
+            );
+        }
+        return acc;
+    }, {});
+
+    return Object.entries(groupedByMonth)
+        .map(([month, tasks]) => ({ date: month, tasks }))
+        .sort((a, b) => b.date.localeCompare(a.date));
+};
+
 
 
 export function useTimesheet({
@@ -169,6 +232,8 @@ export function useTimesheet({
     return {
         loadingTimesheet,
         timesheet: groupByDate(timesheet),
+        timesheetGroupByWeek: groupByWeek(timesheet),
+        timesheetGroupByMonth: groupByMonth(timesheet),
         getTaskTimesheet,
         loadingDeleteTimesheet,
         deleteTaskTimesheet,
