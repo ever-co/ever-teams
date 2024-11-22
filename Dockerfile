@@ -63,11 +63,9 @@ ARG NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
 ARG NEXT_PUBLIC_GITHUB_APP_NAME
 ARG NEXT_PUBLIC_CHATWOOT_API_KEY
 
-# Install packages needed to build node modules, Remove cache after installing packages
+# Install packages needed to build node modules
 RUN apt-get update -qq && \
-	apt-get install -y build-essential pkg-config python-is-python3 && \
-	apt-get clean && \
-	rm -rf /var/lib/apt/lists/*
+	apt-get install -y build-essential pkg-config python-is-python3
 
 # Install Yarn
 RUN npm install -g yarn --force
