@@ -2,7 +2,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
@@ -29,7 +29,6 @@ interface DeleteTimesheetParams {
 const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
     type GroupedMap = Record<string, TimesheetLog[]>;
-
     const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
         if (!item?.timesheet?.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
@@ -52,7 +51,48 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
         .map(([date, tasks]) => ({ date, tasks }))
         .sort((a, b) => b.date.localeCompare(a.date));
 }
+const getWeekYearKey = (date: Date): string => {
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const daysSinceStart = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+    const week = Math.ceil((daysSinceStart + startOfYear.getDay() + 1) / 7);
+    return `${date.getFullYear()}-W${week}`;
+};
 
+
+type GroupingKeyFunction = (date: Date) => string;
+
+const createGroupingFunction = (getKey: GroupingKeyFunction) => (items: TimesheetLog[]): GroupedTimesheet[] => {
+    if (!items?.length) return [];
+    type GroupedMap = Record<string, TimesheetLog[]>;
+
+    const grouped = items.reduce<GroupedMap>((acc, item) => {
+        if (!item?.timesheet?.createdAt) {
+            console.warn('Skipping item with missing timesheet or createdAt:', item);
+            return acc;
+        }
+        try {
+            const date = new Date(item.timesheet.createdAt);
+            const key = getKey(date);
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(item);
+        } catch (error) {
+            console.error(
+                `Failed to process date for timesheet ${item.timesheet.id}:`,
+                { createdAt: item.timesheet.createdAt, error }
+            );
+        }
+        return acc;
+    }, {});
+
+    return Object.entries(grouped)
+        .map(([key, tasks]) => ({ date: key, tasks }))
+        .sort((a, b) => b.date.localeCompare(a.date));
+};
+
+const groupByWeek = createGroupingFunction(date => getWeekYearKey(date));
+const groupByMonth = createGroupingFunction(date =>
+    `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
+);
 
 export function useTimesheet({
     startDate,
@@ -60,7 +100,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, selectTimesheet: logIds } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, selectTimesheet: logIds, timesheetGroupByDays } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi)
 
@@ -159,19 +199,29 @@ export function useTimesheet({
     },
         [user, queryDeleteTimesheet, logIds, handleDeleteTimesheet] // deepscan-disable-line
     );
+    const timesheetElementGroup = useMemo(() => {
+        if (timesheetGroupByDays === 'Daily') {
+            return groupByDate(timesheet);
+        }
+        if (timesheetGroupByDays === 'Weekly') {
+            return groupByWeek(timesheet);
+        }
+        return groupByMonth(timesheet);
+    }, [timesheetGroupByDays, timesheet]);
+
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate]);
-
-
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
 
     return {
         loadingTimesheet,
-        timesheet: groupByDate(timesheet),
+        timesheet: timesheetElementGroup,
         getTaskTimesheet,
         loadingDeleteTimesheet,
         deleteTaskTimesheet,
-        getStatusTimesheet
+        getStatusTimesheet,
+        timesheetGroupByDays,
+        statusTimesheet: getStatusTimesheet(timesheet.flat())
     };
 }

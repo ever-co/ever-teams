@@ -1,8 +1,9 @@
 import { FilterStatus, FilterWithStatus } from './FilterWithStatus';
 import { FrequencySelect, TimeSheetFilterPopover, TimesheetFilterDate, TimesheetFilterDateProps } from '.';
 import { Button } from 'lib/components';
-import { AddManualTimeModal } from '@/lib/features/manual-time/add-manual-time-modal';
 import { TranslationHooks } from 'next-intl';
+import { AddTaskModal } from './AddTaskModal';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
 interface ITimesheetFilter {
     isOpen: boolean,
@@ -11,22 +12,23 @@ interface ITimesheetFilter {
     t: TranslationHooks,
     initDate?: Pick<TimesheetFilterDateProps, 'initialRange' | 'onChange' | 'maxDate' | 'minDate'>,
     onChangeStatus?: (status: FilterStatus) => void;
-    filterStatus?: FilterStatus
+    filterStatus?: FilterStatus,
+    data?: Record<TimesheetStatus, TimesheetLog[]>
+
 }
 
-export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate, filterStatus, onChangeStatus }: ITimesheetFilter,) {
+export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate, filterStatus, onChangeStatus, data }: ITimesheetFilter,) {
     return (
         <>
             {
-                isOpen && <AddManualTimeModal
+                isOpen && <AddTaskModal
                     closeModal={closeModal}
                     isOpen={isOpen}
-                    params="AddManuelTime"
-                    timeSheetStatus="ManagerTimesheet"
                 />}
             <div className="flex w-full justify-between items-center">
                 <div>
                     <FilterWithStatus
+                        data={data}
                         activeStatus={filterStatus || "All Tasks"}
                         onToggle={(label) => onChangeStatus?.(label)}
                     />

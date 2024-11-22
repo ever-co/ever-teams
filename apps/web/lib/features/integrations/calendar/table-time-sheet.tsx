@@ -52,7 +52,8 @@ import {
 	RejectSelectedModal,
 	StatusAction,
 	StatusType,
-	getTimesheetButtons
+	getTimesheetButtons,
+	statusTable
 } from '@/app/[locale]/timesheet/[memberId]/components';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
@@ -152,7 +153,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
 export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const { isOpen, openModal, closeModal } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet } = useTimesheet({});
-	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet } = useTimelogFilterOptions();
+	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays } = useTimelogFilterOptions();
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 	const handleConfirm = () => {
 		try {
@@ -234,20 +235,25 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				isOpen={isOpen}
 			/>
 			<div className="rounded-md">
-				{data?.map((plan, index) => (
-					<div key={index}>
+				{data?.map((plan, index) => {
+					return <div key={index}>
 						<div
 							className={clsxm(
 								'h-[48px] flex justify-between items-center w-full',
 								'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
 								'border-gray-400 px-5 text-[#71717A] font-medium'
 							)}>
-							<span>{formatDate(plan.date)}</span>
+							<div className='flex gap-x-3'>
+								{timesheetGroupByDays === 'Weekly' && (
+									<span>Week {index + 1}</span>
+								)}
+								<span>{formatDate(plan.date)}</span>
+							</div>
 							<TotalDurationByDate
 								timesheetLog={plan.tasks}
-								createdAt={formatDate(plan.date)} />
+								createdAt={formatDate(plan.date)}
+							/>
 						</div>
-
 						<Accordion type="single" collapsible>
 							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
 								<AccordionItem
@@ -343,7 +349,9 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 							))}
 						</Accordion>
 					</div>
-				))}
+				}
+
+				)}
 			</div>
 			<div className="flex items-center justify-end p-4 space-x-2">
 				<div className="flex-1 text-sm text-muted-foreground">
@@ -388,6 +396,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	const { isOpen, closeModal, openModal } = useModal();
 	const [selected] = React.useState(selectedStatus);
 	const [newStatus, setNewStatus] = React.useState('');
+	const t = useTranslations();
 
 	const getColorClass = () => {
 		switch (selected) {
@@ -419,7 +428,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 				</SelectTrigger>
 				<SelectContent>
 					<SelectGroup className="rounded">
-						<SelectLabel>Status</SelectLabel>
+						<SelectLabel>{t('common.STATUS')}</SelectLabel>
 						{statusOptions.map((option, index) => (
 							<div key={option.value}>
 								<SelectItem value={option.value}>{option.label}</SelectItem>
@@ -437,6 +446,8 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 
 const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
+	const t = useTranslations();
+
 	return (
 		<>
 			{<EditTaskModal
@@ -453,12 +464,12 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
-						Edit
+						{t('common.EDIT')}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<StatusTask />
 					<DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">
-						Delete
+						{t('common.DELETE')}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
@@ -490,10 +501,10 @@ export const StatusTask = () => {
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						{statusOptions?.map((status, index) => (
-							<DropdownMenuItem key={index} textValue={status.value} className="cursor-pointer">
+						{statusTable?.map((status, index) => (
+							<DropdownMenuItem key={index} textValue={status.label} className="cursor-pointer">
 								<div className="flex items-center gap-3">
-									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.value).bg)}></div>
+									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>
 								</div>
 							</DropdownMenuItem>
@@ -503,7 +514,7 @@ export const StatusTask = () => {
 			</DropdownMenuSub>
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
-					<span>Billable</span>
+					<span>{t('pages.timesheet.BILLABLE.BILLABLE')}</span>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>

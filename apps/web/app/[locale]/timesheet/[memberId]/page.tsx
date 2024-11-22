@@ -43,25 +43,30 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		from: startOfDay(new Date()),
 		to: endOfDay(new Date())
 	});
-
-	const { timesheet } = useTimesheet({
+	const { timesheet, statusTimesheet } = useTimesheet({
 		startDate: dateRange.from ?? '',
 		endDate: dateRange.to ?? ''
 	});
 
 	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
-	const filterDataTimesheet = useMemo(
-		() =>
-			timesheet.filter((v) =>
-				v.tasks.some(
-					(task) =>
-						task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
-						task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch) ||
-						task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
-				)
-			),
-		[timesheet, lowerCaseSearch]
-	);
+	const filterDataTimesheet = useMemo(() => {
+		const filteredTimesheet =
+			timesheet
+				.filter((v) =>
+					v.tasks.some(
+						(task) =>
+							task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
+							task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch) ||
+							task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
+					)
+				);
+
+		return filteredTimesheet;
+	}, [
+		timesheet,
+		lowerCaseSearch,
+	]);
+
 
 	const {
 		isOpen: isManualTimeModalOpen,
@@ -166,8 +171,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									/>
 								</div>
 							</div>
-
 							<TimesheetFilter
+								data={statusTimesheet}
 								onChangeStatus={setFilterStatus}
 								filterStatus={filterStatus}
 								initDate={{
@@ -210,7 +215,7 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon,
 		className={clsxm(
 			'text-[#7E7991]  font-medium w-[191px] h-[40px] flex items-center gap-x-4 text-[14px] px-2 rounded',
 			active &&
-				'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-bold'
+			'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-bold'
 		)}
 	>
 		{icon}
