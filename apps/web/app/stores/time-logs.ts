@@ -15,5 +15,5 @@ export const timesheetFilterEmployeeState = atom<OT_Member[]>([]);
 export const timesheetFilterProjectState = atom<IProject[]>([]);
 export const timesheetFilterTaskState = atom<ITeamTask[]>([]);
 
-export const timesheetFilterStatusState = atom<IFilterOption | IFilterOption[] | null>([]);
+export const timesheetFilterStatusState = atom<IFilterOption[]>([]);
 export const timesheetDeleteState = atom<string[]>([])

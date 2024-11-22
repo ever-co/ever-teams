@@ -1,5 +1,7 @@
-import { Folder, MoreHorizontal, Share, Trash2, type LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+'use client';
+
+import { Folder, Forward, MoreHorizontal, Trash2, type LucideIcon, PlusIcon } from 'lucide-react';
+
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -14,100 +16,94 @@ import {
 	SidebarMenuAction,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuSubButton,
 	useSidebar
 } from '@/components/ui/sidebar';
+import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
+import { useAuthenticateUser } from '@/app/hooks';
+import { Button } from '@/lib/components/button';
+import { useTranslations } from 'next-intl';
 
 export function NavProjects({
 	projects
-}: Readonly<{
+}: {
 	projects: {
 		name: string;
 		url: string;
 		icon: LucideIcon;
 	}[];
-}>) {
-	const { isMobile, state } = useSidebar();
+}) {
+	const { isMobile } = useSidebar();
 
-	return (
+	const { user } = useAuthenticateUser();
+
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
+	const t = useTranslations();
+	return userManagedTeams && userManagedTeams.length > 0 ? (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel>Projects</SidebarGroupLabel>
-			<SidebarMenu className="gap-y-3">
-				{projects.map((item) => (
-					<SidebarMenuItem key={item.name}>
-						<SidebarMenuButton asChild>
-							<a href={item.url}>
-								<item.icon />
-								<span
-									className={cn(
-										'transition-all',
-										state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
-									)}
-								>
-									{item.name}
-								</span>
-							</a>
-						</SidebarMenuButton>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuAction showOnHover>
-									<MoreHorizontal />
-									<span className="sr-only">More</span>
-								</SidebarMenuAction>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								className="w-48"
-								side={isMobile ? 'bottom' : 'right'}
-								align={isMobile ? 'end' : 'start'}
+			<SidebarMenu className="w-full max-w-[230px]">
+				{projects && projects.length ? (
+					<>
+						{projects.map((item) => (
+							<SidebarMenuItem className="w-full max-w-[230px]" key={item.name}>
+								<SidebarMenuButton asChild>
+									<a href={item.url}>
+										<item.icon />
+										<span>{item.name}</span>
+									</a>
+								</SidebarMenuButton>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<SidebarMenuAction showOnHover>
+											<MoreHorizontal />
+											<span className="sr-only">More</span>
+										</SidebarMenuAction>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										className="w-48 rounded-lg"
+										side={isMobile ? 'bottom' : 'right'}
+										align={isMobile ? 'end' : 'start'}
+									>
+										<DropdownMenuItem>
+											<Folder className="text-muted-foreground" />
+											<span>View Project</span>
+										</DropdownMenuItem>
+										<DropdownMenuItem>
+											<Forward className="text-muted-foreground" />
+											<span>Share Project</span>
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem>
+											<Trash2 className="text-muted-foreground" />
+											<span>Delete Project</span>
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</SidebarMenuItem>
+						))}
+						<SidebarMenuItem className="w-full max-w-[230px]">
+							<SidebarMenuButton className="text-sidebar-foreground/70">
+								<MoreHorizontal className="text-sidebar-foreground/70" />
+								<span>More</span>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					</>
+				) : (
+					<SidebarMenuItem className="w-full max-w-[230px]">
+						<SidebarMenuSubButton asChild>
+							<Button
+								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] w-full max-w-[230px]"
+								variant="outline"
+								disabled={!user?.isEmailVerified}
 							>
-								<DropdownMenuItem>
-									<Folder className="text-muted-foreground" />
-									<span
-										className={cn(
-											'transition-all',
-											state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
-										)}
-									>
-										View Project
-									</span>
-								</DropdownMenuItem>
-								<DropdownMenuItem>
-									<Share className="text-muted-foreground" />
-									<span
-										className={cn(
-											'transition-all',
-											state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
-										)}
-									>
-										Share Project
-									</span>
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem>
-									<Trash2 className="text-muted-foreground" />
-									<span
-										className={cn(
-											'transition-all',
-											state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
-										)}
-									>
-										Delete Project
-									</span>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+								<PlusIcon className="w-4 h-4" />
+								{t('common.CREATE_PROJECT')}
+							</Button>
+						</SidebarMenuSubButton>
 					</SidebarMenuItem>
-				))}
-				<SidebarMenuItem>
-					<SidebarMenuButton>
-						<MoreHorizontal />
-						<span
-							className={cn('transition-all', state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100')}
-						>
-							More
-						</span>
-					</SidebarMenuButton>
-				</SidebarMenuItem>
+				)}
 			</SidebarMenu>
 		</SidebarGroup>
-	);
+	) : null;
 }

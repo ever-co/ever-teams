@@ -1,3 +1,4 @@
+import { TimesheetStatus } from "@/app/interfaces";
 import { clsxm } from "@/app/utils";
 import { TranslationHooks } from "next-intl";
 import { ReactNode } from "react";
@@ -61,8 +62,10 @@ export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, dis
     ));
 };
 
-export const statusTable: { label: StatusType; description: string }[] = [
-    { label: "Pending", description: "Awaiting approval or review" },
-    { label: "Approved", description: "The item has been approved" },
-    { label: "Denied", description: "The item has been rejected" },
+export const statusTable: { label: TimesheetStatus; description: string }[] = [
+    { label: "PENDING", description: "Awaiting approval or review" },
+    { label: "IN REVIEW", description: "The item is being reviewed" },
+    { label: "APPROVED", description: "The item has been approved" },
+    { label: "DRAFT", description: "The item is saved as draft" },
+    { label: "DENIED", description: "The item has been rejected" },
 ];

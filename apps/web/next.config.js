@@ -44,6 +44,7 @@ const eslintBuildConfig = process.env.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
 	reactStrictMode: false,
+	transpilePackages: ['geist'],
 	...eslintBuildConfig,
 	swcMinify: true,
 	webpack: (config, { isServer }) => {

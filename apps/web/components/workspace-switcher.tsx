@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 
@@ -12,17 +13,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 
-export function TeamSwitcher({
-	teams
+export function WorkspacesSwitcher({
+	workspaces
 }: Readonly<{
-	teams: {
+	workspaces: {
 		name: string;
 		logo: React.ElementType;
 		plan: string;
 	}[];
 }>) {
 	const { isMobile } = useSidebar();
-	const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+	const [activeWorkspace, setActiveWorkspace] = React.useState(workspaces[0]);
 
 	return (
 		<SidebarMenu>
@@ -34,11 +35,11 @@ export function TeamSwitcher({
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<div className="flex items-center justify-center rounded-lg aspect-square size-8 bg-sidebar-primary text-sidebar-primary-foreground">
-								<activeTeam.logo className="size-4" />
+								<activeWorkspace.logo className="size-4" />
 							</div>
 							<div className="grid flex-1 text-sm leading-tight text-left">
-								<span className="font-semibold truncate">{activeTeam.name}</span>
-								<span className="text-xs truncate">{activeTeam.plan}</span>
+								<span className="font-semibold truncate">{activeWorkspace.name}</span>
+								<span className="text-xs truncate">{activeWorkspace.plan}</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
 						</SidebarMenuButton>
@@ -50,12 +51,16 @@ export function TeamSwitcher({
 						sideOffset={4}
 					>
 						<DropdownMenuLabel className="text-xs text-muted-foreground">Teams</DropdownMenuLabel>
-						{teams.map((team, index) => (
-							<DropdownMenuItem key={team.name} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
+						{workspaces.map((workspace, index) => (
+							<DropdownMenuItem
+								key={workspace.name}
+								onClick={() => setActiveWorkspace(workspace)}
+								className="gap-2 p-2"
+							>
 								<div className="flex items-center justify-center border rounded-sm size-6">
-									<team.logo className="size-4 shrink-0" />
+									<workspace.logo className="size-4 shrink-0" />
 								</div>
-								{team.name}
+								{workspace.name}
 								<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
 							</DropdownMenuItem>
 						))}

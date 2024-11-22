@@ -22,7 +22,9 @@ export async function getTaskTimesheetLogsApi({
 	endDate,
 	timeZone,
 	projectIds = [],
-	employeeIds = []
+	employeeIds = [],
+	taskIds = [],
+	status = []
 }: {
 	organizationId: string,
 	tenantId: string,
@@ -30,7 +32,9 @@ export async function getTaskTimesheetLogsApi({
 	endDate: string | Date,
 	timeZone?: string,
 	projectIds?: string[],
-	employeeIds?: string[]
+	employeeIds?: string[],
+	taskIds?: string[],
+	status?: string[]
 }) {
 
 	if (!organizationId || !tenantId || !startDate || !endDate) {
@@ -65,6 +69,15 @@ export async function getTaskTimesheetLogsApi({
 	employeeIds.forEach((id, index) => {
 		params.append(`employeeIds[${index}]`, id);
 	});
+
+	taskIds.forEach((id, index) => {
+		params.append(`taskIds[${index}]`, id)
+	});
+
+	status.forEach((name, index) => {
+		params.append(`status[${index}]`, name);
+	})
+
 	const endpoint = `/timesheet/time-log?${params.toString()}`;
 	return get<TimesheetLog[]>(endpoint, { tenantId });
 }

@@ -131,7 +131,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									items={statusOptions}
 									itemToString={(status) => (status ? status.value : '')}
 									itemId={(item) => item.value}
-									onValueChange={(selectedItems) => setStatusState(selectedItems)}
+									onValueChange={(selectedItems) => setStatusState(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
