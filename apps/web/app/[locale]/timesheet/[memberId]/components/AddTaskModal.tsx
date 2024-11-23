@@ -248,7 +248,7 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}h`;
-    }, [convertToMinutes]);
+    }, []);
 
 
 
@@ -317,11 +317,6 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
 
     )
 };
-
-
-
-
-
 
 const ShiftManagement = (
     { onChange, value, index, timeOptions }: {
