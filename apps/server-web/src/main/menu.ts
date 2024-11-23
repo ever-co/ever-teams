@@ -7,6 +7,7 @@ import { config } from '../configs/config';
 import { EventEmitter } from 'events';
 import { EventLists } from './helpers/constant';
 import i18n from 'i18next';
+import { AppMenu } from './helpers/interfaces';
 
 export default class MenuBuilder {
   eventEmitter: EventEmitter
@@ -15,7 +16,7 @@ export default class MenuBuilder {
     this.eventEmitter = eventEmitter
   }
 
-  defaultMenu() {
+  defaultMenu(): AppMenu[] {
     const isDarwin = process.platform === 'darwin';
     return [
       {
@@ -24,7 +25,7 @@ export default class MenuBuilder {
         submenu: [
           {
             id: 'MENU_APP_ABOUT',
-            label: `MENU_APP.ABOUT`,
+            label: `MENU_APP.APP_ABOUT`,
             selector: 'orderFrontStandardAboutPanel:',
             click: () => {
               this.eventEmitter.emit(EventLists.gotoAbout)
@@ -33,7 +34,7 @@ export default class MenuBuilder {
           { type: 'separator' },
           {
             id: 'MENU_APP_QUIT',
-            label: 'MENU_APP.QUIT',
+            label: 'MENU_APP.APP_QUIT',
             accelerator: isDarwin ? 'Command+Q' : 'Alt+F4',
             click: () => {
               app.quit();
@@ -43,18 +44,18 @@ export default class MenuBuilder {
       },
       {
         id: 'MENU_APP_WINDOW',
-        label: 'MENU_APP.WINDOW',
+        label: 'MENU_APP.APP_WINDOW',
         submenu: [
           {
             id: 'SUBMENU_SETTING',
-            label: 'MENU_APP.SUBMENU.SETTING',
+            label: 'MENU_APP.APP_SUBMENU.APP_SETTING',
             click: () => {
               this.eventEmitter.emit(EventLists.gotoSetting);
             }
           },
           {
             id: 'SUBMENU_SERVER',
-            label: 'MENU_APP.SUBMENU.SERVER_WINDOW',
+            label: 'MENU_APP.APP_SUBMENU.APP_SERVER_WINDOW',
             click: () => {
               this.eventEmitter.emit(EventLists.SERVER_WINDOW);
             }
@@ -63,18 +64,18 @@ export default class MenuBuilder {
       },
       {
         id: 'MENU_APP_HELP',
-        label: 'MENU_APP.HELP',
+        label: 'MENU_APP.APP_HELP',
         submenu: [
           {
             id: 'SUBMENU_LEARN_MORE',
-            label: 'MENU_APP.SUBMENU.LEARN_MORE',
+            label: 'MENU_APP.APP_SUBMENU.APP_LEARN_MORE',
             click() {
               shell.openExternal(config.COMPANY_SITE_LINK);
             },
           },
           {
             id: 'SUBMENU_DOC',
-            label: 'MENU_APP.SUBMENU.DOC',
+            label: 'MENU_APP.APP_SUBMENU.APP_DOC',
             click() {
               shell.openExternal(
                 config.COMPANY_GITHUB_LINK
@@ -85,18 +86,18 @@ export default class MenuBuilder {
       },
       {
         id: 'MENU_APP_DEV',
-        label: 'MENU_APP.DEV',
+        label: 'MENU_APP.APP_DEV',
         submenu: [
           {
             id: 'SUBMENU_SETTING_DEV',
-            label: 'MENU_APP.SUBMENU.SETTING_DEV',
+            label: 'MENU_APP.APP_SUBMENU.APP_SETTING_DEV',
             click: () => {
               this.eventEmitter.emit(EventLists.SETTING_WINDOW_DEV);
             },
           },
           {
             id: 'SUBMENU_SERVER_DEV',
-            label: 'MENU_APP.SUBMENU.SERVER_DEV',
+            label: 'MENU_APP.APP_SUBMENU.APP_SERVER_DEV',
             click: () => {
               this.eventEmitter.emit(EventLists.SERVER_WINDOW_DEV);
             },
