@@ -1,5 +1,6 @@
-import { TimesheetLog, ITimerStatus } from '@app/interfaces';
-import { get, deleteApi } from '../../axios';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus } from '@app/interfaces';
+import { get, deleteApi, put } from '../../axios';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
 export async function getTimerLogs(
 	tenantId: string,
@@ -119,4 +120,10 @@ export async function deleteTaskTimesheetLogsApi({
 	} catch (error) {
 		throw new Error(`Failed to delete timesheet logs`);
 	}
+}
+
+export function updateStatusTimesheetFromApi(data: IUpdateTimesheetStatus) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	return put<UpdateTimesheetStatus[]>(`/timesheet/status`, { ...data, organizationId }, { tenantId });
 }

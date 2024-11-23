@@ -1,4 +1,4 @@
-import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState } from '@/app/stores';
+import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus } from '@/app/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
 
@@ -8,7 +8,8 @@ export function useTimelogFilterOptions() {
     const [statusState, setStatusState] = useAtom(timesheetFilterStatusState);
     const [taskState, setTaskState] = useAtom(timesheetFilterTaskState);
     const [selectTimesheet, setSelectTimesheet] = useAtom(timesheetDeleteState);
-    const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState)
+    const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState);
+    const [puTimesheetStatus, setPuTimesheetStatus] = useAtom(timesheetUpdateStatus)
 
     const employee = employeeState;
     const project = projectState;
@@ -43,6 +44,8 @@ export function useTimelogFilterOptions() {
         setSelectTimesheet,
         timesheetGroupByDays,
         setTimesheetGroupByDays,
-        generateTimeOptions
+        generateTimeOptions,
+        setPuTimesheetStatus,
+        puTimesheetStatus
     };
 }

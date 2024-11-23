@@ -1,7 +1,8 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { TimesheetLog } from '@/app/interfaces/timer/ITimerLog';
+import { TimesheetLog, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
+import { IUpdateTimesheetStatus } from '@/app/interfaces';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -94,4 +95,15 @@ export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer
 		bearer_token,
 		tenantId: params.tenantId
 	});
+}
+
+
+export function updateStatusTimesheetRequest(params: IUpdateTimesheetStatus, bearer_token: string) {
+	return serverFetch<UpdateTimesheetStatus[]>({
+		path: '/timesheet/status',
+		method: 'PUT',
+		body: { ...params },
+		bearer_token,
+		tenantId: params.tenantId,
+	})
 }

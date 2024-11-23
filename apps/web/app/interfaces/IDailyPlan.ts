@@ -38,4 +38,11 @@ export enum DailyPlanStatusEnum {
 	COMPLETED = 'completed'
 }
 
+export interface IUpdateTimesheetStatus {
+	ids: ID[] | ID,
+	organizationId?: ID,
+	status: ID,
+	tenantId?: ID
+}
+
 export type IDailyPlanMode = 'today' | 'tomorrow' | 'custom';

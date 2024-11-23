@@ -108,3 +108,32 @@ export interface TimesheetLog extends BaseEntity {
     duration: number;
     isEdited: boolean;
 }
+
+
+
+export interface UpdateTimesheetStatus extends BaseEntity {
+    isActive: boolean;
+    isArchived: boolean;
+    archivedAt: string | null;
+    duration: number;
+    keyboard: number;
+    mouse: number;
+    overall: number;
+    startedAt: string;
+    stoppedAt: string;
+    approvedAt: string | null;
+    submittedAt: string | null;
+    lockedAt: string | null;
+    editedAt: string | null;
+    isBilled: boolean;
+    status:
+    | "DRAFT"
+    | "PENDING"
+    | "IN REVIEW"
+    | "DENIED"
+    | "APPROVED";
+    employeeId: string;
+    approvedById: string | null;
+    employee: Employee;
+    isEdited: boolean;
+}
