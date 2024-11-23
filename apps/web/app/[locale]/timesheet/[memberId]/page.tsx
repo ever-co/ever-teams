@@ -48,6 +48,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		endDate: dateRange.to ?? ''
 	});
 
+
+
 	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
 	const filterDataTimesheet = useMemo(() => {
 		const filteredTimesheet =
@@ -66,8 +68,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		timesheet,
 		lowerCaseSearch,
 	]);
-
-
 	const {
 		isOpen: isManualTimeModalOpen,
 		openModal: openManualTimeModal,
