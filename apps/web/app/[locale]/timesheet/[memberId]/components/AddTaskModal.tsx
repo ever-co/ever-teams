@@ -162,7 +162,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                 <div className="flex items-center gap-x-2 justify-end w-full">
                     <button
                         type="button"
-                        className={clsxm("text-primary dark:text-primary-light h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light")}>
+                        onClick={closeModal}
+                        className={clsxm(
+                            "text-primary dark:text-primary-light h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light"
+                        )}>
                         {t('common.CANCEL')}
                     </button>
                     <button
@@ -250,8 +253,10 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
 
 
     const handleAddShift = () => {
-        setShifts([...shifts, { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: '' }]);
+        setShifts([...shifts,
+        { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() },]);
     };
+
     const handleRemoveShift = (index: number) => {
         const updatedShifts = shifts.filter((_, i) => i !== index);
         setShifts(updatedShifts);
@@ -271,8 +276,9 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
     return (
         <>
             {shifts.map((element, index) => {
-                return <Accordion type="single" collapsible className="w-full p-1">
-                    <AccordionItem value="item-1" className="border rounded">
+                return <Accordion key={index} type="single" collapsible className="w-full p-1">
+                    <AccordionItem value={`item-${index}`}
+                        className="border rounded">
                         <AccordionTrigger className="flex flex-row-reverse justify-end h-10 p-1 items-center hover:no-underline">
                             <div className="flex items-center justify-between w-full">
                                 <label className="block text-[#282048] dark:text-gray-400 mb-1 px-2">
@@ -328,7 +334,7 @@ const ShiftManagement = (
             <div className="w-[212px]">
                 <span>Date</span>
                 <DatePickerFilter
-                    label="Oct 02 2024"
+                    label={value.dateFrom ? value.dateFrom.toLocaleString() : 'Select Date'}
                     date={value.dateFrom as Date}
                     setDate={(value) => onChange(index, 'dateFrom', value as any)}
                 />
