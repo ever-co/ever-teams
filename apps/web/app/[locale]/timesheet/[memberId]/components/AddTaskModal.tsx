@@ -268,7 +268,18 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
 
         if (field === 'startTime' || field === 'endTime') {
             const { startTime, endTime } = updatedShifts[index];
-            updatedShifts[index].totalHours = calculateTotalHours(startTime, endTime);
+            const isOverlapping = shifts.some((shift, i) => {
+                if (i === index || !shift.startTime || !shift.endTime) return false;
+                const currentStart = convertToMinutes(startTime);
+                const currentEnd = convertToMinutes(endTime);
+                const shiftStart = convertToMinutes(shift.startTime);
+                const shiftEnd = convertToMinutes(shift.endTime);
+                return (currentStart >= shiftStart && currentStart < shiftEnd) ||
+                    (currentEnd > shiftStart && currentEnd <= shiftEnd);
+            });
+            if (isOverlapping) {
+                return;
+            }
         }
         setShifts(updatedShifts);
     };
