@@ -268,6 +268,7 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
 
         if (field === 'startTime' || field === 'endTime') {
             const { startTime, endTime } = updatedShifts[index];
+            updatedShifts[index].totalHours = calculateTotalHours(startTime, endTime);
             const isOverlapping = shifts.some((shift, i) => {
                 if (i === index || !shift.startTime || !shift.endTime) return false;
                 const currentStart = convertToMinutes(startTime);
