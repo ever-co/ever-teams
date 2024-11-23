@@ -17,7 +17,9 @@ export const EventLists = {
   SERVER_WINDOW: 'SERVER_WINDOW',
   RESTART_SERVER: 'RESTART_SERVER',
   CHANGE_THEME: 'CHANGE_THEME',
-  SETUP_WINDOW: 'SETUP_WINDOW'
+  SETUP_WINDOW: 'SETUP_WINDOW',
+  SETTING_WINDOW_DEV: 'SETTING_WINDOW_DEV',
+  SERVER_WINDOW_DEV: 'SERVER_WINDOW_DEV'
 }
 
 export const SettingPageTypeMessage = {
@@ -38,7 +40,8 @@ export const SettingPageTypeMessage = {
   updateSettingResponse: 'update-setting-response',
   updateCancel: 'update-cancel',
   restartServer: 'restart-server',
-  themeChange: 'theme-change'
+  themeChange: 'theme-change',
+  autoUpdateSetting: 'auto-update-setting'
 }
 
 export const ServerPageTypeMessage = {

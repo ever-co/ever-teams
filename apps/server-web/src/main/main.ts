@@ -10,11 +10,12 @@ import Updater from './updater';
 import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import fs from 'fs';
-import { WebServer } from './helpers/interfaces';
+import { WebServer, AppMenu, ServerConfig } from './helpers/interfaces';
 import { replaceConfig } from './helpers';
 import Log from 'electron-log';
 import MenuBuilder from './menu';
 import { config } from '../configs/config';
+import { debounce } from 'lodash';
 
 
 console.log = Log.log;
@@ -39,8 +40,6 @@ let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
 let setupWindow: BrowserWindow | any = null;
-let SettingMenu: any = null;
-let ServerWindowMenu: any = null;
 const appMenu = new MenuBuilder(eventEmitter)
 
 Log.hooks.push((message: any, transport) => {
@@ -92,7 +91,7 @@ i18nextMainBackend.on('initialized', () => {
 });
 
 let trayMenuItems: any = [];
-let appMenuItems: any = [];
+let appMenuItems: AppMenu[] = [];
 
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
@@ -180,7 +179,6 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       mainBindings(ipcMain, settingWindow, fs);
       settingWindow.on('closed', () => {
         settingWindow = null;
-        SettingMenu = null
       });
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
       break;
@@ -191,7 +189,6 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       mainBindings(ipcMain, logWindow, fs);
       logWindow.on('closed', () => {
         logWindow = null;
-        ServerWindowMenu = null
       })
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
       break;
@@ -212,7 +209,7 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
 const runServer = async () => {
   console.log('Run the Server...');
   try {
-    const envVal: any = getEnvApi();
+    const envVal: ServerConfig | undefined = getEnvApi();
 
     // Instantiate API and UI servers
     await desktopServer.start(
@@ -243,7 +240,7 @@ const restartServer = async () => {
   }, 1000)
 }
 
-const getEnvApi = () => {
+const getEnvApi = (): ServerConfig | undefined => {
   const setting: WebServer = LocalStore.getStore('config')
   return setting?.server;
 };
@@ -257,19 +254,24 @@ const SendMessageToSettingWindow = (type: string, data: any) => {
 
 const onInitApplication = () => {
  // check and set default config
-  LocalStore.setDefaultServerConfig();
-  createIntervalAutoUpdate()
-  trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-  appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
-  tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
-  i18nextMainBackend.on('languageChanged', (lng) => {
+  try {
+    LocalStore.setDefaultServerConfig();
+    createIntervalAutoUpdate()
+    trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+    appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
+    tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
+  } catch (error) {
+    console.error('Failed to initialize application:', error);
+    dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
+  }
+  i18nextMainBackend.on('languageChanged', debounce((lng) => {
     if (i18nextMainBackend.isInitialized) {
 
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
     }
-  });
+  }, 250));
   eventEmitter.on(EventLists.webServerStart, async () => {
     updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     isServerRun = true;
@@ -419,7 +421,7 @@ const onInitApplication = () => {
   })
 
   eventEmitter.on(EventLists.OPEN_WEB, () => {
-    const envConfig = getEnvApi();
+    const envConfig: ServerConfig | undefined = getEnvApi();
     const url = `http://127.0.0.1:${envConfig?.PORT}`
     shell.openExternal(url)
   })
