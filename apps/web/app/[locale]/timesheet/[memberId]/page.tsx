@@ -119,7 +119,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							</div>
 							<div className="flex items-center justify-between w-full gap-6 pt-4">
 								<TimesheetCard
-									count={72}
+									count={statusTimesheet.PENDING.length}
 									title="Pending Tasks"
 									description="Tasks waiting for your approval"
 									icon={<GrTask className="font-bold" />}
