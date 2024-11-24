@@ -51,8 +51,6 @@ type ISidebarComponent = {
   children: string | JSX.Element | JSX.Element[];
   menus: ISideMenu[];
   menuChange: (key: string) => void;
-  langs: ILanguages[];
-  onLangChange: (lang: any) => void;
   lang: string;
 };
 

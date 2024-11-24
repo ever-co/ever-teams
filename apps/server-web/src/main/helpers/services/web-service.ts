@@ -5,7 +5,7 @@ import { EventEmitter } from 'stream';
 export class WebService extends ServerTask {
 	constructor(
 		readonly path: string,
-		readonly env: any,
+		public env: any,
 		readonly window: BrowserWindow,
 		readonly signal: AbortSignal,
 		readonly eventEmitter: EventEmitter
@@ -38,11 +38,7 @@ export class WebService extends ServerTask {
 		}
 	}
 
-	private setApiConfig(): void {
-		// Object.assign(this.args, {
-		// 	API_HOST: '0.0.0.0',
-		// 	API_PORT: this.config.setting.PORT,
-		// 	API_BASE_URL: this.config.apiUrl
-		// });
+	public setApiConfig(): void {
+		Object.assign(this.args, {...this.env});
 	}
 }
