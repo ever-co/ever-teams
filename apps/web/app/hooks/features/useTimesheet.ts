@@ -3,9 +3,9 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect, useMemo } from 'react';
-import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi } from '@/app/services/client/api/timer/timer-log';
+import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
-import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { ID, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 interface TimesheetParams {
@@ -100,9 +100,10 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, selectTimesheet: logIds, timesheetGroupByDays } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, selectTimesheet: logIds, timesheetGroupByDays, puTimesheetStatus } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
-    const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi)
+    const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
+    const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
 
 
     const getTaskTimesheet = useCallback(
@@ -136,6 +137,31 @@ export function useTimesheet({
             statusState
         ]
     );
+
+    const updateTimesheetStatus = useCallback(
+        ({ status, ids }: { status: TimesheetStatus, ids: ID[] | ID }) => {
+            if (!user) return;
+            queryUpdateTimesheetStatus({ ids, status })
+                .then((response) => {
+                    const updatedData = timesheet.map(item => {
+                        const newItem = response.data.find(newItem => newItem.id === item.timesheet.id);
+                        if (newItem) {
+                            return {
+                                ...item,
+                                timesheet: {
+                                    ...item.timesheet,
+                                    status: newItem.status
+                                }
+                            };
+                        }
+                        return item;
+                    });
+                    setTimesheet(updatedData);
+                })
+                .catch((error) => {
+                    console.error('Error fetching timesheet:', error);
+                });
+        }, [queryUpdateTimesheetStatus])
 
     const getStatusTimesheet = (items: TimesheetLog[] = []) => {
         const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
@@ -212,7 +238,7 @@ export function useTimesheet({
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, timesheet]);
 
     return {
         loadingTimesheet,
@@ -222,6 +248,9 @@ export function useTimesheet({
         deleteTaskTimesheet,
         getStatusTimesheet,
         timesheetGroupByDays,
-        statusTimesheet: getStatusTimesheet(timesheet.flat())
+        statusTimesheet: getStatusTimesheet(timesheet.flat()),
+        updateTimesheetStatus,
+        loadingUpdateTimesheetStatus,
+        puTimesheetStatus
     };
 }

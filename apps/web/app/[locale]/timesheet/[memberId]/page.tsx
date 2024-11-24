@@ -48,6 +48,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		endDate: dateRange.to ?? ''
 	});
 
+
+
 	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
 	const filterDataTimesheet = useMemo(() => {
 		const filteredTimesheet =
@@ -66,8 +68,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		timesheet,
 		lowerCaseSearch,
 	]);
-
-
 	const {
 		isOpen: isManualTimeModalOpen,
 		openModal: openManualTimeModal,
@@ -119,7 +119,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							</div>
 							<div className="flex items-center justify-between w-full gap-6 pt-4">
 								<TimesheetCard
-									count={72}
+									count={statusTimesheet.PENDING.length}
 									title="Pending Tasks"
 									description="Tasks waiting for your approval"
 									icon={<GrTask className="font-bold" />}

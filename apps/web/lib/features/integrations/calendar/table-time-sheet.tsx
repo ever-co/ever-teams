@@ -467,7 +467,7 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 						{t('common.EDIT')}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
-					<StatusTask />
+					<StatusTask ids={dataTimesheet.timesheet.id} />
 					<DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">
 						{t('common.DELETE')}
 					</DropdownMenuItem>
@@ -491,8 +491,9 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 	);
 };
 
-export const StatusTask = () => {
+export const StatusTask = ({ ids }: { ids: string }) => {
 	const t = useTranslations();
+	const { updateTimesheetStatus } = useTimesheet({});
 	return (
 		<>
 			<DropdownMenuSub>
@@ -502,7 +503,10 @@ export const StatusTask = () => {
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
 						{statusTable?.map((status, index) => (
-							<DropdownMenuItem key={index} textValue={status.label} className="cursor-pointer">
+							<DropdownMenuItem onClick={() => updateTimesheetStatus({
+								status: status.label as TimesheetStatus,
+								ids: [ids]
+							})} key={index} textValue={status.label} className="cursor-pointer">
 								<div className="flex items-center gap-3">
 									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>

@@ -1,3 +1,4 @@
+import { clsxm } from "@/app/utils";
 import { CustomCombobox } from "lib/components/combobox";
 
 
@@ -93,6 +94,7 @@ export const ManageOrMemberComponent = <T extends Item>({
     handleChange,
     itemToString,
     itemToValue,
+    classNameTitle
 }: ManageOrMemberComponentProps<T>): JSX.Element => {
 
     /**
@@ -116,7 +118,7 @@ export const ManageOrMemberComponent = <T extends Item>({
             {fields.map((field, index) => (
                 <div key={index} className="mb-4">
                     <label className="block text-gray-600 mb-1 text-sm">
-                        <span className="text-[14px]">{field.label}</span>
+                        <span className={clsxm("text-[14px]", classNameTitle)}>{field.label}</span>
                         {field.isRequired && <span className="text-[#de5505e1] ml-1 text-sm">*</span>}
                     </label>
                     <CustomCombobox
