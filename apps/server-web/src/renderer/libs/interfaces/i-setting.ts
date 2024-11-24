@@ -40,7 +40,7 @@ interface IPopup {
 
 interface ILanguages {
   code: string;
-  label: string;
+  label?: string;
 }
 
 type IUpdateSetting = {

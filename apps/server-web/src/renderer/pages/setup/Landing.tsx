@@ -1,18 +1,27 @@
 import { EverTeamsLogo } from '../../components/svgs/index';
 import { config } from '../../../configs/config';
 import { useTranslation } from 'react-i18next';
+import LanguageSelector from '../../components/LanguageSelector';
+import { useEffect, useState } from 'react';
 type props = {
   nextAction: () => void;
 };
 const Landing = (props: props) => {
   const { t } = useTranslation();
+  const [defaultLang, setDefaultLang] = useState<string>('en');
+
+  const getCurrentLanguage = async () => {
+    const lang = await window.electron.ipcRenderer.invoke('current-language');
+    setDefaultLang(lang);
+  };
+
+  useEffect(() => {
+    getCurrentLanguage();
+  }, []);
   return (
     <div className="w-full">
       <div className="mb-6 ml-10">
-        <select className="dark:bg-gray-800 text-gray-700 dark:text-white py-2 px-4 rounded-lg border-2 dark:border-none">
-          <option>English</option>
-          {/* Add other language options here */}
-        </select>
+        <LanguageSelector lang={defaultLang} />
       </div>
 
       <div className="mb-8 w-full text-center">

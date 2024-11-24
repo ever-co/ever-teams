@@ -42,3 +42,15 @@ export const replaceConfig = async (folderPath: string, envOptions: EnvOptions) 
     console.log('error on replacing file', error);
   }
 }
+
+export const clearDesktopConfig = (folderPath: string) => {
+  const fileNames = ['desktop-server.body', 'desktop-server.meta'];
+  try {
+    // remove cached desktop server config
+    fileNames.forEach((file) => {
+      fs.unlinkSync(path.join(folderPath, file));
+    })
+  } catch (error) {
+    console.log('skip unlink file on not exists');
+  }
+}
