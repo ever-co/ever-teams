@@ -38,7 +38,9 @@ import {
 	MdKeyboardDoubleArrowLeft,
 	MdKeyboardDoubleArrowRight,
 	MdKeyboardArrowLeft,
-	MdKeyboardArrowRight
+	MdKeyboardArrowRight,
+	MdKeyboardArrowUp,
+	MdKeyboardArrowDown
 } from 'react-icons/md';
 import { ConfirmStatusChange, StatusBadge, statusOptions, dataSourceTimeSheet, TimeSheet } from '.';
 import { useModal, useTimelogFilterOptions } from '@app/hooks';
@@ -153,7 +155,7 @@ export const columns: ColumnDef<TimeSheet>[] = [
 export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const { isOpen, openModal, closeModal } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet } = useTimesheet({});
-	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays } = useTimelogFilterOptions();
+	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays, handleSelectRowByStatusAndDate } = useTimelogFilterOptions();
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 	const handleConfirm = () => {
 		try {
@@ -195,7 +197,9 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 			rowSelection
 		}
 	});
-
+	const handleSort = (key: string, order: SortOrder) => {
+		console.log(`Sorting ${key} in ${order} order`);
+	};
 	const handleButtonClick = (action: StatusAction) => {
 		switch (action) {
 			case 'Approved':
@@ -211,7 +215,6 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				console.error(`Unsupported action: ${action}`);
 		}
 	};
-
 	return (
 		<div className="w-full dark:bg-dark--theme">
 			<AlertDialogConfirmation
@@ -255,11 +258,11 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 							/>
 						</div>
 						<Accordion type="single" collapsible>
-							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
-								<AccordionItem
+							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
+								return rows.length > 0 && status && <AccordionItem
 									key={status}
 									value={status === 'DENIED' ? 'REJECTED' : status}
-									className="p-1 rounded"
+									className={clsxm("p-1 rounded")}
 								>
 									<AccordionTrigger
 										style={{ backgroundColor: statusColor(status).bgOpacity }}
@@ -292,6 +295,13 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 										</div>
 									</AccordionTrigger>
 									<AccordionContent className="flex flex-col w-full">
+										<HeaderRow
+											handleSelectRowByStatusAndDate={
+												() => handleSelectRowByStatusAndDate(status, plan.date)}
+											data={rows}
+											status={status}
+											onSort={handleSort}
+										/>
 										{rows?.map((task) => (
 											<div
 												key={task.id}
@@ -335,7 +345,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													<Badge
 														className={`${getBadgeColor(task.timesheet.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
 													>
-														{task.timesheet.status}
+														{task.timesheet.status === 'DENIED' ? 'REJECTED' : task.timesheet.status}
 													</Badge>
 												</div>
 												<DisplayTimeForTimesheet
@@ -346,11 +356,11 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 										))}
 									</AccordionContent>
 								</AccordionItem>
-							))}
+							}
+							)}
 						</Accordion>
 					</div>
 				}
-
 				)}
 			</div>
 			<div className="flex items-center justify-end p-4 space-x-2">
@@ -388,7 +398,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 					</Button>
 				</div>
 			</div>
-		</div>
+		</div >
 	);
 }
 
@@ -554,4 +564,95 @@ const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
 		default:
 			return 'bg-gray-100';
 	}
+};
+
+
+type SortOrder = "ASC" | "DESC";
+
+const HeaderColumn = ({
+	label,
+	onSort,
+	currentSort,
+}: {
+	label: string;
+	onSort: () => void;
+	currentSort: SortOrder | null;
+}) => (
+	<div className="flex gap-x-2">
+		<span>{label}</span>
+		<button
+			onClick={onSort}
+			className="flex flex-col items-start leading-none gap-0"
+		>
+			<MdKeyboardArrowUp
+				style={{
+					height: 10,
+					color: "#71717A",
+				}}
+			/>
+			<MdKeyboardArrowDown
+				style={{
+					height: 10,
+					color: "#71717A",
+				}}
+			/>
+		</button>
+	</div>
+);
+
+const HeaderRow = ({ status, onSort, data, handleSelectRowByStatusAndDate }: { status: string; onSort: (key: string, order: SortOrder) => void, data: TimesheetLog[], handleSelectRowByStatusAndDate: (status: string, date: string) => void }) => {
+	const { bg, bgOpacity } = statusColor(status);
+
+	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({
+		Task: null,
+		Project: null,
+		Employee: null,
+		Status: null,
+	});
+
+	const handleSort = (key: string) => {
+		const newOrder = sortState[key] === "ASC" ? "DESC" : "ASC";
+		setSortState({ ...sortState, [key]: newOrder });
+		onSort(key, newOrder);
+	};
+
+	return (
+		<div
+			style={{ backgroundColor: bgOpacity, borderBottomColor: bg }}
+			className="flex items-center text-[#71717A] font-medium border-b border-t dark:border-gray-600 space-x-4 p-1 h-[60px] w-full"
+		>
+			<Checkbox onCheckedChange={() => handleSelectRowByStatusAndDate} className="w-5 h-5" />
+			<div className="flex-[2]">
+				<HeaderColumn
+					label="Task"
+					onSort={() => handleSort("Task")}
+					currentSort={sortState["Task"]}
+				/>
+			</div>
+			<div className="flex-1">
+				<HeaderColumn
+					label="Project"
+					onSort={() => handleSort("Project")}
+					currentSort={sortState["Project"]}
+				/>
+			</div>
+			<div className="flex-1">
+				<HeaderColumn
+					label="Employee"
+					onSort={() => handleSort("Employee")}
+					currentSort={sortState["Employee"]}
+				/>
+			</div>
+			<div className="flex-auto">
+				<HeaderColumn
+					label="Status"
+					onSort={() => handleSort("Status")}
+					currentSort={sortState["Status"]}
+				/>
+			</div>
+			<div className="space-x-2">
+				<span>Time</span>
+			</div>
+		</div>
+	);
 };
