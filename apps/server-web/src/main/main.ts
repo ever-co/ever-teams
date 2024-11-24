@@ -11,7 +11,7 @@ import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import fs from 'fs';
 import { WebServer, AppMenu, ServerConfig } from './helpers/interfaces';
-import { replaceConfig } from './helpers';
+import { clearDesktopConfig } from './helpers';
 import Log from 'electron-log';
 import MenuBuilder from './menu';
 import { config } from '../configs/config';
@@ -210,11 +210,16 @@ const runServer = async () => {
   console.log('Run the Server...');
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
+    const folderPath = getWebDirPath();
+    await clearDesktopConfig(folderPath);
 
     // Instantiate API and UI servers
     await desktopServer.start(
       { api: serverPath },
-      envVal,
+      {
+        ...envVal,
+        IS_DESKTOP_APP: true
+      },
       undefined,
       signal
     );
@@ -254,19 +259,9 @@ const SendMessageToSettingWindow = (type: string, data: any) => {
 
 const onInitApplication = () => {
  // check and set default config
-  try {
-    LocalStore.setDefaultServerConfig();
-    createIntervalAutoUpdate()
-    trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-    appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
-    tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
-  } catch (error) {
-    console.error('Failed to initialize application:', error);
-    dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
-  }
+  const storeConfig:WebServer = LocalStore.getStore('config');
   i18nextMainBackend.on('languageChanged', debounce((lng) => {
-    if (i18nextMainBackend.isInitialized) {
-
+    if (i18nextMainBackend.isInitialized && storeConfig.general?.setup) {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
@@ -433,21 +428,40 @@ const onInitApplication = () => {
   eventEmitter.on(EventLists.SERVER_WINDOW_DEV, () => {
     logWindow?.webContents.toggleDevTools();
   })
+}
 
-  eventEmitter.emit(EventLists.SERVER_WINDOW);
+const initTrayMenu = () => {
+  try {
+    LocalStore.setDefaultServerConfig();
+    createIntervalAutoUpdate()
+    trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+    appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
+    tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
+  } catch (error) {
+    console.error('Failed to initialize application:', error);
+    dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
+  }
 }
 
 (async () => {
   await app.whenReady()
   const storeConfig:WebServer = LocalStore.getStore('config');
+  onInitApplication();
   if (storeConfig?.general?.setup) {
-    onInitApplication();
+    initTrayMenu()
+    eventEmitter.emit(EventLists.SERVER_WINDOW);
   } else {
     if (!setupWindow) {
       await createWindow('SETUP_WINDOW');
     }
     if (setupWindow) {
-      setupWindow?.show()
+      setupWindow?.show();
+      setupWindow?.
+      setupWindow?.webContents.once('did-finish-load', () => {
+        setTimeout(() => {
+          setupWindow?.webContents.send('languageSignal', storeConfig.general?.lang);
+        }, 50)
+      })
     }
   }
 })()
@@ -461,27 +475,23 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
+const getWebDirPath = () => {
+  const dirFiles = 'standalone/apps/web/.next/server/app/api';
+  const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
+  const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
+  const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
+  return diFilesPath;
+}
+
 ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
-      const existingConfig = getEnvApi();
       LocalStore.updateConfigSetting({
         server: arg.data
       });
-      const dirFiles = 'standalone/apps/web/.next';
-      const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
-      const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
-      const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
-      await replaceConfig(
-        diFilesPath,
-        {
-          before: {
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL || config.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-          },
-          after: {
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL || config.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-          }
-        }
+      const diFilesPath = getWebDirPath();
+      await clearDesktopConfig(
+        diFilesPath
       )
       if (arg.isSetup) {
         LocalStore.updateConfigSetting({
@@ -554,6 +564,11 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
 ipcMain.handle('current-theme', async () => {
   const setting: WebServer = LocalStore.getStore('config');
   return setting?.general?.theme;;
+})
+
+ipcMain.handle('current-language', async (): Promise<string> => {
+  const setting: WebServer = LocalStore.getStore('config');
+  return setting?.general?.lang || 'en';
 })
 
 const createIntervalAutoUpdate = () => {

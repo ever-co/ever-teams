@@ -305,13 +305,7 @@ export function Setting() {
   }, []);
 
   return (
-    <SideBar
-      menus={menus}
-      menuChange={menuChange}
-      langs={langs}
-      lang={lng}
-      onLangChange={changeLanguage}
-    >
+    <SideBar menus={menus} menuChange={menuChange} lang={lng}>
       <MenuComponent />
     </SideBar>
   );

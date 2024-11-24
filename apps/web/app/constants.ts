@@ -1,6 +1,6 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
-import { getNextPublicEnv } from './env';
+import { getNextPublicEnv, getServerSideProps } from './env';
 import enLanguage from '../locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { ManualTimeReasons } from './interfaces/timer/IManualTimeReasons';
@@ -30,13 +30,20 @@ export const ACTIVE_TIMEZONE_COOKIE_NAME = 'auth-timezone';
 export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 
+export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
+
 // Recaptcha
 export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 	'NEXT_PUBLIC_CAPTCHA_SITE_KEY',
 	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
 );
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
-const basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
+let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
+if (IS_DESKTOP_APP) {
+	const serverRuntimeConfig =  getServerSideProps()
+	basePath = serverRuntimeConfig?.GAUZY_API_SERVER_URL || basePath;
+}
+
 export const GAUZY_API_SERVER_URL = basePath + '/api';
 
 export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
@@ -318,8 +325,6 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
-
-export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
 
 // Add manual timer reason
 
