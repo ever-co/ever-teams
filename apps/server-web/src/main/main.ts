@@ -197,6 +197,8 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       url = resolveHtmlPath('index.html', 'setup');
       setupWindow?.loadURL(url);
       mainBindings(ipcMain, setupWindow, fs);
+      setupWindow?.setMenuBarVisibility(false);
+      Menu.setApplicationMenu(Menu.buildFromTemplate([]));
       setupWindow.on('closed', () => {
         setupWindow = null;
       })
@@ -267,11 +269,6 @@ const onInitApplication = () => {
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
     }
   }, 250));
-  eventEmitter.on(EventLists.webServerStart, async () => {
-    updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    isServerRun = true;
-    await runServer();
-  })
 
   eventEmitter.on(EventLists.webServerStop, async () => {
     await stopServer();
@@ -397,6 +394,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
     if (!logWindow) {
+      initTrayMenu()
       await createWindow('LOG_WINDOW');
     }
     const serverSetting = LocalStore.getStore('config');
@@ -441,6 +439,15 @@ const initTrayMenu = () => {
     console.error('Failed to initialize application:', error);
     dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
   }
+
+  eventEmitter.on(EventLists.webServerStart, async () => {
+    updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    isServerRun = true;
+    await runServer();
+  })
+
+  trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+  updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
 }
 
 (async () => {
@@ -448,7 +455,6 @@ const initTrayMenu = () => {
   const storeConfig:WebServer = LocalStore.getStore('config');
   onInitApplication();
   if (storeConfig?.general?.setup) {
-    initTrayMenu()
     eventEmitter.emit(EventLists.SERVER_WINDOW);
   } else {
     if (!setupWindow) {
@@ -500,7 +506,6 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
           }
         });
         setupWindow?.close();
-        onInitApplication();
         eventEmitter.emit(EventLists.SERVER_WINDOW);
       } else {
         event.sender.send(IPC_TYPES.SETTING_PAGE, {
