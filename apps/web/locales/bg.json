@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Потребителски диапазон",
 		"CLEAR_FILTER": "Изчисти филтъра",
 		"CLEAR": "Изчисти",
-		"APPLY_FILTER": "Приложи филтър"
+		"APPLY_FILTER": "Приложи филтър",
+		"CREATE_NEW": "Създай нов"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

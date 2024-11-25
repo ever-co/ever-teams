@@ -1,4 +1,4 @@
-import { useModal, useOrganizationProjects, useTeamTasks } from '@app/hooks';
+import { useModal, useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { IProject, ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -8,7 +8,6 @@ import {
 	ActiveTaskSizesDropdown,
 	ActiveTaskStatusDropdown,
 	ActiveTaskVersionDropdown,
-	CreateTeamModal,
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskLabels,
 	TaskStatus,
@@ -28,6 +27,7 @@ import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import ProjectIcon from '@components/ui/svgs/project-icon';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
+import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -286,11 +286,12 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const organizationProjects = useAtomValue(organizationProjectsState);
 	const { getOrganizationProjects } = useOrganizationProjects();
 	const { updateTask, updateLoading } = useTeamTasks();
+	const { teams } = useOrganizationTeams();
 	const t = useTranslations();
 
 	useEffect(() => {
 		getOrganizationProjects();
-	}, [getOrganizationProjects]);
+	}, [getOrganizationProjects, teams]);
 
 	const [selected, setSelected] = useState<IProject>();
 
@@ -414,8 +415,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															</Listbox.Option>
 														);
 													})}
-													{!controlled && (
-														<div className="mt-2">
+													<div className="mt-2">
+														{!controlled && (
 															<Button
 																className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
 																variant="outline"
@@ -423,16 +424,16 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															>
 																<TrashIcon className="w-5 " /> {t('common.REMOVE')}
 															</Button>
-															<Button
-																className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
-																variant="outline"
-																onClick={openModal}
-															>
-																<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
-																<span className=" truncate">Create new</span>
-															</Button>
-														</div>
-													)}
+														)}
+														<Button
+															className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
+															variant="outline"
+															onClick={openModal}
+														>
+															<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
+															<span className=" truncate">{t('common.CREATE_NEW')}</span>
+														</Button>
+													</div>
 												</div>
 												<ScrollBar className="-pr-60" />
 											</ScrollArea>
@@ -444,7 +445,17 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					}}
 				</Listbox>
 			</div>
-			{<CreateTeamModal open={isOpen} closeModal={closeModal} />}
+			<CreateProjectModal
+				onSuccess={(project) => {
+					setSelected(project);
+					onChange?.(project);
+					if (!controlled) {
+						handleUpdateProject(project);
+					}
+				}}
+				open={isOpen}
+				closeModal={closeModal}
+			/>
 		</>
 	);
 }

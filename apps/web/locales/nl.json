@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Aangepast bereik",
 		"CLEAR_FILTER": "Filter wissen",
 		"CLEAR": "Wissen",
-		"APPLY_FILTER": "Filter toepassen"
+		"APPLY_FILTER": "Filter toepassen",
+		"CREATE_NEW": "Nieuwe maken"
 	},
 	"hotkeys": {
 		"HELP": "Help",

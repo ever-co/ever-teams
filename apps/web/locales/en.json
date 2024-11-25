@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Custom Range",
 		"CLEAR_FILTER": "Clear Filter",
 		"CLEAR": "Clear",
-		"APPLY_FILTER": "Apply Filter"
+		"APPLY_FILTER": "Apply Filter",
+		"CREATE_NEW": "Crear nuevo"
 	},
 	"hotkeys": {
 		"HELP": "Help",

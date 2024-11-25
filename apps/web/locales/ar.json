@@ -249,7 +249,8 @@
 		"FILTER_CUSTOM_RANGE": "نطاق مخصص",
 		"CLEAR_FILTER": "مسح الفلتر",
 		"CLEAR": "مسح",
-		"APPLY_FILTER": "تطبيق الفلتر"
+		"APPLY_FILTER": "تطبيق الفلتر",
+		"CREATE_NEW": "إنشاء جديد"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

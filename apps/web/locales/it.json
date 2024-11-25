@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Intervallo personalizzato",
 		"CLEAR_FILTER": "Cancella filtro",
 		"CLEAR": "Cancella",
-		"APPLY_FILTER": "Applica filtro"
+		"APPLY_FILTER": "Applica filtro",
+		"CREATE_NEW": "Crea nuovo"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

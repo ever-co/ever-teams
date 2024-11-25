@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Plage personnalisée",
 		"CLEAR_FILTER": "Effacer le filtre",
 		"CLEAR": "Effacer",
-		"APPLY_FILTER": "Appliquer le filtre"
+		"APPLY_FILTER": "Appliquer le filtre",
+		"CREATE_NEW": "Créer nouveau"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
