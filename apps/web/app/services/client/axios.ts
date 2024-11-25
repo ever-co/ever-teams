@@ -87,7 +87,7 @@ apiDirect.interceptors.response.use(
 
 type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
-async function desktopServerOveride() {
+async function desktopServerOverride() {
 	if (typeof window !== 'undefined') {
 	  try {
 			const serverConfig = await api.get('/desktop-server');
@@ -106,7 +106,7 @@ async function apiConfig(config?: APIConfig) {
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
 
   if (IS_DESKTOP_APP) { // dynamic api host while on desktop mode
-    const runtimeConfig =  await desktopServerOveride();
+    const runtimeConfig =  await desktopServerOverride();
     baseURL = runtimeConfig;
   }
 
