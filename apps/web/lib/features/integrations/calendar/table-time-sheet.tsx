@@ -279,7 +279,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													<span className="text-base font-normal text-gray-400 uppercase">
 														{status === 'DENIED' ? 'REJECTED' : status}
 													</span>
-													<span className="text-gray-400 text-[14px]">({rows?.length})</span>
+													<span className="text-gray-400 text-[14px]">({rows.length})</span>
 												</div>
 												<Badge
 													variant={'outline'}
@@ -302,7 +302,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 											status={status}
 											onSort={handleSort}
 										/>
-										{rows?.map((task) => (
+										{rows.map((task) => (
 											<div
 												key={task.id}
 												style={{
