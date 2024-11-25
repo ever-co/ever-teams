@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ISidebarComponent } from '../libs/interfaces';
-import { SelectComponent } from './Select';
 import { ThemeToggler } from './Toggler';
 import LanguageSelector from './LanguageSelector';
 

@@ -1,4 +1,4 @@
-import { IUpdaterStates, IUpdateSetting, ISideMenu, ISelectItems, IServerSetting, ILanguages } from './i-setting';
+import { IUpdaterStates, IUpdateSetting, ISideMenu, ISelectItems, IServerSetting } from './i-setting';
 
 type IToastComponent = {
   title: string;

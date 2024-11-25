@@ -213,7 +213,7 @@ const runServer = async () => {
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
     const folderPath = getWebDirPath();
-    await clearDesktopConfig(folderPath);
+    clearDesktopConfig(folderPath);
 
     // Instantiate API and UI servers
     await desktopServer.start(
@@ -496,7 +496,7 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
         server: arg.data
       });
       const diFilesPath = getWebDirPath();
-      await clearDesktopConfig(
+      clearDesktopConfig(
         diFilesPath
       )
       if (arg.isSetup) {
