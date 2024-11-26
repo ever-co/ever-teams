@@ -82,7 +82,7 @@ export const DisplayTimeForTimesheet = ({ duration }: { duration: number }) => {
 	return (
 		<div className='flex items-center font-medium gap-x-1'>
 			<ClockIcon className='text-green-400 text-[14px] h-4 w-4' />
-			<div className='flex items-center'>
+			<div className='flex items-center text-[#282048] dark:text-[#9b8ae1]'>
 				{formatTime(hours, minute)}
 			</div>
 		</div>
@@ -104,7 +104,7 @@ TotalTimeDisplay.displayName = 'TotalTimeDisplay';
 
 
 export const TotalDurationByDate = React.memo(
-	({ timesheetLog, createdAt }: { timesheetLog: TimesheetLog[]; createdAt: Date | string }) => {
+	({ timesheetLog, createdAt, className }: { timesheetLog: TimesheetLog[]; createdAt: Date | string, className?: string }) => {
 		const targetDateISO = new Date(createdAt).toISOString();
 		const filteredLogs = timesheetLog.filter(
 			(item) => formatDate(item.timesheet.createdAt) === formatDate(targetDateISO));
@@ -112,7 +112,7 @@ export const TotalDurationByDate = React.memo(
 			(total, log) => total + (log.timesheet?.duration || 0), 0);
 		const { h: hours, m: minutes } = secondsToTime(totalDurationInSeconds);
 		return (
-			<div className="flex items-center text-[#868688]">
+			<div className={clsxm("flex items-center text-[#868688]", className)}>
 				{formatTime(hours, minutes)}
 			</div>
 		);
