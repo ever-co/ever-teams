@@ -579,10 +579,11 @@ const HeaderColumn = ({
 	onSort: () => void;
 	currentSort: SortOrder | null;
 }) => (
-	<div className="flex gap-x-2">
+	<div className="flex gap-x-2" role="columnheader">
 		<span>{label}</span>
 		<button
 			onClick={onSort}
+			aria-label={`Sort ${label} column ${currentSort ? `currently ${currentSort.toLowerCase()}` : ''}`}
 			className="flex flex-col items-start leading-none gap-0"
 		>
 			<MdKeyboardArrowUp
@@ -633,7 +634,11 @@ const HeaderRow = ({
 			style={{ backgroundColor: bgOpacity, borderBottomColor: bg }}
 			className="flex items-center text-[#71717A] font-medium border-b border-t dark:border-gray-600 space-x-4 p-1 h-[60px] w-full"
 		>
-			<Checkbox onCheckedChange={() => handleSelectRowByStatusAndDate(status, date!)} className="w-5 h-5" />
+			<Checkbox
+				onCheckedChange={() => date && handleSelectRowByStatusAndDate(status, date)}
+				className="w-5 h-5"
+				disabled={!date}
+			/>
 			<div className="flex-[2]">
 				<HeaderColumn
 					label="Task"

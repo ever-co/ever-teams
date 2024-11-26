@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 export function TimesheetView({ data, loading }: { data?: GroupedTimesheet[]; loading?: boolean }) {
 	const t = useTranslations();
 
-	if (!data) {
+	if (loading || !data) {
 		return (
 			<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme flex items-center justify-center">
 				<p>{t('pages.timesheet.LOADING')}</p>
