@@ -2,7 +2,7 @@ import { useOrganizationProjects } from '@/app/hooks';
 import { IProject } from '@/app/interfaces';
 import { Button, Card, InputField, Modal, Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ICreateProjectModalProps {
 	open: boolean;
@@ -24,15 +24,24 @@ export function CreateProjectModal(props: ICreateProjectModalProps) {
 	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
 	const [name, setName] = useState('');
 
+	// Cleanup
+	useEffect(() => {
+		return () => {
+			setName('');
+		};
+	}, []);
+
 	const handleCreateProject = useCallback(async () => {
 		try {
+			if (name.trim() === '') {
+				return;
+			}
 			const data = await createOrganizationProject({ name });
 
 			if (data) {
 				onSuccess?.(data);
 			}
 
-			setName('');
 			closeModal();
 		} catch (error) {
 			console.error(error);
