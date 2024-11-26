@@ -104,7 +104,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                 <div className="flex  px-3 justify-between items-center w-full">
                                                     <div className="flex items-center gap-x-1">
                                                         <EmployeeAvatar
-                                                            imageUrl={task.employee.user.imageUrl!}
+                                                            imageUrl={task.employee.user.imageUrl ?? ''}
                                                         />
                                                         <span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
                                                     </div>
@@ -125,7 +125,9 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <span className="flex-1">{task.project && task.project.name}</span>
+                                                <div>
+                                                    <span className="flex-1">{task.project && task.project.name}</span>
+                                                </div>
                                             </div>
                                         ))}
                                     </AccordionContent>
@@ -134,7 +136,6 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                         </Accordion>
                     </div>
                 }
-
                 )}
             </div>
 
