@@ -34,7 +34,7 @@ export const EmployeeAvatar = ({ imageUrl }: { imageUrl: string }) => {
                 src={imageUrl}
                 alt="Employee"
                 onLoad={() => setIsLoading(false)}
-                onError={() => setIsLoading(false)} // Peut être utile pour les erreurs
+                onError={() => setIsLoading(false)}
             />
         </div>
     );
