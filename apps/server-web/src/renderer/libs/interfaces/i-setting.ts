@@ -45,7 +45,7 @@ interface ILanguages {
 
 type IUpdateSetting = {
   autoUpdate: boolean;
-  updateCheckPeriode: string;
+  updateCheckPeriod: string;
 };
 
 type IAbout = {

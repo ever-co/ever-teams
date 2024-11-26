@@ -1,7 +1,7 @@
 export interface GeneralConfig {
     lang?: string
     autoUpdate?: boolean
-    updateCheckPeriode?: string
+    updateCheckPeriod?: string
     theme?: string
     setup?: boolean
     [key: string]: any

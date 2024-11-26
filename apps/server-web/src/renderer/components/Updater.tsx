@@ -70,11 +70,11 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
   const onSelectPeriode = (value: string) => {
     props.changeAutoUpdate({
       autoUpdate: props.data.autoUpdate,
-      updateCheckPeriode: value,
+      updateCheckPeriod: value,
     });
     props.saveSettingUpdate({
       autoUpdate: props.data.autoUpdate,
-      updateCheckPeriode: value,
+      updateCheckPeriod: value,
     });
   };
 
@@ -123,11 +123,11 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                     setOpen();
                     props.changeAutoUpdate({
                       autoUpdate: value,
-                      updateCheckPeriode: props.data.updateCheckPeriode,
+                      updateCheckPeriod: props.data.updateCheckPeriod,
                     });
                     props.saveSettingUpdate({
                       autoUpdate: value,
-                      updateCheckPeriode: props.data.updateCheckPeriode,
+                      updateCheckPeriod: props.data.updateCheckPeriod,
                     });
                   }}
                   checked={props.data.autoUpdate}
@@ -149,8 +149,8 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                     ...i,
                     label: `FORM.LABELS.UPDATE_OPTIONS.${i.label}`,
                   }))}
-                  value={props.data.updateCheckPeriode}
-                  defaultValue={props.data.updateCheckPeriode}
+                  value={props.data.updateCheckPeriod}
+                  defaultValue={props.data.updateCheckPeriod}
                   disabled={!props.data.autoUpdate}
                   onValueChange={onSelectPeriode}
                 />

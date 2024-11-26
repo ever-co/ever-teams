@@ -40,8 +40,7 @@ export const SettingPageTypeMessage = {
   updateSettingResponse: 'update-setting-response',
   updateCancel: 'update-cancel',
   restartServer: 'restart-server',
-  themeChange: 'theme-change',
-  autoUpdateSetting: 'auto-update-setting'
+  themeChange: 'theme-change'
 }
 
 export const ServerPageTypeMessage = {

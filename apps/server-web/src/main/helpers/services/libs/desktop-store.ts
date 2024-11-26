@@ -11,7 +11,7 @@ const DEFAULT_CONFIG:WebServer = {
 	general: {
 		lang: 'en',
 		autoUpdate: true,
-		updateCheckPeriode: '1140' // Time in minutes
+		updateCheckPeriod: '1140' // Time in minutes
 	}
 }
 export const LocalStore = {

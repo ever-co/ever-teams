@@ -107,7 +107,7 @@ async function apiConfig(config?: APIConfig) {
 
   if (IS_DESKTOP_APP) { // dynamic api host while on desktop mode
     const runtimeConfig =  await desktopServerOverride();
-    baseURL = runtimeConfig;
+    baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
   }
 
 	baseURL = baseURL ? `${baseURL}/api` : undefined;

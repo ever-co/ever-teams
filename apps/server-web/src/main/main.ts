@@ -213,13 +213,13 @@ const runServer = async () => {
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
     const folderPath = getWebDirPath();
-    clearDesktopConfig(folderPath);
+    await clearDesktopConfig(folderPath);
 
     // Instantiate API and UI servers
     await desktopServer.start(
       { api: serverPath },
       {
-        ...envVal,
+        ...(envVal || {}),
         IS_DESKTOP_APP: true
       },
       undefined,
@@ -462,7 +462,6 @@ const initTrayMenu = () => {
     }
     if (setupWindow) {
       setupWindow?.show();
-      setupWindow?.
       setupWindow?.webContents.once('did-finish-load', () => {
         setTimeout(() => {
           setupWindow?.webContents.send('languageSignal', storeConfig.general?.lang);
@@ -492,31 +491,33 @@ const getWebDirPath = () => {
 ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
-      LocalStore.updateConfigSetting({
-        server: arg.data
-      });
-      const diFilesPath = getWebDirPath();
-      clearDesktopConfig(
-        diFilesPath
-      )
-      if (arg.isSetup) {
+      {
         LocalStore.updateConfigSetting({
-          general: {
-            setup: true
-          }
+          server: arg.data
         });
-        setupWindow?.close();
-        eventEmitter.emit(EventLists.SERVER_WINDOW);
-      } else {
-        event.sender.send(IPC_TYPES.SETTING_PAGE, {
-          type: SettingPageTypeMessage.mainResponse, data: {
-            status: true,
-            isServerRun: isServerRun
-          }
-        });
+        const diFilesPath = getWebDirPath();
+        await clearDesktopConfig(
+          diFilesPath
+        )
+        if (arg.isSetup) {
+          LocalStore.updateConfigSetting({
+            general: {
+              setup: true
+            }
+          });
+          setupWindow?.close();
+          eventEmitter.emit(EventLists.SERVER_WINDOW);
+        } else {
+          event.sender.send(IPC_TYPES.SETTING_PAGE, {
+            type: SettingPageTypeMessage.mainResponse, data: {
+              status: true,
+              isServerRun: isServerRun
+            }
+          });
+        }
+        break;
       }
-      break;
-    case SettingPageTypeMessage.checkUpdate:
+      case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
       break;
     case SettingPageTypeMessage.installUpdate:
@@ -540,7 +541,7 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
       LocalStore.updateConfigSetting({
         general: {
           autoUpdate: arg.data.autoUpdate,
-          updateCheckPeriode: arg.data.updateCheckPeriode
+          updateCheckPeriod: arg.data.updateCheckPeriod
         }
       })
       createIntervalAutoUpdate()
@@ -581,8 +582,8 @@ const createIntervalAutoUpdate = () => {
     clearInterval(intervalUpdate)
   }
   const setting: WebServer = LocalStore.getStore('config');
-  if (setting.general?.autoUpdate && setting.general.updateCheckPeriode) {
-    const checkIntervalSecond = parseInt(setting.general.updateCheckPeriode);
+  if (setting.general?.autoUpdate && setting.general.updateCheckPeriod) {
+    const checkIntervalSecond = parseInt(setting.general.updateCheckPeriod);
     if (!Number.isNaN(checkIntervalSecond)) {
       const intervalMS = checkIntervalSecond * 60 * 1000;
       intervalUpdate = setInterval(() => {

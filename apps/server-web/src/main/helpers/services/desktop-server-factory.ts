@@ -8,7 +8,7 @@ export class DesktopServerFactory {
 		if (!this.apiInstance && !!env) {
 			this.apiInstance = new WebService(path, env, win, signal, eventEmitter);
 		}
-		this.apiInstance.env = env;
+		this.apiInstance.updateEnv(env)
 		return this.apiInstance;
 	}
 }

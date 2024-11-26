@@ -39,10 +39,9 @@ export function getNextPublicEnv<O extends Options<unknown>>(name: string, optio
 	};
 }
 
-export function getServerSideProps() {
+export function getServerRuntimeConfig() {
   try {
     const { serverRuntimeConfig } = getConfig();
-
     return {
 		GAUZY_API_SERVER_URL: serverRuntimeConfig.GAUZY_API_SERVER_URL,
     };

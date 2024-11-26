@@ -11,8 +11,13 @@ const Landing = (props: props) => {
   const [defaultLang, setDefaultLang] = useState<string>('en');
 
   const getCurrentLanguage = async () => {
-    const lang = await window.electron.ipcRenderer.invoke('current-language');
-    setDefaultLang(lang);
+    try {
+      const lang = await window.electron.ipcRenderer.invoke('current-language');
+      setDefaultLang(lang);
+    } catch (error) {
+      console.error('Failed to get current language:', error);
+      setDefaultLang('en'); // Fallback to English
+    }
   };
 
   useEffect(() => {

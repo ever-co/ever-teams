@@ -26,7 +26,6 @@ export default class MenuBuilder {
           {
             id: 'MENU_APP_ABOUT',
             label: `MENU_APP.APP_ABOUT`,
-            selector: 'orderFrontStandardAboutPanel:',
             click: () => {
               this.eventEmitter.emit(EventLists.gotoAbout)
             }

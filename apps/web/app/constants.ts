@@ -1,6 +1,6 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from './interfaces/ISmtp';
-import { getNextPublicEnv, getServerSideProps } from './env';
+import { getNextPublicEnv, getServerRuntimeConfig } from './env';
 import enLanguage from '../locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { ManualTimeReasons } from './interfaces/timer/IManualTimeReasons';
@@ -40,7 +40,7 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 if (IS_DESKTOP_APP) {
-	const serverRuntimeConfig =  getServerSideProps()
+	const serverRuntimeConfig = getServerRuntimeConfig()
 	basePath = serverRuntimeConfig?.GAUZY_API_SERVER_URL || basePath;
 }
 
