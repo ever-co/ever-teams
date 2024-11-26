@@ -79,7 +79,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     <span className="text-base font-normal text-gray-400 uppercase text-[12px]">
                                                         {status === 'DENIED' ? 'REJECTED' : status}
                                                     </span>
-                                                    <span className="text-gray-400 text-[14px]">({rows?.length})</span>
+                                                    <span className="text-gray-400 text-[14px]">({rows.length})</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center space-x-2">
@@ -89,7 +89,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                         </div>
                                     </AccordionTrigger>
                                     <AccordionContent className="flex flex-col w-full gap-y-2">
-                                        {rows?.map((task) => (
+                                        {rows.map((task) => (
                                             <div
                                                 key={task.id}
                                                 style={{
