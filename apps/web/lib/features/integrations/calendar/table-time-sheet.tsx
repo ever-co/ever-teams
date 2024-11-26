@@ -301,6 +301,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 											data={rows}
 											status={status}
 											onSort={handleSort}
+											date={plan.date}
 										/>
 										{rows.map((task) => (
 											<div
@@ -600,9 +601,20 @@ const HeaderColumn = ({
 	</div>
 );
 
-const HeaderRow = ({ status, onSort, data, handleSelectRowByStatusAndDate }: { status: string; onSort: (key: string, order: SortOrder) => void, data: TimesheetLog[], handleSelectRowByStatusAndDate: (status: string, date: string) => void }) => {
-	const { bg, bgOpacity } = statusColor(status);
+const HeaderRow = ({
+	status,
+	onSort,
+	data,
+	handleSelectRowByStatusAndDate, date
+}: {
+	status: string;
+	onSort: (key: string, order: SortOrder) => void,
+	data: TimesheetLog[],
+	handleSelectRowByStatusAndDate: (status: string, date: string) => void,
+	date?: string
+}) => {
 
+	const { bg, bgOpacity } = statusColor(status);
 	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({
 		Task: null,
 		Project: null,
@@ -621,7 +633,7 @@ const HeaderRow = ({ status, onSort, data, handleSelectRowByStatusAndDate }: { s
 			style={{ backgroundColor: bgOpacity, borderBottomColor: bg }}
 			className="flex items-center text-[#71717A] font-medium border-b border-t dark:border-gray-600 space-x-4 p-1 h-[60px] w-full"
 		>
-			<Checkbox onCheckedChange={() => handleSelectRowByStatusAndDate} className="w-5 h-5" />
+			<Checkbox onCheckedChange={() => handleSelectRowByStatusAndDate(status, date!)} className="w-5 h-5" />
 			<div className="flex-[2]">
 				<HeaderColumn
 					label="Task"
