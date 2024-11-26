@@ -418,7 +418,10 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						<>
 							<Listbox.Button
 								className={clsxm(
-									'cursor-pointer outline-none w-full flex items-center justify-between px-4 h-full ',
+									`cursor-pointer outline-none w-full flex
+									items-center justify-between px-4 h-full
+									border-solid border-color-[#F2F2F2]
+									dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] rounded-lg`,
 									styles?.value
 								)}
 							>
@@ -436,7 +439,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								)}
 								<ChevronDownIcon
 									className={clsxm(
-										'h-4 w-4 text-default transition duration-150 ease-in-out group-hover:text-opacity-80'
+										'h-4 w-4 text-slate-400 transition duration-150 ease-in-out group-hover:text-opacity-80'
 									)}
 									aria-hidden="true"
 								/>
