@@ -268,7 +268,16 @@
 		"CLEAR_FILTER": "Limpar filtro",
 		"CLEAR": "Limpar",
 		"APPLY_FILTER": "Aplicar filtro",
-		"CREATE_NEW": "Criar novo"
+		"CREATE_NEW": "Criar novo",
+		"NO_RESULT": "Sem resultados",
+		"PICK_A_DATE": "Escolha uma data",
+		"THIS_WEEK": "Esta semana",
+		"LAST_WEEK": "Semana passada",
+		"THIS_MONTH": "Este mês",
+		"LAST_MONTH": "Mês passado",
+		"LAST_TWO_WEEKS": "Últimas duas semanas",
+		"DATE": "Data",
+		"WEEK": "Semana"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -290,6 +299,12 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Você foi removido da equipe"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Tempo gasto",
+			"LIMIT": "Limite",
+			"PERCENTAGE_USED": "Porcentagem usada",
+			"REMAINING": "Restante"
+		},
 		"home": {
 			"BREADCRUMB": "[\"Painel de Controle\"]",
 			"SENT_EMAIL_VERIFICATION": "O código de verificação foi enviado para o seu e-mail",

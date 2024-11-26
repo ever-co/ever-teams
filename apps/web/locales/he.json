@@ -268,7 +268,16 @@
 		"CLEAR_FILTER": "נקה סינון",
 		"CLEAR": "נקה",
 		"APPLY_FILTER": "החל סינון",
-		"CREATE_NEW": "צור חדש"
+		"CREATE_NEW": "צור חדש",
+		"NO_RESULT": "אין תוצאות",
+		"PICK_A_DATE": "בחר תאריך",
+		"THIS_WEEK": "השבוע",
+		"LAST_WEEK": "שבוע שעבר",
+		"THIS_MONTH": "החודש",
+		"LAST_MONTH": "חודש שעבר",
+		"LAST_TWO_WEEKS": "שבועיים אחרונים",
+		"DATE": "תאריך",
+		"WEEK": "שבוע"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -290,6 +299,12 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "נמחקת מהקבוצה"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "הזמן שהושקע",
+			"LIMIT": "מגבלה",
+			"PERCENTAGE_USED": "אחוז בשימוש",
+			"REMAINING": "נותר"
+		},
 		"home": {
 			"BREADCRUMB": "[\"לוח מחוונים\"]",
 			"SENT_EMAIL_VERIFICATION": "אימות קוד נשלח לאימייל שלך",

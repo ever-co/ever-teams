@@ -250,7 +250,16 @@
 		"CLEAR_FILTER": "مسح الفلتر",
 		"CLEAR": "مسح",
 		"APPLY_FILTER": "تطبيق الفلتر",
-		"CREATE_NEW": "إنشاء جديد"
+		"CREATE_NEW": "إنشاء جديد",
+		"NO_RESULT": "لا توجد نتائج",
+		"PICK_A_DATE": "اختر تاريخًا",
+		"THIS_WEEK": "هذا الأسبوع",
+		"LAST_WEEK": "الأسبوع الماضي",
+		"THIS_MONTH": "هذا الشهر",
+		"LAST_MONTH": "الشهر الماضي",
+		"LAST_TWO_WEEKS": "آخر أسبوعين",
+		"DATE": "التاريخ",
+		"WEEK": "الأسبوع"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -290,6 +299,12 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "لقد تم حذفك من الفريق"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "الوقت المستغرق",
+			"LIMIT": "الحد",
+			"PERCENTAGE_USED": "النسبة المستخدمة",
+			"REMAINING": "المتبقي"
+		},
 		"home": {
 			"BREADCRUMB": "[\"لوحة التحكم\"]",
 			"SENT_EMAIL_VERIFICATION": "تم إرسال تحقق الرمز إلى بريدك الإلكتروني",

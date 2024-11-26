@@ -268,7 +268,16 @@
 		"CLEAR_FILTER": "Очистить фильтр",
 		"CLEAR": "Очистить",
 		"APPLY_FILTER": "Применить фильтр",
-		"CREATE_NEW": "Создать новый"
+		"CREATE_NEW": "Создать новый",
+		"NO_RESULT": "Нет результатов",
+		"PICK_A_DATE": "Выберите дату",
+		"THIS_WEEK": "На этой неделе",
+		"LAST_WEEK": "На прошлой неделе",
+		"THIS_MONTH": "В этом месяце",
+		"LAST_MONTH": "В прошлом месяце",
+		"LAST_TWO_WEEKS": "Последние две недели",
+		"DATE": "Дата",
+		"WEEK": "Неделя"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -290,6 +299,12 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Вы были удалены из команды"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Затраченное время",
+			"LIMIT": "Предел",
+			"PERCENTAGE_USED": "Использованный процент",
+			"REMAINING": "Осталось"
+		},
 		"home": {
 			"BREADCRUMB": "[\"панель приборов\"]",
 			"SENT_EMAIL_VERIFICATION": "Код подтверждения был отправлен на ваш электронный адрес",

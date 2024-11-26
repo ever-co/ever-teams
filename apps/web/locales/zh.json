@@ -268,7 +268,16 @@
 		"CLEAR_FILTER": "清除筛选",
 		"CLEAR": "清除",
 		"APPLY_FILTER": "应用筛选",
-		"CREATE_NEW": "创建新的"
+		"CREATE_NEW": "创建新的",
+		"NO_RESULT": "没有结果",
+		"PICK_A_DATE": "选择日期",
+		"THIS_WEEK": "本周",
+		"LAST_WEEK": "上周",
+		"THIS_MONTH": "本月",
+		"LAST_MONTH": "上个月",
+		"LAST_TWO_WEEKS": "过去两周",
+		"DATE": "日期",
+		"WEEK": "周"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -290,6 +299,12 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "您已从团队中删除"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "花费时间",
+			"LIMIT": "限制",
+			"PERCENTAGE_USED": "使用百分比",
+			"REMAINING": "剩余"
+		},
 		"home": {
 			"BREADCRUMB": "[\"仪表板\"]",
 			"SENT_EMAIL_VERIFICATION": "验证码已发送至您的电子邮箱",
