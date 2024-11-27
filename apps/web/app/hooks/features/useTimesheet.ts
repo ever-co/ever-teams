@@ -151,7 +151,7 @@ export function useTimesheet({
                     ...(prevTimesheet || [])
                 ]);
             } catch (error) {
-                throw error;
+                console.error('Error:', error);
             }
         },
         [queryCreateTimesheet, setTimesheet, user]
@@ -253,7 +253,7 @@ export function useTimesheet({
             console.error('Failed to delete timesheets:', error);
             throw error;
         }
-    }, [user, logIds, handleDeleteTimesheet, setTimesheet]);
+    }, [user, logIds, queryDeleteTimesheet, setTimesheet]);
 
 
     const timesheetElementGroup = useMemo(() => {
