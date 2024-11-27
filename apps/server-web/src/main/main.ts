@@ -433,7 +433,7 @@ const onInitApplication = () => {
 
 const initTrayMenu = () => {
   const MAX_RETRIES = 2;
-  const retryInit = async (attemps: number = 0) => {
+  const retryInit = async (attempts: number = 0) => {
     try {
       LocalStore.setDefaultServerConfig();
       createIntervalAutoUpdate()
@@ -450,9 +450,9 @@ const initTrayMenu = () => {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
     } catch (error) {
-      if (attemps < MAX_RETRIES) {
+      if (attempts < MAX_RETRIES) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        retryInit(attemps + 1)
+        retryInit(attempts + 1)
       }
       console.error('Failed to initialize application:', error);
       dialog.showErrorBox('Initialization Error', 'Failed to initialize application');

@@ -9,7 +9,7 @@ async function copyWebBuild() {
     // Copy standalone build
     await copy(
       join(webDir, '.next/standalone'),
-      join(distDir)
+      join(distDir, 'standalone')
     );
 
     // Copy static files

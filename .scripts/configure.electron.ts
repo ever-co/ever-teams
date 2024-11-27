@@ -71,7 +71,7 @@ function updateWebConstant(setDesktopApp) {
 
 if (argv.type === 'server') {
     modifiedNextServer();
-    updateWebConstant(true);
-} else if (argv.type === 'constant') {
     updateWebConstant(false);
+} else if (argv.type === 'constant') {
+    updateWebConstant(true);
 }
