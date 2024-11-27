@@ -132,5 +132,5 @@ export function updateStatusTimesheetFromApi(data: IUpdateTimesheetStatus) {
 export function createTimesheetFromApi(data: UpdateTimesheet) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
-	return post<TimesheetLog>('timesheet/time-log', { ...data, organizationId }, { tenantId })
+	return post<TimesheetLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId })
 }
