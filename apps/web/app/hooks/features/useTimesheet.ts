@@ -3,9 +3,9 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect, useMemo } from 'react';
-import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi } from '@/app/services/client/api/timer/timer-log';
+import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi, createTimesheetFromApi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
-import { ID, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 interface TimesheetParams {
@@ -104,6 +104,7 @@ export function useTimesheet({
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
+    const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(createTimesheetFromApi)
 
 
     const getTaskTimesheet = useCallback(
@@ -138,6 +139,19 @@ export function useTimesheet({
         ]
     );
 
+    const createTimesheet = useCallback(({ ...timesheetParams }: UpdateTimesheet) => {
+        if (!user) return;
+        queryUpdateTimesheet(timesheetParams).then((response) => {
+            console.log('Response data:', response.data);
+            setTimesheet((prevTimesheet) => {
+                const updatedTimesheet = prevTimesheet ? [{ ...response.data, ...prevTimesheet }] : [{ ...response.data }];
+                return updatedTimesheet;
+            });
+        });
+    }, [queryUpdateTimesheet, user]);
+
+
+
     const updateTimesheetStatus = useCallback(
         ({ status, ids }: { status: TimesheetStatus, ids: ID[] | ID }) => {
             if (!user) return;
@@ -161,7 +175,7 @@ export function useTimesheet({
                 .catch((error) => {
                     console.error('Error fetching timesheet:', error);
                 });
-        }, [queryUpdateTimesheetStatus])
+        }, [queryUpdateTimesheetStatus, setTimesheet])
 
     const getStatusTimesheet = (items: TimesheetLog[] = []) => {
         const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
@@ -238,7 +252,7 @@ export function useTimesheet({
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, timesheet]);
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
 
     return {
         loadingTimesheet,
@@ -251,6 +265,8 @@ export function useTimesheet({
         statusTimesheet: getStatusTimesheet(timesheet.flat()),
         updateTimesheetStatus,
         loadingUpdateTimesheetStatus,
-        puTimesheetStatus
+        puTimesheetStatus,
+        createTimesheet,
+        loadingUpdateTimesheet
     };
 }

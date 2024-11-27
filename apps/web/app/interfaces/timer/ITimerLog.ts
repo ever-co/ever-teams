@@ -1,4 +1,5 @@
-import { ITeamTask } from "../ITask";
+import { ITeamTask, TimesheetStatus } from "../ITask";
+import { TimeLogType, TimerSource } from "../ITimer";
 
 interface BaseEntity {
     id: string;
@@ -69,7 +70,7 @@ interface Timesheet extends BaseEntity {
     lockedAt: string | null;
     editedAt: string | null;
     isBilled: boolean;
-    status: string;
+    status: TimesheetStatus;
     employeeId: string;
     approvedById: string | null;
     isEdited: boolean;
@@ -87,8 +88,8 @@ export interface TimesheetLog extends BaseEntity {
     startedAt: string;
     stoppedAt: string;
     editedAt: string | null;
-    logType: "TRACKED" | "MANUAL";
-    source: "WEB_TIMER" | "MOBILE_APP" | "DESKTOP_APP";
+    logType: TimeLogType;
+    source: "WEB_TIMER" | "MOBILE_APP" | "DESKTOP_APP" | TimerSource;
     description: string;
     reason: string | null;
     isBillable: boolean;
@@ -112,9 +113,6 @@ export interface TimesheetLog extends BaseEntity {
 
 
 export interface UpdateTimesheetStatus extends BaseEntity {
-    isActive: boolean;
-    isArchived: boolean;
-    archivedAt: string | null;
     duration: number;
     keyboard: number;
     mouse: number;
@@ -136,4 +134,25 @@ export interface UpdateTimesheetStatus extends BaseEntity {
     approvedById: string | null;
     employee: Employee;
     isEdited: boolean;
+}
+export interface UpdateTimesheet extends Pick<
+    Partial<TimesheetLog>,
+    | 'reason'
+    | 'organizationContactId'
+    | 'description'
+    | 'organizationTeamId'
+    | 'projectId'
+    | 'taskId'
+>,
+    Pick<
+        TimesheetLog,
+        | 'startedAt'
+        | 'stoppedAt'
+        | 'tenantId'
+        | 'logType'
+        | 'source'
+        | 'employeeId'
+        | 'organizationId'
+    > {
+    isBillable: boolean;
 }

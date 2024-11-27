@@ -62,7 +62,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { TimeLogType, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
 export const columns: ColumnDef<TimeSheet>[] = [
 	{
@@ -477,7 +477,7 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 						{t('common.EDIT')}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
-					<StatusTask ids={dataTimesheet.timesheet.id} />
+					<StatusTask timesheet={dataTimesheet} />
 					<DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">
 						{t('common.DELETE')}
 					</DropdownMenuItem>
@@ -501,9 +501,10 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 	);
 };
 
-export const StatusTask = ({ ids }: { ids: string }) => {
+export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus } = useTimesheet({});
+	const { updateTimesheetStatus, createTimesheet } = useTimesheet({});
+
 	return (
 		<>
 			<DropdownMenuSub>
@@ -515,7 +516,7 @@ export const StatusTask = ({ ids }: { ids: string }) => {
 						{statusTable?.map((status, index) => (
 							<DropdownMenuItem onClick={() => updateTimesheetStatus({
 								status: status.label as TimesheetStatus,
-								ids: [ids]
+								ids: [timesheet.timesheet.id]
 							})} key={index} textValue={status.label} className="cursor-pointer">
 								<div className="flex items-center gap-3">
 									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
@@ -532,12 +533,19 @@ export const StatusTask = ({ ids }: { ids: string }) => {
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						<DropdownMenuItem textValue={'Yes'} className="cursor-pointer">
+						<DropdownMenuItem onClick={() => createTimesheet({
+							...timesheet, isBillable: true,
+							logType: TimeLogType.MANUAL
+						})} textValue={'Yes'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 							</div>
 						</DropdownMenuItem>
-						<DropdownMenuItem textValue={'No'} className="cursor-pointer">
+						<DropdownMenuItem onClick={() => createTimesheet({
+							...timesheet,
+							isBillable: false,
+							logType: TimeLogType.MANUAL
+						})} textValue={'No'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 							</div>

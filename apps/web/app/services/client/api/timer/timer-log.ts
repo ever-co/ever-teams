@@ -1,5 +1,5 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus } from '@app/interfaces';
-import { get, deleteApi, put } from '../../axios';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet } from '@app/interfaces';
+import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
 export async function getTimerLogs(
@@ -126,4 +126,11 @@ export function updateStatusTimesheetFromApi(data: IUpdateTimesheetStatus) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	return put<UpdateTimesheetStatus[]>(`/timesheet/status`, { ...data, organizationId }, { tenantId });
+}
+
+
+export function createTimesheetFromApi(data: UpdateTimesheet) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	return post<TimesheetLog>('timesheet/time-log', { ...data, organizationId }, { tenantId })
 }

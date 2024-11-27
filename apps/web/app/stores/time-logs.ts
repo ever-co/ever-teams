@@ -19,3 +19,4 @@ export const timesheetFilterStatusState = atom<IFilterOption[]>([]);
 export const timesheetDeleteState = atom<string[]>([]);
 export const timesheetGroupByDayState = atom<TimesheetFilterByDays>('Daily')
 export const timesheetUpdateStatus = atom<UpdateTimesheetStatus[]>([])
+export const timesheetUpdateState = atom<TimesheetLog>()
