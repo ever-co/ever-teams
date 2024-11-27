@@ -303,7 +303,10 @@
 			"TIME_SPENT": "Bestede tijd",
 			"LIMIT": "Limiet",
 			"PERCENTAGE_USED": "Percentage gebruikt",
-			"REMAINING": "Resterend"
+			"REMAINING": "Resterend",
+			"GROUP_BY": "Groeperen op",
+			"DAILY_LIMIT": "Daglimiet",
+			"WEEKLY_LIMIT": "Weeklimiet"
 		},
 		"home": {
 			"BREADCRUMB": "[\"Dashboard\"]",

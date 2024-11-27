@@ -303,7 +303,10 @@
 			"TIME_SPENT": "Затраченное время",
 			"LIMIT": "Предел",
 			"PERCENTAGE_USED": "Использованный процент",
-			"REMAINING": "Осталось"
+			"REMAINING": "Осталось",
+			"GROUP_BY": "Группировать по",
+			"DAILY_LIMIT": "Дневной лимит",
+			"WEEKLY_LIMIT": "Недельный лимит"
 		},
 		"home": {
 			"BREADCRUMB": "[\"панель приборов\"]",

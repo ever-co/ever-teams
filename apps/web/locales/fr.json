@@ -303,7 +303,10 @@
 			"TIME_SPENT": "Temps passé",
 			"LIMIT": "Limite",
 			"PERCENTAGE_USED": "Pourcentage utilisé",
-			"REMAINING": "Restant"
+			"REMAINING": "Restant",
+			"GROUP_BY": "Regrouper par",
+			"DAILY_LIMIT": "Limite quotidienne",
+			"WEEKLY_LIMIT": "Limite hebdomadaire"
 		},
 		"home": {
 			"BREADCRUMB": "[\"Tableau de bord\"]",

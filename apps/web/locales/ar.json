@@ -303,7 +303,10 @@
 			"TIME_SPENT": "الوقت المستغرق",
 			"LIMIT": "الحد",
 			"PERCENTAGE_USED": "النسبة المستخدمة",
-			"REMAINING": "المتبقي"
+			"REMAINING": "المتبقي",
+			"GROUP_BY": "تجميع حسب",
+			"DAILY_LIMIT": "الحد اليومي",
+			"WEEKLY_LIMIT": "الحد الأسبوعي"
 		},
 		"home": {
 			"BREADCRUMB": "[\"لوحة التحكم\"]",

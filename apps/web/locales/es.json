@@ -303,7 +303,10 @@
 			"TIME_SPENT": "Tiempo invertido",
 			"LIMIT": "Límite",
 			"PERCENTAGE_USED": "Porcentaje usado",
-			"REMAINING": "Restante"
+			"REMAINING": "Restante",
+			"GROUP_BY": "Agrupar por",
+			"DAILY_LIMIT": "Límite diario",
+			"WEEKLY_LIMIT": "Límite semanal"
 		},
 		"home": {
 			"BREADCRUMB": "[\"Tablero\"]",

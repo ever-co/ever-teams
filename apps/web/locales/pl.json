@@ -303,7 +303,10 @@
 			"TIME_SPENT": "Czas spędzony",
 			"LIMIT": "Limit",
 			"PERCENTAGE_USED": "Procent użyty",
-			"REMAINING": "Pozostało"
+			"REMAINING": "Pozostało",
+			"GROUP_BY": "Grupuj według",
+			"DAILY_LIMIT": "Dzienne ograniczenie",
+			"WEEKLY_LIMIT": "Tygodniowe ograniczenie"
 		},
 		"home": {
 			"BREADCRUMB": "[\"Panel\"]",

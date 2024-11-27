@@ -303,7 +303,10 @@
 			"TIME_SPENT": "Изразходвано време",
 			"LIMIT": "Лимит",
 			"PERCENTAGE_USED": "Процент използван",
-			"REMAINING": "Оставащо"
+			"REMAINING": "Оставащо",
+			"GROUP_BY": "Групирай по",
+			"DAILY_LIMIT": "Дневен лимит",
+			"WEEKLY_LIMIT": "Седмичен лимит"
 		},
 		"home": {
 			"BREADCRUMB": "[\"Табло\"]",

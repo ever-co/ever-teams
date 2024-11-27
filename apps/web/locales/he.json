@@ -303,7 +303,10 @@
 			"TIME_SPENT": "הזמן שהושקע",
 			"LIMIT": "מגבלה",
 			"PERCENTAGE_USED": "אחוז בשימוש",
-			"REMAINING": "נותר"
+			"REMAINING": "נותר",
+			"GROUP_BY": "קבץ לפי",
+			"DAILY_LIMIT": "הגבלה יומית",
+			"WEEKLY_LIMIT": "הגבלה שבועית"
 		},
 		"home": {
 			"BREADCRUMB": "[\"לוח מחוונים\"]",
