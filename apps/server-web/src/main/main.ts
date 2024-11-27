@@ -197,8 +197,11 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       url = resolveHtmlPath('index.html', 'setup');
       setupWindow?.loadURL(url);
       mainBindings(ipcMain, setupWindow, fs);
-      setupWindow?.setMenuBarVisibility(false);
-      Menu.setApplicationMenu(Menu.buildFromTemplate([]));
+      if (process.platform === 'darwin') {
+        Menu.setApplicationMenu(Menu.buildFromTemplate([]));
+      } else {
+        setupWindow.removeMenu();
+      }
       setupWindow.on('closed', () => {
         setupWindow = null;
       })
@@ -429,25 +432,35 @@ const onInitApplication = () => {
 }
 
 const initTrayMenu = () => {
-  try {
-    LocalStore.setDefaultServerConfig();
-    createIntervalAutoUpdate()
-    trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-    appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
-    tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
-  } catch (error) {
-    console.error('Failed to initialize application:', error);
-    dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
+  const MAX_RETRIES = 2;
+  const retryInit = async (attemps: number = 0) => {
+    try {
+      LocalStore.setDefaultServerConfig();
+      createIntervalAutoUpdate()
+      trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+      appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
+      tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
+
+      eventEmitter.on(EventLists.webServerStart, async () => {
+        updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+        isServerRun = true;
+        await runServer();
+      })
+
+      trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+      updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    } catch (error) {
+      if (attemps < MAX_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        retryInit(attemps + 1)
+      }
+      console.error('Failed to initialize application:', error);
+      dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
+    }
   }
-
-  eventEmitter.on(EventLists.webServerStart, async () => {
-    updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    isServerRun = true;
-    await runServer();
-  })
-
-  trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-  updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+  if (!tray) {
+    return retryInit(0)
+  }
 }
 
 (async () => {
