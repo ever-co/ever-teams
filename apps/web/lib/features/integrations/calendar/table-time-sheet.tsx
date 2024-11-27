@@ -62,7 +62,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { TimeLogType, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
 export const columns: ColumnDef<TimeSheet>[] = [
 	{
@@ -511,7 +511,23 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 
 export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus } = useTimesheet({});
+	const { updateTimesheetStatus, updateTimesheet } = useTimesheet({});
+	const handleUpdateTimesheet = async (isBillable: boolean) => {
+		await updateTimesheet({
+			id: timesheet.timesheetId,
+			isBillable: isBillable,
+			employeeId: timesheet.employeeId,
+			logType: timesheet.logType,
+			source: timesheet.source,
+			stoppedAt: timesheet.stoppedAt,
+			startedAt: timesheet.startedAt,
+			tenantId: timesheet.tenantId,
+			organizationId: timesheet.organizationId,
+			description: timesheet.description,
+			projectId: timesheet.projectId,
+			reason: timesheet.reason,
+		});
+	};
 
 	return (
 		<>
@@ -547,12 +563,16 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						<DropdownMenuItem textValue={'Yes'} className="cursor-pointer">
+						<DropdownMenuItem onClick={async () => {
+							await handleUpdateTimesheet(true)
+						}} textValue={'Yes'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 							</div>
 						</DropdownMenuItem>
-						<DropdownMenuItem textValue={'No'} className="cursor-pointer">
+						<DropdownMenuItem onClick={async () => {
+							await handleUpdateTimesheet(false)
+						}} textValue={'No'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 							</div>

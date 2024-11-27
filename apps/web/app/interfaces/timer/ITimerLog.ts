@@ -146,6 +146,7 @@ export interface UpdateTimesheet extends Pick<
 >,
     Pick<
         TimesheetLog,
+        | 'id'
         | 'startedAt'
         | 'stoppedAt'
         | 'tenantId'

@@ -141,3 +141,17 @@ export function createTimesheetFromApi(data: UpdateTimesheet) {
 		throw new Error('Failed to create timesheet log');
 	}
 }
+
+export function updateTimesheetFromAPi(params: UpdateTimesheet) {
+	const { id, ...data } = params
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	if (!organizationId || !tenantId) {
+		throw new Error('Required parameters missing: organizationId and tenantId are required');
+	}
+	try {
+		return put<TimesheetLog>(`/timesheet/time-log/${params.id}`, { ...data, organizationId }, { tenantId })
+	} catch (error) {
+		throw new Error('Failed to create timesheet log');
+	}
+}

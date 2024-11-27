@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect, useMemo } from 'react';
-import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi, createTimesheetFromApi } from '@/app/services/client/api/timer/timer-log';
+import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi, createTimesheetFromApi, updateTimesheetFromAPi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
@@ -97,7 +97,8 @@ export function useTimesheet({
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
-    const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(createTimesheetFromApi)
+    const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(createTimesheetFromApi);
+    const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(updateTimesheetFromAPi);
 
 
     const getTaskTimesheet = useCallback(
@@ -151,6 +152,15 @@ export function useTimesheet({
     );
 
 
+
+    const updateTimesheet = useCallback(async ({ ...timesheet }: UpdateTimesheet) => {
+        if (!user) return;
+        const response = await queryUpdateTimesheet(timesheet);
+        setTimesheet(prevTimesheet => [
+            response.data,
+            ...prevTimesheet,
+        ])
+    }, [queryUpdateTimesheet, setTimesheet, user])
 
 
     const updateTimesheetStatus = useCallback(
@@ -268,6 +278,8 @@ export function useTimesheet({
         loadingUpdateTimesheetStatus,
         puTimesheetStatus,
         createTimesheet,
-        loadingCreateTimesheet
+        loadingCreateTimesheet,
+        updateTimesheet,
+        loadingUpdateTimesheet
     };
 }

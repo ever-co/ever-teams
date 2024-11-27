@@ -118,3 +118,13 @@ export function createTimesheetRequest(params: UpdateTimesheet, bearer_token: st
 		tenantId: params.tenantId
 	})
 }
+
+export function updateTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
+	return serverFetch<TimesheetLog>({
+		path: `/timesheet/time-log/${params.id}`,
+		method: 'PUT',
+		body: { ...params },
+		bearer_token,
+		tenantId: params.tenantId
+	});
+}
