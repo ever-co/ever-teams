@@ -198,7 +198,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								<TimesheetView data={filterDataTimesheet}
 									loading={loadingTimesheet} />
 							) : (
-								<CalendarView />
+								<CalendarView data={filterDataTimesheet} />
 							)}
 						</div>
 					</Container>

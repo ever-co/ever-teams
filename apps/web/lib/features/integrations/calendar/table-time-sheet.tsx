@@ -54,6 +54,7 @@ import {
 	RejectSelectedModal,
 	StatusAction,
 	StatusType,
+	EmployeeAvatar,
 	getTimesheetButtons,
 	statusTable
 } from '@/app/[locale]/timesheet/[memberId]/components';
@@ -335,10 +336,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												</div>
 												<span className="flex-1">{task.project && task.project.name}</span>
 												<div className="flex items-center flex-1 gap-x-2">
-													<img
-														className="w-8 h-8 rounded-full"
-														src={task.employee.user.imageUrl!}
-														alt=""
+													<EmployeeAvatar
+														imageUrl={task.employee.user.imageUrl!}
 													/>
 													<span className="flex-1 font-medium">{task.employee.fullName}</span>
 												</div>
