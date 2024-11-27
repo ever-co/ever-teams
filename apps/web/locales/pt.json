@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Faixa personalizada",
 		"CLEAR_FILTER": "Limpar filtro",
 		"CLEAR": "Limpar",
-		"APPLY_FILTER": "Aplicar filtro"
+		"APPLY_FILTER": "Aplicar filtro",
+		"CREATE_NEW": "Criar novo"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",

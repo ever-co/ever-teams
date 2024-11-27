@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית",
 		"CLEAR_FILTER": "נקה סינון",
 		"CLEAR": "נקה",
-		"APPLY_FILTER": "החל סינון"
+		"APPLY_FILTER": "החל סינון",
+		"CREATE_NEW": "צור חדש"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

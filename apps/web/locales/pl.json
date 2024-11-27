@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Zakres niestandardowy",
 		"CLEAR_FILTER": "Wyczyść filtr",
 		"CLEAR": "Wyczyść",
-		"APPLY_FILTER": "Zastosuj filtr"
+		"APPLY_FILTER": "Zastosuj filtr",
+		"CREATE_NEW": "Utwórz nowy"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

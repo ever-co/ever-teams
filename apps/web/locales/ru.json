@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Пользовательский диапазон",
 		"CLEAR_FILTER": "Очистить фильтр",
 		"CLEAR": "Очистить",
-		"APPLY_FILTER": "Применить фильтр"
+		"APPLY_FILTER": "Применить фильтр",
+		"CREATE_NEW": "Создать новый"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

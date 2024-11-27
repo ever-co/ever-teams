@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "Benutzerdefinierter Bereich",
 		"CLEAR_FILTER": "Filter löschen",
 		"CLEAR": "Löschen",
-		"APPLY_FILTER": "Filter anwenden"
+		"APPLY_FILTER": "Filter anwenden",
+		"CREATE_NEW": "Neu erstellen"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",

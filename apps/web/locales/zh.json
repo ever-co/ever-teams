@@ -267,7 +267,8 @@
 		"FILTER_CUSTOM_RANGE": "自定义范围",
 		"CLEAR_FILTER": "清除筛选",
 		"CLEAR": "清除",
-		"APPLY_FILTER": "应用筛选"
+		"APPLY_FILTER": "应用筛选",
+		"CREATE_NEW": "创建新的"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
