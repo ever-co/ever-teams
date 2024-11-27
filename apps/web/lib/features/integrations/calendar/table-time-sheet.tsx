@@ -62,7 +62,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimeLogType, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
 export const columns: ColumnDef<TimeSheet>[] = [
 	{
@@ -503,7 +503,7 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 
 export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus, createTimesheet } = useTimesheet({});
+	const { updateTimesheetStatus } = useTimesheet({});
 
 	return (
 		<>
@@ -533,19 +533,12 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						<DropdownMenuItem onClick={() => createTimesheet({
-							...timesheet, isBillable: true,
-							logType: TimeLogType.MANUAL
-						})} textValue={'Yes'} className="cursor-pointer">
+						<DropdownMenuItem textValue={'Yes'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 							</div>
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => createTimesheet({
-							...timesheet,
-							isBillable: false,
-							logType: TimeLogType.MANUAL
-						})} textValue={'No'} className="cursor-pointer">
+						<DropdownMenuItem textValue={'No'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 							</div>

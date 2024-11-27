@@ -104,7 +104,7 @@ export function useTimesheet({
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
-    const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(createTimesheetFromApi)
+    const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(createTimesheetFromApi)
 
 
     const getTaskTimesheet = useCallback(
@@ -139,43 +139,58 @@ export function useTimesheet({
         ]
     );
 
-    const createTimesheet = useCallback(({ ...timesheetParams }: UpdateTimesheet) => {
-        if (!user) return;
-        queryUpdateTimesheet(timesheetParams).then((response) => {
-            console.log('Response data:', response.data);
-            setTimesheet((prevTimesheet) => {
-                const updatedTimesheet = prevTimesheet ? [{ ...response.data, ...prevTimesheet }] : [{ ...response.data }];
-                return updatedTimesheet;
-            });
-        });
-    }, [queryUpdateTimesheet, user]);
+    const createTimesheet = useCallback(
+        async ({ ...timesheetParams }: UpdateTimesheet) => {
+            if (!user) {
+                console.error("User not authenticated");
+                return;
+            }
+            try {
+                const response = await queryCreateTimesheet(timesheetParams);
+                console.log("Timesheet created successfully:", response.data);
+                setTimesheet((prevTimesheet) => [
+                    response.data,
+                    ...(prevTimesheet || [])
+                ]);
+            } catch (error) {
+                console.error("Error creating timesheet:", error);
+            }
+        },
+        [queryCreateTimesheet, setTimesheet, user]
+    );
+
 
 
 
     const updateTimesheetStatus = useCallback(
-        ({ status, ids }: { status: TimesheetStatus, ids: ID[] | ID }) => {
+        async ({ status, ids }: { status: TimesheetStatus; ids: ID[] | ID }) => {
             if (!user) return;
-            queryUpdateTimesheetStatus({ ids, status })
-                .then((response) => {
-                    const updatedData = timesheet.map(item => {
-                        const newItem = response.data.find(newItem => newItem.id === item.timesheet.id);
-                        if (newItem) {
+            const idsArray = Array.isArray(ids) ? ids : [ids];
+            try {
+                const response = await queryUpdateTimesheetStatus({ ids: idsArray, status });
+                const responseMap = new Map(response.data.map(item => [item.id, item]));
+                setTimesheet(prevTimesheet =>
+                    prevTimesheet.map(item => {
+                        const updatedItem = responseMap.get(item.timesheet.id);
+                        if (updatedItem) {
                             return {
                                 ...item,
                                 timesheet: {
                                     ...item.timesheet,
-                                    status: newItem.status
+                                    status: updatedItem.status
                                 }
                             };
                         }
                         return item;
-                    });
-                    setTimesheet(updatedData);
-                })
-                .catch((error) => {
-                    console.error('Error fetching timesheet:', error);
-                });
-        }, [queryUpdateTimesheetStatus, setTimesheet])
+                    })
+                );
+                console.log('Timesheet status updated successfully!');
+            } catch (error) {
+                console.error('Error updating timesheet status:', error);
+            }
+        },
+        [queryUpdateTimesheetStatus, setTimesheet, user]
+    );
 
     const getStatusTimesheet = (items: TimesheetLog[] = []) => {
         const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
@@ -232,13 +247,17 @@ export function useTimesheet({
                 tenantId: user.tenantId ?? "",
                 logIds
             });
+            setTimesheet(prevTimesheet =>
+                prevTimesheet.filter(item => !logIds.includes(item.timesheet.id))
+            );
+
         } catch (error) {
             console.error('Failed to delete timesheets:', error);
             throw error;
         }
-    },
-        [user, queryDeleteTimesheet, logIds, handleDeleteTimesheet] // deepscan-disable-line
-    );
+    }, [user, queryDeleteTimesheet, logIds, handleDeleteTimesheet, setTimesheet]);
+
+
     const timesheetElementGroup = useMemo(() => {
         if (timesheetGroupByDays === 'Daily') {
             return groupByDate(timesheet);
@@ -267,6 +286,6 @@ export function useTimesheet({
         loadingUpdateTimesheetStatus,
         puTimesheetStatus,
         createTimesheet,
-        loadingUpdateTimesheet
+        loadingCreateTimesheet
     };
 }
