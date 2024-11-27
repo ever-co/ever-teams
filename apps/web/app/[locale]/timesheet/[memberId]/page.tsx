@@ -43,7 +43,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		from: startOfDay(new Date()),
 		to: endOfDay(new Date())
 	});
-	const { timesheet, statusTimesheet } = useTimesheet({
+	const { timesheet, statusTimesheet, loadingTimesheet } = useTimesheet({
 		startDate: dateRange.from ?? '',
 		endDate: dateRange.to ?? ''
 	});
@@ -195,7 +195,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 						{/* <DropdownMenuDemo /> */}
 						<div className="border border-gray-200 rounded-lg dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
-								<TimesheetView data={filterDataTimesheet} />
+								<TimesheetView data={filterDataTimesheet}
+									loading={loadingTimesheet} />
 							) : (
 								<CalendarView data={filterDataTimesheet} />
 							)}
