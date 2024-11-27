@@ -153,14 +153,25 @@ export function useTimesheet({
 
 
 
-    const updateTimesheet = useCallback(async ({ ...timesheet }: UpdateTimesheet) => {
-        if (!user) return;
-        const response = await queryUpdateTimesheet(timesheet);
-        setTimesheet(prevTimesheet => [
-            response.data,
-            ...prevTimesheet,
-        ])
-    }, [queryUpdateTimesheet, setTimesheet, user])
+    const updateTimesheet = useCallback<(params: UpdateTimesheet) => Promise<void>>(
+        async ({ ...timesheet }: UpdateTimesheet) => {
+            if (!user) {
+                throw new Error("User not authenticated");
+            }
+            try {
+                const response = await queryUpdateTimesheet(timesheet);
+                setTimesheet(prevTimesheet =>
+                    prevTimesheet.map(item =>
+                        item.timesheet.id === response.data.timesheet.id
+                            ? response.data
+                            : item
+                    )
+                );
+            } catch (error) {
+                console.error('Error updating timesheet:', error);
+                throw error;
+            }
+        }, [queryUpdateTimesheet, setTimesheet, user])
 
 
     const updateTimesheetStatus = useCallback(
