@@ -62,7 +62,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimeLogType, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 
 export const columns: ColumnDef<TimeSheet>[] = [
 	{
