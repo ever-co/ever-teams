@@ -1,7 +1,7 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { TimesheetLog, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
+import { TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/app/interfaces';
 
 export type TTasksTimesheetStatisticsParams = {
@@ -106,4 +106,25 @@ export function updateStatusTimesheetRequest(params: IUpdateTimesheetStatus, bea
 		bearer_token,
 		tenantId: params.tenantId,
 	})
+}
+
+
+export function createTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
+	return serverFetch<TimesheetLog>({
+		path: '/timesheet/time-log',
+		method: 'POST',
+		body: { ...params },
+		bearer_token,
+		tenantId: params.tenantId
+	})
+}
+
+export function updateTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
+	return serverFetch<TimesheetLog>({
+		path: `/timesheet/time-log/${params.id}`,
+		method: 'PUT',
+		body: { ...params },
+		bearer_token,
+		tenantId: params.tenantId
+	});
 }

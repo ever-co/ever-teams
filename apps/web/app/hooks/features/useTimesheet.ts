@@ -3,9 +3,9 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
 import { useCallback, useEffect, useMemo } from 'react';
-import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi } from '@/app/services/client/api/timer/timer-log';
+import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi, createTimesheetFromApi, updateTimesheetFromAPi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
-import { ID, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
 interface TimesheetParams {
@@ -16,13 +16,6 @@ interface TimesheetParams {
 export interface GroupedTimesheet {
     date: string;
     tasks: TimesheetLog[];
-}
-
-
-interface DeleteTimesheetParams {
-    organizationId: string;
-    tenantId: string;
-    logIds: string[];
 }
 
 
@@ -104,6 +97,8 @@ export function useTimesheet({
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
+    const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(createTimesheetFromApi);
+    const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(updateTimesheetFromAPi);
 
 
     const getTaskTimesheet = useCallback(
@@ -138,30 +133,76 @@ export function useTimesheet({
         ]
     );
 
+    const createTimesheet = useCallback(
+        async ({ ...timesheetParams }: UpdateTimesheet) => {
+            if (!user) {
+                throw new Error("User not authenticated");
+            }
+            try {
+                const response = await queryCreateTimesheet(timesheetParams);
+                setTimesheet((prevTimesheet) => [
+                    response.data,
+                    ...(prevTimesheet || [])
+                ]);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        },
+        [queryCreateTimesheet, setTimesheet, user]
+    );
+
+
+
+    const updateTimesheet = useCallback<(params: UpdateTimesheet) => Promise<void>>(
+        async ({ ...timesheet }: UpdateTimesheet) => {
+            if (!user) {
+                throw new Error("User not authenticated");
+            }
+            try {
+                const response = await queryUpdateTimesheet(timesheet);
+                setTimesheet(prevTimesheet =>
+                    prevTimesheet.map(item =>
+                        item.timesheet.id === response.data.timesheet.id
+                            ? response.data
+                            : item
+                    )
+                );
+            } catch (error) {
+                console.error('Error updating timesheet:', error);
+                throw error;
+            }
+        }, [queryUpdateTimesheet, setTimesheet, user])
+
+
     const updateTimesheetStatus = useCallback(
-        ({ status, ids }: { status: TimesheetStatus, ids: ID[] | ID }) => {
+        async ({ status, ids }: { status: TimesheetStatus; ids: ID[] | ID }) => {
             if (!user) return;
-            queryUpdateTimesheetStatus({ ids, status })
-                .then((response) => {
-                    const updatedData = timesheet.map(item => {
-                        const newItem = response.data.find(newItem => newItem.id === item.timesheet.id);
-                        if (newItem) {
+            const idsArray = Array.isArray(ids) ? ids : [ids];
+            try {
+                const response = await queryUpdateTimesheetStatus({ ids: idsArray, status });
+                const responseMap = new Map(response.data.map(item => [item.id, item]));
+                setTimesheet(prevTimesheet =>
+                    prevTimesheet.map(item => {
+                        const updatedItem = responseMap.get(item.timesheet.id);
+                        if (updatedItem) {
                             return {
                                 ...item,
                                 timesheet: {
                                     ...item.timesheet,
-                                    status: newItem.status
+                                    status: updatedItem.status
                                 }
                             };
                         }
                         return item;
-                    });
-                    setTimesheet(updatedData);
-                })
-                .catch((error) => {
-                    console.error('Error fetching timesheet:', error);
-                });
-        }, [queryUpdateTimesheetStatus])
+                    })
+                );
+                console.log('Timesheet status updated successfully!');
+            } catch (error) {
+                console.error('Error updating timesheet status:', error);
+            }
+        },
+        [queryUpdateTimesheetStatus, setTimesheet, user]
+    );
 
     const getStatusTimesheet = (items: TimesheetLog[] = []) => {
         const STATUS_MAP: Record<TimesheetStatus, TimesheetLog[]> = {
@@ -196,15 +237,6 @@ export function useTimesheet({
     }
 
 
-    const handleDeleteTimesheet = async (params: DeleteTimesheetParams) => {
-        try {
-            return await queryDeleteTimesheet(params);
-        } catch (error) {
-            console.error('Error deleting timesheet:', error);
-            throw error;
-        }
-    };
-
     const deleteTaskTimesheet = useCallback(async () => {
         if (!user) {
             throw new Error('User not authenticated');
@@ -213,18 +245,22 @@ export function useTimesheet({
             throw new Error('No timesheet IDs provided for deletion');
         }
         try {
-            await handleDeleteTimesheet({
+            await queryDeleteTimesheet({
                 organizationId: user.employee.organizationId,
                 tenantId: user.tenantId ?? "",
                 logIds
             });
+            setTimesheet(prevTimesheet =>
+                prevTimesheet.filter(item => !logIds.includes(item.timesheet.id))
+            );
+
         } catch (error) {
             console.error('Failed to delete timesheets:', error);
             throw error;
         }
-    },
-        [user, queryDeleteTimesheet, logIds, handleDeleteTimesheet] // deepscan-disable-line
-    );
+    }, [user, logIds, queryDeleteTimesheet, setTimesheet]);
+
+
     const timesheetElementGroup = useMemo(() => {
         if (timesheetGroupByDays === 'Daily') {
             return groupByDate(timesheet);
@@ -238,7 +274,7 @@ export function useTimesheet({
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, timesheet]);
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
 
     return {
         loadingTimesheet,
@@ -251,6 +287,10 @@ export function useTimesheet({
         statusTimesheet: getStatusTimesheet(timesheet.flat()),
         updateTimesheetStatus,
         loadingUpdateTimesheetStatus,
-        puTimesheetStatus
+        puTimesheetStatus,
+        createTimesheet,
+        loadingCreateTimesheet,
+        updateTimesheet,
+        loadingUpdateTimesheet
     };
 }

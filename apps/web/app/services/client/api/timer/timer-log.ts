@@ -1,5 +1,5 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus } from '@app/interfaces';
-import { get, deleteApi, put } from '../../axios';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet } from '@app/interfaces';
+import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
 export async function getTimerLogs(
@@ -126,4 +126,32 @@ export function updateStatusTimesheetFromApi(data: IUpdateTimesheetStatus) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	return put<UpdateTimesheetStatus[]>(`/timesheet/status`, { ...data, organizationId }, { tenantId });
+}
+
+
+export function createTimesheetFromApi(data: UpdateTimesheet) {
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	if (!organizationId || !tenantId) {
+		throw new Error('Required parameters missing: organizationId and tenantId are required');
+	}
+	try {
+		return post<TimesheetLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId })
+	} catch (error) {
+		throw new Error('Failed to create timesheet log');
+	}
+}
+
+export function updateTimesheetFromAPi(params: UpdateTimesheet) {
+	const { id, ...data } = params
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
+	if (!organizationId || !tenantId) {
+		throw new Error('Required parameters missing: organizationId and tenantId are required');
+	}
+	try {
+		return put<TimesheetLog>(`/timesheet/time-log/${params.id}`, { ...data, organizationId }, { tenantId })
+	} catch (error) {
+		throw new Error('Failed to create timesheet log');
+	}
 }
