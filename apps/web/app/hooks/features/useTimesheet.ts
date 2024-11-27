@@ -19,13 +19,6 @@ export interface GroupedTimesheet {
 }
 
 
-interface DeleteTimesheetParams {
-    organizationId: string;
-    tenantId: string;
-    logIds: string[];
-}
-
-
 const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
     type GroupedMap = Record<string, TimesheetLog[]>;
