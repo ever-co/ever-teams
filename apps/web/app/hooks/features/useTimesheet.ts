@@ -223,15 +223,6 @@ export function useTimesheet({
     }
 
 
-    const handleDeleteTimesheet = async (params: DeleteTimesheetParams) => {
-        try {
-            return await queryDeleteTimesheet(params);
-        } catch (error) {
-            console.error('Error deleting timesheet:', error);
-            throw error;
-        }
-    };
-
     const deleteTaskTimesheet = useCallback(async () => {
         if (!user) {
             throw new Error('User not authenticated');
@@ -240,7 +231,7 @@ export function useTimesheet({
             throw new Error('No timesheet IDs provided for deletion');
         }
         try {
-            await handleDeleteTimesheet({
+            await queryDeleteTimesheet({
                 organizationId: user.employee.organizationId,
                 tenantId: user.tenantId ?? "",
                 logIds
