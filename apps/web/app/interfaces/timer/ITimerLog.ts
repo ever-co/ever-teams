@@ -89,7 +89,7 @@ export interface TimesheetLog extends BaseEntity {
     stoppedAt: string;
     editedAt: string | null;
     logType: TimeLogType;
-    source: "WEB_TIMER" | "MOBILE_APP" | "DESKTOP_APP" | TimerSource;
+    source: TimerSource;
     description: string;
     reason: string | null;
     isBillable: boolean;

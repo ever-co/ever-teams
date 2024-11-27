@@ -155,8 +155,11 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const { isOpen, openModal, closeModal } = useModal();
-	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet } = useTimesheet({});
+
+
+	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
 	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays, handleSelectRowByStatusAndDate } = useTimelogFilterOptions();
+
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 	const handleConfirm = () => {
 		try {
@@ -201,10 +204,15 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const handleSort = (key: string, order: SortOrder) => {
 		console.log(`Sorting ${key} in ${order} order`);
 	};
-	const handleButtonClick = (action: StatusAction) => {
+	const handleButtonClick = async (action: StatusAction) => {
 		switch (action) {
 			case 'Approved':
-				// TODO: Implement approval logic
+				if (selectTimesheet.length > 0) {
+					await updateTimesheetStatus({
+						status: 'APPROVED',
+						ids: selectTimesheet
+					})
+				}
 				break;
 			case 'Denied':
 				openModal();
@@ -220,7 +228,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 		<div className="w-full dark:bg-dark--theme">
 			<AlertDialogConfirmation
 				title="Are you sure you want to delete this?"
-				description={`This action is irreversible. All related data will be lost. (${selectTimesheet.length})`}
+				description={`This action is irreversible. All related data will be lost.`}
 				confirmText={t('common.DELETE')}
 				cancelText={t('common.CANCEL')}
 				isOpen={isDialogOpen}
@@ -514,10 +522,16 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
 						{statusTable?.map((status, index) => (
-							<DropdownMenuItem onClick={() => updateTimesheetStatus({
-								status: status.label as TimesheetStatus,
-								ids: [timesheet.timesheet.id]
-							})} key={index} textValue={status.label} className="cursor-pointer">
+							<DropdownMenuItem onClick={async () => {
+								try {
+									await updateTimesheetStatus({
+										status: status.label as TimesheetStatus,
+										ids: [timesheet.timesheet.id]
+									});
+								} catch (error) {
+									console.error('Failed to update timesheet status:');
+								}
+							}} key={index} textValue={status.label} className="cursor-pointer">
 								<div className="flex items-center gap-3">
 									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>

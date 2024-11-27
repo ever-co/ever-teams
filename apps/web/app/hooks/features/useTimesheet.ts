@@ -142,18 +142,16 @@ export function useTimesheet({
     const createTimesheet = useCallback(
         async ({ ...timesheetParams }: UpdateTimesheet) => {
             if (!user) {
-                console.error("User not authenticated");
-                return;
+                throw new Error("User not authenticated");
             }
             try {
                 const response = await queryCreateTimesheet(timesheetParams);
-                console.log("Timesheet created successfully:", response.data);
                 setTimesheet((prevTimesheet) => [
                     response.data,
                     ...(prevTimesheet || [])
                 ]);
             } catch (error) {
-                console.error("Error creating timesheet:", error);
+                throw error;
             }
         },
         [queryCreateTimesheet, setTimesheet, user]

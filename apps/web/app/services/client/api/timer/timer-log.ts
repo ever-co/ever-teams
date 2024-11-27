@@ -132,5 +132,12 @@ export function updateStatusTimesheetFromApi(data: IUpdateTimesheetStatus) {
 export function createTimesheetFromApi(data: UpdateTimesheet) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
-	return post<TimesheetLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId })
+	if (!organizationId || !tenantId) {
+		throw new Error('Required parameters missing: organizationId and tenantId are required');
+	}
+	try {
+		return post<TimesheetLog>('/timesheet/time-log', { ...data, organizationId }, { tenantId })
+	} catch (error) {
+		throw new Error('Failed to create timesheet log');
+	}
 }
