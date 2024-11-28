@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { API_BASE_URL, APPLICATION_LANGUAGES_CODE, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL } from '@app/constants';
+import { API_BASE_URL, APPLICATION_LANGUAGES_CODE, DEFAULT_APP_PATH, GAUZY_API_BASE_SERVER_URL, IS_DESKTOP_APP } from '@app/constants';
 import {
 	getAccessTokenCookie,
 	getActiveTeamIdCookie,
@@ -87,11 +87,29 @@ apiDirect.interceptors.response.use(
 
 type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
-function apiConfig(config?: APIConfig) {
+async function desktopServerOverride() {
+	if (typeof window !== 'undefined') {
+	  try {
+			const serverConfig = await api.get('/desktop-server');
+      return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+		} catch (error) {
+			return GAUZY_API_BASE_SERVER_URL
+		}
+  }
+  return GAUZY_API_BASE_SERVER_URL;
+}
+
+async function apiConfig(config?: APIConfig) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
+
+  if (IS_DESKTOP_APP) { // dynamic api host while on desktop mode
+    const runtimeConfig =  await desktopServerOverride();
+    baseURL = runtimeConfig || GAUZY_API_BASE_SERVER_URL.value;
+  }
+
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
 	apiDirect.defaults.baseURL = baseURL;
@@ -109,22 +127,22 @@ function apiConfig(config?: APIConfig) {
 	};
 }
 
-function get<T>(endpoint: string, config?: APIConfig) {
-	const { baseURL, headers } = apiConfig(config);
+async function get<T>(endpoint: string, config?: APIConfig) {
+	const { baseURL, headers } = await apiConfig(config);
 	const { directAPI = true } = config || {};
 
 	return baseURL && directAPI ? apiDirect.get<T>(endpoint, { ...config, headers }) : api.get<T>(endpoint);
 }
 
-function deleteApi<T>(endpoint: string, config?: APIConfig) {
-	const { baseURL, headers } = apiConfig(config);
+async function deleteApi<T>(endpoint: string, config?: APIConfig) {
+	const { baseURL, headers } = await apiConfig(config);
 	const { directAPI = true } = config || {};
 
 	return baseURL && directAPI ? apiDirect.delete<T>(endpoint, { ...config, headers }) : api.delete<T>(endpoint);
 }
 
-function post<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
-	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+async function post<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = await apiConfig(config);
 	const { directAPI = true } = config || {};
 
 	if (baseURL && directAPI && data && !(data instanceof FormData)) {
@@ -139,8 +157,8 @@ function post<T>(url: string, data?: Record<string, any> | FormData, config?: AP
 
 	return baseURL && directAPI ? apiDirect.post<T>(url, data, { ...config, headers }) : api.post<T>(url, data);
 }
-function put<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
-	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+async function put<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = await apiConfig(config);
 	const { directAPI = true } = config || {};
 
 	if (baseURL && directAPI && data && !(data instanceof FormData)) {
@@ -155,8 +173,8 @@ function put<T>(url: string, data?: Record<string, any> | FormData, config?: API
 
 	return baseURL && directAPI ? apiDirect.put<T>(url, data, { ...config, headers }) : api.put<T>(url, data);
 }
-function patch<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
-	const { baseURL, headers, tenantId, organizationId } = apiConfig(config);
+async function patch<T>(url: string, data?: Record<string, any> | FormData, config?: APIConfig) {
+	const { baseURL, headers, tenantId, organizationId } = await apiConfig(config);
 	const { directAPI = true } = config || {};
 
 	if (baseURL && directAPI && data && !(data instanceof FormData)) {

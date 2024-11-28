@@ -5,7 +5,10 @@ export * from './TimesheetFilter';
 export * from './FrequencySelect';
 export * from './FilterWithStatus';
 export * from './TimesheetFilterDate';
-export * from './TimeSheetFilterPopover'
+export * from './TimeSheetFilterPopover';
 export * from './TimesheetAction';
 export * from './RejectSelectedModal';
 export * from './EditTaskModal';
+export * from './CompactTimesheetComponent';
+export * from './TimesheetLoader';
+

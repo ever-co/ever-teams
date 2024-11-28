@@ -751,12 +751,12 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 	);
 
 	return (
-		<div className=" w-40 rounded-xl bg-[#F2F2F2] py-2 px-3">
+		<div className="w-52 rounded-xl bg-[#F2F2F2] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-2 px-3">
 			<Combobox multiple={true}>
 				<div className="relative my-auto">
 					<div className="relative w-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
 						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="absolute hover:transition-all inset-y-0 right-0 flex justify-between w-full items-center">
+						<Combobox.Button className="absolute hover:transition-all inset-y-0 right-0 flex justify-between w-40 items-center">
 							<span>{t('common.ASSIGNEE')}</span>
 							<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
 						</Combobox.Button>
@@ -767,12 +767,12 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute mt-1 max-h-60 h-auto w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute mt-1 max-h-40 h-auto w-44 overflow-auto rounded-md dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
 										`relative cursor-default select-none py-2 pl-10 pr-4 ${
-											active ? 'bg-primary/5' : 'text-gray-900'
+											active ? 'bg-primary/5 dark:bg-dark--theme-light dark:text-white' : 'text-gray-100'
 										}`
 									}
 									value={authMember}
@@ -791,7 +791,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 										key={member.id}
 										className={({ active }) =>
 											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-												active ? 'bg-primary/5' : 'text-gray-900'
+												active ? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights' : 'text-gray-900 dark:text-gray-200'
 											}`
 										}
 										onClick={() => {

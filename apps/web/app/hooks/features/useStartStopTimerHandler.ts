@@ -23,12 +23,6 @@ export function useStartStopTimerHandler() {
 	} = useModal();
 
 	const {
-		isOpen: isDailyPlanWorkHoursModalOpen,
-		closeModal: dailyPlanWorkHoursCloseModal,
-		openModal: openAddDailyPlanWorkHoursModal
-	} = useModal();
-
-	const {
 		isOpen: isTasksEstimationHoursModalOpen,
 		closeModal: tasksEstimationHoursCloseModal,
 		openModal: openAddTasksEstimationHoursModal
@@ -99,21 +93,6 @@ export function useStartStopTimerHandler() {
 		};
 
 		/**
-		 * Handle missing working hour for a daily plan
-		 */
-		const handleMissingDailyPlanWorkHour = () => {
-			if (hasPlan) {
-				if (!hasWorkedHours) {
-					openAddDailyPlanWorkHoursModal();
-				} else {
-					startTimerOrAskEstimate();
-				}
-			} else {
-				startTimerOrAskEstimate();
-			}
-		};
-
-		/**
 		 * Handle missing estimation hours for tasks
 		 */
 		const handleMissingTasksEstimationHours = () => {
@@ -121,11 +100,7 @@ export function useStartStopTimerHandler() {
 				if (tasksEstimateHoursModalDate != currentDate) {
 					handleCheckSelectedTaskOnTodayPlan();
 				} else if (areAllTasksEstimated) {
-					if (dailyPlanEstimateHoursModalDate != currentDate) {
-						handleMissingDailyPlanWorkHour();
-					} else {
-						startTimerOrAskEstimate();
-					}
+					startTimerOrAskEstimate();
 				} else {
 					if (tasksEstimateHoursModalDate != currentDate) {
 						openAddTasksEstimationHoursModal();
@@ -180,16 +155,6 @@ export function useStartStopTimerHandler() {
 					}
 				} else if (tasksEstimateHoursModalDate != currentDate) {
 					handleMissingTasksEstimationHours();
-				} else if (dailyPlanEstimateHoursModalDate != currentDate) {
-					if (hasPlan) {
-						if (areAllTasksEstimated) {
-							handleMissingDailyPlanWorkHour();
-						} else {
-							startTimerOrAskEstimate();
-						}
-					} else {
-						startTimerOrAskEstimate();
-					}
 				} else {
 					startTimerOrAskEstimate();
 				}
@@ -201,7 +166,6 @@ export function useStartStopTimerHandler() {
 		hasPlan,
 		hasWorkedHours,
 		isActiveTaskPlaned,
-		openAddDailyPlanWorkHoursModal,
 		openAddTasksEstimationHoursModal,
 		openEnforcePlannedTaskModal,
 		openEnforcePlannedTaskSoftModal,
@@ -219,9 +183,6 @@ export function useStartStopTimerHandler() {
 			isEnforceTaskModalOpen,
 			enforceTaskCloseModal,
 			openEnforcePlannedTaskModal,
-			isDailyPlanWorkHoursModalOpen,
-			dailyPlanWorkHoursCloseModal,
-			openAddDailyPlanWorkHoursModal,
 			isTasksEstimationHoursModalOpen,
 			tasksEstimationHoursCloseModal,
 			openAddTasksEstimationHoursModal,

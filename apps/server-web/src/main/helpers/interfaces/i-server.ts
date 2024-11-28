@@ -1,13 +1,13 @@
-interface GeneralConfig {
+export interface GeneralConfig {
     lang?: string
     autoUpdate?: boolean
-    updateCheckPeriode?: string
+    updateCheckPeriod?: string
     theme?: string
     setup?: boolean
     [key: string]: any
 }
 
-interface ServerConfig {
+export interface ServerConfig {
     PORT: number;
     NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
     GAUZY_API_SERVER_URL: string;

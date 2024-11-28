@@ -10,11 +10,12 @@ import Updater from './updater';
 import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import fs from 'fs';
-import { WebServer } from './helpers/interfaces';
-import { replaceConfig } from './helpers';
+import { WebServer, AppMenu, ServerConfig } from './helpers/interfaces';
+import { clearDesktopConfig } from './helpers';
 import Log from 'electron-log';
 import MenuBuilder from './menu';
 import { config } from '../configs/config';
+import { debounce } from 'lodash';
 
 
 console.log = Log.log;
@@ -39,8 +40,6 @@ let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
 let setupWindow: BrowserWindow | any = null;
-let SettingMenu: any = null;
-let ServerWindowMenu: any = null;
 const appMenu = new MenuBuilder(eventEmitter)
 
 Log.hooks.push((message: any, transport) => {
@@ -92,7 +91,7 @@ i18nextMainBackend.on('initialized', () => {
 });
 
 let trayMenuItems: any = [];
-let appMenuItems: any = [];
+let appMenuItems: AppMenu[] = [];
 
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
@@ -180,7 +179,6 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       mainBindings(ipcMain, settingWindow, fs);
       settingWindow.on('closed', () => {
         settingWindow = null;
-        SettingMenu = null
       });
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
       break;
@@ -191,7 +189,6 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       mainBindings(ipcMain, logWindow, fs);
       logWindow.on('closed', () => {
         logWindow = null;
-        ServerWindowMenu = null
       })
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
       break;
@@ -200,6 +197,11 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       url = resolveHtmlPath('index.html', 'setup');
       setupWindow?.loadURL(url);
       mainBindings(ipcMain, setupWindow, fs);
+      if (process.platform === 'darwin') {
+        Menu.setApplicationMenu(Menu.buildFromTemplate([]));
+      } else {
+        setupWindow.removeMenu();
+      }
       setupWindow.on('closed', () => {
         setupWindow = null;
       })
@@ -212,12 +214,17 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
 const runServer = async () => {
   console.log('Run the Server...');
   try {
-    const envVal: any = getEnvApi();
+    const envVal: ServerConfig | undefined = getEnvApi();
+    const folderPath = getWebDirPath();
+    await clearDesktopConfig(folderPath);
 
     // Instantiate API and UI servers
     await desktopServer.start(
       { api: serverPath },
-      envVal,
+      {
+        ...(envVal || {}),
+        IS_DESKTOP_APP: true
+      },
       undefined,
       signal
     );
@@ -243,7 +250,7 @@ const restartServer = async () => {
   }, 1000)
 }
 
-const getEnvApi = () => {
+const getEnvApi = (): ServerConfig | undefined => {
   const setting: WebServer = LocalStore.getStore('config')
   return setting?.server;
 };
@@ -257,24 +264,14 @@ const SendMessageToSettingWindow = (type: string, data: any) => {
 
 const onInitApplication = () => {
  // check and set default config
-  LocalStore.setDefaultServerConfig();
-  createIntervalAutoUpdate()
-  trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
-  appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
-  tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
-  i18nextMainBackend.on('languageChanged', (lng) => {
-    if (i18nextMainBackend.isInitialized) {
-
+  const storeConfig:WebServer = LocalStore.getStore('config');
+  i18nextMainBackend.on('languageChanged', debounce((lng) => {
+    if (i18nextMainBackend.isInitialized && storeConfig.general?.setup) {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
     }
-  });
-  eventEmitter.on(EventLists.webServerStart, async () => {
-    updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-    isServerRun = true;
-    await runServer();
-  })
+  }, 250));
 
   eventEmitter.on(EventLists.webServerStop, async () => {
     await stopServer();
@@ -400,6 +397,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
     if (!logWindow) {
+      initTrayMenu()
       await createWindow('LOG_WINDOW');
     }
     const serverSetting = LocalStore.getStore('config');
@@ -419,7 +417,7 @@ const onInitApplication = () => {
   })
 
   eventEmitter.on(EventLists.OPEN_WEB, () => {
-    const envConfig = getEnvApi();
+    const envConfig: ServerConfig | undefined = getEnvApi();
     const url = `http://127.0.0.1:${envConfig?.PORT}`
     shell.openExternal(url)
   })
@@ -431,21 +429,57 @@ const onInitApplication = () => {
   eventEmitter.on(EventLists.SERVER_WINDOW_DEV, () => {
     logWindow?.webContents.toggleDevTools();
   })
+}
 
-  eventEmitter.emit(EventLists.SERVER_WINDOW);
+const initTrayMenu = () => {
+  const MAX_RETRIES = 2;
+  const retryInit = async (attempts: number = 0) => {
+    try {
+      LocalStore.setDefaultServerConfig();
+      createIntervalAutoUpdate()
+      trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+      appMenuItems = appMenuItems.length ? appMenuItems : appMenu.defaultMenu();
+      tray = _initTray(trayMenuItems, getAssetPath('icons/icon.png'));
+
+      eventEmitter.on(EventLists.webServerStart, async () => {
+        updateTrayMenu('SERVER_START', { enabled: false }, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+        isServerRun = true;
+        await runServer();
+      })
+
+      trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
+      updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
+    } catch (error) {
+      if (attempts < MAX_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        retryInit(attempts + 1)
+      }
+      console.error('Failed to initialize application:', error);
+      dialog.showErrorBox('Initialization Error', 'Failed to initialize application');
+    }
+  }
+  if (!tray) {
+    return retryInit(0)
+  }
 }
 
 (async () => {
   await app.whenReady()
   const storeConfig:WebServer = LocalStore.getStore('config');
+  onInitApplication();
   if (storeConfig?.general?.setup) {
-    onInitApplication();
+    eventEmitter.emit(EventLists.SERVER_WINDOW);
   } else {
     if (!setupWindow) {
       await createWindow('SETUP_WINDOW');
     }
     if (setupWindow) {
-      setupWindow?.show()
+      setupWindow?.show();
+      setupWindow?.webContents.once('did-finish-load', () => {
+        setTimeout(() => {
+          setupWindow?.webContents.send('languageSignal', storeConfig.general?.lang);
+        }, 50)
+      })
     }
   }
 })()
@@ -459,47 +493,44 @@ ipcMain.on('message', async (event, arg) => {
   event.reply('message', `${arg} World!`)
 })
 
+const getWebDirPath = () => {
+  const dirFiles = 'standalone/apps/web/.next/server/app/api';
+  const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
+  const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
+  const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
+  return diFilesPath;
+}
+
 ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting:
-      const existingConfig = getEnvApi();
-      LocalStore.updateConfigSetting({
-        server: arg.data
-      });
-      const dirFiles = 'standalone/apps/web/.next';
-      const devDirFilesPath = path.join(__dirname, resourceDir.webServer, dirFiles);
-      const packDirFilesPath = path.join(process.resourcesPath, 'release', 'app', 'dist', dirFiles)
-      const diFilesPath = isPack ? packDirFilesPath : devDirFilesPath;
-      await replaceConfig(
-        diFilesPath,
-        {
-          before: {
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: existingConfig?.NEXT_PUBLIC_GAUZY_API_SERVER_URL || config.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-          },
-          after: {
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: arg.data.NEXT_PUBLIC_GAUZY_API_SERVER_URL || config.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-          }
-        }
-      )
-      if (arg.isSetup) {
+      {
         LocalStore.updateConfigSetting({
-          general: {
-            setup: true
-          }
+          server: arg.data
         });
-        setupWindow?.close();
-        onInitApplication();
-        eventEmitter.emit(EventLists.SERVER_WINDOW);
-      } else {
-        event.sender.send(IPC_TYPES.SETTING_PAGE, {
-          type: SettingPageTypeMessage.mainResponse, data: {
-            status: true,
-            isServerRun: isServerRun
-          }
-        });
+        const diFilesPath = getWebDirPath();
+        await clearDesktopConfig(
+          diFilesPath
+        )
+        if (arg.isSetup) {
+          LocalStore.updateConfigSetting({
+            general: {
+              setup: true
+            }
+          });
+          setupWindow?.close();
+          eventEmitter.emit(EventLists.SERVER_WINDOW);
+        } else {
+          event.sender.send(IPC_TYPES.SETTING_PAGE, {
+            type: SettingPageTypeMessage.mainResponse, data: {
+              status: true,
+              isServerRun: isServerRun
+            }
+          });
+        }
+        break;
       }
-      break;
-    case SettingPageTypeMessage.checkUpdate:
+      case SettingPageTypeMessage.checkUpdate:
       updater.checkUpdate();
       break;
     case SettingPageTypeMessage.installUpdate:
@@ -523,7 +554,7 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
       LocalStore.updateConfigSetting({
         general: {
           autoUpdate: arg.data.autoUpdate,
-          updateCheckPeriode: arg.data.updateCheckPeriode
+          updateCheckPeriod: arg.data.updateCheckPeriod
         }
       })
       createIntervalAutoUpdate()
@@ -554,13 +585,18 @@ ipcMain.handle('current-theme', async () => {
   return setting?.general?.theme;;
 })
 
+ipcMain.handle('current-language', async (): Promise<string> => {
+  const setting: WebServer = LocalStore.getStore('config');
+  return setting?.general?.lang || 'en';
+})
+
 const createIntervalAutoUpdate = () => {
   if (intervalUpdate) {
     clearInterval(intervalUpdate)
   }
   const setting: WebServer = LocalStore.getStore('config');
-  if (setting.general?.autoUpdate && setting.general.updateCheckPeriode) {
-    const checkIntervalSecond = parseInt(setting.general.updateCheckPeriode);
+  if (setting.general?.autoUpdate && setting.general.updateCheckPeriod) {
+    const checkIntervalSecond = parseInt(setting.general.updateCheckPeriod);
     if (!Number.isNaN(checkIntervalSecond)) {
       const intervalMS = checkIntervalSecond * 60 * 1000;
       intervalUpdate = setInterval(() => {

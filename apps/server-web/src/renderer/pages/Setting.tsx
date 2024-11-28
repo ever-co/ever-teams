@@ -6,14 +6,12 @@ import {
   ServerComponent,
   UpdaterComponent,
   AboutComponent,
-  GeneralComponent,
 } from '../components';
 import {
   IUpdaterStates,
   IUpdateSetting,
   IServerSetting,
   IPopup,
-  ILanguages,
   ISideMenu,
 } from '../libs/interfaces';
 import { useTranslation } from 'react-i18next';
@@ -40,19 +38,8 @@ export function Setting() {
 
   const [updateSetting, setUpdateSetting] = useState<IUpdateSetting>({
     autoUpdate: false,
-    updateCheckPeriode: '180',
+    updateCheckPeriod: '180',
   });
-
-  const [langs, setLangs] = useState<ILanguages[]>([
-    {
-      code: 'en',
-      label: 'English',
-    },
-    {
-      code: 'bg',
-      label: 'Bulgarian',
-    },
-  ]);
 
   const [lng, setLng] = useState<string>('en');
 
@@ -89,11 +76,6 @@ export function Setting() {
       return menu;
     });
     setMenu(newMenu);
-  };
-
-  const changeLanguage = (lang: ILanguages) => {
-    sendingMessageToMain(lang.code, SettingPageTypeMessage.langChange);
-    setLng(lang.code);
   };
 
   const saveSettingUpdate = (data: IUpdateSetting) => {
@@ -202,12 +184,6 @@ export function Setting() {
       sendingMessageToMain({}, SettingPageTypeMessage.showVersion);
       return <AboutComponent version={version} />;
     }
-
-    if (activeMenu() === 'general') {
-      return (
-        <GeneralComponent langs={langs} onChange={changeLanguage} lang={lng} />
-      );
-    }
     return <AboutComponent version={version} />;
   };
 
@@ -268,7 +244,7 @@ export function Setting() {
           setLng(arg.data.general.lang);
           setUpdateSetting({
             autoUpdate: arg.data.general.autoUpdate,
-            updateCheckPeriode: arg.data.general.updateCheckPeriode,
+            updateCheckPeriod: arg.data.general.updateCheckPeriod,
           });
           break;
         case SettingPageTypeMessage.mainResponse:
@@ -305,13 +281,7 @@ export function Setting() {
   }, []);
 
   return (
-    <SideBar
-      menus={menus}
-      menuChange={menuChange}
-      langs={langs}
-      lang={lng}
-      onLangChange={changeLanguage}
-    >
+    <SideBar menus={menus} menuChange={menuChange} lang={lng}>
       <MenuComponent />
     </SideBar>
   );

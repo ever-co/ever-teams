@@ -15,19 +15,19 @@
     "SERVER_WINDOW": "Server Window"
   },
   "MENU_APP": {
-    "ABOUT": "About",
-    "QUIT": "Quit",
-    "WINDOW": "Window",
-    "SUBMENU": {
-      "SETTING": "Setting",
-      "SERVER_WINDOW": "Server Window",
-      "LEARN_MORE": "Learn More",
-      "DOC": "Documentation",
-      "SETTING_DEV": "Setting Dev.",
-      "SERVER_DEV": "Server Dev."
+    "APP_ABOUT": "About",
+    "APP_QUIT": "Quit",
+    "APP_WINDOW": "Window",
+    "APP_SUBMENU": {
+      "APP_SETTING": "Setting",
+      "APP_SERVER_WINDOW": "Server Window",
+      "APP_LEARN_MORE": "Learn More",
+      "APP_DOC": "Documentation",
+      "APP_SETTING_DEV": "Setting Dev.",
+      "APP_SERVER_DEV": "Server Dev."
     },
-    "DEV": "Developer",
-    "HELP": "Help"
+    "APP_DEV": "Developer",
+    "APP_HELP": "Help"
   },
   "FORM": {
     "FIELDS": {

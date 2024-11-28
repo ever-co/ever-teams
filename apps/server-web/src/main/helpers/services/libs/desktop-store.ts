@@ -1,7 +1,7 @@
 import Store from 'electron-store';
-import { WebServer } from '../../interfaces';
+import { WebServer, ServerConfig } from '../../interfaces';
 const store = new Store();
-const DEFAULT_CONFIG:any = {
+const DEFAULT_CONFIG:WebServer = {
 	server: {
 		PORT: 3002,
 		GAUZY_API_SERVER_URL: 'http://localhost:3000',
@@ -11,7 +11,7 @@ const DEFAULT_CONFIG:any = {
 	general: {
 		lang: 'en',
 		autoUpdate: true,
-		updateCheckPeriode: '1140'
+		updateCheckPeriod: '1140' // Time in minutes
 	}
 }
 export const LocalStore = {
@@ -35,17 +35,41 @@ export const LocalStore = {
 		});
 	},
 
-
-	setDefaultServerConfig: () => {
-		const defaultConfig: WebServer | any = store.get('config') || {};
-		Object.keys(DEFAULT_CONFIG).forEach((key) => {
-			Object.keys(DEFAULT_CONFIG[key]).forEach((keySub) => {
-				defaultConfig[key] = defaultConfig[key] || {};
-				defaultConfig[key][keySub] = defaultConfig[key][keySub] || DEFAULT_CONFIG[key][keySub];
-			})
-		})
-		store.set({
-			config: defaultConfig
+	deepMerge<T>(target: T, source: Partial<T>): T {
+		const result: T = { ...target };
+		Object.keys(source).forEach(key => {
+			const value = source[key as keyof T];
+			if (value && typeof value === 'object') {
+				result[key as keyof T] = this.deepMerge(
+					target[key as keyof T],
+					value as any
+				);
+			} else if (value !== undefined) {
+				result[key as keyof T] = value as any;
+			}
 		});
+		return result;
+	},
+
+	validateConfig(config: WebServer): void {
+		const required = ['PORT', 'GAUZY_API_SERVER_URL'];
+		required.forEach(field => {
+			if (!config || !config.server || !config?.server[field as keyof ServerConfig]) {
+				throw new Error(`Missing required field: ${field}`);
+			}
+		});
+	},
+
+	setDefaultServerConfig() {
+	    try {
+	        const storedConfig = store.get('config') as Partial<WebServer> || {};
+	        const mergedConfig = this.deepMerge<WebServer>(DEFAULT_CONFIG, storedConfig)
+	        this.validateConfig(mergedConfig || {});
+
+	        store.set({ config: mergedConfig });
+	    } catch (error) {
+	        console.error('Failed to set default configuration:', error);
+	        store.set({ config: DEFAULT_CONFIG });
+	    }
 	}
 };

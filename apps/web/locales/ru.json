@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Бюджет проекта"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Вы уверены, что хотите удалить это?",
+		"IRREVERSIBLE_ACTION_WARNING": "Это действие необратимо. Все связанные данные будут потеряны.",
+		"SHIFT_TIMING": "График смен",
+		"ADD_ANOTHER_PERIOD": "Добавить еще один период",
+		"REMOVE_PERIOD": "Удалить период",
+		"DATE_AND_TIME": "Дата и время",
+		"NOTES": "Заметки",
+		"CHANGE_STATUS": "Изменить статус",
+		"TYPES": "Типы",
+		"LINK_TO_PROJECT": "Ссылка на проект",
+		"SELECT_A_PROJECT": "Выберите проект",
 		"ACCEPT": "Принять",
 		"ACCEPTED": "Принято",
 		"REJECT": "Отклонить",
@@ -267,7 +278,8 @@
 		"FILTER_CUSTOM_RANGE": "Пользовательский диапазон",
 		"CLEAR_FILTER": "Очистить фильтр",
 		"CLEAR": "Очистить",
-		"APPLY_FILTER": "Применить фильтр"
+		"APPLY_FILTER": "Применить фильтр",
+		"CREATE_NEW": "Создать новый"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
