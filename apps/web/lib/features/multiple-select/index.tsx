@@ -91,6 +91,7 @@ type CustomSelectProps = {
 
     className?: string,
     ariaLabel?: string
+    defaultValue?: string
     /**
      * Array of string options to be displayed in the dropdown.
      * Each string represents a selectable , such as "daily" or "weekly".
@@ -127,15 +128,24 @@ type CustomSelectProps = {
  *    )}
  * />
  */
-export function CustomSelect({ options, renderOption, ariaLabel, className }: CustomSelectProps) {
-    // State to store the currently selected value in the dropdown.
-    const [selectedValue, setSelectedValue] = React.useState<string>();
-
+export function CustomSelect({
+    options,
+    renderOption,
+    ariaLabel,
+    className,
+    value,
+    onChange,
+    defaultValue
+}: CustomSelectProps & {
+    value?: string,
+    onChange?: (value: string) => void
+}) {
     // Render the select component with dynamic options and optional custom rendering.
     return (
         <Select
-            value={selectedValue}
-            onValueChange={setSelectedValue}
+            defaultValue={defaultValue}
+            value={value}
+            onValueChange={onChange}
             aria-label={ariaLabel || "Select an option"} >
 
             <SelectTrigger
@@ -143,7 +153,7 @@ export function CustomSelect({ options, renderOption, ariaLabel, className }: Cu
             >
                 <SelectValue placeholder="Select an option" />
             </SelectTrigger>
-            <SelectContent className='z-[10000] dark:bg-dark--theme-light'>
+            <SelectContent className='z-[10000] dark:bg-dark--theme-light w-auto'>
                 <SelectGroup>
                     {options.map((value) => (
                         <SelectItem key={value} value={value}>

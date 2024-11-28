@@ -76,7 +76,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
             previousValue + currentValue.duration,
           0
         )) ||
-      0
+    0
   );
 
   return (

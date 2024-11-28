@@ -14,6 +14,21 @@
     "OPEN_WEB": "Open Web In Browser",
     "SERVER_WINDOW": "Server Window"
   },
+  "MENU_APP": {
+    "APP_ABOUT": "About",
+    "APP_QUIT": "Quit",
+    "APP_WINDOW": "Window",
+    "APP_SUBMENU": {
+      "APP_SETTING": "Setting",
+      "APP_SERVER_WINDOW": "Server Window",
+      "APP_LEARN_MORE": "Learn More",
+      "APP_DOC": "Documentation",
+      "APP_SETTING_DEV": "Setting Dev.",
+      "APP_SERVER_DEV": "Server Dev."
+    },
+    "APP_DEV": "Developer",
+    "APP_HELP": "Help"
+  },
   "FORM": {
     "FIELDS": {
       "PORT": "PORT",

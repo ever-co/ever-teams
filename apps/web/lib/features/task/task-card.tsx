@@ -58,12 +58,7 @@ import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
-import {
-	AddDailyPlanWorkHourModal,
-	AddTasksEstimationHoursModal,
-	EnforcePlanedTaskModal,
-	SuggestDailyPlanModal
-} from '../daily-plan';
+import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { SetAtom } from 'types';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 
@@ -217,7 +212,7 @@ export function TaskCard(props: Props) {
 				<VerticalSeparator />
 
 				{/* TaskTimes */}
-				<div className="flex items-center justify-between gap-[1.125rem]  px-5 w-1/5 lg:px-3 2xl:w-52 3xl:w-72">
+				<div className="flex items-center justify-between gap-[1.125rem] min-w-fit px-5 w-max lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					<TaskTimes
 						activeAuthTask={activeAuthTask}
 						task={task}
@@ -237,7 +232,7 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex items-center justify-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
+				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<div className="flex items-center justify-center ">
 						<ActiveTaskStatusDropdown
@@ -451,14 +446,6 @@ function TimerButtonCall({
 				/>
 			)}
 
-			{hasPlan && (
-				<AddDailyPlanWorkHourModal
-					isOpen={modals.isDailyPlanWorkHoursModalOpen}
-					closeModal={modals.dailyPlanWorkHoursCloseModal}
-					plan={hasPlan}
-				/>
-			)}
-
 			{/**
 			 * Track time on planned task (REQUIRE PLAN)
 			 */}
@@ -480,7 +467,7 @@ function TimerButtonCall({
 
 //* Task Estimate info *
 //* Task Info FC *
-function TaskInfo({
+export function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,
@@ -526,7 +513,7 @@ function TaskInfo({
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */
-function TaskCardMenu({
+export function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,
@@ -662,7 +649,7 @@ function TaskCardMenu({
 												{!taskPlannedTomorrow && (
 													<li className="mb-2">
 														<PlanTask
-															planMode="tomorow"
+															planMode="tomorrow"
 															taskId={task.id}
 															employeeId={profile?.member?.employeeId ?? ''}
 															taskPlannedForTomorrow={taskPlannedTomorrow}
@@ -812,7 +799,7 @@ export function PlanTask({
 						)}
 					</span>
 				)}
-				{planMode === 'tomorow' && !taskPlannedForTomorrow && (
+				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />

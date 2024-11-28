@@ -296,26 +296,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						{timeDifference}
 					</div>
 				</div>
-
-				{/* <div className="">
-					<label className="block text-gray-500 mb-1">
-						{t('manualTime.TEAM')}<span className="text-[#de5505e1] ml-1">*</span>
-					</label>
-					{
-						activeTeam ?
-							<SelectItems
-								defaultValue={activeTeam}
-								items={teams}
-								onValueChange={(team) => setTeam(team)}
-								itemId={(team) => (team ? team.id : '')}
-								itemToString={(team) => (team ? team.name : '')}
-								triggerClassName="border-gray-300 dark:border-slate-600"
-							/>
-							:
-							<></>
-					}
-				</div> */}
-
 				{params === 'AddManuelTime' ? (
 					<>
 						<ManageOrMemberComponent

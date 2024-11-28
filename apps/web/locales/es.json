@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Presupuesto del Proyecto"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "¿Estás seguro de que deseas eliminar esto?",
+		"IRREVERSIBLE_ACTION_WARNING": "Esta acción es irreversible. Todos los datos relacionados se perderán.",
+		"SHIFT_TIMING": "Horario de turno",
+		"ADD_ANOTHER_PERIOD": "Agregar otro período",
+		"REMOVE_PERIOD": "Eliminar período",
+		"DATE_AND_TIME": "Fecha y hora",
+		"NOTES": "Notas",
+		"CHANGE_STATUS": "Cambiar estado",
+		"TYPES": "Tipos",
+		"LINK_TO_PROJECT": "Vincular al proyecto",
+		"SELECT_A_PROJECT": "Seleccionar un proyecto",
 		"ACCEPT": "Aceptar",
 		"ACCEPTED": "Aceptado",
 		"REJECT": "Rechazar",
@@ -255,6 +266,8 @@
 		"MOVE_TO": "Mover a",
 		"SELECT_DATE": "Seleccionar fecha",
 		"SELECT_AND_CLOSE": "Seleccionar y cerrar",
+		"SORT": "Ordenar",
+		"ICON": "Ícono",
 		"SELECT_ROLE": "Por favor, selecciona un rol",
 		"ADD_TIME": "Agregar tiempo",
 		"VIEW_TIMESHEET": "Ver hoja de tiempo",
@@ -262,7 +275,11 @@
 		"FILTER_LAST_7_DAYS": "Últimos 7 días",
 		"FILTER_LAST_30_DAYS": "Últimos 30 días",
 		"FILTER_THIS_YEAR": "Este año {year}",
-		"FILTER_CUSTOM_RANGE": "Rango personalizado"
+		"FILTER_CUSTOM_RANGE": "Rango personalizado",
+		"CLEAR_FILTER": "Borrar filtro",
+		"CLEAR": "Borrar",
+		"APPLY_FILTER": "Aplicar filtro",
+		"CREATE_NEW": "Crear nuevo"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -338,7 +355,11 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "No pudimos actualizar el título de la tarea.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "El título de la tarea no puede exceder 255 caracteres.",
 			"TASK_IS_ALREADY_EPIC": "La tarea de tipo Épico no se puede cambiar.",
-			"TASK_HAS_PARENT": "El tipo de tarea no se puede cambiar porque la tarea ya tiene un padre."
+			"TASK_HAS_PARENT": "El tipo de tarea no se puede cambiar porque la tarea ya tiene un padre.",
+			"PROJECT": "Proyecto"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Está a punto de eliminar el estado {statusName} que está siendo utilizado por tareas activas; por favor confirme la acción"
 		},
 		"auth": {
 			"SEND_CODE": "enviar código",

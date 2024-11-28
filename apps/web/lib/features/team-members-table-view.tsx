@@ -72,11 +72,11 @@ const TeamMembersTableView = ({
 
 	return (
 		<>
-
 			<DataTable
 				isHeader={false}
 				columns={columns as Column<OT_Member>[]}
 				data={sortedTeamMembers}
+				isScrollable
 				noResultsMessage={{
 					heading: 'No team members found',
 					content: 'Try adjusting your search or filter to find what you’re looking for.'

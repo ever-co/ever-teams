@@ -18,7 +18,7 @@ export type ITeamTask = {
 	estimateMinutes?: number;
 	dueDate: string;
 	startDate?: string | null;
-	projectId: string;
+	projectId: string | null;
 	public: boolean;
 	taskStatusId?: string;
 	resolvedAt?: string;
@@ -137,6 +137,18 @@ export type ITaskStatusField =
 	| 'tags'
 	| 'status type';
 
+export type TimesheetStatus =
+	| "DRAFT"
+	| "PENDING"
+	| "IN REVIEW"
+	| "DENIED"
+	| "APPROVED";
+
+export type TimesheetFilterByDays =
+	| "Daily"
+	| "Weekly"
+	| "Monthly"
+
 export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
@@ -158,7 +170,7 @@ export interface ICreateTask {
 	priority?: string;
 	taskStatusId?: string;
 	issueType?: string;
-	members?: { id: string; [x: string]: any }[];
+	members?: { id: string;[x: string]: any }[];
 	estimateDays?: number;
 	estimateHours?: string;
 	estimateMinutes?: string;

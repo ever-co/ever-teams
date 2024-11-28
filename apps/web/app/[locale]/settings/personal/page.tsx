@@ -11,15 +11,15 @@ const Personal = () => {
 	const t = useTranslations();
 
 	return (
-		<div className="overflow-auto pb-16">
+		<div className="pb-16 overflow-auto">
 			<Link href={'/settings/team'} className="w-full">
-				<button className="w-full lg:hidden hover:bg-white rounded-xl border border-dark text-dark p-4 mt-2">
+				<button className="w-full p-4 mt-2 border lg:hidden hover:bg-white rounded-xl border-dark text-dark">
 					Go to Team settings
 				</button>
 			</Link>
 			<Accordian
 				title={t('pages.settingsPersonal.HEADING_TITLE')}
-				className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+				className="w-full max-w-[96vw] p-4 mt-5 dark:bg-dark--theme"
 				id="general"
 			>
 				{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
@@ -38,7 +38,6 @@ const Personal = () => {
 			<Accordian
 				title={t('pages.settings.DANDER_ZONE')}
 				className="p-4 mt-4 dark:bg-dark--theme"
-				isDanger={true}
 				id="danger-zone"
 			>
 				<DangerZone />

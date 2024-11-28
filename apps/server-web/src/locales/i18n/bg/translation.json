@@ -14,6 +14,21 @@
     "OPEN_WEB": "Отворете уеб в браузъра",
     "SERVER_WINDOW": "Прозорец на сървъра"
   },
+  "MENU_APP": {
+    "APP_ABOUT": "Относно",
+    "APP_QUIT": "Изход",
+    "APP_WINDOW": "Прозорец",
+    "APP_SUBMENU": {
+      "APP_SETTING": "Настройки",
+      "APP_SERVER_WINDOW": "Сървърен прозорец",
+      "APP_LEARN_MORE": "Научете повече",
+      "APP_DOC": "Документация",
+      "APP_SETTING_DEV": "Настройки за разработчици",
+      "APP_SERVER_DEV": "Сървър за разработчици"
+    },
+    "APP_DEV": "Разработчик",
+    "APP_HELP": "Помощ"
+  },
   "FORM": {
     "FIELDS": {
       "PORT": "ПРИСТАНИЩЕ",

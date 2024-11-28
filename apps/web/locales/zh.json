@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "项目预算"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "您确定要删除此项吗？",
+		"IRREVERSIBLE_ACTION_WARNING": "此操作不可逆。所有相关数据将丢失。",
+		"SHIFT_TIMING": "班次时间",
+		"ADD_ANOTHER_PERIOD": "添加另一段时间",
+		"REMOVE_PERIOD": "移除时间段",
+		"DATE_AND_TIME": "日期和时间",
+		"NOTES": "备注",
+		"CHANGE_STATUS": "更改状态",
+		"TYPES": "类型",
+		"LINK_TO_PROJECT": "链接到项目",
+		"SELECT_A_PROJECT": "选择一个项目",
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
 		"REJECT": "拒绝",
@@ -255,6 +266,8 @@
 		"MOVE_TO": "移动到",
 		"SELECT_DATE": "选择日期",
 		"SELECT_AND_CLOSE": "选择并关闭",
+		"SORT": "排序",
+		"ICON": "图标",
 		"SELECT_ROLE": "请选择角色",
 		"ADD_TIME": "添加时间",
 		"VIEW_TIMESHEET": "查看工时表",
@@ -262,7 +275,11 @@
 		"FILTER_LAST_7_DAYS": "过去7天",
 		"FILTER_LAST_30_DAYS": "过去30天",
 		"FILTER_THIS_YEAR": "今年 {year}",
-		"FILTER_CUSTOM_RANGE": "自定义范围"
+		"FILTER_CUSTOM_RANGE": "自定义范围",
+		"CLEAR_FILTER": "清除筛选",
+		"CLEAR": "清除",
+		"APPLY_FILTER": "应用筛选",
+		"CREATE_NEW": "创建新的"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -338,7 +355,11 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "无法更新任务标题。",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "任务标题不能超过255个字符。",
 			"TASK_IS_ALREADY_EPIC": "史诗类型任务无法更改。",
-			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。"
+			"TASK_HAS_PARENT": "任务已有父任务,无法更改任务类型。",
+			"PROJECT": "项目"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "您即将删除正在被活跃任务使用的状态 {statusName}；请确认操作"
 		},
 		"auth": {
 			"SEND_CODE": "发送验证码",

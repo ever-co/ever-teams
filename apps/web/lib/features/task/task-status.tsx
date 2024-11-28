@@ -33,6 +33,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
 import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
+import { getTextColor } from '@app/helpers';
 import { cn } from '@/lib/utils';
 
 export type TStatusItem = {
@@ -839,7 +840,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
+				`py-2 md:px-3 px-2 flex items-center text-sm relative gap-x-2 min-w-fit w-auto`,
 
 				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
@@ -854,12 +855,13 @@ export function TaskStatus({
 				className
 			)}
 			style={{
-				backgroundColor: active ? backgroundColor : undefined
+				backgroundColor: active ? backgroundColor : undefined,
+				color: getTextColor(backgroundColor ?? 'white')
 			}}
 		>
 			<div
 				className={cn(
-					'flex items-center space-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
+					'flex items-center gap-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
 					titleClassName
 				)}
 			>
@@ -975,10 +977,10 @@ export function StatusDropdown<T extends TStatusItem>({
 			className={clsxm(
 				`justify-between capitalize`,
 				sidebarUI && ['text-xs'],
-				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
+				!value && ['!text-dark/40 dark:text-white'],
 				isVersion || (forDetails && !value)
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-					: 'bg-[#F2F2F2] ',
+					: 'bg-white border',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
 				isVersion && 'dark:text-white',
@@ -1028,6 +1030,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										<Tooltip
 											enabled={hasBtnIcon && (value?.name || '').length > 10}
 											label={capitalize(value?.name) || ''}
+											className="h-full"
 										>
 											{button}
 										</Tooltip>
@@ -1076,7 +1079,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									<Listbox.Options className="outline-none">
 										<Card
 											shadow="bigger"
-											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 max-h-[206px] overflow-x-auto"
+											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5 overflow-x-auto"
 										>
 											{items.map((item, i) => {
 												const item_value = item?.value || item?.name;
@@ -1243,14 +1246,14 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						leaveFrom="transform scale-100 opacity-100"
 						leaveTo="transform scale-95 opacity-0"
 						className={clsxm(
-							'absolute right-0 left-0 z-40 min-w-min outline-none',
+							'absolute right-0 left-0 z-[999] min-w-min outline-none',
 							issueType === 'issue' && ['left-auto right-auto']
 						)}
 					>
 						<Listbox.Options className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col"
+								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col max-h-[206px] overflow-x-auto"
 							>
 								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0">
 									{items.map((item, i) => {

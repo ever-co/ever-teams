@@ -51,7 +51,7 @@ const TeamMembersCardView: React.FC<Props> = ({
 
 	return (
 		<>
-			<ul className="mt-7">
+			<ul className="mt-7 overflow-y-auto">
 				{/* Current authenticated user members */}
 				<Transition
 					show={!!currentUser}
@@ -138,7 +138,6 @@ const TeamMembersCardView: React.FC<Props> = ({
 						<InviteUserTeamSkeleton />
 					</li>
 				</Transition>
-
 				{/* Invite button */}
 				<Transition
 					show={isTeamManager}

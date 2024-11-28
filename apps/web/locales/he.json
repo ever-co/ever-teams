@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "תקציב פרויקט"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "האם אתה בטוח שברצונך למחוק?",
+		"IRREVERSIBLE_ACTION_WARNING": "פעולה זו בלתי הפיכה. כל הנתונים הקשורים יימחקו.",
+		"SHIFT_TIMING": "זמן משמרת",
+		"ADD_ANOTHER_PERIOD": "הוסף תקופה נוספת",
+		"REMOVE_PERIOD": "הסר תקופה",
+		"DATE_AND_TIME": "תאריך ושעה",
+		"NOTES": "הערות",
+		"CHANGE_STATUS": "שנה מצב",
+		"TYPES": "סוגים",
+		"LINK_TO_PROJECT": "קישור לפרויקט",
+		"SELECT_A_PROJECT": "בחר פרויקט",
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
 		"REJECT": "דחה",
@@ -255,6 +266,8 @@
 		"MOVE_TO": "העבר אל",
 		"SELECT_DATE": "בחר תאריך",
 		"SELECT_AND_CLOSE": "בחר וסגור",
+		"SORT": "מיין",
+		"ICON": "סמל",
 		"SELECT_ROLE": "אנא בחר תפקיד",
 		"ADD_TIME": "הוסף זמן",
 		"VIEW_TIMESHEET": "הצג גיליון זמן",
@@ -262,7 +275,11 @@
 		"FILTER_LAST_7_DAYS": "ה-7 ימים האחרונים",
 		"FILTER_LAST_30_DAYS": "ה-30 ימים האחרונים",
 		"FILTER_THIS_YEAR": "שנה זו {year}",
-		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית"
+		"FILTER_CUSTOM_RANGE": "טווח מותאם אישית",
+		"CLEAR_FILTER": "נקה סינון",
+		"CLEAR": "נקה",
+		"APPLY_FILTER": "החל סינון",
+		"CREATE_NEW": "צור חדש"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -338,7 +355,11 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "לא יכולנו לעדכן את כותרת המשימה.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "כותרת משימה לא יכולה לעלות על 255 תווים.",
 			"TASK_IS_ALREADY_EPIC": "לא ניתן לשנות סוג משימה אפית.",
-			"TASK_HAS_PARENT": "לא ניתן לשנות סוג משימה מכיוון שלמשימה כבר יש הורה."
+			"TASK_HAS_PARENT": "לא ניתן לשנות סוג משימה מכיוון שלמשימה כבר יש הורה.",
+			"PROJECT": "פרויקט"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "אתה עומד למחוק את המצב {statusName} המשמש במשימות פעילות; נא לאשר פעולה"
 		},
 		"auth": {
 			"SEND_CODE": "שלח קוד",

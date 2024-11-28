@@ -2,216 +2,79 @@ import {
   app,
   Menu,
   shell,
-  BrowserWindow,
-  MenuItemConstructorOptions,
 } from 'electron';
 import { config } from '../configs/config';
-
-interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
-  selector?: string;
-  submenu?: DarwinMenuItemConstructorOptions[] | Menu;
-}
+import { EventEmitter } from 'events';
+import { EventLists } from './helpers/constant';
+import i18n from 'i18next';
+import { AppMenu } from './helpers/interfaces';
 
 export default class MenuBuilder {
-  mainWindow: BrowserWindow;
+  eventEmitter: EventEmitter
 
-  constructor(mainWindow: BrowserWindow) {
-    this.mainWindow = mainWindow;
+  constructor(eventEmitter: EventEmitter) {
+    this.eventEmitter = eventEmitter
   }
 
-  buildMenu(): Menu {
-    if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true'
-    ) {
-      this.setupDevelopmentEnvironment();
-    }
-
-    const template =
-      process.platform === 'darwin'
-        ? this.buildDarwinTemplate()
-        : this.buildDefaultTemplate();
-
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
-
-    return menu;
-  }
-
-  setupDevelopmentEnvironment(): void {
-    this.mainWindow.webContents.on('context-menu', (_, props) => {
-      const { x, y } = props;
-
-      Menu.buildFromTemplate([
-        {
-          label: 'Inspect element',
-          click: () => {
-            this.mainWindow.webContents.inspectElement(x, y);
-          },
-        },
-      ]).popup({ window: this.mainWindow });
-    });
-  }
-
-  buildDarwinTemplate(): MenuItemConstructorOptions[] {
-    const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: config.DESCRIPTION || app.getName(),
-      submenu: [
-        {
-          label: `About ${config.DESCRIPTION || app.getName()}`,
-          selector: 'orderFrontStandardAboutPanel:',
-        },
-        { type: 'separator' },
-        {
-          label: 'Quit',
-          accelerator: 'Command+Q',
-          click: () => {
-            app.quit();
-          },
-        },
-      ],
-    };
-    const subMenuViewDev: MenuItemConstructorOptions = {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Reload',
-          accelerator: 'Command+R',
-          click: () => {
-            this.mainWindow.webContents.reload();
-          },
-        },
-        {
-          label: 'Toggle Developer Tools',
-          accelerator: 'Alt+Command+I',
-          click: () => {
-            this.mainWindow.webContents.toggleDevTools();
-          },
-        },
-      ],
-    };
-    const subMenuViewProd: MenuItemConstructorOptions = {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Reload',
-          accelerator: 'Command+R',
-          click: () => {
-            this.mainWindow.webContents.reload();
-          },
-        },
-        {
-          label: 'Toggle Developer Tools',
-          accelerator: 'Alt+Command+I',
-          click: () => {
-            this.mainWindow.webContents.toggleDevTools();
-          },
-        },
-      ],
-    };
-    const subMenuWindow: DarwinMenuItemConstructorOptions = {
-      label: 'Window',
-      submenu: [
-        {
-          label: 'Minimize',
-          accelerator: 'Command+M',
-          selector: 'performMiniaturize:',
-        },
-        { label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
-        { type: 'separator' },
-      ],
-    };
-    const subMenuHelp: MenuItemConstructorOptions = {
-      label: 'Help',
-      submenu: [
-        {
-          label: 'Learn More',
-          click() {
-            shell.openExternal('https://ever.team/');
-          },
-        },
-        {
-          label: 'Documentation',
-          click() {
-            shell.openExternal(
-              'https://github.com/ever-co/ever-teams/blob/develop/README.md',
-            );
-          },
-        },
-        {
-          label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/ever-co/ever-teams/issues');
-          },
-        },
-      ],
-    };
-
-    const subMenuView =
-      process.env.NODE_ENV === 'development' ||
-        process.env.DEBUG_PROD === 'true'
-        ? subMenuViewDev
-        : subMenuViewProd;
-
-    return [subMenuAbout, subMenuView, subMenuWindow, subMenuHelp];
-  }
-
-  buildDefaultTemplate() {
-    const templateDefault = [
+  defaultMenu(): AppMenu[] {
+    const isDarwin = process.platform === 'darwin';
+    return [
       {
-        label: '&File',
+        id: 'MENU_APP',
+        label: config.DESCRIPTION || app.getName(),
         submenu: [
           {
-            label: '&Close',
-            accelerator: 'Ctrl+W',
+            id: 'MENU_APP_ABOUT',
+            label: `MENU_APP.APP_ABOUT`,
             click: () => {
-              this.mainWindow.close();
+              this.eventEmitter.emit(EventLists.gotoAbout)
+            }
+          },
+          { type: 'separator' },
+          {
+            id: 'MENU_APP_QUIT',
+            label: 'MENU_APP.APP_QUIT',
+            accelerator: isDarwin ? 'Command+Q' : 'Alt+F4',
+            click: () => {
+              app.quit();
             },
           },
         ],
       },
       {
-        label: '&View',
-        submenu:
-          process.env.NODE_ENV === 'development' ||
-            process.env.DEBUG_PROD === 'true'
-            ? [
-              {
-                label: '&Reload',
-                accelerator: 'Ctrl+R',
-                click: () => {
-                  this.mainWindow.webContents.reload();
-                },
-              },
-              {
-                label: 'Toggle &Developer Tools',
-                accelerator: 'Alt+Ctrl+I',
-                click: () => {
-                  this.mainWindow.webContents.toggleDevTools();
-                },
-              },
-            ]
-            : [
-              {
-                label: 'Toggle &Developer Tools',
-                accelerator: 'Alt+Ctrl+I',
-                click: () => {
-                  this.mainWindow.webContents.toggleDevTools();
-                },
-              },
-            ],
-      },
-      {
-        label: 'Help',
+        id: 'MENU_APP_WINDOW',
+        label: 'MENU_APP.APP_WINDOW',
         submenu: [
           {
-            label: 'Learn More',
+            id: 'SUBMENU_SETTING',
+            label: 'MENU_APP.APP_SUBMENU.APP_SETTING',
+            click: () => {
+              this.eventEmitter.emit(EventLists.gotoSetting);
+            }
+          },
+          {
+            id: 'SUBMENU_SERVER',
+            label: 'MENU_APP.APP_SUBMENU.APP_SERVER_WINDOW',
+            click: () => {
+              this.eventEmitter.emit(EventLists.SERVER_WINDOW);
+            }
+          }
+        ]
+      },
+      {
+        id: 'MENU_APP_HELP',
+        label: 'MENU_APP.APP_HELP',
+        submenu: [
+          {
+            id: 'SUBMENU_LEARN_MORE',
+            label: 'MENU_APP.APP_SUBMENU.APP_LEARN_MORE',
             click() {
               shell.openExternal(config.COMPANY_SITE_LINK);
             },
           },
           {
-            label: 'Documentation',
+            id: 'SUBMENU_DOC',
+            label: 'MENU_APP.APP_SUBMENU.APP_DOC',
             click() {
               shell.openExternal(
                 config.COMPANY_GITHUB_LINK
@@ -220,8 +83,61 @@ export default class MenuBuilder {
           },
         ],
       },
-    ];
-
-    return templateDefault;
+      {
+        id: 'MENU_APP_DEV',
+        label: 'MENU_APP.APP_DEV',
+        submenu: [
+          {
+            id: 'SUBMENU_SETTING_DEV',
+            label: 'MENU_APP.APP_SUBMENU.APP_SETTING_DEV',
+            click: () => {
+              this.eventEmitter.emit(EventLists.SETTING_WINDOW_DEV);
+            },
+          },
+          {
+            id: 'SUBMENU_SERVER_DEV',
+            label: 'MENU_APP.APP_SUBMENU.APP_SERVER_DEV',
+            click: () => {
+              this.eventEmitter.emit(EventLists.SERVER_WINDOW_DEV);
+            },
+          },
+        ]
+      },
+    ]
   }
+
+  buildDefaultTemplate(menuItems: any, i18nextMainBackend: typeof i18n) {
+    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menuItems));
+  }
+
+  updateAppMenu(menuItem: string, context: { label?: string, enabled?: boolean}, contextMenuItems: any, i18nextMainBackend: typeof i18n) {
+    const menuIdx:number = contextMenuItems.findIndex((item: any) => item.id === menuItem);
+    if (menuIdx > -1) {
+        contextMenuItems[menuIdx] = {...contextMenuItems[menuIdx], ...context};
+        const newMenu = [...contextMenuItems];
+        Menu.setApplicationMenu(Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, newMenu)));
+    } else {
+      const newMenu = [...contextMenuItems];
+      Menu.setApplicationMenu(Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, newMenu)))
+    }
+}
+
+translateAppMenu(i18nextMainBackend: typeof i18n, contextMenu: any) {
+  return contextMenu.map((menu: any) => {
+    const menuCopied = {...menu};
+    if (menuCopied.label) {
+      menuCopied.label = i18nextMainBackend.t(menuCopied.label);
+    }
+    if (menuCopied.submenu && menuCopied.submenu.length) {
+      menuCopied.submenu = menuCopied.submenu.map((sm: any) => {
+        const submenu = {...sm};
+        if (submenu.label) {
+          submenu.label = i18nextMainBackend.t(submenu.label)
+        }
+        return submenu;
+      })
+    }
+    return menuCopied;
+  })
+}
 }

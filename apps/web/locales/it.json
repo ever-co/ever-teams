@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Budget di progetto"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Sei sicuro di voler eliminare questo elemento?",
+		"IRREVERSIBLE_ACTION_WARNING": "Questa azione è irreversibile. Tutti i dati correlati andranno persi.",
+		"SHIFT_TIMING": "Orario di turno",
+		"ADD_ANOTHER_PERIOD": "Aggiungi un altro periodo",
+		"REMOVE_PERIOD": "Rimuovi periodo",
+		"DATE_AND_TIME": "Data e ora",
+		"NOTES": "Note",
+		"CHANGE_STATUS": "Cambia stato",
+		"TYPES": "Tipi",
+		"LINK_TO_PROJECT": "Collega al progetto",
+		"SELECT_A_PROJECT": "Seleziona un progetto",
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
@@ -255,6 +266,8 @@
 		"MOVE_TO": "Sposta a",
 		"SELECT_DATE": "Seleziona data",
 		"SELECT_AND_CLOSE": "Seleziona e chiudi",
+		"SORT": "Ordina",
+		"ICON": "Icona",
 		"SELECT_ROLE": "Seleziona un ruolo",
 		"ADD_TIME": "Aggiungi tempo",
 		"VIEW_TIMESHEET": "Vedi foglio ore",
@@ -262,7 +275,11 @@
 		"FILTER_LAST_7_DAYS": "Ultimi 7 giorni",
 		"FILTER_LAST_30_DAYS": "Ultimi 30 giorni",
 		"FILTER_THIS_YEAR": "Quest'anno {year}",
-		"FILTER_CUSTOM_RANGE": "Intervallo personalizzato"
+		"FILTER_CUSTOM_RANGE": "Intervallo personalizzato",
+		"CLEAR_FILTER": "Cancella filtro",
+		"CLEAR": "Cancella",
+		"APPLY_FILTER": "Applica filtro",
+		"CREATE_NEW": "Crea nuovo"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -338,7 +355,11 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Non è stato possibile aggiornare il Titolo del Compito.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Il Titolo del Compito non può superare i 255 caratteri.",
 			"TASK_IS_ALREADY_EPIC": "Il tipo di Compito Epico non può essere cambiato.",
-			"TASK_HAS_PARENT": "Il tipo di Compito non può essere cambiato poiché il Compito ha già un Genitore."
+			"TASK_HAS_PARENT": "Il tipo di Compito non può essere cambiato poiché il Compito ha già un Genitore.",
+			"PROJECT": "Progetto"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Stai per eliminare lo stato {statusName} utilizzato da attività attive; per favore conferma l'azione"
 		},
 		"auth": {
 			"SEND_CODE": "Invia Codice",

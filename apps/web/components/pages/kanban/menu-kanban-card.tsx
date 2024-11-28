@@ -82,7 +82,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 					await createTask({
 						...task,
 						taskStatusId: task.taskStatusId ?? taskStatus[0].id,
-						taskName: `Copy ${task.title}`,
+						title: `Copy ${task.title}`,
 						issueType: task.issueType ?? 'Bug'
 					});
 				} catch (error) {
@@ -170,7 +170,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 						<PlanTask planMode="today" taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
-						<PlanTask planMode="tomorow" taskId={task.id} chooseMember={true} />
+						<PlanTask planMode="tomorrow" taskId={task.id} chooseMember={true} />
 					</li>
 					<li className="font-normal flex justify-between capitalize hover:bg-secondary-foreground/20 w-full text-left whitespace-nowrap text-sm hover:font-semibold hover:transition-all py-1 px-2">
 						<PlanTask planMode="custom" taskId={task.id} chooseMember={true} />
@@ -201,7 +201,7 @@ interface ITeamMemberSelectProps {
  *
  * @return {JSX.Element} The multi select component
  */
-function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
+export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 	const { teamMembers, task } = props;
 	const t = useTranslations();
 
@@ -227,8 +227,7 @@ function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 								<Combobox.Option
 									key={member.id}
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${
-											active ? 'bg-primary/5' : 'text-gray-900'
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5' : 'text-gray-900'
 										}`
 									}
 									value={member}

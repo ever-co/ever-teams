@@ -1,6 +1,17 @@
 {
 	"TITLE": "إيفر تيمز",
 	"common": {
+		"DELETE_CONFIRMATION": "هل أنت متأكد أنك تريد الحذف؟",
+		"IRREVERSIBLE_ACTION_WARNING": "هذا الإجراء لا رجعة فيه. ستفقد جميع البيانات ذات الصلة.",
+		"SHIFT_TIMING": "توقيت العمل",
+		"ADD_ANOTHER_PERIOD": "إضافة فترة أخرى",
+		"REMOVE_PERIOD": "إزالة الفترة",
+		"DATE_AND_TIME": "التاريخ والوقت",
+		"NOTES": "ملاحظات",
+		"CHANGE_STATUS": "تغيير الحالة",
+		"TYPES": "أنواع",
+		"LINK_TO_PROJECT": "رابط إلى المشروع",
+		"SELECT_A_PROJECT": "اختر مشروعًا",
 		"ACCEPT": "قبول",
 		"ACCEPTED": "مقبول",
 		"REJECT": "رفض",
@@ -235,6 +246,8 @@
 		"CHANGE_RELATIONS": "تغيير العلاقات",
 		"SET_AS_NEXT": "تعيين كالتالي",
 		"MOVE_TO": "نقل إلى",
+		"SORT": "فرز",
+		"ICON": "أيقونة",
 		"SELECT_DATE": "اختر التاريخ",
 		"SELECT_AND_CLOSE": "اختر وأغلق",
 		"SELECT_ROLE": "يرجى اختيار أي دور",
@@ -244,7 +257,11 @@
 		"FILTER_LAST_7_DAYS": "آخر 7 أيام",
 		"FILTER_LAST_30_DAYS": "آخر 30 يومًا",
 		"FILTER_THIS_YEAR": "هذا العام {year}",
-		"FILTER_CUSTOM_RANGE": "نطاق مخصص"
+		"FILTER_CUSTOM_RANGE": "نطاق مخصص",
+		"CLEAR_FILTER": "مسح الفلتر",
+		"CLEAR": "مسح",
+		"APPLY_FILTER": "تطبيق الفلتر",
+		"CREATE_NEW": "إنشاء جديد"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -338,7 +355,11 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "تعذر علينا تحديث عنوان المهمة.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
 			"TASK_IS_ALREADY_EPIC": "لا يمكن تغيير نوع المهمة الملحمية.",
-			"TASK_HAS_PARENT": "لا يمكن تغيير نوع المهمة حيث أن لديها بالفعل والد."
+			"TASK_HAS_PARENT": "لا يمكن تغيير نوع المهمة حيث أن لديها بالفعل والد.",
+			"PROJECT": "مشروع"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "أنت على وشك حذف الحالة {statusName} التي يتم استخدامها من قبل المهام النشطة؛ يرجى تأكيد الإجراء"
 		},
 		"auth": {
 			"SEND_CODE": "إرسال الرمز",

@@ -1,13 +1,12 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card } from 'lib/components';
+import { Breadcrumb, Card, Container } from 'lib/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
 import { MainLayout } from 'lib/layout';
 import { IssuesView } from '@app/constants';
@@ -29,12 +28,11 @@ import { headerTabs } from '@app/stores/header-tabs';
 import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
 import TeamMemberHeader from 'lib/features/team-member-header';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@components/ui/resizable';
 import { TeamOutstandingNotifications } from 'lib/features/team/team-outstanding-notifications';
 
 function MainPage() {
 	const t = useTranslations();
-	const [headerSize, setHeaderSize] = useState(10);
+	const [headerSize] = useState(10);
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
@@ -67,63 +65,44 @@ function MainPage() {
 				<MainLayout
 					showTimer={headerSize <= 11.8 && isTrackingEnabled}
 					className="h-full"
+					mainHeaderSlot={
+						<div className="bg-white dark:bg-dark-high">
+							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
+								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
+									<div className="flex items-center justify-center h-10 gap-8">
+										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+
+										<Breadcrumb paths={breadcrumb} className="text-sm" />
+									</div>
+
+									<div className="flex items-center justify-center h-10 gap-1 w-max">
+										<HeaderTabs linkAll={false} />
+									</div>
+								</div>
+
+								<div className="mx-8-container">
+									<div className="w-full">
+										<UnverifiedEmail />
+
+										<TeamInvitations className="!m-0" />
+
+										<TeamOutstandingNotifications />
+									</div>
+
+									{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
+								</div>
+								<TeamMemberHeader view={view} />
+							</div>
+						</div>
+					}
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-
-					<div className="h-full ">
-						<ResizablePanelGroup direction="vertical">
-							{/* <Container className="mx-0 " fullWidth={fullWidth}> */}
-
-							<ResizablePanel
-								defaultSize={30}
-								maxSize={48}
-								className={clsxm(
-									headerSize < 20 ? '!overflow-hidden ' : '!overflow-visible',
-									'dark:bg-dark-high border-b-[0.125rem] dark:border-[#26272C]'
-								)}
-								onResize={(size) => setHeaderSize(size)}
-							>
-								<div className="sticky z-40 bg-white dark:bg-dark-high">
-									<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
-										<div className="mx-8-container pt-6 !px-0 flex flex-row items-start justify-between ">
-											<div className="flex items-center justify-center h-10 gap-8">
-												<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-
-												<Breadcrumb paths={breadcrumb} className="text-sm" />
-											</div>
-
-											<div className="flex items-center justify-center h-10 gap-1 w-max">
-												<HeaderTabs linkAll={false} />
-											</div>
-										</div>
-
-										<div className="mb-1 mx-8-container">
-											<div className="w-full mt-3">
-												<UnverifiedEmail />
-
-												<TeamInvitations className="!m-0" />
-
-												<TeamOutstandingNotifications />
-											</div>
-
-											{isTeamMember ? (
-												<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
-											) : null}
-										</div>
-										<TeamMemberHeader view={view} />
-									</div>
-								</div>
-							</ResizablePanel>
-
-							<ResizableHandle withHandle />
-
-							{/* </Container> */}
-							<ResizablePanel defaultSize={65} maxSize={95} className="!overflow-y-auto custom-scrollbar">
-								{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}
-							</ResizablePanel>
-						</ResizablePanelGroup>
-					</div>
+					<div className="h-full ">{isTeamMember ?
+						<Container fullWidth={fullWidth} className='mx-auto' >
+							<TeamMembers kanbanView={view} />
+						</Container>
+						: <NoTeam />}</div>
 				</MainLayout>
 			</div>
 			<Analytics />
@@ -131,19 +110,19 @@ function MainPage() {
 	);
 }
 
-function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean }) {
+function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = React.useState(false);
 	return (
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row flex-col-reverse justify-center md:justify-between items-center py-4',
+				'w-full flex lg:flex-row gap-4 lg:gap-5 xl:gap-8 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
 			<AuthUserTaskInput
 				className={clsxm(
-					'mx-auto w-full lg:w-3/4 lg:mr-10',
+					'w-full lg:basis-3/4 grow',
 					!showInput && '!hidden md:!flex',
 					!isTrackingEnabled && 'md:w-full'
 				)}
@@ -157,7 +136,7 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 				</ChevronDown>
 			</div>
 			{isTrackingEnabled ? (
-				<div className="w-full lg:w-1/4">
+				<div className="w-full max-w-fit lg:basis-1/4 grow">
 					<Timer />
 				</div>
 			) : null}

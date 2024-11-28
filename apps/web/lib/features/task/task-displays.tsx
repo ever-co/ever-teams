@@ -1,7 +1,10 @@
-import { ITeamTask, Nullable } from '@app/interfaces';
+import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
+import { formatDate, secondsToTime } from '@/app/helpers';
+import { ClockIcon } from "@radix-ui/react-icons"
+import React from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -61,3 +64,58 @@ export function TaskNameInfoDisplay({
 		</Tooltip>
 	);
 }
+
+const formatTime = (hours: number, minutes: number) => (
+	<div className="flex items-center">
+		<span>{String(hours).padStart(2, '0')}</span>
+		<span>:</span>
+		<span>{String(minutes).padStart(2, '0')}</span>
+	</div>
+);
+
+export const DisplayTimeForTimesheet = ({ duration }: { duration: number }) => {
+	if (duration < 0) {
+		console.warn('Negative duration provided to DisplayTimeForTimesheet');
+		duration = 0;
+	}
+	const { h: hours, m: minute } = secondsToTime(duration || 0);
+	return (
+		<div className='flex items-center font-medium gap-x-1'>
+			<ClockIcon className='text-green-400 text-[14px] h-4 w-4' />
+			<div className='flex items-center text-[#282048] dark:text-[#9b8ae1]'>
+				{formatTime(hours, minute)}
+			</div>
+		</div>
+	)
+
+}
+
+export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
+	const totalDuration = Array.isArray(timesheetLog)
+		? timesheetLog.reduce((acc, curr) => acc + (curr.timesheet?.duration || 0), 0)
+		: 0;
+	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+	return (
+		<div className="flex items-center text-[#868688]">
+			{formatTime(hours, minute)}
+		</div>)
+});
+TotalTimeDisplay.displayName = 'TotalTimeDisplay';
+
+
+export const TotalDurationByDate = React.memo(
+	({ timesheetLog, createdAt, className }: { timesheetLog: TimesheetLog[]; createdAt: Date | string, className?: string }) => {
+		const targetDateISO = new Date(createdAt).toISOString();
+		const filteredLogs = timesheetLog.filter(
+			(item) => formatDate(item.timesheet.createdAt) === formatDate(targetDateISO));
+		const totalDurationInSeconds = filteredLogs.reduce(
+			(total, log) => total + (log.timesheet?.duration || 0), 0);
+		const { h: hours, m: minutes } = secondsToTime(totalDurationInSeconds);
+		return (
+			<div className={clsxm("flex items-center text-[#868688]", className)}>
+				{formatTime(hours, minutes)}
+			</div>
+		);
+	}
+);
+TotalDurationByDate.displayName = 'TotalDurationByDate';

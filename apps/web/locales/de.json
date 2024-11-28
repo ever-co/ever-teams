@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Projektbudget"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Sind Sie sicher, dass Sie dies löschen möchten?",
+		"IRREVERSIBLE_ACTION_WARNING": "Diese Aktion ist irreversibel. Alle zugehörigen Daten gehen verloren.",
+		"SHIFT_TIMING": "Schichtzeiten",
+		"ADD_ANOTHER_PERIOD": "Weitere Periode hinzufügen",
+		"REMOVE_PERIOD": "Periode entfernen",
+		"DATE_AND_TIME": "Datum und Uhrzeit",
+		"NOTES": "Notizen",
+		"CHANGE_STATUS": "Status ändern",
+		"TYPES": "Typen",
+		"LINK_TO_PROJECT": "Projekt verlinken",
+		"SELECT_A_PROJECT": "Projekt auswählen",
 		"ACCEPT": "Akzeptieren",
 		"ACCEPTED": "Akzeptiert",
 		"REJECT": "Ablehnen",
@@ -255,6 +266,8 @@
 		"MOVE_TO": "Verschieben nach",
 		"SELECT_DATE": "Datum auswählen",
 		"SELECT_AND_CLOSE": "Auswählen und schließen",
+		"SORT": "Sortieren",
+		"ICON": "Symbol",
 		"SELECT_ROLE": "Bitte wählen Sie eine Rolle",
 		"ADD_TIME": "Zeit hinzufügen",
 		"VIEW_TIMESHEET": "Zeiterfassung anzeigen",
@@ -262,7 +275,11 @@
 		"FILTER_LAST_7_DAYS": "Letzte 7 Tage",
 		"FILTER_LAST_30_DAYS": "Letzte 30 Tage",
 		"FILTER_THIS_YEAR": "Dieses Jahr {year}",
-		"FILTER_CUSTOM_RANGE": "Benutzerdefinierter Bereich"
+		"FILTER_CUSTOM_RANGE": "Benutzerdefinierter Bereich",
+		"CLEAR_FILTER": "Filter löschen",
+		"CLEAR": "Löschen",
+		"APPLY_FILTER": "Filter anwenden",
+		"CREATE_NEW": "Neu erstellen"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -338,7 +355,11 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE": "Die Aufgabenbezeichnung konnte nicht aktualisiert werden.",
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Die Aufgabenbezeichnung darf nicht mehr als 255 Zeichen umfassen.",
 			"TASK_IS_ALREADY_EPIC": "Epische Aufgabentypen können nicht geändert werden.",
-			"TASK_HAS_PARENT": "Der Aufgabentyp kann nicht geändert werden, da die Aufgabe bereits ein übergeordnetes Element hat."
+			"TASK_HAS_PARENT": "Der Aufgabentyp kann nicht geändert werden, da die Aufgabe bereits ein übergeordnetes Element hat.",
+			"PROJECT": "Projekt"
+		},
+		"taskStatus": {
+			"DELETE_STATUS_CONFIRMATION": "Sie sind dabei, den Status {statusName} zu löschen, der von aktiven Aufgaben verwendet wird; bitte bestätigen Sie die Aktion"
 		},
 		"auth": {
 			"SEND_CODE": "Code senden",

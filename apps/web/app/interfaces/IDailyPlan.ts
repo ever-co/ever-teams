@@ -25,12 +25,12 @@ export interface ICreateDailyPlan extends IDailyPlanBase, IRelationnalEmployee, 
 
 export interface IUpdateDailyPlan
 	extends Partial<IDailyPlanBase>,
-		Pick<ICreateDailyPlan, 'employeeId'>,
-		Partial<Pick<IRelationalOrganizationTeam, 'organizationTeamId'>> {}
+	Pick<ICreateDailyPlan, 'employeeId'>,
+	Partial<Pick<IRelationalOrganizationTeam, 'organizationTeamId'>> { }
 
 export interface IDailyPlanTasksUpdate
 	extends Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>,
-		IBasePerTenantAndOrganizationEntity {}
+	IBasePerTenantAndOrganizationEntity { }
 
 export enum DailyPlanStatusEnum {
 	OPEN = 'open',
@@ -38,4 +38,11 @@ export enum DailyPlanStatusEnum {
 	COMPLETED = 'completed'
 }
 
-export type IDailyPlanMode = 'today' | 'tomorow' | 'custom';
+export interface IUpdateTimesheetStatus {
+	ids: ID[] | ID,
+	organizationId?: ID,
+	status: ID,
+	tenantId?: ID
+}
+
+export type IDailyPlanMode = 'today' | 'tomorrow' | 'custom';
