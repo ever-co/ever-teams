@@ -1,6 +1,17 @@
 {
 	"TITLE": "إيفر تيمز",
 	"common": {
+		"DELETE_CONFIRMATION": "هل أنت متأكد أنك تريد الحذف؟",
+		"IRREVERSIBLE_ACTION_WARNING": "هذا الإجراء لا رجعة فيه. ستفقد جميع البيانات ذات الصلة.",
+		"SHIFT_TIMING": "توقيت العمل",
+		"ADD_ANOTHER_PERIOD": "إضافة فترة أخرى",
+		"REMOVE_PERIOD": "إزالة الفترة",
+		"DATE_AND_TIME": "التاريخ والوقت",
+		"NOTES": "ملاحظات",
+		"CHANGE_STATUS": "تغيير الحالة",
+		"TYPES": "أنواع",
+		"LINK_TO_PROJECT": "رابط إلى المشروع",
+		"SELECT_A_PROJECT": "اختر مشروعًا",
 		"ACCEPT": "قبول",
 		"ACCEPTED": "مقبول",
 		"REJECT": "رفض",

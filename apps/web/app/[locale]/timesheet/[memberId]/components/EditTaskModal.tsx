@@ -172,7 +172,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 					</div>
 					<div className="w-full flex flex-col">
-						<span className="text-[#282048] dark:text-gray-400  ">Notes</span>
+						<span className="text-[#282048] dark:text-gray-400">Notes</span>
 						<textarea
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}

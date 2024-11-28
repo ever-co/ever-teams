@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "项目预算"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "您确定要删除此项吗？",
+		"IRREVERSIBLE_ACTION_WARNING": "此操作不可逆。所有相关数据将丢失。",
+		"SHIFT_TIMING": "班次时间",
+		"ADD_ANOTHER_PERIOD": "添加另一段时间",
+		"REMOVE_PERIOD": "移除时间段",
+		"DATE_AND_TIME": "日期和时间",
+		"NOTES": "备注",
+		"CHANGE_STATUS": "更改状态",
+		"TYPES": "类型",
+		"LINK_TO_PROJECT": "链接到项目",
+		"SELECT_A_PROJECT": "选择一个项目",
 		"ACCEPT": "接受",
 		"ACCEPTED": "已接受",
 		"REJECT": "拒绝",
