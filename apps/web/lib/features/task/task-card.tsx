@@ -58,12 +58,7 @@ import { AddTaskToPlan } from '../daily-plan/add-task-to-plan';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
-import {
-	AddDailyPlanWorkHourModal,
-	AddTasksEstimationHoursModal,
-	EnforcePlanedTaskModal,
-	SuggestDailyPlanModal
-} from '../daily-plan';
+import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { SetAtom } from 'types';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 
@@ -448,14 +443,6 @@ function TimerButtonCall({
 					closeModal={modals.tasksEstimationHoursCloseModal}
 					plan={hasPlan}
 					tasks={hasPlan.tasks}
-				/>
-			)}
-
-			{hasPlan && (
-				<AddDailyPlanWorkHourModal
-					isOpen={modals.isDailyPlanWorkHoursModalOpen}
-					closeModal={modals.dailyPlanWorkHoursCloseModal}
-					plan={hasPlan}
 				/>
 			)}
 
