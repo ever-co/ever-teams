@@ -95,7 +95,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				</div>
 				<div className="flex items-start flex-col justify-center gap-4">
 					<div>
-						<span className="text-[#282048] dark:text-gray-500 ">Task Time</span>
+						<span className="text-[#282048] dark:text-gray-500 ">{t('dailyPlan.TASK_TIME')}</span>
 						<div className="flex items-center gap-x-2 ">
 							<FaRegClock className="text-[#30B366]" />
 							<span>08:10h</span>
@@ -172,7 +172,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 					</div>
 					<div className="w-full flex flex-col">
-						<span className="text-[#282048] dark:text-gray-400">Notes</span>
+						<span className="text-[#282048] dark:text-gray-400">{t('common.NOTES')}</span>
 						<textarea
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
