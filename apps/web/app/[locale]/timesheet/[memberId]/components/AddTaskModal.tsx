@@ -5,7 +5,7 @@ import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components'
 import { CustomSelect, TaskStatus, taskIssues } from '@/lib/features';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
-import { useTranslations } from 'next-intl';
+import { TranslationHooks, useTranslations } from 'next-intl';
 import { ToggleButton } from './EditTaskModal';
 import { PlusIcon } from '@radix-ui/react-icons';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
@@ -45,8 +45,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
     const fields = [
         {
-            label: 'Link to Project',
-            placeholder: 'Select a project',
+            label: t('common.LINK_TO_PROJECT'),
+            placeholder: t('common.SELECT_A_PROJECT'),
             isRequired: true,
             valueKey: 'id',
             displayKey: 'name',
@@ -65,7 +65,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             <div className="flex flex-col w-full gap-4 justify-start overflow-y-auto">
                 <div className=" w-full mr-[4%]">
                     <label className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
-                        Task
+                        {t('sidebar.TASKS')}
                         <span className="text-[#de5505e1] ml-1">*</span>
                     </label>
                     <input
@@ -81,7 +81,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                 </div>
                 <div className=" w-full mr-[4%] flex items-center">
                     <label className="block text-[#282048] dark:text-gray-400  mb-1 px-2">
-                        Types
+                        {t('common.TYPES')}
                         <span className="text-[#de5505e1] ml-1">*</span>:
                     </label>
                     <CustomSelect
@@ -103,6 +103,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                 </div>
                 <div>
                     <OptimizedAccordion
+                        t={t}
                         dateRange={dateRange}
                         timeOptions={timeOptions}
                         handleFromChange={handleFromChange} />
@@ -139,7 +140,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                 </div>
 
                 <div className="w-full flex flex-col">
-                    <span className="text-[#282048] dark:text-gray-400 font-medium">Notes</span>
+                    <span className="text-[#282048] dark:text-gray-400 font-medium">{t('common.NOTES')}</span>
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
@@ -220,12 +221,13 @@ interface Shift {
     startTime: string;
     endTime: string;
     totalHours: string;
-    dateFrom: Date | string
+    dateFrom: Date | string,
 }
-const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
+const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
     dateRange: { from: Date | null };
     handleFromChange: (date: Date | null) => void;
     timeOptions: string[];
+    t: TranslationHooks
 }) => {
     const [shifts, setShifts] = React.useState<Shift[]>([
         { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() },
@@ -294,13 +296,13 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
                         <AccordionTrigger className="flex flex-row-reverse justify-end h-10 p-1 items-center hover:no-underline">
                             <div className="flex items-center justify-between w-full">
                                 <label className="block text-[#282048] dark:text-gray-400 mb-1 px-2">
-                                    Date and Time
+                                    {t('common.DATE_AND_TIME')}
                                     <span className="text-[#de5505e1] ml-1">*</span>:
                                 </label>
                                 <span
                                     onClick={() => handleRemoveShift(index)}
                                     className="hover:underline font-normal text-primary dark:text-primary-light cursor-pointer">
-                                    Remove Period
+                                    {t('common.REMOVE_PERIOD')}
                                 </span>
                             </div>
                         </AccordionTrigger>
@@ -308,6 +310,7 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
                             <div className="flex flex-col gap-2">
 
                                 <ShiftManagement
+                                    t={t}
                                     value={element}
                                     index={index}
                                     onChange={handleShiftChange}
@@ -323,7 +326,7 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
                 <div className='bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded text-white'>
                     <PlusIcon />
                 </div>
-                <span className='text-[#3826A6] dark:text-primary-light hover:underline'>Add Another Period</span>
+                <span className='text-[#3826A6] dark:text-primary-light hover:underline'>{t('common.ADD_ANOTHER_PERIOD')}</span>
             </button>
         </>
 
@@ -331,23 +334,24 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions }: {
 };
 
 const ShiftManagement = (
-    { onChange, value, index, timeOptions }: {
+    { onChange, value, index, timeOptions, t }: {
         onChange: (index: number, field: keyof Shift, value: string) => void,
-        value: Shift, index: number, timeOptions: string[]
+        value: Shift, index: number, timeOptions: string[],
+        t: TranslationHooks
     }) => {
     return (
 
         <>
             <div className="w-[212px]">
-                <span>Date</span>
+                <span>{t('manualTime.DATE')}</span>
                 <DatePickerFilter
-                    label={value.dateFrom ? value.dateFrom.toLocaleString() : 'Select Date'}
+                    label={value.dateFrom ? value.dateFrom.toLocaleString() : t('common.SELECT_DATE')}
                     date={value.dateFrom as Date}
                     setDate={(value) => onChange(index, 'dateFrom', value as any)}
                 />
             </div>
             <div className="flex flex-col w-full items-start gap-2">
-                <span className="font-medium">Shift Timing</span>
+                <span className="font-medium">{t('common.SHIFT_TIMING')}</span>
                 <div className="flex items-center w-full justify-between gap-4 mb-4">
                     <ShiftTimingSelect
                         label="Start"

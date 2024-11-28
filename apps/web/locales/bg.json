@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Бюджет на проекта"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Сигурни ли сте, че искате да изтриете това?",
+		"IRREVERSIBLE_ACTION_WARNING": "Това действие е необратимо. Всички свързани данни ще бъдат изгубени.",
+		"SHIFT_TIMING": "Смяна на времето",
+		"ADD_ANOTHER_PERIOD": "Добави друг период",
+		"REMOVE_PERIOD": "Премахване на периода",
+		"DATE_AND_TIME": "Дата и час",
+		"NOTES": "Бележки",
+		"CHANGE_STATUS": "Промяна на състоянието",
+		"TYPES": "Типове",
+		"LINK_TO_PROJECT": "Връзка към проект",
+		"SELECT_A_PROJECT": "Изберете проект",
 		"ACCEPT": "Приемам",
 		"ACCEPTED": "Приет",
 		"REJECT": "Отхвърлям",

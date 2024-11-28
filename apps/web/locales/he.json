@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "תקציב פרויקט"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "האם אתה בטוח שברצונך למחוק?",
+		"IRREVERSIBLE_ACTION_WARNING": "פעולה זו בלתי הפיכה. כל הנתונים הקשורים יימחקו.",
+		"SHIFT_TIMING": "זמן משמרת",
+		"ADD_ANOTHER_PERIOD": "הוסף תקופה נוספת",
+		"REMOVE_PERIOD": "הסר תקופה",
+		"DATE_AND_TIME": "תאריך ושעה",
+		"NOTES": "הערות",
+		"CHANGE_STATUS": "שנה מצב",
+		"TYPES": "סוגים",
+		"LINK_TO_PROJECT": "קישור לפרויקט",
+		"SELECT_A_PROJECT": "בחר פרויקט",
 		"ACCEPT": "קבל",
 		"ACCEPTED": "התקבל",
 		"REJECT": "דחה",

@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Budget du projet"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Êtes-vous sûr de vouloir supprimer cela ?",
+		"IRREVERSIBLE_ACTION_WARNING": "Cette action est irréversible. Toutes les données associées seront perdues.",
+		"SHIFT_TIMING": "Temps de poste",
+		"ADD_ANOTHER_PERIOD": "Ajouter une autre période",
+		"REMOVE_PERIOD": "Supprimer la période",
+		"DATE_AND_TIME": "Date et heure",
+		"NOTES": "Notes",
+		"CHANGE_STATUS": "Changer le statut",
+		"TYPES": "Types",
+		"LINK_TO_PROJECT": "Lien vers le projet",
+		"SELECT_A_PROJECT": "Sélectionner un projet",
 		"ACCEPT": "Accepter",
 		"ACCEPTED": "Accepté",
 		"REJECT": "Rejeter",

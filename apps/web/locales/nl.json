@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Projectbudget"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Weet u zeker dat u dit wilt verwijderen?",
+		"IRREVERSIBLE_ACTION_WARNING": "Deze actie is onomkeerbaar. Alle gerelateerde gegevens gaan verloren.",
+		"SHIFT_TIMING": "Werkrooster",
+		"ADD_ANOTHER_PERIOD": "Voeg een andere periode toe",
+		"REMOVE_PERIOD": "Verwijder periode",
+		"DATE_AND_TIME": "Datum en tijd",
+		"NOTES": "Notities",
+		"CHANGE_STATUS": "Wijzig status",
+		"TYPES": "Typen",
+		"LINK_TO_PROJECT": "Koppelen aan project",
+		"SELECT_A_PROJECT": "Selecteer een project",
 		"ACCEPT": "Accepteren",
 		"ACCEPTED": "Geaccepteerd",
 		"REJECT": "Afwijzen",

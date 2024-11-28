@@ -227,8 +227,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	return (
 		<div className="w-full dark:bg-dark--theme">
 			<AlertDialogConfirmation
-				title="Are you sure you want to delete this?"
-				description={`This action is irreversible. All related data will be lost.`}
+				title={t('common.DELETE_CONFIRMATION')}
+				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
 				confirmText={t('common.DELETE')}
 				cancelText={t('common.CANCEL')}
 				isOpen={isDialogOpen}
@@ -533,7 +533,7 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 		<>
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
-					<span>Change status</span>
+					<span>{t('common.CHANGE_STATUS')}</span>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
