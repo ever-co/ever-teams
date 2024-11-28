@@ -11,15 +11,18 @@ export function useTimeLimits() {
 	const { queryCall: getTimeLimitsReportQueryCall, loading: getTimeLimitReportLoading } =
 		useQuery(getTimeLimitsReportAPI);
 
-	const getTimeLimitsReport = useCallback(async (data: IGetTimeLimitReport) => {
-		try {
-			const res = await getTimeLimitsReportQueryCall(data);
+	const getTimeLimitsReport = useCallback(
+		async (data: IGetTimeLimitReport) => {
+			try {
+				const res = await getTimeLimitsReportQueryCall(data);
 
-			setTimeLimitsReport(res.data);
-		} catch (error) {
-			console.error(error);
-		}
-	}, []);
+				setTimeLimitsReport(res.data);
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[getTimeLimitsReportQueryCall, setTimeLimitsReport]
+	);
 
 	return {
 		getTimeLimitReportLoading,

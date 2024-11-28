@@ -1,6 +1,6 @@
 import { useOrganizationTeams } from '@/app/hooks';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 interface IProps {
 	onChange: (value: string) => void;
@@ -8,7 +8,6 @@ interface IProps {
 
 export function MembersSelect(props: IProps) {
 	const { onChange } = props;
-	const allMembers = useMemo(() => 'all', []);
 	const { activeTeam } = useOrganizationTeams();
 	const [selected, setSelected] = useState<string>('all');
 
@@ -34,7 +33,7 @@ export function MembersSelect(props: IProps) {
 							</SelectItem>
 						);
 					})}
-					<SelectItem className=" capitalize" key={allMembers} value={allMembers}>
+					<SelectItem className=" capitalize" key={'all'} value={'all'}>
 						{'All members'}
 					</SelectItem>
 				</SelectGroup>
