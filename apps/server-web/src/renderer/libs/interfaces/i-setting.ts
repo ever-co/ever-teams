@@ -40,12 +40,12 @@ interface IPopup {
 
 interface ILanguages {
   code: string;
-  label: string;
+  label?: string;
 }
 
 type IUpdateSetting = {
   autoUpdate: boolean;
-  updateCheckPeriode: string;
+  updateCheckPeriod: string;
 };
 
 type IAbout = {

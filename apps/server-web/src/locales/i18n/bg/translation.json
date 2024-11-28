@@ -15,19 +15,19 @@
     "SERVER_WINDOW": "Прозорец на сървъра"
   },
   "MENU_APP": {
-    "ABOUT": "Относно",
-    "QUIT": "Изход",
-    "WINDOW": "Прозорец",
-    "SUBMENU": {
-      "SETTING": "Настройки",
-      "SERVER_WINDOW": "Сървърен прозорец",
-      "LEARN_MORE": "Научете повече",
-      "DOC": "Документация",
-      "SETTING_DEV": "Настройки за разработчици",
-      "SERVER_DEV": "Сървър за разработчици"
+    "APP_ABOUT": "Относно",
+    "APP_QUIT": "Изход",
+    "APP_WINDOW": "Прозорец",
+    "APP_SUBMENU": {
+      "APP_SETTING": "Настройки",
+      "APP_SERVER_WINDOW": "Сървърен прозорец",
+      "APP_LEARN_MORE": "Научете повече",
+      "APP_DOC": "Документация",
+      "APP_SETTING_DEV": "Настройки за разработчици",
+      "APP_SERVER_DEV": "Сървър за разработчици"
     },
-    "DEV": "Разработчик",
-    "HELP": "Помощ"
+    "APP_DEV": "Разработчик",
+    "APP_HELP": "Помощ"
   },
   "FORM": {
     "FIELDS": {

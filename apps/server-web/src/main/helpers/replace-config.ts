@@ -42,3 +42,27 @@ export const replaceConfig = async (folderPath: string, envOptions: EnvOptions) 
     console.log('error on replacing file', error);
   }
 }
+
+export const clearDesktopConfig = async (folderPath: string): Promise<Boolean> => {
+  if (!folderPath || typeof folderPath !== 'string') {
+     throw new Error('Invalid folder path provided');
+  }
+  const DESKTOP_CONFIG_FILES = ['desktop-server.body', 'desktop-server.meta'] as const;
+  try {
+    // remove cached desktop server config
+    await Promise.all(
+      DESKTOP_CONFIG_FILES.map(async (file) => {
+        const filePath = path.join(folderPath, file);
+        try {
+          await fs.promises.unlink(filePath)
+        } catch (error: any) {
+          console.log('error unlink static web file', error.message)
+        }
+      })
+    )
+    return true;
+  } catch (error) {
+    console.log('Failed to clear static config');
+    return false;
+  }
+}

@@ -1,22 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ISidebarComponent } from '../libs/interfaces';
-import { SelectComponent } from './Select';
 import { ThemeToggler } from './Toggler';
+import LanguageSelector from './LanguageSelector';
 
 export function SideBar({
   children,
   menus,
   menuChange,
-  langs,
   lang,
-  onLangChange,
 }: ISidebarComponent) {
   const { t } = useTranslation();
-  const language = langs.find((lg) => lg.code === lang) || {
-    code: 'en',
-    label: 'English',
-  };
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
       <div className="fixed flex flex-col top-0 left-0 w-1/4 h-full dark:bg-[#1c1e23] bg-gray-200">
@@ -43,19 +37,7 @@ export function SideBar({
         </div>
         <div className="flex items-center justify-center py-6 px-2">
           <div className="flex flex-col w-6/8 mr-5">
-            <SelectComponent
-              items={langs.map((i) => ({
-                value: i.code,
-                label: `LANGUAGES.${i.code}`,
-              }))}
-              title={t('FORM.LABELS.LANGUAGES')}
-              defaultValue={language.code}
-              onValueChange={(lang) => {
-                onLangChange({ code: lang });
-              }}
-              disabled={false}
-              value={language.code}
-            />
+            <LanguageSelector lang={lang} />
           </div>
 
           <div className="flex flex-col w-2/8">
