@@ -1,4 +1,5 @@
 import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
+import TimesheetSkeleton from '@components/shared/skeleton/TimesheetSkeleton';
 import { DataTableTimeSheet } from 'lib/features/integrations/calendar';
 import { useTranslations } from 'next-intl';
 
@@ -7,8 +8,10 @@ export function TimesheetView({ data, loading }: { data?: GroupedTimesheet[]; lo
 
 	if (loading || !data) {
 		return (
-			<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme flex items-center justify-center">
-				<p>{t('pages.timesheet.LOADING')}</p>
+			<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+				{Array.from({ length: 10 }).map((_, index) => (
+					<TimesheetSkeleton key={index} />
+				))}
 			</div>
 		);
 	}
