@@ -1,3 +1,4 @@
+import getConfig from 'next/config';
 const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
 
 type Env = Record<string, string | undefined>;
@@ -36,6 +37,17 @@ export function getNextPublicEnv<O extends Options<unknown>>(name: string, optio
 			return value as any;
 		}
 	};
+}
+
+export function getServerRuntimeConfig() {
+  try {
+    const { serverRuntimeConfig } = getConfig();
+    return {
+		GAUZY_API_SERVER_URL: serverRuntimeConfig.GAUZY_API_SERVER_URL,
+    };
+  } catch(e) {
+    console.log('skip get config on call from client');
+  }
 }
 
 export function setNextPublicEnv(envs: Env) {

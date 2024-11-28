@@ -6,7 +6,7 @@ import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card } from 'lib/components';
+import { Breadcrumb, Card, Container } from 'lib/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
 import { MainLayout } from 'lib/layout';
 import { IssuesView } from '@app/constants';
@@ -98,7 +98,11 @@ function MainPage() {
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-					<div className="h-full ">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</div>
+					<div className="h-full ">{isTeamMember ?
+						<Container fullWidth={fullWidth} className='mx-auto' >
+							<TeamMembers kanbanView={view} />
+						</Container>
+						: <NoTeam />}</div>
 				</MainLayout>
 			</div>
 			<Analytics />

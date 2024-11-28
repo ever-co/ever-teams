@@ -144,6 +144,10 @@ export type TimesheetStatus =
 	| "DENIED"
 	| "APPROVED";
 
+export type TimesheetFilterByDays =
+	| "Daily"
+	| "Weekly"
+	| "Monthly"
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;

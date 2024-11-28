@@ -1,4 +1,4 @@
-import { IUpdaterStates, IUpdateSetting, ISideMenu, ISelectItems, IServerSetting, ILanguages } from './i-setting';
+import { IUpdaterStates, IUpdateSetting, ISideMenu, ISelectItems, IServerSetting } from './i-setting';
 
 type IToastComponent = {
   title: string;
@@ -51,8 +51,6 @@ type ISidebarComponent = {
   children: string | JSX.Element | JSX.Element[];
   menus: ISideMenu[];
   menuChange: (key: string) => void;
-  langs: ILanguages[];
-  onLangChange: (lang: any) => void;
   lang: string;
 };
 

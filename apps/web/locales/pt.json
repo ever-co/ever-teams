@@ -19,6 +19,18 @@
 		"PROJECT_BUDGET": "Orçamento do Projeto"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Tem certeza de que deseja excluir isso?",
+		"IRREVERSIBLE_ACTION_WARNING": "Esta ação é irreversível. Todos os dados relacionados serão perdidos.",
+		"SHIFT_TIMING": "Horário de turno",
+		"ADD_ANOTHER_PERIOD": "Adicionar outro período",
+		"REMOVE_PERIOD": "Remover período",
+		"DATE_AND_TIME": "Data e hora",
+		"NOTES": "Notas",
+		"CHANGE_STATUS": "Alterar status",
+		"TYPES": "Tipos",
+		"LINK_TO_PROJECT": "Vincular ao projeto",
+		"SELECT_A_PROJECT": "Selecione um projeto",
+		"TASK_TIME": "Tempo da tarefa",
 		"ACCEPT": "Aceitar",
 		"ACCEPTED": "Aceito",
 		"REJECT": "Rejeitar",
@@ -267,7 +279,8 @@
 		"FILTER_CUSTOM_RANGE": "Faixa personalizada",
 		"CLEAR_FILTER": "Limpar filtro",
 		"CLEAR": "Limpar",
-		"APPLY_FILTER": "Aplicar filtro"
+		"APPLY_FILTER": "Aplicar filtro",
+		"CREATE_NEW": "Criar novo"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",

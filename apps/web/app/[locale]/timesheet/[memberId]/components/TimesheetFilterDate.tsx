@@ -336,7 +336,7 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 			toYear={
 				endYear ||
 				new Date(sortedPlansByDateDesc?.[sortedPlansByDateDesc?.length - 1]?.date ?? Date.now()).getFullYear() +
-					10
+				10
 			}
 		/>
 	);

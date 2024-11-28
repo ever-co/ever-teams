@@ -1,4 +1,4 @@
-import { TimesheetStatus } from "@/app/interfaces";
+import { TimesheetFilterByDays, TimesheetStatus } from "@/app/interfaces";
 import { clsxm } from "@/app/utils";
 import { TranslationHooks } from "next-intl";
 import { ReactNode } from "react";
@@ -29,6 +29,7 @@ export const TimesheetButton = ({ className, icon, onClick, title, disabled }: I
 
 export type StatusType = "Pending" | "Approved" | "Denied";
 export type StatusAction = "Deleted" | "Approved" | "Denied";
+
 
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -68,4 +69,10 @@ export const statusTable: { label: TimesheetStatus; description: string }[] = [
     { label: "APPROVED", description: "The item has been approved" },
     { label: "DRAFT", description: "The item is saved as draft" },
     { label: "DENIED", description: "The item has been rejected" },
+];
+
+export const DailyTable: { label: TimesheetFilterByDays; description: string }[] = [
+    { label: "Daily", description: 'Group by Daily' },
+    { label: "Weekly", description: 'Group by Weekly' },
+    { label: "Monthly", description: 'Group by Monthly' },
 ];

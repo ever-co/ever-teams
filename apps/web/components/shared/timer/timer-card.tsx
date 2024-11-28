@@ -6,12 +6,7 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from '@components/ui/svgs/pause-icon';
 import { PlayIcon } from '@components/ui/svgs/play-icon';
-import {
-	AddTasksEstimationHoursModal,
-	AddDailyPlanWorkHourModal,
-	EnforcePlanedTaskModal,
-	SuggestDailyPlanModal
-} from 'lib/features/daily-plan';
+import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from 'lib/features/daily-plan';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
@@ -76,14 +71,6 @@ const Timer = () => {
 					closeModal={modals.tasksEstimationHoursCloseModal}
 					plan={hasPlan}
 					tasks={hasPlan.tasks}
-				/>
-			)}
-
-			{hasPlan && (
-				<AddDailyPlanWorkHourModal
-					isOpen={modals.isDailyPlanWorkHoursModalOpen}
-					closeModal={modals.dailyPlanWorkHoursCloseModal}
-					plan={hasPlan}
 				/>
 			)}
 

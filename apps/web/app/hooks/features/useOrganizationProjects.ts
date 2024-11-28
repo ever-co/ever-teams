@@ -2,13 +2,15 @@ import {
 	editOrganizationProjectSettingAPI,
 	editOrganizationProjectAPI,
 	getOrganizationProjectAPI,
-	getOrganizationProjectsAPI
+	getOrganizationProjectsAPI,
+	createOrganizationProjectAPI
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
 export function useOrganizationProjects() {
 	const [user] = useAtom(userState);
@@ -25,6 +27,9 @@ export function useOrganizationProjects() {
 
 	const { loading: getOrganizationProjectsLoading, queryCall: getOrganizationProjectsQueryCall } =
 		useQuery(getOrganizationProjectsAPI);
+
+	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } =
+		useQuery(createOrganizationProjectAPI);
 
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
@@ -69,6 +74,24 @@ export function useOrganizationProjects() {
 		}
 	}, [getOrganizationProjectsQueryCall, setOrganizationProjects]);
 
+	const createOrganizationProject = useCallback(
+		async (data: { name: string }) => {
+			try {
+				const organizationId = getOrganizationIdCookie();
+				const tenantId = getTenantIdCookie();
+
+				const res = await createOrganizationProjectQueryCall({ ...data, organizationId, tenantId });
+
+				setOrganizationProjects([...organizationProjects, res.data]);
+
+				return res.data;
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
+	);
+
 	return {
 		editOrganizationProjectSetting,
 		editOrganizationProjectSettingLoading,
@@ -79,5 +102,7 @@ export function useOrganizationProjects() {
 		getOrganizationProjects,
 		getOrganizationProjectsLoading,
 		organizationProjects,
+		createOrganizationProject,
+		createOrganizationProjectLoading
 	};
 }

@@ -38,7 +38,9 @@ import {
 	MdKeyboardDoubleArrowLeft,
 	MdKeyboardDoubleArrowRight,
 	MdKeyboardArrowLeft,
-	MdKeyboardArrowRight
+	MdKeyboardArrowRight,
+	MdKeyboardArrowUp,
+	MdKeyboardArrowDown
 } from 'react-icons/md';
 import { ConfirmStatusChange, StatusBadge, statusOptions, dataSourceTimeSheet, TimeSheet } from '.';
 import { useModal, useTimelogFilterOptions } from '@app/hooks';
@@ -52,7 +54,9 @@ import {
 	RejectSelectedModal,
 	StatusAction,
 	StatusType,
-	getTimesheetButtons
+	EmployeeAvatar,
+	getTimesheetButtons,
+	statusTable
 } from '@/app/[locale]/timesheet/[memberId]/components';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
@@ -151,8 +155,11 @@ export const columns: ColumnDef<TimeSheet>[] = [
 
 export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const { isOpen, openModal, closeModal } = useModal();
-	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet } = useTimesheet({});
-	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet } = useTimelogFilterOptions();
+
+
+	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
+	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays, handleSelectRowByStatusAndDate } = useTimelogFilterOptions();
+
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 	const handleConfirm = () => {
 		try {
@@ -194,11 +201,18 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 			rowSelection
 		}
 	});
-
-	const handleButtonClick = (action: StatusAction) => {
+	const handleSort = (key: string, order: SortOrder) => {
+		console.log(`Sorting ${key} in ${order} order`);
+	};
+	const handleButtonClick = async (action: StatusAction) => {
 		switch (action) {
 			case 'Approved':
-				// TODO: Implement approval logic
+				if (selectTimesheet.length > 0) {
+					await updateTimesheetStatus({
+						status: 'APPROVED',
+						ids: selectTimesheet
+					})
+				}
 				break;
 			case 'Denied':
 				openModal();
@@ -210,12 +224,11 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				console.error(`Unsupported action: ${action}`);
 		}
 	};
-
 	return (
 		<div className="w-full dark:bg-dark--theme">
 			<AlertDialogConfirmation
-				title="Are you sure you want to delete this?"
-				description={`This action is irreversible. All related data will be lost. (${selectTimesheet.length})`}
+				title={t('common.DELETE_CONFIRMATION')}
+				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
 				confirmText={t('common.DELETE')}
 				cancelText={t('common.CANCEL')}
 				isOpen={isDialogOpen}
@@ -234,26 +247,31 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				isOpen={isOpen}
 			/>
 			<div className="rounded-md">
-				{data?.map((plan, index) => (
-					<div key={index}>
+				{data?.map((plan, index) => {
+					return <div key={index}>
 						<div
 							className={clsxm(
 								'h-[48px] flex justify-between items-center w-full',
 								'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
 								'border-gray-400 px-5 text-[#71717A] font-medium'
 							)}>
-							<span>{formatDate(plan.date)}</span>
+							<div className='flex gap-x-3'>
+								{timesheetGroupByDays === 'Weekly' && (
+									<span>Week {index + 1}</span>
+								)}
+								<span>{formatDate(plan.date)}</span>
+							</div>
 							<TotalDurationByDate
 								timesheetLog={plan.tasks}
-								createdAt={formatDate(plan.date)} />
+								createdAt={formatDate(plan.date)}
+							/>
 						</div>
-
 						<Accordion type="single" collapsible>
-							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
-								<AccordionItem
+							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
+								return rows.length > 0 && status && <AccordionItem
 									key={status}
 									value={status === 'DENIED' ? 'REJECTED' : status}
-									className="p-1 rounded"
+									className={clsxm("p-1 rounded")}
 								>
 									<AccordionTrigger
 										style={{ backgroundColor: statusColor(status).bgOpacity }}
@@ -270,7 +288,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													<span className="text-base font-normal text-gray-400 uppercase">
 														{status === 'DENIED' ? 'REJECTED' : status}
 													</span>
-													<span className="text-gray-400 text-[14px]">({rows?.length})</span>
+													<span className="text-gray-400 text-[14px]">({rows.length})</span>
 												</div>
 												<Badge
 													variant={'outline'}
@@ -286,7 +304,15 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 										</div>
 									</AccordionTrigger>
 									<AccordionContent className="flex flex-col w-full">
-										{rows?.map((task) => (
+										<HeaderRow
+											handleSelectRowByStatusAndDate={
+												() => handleSelectRowByStatusAndDate(status, plan.date)}
+											data={rows}
+											status={status}
+											onSort={handleSort}
+											date={plan.date}
+										/>
+										{rows.map((task) => (
 											<div
 												key={task.id}
 												style={{
@@ -318,10 +344,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												</div>
 												<span className="flex-1">{task.project && task.project.name}</span>
 												<div className="flex items-center flex-1 gap-x-2">
-													<img
-														className="w-8 h-8 rounded-full"
-														src={task.employee.user.imageUrl!}
-														alt=""
+													<EmployeeAvatar
+														imageUrl={task.employee.user.imageUrl!}
 													/>
 													<span className="flex-1 font-medium">{task.employee.fullName}</span>
 												</div>
@@ -329,7 +353,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													<Badge
 														className={`${getBadgeColor(task.timesheet.status as TimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
 													>
-														{task.timesheet.status}
+														{task.timesheet.status === 'DENIED' ? 'REJECTED' : task.timesheet.status}
 													</Badge>
 												</div>
 												<DisplayTimeForTimesheet
@@ -340,10 +364,12 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 										))}
 									</AccordionContent>
 								</AccordionItem>
-							))}
+							}
+							)}
 						</Accordion>
 					</div>
-				))}
+				}
+				)}
 			</div>
 			<div className="flex items-center justify-end p-4 space-x-2">
 				<div className="flex-1 text-sm text-muted-foreground">
@@ -380,7 +406,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 					</Button>
 				</div>
 			</div>
-		</div>
+		</div >
 	);
 }
 
@@ -388,6 +414,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	const { isOpen, closeModal, openModal } = useModal();
 	const [selected] = React.useState(selectedStatus);
 	const [newStatus, setNewStatus] = React.useState('');
+	const t = useTranslations();
 
 	const getColorClass = () => {
 		switch (selected) {
@@ -419,7 +446,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 				</SelectTrigger>
 				<SelectContent>
 					<SelectGroup className="rounded">
-						<SelectLabel>Status</SelectLabel>
+						<SelectLabel>{t('common.STATUS')}</SelectLabel>
 						{statusOptions.map((option, index) => (
 							<div key={option.value}>
 								<SelectItem value={option.value}>{option.label}</SelectItem>
@@ -437,6 +464,8 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 
 const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
+	const t = useTranslations();
+
 	return (
 		<>
 			{<EditTaskModal
@@ -453,12 +482,12 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
-						Edit
+						{t('common.EDIT')}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
-					<StatusTask />
+					<StatusTask timesheet={dataTimesheet} />
 					<DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">
-						Delete
+						{t('common.DELETE')}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
@@ -480,20 +509,47 @@ const TaskDetails = ({ description, name }: { description: string; name: string 
 	);
 };
 
-export const StatusTask = () => {
+export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	const t = useTranslations();
+	const { updateTimesheetStatus, updateTimesheet } = useTimesheet({});
+	const handleUpdateTimesheet = async (isBillable: boolean) => {
+		await updateTimesheet({
+			id: timesheet.timesheetId,
+			isBillable: isBillable,
+			employeeId: timesheet.employeeId,
+			logType: timesheet.logType,
+			source: timesheet.source,
+			stoppedAt: timesheet.stoppedAt,
+			startedAt: timesheet.startedAt,
+			tenantId: timesheet.tenantId,
+			organizationId: timesheet.organizationId,
+			description: timesheet.description,
+			projectId: timesheet.projectId,
+			reason: timesheet.reason,
+		});
+	};
+
 	return (
 		<>
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
-					<span>Change status</span>
+					<span>{t('common.CHANGE_STATUS')}</span>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						{statusOptions?.map((status, index) => (
-							<DropdownMenuItem key={index} textValue={status.value} className="cursor-pointer">
+						{statusTable?.map((status, index) => (
+							<DropdownMenuItem onClick={async () => {
+								try {
+									await updateTimesheetStatus({
+										status: status.label as TimesheetStatus,
+										ids: [timesheet.timesheet.id]
+									});
+								} catch (error) {
+									console.error('Failed to update timesheet status:');
+								}
+							}} key={index} textValue={status.label} className="cursor-pointer">
 								<div className="flex items-center gap-3">
-									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.value).bg)}></div>
+									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>
 								</div>
 							</DropdownMenuItem>
@@ -503,16 +559,20 @@ export const StatusTask = () => {
 			</DropdownMenuSub>
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
-					<span>Billable</span>
+					<span>{t('pages.timesheet.BILLABLE.BILLABLE')}</span>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
 					<DropdownMenuSubContent>
-						<DropdownMenuItem textValue={'Yes'} className="cursor-pointer">
+						<DropdownMenuItem onClick={async () => {
+							await handleUpdateTimesheet(true)
+						}} textValue={'Yes'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 							</div>
 						</DropdownMenuItem>
-						<DropdownMenuItem textValue={'No'} className="cursor-pointer">
+						<DropdownMenuItem onClick={async () => {
+							await handleUpdateTimesheet(false)
+						}} textValue={'No'} className="cursor-pointer">
 							<div className="flex items-center gap-3">
 								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 							</div>
@@ -539,4 +599,111 @@ const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
 		default:
 			return 'bg-gray-100';
 	}
+};
+
+
+type SortOrder = "ASC" | "DESC";
+
+const HeaderColumn = ({
+	label,
+	onSort,
+	currentSort,
+}: {
+	label: string;
+	onSort: () => void;
+	currentSort: SortOrder | null;
+}) => (
+	<div className="flex gap-x-2" role="columnheader">
+		<span>{label}</span>
+		<button
+			onClick={onSort}
+			aria-label={`Sort ${label} column ${currentSort ? `currently ${currentSort.toLowerCase()}` : ''}`}
+			className="flex flex-col items-start leading-none gap-0"
+		>
+			<MdKeyboardArrowUp
+				style={{
+					height: 10,
+					color: "#71717A",
+				}}
+			/>
+			<MdKeyboardArrowDown
+				style={{
+					height: 10,
+					color: "#71717A",
+				}}
+			/>
+		</button>
+	</div>
+);
+
+const HeaderRow = ({
+	status,
+	onSort,
+	data,
+	handleSelectRowByStatusAndDate, date
+}: {
+	status: string;
+	onSort: (key: string, order: SortOrder) => void,
+	data: TimesheetLog[],
+	handleSelectRowByStatusAndDate: (status: string, date: string) => void,
+	date?: string
+}) => {
+
+	const { bg, bgOpacity } = statusColor(status);
+	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({
+		Task: null,
+		Project: null,
+		Employee: null,
+		Status: null,
+	});
+
+	const handleSort = (key: string) => {
+		const newOrder = sortState[key] === "ASC" ? "DESC" : "ASC";
+		setSortState({ ...sortState, [key]: newOrder });
+		onSort(key, newOrder);
+	};
+
+	return (
+		<div
+			style={{ backgroundColor: bgOpacity, borderBottomColor: bg }}
+			className="flex items-center text-[#71717A] font-medium border-b border-t dark:border-gray-600 space-x-4 p-1 h-[60px] w-full"
+		>
+			<Checkbox
+				onCheckedChange={() => date && handleSelectRowByStatusAndDate(status, date)}
+				className="w-5 h-5"
+				disabled={!date}
+			/>
+			<div className="flex-[2]">
+				<HeaderColumn
+					label="Task"
+					onSort={() => handleSort("Task")}
+					currentSort={sortState["Task"]}
+				/>
+			</div>
+			<div className="flex-1">
+				<HeaderColumn
+					label="Project"
+					onSort={() => handleSort("Project")}
+					currentSort={sortState["Project"]}
+				/>
+			</div>
+			<div className="flex-1">
+				<HeaderColumn
+					label="Employee"
+					onSort={() => handleSort("Employee")}
+					currentSort={sortState["Employee"]}
+				/>
+			</div>
+			<div className="flex-auto">
+				<HeaderColumn
+					label="Status"
+					onSort={() => handleSort("Status")}
+					currentSort={sortState["Status"]}
+				/>
+			</div>
+			<div className="space-x-2">
+				<span>Time</span>
+			</div>
+		</div>
+	);
 };

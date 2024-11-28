@@ -19,6 +19,17 @@
 		"PROJECT_BUDGET": "Project Budget"
 	},
 	"common": {
+		"DELETE_CONFIRMATION": "Are you sure you want to delete this?",
+		"IRREVERSIBLE_ACTION_WARNING": "This action is irreversible. All related data will be lost.",
+		"SHIFT_TIMING": "Shift Timing",
+		"ADD_ANOTHER_PERIOD": "Add Another Period",
+		"REMOVE_PERIOD": "Remove Period",
+		"DATE_AND_TIME": "Date and Time",
+		"NOTES": "Notes",
+		"CHANGE_STATUS": "Change Status",
+		"TYPES": "Types",
+		"LINK_TO_PROJECT": "Link to Project",
+		"SELECT_A_PROJECT": "Select a Project",
 		"ACCEPT": "Accept",
 		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
@@ -267,7 +278,8 @@
 		"FILTER_CUSTOM_RANGE": "Custom Range",
 		"CLEAR_FILTER": "Clear Filter",
 		"CLEAR": "Clear",
-		"APPLY_FILTER": "Apply Filter"
+		"APPLY_FILTER": "Apply Filter",
+		"CREATE_NEW": "Create New"
 	},
 	"hotkeys": {
 		"HELP": "Help",

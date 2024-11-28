@@ -95,7 +95,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				</div>
 				<div className="flex items-start flex-col justify-center gap-4">
 					<div>
-						<span className="text-[#282048] dark:text-gray-500 ">Task Time</span>
+						<span className="text-[#282048] dark:text-gray-500 ">{t('dailyPlan.TASK_TIME')}</span>
 						<div className="flex items-center gap-x-2 ">
 							<FaRegClock className="text-[#30B366]" />
 							<span>08:10h</span>
@@ -172,7 +172,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 					</div>
 					<div className="w-full flex flex-col">
-						<span className="text-[#282048] dark:text-gray-500  ">Notes</span>
+						<span className="text-[#282048] dark:text-gray-400">{t('common.NOTES')}</span>
 						<textarea
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
@@ -211,13 +211,13 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						<div className="flex items-center gap-x-2 justify-end w-full">
 							<button
 								type="button"
-								className={clsxm("dark:text-primary h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light")}>
+								className={clsxm("dark:text-primary-light h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light")}>
 								{t('common.CANCEL')}
 							</button>
 							<button
 								type="submit"
 								className={clsxm(
-									'bg-[#4435a1] h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg',
+									'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg',
 								)}>
 								{t('common.SAVE')}
 							</button>
@@ -242,17 +242,17 @@ export const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) =>
 		onClick={onClick}
 		aria-pressed={isActive}
 		className={clsxm(
-			'flex items-center gap-x-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50',
+			'flex items-center gap-x-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
 			'transition-colors duration-200 ease-in-out'
 		)}
 	>
 		<div
 			className={clsxm(
 				'w-4 h-4 rounded-full transition-colors duration-200 ease-in-out',
-				isActive ? 'bg-primary' : 'bg-gray-200'
+				isActive ? 'bg-primary dark:bg-primary-light' : 'bg-gray-200'
 			)}
 		/>
-		<span className={clsxm('', isActive && 'text-primary')}>
+		<span className={clsxm('', isActive && 'text-primary dark:text-primary-light')}>
 			{label}
 		</span>
 	</button>
