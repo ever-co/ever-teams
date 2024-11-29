@@ -8,6 +8,7 @@ import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/app/utils';
 import { useTimelogFilterOptions } from '@/app/hooks';
+import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
@@ -16,6 +17,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();
+	const { timesheet, statusTimesheet } = useTimesheet({})
 
 	React.useEffect(() => {
 		if (shouldRemoveItems) {
@@ -33,6 +35,14 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 					>
 						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
 						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						{timesheet && timesheet.length > 0 && (
+							<span className="rounded-full bg-primary dark:bg-primary-light h-7 w-7 flex items-center justify-center text-white text-center text-[12px]">
+								{(() => {
+									const total = Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0);
+									return total > 100 ? "100+" : total;
+								})()}
+							</span>
+						)}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-96">
