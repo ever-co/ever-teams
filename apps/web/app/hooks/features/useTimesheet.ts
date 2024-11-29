@@ -291,6 +291,7 @@ export function useTimesheet({
         createTimesheet,
         loadingCreateTimesheet,
         updateTimesheet,
-        loadingUpdateTimesheet
+        loadingUpdateTimesheet,
+        groupByDate
     };
 }

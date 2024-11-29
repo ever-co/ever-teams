@@ -584,7 +584,7 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	);
 };
 
-const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
+export const getBadgeColor = (timesheetStatus: TimesheetStatus | null) => {
 	switch (timesheetStatus) {
 		case 'DRAFT':
 			return 'bg-gray-300';
