@@ -76,10 +76,11 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 
 
 export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, TimesheetLog[]> }) => {
-    const t = useTranslations();
+
     const { getStatusTimesheet, groupByDate } = useTimesheet({});
     const { timesheetGroupByDays } = useTimelogFilterOptions();
-    const timesheetGroupByDate = groupByDate(data!.PENDING)
+    const timesheetGroupByDate = groupByDate(data?.PENDING || [])
+    const t = useTranslations();
     return (
         <div className="rounded-md">
             {timesheetGroupByDate.map((plan, index) => {
