@@ -279,15 +279,12 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
         if (field === 'startTime' || field === 'endTime') {
             const { startTime, endTime } = updatedShifts[index];
 
-            // Validation des données
             if (!startTime || !endTime) return;
 
             if (convertToMinutes(startTime) >= convertToMinutes(endTime)) {
-                alert('L’heure de début doit être inférieure à l’heure de fin.');
                 return;
             }
             updatedShifts[index].totalHours = calculateTotalHoursHour(startTime, endTime);
-            // Détection des chevauchements
             const isOverlapping = shifts.some((shift, i) => {
                 if (i === index || !shift.startTime || !shift.endTime) return false;
 
@@ -303,7 +300,6 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
             });
 
             if (isOverlapping) {
-                alert('Le shift modifié chevauche un autre shift existant.');
                 return;
             }
         }
