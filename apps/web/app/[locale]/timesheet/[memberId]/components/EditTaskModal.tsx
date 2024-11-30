@@ -43,7 +43,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	};
 	const [timesheetData, setTimesheetData] = useState({
 		isBillable: dataTimesheet.isBillable,
-		projectId: dataTimesheet?.project?.id || '',
+		projectId: dataTimesheet.project?.id || '',
 		notes: dataTimesheet.description || '',
 	});
 
@@ -177,7 +177,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					</div>
 					<div className="w-full flex flex-col">
 						<ManageOrMemberComponent
-							defaultValue={dataTimesheet?.project?.name ?? ""}
+							defaultValue={dataTimesheet.project.name ?? ""}
 							classNameTitle={'text-[#282048] dark:text-gray-500  '}
 							fields={fields}
 							itemsLists={memberItemsLists}
