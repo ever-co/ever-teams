@@ -77,12 +77,23 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			return;
 		}
 
-		const startedAt = new Date(dateRange.date ?? new Date());
-		const stoppedAt = new Date(dateRange.date ?? new Date());
-		const [startHours, startMinutes] = timeRange.startTime.split(':').map(Number);
-		startedAt.setHours(startHours, startMinutes);
-		const [endHours, endMinutes] = timeRange.endTime.split(':').map(Number);
-		stoppedAt.setHours(endHours, endMinutes);
+		const baseDate = dateRange.date ?? new Date();
+		const startedAt = new Date(
+			Date.UTC(
+				baseDate.getFullYear(),
+				baseDate.getMonth(),
+				baseDate.getDate(),
+				...timeRange.startTime.split(':').map(Number)
+			)
+		);
+		const stoppedAt = new Date(
+			Date.UTC(
+				baseDate.getFullYear(),
+				baseDate.getMonth(),
+				baseDate.getDate(),
+				...timeRange.endTime.split(':').map(Number)
+			)
+		);
 		await updateTimesheet({
 			id: dataTimesheet.timesheetId,
 			isBillable: timesheetData.isBillable,
