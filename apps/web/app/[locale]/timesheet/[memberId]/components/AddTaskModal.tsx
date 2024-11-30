@@ -232,10 +232,7 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
     const [shifts, setShifts] = React.useState<Shift[]>([
         { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() },
     ])
-    const convertToMinutes = (time: string): number => {
-        const [hours, minutes] = time.split(':').map(Number);
-        return hours * 60 + minutes;
-    };
+
     const convertToMinutesHour = (time: string): number => {
         const [hourMinute, period] = time.split(' ');
         const [hours, minutes] = hourMinute.split(':').map(Number);
