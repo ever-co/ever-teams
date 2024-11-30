@@ -18,6 +18,7 @@ interface ComboboxProps<T> {
 	className?: string;
 	popoverClassName?: string;
 	selectedItem?: T | null;
+	defaultValue?: string
 }
 
 export function CustomCombobox<T>({
@@ -31,7 +32,8 @@ export function CustomCombobox<T>({
 	onChangeValue,
 	className,
 	popoverClassName,
-	selectedItem = null
+	selectedItem = null,
+	defaultValue
 }: Readonly<ComboboxProps<T>>) {
 	const [open, setOpen] = React.useState(false);
 	const [value, setValue] = React.useState<T | null>(selectedItem);
@@ -88,6 +90,7 @@ export function CustomCombobox<T>({
 						<CommandGroup>
 							{items.map((item) => (
 								<CommandItem
+									defaultValue={defaultValue}
 									className="w-full dark:bg-dark--theme-light"
 									key={itemToValue(item)}
 									value={itemToValue(item)}

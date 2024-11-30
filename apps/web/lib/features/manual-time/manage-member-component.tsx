@@ -32,6 +32,7 @@ interface ManageOrMemberComponentProps<T extends Item> {
         isRequired: boolean;
         valueKey: string; // Key for extracting the item's value
         displayKey: string; // Key for extracting the item's display text
+        defaultValue?: string
     }[];
 
     /**
@@ -77,7 +78,7 @@ interface ManageOrMemberComponentProps<T extends Item> {
      */
     itemToValue: (item: T | null, valueKey: string) => string;
 
-    classNameTitle?: string
+    classNameTitle?: string;
 }
 
 /**
@@ -94,7 +95,7 @@ export const ManageOrMemberComponent = <T extends Item>({
     handleChange,
     itemToString,
     itemToValue,
-    classNameTitle
+    classNameTitle,
 }: ManageOrMemberComponentProps<T>): JSX.Element => {
 
     /**
@@ -122,6 +123,7 @@ export const ManageOrMemberComponent = <T extends Item>({
                         {field.isRequired && <span className="text-[#de5505e1] ml-1 text-sm">*</span>}
                     </label>
                     <CustomCombobox
+                        defaultValue={field.defaultValue}
                         popoverWidth='w-full'
                         buttonWidth='w-full'
                         itemToString={(item) => itemToString(item, field.displayKey)}
