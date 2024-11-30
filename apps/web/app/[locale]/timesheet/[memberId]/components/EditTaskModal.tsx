@@ -28,12 +28,15 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	});
 
 	const { h: hours, m: minutes } = secondsToTime(dataTimesheet.timesheet.duration);
+
 	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>({
-		startTime: '',
-		endTime: '',
+		startTime: dataTimesheet.timesheet?.startedAt
+			? dataTimesheet.timesheet.startedAt.toString().slice(0, 5)
+			: '',
+		endTime: dataTimesheet.timesheet?.stoppedAt
+			? dataTimesheet.timesheet.stoppedAt.toString().slice(0, 5)
+			: '',
 	});
-
-
 
 	const updateTime = (key: 'startTime' | 'endTime', value: string) => {
 		setTimeRange(prevState => ({
@@ -65,6 +68,15 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 
 	const handleUpdateSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (!timeRange.startTime || !timeRange.endTime) {
+			alert('Please enter valid start and end times.');
+			return;
+		}
+		if (!/^\d{2}:\d{2}$/.test(timeRange.startTime) || !/^\d{2}:\d{2}$/.test(timeRange.endTime)) {
+			alert('Time format should be HH:MM.');
+			return;
+		}
+
 		const startedAt = new Date(dateRange.date ?? new Date());
 		const stoppedAt = new Date(dateRange.date ?? new Date());
 		const [startHours, startMinutes] = timeRange.startTime.split(':').map(Number);
@@ -93,7 +105,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			isRequired: true,
 			valueKey: 'id',
 			displayKey: 'name',
-			element: 'Project'
+			element: 'Project',
+			defaultValue: dataTimesheet.project.name
+
 		},
 	];
 
@@ -106,7 +120,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			isOpen={isOpen}
 			showCloseIcon
 			title={'Edit Task'}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[30rem] justify-start h-[auto]"
+			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:min-w-[32rem] justify-start h-[auto]"
 			titleClass="font-bold flex justify-start w-full">
 			<form onSubmit={handleUpdateSubmit} className="flex flex-col w-full">
 				<div className="flex flex-col border-b border-b-slate-100 dark:border-b-gray-700">
@@ -142,6 +156,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								aria-label="Start time"
 								aria-describedby="start-time-error"
 								type="time"
+								min="00:00"
+								max="23:59"
+								pattern="[0-9]{2}:[0-9]{2}"
 								value={timeRange.startTime}
 								onChange={(e) => updateTime("startTime", e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
@@ -177,7 +194,6 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					</div>
 					<div className="w-full flex flex-col">
 						<ManageOrMemberComponent
-							defaultValue={dataTimesheet.project.name ?? ""}
 							classNameTitle={'text-[#282048] dark:text-gray-500  '}
 							fields={fields}
 							itemsLists={memberItemsLists}
