@@ -19,11 +19,15 @@ export function useTimelogFilterOptions() {
     const generateTimeOptions = (interval = 15) => {
         const totalSlots = (24 * 60) / interval; // Total intervals in a day
         return Array.from({ length: totalSlots }, (_, i) => {
-            const hour = Math.floor((i * interval) / 60).toString().padStart(2, '0');
-            const minutes = ((i * interval) % 60).toString().padStart(2, '0');
-            return `${hour}:${minutes}`;
+            const totalMinutes = i * interval;
+            const hour24 = Math.floor(totalMinutes / 60);
+            const hour12 = hour24 % 12 || 12; // Convert to 12-hour format
+            const minutes = (totalMinutes % 60).toString().padStart(2, '0');
+            const period = hour24 < 12 ? 'AM' : 'PM'; // Determine AM/PM
+            return `${hour12.toString().padStart(2, '0')}:${minutes} ${period}`;
         });
     };
+
     const handleSelectRowTimesheet = (items: string) => {
         setSelectTimesheet((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }

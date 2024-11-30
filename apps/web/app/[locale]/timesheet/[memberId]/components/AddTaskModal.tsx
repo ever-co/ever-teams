@@ -60,9 +60,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             closeModal={closeModal}
             title={'+ Add Time Entry'}
             showCloseIcon
-            className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[30rem] justify-start h-[auto] overflow-y-auto"
+            className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
             titleClass="font-bold flex justify-start w-full">
-            <div className="flex flex-col w-full gap-4 justify-start overflow-y-auto">
+            <div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[32rem] p-4">
                 <div className=" w-full mr-[4%]">
                     <label className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
                         {t('sidebar.TASKS')}
@@ -207,7 +207,7 @@ const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChang
                         <SelectItem
                             key={time}
                             value={time}
-                            className="hover:bg-primary focus:bg-primary hover:text-white px-2 py-1 cursor-pointer"
+                            className="hover:bg-primary focus:bg-primary hover:text-white  py-1 cursor-pointer"
                         >
                             {time}
                         </SelectItem>
@@ -236,23 +236,30 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
         const [hours, minutes] = time.split(':').map(Number);
         return hours * 60 + minutes;
     };
+    const convertToMinutesHour = (time: string): number => {
+        const [hourMinute, period] = time.split(' ');
+        const [hours, minutes] = hourMinute.split(':').map(Number);
 
-    const calculateTotalHours = React.useCallback((start: string, end: string): string => {
-        if (!start || !end) return '00:00h';
+        let totalMinutes = (hours % 12) * 60 + minutes;
+        if (period === 'PM') totalMinutes += 720;
 
-        const startMinutes = convertToMinutes(start);
-        const endMinutes = convertToMinutes(end);
+        return totalMinutes;
+    }
 
-        const totalMinutes = endMinutes >= startMinutes
-            ? endMinutes - startMinutes
-            : 1440 - startMinutes + endMinutes;
-
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}h`;
-    }, []);
-
-
+    const calculateTotalHoursHour = React.useCallback(
+        (start: string, end: string): string => {
+            if (!start || !end) return '00:00h';
+            const startMinutes = convertToMinutesHour(start);
+            const endMinutes = convertToMinutesHour(end);
+            const totalMinutes = endMinutes >= startMinutes
+                ? endMinutes - startMinutes
+                : 1440 - startMinutes + endMinutes;
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}h`;
+        },
+        []
+    );
 
     const handleAddShift = () => {
         setShifts([...shifts,
@@ -264,26 +271,43 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
         setShifts(updatedShifts);
     };
 
+
     const handleShiftChange = (index: number, field: keyof Shift, value: string) => {
         const updatedShifts = [...shifts];
         updatedShifts[index][field] = value;
 
         if (field === 'startTime' || field === 'endTime') {
             const { startTime, endTime } = updatedShifts[index];
-            updatedShifts[index].totalHours = calculateTotalHours(startTime, endTime);
+
+            // Validation des données
+            if (!startTime || !endTime) return;
+
+            if (convertToMinutes(startTime) >= convertToMinutes(endTime)) {
+                alert('L’heure de début doit être inférieure à l’heure de fin.');
+                return;
+            }
+            updatedShifts[index].totalHours = calculateTotalHoursHour(startTime, endTime);
+            // Détection des chevauchements
             const isOverlapping = shifts.some((shift, i) => {
                 if (i === index || !shift.startTime || !shift.endTime) return false;
+
                 const currentStart = convertToMinutes(startTime);
                 const currentEnd = convertToMinutes(endTime);
                 const shiftStart = convertToMinutes(shift.startTime);
                 const shiftEnd = convertToMinutes(shift.endTime);
-                return (currentStart >= shiftStart && currentStart < shiftEnd) ||
-                    (currentEnd > shiftStart && currentEnd <= shiftEnd);
+
+                return (
+                    (currentStart < shiftEnd && currentEnd > shiftStart) ||
+                    (currentStart === shiftStart && currentEnd === shiftEnd)
+                );
             });
+
             if (isOverlapping) {
+                alert('Le shift modifié chevauche un autre shift existant.');
                 return;
             }
         }
+
         setShifts(updatedShifts);
     };
 
