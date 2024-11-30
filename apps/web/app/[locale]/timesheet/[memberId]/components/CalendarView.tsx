@@ -10,7 +10,7 @@ import { EmployeeAvatar } from "./CompactTimesheetComponent";
 import { formatDate } from "@/app/helpers";
 import { ClockIcon } from "lucide-react";
 
-export function CalendarView({ data }: { data?: GroupedTimesheet[] }) {
+export function CalendarView({ data, loading }: { data?: GroupedTimesheet[], loading: boolean }) {
     const t = useTranslations();
     return (
         <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
