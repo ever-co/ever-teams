@@ -229,7 +229,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 });
 
-export default withAuthentication(TimeSheet, { displayName: 'TimeSheet' });
+export default withAuthentication(TimeSheet, { displayName: 'TimeSheet', showPageSkeleton: true });
 
 const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon, onClick, t }) => (
 	<button
