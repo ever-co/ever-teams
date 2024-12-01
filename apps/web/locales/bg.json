@@ -279,7 +279,20 @@
 		"CLEAR_FILTER": "Изчисти филтъра",
 		"CLEAR": "Изчисти",
 		"APPLY_FILTER": "Приложи филтър",
-		"CREATE_NEW": "Създай нов"
+		"CREATE_NEW": "Създай нов",
+		"NO_RESULT": "Няма резултати",
+		"PICK_A_DATE": "Изберете дата",
+		"THIS_WEEK": "Тази седмица",
+		"LAST_WEEK": "Миналата седмица",
+		"THIS_MONTH": "Този месец",
+		"LAST_MONTH": "Миналия месец",
+		"LAST_TWO_WEEKS": "Последните две седмици",
+		"DATE": "Дата",
+		"WEEK": "Седмица",
+		"GROUP_BY": "Групирай по",
+		"DAILY_LIMIT": "Дневен лимит",
+		"WEEKLY_LIMIT": "Седмичен лимит",
+		"REPORTS": "Доклади"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -301,6 +314,15 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Бяхте изтрит от екипа"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Изразходвано време",
+			"LIMIT": "Лимит",
+			"PERCENTAGE_USED": "Процент използван",
+			"REMAINING": "Оставащо",
+			"GROUP_BY": "Групирай по",
+			"DAILY_LIMIT": "Дневен лимит",
+			"WEEKLY_LIMIT": "Седмичен лимит"
+		},
 		"home": {
 			"BREADCRUMB": "[\"Табло\"]",
 			"SENT_EMAIL_VERIFICATION": "Потвърждаващият код беше изпратен до имейла ви",

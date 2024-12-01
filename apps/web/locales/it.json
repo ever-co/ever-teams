@@ -279,7 +279,20 @@
 		"CLEAR_FILTER": "Cancella filtro",
 		"CLEAR": "Cancella",
 		"APPLY_FILTER": "Applica filtro",
-		"CREATE_NEW": "Crea nuovo"
+		"CREATE_NEW": "Crea nuovo",
+		"NO_RESULT": "Nessun risultato",
+		"PICK_A_DATE": "Seleziona una data",
+		"THIS_WEEK": "Questa settimana",
+		"LAST_WEEK": "La settimana scorsa",
+		"THIS_MONTH": "Questo mese",
+		"LAST_MONTH": "Il mese scorso",
+		"LAST_TWO_WEEKS": "Ultime due settimane",
+		"DATE": "Data",
+		"WEEK": "Settimana",
+		"GROUP_BY": "Raggruppa per",
+		"DAILY_LIMIT": "Limite giornaliero",
+		"WEEKLY_LIMIT": "Limite settimanale",
+		"REPORTS": "Report"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -301,6 +314,15 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Sei stato rimosso dal team"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Tempo trascorso",
+			"LIMIT": "Limite",
+			"PERCENTAGE_USED": "Percentuale usata",
+			"REMAINING": "Rimanente",
+			"GROUP_BY": "Raggruppa per",
+			"DAILY_LIMIT": "Limite giornaliero",
+			"WEEKLY_LIMIT": "Limite settimanale"
+		},
 		"home": {
 			"BREADCRUMB": "[\"Pannello di controllo\"]",
 			"SENT_EMAIL_VERIFICATION": "Il codice di verifica è stato inviato alla tua email",
