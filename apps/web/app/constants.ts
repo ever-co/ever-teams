@@ -337,3 +337,5 @@ export const statusOptions = [
 	{ value: 'Pending', label: 'Pending' },
 	{ value: 'Rejected', label: 'Rejected' }
 ];
+
+export const DEFAULT_WORK_HOURS_PER_DAY = 8;

@@ -30,7 +30,7 @@ export function ExportModeSelect(props: IProps) {
 	);
 
 	return (
-		<Select value={selected} onValueChange={handleChange}>
+		<Select aria-label="Select export format" value={selected} onValueChange={handleChange}>
 			<SelectTrigger className="w-36 overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
 				<SelectValue placeholder="Export" />
 			</SelectTrigger>

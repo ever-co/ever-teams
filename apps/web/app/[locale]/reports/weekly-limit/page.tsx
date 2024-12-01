@@ -9,7 +9,6 @@ import { DatePickerWithRange } from './components/date-range-select';
 import { MembersSelect } from './components/members-select';
 import { GroupBySelect, TGroupByOption } from './components/group-by-select';
 import { ExportModeSelect } from './components/export-mode-select';
-import { DataTableWeeklyLimits } from './components/data-table';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import { useTimeLimits } from '@/app/hooks/features/useTimeLimits';
 import { DateRange } from 'react-day-picker';
@@ -20,6 +19,7 @@ import { ITimeLimitReport } from '@/app/interfaces/ITimeLimits';
 import { getUserOrganizationsRequest } from '@/app/services/server/requests';
 import { IOrganization } from '@/app/interfaces';
 import { useTranslations } from 'next-intl';
+import { TimeReportTable } from './components/time-report-table';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -139,48 +139,24 @@ function WeeklyLimitReport() {
 						if (displayMode == 'Week') {
 							if (moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'day')) {
 								return (
-									<div className="w-full p-1" key={report.date}>
-										<div className="h-12 px-4 bg-slate-100 dark:bg-gray-800 dark:text-white rounded-md flex border items-center">
-											<h4 className=" text-xs font-medium space-x-5 ">
-												<span>{report.date}</span> <span>-</span>
-												<span>{moment(report.date).endOf('week').format('YYYY-MM-DD')}</span>
-											</h4>
-										</div>
-										<div>
-											<DataTableWeeklyLimits
-												data={report.employees?.map((item) => ({
-													member: item.employee.fullName,
-													limit: item.limit || organizationLimits[displayMode],
-													percentageUsed:
-														(item.duration / organizationLimits[displayMode]) * 100,
-													timeSpent: item.duration,
-													remaining: organizationLimits[displayMode] - item.duration
-												}))}
-											/>
-										</div>
-									</div>
+									<TimeReportTable
+										organizationLimits={organizationLimits}
+										report={report}
+										displayMode={displayMode}
+										key={report.date}
+									/>
 								);
 							} else {
 								return null;
 							}
 						} else {
 							return (
-								<div className="w-full p-1" key={report.date}>
-									<div className="h-12 px-4 bg-slate-100 dark:bg-gray-800 dark:text-white rounded-md flex border items-center">
-										<h4 className=" text-xs font-medium ">{report.date}</h4>
-									</div>
-									<div>
-										<DataTableWeeklyLimits
-											data={report.employees?.map((item) => ({
-												member: item.employee.fullName,
-												limit: item.limit || organizationLimits[displayMode],
-												percentageUsed: (item.duration / organizationLimits[displayMode]) * 100,
-												timeSpent: item.duration,
-												remaining: organizationLimits[displayMode] - item.duration
-											}))}
-										/>
-									</div>
-								</div>
+								<TimeReportTable
+									organizationLimits={organizationLimits}
+									report={report}
+									displayMode={displayMode}
+									key={report.date}
+								/>
 							);
 						}
 					})}

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subDays } from 'date-fns';
+import { endOfMonth, endOfWeek, format, isSameDay, startOfMonth, startOfWeek, subDays, subMonths } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
@@ -78,8 +78,12 @@ export function DatePickerWithRange({
 							</Button>
 							<Button
 								onClick={() => {
-									selectedDate != undefined && onChange(selectedDate);
-									setDate(selectedDate);
+									if (selectedDate?.from && selectedDate?.to) {
+										onChange(selectedDate);
+										setDate(selectedDate);
+									} else {
+										console.warn('Invalid date range selected');
+									}
 								}}
 								className=" grow text-xs h-8 dark:text-white"
 								size={'sm'}
@@ -127,7 +131,10 @@ const PresetDates = ({
 			{ label: t('common.THIS_MONTH'), range: { from: startOfMonth(new Date()), to: endOfMonth(new Date()) } },
 			{
 				label: t('common.LAST_MONTH'),
-				range: { from: startOfMonth(subDays(new Date(), 30)), to: endOfMonth(subDays(new Date(), 30)) }
+				range: {
+					from: startOfMonth(subMonths(new Date(), 1)),
+					to: endOfMonth(subMonths(new Date(), 1))
+				}
 			},
 			{ label: t('common.FILTER_LAST_7_DAYS'), range: { from: subDays(new Date(), 7), to: new Date() } },
 			{ label: t('common.LAST_TWO_WEEKS'), range: { from: subDays(new Date(), 14), to: new Date() } }
@@ -141,8 +148,10 @@ const PresetDates = ({
 		setSelected(
 			presets.find((preset) => {
 				return (
-					date?.from?.toISOString() == preset.range.from.toISOString() &&
-					date.to?.toISOString() == preset.range.to.toISOString()
+					date?.from &&
+					date.to &&
+					isSameDay(date?.from, preset.range.from) &&
+					isSameDay(date?.to, preset.range.to)
 				);
 			})?.range
 		);
@@ -155,15 +164,19 @@ const PresetDates = ({
 					key={preset.label}
 					onClick={() => setDate(preset.range)}
 					variant={
-						selected?.from?.toISOString() == preset.range.from.toISOString() &&
-						selected.to?.toISOString() == preset.range.to.toISOString()
+						selected?.from &&
+						selected.to &&
+						isSameDay(selected?.from, preset.range.from) &&
+						isSameDay(selected?.to, preset.range.to)
 							? 'default'
 							: 'outline'
 					}
 					className={cn(
 						' truncate text-left text-sm h-8 px-2 py-1 font-normal border rounded',
-						selected?.from?.toISOString() == preset.range.from.toISOString() &&
-							selected.to?.toISOString() == preset.range.to.toISOString() &&
+						selected?.from &&
+							selected.to &&
+							isSameDay(selected?.from, preset.range.from) &&
+							isSameDay(selected?.to, preset.range.to) &&
 							'dark:text-white'
 					)}
 				>
