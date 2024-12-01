@@ -277,7 +277,11 @@
 		"LAST_MONTH": "上个月",
 		"LAST_TWO_WEEKS": "过去两周",
 		"DATE": "日期",
-		"WEEK": "周"
+		"WEEK": "周",
+		"GROUP_BY": "分组依据",
+		"DAILY_LIMIT": "每日限制",
+		"WEEKLY_LIMIT": "每周限制",
+		"REPORTS": "报告"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

@@ -6,7 +6,7 @@ import { useCallback } from 'react';
 import { IGetTimeLimitReport } from '@/app/interfaces/ITimeLimits';
 
 export function useTimeLimits() {
-	const [timeLimitsReport, setTimeLimitsReport] = useAtom(timeLimitsAtom);
+	const [timeLimitsReports, setTimeLimitsReport] = useAtom(timeLimitsAtom);
 
 	const { queryCall: getTimeLimitsReportQueryCall, loading: getTimeLimitReportLoading } =
 		useQuery(getTimeLimitsReportAPI);
@@ -27,6 +27,6 @@ export function useTimeLimits() {
 	return {
 		getTimeLimitReportLoading,
 		getTimeLimitsReport,
-		timeLimitsReport
+		timeLimitsReports
 	};
 }

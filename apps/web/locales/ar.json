@@ -259,7 +259,11 @@
 		"LAST_MONTH": "الشهر الماضي",
 		"LAST_TWO_WEEKS": "آخر أسبوعين",
 		"DATE": "التاريخ",
-		"WEEK": "الأسبوع"
+		"WEEK": "الأسبوع",
+		"GROUP_BY": "تجميع حسب",
+		"DAILY_LIMIT": "الحد اليومي",
+		"WEEKLY_LIMIT": "الحد الأسبوعي",
+		"REPORTS": "التقارير"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

@@ -277,7 +277,11 @@
 		"LAST_MONTH": "Il mese scorso",
 		"LAST_TWO_WEEKS": "Ultime due settimane",
 		"DATE": "Data",
-		"WEEK": "Settimana"
+		"WEEK": "Settimana",
+		"GROUP_BY": "Raggruppa per",
+		"DAILY_LIMIT": "Limite giornaliero",
+		"WEEKLY_LIMIT": "Limite settimanale",
+		"REPORTS": "Report"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

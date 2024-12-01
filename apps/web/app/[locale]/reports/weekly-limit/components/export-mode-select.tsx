@@ -5,6 +5,16 @@ interface IProps {
 	onChange: (mode: TExportMode) => void;
 }
 
+/**
+ * ExportModeSelect component provides a dropdown selector for choosing an export format (Excel or PDF).
+ *
+ * @component
+ * @param {IProps} props - The component props.
+ * @param {(mode: TExportMode) => void} props.onChange - Function to handle changes in the selected export mode.
+ *
+ * @returns {JSX.Element} A dropdown for selecting the export mode.
+ */
+
 type TExportMode = 'Excel' | 'PDF';
 export function ExportModeSelect(props: IProps) {
 	const { onChange } = props;

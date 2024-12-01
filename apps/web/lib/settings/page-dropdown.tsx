@@ -1,11 +1,12 @@
 'use client';
 
-import { Dropdown } from 'lib/components';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IPagination } from '@app/interfaces/IPagination';
 import { clsxm } from '@app/utils';
 import { PaginationItems, mappaginationItems } from './page-items';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { ChevronDownIcon } from 'lucide-react';
 
 export const PaginationDropdown = ({
 	setValue,
@@ -32,8 +33,8 @@ export const PaginationDropdown = ({
 		}
 	]);
 
-	const items: any = useMemo(() => mappaginationItems(paginationList), [paginationList]);
-
+	const items: PaginationItems[] = useMemo(() => mappaginationItems(paginationList), [paginationList]);
+	const [open, setOpen] = useState(false);
 	const [paginationItem, setPaginationItem] = useState<PaginationItems | null>();
 
 	const onChangeActiveTeam = useCallback(
@@ -66,17 +67,33 @@ export const PaginationDropdown = ({
 
 	return (
 		<>
-			<Dropdown
-				className="min-w-[150px] max-w-sm z-10 dark:bg-dark--theme-light"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light',
-					paginationList.length === 0 && ['py-2']
-				)}
-				value={paginationItem || null}
-				onChange={onChangeActiveTeam}
-				items={items}
-				optionsClassName={'outline-none'}
-			></Dropdown>
+			<Popover>
+				<PopoverTrigger
+					onClick={() => setOpen(!open)}
+					className={clsxm(
+						'input-border',
+						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
+						'font-normal outline-none',
+						'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light'
+					)}
+				>
+					<span>{paginationItem?.selectedLabel || (paginationItem?.Label && <paginationItem.Label />)}</span>{' '}
+					<ChevronDownIcon
+						className={clsxm(
+							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80',
+							open && 'transform rotate-180'
+						)}
+						aria-hidden="true"
+					/>
+				</PopoverTrigger>
+				<PopoverContent className="w-36">
+					{items.map((Item, index) => (
+						<div onClick={() => onChangeActiveTeam(Item)} key={Item.key ? Item.key : index}>
+							<Item.Label />
+						</div>
+					))}
+				</PopoverContent>
+			</Popover>
 		</>
 	);
 };

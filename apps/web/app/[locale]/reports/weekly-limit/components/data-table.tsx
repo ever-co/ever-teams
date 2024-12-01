@@ -29,6 +29,17 @@ export type WeeklyLimitTableDataType = {
 	remaining: number;
 };
 
+/**
+ * Renders a data table displaying weekly time limits and usage for team members.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {WeeklyLimitTableDataType[]} props.data - Array of data objects containing weekly time usage information.
+ *
+ * @returns {JSX.Element} A table showing member-wise weekly time limits, usage, and remaining time.
+ *
+ */
+
 export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -85,7 +96,10 @@ export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] 
 			header: () => <div className="">{t('pages.timeLimitReport.PERCENTAGE_USED')}</div>,
 			cell: ({ row }) => (
 				<div className="lowercase flex gap-2 items-center">
-					<ProgressBar width={'10rem'} progress={`${Number(row.getValue('percentageUsed')).toFixed(2)}%`} />{' '}
+					<ProgressBar
+						width={'10rem'}
+						progress={`${Number(row.getValue('percentageUsed')) < 100 ? Number(row.getValue('percentageUsed')).toFixed(2) : 100}%`}
+					/>{' '}
 					<span>{`${Number(row.getValue('percentageUsed')).toFixed(2)}%`}</span>
 				</div>
 			)
@@ -95,6 +109,7 @@ export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] 
 			header: () => <div className="">{t('pages.timeLimitReport.REMAINING')}</div>,
 			cell: ({ row }) => (
 				<div className="lowercase">
+					{Number(row.getValue('percentageUsed')) > 100 && '-'}
 					{formatTimeString(formatIntegerToHour(Number(row.getValue('remaining')) / 3600))}
 				</div>
 			)

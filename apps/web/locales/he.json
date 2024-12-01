@@ -277,7 +277,11 @@
 		"LAST_MONTH": "חודש שעבר",
 		"LAST_TWO_WEEKS": "שבועיים אחרונים",
 		"DATE": "תאריך",
-		"WEEK": "שבוע"
+		"WEEK": "שבוע",
+		"GROUP_BY": "קבץ לפי",
+		"DAILY_LIMIT": "הגבלה יומית",
+		"WEEKLY_LIMIT": "הגבלה שבועית",
+		"REPORTS": "דוחות"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

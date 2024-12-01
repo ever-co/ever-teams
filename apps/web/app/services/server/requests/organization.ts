@@ -19,10 +19,16 @@ export function createOrganizationRequest(datas: IOrganizationCreate, bearerToke
  * @returns A promise resolving to a pagination response of user organizations.
  * @throws Error if required parameters are missing or invalid.
  */
-export function getUserOrganizationsRequest({ tenantId, userId }: {
-	tenantId: string;
-	userId: string
-}, bearerToken: string) {
+export function getUserOrganizationsRequest(
+	{
+		tenantId,
+		userId
+	}: {
+		tenantId: string;
+		userId: string;
+	},
+	bearerToken: string
+) {
 	if (!tenantId || !userId || !bearerToken) {
 		throw new Error('Tenant ID, User ID, and Bearer token are required'); // Validate required parameters
 	}
@@ -34,7 +40,12 @@ export function getUserOrganizationsRequest({ tenantId, userId }: {
 	query.append('where[tenantId]', tenantId);
 
 	// If there are relations, add them to the query
-	const relations: string[] = [];
+	const relations: string[] = [
+		'organization',
+		'organization.contact',
+		'organization.featureOrganizations',
+		'organization.featureOrganizations.feature'
+	];
 	// Append each relation to the query string
 	relations.forEach((relation, index) => {
 		query.append(`relations[${index}]`, relation);

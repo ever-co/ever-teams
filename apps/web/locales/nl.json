@@ -277,7 +277,11 @@
 		"LAST_MONTH": "Vorige maand",
 		"LAST_TWO_WEEKS": "Laatste twee weken",
 		"DATE": "Datum",
-		"WEEK": "Week"
+		"WEEK": "Week",
+		"GROUP_BY": "Groeperen op",
+		"DAILY_LIMIT": "Daglimiet",
+		"WEEKLY_LIMIT": "Weeklimiet",
+		"REPORTS": "Rapporten"
 	},
 	"hotkeys": {
 		"HELP": "Help",

@@ -1,16 +1,29 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@components/ui/select';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useMemo, useState, useCallback } from 'react';
 
 interface IProps {
 	onChange: (OPTION: TGroupByOption) => void;
+	defaultValue: TGroupByOption;
 }
 
-export type TGroupByOption = 'Date' | 'Week' | 'Member';
-export function GroupBySelect(props: IProps) {
-	const { onChange } = props;
-	const options = useMemo<TGroupByOption[]>(() => ['Date', 'Week', 'Member'], []);
-	const [selected, setSelected] = useState<TGroupByOption>('Date');
+/**
+ * GroupBySelect component provides a dropdown selector for grouping data by day, week, or member.
+ *
+ * @component
+ * @param {IProps} props - The component props.
+ * @param {(option: TGroupByOption) => void} props.onChange - Function to handle changes in the selected grouping option.
+ * @param {TGroupByOption} props.defaultValue - The initial grouping option.
+ *
+ * @returns {JSX.Element} A dropdown for selecting a grouping option.
+ */
 
+export type TGroupByOption = 'Day' | 'Week' | 'Member';
+export function GroupBySelect(props: IProps) {
+	const { onChange, defaultValue } = props;
+	const options = useMemo<TGroupByOption[]>(() => ['Day', 'Week', 'Member'], []);
+	const [selected, setSelected] = useState<TGroupByOption>(defaultValue);
+	const t = useTranslations();
 	const handleChange = useCallback(
 		(option: TGroupByOption) => {
 			setSelected(option);
@@ -29,7 +42,9 @@ export function GroupBySelect(props: IProps) {
 					{options.map((option) => {
 						return (
 							<SelectItem key={option} value={option}>
-								{option}
+								{t(
+									`common.${(option == 'Day' ? 'Date' : option).toUpperCase()}` as DottedLanguageObjectStringPaths
+								)}
 							</SelectItem>
 						);
 					})}

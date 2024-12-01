@@ -277,7 +277,11 @@
 		"LAST_MONTH": "Last month",
 		"LAST_TWO_WEEKS": "Last two weeks",
 		"DATE": "Date",
-		"WEEK": "Week"
+		"WEEK": "Week",
+		"GROUP_BY": "Group by",
+		"DAILY_LIMIT": "Daily limit",
+		"WEEKLY_LIMIT": "Weekly limit",
+		"REPORTS": "Reports"
 	},
 	"hotkeys": {
 		"HELP": "Help",
