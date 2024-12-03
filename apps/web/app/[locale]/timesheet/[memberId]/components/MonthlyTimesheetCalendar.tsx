@@ -32,6 +32,9 @@ const generateFullCalendar = (currentMonth: Date) => {
     return eachDayOfInterval({ start: startDate, end: endDate });
 };
 
+
+
+
 const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
     data = [],
     onDateClick,
@@ -78,13 +81,21 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                     <div key={day}>{day}</div>
                 ))}
             </div>
-            <div className="grid grid-cols-7 mt-2 w-full">
+
+            <div
+                className="grid grid-cols-7 mt-2 w-full"
+                role="grid"
+                aria-label="Calendar"
+            >
                 {calendarDates.map((date) => {
                     const formattedDate = format(date, "yyyy-MM-dd");
                     const plan = groupedData.get(formattedDate);
                     return (
                         <div
                             key={formattedDate}
+                            role="gridcell"
+                            tabIndex={0}
+                            aria-label={format(date, "MMMM d, yyyy")}
                             className={cn(
                                 classNames.day,
                                 "border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full", {
@@ -92,6 +103,12 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                             }
                             )}
                             onClick={() => onDateClick?.(date)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    onDateClick?.(date);
+                                }
+                            }}
                         >
                             <div className="px-2 flex items-center justify-between">
                                 <span className="block text-gray-500 text-sm font-medium">
@@ -109,7 +126,13 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                             {renderDayContent ? (
                                 renderDayContent(date, plan)
                             ) : plan ? (
-                                <div>{JSON.stringify(plan)}</div>
+                                <div className="p-2">
+                                    {plan.tasks.map((task) => (
+                                        <div key={task.id} className="text-sm mb-1 truncate">
+                                            {task.task?.title}
+                                        </div>
+                                    ))}
+                                </div>
                             ) : (
                                 <div className={classNames.noData || "text-gray-400 text-sm"}>
                                     {noDataText}
