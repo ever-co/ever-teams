@@ -19,7 +19,7 @@ import { ITimeLimitReport } from '@/app/interfaces/ITimeLimits';
 import { getUserOrganizationsRequest } from '@/app/services/server/requests';
 import { IOrganization } from '@/app/interfaces';
 import { useTranslations } from 'next-intl';
-import { TimeReportTable } from './components/time-report-table';
+import { groupDataByEmployee, TimeReportTable, TimeReportTableByMember } from './components/time-report-table';
 
 function WeeklyLimitReport() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -28,7 +28,7 @@ function WeeklyLimitReport() {
 	const { timeLimitsReports, getTimeLimitsReport } = useTimeLimits();
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
-	const [groupBy, setGroupBy] = useState<TGroupByOption>('Day');
+	const [groupBy, setGroupBy] = useState<TGroupByOption[]>(['date']);
 	const t = useTranslations();
 	const breadcrumbPath = useMemo(
 		() => [
@@ -41,8 +41,8 @@ function WeeklyLimitReport() {
 	const organizationLimits = useMemo(
 		() =>
 			organization && {
-				Day: organization.standardWorkHoursPerDay * 3600,
-				Week: organization.standardWorkHoursPerDay * 3600 * 5
+				date: organization.standardWorkHoursPerDay * 3600,
+				week: organization.standardWorkHoursPerDay * 3600 * 5
 			},
 		[organization]
 	);
@@ -54,14 +54,18 @@ function WeeklyLimitReport() {
 	});
 	const accessToken = useMemo(() => getAccessTokenCookie(), []);
 	const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<ITimeLimitReport>(
-			groupBy == 'Week'
+			groupBy.includes('week')
 				? timeLimitsReports.filter((report) =>
 						moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'day')
 					)
 				: timeLimitsReports
 		);
+
+	const duration = useMemo(() => groupBy.find((el) => el == 'date' || el == 'week') ?? 'date', [groupBy]);
+	const displayMode = (groupBy.find((el) => el === 'date' || el === 'week') ?? 'date') as 'week' | 'date';
 
 	// Get the organization
 	useEffect(() => {
@@ -80,14 +84,14 @@ function WeeklyLimitReport() {
 			employeeIds: [...(member === 'all' ? activeTeam?.members.map((m) => m.employeeId) ?? [] : [member])],
 			startDate: dateRange.from?.toISOString(),
 			endDate: dateRange.to?.toISOString(),
-			duration: groupBy != 'Member' ? groupBy.toLocaleLowerCase() : 'day',
+			duration: duration == 'date' ? 'day' : duration,
 			timeZone
-			//TODO : add groupBy query (when it is ready in the API side)
 		});
 	}, [
 		activeTeam?.members,
 		dateRange.from,
 		dateRange.to,
+		duration,
 		getTimeLimitsReport,
 		groupBy,
 		member,
@@ -111,7 +115,7 @@ function WeeklyLimitReport() {
 					<div className=" h-24 w-full flex flex-col justify-between">
 						<div className="flex h-[5rem] items-center justify-between">
 							<h2 className="text-3xl font-medium">
-								{groupBy == 'Week' ? t('common.WEEKLY_LIMIT') : t('common.DAILY_LIMIT')}
+								{groupBy.includes('week') ? t('common.WEEKLY_LIMIT') : t('common.DAILY_LIMIT')}
 							</h2>
 							<div className="flex gap-4">
 								<MembersSelect onChange={(memberId) => setMember(memberId)} />
@@ -124,44 +128,66 @@ function WeeklyLimitReport() {
 						</div>
 						<div className="flex gap-2 items-center">
 							<span>{t('common.GROUP_BY')}:</span>
-							<GroupBySelect defaultValue={groupBy} onChange={(option) => setGroupBy(option)} />
+							<GroupBySelect defaultValues={groupBy} onChange={(option) => setGroupBy(option)} />
 						</div>
 					</div>
 				</div>
 			}
 		>
-			<div className="flex flex-col  p-4  w-full  bg-white  gap-6  dark:bg-dark--theme mt-6">
-				{organization &&
-					organizationLimits &&
-					currentItems.map((report) => {
-						const displayMode = groupBy != 'Member' ? groupBy : 'Day';
-
-						if (displayMode == 'Week') {
-							if (moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'day')) {
+			<div className="flex flex-col p-4 w-full bg-white gap-6 dark:bg-dark--theme mt-6">
+				{organization && organizationLimits ? (
+					groupBy.includes('member') ? (
+						groupDataByEmployee(timeLimitsReports).map((data) => {
+							return (
+								<TimeReportTableByMember
+									header={<h4 className="text-xs font-medium">{data.employee.fullName}</h4>}
+									indexTile={displayMode}
+									organizationLimits={organizationLimits}
+									report={data}
+									displayMode={displayMode}
+									key={data.employee.fullName}
+								/>
+							);
+						})
+					) : (
+						currentItems
+							.filter((report) =>
+								displayMode === 'week'
+									? moment(report.date).isSame(moment(report.date).startOf('isoWeek'), 'date')
+									: true
+							)
+							.map((report) => {
 								return (
 									<TimeReportTable
+										header={
+											displayMode === 'week' ? (
+												<h4 className="text-xs font-medium">
+													<span>{report.date}</span> <span>-</span>
+													<span>
+														{moment(report.date).endOf('week').format('YYYY-MM-DD')}
+													</span>
+												</h4>
+											) : (
+												<h4 className="text-xs font-medium">{report.date}</h4>
+											)
+										}
+										indexTile={t('common.MEMBER')}
 										organizationLimits={organizationLimits}
 										report={report}
 										displayMode={displayMode}
 										key={report.date}
 									/>
 								);
-							} else {
-								return null;
-							}
-						} else {
-							return (
-								<TimeReportTable
-									organizationLimits={organizationLimits}
-									report={report}
-									displayMode={displayMode}
-									key={report.date}
-								/>
-							);
-						}
-					})}
+							})
+					)
+				) : (
+					<div>{t('common.LOADING')}</div>
+				)}
 			</div>
-			<div className=" bg-white dark:bg-gray-800 px-4 py-4 flex">
+			{
+				// TODO : Improve the pagination accordingly to filtered data
+			}
+			<div className=" bg-white dark:bg-dark--theme px-4 py-4 flex">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}
