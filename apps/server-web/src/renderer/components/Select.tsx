@@ -42,7 +42,7 @@ export const SelectComponent = ({
       onValueChange={onValueChange}
     >
       <Select.Trigger
-        className="inline-flex items-center justify-center rounded-lg px-[15px] text-[13px] leading-none h-[35px] gap-[5px] bg-white dark:bg-[#25272D] text-violet11 dark:text-white shadow-[0_2px_10px] shadow-black/10 hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black data-[placeholder]:text-violet9 outline-none"
+        className="inline-flex items-center justify-center rounded-lg px-[15px] text-[13px] leading-none h-[35px] gap-[5px] bg-white dark:bg-[#25272D] text-black dark:text-white shadow-[0_2px_10px] shadow-black/10 hover:bg-mauve3 focus:shadow-[0_0_0_2px] focus:shadow-black data-[placeholder]:text-violet9 outline-none"
         aria-label="Food"
       >
         <Select.Value placeholder={title} />

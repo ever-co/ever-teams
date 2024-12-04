@@ -117,7 +117,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			valueKey: 'id',
 			displayKey: 'name',
 			element: 'Project',
-			defaultValue: dataTimesheet.project.name
+			defaultValue: 'name'
 
 		},
 	];

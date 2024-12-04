@@ -39,6 +39,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const { user } = useAuthenticateUser();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
+	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
+		'timesheet-viewMode',
+		'ListView'
+	);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
 		from: startOfDay(new Date()),
@@ -46,7 +50,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	});
 	const { timesheet, statusTimesheet, loadingTimesheet } = useTimesheet({
 		startDate: dateRange.from ?? '',
-		endDate: dateRange.to ?? ''
+		endDate: dateRange.to ?? '',
+		timesheetViewMode: timesheetNavigator
 	});
 
 
@@ -83,10 +88,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
-	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
-		'timesheet-viewMode',
-		'ListView'
-	);
+
 
 	const fullWidth = useAtomValue(fullWidthState);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();

@@ -16,7 +16,7 @@ export default class MenuBuilder {
     this.eventEmitter = eventEmitter
   }
 
-  defaultMenu(): AppMenu[] {
+  initialMenu(): AppMenu[] {
     const isDarwin = process.platform === 'darwin';
     return [
       {
@@ -41,6 +41,25 @@ export default class MenuBuilder {
           },
         ],
       },
+      {
+        id: 'MENU_APP_EDIT',
+        label: 'MENU_APP.APP_EDIT',
+        submenu: [
+          { label: 'MENU_APP.APP_SUBMENU.APP_UNDO', accelerator: "CmdOrCtrl+Z", role: "undo" },
+          { label: "MENU_APP.APP_SUBMENU.APP_REDO", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+          { type: "separator" },
+          { label: "MENU_APP.APP_SUBMENU.APP_CUT", accelerator: "CmdOrCtrl+X", role: "cut" },
+          { label: "MENU_APP.APP_SUBMENU.APP_COPY", accelerator: "CmdOrCtrl+C", role: "copy" },
+          { label: "MENU_APP.APP_SUBMENU.APP_PASTE", accelerator: "CmdOrCtrl+V", role: "paste" },
+          { label: "MENU_APP.APP_SUBMENU.APP_SELECT_ALL", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+        ]
+      }
+    ]
+  }
+
+  defaultMenu(): AppMenu[] {
+    return [
+      ...this.initialMenu(),
       {
         id: 'MENU_APP_WINDOW',
         label: 'MENU_APP.APP_WINDOW',
@@ -107,6 +126,10 @@ export default class MenuBuilder {
   }
 
   buildDefaultTemplate(menuItems: any, i18nextMainBackend: typeof i18n) {
+    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menuItems));
+  }
+
+  buildInitialTemplate(menuItems: any, i18nextMainBackend: typeof i18n) {
     return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menuItems));
   }
 

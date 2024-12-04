@@ -258,6 +258,15 @@
 			"SINGULAR": "דוח שעות",
 			"PLURAL": "דוחות שעות"
 		},
+		"DAYS": {
+			"sun": "יום א׳",
+			"mon": "יום ב׳",
+			"tue": "יום ג׳",
+			"wed": "יום ד׳",
+			"thu": "יום ה׳",
+			"fri": "יום ו׳",
+			"sat": "שבת"
+		},
 		"COPY_ISSUE_LINK": "העתק קישור לבעיה",
 		"MAKE_A_COPY": "בצע עותק",
 		"ASSIGNEE": "נמען",
@@ -279,7 +288,20 @@
 		"CLEAR_FILTER": "נקה סינון",
 		"CLEAR": "נקה",
 		"APPLY_FILTER": "החל סינון",
-		"CREATE_NEW": "צור חדש"
+		"CREATE_NEW": "צור חדש",
+		"NO_RESULT": "אין תוצאות",
+		"PICK_A_DATE": "בחר תאריך",
+		"THIS_WEEK": "השבוע",
+		"LAST_WEEK": "שבוע שעבר",
+		"THIS_MONTH": "החודש",
+		"LAST_MONTH": "חודש שעבר",
+		"LAST_TWO_WEEKS": "שבועיים אחרונים",
+		"DATE": "תאריך",
+		"WEEK": "שבוע",
+		"GROUP_BY": "קבץ לפי",
+		"DAILY_LIMIT": "הגבלה יומית",
+		"WEEKLY_LIMIT": "הגבלה שבועית",
+		"REPORTS": "דוחות"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -301,6 +323,15 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "נמחקת מהקבוצה"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "הזמן שהושקע",
+			"LIMIT": "מגבלה",
+			"PERCENTAGE_USED": "אחוז בשימוש",
+			"REMAINING": "נותר",
+			"GROUP_BY": "קבץ לפי",
+			"DAILY_LIMIT": "הגבלה יומית",
+			"WEEKLY_LIMIT": "הגבלה שבועית"
+		},
 		"home": {
 			"BREADCRUMB": "[\"לוח מחוונים\"]",
 			"SENT_EMAIL_VERIFICATION": "אימות קוד נשלח לאימייל שלך",

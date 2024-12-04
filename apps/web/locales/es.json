@@ -258,6 +258,15 @@
 			"SINGULAR": "Hoja de horas",
 			"PLURAL": "Hojas de horas"
 		},
+		"DAYS": {
+			"sun": "Dom",
+			"mon": "Lun",
+			"tue": "Mar",
+			"wed": "Mié",
+			"thu": "Jue",
+			"fri": "Vie",
+			"sat": "Sáb"
+		},
 		"COPY_ISSUE_LINK": "Copiar enlace del problema",
 		"MAKE_A_COPY": "Hacer una copia",
 		"ASSIGNEE": "Cesionario",
@@ -279,7 +288,20 @@
 		"CLEAR_FILTER": "Borrar filtro",
 		"CLEAR": "Borrar",
 		"APPLY_FILTER": "Aplicar filtro",
-		"CREATE_NEW": "Crear nuevo"
+		"CREATE_NEW": "Crear nuevo",
+		"NO_RESULT": "Sin resultados",
+		"PICK_A_DATE": "Selecciona una fecha",
+		"THIS_WEEK": "Esta semana",
+		"LAST_WEEK": "La semana pasada",
+		"THIS_MONTH": "Este mes",
+		"LAST_MONTH": "El mes pasado",
+		"LAST_TWO_WEEKS": "Las últimas dos semanas",
+		"DATE": "Fecha",
+		"WEEK": "Semana",
+		"GROUP_BY": "Agrupar por",
+		"DAILY_LIMIT": "Límite diario",
+		"WEEKLY_LIMIT": "Límite semanal",
+		"REPORTS": "Informes"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -301,6 +323,15 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Has sido eliminado del equipo"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Tiempo invertido",
+			"LIMIT": "Límite",
+			"PERCENTAGE_USED": "Porcentaje usado",
+			"REMAINING": "Restante",
+			"GROUP_BY": "Agrupar por",
+			"DAILY_LIMIT": "Límite diario",
+			"WEEKLY_LIMIT": "Límite semanal"
+		},
 		"home": {
 			"BREADCRUMB": "[\"Tablero\"]",
 			"SENT_EMAIL_VERIFICATION": "Se ha enviado la verificación de código a tu correo electrónico",

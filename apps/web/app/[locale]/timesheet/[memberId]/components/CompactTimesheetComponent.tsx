@@ -1,27 +1,5 @@
 import React from "react";
 
-export const EmployeeAvatar = ({ imageUrl }: { imageUrl: string }) => {
-    const [isLoading, setIsLoading] = React.useState(true);
-
-    return (
-        <div className="relative w-6 h-6">
-            {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full">
-                    <LoadingSpinner className="w-4 h-4" />
-                </div>
-            )}
-            <img
-                className="w-6 h-6 rounded-full"
-                src={imageUrl}
-                alt="Employee"
-                onLoad={() => setIsLoading(false)}
-                onError={() => setIsLoading(false)}
-            />
-        </div>
-    );
-};
-
-
 const LoadingSpinner = ({ className }: { className?: string }) => (
     <svg
         className={`animate-spin text-gray-500 ${className}`}
@@ -43,4 +21,34 @@ const LoadingSpinner = ({ className }: { className?: string }) => (
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
         ></path>
     </svg>
+);
+
+const ImageWithLoader = ({ imageUrl, alt, className = "w-6 h-6 rounded-full" }:
+    { imageUrl: string; alt: string; className?: string }) => {
+    const [isLoading, setIsLoading] = React.useState(true);
+    return (
+        <div className="relative w-6 h-6">
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full">
+                    <LoadingSpinner className="w-4 h-4" />
+                </div>
+            )}
+            <img
+                className={className}
+                src={imageUrl}
+                alt={alt}
+                onLoad={() => setIsLoading(false)}
+                onError={() => setIsLoading(false)}
+            />
+        </div>
+    );
+};
+
+export const EmployeeAvatar = ({ imageUrl }: { imageUrl: string }) => (
+    <ImageWithLoader imageUrl={imageUrl} alt="Employee" />
+);
+
+
+export const ProjectLogo = ({ imageUrl }: { imageUrl: string }) => (
+    <ImageWithLoader imageUrl={imageUrl} alt="Project Logo" />
 );

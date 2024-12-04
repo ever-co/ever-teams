@@ -241,6 +241,15 @@
 			"SINGULAR": "Urenstaat",
 			"PLURAL": "Urenstaten"
 		},
+		"DAYS": {
+			"sun": "Zon",
+			"mon": "Maa",
+			"tue": "Din",
+			"wed": "Woe",
+			"thu": "Don",
+			"fri": "Vri",
+			"sat": "Zat"
+		},
 		"CALENDAR": "Kalender",
 		"SELECT": "Selecteren",
 		"SAVE_CHANGES": "Wijzigingen opslaan",
@@ -279,7 +288,20 @@
 		"CLEAR_FILTER": "Filter wissen",
 		"CLEAR": "Wissen",
 		"APPLY_FILTER": "Filter toepassen",
-		"CREATE_NEW": "Nieuwe maken"
+		"CREATE_NEW": "Nieuwe maken",
+		"NO_RESULT": "Geen resultaat",
+		"PICK_A_DATE": "Kies een datum",
+		"THIS_WEEK": "Deze week",
+		"LAST_WEEK": "Vorige week",
+		"THIS_MONTH": "Deze maand",
+		"LAST_MONTH": "Vorige maand",
+		"LAST_TWO_WEEKS": "Laatste twee weken",
+		"DATE": "Datum",
+		"WEEK": "Week",
+		"GROUP_BY": "Groeperen op",
+		"DAILY_LIMIT": "Daglimiet",
+		"WEEKLY_LIMIT": "Weeklimiet",
+		"REPORTS": "Rapporten"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -301,6 +323,15 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Je bent uit het team verwijderd"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Bestede tijd",
+			"LIMIT": "Limiet",
+			"PERCENTAGE_USED": "Percentage gebruikt",
+			"REMAINING": "Resterend",
+			"GROUP_BY": "Groeperen op",
+			"DAILY_LIMIT": "Daglimiet",
+			"WEEKLY_LIMIT": "Weeklimiet"
+		},
 		"home": {
 			"BREADCRUMB": "[\"Dashboard\"]",
 			"SENT_EMAIL_VERIFICATION": "Codeverificatie is verzonden naar uw e-mailadres",

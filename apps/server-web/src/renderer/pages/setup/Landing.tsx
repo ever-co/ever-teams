@@ -3,6 +3,7 @@ import { config } from '../../../configs/config';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useEffect, useState } from 'react';
+import { ThemeToggler } from '../../components/Toggler';
 type props = {
   nextAction: () => void;
 };
@@ -25,8 +26,17 @@ const Landing = (props: props) => {
   }, []);
   return (
     <div className="w-full">
-      <div className="mb-6 ml-10">
-        <LanguageSelector lang={defaultLang} />
+      <div className="flex w-full mb-6 ml-10">
+        <div className="flex flex-col w-6/12">
+          <div>
+            <LanguageSelector lang={defaultLang} />
+          </div>
+        </div>
+        <div className="flex w-6/12 flex-row-reverse mr-10">
+          <div className="flex flex-col w-2/8">
+            <ThemeToggler />
+          </div>
+        </div>
       </div>
 
       <div className="mb-8 w-full text-center">

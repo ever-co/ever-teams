@@ -56,7 +56,8 @@ import {
 	StatusType,
 	EmployeeAvatar,
 	getTimesheetButtons,
-	statusTable
+	statusTable,
+	ProjectLogo
 } from '@/app/[locale]/timesheet/[memberId]/components';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
@@ -342,7 +343,10 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 														taskNumberClassName="text-sm"
 													/>
 												</div>
-												<span className="flex-1">{task.project && task.project.name}</span>
+												<div className="flex items-center gap-2 flex-1">
+													{task.project?.imageUrl && <ProjectLogo imageUrl={task.project.imageUrl} />}
+													<span className="font-medium">{task.project?.name}</span>
+												</div>
 												<div className="flex items-center flex-1 gap-x-2">
 													<EmployeeAvatar
 														imageUrl={task.employee.user.imageUrl!}
