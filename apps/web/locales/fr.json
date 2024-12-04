@@ -258,6 +258,15 @@
 			"SINGULAR": "Feuille de temps",
 			"PLURAL": "Feuilles de temps"
 		},
+		"DAYS": {
+			"sun": "Dim",
+			"mon": "Lun",
+			"tue": "Mar",
+			"wed": "Mer",
+			"thu": "Jeu",
+			"fri": "Ven",
+			"sat": "Sam"
+		},
 		"COPY_ISSUE_LINK": "Copier le lien du problème",
 		"MAKE_A_COPY": "Faire une copie",
 		"ASSIGNEE": "Cessionnaire",

@@ -241,6 +241,15 @@
 			"SINGULAR": "Scheda attività",
 			"PLURAL": "Schede attività"
 		},
+		"DAYS": {
+			"sun": "Dom",
+			"mon": "Lun",
+			"tue": "Mar",
+			"wed": "Mer",
+			"thu": "Gio",
+			"fri": "Ven",
+			"sat": "Sab"
+		},
 		"CALENDAR": "Calendario",
 		"SELECT": "Seleziona",
 		"SAVE_CHANGES": "Salva modifiche",

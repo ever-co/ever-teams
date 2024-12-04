@@ -258,6 +258,15 @@
 			"SINGULAR": "Timesheet",
 			"PLURAL": "Timesheets"
 		},
+		"DAYS": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		},
 		"COPY_ISSUE_LINK": "Copy issue link",
 		"MAKE_A_COPY": "Make a copy",
 		"ASSIGNEE": "Assignee",

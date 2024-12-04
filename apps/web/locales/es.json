@@ -258,6 +258,15 @@
 			"SINGULAR": "Hoja de horas",
 			"PLURAL": "Hojas de horas"
 		},
+		"DAYS": {
+			"sun": "Dom",
+			"mon": "Lun",
+			"tue": "Mar",
+			"wed": "Mié",
+			"thu": "Jue",
+			"fri": "Vie",
+			"sat": "Sáb"
+		},
 		"COPY_ISSUE_LINK": "Copiar enlace del problema",
 		"MAKE_A_COPY": "Hacer una copia",
 		"ASSIGNEE": "Cesionario",

@@ -242,6 +242,15 @@
 			"SINGULAR": "Folha de ponto",
 			"PLURAL": "Folhas de ponto"
 		},
+		"DAYS": {
+			"sun": "Dom",
+			"mon": "Seg",
+			"tue": "Ter",
+			"wed": "Qua",
+			"thu": "Qui",
+			"fri": "Sex",
+			"sat": "Sáb"
+		},
 		"CALENDAR": "Calendário",
 		"SELECT": "Selecionar",
 		"SAVE_CHANGES": "Salvar alterações",

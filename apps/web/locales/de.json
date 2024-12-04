@@ -258,6 +258,15 @@
 			"SINGULAR": "Stundenzettel",
 			"PLURAL": "Stundenzettel"
 		},
+		"DAYS": {
+			"sun": "So",
+			"mon": "Mo",
+			"tue": "Di",
+			"wed": "Mi",
+			"thu": "Do",
+			"fri": "Fr",
+			"sat": "Sa"
+		},
 		"COPY_ISSUE_LINK": "Problemlink kopieren",
 		"MAKE_A_COPY": "Eine Kopie erstellen",
 		"ASSIGNEE": "Zessionar",
