@@ -67,7 +67,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
     setToastShow(false);
   };
 
-  const onSelectPeriode = (value: string) => {
+  const onSelectPeriod = (value: string) => {
     props.changeAutoUpdate({
       autoUpdate: props.data.autoUpdate,
       updateCheckPeriod: value,
@@ -152,7 +152,7 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
                   value={props.data.updateCheckPeriod}
                   defaultValue={props.data.updateCheckPeriod}
                   disabled={!props.data.autoUpdate}
-                  onValueChange={onSelectPeriode}
+                  onValueChange={onSelectPeriod}
                 />
               </div>
             </div>
