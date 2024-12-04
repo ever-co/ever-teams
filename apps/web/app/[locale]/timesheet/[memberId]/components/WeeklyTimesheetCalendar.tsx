@@ -84,7 +84,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
                 ))}
             </div>
 
-            <div className="grid grid-cols-7 mt-2 w-full min-h-full" role="grid" aria-label="Calendar">
+            <div className="grid grid-cols-7 mt-2 w-full h-full" role="grid" aria-label="Calendar">
                 {weekDates.map((date) => {
                     const formattedDate = format(date, "yyyy-MM-dd");
                     const plan = groupedData.get(formattedDate);

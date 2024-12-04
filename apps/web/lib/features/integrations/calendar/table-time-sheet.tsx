@@ -344,8 +344,8 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													/>
 												</div>
 												<div className="flex items-center gap-2 flex-1">
-													{task.project && <ProjectLogo imageUrl={task.project.imageUrl as string} />}
-													<span className="font-medium">{task.project && task.project.name}</span>
+													{task.project?.imageUrl && <ProjectLogo imageUrl={task.project.imageUrl} />}
+													<span className="font-medium">{task.project?.name}</span>
 												</div>
 												<div className="flex items-center flex-1 gap-x-2">
 													<EmployeeAvatar

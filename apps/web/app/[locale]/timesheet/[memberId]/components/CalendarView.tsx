@@ -22,16 +22,13 @@ export function CalendarView({ data, loading }: { data?: GroupedTimesheet[], loa
             {data ? (
                 data.length > 0 ? (
                     <>
-                        {(() => {
-                            switch (timesheetGroupByDays) {
-                                case 'Monthly':
-                                    return <MonthlyCalendarDataView data={data} />;
-                                case 'Weekly':
-                                    return <WeeklyCalendarDataView data={data} />;
-                                default:
-                                    return <CalendarDataView data={data} t={t} />;
-                            }
-                        })()}
+                        {timesheetGroupByDays === 'Monthly' ? (
+                            <MonthlyCalendarDataView data={data} />
+                        ) : timesheetGroupByDays === 'Weekly' ? (
+                            <WeeklyCalendarDataView data={data} />
+                        ) : (
+                            <CalendarDataView data={data} t={t} />
+                        )}
                     </>
                 ) : (
                     <div className="flex items-center justify-center h-full min-h-[280px]">
