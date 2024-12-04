@@ -44,3 +44,24 @@ const LoadingSpinner = ({ className }: { className?: string }) => (
         ></path>
     </svg>
 );
+
+
+export const ProjectLogo = ({ imageUrl }: { imageUrl: string }) => {
+    const [isLoading, setIsLoading] = React.useState(true);
+    return (
+        <div className="relative w-6 h-6">
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full">
+                    <LoadingSpinner className="w-4 h-4" />
+                </div>
+            )}
+            <img
+                className="w-6 h-6 rounded-full"
+                src={imageUrl}
+                alt="Employee"
+                onLoad={() => setIsLoading(false)}
+                onError={() => setIsLoading(false)}
+            />
+        </div>
+    );
+}

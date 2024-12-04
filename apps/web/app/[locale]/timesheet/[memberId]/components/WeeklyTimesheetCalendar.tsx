@@ -1,12 +1,12 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale } from "date-fns";
-import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet";
-import { enGB } from 'date-fns/locale';
+import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale } from "date-fns";
+import { enGB } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet";
 import { TotalDurationByDate } from "@/lib/features";
 import { formatDate } from "@/app/helpers";
 
-type MonthlyCalendarDataViewProps = {
+type WeeklyCalendarProps = {
     data?: GroupedTimesheet[];
     onDateClick?: (date: Date) => void;
     renderDayContent?: (date: Date, plan?: GroupedTimesheet) => React.ReactNode;
@@ -24,70 +24,71 @@ type MonthlyCalendarDataViewProps = {
 
 const defaultDaysLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const generateFullCalendar = (currentMonth: Date) => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const startDate = addDays(monthStart, -monthStart.getDay());
-    const endDate = addDays(monthEnd, 6 - monthEnd.getDay());
-    return eachDayOfInterval({ start: startDate, end: endDate });
+const generateWeek = (currentDate: Date) => {
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
+    return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
 
-
-const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
+const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
     data = [],
     onDateClick,
     renderDayContent,
     locale = enGB,
     daysLabels = defaultDaysLabels,
     noDataText = "No Data",
-    classNames = {}
+    classNames = {},
 }) => {
-    const [currentMonth, setCurrentMonth] = useState(new Date());
-    const calendarDates = useMemo(() => generateFullCalendar(currentMonth), [currentMonth]);
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Calculate the current week based on `currentDate`
+    const weekDates = useMemo(() => generateWeek(currentDate), [currentDate]);
+
+    // Map data to the respective dates
     const groupedData = useMemo(
         () => new Map(data.map((plan) => [format(new Date(plan.date), "yyyy-MM-dd"), plan])),
         [data]
     );
 
-    const handlePreviousMonth = useCallback(() => setCurrentMonth((prev) => addMonths(prev, -1)), []);
-    const handleNextMonth = useCallback(() => setCurrentMonth((prev) => addMonths(prev, 1)), []);
+    // Handlers for navigation
+    const handlePreviousWeek = useCallback(() => setCurrentDate((prev) => addDays(prev, -7)), []);
+    const handleNextWeek = useCallback(() => setCurrentDate((prev) => addDays(prev, 7)), []);
 
     return (
         <div className={classNames.container || "p-4 w-full"}>
-            {/* Header */}
             <div className={classNames.header || "flex items-center justify-between mb-4"}>
                 <button
-                    onClick={handlePreviousMonth}
+                    onClick={handlePreviousWeek}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
                 >
                     Previous
                 </button>
                 <h2 className="text-xl font-bold">
-                    {format(currentMonth, "MMMM yyyy", { locale: locale })}
+                    {`Week of ${format(weekDates[0], "MMM d", { locale })} - ${format(
+                        weekDates[6],
+                        "MMM d, yyyy",
+                        { locale }
+                    )}`}
                 </h2>
                 <button
-                    onClick={handleNextMonth}
+                    onClick={handleNextWeek}
                     className="px-4 py-2 bg-gray-200 dark:bg-primary-light rounded hover:bg-gray-300 hover:dark:bg-primary-light"
                 >
                     Next
                 </button>
             </div>
 
-            {/* Grid */}
             <div className={classNames.grid || "grid grid-cols-7 text-center font-semibold text-gray-600"}>
                 {daysLabels.map((day) => (
                     <div key={day}>{day}</div>
                 ))}
             </div>
 
-            <div
-                className="grid grid-cols-7 mt-2 w-full"
-                role="grid"
-                aria-label="Calendar"
-            >
-                {calendarDates.map((date) => {
+            <div className="grid grid-cols-7 mt-2 w-full min-h-full" role="grid" aria-label="Calendar">
+                {weekDates.map((date) => {
                     const formattedDate = format(date, "yyyy-MM-dd");
                     const plan = groupedData.get(formattedDate);
+
                     return (
                         <div
                             key={formattedDate}
@@ -96,13 +97,13 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                             aria-label={format(date, "MMMM d, yyyy")}
                             className={cn(
                                 classNames.day,
-                                "border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full", {
-                                "bg-gray-100 dark:bg-gray-900": date.getMonth() !== currentMonth.getMonth(),
+                                "border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px]", {
+                                "bg-gray-100 dark:bg-gray-900": date.getMonth() !== currentDate.getMonth(),
                             }
                             )}
                             onClick={() => onDateClick?.(date)}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
+                                if (e.key === "Enter" || e.key === " ") {
                                     e.preventDefault();
                                     onDateClick?.(date);
                                 }
@@ -114,11 +115,13 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                                 </span>
                                 <div className="flex items-center gap-x-1 text-gray-500 text-sm font-medium">
                                     <span className="text-[#868687]">Total{" : "}</span>
-                                    {plan && <TotalDurationByDate
-                                        timesheetLog={plan.tasks}
-                                        createdAt={formatDate(plan.date)}
-                                        className="text-black dark:text-gray-500 text-sm"
-                                    />}
+                                    {plan && (
+                                        <TotalDurationByDate
+                                            timesheetLog={plan.tasks}
+                                            createdAt={formatDate(plan.date)}
+                                            className="text-black dark:text-gray-500 text-sm"
+                                        />
+                                    )}
                                 </div>
                             </div>
                             {renderDayContent ? (
@@ -144,4 +147,4 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
     );
 };
 
-export default MonthlyTimesheetCalendar;
+export default WeeklyTimesheetCalendar;
