@@ -197,11 +197,7 @@ const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDO
       url = resolveHtmlPath('index.html', 'setup');
       setupWindow?.loadURL(url);
       mainBindings(ipcMain, setupWindow, fs);
-      if (process.platform === 'darwin') {
-        Menu.setApplicationMenu(Menu.buildFromTemplate([]));
-      } else {
-        setupWindow.removeMenu();
-      }
+      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenu.initialMenu(), i18nextMainBackend));
       setupWindow.on('closed', () => {
         setupWindow = null;
       })
@@ -270,6 +266,8 @@ const onInitApplication = () => {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
       Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
+    } else {
+      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenu.initialMenu(), i18nextMainBackend))
     }
   }, 250));
 
@@ -378,6 +376,7 @@ const onInitApplication = () => {
     })
     logWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
     settingWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
+    setupWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
   })
 
   eventEmitter.on(EventLists.gotoAbout, async () => {

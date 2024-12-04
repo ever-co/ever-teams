@@ -258,6 +258,15 @@
 			"SINGULAR": "Timesheet",
 			"PLURAL": "Timesheets"
 		},
+		"DAYS": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		},
 		"COPY_ISSUE_LINK": "Copy issue link",
 		"MAKE_A_COPY": "Make a copy",
 		"ASSIGNEE": "Assignee",
@@ -279,7 +288,20 @@
 		"CLEAR_FILTER": "Clear Filter",
 		"CLEAR": "Clear",
 		"APPLY_FILTER": "Apply Filter",
-		"CREATE_NEW": "Create New"
+		"CREATE_NEW": "Create New",
+		"NO_RESULT": "No result",
+		"PICK_A_DATE": "Pick a date",
+		"THIS_WEEK": "This week",
+		"LAST_WEEK": "Last week",
+		"THIS_MONTH": "This month",
+		"LAST_MONTH": "Last month",
+		"LAST_TWO_WEEKS": "Last two weeks",
+		"DATE": "Date",
+		"WEEK": "Week",
+		"GROUP_BY": "Group by",
+		"DAILY_LIMIT": "Daily limit",
+		"WEEKLY_LIMIT": "Weekly limit",
+		"REPORTS": "Reports"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -301,6 +323,15 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "You have been deleted from the team"
 	},
 	"pages": {
+		"timeLimitReport": {
+			"TIME_SPENT": "Time spent",
+			"LIMIT": "Limit",
+			"PERCENTAGE_USED": "Percentage used",
+			"REMAINING": "Remaining",
+			"GROUP_BY": "Group by",
+			"DAILY_LIMIT": "Daily limit",
+			"WEEKLY_LIMIT": "Weekly limit"
+		},
 		"home": {
 			"BREADCRUMB": "[\"Dashboard\"]",
 			"SENT_EMAIL_VERIFICATION": "Code Verification has been sent to your email",
