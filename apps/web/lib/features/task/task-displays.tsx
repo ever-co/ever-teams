@@ -106,6 +106,7 @@ TotalTimeDisplay.displayName = 'TotalTimeDisplay';
 export const TotalDurationByDate = React.memo(
 	({ timesheetLog, createdAt, className }: { timesheetLog: TimesheetLog[]; createdAt: Date | string, className?: string }) => {
 		const targetDateISO = new Date(createdAt).toISOString();
+
 		const filteredLogs = timesheetLog.filter(
 			(item) => formatDate(item.timesheet.createdAt) === formatDate(targetDateISO));
 		const totalDurationInSeconds = filteredLogs.reduce(

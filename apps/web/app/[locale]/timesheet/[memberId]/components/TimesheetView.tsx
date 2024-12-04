@@ -18,7 +18,7 @@ export function TimesheetView({ data, loading }: { data?: GroupedTimesheet[]; lo
 
 	if (data.length === 0) {
 		return (
-			<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center h-full min-h-[280px]">
+			<div className="grow w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center h-full min-h-[280px]">
 				<p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
 			</div>
 		);

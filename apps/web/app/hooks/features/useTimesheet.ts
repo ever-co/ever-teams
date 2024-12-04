@@ -11,6 +11,7 @@ import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 interface TimesheetParams {
     startDate?: Date | string;
     endDate?: Date | string;
+    timesheetViewMode?: 'ListView' | 'CalendarView'
 }
 
 export interface GroupedTimesheet {
@@ -90,6 +91,7 @@ const groupByMonth = createGroupingFunction(date =>
 export function useTimesheet({
     startDate,
     endDate,
+    timesheetViewMode
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
@@ -262,14 +264,17 @@ export function useTimesheet({
 
 
     const timesheetElementGroup = useMemo(() => {
-        if (timesheetGroupByDays === 'Daily') {
-            return groupByDate(timesheet);
+        if (timesheetViewMode === 'ListView') {
+            if (timesheetGroupByDays === 'Daily') {
+                return groupByDate(timesheet);
+            }
+            if (timesheetGroupByDays === 'Weekly') {
+                return groupByWeek(timesheet);
+            }
+            return groupByMonth(timesheet);
         }
-        if (timesheetGroupByDays === 'Weekly') {
-            return groupByWeek(timesheet);
-        }
-        return groupByMonth(timesheet);
-    }, [timesheetGroupByDays, timesheet]);
+        return groupByDate(timesheet);
+    }, [timesheetGroupByDays, timesheetViewMode, timesheet]);
 
 
     useEffect(() => {
@@ -291,6 +296,7 @@ export function useTimesheet({
         createTimesheet,
         loadingCreateTimesheet,
         updateTimesheet,
-        loadingUpdateTimesheet
+        loadingUpdateTimesheet,
+        groupByDate
     };
 }

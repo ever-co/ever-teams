@@ -22,6 +22,7 @@ import { GoSearch } from 'react-icons/go';
 import { getGreeting } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { endOfDay, startOfDay } from 'date-fns';
+import TimesheetDetailModal from './components/TimesheetDetailModal';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 
@@ -38,6 +39,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const { user } = useAuthenticateUser();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
+	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
+		'timesheet-viewMode',
+		'ListView'
+	);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
 		from: startOfDay(new Date()),
@@ -45,7 +50,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	});
 	const { timesheet, statusTimesheet, loadingTimesheet } = useTimesheet({
 		startDate: dateRange.from ?? '',
-		endDate: dateRange.to ?? ''
+		endDate: dateRange.to ?? '',
+		timesheetViewMode: timesheetNavigator
 	});
 
 
@@ -73,12 +79,16 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		openModal: openManualTimeModal,
 		closeModal: closeManualTimeModal
 	} = useModal();
+
+	const {
+		isOpen: isTimesheetDetailOpen,
+		openModal: openTimesheetDetail,
+		closeModal: closeTimesheetDetail
+	} = useModal();
+
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
-	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
-		'timesheet-viewMode',
-		'ListView'
-	);
+
 
 	const fullWidth = useAtomValue(fullWidthState);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -95,6 +105,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 	return (
 		<>
+			{isTimesheetDetailOpen
+				&& <TimesheetDetailModal
+					closeModal={closeTimesheetDetail}
+					isOpen={isTimesheetDetailOpen}
+					timesheet={statusTimesheet}
+				/>}
+
 			<MainLayout
 				showTimer={isTrackingEnabled}
 				className="items-start pb-1 !overflow-hidden w-full"
@@ -124,6 +141,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									description="Tasks waiting for your approval"
 									icon={<GrTask className="font-bold" />}
 									classNameIcon="bg-[#FBB650] shadow-[#fbb75095]"
+									onClick={() => openTimesheetDetail()}
 								/>
 								<TimesheetCard
 									hours="63:00h"
@@ -195,10 +213,15 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 						{/* <DropdownMenuDemo /> */}
 						<div className="border border-gray-200 rounded-lg dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
-								<TimesheetView data={filterDataTimesheet}
-									loading={loadingTimesheet} />
+								<TimesheetView
+									data={filterDataTimesheet}
+									loading={loadingTimesheet}
+								/>
 							) : (
-								<CalendarView data={filterDataTimesheet} />
+								<CalendarView
+									data={filterDataTimesheet}
+									loading={loadingTimesheet}
+								/>
 							)}
 						</div>
 					</Container>
@@ -208,7 +231,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 });
 
-export default withAuthentication(TimeSheet, { displayName: 'TimeSheet' });
+export default withAuthentication(TimeSheet, { displayName: 'TimeSheet', showPageSkeleton: true });
 
 const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon, onClick, t }) => (
 	<button

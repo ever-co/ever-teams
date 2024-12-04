@@ -85,11 +85,11 @@ interface OrganizationContact extends BaseEntity, ImageEntity {
 }
 
 export interface TimesheetLog extends BaseEntity {
-    startedAt: string;
-    stoppedAt: string;
+    startedAt: string | Date;
+    stoppedAt: string | Date;
     editedAt: string | null;
-    logType: TimeLogType;
-    source: TimerSource;
+    logType: TimeLogType.MANUAL;
+    source: TimerSource.BROWSER;
     description: string;
     reason: string | null;
     isBillable: boolean;
@@ -117,8 +117,8 @@ export interface UpdateTimesheetStatus extends BaseEntity {
     keyboard: number;
     mouse: number;
     overall: number;
-    startedAt: string;
-    stoppedAt: string;
+    startedAt: string | Date;
+    stoppedAt: string | Date;
     approvedAt: string | null;
     submittedAt: string | null;
     lockedAt: string | null;

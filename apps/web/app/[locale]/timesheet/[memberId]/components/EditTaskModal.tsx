@@ -2,7 +2,7 @@ import { Modal, statusColor } from "@/lib/components";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FaRegClock } from "react-icons/fa";
 import { DatePickerFilter } from "./TimesheetFilterDate";
-import { useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { clsxm } from "@/app/utils";
 import { Item, ManageOrMemberComponent, getNestedValue } from "@/lib/features/manual-time/manage-member-component";
@@ -10,6 +10,8 @@ import { useTeamTasks } from "@/app/hooks";
 import { CustomSelect, TaskNameInfoDisplay } from "@/lib/features";
 import { statusTable } from "./TimesheetAction";
 import { TimesheetLog } from "@/app/interfaces";
+import { secondsToTime } from "@/app/helpers";
+import { useTimesheet } from "@/app/hooks/features/useTimesheet";
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -19,34 +21,43 @@ export interface IEditTaskModalProps {
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
 	const { activeTeam } = useTeamTasks();
 	const t = useTranslations();
-	// const [dateRange, setDateRange] = useState<{ from: Date | null }>({
-	// 	from: new Date(),
-	// });
-	// const [endTime, setEndTime] = useState<string>('');
-	// const [startTime, setStartTime] = useState<string>('');
-	// const [isBillable, setIsBillable] = useState<boolean>(dataTimesheet.isBillable);
-	// const [notes, setNotes] = useState('');
+	const { updateTimesheet } = useTimesheet({})
 
-	const [dateRange, setDateRange] = useState<{ from: Date | null }>({
-		from: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date(),
+	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
+		date: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date(),
 	});
-	const [endTime, setEndTime] = useState<string>(
-		dataTimesheet.timesheet?.stoppedAt
-			? new Date(dataTimesheet.timesheet.stoppedAt).toLocaleTimeString('en-US', { hour12: false }).slice(0, 5)
-			: ''
-	);
-	const [startTime, setStartTime] = useState<string>(
-		dataTimesheet.timesheet?.startedAt
-			? new Date(dataTimesheet.timesheet.startedAt).toLocaleTimeString('en-US', { hour12: false }).slice(0, 5)
-			: ''
-	);
-	const [isBillable, setIsBillable] = useState<boolean>(dataTimesheet.isBillable);
-	const [notes, setNotes] = useState<string>('');
+
+	const { h: hours, m: minutes } = secondsToTime(dataTimesheet.timesheet.duration);
+
+	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>({
+		startTime: dataTimesheet.timesheet?.startedAt
+			? dataTimesheet.timesheet.startedAt.toString().slice(0, 5)
+			: '',
+		endTime: dataTimesheet.timesheet?.stoppedAt
+			? dataTimesheet.timesheet.stoppedAt.toString().slice(0, 5)
+			: '',
+	});
+
+	const updateTime = (key: 'startTime' | 'endTime', value: string) => {
+		setTimeRange(prevState => ({
+			...prevState,
+			[key]: value,
+		}));
+	};
+	const [timesheetData, setTimesheetData] = useState({
+		isBillable: dataTimesheet.isBillable,
+		projectId: dataTimesheet.project?.id || '',
+		notes: dataTimesheet.description || '',
+	});
+
 	const memberItemsLists = {
 		Project: activeTeam?.projects as [],
 	};
 	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
-		// Handle value changes
+		setTimesheetData((prev) => ({
+			...prev,
+			projectId: values['Project']?.id,
+		}));
 	};
 	const selectedValues = {
 		Teams: null,
@@ -55,6 +66,49 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		// Handle field changes
 	};
 
+	const handleUpdateSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		if (!timeRange.startTime || !timeRange.endTime) {
+			alert('Please enter valid start and end times.');
+			return;
+		}
+		if (!/^\d{2}:\d{2}$/.test(timeRange.startTime) || !/^\d{2}:\d{2}$/.test(timeRange.endTime)) {
+			alert('Time format should be HH:MM.');
+			return;
+		}
+
+		const baseDate = dateRange.date ?? new Date();
+		const startedAt = new Date(
+			Date.UTC(
+				baseDate.getFullYear(),
+				baseDate.getMonth(),
+				baseDate.getDate(),
+				...timeRange.startTime.split(':').map(Number)
+			)
+		);
+		const stoppedAt = new Date(
+			Date.UTC(
+				baseDate.getFullYear(),
+				baseDate.getMonth(),
+				baseDate.getDate(),
+				...timeRange.endTime.split(':').map(Number)
+			)
+		);
+		await updateTimesheet({
+			id: dataTimesheet.timesheetId,
+			isBillable: timesheetData.isBillable,
+			employeeId: dataTimesheet.employeeId,
+			logType: dataTimesheet.logType,
+			source: dataTimesheet.source,
+			startedAt: startedAt,
+			stoppedAt: stoppedAt,
+			tenantId: dataTimesheet.tenantId,
+			organizationId: dataTimesheet.organizationId,
+			description: timesheetData.notes,
+			projectId: timesheetData.projectId,
+		});
+	}, [dateRange, timeRange, timesheetData, dataTimesheet, updateTimesheet]);
+
 	const fields = [
 		{
 			label: t('sidebar.PROJECTS'),
@@ -62,12 +116,14 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			isRequired: true,
 			valueKey: 'id',
 			displayKey: 'name',
-			element: 'Project'
+			element: 'Project',
+			defaultValue: 'name'
+
 		},
 	];
 
 	const handleFromChange = (fromDate: Date | null) => {
-		setDateRange((prev) => ({ ...prev, from: fromDate }));
+		setDateRange((prev) => ({ ...prev, date: fromDate }));
 	};
 	return (
 		<Modal
@@ -75,9 +131,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			isOpen={isOpen}
 			showCloseIcon
 			title={'Edit Task'}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[30rem] justify-start h-[auto]"
+			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:min-w-[32rem] justify-start h-[auto]"
 			titleClass="font-bold flex justify-start w-full">
-			<div className="flex flex-col w-full">
+			<form onSubmit={handleUpdateSubmit} className="flex flex-col w-full">
 				<div className="flex flex-col border-b border-b-slate-100 dark:border-b-gray-700">
 					<TaskNameInfoDisplay
 						task={dataTimesheet.task}
@@ -98,7 +154,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						<span className="text-[#282048] dark:text-gray-500 ">{t('dailyPlan.TASK_TIME')}</span>
 						<div className="flex items-center gap-x-2 ">
 							<FaRegClock className="text-[#30B366]" />
-							<span>08:10h</span>
+							<span>{hours}:{minutes} h</span>
 						</div>
 					</div>
 					<div className="flex items-center w-full">
@@ -111,8 +167,11 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								aria-label="Start time"
 								aria-describedby="start-time-error"
 								type="time"
-								value={startTime}
-								onChange={(e) => setStartTime(e.target.value)}
+								min="00:00"
+								max="23:59"
+								pattern="[0-9]{2}:[0-9]{2}"
+								value={timeRange.startTime}
+								onChange={(e) => updateTime("startTime", e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 								required
 							/>
@@ -128,8 +187,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								aria-label="End time"
 								aria-describedby="end-time-error"
 								type="time"
-								value={endTime}
-								onChange={(e) => setEndTime(e.target.value)}
+								value={timeRange.endTime}
+								onChange={(e) => updateTime('endTime', e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 								required
 							/>
@@ -139,7 +198,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div>
 						<span className="block text-[#282048] dark:text-gray-500   mr-2">{t("manualTime.DATE")}</span>
 						<DatePickerFilter
-							date={dateRange.from}
+							date={dateRange.date}
 							setDate={handleFromChange}
 							label="Oct 01 2024"
 						/>
@@ -160,13 +219,19 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						<label className="text-[#282048] dark:text-gray-500   mr-12 capitalize">{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}</label>
 						<div className="flex items-center gap-3">
 							<ToggleButton
-								isActive={isBillable}
-								onClick={() => setIsBillable(true)}
+								isActive={timesheetData.isBillable}
+								onClick={() => setTimesheetData((prev) => ({
+									...prev,
+									isBillable: true,
+								}))}
 								label={t('pages.timesheet.BILLABLE.YES')}
 							/>
 							<ToggleButton
-								isActive={!isBillable}
-								onClick={() => setIsBillable(false)}
+								isActive={!timesheetData.isBillable}
+								onClick={() => setTimesheetData((prev) => ({
+									...prev,
+									isBillable: false,
+								}))}
 								label={t('pages.timesheet.BILLABLE.NO')}
 							/>
 						</div>
@@ -174,14 +239,17 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="w-full flex flex-col">
 						<span className="text-[#282048] dark:text-gray-400">{t('common.NOTES')}</span>
 						<textarea
-							value={notes}
-							onChange={(e) => setNotes(e.target.value)}
+							value={timesheetData.notes}
+							onChange={(e) => setTimesheetData((prev) => ({
+								...prev,
+								notes: e.target.value,
+							}))}
 							placeholder="Insert notes here..."
 							className={clsxm(
 								"bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent",
 								"placeholder-gray-300 placeholder:font-normal resize-none p-2 grow w-full",
 								"border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-40 bg-[#FBB6500D]",
-								notes.trim().length === 0 && "border-red-500"
+								timesheetData.notes.trim().length === 0 && "border-red-500"
 							)}
 							maxLength={120}
 							minLength={0}
@@ -189,7 +257,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							required
 						/>
 						<div className="text-sm text-[#282048] dark:text-gray-500   text-right">
-							{notes.length}/{120}
+							{timesheetData.notes.length}/{120}
 						</div>
 					</div>
 					<div className="border-t border-t-gray-200 dark:border-t-gray-700 w-full"></div>
@@ -224,7 +292,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 					</div>
 				</div>
-			</div>
+			</form>
 
 		</Modal>
 	)

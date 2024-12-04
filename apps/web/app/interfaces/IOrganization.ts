@@ -66,6 +66,7 @@ export interface IOrganization {
 	convertAcceptedEstimates: any;
 	daysUntilDue: any;
 	contactId: string;
+	standardWorkHoursPerDay: number;
 }
 
 export type IUserOrganization = Pick<IOrganization, 'id' | 'isActive' | 'isDefault' | 'tenantId'> & {
@@ -73,6 +74,7 @@ export type IUserOrganization = Pick<IOrganization, 'id' | 'isActive' | 'isDefau
 	organizationId: string;
 	updatedAt: string;
 	createdAt: string;
+	organization: IOrganization;
 };
 
 export interface IOrganizationCreate {
