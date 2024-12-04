@@ -241,6 +241,15 @@
 			"SINGULAR": "Urenstaat",
 			"PLURAL": "Urenstaten"
 		},
+		"DAYS": {
+			"sun": "Zon",
+			"mon": "Maa",
+			"tue": "Din",
+			"wed": "Woe",
+			"thu": "Don",
+			"fri": "Vri",
+			"sat": "Zat"
+		},
 		"CALENDAR": "Kalender",
 		"SELECT": "Selecteren",
 		"SAVE_CHANGES": "Wijzigingen opslaan",

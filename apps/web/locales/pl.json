@@ -241,6 +241,15 @@
 			"SINGULAR": "Karta pracy",
 			"PLURAL": "Karty pracy"
 		},
+		"DAYS": {
+			"sun": "Nie",
+			"mon": "Pon",
+			"tue": "Wto",
+			"wed": "Śro",
+			"thu": "Czw",
+			"fri": "Pią",
+			"sat": "Sob"
+		},
 		"CALENDAR": "Kalendarz",
 		"SELECT": "Wybierz",
 		"SAVE_CHANGES": "Zapisz zmiany",

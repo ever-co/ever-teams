@@ -241,6 +241,15 @@
 			"SINGULAR": "时间表",
 			"PLURAL": "时间表"
 		},
+		"DAYS": {
+			"sun": "日",
+			"mon": "一",
+			"tue": "二",
+			"wed": "三",
+			"thu": "四",
+			"fri": "五",
+			"sat": "六"
+		},
 		"CALENDAR": "日历",
 		"SELECT": "Select",
 		"SAVE_CHANGES": "保存更改",

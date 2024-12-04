@@ -11,25 +11,33 @@ import { cn } from "@/lib/utils";
 import MonthlyTimesheetCalendar from "./MonthlyTimesheetCalendar";
 import { useTimelogFilterOptions } from "@/app/hooks";
 import WeeklyTimesheetCalendar from "./WeeklyTimesheetCalendar";
-
 interface BaseCalendarDataViewProps {
     data: GroupedTimesheet[];
+    daysLabels?: string[];
     CalendarComponent: typeof MonthlyTimesheetCalendar | typeof WeeklyTimesheetCalendar;
 }
 
 export function CalendarView({ data, loading }: { data?: GroupedTimesheet[], loading: boolean }) {
     const t = useTranslations();
     const { timesheetGroupByDays } = useTimelogFilterOptions();
-    // "Daily" | "Weekly" | "Monthly"
+    const defaultDaysLabels = [
+        t("common.DAYS.sun"),
+        t("common.DAYS.mon"),
+        t("common.DAYS.tue"),
+        t("common.DAYS.wed"),
+        t("common.DAYS.thu"),
+        t("common.DAYS.fri"),
+        t("common.DAYS.sat")
+    ];
     return (
         <div className="grow h-full bg-[#FFFFFF] dark:bg-dark--theme">
             {data ? (
                 data.length > 0 ? (
                     <>
                         {timesheetGroupByDays === 'Monthly' ? (
-                            <MonthlyCalendarDataView data={data} />
+                            <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} />
                         ) : timesheetGroupByDays === 'Weekly' ? (
-                            <WeeklyCalendarDataView data={data} />
+                            <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} />
                         ) : (
                             <CalendarDataView data={data} t={t} />
                         )}
@@ -158,11 +166,13 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
     )
 }
 
-const BaseCalendarDataView = ({ data, CalendarComponent }: BaseCalendarDataViewProps) => {
+const BaseCalendarDataView = ({ data, daysLabels, CalendarComponent }: BaseCalendarDataViewProps) => {
     const { getStatusTimesheet } = useTimesheet({});
     return (
         <CalendarComponent
             data={data}
+            // locale={ }
+            daysLabels={daysLabels}
             renderDayContent={(date, plan) => {
                 return <>
                     {plan ? (
@@ -232,7 +242,7 @@ const BaseCalendarDataView = ({ data, CalendarComponent }: BaseCalendarDataViewP
                                                 />
                                                 <div className="flex items-center gap-x-2">
                                                     {task.project && <ProjectLogo imageUrl={task.project.imageUrl as string} />}
-                                                    <span className="flex-1">{task.project && task.project.name}</span>
+                                                    <span className="flex-1 font-medium">{task.project && task.project.name}</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -252,10 +262,10 @@ const BaseCalendarDataView = ({ data, CalendarComponent }: BaseCalendarDataViewP
     );
 };
 
-const MonthlyCalendarDataView = (props: { data: GroupedTimesheet[] }) => (
+const MonthlyCalendarDataView = (props: { data: GroupedTimesheet[], daysLabels?: string[] }) => (
     <BaseCalendarDataView {...props} CalendarComponent={MonthlyTimesheetCalendar} />
 );
 
-const WeeklyCalendarDataView = (props: { data: GroupedTimesheet[] }) => (
-    <BaseCalendarDataView {...props} CalendarComponent={WeeklyTimesheetCalendar} />
+const WeeklyCalendarDataView = (props: { data: GroupedTimesheet[], daysLabels?: string[] }) => (
+    <BaseCalendarDataView  {...props} CalendarComponent={WeeklyTimesheetCalendar} />
 );
