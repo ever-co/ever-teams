@@ -20,7 +20,7 @@ const ScreenshotDetailsModal = ({
 			isOpen={open}
 			title="Screenshots detail"
 			closeModal={closeModal}
-			className="bg-white dark:bg-[#343434d4] p-4 rounded-lg lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw] m-8"
+			className="bg-white dark:border-[#26272C] dark:bg-[#191a20] dark:border p-4 rounded-lg lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw] m-8"
 		>
 			<div className="w-full p-4 overflow-x-auto">
 				<h1 className="py-2 font-semibold text-lg">
