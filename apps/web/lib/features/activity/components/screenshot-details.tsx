@@ -4,6 +4,7 @@ import { Modal, ProgressBar, Tooltip } from 'lib/components';
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
+import React from 'react';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -12,7 +13,7 @@ const ScreenshotDetailsModal = ({
 }: {
 	open: boolean;
 	closeModal: () => void;
-	slot?: ITimerSlot;
+	slot?: ITimerSlot| null;
 }) => {
 	const t = useTranslations();
 	return (
@@ -20,13 +21,13 @@ const ScreenshotDetailsModal = ({
 			isOpen={open}
 			title="Screenshots detail"
 			closeModal={closeModal}
-			className="bg-white dark:border-[#26272C] dark:bg-[#191a20] dark:border p-4 rounded-lg lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw] m-8"
+			className="bg-white dark:border-[#26272C] dark:bg-[#191a20] dark:border p-4 rounded-lg lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw]"
 		>
 			<div className="w-full p-4 overflow-x-auto">
 				<h1 className="py-2 font-semibold text-lg">
 					{slot ? new Date(slot?.startedAt).toLocaleTimeString() + '-' +  new Date(slot?.stoppedAt).toLocaleTimeString(): null}
 				</h1>
-				<ProgressBar progress={slot?.percentage + '%'} width={'100%'} />
+				<ProgressBar progress={slot ? `${slot.percentage}%` : '0%'} width={'100%'} />
 				<p className="font-semibold py-1">
 					{slot?.percentage} {t('timer.PERCENT_OF_MINUTES')}
 				</p>
@@ -98,4 +99,4 @@ const ScreenshotDetailsModal = ({
 	);
 };
 
-export default ScreenshotDetailsModal;
+export default React.memo(ScreenshotDetailsModal);

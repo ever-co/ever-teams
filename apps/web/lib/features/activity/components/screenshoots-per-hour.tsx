@@ -41,7 +41,7 @@ export const ScreenshootPerHour = ({
 						/>
 					</div>
 				))}
-				<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={selectedElement!} />
+				<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={selectedElement} />
 			</div>
 		</div>
 	);
