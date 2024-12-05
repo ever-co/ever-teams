@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Caricamento dati della registrazione ore...",
 			"NO_ENTRIES_FOUND": "Nessuna voce di registrazione ore trovata",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Stai per rifiutare l'elemento selezionato, vuoi procedere?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Stai per rifiutare l'elemento selezionato, vuoi procedere?",
+			"ALL_TASKS": "Tutti i compiti",
+			"PENDING": "In sospeso",
+			"APPROVED": "Approvato",
+			"IN_REVIEW": "In revisione",
+			"DRAFT": "Bozza",
+			"REJECTED": "Respinto"
 		}
 	},
 	"timer": {

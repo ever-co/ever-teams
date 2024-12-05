@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Tijdregistratiegegevens laden...",
 			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?",
+			"ALL_TASKS": "Alle taken",
+			"PENDING": "In behandeling",
+			"APPROVED": "Goedgekeurd",
+			"IN_REVIEW": "In beoordeling",
+			"DRAFT": "Concept",
+			"REJECTED": "Afgewezen"
 		}
 	},
 	"timer": {

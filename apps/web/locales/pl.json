@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Ładowanie danych rejestru czasu...",
 			"NO_ENTRIES_FOUND": "Nie znaleziono żadnych wpisów w rejestrze czasu",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Zaraz odrzucisz wybraną pozycję, czy chcesz kontynuować?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Zaraz odrzucisz wybraną pozycję, czy chcesz kontynuować?",
+			"ALL_TASKS": "Wszystkie zadania",
+			"PENDING": "Oczekujące",
+			"APPROVED": "Zatwierdzone",
+			"IN_REVIEW": "W trakcie przeglądu",
+			"DRAFT": "Szkic",
+			"REJECTED": "Odrzucone"
 		}
 	},
 	"timer": {
