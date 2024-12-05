@@ -141,7 +141,7 @@ function WeeklyLimitReport() {
 							return (
 								<TimeReportTableByMember
 									header={<h4 className="text-xs font-medium">{data.employee.fullName}</h4>}
-									indexTile={displayMode}
+									indexTitle={displayMode}
 									organizationLimits={organizationLimits}
 									report={data}
 									displayMode={displayMode}
@@ -171,7 +171,7 @@ function WeeklyLimitReport() {
 												<h4 className="text-xs font-medium">{report.date}</h4>
 											)
 										}
-										indexTile={t('common.MEMBER')}
+										indexTitle={t('common.MEMBER')}
 										organizationLimits={organizationLimits}
 										report={report}
 										displayMode={displayMode}

@@ -7,7 +7,7 @@ interface ITimeReportTableProps {
 	report: ITimeLimitReport;
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
-	indexTile: string;
+	indexTitle: string;
 	header: JSX.Element;
 }
 
@@ -27,7 +27,7 @@ export const TimeReportTable = ({
 	report,
 	displayMode,
 	organizationLimits,
-	indexTile,
+	indexTitle,
 	header
 }: ITimeReportTableProps) => (
 	<div className="w-full p-1" key={report.date}>
@@ -49,7 +49,7 @@ export const TimeReportTable = ({
 						remaining
 					};
 				})}
-				indexTitle={indexTile}
+				indexTitle={indexTitle}
 			/>
 		</div>
 	</div>
@@ -59,7 +59,7 @@ interface ITimeReportTableByMemberProps {
 	report: ITimeLimitReportByEmployee;
 	displayMode: 'week' | 'date';
 	organizationLimits: { [key: string]: number };
-	indexTile: string;
+	indexTitle: string;
 	header: JSX.Element;
 }
 
@@ -79,7 +79,7 @@ export const TimeReportTableByMember = ({
 	report,
 	displayMode,
 	organizationLimits,
-	indexTile,
+	indexTitle,
 	header
 }: ITimeReportTableByMemberProps) => (
 	<div className="w-full p-1" key={report.employee.id}>
@@ -104,7 +104,7 @@ export const TimeReportTableByMember = ({
 						remaining
 					};
 				})}
-				indexTitle={indexTile}
+				indexTitle={indexTitle}
 			/>
 		</div>
 	</div>
