@@ -131,7 +131,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			isOpen={isOpen}
 			showCloseIcon
 			title={'Edit Task'}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:min-w-[32rem] justify-start h-[auto]"
+			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
 			titleClass="font-bold flex justify-start w-full">
 			<form onSubmit={handleUpdateSubmit} className="flex flex-col w-full">
 				<div className="flex flex-col border-b border-b-slate-100 dark:border-b-gray-700">
