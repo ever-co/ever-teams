@@ -11,6 +11,7 @@ export function useTimelogFilterOptions() {
     const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState);
     const [puTimesheetStatus, setPuTimesheetStatus] = useAtom(timesheetUpdateStatus)
     const [selectedItems, setSelectedItems] = React.useState<{ status: string; date: string }[]>([]);
+    const [selectTimesheetId, setSelectTimesheetId] = React.useState<string[]>([])
 
     const employee = employeeState;
     const project = projectState;
@@ -29,7 +30,7 @@ export function useTimelogFilterOptions() {
     };
 
     const handleSelectRowTimesheet = (items: string) => {
-        setSelectTimesheet((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
+        setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
 
     const handleSelectRowByStatusAndDate = (status: string, date: string) => {
@@ -43,7 +44,7 @@ export function useTimelogFilterOptions() {
 
 
     React.useEffect(() => {
-        return () => setSelectTimesheet([]);
+        return () => setSelectTimesheetId([]);
     }, []);
 
     return {
@@ -56,6 +57,8 @@ export function useTimelogFilterOptions() {
         setTaskState,
         setStatusState,
         handleSelectRowTimesheet,
+        selectTimesheetId,
+        setSelectTimesheetId,
         handleSelectRowByStatusAndDate,
         selectedItems,
         selectTimesheet,

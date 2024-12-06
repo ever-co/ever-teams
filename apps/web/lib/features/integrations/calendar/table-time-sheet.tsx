@@ -163,13 +163,9 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = alertConfirmationModal;
 
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
-	const { timesheetGroupByDays, handleSelectRowByStatusAndDate } = useTimelogFilterOptions();
-	const [selectTimesheetId, setSelectTimesheetId] = React.useState<string[]>([])
+	const { timesheetGroupByDays, handleSelectRowByStatusAndDate, handleSelectRowTimesheet, selectTimesheetId, setSelectTimesheetId } = useTimelogFilterOptions();
 
 
-	const handleSelectRowTimesheet = (items: string) => {
-		setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
-	}
 
 	const handleConfirm = () => {
 		try {
@@ -232,13 +228,10 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				console.error(`Unsupported action: ${action}`);
 		}
 	};
-	React.useEffect(() => {
-		return () => setSelectTimesheetId([]);
-	}, []);
+
 
 	return (
 		<div className="w-full dark:bg-dark--theme">
-
 			<AlertConfirmationModal
 				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
 				close={closeAlertConfirmation}
