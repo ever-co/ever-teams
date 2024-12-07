@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { ServerPageTypeMessage } from '../../main/helpers/constant';
 import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
 import { EverTeamsLogo } from '../components/svgs';
 import { useTranslation } from 'react-i18next';
+
+const LogView = ({ children }: { children: ReactNode }) => {
+  return <div className="py-1">{children}</div>;
+};
 
 export function ServerPage() {
   const logRef = useRef<HTMLDivElement>(null);
@@ -128,14 +132,13 @@ export function ServerPage() {
               <div className="ml-1 mt-1 p-2">
                 {logs.length > 0 &&
                   logs.map((log, i) => (
-                    <div className="py-1" key={i}>
-                      {log.type === 'error-log' && (
+                    <LogView key={i}>
+                      {log.type === 'error-log' ? (
                         <span className="text-red-600">{log.message}</span>
-                      )}
-                      {log.type === 'log' && (
+                      ) : (
                         <span className="text-white">{log.message}</span>
                       )}
-                    </div>
+                    </LogView>
                   ))}
               </div>
               <div className="py-1" ref={logRef}></div>

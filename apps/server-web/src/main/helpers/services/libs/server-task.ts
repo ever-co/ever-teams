@@ -43,11 +43,8 @@ export abstract class ServerTask {
 
 		this.loggerObserver = new Observer((msg: string) => {
 			console.log('Sending log_state:', msg);
-			if (msg.includes('stderr:')) {
-				console.log(LOG_TYPES.SERVER_LOG_ERROR, msg);
-			} else {
-				console.log(LOG_TYPES.SERVER_LOG, msg);
-			}
+			const logType = this.isErrorMessage(msg) ? LOG_TYPES.SERVER_LOG_ERROR : LOG_TYPES.SERVER_LOG;
+			console.log(logType, msg);
 		});
 
 		this.stateObserver = new Observer((state: boolean) => {
@@ -65,6 +62,11 @@ export abstract class ServerTask {
 			}
 		});
 	}
+
+	private isErrorMessage(msg: string): boolean {
+		return msg.includes('stderr:') ||
+			   this.criticalMessageError.some(error => msg.includes(error));
+	  }
 
 	protected async runTask(signal: AbortSignal): Promise<void> {
 		console.log('Run Server Task');
@@ -98,19 +100,12 @@ export abstract class ServerTask {
 					}
 				});
 
-				service.stderr?.on('data', (data: any) => {
-					this.loggerObserver.notify(`stderr: ${data.toString()}`);
-				});
+				service.stderr?.on('data', this.handleStdErr.bind(this));
 
-				service.on('disconnect', () => {
-					this.loggerObserver.notify('Webserver disconnected')
-					if (this.eventEmitter) {
-						this.eventEmitter.emit(EventLists.webServerStopped);
-					}
-				})
+				service.on('disconnect', this.handleDisconnect.bind(this));
 
 				service.on('error', (err) => {
-					console.log('child process error', err);
+					this.handleError(err, false);
 				})
 
 				if (this.eventEmitter) {
@@ -171,6 +166,19 @@ export abstract class ServerTask {
 			console.error('Error starting task:', error);
 			this.handleError(error);
 		}
+	}
+
+	private handleStdErr(data: any): void {
+		const errorMessage: string = data.toString();
+		this.loggerObserver.notify(`stderr: ${errorMessage}`);
+	}
+
+	private handleDisconnect(): void {
+		this.loggerObserver.notify('Webserver disconnected')
+		if (this.eventEmitter) {
+			this.eventEmitter.emit(EventLists.webServerStopped);
+		}
+		this.stateObserver.notify(false);
 	}
 
 	protected handleError(error: any, attemptKill = true) {
