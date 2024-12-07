@@ -39,10 +39,10 @@ export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate, fi
                 </div>
 
                 <div className="flex gap-2">
+                    <FrequencySelect />
+                    <TimesheetFilterDate t={t} {...initDate} />
                     {isManage && (
                         <>
-                            <FrequencySelect />
-                            <TimesheetFilterDate t={t} {...initDate} />
                             <TimeSheetFilterPopover />
                             <Button
                                 onClick={openModal}
