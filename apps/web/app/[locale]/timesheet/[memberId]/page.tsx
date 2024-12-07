@@ -151,7 +151,11 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
 								/>
 								{isManage && (<TimesheetCard
-									count={8}
+									count={Object.values(statusTimesheet)
+										.flat()
+										.map(entry => entry.employee.id)
+										.filter((id, index, array) => array.indexOf(id) === index)
+										.length}
 									title="Members Worked"
 									description="People worked since last time"
 									icon={<User2 className="font-bold" />}

@@ -5,7 +5,7 @@ import { TaskIssueStatus } from './task-issue';
 import { formatDate, secondsToTime } from '@/app/helpers';
 import { ClockIcon } from "@radix-ui/react-icons"
 import React from 'react';
-import { CalendarArrowDown, CalendarClock, UserPlusIcon } from 'lucide-react';
+import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
