@@ -5,6 +5,7 @@ import { TaskIssueStatus } from './task-issue';
 import { formatDate, secondsToTime } from '@/app/helpers';
 import { ClockIcon } from "@radix-ui/react-icons"
 import React from 'react';
+import { CalendarArrowDown, CalendarClock, UserPlusIcon } from 'lucide-react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -73,22 +74,31 @@ const formatTime = (hours: number, minutes: number) => (
 	</div>
 );
 
-export const DisplayTimeForTimesheet = ({ duration }: { duration: number }) => {
+export const DisplayTimeForTimesheet = ({ duration, logType }: { duration: number, logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined }) => {
 	if (duration < 0) {
 		console.warn('Negative duration provided to DisplayTimeForTimesheet');
 		duration = 0;
 	}
 	const { h: hours, m: minute } = secondsToTime(duration || 0);
+
+	const iconClasses = 'text-[14px] h-4 w-4';
+	const icons = {
+		MANUAL: <UserPlusIcon className={`text-red-500 ${iconClasses}`} />,
+		TRACKED: <ClockIcon className={`text-green-400 ${iconClasses}`} />,
+		IDLE: <CalendarArrowDown className={`text-yellow-400 ${iconClasses}`} />,
+	};
+	const resolvedLogType: keyof typeof icons = logType ?? 'TRACKED';
 	return (
-		<div className='flex items-center font-medium gap-x-1'>
-			<ClockIcon className='text-green-400 text-[14px] h-4 w-4' />
-			<div className='flex items-center text-[#282048] dark:text-[#9b8ae1]'>
+		<div className="flex items-center font-medium gap-x-1">
+			{icons[resolvedLogType]}
+			<div className="flex items-center text-[#282048] dark:text-[#9b8ae1]">
 				{formatTime(hours, minute)}
 			</div>
 		</div>
-	)
+	);
 
 }
+
 
 export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
 	const totalDuration = Array.isArray(timesheetLog)

@@ -21,7 +21,7 @@ import { GoSearch } from 'react-icons/go';
 
 import { getGreeting } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { endOfDay, startOfDay } from 'date-fns';
+import { startOfWeek, endOfWeek } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
@@ -37,6 +37,7 @@ type ViewToggleButtonProps = {
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
@@ -45,12 +46,12 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
-		from: startOfDay(new Date()),
-		to: endOfDay(new Date())
+		from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+		to: endOfWeek(new Date(), { weekStartsOn: 1 }),
 	});
-	const { timesheet, statusTimesheet, loadingTimesheet } = useTimesheet({
-		startDate: dateRange.from ?? '',
-		endDate: dateRange.to ?? '',
+	const { timesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
+		startDate: dateRange.from!,
+		endDate: dateRange.to!,
 		timesheetViewMode: timesheetNavigator
 	});
 
@@ -91,7 +92,6 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 
 	const fullWidth = useAtomValue(fullWidthState);
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl ? paramsUrl.locale : null;
@@ -150,13 +150,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									icon={<Clock className="font-bold" />}
 									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
 								/>
-								<TimesheetCard
+								{isManage && (<TimesheetCard
 									count={8}
 									title="Members Worked"
 									description="People worked since last time"
 									icon={<User2 className="font-bold" />}
 									classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
-								/>
+								/>)}
 							</div>
 							<div className="flex justify-between w-full overflow-hidden">
 								<div className="flex w-full">
@@ -190,6 +190,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								</div>
 							</div>
 							<TimesheetFilter
+								user={user}
 								data={statusTimesheet}
 								onChangeStatus={setFilterStatus}
 								filterStatus={filterStatus}
@@ -214,11 +215,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 						<div className="border border-gray-200 rounded-lg dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
 								<TimesheetView
+									user={user}
 									data={filterDataTimesheet}
 									loading={loadingTimesheet}
 								/>
 							) : (
 								<CalendarView
+									user={user}
 									data={filterDataTimesheet}
 									loading={loadingTimesheet}
 								/>

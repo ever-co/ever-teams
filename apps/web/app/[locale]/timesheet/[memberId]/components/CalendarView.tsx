@@ -11,14 +11,16 @@ import { cn } from "@/lib/utils";
 import MonthlyTimesheetCalendar from "./MonthlyTimesheetCalendar";
 import { useTimelogFilterOptions } from "@/app/hooks";
 import WeeklyTimesheetCalendar from "./WeeklyTimesheetCalendar";
+import { IUser } from "@/app/interfaces";
 interface BaseCalendarDataViewProps {
     t: TranslationHooks
     data: GroupedTimesheet[];
     daysLabels?: string[];
     CalendarComponent: typeof MonthlyTimesheetCalendar | typeof WeeklyTimesheetCalendar;
+    user?: IUser | undefined
 }
 
-export function CalendarView({ data, loading }: { data?: GroupedTimesheet[], loading: boolean }) {
+export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[], loading: boolean, user?: IUser | undefined }) {
     const t = useTranslations();
     const { timesheetGroupByDays } = useTimelogFilterOptions();
     const defaultDaysLabels = [
