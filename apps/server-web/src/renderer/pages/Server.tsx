@@ -3,7 +3,6 @@ import { ServerPageTypeMessage } from '../../main/helpers/constant';
 import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
 import { EverTeamsLogo } from '../components/svgs';
 import { useTranslation } from 'react-i18next';
-import { debounce } from 'lodash';
 
 export function ServerPage() {
   const logRef = useRef<HTMLDivElement>(null);
