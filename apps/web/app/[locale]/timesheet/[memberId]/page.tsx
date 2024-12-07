@@ -19,7 +19,7 @@ import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
 import { GrTask } from 'react-icons/gr';
 import { GoSearch } from 'react-icons/go';
 
-import { getGreeting } from '@/app/helpers';
+import { getGreeting, secondsToTime } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { startOfWeek, endOfWeek } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
@@ -89,7 +89,11 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
-
+	const totalDuration = Object.values(statusTimesheet)
+		.flat()
+		.map(entry => entry.timesheet.duration)
+		.reduce((total, current) => total + current, 0);
+	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
 
 	const fullWidth = useAtomValue(fullWidthState);
 
@@ -144,7 +148,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									onClick={() => openTimesheetDetail()}
 								/>
 								<TimesheetCard
-									hours="63:00h"
+									hours={`${hours}:${minute}`}
 									title="Men Hours"
 									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
 									icon={<Clock className="font-bold" />}
