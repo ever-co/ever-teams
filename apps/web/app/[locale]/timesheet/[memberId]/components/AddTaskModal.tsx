@@ -94,7 +94,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                                     {...taskIssues[option as ITaskIssue]}
                                     showIssueLabels={false}
                                     issueType="issue"
-                                    className={clsxm('rounded-md px-2 text-white bg-primary')}
+                                    className={clsxm('rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] text-white bg-primary')}
                                 />
                                 {option}
                             </div>
