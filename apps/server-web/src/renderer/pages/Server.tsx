@@ -1,25 +1,51 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ServerPageTypeMessage } from '../../main/helpers/constant';
 import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
 import { EverTeamsLogo } from '../components/svgs';
 import { useTranslation } from 'react-i18next';
+import { debounce } from 'lodash';
 
 export function ServerPage() {
+  const logRef = useRef<HTMLDivElement>(null);
   const [isRun, setIsRun] = useState<boolean>(false);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<
+    {
+      message: string;
+      type: 'error-log' | 'log';
+    }[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
+  const [logOpen, setLogOpen] = useState<boolean>(false);
 
   useEffect(() => {
     window.electron.ipcRenderer.removeEventListener(IPC_TYPES.SERVER_PAGE);
     window.electron.ipcRenderer.on(IPC_TYPES.SERVER_PAGE, (arg: any) => {
       switch (arg.type) {
         case LOG_TYPES.SERVER_LOG:
-          setLogs((prev) => [...prev, arg.msg]);
+          setLogs((prev) => [
+            ...prev,
+            {
+              message: arg.msg,
+              type: 'log',
+            },
+          ]);
+          scrollToLast();
+          break;
+        case LOG_TYPES.SERVER_LOG_ERROR:
+          setLogs((prev) => [
+            ...prev,
+            {
+              message: arg.msg,
+              type: 'error-log',
+            },
+          ]);
+          scrollToLast();
           break;
         case ServerPageTypeMessage.SERVER_STATUS:
           if (arg.data.isRun) {
             setIsRun(true);
+            setLogOpen(true);
           } else {
             setIsRun(false);
           }
@@ -38,6 +64,12 @@ export function ServerPage() {
       data: {
         isRun: !isRun,
       },
+    });
+  };
+
+  const scrollToLast = () => {
+    logRef.current?.scrollIntoView({
+      behavior: 'smooth',
     });
   };
 
@@ -60,7 +92,14 @@ export function ServerPage() {
       </button>
       <div className="grid divide-y divide-neutral-200 dark:bg-[#25272D] dark:text-white mx-auto w-10/12 rounded-lg border-2 border-gray-200 dark:border-gray-600">
         <div className="py-5 px-5">
-          <details className="group">
+          <details
+            className="group"
+            open={logOpen}
+            onClick={(e) => {
+              e.preventDefault();
+              setLogOpen((prev) => !prev);
+            }}
+          >
             <summary className="flex justify-between items-center font-medium cursor-pointer list-none">
               <span className="p-2"> Server Logs</span>
               <span className="transition group-open:rotate-180">
@@ -91,10 +130,16 @@ export function ServerPage() {
                 {logs.length > 0 &&
                   logs.map((log, i) => (
                     <div className="py-1" key={i}>
-                      <span>{log}</span>
+                      {log.type === 'error-log' && (
+                        <span className="text-red-600">{log.message}</span>
+                      )}
+                      {log.type === 'log' && (
+                        <span className="text-white">{log.message}</span>
+                      )}
                     </div>
                   ))}
               </div>
+              <div className="py-1" ref={logRef}></div>
             </div>
           </details>
         </div>
