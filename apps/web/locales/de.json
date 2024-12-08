@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Lade Zeiterfassungsdaten...",
 			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Sie sind dabei, den ausgewählten Eintrag abzulehnen. Möchten Sie fortfahren?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Sie sind dabei, den ausgewählten Eintrag abzulehnen. Möchten Sie fortfahren?",
+			"ALL_TASKS": "Alle Aufgaben",
+			"PENDING": "Ausstehend",
+			"APPROVED": "Genehmigt",
+			"IN_REVIEW": "In Überprüfung",
+			"DRAFT": "Entwurf",
+			"REJECTED": "Abgelehnt"
 		}
 	},
 	"timer": {
