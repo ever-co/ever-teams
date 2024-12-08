@@ -95,7 +95,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, selectTimesheet: logIds, timesheetGroupByDays, puTimesheetStatus } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
@@ -239,7 +239,7 @@ export function useTimesheet({
     }
 
 
-    const deleteTaskTimesheet = useCallback(async () => {
+    const deleteTaskTimesheet = useCallback(async ({ logIds }: { logIds: string[] }) => {
         if (!user) {
             throw new Error('User not authenticated');
         }
@@ -253,14 +253,14 @@ export function useTimesheet({
                 logIds
             });
             setTimesheet(prevTimesheet =>
-                prevTimesheet.filter(item => !logIds.includes(item.timesheet.id))
+                prevTimesheet.filter(item => !logIds.includes(item.id))
             );
 
         } catch (error) {
             console.error('Failed to delete timesheets:', error);
             throw error;
         }
-    }, [user, logIds, queryDeleteTimesheet, setTimesheet]);
+    }, [user, queryDeleteTimesheet, setTimesheet]);
 
 
     const timesheetElementGroup = useMemo(() => {
