@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Cargando datos del registro de horas...",
 			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Estás a punto de rechazar la entrada seleccionada, ¿te gustaría continuar?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Estás a punto de rechazar la entrada seleccionada, ¿te gustaría continuar?",
+			"ALL_TASKS": "Todas las tareas",
+			"PENDING": "Pendiente",
+			"APPROVED": "Aprobado",
+			"IN_REVIEW": "En revisión",
+			"DRAFT": "Borrador",
+			"REJECTED": "Rechazado"
 		}
 	},
 	"timer": {

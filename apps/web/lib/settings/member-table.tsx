@@ -21,7 +21,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<OT_Member>(members);
-	const { activeTeam, updateOrganizationTeam,} = useOrganizationTeams();
+	const { activeTeam, updateOrganizationTeam, } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
 	const activeTeamRef = useSyncRef(activeTeam);

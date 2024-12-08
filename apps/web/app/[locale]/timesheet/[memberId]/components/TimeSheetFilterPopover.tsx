@@ -6,9 +6,9 @@ import { MultiSelect } from 'lib/components/custom-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
-import { clsxm } from '@/app/utils';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { cn } from '@/lib/utils';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
@@ -61,7 +61,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											employee?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -84,7 +84,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											project?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -109,7 +109,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											task?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -132,7 +132,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('common.STATUS')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											statusState && 'text-primary dark:text-primary-light'
 										)}

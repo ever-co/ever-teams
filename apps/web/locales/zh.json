@@ -633,7 +633,13 @@
 			},
 			"LOADING": "加载时间表数据...",
 			"NO_ENTRIES_FOUND": "未找到时间表记录",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "你即将拒绝选定的条目，是否继续？"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "你即将拒绝选定的条目，是否继续？",
+			"ALL_TASKS": "所有任务",
+			"PENDING": "待处理",
+			"APPROVED": "已批准",
+			"IN_REVIEW": "审核中",
+			"DRAFT": "草稿",
+			"REJECTED": "拒绝"
 		}
 	},
 	"timer": {

@@ -1,8 +1,10 @@
+import { IUser, RoleNameEnum } from '@/app/interfaces';
 import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus } from '@/app/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
 
 export function useTimelogFilterOptions() {
+
     const [employeeState, setEmployeeState] = useAtom(timesheetFilterEmployeeState);
     const [projectState, setProjectState] = useAtom(timesheetFilterProjectState);
     const [statusState, setStatusState] = useAtom(timesheetFilterStatusState);
@@ -11,10 +13,20 @@ export function useTimelogFilterOptions() {
     const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState);
     const [puTimesheetStatus, setPuTimesheetStatus] = useAtom(timesheetUpdateStatus)
     const [selectedItems, setSelectedItems] = React.useState<{ status: string; date: string }[]>([]);
+    const [selectTimesheetId, setSelectTimesheetId] = React.useState<string[]>([])
 
     const employee = employeeState;
     const project = projectState;
     const task = taskState
+
+    const isUserAllowedToAccess = (user: IUser | null | undefined): boolean => {
+        const allowedRoles: RoleNameEnum[] = [
+            RoleNameEnum.SUPER_ADMIN,
+            RoleNameEnum.MANAGER,
+            RoleNameEnum.ADMIN,
+        ];
+        return user?.role.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
+    };
 
     const generateTimeOptions = (interval = 15) => {
         const totalSlots = (24 * 60) / interval; // Total intervals in a day
@@ -29,7 +41,7 @@ export function useTimelogFilterOptions() {
     };
 
     const handleSelectRowTimesheet = (items: string) => {
-        setSelectTimesheet((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
+        setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
 
     const handleSelectRowByStatusAndDate = (status: string, date: string) => {
@@ -43,7 +55,7 @@ export function useTimelogFilterOptions() {
 
 
     React.useEffect(() => {
-        return () => setSelectTimesheet([]);
+        return () => setSelectTimesheetId([]);
     }, []);
 
     return {
@@ -56,6 +68,8 @@ export function useTimelogFilterOptions() {
         setTaskState,
         setStatusState,
         handleSelectRowTimesheet,
+        selectTimesheetId,
+        setSelectTimesheetId,
         handleSelectRowByStatusAndDate,
         selectedItems,
         selectTimesheet,
@@ -64,6 +78,7 @@ export function useTimelogFilterOptions() {
         setTimesheetGroupByDays,
         generateTimeOptions,
         setPuTimesheetStatus,
-        puTimesheetStatus
+        puTimesheetStatus,
+        isUserAllowedToAccess
     };
 }

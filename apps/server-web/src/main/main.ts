@@ -68,6 +68,16 @@ Log.hooks.push((message: any, transport) => {
     }
   }
 
+  if (message.data[0] === LOG_TYPES.SERVER_LOG_ERROR) {
+    if (logWindow) {
+      const msg = message.data.join(' ');
+      logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
+        type: LOG_TYPES.SERVER_LOG_ERROR,
+        msg
+      });
+    }
+  }
+
   if (message.data[0] === LOG_TYPES.UPDATE_LOG) {
     if (settingWindow) {
       const msg = `${message.data.join(' ')}`;

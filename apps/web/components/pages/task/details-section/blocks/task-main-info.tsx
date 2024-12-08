@@ -220,27 +220,23 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 
 	const memberInfo = useTeamMemberCard(member);
 
-	const unassignedMembers = useMemo(
-		() =>
-			memberList.filter((member) =>
-				member.employee
-					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
-						member.employee?.isActive
-					: false
-			),
-		[memberList, task?.members]
-	);
+	const unassignedMembers = useMemo(() => {
+		if (!task?.members) return memberList.filter((member) => member.employee?.isActive); // Early return if no task members
+		const assignedIds = task.members.map((item) => item.userId);
 
-	const assignedTaskMembers = useMemo(
-		() =>
-			memberList.filter((member) =>
-				member.employee
-					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
-						member.employee?.isActive
-					: false
-			),
-		[memberList, task?.members]
-	);
+		return memberList.filter(
+			(member) => member.employee && !assignedIds.includes(member.employee.userId) && member.employee.isActive
+		);
+	}, [memberList, task?.members]);
+
+	const assignedTaskMembers = useMemo(() => {
+		if (!task?.members) return []; // Early return if no task members
+		const assignedIds = task.members.map((item) => item.userId);
+
+		return memberList.filter(
+			(member) => member.employee && assignedIds.includes(member.employee.userId) && member.employee.isActive
+		);
+	}, [memberList, task?.members]);
 
 	useEffect(() => {
 		if (task && member && memberToRemove) {
