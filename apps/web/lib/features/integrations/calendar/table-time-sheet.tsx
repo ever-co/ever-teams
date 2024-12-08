@@ -63,7 +63,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { toast } from '@components/ui/use-toast';
 import { ToastAction } from '@components/ui/toast';
 
@@ -156,15 +156,15 @@ export const columns: ColumnDef<TimeSheet>[] = [
 	}
 ];
 
-export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
+export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], user?: IUser | undefined }) {
 	const modal = useModal();
 	const alertConfirmationModal = useModal();
 	const { isOpen, openModal, closeModal } = modal;
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = alertConfirmationModal;
 
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
-	const { timesheetGroupByDays, handleSelectRowByStatusAndDate, handleSelectRowTimesheet, selectTimesheetId, setSelectTimesheetId } = useTimelogFilterOptions();
-
+	const { timesheetGroupByDays, handleSelectRowByStatusAndDate, handleSelectRowTimesheet, selectTimesheetId, setSelectTimesheetId, isUserAllowedToAccess } = useTimelogFilterOptions();
+	const isManage = isUserAllowedToAccess(user);
 
 
 	const handleConfirm = () => {
@@ -303,7 +303,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												</Badge>
 											</div>
 											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
-												{getTimesheetButtons(status as StatusType, t, false, handleButtonClick)}
+												{isManage && getTimesheetButtons(status as StatusType, t, true, handleButtonClick)}
 											</div>
 										</div>
 									</AccordionTrigger>
@@ -336,7 +336,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 													<TaskNameInfoDisplay
 														task={task.task}
 														className={clsxm(
-															'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+															'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
 														)}
 														taskTitleClassName={clsxm(
 															'text-sm text-ellipsis overflow-hidden '
@@ -365,8 +365,12 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												</div>
 												<DisplayTimeForTimesheet
 													duration={task.timesheet.duration}
+													logType={task.logType}
 												/>
-												<TaskActionMenu dataTimesheet={task} />
+												<TaskActionMenu
+													dataTimesheet={task}
+													isManage={isManage}
+													user={user} />
 											</div>
 										))}
 									</AccordionContent>
@@ -469,10 +473,11 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	);
 }
 
-const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
+const TaskActionMenu = ({ dataTimesheet, isManage, user }: { dataTimesheet: TimesheetLog, isManage?: boolean, user?: IUser | undefined }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({});
+	const canEdit = isManage || user?.id === dataTimesheet.employee.user.id;
 
 	const t = useTranslations();
 	const handleDeleteTask = () => {
@@ -519,9 +524,12 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
-					<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
-						{t('common.EDIT')}
-					</DropdownMenuItem>
+					{canEdit && (
+						<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
+							{t('common.EDIT')}
+						</DropdownMenuItem>
+					)
+					}
 					<DropdownMenuSeparator />
 					<StatusTask timesheet={dataTimesheet} />
 					<DropdownMenuItem

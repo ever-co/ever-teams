@@ -11,6 +11,8 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { PiCalendarDotsThin } from 'react-icons/pi';
 import React, { Dispatch, useEffect, useState, SetStateAction, useCallback, useMemo, memo } from 'react';
 import moment from 'moment';
+import { ChevronDown } from 'lucide-react';
+
 
 interface DatePickerInputProps {
 	date: Date | null;
@@ -138,7 +140,7 @@ export function TimesheetFilterDate({
 							<div className="flex items-end justify-end w-full">
 								<Button
 									variant={'outline'}
-									className={actionButtonClass}
+									className={cn(actionButtonClass, 'hover:text-primary')}
 									onClick={() => {
 										setDateRange(initialRange ?? { from: new Date(), to: new Date() });
 										setIsVisible(false);
@@ -148,7 +150,7 @@ export function TimesheetFilterDate({
 								</Button>
 								<Button
 									variant={'outline'}
-									className={actionButtonClass}
+									className={cn(actionButtonClass, 'hover:text-primary')}
 									onClick={() => {
 										onChange?.(dateRange);
 										setIsVisible(false);
@@ -172,14 +174,17 @@ export function TimesheetFilterDate({
 								key={index}
 								variant="outline"
 								className={clsxm(
-									'h-6 flex items-center justify-between border-none text-[12px] text-gray-700 dark:bg-dark--theme-light hover:bg-primary  hover:text-white hover:dark:bg-primary-light'
+									'h-7 group flex items-center justify-between border-none text-[13px] text-gray-700 dark:bg-dark--theme-light hover:bg-primary  hover:text-white hover:dark:bg-primary-light'
 								)}
 								onClick={() => {
 									label === t('common.FILTER_CUSTOM_RANGE') && setIsVisible((prev) => !prev);
 									handlePresetClick(label);
 								}}
 							>
-								<span> {label}</span>
+								<div className='flex items-center gap-x-2'>
+									<ChevronDown />
+									<span> {label}</span>
+								</div>
 								{label === t('common.FILTER_CUSTOM_RANGE') && <MdKeyboardArrowRight />}
 							</Button>
 						))}
