@@ -2,7 +2,6 @@ import { useTaskStatus } from '@app/hooks';
 import { useKanban } from '@app/hooks/features/useKanban';
 import { ITaskStatusItemList, ITeamTask } from '@app/interfaces';
 import { IKanban } from '@app/interfaces/IKanban';
-import { fullWidthState } from '@app/stores/fullWidth';
 import KanbanDraggable, { EmptyKanbanDroppable } from 'lib/components/Kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
@@ -13,7 +12,6 @@ import {
 	DroppableProvided,
 	DroppableStateSnapshot
 } from 'react-beautiful-dnd';
-import { useAtomValue } from 'jotai';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-area';
 import { cn } from '../utils';
 
@@ -38,7 +36,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 			};
 		})
 	);
-	const fullWidth = useAtomValue(fullWidthState);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { taskStatus: ts } = useTaskStatus();
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
@@ -201,7 +198,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 
 	return (
 		<ScrollArea
-			className="max-w-[82svw] w-full relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-5"
+			className="max-w-[95svw] w-full relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-3"
 			ref={containerRef}
 		>
 			<div className="w-max">
@@ -213,46 +210,46 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 									className={cn(
 										'flex flex-1 flex-row gap-2 min-h-fit px-8 lg:px-0 w-full h-full',
 										snapshot.isDraggingOver ? 'bg-slate-200 dark:bg-slate-800' : '',
-										!fullWidth && 'x-container pl-0'
+										// !fullWidth && 'x-contane pl-0'
 									)}
 									ref={provided.innerRef}
 									{...provided.droppableProps}
 								>
 									{columns.length > 0
 										? columns.map((column: any, index: number) => (
-												<Fragment key={index}>
-													{isColumnCollapse(column.name) ? (
-														<EmptyKanbanDroppable
-															index={index}
-															title={column.name}
-															status={column}
-															setColumn={setColumn}
-															items={items[column.name]}
-															backgroundColor={getHeaderBackground(
-																kanbanColumns,
-																column.name
-															)}
-														/>
-													) : (
-														<KanbanDraggable
-															key={index}
-															status={column}
-															setColumn={setColumn}
-															isLoading={isLoading}
-															index={index}
-															icon={column.icon}
-															addNewTask={addNewTask}
-															title={column.name}
-															items={items[column.name]}
-															backgroundColor={getHeaderBackground(
-																kanbanColumns,
-																column.name
-															)}
-															containerRef={containerRef}
-														/>
-													)}
-												</Fragment>
-											))
+											<Fragment key={index}>
+												{isColumnCollapse(column.name) ? (
+													<EmptyKanbanDroppable
+														index={index}
+														title={column.name}
+														status={column}
+														setColumn={setColumn}
+														items={items[column.name]}
+														backgroundColor={getHeaderBackground(
+															kanbanColumns,
+															column.name
+														)}
+													/>
+												) : (
+													<KanbanDraggable
+														key={index}
+														status={column}
+														setColumn={setColumn}
+														isLoading={isLoading}
+														index={index}
+														icon={column.icon}
+														addNewTask={addNewTask}
+														title={column.name}
+														items={items[column.name]}
+														backgroundColor={getHeaderBackground(
+															kanbanColumns,
+															column.name
+														)}
+														containerRef={containerRef}
+													/>
+												)}
+											</Fragment>
+										))
 										: null}
 									{provided.placeholder as React.ReactElement}
 								</div>
