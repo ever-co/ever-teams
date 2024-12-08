@@ -47,7 +47,7 @@ import { useModal, useTimelogFilterOptions } from '@app/hooks';
 import { Checkbox } from '@components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { clsxm } from '@/app/utils';
-import { AlertDialogConfirmation, statusColor } from '@/lib/components';
+import { AlertConfirmationModal, statusColor } from '@/lib/components';
 import { Badge } from '@components/ui/badge';
 import {
 	EditTaskModal,
@@ -63,7 +63,9 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { toast } from '@components/ui/use-toast';
+import { ToastAction } from '@components/ui/toast';
 
 export const columns: ColumnDef<TimeSheet>[] = [
 	{
@@ -154,20 +156,23 @@ export const columns: ColumnDef<TimeSheet>[] = [
 	}
 ];
 
-export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
-	const { isOpen, openModal, closeModal } = useModal();
-
+export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], user?: IUser | undefined }) {
+	const modal = useModal();
+	const alertConfirmationModal = useModal();
+	const { isOpen, openModal, closeModal } = modal;
+	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = alertConfirmationModal;
 
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
-	const { handleSelectRowTimesheet, selectTimesheet, setSelectTimesheet, timesheetGroupByDays, handleSelectRowByStatusAndDate } = useTimelogFilterOptions();
+	const { timesheetGroupByDays, handleSelectRowByStatusAndDate, handleSelectRowTimesheet, selectTimesheetId, setSelectTimesheetId, isUserAllowedToAccess } = useTimelogFilterOptions();
+	const isManage = isUserAllowedToAccess(user);
 
-	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
 	const handleConfirm = () => {
 		try {
-			deleteTaskTimesheet()
+			deleteTaskTimesheet({ logIds: selectTimesheetId })
 				.then(() => {
-					setSelectTimesheet([]);
-					setIsDialogOpen(false);
+					setSelectTimesheetId([]);
+					closeAlertConfirmation()
 				})
 				.catch((error) => {
 					console.error('Delete timesheet error:', error);
@@ -176,9 +181,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 			console.error('Delete timesheet error:', error);
 		}
 	};
-	const handleCancel = () => {
-		setIsDialogOpen(false);
-	};
+
 	const t = useTranslations();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -208,10 +211,10 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 	const handleButtonClick = async (action: StatusAction) => {
 		switch (action) {
 			case 'Approved':
-				if (selectTimesheet.length > 0) {
+				if (selectTimesheetId.length > 0) {
 					await updateTimesheetStatus({
 						status: 'APPROVED',
-						ids: selectTimesheet
+						ids: selectTimesheetId
 					})
 				}
 				break;
@@ -219,24 +222,24 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 				openModal();
 				break;
 			case 'Deleted':
-				setIsDialogOpen(true);
+				openAlertConfirmation();
 				break;
 			default:
 				console.error(`Unsupported action: ${action}`);
 		}
 	};
+
+
 	return (
 		<div className="w-full dark:bg-dark--theme">
-			<AlertDialogConfirmation
-				title={t('common.DELETE_CONFIRMATION')}
+			<AlertConfirmationModal
 				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
-				confirmText={t('common.DELETE')}
-				cancelText={t('common.CANCEL')}
-				isOpen={isDialogOpen}
-				onOpenChange={setIsDialogOpen}
-				onConfirm={handleConfirm}
-				onCancel={handleCancel}
+				close={closeAlertConfirmation}
 				loading={loadingDeleteTimesheet}
+				onAction={handleConfirm}
+				open={isOpenAlert}
+				title={t('common.DELETE_CONFIRMATION')}
+				countID={selectTimesheetId.length}
 			/>
 			<RejectSelectedModal
 				onReject={() => {
@@ -300,7 +303,7 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												</Badge>
 											</div>
 											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
-												{getTimesheetButtons(status as StatusType, t, true, handleButtonClick)}
+												{isManage && getTimesheetButtons(status as StatusType, t, true, handleButtonClick)}
 											</div>
 										</div>
 									</AccordionTrigger>
@@ -327,13 +330,13 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												<Checkbox
 													className="w-5 h-5"
 													onCheckedChange={() => handleSelectRowTimesheet(task.id)}
-													checked={selectTimesheet.includes(task.id)}
+													checked={selectTimesheetId.includes(task.id)}
 												/>
 												<div className="flex-[2]">
 													<TaskNameInfoDisplay
 														task={task.task}
 														className={clsxm(
-															'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+															'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
 														)}
 														taskTitleClassName={clsxm(
 															'text-sm text-ellipsis overflow-hidden '
@@ -362,8 +365,12 @@ export function DataTableTimeSheet({ data }: { data?: GroupedTimesheet[] }) {
 												</div>
 												<DisplayTimeForTimesheet
 													duration={task.timesheet.duration}
+													logType={task.logType}
 												/>
-												<TaskActionMenu dataTimesheet={task} />
+												<TaskActionMenu
+													dataTimesheet={task}
+													isManage={isManage}
+													user={user} />
 											</div>
 										))}
 									</AccordionContent>
@@ -466,17 +473,49 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	);
 }
 
-const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
+const TaskActionMenu = ({ dataTimesheet, isManage, user }: { dataTimesheet: TimesheetLog, isManage?: boolean, user?: IUser | undefined }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
+	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({});
+	const canEdit = isManage || user?.id === dataTimesheet.employee.user.id;
+
 	const t = useTranslations();
+	const handleDeleteTask = () => {
+		deleteTaskTimesheet({ logIds: [dataTimesheet.id] })
+			.then(() => {
+				toast({
+					title: 'Deletion Confirmed',
+					description: "The timesheet has been successfully deleted.",
+					variant: 'default',
+					className: 'bg-red-50 text-red-600 border-red-500',
+					action: <ToastAction altText="Restore timesheet">Undo</ToastAction>
+				});
+			})
+			.catch((error) => {
+				toast({
+					title: 'Error during deletion',
+					description: `An error occurred: ${error}.The timesheet could not be deleted.`,
+					variant: 'destructive',
+					className: 'bg-red-50 text-red-600 border-red-500'
+				});
+			});
+	};
 
 	return (
 		<>
-			{<EditTaskModal
+			<AlertConfirmationModal
+				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
+				close={closeAlertConfirmation}
+				loading={loadingDeleteTimesheet}
+				onAction={handleDeleteTask}
+				open={isOpenAlert}
+				title={t('common.DELETE_CONFIRMATION')}
+			/>
+			<EditTaskModal
 				closeModal={isCloseModalEditTask}
 				isOpen={isEditTask}
 				dataTimesheet={dataTimesheet}
-			/>}
+			/>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
@@ -485,12 +524,18 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
-					<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
-						{t('common.EDIT')}
-					</DropdownMenuItem>
+					{canEdit && (
+						<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
+							{t('common.EDIT')}
+						</DropdownMenuItem>
+					)
+					}
 					<DropdownMenuSeparator />
 					<StatusTask timesheet={dataTimesheet} />
-					<DropdownMenuItem className="text-red-600 hover:!text-red-600 cursor-pointer">
+					<DropdownMenuItem
+						onClick={openAlertConfirmation}
+						className="text-red-600 hover:!text-red-600 cursor-pointer"
+					>
 						{t('common.DELETE')}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
@@ -498,6 +543,7 @@ const TaskActionMenu = ({ dataTimesheet }: { dataTimesheet: TimesheetLog }) => {
 		</>
 	);
 };
+
 
 const TaskDetails = ({ description, name }: { description: string; name: string }) => {
 	return (

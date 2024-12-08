@@ -31,6 +31,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import { cn } from '@/lib/utils';
 
 const Kanban = () => {
 	const {
@@ -161,11 +162,10 @@ const Kanban = () => {
 										<div
 											key={tab.name}
 											onClick={() => setActiveTab(tab.value)}
-											className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
-												activeTab === tab.value
-													? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-													: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-											}`}
+											className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${activeTab === tab.value
+												? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
+												: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
+												}`}
 											style={{
 												borderBottomWidth: '3px',
 												borderBottomStyle: 'solid'
@@ -259,10 +259,14 @@ const Kanban = () => {
 				}
 			>
 				{/** TODO:fetch teamtask based on days */}
+
+
 				<div className="pt-10">
 					{activeTab &&
 						(Object.keys(data).length > 0 ? (
-							<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
+							<Container fullWidth={fullWidth} className={cn("!pt-0 px-5")}>
+								<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
+							</Container>
 						) : (
 							// add filter for today, yesterday and tomorrow
 							<div className="flex flex-col flex-1 w-full h-full">
@@ -270,7 +274,7 @@ const Kanban = () => {
 							</div>
 						))}
 				</div>
-			</MainLayout>
+			</MainLayout >
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);

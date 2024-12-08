@@ -633,7 +633,13 @@
 			},
 			"LOADING": "טוען נתוני רשומת זמן...",
 			"NO_ENTRIES_FOUND": "לא נמצאו רשומות זמן",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "אתה עומד לדחות את הרשומה הנבחרת, האם ברצונך להמשיך?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "אתה עומד לדחות את הרשומה הנבחרת, האם ברצונך להמשיך?",
+			"ALL_TASKS": "כל המשימות",
+			"PENDING": "ממתין",
+			"APPROVED": "מאושר",
+			"IN_REVIEW": "בבדיקה",
+			"DRAFT": "טיוטה",
+			"REJECTED": "נדחה"
 		}
 	},
 	"timer": {

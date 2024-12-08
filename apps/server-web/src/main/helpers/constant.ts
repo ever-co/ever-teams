@@ -50,7 +50,8 @@ export const ServerPageTypeMessage = {
 
 export const LOG_TYPES = {
   UPDATE_LOG: 'UPDATE-LOG',
-  SERVER_LOG: 'SERVER-LOG'
+  SERVER_LOG: 'SERVER-LOG',
+  SERVER_LOG_ERROR: 'SERVER-LOG-ERROR'
 }
 
 export const IPC_TYPES: {

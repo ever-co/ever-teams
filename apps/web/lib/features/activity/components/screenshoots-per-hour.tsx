@@ -1,8 +1,11 @@
+"use client"
+
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import { clsxm } from '@app/utils';
 import ScreenshotDetailsModal from './screenshot-details';
 import { useModal } from '@app/hooks';
 import ScreenshotItem from './screenshot-item';
+import React, { useCallback } from 'react';
 
 export const ScreenshootPerHour = ({
 	timeSlots,
@@ -14,6 +17,12 @@ export const ScreenshootPerHour = ({
 	stoppedAt: string;
 }) => {
 	const { isOpen, closeModal, openModal } = useModal();
+	const [selectedElement, setSelectedELement]= React.useState<ITimerSlot | null>(null)
+
+	const openScreenModal = useCallback((el: ITimerSlot) => {
+		setSelectedELement(el)
+		openModal()
+	}, [openModal])
 	return (
 		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
 			<h3 className="px-4">
@@ -27,12 +36,12 @@ export const ScreenshootPerHour = ({
 							startTime={el.startedAt}
 							percent={el.percentage}
 							imageUrl={el.screenshots[0]?.thumbUrl}
-							onShow={() => openModal()}
+							onShow={() => openScreenModal(el)}
 							idSlot={el.id}
 						/>
-						<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={el} />
 					</div>
 				))}
+				<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={selectedElement} />
 			</div>
 		</div>
 	);

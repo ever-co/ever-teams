@@ -34,38 +34,38 @@ export default function UserTeamCard({
 					className
 				)}
 			>
-				<div className="relative flex items-center w-full m-0">
+				<div className="relative flex items-center justify-between w-full m-0">
 					<div className="absolute left-0 cursor-pointer w-fit">
 						<SixSquareGridIcon className="w-2 max-w-fit text-[#CCCCCC] dark:text-[#4F5662]" />
 					</div>
 					{/* User information */}
-					<div className="relative w-fit">
+					<div className="relative !w-[27%]">
 						<MemberInfo member={member} className="!w-fit" />
 					</div>
 
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex items-center justify-between flex-initial w-fit min-w-fit">
+					<div className=" !w-[25%]">
 						<UserTeamActiveTaskInfo
 							member={member}
 							className="flex-initial !w-fit !min-w-full !max-w-[280px]"
 						/>
 					</div>
 
-					<VerticalSeparator className="ml-2" />
+					<VerticalSeparator />
 
 					{/* Task worked Times */}
-					<UserTeamActiveTaskTimes member={member} className="!w-fit max-w-fit" />
+					<UserTeamActiveTaskTimes member={member} className=" !w-[15%]" />
 
 					<VerticalSeparator />
 
 					{/* Task estimate Info */}
-					<UserTeamActiveTaskEstimate member={member} className="!w-fit" />
+					<UserTeamActiveTaskEstimate member={member} className=" !w-[20%]" />
 
 					<VerticalSeparator />
 
-					<UserTeamActiveTaskTodayWorked member={member} className="!w-fit !max-w-fit" />
+					<UserTeamActiveTaskTodayWorked member={member} className=" !w-[8%]" />
 
 					{/* Card Menu */}
 					<div className="absolute hidden right-2">

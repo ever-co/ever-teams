@@ -20,3 +20,15 @@ export interface IGetTimeLimitReport {
 	timeZone?: string;
 	duration?: string;
 }
+
+// Grouped time limits data
+
+export interface ITimeLimitReportByEmployee {
+	employee: IEmployee;
+	reports: {
+		date: string;
+		duration: number;
+		durationPercentage: number;
+		limit: number;
+	}[];
+}

@@ -1,9 +1,10 @@
 import { GroupedTimesheet } from '@/app/hooks/features/useTimesheet';
+import { IUser } from '@/app/interfaces';
 import TimesheetSkeleton from '@components/shared/skeleton/TimesheetSkeleton';
 import { DataTableTimeSheet } from 'lib/features/integrations/calendar';
 import { useTranslations } from 'next-intl';
 
-export function TimesheetView({ data, loading }: { data?: GroupedTimesheet[]; loading?: boolean }) {
+export function TimesheetView({ data, loading, user }: { data?: GroupedTimesheet[]; loading?: boolean, user?: IUser | undefined }) {
 	const t = useTranslations();
 
 	if (loading || !data) {
@@ -26,7 +27,7 @@ export function TimesheetView({ data, loading }: { data?: GroupedTimesheet[]; lo
 
 	return (
 		<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
-			<DataTableTimeSheet data={data} />
+			<DataTableTimeSheet data={data} user={user} />
 		</div>
 	);
 }
