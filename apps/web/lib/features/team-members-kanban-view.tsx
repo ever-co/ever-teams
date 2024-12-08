@@ -210,7 +210,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 									className={cn(
 										'flex flex-1 flex-row gap-2 min-h-fit px-8 lg:px-0 w-full h-full',
 										snapshot.isDraggingOver ? 'bg-slate-200 dark:bg-slate-800' : '',
-										// !fullWidth && 'x-contane pl-0'
 									)}
 									ref={provided.innerRef}
 									{...provided.droppableProps}
