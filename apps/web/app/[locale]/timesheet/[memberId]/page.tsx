@@ -8,7 +8,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 
-import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
@@ -37,6 +37,8 @@ type ViewToggleButtonProps = {
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	const { getOrganizationProjects } = useOrganizationProjects();
+
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
@@ -55,7 +57,9 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		timesheetViewMode: timesheetNavigator
 	});
 
-
+	React.useEffect(() => {
+		getOrganizationProjects();
+	}, [getOrganizationProjects])
 
 	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
 	const filterDataTimesheet = useMemo(() => {
