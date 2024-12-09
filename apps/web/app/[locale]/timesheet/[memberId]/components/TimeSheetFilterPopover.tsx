@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { Button } from '@components/ui/button';
 import { statusOptions } from '@app/constants';
 import { MultiSelect } from 'lib/components/custom-select';
@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const { activeTeam } = useOrganizationTeams();
+	const { organizationProjects } = useOrganizationProjects();
+
 	const { tasks } = useTeamTasks();
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
@@ -95,9 +97,9 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
 									removeItems={shouldRemoveItems}
-									items={activeTeam?.projects ?? []}
+									items={organizationProjects ?? []}
 									itemToString={(project) =>
-										(activeTeam?.projects && project ? project.name : '') || ''
+										(organizationProjects && project ? project.name : '') || ''
 									}
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setProjectState(selectedItems as any)}

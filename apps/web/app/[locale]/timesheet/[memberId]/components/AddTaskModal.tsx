@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
+import { useOrganizationProjects, useTimelogFilterOptions } from '@/app/hooks';
 import { ITaskIssue } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components'
@@ -17,20 +17,22 @@ export interface IAddTaskModalProps {
 }
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
     const { generateTimeOptions } = useTimelogFilterOptions();
+    const { organizationProjects } = useOrganizationProjects();
+
     const timeOptions = generateTimeOptions(15);
     const t = useTranslations();
-    const { activeTeam } = useTeamTasks();
     const [notes, setNotes] = React.useState('');
     const [task, setTasks] = React.useState('')
     const [isBillable, setIsBillable] = React.useState<boolean>(true);
     const [dateRange, setDateRange] = React.useState<{ from: Date | null }>({
         from: new Date(),
     });
+
     const handleFromChange = (fromDate: Date | null) => {
         setDateRange((prev) => ({ ...prev, from: fromDate }));
     };
     const projectItemsLists = {
-        Project: activeTeam?.projects ?? [],
+        Project: organizationProjects ?? [],
     };
 
     const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {

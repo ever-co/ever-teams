@@ -102,7 +102,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                             <div className="flex items-center  w-full gap-2">
                                                 <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
                                                 <div className="flex items-center gap-x-1">
-                                                    <span className="text-base font-normal text-gray-400 uppercase !text-[12px]">
+                                                    <span className="text-base font-normal text-gray-400 uppercase !text-[14px]">
                                                         {status === 'DENIED' ? 'REJECTED' : status}
                                                     </span>
                                                     <span className="text-gray-400 text-[14px]">({rows.length})</span>
@@ -141,7 +141,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
                                                     className={cn(
-                                                        'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
                                                     )}
                                                     taskTitleClassName={cn(
                                                         'text-sm text-ellipsis overflow-hidden !text-[#293241] dark:!text-white '
@@ -235,7 +235,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
                                                     className={cn(
-                                                        'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]  shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
                                                     )}
                                                     taskTitleClassName={cn(
                                                         'text-sm !text-ellipsis !overflow-hidden !truncate !text-[#293241] dark:!text-white '
