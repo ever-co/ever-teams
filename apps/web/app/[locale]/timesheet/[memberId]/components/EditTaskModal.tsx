@@ -231,7 +231,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							fields={fields}
 
 							itemsLists={memberItemsLists}
-							selectedValues={selectedValues ?? []}
+							selectedValues={selectedValues}
 							onSelectedValuesChange={handleSelectedValuesChange}
 							handleChange={handleChange}
 							itemToString={(item, displayKey) => getNestedValue(item, displayKey) || ''}
