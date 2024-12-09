@@ -24,7 +24,7 @@ const ScreenshotItem = ({
 	return (
 		<div
 			className={clsxm(
-				'rounded-lg shadow-md hover:shadow-lg  dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-56 w-full',
+				'rounded-lg shadow-md hover:shadow-lg  dark:border-[#26272C] dark:bg-[#191a20] dark:border overflow-hidden h-56 w-full',
 				!showProgress && !isTeamPage && '!h-48 dark:!bg-[#191a20]',
 				isTeamPage && '!h-32'
 			)}
@@ -50,7 +50,7 @@ const ScreenshotItem = ({
 				/>
 			</div>
 			<div
-				className={clsxm('w-full h-1/2 p-4 cursor-pointer bg-white', !showProgress && '!h-1/3')}
+				className={clsxm('w-full h-1/2 p-4 cursor-pointer bg-white dark:bg-[#191a20]', !showProgress && '!h-1/3')}
 				onClick={onShow}
 			>
 				{showProgress ? (

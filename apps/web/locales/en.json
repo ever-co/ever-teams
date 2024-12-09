@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Loading timesheet data...",
 			"NO_ENTRIES_FOUND": "No timesheet entries found",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?",
+			"ALL_TASKS": "All Tasks",
+			"PENDING": "Pending",
+			"APPROVED": "Approved",
+			"IN_REVIEW": "In review",
+			"DRAFT": "Draft",
+			"REJECTED": "Rejected"
 		}
 	},
 	"timer": {

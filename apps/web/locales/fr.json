@@ -633,7 +633,13 @@
 			},
 			"LOADING": "Chargement des données de la feuille de temps...",
 			"NO_ENTRIES_FOUND": "Aucune entrée de feuille de temps trouvée",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Vous êtes sur le point de rejeter l'entrée sélectionnée, souhaitez-vous continuer ?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Vous êtes sur le point de rejeter l'entrée sélectionnée, souhaitez-vous continuer ?",
+			"ALL_TASKS": "Toutes les tâches",
+			"PENDING": "En attente",
+			"APPROVED": "Approuvé",
+			"IN_REVIEW": "En cours d'examen",
+			"DRAFT": "Brouillon",
+			"REJECTED": "Rejeté"
 		}
 	},
 	"timer": {

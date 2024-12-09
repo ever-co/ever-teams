@@ -22,7 +22,7 @@ import { formatIntegerToHour, formatTimeString } from '@/app/helpers';
 import { ProgressBar } from '@/lib/components';
 
 export type WeeklyLimitTableDataType = {
-	member: string;
+	indexValue: string;
 	timeSpent: number;
 	limit: number;
 	percentageUsed: number;
@@ -35,12 +35,18 @@ export type WeeklyLimitTableDataType = {
  * @component
  * @param {Object} props - The component props.
  * @param {WeeklyLimitTableDataType[]} props.data - Array of data objects containing weekly time usage information.
+ * @param {boolean} props.showHeader - If false, hide the header.
  *
  * @returns {JSX.Element} A table showing member-wise weekly time limits, usage, and remaining time.
  *
  */
 
-export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] }) {
+export function DataTableWeeklyLimits(props: {
+	data: WeeklyLimitTableDataType[];
+	indexTitle: string;
+	showHeader?: boolean;
+}) {
+	const { data, indexTitle, showHeader = true } = props;
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -69,9 +75,9 @@ export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] 
 			enableHiding: false
 		},
 		{
-			accessorKey: 'member',
-			header: () => <div className="">{t('common.MEMBER')}</div>,
-			cell: ({ row }) => <div className="capitalize">{row.getValue('member')}</div>
+			accessorKey: 'indexValue',
+			header: () => <div className="">{indexTitle}</div>,
+			cell: ({ row }) => <div className="capitalize">{row.getValue('indexValue')}</div>
 		},
 		{
 			accessorKey: 'timeSpent',
@@ -117,7 +123,7 @@ export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] 
 	];
 
 	const table = useReactTable({
-		data: props.data,
+		data: data,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -140,21 +146,27 @@ export function DataTableWeeklyLimits(props: { data: WeeklyLimitTableDataType[] 
 			{table?.getRowModel()?.rows.length ? (
 				<div className="rounded-md">
 					<Table>
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
-										return (
-											<TableHead key={header.id}>
-												{header.isPlaceholder
-													? null
-													: flexRender(header.column.columnDef.header, header.getContext())}
-											</TableHead>
-										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
+						{showHeader && (
+							<TableHeader>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow key={headerGroup.id}>
+										{headerGroup.headers.map((header) => {
+											return (
+												<TableHead className=" capitalize" key={header.id}>
+													{header.isPlaceholder
+														? null
+														: flexRender(
+																header.column.columnDef.header,
+																header.getContext()
+															)}
+												</TableHead>
+											);
+										})}
+									</TableRow>
+								))}
+							</TableHeader>
+						)}
+
 						<TableBody>
 							{table?.getRowModel()?.rows.length ? (
 								table?.getRowModel().rows.map((row) => (

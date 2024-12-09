@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils";
 import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet";
 import { TotalDurationByDate } from "@/lib/features";
 import { formatDate } from "@/app/helpers";
+import { TranslationHooks } from "next-intl";
 
 type WeeklyCalendarProps = {
+    t: TranslationHooks
     data?: GroupedTimesheet[];
     onDateClick?: (date: Date) => void;
     renderDayContent?: (date: Date, plan?: GroupedTimesheet) => React.ReactNode;
@@ -38,6 +40,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
     daysLabels = defaultDaysLabels,
     noDataText = "No Data",
     classNames = {},
+    t
 }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -61,7 +64,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
                     onClick={handlePreviousWeek}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
                 >
-                    Previous
+                    {t('common.PREV')}
                 </button>
                 <h2 className="text-xl font-bold">
                     {`Week of ${format(weekDates[0], "MMM d", { locale })} - ${format(
@@ -74,7 +77,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
                     onClick={handleNextWeek}
                     className="px-4 py-2 bg-gray-200 dark:bg-primary-light rounded hover:bg-gray-300 hover:dark:bg-primary-light"
                 >
-                    Next
+                    {t('common.NEXT')}
                 </button>
             </div>
 

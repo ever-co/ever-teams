@@ -1,18 +1,20 @@
 import React from 'react';
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { Button } from '@components/ui/button';
 import { statusOptions } from '@app/constants';
 import { MultiSelect } from 'lib/components/custom-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
-import { clsxm } from '@/app/utils';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { cn } from '@/lib/utils';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const { activeTeam } = useOrganizationTeams();
+	const { organizationProjects } = useOrganizationProjects();
+
 	const { tasks } = useTeamTasks();
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
@@ -61,7 +63,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											employee?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -84,7 +86,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											project?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -95,9 +97,9 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
 									removeItems={shouldRemoveItems}
-									items={activeTeam?.projects ?? []}
+									items={organizationProjects ?? []}
 									itemToString={(project) =>
-										(activeTeam?.projects && project ? project.name : '') || ''
+										(organizationProjects && project ? project.name : '') || ''
 									}
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setProjectState(selectedItems as any)}
@@ -109,7 +111,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											task?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -132,7 +134,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('common.STATUS')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											statusState && 'text-primary dark:text-primary-light'
 										)}
