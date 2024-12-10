@@ -5,6 +5,7 @@ import { mainBindings } from 'i18next-electron-fs-backend';
 import fs from 'fs';
 import { EventEmitter } from 'events';
 import { EventLists, WindowOptions, WindowTypes } from '../helpers/constant';
+import { IAppWindow, IWindowTypes } from '../helpers/interfaces';
 
 export default class WindowsFactory {
     private preloadPath: string;
@@ -47,7 +48,7 @@ export default class WindowsFactory {
         windowOptions.width = width;
         windowOptions.height = height;
         let browserWindow = new BrowserWindow(windowOptions);
-        const url = resolveHtmlPath('indext.html', hashPath);
+        const url = resolveHtmlPath('index.html', hashPath);
         browserWindow.loadURL(url);
         mainBindings(ipcMain, browserWindow, fs);
         Menu.setApplicationMenu(menu);
