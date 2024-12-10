@@ -1,7 +1,21 @@
 import { EverTeamsLogo } from './svgs';
 import { IAbout } from '../libs/interfaces';
+import {
+  APP_LINK,
+  IPC_TYPES,
+  SettingPageTypeMessage,
+} from '../../main/helpers/constant';
+import { Link } from 'react-router-dom';
 
 export const AboutComponent = (props: IAbout) => {
+  const handleLinkClick = (linkType: string) => {
+    window.electron.ipcRenderer.sendMessage(IPC_TYPES.SETTING_PAGE, {
+      type: SettingPageTypeMessage.linkAction,
+      data: {
+        linkType,
+      },
+    });
+  };
   return (
     <div className="w-full text-white">
       <div className="text-center mt-8">
@@ -21,13 +35,23 @@ export const AboutComponent = (props: IAbout) => {
           All rights reserved.
         </p>
         <p className="mt-2 text-indigo-500 space-x-2">
-          <a href="#" className="hover:underline">
+          <Link
+            to="#"
+            onClick={() => {
+              handleLinkClick(APP_LINK.TERM_OF_SERVICE);
+            }}
+          >
             Terms Of Service
-          </a>
+          </Link>
           <span>|</span>
-          <a href="#" className="hover:underline">
+          <Link
+            to="#"
+            onClick={() => {
+              handleLinkClick(APP_LINK.PRIVACY_POLICY);
+            }}
+          >
             Privacy Policy
-          </a>
+          </Link>
         </p>
       </div>
     </div>

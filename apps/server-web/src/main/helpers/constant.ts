@@ -42,7 +42,13 @@ export const SettingPageTypeMessage = {
   updateSettingResponse: 'update-setting-response',
   updateCancel: 'update-cancel',
   restartServer: 'restart-server',
-  themeChange: 'theme-change'
+  themeChange: 'theme-change',
+  linkAction: 'link-action'
+}
+
+export const APP_LINK = {
+  TERM_OF_SERVICE: 'TERM_OF_SERVICE',
+  PRIVACY_POLICY: 'PRIVACY_POLICY'
 }
 
 export const ServerPageTypeMessage = {

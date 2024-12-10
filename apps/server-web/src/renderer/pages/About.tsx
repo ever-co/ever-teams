@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EverTeamsLogo } from '../components/svgs';
+import {
+  APP_LINK,
+  IPC_TYPES,
+  SettingPageTypeMessage,
+} from '../../main/helpers/constant';
+import { Link } from 'react-router-dom';
 
 const AboutPage = () => {
   const [aboutApp, setAboutApp] = useState<{
@@ -8,6 +14,31 @@ const AboutPage = () => {
   }>({
     name: 'Web Server',
     version: '0.1.0',
+  });
+
+  const handleLinkClick = (linkType: string) => {
+    window.electron.ipcRenderer.sendMessage(IPC_TYPES.SETTING_PAGE, {
+      type: SettingPageTypeMessage.linkAction,
+      data: {
+        linkType,
+      },
+    });
+  };
+
+  useEffect(() => {
+    window.electron.ipcRenderer.removeEventListener(IPC_TYPES.SETTING_PAGE);
+    window.electron.ipcRenderer.on(IPC_TYPES.SETTING_PAGE, (arg: any) => {
+      switch (arg.type) {
+        case SettingPageTypeMessage.loadSetting:
+          setAboutApp({
+            name: arg.data.appName,
+            version: arg.data.version,
+          });
+          break;
+        default:
+          break;
+      }
+    });
   });
   return (
     <div className="w-full text-white rounded-lg shadow-md p-6">
@@ -31,13 +62,23 @@ const AboutPage = () => {
           All rights reserved.
         </p>
         <p className="mt-2 text-indigo-500 space-x-2">
-          <a href="#" className="hover:underline">
+          <Link
+            to="#"
+            onClick={() => {
+              handleLinkClick(APP_LINK.TERM_OF_SERVICE);
+            }}
+          >
             Terms Of Service
-          </a>
+          </Link>
           <span>|</span>
-          <a href="#" className="hover:underline">
+          <Link
+            to="#"
+            onClick={() => {
+              handleLinkClick(APP_LINK.PRIVACY_POLICY);
+            }}
+          >
             Privacy Policy
-          </a>
+          </Link>
         </p>
       </div>
     </div>

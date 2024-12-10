@@ -4,7 +4,7 @@ import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
-import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES, WindowTypes } from './helpers/constant';
+import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES, WindowTypes, APP_LINK } from './helpers/constant';
 import Updater from './updater';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import { WebServer, AppMenu, ServerConfig, IWindowTypes, IOpenWindow } from './helpers/interfaces';
@@ -51,6 +51,19 @@ const handleCloseWindow = (windowTypes: IWindowTypes) => {
       break;
     case WindowTypes.LOG_WINDOW:
       logWindow = null;
+      break;
+    default:
+      break;
+  }
+}
+
+const handleLinkAction = (linkType: string) => {
+  switch (linkType) {
+    case APP_LINK.TERM_OF_SERVICE:
+      shell.openExternal(config.TERM_OF_SERVICE);
+      break;
+    case APP_LINK.PRIVACY_POLICY:
+      shell.openExternal(config.PRIVACY_POLICY);
       break;
     default:
       break;
@@ -192,7 +205,6 @@ const createWindow = async (windowType: IWindowTypes): Promise<BrowserWindow> =>
 };
 
 const handleOpenWindow = async (data: IOpenWindow) => {
-  console.log('test')
   let browserWindow: BrowserWindow | null = null;
   const serverSetting = LocalStore.getStore('config');
   switch (data.windowType) {
@@ -207,7 +219,10 @@ const handleOpenWindow = async (data: IOpenWindow) => {
     browserWindow?.webContents.once('did-finish-load', () => {
       setTimeout(() => {
         browserWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
-        browserWindow?.webContents.send(SettingPageTypeMessage.loadSetting, serverSetting);
+        browserWindow?.webContents.send(IPC_TYPES.SETTING_PAGE, {
+          data: {...serverSetting, appName: app.name, version: app.getVersion()},
+          type: SettingPageTypeMessage.loadSetting,
+        });
       }, 50)
     })
   }
@@ -561,6 +576,10 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
       })
       createIntervalAutoUpdate()
       event.sender.send(IPC_TYPES.UPDATER_PAGE, { type: SettingPageTypeMessage.updateSettingResponse, data: true })
+      break;
+    case SettingPageTypeMessage.linkAction:
+      console.log(arg)
+      handleLinkAction(arg.data.linkType)
       break;
     default:
       break;
