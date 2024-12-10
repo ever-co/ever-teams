@@ -4,9 +4,7 @@ import { resolveHtmlPath } from '../util';
 import { mainBindings } from 'i18next-electron-fs-backend';
 import fs from 'fs';
 import { EventEmitter } from 'events';
-import { AppMenu, IAppWindow, IWindowTypes } from '../helpers/interfaces';
 import { EventLists, WindowOptions, WindowTypes } from '../helpers/constant';
-import MenuBuilder from '../menu';
 
 export default class WindowsFactory {
     private preloadPath: string;
