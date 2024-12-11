@@ -1,5 +1,5 @@
-import { EverTeamsLogo } from './svgs';
-import { IAbout } from '../libs/interfaces';
+import { useEffect, useState } from 'react';
+import { EverTeamsLogo } from '../components/svgs';
 import {
   APP_LINK,
   IPC_TYPES,
@@ -7,7 +7,15 @@ import {
 } from '../../main/helpers/constant';
 import { Link } from 'react-router-dom';
 
-export const AboutComponent = (props: IAbout) => {
+const AboutPage = () => {
+  const [aboutApp, setAboutApp] = useState<{
+    name: string;
+    version: string;
+  }>({
+    name: 'Web Server',
+    version: '0.1.0',
+  });
+
   const handleLinkClick = (linkType: string) => {
     window.electron.ipcRenderer.sendMessage(IPC_TYPES.SETTING_PAGE, {
       type: SettingPageTypeMessage.linkAction,
@@ -16,14 +24,33 @@ export const AboutComponent = (props: IAbout) => {
       },
     });
   };
+
+  useEffect(() => {
+    window.electron.ipcRenderer.removeEventListener(IPC_TYPES.SETTING_PAGE);
+    window.electron.ipcRenderer.on(IPC_TYPES.SETTING_PAGE, (arg: any) => {
+      switch (arg.type) {
+        case SettingPageTypeMessage.loadSetting:
+          setAboutApp({
+            name: arg.data.appName,
+            version: arg.data.version,
+          });
+          break;
+        default:
+          break;
+      }
+    });
+  });
   return (
-    <div className="w-full text-white">
-      <div className="text-center mt-8">
+    <div className="w-full text-white rounded-lg shadow-md p-6">
+      <div className="text-center">
         <div className="flex justify-center items-center mb-4">
           <EverTeamsLogo />
         </div>
+        <h1 className="text-sm dark:text-gray-50 text-gray-900 font-semibold pb-1 tracking-tighter">
+          {aboutApp.name}
+        </h1>
         <p className="text-xs dark:text-gray-50 text-gray-900 tracking-tighter">
-          Version v{props.version}
+          Version v{aboutApp.version}
         </p>
       </div>
       <div className="mt-6 text-center text-xs">
@@ -57,3 +84,5 @@ export const AboutComponent = (props: IAbout) => {
     </div>
   );
 };
+
+export default AboutPage;

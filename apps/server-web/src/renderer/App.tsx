@@ -6,6 +6,7 @@ import i18next from 'i18next';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import SetupPage from './pages/Setup';
 import { ServerPage } from './pages/Server';
+import AboutPage from './pages/About';
 
 export default function App() {
   const [language, setLanguage] = useState<string>('en');
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/setting" element={<Setting />} />
           <Route path="/history-console" element={<ServerPage />} />
           <Route path="/setup" element={<SetupPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </Router>
     </ThemeProvider>

@@ -5,9 +5,9 @@ import {
 } from 'electron';
 import { config } from '../configs/config';
 import { EventEmitter } from 'events';
-import { EventLists } from './helpers/constant';
+import { EventLists, WindowTypes } from './helpers/constant';
 import i18n from 'i18next';
-import { AppMenu } from './helpers/interfaces';
+import { AppMenu, IWindowTypes } from './helpers/interfaces';
 
 export default class MenuBuilder {
   eventEmitter: EventEmitter
@@ -27,7 +27,7 @@ export default class MenuBuilder {
             id: 'MENU_APP_ABOUT',
             label: `MENU_APP.APP_ABOUT`,
             click: () => {
-              this.eventEmitter.emit(EventLists.gotoAbout)
+              this.eventEmitter.emit(EventLists.OPEN_WINDOW, { windowType: WindowTypes.ABOUT_WINDOW})
             }
           },
           { type: 'separator' },
@@ -125,14 +125,6 @@ export default class MenuBuilder {
     ]
   }
 
-  buildDefaultTemplate(menuItems: any, i18nextMainBackend: typeof i18n) {
-    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menuItems));
-  }
-
-  buildInitialTemplate(menuItems: any, i18nextMainBackend: typeof i18n) {
-    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menuItems));
-  }
-
   updateAppMenu(menuItem: string, context: { label?: string, enabled?: boolean}, contextMenuItems: any, i18nextMainBackend: typeof i18n) {
     const menuIdx:number = contextMenuItems.findIndex((item: any) => item.id === menuItem);
     if (menuIdx > -1) {
@@ -143,24 +135,38 @@ export default class MenuBuilder {
       const newMenu = [...contextMenuItems];
       Menu.setApplicationMenu(Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, newMenu)))
     }
-}
+  }
 
-translateAppMenu(i18nextMainBackend: typeof i18n, contextMenu: any) {
-  return contextMenu.map((menu: any) => {
-    const menuCopied = {...menu};
-    if (menuCopied.label) {
-      menuCopied.label = i18nextMainBackend.t(menuCopied.label);
+  translateAppMenu(i18nextMainBackend: typeof i18n, contextMenu: any) {
+    return contextMenu.map((menu: any) => {
+      const menuCopied = {...menu};
+      if (menuCopied.label) {
+        menuCopied.label = i18nextMainBackend.t(menuCopied.label);
+      }
+      if (menuCopied.submenu && menuCopied.submenu.length) {
+        menuCopied.submenu = menuCopied.submenu.map((sm: any) => {
+          const submenu = {...sm};
+          if (submenu.label) {
+            submenu.label = i18nextMainBackend.t(submenu.label)
+          }
+          return submenu;
+        })
+      }
+      return menuCopied;
+    })
+  }
+
+  getWindowMenu(windowType: IWindowTypes) {
+    switch (windowType) {
+      case WindowTypes.SETUP_WINDOW:
+        return this.initialMenu();
+      default:
+        return this.defaultMenu();
     }
-    if (menuCopied.submenu && menuCopied.submenu.length) {
-      menuCopied.submenu = menuCopied.submenu.map((sm: any) => {
-        const submenu = {...sm};
-        if (submenu.label) {
-          submenu.label = i18nextMainBackend.t(submenu.label)
-        }
-        return submenu;
-      })
-    }
-    return menuCopied;
-  })
-}
+  }
+
+  buildTemplateMenu(windowType: IWindowTypes, i18nextMainBackend: typeof i18n) {
+    const menu = this.getWindowMenu(windowType)
+    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menu));
+  }
 }
