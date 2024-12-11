@@ -20,7 +20,7 @@ interface Shift {
     startTime: string;
     endTime: string;
     totalHours: string;
-    dateFrom: Date | any,
+    dateFrom: Date | string,
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
@@ -77,7 +77,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
         },
     ];
 
-    const handleAddTimesheet = () => {
+    const handleAddTimesheet = async () => {
         const payload = {
             isBillable: formState.isBillable,
             description: formState.notes,
@@ -92,22 +92,21 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
         };
 
-        formState.shifts.map((shift) => {
-            const baseDate = shift.dateFrom ?? new Date();
-            const startedAt = createUtcDate(baseDate, shift.startTime.toString().slice(0, 5));
-            const stoppedAt = createUtcDate(baseDate, shift.endTime.toString().slice(0, 5));
-            createTimesheet({
-                ...payload,
-                startedAt,
-                stoppedAt,
-            }).then(() => {
-                closeModal()
-            }).catch((error) => {
-                if (!error) {
-                    closeModal();
-                }
-            })
-        })
+        try {
+            await Promise.all(formState.shifts.map(async (shift) => {
+                const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom ?? new Date());
+                const startedAt = createUtcDate(baseDate, shift.startTime.toString().slice(0, 5));
+                const stoppedAt = createUtcDate(baseDate, shift.endTime.toString().slice(0, 5));
+                await createTimesheet({
+                    ...payload,
+                    startedAt,
+                    stoppedAt,
+                });
+            }));
+            closeModal();
+        } catch (error) {
+            console.error('Failed to create timesheet:', error);
+        }
     }
 
     return (
@@ -235,6 +234,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         {t('common.CANCEL')}
                     </button>
                     <button
+                        disabled={loadingCreateTimesheet}
                         onClick={handleAddTimesheet}
                         type="submit"
                         className={clsxm(
@@ -243,7 +243,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         {loadingCreateTimesheet && (
                             <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
                         )}
-                        {loadingCreateTimesheet ? "Processing..." : t('common.SAVE')}
+                        {t('common.SAVE')}
                     </button>
                 </div>
             </div>
@@ -346,7 +346,7 @@ const OptimizedAccordion = ({ setShifts, shifts, timeOptions, t }: {
 
             if (!startTime || !endTime) return;
 
-            if (startTime <= endTime) {
+            if (startTime === endTime) {
                 const startMinutes = convertToMinutesHour(startTime);
                 updatedShifts[index].endTime = convertMinutesToTime(startMinutes + 5);
                 return;
