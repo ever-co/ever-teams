@@ -212,7 +212,11 @@ const handleOpenWindow = async (data: IOpenWindow) => {
   const serverSetting = LocalStore.getStore('config');
   switch (data.windowType) {
     case WindowTypes.ABOUT_WINDOW:
-      browserWindow = aboutWindow ? aboutWindow :  await createWindow(data.windowType);
+      if (aboutWindow) {
+        browserWindow = aboutWindow
+      } else {
+        browserWindow = await createWindow(data.windowType)
+      }
       break;
     default:
       break;
