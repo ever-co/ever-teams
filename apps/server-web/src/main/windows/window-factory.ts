@@ -1,10 +1,10 @@
 
-import { BrowserWindow, app, BrowserWindowConstructorOptions, ipcMain, Menu } from 'electron';
+import { BrowserWindow, app, BrowserWindowConstructorOptions, ipcMain, Menu} from 'electron';
 import { resolveHtmlPath } from '../util';
 import { mainBindings } from 'i18next-electron-fs-backend';
 import fs from 'fs';
 import { EventEmitter } from 'events';
-import { EventLists, WindowOptions, WindowTypes } from '../helpers/constant';
+import { EventLists, WindowOptions, WindowTypes, WINDOW_EVENTS } from '../helpers/constant';
 import { IAppWindow, IWindowTypes } from '../helpers/interfaces';
 
 export default class WindowsFactory {
@@ -33,7 +33,11 @@ export default class WindowsFactory {
             width: 1024,
             height: 728,
             webPreferences: {
-                preload: this.preloadPath
+                preload: this.preloadPath,
+                nodeIntegration: false,
+                contextIsolation: true,
+                sandbox: true,
+                webSecurity: true
             }
         }
     }
@@ -63,10 +67,10 @@ export default class WindowsFactory {
             options.hashPath,
             menu
         )
-        browserWindow.on('close', () => {
+        browserWindow.on(WINDOW_EVENTS.CLOSE, () => {
             this.eventEmitter.emit(EventLists.WINDOW_EVENT, {
                 windowType: WindowTypes[windowType],
-                eventType: 'close'
+                eventType: WINDOW_EVENTS.CLOSE
             })
         })
         return browserWindow;

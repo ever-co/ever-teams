@@ -106,3 +106,9 @@ export const WindowTypes: {
   SETUP_WINDOW: 'SETUP_WINDOW',
   ABOUT_WINDOW: 'ABOUT_WINDOW'
 }
+
+export const WINDOW_EVENTS: {
+  CLOSE: 'close'
+} = {
+  CLOSE: 'close'
+}

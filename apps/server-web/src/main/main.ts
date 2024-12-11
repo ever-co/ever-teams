@@ -4,7 +4,7 @@ import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
-import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES, WindowTypes, APP_LINK } from './helpers/constant';
+import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES, WindowTypes, APP_LINK, WINDOW_EVENTS } from './helpers/constant';
 import Updater from './updater';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
 import { WebServer, AppMenu, ServerConfig, IWindowTypes, IOpenWindow } from './helpers/interfaces';
@@ -51,6 +51,9 @@ const handleCloseWindow = (windowTypes: IWindowTypes) => {
       break;
     case WindowTypes.LOG_WINDOW:
       logWindow = null;
+      break;
+    case WindowTypes.ABOUT_WINDOW:
+      aboutWindow = null;
       break;
     default:
       break;
@@ -439,7 +442,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.WINDOW_EVENT, (data) => {
     switch (data.eventType) {
-      case 'close':
+      case WINDOW_EVENTS.CLOSE:
         handleCloseWindow(data.windowType)
         break;
       default:

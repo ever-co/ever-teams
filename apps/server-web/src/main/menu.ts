@@ -167,6 +167,6 @@ export default class MenuBuilder {
 
   buildTemplateMenu(windowType: IWindowTypes, i18nextMainBackend: typeof i18n) {
     const menu = this.getWindowMenu(windowType)
-    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menu));;
+    return Menu.buildFromTemplate(this.translateAppMenu(i18nextMainBackend, menu));
   }
 }
