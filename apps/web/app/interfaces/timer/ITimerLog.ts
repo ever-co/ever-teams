@@ -137,23 +137,23 @@ export interface UpdateTimesheetStatus extends BaseEntity {
 }
 export interface UpdateTimesheet extends Pick<
     Partial<TimesheetLog>,
+    | 'id'
     | 'reason'
     | 'organizationContactId'
     | 'description'
     | 'organizationTeamId'
     | 'projectId'
     | 'taskId'
+    | 'employeeId'
+    | 'organizationId'
+    | 'tenantId'
+    | 'logType'
+    | 'source'
 >,
     Pick<
         TimesheetLog,
-        | 'id'
         | 'startedAt'
         | 'stoppedAt'
-        | 'tenantId'
-        | 'logType'
-        | 'source'
-        | 'employeeId'
-        | 'organizationId'
     > {
     isBillable: boolean;
 }
