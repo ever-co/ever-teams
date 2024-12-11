@@ -147,7 +147,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-status"
 									removeItems={shouldRemoveItems}
-									items={statusTable?.flatMap((status) => status)}
+									items={statusTable?.flat()}
 									itemToString={(status) => (status ? status.label : '')}
 									itemId={(item) => item.label}
 									onValueChange={(selectedItems) => setStatusState(selectedItems as any)}

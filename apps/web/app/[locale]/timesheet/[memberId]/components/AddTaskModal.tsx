@@ -101,9 +101,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                 startedAt,
                 stoppedAt,
             }).then(() => {
-                console.log('succes')
+                closeModal()
             }).catch((error) => {
-                console.error(error)
+                if (!error) {
+                    closeModal();
+                }
             })
         })
     }

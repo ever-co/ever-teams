@@ -128,10 +128,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					variant: 'destructive',
 					className: 'bg-red-50 text-red-600 border-red-500 z-[10000px]'
 				});
-				if (error) {
-					return;
+				if (!error) {
+					closeModal();
 				}
-				closeModal();
 			});
 	}, [dateRange, timeRange, timesheetData, dataTimesheet, updateTimesheet]);
 
