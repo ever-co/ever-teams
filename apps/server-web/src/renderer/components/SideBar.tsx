@@ -13,7 +13,7 @@ export function SideBar({
   const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
-      <div className="fixed flex flex-col top-0 left-0 w-1/4 h-full dark:bg-[#1c1e23] bg-gray-200">
+      <div className="fixed flex flex-col top-0 left-0 w-1/4 h-full dark:bg-[#2b2b2f] bg-gray-200">
         <div className="overflow-y-auto overflow-x-hidden flex-grow">
           <ul className="flex flex-col py-4 space-y-1">
             {menus.length > 0 &&
@@ -21,7 +21,7 @@ export function SideBar({
                 <li key={menu.key}>
                   <Link
                     to=""
-                    className={`relative flex flex-row items-center h-11 focus:outline-none  text-gray-600 dark:text-white  ${!menu.isActive ? 'hover:dark:bg-gray-800 hover:bg-gray-300 border-indigo-500' : 'bg-gray-300 dark:bg-gray-800'} text-gray-800 border-l-4 border-transparent ${!menu.isActive ? 'hover:border-indigo-500' : ''} pr-6 rounded-lg`}
+                    className={`relative flex flex-row items-center h-11 focus:outline-none  text-gray-600 dark:text-white  ${!menu.isActive ? 'hover:dark:bg-[#1f2025] hover:bg-stone-100 border-indigo-500' : 'bg-stone-100 dark:bg-[#1f2025]'} text-gray-800 border-l-4 border-transparent ${!menu.isActive ? 'hover:border-indigo-500' : ''} pr-6 rounded-l-lg`}
                     onClick={() => {
                       menuChange(menu.key);
                     }}

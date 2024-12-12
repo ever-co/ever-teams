@@ -232,7 +232,7 @@ export const EmptyKanbanDroppable = ({
 	items: ITeamTask[];
 }) => {
 	const [enabled, setEnabled] = useState(false);
-
+	const t = useTranslations()
 	const { toggleColumn } = useKanban();
 
 	useEffect(() => {
@@ -293,19 +293,19 @@ export const EmptyKanbanDroppable = ({
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
 														onClick={() => openModal()}
 													>
-														Create Task
+														{t('hotkeys.CREATE_TASK')}
 													</div>
 													<div
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
 														onClick={() => toggleColumn(title, false)}
 													>
-														Collapse Column
+														{t('common.COLLAPSE_COLUMN')}
 													</div>
 													<div
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
 														onClick={editOpenModal}
 													>
-														Edit Status
+														{t('common.EDIT_STATUS')}
 													</div>
 												</PopoverContent>
 											</Popover>
@@ -377,7 +377,7 @@ const KanbanDraggableHeader = ({
 }) => {
 	const { toggleColumn } = useKanban();
 	const { isOpen, closeModal, openModal } = useModal();
-
+	const t = useTranslations()
 	return (
 		<>
 			{title && (
@@ -417,16 +417,16 @@ const KanbanDraggableHeader = ({
 									className="hover:font-medium p-1.5 text-sm cursor-pointer"
 									onClick={() => createTask()}
 								>
-									Create Task
+									{t('common.CREATE_TASK')}
 								</div>
 								<div
 									className="hover:font-medium p-1.5 text-sm cursor-pointer"
 									onClick={() => toggleColumn(title, true)}
 								>
-									Collapse Column
+									{t('common.COLLAPSE_COLUMN')}
 								</div>
 								<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={openModal}>
-									Edit Status
+									{t('common.EDIT_STATUS')}
 								</div>
 							</PopoverContent>
 						</Popover>

@@ -151,7 +151,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
                                                     className={cn(
-                                                        'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                        'rounded-sm !h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
                                                     )}
                                                     taskTitleClassName={cn(
                                                         'text-sm !text-ellipsis !overflow-hidden text-sm'

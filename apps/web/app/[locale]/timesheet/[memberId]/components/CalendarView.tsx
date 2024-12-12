@@ -12,6 +12,7 @@ import MonthlyTimesheetCalendar from "./MonthlyTimesheetCalendar";
 import { useTimelogFilterOptions } from "@/app/hooks";
 import WeeklyTimesheetCalendar from "./WeeklyTimesheetCalendar";
 import { IUser } from "@/app/interfaces";
+import TimesheetSkeleton from "@components/shared/skeleton/TimesheetSkeleton";
 interface BaseCalendarDataViewProps {
     t: TranslationHooks
     data: GroupedTimesheet[];
@@ -32,31 +33,40 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
         t("common.DAYS.fri"),
         t("common.DAYS.sat")
     ];
+
+    if (loading || !data) {
+        return (
+            <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+                {Array.from({ length: 10 }).map((_, index) => (
+                    <TimesheetSkeleton key={index} />
+                ))}
+            </div>
+        );
+    }
+
+    if (data.length === 0) {
+        return (
+            <div className="grow w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center h-full min-h-[280px]">
+                <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="grow h-full bg-[#FFFFFF] dark:bg-dark--theme">
-            {data ? (
-                data.length > 0 ? (
-                    <>
-                        {timesheetGroupByDays === 'Monthly' ? (
-                            <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />
-                        ) : timesheetGroupByDays === 'Weekly' ? (
-                            <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />
-                        ) : (
-                            <CalendarDataView data={data} t={t} />
-                        )}
-                    </>
-                ) : (
-                    <div className="flex items-center justify-center h-full min-h-[280px]">
-                        <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
-                    </div>
-                )
-            ) : (
-                <div className="flex items-center justify-center h-full">
-                    <p>{t('pages.timesheet.LOADING')}</p>
-                </div>
-            )}
+        <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+            {(() => {
+                switch (timesheetGroupByDays) {
+                    case 'Monthly':
+                        return <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />;
+                    case 'Weekly':
+                        return <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />;
+                    default:
+                        return <CalendarDataView data={data} t={t} />;
+                }
+            })()}
         </div>
     );
+
 }
 
 const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: TranslationHooks }) => {
@@ -102,7 +112,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                             <div className="flex items-center  w-full gap-2">
                                                 <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
                                                 <div className="flex items-center gap-x-1">
-                                                    <span className="text-base font-normal text-gray-400 uppercase !text-[12px]">
+                                                    <span className="text-base font-normal text-gray-400 uppercase !text-[14px]">
                                                         {status === 'DENIED' ? 'REJECTED' : status}
                                                     </span>
                                                     <span className="text-gray-400 text-[14px]">({rows.length})</span>
@@ -141,7 +151,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
                                                     className={cn(
-                                                        'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
                                                     )}
                                                     taskTitleClassName={cn(
                                                         'text-sm text-ellipsis overflow-hidden !text-[#293241] dark:!text-white '
@@ -235,7 +245,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
                                                     className={cn(
-                                                        'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]  shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
                                                     )}
                                                     taskTitleClassName={cn(
                                                         'text-sm !text-ellipsis !overflow-hidden !truncate !text-[#293241] dark:!text-white '

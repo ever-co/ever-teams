@@ -4,18 +4,16 @@ import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
 import { defaultTrayMenuItem, _initTray, updateTrayMenu } from './tray';
-import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES } from './helpers/constant';
-import { resolveHtmlPath } from './util';
+import { EventLists, SettingPageTypeMessage, ServerPageTypeMessage, LOG_TYPES, IPC_TYPES, WindowTypes, APP_LINK, WINDOW_EVENTS } from './helpers/constant';
 import Updater from './updater';
-import { mainBindings } from 'i18next-electron-fs-backend';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
-import fs from 'fs';
-import { WebServer, AppMenu, ServerConfig } from './helpers/interfaces';
+import { WebServer, AppMenu, ServerConfig, IWindowTypes, IOpenWindow } from './helpers/interfaces';
 import { clearDesktopConfig } from './helpers';
 import Log from 'electron-log';
 import MenuBuilder from './menu';
 import { config } from '../configs/config';
 import { debounce } from 'lodash';
+import WindowFactory from './windows/window-factory';
 
 
 console.log = Log.log;
@@ -40,7 +38,40 @@ let tray: Tray;
 let settingWindow: BrowserWindow | null = null;
 let logWindow: BrowserWindow | null = null;
 let setupWindow: BrowserWindow | any = null;
-const appMenu = new MenuBuilder(eventEmitter)
+let aboutWindow: BrowserWindow | null = null;
+const appMenu = new MenuBuilder(eventEmitter);
+
+const handleCloseWindow = (windowTypes: IWindowTypes) => {
+  switch (windowTypes) {
+    case WindowTypes.SETTING_WINDOW:
+      settingWindow = null;
+      break;
+    case WindowTypes.SETUP_WINDOW:
+      setupWindow = null;
+      break;
+    case WindowTypes.LOG_WINDOW:
+      logWindow = null;
+      break;
+    case WindowTypes.ABOUT_WINDOW:
+      aboutWindow = null;
+      break;
+    default:
+      break;
+  }
+}
+
+const handleLinkAction = (linkType: string) => {
+  switch (linkType) {
+    case APP_LINK.TERM_OF_SERVICE:
+      shell.openExternal(config.TERM_OF_SERVICE);
+      break;
+    case APP_LINK.PRIVACY_POLICY:
+      shell.openExternal(config.PRIVACY_POLICY);
+      break;
+    default:
+      break;
+  }
+}
 
 Log.hooks.push((message: any, transport) => {
   if (transport !== Log.transports.file) {
@@ -111,6 +142,10 @@ const getAssetPath = (...paths: string[]): string => {
   return path.join(RESOURCES_PATH, ...paths);
 };
 
+const preloadPath: string = app.isPackaged
+? path.join(__dirname, 'preload.js')
+: path.join(__dirname, '../../.erb/dll/preload.js');
+
 console.log(__dirname);
 
 if (isProd) {
@@ -145,6 +180,12 @@ if (isDebug) {
   require('electron-debug')();
 }
 
+const windowFactory = new WindowFactory(
+  preloadPath,
+  'icons/icon.png',
+  eventEmitter
+)
+
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -159,63 +200,40 @@ const installExtensions = async () => {
 };
 
 
-const createWindow = async (type: 'SETTING_WINDOW' | 'LOG_WINDOW' | 'SETUP_WINDOW') => {
+const createWindow = async (windowType: IWindowTypes): Promise<BrowserWindow> => {
   if (isDebug) {
     await installExtensions();
   }
+  return windowFactory.buildWindow({windowType, menu: appMenu.buildTemplateMenu(windowType, i18nextMainBackend)});
+};
 
-  const defaultOptionWindow = {
-    title: app.name,
-    frame: true,
-    show: false,
-    width: 1024,
-    height: 728,
-    icon: getAssetPath('icons/icon.png'),
-    maximizable: false,
-    resizable: false,
-    webPreferences: {
-      preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
-    },
-  }
-  let url = '';
-  switch (type) {
-    case 'SETTING_WINDOW':
-      settingWindow = new BrowserWindow(defaultOptionWindow);
-      url = resolveHtmlPath('index.html', 'setting');
-      settingWindow.loadURL(url);
-
-      mainBindings(ipcMain, settingWindow, fs);
-      settingWindow.on('closed', () => {
-        settingWindow = null;
-      });
-      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
-      break;
-    case 'LOG_WINDOW':
-      logWindow = new BrowserWindow(defaultOptionWindow);
-      url = resolveHtmlPath('index.html', 'history-console')
-      logWindow.loadURL(url);
-      mainBindings(ipcMain, logWindow, fs);
-      logWindow.on('closed', () => {
-        logWindow = null;
-      })
-      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
-      break;
-    case 'SETUP_WINDOW':
-      setupWindow = new BrowserWindow(defaultOptionWindow);
-      url = resolveHtmlPath('index.html', 'setup');
-      setupWindow?.loadURL(url);
-      mainBindings(ipcMain, setupWindow, fs);
-      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenu.initialMenu(), i18nextMainBackend));
-      setupWindow.on('closed', () => {
-        setupWindow = null;
-      })
+const handleOpenWindow = async (data: IOpenWindow) => {
+  let browserWindow: BrowserWindow | null = null;
+  const serverSetting = LocalStore.getStore('config');
+  switch (data.windowType) {
+    case WindowTypes.ABOUT_WINDOW:
+      if (aboutWindow) {
+        browserWindow = aboutWindow
+      } else {
+        browserWindow = await createWindow(data.windowType)
+      }
       break;
     default:
       break;
   }
-};
+  if (browserWindow) {
+    browserWindow?.show();
+    browserWindow?.webContents.once('did-finish-load', () => {
+      setTimeout(() => {
+        browserWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
+        browserWindow?.webContents.send(IPC_TYPES.SETTING_PAGE, {
+          data: {...serverSetting, appName: app.name, version: app.getVersion()},
+          type: SettingPageTypeMessage.loadSetting,
+        });
+      }, 50)
+    })
+  }
+}
 
 const runServer = async () => {
   console.log('Run the Server...');
@@ -275,9 +293,9 @@ const onInitApplication = () => {
     if (i18nextMainBackend.isInitialized && storeConfig.general?.setup) {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
-      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenuItems, i18nextMainBackend))
+      Menu.setApplicationMenu(appMenu.buildTemplateMenu(WindowTypes.LOG_WINDOW, i18nextMainBackend))
     } else {
-      Menu.setApplicationMenu(appMenu.buildDefaultTemplate(appMenu.initialMenu(), i18nextMainBackend))
+      Menu.setApplicationMenu(appMenu.buildTemplateMenu(WindowTypes.SETUP_WINDOW, i18nextMainBackend))
     }
   }, 250));
 
@@ -326,7 +344,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.gotoSetting, async () => {
     if (!settingWindow) {
-      await createWindow('SETTING_WINDOW');
+      settingWindow = await createWindow(WindowTypes.SETTING_WINDOW);
     }
     const serverSetting: WebServer = LocalStore.getStore('config');
     console.log('setting data', serverSetting);
@@ -389,25 +407,12 @@ const onInitApplication = () => {
     setupWindow?.webContents.send('themeSignal', { type: SettingPageTypeMessage.themeChange, data });
   })
 
-  eventEmitter.on(EventLists.gotoAbout, async () => {
-    if (!settingWindow) {
-      await createWindow('SETTING_WINDOW');
-    }
-    const serverSetting = LocalStore.getStore('config');
-    settingWindow?.show();
-    settingWindow?.webContents.once('did-finish-load', () => {
-      setTimeout(() => {
-        SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
-        settingWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
-        SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about' });
-      }, 100)
-    })
-  })
+  eventEmitter.on(EventLists.OPEN_WINDOW, handleOpenWindow)
 
   eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
     if (!logWindow) {
       initTrayMenu()
-      await createWindow('LOG_WINDOW');
+      logWindow = await createWindow(WindowTypes.LOG_WINDOW);
     }
     const serverSetting = LocalStore.getStore('config');
     logWindow?.show();
@@ -437,6 +442,16 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.SERVER_WINDOW_DEV, () => {
     logWindow?.webContents.toggleDevTools();
+  })
+
+  eventEmitter.on(EventLists.WINDOW_EVENT, (data) => {
+    switch (data.eventType) {
+      case WINDOW_EVENTS.CLOSE:
+        handleCloseWindow(data.windowType)
+        break;
+      default:
+        break;
+    }
   })
 }
 
@@ -480,7 +495,7 @@ const initTrayMenu = () => {
     eventEmitter.emit(EventLists.SERVER_WINDOW);
   } else {
     if (!setupWindow) {
-      await createWindow('SETUP_WINDOW');
+      setupWindow = await createWindow(WindowTypes.SETUP_WINDOW);
     }
     if (setupWindow) {
       setupWindow?.show();
@@ -568,6 +583,10 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
       })
       createIntervalAutoUpdate()
       event.sender.send(IPC_TYPES.UPDATER_PAGE, { type: SettingPageTypeMessage.updateSettingResponse, data: true })
+      break;
+    case SettingPageTypeMessage.linkAction:
+      console.log(arg)
+      handleLinkAction(arg.data.linkType)
       break;
     default:
       break;
