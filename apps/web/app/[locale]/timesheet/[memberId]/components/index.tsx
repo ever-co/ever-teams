@@ -11,4 +11,4 @@ export * from './RejectSelectedModal';
 export * from './EditTaskModal';
 export * from './CompactTimesheetComponent';
 export * from './TimesheetLoader';
-
+export * from './SelectionBar'

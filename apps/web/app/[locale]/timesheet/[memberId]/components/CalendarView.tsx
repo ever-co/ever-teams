@@ -12,6 +12,7 @@ import MonthlyTimesheetCalendar from "./MonthlyTimesheetCalendar";
 import { useTimelogFilterOptions } from "@/app/hooks";
 import WeeklyTimesheetCalendar from "./WeeklyTimesheetCalendar";
 import { IUser } from "@/app/interfaces";
+import TimesheetSkeleton from "@components/shared/skeleton/TimesheetSkeleton";
 interface BaseCalendarDataViewProps {
     t: TranslationHooks
     data: GroupedTimesheet[];
@@ -32,31 +33,40 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
         t("common.DAYS.fri"),
         t("common.DAYS.sat")
     ];
+
+    if (loading || !data) {
+        return (
+            <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+                {Array.from({ length: 10 }).map((_, index) => (
+                    <TimesheetSkeleton key={index} />
+                ))}
+            </div>
+        );
+    }
+
+    if (data.length === 0) {
+        return (
+            <div className="grow w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center h-full min-h-[280px]">
+                <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="grow h-full bg-[#FFFFFF] dark:bg-dark--theme">
-            {data ? (
-                data.length > 0 ? (
-                    <>
-                        {timesheetGroupByDays === 'Monthly' ? (
-                            <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />
-                        ) : timesheetGroupByDays === 'Weekly' ? (
-                            <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />
-                        ) : (
-                            <CalendarDataView data={data} t={t} />
-                        )}
-                    </>
-                ) : (
-                    <div className="flex items-center justify-center h-full min-h-[280px]">
-                        <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
-                    </div>
-                )
-            ) : (
-                <div className="flex items-center justify-center h-full">
-                    <p>{t('pages.timesheet.LOADING')}</p>
-                </div>
-            )}
+        <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+            {(() => {
+                switch (timesheetGroupByDays) {
+                    case 'Monthly':
+                        return <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />;
+                    case 'Weekly':
+                        return <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />;
+                    default:
+                        return <CalendarDataView data={data} t={t} />;
+                }
+            })()}
         </div>
     );
+
 }
 
 const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: TranslationHooks }) => {
