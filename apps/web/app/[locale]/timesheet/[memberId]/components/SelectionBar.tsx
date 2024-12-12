@@ -15,7 +15,23 @@ const ActionButton = ({ label, onClick }: ActionButtonProps) => (
     </button>
 );
 
-export const SelectionBar = ({ fullWidth }: { fullWidth: boolean }) => {
+interface SelectionBarProps {
+    fullWidth: boolean;
+    selectedCount: number;
+    onApprove: () => void;
+    onReject: () => void;
+    onDelete: () => void;
+    onClearSelection: () => void;
+}
+
+export const SelectionBar = ({
+    fullWidth,
+    selectedCount,
+    onApprove,
+    onReject,
+    onDelete,
+    onClearSelection
+}: SelectionBarProps) => {
     const t = useTranslations()
     return (
         <div
@@ -27,15 +43,25 @@ export const SelectionBar = ({ fullWidth }: { fullWidth: boolean }) => {
             <div className="flex items-center justify-start gap-x-4">
                 <div className="flex items-center justify-center gap-x-2 text-[#282048] dark:text-[#7a62d8]">
                     <div className="bg-primary dark:bg-primary-light text-white rounded-full h-7 w-7 flex items-center justify-center font-bold">
-                        <span>2</span>
+                        <span>{selectedCount}</span>
                     </div>
                     <span>selected</span>
                 </div>
-                <ActionButton label={t("pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED")} />
-                <ActionButton label={t("pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED")} />
-                <ActionButton label={t("pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED")} />
+                <ActionButton
+                    label={t("pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED")}
+                    onClick={onApprove}
+                />
+                <ActionButton
+                    label={t("pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED")}
+                    onClick={onReject}
+                />
+                <ActionButton
+                    label={t("pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED")}
+                    onClick={onDelete}
+                />
             </div>
             <button
+                onClick={onClearSelection}
                 className="font-semibold h-8 px-3 rounded-lg text-[#3826A6] dark:text-primary-light"
                 aria-label="Clear Selection"
             >
