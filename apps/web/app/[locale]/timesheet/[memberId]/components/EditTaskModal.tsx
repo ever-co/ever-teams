@@ -6,12 +6,15 @@ import { FormEvent, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { clsxm } from "@/app/utils";
 import { Item, ManageOrMemberComponent, getNestedValue } from "@/lib/features/manual-time/manage-member-component";
-import { useTeamTasks } from "@/app/hooks";
+import { useOrganizationProjects } from "@/app/hooks";
 import { CustomSelect, TaskNameInfoDisplay } from "@/lib/features";
 import { statusTable } from "./TimesheetAction";
 import { TimesheetLog } from "@/app/interfaces";
 import { secondsToTime } from "@/app/helpers";
 import { useTimesheet } from "@/app/hooks/features/useTimesheet";
+import { toast } from "@components/ui/use-toast";
+import { ToastAction } from "@components/ui/toast";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -19,9 +22,9 @@ export interface IEditTaskModalProps {
 	dataTimesheet: TimesheetLog
 }
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
-	const { activeTeam } = useTeamTasks();
+	const { organizationProjects } = useOrganizationProjects();
 	const t = useTranslations();
-	const { updateTimesheet } = useTimesheet({})
+	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({})
 
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
 		date: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date(),
@@ -45,13 +48,12 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		}));
 	};
 	const [timesheetData, setTimesheetData] = useState({
-		isBillable: dataTimesheet.isBillable,
+		isBillable: dataTimesheet.isBillable ?? true,
 		projectId: dataTimesheet.project?.id || '',
 		notes: dataTimesheet.description || '',
 	});
-
 	const memberItemsLists = {
-		Project: activeTeam?.projects as [],
+		Project: organizationProjects,
 	};
 	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
 		setTimesheetData((prev) => ({
@@ -60,7 +62,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		}));
 	};
 	const selectedValues = {
-		Teams: null,
+		Project: dataTimesheet.project,
 	};
 	const handleChange = (field: string, selectedItem: Item | null) => {
 		// Handle field changes
@@ -94,19 +96,42 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				...timeRange.endTime.split(':').map(Number)
 			)
 		);
-		await updateTimesheet({
-			id: dataTimesheet.timesheetId,
+		const payload = {
+			id: dataTimesheet.id,
 			isBillable: timesheetData.isBillable,
 			employeeId: dataTimesheet.employeeId,
 			logType: dataTimesheet.logType,
 			source: dataTimesheet.source,
-			startedAt: startedAt,
-			stoppedAt: stoppedAt,
+			startedAt,
+			stoppedAt,
 			tenantId: dataTimesheet.tenantId,
 			organizationId: dataTimesheet.organizationId,
 			description: timesheetData.notes,
 			projectId: timesheetData.projectId,
-		});
+			organizationTeamId: dataTimesheet.organizationTeamId ?? null,
+			organizationContactId: dataTimesheet.organizationContactId ?? null,
+		}
+		updateTimesheet({ ...payload })
+			.then(() => {
+				toast({
+					title: 'Modification Confirmed',
+					description: "The timesheet has been successfully modified.",
+					variant: 'default',
+					className: 'bg-green-50 text-green-600 border-green-500 z-[10000px]',
+					action: <ToastAction altText="Undo changes">Undo</ToastAction>
+				});
+				closeModal()
+			}).catch((error) => {
+				toast({
+					title: 'Error during modification',
+					description: "Failed to modify timesheet. Please try again.",
+					variant: 'destructive',
+					className: 'bg-red-50 text-red-600 border-red-500 z-[10000px]'
+				});
+				if (!error) {
+					closeModal();
+				}
+			});
 	}, [dateRange, timeRange, timesheetData, dataTimesheet, updateTimesheet]);
 
 	const fields = [
@@ -137,8 +162,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				<div className="flex flex-col border-b border-b-slate-100 dark:border-b-gray-700">
 					<TaskNameInfoDisplay
 						task={dataTimesheet.task}
-						className={clsxm('shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent')}
-						taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden ')}
+						className={clsxm('rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent')}
+						taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden')}
 						showSize={true}
 						dash
 						taskNumberClassName="text-sm"
@@ -182,7 +207,6 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								{t('manualTime.END_TIME')}
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
-
 							<input
 								aria-label="End time"
 								aria-describedby="end-time-error"
@@ -207,6 +231,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						<ManageOrMemberComponent
 							classNameTitle={'text-[#282048] dark:text-gray-500  '}
 							fields={fields}
+
 							itemsLists={memberItemsLists}
 							selectedValues={selectedValues}
 							onSelectedValuesChange={handleSelectedValuesChange}
@@ -278,16 +303,21 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						</div>
 						<div className="flex items-center gap-x-2 justify-end w-full">
 							<button
+								onClick={closeModal}
 								type="button"
 								className={clsxm("dark:text-primary-light h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light")}>
 								{t('common.CANCEL')}
 							</button>
 							<button
+								disabled={loadingUpdateTimesheet}
 								type="submit"
 								className={clsxm(
 									'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg',
 								)}>
-								{t('common.SAVE')}
+								{loadingUpdateTimesheet && (
+									<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+								)}
+								{loadingUpdateTimesheet ? "Processing..." : t('common.SAVE')}
 							</button>
 						</div>
 					</div>

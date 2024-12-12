@@ -9,6 +9,7 @@ import {
     SelectLabel,
 } from '@components/ui/select';
 import { Check } from 'lucide-react';
+import { clsxm } from '@/app/utils';
 
 type Option = {
     label: string;
@@ -92,11 +93,12 @@ type CustomSelectProps = {
     className?: string,
     ariaLabel?: string
     defaultValue?: string
+    classNameGroup?: string
     /**
      * Array of string options to be displayed in the dropdown.
      * Each string represents a selectable , such as "daily" or "weekly".
      */
-    options: string[];
+    options: string[] | any[];
 
     /**
      * Optional render function that customizes the display of each option.
@@ -135,7 +137,8 @@ export function CustomSelect({
     className,
     value,
     onChange,
-    defaultValue
+    defaultValue,
+    classNameGroup
 }: CustomSelectProps & {
     value?: string,
     onChange?: (value: string) => void
@@ -154,7 +157,7 @@ export function CustomSelect({
                 <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent className='z-[10000] dark:bg-dark--theme-light w-auto'>
-                <SelectGroup>
+                <SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
                     {options.map((value) => (
                         <SelectItem key={value} value={value}>
                             {renderOption ? renderOption(value) : value.charAt(0).toUpperCase() + value.slice(1)}

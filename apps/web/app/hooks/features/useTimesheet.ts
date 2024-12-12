@@ -167,7 +167,7 @@ export function useTimesheet({
                 const response = await queryUpdateTimesheet(timesheet);
                 setTimesheet(prevTimesheet =>
                     prevTimesheet.map(item =>
-                        item.timesheet.id === response.data.timesheet.id
+                        item.timesheet?.id === response.data.id
                             ? response.data
                             : item
                     )

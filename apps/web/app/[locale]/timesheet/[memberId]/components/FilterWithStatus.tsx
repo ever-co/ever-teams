@@ -51,8 +51,7 @@ export function FilterWithStatus({
 			className={clsxm(
 				'flex flex-nowrap h-[2.2rem] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-xl ',
 				className
-			)}
-		>
+			)}>
 			{buttonData.map(({ label, count, icon }, index) => (
 				<Button
 					key={index}
