@@ -124,11 +124,13 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			}).catch((error) => {
 				toast({
 					title: 'Error during modification',
-					description: `An error occurred: ${error}. The timesheet could not be modified.`,
+					description: "Failed to modify timesheet. Please try again.",
 					variant: 'destructive',
 					className: 'bg-red-50 text-red-600 border-red-500 z-[10000px]'
 				});
-				closeModal()
+				if (!error) {
+					closeModal();
+				}
 			});
 	}, [dateRange, timeRange, timesheetData, dataTimesheet, updateTimesheet]);
 

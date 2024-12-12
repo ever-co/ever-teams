@@ -1,47 +1,68 @@
 import React from 'react'
-import { useOrganizationProjects, useTimelogFilterOptions } from '@/app/hooks';
-import { ITaskIssue } from '@/app/interfaces';
+import { useOrganizationProjects, useOrganizationTeams, useTeamTasks, useTimelogFilterOptions } from '@/app/hooks';
+import { TimeLogType, TimerSource } from '@/app/interfaces';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components'
-import { CustomSelect, TaskStatus, taskIssues } from '@/lib/features';
+import { CustomSelect, TaskNameInfoDisplay } from '@/lib/features';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/lib/features/manual-time/manage-member-component';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { ToggleButton } from './EditTaskModal';
-import { PlusIcon } from '@radix-ui/react-icons';
+import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { DatePickerFilter } from './TimesheetFilterDate';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 export interface IAddTaskModalProps {
     isOpen: boolean;
     closeModal: () => void;
 }
+interface Shift {
+    startTime: string;
+    endTime: string;
+    totalHours: string;
+    dateFrom: Date | string,
+}
+
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
+    const { tasks } = useTeamTasks();
     const { generateTimeOptions } = useTimelogFilterOptions();
     const { organizationProjects } = useOrganizationProjects();
+    const { activeTeam } = useOrganizationTeams();
+    const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
 
-    const timeOptions = generateTimeOptions(15);
+    const timeOptions = generateTimeOptions(5);
     const t = useTranslations();
-    const [notes, setNotes] = React.useState('');
-    const [task, setTasks] = React.useState('')
-    const [isBillable, setIsBillable] = React.useState<boolean>(true);
-    const [dateRange, setDateRange] = React.useState<{ from: Date | null }>({
-        from: new Date(),
+    const [formState, setFormState] = React.useState({
+        notes: '',
+        isBillable: true,
+        taskId: '',
+        employeeId: '',
+        projectId: '',
+        shifts: [
+            { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() },
+        ] as Shift[],
     });
 
-    const handleFromChange = (fromDate: Date | null) => {
-        setDateRange((prev) => ({ ...prev, from: fromDate }));
+    const updateFormState = (field: keyof typeof formState, value: any) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            [field]: value,
+        }));
     };
+
     const projectItemsLists = {
-        Project: organizationProjects ?? [],
+        Project: organizationProjects || [],
     };
 
     const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
-        // Handle value changes
+        if (!values.Project) return;
+        updateFormState('projectId', values.Project.id);
     };
+
     const selectedValues = {
         Project: null,
     };
-    const handleChange = (field: string, selectedItem: Item | null) => {
+    const handleChange = () => {
         // Handle field changes
     };
 
@@ -56,6 +77,38 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
         },
     ];
 
+    const handleAddTimesheet = async () => {
+        const payload = {
+            isBillable: formState.isBillable,
+            description: formState.notes,
+            projectId: formState.projectId,
+            logType: TimeLogType.MANUAL as any,
+            source: TimerSource.BROWSER as any,
+            taskId: formState.taskId,
+            employeeId: formState.employeeId
+        }
+        const createUtcDate = (baseDate: Date, time: string): Date => {
+            const [hours, minutes] = time.split(':').map(Number);
+            return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
+        };
+
+        try {
+            await Promise.all(formState.shifts.map(async (shift) => {
+                const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom ?? new Date());
+                const startedAt = createUtcDate(baseDate, shift.startTime.toString().slice(0, 5));
+                const stoppedAt = createUtcDate(baseDate, shift.endTime.toString().slice(0, 5));
+                await createTimesheet({
+                    ...payload,
+                    startedAt,
+                    stoppedAt,
+                });
+            }));
+            closeModal();
+        } catch (error) {
+            console.error('Failed to create timesheet:', error);
+        }
+    }
+
     return (
         <Modal
             isOpen={isOpen}
@@ -64,51 +117,60 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             showCloseIcon
             className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
             titleClass="font-bold flex justify-start w-full">
-            <div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[32rem] p-4">
+            <div className='flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[32rem] p-4'>
                 <div className=" w-full mr-[4%]">
                     <label className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
                         {t('sidebar.TASKS')}
                         <span className="text-[#de5505e1] ml-1">*</span>
                     </label>
-                    <input
-                        aria-label="Task"
-                        aria-describedby="start-time-error"
-                        type="Task"
-                        value={task}
-                        onChange={(e) => setTasks(e.target?.value)}
-                        className="w-full p-2 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
-                        placeholder='Bug for creating calendar view'
-                        required
+                    <CustomSelect
+                        onChange={(value: any) => updateFormState('taskId', value.id)}
+                        classNameGroup='h-[40vh]'
+                        ariaLabel='Task issues'
+                        className='w-full font-medium'
+                        options={tasks}
+                        renderOption={(option) => (
+                            <div className="flex items-center gap-x-2 overflow-y-auto">
+                                <TaskNameInfoDisplay
+                                    task={option as any}
+                                    className={clsxm(
+                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                    )}
+                                    taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden')}
+                                    showSize={true}
+                                    dash
+                                    taskNumberClassName="text-sm"
+                                />
+                            </div>
+                        )}
                     />
+
                 </div>
-                <div className=" w-full mr-[4%] flex items-center">
+                <div className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
                     <label className="block text-[#282048] dark:text-gray-400  mb-1 px-2">
-                        {t('common.TYPES')}
+                        {t('manualTime.EMPLOYEE')}
                         <span className="text-[#de5505e1] ml-1">*</span>:
                     </label>
                     <CustomSelect
+                        classNameGroup='max-h-[40vh] '
                         ariaLabel='Task issues'
-                        className='w-32 bg-[#3826A633] text-primary font-medium'
-                        options={Object.keys(taskIssues).flatMap((items) => items)}
-                        renderOption={(option) => (
+                        className='w-full font-medium'
+                        options={activeTeam?.members as any}
+                        onChange={(value: any) => updateFormState('employeeId', value.id)}
+                        renderOption={(option: any) => (
                             <div className="flex items-center gap-x-2">
-                                <TaskStatus
-                                    {...taskIssues[option as ITaskIssue]}
-                                    showIssueLabels={false}
-                                    issueType="issue"
-                                    className={clsxm('rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] text-white bg-primary')}
-                                />
-                                {option}
+                                <span>{option.employee.fullName}</span>
                             </div>
                         )}
                     />
                 </div>
                 <div>
                     <OptimizedAccordion
+                        setShifts={(e) => updateFormState('shifts', e)}
+                        shifts={formState.shifts}
                         t={t}
-                        dateRange={dateRange}
                         timeOptions={timeOptions}
-                        handleFromChange={handleFromChange} />
+                    />
                 </div>
 
                 <div className="w-full flex flex-col">
@@ -129,13 +191,13 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         }</label>
                     <div className="flex items-start gap-3">
                         <ToggleButton
-                            isActive={isBillable}
-                            onClick={() => setIsBillable(true)}
+                            isActive={formState.isBillable}
+                            onClick={() => updateFormState('isBillable', true)}
                             label={t('pages.timesheet.BILLABLE.YES')}
                         />
                         <ToggleButton
-                            isActive={!isBillable}
-                            onClick={() => setIsBillable(false)}
+                            isActive={!formState.isBillable}
+                            onClick={() => updateFormState('isBillable', false)}
                             label={t('pages.timesheet.BILLABLE.NO')}
                         />
                     </div>
@@ -144,14 +206,14 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                 <div className="w-full flex flex-col">
                     <span className="text-[#282048] dark:text-gray-400 font-medium">{t('common.NOTES')}</span>
                     <textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
+                        value={formState.notes}
+                        onChange={(e) => updateFormState('notes', e.target.value)}
                         placeholder="Insert notes here..."
                         className={clsxm(
                             "bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent",
                             "placeholder-gray-300 placeholder:font-normal resize-none p-2 grow w-full",
                             "border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-36 bg-[#FBB6500D]",
-                            notes.trim().length === 0 && "border-red-500"
+                            formState.notes.trim().length === 0 && "border-red-500"
                         )}
                         maxLength={120}
                         minLength={0}
@@ -159,7 +221,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         required
                     />
                     <div className="text-sm text-[#282048] dark:text-gray-400 font-medium text-right">
-                        {notes.length}/{120}
+                        {formState.notes.length}/{120}
                     </div>
                 </div>
                 <div className="flex items-center gap-x-2 justify-end w-full">
@@ -172,10 +234,15 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         {t('common.CANCEL')}
                     </button>
                     <button
+                        disabled={loadingCreateTimesheet}
+                        onClick={handleAddTimesheet}
                         type="submit"
                         className={clsxm(
                             'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg',
                         )}>
+                        {loadingCreateTimesheet && (
+                            <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+                        )}
                         {t('common.SAVE')}
                     </button>
                 </div>
@@ -209,7 +276,7 @@ const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChang
                         <SelectItem
                             key={time}
                             value={time}
-                            className="hover:bg-primary focus:bg-primary hover:text-white  py-1 cursor-pointer"
+                            className="hover:bg-primary focus:bg-primary hover:!text-white  py-1 cursor-pointer"
                         >
                             {time}
                         </SelectItem>
@@ -219,21 +286,13 @@ const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChang
         </Select>
     </div>
 );
-interface Shift {
-    startTime: string;
-    endTime: string;
-    totalHours: string;
-    dateFrom: Date | string,
-}
-const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
-    dateRange: { from: Date | null };
-    handleFromChange: (date: Date | null) => void;
+
+const OptimizedAccordion = ({ setShifts, shifts, timeOptions, t }: {
+    shifts: Shift[];
+    setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
     timeOptions: string[];
     t: TranslationHooks
 }) => {
-    const [shifts, setShifts] = React.useState<Shift[]>([
-        { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() },
-    ])
 
     const convertToMinutesHour = (time: string): number => {
         const [hourMinute, period] = time.split(' ');
@@ -270,6 +329,13 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
         setShifts(updatedShifts);
     };
 
+    const convertMinutesToTime = (minutes: number): string => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        return `${String(formattedHours).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${period}`;
+    };
 
     const handleShiftChange = (index: number, field: keyof Shift, value: string) => {
         const updatedShifts = [...shifts];
@@ -280,6 +346,11 @@ const OptimizedAccordion = ({ dateRange, handleFromChange, timeOptions, t }: {
 
             if (!startTime || !endTime) return;
 
+            if (startTime === endTime) {
+                const startMinutes = convertToMinutesHour(startTime);
+                updatedShifts[index].endTime = convertMinutesToTime(startMinutes + 5);
+                return;
+            }
             if (convertToMinutesHour(startTime) >= convertToMinutesHour(endTime)) {
                 return;
             }

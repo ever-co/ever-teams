@@ -23,7 +23,7 @@ const LoadingSpinner = ({ className }: { className?: string }) => (
     </svg>
 );
 
-const ImageWithLoader = ({ imageUrl, alt, className = "w-6 h-6 rounded-full font-bold" }:
+const ImageWithLoader = ({ imageUrl, alt, className = "w-6 h-6 rounded-full" }:
     { imageUrl: string; alt: string; className?: string }) => {
     const [isLoading, setIsLoading] = React.useState(true);
     return (
