@@ -1,7 +1,6 @@
 
 import { formatDate } from '@/app/helpers';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '@/lib/features';
-import { clsxm } from '@app/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
 import { Badge } from '@components/ui/badge';
 import { ArrowRightIcon } from 'assets/svg';
@@ -12,6 +11,7 @@ import { EmployeeAvatar } from './CompactTimesheetComponent';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { cn } from '@/lib/utils';
 
 interface ITimesheetCard {
     title?: string;
@@ -42,7 +42,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
                 </div>
                 <Button
                     variant='outline'
-                    className={clsxm(
+                    className={cn(
                         'h-9 px-3 py-2',
                         'border border-gray-200 ',
                         'text-[#282048] text-sm',
@@ -52,14 +52,14 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
                     aria-label="View timesheet details"
                     onClick={onClick}>
                     <span>{t('pages.timesheet.TIMESHEET_VIEW_DETAILS')}</span>
-                    <ArrowRightIcon className={clsxm(
+                    <ArrowRightIcon className={cn(
                         'h-6 w-6',
                         'text-[#282048] dark:text-[#6b7280]'
                     )} />
                 </Button>
             </div>
             <div
-                className={clsxm(
+                className={cn(
                     'h-16 w-16 rounded-lg p-5',
                     'flex items-center justify-center',
                     'text-white font-bold text-sm',
@@ -86,7 +86,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
             {timesheetGroupByDate.map((plan, index) => {
                 return <div key={index}>
                     <div
-                        className={clsxm(
+                        className={cn(
                             'h-[48px] flex justify-between items-center w-full',
                             'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
                             'border-gray-400 px-5 text-[#71717A] font-medium'
@@ -107,19 +107,19 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
                             return rows.length > 0 && status && <AccordionItem
                                 key={status}
                                 value={status === 'DENIED' ? 'REJECTED' : status}
-                                className={clsxm("p-1 rounded")}
+                                className={cn("p-1 rounded")}
                             >
                                 <AccordionTrigger
                                     style={{ backgroundColor: statusColor(status).bgOpacity }}
                                     type="button"
-                                    className={clsxm(
+                                    className={cn(
                                         'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
                                         statusColor(status).text
                                     )}
                                 >
                                     <div className="flex items-center justify-between w-full space-x-1">
                                         <div className="flex items-center space-x-1">
-                                            <div className={clsxm('p-2 rounded', statusColor(status).bg)}></div>
+                                            <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
                                             <div className="flex items-center gap-x-1">
                                                 <span className="text-base font-normal text-gray-400 uppercase">
                                                     {status === 'DENIED' ? 'REJECTED' : status}
@@ -144,17 +144,17 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
                                                 backgroundColor: statusColor(status).bgOpacity,
                                                 borderBottomColor: statusColor(status).bg
                                             }}
-                                            className={clsxm(
+                                            className={cn(
                                                 'flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]'
                                             )}>
                                             <div className="flex-[2]">
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
-                                                    className={clsxm(
-                                                        'shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                    className={cn(
+                                                        'rounded-sm !h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
                                                     )}
-                                                    taskTitleClassName={clsxm(
-                                                        'text-sm text-ellipsis overflow-hidden text-sm'
+                                                    taskTitleClassName={cn(
+                                                        'text-sm !text-ellipsis !overflow-hidden text-sm'
                                                     )}
                                                     showSize={false}
                                                     dash

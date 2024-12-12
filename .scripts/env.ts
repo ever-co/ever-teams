@@ -21,6 +21,8 @@ export type Env = Readonly<{
     GAUZY_API_SERVER_URL: string;
     NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
     DESKTOP_WEB_SERVER_HOSTNAME: string;
+    TERM_OF_SERVICE: string;
+    PRIVACY_POLICY: string;
 }>
 
 export const env = cleanEnv(process.env, {
@@ -31,7 +33,7 @@ export const env = cleanEnv(process.env, {
         default: 'https://github.com/ever-co/ever-teams'
     }),
     PLATFORM_LOGO: str({
-        default: 'src/resources/icons/platform-logo.png'
+        default: 'https://app.ever.team/assets/ever-teams.png'
     }),
     DESKTOP_WEB_SERVER_APP_NAME: str({
         default: 'ever-teams-server-web'
@@ -69,5 +71,11 @@ export const env = cleanEnv(process.env, {
     DESKTOP_WEB_SERVER_HOSTNAME: str({
         default: '0.0.0.0', // let's use the same one for now for all envs
         desc: 'WARNING: Using 0.0.0.0 binds to all network interfaces. Use with caution in production.'
+    }),
+    TERM_OF_SERVICE: str({
+        default: 'https://ever.team/tos'
+    }),
+    PRIVACY_POLICY: str({
+        default: 'https://ever.team/privacy'
     })
 });

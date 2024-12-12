@@ -95,26 +95,29 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, selectTimesheet: logIds, timesheetGroupByDays, puTimesheetStatus } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
     const { loading: loadingCreateTimesheet, queryCall: queryCreateTimesheet } = useQuery(createTimesheetFromApi);
     const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(updateTimesheetFromAPi);
-
+    const isManage = user && isUserAllowedToAccess(user);
 
     const getTaskTimesheet = useCallback(
         ({ startDate, endDate }: TimesheetParams) => {
             if (!user) return;
+
             const from = moment(startDate).format('YYYY-MM-DD');
-            const to = moment(endDate).format('YYYY-MM-DD')
+            const to = moment(endDate).format('YYYY-MM-DD');
             queryTimesheet({
                 startDate: from,
                 endDate: to,
                 organizationId: user.employee?.organizationId,
                 tenantId: user.tenantId ?? '',
                 timeZone: user.timeZone?.split('(')[0].trim(),
-                employeeIds: employee?.map((member) => member.employee.id).filter((id) => id !== undefined),
+                employeeIds: isManage
+                    ? employee?.map(({ employee: { id } }) => id).filter(Boolean)
+                    : [user.employee.id],
                 projectIds: project?.map((project) => project.id).filter((id) => id !== undefined),
                 taskIds: task?.map((task) => task.id).filter((id) => id !== undefined),
                 status: statusState?.map((status) => status.value).filter((value) => value !== undefined)
@@ -164,7 +167,7 @@ export function useTimesheet({
                 const response = await queryUpdateTimesheet(timesheet);
                 setTimesheet(prevTimesheet =>
                     prevTimesheet.map(item =>
-                        item.timesheet.id === response.data.timesheet.id
+                        item.timesheet?.id === response.data.id
                             ? response.data
                             : item
                     )
@@ -239,7 +242,7 @@ export function useTimesheet({
     }
 
 
-    const deleteTaskTimesheet = useCallback(async () => {
+    const deleteTaskTimesheet = useCallback(async ({ logIds }: { logIds: string[] }) => {
         if (!user) {
             throw new Error('User not authenticated');
         }
@@ -253,14 +256,14 @@ export function useTimesheet({
                 logIds
             });
             setTimesheet(prevTimesheet =>
-                prevTimesheet.filter(item => !logIds.includes(item.timesheet.id))
+                prevTimesheet.filter(item => !logIds.includes(item.id))
             );
 
         } catch (error) {
             console.error('Failed to delete timesheets:', error);
             throw error;
         }
-    }, [user, logIds, queryDeleteTimesheet, setTimesheet]);
+    }, [user, queryDeleteTimesheet, setTimesheet]);
 
 
     const timesheetElementGroup = useMemo(() => {
@@ -297,6 +300,7 @@ export function useTimesheet({
         loadingCreateTimesheet,
         updateTimesheet,
         loadingUpdateTimesheet,
-        groupByDate
+        groupByDate,
+        isManage
     };
 }

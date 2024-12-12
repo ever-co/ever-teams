@@ -3,6 +3,7 @@ import React, { HTMLAttributes } from 'react';
 import { Button } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { useTranslations } from 'next-intl';
 
 export type FilterStatus = 'All Tasks' | 'Pending' | 'Approved' | 'In review' | 'Draft' | 'Rejected';
 export function FilterWithStatus({
@@ -17,6 +18,7 @@ export function FilterWithStatus({
 	onToggle: (status: FilterStatus) => void;
 	className?: HTMLAttributes<HTMLDivElement>;
 }>) {
+	const t = useTranslations();
 
 	const statusIcons: Record<FilterStatus, string> = {
 		'All Tasks': 'icon-all',
@@ -29,12 +31,12 @@ export function FilterWithStatus({
 
 	const buttonData = React.useMemo(() => {
 		const counts = {
-			'All Tasks': Object.values(data ?? {}).reduce((total, tasks) => total + (tasks?.length ?? 0), 0),
-			Pending: data?.PENDING?.length ?? 0,
-			Approved: data?.APPROVED?.length ?? 0,
-			'In review': data?.['IN REVIEW']?.length ?? 0,
-			Draft: data?.DRAFT?.length ?? 0,
-			Rejected: data?.DENIED?.length ?? 0,
+			[t('pages.timesheet.ALL_TASKS')]: Object.values(data ?? {}).reduce((total, tasks) => total + (tasks?.length ?? 0), 0),
+			[t('pages.timesheet.PENDING')]: data?.PENDING?.length ?? 0,
+			[t('pages.timesheet.APPROVED')]: data?.APPROVED?.length ?? 0,
+			[t('pages.timesheet.IN_REVIEW')]: data?.['IN REVIEW']?.length ?? 0,
+			[t('pages.timesheet.DRAFT')]: data?.DRAFT?.length ?? 0,
+			[t('pages.timesheet.REJECTED')]: data?.DENIED?.length ?? 0,
 		};
 		return Object.entries(counts).map(([label, count]) => ({
 			label: label as FilterStatus,
@@ -49,8 +51,7 @@ export function FilterWithStatus({
 			className={clsxm(
 				'flex flex-nowrap h-[2.2rem] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-xl ',
 				className
-			)}
-		>
+			)}>
 			{buttonData.map(({ label, count, icon }, index) => (
 				<Button
 					key={index}

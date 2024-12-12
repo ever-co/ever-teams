@@ -75,14 +75,14 @@ const TaskProgress = () => {
     const matchingMembers:
       | OT_Member[]
       | undefined = activeTeam?.members.filter((member) =>
-      task?.members.some((taskMember) => taskMember.id === member.employeeId)
-    );
+        task?.members.some((taskMember) => taskMember.id === member.employeeId)
+      );
 
     const usersTaskArray:
       | ITasksTimesheet[]
       | undefined = matchingMembers
-      ?.flatMap((obj) => obj.totalWorkedTasks)
-      .filter((taskObj) => taskObj?.id === task?.id);
+        ?.flatMap((obj) => obj.totalWorkedTasks)
+        .filter((taskObj) => taskObj?.id === task?.id);
 
     const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
       (totalDuration, item) => totalDuration + item.duration,
@@ -100,9 +100,9 @@ const TaskProgress = () => {
 
     const remainingTime: number =
       task?.estimate === null ||
-      task?.estimate === 0 ||
-      task?.estimate === undefined ||
-      usersTotalTimeInSeconds === undefined
+        task?.estimate === 0 ||
+        task?.estimate === undefined ||
+        usersTotalTimeInSeconds === undefined
         ? 0
         : task?.estimate - usersTotalTimeInSeconds;
 
@@ -121,7 +121,7 @@ const TaskProgress = () => {
           isAuthUser={true}
           activeAuthTask={true}
           showPercents={true}
-          // memberInfo={memberInfo}
+        // memberInfo={memberInfo}
         />
       </TaskRow>
       <TaskRow labelTitle={t('pages.taskDetails.TOTAL_TIME')}>
@@ -169,7 +169,7 @@ const TaskProgress = () => {
                           }
                           className="text-xs"
                         >
-                          Show More
+                          {t('common.SHOW_MORE')}
                         </button>
                       </div>
                     )}
@@ -201,8 +201,8 @@ const IndividualMembersTotalTime = ({
   const matchingMembers:
     | OT_Member[]
     | undefined = activeTeam?.members.filter((member) =>
-    task?.members.some((taskMember) => taskMember.id === member.employeeId)
-  );
+      task?.members.some((taskMember) => taskMember.id === member.employeeId)
+    );
 
   const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
     return (

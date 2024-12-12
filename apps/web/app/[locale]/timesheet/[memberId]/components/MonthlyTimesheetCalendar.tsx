@@ -1,12 +1,14 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale } from "date-fns";
+import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale, isLeapYear } from "date-fns";
 import { GroupedTimesheet } from "@/app/hooks/features/useTimesheet";
 import { enGB } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { TotalDurationByDate } from "@/lib/features";
 import { formatDate } from "@/app/helpers";
+import { TranslationHooks } from "next-intl";
 
 type MonthlyCalendarDataViewProps = {
+    t: TranslationHooks
     data?: GroupedTimesheet[];
     onDateClick?: (date: Date) => void;
     renderDayContent?: (date: Date, plan?: GroupedTimesheet) => React.ReactNode;
@@ -26,7 +28,14 @@ const defaultDaysLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const generateFullCalendar = (currentMonth: Date) => {
     const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
+    const monthEnd = (() => {
+        const month = monthStart.getMonth();
+        if (month === 1) {
+            const year = monthStart.getFullYear();
+            return new Date(year, 1, isLeapYear(monthStart) ? 29 : 28);
+        }
+        return endOfMonth(monthStart);
+    })();
     const startDate = addDays(monthStart, -monthStart.getDay());
     const endDate = addDays(monthEnd, 6 - monthEnd.getDay());
     return eachDayOfInterval({ start: startDate, end: endDate });
@@ -40,7 +49,8 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
     locale = enGB,
     daysLabels = defaultDaysLabels,
     noDataText = "No Data",
-    classNames = {}
+    classNames = {},
+    t
 }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const calendarDates = useMemo(() => generateFullCalendar(currentMonth), [currentMonth]);
@@ -60,7 +70,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                     onClick={handlePreviousMonth}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
                 >
-                    Previous
+                    {t('common.PREV')}
                 </button>
                 <h2 className="text-xl font-bold">
                     {format(currentMonth, "MMMM yyyy", { locale: locale })}
@@ -69,7 +79,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                     onClick={handleNextMonth}
                     className="px-4 py-2 bg-gray-200 dark:bg-primary-light rounded hover:bg-gray-300 hover:dark:bg-primary-light"
                 >
-                    Next
+                    {t('common.NEXT')}
                 </button>
             </div>
 

@@ -6,6 +6,7 @@ export const EventLists = {
   webServerStop: 'WEB_SERVER_STOP',
   gotoSetting: 'GO_TO_SETTING',
   gotoAbout: 'GO_TO_ABOUT',
+  OPEN_WINDOW: 'OPEN_WINDOW',
   UPDATE_AVAILABLE: 'UPDATE_AVAILABLE',
   UPDATE_ERROR: 'UPDATE_ERROR',
   UPDATE_NOT_AVAILABLE: 'UPDATE_NOT_AVAILABLE',
@@ -19,7 +20,8 @@ export const EventLists = {
   CHANGE_THEME: 'CHANGE_THEME',
   SETUP_WINDOW: 'SETUP_WINDOW',
   SETTING_WINDOW_DEV: 'SETTING_WINDOW_DEV',
-  SERVER_WINDOW_DEV: 'SERVER_WINDOW_DEV'
+  SERVER_WINDOW_DEV: 'SERVER_WINDOW_DEV',
+  WINDOW_EVENT: 'WINDOW_EVENT'
 }
 
 export const SettingPageTypeMessage = {
@@ -40,7 +42,13 @@ export const SettingPageTypeMessage = {
   updateSettingResponse: 'update-setting-response',
   updateCancel: 'update-cancel',
   restartServer: 'restart-server',
-  themeChange: 'theme-change'
+  themeChange: 'theme-change',
+  linkAction: 'link-action'
+}
+
+export const APP_LINK = {
+  TERM_OF_SERVICE: 'TERM_OF_SERVICE',
+  PRIVACY_POLICY: 'PRIVACY_POLICY'
 }
 
 export const ServerPageTypeMessage = {
@@ -50,7 +58,8 @@ export const ServerPageTypeMessage = {
 
 export const LOG_TYPES = {
   UPDATE_LOG: 'UPDATE-LOG',
-  SERVER_LOG: 'SERVER-LOG'
+  SERVER_LOG: 'SERVER-LOG',
+  SERVER_LOG_ERROR: 'SERVER-LOG-ERROR'
 }
 
 export const IPC_TYPES: {
@@ -61,4 +70,45 @@ export const IPC_TYPES: {
   SETTING_PAGE: 'setting-page',
   UPDATER_PAGE: 'updater-page',
   SERVER_PAGE: 'server-page'
+}
+
+export const WindowOptions = {
+  SETTING_WINDOW: {
+    width: 1024,
+    height: 728,
+    hashPath: 'setting'
+  },
+  LOG_WINDOW: {
+    width: 1024,
+    height: 728,
+    hashPath: 'history-console'
+  },
+  SETUP_WINDOW: {
+    width: 1024,
+    height: 728,
+    hashPath: 'setup'
+  },
+  ABOUT_WINDOW: {
+    width: 300,
+		height: 250,
+    hashPath: 'about'
+  }
+}
+
+export const WindowTypes: {
+  SETTING_WINDOW: 'SETTING_WINDOW',
+  LOG_WINDOW: 'LOG_WINDOW',
+  SETUP_WINDOW: 'SETUP_WINDOW',
+  ABOUT_WINDOW: 'ABOUT_WINDOW'
+} = {
+  SETTING_WINDOW: 'SETTING_WINDOW',
+  LOG_WINDOW: 'LOG_WINDOW',
+  SETUP_WINDOW: 'SETUP_WINDOW',
+  ABOUT_WINDOW: 'ABOUT_WINDOW'
+}
+
+export const WINDOW_EVENTS: {
+  CLOSE: 'close'
+} = {
+  CLOSE: 'close'
 }

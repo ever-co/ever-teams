@@ -19,6 +19,19 @@
 		"PROJECT_BUDGET": "Budget du projet"
 	},
 	"common": {
+		"PENDING_TASKS": "Tâches en attente",
+		"SHOW_MORE": "Voir plus",
+		"TASKS": "Tâches",
+		"MEN_HOURS": "Heures Homme",
+		"MEMBERS_WORKED": "Membres ayant travaillé",
+		"COLLAPSE_COLUMN": "Réduire la colonne",
+		"EDIT_STATUS": "Modifier le statut",
+		"ADD_TIME_ENTRY": "Ajouter une entrée de temps",
+		"OPT_IN_UPDATES": "Acceptez de recevoir des mises à jour et des nouvelles sur Ever Teams.",
+		"SUBSCRIBE_NEWSLETTER": "Abonnez-vous à notre newsletter",
+		"VIEW_PROJECT": "Voir le projet",
+		"SHARE_PROJECT": "Partager le projet",
+		"DELETE_PROJECT": "Supprimer le projet",
 		"DELETE_CONFIRMATION": "Êtes-vous sûr de vouloir supprimer cela ?",
 		"IRREVERSIBLE_ACTION_WARNING": "Cette action est irréversible. Toutes les données associées seront perdues.",
 		"SHIFT_TIMING": "Temps de poste",
@@ -633,7 +646,13 @@
 			},
 			"LOADING": "Chargement des données de la feuille de temps...",
 			"NO_ENTRIES_FOUND": "Aucune entrée de feuille de temps trouvée",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Vous êtes sur le point de rejeter l'entrée sélectionnée, souhaitez-vous continuer ?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Vous êtes sur le point de rejeter l'entrée sélectionnée, souhaitez-vous continuer ?",
+			"ALL_TASKS": "Toutes les tâches",
+			"PENDING": "En attente",
+			"APPROVED": "Approuvé",
+			"IN_REVIEW": "En cours d'examen",
+			"DRAFT": "Brouillon",
+			"REJECTED": "Rejeté"
 		}
 	},
 	"timer": {

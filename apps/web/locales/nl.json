@@ -19,6 +19,19 @@
 		"PROJECT_BUDGET": "Projectbudget"
 	},
 	"common": {
+		"PENDING_TASKS": "In afwachting Taken",
+		"SHOW_MORE": "Meer weergeven",
+		"TASKS": "Taken",
+		"MEN_HOURS": "Manuren",
+		"MEMBERS_WORKED": "Leden gewerkt",
+		"COLLAPSE_COLUMN": "Kolom samenvouwen",
+		"EDIT_STATUS": "Status bewerken",
+		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
+		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over Ever Teams te ontvangen.",
+		"SUBSCRIBE_NEWSLETTER": "Abonneer je op onze nieuwsbrief",
+		"VIEW_PROJECT": "Project bekijken",
+		"SHARE_PROJECT": "Project delen",
+		"DELETE_PROJECT": "Project verwijderen",
 		"DELETE_CONFIRMATION": "Weet u zeker dat u dit wilt verwijderen?",
 		"IRREVERSIBLE_ACTION_WARNING": "Deze actie is onomkeerbaar. Alle gerelateerde gegevens gaan verloren.",
 		"SHIFT_TIMING": "Werkrooster",
@@ -633,7 +646,13 @@
 			},
 			"LOADING": "Tijdregistratiegegevens laden...",
 			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?",
+			"ALL_TASKS": "Alle taken",
+			"PENDING": "In behandeling",
+			"APPROVED": "Goedgekeurd",
+			"IN_REVIEW": "In beoordeling",
+			"DRAFT": "Concept",
+			"REJECTED": "Afgewezen"
 		}
 	},
 	"timer": {

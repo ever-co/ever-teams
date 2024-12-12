@@ -19,6 +19,19 @@
 		"PROJECT_BUDGET": "Project Budget"
 	},
 	"common": {
+		"PENDING_TASKS": "Pending Tasks",
+		"SHOW_MORE": "Show More",
+		"TASKS": "Tasks",
+		"MEN_HOURS": "Men Hours",
+		"MEMBERS_WORKED": "Members Worked",
+		"COLLAPSE_COLUMN": "Collapse Column",
+		"EDIT_STATUS": "Edit Status",
+		"ADD_TIME_ENTRY": "Add Time Entry",
+		"OPT_IN_UPDATES": "Opt-in to receive updates and news about Ever Teams.",
+		"SUBSCRIBE_NEWSLETTER": "Subscribe to our newsletter",
+		"VIEW_PROJECT": "View Project",
+		"SHARE_PROJECT": "Share Project",
+		"DELETE_PROJECT": "Delete Project",
 		"DELETE_CONFIRMATION": "Are you sure you want to delete this?",
 		"IRREVERSIBLE_ACTION_WARNING": "This action is irreversible. All related data will be lost.",
 		"SHIFT_TIMING": "Shift Timing",
@@ -633,7 +646,13 @@
 			},
 			"LOADING": "Loading timesheet data...",
 			"NO_ENTRIES_FOUND": "No timesheet entries found",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?",
+			"ALL_TASKS": "All Tasks",
+			"PENDING": "Pending",
+			"APPROVED": "Approved",
+			"IN_REVIEW": "In review",
+			"DRAFT": "Draft",
+			"REJECTED": "Rejected"
 		}
 	},
 	"timer": {

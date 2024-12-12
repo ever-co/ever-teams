@@ -19,6 +19,19 @@
 		"PROJECT_BUDGET": "Presupuesto del Proyecto"
 	},
 	"common": {
+		"PENDING_TASKS": "Tareas pendientes",
+		"SHOW_MORE": "Mostrar más",
+		"TASKS": "Tareas",
+		"MEN_HOURS": "Horas Hombre",
+		"MEMBERS_WORKED": "Miembros que trabajaron",
+		"COLLAPSE_COLUMN": "Colapsar columna",
+		"EDIT_STATUS": "Editar estado",
+		"ADD_TIME_ENTRY": "Agregar entrada de tiempo",
+		"OPT_IN_UPDATES": "Opta por recibir actualizaciones y noticias sobre Ever Teams.",
+		"SUBSCRIBE_NEWSLETTER": "Suscríbete a nuestro boletín",
+		"VIEW_PROJECT": "Ver proyecto",
+		"SHARE_PROJECT": "Compartir proyecto",
+		"DELETE_PROJECT": "Eliminar proyecto",
 		"DELETE_CONFIRMATION": "¿Estás seguro de que deseas eliminar esto?",
 		"IRREVERSIBLE_ACTION_WARNING": "Esta acción es irreversible. Todos los datos relacionados se perderán.",
 		"SHIFT_TIMING": "Horario de turno",
@@ -633,7 +646,13 @@
 			},
 			"LOADING": "Cargando datos del registro de horas...",
 			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Estás a punto de rechazar la entrada seleccionada, ¿te gustaría continuar?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Estás a punto de rechazar la entrada seleccionada, ¿te gustaría continuar?",
+			"ALL_TASKS": "Todas las tareas",
+			"PENDING": "Pendiente",
+			"APPROVED": "Aprobado",
+			"IN_REVIEW": "En revisión",
+			"DRAFT": "Borrador",
+			"REJECTED": "Rechazado"
 		}
 	},
 	"timer": {

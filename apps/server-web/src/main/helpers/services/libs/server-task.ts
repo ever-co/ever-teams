@@ -43,9 +43,8 @@ export abstract class ServerTask {
 
 		this.loggerObserver = new Observer((msg: string) => {
 			console.log('Sending log_state:', msg);
-			if (!this.window?.isDestroyed()) {
-				// this.window.webContents.send('log_state', { msg });
-			}
+			const logType = this.isErrorMessage(msg) ? LOG_TYPES.SERVER_LOG_ERROR : LOG_TYPES.SERVER_LOG;
+			console.log(logType, msg);
 		});
 
 		this.stateObserver = new Observer((state: boolean) => {
@@ -64,6 +63,11 @@ export abstract class ServerTask {
 		});
 	}
 
+	private isErrorMessage(msg: string): boolean {
+		return msg.includes('stderr:') ||
+			   this.criticalMessageError.some(error => msg.includes(error));
+	  }
+
 	protected async runTask(signal: AbortSignal): Promise<void> {
 		console.log('Run Server Task');
 		return new Promise<void>((resolve, reject) => {
@@ -72,7 +76,7 @@ export abstract class ServerTask {
 
 				const service = ChildProcessFactory.createProcess(this.processPath, this.args, signal);
 
-				console.log(LOG_TYPES.SERVER_LOG, 'Service created', service.pid);
+				this.loggerObserver.notify(`Service created ${service.pid}`)
 
 				service.stdout?.on('data', (data: any) => {
 					const msg = data.toString();
@@ -80,8 +84,12 @@ export abstract class ServerTask {
 					if (msg.includes(this.successMessage)) {
 						const name = String(this.args.serviceName);
 						this.stateObserver.notify(true);
+						console.log(this.args)
 						this.loggerObserver.notify(
-							`☣︎ ${name.toUpperCase()} server listen to ${this.config.setting[`${name}Url`]}`
+							`☣︎ ${name.toUpperCase()} running on http://${this.args.DESKTOP_WEB_SERVER_HOSTNAME}:${this.args.PORT}`
+						);
+						this.loggerObserver.notify(
+							`☣︎ ${name.toUpperCase()} connected to api ${this.args.GAUZY_API_SERVER_URL}`
 						);
 						resolve();
 					}
@@ -92,20 +100,12 @@ export abstract class ServerTask {
 					}
 				});
 
-				service.stderr?.on('data', (data: any) => {
-					console.log(LOG_TYPES.SERVER_LOG, 'stderr:', data.toString());
-					this.loggerObserver.notify(data.toString());
-				});
+				service.stderr?.on('data', this.handleStdErr.bind(this));
 
-				service.on('disconnect', () => {
-					console.log(LOG_TYPES.SERVER_LOG, 'Webserver disconnected');
-					if (this.eventEmitter) {
-						this.eventEmitter.emit(EventLists.webServerStopped);
-					}
-				})
+				service.on('disconnect', this.handleDisconnect.bind(this));
 
 				service.on('error', (err) => {
-					console.log('child process error', err);
+					this.handleError(err, false);
 				})
 
 				if (this.eventEmitter) {
@@ -166,6 +166,19 @@ export abstract class ServerTask {
 			console.error('Error starting task:', error);
 			this.handleError(error);
 		}
+	}
+
+	private handleStdErr(data: any): void {
+		const errorMessage: string = data.toString();
+		this.loggerObserver.notify(`stderr: ${errorMessage}`);
+	}
+
+	private handleDisconnect(): void {
+		this.loggerObserver.notify('Webserver disconnected')
+		if (this.eventEmitter) {
+			this.eventEmitter.emit(EventLists.webServerStopped);
+		}
+		this.stateObserver.notify(false);
 	}
 
 	protected handleError(error: any, attemptKill = true) {

@@ -1,23 +1,25 @@
 import React from 'react';
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@app/hooks';
 import { Button } from '@components/ui/button';
-import { statusOptions } from '@app/constants';
 import { MultiSelect } from 'lib/components/custom-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
-import { clsxm } from '@/app/utils';
 import { useTimelogFilterOptions } from '@/app/hooks';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { cn } from '@/lib/utils';
+import { statusTable } from './TimesheetAction';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const { activeTeam } = useOrganizationTeams();
+	const { organizationProjects } = useOrganizationProjects();
+
 	const { tasks } = useTeamTasks();
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();
-	const { timesheet, statusTimesheet } = useTimesheet({})
+	const { timesheet, statusTimesheet, isManage } = useTimesheet({})
 
 	React.useEffect(() => {
 		if (shouldRemoveItems) {
@@ -57,34 +59,36 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
 						</div>
 						<div className="grid gap-5">
-							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
-									<span
-										className={clsxm(
-											'text-primary/10',
-											employee?.length > 0 && 'text-primary dark:text-primary-light'
-										)}
-									>
-										{t('common.CLEAR')}
-									</span>
-								</label>
-								<MultiSelect
-									localStorageKey="timesheet-select-filter-employee"
-									removeItems={shouldRemoveItems}
-									items={activeTeam?.members ?? []}
-									itemToString={(members) => (members ? members.employee.fullName : '')}
-									itemId={(item) => item.id}
-									onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
-									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
-								/>
-							</div>
+							{isManage && (
+								<div className="">
+									<label className="flex justify-between mb-1 text-sm text-gray-600">
+										<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
+										<span
+											className={cn(
+												'text-primary/10',
+												employee?.length > 0 && 'text-primary dark:text-primary-light'
+											)}
+										>
+											{t('common.CLEAR')}
+										</span>
+									</label>
+									<MultiSelect
+										localStorageKey="timesheet-select-filter-employee"
+										removeItems={shouldRemoveItems}
+										items={activeTeam?.members ?? []}
+										itemToString={(members) => (members ? members.employee.fullName : '')}
+										itemId={(item) => item.id}
+										onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
+										multiSelect={true}
+										triggerClassName="dark:border-gray-700"
+									/>
+								</div>
+							)}
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											project?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -95,9 +99,9 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
 									removeItems={shouldRemoveItems}
-									items={activeTeam?.projects ?? []}
+									items={organizationProjects ?? []}
 									itemToString={(project) =>
-										(activeTeam?.projects && project ? project.name : '') || ''
+										(organizationProjects && project ? project.name : '') || ''
 									}
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setProjectState(selectedItems as any)}
@@ -109,7 +113,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											task?.length > 0 && 'text-primary dark:text-primary-light'
 										)}
@@ -132,7 +136,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('common.STATUS')}</span>
 									<span
-										className={clsxm(
+										className={cn(
 											'text-primary/10',
 											statusState && 'text-primary dark:text-primary-light'
 										)}
@@ -143,9 +147,9 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-status"
 									removeItems={shouldRemoveItems}
-									items={statusOptions}
-									itemToString={(status) => (status ? status.value : '')}
-									itemId={(item) => item.value}
+									items={statusTable?.flat()}
+									itemToString={(status) => (status ? status.label : '')}
+									itemId={(item) => item.label}
 									onValueChange={(selectedItems) => setStatusState(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"

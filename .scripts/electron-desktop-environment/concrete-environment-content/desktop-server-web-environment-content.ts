@@ -18,6 +18,8 @@ export class DesktopServerWebEnvironmentContent implements IContentGenerator {
             GAUZY_API_SERVER_URL: '${variable.GAUZY_API_SERVER_URL}',
             NEXT_PUBLIC_GAUZY_API_SERVER_URL: '${variable.NEXT_PUBLIC_GAUZY_API_SERVER_URL}',
             DESKTOP_WEB_SERVER_HOSTNAME: '${variable.DESKTOP_WEB_SERVER_HOSTNAME}',
+            TERM_OF_SERVICE: '${variable.TERM_OF_SERVICE}',
+            PRIVACY_POLICY: '${variable.PRIVACY_POLICY}'
         `;
     }
 }

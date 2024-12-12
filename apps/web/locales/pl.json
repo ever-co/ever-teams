@@ -19,6 +19,19 @@
 		"PROJECT_BUDGET": "Budżet projektu"
 	},
 	"common": {
+		"PENDING_TASKS": "Zadania oczekujące",
+		"SHOW_MORE": "Pokaż więcej",
+		"TASKS": "Zadania",
+		"MEN_HOURS": "Roboczogodziny",
+		"MEMBERS_WORKED": "Członkowie pracowali",
+		"COLLAPSE_COLUMN": "Zwiń kolumnę",
+		"EDIT_STATUS": "Edytuj status",
+		"ADD_TIME_ENTRY": "Dodaj wpis czasu",
+		"OPT_IN_UPDATES": "Zgódź się na otrzymywanie aktualizacji i wiadomości o Ever Teams.",
+		"SUBSCRIBE_NEWSLETTER": "Zapisz się na nasz newsletter",
+		"VIEW_PROJECT": "Wyświetl projekt",
+		"SHARE_PROJECT": "Udostępnij projekt",
+		"DELETE_PROJECT": "Usuń projekt",
 		"DELETE_CONFIRMATION": "Czy na pewno chcesz to usunąć?",
 		"IRREVERSIBLE_ACTION_WARNING": "Ta akcja jest nieodwracalna. Wszystkie powiązane dane zostaną utracone.",
 		"SHIFT_TIMING": "Czas zmiany",
@@ -633,7 +646,13 @@
 			},
 			"LOADING": "Ładowanie danych rejestru czasu...",
 			"NO_ENTRIES_FOUND": "Nie znaleziono żadnych wpisów w rejestrze czasu",
-			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Zaraz odrzucisz wybraną pozycję, czy chcesz kontynuować?"
+			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Zaraz odrzucisz wybraną pozycję, czy chcesz kontynuować?",
+			"ALL_TASKS": "Wszystkie zadania",
+			"PENDING": "Oczekujące",
+			"APPROVED": "Zatwierdzone",
+			"IN_REVIEW": "W trakcie przeglądu",
+			"DRAFT": "Szkic",
+			"REJECTED": "Odrzucone"
 		}
 	},
 	"timer": {
