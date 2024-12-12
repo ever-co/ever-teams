@@ -1,0 +1,41 @@
+import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+
+const ActionButton = ({ label, onClick }: { label: string; onClick?: () => void }) => (
+    <button
+        className="bg-white font-semibold h-8 px-3 rounded-lg text-[#282048] dark:text-white dark:bg-primary-light"
+        onClick={onClick}
+    >
+        {label}
+    </button>
+);
+
+export const SelectionBar = ({ fullWidth }: { fullWidth: boolean }) => {
+    const t = useTranslations()
+    return (
+        <div
+            className={cn(
+                "bg-[#E2E2E2CC] fixed dark:bg-slate-800 opacity-85 h-16 z-50  bottom-5 left-1/2 transform -translate-x-1/2 shadow-lg rounded-2xl flex items-center justify-between gap-x-4 px-4",
+                fullWidth && "x-container"
+            )}
+        >
+            <div className="flex items-center justify-start gap-x-4">
+                <div className="flex items-center justify-center gap-x-2 text-[#282048] dark:text-[#7a62d8]">
+                    <div className="bg-primary dark:bg-primary-light text-white rounded-full h-7 w-7 flex items-center justify-center font-bold">
+                        <span>2</span>
+                    </div>
+                    <span>selected</span>
+                </div>
+                <ActionButton label={t("pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED")} />
+                <ActionButton label={t("pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED")} />
+                <ActionButton label={t("pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED")} />
+            </div>
+            <button
+                className="font-semibold h-8 px-3 rounded-lg text-[#3826A6] dark:text-primary-light"
+                aria-label="Clear Selection"
+            >
+                Clear Selection
+            </button>
+        </div>
+    )
+}

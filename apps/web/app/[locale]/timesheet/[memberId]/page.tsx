@@ -221,9 +221,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 					</div>
 				}
 			>
-				<div className="flex flex-col  w-full border-1 rounded-lg bg-[#FFFFFF]  dark:bg-dark--theme px-4">
+				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme px-4">
 					<Container fullWidth={fullWidth} className="h-full py-5 mt-3">
-						{/* <DropdownMenuDemo /> */}
 						<div className="border border-gray-200 rounded-lg dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
 								<TimesheetView
@@ -239,6 +238,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								/>
 							)}
 						</div>
+
 					</Container>
 				</div>
 			</MainLayout>
