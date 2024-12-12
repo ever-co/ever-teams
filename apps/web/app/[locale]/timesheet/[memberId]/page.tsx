@@ -145,7 +145,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							<div className="flex items-center justify-between w-full gap-6 pt-4">
 								<TimesheetCard
 									count={statusTimesheet.PENDING.length}
-									title="Pending Tasks"
+									title={t('common.PENDING_TASKS')}
 									description="Tasks waiting for your approval"
 									icon={<GrTask className="font-bold" />}
 									classNameIcon="bg-[#FBB650] shadow-[#fbb75095]"
@@ -153,7 +153,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 								/>
 								<TimesheetCard
 									hours={`${hours}:${minute}`}
-									title="Men Hours"
+									title={t('common.MEN_HOURS')}
 									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
 									icon={<Clock className="font-bold" />}
 									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
@@ -164,7 +164,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 										.map(entry => entry.employee.id)
 										.filter((id, index, array) => array.indexOf(id) === index)
 										.length}
-									title="Members Worked"
+									title={t('common.MEMBERS_WORKED')}
 									description="People worked since last time"
 									icon={<User2 className="font-bold" />}
 									classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
