@@ -1,7 +1,12 @@
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-const ActionButton = ({ label, onClick }: { label: string; onClick?: () => void }) => (
+type ActionButtonProps = {
+    label: string;
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+};
+
+const ActionButton = ({ label, onClick }: ActionButtonProps) => (
     <button
         className="bg-white font-semibold h-8 px-3 rounded-lg text-[#282048] dark:text-white dark:bg-primary-light"
         onClick={onClick}
