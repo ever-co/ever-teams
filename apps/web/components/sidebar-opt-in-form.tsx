@@ -9,8 +9,10 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { ToastAction } from './ui/toast';
 import { toast } from './ui/use-toast';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export function SidebarOptInForm() {
+	const t = useTranslations();
 	const { state } = useSidebar();
 	const [isLoading, setLoading] = useState(false);
 	const subscribeFormSchema = z
@@ -73,9 +75,9 @@ export function SidebarOptInForm() {
 			<Card className="p-1 mt-auto shadow-none">
 				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<CardHeader className="flex flex-col gap-1 p-4 pb-0">
-						<CardTitle className="text-sm font-medium">Subscribe to our newsletter</CardTitle>
+						<CardTitle className="text-sm font-medium">{t('common.SUBSCRIBE_NEWSLETTER')}</CardTitle>
 						<CardDescription className="text-xs">
-							Opt-in to receive updates and news about Ever Teams.
+							{t('common.OPT_IN_UPDATES')}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="grid gap-2.5 p-4">

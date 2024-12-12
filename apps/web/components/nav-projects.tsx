@@ -41,7 +41,7 @@ export function NavProjects({
 	const t = useTranslations();
 	return userManagedTeams && userManagedTeams.length > 0 ? (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-			<SidebarGroupLabel>Projects</SidebarGroupLabel>
+			<SidebarGroupLabel>{t('sidebar.PROJECTS')}</SidebarGroupLabel>
 			<SidebarMenu className="w-full max-w-[230px]">
 				{projects && projects.length ? (
 					<>
@@ -67,16 +67,16 @@ export function NavProjects({
 									>
 										<DropdownMenuItem>
 											<Folder className="text-muted-foreground" />
-											<span>View Project</span>
+											<span>{t('common.VIEW_PROJECT')}</span>
 										</DropdownMenuItem>
 										<DropdownMenuItem>
 											<Forward className="text-muted-foreground" />
-											<span>Share Project</span>
+											<span>{t('common.SHARE_PROJECT')}</span>
 										</DropdownMenuItem>
 										<DropdownMenuSeparator />
 										<DropdownMenuItem>
 											<Trash2 className="text-muted-foreground" />
-											<span>Delete Project</span>
+											<span>{t('common.DELETE_PROJECT')}</span>
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>

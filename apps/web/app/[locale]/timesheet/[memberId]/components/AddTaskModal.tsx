@@ -60,7 +60,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
         <Modal
             isOpen={isOpen}
             closeModal={closeModal}
-            title={'+ Add Time Entry'}
+            title={`+ ${t('common.ADD_TIME_ENTRY')}`}
             showCloseIcon
             className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
             titleClass="font-bold flex justify-start w-full">

@@ -299,13 +299,13 @@ export const EmptyKanbanDroppable = ({
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
 														onClick={() => toggleColumn(title, false)}
 													>
-														Collapse Column
+														{t('common.COLLAPSE_COLUMN')}
 													</div>
 													<div
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
 														onClick={editOpenModal}
 													>
-														Edit Status
+														{t('common.EDIT_STATUS')}
 													</div>
 												</PopoverContent>
 											</Popover>
@@ -423,10 +423,10 @@ const KanbanDraggableHeader = ({
 									className="hover:font-medium p-1.5 text-sm cursor-pointer"
 									onClick={() => toggleColumn(title, true)}
 								>
-									Collapse Column
+									{t('common.COLLAPSE_COLUMN')}
 								</div>
 								<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={openModal}>
-									Edit Status
+									{t('common.EDIT_STATUS')}
 								</div>
 							</PopoverContent>
 						</Popover>
