@@ -54,15 +54,16 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
 
     return (
         <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
-            <>
-                {timesheetGroupByDays === 'Monthly' ? (
-                    <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />
-                ) : timesheetGroupByDays === 'Weekly' ? (
-                    <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />
-                ) : (
-                    <CalendarDataView data={data} t={t} />
-                )}
-            </>
+            {(() => {
+                switch (timesheetGroupByDays) {
+                    case 'Monthly':
+                        return <MonthlyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />;
+                    case 'Weekly':
+                        return <WeeklyCalendarDataView data={data} daysLabels={defaultDaysLabels} t={t} />;
+                    default:
+                        return <CalendarDataView data={data} t={t} />;
+                }
+            })()}
         </div>
     );
 
