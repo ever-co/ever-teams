@@ -225,3 +225,12 @@ export const formatDate = (dateStr: string | Date): string => {
 		return '';
 	}
 }
+
+
+export function toLocal(date: string | Date | moment.Moment): moment.Moment {
+	return moment.utc(date).local();
+}
+
+export function toUTC(date: string | Date | moment.Moment): moment.Moment {
+	return moment(date).utc();
+}

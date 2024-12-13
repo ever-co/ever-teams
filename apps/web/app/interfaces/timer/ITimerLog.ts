@@ -88,8 +88,8 @@ export interface TimesheetLog extends BaseEntity {
     startedAt: string | Date;
     stoppedAt: string | Date;
     editedAt: string | null;
-    logType: TimeLogType.MANUAL;
-    source: TimerSource.BROWSER;
+    logType: TimeLogType;
+    source: TimerSource;
     description: string;
     reason: string | null;
     isBillable: boolean;
