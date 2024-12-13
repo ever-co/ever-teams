@@ -1,4 +1,4 @@
-import { IUser, RoleNameEnum } from '@/app/interfaces';
+import { IUser, RoleNameEnum, TimesheetLog } from '@/app/interfaces';
 import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus } from '@/app/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
@@ -44,12 +44,16 @@ export function useTimelogFilterOptions() {
         setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
 
-    const handleSelectRowByStatusAndDate = (status: string, date: string) => {
-        setSelectedItems((prev) =>
-            prev.some((item) => item.status === status && item.date === date)
-                ? prev.filter((item) => !(item.status === status && item.date === date))
-                : [...prev, { status, date }]
-        );
+    const handleSelectRowByStatusAndDate = (logs: TimesheetLog[], isChecked: boolean) => {
+        setSelectTimesheetId((prev) => {
+            const logIds = logs.map((item) => item.id);
+
+            if (isChecked) {
+                return [...new Set([...prev, ...logIds])];
+            } else {
+                return prev.filter((id) => !logIds.includes(id));
+            }
+        });
     }
 
 
@@ -61,6 +65,7 @@ export function useTimelogFilterOptions() {
     return {
         statusState,
         employee,
+        setSelectedItems,
         project,
         task,
         setEmployeeState,
