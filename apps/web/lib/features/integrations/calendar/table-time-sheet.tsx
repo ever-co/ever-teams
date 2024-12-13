@@ -229,7 +229,6 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 		}
 	};
 
-
 	return (
 		<div className="w-full dark:bg-dark--theme">
 			<AlertConfirmationModal
@@ -303,14 +302,14 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</Badge>
 											</div>
 											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
-												{isManage && getTimesheetButtons(status as StatusType, t, true, handleButtonClick)}
+												{isManage && getTimesheetButtons(status as StatusType, t, selectTimesheetId.length === 0, handleButtonClick)}
 											</div>
 										</div>
 									</AccordionTrigger>
 									<AccordionContent className="flex flex-col w-full">
 										<HeaderRow
 											handleSelectRowByStatusAndDate={
-												() => handleSelectRowByStatusAndDate(status, plan.date)}
+												() => handleSelectRowByStatusAndDate(rows, selectTimesheetId.length === 0)}
 											data={rows}
 											status={status}
 											onSort={handleSort}
@@ -328,7 +327,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												)}
 											>
 												<Checkbox
-													className="w-5 h-5"
+													className="w-5 h-5 select-auto"
 													onCheckedChange={() => handleSelectRowTimesheet(task.id)}
 													checked={selectTimesheetId.includes(task.id)}
 												/>
