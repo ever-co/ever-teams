@@ -189,6 +189,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         onChange={(value: any) => updateFormState('employeeId', value.id)}
                         renderOption={(option: any) => (
                             <div className="flex items-center gap-x-2">
+                                <img className='h-6 w-6 rounded-full' src={option.employee.user.imageUrl} />
                                 <span>{option.employee.fullName}</span>
                             </div>
                         )}
