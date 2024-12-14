@@ -48,7 +48,7 @@ import { useTranslations } from 'next-intl';
 import { formatDate } from '@/app/helpers';
 import { GroupedTimesheet, useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { DisplayTimeForTimesheet, TaskNameInfoDisplay, TotalDurationByDate, TotalTimeDisplay } from '../../task/task-displays';
-import { IUser, TimeLogType, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
+import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { toast } from '@components/ui/use-toast';
 import { ToastAction } from '@components/ui/toast';
 
