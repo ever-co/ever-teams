@@ -241,7 +241,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</div>
 												<DisplayTimeForTimesheet
 													duration={task.timesheet.duration}
-													logType={task.logType as TimeLogType.MANUAL}
+													logType={task.logType}
 												/>
 												<TaskActionMenu
 													dataTimesheet={task}

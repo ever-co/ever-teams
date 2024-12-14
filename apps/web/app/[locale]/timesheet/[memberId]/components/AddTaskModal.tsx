@@ -101,8 +101,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             isBillable: formState.isBillable,
             description: formState.notes,
             projectId: formState.projectId,
-            logType: TimeLogType.MANUAL,
-            source: TimerSource.BROWSER,
+            logType: TimeLogType.MANUAL as any,
+            source: TimerSource.BROWSER as any,
             taskId: formState.taskId,
             employeeId: formState.employeeId,
             organizationContactId: null || "",
@@ -337,7 +337,7 @@ const OptimizedAccordion = ({ setShifts, shifts, timeOptions, t }: {
 
     const calculateTotalHoursHour = React.useCallback(
         (start: string, end: string): string => {
-            if (!start || !end) return '00:00:00h';
+            if (!start || !end) return '00:00h';
             const startMinutes = convertToMinutesHour(start);
             const endMinutes = convertToMinutesHour(end);
             const totalMinutes = endMinutes >= startMinutes

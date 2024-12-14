@@ -228,7 +228,11 @@ export const formatDate = (dateStr: string | Date): string => {
 
 
 export function toLocal(date: string | Date | moment.Moment): moment.Moment {
-	return moment.utc(date).local();
+	const localDate = moment(date);
+	if (!localDate.isValid()) {
+		throw new Error('Invalid date provided to toUTC');
+	}
+	return localDate.utc();
 }
 
 export function toUTC(date: string | Date | moment.Moment): moment.Moment {
