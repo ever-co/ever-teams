@@ -21,7 +21,7 @@ import { GoSearch } from 'react-icons/go';
 
 import { getGreeting, secondsToTime } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { startOfWeek, endOfWeek } from 'date-fns';
+import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
@@ -48,9 +48,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
-		from: startOfWeek(new Date(), { weekStartsOn: 1 }),
-		to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+		from: startOfMonth(new Date()),
+		to: endOfMonth(new Date()),
 	});
+
 	const { timesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
 		startDate: dateRange.from!,
 		endDate: dateRange.to!,

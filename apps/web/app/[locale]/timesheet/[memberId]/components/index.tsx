@@ -12,3 +12,4 @@ export * from './EditTaskModal';
 export * from './CompactTimesheetComponent';
 export * from './TimesheetLoader';
 export * from './SelectionBar'
+export * from './TimesheetIcons';
