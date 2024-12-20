@@ -41,7 +41,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
-	const [timesheeDetailMode, setTimesheeDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
+	const [timesheeDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
@@ -155,7 +155,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									icon={<PendingTaskIcon />}
 									classNameIcon="bg-[#FBB650] shadow-[#fbb75095]"
 									onClick={() => {
-										setTimesheeDetailMode('Pending')
+										setTimesheetDetailMode('Pending')
 										openTimesheetDetail()
 									}}
 								/>
@@ -166,7 +166,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									icon={<MenHoursIcon />}
 									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
 									onClick={() => {
-										setTimesheeDetailMode('MenHours')
+										setTimesheetDetailMode('MenHours')
 										openTimesheetDetail()
 									}}
 								/>
@@ -181,7 +181,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									icon={<MemberWorkIcon />}
 									classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
 									onClick={() => {
-										setTimesheeDetailMode('MemberWork')
+										setTimesheetDetailMode('MemberWork')
 										openTimesheetDetail()
 									}}
 								/>)}

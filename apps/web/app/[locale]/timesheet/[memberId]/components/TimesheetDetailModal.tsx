@@ -24,9 +24,8 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
     };
     const title = titles[timesheetDetailMode as 'Pending' | 'MemberWork'] || 'View Men Hours Details';
     const timesheetDetail = Object.values(timesheet ?? {}).flat();
-    const memberWorkeItems = memebersWorked({ timesheetDetail });
+    const memberWorkItems = membersWorked({ timesheetDetail });
 
-    console.log('timesheetDetail', memebersWorked({ timesheetDetail }));
 
     return (
         <Modal
@@ -48,7 +47,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
                         )
                         || timesheetDetailMode === 'MemberWork' && (
                             <div>
-                                {memberWorkeItems.map((timesheet, index) => {
+                                {memberWorkItems.map((timesheet, index) => {
                                     return (
                                         <Accordion key={index} type="single" collapsible>
                                             <AccordionItem
@@ -131,7 +130,7 @@ export default TimesheetDetailModal
  * @param {TimesheetLog[]} timesheetDetail - an array of TimesheetLog records
  * @returns {Array<{ employeeId: string; element: TimesheetLog[] }>} - an array of objects containing the employeeId and an array of TimesheetLog records.
  */
-const memebersWorked = ({ timesheetDetail }: { timesheetDetail: TimesheetLog[] }) => {
+const membersWorked = ({ timesheetDetail }: { timesheetDetail: TimesheetLog[] }) => {
     type GroupeMap = Record<string, TimesheetLog[]>;
     const MembersWorked = timesheetDetail.reduce<GroupeMap>((acc, cur) => {
         if (!cur.employeeId) {

@@ -100,8 +100,8 @@ export const FilterIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" 
  */
 
 export const SearchIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M7.66244 14.0007C11.1602 14.0007 13.9958 11.1651 13.9958 7.66732C13.9958 4.16951 11.1602 1.33398 7.66244 1.33398C4.16463 1.33398 1.3291 4.16951 1.3291 7.66732C1.3291 11.1651 4.16463 14.0007 7.66244 14.0007Z" stroke="#7E7991" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M14.6624 14.6673L13.3291 13.334" stroke="#7E7991" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M7.66244 14.0007C11.1602 14.0007 13.9958 11.1651 13.9958 7.66732C13.9958 4.16951 11.1602 1.33398 7.66244 1.33398C4.16463 1.33398 1.3291 4.16951 1.3291 7.66732C1.3291 11.1651 4.16463 14.0007 7.66244 14.0007Z" stroke="#7E7991" strokeLinecap="round" stroke-linejoin="round" />
+    <path d="M14.6624 14.6673L13.3291 13.334" stroke="#7E7991" strokeLinecap="round" stroke-linejoin="round" />
 </svg>
 
 /**
@@ -142,8 +142,8 @@ export const RejectSelectedIcon = ({ className }: { className?: string }) => <sv
 export const DeleteSelectedIcon = ({ className }: { className?: string }) => <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M14.0432 3.48732C12.9699 3.38065 11.8965 3.30065 10.8165 3.24065V3.23398L10.6699 2.36732C10.5699 1.75398 10.4232 0.833984 8.86319 0.833984H7.11652C5.56319 0.833984 5.41652 1.71398 5.30986 2.36065L5.16986 3.21398C4.54986 3.25398 3.92986 3.29398 3.30986 3.35398L1.94986 3.48732C1.66986 3.51398 1.46986 3.76065 1.49652 4.03398C1.52319 4.30732 1.76319 4.50732 2.04319 4.48065L3.40319 4.34732C6.89652 4.00065 10.4165 4.13398 13.9499 4.48732C13.9699 4.48732 13.9832 4.48732 14.0032 4.48732C14.2565 4.48732 14.4765 4.29398 14.5032 4.03398C14.5232 3.76065 14.3232 3.51398 14.0432 3.48732Z" fill="#293241" />
     <path opacity="0.3991" d="M12.8163 5.42602C12.6563 5.25935 12.4363 5.16602 12.2096 5.16602H3.78292C3.55625 5.16602 3.32959 5.25935 3.17625 5.42602C3.02292 5.59268 2.93625 5.81935 2.94959 6.05268L3.36292 12.8927C3.43625 13.906 3.52959 15.1727 5.85625 15.1727H10.1363C12.4629 15.1727 12.5563 13.9127 12.6296 12.8927L13.0429 6.05935C13.0563 5.81935 12.9696 5.59268 12.8163 5.42602Z" fill="#293241" />
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.38281 11.334C6.38281 11.0578 6.60667 10.834 6.88281 10.834H9.10281C9.37895 10.834 9.60281 11.0578 9.60281 11.334C9.60281 11.6101 9.37895 11.834 9.10281 11.834H6.88281C6.60667 11.834 6.38281 11.6101 6.38281 11.334Z" fill="#292D32" />
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M5.8291 8.66602C5.8291 8.38987 6.05296 8.16602 6.3291 8.16602H9.66244C9.93858 8.16602 10.1624 8.38987 10.1624 8.66602C10.1624 8.94216 9.93858 9.16602 9.66244 9.16602H6.3291C6.05296 9.16602 5.8291 8.94216 5.8291 8.66602Z" fill="#292D32" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M6.38281 11.334C6.38281 11.0578 6.60667 10.834 6.88281 10.834H9.10281C9.37895 10.834 9.60281 11.0578 9.60281 11.334C9.60281 11.6101 9.37895 11.834 9.10281 11.834H6.88281C6.60667 11.834 6.38281 11.6101 6.38281 11.334Z" fill="#292D32" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M5.8291 8.66602C5.8291 8.38987 6.05296 8.16602 6.3291 8.16602H9.66244C9.93858 8.16602 10.1624 8.38987 10.1624 8.66602C10.1624 8.94216 9.93858 9.16602 9.66244 9.16602H6.3291C6.05296 9.16602 5.8291 8.94216 5.8291 8.66602Z" fill="#292D32" />
 </svg>
 
 /**
@@ -154,6 +154,6 @@ export const DeleteSelectedIcon = ({ className }: { className?: string }) => <sv
  * @returns {React.ReactElement} - The rendered plus icon component.
  */
 export const PlusIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3.99609 8H11.9961" stroke="#282048" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M7.99609 12V4" stroke="#282048" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M3.99609 8H11.9961" stroke="#282048" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7.99609 12V4" stroke="#282048" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 </svg>
