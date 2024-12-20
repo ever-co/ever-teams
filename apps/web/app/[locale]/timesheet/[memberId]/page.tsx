@@ -98,7 +98,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const totalDuration = Object.values(statusTimesheet)
 		.flat()
 		.map(entry => {
-			return differenceBetweenHours(entry.startedAt as any, entry.stoppedAt as any)
+			return differenceBetweenHours(
+				entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt),
+				entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt)
+			)
 		})
 		.reduce((total, current) => total + current, 0);
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);

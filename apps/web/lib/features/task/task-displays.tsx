@@ -78,7 +78,11 @@ const formatTime = (hours: number, minutes: number, second?: number) => (
 
 export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLog: TimesheetLog, logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined }) => {
 
-	const seconds = differenceBetweenHours(timesheetLog?.startedAt as any, timesheetLog?.stoppedAt as any);
+	const seconds = differenceBetweenHours(
+		timesheetLog.startedAt instanceof Date ? timesheetLog.startedAt : new Date(timesheetLog.startedAt),
+		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(timesheetLog.stoppedAt)
+	);
+
 	const { h: hours, m: minute, s: second } = secondsToTime(seconds);
 
 	const iconClasses = 'text-[14px] h-4 w-4';
@@ -103,7 +107,10 @@ export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: Ti
 
 	const totalDuration = Array.isArray(timesheetLog)
 		? timesheetLog.reduce((acc, item) => {
-			const seconds = differenceBetweenHours(item?.startedAt as any, item?.stoppedAt as any) || 0;
+			const seconds = differenceBetweenHours(
+				item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+				item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+			);
 			return acc + seconds
 		}, 0)
 		: 0;
@@ -126,7 +133,10 @@ export const TotalDurationByDate = React.memo(
 
 		const totalDurationInSeconds = Array.isArray(filteredLogs)
 			? filteredLogs.reduce((acc, item) => {
-				const seconds = differenceBetweenHours(item?.startedAt as any, item?.stoppedAt as any) || 0;
+				const seconds = differenceBetweenHours(
+					item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+					item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+				)
 				return acc + seconds
 			}, 0)
 			: 0;
