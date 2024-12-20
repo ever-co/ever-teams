@@ -144,7 +144,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                         <span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
                                                     </div>
                                                     <DisplayTimeForTimesheet
-                                                        duration={task.timesheet.duration}
+                                                        timesheetLog={task}
 
                                                     />
                                                 </div>
@@ -238,7 +238,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                         <span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
                                                     </div>
                                                     <DisplayTimeForTimesheet
-                                                        duration={task.timesheet.duration}
+                                                        timesheetLog={task}
 
                                                     />
                                                 </div>

@@ -4,6 +4,9 @@ import React from 'react'
 import { TimesheetCardDetail } from './TimesheetCard';
 import { useTranslations } from 'next-intl';
 import { TimesheetDetailMode } from '../page';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
+import { cn } from '@/lib/utils';
+import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 
 export interface IAddTaskModalProps {
     isOpen: boolean;
@@ -11,31 +14,19 @@ export interface IAddTaskModalProps {
     timesheet?: Record<TimesheetStatus, TimesheetLog[]>
     timesheetDetailMode?: TimesheetDetailMode
 }
-type GroupedTimesheet = {
-    [key: string]: TimesheetLog[]; // Les clés sont des chaînes, et les valeurs sont des tableaux de TimesheetLog
-};
 
 function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMode }: IAddTaskModalProps) {
     const t = useTranslations()
+    const { getStatusTimesheet } = useTimesheet({});
     const titles = {
         'Pending': 'View Pending Details',
         'MemberWork': 'View Member Work Details',
     };
     const title = titles[timesheetDetailMode as 'Pending' | 'MemberWork'] || 'View Men Hours Details';
     const timesheetDetail = Object.values(timesheet ?? {}).flat();
+    const memberWorkeItems = memebersWorked({ timesheetDetail });
 
-    const MembersWorked = timesheetDetail.reduce<GroupedTimesheet>((acc, cur) => {
-        if (!cur.employeeId) {
-            return acc;
-        }
-        if (!acc[cur.employeeId]) {
-            acc[cur.employeeId] = [];
-        }
-        acc[cur.employeeId].push(cur);
-        return acc;
-    }, {});
-
-    console.log('timesheetDetail', MembersWorked);
+    console.log('timesheetDetail', memebersWorked({ timesheetDetail }));
 
     return (
         <Modal
@@ -55,6 +46,70 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
                                 </div>
                             ) : <TimesheetCardDetail data={timesheet} />
                         )
+                        || timesheetDetailMode === 'MemberWork' && (
+                            <div>
+                                {memberWorkeItems.map((timesheet, index) => {
+                                    return (
+                                        <Accordion key={index} type="single" collapsible>
+                                            <AccordionItem
+                                                value={timesheet.employeeId}
+                                                className='p-1 rounded'
+                                            >
+                                                <AccordionTrigger
+                                                    type="button"
+                                                    className={cn(
+                                                        'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+
+                                                    )}
+                                                >
+                                                    <div className='flex items-center gap-2'>
+                                                        <img className='w-10 h-10 rounded-full shadow-md border' src={timesheet.element[0].employee.user?.imageUrl!} alt='' />
+                                                        <span className='font-bold'>{timesheet.element[0].employee.fullName}</span>
+                                                    </div>
+                                                </AccordionTrigger>
+                                                <AccordionContent className='w-full'>
+                                                    {timesheet.element.map((items) => (
+                                                        <Accordion key={index} type="single" collapsible>
+                                                            {Object.entries(getStatusTimesheet(timesheet.element)).map(([status, rows]) => {
+                                                                return (
+                                                                    <AccordionItem
+                                                                        key={status}
+                                                                        value={status === 'DENIED' ? 'REJECTED' : status}
+                                                                        className='p-1 rounded'>
+                                                                        <AccordionTrigger
+                                                                            type="button"
+                                                                            className={cn(
+                                                                                'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+
+                                                                            )}>
+                                                                            <div className='flex items-center gap-2'>
+                                                                                <span>{items.timesheet.status}</span>
+                                                                            </div>
+                                                                        </AccordionTrigger>
+                                                                        <AccordionContent className='w-full'>
+                                                                            {rows.map((items) => (
+                                                                                <div key={items.employee.id}>{items.employee.fullName}</div>
+
+                                                                            ))}
+                                                                        </AccordionContent>
+                                                                    </AccordionItem>
+                                                                )
+                                                            })}
+
+                                                        </Accordion>
+                                                    ))}
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        </Accordion>
+                                    )
+                                })
+                                }
+                            </div>
+                        ) || timesheetDetailMode === 'MenHours' && (
+                            <div>
+                                <span>MenHours</span>
+                            </div>
+                        )
                     }
                 </div>
             </div>
@@ -65,3 +120,31 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 }
 
 export default TimesheetDetailModal
+
+
+
+/**
+ * Returns an array of objects containing the employeeId and an array of TimesheetLog records.
+ * The TimesheetLog records are grouped by the employeeId.
+ * The array is sorted in descending order by employeeId.
+ *
+ * @param {TimesheetLog[]} timesheetDetail - an array of TimesheetLog records
+ * @returns {Array<{ employeeId: string; element: TimesheetLog[] }>} - an array of objects containing the employeeId and an array of TimesheetLog records.
+ */
+const memebersWorked = ({ timesheetDetail }: { timesheetDetail: TimesheetLog[] }) => {
+    type GroupeMap = Record<string, TimesheetLog[]>;
+    const MembersWorked = timesheetDetail.reduce<GroupeMap>((acc, cur) => {
+        if (!cur.employeeId) {
+            return acc;
+        }
+        const employeeId = cur.employeeId;
+        if (!acc[employeeId]) {
+            acc[employeeId] = [];
+        }
+        acc[employeeId].push(cur);
+        return acc;
+    }, {});
+    return Object.entries(MembersWorked)
+        .map(([employeeId, element]) => ({ employeeId, element }))
+        .sort((a, b) => b.employeeId.localeCompare(a.employeeId));
+}
