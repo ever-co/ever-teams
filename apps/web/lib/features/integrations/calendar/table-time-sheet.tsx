@@ -363,7 +363,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 													</Badge>
 												</div>
 												<DisplayTimeForTimesheet
-													duration={task.timesheet.duration}
+													timesheetLog={task}
 													logType={task.logType}
 												/>
 												<TaskActionMenu
