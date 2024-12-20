@@ -23,6 +23,7 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
+export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
 
 type ViewToggleButtonProps = {
 	mode: TimesheetViewMode;
@@ -40,6 +41,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
+	const [timesheeDetailMode, setTimesheeDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
@@ -90,6 +92,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		closeModal: closeTimesheetDetail
 	} = useModal();
 
+
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const totalDuration = Object.values(statusTimesheet)
@@ -120,8 +123,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 					closeModal={closeTimesheetDetail}
 					isOpen={isTimesheetDetailOpen}
 					timesheet={statusTimesheet}
+					timesheetDetailMode={timesheeDetailMode}
 				/>}
-
 			<MainLayout
 				showTimer={isTrackingEnabled}
 				className="items-start pb-1 !overflow-hidden w-full"
@@ -151,7 +154,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									description="Tasks waiting for your approval"
 									icon={<PendingTaskIcon />}
 									classNameIcon="bg-[#FBB650] shadow-[#fbb75095]"
-									onClick={() => openTimesheetDetail()}
+									onClick={() => {
+										setTimesheeDetailMode('Pending')
+										openTimesheetDetail()
+									}}
 								/>
 								<TimesheetCard
 									hours={`${hours}:${minute}`}
@@ -159,6 +165,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
 									icon={<MenHoursIcon />}
 									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
+									onClick={() => {
+										setTimesheeDetailMode('MenHours')
+										openTimesheetDetail()
+									}}
 								/>
 								{isManage && (<TimesheetCard
 									count={Object.values(statusTimesheet)
@@ -170,6 +180,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									description="People worked since last time"
 									icon={<MemberWorkIcon />}
 									classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
+									onClick={() => {
+										setTimesheeDetailMode('MemberWork')
+										openTimesheetDetail()
+									}}
 								/>)}
 							</div>
 							<div className="flex justify-between w-full overflow-hidden">

@@ -2,7 +2,7 @@ import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
-import { calculateRemainingDays, differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers';
+import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers';
 import { ClockIcon } from "@radix-ui/react-icons"
 import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
@@ -67,7 +67,7 @@ export function TaskNameInfoDisplay({
 }
 
 const formatTime = (hours: number, minutes: number, second?: number) => (
-	<div className="flex justify-start items-start">
+	<div className="flex justify-start items-start w-10">
 		<span>{String(hours).padStart(2, '0')}</span>
 		<span>:</span>
 		<span>{String(minutes).padStart(2, '0')}</span>
