@@ -49,6 +49,6 @@ export const EmployeeAvatar = ({ imageUrl }: { imageUrl: string }) => (
 );
 
 
-export const ProjectLogo = ({ imageUrl }: { imageUrl: string }) => (
-    <ImageWithLoader imageUrl={imageUrl} alt="Project Logo" />
+export const ProjectLogo = ({ imageUrl, className }: { imageUrl: string, className?: string }) => (
+    <ImageWithLoader className={className} imageUrl={imageUrl} alt="Project Logo" />
 );

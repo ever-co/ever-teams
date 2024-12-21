@@ -6,6 +6,7 @@ import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers
 import { ClockIcon } from "@radix-ui/react-icons"
 import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -71,8 +72,7 @@ const formatTime = (hours: number, minutes: number, second?: number) => (
 		<span>{String(hours).padStart(2, '0')}</span>
 		<span>:</span>
 		<span>{String(minutes).padStart(2, '0')}</span>
-		<span>:</span>
-		<span>{String(second).padStart(2, '0')}</span>
+		<span>h</span>
 	</div>
 );
 
@@ -103,7 +103,7 @@ export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLo
 }
 
 
-export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
+export const TotalTimeDisplay = React.memo(({ timesheetLog, className }: { timesheetLog: TimesheetLog[], className?: string }) => {
 
 	const totalDuration = Array.isArray(timesheetLog)
 		? timesheetLog.reduce((acc, item) => {
@@ -117,7 +117,7 @@ export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: Ti
 
 	const { h: hours, m: minute, s: second } = secondsToTime(totalDuration || 0);
 	return (
-		<div className="flex items-center text-[#868688]">
+		<div className={cn("flex items-center text-[#868688]", className)}>
 			{formatTime(hours, minute, second)}
 		</div>)
 });

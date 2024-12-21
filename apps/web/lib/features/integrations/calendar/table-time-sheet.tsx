@@ -295,10 +295,10 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</div>
 												<Badge
 													variant={'outline'}
-													className="flex items-center gap-x-2 h-[25px] rounded-md bg-[#E4E4E7] dark:bg-gray-800"
+													className="flex items-center  gap-x-2 w-[108px] h-[30px] rounded-[8px] bg-[#E4E4E7] dark:bg-gray-800  py-[6px] px-[8px] border-[1px] border-[#E4E4E7] dark:border-gray-700"
 												>
-													<span className="text-[#5f5f61]">{t('timer.TOTAL_HOURS')}</span>
-													<TotalTimeDisplay timesheetLog={rows} />
+													<span className="text-[#5f5f61] text-[14px] font-[700px]">{t('timer.TOTAL_HOURS').split(' ')[0]}:</span>
+													<TotalTimeDisplay timesheetLog={rows} className='text-[#293241] text-[14px]' />
 												</Badge>
 											</div>
 											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
@@ -346,7 +346,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 													/>
 												</div>
 												<div className="flex items-center gap-2 flex-1">
-													{task.project?.imageUrl && <ProjectLogo imageUrl={task.project.imageUrl} />}
+													{task.project?.imageUrl && <ProjectLogo className='w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]' imageUrl={task.project.imageUrl} />}
 													<span className="font-medium">{task.project?.name}</span>
 												</div>
 												<div className="flex items-center flex-1 gap-x-2">
