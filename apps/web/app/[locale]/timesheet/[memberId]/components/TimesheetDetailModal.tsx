@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { Badge } from '@components/ui/badge';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '@/lib/features';
-import { ProjectLogo } from './CompactTimesheetComponent';
+import { EmployeeAvatar, ProjectLogo } from './CompactTimesheetComponent';
 
 export interface IAddTaskModalProps {
     isOpen: boolean;
@@ -115,7 +115,7 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[], t: Transla
                             >
                                 <div className='flex justify-between items-center w-full'>
                                     <div className='flex items-center gap-2'>
-                                        <img className='w-10 h-10 rounded-full shadow-md border' src={timesheet.element[0].employee.user?.imageUrl!} alt='' />
+                                        <EmployeeAvatar className='w-10 h-10 rounded-full shadow-md border' imageUrl={timesheet.element[0].employee.user?.imageUrl!} />
                                         <span className='font-bold'>{timesheet.element[0].employee.fullName}</span>
                                     </div>
                                     <Badge

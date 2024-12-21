@@ -295,7 +295,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</div>
 												<Badge
 													variant={'outline'}
-													className="flex items-center  gap-x-2 w-[108px] h-[30px] rounded-[8px] bg-[#E4E4E7] dark:bg-gray-800  py-[6px] px-[8px] border-[1px] border-[#E4E4E7] dark:border-gray-700"
+													className="flex items-center  gap-x-2 w-[108px] h-[30px] rounded-[8px] bg-[#E4E4E7] dark:bg-gray-800 shadow-md py-[6px] px-[8px] border-[1px] border-[#E4E4E7] dark:border-gray-700"
 												>
 													<span className="text-[#5f5f61] text-[14px] font-[700px]">{t('timer.TOTAL_HOURS').split(' ')[0]}:</span>
 													<TotalTimeDisplay timesheetLog={rows} className='text-[#293241] text-[14px]' />
