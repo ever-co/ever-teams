@@ -41,7 +41,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
-	const [timesheeDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
+	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
@@ -126,7 +126,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 					closeModal={closeTimesheetDetail}
 					isOpen={isTimesheetDetailOpen}
 					timesheet={statusTimesheet}
-					timesheetDetailMode={timesheeDetailMode}
+					timesheetDetailMode={timesheetDetailMode}
 				/>}
 			<MainLayout
 				showTimer={isTrackingEnabled}
