@@ -89,7 +89,7 @@ export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLo
 		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(timesheetLog.stoppedAt)
 	);
 
-	const { h: hours, m: minute, s: second } = secondsToTime(seconds);
+	const { h: hours, m: minute } = secondsToTime(seconds);
 
 	const iconClasses = 'text-[14px] h-4 w-4';
 	const icons = {
@@ -102,7 +102,7 @@ export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLo
 		<div className="flex items-start justify-start font-medium gap-x-1">
 			{icons[resolvedLogType]}
 			<div className="flex items-start justify-start text-[#282048] dark:text-[#9b8ae1]">
-				{formatTime(hours, minute, second)}
+				{formatTime(hours, minute)}
 			</div>
 		</div>
 	);
