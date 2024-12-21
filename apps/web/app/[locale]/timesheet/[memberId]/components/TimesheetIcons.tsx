@@ -100,8 +100,8 @@ export const FilterIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" 
  */
 
 export const SearchIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M7.66244 14.0007C11.1602 14.0007 13.9958 11.1651 13.9958 7.66732C13.9958 4.16951 11.1602 1.33398 7.66244 1.33398C4.16463 1.33398 1.3291 4.16951 1.3291 7.66732C1.3291 11.1651 4.16463 14.0007 7.66244 14.0007Z" stroke="#7E7991" strokeLinecap="round" stroke-linejoin="round" />
-    <path d="M14.6624 14.6673L13.3291 13.334" stroke="#7E7991" strokeLinecap="round" stroke-linejoin="round" />
+    <path d="M7.66244 14.0007C11.1602 14.0007 13.9958 11.1651 13.9958 7.66732C13.9958 4.16951 11.1602 1.33398 7.66244 1.33398C4.16463 1.33398 1.3291 4.16951 1.3291 7.66732C1.3291 11.1651 4.16463 14.0007 7.66244 14.0007Z" stroke="#7E7991" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14.6624 14.6673L13.3291 13.334" stroke="#7E7991" strokeLinecap="round" strokeLinejoin="round" />
 </svg>
 
 /**

@@ -68,10 +68,16 @@ export function TaskNameInfoDisplay({
 }
 
 const formatTime = (hours: number, minutes: number, second?: number) => (
-	<div className="flex justify-start items-start w-10">
+	<div className="flex justify-start items-start min-w-[4rem]">
 		<span>{String(hours).padStart(2, '0')}</span>
 		<span>:</span>
 		<span>{String(minutes).padStart(2, '0')}</span>
+		{second !== undefined && (
+			<>
+				<span>:</span>
+				<span>{String(second).padStart(2, '0')}</span>
+			</>
+		)}
 		<span>h</span>
 	</div>
 );
@@ -115,10 +121,10 @@ export const TotalTimeDisplay = React.memo(({ timesheetLog, className }: { times
 		}, 0)
 		: 0;
 
-	const { h: hours, m: minute, s: second } = secondsToTime(totalDuration || 0);
+	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
 	return (
 		<div className={cn("flex items-center text-[#868688]", className)}>
-			{formatTime(hours, minute, second)}
+			{formatTime(hours, minute)}
 		</div>)
 });
 TotalTimeDisplay.displayName = 'TotalTimeDisplay';
@@ -141,10 +147,10 @@ export const TotalDurationByDate = React.memo(
 			}, 0)
 			: 0;
 
-		const { h: hours, m: minutes, s: second } = secondsToTime(totalDurationInSeconds);
+		const { h: hours, m: minutes, } = secondsToTime(totalDurationInSeconds);
 		return (
 			<div className={clsxm("flex items-center text-[#868688]", className)}>
-				{formatTime(hours, minutes, second)}
+				{formatTime(hours, minutes)}
 			</div>
 		);
 	}
