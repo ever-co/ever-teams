@@ -286,7 +286,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 									>
 										<div className="flex items-center justify-between w-full space-x-1">
 											<div className="flex items-center space-x-1">
-												<div className={clsxm('p-2 rounded', statusColor(status).bg)}></div>
+												<div className={clsxm('p-2 rounded-[3px] gap-2 w-[20px] h-[20px]', statusColor(status).bg)}></div>
 												<div className="flex items-center gap-x-1">
 													<span className="text-base font-normal text-gray-400 uppercase">
 														{status === 'DENIED' ? 'REJECTED' : status}
@@ -295,7 +295,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</div>
 												<Badge
 													variant={'outline'}
-													className="flex items-center  gap-x-2 w-[108px] h-[30px] rounded-[8px] bg-[#E4E4E7] dark:bg-gray-800 shadow-md py-[6px] px-[8px] border-[1px] border-[#E4E4E7] dark:border-gray-700 opacity-50"
+													className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
 												>
 													<span className="text-[#5f5f61] text-[14px] font-[700px]">{t('timer.TOTAL_HOURS').split(' ')[0]}:</span>
 													<TotalTimeDisplay timesheetLog={rows} className='!text-[#293241] text-[14px]' />

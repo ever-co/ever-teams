@@ -153,7 +153,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
                                     {format(date, "dd MMM yyyy")}
                                 </span>
                                 <div className="flex items-center gap-x-1 text-gray-500 text-sm font-medium">
-                                    <span className="text-[#868687]">Total{" : "}</span>
+                                    {/* <span className="text-[#868687]">Total{" : "}</span> */}
                                     {plan && <TotalDurationByDate
                                         timesheetLog={plan.tasks}
                                         createdAt={formatDate(plan.date)}
