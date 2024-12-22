@@ -256,8 +256,15 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                     taskNumberClassName="text-sm"
                                                 />
                                                 <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
-                                                    {task.project && <ProjectLogo className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]" imageUrl={task.project.imageUrl as string} />}
-                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8]">{task.project && task.project.name}</span>
+                                                    {task.project?.imageUrl && (
+                                                        <ProjectLogo
+                                                            className="w-[28px] h-[28px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] rounded-[8px]"
+                                                            imageUrl={task.project.imageUrl}
+                                                        />
+                                                    )}
+                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                        {task.project?.name ?? 'No Project'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         ))}

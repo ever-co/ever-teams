@@ -89,7 +89,7 @@ const formatTime = (d: Date | string, addHour: boolean) => {
  * const groupedItems = groupBy(items, item => item.group);
  *
  * // groupedItems = {
- * //     A: [{ id: 1, name: 'Akim', group: 'A' }, { id: 2, name: 'Jane', group: 'A' }],
+ * //     A: [{ id: 1, name: 'John', group: 'A' }, { id: 2, name: 'Jane', group: 'A' }],
  * //     B: [{ id: 3, name: 'Bob', group: 'B' }]
  * // }
  *
