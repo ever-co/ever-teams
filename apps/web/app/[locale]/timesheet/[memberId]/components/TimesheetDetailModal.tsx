@@ -39,22 +39,24 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
             titleClass="font-bold flex justify-start w-full text-xl">
             <div className=' py-4 w-full'>
                 <div className="flex flex-col  w-full  gap-4  h-[60vh] max-h-[60vh]  overflow-y-auto ">
-                    {
-                        timesheetDetailMode === 'Pending' && (
-                            timesheet?.PENDING.length === 0 ? (
-                                <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center min-h-[280px]">
-                                    <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
-                                </div>
-                            ) : <TimesheetCardDetail data={timesheet} />
-                        )
-                        || timesheetDetailMode === 'MemberWork' && (
-                            <MembersWorkedCard element={timesheetDetail} t={t} />
-                        ) || timesheetDetailMode === 'MenHours' && (
-                            <div>
-                                <span>MenHours</span>
-                            </div>
-                        )
-                    }
+                    {(() => {
+                        switch (timesheetDetailMode) {
+                            case 'Pending':
+                                return timesheet?.PENDING.length === 0 ? (
+                                    <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center min-h-[280px]">
+                                        <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
+                                    </div>
+                                ) : (
+                                    <TimesheetCardDetail data={timesheet} />
+                                );
+                            case 'MemberWork':
+                                return <MembersWorkedCard element={timesheetDetail} t={t} />;
+                            case 'MenHours':
+                                return <div><span>MenHours</span></div>;
+                            default:
+                                return null;
+                        }
+                    })()}
                 </div>
             </div>
 

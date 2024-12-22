@@ -26,6 +26,18 @@ type MonthlyCalendarDataViewProps = {
 
 const defaultDaysLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+/**
+ * Generates an array of dates for a full month calendar.
+ *
+ * If the given month is February and it is a leap year, the month end date is set to the 29th.
+ * Otherwise, the month end date is set to the 28th.
+ *
+ * The start date is set to the first day of the month minus the day of the week of the first day of the month.
+ * The end date is set to the last day of the month plus 6 minus the day of the week of the last day of the month.
+ *
+ * @param currentMonth The current month to generate the full calendar for.
+ * @returns An array of dates for a full month calendar.
+ */
 const generateFullCalendar = (currentMonth: Date) => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = (() => {
@@ -42,6 +54,24 @@ const generateFullCalendar = (currentMonth: Date) => {
 };
 
 
+/**
+ * A monthly calendar component for displaying timesheet data.
+ *
+ * The component is a grid of days in the month, with each day displaying the total duration of the tasks for that day.
+ * The component is also responsive and can be used in a variety of screen sizes.
+ *
+ * @param {MonthlyCalendarDataViewProps} props - The props for the component.
+ * @param {GroupedTimesheet[]} [props.data=[]] - The data to display in the calendar.
+ * @param {((date: Date) => void)} [props.onDateClick] - The function to call when a date is clicked.
+ * @param {((date: Date, plan?: GroupedTimesheet) => React.ReactNode)} [props.renderDayContent] - The function to call to render the content for each day.
+ * @param {Locale} [props.locale=enGB] - The locale to use for the dates.
+ * @param {string[]} [props.daysLabels=defaultDaysLabels] - The labels for the days of the week.
+ * @param {string} [props.noDataText="No Data"] - The text to display when there is no data for a day.
+ * @param {{ container?: string; header?: string; grid?: string; day?: string; noData?: string; }} [props.classNames={}] - The CSS class names to use for the component.
+ * @param {TranslationHooks} props.t - The translations to use for the component.
+ *
+ * @returns {React.ReactElement} The JSX element for the component.
+ */
 const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
     data = [],
     onDateClick,
