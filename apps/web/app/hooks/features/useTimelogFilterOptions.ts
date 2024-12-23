@@ -1,4 +1,4 @@
-import { IUser, RoleNameEnum } from '@/app/interfaces';
+import { IUser, RoleNameEnum, TimesheetLog } from '@/app/interfaces';
 import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus } from '@/app/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
@@ -36,7 +36,7 @@ export function useTimelogFilterOptions() {
             const hour12 = hour24 % 12 || 12; // Convert to 12-hour format
             const minutes = (totalMinutes % 60).toString().padStart(2, '0');
             const period = hour24 < 12 ? 'AM' : 'PM'; // Determine AM/PM
-            return `${hour12.toString().padStart(2, '0')}:${minutes} ${period}`;
+            return `${hour12.toString().padStart(2, '0')}:${minutes}:00 ${period}`;
         });
     };
 
@@ -44,12 +44,16 @@ export function useTimelogFilterOptions() {
         setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
 
-    const handleSelectRowByStatusAndDate = (status: string, date: string) => {
-        setSelectedItems((prev) =>
-            prev.some((item) => item.status === status && item.date === date)
-                ? prev.filter((item) => !(item.status === status && item.date === date))
-                : [...prev, { status, date }]
-        );
+    const handleSelectRowByStatusAndDate = (logs: TimesheetLog[], isChecked: boolean) => {
+        setSelectTimesheetId((prev) => {
+            const logIds = logs.map((item) => item.id);
+
+            if (isChecked) {
+                return [...new Set([...prev, ...logIds])];
+            } else {
+                return prev.filter((id) => !logIds.includes(id));
+            }
+        });
     }
 
 
@@ -61,6 +65,7 @@ export function useTimelogFilterOptions() {
     return {
         statusState,
         employee,
+        setSelectedItems,
         project,
         task,
         setEmployeeState,

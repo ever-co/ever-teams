@@ -2,9 +2,7 @@ import { TimesheetFilterByDays, TimesheetStatus } from "@/app/interfaces";
 import { clsxm } from "@/app/utils";
 import { TranslationHooks } from "next-intl";
 import { ReactNode } from "react";
-import { FaClipboardCheck } from "react-icons/fa6";
-import { IoClose } from "react-icons/io5";
-import { RiDeleteBin6Fill } from "react-icons/ri";
+import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from "./TimesheetIcons";
 type ITimesheetButton = {
     title?: string,
     onClick?: () => void,
@@ -37,17 +35,17 @@ export const getTimesheetButtons = (status: StatusType, t: TranslationHooks, dis
 
     const buttonsConfig: Record<StatusType, { icon: JSX.Element; title: string; action: StatusAction }[]> = {
         PENDING: [
-            { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
-            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },
-            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
+            { icon: <ApproveSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
+            { icon: <RejectSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },
+            { icon: <DeleteSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
         ],
         APPROVED: [
-            { icon: <IoClose className="!bg-[#2932417c] dark:!bg-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },
-            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
+            { icon: <RejectSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'), action: "Denied" },
+            { icon: <DeleteSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
         ],
         Denied: [
-            { icon: <FaClipboardCheck className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
-            { icon: <RiDeleteBin6Fill className="!text-[#2932417c] dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
+            { icon: <ApproveSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'), action: "Approved" },
+            { icon: <DeleteSelectedIcon className="dark:!text-gray-400 rounded" />, title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'), action: "Deleted" }
         ]
     };
 

@@ -2,10 +2,11 @@ import { ITeamTask, Nullable, TimesheetLog } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
-import { formatDate, secondsToTime } from '@/app/helpers';
+import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers';
 import { ClockIcon } from "@radix-ui/react-icons"
 import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -66,20 +67,29 @@ export function TaskNameInfoDisplay({
 	);
 }
 
-const formatTime = (hours: number, minutes: number) => (
-	<div className="flex items-center">
+const formatTime = (hours: number, minutes: number, second?: number) => (
+	<div className="flex justify-start items-start min-w-[4rem]">
 		<span>{String(hours).padStart(2, '0')}</span>
 		<span>:</span>
 		<span>{String(minutes).padStart(2, '0')}</span>
+		{second !== undefined && (
+			<>
+				<span>:</span>
+				<span>{String(second).padStart(2, '0')}</span>
+			</>
+		)}
+		<span>h</span>
 	</div>
 );
 
-export const DisplayTimeForTimesheet = ({ duration, logType }: { duration: number, logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined }) => {
-	if (duration < 0) {
-		console.warn('Negative duration provided to DisplayTimeForTimesheet');
-		duration = 0;
-	}
-	const { h: hours, m: minute } = secondsToTime(duration || 0);
+export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLog: TimesheetLog, logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined }) => {
+
+	const seconds = differenceBetweenHours(
+		timesheetLog.startedAt instanceof Date ? timesheetLog.startedAt : new Date(timesheetLog.startedAt),
+		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(timesheetLog.stoppedAt)
+	);
+
+	const { h: hours, m: minute } = secondsToTime(seconds);
 
 	const iconClasses = 'text-[14px] h-4 w-4';
 	const icons = {
@@ -89,24 +99,31 @@ export const DisplayTimeForTimesheet = ({ duration, logType }: { duration: numbe
 	};
 	const resolvedLogType: keyof typeof icons = logType ?? 'TRACKED';
 	return (
-		<div className="flex items-center font-medium gap-x-1">
+		<div className="flex items-start justify-start font-medium gap-x-1">
 			{icons[resolvedLogType]}
-			<div className="flex items-center text-[#282048] dark:text-[#9b8ae1]">
+			<div className="flex items-start justify-start text-[#282048] dark:text-[#9b8ae1]">
 				{formatTime(hours, minute)}
 			</div>
 		</div>
 	);
-
 }
 
 
-export const TotalTimeDisplay = React.memo(({ timesheetLog }: { timesheetLog: TimesheetLog[] }) => {
+export const TotalTimeDisplay = React.memo(({ timesheetLog, className }: { timesheetLog: TimesheetLog[], className?: string }) => {
+
 	const totalDuration = Array.isArray(timesheetLog)
-		? timesheetLog.reduce((acc, curr) => acc + (curr.timesheet?.duration || 0), 0)
+		? timesheetLog.reduce((acc, item) => {
+			const seconds = differenceBetweenHours(
+				item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+				item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+			);
+			return acc + seconds
+		}, 0)
 		: 0;
+
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
 	return (
-		<div className="flex items-center text-[#868688]">
+		<div className={cn("flex items-center text-[#868688]", className)}>
 			{formatTime(hours, minute)}
 		</div>)
 });
@@ -119,9 +136,18 @@ export const TotalDurationByDate = React.memo(
 
 		const filteredLogs = timesheetLog.filter(
 			(item) => formatDate(item.timesheet.createdAt) === formatDate(targetDateISO));
-		const totalDurationInSeconds = filteredLogs.reduce(
-			(total, log) => total + (log.timesheet?.duration || 0), 0);
-		const { h: hours, m: minutes } = secondsToTime(totalDurationInSeconds);
+
+		const totalDurationInSeconds = Array.isArray(filteredLogs)
+			? filteredLogs.reduce((acc, item) => {
+				const seconds = differenceBetweenHours(
+					item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+					item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+				)
+				return acc + seconds
+			}, 0)
+			: 0;
+
+		const { h: hours, m: minutes, } = secondsToTime(totalDurationInSeconds);
 		return (
 			<div className={clsxm("flex items-center text-[#868688]", className)}>
 				{formatTime(hours, minutes)}

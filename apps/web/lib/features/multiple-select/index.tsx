@@ -158,8 +158,8 @@ export function CustomSelect({
             </SelectTrigger>
             <SelectContent className='z-[10000] dark:bg-dark--theme-light w-auto'>
                 <SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
-                    {options.map((value) => (
-                        <SelectItem key={value} value={value}>
+                    {options.map((value, index) => (
+                        <SelectItem key={index} value={value}>
                             {renderOption ? renderOption(value) : value.charAt(0).toUpperCase() + value.slice(1)}
                         </SelectItem>
                     ))}

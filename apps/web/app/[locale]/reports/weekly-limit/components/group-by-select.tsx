@@ -59,7 +59,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 	return (
 		<Listbox multiple value={selected} onChange={handleChange}>
 			<div className="relative h-[2.2rem] w-[12rem]">
-				<Listbox.Button className="relative w-full h-full cursor-default rounded-lg bg-white py-2 pl-1 pr-6 text-left border focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
+				<Listbox.Button className="relative w-full h-full cursor-default rounded-lg bg-white dark:border-gray-700 dark:bg-dark--theme-light py-2 pl-1 pr-6 text-left border focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
 					<div className=" items-center w-full h-full flex gap-1">
 						{selected.map((option) => (
 							<Badge
@@ -83,7 +83,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<Listbox.Options className="absolute mt-1 max-h-60 w-full z-[999] overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+					<Listbox.Options className="absolute mt-1 max-h-60 w-full z-[999] overflow-auto rounded-md bg-white dark:bg-dark--theme-light  py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 						{options.map((option, index) => (
 							<Listbox.Option
 								disabled={
@@ -91,10 +91,12 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 									selected.includes(option) && selected.length == 1
 								}
 								key={index}
-								className={({ active }) =>
+								className={({ active, selected }) =>
 									`relative cursor-default select-none py-2 pl-10 pr-4 ${
-										active ? 'bg-primary/10 text-primary' : 'text-gray-900'
-									}`
+										active
+											? 'bg-primary/10 text-primary dark:text-white dark:bg-primary/10'
+											: 'text-gray-900 dark:text-white'
+									} ${selected && 'dark:bg-primary/10'}`
 								}
 								value={option}
 							>
