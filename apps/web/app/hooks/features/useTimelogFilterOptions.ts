@@ -36,7 +36,7 @@ export function useTimelogFilterOptions() {
             const hour12 = hour24 % 12 || 12; // Convert to 12-hour format
             const minutes = (totalMinutes % 60).toString().padStart(2, '0');
             const period = hour24 < 12 ? 'AM' : 'PM'; // Determine AM/PM
-            return `${hour12.toString().padStart(2, '0')}:${minutes} ${period}`;
+            return `${hour12.toString().padStart(2, '0')}:${minutes}:00 ${period}`;
         });
     };
 

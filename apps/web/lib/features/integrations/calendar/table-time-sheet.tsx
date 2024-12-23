@@ -1,18 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-	ColumnDef,
-	ColumnFiltersState,
-	SortingState,
-	VisibilityState,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable
-} from '@tanstack/react-table';
-import { ArrowUpDownIcon, MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import {
 	DropdownMenu,
@@ -35,14 +24,10 @@ import {
 	SelectValue
 } from '@components/ui/select';
 import {
-	MdKeyboardDoubleArrowLeft,
-	MdKeyboardDoubleArrowRight,
-	MdKeyboardArrowLeft,
-	MdKeyboardArrowRight,
 	MdKeyboardArrowUp,
 	MdKeyboardArrowDown
 } from 'react-icons/md';
-import { ConfirmStatusChange, StatusBadge, statusOptions, dataSourceTimeSheet, TimeSheet } from '.';
+import { ConfirmStatusChange, statusOptions } from '.';
 import { useModal, useTimelogFilterOptions } from '@app/hooks';
 import { Checkbox } from '@components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion';
@@ -67,94 +52,6 @@ import { IUser, TimesheetLog, TimesheetStatus } from '@/app/interfaces';
 import { toast } from '@components/ui/use-toast';
 import { ToastAction } from '@components/ui/toast';
 
-export const columns: ColumnDef<TimeSheet>[] = [
-	{
-		enableHiding: false,
-		id: 'select',
-		size: 50,
-		header: ({ table }) => (
-			<div className="flex items-center gap-x-4">
-				<Checkbox
-					checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-				/>
-				<span>Task</span>
-			</div>
-		),
-		cell: ({ row }) => (
-			<div className="flex items-center gap-x-4 w-full max-w-[640px]">
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-				/>
-				<span className="capitalize !text-sm break-words whitespace-break-spaces sm:text-base !truncate !overflow-hidden">
-					{row.original.task}
-				</span>
-			</div>
-		)
-	},
-	{
-		accessorKey: 'name',
-		header: ({ column }) => (
-			<Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				className="w-full text-sm text-center sm:text-base"
-			>
-				Project
-				<ArrowUpDownIcon className="w-4 h-4 ml-2" />
-			</Button>
-		),
-		cell: ({ row }) => <TaskDetails description={row.original.description} name={row.original.name} />
-	},
-	{
-		accessorKey: 'employee',
-		header: ({ column }) => (
-			<Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				className="flex items-center justify-center w-full text-sm font-medium text-center sm:w-96 sm:text-base"
-			>
-				<span>Employee</span>
-				<ArrowUpDownIcon className="w-4 h-4 ml-2" />
-			</Button>
-		),
-		cell: ({ row }) => (
-			<div className="w-full text-sm font-medium text-center sm:w-96 sm:text-base">
-				<span> {row.original.employee}</span>
-			</div>
-		)
-	},
-	{
-		accessorKey: 'status',
-		header: ({ column }) => (
-			<Button
-				variant="ghost"
-				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				className="flex items-center justify-center w-full text-sm text-center  sm:w-auto sm:text-base"
-			>
-				<span>Status</span>
-				<ArrowUpDownIcon className="w-4 h-4 ml-2" />
-			</Button>
-		),
-		cell: ({ row }) => {
-			return <StatusBadge selectedStatus={row.original.status} />;
-		}
-	},
-	{
-		accessorKey: 'time',
-		header: () => <div className="w-full text-sm text-center sm:text-base">Time</div>,
-		cell: ({ row }) => (
-			<div
-				className={`text-center font-sans w-full text-sm sm:text-base ${statusColor(row.original.status).text}`}
-			>
-				{row.original.time}
-			</div>
-		)
-	}
-];
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], user?: IUser | undefined }) {
 	const modal = useModal();
@@ -183,28 +80,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 	};
 
 	const t = useTranslations();
-	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = React.useState({});
-	const table = useReactTable({
-		data: dataSourceTimeSheet,
-		columns,
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		onColumnVisibilityChange: setColumnVisibility,
-		onRowSelectionChange: setRowSelection,
-		state: {
-			sorting,
-			columnFilters,
-			columnVisibility,
-			rowSelection
-		}
-	});
+
 	const handleSort = (key: string, order: SortOrder) => {
 		console.log(`Sorting ${key} in ${order} order`);
 	};
@@ -277,6 +153,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 									className={clsxm("p-1 rounded")}
 								>
 									<AccordionTrigger
+										key={plan.date}
 										style={{ backgroundColor: statusColor(status).bgOpacity }}
 										type="button"
 										className={clsxm(
@@ -380,41 +257,6 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 					</div>
 				}
 				)}
-			</div>
-			<div className="flex items-center justify-end p-4 space-x-2">
-				<div className="flex-1 text-sm text-muted-foreground">
-					{table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length}{' '}
-					row(s) selected.
-				</div>
-				<div className="flex items-center gap-x-3">
-					<span className="text-sm font-medium">
-						Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-					</span>
-					<Button
-						variant={'outline'}
-						onClick={() => table.setPageIndex(0)}
-						disabled={!table.getCanPreviousPage()}
-					>
-						<MdKeyboardDoubleArrowLeft />
-					</Button>
-					<Button
-						variant={'outline'}
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						<MdKeyboardArrowLeft />
-					</Button>
-					<Button variant={'outline'} onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-						<MdKeyboardArrowRight />
-					</Button>
-					<Button
-						variant={'outline'}
-						onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-						disabled={!table.getCanNextPage()}
-					>
-						<MdKeyboardDoubleArrowRight />
-					</Button>
-				</div>
 			</div>
 		</div >
 	);
@@ -544,19 +386,7 @@ const TaskActionMenu = ({ dataTimesheet, isManage, user }: { dataTimesheet: Time
 };
 
 
-const TaskDetails = ({ description, name }: { description: string; name: string }) => {
-	return (
-		<div className="flex items-center w-40 gap-x-2 ">
-			<div className="flex items-center justify-center w-8 h-8 p-2 text-white rounded-lg shadow bg-primary dark:bg-primary-light">
-				<span className="lowercase font-medium text-[10px]">ever</span>
-			</div>
-			<span className="capitalize font-medium !text-sm sm:text-base text-gray-800 dark:text-white leading-4 whitespace-nowrap">
-				{name}
-			</span>
-			<div style={{ display: 'none' }}>{description}</div>
-		</div>
-	);
-};
+
 
 export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 	const t = useTranslations();

@@ -225,3 +225,16 @@ export const formatDate = (dateStr: string | Date): string => {
 		return '';
 	}
 }
+
+
+export function toLocal(date: string | Date | moment.Moment): moment.Moment {
+	const localDate = moment(date);
+	if (!localDate.isValid()) {
+		throw new Error('Invalid date provided to toUTC');
+	}
+	return localDate.utc();
+}
+
+export function toUTC(date: string | Date | moment.Moment): moment.Moment {
+	return moment(date).utc();
+}
