@@ -58,6 +58,27 @@ export function secondsToTime(secs: number) {
 	};
 }
 
+/**
+ * Calculates the difference in seconds between two Date objects.
+ *
+ * This function takes two Date objects, `startedAt` and `stoppedAt`, and computes
+ * the difference between them in seconds. If either of the dates is invalid,
+ * the function returns `undefined`.
+ *
+ * @param {Date} startedAt - The starting time
+ * @param {Date} stoppedAt - The stopping time
+ * @returns {number | undefined} The difference in seconds or `undefined` if dates are invalid
+ */
+export function differenceBetweenHours(startedAt: Date, stoppedAt: Date): number {
+	const started = new Date(startedAt);
+	const stopped = new Date(stoppedAt);
+	if (!isNaN(started.getTime()) && !isNaN(stopped.getTime())) {
+		return (stopped.getTime() - started.getTime()) / 1000;
+	}
+	return 0;
+}
+
+
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
 	let minutes = Math.floor(seconds / 60);
@@ -224,4 +245,17 @@ export const formatDate = (dateStr: string | Date): string => {
 		console.error('Invalid date format:', error);
 		return '';
 	}
+}
+
+
+export function toLocal(date: string | Date | moment.Moment): moment.Moment {
+	const localDate = moment(date);
+	if (!localDate.isValid()) {
+		throw new Error('Invalid date provided to toUTC');
+	}
+	return localDate.utc();
+}
+
+export function toUTC(date: string | Date | moment.Moment): moment.Moment {
+	return moment(date).utc();
 }
