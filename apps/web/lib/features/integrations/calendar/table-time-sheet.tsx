@@ -163,7 +163,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 									>
 										<div className="flex items-center justify-between w-full space-x-1">
 											<div className="flex items-center space-x-1">
-												<div className={clsxm('p-2 rounded', statusColor(status).bg)}></div>
+												<div className={clsxm('p-2 rounded-[3px] gap-2 w-[20px] h-[20px]', statusColor(status).bg)}></div>
 												<div className="flex items-center gap-x-1">
 													<span className="text-base font-normal text-gray-400 uppercase">
 														{status === 'DENIED' ? 'REJECTED' : status}
@@ -172,10 +172,10 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</div>
 												<Badge
 													variant={'outline'}
-													className="flex items-center gap-x-2 h-[25px] rounded-md bg-[#E4E4E7] dark:bg-gray-800"
+													className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
 												>
-													<span className="text-[#5f5f61]">{t('timer.TOTAL_HOURS')}</span>
-													<TotalTimeDisplay timesheetLog={rows} />
+													<span className="text-[#5f5f61] text-[14px] font-[700px]">{t('timer.TOTAL_HOURS').split(' ')[0]}:</span>
+													<TotalTimeDisplay timesheetLog={rows} className='!text-[#293241] text-[14px]' />
 												</Badge>
 											</div>
 											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
@@ -223,11 +223,12 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 													/>
 												</div>
 												<div className="flex items-center gap-2 flex-1">
-													{task.project?.imageUrl && <ProjectLogo imageUrl={task.project.imageUrl} />}
+													{task.project?.imageUrl && <ProjectLogo className='w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]' imageUrl={task.project.imageUrl} />}
 													<span className="font-medium">{task.project?.name}</span>
 												</div>
 												<div className="flex items-center flex-1 gap-x-2">
 													<EmployeeAvatar
+														className='w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full'
 														imageUrl={task.employee.user.imageUrl!}
 													/>
 													<span className="flex-1 font-medium">{task.employee.fullName}</span>
@@ -240,7 +241,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 													</Badge>
 												</div>
 												<DisplayTimeForTimesheet
-													duration={task.timesheet.duration}
+													timesheetLog={task}
 													logType={task.logType}
 												/>
 												<TaskActionMenu

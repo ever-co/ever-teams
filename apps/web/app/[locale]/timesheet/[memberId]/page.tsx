@@ -14,17 +14,16 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
-import { CalendarView, FilterStatus, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
-import { CalendarDaysIcon, Clock, User2 } from 'lucide-react';
-import { GrTask } from 'react-icons/gr';
+import { CalendarView, CalendarViewIcon, FilterStatus, ListViewIcon, MemberWorkIcon, MenHoursIcon, PendingTaskIcon, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { GoSearch } from 'react-icons/go';
 
-import { getGreeting, secondsToTime } from '@/app/helpers';
+import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
-import { startOfWeek, endOfWeek } from 'date-fns';
+import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
+export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
 
 type ViewToggleButtonProps = {
 	mode: TimesheetViewMode;
@@ -42,15 +41,17 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
 	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
+	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
 	);
 
 	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
-		from: startOfWeek(new Date(), { weekStartsOn: 1 }),
-		to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+		from: startOfMonth(new Date()),
+		to: endOfMonth(new Date()),
 	});
+
 	const { timesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
 		startDate: dateRange.from!,
 		endDate: dateRange.to!,
@@ -91,13 +92,20 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		closeModal: closeTimesheetDetail
 	} = useModal();
 
+
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const totalDuration = Object.values(statusTimesheet)
 		.flat()
-		.map(entry => entry.timesheet.duration)
+		.map(entry => {
+			return differenceBetweenHours(
+				entry.startedAt instanceof Date ? entry.startedAt : new Date(entry.startedAt),
+				entry.stoppedAt instanceof Date ? entry.stoppedAt : new Date(entry.stoppedAt)
+			)
+		})
 		.reduce((total, current) => total + current, 0);
 	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+
 
 	const fullWidth = useAtomValue(fullWidthState);
 
@@ -118,8 +126,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 					closeModal={closeTimesheetDetail}
 					isOpen={isTimesheetDetailOpen}
 					timesheet={statusTimesheet}
+					timesheetDetailMode={timesheetDetailMode}
 				/>}
-
 			<MainLayout
 				showTimer={isTrackingEnabled}
 				className="items-start pb-1 !overflow-hidden w-full"
@@ -147,16 +155,23 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									count={statusTimesheet.PENDING.length}
 									title={t('common.PENDING_TASKS')}
 									description="Tasks waiting for your approval"
-									icon={<GrTask className="font-bold" />}
+									icon={<PendingTaskIcon />}
 									classNameIcon="bg-[#FBB650] shadow-[#fbb75095]"
-									onClick={() => openTimesheetDetail()}
+									onClick={() => {
+										setTimesheetDetailMode('Pending')
+										openTimesheetDetail()
+									}}
 								/>
 								<TimesheetCard
 									hours={`${hours}:${minute}`}
 									title={t('common.MEN_HOURS')}
 									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
-									icon={<Clock className="font-bold" />}
+									icon={<MenHoursIcon />}
 									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
+									onClick={() => {
+										setTimesheetDetailMode('MenHours')
+										openTimesheetDetail()
+									}}
 								/>
 								{isManage && (<TimesheetCard
 									count={Object.values(statusTimesheet)
@@ -166,21 +181,25 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 										.length}
 									title={t('common.MEMBERS_WORKED')}
 									description="People worked since last time"
-									icon={<User2 className="font-bold" />}
+									icon={<MemberWorkIcon />}
 									classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
+									onClick={() => {
+										setTimesheetDetailMode('MemberWork')
+										openTimesheetDetail()
+									}}
 								/>)}
 							</div>
 							<div className="flex justify-between w-full overflow-hidden">
 								<div className="flex w-full">
 									<ViewToggleButton
-										icon={<GrTask className="text-sm" />}
+										icon={<ListViewIcon />}
 										mode="ListView"
 										active={timesheetNavigator === 'ListView'}
 										onClick={() => setTimesheetNavigator('ListView')}
 										t={t}
 									/>
 									<ViewToggleButton
-										icon={<CalendarDaysIcon size={20} className="!text-sm" />}
+										icon={<CalendarViewIcon />}
 										mode="CalendarView"
 										active={timesheetNavigator === 'CalendarView'}
 										onClick={() => setTimesheetNavigator('CalendarView')}
@@ -254,7 +273,7 @@ const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon,
 		className={clsxm(
 			'text-[#7E7991]  font-medium w-[191px] h-[40px] flex items-center gap-x-4 text-[14px] px-2 rounded',
 			active &&
-			'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-bold'
+			'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-medium'
 		)}
 	>
 		{icon}

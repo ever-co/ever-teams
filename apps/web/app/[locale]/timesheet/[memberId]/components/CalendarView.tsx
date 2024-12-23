@@ -112,7 +112,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                             <div className="flex items-center  w-full gap-2">
                                                 <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
                                                 <div className="flex items-center gap-x-1">
-                                                    <span className="text-base font-normal text-gray-400 uppercase !text-[14px]">
+                                                    <span className="text-base font-medium text-[#71717A] uppercase !text-[14px]">
                                                         {status === 'DENIED' ? 'REJECTED' : status}
                                                     </span>
                                                     <span className="text-gray-400 text-[14px]">({rows.length})</span>
@@ -144,7 +144,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                         <span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
                                                     </div>
                                                     <DisplayTimeForTimesheet
-                                                        duration={task.timesheet.duration}
+                                                        timesheetLog={task}
 
                                                     />
                                                 </div>
@@ -218,7 +218,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                             </div>
                                         </div>
                                     </AccordionTrigger>
-                                    <AccordionContent className="flex flex-col w-full gap-y-2 overflow-auto">
+                                    <AccordionContent className="flex flex-col gap-y-2 overflow-auto items-start p-0  flex-none order-1 flex-grow-0">
                                         {rows.map((task) => (
                                             <div
                                                 key={task.id}
@@ -228,35 +228,43 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 
                                                 }}
                                                 className={cn(
-                                                    'border-l-4 rounded-l flex flex-col p-2 gap-2 items-start  space-x-4  h-[110px] !w-full',
+                                                    'border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow',
                                                 )}>
-                                                <div className="flex  px-3 justify-between items-center w-full">
+                                                <div className="flex  pl-3 justify-between items-center w-full">
                                                     <div className="flex items-center gap-x-1">
                                                         <EmployeeAvatar
+                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
                                                             imageUrl={task.employee.user.imageUrl ?? ''}
                                                         />
-                                                        <span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
+                                                        <span className="font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
                                                     </div>
                                                     <DisplayTimeForTimesheet
-                                                        duration={task.timesheet.duration}
+                                                        timesheetLog={task}
 
                                                     />
                                                 </div>
                                                 <TaskNameInfoDisplay
                                                     task={task.task}
                                                     className={cn(
-                                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]  shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
+                                                        'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]  shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent '
                                                     )}
                                                     taskTitleClassName={cn(
-                                                        'text-sm !text-ellipsis !overflow-hidden !truncate !text-[#293241] dark:!text-white '
+                                                        'text-sm  !text-ellipsis overflow-hidden !truncate !text-[#293241] dark:!text-white'
                                                     )}
-                                                    showSize={true}
+                                                    showSize={false}
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <div className="flex items-center gap-x-2">
-                                                    {task.project && <ProjectLogo imageUrl={task.project.imageUrl as string} />}
-                                                    <span className="flex-1 font-medium">{task.project && task.project.name}</span>
+                                                <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
+                                                    {task.project?.imageUrl && (
+                                                        <ProjectLogo
+                                                            className="w-[28px] h-[28px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] rounded-[8px]"
+                                                            imageUrl={task.project.imageUrl}
+                                                        />
+                                                    )}
+                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                        {task.project?.name ?? 'No Project'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         ))}

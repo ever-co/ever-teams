@@ -104,7 +104,7 @@ function useLocalTimeCounter(
 
       const timerStatusDate = timerStatus?.lastLog?.createdAt
         ? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 -
-          timerStatus?.lastLog?.duration
+        timerStatus?.lastLog?.duration
         : 0;
 
       timerStatus &&
@@ -257,8 +257,8 @@ export function useTimer() {
   // check if the today plan has working time planned and all the tasks into the plan are estimated
   const isPlanVerified = requirePlan
     ? hasPlan &&
-      hasPlan?.workTimePlanned > 0 &&
-      !!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
+    hasPlan?.workTimePlanned > 0 &&
+    !!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
     : true;
 
   const canRunTimer =
