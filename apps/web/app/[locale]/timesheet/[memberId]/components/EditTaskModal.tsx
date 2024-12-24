@@ -242,7 +242,6 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								aria-describedby="end-time-error"
 								type="time"
 								min={getMinEndTime()}
-								value={timeRange.endTime}
 								onChange={(e) => updateTime('endTime', e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 								required
