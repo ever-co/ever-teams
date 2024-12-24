@@ -105,6 +105,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				...timeRange.endTime.split(':').map(Number)
 			)
 		);
+		console.log(startedAt, '<================>', stoppedAt)
+
 		const payload = {
 			id: dataTimesheet.id,
 			isBillable: timesheetData.isBillable,
