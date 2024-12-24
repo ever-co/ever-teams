@@ -22,7 +22,7 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 	const [plans, setPlans] = useState<IDailyPlan[]>(outstandingPlans);
 
 	useEffect(() => {
-		let data = plans;
+		let data = [...outstandingPlans];
 
 		// Filter plans for specific user if provided
 		if (user) {
@@ -35,7 +35,8 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 
 			setPlans(data);
 		}
-	}, [plans, user]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user]);
 
 	return (
 		<div className="flex flex-col gap-6">
