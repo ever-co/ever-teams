@@ -9,11 +9,12 @@ import { useOrganizationProjects, useOrganizationTeams } from "@/app/hooks";
 import { CustomSelect, TaskNameInfoDisplay } from "@/lib/features";
 import { statusTable } from "./TimesheetAction";
 import { TimesheetLog } from "@/app/interfaces";
-import { differenceBetweenHours, secondsToTime, toDate } from "@/app/helpers";
+import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from "@/app/helpers";
 import { useTimesheet } from "@/app/hooks/features/useTimesheet";
 import { toast } from "@components/ui/use-toast";
 import { ToastAction } from "@components/ui/toast";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { addMinutes, format, parseISO } from "date-fns";
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -26,12 +27,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	const t = useTranslations();
 	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({})
 	const initialTimeRange = {
-		startTime: dataTimesheet.timesheet?.startedAt
-			? dataTimesheet.timesheet.startedAt.toString().slice(0, 5)
-			: "",
-		endTime: dataTimesheet.timesheet?.stoppedAt
-			? dataTimesheet.timesheet.stoppedAt.toString().slice(0, 5)
-			: "",
+		startTime: formatTimeFromDate(dataTimesheet.startedAt),
+		endTime: formatTimeFromDate(dataTimesheet?.stoppedAt),
 	};
 
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
@@ -162,6 +159,12 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	const handleFromChange = (fromDate: Date | null) => {
 		setDateRange((prev) => ({ ...prev, date: fromDate }));
 	};
+	const getMinEndTime = (): string => {
+		if (!timeRange.startTime) return "00:00";
+		const startDate = parseISO(`2000-01-01T${timeRange.startTime}`);
+		return format(addMinutes(startDate, 5), 'HH:mm');
+	};
+
 	return (
 		<Modal
 			closeModal={closeModal}
@@ -183,8 +186,10 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="flex items-center gap-x-1 ">
 						<span className="text-gray-400">for</span>
 						<CustomSelect
+							defaultValue={dataTimesheet.employee.fullName}
+							placeholder={dataTimesheet.employee.fullName}
 							valueKey="employeeId"
-							className="border border-transparent hover:border-transparent"
+							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
 							options={activeTeam?.members || []}
 							value={timesheetData.employeeId}
 							onChange={(value) => setTimesheetData({ ...timesheetData, employeeId: value.employeeId })}
@@ -212,14 +217,13 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
 							<input
-								defaultValue={timeRange.startTime}
+								defaultValue={timeRange.startTime || "09:00"}
 								aria-label="Start time"
 								aria-describedby="start-time-error"
 								type="time"
 								min="00:00"
 								max="23:59"
 								pattern="[0-9]{2}:[0-9]{2}"
-								value={timeRange.startTime}
 								onChange={(e) => updateTime("startTime", e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 								required
@@ -232,10 +236,11 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
 							<input
-								defaultValue={timeRange.endTime}
+								defaultValue={timeRange.endTime || "10:00"}
 								aria-label="End time"
 								aria-describedby="end-time-error"
 								type="time"
+								min={getMinEndTime()}
 								value={timeRange.endTime}
 								onChange={(e) => updateTime('endTime', e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"

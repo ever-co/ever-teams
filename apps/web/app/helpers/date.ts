@@ -78,6 +78,27 @@ export function differenceBetweenHours(startedAt: Date, stoppedAt: Date): number
 	return 0;
 }
 
+
+/**
+ * Converts a given date string to a time string in the format HH:mm.
+ *
+ * This function takes an optional date string as input. If the input is not
+ * provided, the function returns an empty string. If the input is a valid date
+ * string, the function converts the string to a Date object, formats the time
+ * in the format HH:mm, and returns the result as a string.
+ *
+ * @param {string | undefined} dateString - The date string to format
+ * @returns {string} The formatted time string
+ */
+export const formatTimeFromDate = (date: string | Date | undefined) => {
+	if (!date) return "";
+	const dateObject = date instanceof Date ? date : new Date(date);
+	const hours = dateObject.getHours().toString().padStart(2, '0');
+	const minutes = dateObject.getMinutes().toString().padStart(2, '0');
+
+	return `${hours}:${minutes}`;
+};
+
 /**
  * Converts a given input to a Date object.
  *

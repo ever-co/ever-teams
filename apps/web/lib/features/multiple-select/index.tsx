@@ -97,6 +97,7 @@ type CustomSelectProps = {
     value?: any;
     onChange?: (value: any) => void;
     valueKey?: string;
+    placeholder?: string;
 };
 
 /**
@@ -123,7 +124,8 @@ export function CustomSelect({
     onChange,
     defaultValue,
     classNameGroup,
-    valueKey = 'id'
+    valueKey = 'id',
+    placeholder = "Select an option"
 }: CustomSelectProps) {
     return (
         <Select
@@ -134,7 +136,7 @@ export function CustomSelect({
             <SelectTrigger
                 className={`overflow-hidden text-clip bg-white dark:bg-dark--theme-light focus:ring-0 ${className}`}
             >
-                <SelectValue placeholder="Select an option" />
+                <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className='z-[10000] dark:bg-dark--theme-light w-auto'>
                 <SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
