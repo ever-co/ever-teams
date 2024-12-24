@@ -78,6 +78,19 @@ export function differenceBetweenHours(startedAt: Date, stoppedAt: Date): number
 	return 0;
 }
 
+/**
+ * Converts a given input to a Date object.
+ *
+ * This function accepts either a Date object or a string representation of a date.
+ * If the input is already a Date object, it returns the input as-is. If the input
+ * is a string, it converts the string to a Date object and returns the result.
+ *
+ * @param {Date | string} date - The date input, which can be either a Date object or a string.
+ * @returns {Date} The corresponding Date object.
+ */
+export const toDate = (date: Date | string) =>
+	(date instanceof Date ? date : new Date(date));
+
 
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
@@ -141,6 +154,7 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
+
 
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	if (dateString.toString().length > 10) {

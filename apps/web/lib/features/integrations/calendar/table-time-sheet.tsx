@@ -224,7 +224,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 												</div>
 												<div className="flex items-center gap-2 flex-1">
 													{task.project?.imageUrl && <ProjectLogo className='w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]' imageUrl={task.project.imageUrl} />}
-													<span className="font-medium">{task.project?.name}</span>
+													<span className="font-medium">{task.project?.name ?? "No Project"}</span>
 												</div>
 												<div className="flex items-center flex-1 gap-x-2">
 													<EmployeeAvatar

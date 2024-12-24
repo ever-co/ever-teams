@@ -124,7 +124,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                             </div>
                                         </div>
                                     </AccordionTrigger>
-                                    <AccordionContent className="flex flex-col w-full gap-y-2">
+                                    <AccordionContent className="flex flex-col w-full gap-y-2 ">
                                         {rows.map((task) => (
                                             <div
                                                 key={task.id}
@@ -134,12 +134,13 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
 
                                                 }}
                                                 className={cn(
-                                                    'border-l-4 rounded-l flex flex-col p-2 gap-2 items-start  space-x-4  h-[100px]',
+                                                    'border-l-4 rounded-l flex flex-col p-2 gap-2 items-start  space-x-4 ',
                                                 )}>
                                                 <div className="flex  px-3 justify-between items-center w-full">
                                                     <div className="flex items-center gap-x-1">
                                                         <EmployeeAvatar
                                                             imageUrl={task.employee.user.imageUrl ?? ''}
+                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
                                                         />
                                                         <span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">{task.employee.fullName}</span>
                                                     </div>
@@ -160,9 +161,16 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <div className="flex items-center gap-2">
-                                                    {task.project && <ProjectLogo imageUrl={task.project.imageUrl as string} />}
-                                                    <span className="flex-1">{task.project && task.project.name}</span>
+                                                <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
+                                                    {task.project?.imageUrl && (
+                                                        <ProjectLogo
+                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+                                                            imageUrl={task.project.imageUrl}
+                                                        />
+                                                    )}
+                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                        {task.project?.name ?? 'No Project'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         ))}
@@ -258,7 +266,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                 <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
                                                     {task.project?.imageUrl && (
                                                         <ProjectLogo
-                                                            className="w-[28px] h-[28px] drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)] rounded-[8px]"
+                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
                                                             imageUrl={task.project.imageUrl}
                                                         />
                                                     )}

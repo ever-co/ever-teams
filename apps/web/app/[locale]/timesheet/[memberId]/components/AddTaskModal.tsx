@@ -182,10 +182,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         <span className="text-[#de5505e1] ml-1">*</span>:
                     </label>
                     <CustomSelect
-                        classNameGroup='max-h-[40vh] !text-white '
+                        classNameGroup='max-h-[40vh] dark:!text-white '
                         ariaLabel='Task issues'
-                        className='w-full font-medium text-white'
-                        options={activeTeam?.members as any}
+                        className='w-full font-medium dark:text-white'
+                        options={activeTeam?.members ?? []}
                         onChange={(value: any) => updateFormState('employeeId', value.id)}
                         renderOption={(option: any) => (
                             <div className="flex items-center gap-x-2">
