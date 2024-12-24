@@ -28,7 +28,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({})
 	const initialTimeRange = {
 		startTime: formatTimeFromDate(dataTimesheet.startedAt),
-		endTime: formatTimeFromDate(dataTimesheet?.stoppedAt),
+		endTime: formatTimeFromDate(dataTimesheet.stoppedAt),
 	};
 
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
@@ -105,7 +105,6 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				...timeRange.endTime.split(':').map(Number)
 			)
 		);
-		console.log(startedAt, '<================>', stoppedAt)
 
 		const payload = {
 			id: dataTimesheet.id,
