@@ -27,13 +27,13 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 				: plan.tasks) ?? []
 	);
 
-	const [task, setTask] = useState<ITeamTask[]>(() => tasks ?? []);
+	const [task, setTask] = useState<ITeamTask[]>(() => tasks);
 
 	return (
 		<div className="flex flex-col gap-6">
 			<TaskEstimatedCount outstandingPlans={outstandingPlans} />
 
-			{tasks && tasks?.length > 0 ? (
+			{tasks.length > 0 ? (
 				<>
 					<DragDropContext
 						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}
