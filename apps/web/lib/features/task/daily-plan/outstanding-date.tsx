@@ -9,28 +9,44 @@ import { clsxm } from '@app/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { useState } from 'react';
-import { IDailyPlan } from '@app/interfaces';
+import { useEffect, useState } from 'react';
+import { IDailyPlan, IUser } from '@app/interfaces';
 
 interface IOutstandingFilterDate {
 	profile: any;
+	user?: IUser;
 }
-export function OutstandingFilterDate({ profile }: IOutstandingFilterDate) {
+export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [outstandingTasks, setOutstandingTasks] = useState<IDailyPlan[]>(outstandingPlans);
+	const [plans, setPlans] = useState<IDailyPlan[]>(outstandingPlans);
+
+	useEffect(() => {
+		let data = plans;
+
+		// Filter plans for specific user if provided
+		if (user) {
+			data = data
+				.map((plan) => ({
+					...plan,
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+				}))
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+
+			setPlans(data);
+		}
+	}, [plans, user]);
+
 	return (
 		<div className="flex flex-col gap-6">
-			{outstandingTasks?.length > 0 ? (
-				<DragDropContext
-					onDragEnd={(result) => handleDragAndDrop(result, outstandingTasks, setOutstandingTasks)}
-				>
+			{plans?.length > 0 ? (
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={outstandingTasks?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
+						defaultValue={plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])}
 					>
-						{outstandingTasks?.map((plan) => (
+						{plans?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}

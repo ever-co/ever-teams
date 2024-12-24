@@ -8,18 +8,25 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@app/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from 'react-beautiful-dnd';
 import { useState } from 'react';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask, IUser } from '@app/interfaces';
 import { handleDragAndDropDailyOutstandingAll } from '@app/helpers';
 
 interface OutstandingAll {
 	profile: any;
+	user?: IUser;
 }
-export function OutstandingAll({ profile }: OutstandingAll) {
+export function OutstandingAll({ profile, user }: OutstandingAll) {
 	const { outstandingPlans } = useDailyPlan();
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	const displayedTaskId = new Set();
 
-	const tasks = outstandingPlans.map((plan) => plan.tasks).reduce((red, curr) => red?.concat(curr || []), []);
+	const tasks = outstandingPlans.flatMap(
+		(plan) =>
+			(user
+				? plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+				: plan.tasks) ?? []
+	);
+
 	const [task, setTask] = useState<ITeamTask[]>(() => tasks ?? []);
 
 	return (
