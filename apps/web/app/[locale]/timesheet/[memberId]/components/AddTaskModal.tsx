@@ -128,8 +128,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                     }
                     await createTimesheet({
                         ...payload,
-                        startedAt,
-                        stoppedAt,
+                        startedAt: start,
+                        stoppedAt: end,
                     });
                 })
             );
@@ -182,12 +182,16 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         <span className="text-[#de5505e1] ml-1">*</span>:
                     </label>
                     <CustomSelect
-                        classNameGroup='max-h-[40vh] !text-white '
+                        valueKey='employeeId'
+                        classNameGroup='max-h-[40vh] dark:!text-white '
                         ariaLabel='Task issues'
-                        className='w-full font-medium text-white'
-                        options={activeTeam?.members as any}
-                        onChange={(value: any) => updateFormState('employeeId', value.id)}
-                        renderOption={(option: any) => (
+                        className='w-full font-medium dark:text-white'
+                        options={activeTeam?.members || []}
+                        onChange={(value) => {
+                            console.log(value)
+                            updateFormState('employeeId', value)
+                        }}
+                        renderOption={(option) => (
                             <div className="flex items-center gap-x-2">
                                 <img className='h-6 w-6 rounded-full' src={option.employee.user.imageUrl} />
                                 <span>{option.employee.fullName}</span>

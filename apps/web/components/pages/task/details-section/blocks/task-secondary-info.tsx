@@ -358,7 +358,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<>
 								<Listbox.Button
 									className={clsxm(
-										`cursor-pointer outline-none w-full flex
+										`cursor-pointer outline-none w-full flex dark:text-white
 									items-center justify-between px-4 h-full
 									border-solid border-color-[#F2F2F2]
 									dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] rounded-lg`,
@@ -408,7 +408,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 													{organizationProjects.map((item, i) => {
 														return (
 															<Listbox.Option key={item.id} value={item} as={Fragment}>
-																<li className="relative border h-[2rem] flex items-center gap-1 px-2 rounded-lg outline-none cursor-pointer">
+																<li className="relative border h-[2rem] flex items-center gap-1 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
 																	<ProjectIcon width={14} height={14} />{' '}
 																	<span className=" truncate">{item.name}</span>
 																</li>
