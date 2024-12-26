@@ -8,11 +8,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScreenCalendar } from './activity/screen-calendar';
 import { cn } from 'lib/utils';
 import { useScrollPagination } from '@app/hooks/features/usePagination';
+import { IUser } from '@/app/interfaces';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
 	profile: I_UserProfilePage;
 	paginateTasks?: boolean;
+	user?: IUser;
 };
 
 /**
@@ -20,7 +22,7 @@ type Props = {
  * @param  - `profile` - The user profile page data.
  * @returns A component that displays a user's profile page.
  */
-export function UserProfileTask({ profile, paginateTasks, tabFiltered }: Props) {
+export function UserProfileTask({ profile, paginateTasks, tabFiltered, user }: Props) {
 	const [scrollableContainer, setScrollableContainer] = useState<HTMLDivElement | null>(null);
 
 	const t = useTranslations();
@@ -93,7 +95,7 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered }: Props) 
 					/>
 				)}
 			{tabFiltered.tab === 'stats' && <ScreenCalendar />}
-			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans />}
+			{tabFiltered.tab === 'dailyplan' && <UserProfilePlans user={user} />}
 
 			{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 				<div className="flex items-center my-6 space-x-2">

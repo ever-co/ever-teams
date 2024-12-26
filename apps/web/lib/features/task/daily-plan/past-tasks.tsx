@@ -10,32 +10,56 @@ import { clsxm } from '@app/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
 import { useEffect, useState } from 'react';
-import { IDailyPlan } from '@app/interfaces';
+import { IDailyPlan, IUser } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
 import DailyPlanTasksTableView from './table-view';
 
-export function PastTasks({ profile, currentTab = 'Past Tasks' }: { profile: any; currentTab?: FilterTabs }) {
-	const { pastPlans } = useDailyPlan();
+export function PastTasks({
+	user,
+	profile,
+	currentTab = 'Past Tasks'
+}: {
+	profile: any;
+	currentTab?: FilterTabs;
+	user?: IUser;
+}) {
+	const { pastPlans: _pastPlans } = useDailyPlan();
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [pastTasks, setPastTasks] = useState<IDailyPlan[]>(pastPlans);
+	const [pastPlans, setPastPlans] = useState<IDailyPlan[]>(_pastPlans);
 	const { date } = useDateRange(window.localStorage.getItem('daily-plan-tab'));
 
 	useEffect(() => {
-		setPastTasks(filterDailyPlan(date as any, pastPlans));
+		setPastPlans(filterDailyPlan(date as any, pastPlans));
 	}, [date, pastPlans]);
+
+	useEffect(() => {
+		let filteredData = pastPlans;
+
+		// Filter tasks for specific user if provided
+		if (user) {
+			filteredData = filteredData
+				.map((plan) => ({
+					...plan,
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+				}))
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+		}
+
+		setPastPlans(filteredData);
+	}, [date, pastPlans, user]);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{pastTasks?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, pastPlans, setPastTasks)}>
+			{pastPlans?.length > 0 ? (
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, pastPlans, setPastPlans)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 					>
-						{pastTasks?.map((plan) => (
+						{pastPlans?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}

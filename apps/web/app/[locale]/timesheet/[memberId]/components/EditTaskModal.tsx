@@ -1,20 +1,20 @@
 import { Modal, statusColor } from "@/lib/components";
-import { IoMdArrowDropdown } from "react-icons/io";
 import { FaRegClock } from "react-icons/fa";
 import { DatePickerFilter } from "./TimesheetFilterDate";
 import { FormEvent, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { clsxm } from "@/app/utils";
 import { Item, ManageOrMemberComponent, getNestedValue } from "@/lib/features/manual-time/manage-member-component";
-import { useOrganizationProjects } from "@/app/hooks";
+import { useOrganizationProjects, useOrganizationTeams } from "@/app/hooks";
 import { CustomSelect, TaskNameInfoDisplay } from "@/lib/features";
 import { statusTable } from "./TimesheetAction";
 import { TimesheetLog } from "@/app/interfaces";
-import { secondsToTime } from "@/app/helpers";
+import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from "@/app/helpers";
 import { useTimesheet } from "@/app/hooks/features/useTimesheet";
 import { toast } from "@components/ui/use-toast";
 import { ToastAction } from "@components/ui/toast";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { addMinutes, format, parseISO } from "date-fns";
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -23,24 +23,27 @@ export interface IEditTaskModalProps {
 }
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
 	const { organizationProjects } = useOrganizationProjects();
+	const { activeTeam } = useOrganizationTeams();
 	const t = useTranslations();
 	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({})
+	const initialTimeRange = {
+		startTime: formatTimeFromDate(dataTimesheet.startedAt),
+		endTime: formatTimeFromDate(dataTimesheet.stoppedAt),
+	};
 
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
 		date: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date(),
 	});
+	const seconds = differenceBetweenHours(toDate(dataTimesheet.startedAt), toDate(dataTimesheet.stoppedAt));
+	const { h: hours, m: minutes } = secondsToTime(seconds);
 
-	const { h: hours, m: minutes } = secondsToTime(dataTimesheet.timesheet.duration);
+	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>(initialTimeRange);
 
-	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>({
-		startTime: dataTimesheet.timesheet?.startedAt
-			? dataTimesheet.timesheet.startedAt.toString().slice(0, 5)
-			: '',
-		endTime: dataTimesheet.timesheet?.stoppedAt
-			? dataTimesheet.timesheet.stoppedAt.toString().slice(0, 5)
-			: '',
-	});
-
+	/**
+	 * Updates the start or end time in the state based on the provided key and value.
+	 * @param {string} key - The key of the time range to update. This can be either 'startTime' or 'endTime'.
+	 * @param {string} value - The new value for the selected time range.
+	 */
 	const updateTime = (key: 'startTime' | 'endTime', value: string) => {
 		setTimeRange(prevState => ({
 			...prevState,
@@ -51,10 +54,16 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		isBillable: dataTimesheet.isBillable ?? true,
 		projectId: dataTimesheet.project?.id || '',
 		notes: dataTimesheet.description || '',
+		employeeId: dataTimesheet.employeeId || '',
 	});
 	const memberItemsLists = {
 		Project: organizationProjects,
 	};
+	/**
+	 * Updates the project id in the form state when a project is selected or deselected in the dropdown.
+	 * @param {Object} values - An object with the selected values from the dropdown.
+	 * @param {Item | null} values['Project'] - The selected project.
+	 */
 	const handleSelectedValuesChange = (values: { [key: string]: Item | null }) => {
 		setTimesheetData((prev) => ({
 			...prev,
@@ -96,10 +105,11 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 				...timeRange.endTime.split(':').map(Number)
 			)
 		);
+
 		const payload = {
 			id: dataTimesheet.id,
 			isBillable: timesheetData.isBillable,
-			employeeId: dataTimesheet.employeeId,
+			employeeId: timesheetData.employeeId,
 			logType: dataTimesheet.logType,
 			source: dataTimesheet.source,
 			startedAt,
@@ -150,6 +160,12 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	const handleFromChange = (fromDate: Date | null) => {
 		setDateRange((prev) => ({ ...prev, date: fromDate }));
 	};
+	const getMinEndTime = (): string => {
+		if (!timeRange.startTime) return "00:00";
+		const startDate = parseISO(`2000-01-01T${timeRange.startTime}`);
+		return format(addMinutes(startDate, 5), 'HH:mm');
+	};
+
 	return (
 		<Modal
 			closeModal={closeModal}
@@ -170,16 +186,29 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					/>
 					<div className="flex items-center gap-x-1 ">
 						<span className="text-gray-400">for</span>
-						<span className="text-primary dark:text-primary-light">{dataTimesheet.employee?.fullName ?? ""}</span>
-						<IoMdArrowDropdown className="cursor-pointer" />
+						<CustomSelect
+							defaultValue={dataTimesheet.employee.fullName}
+							placeholder={dataTimesheet.employee.fullName}
+							valueKey="employeeId"
+							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
+							options={activeTeam?.members || []}
+							value={timesheetData.employeeId}
+							onChange={(value) => setTimesheetData({ ...timesheetData, employeeId: value.employeeId })}
+							renderOption={(option) => (
+								<div className="flex items-center gap-x-2">
+									<img className='h-6 w-6 rounded-full' src={option.employee.user.imageUrl} alt={option.employee.fullName} />
+									<span>{option.employee.fullName}</span>
+								</div>
+							)}
+						/>
 					</div>
 				</div>
 				<div className="flex items-start flex-col justify-center gap-4">
 					<div>
-						<span className="text-[#282048] dark:text-gray-500 ">{t('dailyPlan.TASK_TIME')}</span>
+						<span className="text-[#282048] dark:text-gray-500 capitalize ">{t('dailyPlan.TASK_TIME')}</span>
 						<div className="flex items-center gap-x-2 ">
 							<FaRegClock className="text-[#30B366]" />
-							<span>{hours}:{minutes} h</span>
+							<span>{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')} h</span>
 						</div>
 					</div>
 					<div className="flex items-center w-full">
@@ -189,13 +218,13 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
 							<input
+								defaultValue={timeRange.startTime || "09:00"}
 								aria-label="Start time"
 								aria-describedby="start-time-error"
 								type="time"
 								min="00:00"
 								max="23:59"
 								pattern="[0-9]{2}:[0-9]{2}"
-								value={timeRange.startTime}
 								onChange={(e) => updateTime("startTime", e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 								required
@@ -208,10 +237,11 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
 							<input
+								defaultValue={timeRange.endTime || "10:00"}
 								aria-label="End time"
 								aria-describedby="end-time-error"
 								type="time"
-								value={timeRange.endTime}
+								min={getMinEndTime()}
 								onChange={(e) => updateTime('endTime', e.target.value)}
 								className="w-full p-1 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
 								required
