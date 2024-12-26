@@ -27,6 +27,14 @@ export function useTimelogFilterOptions() {
         ];
         return user?.role.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
     };
+    const normalizeText = (text: string | undefined | null): string => {
+        if (!text) return '';
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    };
 
     const generateTimeOptions = (interval = 15) => {
         const totalSlots = (24 * 60) / interval; // Total intervals in a day
@@ -85,6 +93,7 @@ export function useTimelogFilterOptions() {
         generateTimeOptions,
         setPuTimesheetStatus,
         puTimesheetStatus,
-        isUserAllowedToAccess
+        isUserAllowedToAccess,
+        normalizeText
     };
 }

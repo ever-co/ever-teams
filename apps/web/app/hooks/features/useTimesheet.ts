@@ -12,6 +12,7 @@ interface TimesheetParams {
     startDate?: Date | string;
     endDate?: Date | string;
     timesheetViewMode?: 'ListView' | 'CalendarView'
+    inputSearch?: string
 }
 
 export interface GroupedTimesheet {
@@ -91,11 +92,12 @@ const groupByMonth = createGroupingFunction(date =>
 export function useTimesheet({
     startDate,
     endDate,
-    timesheetViewMode
+    timesheetViewMode,
+    inputSearch
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess, normalizeText } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
@@ -266,23 +268,53 @@ export function useTimesheet({
     }, [user, queryDeleteTimesheet, setTimesheet]);
 
 
-    const timesheetElementGroup = useMemo(() => {
-        if (timesheetViewMode === 'ListView') {
-            if (timesheetGroupByDays === 'Daily') {
-                return groupByDate(timesheet);
-            }
-            if (timesheetGroupByDays === 'Weekly') {
-                return groupByWeek(timesheet);
-            }
-            return groupByMonth(timesheet);
+    const filterDataTimesheet = useMemo(() => {
+        if (!timesheet || !inputSearch) {
+            return timesheet;
         }
-        return groupByDate(timesheet);
+        const searchTerms = normalizeText(inputSearch).split(/\s+/).filter(Boolean);
+        if (searchTerms.length === 0) {
+            return timesheet;
+        }
+        return timesheet.filter((task) => {
+            const searchableContent = {
+                title: normalizeText(task.task?.title),
+                employee: normalizeText(task.employee?.fullName),
+                project: normalizeText(task.project?.name)
+            };
+            return searchTerms.every(term =>
+                Object.values(searchableContent).some(content =>
+                    content.includes(term)
+                )
+            );
+        });
+    }, [timesheet, inputSearch]);
+
+    const timesheetElementGroup = useMemo(() => {
+        if (!timesheet) {
+            return [];
+        }
+
+        if (timesheetViewMode === 'ListView') {
+            switch (timesheetGroupByDays) {
+                case 'Daily':
+                    return groupByDate(filterDataTimesheet);
+                case 'Weekly':
+                    return groupByWeek(filterDataTimesheet);
+                case 'Monthly':
+                    return groupByMonth(filterDataTimesheet);
+                default:
+                    return groupByDate(filterDataTimesheet);
+            }
+        }
+
+        return groupByDate(filterDataTimesheet);
     }, [timesheetGroupByDays, timesheetViewMode, timesheet]);
 
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, inputSearch]);
 
     return {
         loadingTimesheet,
@@ -292,7 +324,7 @@ export function useTimesheet({
         deleteTaskTimesheet,
         getStatusTimesheet,
         timesheetGroupByDays,
-        statusTimesheet: getStatusTimesheet(timesheet.flat()),
+        statusTimesheet: getStatusTimesheet(filterDataTimesheet.flat()),
         updateTimesheetStatus,
         loadingUpdateTimesheetStatus,
         puTimesheetStatus,
@@ -301,6 +333,7 @@ export function useTimesheet({
         updateTimesheet,
         loadingUpdateTimesheet,
         groupByDate,
-        isManage
+        isManage,
+        normalizeText
     };
 }

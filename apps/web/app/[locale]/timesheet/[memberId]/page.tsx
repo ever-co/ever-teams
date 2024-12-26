@@ -52,34 +52,18 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		to: endOfMonth(new Date()),
 	});
 
-	const { timesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
+	const { timesheet: filterDataTimesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
 		startDate: dateRange.from!,
 		endDate: dateRange.to!,
-		timesheetViewMode: timesheetNavigator
+		timesheetViewMode: timesheetNavigator,
+		inputSearch: search
 	});
 
 	React.useEffect(() => {
 		getOrganizationProjects();
 	}, [getOrganizationProjects])
 
-	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
-	const filterDataTimesheet = useMemo(() => {
-		const filteredTimesheet =
-			timesheet
-				.filter((v) =>
-					v.tasks.some(
-						(task) =>
-							task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
-							task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch) ||
-							task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
-					)
-				);
 
-		return filteredTimesheet;
-	}, [
-		timesheet,
-		lowerCaseSearch,
-	]);
 	const {
 		isOpen: isManualTimeModalOpen,
 		openModal: openManualTimeModal,
