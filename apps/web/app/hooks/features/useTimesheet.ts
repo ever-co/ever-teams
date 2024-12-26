@@ -89,6 +89,37 @@ const groupByMonth = createGroupingFunction(date =>
     `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
 );
 
+/**
+ * @function useTimesheet
+ *
+ * @description
+ * Fetches timesheet logs based on the provided date range and filters.
+ *
+ * @param {TimesheetParams} params
+ * @prop {Date} startDate - Start date of the period to fetch.
+ * @prop {Date} endDate - End date of the period to fetch.
+ * @prop {string} timesheetViewMode - "ListView" or "CalendarView"
+ * @prop {string} inputSearch - Search string to filter the timesheet logs.
+ *
+ * @returns
+ * @prop {boolean} loadingTimesheet - Whether the timesheet is being fetched.
+ * @prop {TimesheetLog[]} timesheet - The list of timesheet logs, grouped by day.
+ * @prop {function} getTaskTimesheet - Callable to fetch timesheet logs.
+ * @prop {boolean} loadingDeleteTimesheet - Whether a timesheet is being deleted.
+ * @prop {function} deleteTaskTimesheet - Callable to delete timesheet logs.
+ * @prop {function} getStatusTimesheet - Callable to group timesheet logs by status.
+ * @prop {TimesheetStatus} timesheetGroupByDays - The current filter for grouping timesheet logs.
+ * @prop {object} statusTimesheet - Timesheet logs grouped by status.
+ * @prop {function} updateTimesheetStatus - Callable to update the status of timesheet logs.
+ * @prop {boolean} loadingUpdateTimesheetStatus - Whether timesheet logs are being updated.
+ * @prop {boolean} puTimesheetStatus - Whether timesheet logs are updatable.
+ * @prop {function} createTimesheet - Callable to create a new timesheet log.
+ * @prop {boolean} loadingCreateTimesheet - Whether a timesheet log is being created.
+ * @prop {function} updateTimesheet - Callable to update a timesheet log.
+ * @prop {boolean} loadingUpdateTimesheet - Whether a timesheet log is being updated.
+ * @prop {function} groupByDate - Callable to group timesheet logs by date.
+ * @prop {boolean} isManage - Whether the user is authorized to manage the timesheet.
+ */
 export function useTimesheet({
     startDate,
     endDate,
