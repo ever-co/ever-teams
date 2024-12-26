@@ -126,7 +126,7 @@ export function UserTeamCard({
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
 	const activityScreens = {
-		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} />,
+		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} user={member?.employee.user} />,
 		Screenshots: <ScreenshootTab />,
 		Apps: <AppsTab />,
 		'Visited Sites': <VisitedSitesTab />

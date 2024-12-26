@@ -12,12 +12,12 @@ import { clsxm } from '@app/utils';
 import { HorizontalSeparator, AlertPopup } from 'lib/components';
 import { useEffect, useState } from 'react';
 import { filterDailyPlan } from '@app/hooks/useFilterDateRange';
-import { IDailyPlan } from '@app/interfaces';
+import { IDailyPlan, IUser } from '@app/interfaces';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useDateRange } from '@app/hooks/useDateRange';
 import DailyPlanTasksTableView from './table-view';
 
-export function FutureTasks({ profile }: { profile: any }) {
+export function FutureTasks({ profile, user }: { profile: any; user?: IUser }) {
 	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const [popupOpen, setPopupOpen] = useState(false);
@@ -29,6 +29,22 @@ export function FutureTasks({ profile }: { profile: any }) {
 		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
 	}, [date, setDate, futurePlans]);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
+
+	useEffect(() => {
+		let filteredData = futurePlans;
+
+		// Filter tasks for specific user if provided
+		if (user) {
+			filteredData = filteredData
+				.map((plan) => ({
+					...plan,
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+				}))
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+
+			setFutureDailyPlanTasks(filterDailyPlan(date as any, filteredData));
+		}
+	}, [date, futurePlans, user]);
 
 	return (
 		<div className="flex flex-col gap-6">
