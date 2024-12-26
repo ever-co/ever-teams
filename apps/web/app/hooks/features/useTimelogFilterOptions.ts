@@ -27,6 +27,14 @@ export function useTimelogFilterOptions() {
         ];
         return user?.role.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
     };
+    const normalizeText = (text: string | undefined | null): string => {
+        if (!text) return '';
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    };
 
     const generateTimeOptions = (interval = 15) => {
         const totalSlots = (24 * 60) / interval; // Total intervals in a day
@@ -47,16 +55,17 @@ export function useTimelogFilterOptions() {
     const handleSelectRowByStatusAndDate = (logs: TimesheetLog[], isChecked: boolean) => {
         setSelectTimesheetId((prev) => {
             const logIds = logs.map((item) => item.id);
-
-            if (isChecked) {
-                return [...new Set([...prev, ...logIds])];
-            } else {
-                return prev.filter((id) => !logIds.includes(id));
+            if (!isChecked) {
+                const allSelected = logIds.every(id => prev.includes(id));
+                if (allSelected) {
+                    return prev.filter((id) => !logIds.includes(id));
+                } else {
+                    return [...new Set([...prev, ...logIds])];
+                }
             }
+            return [...new Set([...prev, ...logIds])];
         });
-    }
-
-
+    };
 
     React.useEffect(() => {
         return () => setSelectTimesheetId([]);
@@ -84,6 +93,7 @@ export function useTimelogFilterOptions() {
         generateTimeOptions,
         setPuTimesheetStatus,
         puTimesheetStatus,
-        isUserAllowedToAccess
+        isUserAllowedToAccess,
+        normalizeText
     };
 }

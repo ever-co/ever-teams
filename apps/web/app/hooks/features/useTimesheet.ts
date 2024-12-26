@@ -12,6 +12,7 @@ interface TimesheetParams {
     startDate?: Date | string;
     endDate?: Date | string;
     timesheetViewMode?: 'ListView' | 'CalendarView'
+    inputSearch?: string
 }
 
 export interface GroupedTimesheet {
@@ -88,14 +89,46 @@ const groupByMonth = createGroupingFunction(date =>
     `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
 );
 
+/**
+ * @function useTimesheet
+ *
+ * @description
+ * Fetches timesheet logs based on the provided date range and filters.
+ *
+ * @param {TimesheetParams} params
+ * @prop {Date} startDate - Start date of the period to fetch.
+ * @prop {Date} endDate - End date of the period to fetch.
+ * @prop {string} timesheetViewMode - "ListView" or "CalendarView"
+ * @prop {string} inputSearch - Search string to filter the timesheet logs.
+ *
+ * @returns
+ * @prop {boolean} loadingTimesheet - Whether the timesheet is being fetched.
+ * @prop {TimesheetLog[]} timesheet - The list of timesheet logs, grouped by day.
+ * @prop {function} getTaskTimesheet - Callable to fetch timesheet logs.
+ * @prop {boolean} loadingDeleteTimesheet - Whether a timesheet is being deleted.
+ * @prop {function} deleteTaskTimesheet - Callable to delete timesheet logs.
+ * @prop {function} getStatusTimesheet - Callable to group timesheet logs by status.
+ * @prop {TimesheetStatus} timesheetGroupByDays - The current filter for grouping timesheet logs.
+ * @prop {object} statusTimesheet - Timesheet logs grouped by status.
+ * @prop {function} updateTimesheetStatus - Callable to update the status of timesheet logs.
+ * @prop {boolean} loadingUpdateTimesheetStatus - Whether timesheet logs are being updated.
+ * @prop {boolean} puTimesheetStatus - Whether timesheet logs are updatable.
+ * @prop {function} createTimesheet - Callable to create a new timesheet log.
+ * @prop {boolean} loadingCreateTimesheet - Whether a timesheet log is being created.
+ * @prop {function} updateTimesheet - Callable to update a timesheet log.
+ * @prop {boolean} loadingUpdateTimesheet - Whether a timesheet log is being updated.
+ * @prop {function} groupByDate - Callable to group timesheet logs by date.
+ * @prop {boolean} isManage - Whether the user is authorized to manage the timesheet.
+ */
 export function useTimesheet({
     startDate,
     endDate,
-    timesheetViewMode
+    timesheetViewMode,
+    inputSearch
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess, normalizeText } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
@@ -266,23 +299,53 @@ export function useTimesheet({
     }, [user, queryDeleteTimesheet, setTimesheet]);
 
 
-    const timesheetElementGroup = useMemo(() => {
-        if (timesheetViewMode === 'ListView') {
-            if (timesheetGroupByDays === 'Daily') {
-                return groupByDate(timesheet);
-            }
-            if (timesheetGroupByDays === 'Weekly') {
-                return groupByWeek(timesheet);
-            }
-            return groupByMonth(timesheet);
+    const filterDataTimesheet = useMemo(() => {
+        if (!timesheet || !inputSearch) {
+            return timesheet;
         }
-        return groupByDate(timesheet);
+        const searchTerms = normalizeText(inputSearch).split(/\s+/).filter(Boolean);
+        if (searchTerms.length === 0) {
+            return timesheet;
+        }
+        return timesheet.filter((task) => {
+            const searchableContent = {
+                title: normalizeText(task.task?.title),
+                employee: normalizeText(task.employee?.fullName),
+                project: normalizeText(task.project?.name)
+            };
+            return searchTerms.every(term =>
+                Object.values(searchableContent).some(content =>
+                    content.includes(term)
+                )
+            );
+        });
+    }, [timesheet, inputSearch]);
+
+    const timesheetElementGroup = useMemo(() => {
+        if (!timesheet) {
+            return [];
+        }
+
+        if (timesheetViewMode === 'ListView') {
+            switch (timesheetGroupByDays) {
+                case 'Daily':
+                    return groupByDate(filterDataTimesheet);
+                case 'Weekly':
+                    return groupByWeek(filterDataTimesheet);
+                case 'Monthly':
+                    return groupByMonth(filterDataTimesheet);
+                default:
+                    return groupByDate(filterDataTimesheet);
+            }
+        }
+
+        return groupByDate(filterDataTimesheet);
     }, [timesheetGroupByDays, timesheetViewMode, timesheet]);
 
 
     useEffect(() => {
         getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays]);
+    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, inputSearch]);
 
     return {
         loadingTimesheet,
@@ -292,7 +355,7 @@ export function useTimesheet({
         deleteTaskTimesheet,
         getStatusTimesheet,
         timesheetGroupByDays,
-        statusTimesheet: getStatusTimesheet(timesheet.flat()),
+        statusTimesheet: getStatusTimesheet(filterDataTimesheet.flat()),
         updateTimesheetStatus,
         loadingUpdateTimesheetStatus,
         puTimesheetStatus,
@@ -301,6 +364,7 @@ export function useTimesheet({
         updateTimesheet,
         loadingUpdateTimesheet,
         groupByDate,
-        isManage
+        isManage,
+        normalizeText
     };
 }
