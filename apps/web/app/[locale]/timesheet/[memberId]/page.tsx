@@ -26,6 +26,7 @@ import TimesheetPagination from './components/TimesheetPagination';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
+const TIMESHEET_PAGE_SIZE = 10;
 
 type ViewToggleButtonProps = {
 	mode: TimesheetViewMode;
@@ -73,7 +74,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		dates
 	} = useTimesheetPagination({
 		data: filterDataTimesheet,
-		pageSize: 10
+		pageSize: TIMESHEET_PAGE_SIZE
 	});;
 
 
