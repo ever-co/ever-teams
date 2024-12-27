@@ -21,6 +21,8 @@ import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helper
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
+import { useTimesheetPagination } from '@/app/hooks/features/useTimesheetPagination';
+import TimesheetPagination from './components/TimesheetPagination';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -52,12 +54,29 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		to: endOfMonth(new Date()),
 	});
 
-	const { timesheet: filterDataTimesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
+	const { timesheet: filterDataTimesheet, statusTimesheet, loadingTimesheet, isManage, timesheetGroupByDays } = useTimesheet({
 		startDate: dateRange.from!,
 		endDate: dateRange.to!,
 		timesheetViewMode: timesheetNavigator,
 		inputSearch: search
 	});
+
+	const {
+		paginatedGroups,
+		currentPage,
+		totalPages,
+		goToPage,
+		nextPage,
+		previousPage,
+		getPageNumbers,
+		totalGroups,
+		dates
+	} = useTimesheetPagination({
+		data: filterDataTimesheet,
+		pageSize: 10
+	});;
+
+
 
 	React.useEffect(() => {
 		getOrganizationProjects();
@@ -103,6 +122,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		],
 		[activeTeam?.name, currentLocale, t]
 	);
+	const shouldRenderPagination =
+		timesheetNavigator === 'ListView' ||
+		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
+
 	return (
 		<>
 			{isTimesheetDetailOpen
@@ -230,14 +253,31 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							{timesheetNavigator === 'ListView' ? (
 								<TimesheetView
 									user={user}
-									data={filterDataTimesheet}
+									data={paginatedGroups}
 									loading={loadingTimesheet}
 								/>
 							) : (
 								<CalendarView
 									user={user}
-									data={filterDataTimesheet}
+									data={
+										shouldRenderPagination ?
+											paginatedGroups :
+											filterDataTimesheet
+									}
 									loading={loadingTimesheet}
+								/>
+							)}
+							{shouldRenderPagination && (
+								<TimesheetPagination
+									currentPage={currentPage}
+									totalPages={totalPages}
+									onPageChange={goToPage}
+									getPageNumbers={getPageNumbers}
+									goToPage={goToPage}
+									nextPage={nextPage}
+									previousPage={previousPage}
+									dates={dates}
+									totalGroups={totalGroups}
 								/>
 							)}
 						</div>

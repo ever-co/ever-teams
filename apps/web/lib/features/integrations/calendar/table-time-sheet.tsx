@@ -62,7 +62,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
 	const { timesheetGroupByDays, handleSelectRowByStatusAndDate, handleSelectRowTimesheet, selectTimesheetId, setSelectTimesheetId, isUserAllowedToAccess } = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
-
+	console.log(data)
 
 	const handleConfirm = () => {
 		try {
