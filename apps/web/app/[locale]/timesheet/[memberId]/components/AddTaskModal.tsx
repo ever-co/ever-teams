@@ -188,7 +188,6 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         className='w-full font-medium dark:text-white'
                         options={activeTeam?.members || []}
                         onChange={(value) => {
-                            console.log(value)
                             updateFormState('employeeId', value)
                         }}
                         renderOption={(option) => (

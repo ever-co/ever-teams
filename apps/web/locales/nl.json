@@ -611,8 +611,10 @@
 			"LINK_LABEL": "Naar de startpagina"
 		},
 		"offline": {
-			"HEADING_TITLE": "Netwerk Verbroken!",
-			"HEADING_DESCRIPTION": "U bent momenteel offline, controleer uw internetverbinding..."
+			"HEADING_TITLE": "Netwerk verbroken!",
+			"HEADING_SUB_DESCRIPTION": "Oeps, we zijn je kwijt. Maak je geen zorgen, je tijd wordt nog steeds bijgehouden.",
+			"HEADING_DESCRIPTION": "Je kunt doorgaan met werken in de webapp zodra je verbinding is hersteld.",
+			"STATUS_NETWORK": "Offline!"
 		},
 		"error": {
 			"TITLE": "Fout !",

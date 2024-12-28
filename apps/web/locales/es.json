@@ -611,8 +611,10 @@
 			"LINK_LABEL": "Ir a la página de inicio"
 		},
 		"offline": {
-			"HEADING_TITLE": "¡Red Desconectada!",
-			"HEADING_DESCRIPTION": "Actualmente estás desconectado, por favor verifica tu conexión a Internet..."
+			"HEADING_TITLE": "¡Red desconectada!",
+			"HEADING_SUB_DESCRIPTION": "Vaya, te hemos perdido. No te preocupes, tu tiempo sigue siendo registrado.",
+			"HEADING_DESCRIPTION": "Podrás continuar trabajando en la aplicación web una vez que se restablezca tu conexión.",
+			"STATUS_NETWORK": "¡Desconectado!"
 		},
 		"error": {
 			"TITLE": "Error !",
