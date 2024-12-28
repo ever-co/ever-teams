@@ -21,9 +21,12 @@ import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helper
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
+import { useTimesheetPagination } from '@/app/hooks/features/useTimesheetPagination';
+import TimesheetPagination from './components/TimesheetPagination';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
+const TIMESHEET_PAGE_SIZE = 10;
 
 type ViewToggleButtonProps = {
 	mode: TimesheetViewMode;
@@ -52,34 +55,35 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		to: endOfMonth(new Date()),
 	});
 
-	const { timesheet, statusTimesheet, loadingTimesheet, isManage } = useTimesheet({
+	const { timesheet: filterDataTimesheet, statusTimesheet, loadingTimesheet, isManage, timesheetGroupByDays } = useTimesheet({
 		startDate: dateRange.from!,
 		endDate: dateRange.to!,
-		timesheetViewMode: timesheetNavigator
+		timesheetViewMode: timesheetNavigator,
+		inputSearch: search
 	});
+
+	const {
+		paginatedGroups,
+		currentPage,
+		totalPages,
+		goToPage,
+		nextPage,
+		previousPage,
+		getPageNumbers,
+		totalGroups,
+		dates
+	} = useTimesheetPagination({
+		data: filterDataTimesheet,
+		pageSize: TIMESHEET_PAGE_SIZE
+	});;
+
+
 
 	React.useEffect(() => {
 		getOrganizationProjects();
 	}, [getOrganizationProjects])
 
-	const lowerCaseSearch = useMemo(() => search?.toLowerCase() ?? '', [search]);
-	const filterDataTimesheet = useMemo(() => {
-		const filteredTimesheet =
-			timesheet
-				.filter((v) =>
-					v.tasks.some(
-						(task) =>
-							task.task?.title?.toLowerCase()?.includes(lowerCaseSearch) ||
-							task.employee?.fullName?.toLowerCase()?.includes(lowerCaseSearch) ||
-							task.project?.name?.toLowerCase()?.includes(lowerCaseSearch)
-					)
-				);
 
-		return filteredTimesheet;
-	}, [
-		timesheet,
-		lowerCaseSearch,
-	]);
 	const {
 		isOpen: isManualTimeModalOpen,
 		openModal: openManualTimeModal,
@@ -119,6 +123,10 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		],
 		[activeTeam?.name, currentLocale, t]
 	);
+	const shouldRenderPagination =
+		timesheetNavigator === 'ListView' ||
+		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
+
 	return (
 		<>
 			{isTimesheetDetailOpen
@@ -246,14 +254,31 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							{timesheetNavigator === 'ListView' ? (
 								<TimesheetView
 									user={user}
-									data={filterDataTimesheet}
+									data={paginatedGroups}
 									loading={loadingTimesheet}
 								/>
 							) : (
 								<CalendarView
 									user={user}
-									data={filterDataTimesheet}
+									data={
+										shouldRenderPagination ?
+											paginatedGroups :
+											filterDataTimesheet
+									}
 									loading={loadingTimesheet}
+								/>
+							)}
+							{shouldRenderPagination && (
+								<TimesheetPagination
+									currentPage={currentPage}
+									totalPages={totalPages}
+									onPageChange={goToPage}
+									getPageNumbers={getPageNumbers}
+									goToPage={goToPage}
+									nextPage={nextPage}
+									previousPage={previousPage}
+									dates={dates}
+									totalGroups={totalGroups}
 								/>
 							)}
 						</div>

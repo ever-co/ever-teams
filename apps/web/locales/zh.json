@@ -587,8 +587,10 @@
 			"TRY_AGAIN": "再试一次"
 		},
 		"offline": {
-			"HEADING_TITLE": "网络断开连接！",
-			"HEADING_DESCRIPTION": "您目前处于离线状态，请检查您的互联网连接..."
+			"HEADING_TITLE": "网络断开！",
+			"HEADING_SUB_DESCRIPTION": "糟糕，我们失去了您的连接。别担心，您的时间仍在跟踪中。",
+			"HEADING_DESCRIPTION": "连接恢复后，您将可以继续在网页应用中工作。",
+			"STATUS_NETWORK": "离线！"
 		},
 		"invite": {
 			"HEADING_TITLE": "邀请成员加入您的团队",

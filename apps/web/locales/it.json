@@ -611,8 +611,10 @@
 			"LINK_LABEL": "Vai alla homepage"
 		},
 		"offline": {
-			"HEADING_TITLE": "Rete Disconnessa!",
-			"HEADING_DESCRIPTION": "Attualmente sei offline, controlla la tua connessione Internet..."
+			"HEADING_TITLE": "Connessione di rete interrotta!",
+			"HEADING_SUB_DESCRIPTION": "Ops, ti abbiamo perso. Non preoccuparti, il tuo tempo è ancora in tracciamento.",
+			"HEADING_DESCRIPTION": "Potrai continuare a lavorare nell'app web una volta ripristinata la connessione.",
+			"STATUS_NETWORK": "Offline!"
 		},
 		"error": {
 			"TITLE": "Errore!",

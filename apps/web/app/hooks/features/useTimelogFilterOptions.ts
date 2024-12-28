@@ -13,7 +13,7 @@ export function useTimelogFilterOptions() {
     const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState);
     const [puTimesheetStatus, setPuTimesheetStatus] = useAtom(timesheetUpdateStatus)
     const [selectedItems, setSelectedItems] = React.useState<{ status: string; date: string }[]>([]);
-    const [selectTimesheetId, setSelectTimesheetId] = React.useState<string[]>([])
+    const [selectTimesheetId, setSelectTimesheetId] = React.useState<TimesheetLog[]>([])
 
     const employee = employeeState;
     const project = projectState;
@@ -26,6 +26,14 @@ export function useTimelogFilterOptions() {
             RoleNameEnum.ADMIN,
         ];
         return user?.role.name ? allowedRoles.includes(user.role.name as RoleNameEnum) : false;
+    };
+    const normalizeText = (text: string | undefined | null): string => {
+        if (!text) return '';
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
     };
 
     const generateTimeOptions = (interval = 15) => {
@@ -40,23 +48,22 @@ export function useTimelogFilterOptions() {
         });
     };
 
-    const handleSelectRowTimesheet = (items: string) => {
+    const handleSelectRowTimesheet = (items: TimesheetLog) => {
         setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
 
     const handleSelectRowByStatusAndDate = (logs: TimesheetLog[], isChecked: boolean) => {
-        setSelectTimesheetId((prev) => {
-            const logIds = logs.map((item) => item.id);
+        setSelectTimesheetId((prev: TimesheetLog[]) => {
+            const isLogIncluded = (log: TimesheetLog, list: TimesheetLog[]) =>
+                list.some((item) => item.id === log.id);
 
-            if (isChecked) {
-                return [...new Set([...prev, ...logIds])];
-            } else {
-                return prev.filter((id) => !logIds.includes(id));
+            if (!isChecked) {
+                return prev.filter((prevLog) => !logs.some((log) => log.id === prevLog.id));
             }
+            const newLogs = logs.filter((log) => !isLogIncluded(log, prev));
+            return [...prev, ...newLogs];
         });
-    }
-
-
+    };
 
     React.useEffect(() => {
         return () => setSelectTimesheetId([]);
@@ -84,6 +91,7 @@ export function useTimelogFilterOptions() {
         generateTimeOptions,
         setPuTimesheetStatus,
         puTimesheetStatus,
-        isUserAllowedToAccess
+        isUserAllowedToAccess,
+        normalizeText
     };
 }
