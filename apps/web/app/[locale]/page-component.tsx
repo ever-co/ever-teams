@@ -2,7 +2,7 @@
 
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams, useTimerView } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -34,6 +34,8 @@ function MainPage() {
 	const t = useTranslations();
 	const [headerSize] = useState(10);
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const { timerStatus } = useTimerView();
+
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -56,7 +58,7 @@ function MainPage() {
 	}, [setFullWidth]);
 
 	if (!online) {
-		return <Offline />;
+		return <Offline showTimer={timerStatus?.running} />;
 	}
 	return (
 		<>

@@ -18,7 +18,7 @@ import { useCallback, useMemo } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { useStartStopTimerHandler } from '@app/hooks/features/useStartStopTimerHandler';
 
-export function Timer({ className }: IClassName) {
+export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
 
 	const {
@@ -86,13 +86,12 @@ export function Timer({ className }: IClassName) {
 					<div className="w-full mx-auto">
 						<Text.Heading
 							as="h3"
-							className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
-								timerStatus?.running &&
+							className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${timerStatus?.running &&
 								timerStatus?.lastLog?.source &&
 								timerStatus?.lastLog?.source !== TimerSource.TEAMS
-									? 'text-[#888] dark:text-[#888]'
-									: ''
-							} `}
+								? 'text-[#888] dark:text-[#888]'
+								: ''
+								} `}
 						>
 							{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 							<span className="text-sm">:{pad(ms_p)}</span>
@@ -117,68 +116,74 @@ export function Timer({ className }: IClassName) {
 					</div>
 				</div>
 			</div>
-			<VerticalSeparator />
-			<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
-				<Tooltip
-					label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
-					placement="top-start"
-					// If timer is running at some other source and user may or may not have selected the task
-					// enabled={
-					// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
-					// }
-				>
-					<TimerButton
-						onClick={startStopTimerHandler}
-						running={timerStatus?.running}
-						disabled={
+			{
+				showTimerButton && (
+					<>
+						<VerticalSeparator />
+						<div className="w-1/4 xl:w-2/5 h-fit flex justify-center items-center">
+							<Tooltip
+								label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
+								placement="top-start"
 							// If timer is running at some other source and user may or may not have selected the task
-							!canRunTimer || (disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS)
-						}
-					/>
-				</Tooltip>
+							// enabled={
+							// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+							// }
+							>
+								<TimerButton
+									onClick={startStopTimerHandler}
+									running={timerStatus?.running}
+									disabled={
+										// If timer is running at some other source and user may or may not have selected the task
+										!canRunTimer || (disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS)
+									}
+								/>
+							</Tooltip>
 
-				<SuggestDailyPlanModal
-					isOpen={modals.isSuggestDailyPlanModalOpen}
-					closeModal={modals.suggestDailyPlanCloseModal}
-				/>
-				{/**
+							<SuggestDailyPlanModal
+								isOpen={modals.isSuggestDailyPlanModalOpen}
+								closeModal={modals.suggestDailyPlanCloseModal}
+							/>
+							{/**
 				 * Track time on planned task (SOFT FLOW)
 				 */}
-				{hasPlan && activeTeamTask && (
-					<EnforcePlanedTaskModal
-						content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
-						closeModal={modals.enforceTaskSoftCloseModal}
-						plan={hasPlan}
-						open={modals.isEnforceTaskSoftModalOpen}
-						task={activeTeamTask}
-					/>
-				)}
+							{hasPlan && activeTeamTask && (
+								<EnforcePlanedTaskModal
+									content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
+									closeModal={modals.enforceTaskSoftCloseModal}
+									plan={hasPlan}
+									open={modals.isEnforceTaskSoftModalOpen}
+									task={activeTeamTask}
+								/>
+							)}
 
-				{hasPlan && hasPlan.tasks && (
-					<AddTasksEstimationHoursModal
-						isOpen={modals.isTasksEstimationHoursModalOpen}
-						closeModal={modals.tasksEstimationHoursCloseModal}
-						plan={hasPlan}
-						tasks={hasPlan.tasks}
-					/>
-				)}
+							{hasPlan && hasPlan.tasks && (
+								<AddTasksEstimationHoursModal
+									isOpen={modals.isTasksEstimationHoursModalOpen}
+									closeModal={modals.tasksEstimationHoursCloseModal}
+									plan={hasPlan}
+									tasks={hasPlan.tasks}
+								/>
+							)}
 
-				{/**
+							{/**
 				 * Track time on planned task (REQUIRE PLAN)
 				 */}
 
-				{requirePlan && hasPlan && activeTeamTask && (
-					<EnforcePlanedTaskModal
-						onOK={startTimer}
-						content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
-						closeModal={modals.enforceTaskCloseModal}
-						plan={hasPlan}
-						open={modals.isEnforceTaskModalOpen}
-						task={activeTeamTask}
-						openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
-					/>
-				)}
-			</div>
+							{requirePlan && hasPlan && activeTeamTask && (
+								<EnforcePlanedTaskModal
+									onOK={startTimer}
+									content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
+									closeModal={modals.enforceTaskCloseModal}
+									plan={hasPlan}
+									open={modals.isEnforceTaskModalOpen}
+									task={activeTeamTask}
+									openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
+								/>
+							)}
+						</div>
+					</>
+				)
+			}
 		</div>
 	);
 }
