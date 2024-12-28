@@ -1,3 +1,4 @@
+import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components';
 import { useTranslations } from 'next-intl';
@@ -32,13 +33,20 @@ export function RejectSelectedModal({
 }: IRejectSelectedModalProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [reason, setReason] = useState('');
+	const { updateTimesheetStatus, setSelectTimesheetId } = useTimesheet({});
+
 	const t = useTranslations();
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 		try {
-			await onReject(reason);
-			closeModal();
+			updateTimesheetStatus({
+				status: 'DENIED',
+				ids: selectTimesheetId || [],
+			}).then(() => {
+				closeModal();
+				setSelectTimesheetId([])
+			}).catch((error) => console.error(error));
 		} finally {
 			setIsSubmitting(false);
 		}

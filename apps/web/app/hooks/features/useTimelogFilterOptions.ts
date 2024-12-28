@@ -13,7 +13,7 @@ export function useTimelogFilterOptions() {
     const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState);
     const [puTimesheetStatus, setPuTimesheetStatus] = useAtom(timesheetUpdateStatus)
     const [selectedItems, setSelectedItems] = React.useState<{ status: string; date: string }[]>([]);
-    const [selectTimesheetId, setSelectTimesheetId] = React.useState<string[]>([])
+    const [selectTimesheetId, setSelectTimesheetId] = React.useState<TimesheetLog[]>([])
 
     const employee = employeeState;
     const project = projectState;
@@ -48,22 +48,20 @@ export function useTimelogFilterOptions() {
         });
     };
 
-    const handleSelectRowTimesheet = (items: string) => {
+    const handleSelectRowTimesheet = (items: TimesheetLog) => {
         setSelectTimesheetId((prev) => prev.includes(items) ? prev.filter((filter) => filter !== items) : [...prev, items])
     }
 
     const handleSelectRowByStatusAndDate = (logs: TimesheetLog[], isChecked: boolean) => {
-        setSelectTimesheetId((prev) => {
-            const logIds = logs.map((item) => item.id);
+        setSelectTimesheetId((prev: TimesheetLog[]) => {
+            const isLogIncluded = (log: TimesheetLog, list: TimesheetLog[]) =>
+                list.some((item) => item.id === log.id);
+
             if (!isChecked) {
-                const allSelected = logIds.every(id => prev.includes(id));
-                if (allSelected) {
-                    return prev.filter((id) => !logIds.includes(id));
-                } else {
-                    return [...new Set([...prev, ...logIds])];
-                }
+                return prev.filter((prevLog) => !logs.some((log) => log.id === prevLog.id));
             }
-            return [...new Set([...prev, ...logIds])];
+            const newLogs = logs.filter((log) => !isLogIncluded(log, prev));
+            return [...prev, ...newLogs];
         });
     };
 
