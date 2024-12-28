@@ -128,7 +128,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess, normalizeText } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess, normalizeText, setSelectTimesheetId } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
@@ -198,13 +198,14 @@ export function useTimesheet({
             }
             try {
                 const response = await queryUpdateTimesheet(timesheet);
-                setTimesheet(prevTimesheet =>
-                    prevTimesheet.map(item =>
+                setTimesheet((prevTimesheet) => {
+                    const updatedTimesheets = prevTimesheet.map((item) =>
                         item.id === response.data.id
-                            ? response.data
+                            ? { ...item, ...response.data }
                             : item
-                    )
-                );
+                    );
+                    return updatedTimesheets;
+                });
             } catch (error) {
                 console.error('Error updating timesheet:', error);
                 throw error;
@@ -365,6 +366,7 @@ export function useTimesheet({
         loadingUpdateTimesheet,
         groupByDate,
         isManage,
-        normalizeText
+        normalizeText,
+        setSelectTimesheetId
     };
 }

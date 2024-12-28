@@ -64,7 +64,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 	const isManage = isUserAllowedToAccess(user);
 	const handleConfirm = () => {
 		try {
-			deleteTaskTimesheet({ logIds: selectTimesheetId })
+			deleteTaskTimesheet({ logIds: selectTimesheetId?.map((select) => select.id).filter((id) => id !== undefined) })
 				.then(() => {
 					setSelectTimesheetId([]);
 					closeAlertConfirmation()
@@ -86,10 +86,13 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 		switch (action) {
 			case 'Approved':
 				if (selectTimesheetId.length > 0) {
-					await updateTimesheetStatus({
+					updateTimesheetStatus({
 						status: 'APPROVED',
-						ids: selectTimesheetId
-					})
+						ids: selectTimesheetId?.map((select) =>
+							select.timesheetId)
+							.filter((timesheetId) => timesheetId !== undefined)
+					}).then(() => setSelectTimesheetId([]))
+						.catch((error) => console.error(error))
 				}
 				break;
 			case 'Denied':
@@ -115,7 +118,9 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 				countID={selectTimesheetId.length}
 			/>
 			<RejectSelectedModal
-				selectTimesheetId={selectTimesheetId}
+				selectTimesheetId={selectTimesheetId?.map((select) =>
+					select.timesheetId)
+					.filter((timesheetId) => timesheetId !== undefined)}
 				onReject={() => {
 					// Pending implementation
 				}}
@@ -187,7 +192,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 											handleSelectRowByStatusAndDate={
 												() => handleSelectRowByStatusAndDate(
 													rows,
-													!rows.every(row => selectTimesheetId.includes(row.id))
+													!rows.every(row => selectTimesheetId.includes(row))
 												)
 											}
 											data={rows}
@@ -209,8 +214,8 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 											>
 												<Checkbox
 													className="w-5 h-5 select-auto"
-													onCheckedChange={() => handleSelectRowTimesheet(task.id)}
-													checked={selectTimesheetId.includes(task.id)}
+													onCheckedChange={() => handleSelectRowTimesheet(task)}
+													checked={selectTimesheetId.includes(task)}
 												/>
 												<div className="flex-[2]">
 													<TaskNameInfoDisplay
@@ -533,7 +538,7 @@ const HeaderRow = ({
 	data: TimesheetLog[],
 	handleSelectRowByStatusAndDate: (status: string, date: string) => void,
 	date?: string,
-	selectedIds: string[]
+	selectedIds: TimesheetLog[]
 
 }) => {
 
@@ -544,7 +549,7 @@ const HeaderRow = ({
 		Employee: null,
 		Status: null,
 	});
-	const isAllSelected = data.length > 0 && data.every(row => selectedIds.includes(row.id));
+	const isAllSelected = data.length > 0 && data.every(row => selectedIds.includes(row));
 
 	const handleSort = (key: string) => {
 		const newOrder = sortState[key] === "ASC" ? "DESC" : "ASC";
