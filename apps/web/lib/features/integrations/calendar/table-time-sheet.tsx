@@ -88,7 +88,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 				if (selectTimesheetId.length > 0) {
 					updateTimesheetStatus({
 						status: 'APPROVED',
-						ids: selectTimesheetId?.map((select) =>
+						ids: selectTimesheetId.map((select) =>
 							select.timesheetId)
 							.filter((timesheetId) => timesheetId !== undefined)
 					}).then(() => setSelectTimesheetId([]))
@@ -118,7 +118,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 				countID={selectTimesheetId.length}
 			/>
 			<RejectSelectedModal
-				selectTimesheetId={selectTimesheetId?.map((select) =>
+				selectTimesheetId={selectTimesheetId.map((select) =>
 					select.timesheetId)
 					.filter((timesheetId) => timesheetId !== undefined)}
 				onReject={() => {
