@@ -611,8 +611,10 @@
 			"LINK_LABEL": "לך לדף הבית"
 		},
 		"offline": {
-			"HEADING_TITLE": "רשת מנותקת!",
-			"HEADING_DESCRIPTION": "אתה לא מחובר כרגע, בבקשה בדוק את חיבור האינטרנט שלך..."
+			"HEADING_TITLE": "החיבור נותק!",
+			"HEADING_SUB_DESCRIPTION": "אופס, איבדנו אותך. אל דאגה, הזמן שלך עדיין עוקב.",
+			"HEADING_DESCRIPTION": "תוכל להמשיך לעבוד באפליקציית האינטרנט לאחר שחיבורך ישוחזר.",
+			"STATUS_NETWORK": "לא מקוון!"
 		},
 		"error": {
 			"TITLE": "שגיאה",

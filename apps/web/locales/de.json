@@ -612,7 +612,9 @@
 		},
 		"offline": {
 			"HEADING_TITLE": "Netzwerk getrennt!",
-			"HEADING_DESCRIPTION": "Sie sind derzeit offline, bitte überprüfen Sie Ihre Internetverbindung..."
+			"HEADING_SUB_DESCRIPTION": "Ups, wir haben Sie verloren. Keine Sorge, Ihre Zeit wird weiterhin erfasst.",
+			"HEADING_DESCRIPTION": "Sie können in der Web-App weiterarbeiten, sobald Ihre Verbindung wiederhergestellt ist.",
+			"STATUS_NETWORK": "Offline!"
 		},
 		"error": {
 			"TITLE": "Error !",
