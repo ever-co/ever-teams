@@ -27,7 +27,7 @@ const ImageWithLoader = ({ imageUrl, alt, className = "w-6 h-6 rounded-full" }:
     { imageUrl: string; alt: string; className?: string }) => {
     const [isLoading, setIsLoading] = React.useState(true);
     return (
-        <div className="relative w-6 h-6">
+        <div className="relative">
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full">
                     <LoadingSpinner className="w-5 h-5" />
@@ -44,11 +44,11 @@ const ImageWithLoader = ({ imageUrl, alt, className = "w-6 h-6 rounded-full" }:
     );
 };
 
-export const EmployeeAvatar = ({ imageUrl }: { imageUrl: string }) => (
-    <ImageWithLoader imageUrl={imageUrl} alt="Employee" />
+export const EmployeeAvatar = ({ imageUrl, className }: { imageUrl: string, className?: string }) => (
+    <ImageWithLoader className={className} imageUrl={imageUrl} alt="Employee" />
 );
 
 
-export const ProjectLogo = ({ imageUrl }: { imageUrl: string }) => (
-    <ImageWithLoader imageUrl={imageUrl} alt="Project Logo" />
+export const ProjectLogo = ({ imageUrl, className }: { imageUrl: string, className?: string }) => (
+    <ImageWithLoader className={className} imageUrl={imageUrl} alt="Project Logo" />
 );

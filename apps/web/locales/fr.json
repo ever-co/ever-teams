@@ -612,7 +612,9 @@
 		},
 		"offline": {
 			"HEADING_TITLE": "Réseau déconnecté !",
-			"HEADING_DESCRIPTION": "Vous êtes actuellement hors ligne, veuillez vérifier votre connexion Internet..."
+			"HEADING_SUB_DESCRIPTION": "Oups, nous vous avons perdu. Ne vous inquiétez pas, votre temps est toujours suivi.",
+			"HEADING_DESCRIPTION": "Vous pourrez continuer à travailler dans l'application web une fois votre connexion rétablie.",
+			"STATUS_NETWORK": "Hors ligne !"
 		},
 		"error": {
 			"TITLE": "Erreur !",

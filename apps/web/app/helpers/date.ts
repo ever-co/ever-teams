@@ -58,6 +58,61 @@ export function secondsToTime(secs: number) {
 	};
 }
 
+/**
+ * Calculates the difference in seconds between two Date objects.
+ *
+ * This function takes two Date objects, `startedAt` and `stoppedAt`, and computes
+ * the difference between them in seconds. If either of the dates is invalid,
+ * the function returns `undefined`.
+ *
+ * @param {Date} startedAt - The starting time
+ * @param {Date} stoppedAt - The stopping time
+ * @returns {number | undefined} The difference in seconds or `undefined` if dates are invalid
+ */
+export function differenceBetweenHours(startedAt: Date, stoppedAt: Date): number {
+	const started = new Date(startedAt);
+	const stopped = new Date(stoppedAt);
+	if (!isNaN(started.getTime()) && !isNaN(stopped.getTime())) {
+		return (stopped.getTime() - started.getTime()) / 1000;
+	}
+	return 0;
+}
+
+
+/**
+ * Converts a given date string to a time string in the format HH:mm.
+ *
+ * This function takes an optional date string as input. If the input is not
+ * provided, the function returns an empty string. If the input is a valid date
+ * string, the function converts the string to a Date object, formats the time
+ * in the format HH:mm, and returns the result as a string.
+ *
+ * @param {string | undefined} dateString - The date string to format
+ * @returns {string} The formatted time string
+ */
+export const formatTimeFromDate = (date: string | Date | undefined) => {
+	if (!date) return "";
+	const dateObject = date instanceof Date ? date : new Date(date);
+	const hours = dateObject.getHours().toString().padStart(2, '0');
+	const minutes = dateObject.getMinutes().toString().padStart(2, '0');
+
+	return `${hours}:${minutes}`;
+};
+
+/**
+ * Converts a given input to a Date object.
+ *
+ * This function accepts either a Date object or a string representation of a date.
+ * If the input is already a Date object, it returns the input as-is. If the input
+ * is a string, it converts the string to a Date object and returns the result.
+ *
+ * @param {Date | string} date - The date input, which can be either a Date object or a string.
+ * @returns {Date} The corresponding Date object.
+ */
+export const toDate = (date: Date | string) =>
+	(date instanceof Date ? date : new Date(date));
+
+
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
 	let minutes = Math.floor(seconds / 60);
@@ -120,6 +175,7 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
+
 
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	if (dateString.toString().length > 10) {
@@ -224,4 +280,17 @@ export const formatDate = (dateStr: string | Date): string => {
 		console.error('Invalid date format:', error);
 		return '';
 	}
+}
+
+
+export function toLocal(date: string | Date | moment.Moment): moment.Moment {
+	const localDate = moment(date);
+	if (!localDate.isValid()) {
+		throw new Error('Invalid date provided to toUTC');
+	}
+	return localDate.utc();
+}
+
+export function toUTC(date: string | Date | moment.Moment): moment.Moment {
+	return moment(date).utc();
 }

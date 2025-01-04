@@ -7,7 +7,7 @@ import { TotalDurationByDate } from "@/lib/features";
 import { formatDate } from "@/app/helpers";
 import { TranslationHooks } from "next-intl";
 
-type WeeklyCalendarProps = {
+export type WeeklyCalendarProps = {
     t: TranslationHooks
     data?: GroupedTimesheet[];
     onDateClick?: (date: Date) => void;
@@ -32,6 +32,24 @@ const generateWeek = (currentDate: Date) => {
     return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
 
+/**
+ * A weekly calendar component for displaying timesheet data.
+ *
+ * The component is a grid of days in the week, with each day displaying the total duration of the tasks for that day.
+ * The component is also responsive and can be used in a variety of screen sizes.
+ *
+ * @param {WeeklyCalendarProps} props - The props for the component.
+ * @param {GroupedTimesheet[]} [props.data=[]] - The data to display in the calendar.
+ * @param {((date: Date) => void)} [props.onDateClick] - The function to call when a date is clicked.
+ * @param {((date: Date, plan?: GroupedTimesheet) => React.ReactNode)} [props.renderDayContent] - The function to call to render the content for each day.
+ * @param {Locale} [props.locale=enGB] - The locale to use for the dates.
+ * @param {string[]} [props.daysLabels=defaultDaysLabels] - The labels for the days of the week.
+ * @param {string} [props.noDataText="No Data"] - The text to display when there is no data for a day.
+ * @param {{ container?: string; header?: string; grid?: string; day?: string; noData?: string; }} [props.classNames={}] - The CSS class names to use for the component.
+ * @param {TranslationHooks} props.t - The translations to use for the component.
+ *
+ * @returns {React.ReactElement} The JSX element for the component.
+ */
 const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
     data = [],
     onDateClick,
@@ -117,12 +135,12 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
                                     {format(date, "dd MMM yyyy")}
                                 </span>
                                 <div className="flex items-center gap-x-1 text-gray-500 text-sm font-medium">
-                                    <span className="text-[#868687]">Total{" : "}</span>
+                                    {/* <span className="text-[#868687]">Total{" : "}</span> */}
                                     {plan && (
                                         <TotalDurationByDate
                                             timesheetLog={plan.tasks}
                                             createdAt={formatDate(plan.date)}
-                                            className="text-black dark:text-gray-500 text-sm"
+                                            className="text-black dark:text-gray-500 text-[12px]"
                                         />
                                     )}
                                 </div>

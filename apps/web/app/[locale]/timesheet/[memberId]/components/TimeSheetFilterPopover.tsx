@@ -31,6 +31,44 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 		return Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0);
 	}, [statusTimesheet]);
 
+	const totalFilteredItems = React.useMemo(() => {
+		let total = 0;
+		if (employee?.length) total += employee.length;
+		if (project?.length) total += project.length;
+		if (task?.length) total += task.length;
+		if (statusState?.length) total += statusState.length;
+		return total;
+	}, [employee, project, task, statusState]);
+
+	const [filteredCount, setFilteredCount] = React.useState(0);
+
+	React.useEffect(() => {
+		if (timesheet && statusTimesheet) {
+			let filteredResults = timesheet;
+			if (employee?.length > 0) {
+				filteredResults = filteredResults.filter((item) =>
+					employee.some((emp) => emp.employeeId === item.tasks[0]?.employee.id)
+				);
+			}
+			if (project?.length > 0) {
+				filteredResults = filteredResults.filter((item) =>
+					project.some((proj) => proj.id === item.tasks[0]?.projectId)
+				);
+			}
+			if (task?.length > 0) {
+				filteredResults = filteredResults.filter((item) =>
+					task.some((t) => t.id === item.tasks[0]?.taskId)
+				);
+			}
+			if (statusState?.length > 0) {
+				filteredResults = filteredResults.filter((item) =>
+					statusState.some((status) => status.label === item.tasks[0]?.timesheet.status)
+				);
+			}
+			setFilteredCount(filteredResults.length);
+		}
+	}, [timesheet, employee, project, task, statusState, statusTimesheet]);
+
 	return (
 		<>
 			<Popover>
@@ -41,7 +79,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 					>
 						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
 						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
-						{timesheet && timesheet.length > 0 && (
+						{filteredCount && totalFilteredItems > 0 && (
 							<span
 								role="status"
 								aria-label={`${totalItems} items filtered`}

@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@c
 import { DatePickerFilter } from './TimesheetFilterDate';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { useTimesheet } from '@/app/hooks/features/useTimesheet';
+import { toUTC } from '@/app/helpers';
 export interface IAddTaskModalProps {
     isOpen: boolean;
     closeModal: () => void;
@@ -21,6 +22,18 @@ interface Shift {
     endTime: string;
     totalHours: string;
     dateFrom: Date | string,
+}
+interface FormState {
+    isBillable: boolean;
+    notes: string;
+    projectId: string;
+    taskId: string;
+    employeeId: string;
+    shifts: {
+        dateFrom: Date;
+        startTime: string;
+        endTime: string;
+    }[];
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
@@ -32,6 +45,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
     const timeOptions = generateTimeOptions(5);
     const t = useTranslations();
+
     const [formState, setFormState] = React.useState({
         notes: '',
         isBillable: true,
@@ -77,7 +91,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
         },
     ];
 
-    const handleAddTimesheet = async () => {
+    const createUtcDate = (baseDate: Date, time: string): Date => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
+    };
+
+    const handleAddTimesheet = async (formState: FormState) => {
         const payload = {
             isBillable: formState.isBillable,
             description: formState.notes,
@@ -85,29 +104,40 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             logType: TimeLogType.MANUAL as any,
             source: TimerSource.BROWSER as any,
             taskId: formState.taskId,
-            employeeId: formState.employeeId
-        }
-        const createUtcDate = (baseDate: Date, time: string): Date => {
-            const [hours, minutes] = time.split(':').map(Number);
-            return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
+            employeeId: formState.employeeId,
+            organizationContactId: null || "",
+            organizationTeamId: null,
         };
-
         try {
-            await Promise.all(formState.shifts.map(async (shift) => {
-                const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom ?? new Date());
-                const startedAt = createUtcDate(baseDate, shift.startTime.toString().slice(0, 5));
-                const stoppedAt = createUtcDate(baseDate, shift.endTime.toString().slice(0, 5));
-                await createTimesheet({
-                    ...payload,
-                    startedAt,
-                    stoppedAt,
-                });
-            }));
-            closeModal();
+            if (!formState.shifts || formState.shifts.length === 0) {
+                throw new Error('No shifts provided.');
+            }
+            await Promise.all(
+                formState.shifts.map(async (shift) => {
+                    if (!shift.dateFrom || !shift.startTime || !shift.endTime) {
+                        throw new Error('Incomplete shift data.');
+                    }
+
+                    const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom);
+                    const start = createUtcDate(baseDate, shift.startTime);
+                    const end = createUtcDate(baseDate, shift.endTime);
+                    const startedAt = toUTC(start).toISOString();
+                    const stoppedAt = toUTC(end).toISOString();
+                    if (stoppedAt <= startedAt) {
+                        throw new Error('End time must be after start time.');
+                    }
+                    await createTimesheet({
+                        ...payload,
+                        startedAt: start,
+                        stoppedAt: end,
+                    });
+                })
+            );
+            console.log('Timesheets successfully created.');
         } catch (error) {
             console.error('Failed to create timesheet:', error);
         }
-    }
+    };
 
     return (
         <Modal
@@ -152,13 +182,17 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         <span className="text-[#de5505e1] ml-1">*</span>:
                     </label>
                     <CustomSelect
-                        classNameGroup='max-h-[40vh] '
+                        valueKey='employeeId'
+                        classNameGroup='max-h-[40vh] dark:!text-white '
                         ariaLabel='Task issues'
-                        className='w-full font-medium'
-                        options={activeTeam?.members as any}
-                        onChange={(value: any) => updateFormState('employeeId', value.id)}
-                        renderOption={(option: any) => (
+                        className='w-full font-medium dark:text-white'
+                        options={activeTeam?.members || []}
+                        onChange={(value) => {
+                            updateFormState('employeeId', value)
+                        }}
+                        renderOption={(option) => (
                             <div className="flex items-center gap-x-2">
+                                <img className='h-6 w-6 rounded-full' src={option.employee.user.imageUrl} />
                                 <span>{option.employee.fullName}</span>
                             </div>
                         )}
@@ -235,7 +269,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                     </button>
                     <button
                         disabled={loadingCreateTimesheet}
-                        onClick={handleAddTimesheet}
+                        onClick={() => handleAddTimesheet(formState as any)}
                         type="submit"
                         className={clsxm(
                             'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg',
@@ -321,7 +355,7 @@ const OptimizedAccordion = ({ setShifts, shifts, timeOptions, t }: {
 
     const handleAddShift = () => {
         setShifts([...shifts,
-        { startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() },]);
+        { startTime: '', endTime: '', totalHours: '00:00:00 h', dateFrom: new Date() },]);
     };
 
     const handleRemoveShift = (index: number) => {
@@ -329,13 +363,7 @@ const OptimizedAccordion = ({ setShifts, shifts, timeOptions, t }: {
         setShifts(updatedShifts);
     };
 
-    const convertMinutesToTime = (minutes: number): string => {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        const period = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
-        return `${String(formattedHours).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${period}`;
-    };
+
 
     const handleShiftChange = (index: number, field: keyof Shift, value: string) => {
         const updatedShifts = [...shifts];
@@ -346,11 +374,7 @@ const OptimizedAccordion = ({ setShifts, shifts, timeOptions, t }: {
 
             if (!startTime || !endTime) return;
 
-            if (startTime === endTime) {
-                const startMinutes = convertToMinutesHour(startTime);
-                updatedShifts[index].endTime = convertMinutesToTime(startMinutes + 5);
-                return;
-            }
+
             if (convertToMinutesHour(startTime) >= convertToMinutesHour(endTime)) {
                 return;
             }
@@ -445,7 +469,7 @@ const ShiftManagement = (
                     <ShiftTimingSelect
                         label="Start"
                         timeOptions={timeOptions}
-                        placeholder="00:00"
+                        placeholder="00:00:00"
                         className="bg-[#30B3661A]"
                         value={value.startTime}
                         onChange={(value) => onChange(index, 'startTime', value)}
@@ -453,7 +477,7 @@ const ShiftManagement = (
                     <ShiftTimingSelect
                         label="End"
                         timeOptions={timeOptions}
-                        placeholder="00:00"
+                        placeholder="00:00:00"
                         className="bg-[#DA27271A]"
                         value={value.endTime}
                         onChange={(value) => onChange(index, 'endTime', value)}

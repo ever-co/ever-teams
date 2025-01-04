@@ -26,7 +26,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@app/constants';
-import { IDailyPlan, ITeamTask } from '@app/interfaces';
+import { IDailyPlan, ITeamTask, IUser } from '@app/interfaces';
 import { dataDailyPlanState } from '@app/stores';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { dailyPlanViewHeaderTabs } from '@app/stores/header-tabs';
@@ -55,8 +55,14 @@ import DailyPlanTasksTableView from './task/daily-plan/table-view';
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
-export function UserProfilePlans() {
+interface IUserProfilePlansProps {
+	user?: IUser;
+}
+
+export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const t = useTranslations();
+
+	const { user } = props;
 
 	const profile = useUserProfilePage();
 	const {
@@ -76,14 +82,14 @@ export function UserProfilePlans() {
 	const { setDate, date } = useDateRange(currentTab);
 
 	const screenOutstanding = {
-		ALL: <OutstandingAll profile={profile} />,
-		DATE: <OutstandingFilterDate profile={profile} />
+		ALL: <OutstandingAll profile={profile} user={user} />,
+		DATE: <OutstandingFilterDate profile={profile} user={user} />
 	};
 	const tabsScreens = {
-		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} />,
-		'Future Tasks': <FutureTasks profile={profile} />,
-		'Past Tasks': <PastTasks profile={profile} />,
-		'All Tasks': <AllPlans profile={profile} />,
+		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} />,
+		'Future Tasks': <FutureTasks profile={profile} user={user} />,
+		'Past Tasks': <PastTasks profile={profile} user={user} />,
+		'All Tasks': <AllPlans profile={profile} user={user} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 	const [filterFuturePlanData, setFilterFuturePlanData] = useState<IDailyPlan[]>(futurePlans);
@@ -169,15 +175,24 @@ export function UserProfilePlans() {
 														currentTab == filter && 'dark:bg-gray-600'
 													)}
 												>
-													{filter === 'Today Tasks' && getTotalTasks(todayPlan)}
-													{filter === 'Future Tasks' && getTotalTasks(filterFuturePlanData)}
-													{filter === 'Past Tasks' && getTotalTasks(filterPastPlanData)}
-													{filter === 'All Tasks' && getTotalTasks(filterAllPlanData)}
+													{filter === 'Today Tasks' && getTotalTasks(todayPlan, user)}
+													{filter === 'Future Tasks' &&
+														getTotalTasks(filterFuturePlanData, user)}
+													{filter === 'Past Tasks' && getTotalTasks(filterPastPlanData, user)}
+													{filter === 'All Tasks' && getTotalTasks(filterAllPlanData, user)}
 													{filter === 'Outstanding' &&
 														estimatedTotalTime(
-															outstandingPlans.map((plan) =>
-																plan.tasks?.map((task) => task)
-															)
+															outstandingPlans.map((plan) => {
+																const tasks = plan.tasks ?? [];
+																if (user) {
+																	return tasks.filter((task) =>
+																		task.members?.some(
+																			(member) => member.userId === user.id
+																		)
+																	);
+																}
+																return tasks;
+															})
 														).totalTasks}
 												</span>
 											</div>
@@ -285,7 +300,15 @@ export function UserProfilePlans() {
  * @param {{ profile: any; currentTab?: FilterTabs }} { profile, currentTab = 'All Tasks' }
  * @return {*}
  */
-function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; currentTab?: FilterTabs }) {
+function AllPlans({
+	profile,
+	currentTab = 'All Tasks',
+	user
+}: {
+	profile: any;
+	currentTab?: FilterTabs;
+	user?: IUser;
+}) {
 	// Filter plans
 	const filteredPlans = useRef<IDailyPlan[]>([]);
 	const { sortedPlans, todayPlan } = useDailyPlan();
@@ -304,6 +327,22 @@ function AllPlans({ profile, currentTab = 'All Tasks' }: { profile: any; current
 	useEffect(() => {
 		setPlans(filterDailyPlan(date as any, filteredPlans.current));
 	}, [date, todayPlan]);
+
+	useEffect(() => {
+		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
+
+		// Filter tasks for specific user if provided
+		if (user) {
+			filteredData = filteredData
+				.map((plan) => ({
+					...plan,
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+				}))
+				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+		}
+
+		setPlans(filteredData);
+	}, [date, todayPlan, user]);
 
 	return (
 		<div className="flex flex-col gap-6">

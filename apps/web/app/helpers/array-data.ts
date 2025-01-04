@@ -74,3 +74,32 @@ const formatTime = (d: Date | string, addHour: boolean) => {
 		return `${new Date(d).getHours() < 10 ? pad(new Date(d).getHours() + 1) : new Date(d).getHours() + 1}:00`;
 	else return `${new Date(d).getHours() < 10 ? pad(new Date(d).getHours()) : new Date(d).getHours()}:00`;
 };
+
+
+/**
+ * Groups an array of items by the key returned by the `key` function.
+ *
+ * @example
+ * const items = [
+ *     { id: 1, name: 'John', group: 'A' },
+ *     { id: 2, name: 'Jane', group: 'A' },
+ *     { id: 3, name: 'Bob', group: 'B' },
+ * ];
+ *
+ * const groupedItems = groupBy(items, item => item.group);
+ *
+ * // groupedItems = {
+ * //     A: [{ id: 1, name: 'John', group: 'A' }, { id: 2, name: 'Jane', group: 'A' }],
+ * //     B: [{ id: 3, name: 'Bob', group: 'B' }]
+ * // }
+ *
+ * @param array The array of items to group.
+ * @param key A function that takes an item and returns a key to group by.
+ * @returns An object where the keys are the unique values of the key function and the values are arrays of items.
+ */
+export const groupBy = <T, K extends keyof any>(array: T[], key: (item: T) => K): Record<K, T[]> =>
+	array.reduce((acc, item) => {
+		const groupKey = key(item);
+		(acc[groupKey] ||= []).push(item);
+		return acc;
+	}, {} as Record<K, T[]>);

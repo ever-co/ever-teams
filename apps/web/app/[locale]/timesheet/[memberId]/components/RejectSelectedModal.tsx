@@ -1,3 +1,4 @@
+import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { clsxm } from '@/app/utils';
 import { Modal } from '@/lib/components';
 import { useTranslations } from 'next-intl';
@@ -8,23 +9,44 @@ export interface IRejectSelectedModalProps {
 	onReject: (reason: string) => void;
 	minReasonLength?: number;
 	maxReasonLength?: number;
+	selectTimesheetId?: string[];
 }
+/**
+ * A modal for rejecting selected timesheet entries.
+ *
+ * @param isOpen - If true, show the modal. Otherwise, hide the modal.
+ * @param closeModal - A function to close the modal.
+ * @param maxReasonLength - The maximum length of the rejection reason.
+ * @param onReject - A function to call when the user rejects the selected entries.
+ * @param minReasonLength - The minimum length of the rejection reason.
+ * @param selectTimesheetId - The IDs of the timesheet entries to be rejected.
+ *
+ * @returns A modal component.
+ */
 export function RejectSelectedModal({
 	isOpen,
 	closeModal,
 	maxReasonLength,
 	onReject,
-	minReasonLength
+	minReasonLength,
+	selectTimesheetId
 }: IRejectSelectedModalProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [reason, setReason] = useState('');
+	const { updateTimesheetStatus, setSelectTimesheetId } = useTimesheet({});
+
 	const t = useTranslations();
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 		try {
-			await onReject(reason);
-			closeModal();
+			updateTimesheetStatus({
+				status: 'DENIED',
+				ids: selectTimesheetId || [],
+			}).then(() => {
+				closeModal();
+				setSelectTimesheetId([])
+			}).catch((error) => console.error(error));
 		} finally {
 			setIsSubmitting(false);
 		}

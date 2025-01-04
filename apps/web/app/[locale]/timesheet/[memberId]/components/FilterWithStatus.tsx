@@ -49,15 +49,15 @@ export function FilterWithStatus({
 	return (
 		<div
 			className={clsxm(
-				'flex flex-nowrap h-[2.2rem] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-xl ',
+				'flex flex-nowrap h-[36px] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-[8px] border-[1px] ',
 				className
 			)}>
 			{buttonData.map(({ label, count, icon }, index) => (
 				<Button
 					key={index}
 					className={clsxm(
-						'group flex items-center justify-start h-[2.2rem] rounded-xl w-full',
-						'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A] w-[80px]',
+						'group flex items-center justify-start h-[36px] rounded-[8px] w-[111px]',
+						'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A]',
 						activeStatus === label &&
 						'text-primary bg-white shadow-2xl dark:text-primary-light font-bold  border'
 					)}

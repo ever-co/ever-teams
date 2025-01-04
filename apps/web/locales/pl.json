@@ -611,8 +611,10 @@
 			"LINK_LABEL": "Przejdź do strony głównej"
 		},
 		"offline": {
-			"HEADING_TITLE": "Rozłączono sieć!",
-			"HEADING_DESCRIPTION": "Jesteś obecnie offline, sprawdź swoje połączenie z internetem..."
+			"HEADING_TITLE": "Sieć rozłączona!",
+			"HEADING_SUB_DESCRIPTION": "Ups, straciliśmy cię. Nie martw się, twój czas jest nadal śledzony.",
+			"HEADING_DESCRIPTION": "Będziesz mógł kontynuować pracę w aplikacji internetowej, gdy połączenie zostanie przywrócone.",
+			"STATUS_NETWORK": "Offline!"
 		},
 		"error": {
 			"TITLE": "Błąd !",

@@ -612,7 +612,9 @@
 		},
 		"offline": {
 			"HEADING_TITLE": "Network Disconnected!",
-			"HEADING_DESCRIPTION": "Your network is offline, please check your internet connection..."
+			"HEADING_SUB_DESCRIPTION": "Oops, we lost you. Don't worry, your time is still tracking.",
+			"HEADING_DESCRIPTION": "You will be able to continue working in the web app once your connection is restored.",
+			"STATUS_NETWORK": "Offline!"
 		},
 		"error": {
 			"TITLE": "Error !",
