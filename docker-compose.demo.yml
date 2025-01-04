@@ -1,0 +1,20 @@
+services:
+  webapp:
+    container_name: webapp
+    image: ghcr.io/ever-co/ever-teams-webapp:latest
+    environment:
+      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
+      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO: 'true'
+    env_file:
+      - .env.demo.compose
+    restart: on-failure
+    ports:
+      - '3030:${UI_PORT:-3030}'
+    networks:
+      - overlay
+
+networks:
+  overlay:
+    driver: bridge
