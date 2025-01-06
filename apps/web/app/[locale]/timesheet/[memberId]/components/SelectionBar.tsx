@@ -99,9 +99,11 @@ interface SelectedTimesheetProps {
 export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, updateTimesheetStatus, deleteTaskTimesheet, setSelectTimesheetId, fullWidth }) => {
     const handleApprove = useCallback(async () => {
         try {
-            await updateTimesheetStatus({
+            updateTimesheetStatus({
                 status: 'APPROVED',
                 ids: selectTimesheetId.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+            }).then(() => {
+                setSelectTimesheetId([]);
             });
         } catch (error) {
             console.error(error);
@@ -110,9 +112,11 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 
     const handleReject = useCallback(async () => {
         try {
-            await updateTimesheetStatus({
+            updateTimesheetStatus({
                 status: 'DENIED',
                 ids: selectTimesheetId.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+            }).then(() => {
+                setSelectTimesheetId([]);
             });
         } catch (error) {
             console.error(error);
@@ -121,10 +125,11 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 
     const handleDelete = useCallback(async () => {
         try {
-            await deleteTaskTimesheet({
+            deleteTaskTimesheet({
                 logIds: selectTimesheetId?.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+            }).then(() => {
+                setSelectTimesheetId([]);
             });
-            setSelectTimesheetId([]);
         } catch (error) {
             console.error(error);
         }
