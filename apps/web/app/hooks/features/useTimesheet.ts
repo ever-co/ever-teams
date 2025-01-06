@@ -199,34 +199,33 @@ export function useTimesheet({
     );
 
     const updateTimesheet = useCallback(
-        async ({ ...timesheet }: UpdateTimesheet) => {
+        async (timesheet: UpdateTimesheet) => {
             if (!user) {
-                console.warn("Utilisateur non authentifié !");
+                console.warn("User not authenticated!");
                 return;
             }
             try {
                 const response = await queryUpdateTimesheet(timesheet);
                 if (response?.data?.id) {
-                    setTimesheet((prevTimesheet) => {
-                        return prevTimesheet.map((item) => {
-                            if (item.id === response.data.id) {
-                                return { ...item, ...response.data };
-                            }
-                            return item;
-                        });
-                    });
+                    setTimesheet((prevTimesheet) =>
+                        prevTimesheet.map((item) =>
+                            item.id === response.data.id
+                                ? { ...item, ...response.data }
+                                : item
+                        )
+                    );
                 } else {
                     console.warn(
-                        "Structure inattendue de la réponse. Aucune mise à jour effectuée.",
+                        "Unexpected structure of the response. No update performed.",
                         response
                     );
                 }
             } catch (error) {
-                console.error("Erreur lors de la mise à jour du timesheet :", error);
+                console.error("Error updating the timesheet:", error);
                 throw error;
             }
         },
-        [queryUpdateTimesheet, setTimesheet, timesheet, user]
+        [queryUpdateTimesheet, setTimesheet, user]
     );
 
 
