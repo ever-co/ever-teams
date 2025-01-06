@@ -129,7 +129,7 @@ export function useTimesheet({
 }: TimesheetParams) {
     const { user } = useAuthenticateUser();
     const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
-    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess, normalizeText, setSelectTimesheetId } = useTimelogFilterOptions();
+    const { employee, project, task, statusState, timesheetGroupByDays, puTimesheetStatus, isUserAllowedToAccess, normalizeText, setSelectTimesheetId, selectTimesheetId, handleSelectRowByStatusAndDate, handleSelectRowTimesheet } = useTimelogFilterOptions();
     const { loading: loadingTimesheet, queryCall: queryTimesheet } = useQuery(getTaskTimesheetLogsApi);
     const { loading: loadingDeleteTimesheet, queryCall: queryDeleteTimesheet } = useQuery(deleteTaskTimesheetLogsApi);
     const { loading: loadingUpdateTimesheetStatus, queryCall: queryUpdateTimesheetStatus } = useQuery(updateStatusTimesheetFromApi)
@@ -384,6 +384,9 @@ export function useTimesheet({
         groupByDate,
         isManage,
         normalizeText,
-        setSelectTimesheetId
+        setSelectTimesheetId,
+        selectTimesheetId,
+        handleSelectRowByStatusAndDate,
+        handleSelectRowTimesheet
     };
 }

@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 import MonthlyTimesheetCalendar from "./MonthlyTimesheetCalendar";
 import { useTimelogFilterOptions } from "@/app/hooks";
 import WeeklyTimesheetCalendar from "./WeeklyTimesheetCalendar";
-import { IUser } from "@/app/interfaces";
+import { IUser, TimesheetLog } from "@/app/interfaces";
 import TimesheetSkeleton from "@components/shared/skeleton/TimesheetSkeleton";
+import { Checkbox } from "@components/ui/checkbox";
 interface BaseCalendarDataViewProps {
     t: TranslationHooks
     data: GroupedTimesheet[];
@@ -51,7 +52,6 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
             </div>
         );
     }
-
     return (
         <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
             {(() => {
@@ -70,7 +70,7 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
 }
 
 const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: TranslationHooks }) => {
-    const { getStatusTimesheet } = useTimesheet({});
+    const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId } = useTimesheet({});
 
     return (
         <div className="w-full dark:bg-dark--theme">
@@ -134,9 +134,9 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
 
                                                 }}
                                                 className={cn(
-                                                    'border-l-4 rounded-l flex flex-col p-2 gap-2 items-start  space-x-4 ',
+                                                    'group/item border-l-4 rounded-l flex flex-col p-2 gap-2 items-start  space-x-4',
                                                 )}>
-                                                <div className="flex  px-3 justify-between items-center w-full">
+                                                <div className="flex  pl-3 justify-between items-center w-full">
                                                     <div className="flex items-center gap-x-1">
                                                         <EmployeeAvatar
                                                             imageUrl={task.employee.user.imageUrl ?? ''}
@@ -146,7 +146,6 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     </div>
                                                     <DisplayTimeForTimesheet
                                                         timesheetLog={task}
-
                                                     />
                                                 </div>
                                                 <TaskNameInfoDisplay
@@ -161,16 +160,23 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
-                                                    {task.project?.imageUrl && (
-                                                        <ProjectLogo
-                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
-                                                            imageUrl={task.project.imageUrl}
-                                                        />
-                                                    )}
-                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
-                                                        {task.project?.name ?? 'No Project'}
-                                                    </span>
+                                                <div className="flex  pr-3 justify-between items-center w-full">
+                                                    <div className="flex flex-row items-center  py-0 gap-2  flex-none  self-stretch flex-grow-0">
+                                                        {task.project?.imageUrl && (
+                                                            <ProjectLogo
+                                                                className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+                                                                imageUrl={task.project.imageUrl}
+                                                            />
+                                                        )}
+                                                        <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                            {task.project?.name ?? 'No Project'}
+                                                        </span>
+                                                    </div>
+                                                    <CheckBoxTimesheet
+                                                        handleSelectRowTimesheet={handleSelectRowTimesheet}
+                                                        timesheet={task}
+                                                        selectTimesheetId={selectTimesheetId}
+                                                    />
                                                 </div>
                                             </div>
                                         ))}
@@ -188,7 +194,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
 }
 
 const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCalendarDataViewProps) => {
-    const { getStatusTimesheet } = useTimesheet({});
+    const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId } = useTimesheet({});
     return (
         <CalendarComponent
             t={t}
@@ -236,7 +242,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 
                                                 }}
                                                 className={cn(
-                                                    'border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow',
+                                                    'group/item border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow',
                                                 )}>
                                                 <div className="flex  pl-3 justify-between items-center w-full">
                                                     <div className="flex items-center gap-x-1">
@@ -263,16 +269,23 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
-                                                    {task.project?.imageUrl && (
-                                                        <ProjectLogo
-                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
-                                                            imageUrl={task.project.imageUrl}
-                                                        />
-                                                    )}
-                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
-                                                        {task.project?.name ?? 'No Project'}
-                                                    </span>
+                                                <div className="flex justify-between items-center w-full">
+                                                    <div className="flex flex-row items-center  py-0 gap-2  flex-none  self-stretch flex-grow-0">
+                                                        {task.project?.imageUrl && (
+                                                            <ProjectLogo
+                                                                className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+                                                                imageUrl={task.project.imageUrl}
+                                                            />
+                                                        )}
+                                                        <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                            {task.project?.name ?? 'No Project'}
+                                                        </span>
+                                                    </div>
+                                                    <CheckBoxTimesheet
+                                                        handleSelectRowTimesheet={handleSelectRowTimesheet}
+                                                        timesheet={task}
+                                                        selectTimesheetId={selectTimesheetId}
+                                                    />
                                                 </div>
                                             </div>
                                         ))}
@@ -299,3 +312,14 @@ const MonthlyCalendarDataView = (props: { data: GroupedTimesheet[], t: Translati
 const WeeklyCalendarDataView = (props: { data: GroupedTimesheet[], t: TranslationHooks, daysLabels?: string[] }) => (
     <BaseCalendarDataView  {...props} CalendarComponent={WeeklyTimesheetCalendar} />
 );
+
+
+export const CheckBoxTimesheet = ({ selectTimesheetId, timesheet, handleSelectRowTimesheet }: { selectTimesheetId: TimesheetLog[], timesheet: TimesheetLog, handleSelectRowTimesheet: (items: TimesheetLog) => void }) => {
+    return <Checkbox
+        className={cn(
+            "group/edit invisible w-5 h-5 select-auto group-hover/item:visible",
+            selectTimesheetId.includes(timesheet) && 'visible')}
+        onCheckedChange={() => handleSelectRowTimesheet(timesheet)}
+        checked={selectTimesheetId.includes(timesheet)}
+    />
+}
