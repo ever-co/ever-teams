@@ -193,7 +193,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
 							options={activeTeam?.members || []}
 							value={timesheetData.employeeId}
-							onChange={(value) => setTimesheetData({ ...timesheetData, employeeId: value.employeeId })}
+							onChange={(value) => {
+								setTimesheetData({ ...timesheetData, employeeId: value })
+							}}
 							renderOption={(option) => (
 								<div className="flex items-center gap-x-2">
 									<img className='h-6 w-6 rounded-full' src={option.employee.user.imageUrl} alt={option.employee.fullName} />
