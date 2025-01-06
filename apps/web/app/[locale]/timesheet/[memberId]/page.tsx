@@ -171,7 +171,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									}}
 								/>
 								<TimesheetCard
-									hours={`${hours}:${minute}`}
+									hours={`${String(hours).padStart(2, '0')}:${String(minute).padStart(2, '0')}`}
 									title={t('common.MEN_HOURS')}
 									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
 									icon={<MenHoursIcon />}

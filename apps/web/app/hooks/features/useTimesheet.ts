@@ -7,6 +7,7 @@ import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesh
 import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
+import axios from 'axios';
 
 interface TimesheetParams {
     startDate?: Date | string;
@@ -25,18 +26,18 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
     type GroupedMap = Record<string, TimesheetLog[]>;
     const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.timesheet?.createdAt) {
+        if (!item?.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
             return acc;
         }
         try {
-            const date = new Date(item.timesheet.createdAt).toISOString().split('T')[0];
+            const date = new Date(item.createdAt).toISOString().split('T')[0];
             if (!acc[date]) acc[date] = [];
             acc[date].push(item);
         } catch (error) {
             console.error(
                 `Failed to process date for timesheet ${item.timesheet.id}:`,
-                { createdAt: item.timesheet.createdAt, error }
+                { createdAt: item.createdAt, error }
             );
         }
         return acc;
@@ -61,19 +62,19 @@ const createGroupingFunction = (getKey: GroupingKeyFunction) => (items: Timeshee
     type GroupedMap = Record<string, TimesheetLog[]>;
 
     const grouped = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.timesheet?.createdAt) {
+        if (!item?.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
             return acc;
         }
         try {
-            const date = new Date(item.timesheet.createdAt);
+            const date = new Date(item.createdAt);
             const key = getKey(date);
             if (!acc[key]) acc[key] = [];
             acc[key].push(item);
         } catch (error) {
             console.error(
                 `Failed to process date for timesheet ${item.timesheet.id}:`,
-                { createdAt: item.timesheet.createdAt, error }
+                { createdAt: item.createdAt, error }
             );
         }
         return acc;
@@ -177,40 +178,57 @@ export function useTimesheet({
                 throw new Error("User not authenticated");
             }
             try {
-                const response = await queryCreateTimesheet(timesheetParams);
-                setTimesheet((prevTimesheet) => [
-                    response.data,
-                    ...(prevTimesheet || [])
-                ]);
+                const response = queryCreateTimesheet(timesheetParams).then((res) => {
+                    return res.data
+                });
+                return response
             } catch (error) {
-                console.error('Error:', error);
+                if (axios.isAxiosError(error)) {
+                    console.error('Axios Error:', {
+                        status: error.response?.status,
+                        statusText: error.response?.statusText,
+                        data: error.response?.data
+                    });
+                    throw new Error(`Request failed: ${error.message}`);
+                }
+                console.error('Error:', error instanceof Error ? error.message : error);
+                throw error;
             }
         },
         [queryCreateTimesheet, setTimesheet, user]
     );
 
-
-
-    const updateTimesheet = useCallback<(params: UpdateTimesheet) => Promise<void>>(
+    const updateTimesheet = useCallback(
         async ({ ...timesheet }: UpdateTimesheet) => {
             if (!user) {
-                throw new Error("User not authenticated");
+                console.warn("Utilisateur non authentifié !");
+                return;
             }
             try {
                 const response = await queryUpdateTimesheet(timesheet);
-                setTimesheet((prevTimesheet) => {
-                    const updatedTimesheets = prevTimesheet.map((item) =>
-                        item.id === response.data.id
-                            ? { ...item, ...response.data }
-                            : item
+                if (response?.data?.id) {
+                    setTimesheet((prevTimesheet) => {
+                        return prevTimesheet.map((item) => {
+                            if (item.id === response.data.id) {
+                                return { ...item, ...response.data };
+                            }
+                            return item;
+                        });
+                    });
+                } else {
+                    console.warn(
+                        "Structure inattendue de la réponse. Aucune mise à jour effectuée.",
+                        response
                     );
-                    return updatedTimesheets;
-                });
+                }
             } catch (error) {
-                console.error('Error updating timesheet:', error);
+                console.error("Erreur lors de la mise à jour du timesheet :", error);
                 throw error;
             }
-        }, [queryUpdateTimesheet, setTimesheet, user])
+        },
+        [queryUpdateTimesheet, setTimesheet, timesheet, user]
+    );
+
 
 
     const updateTimesheetStatus = useCallback(
