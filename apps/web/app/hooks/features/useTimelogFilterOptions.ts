@@ -1,5 +1,5 @@
 import { IUser, RoleNameEnum, TimesheetLog } from '@/app/interfaces';
-import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus } from '@/app/stores';
+import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus, selectTimesheetIdState } from '@/app/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
 
@@ -13,7 +13,9 @@ export function useTimelogFilterOptions() {
     const [timesheetGroupByDays, setTimesheetGroupByDays] = useAtom(timesheetGroupByDayState);
     const [puTimesheetStatus, setPuTimesheetStatus] = useAtom(timesheetUpdateStatus)
     const [selectedItems, setSelectedItems] = React.useState<{ status: string; date: string }[]>([]);
-    const [selectTimesheetId, setSelectTimesheetId] = React.useState<TimesheetLog[]>([])
+    // const [selectTimesheetId, setSelectTimesheetId] = React.useState<TimesheetLog[]>([])
+    const [selectTimesheetId, setSelectTimesheetId] = useAtom(selectTimesheetIdState)
+
 
     const employee = employeeState;
     const project = projectState;

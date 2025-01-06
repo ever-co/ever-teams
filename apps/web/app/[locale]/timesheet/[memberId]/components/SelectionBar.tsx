@@ -1,5 +1,7 @@
+import { ID, TimesheetLog, TimesheetStatus } from "@/app/interfaces";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useCallback } from "react";
 
 type ActionButtonProps = {
     label: string;
@@ -68,5 +70,74 @@ export const SelectionBar = ({
                 Clear Selection
             </button>
         </div>
+    )
+}
+
+
+interface SelectedTimesheetProps {
+    selectTimesheetId: TimesheetLog[];
+    updateTimesheetStatus: ({ status, ids }: { status: TimesheetStatus, ids: ID[] | ID }) => Promise<void>;
+    deleteTaskTimesheet: ({ logIds }: { logIds: string[] }) => Promise<void>;
+    setSelectTimesheetId: React.Dispatch<React.SetStateAction<TimesheetLog[]>>;
+    fullWidth: boolean;
+}
+
+
+/**
+ * SelectedTimesheet
+ *
+ * A component that renders a selection bar to handle tasks in the timesheet.
+ * It provides buttons to approve, reject, delete and clear the selected tasks.
+ *
+ * @param selectTimesheetId - The selected timesheet logs.
+ * @param updateTimesheetStatus - A function to update the status of the selected timesheet logs.
+ * @param deleteTaskTimesheet - A function to delete the selected timesheet logs.
+ * @param setSelectTimesheetId - A function to set the selected timesheet logs.
+ * @param fullWidth - A boolean to indicate if the component should be rendered in full width.
+ * @returns {React.ReactElement} - The rendered timesheet component.
+ */
+export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, updateTimesheetStatus, deleteTaskTimesheet, setSelectTimesheetId, fullWidth }) => {
+    const handleApprove = useCallback(async () => {
+        try {
+            await updateTimesheetStatus({
+                status: 'APPROVED',
+                ids: selectTimesheetId.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }, [selectTimesheetId, updateTimesheetStatus]);
+
+    const handleReject = useCallback(async () => {
+        try {
+            await updateTimesheetStatus({
+                status: 'DENIED',
+                ids: selectTimesheetId.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }, [selectTimesheetId, updateTimesheetStatus]);
+
+    const handleDelete = useCallback(async () => {
+        try {
+            await deleteTaskTimesheet({
+                logIds: selectTimesheetId?.map((select) => select.timesheet.id).filter((id) => id !== undefined)
+            });
+            setSelectTimesheetId([]);
+        } catch (error) {
+            console.error(error);
+        }
+    }, [selectTimesheetId, deleteTaskTimesheet, setSelectTimesheetId]);
+
+    return (
+        <SelectionBar
+            selectedCount={selectTimesheetId.length}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onDelete={handleDelete}
+            onClearSelection={() => setSelectTimesheetId([])}
+            fullWidth={fullWidth}
+        />
     )
 }
