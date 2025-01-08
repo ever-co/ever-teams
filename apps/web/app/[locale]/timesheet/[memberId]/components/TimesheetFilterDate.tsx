@@ -352,12 +352,20 @@ export function DatePickerFilter({
 		</div>
 	);
 }
-const DayIndicators = ({ entries }: { entries: any[] }) => {
+const DayIndicators = ({ entries }: { entries: TimesheetLog[] }) => {
 	if (entries.length === 1) {
-		return <span className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light" />;
+		return <span
+			className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light"
+			role="status"
+			aria-label="1 time entry for this day"
+		/>;
 	}
 	return (
-		<div className="flex items-center gap-0.5">
+		<div
+			className="flex items-center gap-0.5"
+			role="status"
+			aria-label={`${entries.length} time entries for this day`}
+		>
 			{[...Array(3)].map((_, index) => (
 				<span key={index} className="h-1 w-1 rounded-full bg-green-500 dark:bg-primary-light" />
 			))}
