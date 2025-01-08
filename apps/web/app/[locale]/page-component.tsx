@@ -2,7 +2,7 @@
 
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useOrganizationTeams, useTimerView } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -10,8 +10,6 @@ import { Breadcrumb, Card, Container } from 'lib/components';
 import { AuthUserTaskInput, TeamInvitations, TeamMembers, Timer, UnverifiedEmail } from 'lib/features';
 import { MainLayout } from 'lib/layout';
 import { IssuesView } from '@app/constants';
-import { useNetworkState } from '@uidotdev/usehooks';
-import Offline from '@components/pages/offline';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
@@ -34,7 +32,6 @@ function MainPage() {
 	const t = useTranslations();
 	const [headerSize] = useState(10);
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { timerStatus } = useTimerView();
 
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
@@ -44,7 +41,7 @@ function MainPage() {
 		{ title: activeTeam?.name || '', href: '/' },
 		{ title: t(`common.${view}`), href: `/` }
 	];
-	const { online } = useNetworkState();
+
 	useEffect(() => {
 		if (view == IssuesView.KANBAN && path == '/') {
 			setView(IssuesView.CARDS);
@@ -57,13 +54,10 @@ function MainPage() {
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [setFullWidth]);
 
-	if (!online) {
-		return <Offline showTimer={timerStatus?.running} />;
-	}
 	return (
 		<>
 			<div className="flex flex-col justify-between h-full min-h-screen">
-				{/* <div className="flex-grow "> */}
+				{/* <div className="flex-grow"> */}
 				<MainLayout
 					showTimer={headerSize <= 11.8 && isTrackingEnabled}
 					className="h-full"
@@ -71,13 +65,13 @@ function MainPage() {
 						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex items-center justify-center h-10 gap-8">
+									<div className="flex gap-8 justify-center items-center h-10">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
 										<Breadcrumb paths={breadcrumb} className="text-sm" />
 									</div>
 
-									<div className="flex items-center justify-center h-10 gap-1 w-max">
+									<div className="flex gap-1 justify-center items-center w-max h-10">
 										<HeaderTabs linkAll={false} />
 									</div>
 								</div>
@@ -100,7 +94,7 @@ function MainPage() {
 					footerClassName={clsxm('')}
 				>
 					<ChatwootWidget />
-					<div className="h-full ">{isTeamMember ?
+					<div className="h-full">{isTeamMember ?
 						<Container fullWidth={fullWidth} className='mx-auto' >
 							<TeamMembers kanbanView={view} />
 						</Container>
