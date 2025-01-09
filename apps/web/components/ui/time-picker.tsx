@@ -65,7 +65,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
     };
 
     return (
-        <div className="relative">
+        <div className="relative bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal">
             {isEditing ? (
                 <Input
                     type="text"
@@ -89,7 +89,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
                         }
                     }}>
                     <SelectTrigger
-                        className="w-[120px] bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
+                        className="w-[120px] bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal border-[#0000001A] dark:border-[#26272C] "
                         onClick={() => setIsEditing(true)}>
                         <SelectValue placeholder="Select time">
                             {value}

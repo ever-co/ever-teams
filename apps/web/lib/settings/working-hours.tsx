@@ -5,6 +5,7 @@ import { getActiveLanguageIdCookie, getActiveTimezoneIdCookie, setActiveTimezone
 import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { userState } from '@/app/stores';
+import { renderTrackingIcon } from './table-action-popover';
 
 interface WorkDay {
     day: string;
@@ -98,14 +99,14 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
                     />
                 </div>
                 {schedule.map((workDay, index) => (
-                    <div key={workDay.day} className="flex items-center space-x-4">
+                    <div key={workDay.day} className="flex items-center space-x-4 gap-4">
                         <div className="w-32">
                             <label className="inline-flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={workDay.enabled}
-                                    onChange={() => handleToggleDay(index)}
-                                    className="form-checkbox h-5 w-5 text-primary"
+                                <ToggleSwitch
+                                    key={index}
+                                    enabled={workDay.enabled}
+                                    onToggle={() => handleToggleDay(index)}
+                                    renderTrackingIcon={renderTrackingIcon}
                                 />
                                 <span className="ml-2">{workDay.day}</span>
                             </label>
@@ -126,11 +127,39 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
                     </div>
                 ))}
             </div>
-            {/* <div className="mt-6">
-                <Button onClick={handleSave} className="w-full">
-                    {t('common.SAVE_CHANGES')}
-                </Button>
-            </div> */}
+        </div>
+    );
+};
+
+
+interface ToggleSwitchProps {
+    enabled: boolean;
+    onToggle: () => void;
+    renderTrackingIcon: (enabled: boolean) => React.ReactNode;
+}
+
+/**
+ * A toggle switch component that can be used to toggle a setting on and off.
+ * The component takes in three props: enabled, onToggle, and renderTrackingIcon.
+ * The enabled prop is a boolean that indicates whether the setting is currently enabled or not.
+ * The onToggle prop is a function that is called when the user clicks on the toggle switch.
+ * The renderTrackingIcon prop is a function that is called to render the icon that is displayed
+ * on the toggle switch. The function takes a boolean argument indicating whether the setting
+ * is enabled or not.
+ */
+export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, renderTrackingIcon }) => {
+    return (
+        <div
+            className={`w-14 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors`}
+            onClick={onToggle}
+            style={
+                enabled
+                    ? { background: '#2ead805b' }
+                    : { background: 'linear-gradient(to right, #ea31244d, #ea312479)' }
+            }>
+            <div className={`w-4 h-4 rounded-full shadow-md transform transition-transform  ${enabled ? 'translate-x-0 bg-[#2ead81]' : 'translate-x-9 bg-[#ea3124]'}`}>
+                {renderTrackingIcon(!enabled)}
+            </div>
         </div>
     );
 };

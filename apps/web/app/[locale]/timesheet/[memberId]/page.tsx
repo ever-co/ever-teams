@@ -267,15 +267,25 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									loading={loadingTimesheet}
 								/>
 							) : (
-								<CalendarView
-									user={user}
-									data={
-										shouldRenderPagination ?
-											paginatedGroups :
-											filterDataTimesheet
+								<>
+									<CalendarView
+										user={user}
+										data={
+											shouldRenderPagination ?
+												paginatedGroups :
+												filterDataTimesheet
+										}
+										loading={loadingTimesheet}
+									/>
+									{selectTimesheetId.length > 0 && <SelectedTimesheet
+										deleteTaskTimesheet={deleteTaskTimesheet}
+										fullWidth={fullWidth}
+										selectTimesheetId={selectTimesheetId}
+										setSelectTimesheetId={setSelectTimesheetId}
+										updateTimesheetStatus={updateTimesheetStatus}
+									/>
 									}
-									loading={loadingTimesheet}
-								/>
+								</>
 							)}
 							{shouldRenderPagination && (
 								<TimesheetPagination
@@ -292,14 +302,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							)}
 
 						</div>
-						{selectTimesheetId.length > 0 && <SelectedTimesheet
-							deleteTaskTimesheet={deleteTaskTimesheet}
-							fullWidth={fullWidth}
-							selectTimesheetId={selectTimesheetId}
-							setSelectTimesheetId={setSelectTimesheetId}
-							updateTimesheetStatus={updateTimesheetStatus}
-						/>
-						}
+
 					</Container>
 				</div>
 			</MainLayout>
