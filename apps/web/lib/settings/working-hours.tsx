@@ -1,7 +1,10 @@
 import React from 'react';
 import { TimePicker } from '@/components/ui/time-picker';
-import { Button } from '@/components/ui/button';
-import { useTranslations } from 'next-intl';
+import { TimezoneDropDown } from './timezone-dropdown';
+import { getActiveLanguageIdCookie, getActiveTimezoneIdCookie, setActiveTimezoneCookie, userTimezone } from '@/app/helpers';
+import { useForm } from 'react-hook-form';
+import { useAtom } from 'jotai';
+import { userState } from '@/app/stores';
 
 interface WorkDay {
     day: string;
@@ -25,10 +28,44 @@ const defaultWorkDays: WorkDay[] = [
 ];
 
 export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) => {
-    const t = useTranslations();
+    const [currentTimezone, setCurrentTimezone] = React.useState('');
+    const [user] = useAtom(userState);
+
+    const { setValue } = useForm();
+
     const [schedule, setSchedule] = React.useState<WorkDay[]>(
         initialSchedule || defaultWorkDays
     );
+    const handleChangeTimezone = React.useCallback(
+        (newTimezone: string | undefined) => {
+            setActiveTimezoneCookie(newTimezone || userTimezone());
+            setCurrentTimezone(newTimezone || userTimezone());
+            setValue('timeZone', newTimezone || userTimezone());
+
+        },
+        [setCurrentTimezone, setValue]
+    );
+    React.useEffect(() => {
+        setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
+        setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
+    }, [setCurrentTimezone, setValue, user, user?.timeZone]);
+    React.useEffect(() => {
+
+        /**
+         * Set Default current timezone.
+         * User can change it anytime if wants
+         */
+        if (!user?.timeZone) {
+            handleChangeTimezone(undefined);
+        }
+    }, [currentTimezone, setValue, handleChangeTimezone]);
+
+    React.useEffect(() => {
+        setValue(
+            'preferredLanguage',
+            user?.preferredLanguage || getActiveLanguageIdCookie()
+        );
+    }, [user, user?.preferredLanguage, setValue]);
 
     const handleTimeChange = (index: number, field: 'startTime' | 'endTime', value: string) => {
         const newSchedule = [...schedule];
@@ -48,14 +85,18 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
         setSchedule(newSchedule);
     };
 
-    const handleSave = () => {
-        console.log('Saving work schedule:', schedule);
-    };
-
     return (
         <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4"></h2>
             <div className="space-y-4">
+                <div className='flex items-center space-x-4'>
+                    <span className='text-2xl'>Timezone</span>
+                    <TimezoneDropDown
+                        currentTimezone={currentTimezone}
+                        onChangeTimezone={(t: string) => {
+                            handleChangeTimezone(t);
+                        }}
+                    />
+                </div>
                 {schedule.map((workDay, index) => (
                     <div key={workDay.day} className="flex items-center space-x-4">
                         <div className="w-32">
@@ -85,11 +126,11 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
                     </div>
                 ))}
             </div>
-            <div className="mt-6">
+            {/* <div className="mt-6">
                 <Button onClick={handleSave} className="w-full">
                     {t('common.SAVE_CHANGES')}
                 </Button>
-            </div>
+            </div> */}
         </div>
     );
 };

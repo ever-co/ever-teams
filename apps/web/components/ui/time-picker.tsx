@@ -87,17 +87,15 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
                         if (!open) {
                             setIsEditing(false);
                         }
-                    }}
-                >
+                    }}>
                     <SelectTrigger
-                        className="w-[120px]"
-                        onClick={() => setIsEditing(true)}
-                    >
+                        className="w-[120px] bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
+                        onClick={() => setIsEditing(true)}>
                         <SelectValue placeholder="Select time">
                             {value}
                         </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                    <SelectContent className="max-h-[200px] overflow-y-auto ">
                         <div className="p-2 border-b">
                             <Input
                                 type="text"
@@ -105,7 +103,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
                                 onChange={handleInputChange}
                                 onBlur={handleInputBlur}
                                 placeholder="HH:MM"
-                                className="mb-2"
+                                className="mb-2 bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
                                 maxLength={5}
                             />
                         </div>
@@ -114,8 +112,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
                                 <SelectItem
                                     key={time}
                                     value={time}
-                                    className="hover:bg-gray-100 dark:hover:bg-gray-800"
-                                >
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-800 bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal ">
                                     {time}
                                 </SelectItem>
                             ))}
