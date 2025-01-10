@@ -138,7 +138,7 @@ export function DataSyncToggler({ className }: IClassName) {
         className={clsxm(
           'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
           dataSync &&
-            'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+          'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
         )}
       >
         <UpdateIcon className="dark:text-white" />
@@ -149,7 +149,7 @@ export function DataSyncToggler({ className }: IClassName) {
         className={clsxm(
           'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
           !dataSync &&
-            'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
+          'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
         )}
       >
         <Cross2Icon className={clsxm(!dataSync && 'text-white')} />
@@ -186,7 +186,7 @@ export function DataSyncModeToggler({ className }: IClassName) {
           className={clsxm(
             'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
             dataSyncMode == 'REAL_TIME' &&
-              'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+            'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
           )}
         >
           <LightningBoltIcon className="dark:text-white" />
@@ -197,7 +197,7 @@ export function DataSyncModeToggler({ className }: IClassName) {
           className={clsxm(
             'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
             dataSyncMode == 'PULL' &&
-              'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+            'bg-white shadow-md dark:bg-transparent dark:bg-[#3B4454]'
           )}
         >
           <UpdateIcon className="dark:text-white" />
@@ -234,9 +234,8 @@ export function CommonToggle({
       >
         <span
           aria-hidden="true"
-          className={`${
-            enabled ? 'translate-x-9 bg-[#3826A6]' : 'translate-x-1'
-          }
+          className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'translate-x-1'
+            }
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
         />
       </Switch>
@@ -270,7 +269,7 @@ export function FullWidthToggler({ className }: IClassName) {
         className={clsxm(
           'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
           fullWidth &&
-            'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
+          'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
         )}
       >
         <AllSidesIcon className="dark:text-white" />
@@ -281,7 +280,7 @@ export function FullWidthToggler({ className }: IClassName) {
         className={clsxm(
           'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
           !fullWidth &&
-            'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
+          'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
         )}
       >
         <Cross2Icon className={clsxm(!fullWidth && 'text-white')} />

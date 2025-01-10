@@ -8,6 +8,11 @@ export const useLeftSettingData = () => {
 			color: '#7E7991',
 			href: '#general'
 		},
+		{
+			title: 'Working hours',
+			color: '#7E7991',
+			href: '#working-hours',
+		},
 		// {
 		// 	title: t('pages.settingsPersonal.WORK_SCHEDULE'),
 		// 	color: '#7E7991',
