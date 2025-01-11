@@ -59,7 +59,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
         if (!user?.timeZone) {
             handleChangeTimezone(undefined);
         }
-    }, [currentTimezone, setValue, handleChangeTimezone]);
+    }, [currentTimezone, setValue, handleChangeTimezone, user?.timeZone]);
 
     React.useEffect(() => {
         setValue(
@@ -99,7 +99,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
                     />
                 </div>
                 {schedule.map((workDay, index) => (
-                    <div key={workDay.day} className="flex items-center space-x-4 gap-4">
+                    <div key={workDay.day} className="flex gap-4 items-center space-x-4">
                         <div className="w-32">
                             <label className="inline-flex items-center">
                                 <ToggleSwitch
@@ -150,7 +150,7 @@ interface ToggleSwitchProps {
 export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, renderTrackingIcon }) => {
     return (
         <div
-            className={`w-14 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors`}
+            className={`flex items-center p-1 w-14 h-6 rounded-full transition-colors cursor-pointer`}
             onClick={onToggle}
             style={
                 enabled

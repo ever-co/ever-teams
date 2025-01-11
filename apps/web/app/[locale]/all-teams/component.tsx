@@ -39,19 +39,21 @@ function AllTeamsPage() {
 			showTimer={isTrackingEnabled}
 			className="items-start"
 			mainHeaderSlot={
-				<div className="flex w-full flex-col items-start  justify-between">
-					<div className="w-full flex items-center justify-between py-2 px-4">
-						<Breadcrumb paths={breadcrumb} className="text-sm" />
-						<div className="flex self-end items-center gap-2">
-							<div className="flex items-center justify-center h-10 gap-1 w-max">
-								<HeaderTabs />
+				<Container fullWidth={fullWidth} className="mx-auto">
+					<div className="flex w-full flex-col items-start  justify-between">
+						<div className="w-full flex items-center justify-between py-2 px-4">
+							<Breadcrumb paths={breadcrumb} className="text-sm" />
+							<div className="flex self-end items-center gap-2">
+								<div className="flex items-center justify-center h-10 gap-1 w-max">
+									<HeaderTabs />
+								</div>
+								<MemberFilter />
 							</div>
-							<MemberFilter />
 						</div>
-					</div>
 
-					{view == IssuesView.CARDS && <TeamMemberHeader view={IssuesView.CARDS} />}
-				</div>
+						{view == IssuesView.CARDS && <TeamMemberHeader view={IssuesView.CARDS} />}
+					</div>
+				</Container>
 			}
 		>
 			<Container fullWidth={fullWidth} className="mx-auto mt-5">
