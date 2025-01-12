@@ -253,13 +253,13 @@ export function DatePickerFilter({
 	);
 
 	const datesWithEntries = React.useMemo(() => {
-		return new Set(timesheet?.map((entry) => format(new Date(entry.createdAt), "yyyy-MM-dd")))
+		return new Set(timesheet?.map((entry) => format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd")))
 	}, [timesheet])
 
 	const entriesByDate = React.useMemo(() => {
 		const map = new Map<string, TimesheetLog[]>();
 		timesheet?.forEach(entry => {
-			const dateKey = format(new Date(entry.createdAt), "yyyy-MM-dd");
+			const dateKey = format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd");
 			if (!map.has(dateKey)) {
 				map.set(dateKey, []);
 			}
