@@ -38,7 +38,7 @@
 		"@headlessui/react": "^1.7.7",
 		"@heroicons/react": "^2.0.12",
 		"@hookform/resolvers": "^3.9.1",
-		"@jitsi/react-sdk": "^1.3.0",
+		"@jitsi/react-sdk": "^1.4.0",
 		"@jitsu/jitsu-react": "^1.3.0",
 		"@livekit/components-react": "^2.4.1",
 		"@livekit/components-styles": "^1.0.12",

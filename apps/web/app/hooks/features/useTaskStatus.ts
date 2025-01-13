@@ -18,7 +18,6 @@ import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import isEqual from 'lodash/isEqual';
 import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function useTaskStatus() {
@@ -64,16 +63,21 @@ export function useTaskStatus() {
       user?.employee?.organizationId as string,
       activeTeamId || teamId || null
     ).then((res) => {
-      if (!isEqual(res.data?.items || [], taskStatus)) {
-        setTaskStatus(res.data?.items || []);
-      }
+      setTaskStatus(res.data?.items || []);
       return res;
     });
-  }, [user, activeTeamId, setTaskStatus, taskStatus, queryCall, loadingRef]);
+  }, [user, activeTeamId, setTaskStatus, queryCall, loadingRef]);
 
   useEffect(() => {
-    if (!firstLoad) return;
-    loadTaskStatusData();
+    if (user?.tenantId && (activeTeamId || getActiveTeamIdCookie())) {
+      loadTaskStatusData();
+    }
+  }, [user?.tenantId, activeTeamId, loadTaskStatusData]);
+
+  useEffect(() => {
+    if (firstLoad) {
+      loadTaskStatusData();
+    }
   }, [loadTaskStatusData, firstLoad]);
 
   const createTaskStatus = useCallback(
