@@ -253,12 +253,22 @@ export function DatePickerFilter({
 	);
 
 	const datesWithEntries = React.useMemo(() => {
-		return new Set(timesheet?.map((entry) => format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd")))
+		return new Set(timesheet?.map((entry) => {
+			if (!entry.timesheet?.createdAt) {
+				console.warn('Skipping entry with missing timesheet or createdAt:', entry);
+				return null;
+			}
+			return format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd");
+		}).filter(Boolean));
 	}, [timesheet])
 
 	const entriesByDate = React.useMemo(() => {
 		const map = new Map<string, TimesheetLog[]>();
 		timesheet?.forEach(entry => {
+			if (!entry.timesheet?.createdAt) {
+				console.warn('Skipping entry with missing timesheet or createdAt:', entry);
+				return;
+			}
 			const dateKey = format(new Date(entry.timesheet.createdAt), "yyyy-MM-dd");
 			if (!map.has(dateKey)) {
 				map.set(dateKey, []);

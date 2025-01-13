@@ -365,7 +365,7 @@ export function useTimesheet({
                 )
             );
         });
-    }, [timesheet, inputSearch, normalizeText]);
+    }, [timesheet, inputSearch, normalizeText, statusState]);
 
     const reGroupByDate = (groupedTimesheets: GroupedTimesheet[]): GroupedTimesheet[] => {
         return groupedTimesheets.reduce((acc, { date, tasks }) => {
