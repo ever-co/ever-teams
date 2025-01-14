@@ -9,7 +9,8 @@ import {
   useAuthenticateUser,
   useOrganizationTeams,
   useTaskStatistics,
-  useTeamMemberCard
+  useTeamMemberCard,
+  useTimerView
 } from '@app/hooks';
 import ImageComponent, {
   ImageOverlapperProps
@@ -18,8 +19,9 @@ import { TaskIssueStatus } from './task-issue';
 import { Priority, setCommentIconColor } from 'lib/components/kanban-card';
 import CircularProgress from '@components/ui/svgs/circular-progress';
 import { HorizontalSeparator } from 'lib/components';
-import { TaskStatus } from '@app/constants';
+// import { TaskStatus } from '@app/constants';
 import { secondsToTime } from '@app/helpers';
+import React from 'react';
 
 interface TaskItemProps {
   task: ITeamTask;
@@ -29,6 +31,8 @@ export default function TaskBlockCard(props: TaskItemProps) {
   const { task } = props;
   const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
   const { activeTeam } = useOrganizationTeams();
+  const { timerStatus, activeTeamTask } = useTimerView();
+
   const { user } = useAuthenticateUser();
   const { getEstimation } = useTaskStatistics(0);
   const members = activeTeam?.members || [];
@@ -77,6 +81,11 @@ export default function TaskBlockCard(props: TaskItemProps) {
           0
         )) ||
     0
+  );
+
+  const activeTaskStatus = React.useMemo(
+    () => (activeTeamTask?.id === task.id ? timerStatus : undefined),
+    [activeTeamTask?.id, task.id, timerStatus]
   );
 
   return (
@@ -152,7 +161,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
         </div>
         <div className="w-full h-10 flex items-center justify-between">
           <div>
-            {task.status === TaskStatus.INPROGRESS ? (
+            {activeTaskStatus ? (
               <div className="flex items-center gap-2">
                 <small className="text-grey text-xs text-normal">Live:</small>
                 <p className="text-[#219653] font-medium text-sm">
