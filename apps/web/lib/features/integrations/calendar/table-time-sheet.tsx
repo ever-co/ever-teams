@@ -78,7 +78,6 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 	};
 
 	const t = useTranslations();
-
 	const handleSort = (key: string, order: SortOrder) => {
 		console.log(`Sorting ${key} in ${order} order`);
 	};

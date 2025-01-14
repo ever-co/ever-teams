@@ -24,29 +24,47 @@ export interface GroupedTimesheet {
 
 const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
-    type GroupedMap = Record<string, TimesheetLog[]>;
-    const groupedByDate = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.createdAt) {
+
+    // First, group by timesheetId
+    const groupedByTimesheet = items.reduce((acc, item) => {
+        if (!item?.timesheet?.id || !item?.timesheet.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
             return acc;
         }
-        try {
-            const date = new Date(item.createdAt).toISOString().split('T')[0];
-            if (!acc[date]) acc[date] = [];
-            acc[date].push(item);
-        } catch (error) {
-            console.error(
-                `Failed to process date for timesheet ${item.timesheet.id}:`,
-                { createdAt: item.createdAt, error }
-            );
+        const timesheetId = item.timesheet.id;
+        if (!acc[timesheetId]) {
+            acc[timesheetId] = [];
         }
+        acc[timesheetId].push(item);
         return acc;
-    }, {});
+    }, {} as Record<string, TimesheetLog[]>);
 
-    return Object.entries(groupedByDate)
-        .map(([date, tasks]) => ({ date, tasks }))
-        .sort((a, b) => b.date.localeCompare(a.date));
-}
+    // Then, for each timesheet group, group by date and merge all results
+    const result: GroupedTimesheet[] = [];
+    Object.values(groupedByTimesheet).forEach(timesheetLogs => {
+        const groupedByDate = timesheetLogs.reduce((acc, item) => {
+            try {
+                const date = new Date(item.timesheet.createdAt).toISOString().split('T')[0];
+                if (!acc[date]) acc[date] = [];
+                acc[date].push(item);
+            } catch (error) {
+                console.error(
+                    `Failed to process date for timesheet ${item.timesheet.id}:`,
+                    { createdAt: item.timesheet.createdAt, error }
+                );
+            }
+            return acc;
+        }, {} as Record<string, TimesheetLog[]>);
+
+        // Convert grouped dates to array format and add to results
+        Object.entries(groupedByDate).forEach(([date, tasks]) => {
+            result.push({ date, tasks });
+        });
+    });
+
+    // Sort by date in descending order
+    return result.sort((a, b) => b.date.localeCompare(a.date));
+};
 const getWeekYearKey = (date: Date): string => {
     const startOfYear = new Date(date.getFullYear(), 0, 1);
     const daysSinceStart = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
@@ -54,41 +72,59 @@ const getWeekYearKey = (date: Date): string => {
     return `${date.getFullYear()}-W${week}`;
 };
 
+const getMonthKey = (date: Date): string => {
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+};
 
 type GroupingKeyFunction = (date: Date) => string;
 
 const createGroupingFunction = (getKey: GroupingKeyFunction) => (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
-    type GroupedMap = Record<string, TimesheetLog[]>;
 
-    const grouped = items.reduce<GroupedMap>((acc, item) => {
-        if (!item?.createdAt) {
+    // First, group by timesheetId
+    const groupedByTimesheet = items.reduce((acc, item) => {
+        if (!item?.timesheet?.id || !item?.timesheet?.createdAt) {
             console.warn('Skipping item with missing timesheet or createdAt:', item);
             return acc;
         }
-        try {
-            const date = new Date(item.createdAt);
-            const key = getKey(date);
-            if (!acc[key]) acc[key] = [];
-            acc[key].push(item);
-        } catch (error) {
-            console.error(
-                `Failed to process date for timesheet ${item.timesheet.id}:`,
-                { createdAt: item.createdAt, error }
-            );
+        const timesheetId = item.timesheet.id;
+        if (!acc[timesheetId]) {
+            acc[timesheetId] = [];
         }
+        acc[timesheetId].push(item);
         return acc;
-    }, {});
+    }, {} as Record<string, TimesheetLog[]>);
 
-    return Object.entries(grouped)
-        .map(([key, tasks]) => ({ date: key, tasks }))
-        .sort((a, b) => b.date.localeCompare(a.date));
+    // Then, for each timesheet group, group by date and merge all results
+    const result: GroupedTimesheet[] = [];
+    Object.values(groupedByTimesheet).forEach(timesheetLogs => {
+        const groupedByDate = timesheetLogs.reduce((acc, item) => {
+            try {
+                const date = new Date(item.timesheet.createdAt);
+                const key = getKey(date);
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(item);
+            } catch (error) {
+                console.error(
+                    `Failed to process date for timesheet ${item.timesheet.id}:`,
+                    { createdAt: item.timesheet.createdAt, error }
+                );
+            }
+            return acc;
+        }, {} as Record<string, TimesheetLog[]>);
+
+        // Convert grouped dates to array format and add to results
+        Object.entries(groupedByDate).forEach(([key, tasks]) => {
+            result.push({ date: key, tasks });
+        });
+    });
+
+    // Sort by date in descending order
+    return result.sort((a, b) => b.date.localeCompare(a.date));
 };
 
 const groupByWeek = createGroupingFunction(date => getWeekYearKey(date));
-const groupByMonth = createGroupingFunction(date =>
-    `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
-);
+const groupByMonth = createGroupingFunction(getMonthKey);
 
 /**
  * @function useTimesheet
@@ -161,15 +197,7 @@ export function useTimesheet({
                 console.error('Error fetching timesheet:', error);
             });
         },
-        [
-            user,
-            queryTimesheet,
-            setTimesheet,
-            employee,
-            project,
-            task,
-            statusState
-        ]
+        [user, queryTimesheet, isManage, employee, project, task, statusState, setTimesheet]
     );
 
     const createTimesheet = useCallback(
@@ -195,7 +223,7 @@ export function useTimesheet({
                 throw error;
             }
         },
-        [queryCreateTimesheet, setTimesheet, user]
+        [queryCreateTimesheet, user]
     );
 
     const updateTimesheet = useCallback(
@@ -337,7 +365,19 @@ export function useTimesheet({
                 )
             );
         });
-    }, [timesheet, inputSearch]);
+    }, [timesheet, inputSearch, normalizeText, statusState]);
+
+    const reGroupByDate = (groupedTimesheets: GroupedTimesheet[]): GroupedTimesheet[] => {
+        return groupedTimesheets.reduce((acc, { date, tasks }) => {
+            const existingGroup = acc.find(group => group.date === date);
+            if (existingGroup) {
+                existingGroup.tasks = existingGroup.tasks.concat(tasks);
+            } else {
+                acc.push({ date, tasks });
+            }
+            return acc;
+        }, [] as GroupedTimesheet[]);
+    };
 
     const timesheetElementGroup = useMemo(() => {
         if (!timesheet) {
@@ -345,20 +385,28 @@ export function useTimesheet({
         }
 
         if (timesheetViewMode === 'ListView') {
+            const groupedTimesheets = groupByDate(filterDataTimesheet);
+            const reGroupedByDate = reGroupByDate(groupedTimesheets);
             switch (timesheetGroupByDays) {
                 case 'Daily':
-                    return groupByDate(filterDataTimesheet);
+                    return reGroupedByDate;
                 case 'Weekly':
                     return groupByWeek(filterDataTimesheet);
                 case 'Monthly':
                     return groupByMonth(filterDataTimesheet);
                 default:
-                    return groupByDate(filterDataTimesheet);
+                    return reGroupedByDate;
             }
         }
+        return reGroupByDate(groupByDate(filterDataTimesheet));
+    }, [timesheet, timesheetViewMode, filterDataTimesheet, timesheetGroupByDays]);
 
-        return groupByDate(filterDataTimesheet);
-    }, [timesheetGroupByDays, timesheetViewMode, timesheet]);
+    const rowsToObject = (rows: TimesheetLog[]): Record<string, { task: TimesheetLog; status: TimesheetStatus }> => {
+        return rows.reduce((acc, row) => {
+            acc[row.timesheet.id] = { task: row, status: row.timesheet.status }
+            return acc;
+        }, {} as Record<string, { task: TimesheetLog; status: TimesheetStatus }>);
+    };
 
 
     useEffect(() => {
@@ -387,6 +435,7 @@ export function useTimesheet({
         setSelectTimesheetId,
         selectTimesheetId,
         handleSelectRowByStatusAndDate,
-        handleSelectRowTimesheet
+        handleSelectRowTimesheet,
+        rowsToObject
     };
 }
