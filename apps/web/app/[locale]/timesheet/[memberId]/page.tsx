@@ -14,7 +14,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
-import { CalendarView, CalendarViewIcon, FilterStatus, ListViewIcon, MemberWorkIcon, MenHoursIcon, PendingTaskIcon, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
+import { CalendarView, CalendarViewIcon, FilterStatus, ListViewIcon, MemberWorkIcon, MenHoursIcon, PendingTaskIcon, SelectedTimesheet, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { GoSearch } from 'react-icons/go';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
@@ -55,7 +55,16 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		to: endOfMonth(new Date()),
 	});
 
-	const { timesheet: filterDataTimesheet, statusTimesheet, loadingTimesheet, isManage, timesheetGroupByDays } = useTimesheet({
+	const {
+		timesheet: filterDataTimesheet,
+		statusTimesheet, loadingTimesheet,
+		isManage,
+		timesheetGroupByDays,
+		selectTimesheetId,
+		setSelectTimesheetId,
+		updateTimesheetStatus,
+		deleteTaskTimesheet
+	} = useTimesheet({
 		startDate: dateRange.from!,
 		endDate: dateRange.to!,
 		timesheetViewMode: timesheetNavigator,
@@ -171,7 +180,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									}}
 								/>
 								<TimesheetCard
-									hours={`${hours}:${minute}`}
+									hours={`${String(hours).padStart(2, '0')}:${String(minute).padStart(2, '0')}`}
 									title={t('common.MEN_HOURS')}
 									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
 									icon={<MenHoursIcon />}
@@ -258,15 +267,25 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									loading={loadingTimesheet}
 								/>
 							) : (
-								<CalendarView
-									user={user}
-									data={
-										shouldRenderPagination ?
-											paginatedGroups :
-											filterDataTimesheet
+								<>
+									<CalendarView
+										user={user}
+										data={
+											shouldRenderPagination ?
+												paginatedGroups :
+												filterDataTimesheet
+										}
+										loading={loadingTimesheet}
+									/>
+									{selectTimesheetId.length > 0 && <SelectedTimesheet
+										deleteTaskTimesheet={deleteTaskTimesheet}
+										fullWidth={fullWidth}
+										selectTimesheetId={selectTimesheetId}
+										setSelectTimesheetId={setSelectTimesheetId}
+										updateTimesheetStatus={updateTimesheetStatus}
+									/>
 									}
-									loading={loadingTimesheet}
-								/>
+								</>
 							)}
 							{shouldRenderPagination && (
 								<TimesheetPagination
@@ -281,6 +300,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									totalGroups={totalGroups}
 								/>
 							)}
+
 						</div>
 
 					</Container>

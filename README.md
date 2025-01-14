@@ -92,16 +92,54 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
 
 <https://app.ever.team>
 
-### Quick Start with our public live APIs
+### Run with Docker Compose
+
+- Clone repo.
+- Make sure you have the latest Docker Compose [installed locally](https://docs.docker.com/compose/install). Important: you need a minimum [v2.20](https://docs.docker.com/compose/release-notes/#2200).
+- Run `docker-compose -f docker-compose.demo.yml up`, if you want to run the platform in basic configuration (e.g. for Demo / explore functionality / quick run) using our prebuilt Docker images. Check `.env.demo.compose` file for different settings (optionally). _(Note: Docker Compose will use latest images pre-build automatically from head of `master` branch using GitHub CI/CD.)_
+- Run `docker-compose up`, if you want to run the platform in production configuration using our prebuilt Docker images. Check `.env.compose` file for different settings (optionally). _(Note: Docker Compose will use latest images pre-build automatically from head of `master` branch using GitHub CI/CD.)_
+- Run `docker-compose -f docker-compose.build.yml up`, if you want to build everything (code and Docker images) locally. Check `.env.compose` file for different settings (optionally). _(Note: this can be long process because it builds whole platform locally. Other options above are much faster!)_
+- :coffee: time... It might take some time for the first Docker Compose run, even if you used prebuilt Docker images.
+- Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
+- Enjoy!
+  
+_Notes:_ 
+- _You can execute `docker-compose` command with `-d` option to run it in the "detached" mode (allows containers to run in the background, separate from the terminal)._
+- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
+
+### Run with Docker
+
+#### Build & Run
+
+Run with Public Images:
+- You can pull our public docker image with `docker pull everco/ever-teams-webapp .` command.  
+- You can run <https://hub.docker.com/r/everco/ever-teams-webapp> docker image with the following command: `docker run -p 127.0.0.1:3030:3030/tcp everco/ever-teams-webapp`. 
+- Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
+
+_Note: To build such images on each release (push to our master branch), we are using relevant [Github Action](https://github.com/ever-co/ever-teams/blob/develop/.github/workflows/docker-build-publish-prod.yml)._
+
+Build and Run Locally:
+- If you want to build an image locally from our source code (after clone repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f Dockerfile`.
+- To run the locally built image, please run the following command: `docker run -p 127.0.0.1:3030:3030/tcp ever-teams-webapp`. 
+- Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
+
+_Note: By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
+
+#### Images
+
+We have Ever Teams Docker images published into:
+- https://hub.docker.com/u/everco?page=1&search=ever-teams
+- https://github.com/orgs/ever-co/packages?tab=packages&q=ever-teams
+
+### Quick Start to manually build & run locally
 
 1. Clone this repo
 2. Run `yarn install`
 3. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
 4. Open in <http://localhost:3030> in your Browser
 
-Notes:
-
--   by default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see below how to run with a Self-hosted Backend.
+_Notes:_
+- _by default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see below how to run with a Self-hosted Backend._
 
 ### Run with a Self-hosted Backend
 
@@ -127,10 +165,6 @@ Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided
 DevContainers for VSCode are supported (WIP).
 
 [Click here to get started.](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/ever-co/ever-teams)
-
-### Run in Docker & Docker Compose
-
-WIP
 
 ## 🚗 Self Hosting
 

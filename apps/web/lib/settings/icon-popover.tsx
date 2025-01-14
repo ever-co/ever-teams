@@ -34,7 +34,7 @@ const IconPopover = ({
 
 	const buttonRef = useRef<any>();
 	return (
-		<Popover className="relative border-none no-underline w-[auto]">
+		<Popover className="relative border-none no-underline w-[auto]" onProgressCapture={(e) => e.stopPropagation()}>
 			{() => (
 				<>
 					<Popover.Button className="outline-none w-full" ref={buttonRef}>

@@ -41,7 +41,7 @@ export function TimesheetFilter({ closeModal, isOpen, openModal, t, initDate, fi
 
                 <div className="flex gap-2">
                     <FrequencySelect />
-                    <TimesheetFilterDate t={t} {...initDate} />
+                    <TimesheetFilterDate t={t} {...initDate} data={Object.values(data || {}).flat()} />
                     {isManage && (
                         <>
                             <TimeSheetFilterPopover />
