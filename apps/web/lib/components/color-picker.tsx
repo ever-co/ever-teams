@@ -67,7 +67,7 @@ export const ColorPicker = ({
 	}, []);
 
 	return fullWidthInput ? (
-		<Popover className={'z-[9999] relative border-none no-underline w-full mt-3' + className}>
+		<Popover className={'z-[9999] relative border-none no-underline w-full mt-3' + className} onProgressCapture={(e) => e.stopPropagation()}>
 			{() => (
 				<>
 					<Popover.Button
@@ -78,9 +78,8 @@ export const ColorPicker = ({
 						as="div"
 					>
 						<div
-							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
-								disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-							}  dark:bg-dark--theme-light`}
+							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+								}  dark:bg-dark--theme-light`}
 						>
 							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
 								<div

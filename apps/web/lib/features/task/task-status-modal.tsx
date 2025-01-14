@@ -81,7 +81,13 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 			)}
 
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<div className="w-[98%] md:w-[33rem]">
+				<div className="w-[98%] md:w-[33rem]"
+					onClick={(e) => e.stopPropagation()}
+					onMouseDown={(e) => e.stopPropagation()}
+					onMouseUp={(e) => e.stopPropagation()}
+					onPointerDown={(e) => e.stopPropagation()}
+					onPointerUp={(e) => e.stopPropagation()}
+				>
 					<Card className="w-full" shadow="custom">
 						<div className="flex flex-col items-center justify-between w-full">
 							<Text.Heading as="h3" className="mb-2 text-center">
