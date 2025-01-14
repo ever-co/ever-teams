@@ -180,9 +180,8 @@ export const PersonalSettingForm = () => {
                         required: true,
                         maxLength: 80
                       })}
-                      className={`w-full m-0 h-[54px] ${
-                        !editFullname ? 'disabled:bg-[#FCFCFC]' : ''
-                      }`}
+                      className={`w-full m-0 h-[54px] ${!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
+                        }`}
                       disabled={!editFullname}
                       wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
                     />
@@ -192,9 +191,8 @@ export const PersonalSettingForm = () => {
                       {...register('lastName', {
                         maxLength: 80
                       })}
-                      className={`w-full m-0 h-[54px] ${
-                        !editFullname ? 'disabled:bg-[#FCFCFC]' : ''
-                      }`}
+                      className={`w-full m-0 h-[54px] ${!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
+                        }`}
                       disabled={!editFullname}
                       wrapperClassName={`rounded-lg w-full lg:w-[230px] mb-0 mr-5`}
                     />
@@ -241,9 +239,8 @@ export const PersonalSettingForm = () => {
                           required: true,
                           pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
                         })}
-                        className={`w-full m-0 h-[54px]  ${
-                          !editContacts ? 'disabled:bg-[#FCFCFC]' : ''
-                        }`}
+                        className={`w-full m-0 h-[54px]  ${!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
+                          }`}
                         onChange={checkEmailValidity}
                         disabled={!editContacts}
                         notValidBorder={!isValid.email}
@@ -262,9 +259,8 @@ export const PersonalSettingForm = () => {
                         {...register('phoneNumber', {
                           valueAsNumber: true
                         })}
-                        className={`w-full m-0 h-[54px] ${
-                          !editContacts ? 'disabled:bg-[#FCFCFC]' : ''
-                        }`}
+                        className={`w-full m-0 h-[54px] ${!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
+                          }`}
                         onChange={checkPhoneValidity}
                         disabled={!editContacts}
                         notValidBorder={!isValid.phone}

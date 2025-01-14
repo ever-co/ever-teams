@@ -17,6 +17,7 @@ import { PropsWithChildren, useEffect } from 'react';
 
 import { useCheckAPI } from '@app/hooks/useCheckAPI';
 import GlobalSkeleton from '@components/ui/global-skeleton';
+import OfflineWrapper from '@components/offline-wrapper';
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 import { PHProvider } from './integration/posthog/provider';
@@ -145,14 +146,16 @@ const LocaleLayout = ({ children, params: { locale }, pageProps }: PropsWithChil
 									enableSystem
 									disableTransitionOnChange
 								>
-									{loading && !pathname?.startsWith('/auth') ? (
-										<GlobalSkeleton />
-									) : (
-										<>
-											<AppState />
-											<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
-										</>
-									)}
+									<OfflineWrapper>
+										{loading && !pathname?.startsWith('/auth') ? (
+											<GlobalSkeleton />
+										) : (
+											<>
+												<AppState />
+												<JitsuRoot pageProps={pageProps}>{children}</JitsuRoot>
+											</>
+										)}
+									</OfflineWrapper>
 								</ThemeProvider>
 							</Provider>
 						</NextAuthSessionProvider>

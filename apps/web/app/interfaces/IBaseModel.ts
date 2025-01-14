@@ -38,6 +38,6 @@ export interface IBasePerTenantAndOrganizationEntity extends IBasePerTenant {
 
 export interface IBasePerTenantAndOrganizationEntityMutationInput
 	extends Pick<IBasePerTenantAndOrganizationEntity, 'organizationId'>,
-		Partial<IBasePerTenantEntityMutationInput> {
+	Partial<IBasePerTenantEntityMutationInput> {
 	organization?: Pick<IOrganization, 'id'>;
 }

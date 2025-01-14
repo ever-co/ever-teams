@@ -1,0 +1,28 @@
+services:
+  webapp:
+    container_name: webapp
+    image: ever-teams-webapp:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
+        NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+        NODE_ENV: ${NODE_ENV:-development}
+        DEMO: 'true'
+    environment:
+      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
+      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO: 'true'
+    env_file:
+      - .env.compose
+    restart: on-failure
+    ports:
+      - '3030:${UI_PORT:-3030}'
+    networks:
+      - overlay
+
+networks:
+  overlay:
+    driver: bridge
