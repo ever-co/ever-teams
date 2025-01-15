@@ -1,13 +1,12 @@
 'use client';
 
 import { useNetworkState } from '@uidotdev/usehooks';
+import { PropsWithChildren } from 'react';
+import dynamic from 'next/dynamic';
 import Offline from '@components/pages/offline';
 import { useTimerView } from '@app/hooks';
 import { usePathname } from 'next/navigation';
 
-interface OfflineWrapperProps {
-  children: React.ReactNode;
-}
 
 /**
  * A wrapper component that conditionally renders the Offline component if the user is not online.
@@ -22,7 +21,7 @@ interface OfflineWrapperProps {
  * @param {React.ReactNode} children - The children components to render when the user is online
  * @returns {React.ReactElement} - The Offline component if the user is offline (except on auth pages), or the children components if the user is online
  */
-export default function OfflineWrapper({ children }: OfflineWrapperProps) {
+const OfflineWrapper = ({ children }: PropsWithChildren) => {
   const { online } = useNetworkState();
   const { timerStatus } = useTimerView();
   const pathname = usePathname();
@@ -34,4 +33,8 @@ export default function OfflineWrapper({ children }: OfflineWrapperProps) {
   }
 
   return <>{children}</>;
-}
+};
+
+export default dynamic(() => Promise.resolve(OfflineWrapper), {
+  ssr: false
+});
