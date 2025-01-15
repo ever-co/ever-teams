@@ -40,7 +40,7 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 if (IS_DESKTOP_APP) {
-	const serverRuntimeConfig = getServerRuntimeConfig()
+	const serverRuntimeConfig = getServerRuntimeConfig();
 	basePath = serverRuntimeConfig?.GAUZY_API_SERVER_URL || basePath;
 }
 
@@ -299,6 +299,8 @@ export const HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL = 'has-seen-daily-plan-suggest
 
 // OAuth provider's keys
 
+export const AUTH_SECRET = process.env.AUTH_SECRET;
+
 export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
 export const APPLE_CLIENT_SECRET = process.env.APPLE_CLIENT_SECRET;
 
@@ -325,6 +327,9 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
+
+export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
+export const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Add manual timer reason
 
