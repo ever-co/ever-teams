@@ -5,8 +5,6 @@ import { NextRequest } from 'next/server';
 import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@app/constants';
 
 const secretKey = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : '');
-console.log('Running environment:', process.env.NODE_ENV, { AUTH_SECRET });
-console.log('Secret Key:', secretKey ? 'Exists' : 'Missing');
 
 if (!secretKey) {
 	throw new Error('Missing secret: Please define AUTH_SECRET in the environment variables.');
