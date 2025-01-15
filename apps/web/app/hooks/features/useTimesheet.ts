@@ -344,6 +344,16 @@ export function useTimesheet({
         }
     }, [user, queryDeleteTimesheet, setTimesheet]);
 
+    const groupedByTimesheetIds = ({ rows }: { rows: TimesheetLog[] }) => {
+        return rows.reduce((acc, row) => {
+            const timesheetId = row.timesheetId || 'unassigned';
+            if (!acc[timesheetId]) {
+                acc[timesheetId] = [];
+            }
+            acc[timesheetId].push(row);
+            return acc;
+        }, {} as Record<string, TimesheetLog[]>);
+    }
 
     const filterDataTimesheet = useMemo(() => {
         if (!timesheet || !inputSearch) {
@@ -365,7 +375,7 @@ export function useTimesheet({
                 )
             );
         });
-    }, [timesheet, inputSearch, normalizeText, statusState]);
+    }, [timesheet, inputSearch, normalizeText]);
 
     const reGroupByDate = (groupedTimesheets: GroupedTimesheet[]): GroupedTimesheet[] => {
         return groupedTimesheets.reduce((acc, { date, tasks }) => {
@@ -436,6 +446,7 @@ export function useTimesheet({
         selectTimesheetId,
         handleSelectRowByStatusAndDate,
         handleSelectRowTimesheet,
+        groupedByTimesheetIds,
         rowsToObject
     };
 }
