@@ -7,7 +7,7 @@ import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } fro
 const secretKey = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : '');
 
 if (!secretKey) {
-	throw new Error('Missing secret: Please define AUTH_SECRET in the environment variables.');
+	console.log('Missing secret: Please define AUTH_SECRET in the environment variables.');
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth((request) => ({
