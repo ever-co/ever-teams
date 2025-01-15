@@ -2,24 +2,37 @@ import NextAuth from 'next-auth';
 import { filteredProviders } from '@app/utils/check-provider-env-vars';
 import { GauzyAdapter, jwtCallback, ProviderEnum, signInCallback } from '@app/services/server/requests/OAuth';
 import { NextRequest } from 'next/server';
-import { IS_DESKTOP_APP } from '@app/constants';
+import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@app/constants';
+
+const secretKey = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : '');
+
+if (!secretKey) {
+	console.warn('Missing secret: Please define AUTH_SECRET in the environment variables.');
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth((request) => ({
 	providers: filteredProviders,
-	trustHost: IS_DESKTOP_APP,
+	trustHost: IS_DESKTOP_APP || process.env.NODE_ENV === 'production',
+	secret: secretKey,
+	debug: process.env.NODE_ENV === 'development',
 	adapter: GauzyAdapter(request as NextRequest),
 	session: { strategy: 'jwt' },
 	callbacks: {
 		async signIn({ account }) {
-			if (account) {
-				const { provider, access_token } = account;
-				if (access_token) {
-					await signInCallback(provider as ProviderEnum, access_token);
+			try {
+				if (account) {
+					const { provider, access_token } = account;
+					if (access_token) {
+						await signInCallback(provider as ProviderEnum, access_token);
+						return true;
+					}
 					return true;
 				}
-				return true;
+				return false;
+			} catch (error) {
+				console.error('Error in signIn callback:', error);
+				return false;
 			}
-			return false;
 		},
 
 		async jwt({ token, user, trigger, session, account }) {
