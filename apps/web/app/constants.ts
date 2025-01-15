@@ -328,7 +328,7 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
 
-export const developmentAuthSecret = '3yeY2Kb8lwIDi8zlJIVmJ2nDqwLE1lbnSDyK7KlLL1c';
+export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Add manual timer reason
