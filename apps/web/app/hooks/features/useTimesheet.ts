@@ -344,16 +344,23 @@ export function useTimesheet({
         }
     }, [user, queryDeleteTimesheet, setTimesheet]);
 
-    const groupedByTimesheetIds = ({ rows }: { rows: TimesheetLog[] }) => {
-        return rows.reduce((acc, row) => {
-            const timesheetId = row.timesheetId || 'unassigned';
-            if (!acc[timesheetId]) {
-                acc[timesheetId] = [];
+        const groupedByTimesheetIds = ({ rows }: { rows: TimesheetLog[] }): Record<string, TimesheetLog[]> => {
+          if (!rows) {
+            return {};
+          }
+           return rows.reduce((acc, row) => {
+            if (!row) {
+              return acc;
             }
-            acc[timesheetId].push(row);
-            return acc;
-        }, {} as Record<string, TimesheetLog[]>);
-    }
+            const timesheetId = row.timesheetId ?? 'unassigned';
+             if (!acc[timesheetId]) {
+               acc[timesheetId] = [];
+             }
+             acc[timesheetId].push(row);
+             return acc;
+           }, {} as Record<string, TimesheetLog[]>);
+         }
+
 
     const filterDataTimesheet = useMemo(() => {
         if (!timesheet || !inputSearch) {
