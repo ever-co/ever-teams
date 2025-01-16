@@ -20,19 +20,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { useAtomValue } from 'jotai';
 
 import { ArrowLeftIcon } from 'assets/svg';
-import {
-	CalendarView,
-	CalendarViewIcon,
-	FilterStatus,
-	ListViewIcon,
-	MemberWorkIcon,
-	MenHoursIcon,
-	PendingTaskIcon,
-	SelectedTimesheet,
-	TimesheetCard,
-	TimesheetFilter,
-	TimesheetView
-} from './components';
+import { CalendarView, CalendarViewIcon, ListViewIcon, MemberWorkIcon, MenHoursIcon, PendingTaskIcon, SelectedTimesheet, TimesheetCard, TimesheetFilter, TimesheetView } from './components';
 import { GoSearch } from 'react-icons/go';
 
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/app/helpers';
@@ -41,6 +29,8 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import TimesheetDetailModal from './components/TimesheetDetailModal';
 import { useTimesheetPagination } from '@/app/hooks/features/useTimesheetPagination';
 import TimesheetPagination from './components/TimesheetPagination';
+import { useTimesheetFilters } from '@/app/hooks/features/useTimesheetFilters';
+import { useTimesheetViewData } from '@/app/hooks/features/useTimesheetViewData';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -61,11 +51,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const [search, setSearch] = useState<string>('');
-	const [filterStatus, setFilterStatus] = useLocalStorageState<FilterStatus>('timesheet-filter-status', 'All Tasks');
-	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>(
-		'timesheet-detail-mode',
-		'Pending'
-	);
+	const [timesheetDetailMode, setTimesheetDetailMode] = useLocalStorageState<TimesheetDetailMode>('timesheet-detail-mode', 'Pending');
 	const [timesheetNavigator, setTimesheetNavigator] = useLocalStorageState<TimesheetViewMode>(
 		'timesheet-viewMode',
 		'ListView'
@@ -107,6 +93,20 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		data: filterDataTimesheet,
 		pageSize: TIMESHEET_PAGE_SIZE
 	});
+	const viewData = useTimesheetViewData({
+        timesheetNavigator,
+        timesheetGroupByDays,
+        paginatedGroups,
+        filterDataTimesheet
+    });
+
+    const {
+        activeStatus,
+        setActiveStatus,
+        filteredData,
+        statusData
+    } = useTimesheetFilters(viewData);
+
 
 	React.useEffect(() => {
 		getOrganizationProjects();
@@ -260,9 +260,9 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 							</div>
 							<TimesheetFilter
 								user={user}
-								data={statusTimesheet}
-								onChangeStatus={setFilterStatus}
-								filterStatus={filterStatus}
+								data={statusData}
+								onChangeStatus={setActiveStatus}
+								filterStatus={activeStatus}
 								initDate={{
 									initialRange: dateRange,
 									onChange(range) {
@@ -282,12 +282,16 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 					<Container fullWidth={fullWidth} className="py-5 mt-3 h-full">
 						<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 							{timesheetNavigator === 'ListView' ? (
-								<TimesheetView user={user} data={paginatedGroups} loading={loadingTimesheet} />
+								<TimesheetView
+									user={user}
+									data={filteredData}
+									loading={loadingTimesheet}
+								/>
 							) : (
 								<>
 									<CalendarView
 										user={user}
-										data={shouldRenderPagination ? paginatedGroups : filterDataTimesheet}
+										data={filteredData}
 										loading={loadingTimesheet}
 									/>
 									{selectTimesheetId.length > 0 && (
