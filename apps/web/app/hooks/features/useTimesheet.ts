@@ -66,61 +66,81 @@ const groupByDate = (items: TimesheetLog[]): GroupedTimesheet[] => {
     return result.sort((a, b) => b.date.localeCompare(a.date));
 };
 const getWeekYearKey = (date: Date): string => {
-    const startOfYear = new Date(date.getFullYear(), 0, 1);
-    const daysSinceStart = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
-    const week = Math.ceil((daysSinceStart + startOfYear.getDay() + 1) / 7);
-    return `${date.getFullYear()}-W${week}`;
+    try {
+        const year = date.getFullYear();
+        const startOfYear = new Date(year, 0, 1);
+        const days = Math.floor((date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+        const week = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        return `${year}-W${week.toString().padStart(2, '0')}`;
+    } catch (error) {
+        console.error('Error in getWeekYearKey:', error);
+        return '';
+    }
 };
 
 const getMonthKey = (date: Date): string => {
-    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    try {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        return `${year}-${month}`;
+    } catch (error) {
+        console.error('Error in getMonthKey:', error);
+        return '';
+    }
 };
 
 type GroupingKeyFunction = (date: Date) => string;
 
 const createGroupingFunction = (getKey: GroupingKeyFunction) => (items: TimesheetLog[]): GroupedTimesheet[] => {
     if (!items?.length) return [];
-
-    // First, group by timesheetId
-    const groupedByTimesheet = items.reduce((acc, item) => {
-        if (!item?.timesheet?.id || !item?.timesheet?.createdAt) {
-            console.warn('Skipping item with missing timesheet or createdAt:', item);
+    const groupedByDate = items.reduce((acc, item) => {
+        if (!item?.timesheet?.createdAt) {
+            console.warn('Skipping item with missing createdAt:', item);
             return acc;
         }
-        const timesheetId = item.timesheet.id;
-        if (!acc[timesheetId]) {
-            acc[timesheetId] = [];
-        }
-        acc[timesheetId].push(item);
-        return acc;
-    }, {} as Record<string, TimesheetLog[]>);
 
-    // Then, for each timesheet group, group by date and merge all results
-    const result: GroupedTimesheet[] = [];
-    Object.values(groupedByTimesheet).forEach(timesheetLogs => {
-        const groupedByDate = timesheetLogs.reduce((acc, item) => {
-            try {
-                const date = new Date(item.timesheet.createdAt);
-                const key = getKey(date);
-                if (!acc[key]) acc[key] = [];
-                acc[key].push(item);
-            } catch (error) {
-                console.error(
-                    `Failed to process date for timesheet ${item.timesheet.id}:`,
-                    { createdAt: item.timesheet.createdAt, error }
-                );
+        try {
+            const date = new Date(item.timesheet.createdAt);
+            if (isNaN(date.getTime())) {
+                console.warn('Invalid date:', item.timesheet.createdAt);
+                return acc;
             }
-            return acc;
-        }, {} as Record<string, TimesheetLog[]>);
 
-        // Convert grouped dates to array format and add to results
-        Object.entries(groupedByDate).forEach(([key, tasks]) => {
-            result.push({ date: key, tasks });
-        });
-    });
+            const key = getKey(date);
+            if (!acc[key]) {
+                acc[key] = {
+                    date: key,
+                    timesheets: {}
+                };
+            }
 
-    // Sort by date in descending order
-    return result.sort((a, b) => b.date.localeCompare(a.date));
+            const timesheetId = item.timesheet.id;
+            if (!acc[key].timesheets[timesheetId]) {
+                acc[key].timesheets[timesheetId] = [];
+            }
+            acc[key].timesheets[timesheetId].push(item);
+
+        } catch (error) {
+            console.warn('Error processing date:', error);
+        }
+        return acc;
+    }, {} as Record<string, { date: string, timesheets: Record<string, TimesheetLog[]> }>);
+
+    return Object.values(groupedByDate)
+        .map(({ date, timesheets }) => ({
+            date,
+            tasks: Object.values(timesheets)
+                .flat()
+                .sort((a, b) => {
+                    if (a.timesheet.id !== b.timesheet.id) {
+                        return a.timesheet.id.localeCompare(b.timesheet.id);
+                    }
+                    const dateA = new Date(a.timesheet.createdAt);
+                    const dateB = new Date(b.timesheet.createdAt);
+                    return dateB.getTime() - dateA.getTime();
+                })
+        }))
+        .sort((a, b) => b.date.localeCompare(a.date));
 };
 
 const groupByWeek = createGroupingFunction(date => getWeekYearKey(date));
@@ -344,6 +364,23 @@ export function useTimesheet({
         }
     }, [user, queryDeleteTimesheet, setTimesheet]);
 
+        const groupedByTimesheetIds = ({ rows }: { rows: TimesheetLog[] }): Record<string, TimesheetLog[]> => {
+          if (!rows) {
+            return {};
+          }
+           return rows.reduce((acc, row) => {
+            if (!row) {
+              return acc;
+            }
+            const timesheetId = row.timesheetId ?? 'unassigned';
+             if (!acc[timesheetId]) {
+               acc[timesheetId] = [];
+             }
+             acc[timesheetId].push(row);
+             return acc;
+           }, {} as Record<string, TimesheetLog[]>);
+         }
+
 
     const filterDataTimesheet = useMemo(() => {
         if (!timesheet || !inputSearch) {
@@ -365,7 +402,7 @@ export function useTimesheet({
                 )
             );
         });
-    }, [timesheet, inputSearch, normalizeText, statusState]);
+    }, [timesheet, inputSearch, normalizeText]);
 
     const reGroupByDate = (groupedTimesheets: GroupedTimesheet[]): GroupedTimesheet[] => {
         return groupedTimesheets.reduce((acc, { date, tasks }) => {
@@ -436,6 +473,7 @@ export function useTimesheet({
         selectTimesheetId,
         handleSelectRowByStatusAndDate,
         handleSelectRowTimesheet,
+        groupedByTimesheetIds,
         rowsToObject
     };
 }
