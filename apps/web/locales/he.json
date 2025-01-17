@@ -314,7 +314,10 @@
 		"GROUP_BY": "קבץ לפי",
 		"DAILY_LIMIT": "הגבלה יומית",
 		"WEEKLY_LIMIT": "הגבלה שבועית",
-		"REPORTS": "דוחות"
+		"REPORTS": "דוחות",
+		"LEGEND": "מקרא",
+		"HOURS": "שעות",
+		"NOT_HOURS_WORKED": "שעות לא עבודה"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

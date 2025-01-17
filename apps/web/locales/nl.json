@@ -314,7 +314,10 @@
 		"GROUP_BY": "Groeperen op",
 		"DAILY_LIMIT": "Daglimiet",
 		"WEEKLY_LIMIT": "Weeklimiet",
-		"REPORTS": "Rapporten"
+		"REPORTS": "Rapporten",
+		"LEGEND": "Legenda",
+		"HOURS": "Uren",
+		"NOT_HOURS_WORKED": "Niet-gewerkte uren"
 	},
 	"hotkeys": {
 		"HELP": "Help",

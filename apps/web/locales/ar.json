@@ -296,7 +296,10 @@
 		"GROUP_BY": "تجميع حسب",
 		"DAILY_LIMIT": "الحد اليومي",
 		"WEEKLY_LIMIT": "الحد الأسبوعي",
-		"REPORTS": "التقارير"
+		"REPORTS": "التقارير",
+		"LEGEND": "مفتاح الخريطة",
+		"HOURS": "ساعات",
+		"NOT_HOURS_WORKED": "ساعات غير مُشتغَلة"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

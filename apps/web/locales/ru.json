@@ -314,7 +314,10 @@
 		"GROUP_BY": "Группировать по",
 		"DAILY_LIMIT": "Дневной лимит",
 		"WEEKLY_LIMIT": "Недельный лимит",
-		"REPORTS": "Отчеты"
+		"REPORTS": "Отчеты",
+		"LEGEND": "Легенда",
+		"HOURS": "Часы",
+		"NOT_HOURS_WORKED": "Не отработанные часы"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
