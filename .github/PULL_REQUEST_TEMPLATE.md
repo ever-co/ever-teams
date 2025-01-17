@@ -1,6 +1,6 @@
 ## Description
 
-Please include a summary of the changes and the related issue.
+Please include a summary of the changes and the related issues.
 
 ## Type of Change
 
@@ -13,14 +13,14 @@ Please include a summary of the changes and the related issue.
 
 -   [ ] My code follows the style guidelines of this project
 -   [ ] I have performed a self-review of my code
--   [ ] I have commented my code, particularly in hard-to-understand areas
+-   [ ] I have commented on my code, particularly in hard-to-understand areas
 -   [ ] I have made corresponding changes to the documentation
 -   [ ] My changes generate no new warnings
 
 ## Previous screenshots
 
-Please add here videos or images of previous status
+Please add here videos or images of the previous status
 
 ## Current screenshots
 
-Please add here videos or images of previous status
+Please add here videos or images of the current (new) status

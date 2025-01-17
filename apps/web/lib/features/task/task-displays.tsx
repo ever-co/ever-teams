@@ -56,7 +56,7 @@ export function TaskNameInfoDisplay({
 					</div>
 				)}
 				<span className={clsxm('font-normal', taskTitleClassName)}>
-					<span className={clsxm('text-gray-500 mr-1 font-normal', taskNumberClassName)}>
+					<span className={clsxm('mr-1 font-normal text-gray-500', taskNumberClassName)}>
 						#{task?.taskNumber} {dash && '-'}
 					</span>
 					{task?.title}
@@ -99,7 +99,7 @@ export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLo
 	};
 	const resolvedLogType: keyof typeof icons = logType ?? 'TRACKED';
 	return (
-		<div className="flex items-start justify-start font-medium gap-x-1">
+		<div className="flex gap-x-1 justify-start items-start font-medium">
 			{icons[resolvedLogType]}
 			<div className="flex items-start justify-start text-[#282048] dark:text-[#9b8ae1]">
 				{formatTime(hours, minute)}
@@ -132,10 +132,9 @@ TotalTimeDisplay.displayName = 'TotalTimeDisplay';
 
 export const TotalDurationByDate = React.memo(
 	({ timesheetLog, createdAt, className }: { timesheetLog: TimesheetLog[]; createdAt: Date | string, className?: string }) => {
-		const targetDateISO = new Date(createdAt).toISOString();
 
 		const filteredLogs = timesheetLog.filter(
-			(item) => formatDate(item.timesheet.createdAt) === formatDate(targetDateISO));
+			(item) => formatDate(item.timesheet.createdAt) === formatDate(createdAt));
 
 		const totalDurationInSeconds = Array.isArray(filteredLogs)
 			? filteredLogs.reduce((acc, item) => {
