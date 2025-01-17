@@ -150,7 +150,7 @@ function ActivityLegend() {
 		[t]
 	);
 	return (
-		<div className="flex w-full flex-wrap items-center gap-3 justify-start !border p-1 bg-white dark:bg-dark--theme-light rounded-lg shadow shadow-slate-50 dark:shadow-slate-700 space-x-3 px-3 max-w-[100svw] min-w-fit">
+		<div className="flex w-full flex-wrap items-center gap-3 justify-start p-1 bg-white dark:bg-dark--theme-light rounded-lg shadow shadow-slate-50 dark:shadow-slate-700 space-x-3 px-3 max-w-[100svw] min-w-fit">
 			<h3 className=" text-lg font-bold">{t('common.LEGEND')}</h3>
 			{data.map((item, index) => (
 				<Fragment key={index}>
