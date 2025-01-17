@@ -105,7 +105,6 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
             source: TimerSource.BROWSER as any,
             taskId: formState.taskId,
             employeeId: formState.employeeId,
-            organizationContactId: null || "",
             organizationTeamId: null,
         };
         try {
@@ -117,7 +116,6 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                     if (!shift.dateFrom || !shift.startTime || !shift.endTime) {
                         throw new Error('Incomplete shift data.');
                     }
-
                     const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom);
                     const start = createUtcDate(baseDate, shift.startTime);
                     const end = createUtcDate(baseDate, shift.endTime);
@@ -130,10 +128,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         ...payload,
                         startedAt: start,
                         stoppedAt: end,
+                        taskId: payload.taskId
                     });
                 })
             );
-            console.log('Timesheets successfully created.');
+            closeModal();
         } catch (error) {
             console.error('Failed to create timesheet:', error);
         }
@@ -154,7 +153,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
                         <span className="text-[#de5505e1] ml-1">*</span>
                     </label>
                     <CustomSelect
-                        onChange={(value: any) => updateFormState('taskId', value.id)}
+                        onChange={(value) => {
+                            updateFormState('taskId', value)
+                        }}
                         classNameGroup='h-[40vh]'
                         ariaLabel='Task issues'
                         className='w-full font-medium'

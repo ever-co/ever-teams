@@ -97,7 +97,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(data: T[
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="relative flex items-center">
+					<div className="flex relative items-center">
 						{item.fullIconUrl && (
 							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
 						)}
@@ -205,53 +205,55 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
 			const value = statusItems[key as ITaskStatusStack[T]];
-
 			if (!value.value) {
 				value.value = key;
 			}
 			return {
 				...value,
-				name: key.split('-').join(' ')
+				name: key,
+				displayName: key.split('-').join(' ')
 			} as Required<TStatusItem>;
 		});
 	}, [statusItems]);
 
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
-
-	const item: TStatusItem | undefined = useMemo(() => items.find((r) => r.value === value), [items, value]);
-
-	useEffect(() => {
-		setValue($value);
-	}, [$value]);
+	const item: TStatusItem | undefined = useMemo(
+		() => items.find((r) => r.value === value || r.name === value),
+		[items, value]
+	);
 
 	useEffect(() => {
-		setValues(defaultValues);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [defaultValues.length]);
+		if ($value !== value) {
+			setValue($value);
+		}
+	}, [$value, value]);
+
+	useEffect(() => {
+		if (defaultValues.length > 0 && JSON.stringify(values) !== JSON.stringify(defaultValues)) {
+			setValues(defaultValues);
+		}
+	}, [defaultValues, values]);
 
 	const onChange = useCallback(
 		(value: ITaskStatusStack[T]) => {
-			// Handle multiple select
-			let values: ITaskStatusStack[T][] = [];
 			if (multipleRef.current) {
-				if (typeof value === 'string') {
-					setValues((arr) => {
-						const exists = arr.includes(value);
-						values = exists ? arr.filter((v) => v !== value) : [...arr, value];
-						return values;
-					});
-				} else {
-					setValues(value);
-					values = value;
-				}
+				setValues((prevValues) => {
+					const newValues = typeof value === 'string'
+						? (prevValues.includes(value)
+							? prevValues.filter((v) => v !== value)
+							: [...prevValues, value])
+						: Array.isArray(value) ? value : [value];
+
+					onValueChangeRef.current?.(value, newValues);
+					return newValues;
+				});
 			} else {
 				setValue(value);
+				onValueChangeRef.current?.(value, [value]);
 			}
-
-			onValueChangeRef.current && onValueChangeRef.current(value, values);
 		},
-		[setValue, onValueChangeRef, setValues, multipleRef]
+		[onValueChangeRef, multipleRef]
 	);
 
 	return {
@@ -609,7 +611,7 @@ export function TaskPriorityStatus({
 			{...taskPrioritiesValues[task?.priority]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
-			className={clsxm('rounded-md px-2 text-white', className)}
+			className={clsxm('px-2 text-white rounded-md', className)}
 			bordered={false}
 		/>
 	) : (
@@ -821,18 +823,18 @@ export function TaskStatus({
 	isEpic
 }: PropsWithChildren<
 	TStatusItem &
-		IClassName & {
-			active?: boolean;
-			issueType?: 'status' | 'issue';
-			showIssueLabels?: boolean;
-			forDetails?: boolean;
-			titleClassName?: string;
-			cheched?: boolean;
-			sidebarUI?: boolean;
-			value?: string;
-			isVersion?: boolean;
-			isEpic?: boolean;
-		}
+	IClassName & {
+		active?: boolean;
+		issueType?: 'status' | 'issue';
+		showIssueLabels?: boolean;
+		forDetails?: boolean;
+		titleClassName?: string;
+		cheched?: boolean;
+		sidebarUI?: boolean;
+		value?: string;
+		isVersion?: boolean;
+		isEpic?: boolean;
+	}
 >) {
 	const { theme } = useTheme();
 	const readableColorHex = readableColor(backgroundColor || (theme === 'light' ? '#FFF' : '#000'));
@@ -861,7 +863,7 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex items-center gap-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
+					'flex overflow-hidden gap-x-1 items-center whitespace-nowrap text-ellipsis',
 					titleClassName
 				)}
 			>
@@ -881,13 +883,13 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`capitalize text-ellipsis overflow-hidden`}
+						className={`overflow-hidden capitalize text-ellipsis`}
 						title={realName || name}
 						style={
 							isVersion || isEpic
 								? {
-										color: theme === 'light' ? '#000' : '#FFF'
-									}
+									color: theme === 'light' ? '#000' : '#FFF'
+								}
 								: {}
 						}
 					>
@@ -1045,7 +1047,7 @@ export function StatusDropdown<T extends TStatusItem>({
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
-													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 												taskStatusClassName
 											)}
 											name={
@@ -1056,7 +1058,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											isEpic={isEpic}
 										>
 											<ChevronDownIcon
-												className={clsxm('h-5 w-5 text-default dark:text-white')}
+												className={clsxm('w-5 h-5 text-default dark:text-white')}
 											/>
 										</TaskStatus>
 									)}
@@ -1091,7 +1093,7 @@ export function StatusDropdown<T extends TStatusItem>({
 														as={Fragment}
 														disabled={disabled}
 													>
-														<li className="relative outline-none cursor-pointer">
+														<li className="relative cursor-pointer outline-none">
 															<TaskStatus
 																showIcon={showIcon}
 																{...item}
@@ -1234,7 +1236,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 									: defaultValue.name
 							}
 						>
-							<ChevronDownIcon className={clsxm('h-5 w-5 text-default dark:text-white')} />
+							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
 						</TaskStatus>
 					</Listbox.Button>
 
@@ -1265,7 +1267,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 												as={Fragment}
 												disabled={disabled}
 											>
-												<li className="relative outline-none cursor-pointer">
+												<li className="relative cursor-pointer outline-none">
 													<TaskStatus
 														showIcon={showIcon}
 														{...item}

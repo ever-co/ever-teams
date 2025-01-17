@@ -215,8 +215,8 @@ export function TaskInput(props: Props) {
 	}, [editMode, setFilter]);
 
 	/*
-    If task is passed then we don't want to set the active task for the authenticated user.
-    after task creation
+	If task is passed then we don't want to set the active task for the authenticated user.
+	after task creation
    */
 	const autoActiveTask: boolean = props.task === undefined;
 	const handleTaskCreation = useCallback(() => {
@@ -771,8 +771,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${
-											active ? 'bg-primary/5 dark:bg-dark--theme-light dark:text-white' : 'text-gray-100'
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5 dark:bg-dark--theme-light dark:text-white' : 'text-gray-100'
 										}`
 									}
 									value={authMember}
@@ -790,8 +789,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 									<Combobox.Option
 										key={member.id}
 										className={({ active }) =>
-											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-												active ? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights' : 'text-gray-900 dark:text-gray-200'
+											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights' : 'text-gray-900 dark:text-gray-200'
 											}`
 										}
 										onClick={() => {

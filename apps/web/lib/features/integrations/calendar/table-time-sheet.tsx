@@ -59,7 +59,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 	const { isOpen, openModal, closeModal } = modal;
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = alertConfirmationModal;
 
-	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus } = useTimesheet({});
+	const { deleteTaskTimesheet, loadingDeleteTimesheet, getStatusTimesheet, updateTimesheetStatus, groupedByTimesheetIds } = useTimesheet({});
 	const { timesheetGroupByDays, handleSelectRowByStatusAndDate, handleSelectRowTimesheet, selectTimesheetId, setSelectTimesheetId, isUserAllowedToAccess } = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
 	const handleConfirm = () => {
@@ -78,7 +78,6 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 	};
 
 	const t = useTranslations();
-
 	const handleSort = (key: string, order: SortOrder) => {
 		console.log(`Sorting ${key} in ${order} order`);
 	};
@@ -151,9 +150,12 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 						</div>
 						<Accordion type="single" collapsible>
 							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
-								return rows.length > 0 && status && <AccordionItem
-									key={status}
-									value={status === 'DENIED' ? 'REJECTED' : status}
+								const groupedByTimesheetId = groupedByTimesheetIds({ rows });
+
+								return Object.entries(groupedByTimesheetId).map(([timesheetId, timesheetRows]) => {
+									return timesheetRows.length > 0 && status && <AccordionItem
+									key={`${status}-${timesheetId}`}
+									value={`${status === 'DENIED' ? 'REJECTED' : status}-${timesheetId}`}
 									className={clsxm("p-1 rounded")}
 								>
 									<AccordionTrigger
@@ -165,24 +167,24 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 											statusColor(status).text
 										)}
 									>
-										<div className="flex items-center justify-between w-full space-x-1">
+										<div className="flex justify-between items-center space-x-1 w-full">
 											<div className="flex items-center space-x-1">
 												<div className={clsxm('p-2 rounded-[3px] gap-2 w-[20px] h-[20px]', statusColor(status).bg)}></div>
-												<div className="flex items-center gap-x-1">
+												<div className="flex gap-x-1 items-center">
 													<span className="text-base font-normal text-gray-400 uppercase">
 														{status === 'DENIED' ? 'REJECTED' : status}
 													</span>
-													<span className="text-gray-400 text-[14px]">({rows.length})</span>
+													<span className="text-gray-400 text-[14px]">({timesheetRows.length})</span>
 												</div>
 												<Badge
 													variant={'outline'}
 													className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
 												>
 													<span className="text-[#5f5f61] text-[14px] font-[700px]">{t('timer.TOTAL_HOURS').split(' ')[0]}:</span>
-													<TotalTimeDisplay timesheetLog={rows} className='!text-[#293241] text-[14px]' />
+													<TotalTimeDisplay timesheetLog={timesheetRows} className='!text-[#293241] text-[14px]' />
 												</Badge>
 											</div>
-											<div className={clsxm('flex items-center gap-2 p-x-1 capitalize')}>
+											<div className={clsxm('flex gap-2 items-center capitalize p-x-1')}>
 												{isManage && getTimesheetButtons(status as StatusType, t, selectTimesheetId.length === 0, handleButtonClick)}
 											</div>
 										</div>
@@ -191,17 +193,17 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 										<HeaderRow
 											handleSelectRowByStatusAndDate={
 												() => handleSelectRowByStatusAndDate(
-													rows,
-													!rows.every(row => selectTimesheetId.includes(row))
+													timesheetRows,
+													!timesheetRows.every(row => selectTimesheetId.includes(row))
 												)
 											}
-											data={rows}
+											data={timesheetRows}
 											status={status}
 											onSort={handleSort}
 											date={plan.date}
 											selectedIds={selectTimesheetId}
 										/>
-										{rows.map((task) => (
+										{timesheetRows.map((task) => (
 											<div
 												key={task.id}
 												style={{
@@ -209,7 +211,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 													borderBottomColor: statusColor(status).bg
 												}}
 												className={clsxm(
-													'flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]'
+													'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
 												)}
 											>
 												<Checkbox
@@ -231,13 +233,14 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 														taskNumberClassName="text-sm"
 													/>
 												</div>
-												<div className="flex items-center gap-2 flex-1">
+												<div className="flex flex-1 gap-2 items-center">
 													{task.project?.imageUrl && <ProjectLogo className='w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]' imageUrl={task.project.imageUrl} />}
 													<span className="font-medium">{task.project?.name ?? "No Project"}</span>
 												</div>
-												<div className="flex items-center flex-1 gap-x-2">
+												<div className="flex flex-1 gap-x-2 items-center">
 													<EmployeeAvatar
 														className='w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full'
+														// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 														imageUrl={task.employee.user.imageUrl!}
 													/>
 													<span className="flex-1 font-medium">{task.employee.fullName}</span>
@@ -261,6 +264,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[], 
 										))}
 									</AccordionContent>
 								</AccordionItem>
+									})
 							}
 							)}
 						</Accordion>
@@ -302,7 +306,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 
 			<Select value={selected} onValueChange={(value) => onValueChanges(value)}>
 				<SelectTrigger
-					className={`min-w-[120px] w-fit border border-gray-200 h-8 dark:border-gray-700 bg-transparent font-normal rounded-md ${getColorClass()}`}
+					className={`h-8 font-normal bg-transparent rounded-md border border-gray-200 min-w-[120px] w-fit dark:border-gray-700 ${getColorClass()}`}
 				>
 					<SelectValue placeholder="Select a daily" className={getColorClass()} />
 				</SelectTrigger>
@@ -369,7 +373,7 @@ const TaskActionMenu = ({ dataTimesheet, isManage, user }: { dataTimesheet: Time
 			/>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
+					<Button variant="ghost" className="p-0 w-8 h-8 text-sm sm:text-base">
 						<span className="sr-only">Open menu</span>
 						<MoreHorizontal className="w-4 h-4" />
 					</Button>
@@ -437,7 +441,7 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 									console.error('Failed to update timesheet status:');
 								}
 							}} key={index} textValue={status.label} className="cursor-pointer">
-								<div className="flex items-center gap-3">
+								<div className="flex gap-3 items-center">
 									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
 									<span>{status.label}</span>
 								</div>
@@ -455,14 +459,14 @@ export const StatusTask = ({ timesheet }: { timesheet: TimesheetLog }) => {
 						<DropdownMenuItem onClick={async () => {
 							await handleUpdateTimesheet(true)
 						}} textValue={'Yes'} className="cursor-pointer">
-							<div className="flex items-center gap-3">
+							<div className="flex gap-3 items-center">
 								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 							</div>
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={async () => {
 							await handleUpdateTimesheet(false)
 						}} textValue={'No'} className="cursor-pointer">
-							<div className="flex items-center gap-3">
+							<div className="flex gap-3 items-center">
 								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 							</div>
 						</DropdownMenuItem>
@@ -507,7 +511,7 @@ const HeaderColumn = ({
 		<button
 			onClick={onSort}
 			aria-label={`Sort ${label} column ${currentSort ? `currently ${currentSort.toLowerCase()}` : ''}`}
-			className="flex flex-col items-start leading-none gap-0"
+			className="flex flex-col gap-0 items-start leading-none"
 		>
 			<MdKeyboardArrowUp
 				style={{

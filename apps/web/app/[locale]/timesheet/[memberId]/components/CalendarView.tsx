@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 import MonthlyTimesheetCalendar from "./MonthlyTimesheetCalendar";
 import { useTimelogFilterOptions } from "@/app/hooks";
 import WeeklyTimesheetCalendar from "./WeeklyTimesheetCalendar";
-import { IUser } from "@/app/interfaces";
+import { IUser, TimesheetLog } from "@/app/interfaces";
 import TimesheetSkeleton from "@components/shared/skeleton/TimesheetSkeleton";
+import { Checkbox } from "@components/ui/checkbox";
 interface BaseCalendarDataViewProps {
     t: TranslationHooks
     data: GroupedTimesheet[];
@@ -51,7 +52,6 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
             </div>
         );
     }
-
     return (
         <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
             {(() => {
@@ -70,7 +70,7 @@ export function CalendarView({ data, loading, user }: { data?: GroupedTimesheet[
 }
 
 const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: TranslationHooks }) => {
-    const { getStatusTimesheet } = useTimesheet({});
+    const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds} = useTimesheet({});
 
     return (
         <div className="w-full dark:bg-dark--theme">
@@ -86,21 +86,23 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                             <div className='flex gap-x-3'>
                                 <span>{formatDate(plan.date)}</span>
                             </div>
-                            <div className="flex items-center gap-x-1">
+                            <div className="flex gap-x-1 items-center">
                                 <span className="text-[#868687]">Total{" : "}</span>
 
                                 <TotalDurationByDate
                                     timesheetLog={plan.tasks}
                                     createdAt={formatDate(plan.date)}
-                                    className="text-black dark:text-gray-500 text-sm"
+                                    className="text-sm text-black dark:text-gray-500"
                                 />
                             </div>
                         </div>
                         <Accordion type="single" collapsible>
-                            {Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
-                                rows.length > 0 && status && <AccordionItem
-                                    key={status}
-                                    value={status === 'DENIED' ? 'REJECTED' : status}
+                            {Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
+                             const groupedByTimesheetId = groupedByTimesheetIds({rows});
+                              return Object.entries(groupedByTimesheetId).map(([timesheetId, timesheetRows]) => {
+                                return timesheetRows.length > 0 && status && <AccordionItem
+                                key={`${status}-${timesheetId}`}
+                                value={`${status === 'DENIED' ? 'REJECTED' : status}-${timesheetId}`}
                                     className="p-1 rounded" >
                                     <AccordionTrigger
                                         type="button"
@@ -108,24 +110,24 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                             'flex flex-row-reverse justify-end items-center w-full h-[30px] rounded-sm gap-x-2 hover:no-underline px-2',
                                             statusColor(status).text
                                         )}>
-                                        <div className="flex items-center justify-between space-x-1 w-full">
-                                            <div className="flex items-center  w-full gap-2">
+                                        <div className="flex justify-between items-center space-x-1 w-full">
+                                            <div className="flex gap-2 items-center w-full">
                                                 <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
-                                                <div className="flex items-center gap-x-1">
+                                                <div className="flex gap-x-1 items-center">
                                                     <span className="text-base font-medium text-[#71717A] uppercase !text-[14px]">
                                                         {status === 'DENIED' ? 'REJECTED' : status}
                                                     </span>
-                                                    <span className="text-gray-400 text-[14px]">({rows.length})</span>
+                                                    <span className="text-gray-400 text-[14px]">({timesheetRows.length})</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center space-x-2">
                                                 <ClockIcon className=' text-[12px] h-3 w-3' />
-                                                <TotalTimeDisplay timesheetLog={rows} />
+                                                <TotalTimeDisplay timesheetLog={timesheetRows} />
                                             </div>
                                         </div>
                                     </AccordionTrigger>
-                                    <AccordionContent className="flex flex-col w-full gap-y-2 ">
-                                        {rows.map((task) => (
+                                    <AccordionContent className="flex flex-col gap-y-2 w-full">
+                                        {timesheetRows.map((task) => (
                                             <div
                                                 key={task.id}
                                                 style={{
@@ -134,10 +136,10 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
 
                                                 }}
                                                 className={cn(
-                                                    'border-l-4 rounded-l flex flex-col p-2 gap-2 items-start  space-x-4 ',
+                                                    'flex flex-col gap-2 items-start p-2 space-x-4 rounded-l border-l-4 group/item',
                                                 )}>
-                                                <div className="flex  px-3 justify-between items-center w-full">
-                                                    <div className="flex items-center gap-x-1">
+                                                <div className="flex justify-between items-center pl-3 w-full">
+                                                    <div className="flex gap-x-1 items-center">
                                                         <EmployeeAvatar
                                                             imageUrl={task.employee.user.imageUrl ?? ''}
                                                             className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
@@ -146,7 +148,6 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     </div>
                                                     <DisplayTimeForTimesheet
                                                         timesheetLog={task}
-
                                                     />
                                                 </div>
                                                 <TaskNameInfoDisplay
@@ -161,22 +162,31 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
-                                                    {task.project?.imageUrl && (
-                                                        <ProjectLogo
-                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
-                                                            imageUrl={task.project.imageUrl}
-                                                        />
-                                                    )}
-                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
-                                                        {task.project?.name ?? 'No Project'}
-                                                    </span>
+                                                <div className="flex justify-between items-center pr-3 w-full">
+                                                    <div className="flex flex-row flex-none flex-grow-0 gap-2 items-center self-stretch py-0">
+                                                        {task.project?.imageUrl && (
+                                                            <ProjectLogo
+                                                                className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+                                                                imageUrl={task.project.imageUrl}
+                                                            />
+                                                        )}
+                                                        <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                            {task.project?.name ?? 'No Project'}
+                                                        </span>
+                                                    </div>
+                                                    <CheckBoxTimesheet
+                                                        handleSelectRowTimesheet={handleSelectRowTimesheet}
+                                                        timesheet={task}
+                                                        selectTimesheetId={selectTimesheetId}
+                                                    />
                                                 </div>
                                             </div>
                                         ))}
                                     </AccordionContent>
                                 </AccordionItem>
-                            ))}
+                                     })
+                 } )}
+
                         </Accordion>
                     </div>
                 }
@@ -188,7 +198,7 @@ const CalendarDataView = ({ data, t }: { data?: GroupedTimesheet[], t: Translati
 }
 
 const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCalendarDataViewProps) => {
-    const { getStatusTimesheet } = useTimesheet({});
+    const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds } = useTimesheet({});
     return (
         <CalendarComponent
             t={t}
@@ -199,10 +209,13 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                 return <>
                     {plan ? (
                         <Accordion type="single" collapsible className="w-full">
-                            {Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => (
-                                rows.length > 0 && status && <AccordionItem
-                                    key={status}
-                                    value={status === 'DENIED' ? 'REJECTED' : status}
+                            {Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
+                                const groupedByTimesheetId = groupedByTimesheetIds({rows});
+                                return Object.entries(groupedByTimesheetId).map(([timesheetId, timesheetRows]) => {
+
+                                return timesheetRows.length > 0 && status && <AccordionItem
+                                    key={`${status}-${timesheetId}`}
+                                    value={`${status === 'DENIED' ? 'REJECTED' : status}-${timesheetId}`}
                                     className="p-1 rounded" >
                                     <AccordionTrigger
                                         type="button"
@@ -210,24 +223,24 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                             'flex flex-row-reverse justify-end items-center w-full !h-[16px] rounded-sm gap-x-2 hover:no-underline',
                                             statusColor(status).text
                                         )}>
-                                        <div className="flex items-center justify-between space-x-1 w-full">
-                                            <div className="flex items-center  w-full gap-2">
+                                        <div className="flex justify-between items-center space-x-1 w-full">
+                                            <div className="flex gap-2 items-center w-full">
                                                 <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
-                                                <div className="flex items-center gap-x-1">
+                                                <div className="flex gap-x-1 items-center">
                                                     <span className="text-base font-normal text-gray-400 uppercase !text-[13px]">
                                                         {status === 'DENIED' ? 'REJECTED' : status}
                                                     </span>
-                                                    <span className="text-gray-400 text-[13px]">({rows.length})</span>
+                                                    <span className="text-gray-400 text-[13px]">({timesheetRows.length})</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center space-x-2">
                                                 <ClockIcon className=' text-[12px] h-3 w-3' />
-                                                <TotalTimeDisplay timesheetLog={rows} />
+                                                <TotalTimeDisplay timesheetLog={timesheetRows} />
                                             </div>
                                         </div>
                                     </AccordionTrigger>
-                                    <AccordionContent className="flex flex-col gap-y-2 overflow-auto items-start p-0  flex-none order-1 flex-grow-0">
-                                        {rows.map((task) => (
+                                    <AccordionContent className="flex overflow-auto flex-col flex-none flex-grow-0 order-1 gap-y-2 items-start p-0">
+                                        {timesheetRows.map((task) => (
                                             <div
                                                 key={task.id}
                                                 style={{
@@ -236,10 +249,10 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 
                                                 }}
                                                 className={cn(
-                                                    'border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow',
+                                                    'group/item border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow',
                                                 )}>
-                                                <div className="flex  pl-3 justify-between items-center w-full">
-                                                    <div className="flex items-center gap-x-1">
+                                                <div className="flex justify-between items-center pl-3 w-full">
+                                                    <div className="flex gap-x-1 items-center">
                                                         <EmployeeAvatar
                                                             className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
                                                             imageUrl={task.employee.user.imageUrl ?? ''}
@@ -263,22 +276,30 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
                                                     dash
                                                     taskNumberClassName="text-sm"
                                                 />
-                                                <div className="flex flex-row items-center  py-0 gap-2  flex-none order-2 self-stretch flex-grow-0">
-                                                    {task.project?.imageUrl && (
-                                                        <ProjectLogo
-                                                            className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
-                                                            imageUrl={task.project.imageUrl}
-                                                        />
-                                                    )}
-                                                    <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
-                                                        {task.project?.name ?? 'No Project'}
-                                                    </span>
+                                                <div className="flex justify-between items-center w-full">
+                                                    <div className="flex flex-row flex-none flex-grow-0 gap-2 items-center self-stretch py-0">
+                                                        {task.project?.imageUrl && (
+                                                            <ProjectLogo
+                                                                className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+                                                                imageUrl={task.project.imageUrl}
+                                                            />
+                                                        )}
+                                                        <span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+                                                            {task.project?.name ?? 'No Project'}
+                                                        </span>
+                                                    </div>
+                                                    <CheckBoxTimesheet
+                                                        handleSelectRowTimesheet={handleSelectRowTimesheet}
+                                                        timesheet={task}
+                                                        selectTimesheetId={selectTimesheetId}
+                                                    />
                                                 </div>
                                             </div>
                                         ))}
                                     </AccordionContent>
                                 </AccordionItem>
-                            ))}
+                                })}
+                            )}
                         </Accordion>
                     ) : (
                         <div className="text-gray-400 text-sm flex items-center justify-center min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full gap-2">
@@ -299,3 +320,14 @@ const MonthlyCalendarDataView = (props: { data: GroupedTimesheet[], t: Translati
 const WeeklyCalendarDataView = (props: { data: GroupedTimesheet[], t: TranslationHooks, daysLabels?: string[] }) => (
     <BaseCalendarDataView  {...props} CalendarComponent={WeeklyTimesheetCalendar} />
 );
+
+
+export const CheckBoxTimesheet = ({ selectTimesheetId, timesheet, handleSelectRowTimesheet }: { selectTimesheetId: TimesheetLog[], timesheet: TimesheetLog, handleSelectRowTimesheet: (items: TimesheetLog) => void }) => {
+    return <Checkbox
+        className={cn(
+            "group/edit invisible w-5 h-5 select-auto group-hover/item:visible",
+            selectTimesheetId.includes(timesheet) && 'visible')}
+        onCheckedChange={() => handleSelectRowTimesheet(timesheet)}
+        checked={selectTimesheetId.includes(timesheet)}
+    />
+}

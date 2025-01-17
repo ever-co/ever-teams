@@ -28,6 +28,12 @@
 					"isAccessMediaLocationEnabled": true
 				}
 			],
+			[
+				"expo-image-picker",
+				{
+				  "photosPermission": "The app accesses your photos to let you share them with your friends."
+				}
+			  ],
 			"sentry-expo",
 			[
 				"expo-build-properties",
@@ -57,7 +63,9 @@
 			"permissions": [
 				"android.permission.READ_EXTERNAL_STORAGE",
 				"android.permission.WRITE_EXTERNAL_STORAGE",
-				"android.permission.ACCESS_MEDIA_LOCATION"
+				"android.permission.ACCESS_MEDIA_LOCATION",
+				"android.permission.READ_MEDIA_IMAGES",
+				"android.permission.READ_MEDIA_VIDEO"
 			]
 		},
 		"ios": {

@@ -65,9 +65,8 @@ export function Modal({
 										closeModal();
 										customCloseModal?.();
 									}}
-									className={`absolute ${
-										alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
-									}  md:right-2 md:top-3 cursor-pointer z-50`}
+									className={`absolute ${alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
+										}  md:right-2 md:top-3 cursor-pointer z-50`}
 								>
 									<Image
 										src={'/assets/svg/close.svg'}
