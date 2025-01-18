@@ -171,7 +171,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</Container>
 			)}
-
 			<Container fullWidth={fullWidth} className="mb-10 -mt-6">
 				{hook.tab !== 'worked' || activityFilter == 'Tasks' ? (
 					<UserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />

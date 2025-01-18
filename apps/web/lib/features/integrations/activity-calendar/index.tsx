@@ -1,11 +1,13 @@
 'use client';
 
 import { useTimeLogs } from '@app/hooks/features/useTimeLogs';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { CalendarDatum, ResponsiveCalendar } from '@nivo/calendar';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 import Separator from '@components/ui/separator';
+import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 export function ActivityCalendar() {
 	const { timerLogsDailyReport, timerLogsDailyReportLoading } = useTimeLogs();
@@ -123,29 +125,45 @@ function ActivityCalendarSkeleton() {
 }
 
 function ActivityLegend() {
+	const t = useTranslations();
+
+	const data = useMemo(
+		() => [
+			{ color: '#FFFFFF', label: t('common.NOT_HOURS_WORKED') },
+			{
+				color: '#9370DB',
+				label: `0 - 4 ${t('common.HOURS')}`
+			},
+			{
+				color: '#0000FF',
+				label: `4 - 10 ${t('common.HOURS')}`
+			},
+			{
+				color: '#FFA500',
+				label: `10 - 18 ${t('common.HOURS')}`
+			},
+			{
+				color: '#FF4500',
+				label: `18 - 24 ${t('common.HOURS')}`
+			}
+		],
+		[t]
+	);
 	return (
 		<div className="flex w-full flex-wrap items-center gap-3 justify-start p-1 bg-white dark:bg-dark--theme-light rounded-lg shadow shadow-slate-50 dark:shadow-slate-700 space-x-3 px-3 max-w-[100svw] min-w-fit">
-			<h3 className="mb-2 text-lg font-bold">Legend</h3>
-			<Separator className="!w-fit" />
-			<div className="flex items-center" id="legend-purple">
-				<span className="inline-block w-4 h-4 mr-2" style={{ backgroundColor: '#9370DB' }}></span>
-				<span className="text-nowrap">0 - 4 Hours</span>
-			</div>
-			<Separator className="!w-fit" />
-			<div className="flex items-center" id="legend-blue">
-				<span className="inline-block w-4 h-4 mr-2" style={{ backgroundColor: '#0000FF' }}></span>
-				<span className="text-nowrap">4 - 10 Hours</span>
-			</div>
-			<Separator className="!w-fit" />
-			<div className="flex items-center" id="legend-orange">
-				<span className="inline-block w-4 h-4 mr-2" style={{ backgroundColor: '#FFA500' }}></span>
-				<span className="text-nowrap">10 - 18 Hours</span>
-			</div>
-			<Separator className="!w-fit" />
-			<div className="flex items-center" id="legend-red">
-				<span className="inline-block w-4 h-4 mr-2" style={{ backgroundColor: '#FF0000' }}></span>
-				<span className="text-nowrap">18 - 24 Hours</span>
-			</div>
+			<h3 className=" text-lg font-bold">{t('common.LEGEND')}</h3>
+			{data.map((item, index) => (
+				<Fragment key={index}>
+					<Separator className="!w-fit" />
+					<div className="flex items-center" id={`legend-${item.color.slice(1)}`}>
+						<span
+							className={cn('inline-block w-4 h-4 mr-2', item.color == '#FFFFFF' && 'border')}
+							style={{ backgroundColor: item.color }}
+						></span>
+						<span className="text-nowrap">{item.label}</span>
+					</div>
+				</Fragment>
+			))}
 		</div>
 	);
 }

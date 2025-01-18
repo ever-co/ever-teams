@@ -314,7 +314,10 @@
 		"GROUP_BY": "Gruppieren nach",
 		"DAILY_LIMIT": "Tägliches Limit",
 		"WEEKLY_LIMIT": "Wöchentliches Limit",
-		"REPORTS": "Berichte"
+		"REPORTS": "Berichte",
+		"LEGEND": "Legende",
+		"HOURS": "Stunden",
+		"NOT_HOURS_WORKED": "Nicht gearbeitete Stunden"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",

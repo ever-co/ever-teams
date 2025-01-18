@@ -314,7 +314,10 @@
 		"GROUP_BY": "分组依据",
 		"DAILY_LIMIT": "每日限制",
 		"WEEKLY_LIMIT": "每周限制",
-		"REPORTS": "报告"
+		"REPORTS": "报告",
+		"LEGEND": "图例",
+		"HOURS": "小时",
+		"NOT_HOURS_WORKED": "非工作小时"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
