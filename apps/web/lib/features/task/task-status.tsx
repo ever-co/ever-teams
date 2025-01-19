@@ -977,18 +977,31 @@ export function StatusDropdown<T extends TStatusItem>({
 			issueType={issueType}
 			sidebarUI={sidebarUI}
 			className={clsxm(
-				`justify-between capitalize`,
+				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
+				!forDetails && 'w-full max-w-[190px]',
+				'flex items-center gap-x-2',
 				sidebarUI && ['text-xs'],
-				!value && ['!text-dark/40 dark:text-white'],
+				!value && [
+					'!text-dark/40 dark:text-white/70',
+					'bg-white dark:bg-[#1B1D22] border border-gray-200 dark:border-[#FFFFFF33]'
+				],
+				value && [
+					'text-black dark:text-black',
+					'bg-white dark:bg-white border border-gray-200'
+				],
 				isVersion || (forDetails && !value)
-					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-					: 'bg-white border',
-				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
-				taskStatusClassName,
+					? ['text-xs font-normal']
+					: ['text-sm font-normal'],
+				className,
 				isVersion && 'dark:text-white',
-				'h-full'
+				'h-full transition-colors duration-200'
 			)}
-			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
+			titleClassName={clsxm(
+				hasBtnIcon && [
+					'whitespace-nowrap overflow-hidden max-w-[90%] text-ellipsis',
+					value ? 'text-black dark:text-black' : 'text-dark/40 dark:text-white/70'
+				]
+			)}
 			isVersion={isVersion}
 			isEpic={isEpic}
 		>
