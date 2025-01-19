@@ -1,23 +1,18 @@
-"use client";
+'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { members } from "../data/mock-data";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { members } from '../data/mock-data';
 
 const getProgressColor = (activityLevel: string) => {
-	const level = parseInt(activityLevel);
-	if (level <= 20) return "bg-red-500";
-	if (level <= 50) return "bg-yellow-500";
-	return "bg-green-500";
+	const level = parseInt(activityLevel, 10);
+	if (isNaN(level) || level < 0) return 'bg-gray-300';
+	if (level > 100) return 'bg-green-500';
+	if (level <= 20) return 'bg-red-500';
+	if (level <= 50) return 'bg-yellow-500';
+	return 'bg-green-500';
 };
 
 export function TeamStatsTable() {
@@ -80,7 +75,9 @@ export function TeamStatsTable() {
 					<Button variant="outline" size="icon" disabled>
 						<ChevronLeft className="w-4 h-4" />
 					</Button>
-					<Button variant="outline" size="sm">1</Button>
+					<Button variant="outline" size="sm">
+						1
+					</Button>
 					<Button variant="outline" size="icon">
 						<ChevronRight className="w-4 h-4" />
 					</Button>

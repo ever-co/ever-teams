@@ -4,12 +4,21 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianG
 import { Button } from "@/components/ui/button";
 import { chartData } from "../data/mock-data";
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipProps {
+	active?: boolean;
+	payload?: {
+		name: string;
+		value: number;
+		color: string;
+	}[];
+	label?: string;
+}
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 	if (active && payload && payload.length) {
 		return (
-			<div className="bg-white p-4 rounded-lg shadow-lg border">
-				<p className="font-medium mb-2">{label}</p>
-				{payload.map((item: any, index: number) => (
+			<div className="p-4 bg-white rounded-lg border shadow-lg">
+				<p className="mb-2 font-medium">{label}</p>
+				{payload.map((item, index) => (
 					<p key={index} className="text-sm" style={{ color: item.color }}>
 						{item.name}: {item.value}
 					</p>

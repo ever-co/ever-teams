@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams,useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { ArrowLeftIcon } from 'lucide-react';
@@ -19,6 +19,7 @@ import { withAuthentication } from '@/lib/app/authenticator';
 
 function TeamDashboard() {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+	const router = useRouter();
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
@@ -42,7 +43,12 @@ function TeamDashboard() {
 				<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 w-full')}>
 						<div className="flex pt-6 w-full dark:bg-dark--theme">
-							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+							<button
+								onClick={() => router.back()}
+								className="p-1 rounded-full transition-colors hover:bg-gray-100"
+							>
+								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+							</button>{' '}
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 						<div className="flex flex-col gap-4 px-6 pt-4 w-full">
@@ -65,7 +71,7 @@ function TeamDashboard() {
 	);
 }
 
-export default withAuthentication(TeamDashboard, { 
-	displayName: 'Team-dashboard', 
-	showPageSkeleton: true 
+export default withAuthentication(TeamDashboard, {
+	displayName: 'Team-dashboard',
+	showPageSkeleton: true
 });
