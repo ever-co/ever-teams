@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
 import {
 	Select,
 	SelectContent,
@@ -9,16 +7,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { DateRangePicker } from "./date-range-picker";
 
 export function DashboardHeader() {
 	return (
 		<div className="flex justify-between items-center">
 			<h1 className="text-2xl font-semibold">Team Dashboard</h1>
 			<div className="flex gap-4 items-center">
-				<Button variant="outline" className="gap-2">
-					Oct 1-7 2024
-					<ChevronDown className="w-4 h-4" />
-				</Button>
+				<DateRangePicker />
 				<Select defaultValue="filter">
 					<SelectTrigger className="w-[100px]">
 						<SelectValue placeholder="Filter" />
