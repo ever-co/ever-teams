@@ -2,25 +2,16 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Button } from "@/components/ui/button";
-
-const data = [
-	{ date: "Oct. 01 2024", tracked: 14, manual: 5, idle: 1 },
-	{ date: "Oct. 02 2024", tracked: 8, manual: 4, idle: 1 },
-	{ date: "Oct. 03 2024", tracked: 10, manual: 3, idle: 1 },
-	{ date: "Oct. 04 2024", tracked: 9, manual: 2, idle: 1 },
-	{ date: "Oct. 05 2024", tracked: 6, manual: 2, idle: 1 },
-	{ date: "Oct. 06 2024", tracked: 4, manual: 2, idle: 0 },
-	{ date: "Oct. 07 2024", tracked: 3, manual: 1, idle: 0 },
-];
+import { chartData } from "../data/mock-data";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
 	if (active && payload && payload.length) {
 		return (
-			<div className="p-4 bg-white rounded-lg border shadow-lg">
-				<p className="mb-2 text-gray-600">{label}</p>
-				{payload.map((entry: any) => (
-					<p key={entry.name} style={{ color: entry.color }}>
-						{entry.name}: {entry.value}
+			<div className="bg-white p-4 rounded-lg shadow-lg border">
+				<p className="font-medium mb-2">{label}</p>
+				{payload.map((item: any, index: number) => (
+					<p key={index} className="text-sm" style={{ color: item.color }}>
+						{item.name}: {item.value}
 					</p>
 				))}
 			</div>
@@ -32,13 +23,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function TeamStatsChart() {
 	return (
 		<div className="flex flex-col">
-			<div className="h-[400px] w-full">
+			<div className="h-[300px] w-full">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+					<LineChart data={chartData} margin={{ top: 20, right: 0, bottom: 20, left: 0 }}>
 						<CartesianGrid
-							stroke="#e5e7eb"
 							vertical={true}
 							horizontal={true}
+							className="stroke-gray-200"
 						/>
 						<XAxis
 							dataKey="date"
