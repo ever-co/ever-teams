@@ -69,7 +69,7 @@ type ITimesheetProps = {
 	startDate: string;
 	endDate: string;
 	timeZone?: string;
-}
+};
 
 export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: string) {
 	const queries = qs.stringify(params);
@@ -78,14 +78,14 @@ export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: s
 		method: 'GET',
 		bearer_token,
 		tenantId: params.tenantId
-	})
+	});
 }
 
 type IDeleteTimesheetProps = {
 	organizationId: string;
 	tenantId: string;
-	logIds?: string[]
-}
+	logIds?: string[];
+};
 
 export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer_token: string) {
 	const { logIds = [] } = params;
@@ -97,17 +97,15 @@ export function deleteTaskTimesheetRequest(params: IDeleteTimesheetProps, bearer
 	});
 }
 
-
 export function updateStatusTimesheetRequest(params: IUpdateTimesheetStatus, bearer_token: string) {
 	return serverFetch<UpdateTimesheetStatus[]>({
 		path: '/timesheet/status',
 		method: 'PUT',
 		body: { ...params },
 		bearer_token,
-		tenantId: params.tenantId,
-	})
+		tenantId: params.tenantId
+	});
 }
-
 
 export function createTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
 	return serverFetch<TimesheetLog>({
@@ -116,7 +114,7 @@ export function createTimesheetRequest(params: UpdateTimesheet, bearer_token: st
 		body: { ...params },
 		bearer_token,
 		tenantId: params.tenantId
-	})
+	});
 }
 
 export function updateTimesheetRequest(params: UpdateTimesheet, bearer_token: string) {
@@ -130,24 +128,24 @@ export function updateTimesheetRequest(params: UpdateTimesheet, bearer_token: st
 }
 
 export interface ITimeLogReportDailyChartProps {
-    activityLevel: {
-        start: number;
-        end: number;
-    };
-    organizationId: string;
-    tenantId: string;
-    startDate: string;
-    endDate: string;
-    timeZone?: string;
-    groupBy?: string;
+	activityLevel: {
+		start: number;
+		end: number;
+	};
+	organizationId: string;
+	tenantId: string;
+	startDate: string;
+	endDate: string;
+	timeZone?: string;
+	groupBy?: string;
 }
 
 export function getTimeLogReportDailyChartRequest(params: ITimeLogReportDailyChartProps, bearer_token: string) {
-    const queries = qs.stringify(params);
-    return serverFetch<any>({
-        path: `/timesheet/time-log/report/daily-chart?${queries}`,
-        method: 'GET',
-        bearer_token,
-        tenantId: params.tenantId
-    });
+	const queries = qs.stringify(params);
+	return serverFetch<any>({
+		path: `/timesheet/time-log/report/daily-chart?${queries}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: params.tenantId
+	});
 }

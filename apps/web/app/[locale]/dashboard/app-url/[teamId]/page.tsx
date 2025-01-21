@@ -20,6 +20,7 @@ import { Breadcrumb, Container } from '@/lib/components';
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
+
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -28,6 +29,14 @@ import { Breadcrumb, Container } from '@/lib/components';
 		],
 		[activeTeam?.name, currentLocale, t]
 	);
+
+  if (!activeTeam) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500">Team not found</p>
+      </div>
+    );
+  }
 
 	return (
 		<MainLayout

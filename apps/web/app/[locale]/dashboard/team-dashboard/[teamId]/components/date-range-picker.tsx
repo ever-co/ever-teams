@@ -34,10 +34,14 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 	const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 	const [currentMonth, setCurrentMonth] = React.useState<Date>(new Date());
 
-	const handleDateRangeChange = (range: DateRange | undefined) => {
-		setDateRange(range);
-		onDateRangeChange?.(range);
-	};
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+     try {
+         setDateRange(range);
+         onDateRangeChange?.(range);
+     } catch (error) {
+       console.error('Error handling date range change:', error);
+     }
+     };
 
 	const predefinedRanges = [
 		{
