@@ -749,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours an employee worked for total and today on task",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours did employees work today on all tasks for the selected Team"
 		},
-		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
+		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Task unassigned"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",

@@ -12,6 +12,7 @@ import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 import { ITeamTask } from '@app/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@components/ui/use-toast';
 
 const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
@@ -21,17 +22,22 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);
+	const { toast } = useToast();
 
 	const { toggleFavorite, isFavorite } = useFavoritesTask();
 	const t = useTranslations();
 
-	const handleAssignment = useCallback(() => {
+	const handleAssignment = useCallback(async () => {
 		if (isAssigned) {
-			memberInfo.unassignTask(task);
+			await memberInfo.unassignTask(task);
+			toast({
+				variant: 'default',
+				title: t('task.toastMessages.TASK_UNASSIGNED')
+			});
 		} else {
 			memberInfo.assignTask(task);
 		}
-	}, [isAssigned, memberInfo, task]);
+	}, [isAssigned, memberInfo, t, task, toast]);
 
 	return (
 		<DropdownMenu>

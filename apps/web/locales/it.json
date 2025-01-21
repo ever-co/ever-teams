@@ -749,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Quante ore ha lavorato l'impiegato in totale e oggi sul compito",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Quante ore ha lavorato l'impiegato oggi su tutte le attività per il team selezionato"
 		},
-		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito"
+		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Attività non assegnata"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Piano per oggi",
