@@ -50,7 +50,10 @@ const ScreenshotItem = ({
 				/>
 			</div>
 			<div
-				className={clsxm('w-full h-1/2 p-4 cursor-pointer bg-white dark:bg-[#191a20]', !showProgress && '!h-1/3')}
+				className={clsxm(
+					'w-full h-1/2 p-4 cursor-pointer bg-white dark:bg-[#191a20]',
+					!showProgress && '!h-1/3'
+				)}
 				onClick={onShow}
 			>
 				{showProgress ? (
@@ -68,7 +71,7 @@ const ScreenshotItem = ({
 						</p>
 						<ProgressBar width={'100%'} progress={`${percent}%`} className="my-2 w-full" />
 						<p className="font-semibold text-sm">
-							{percent} {t('timer.PERCENT_OF_MINUTES')}
+							{Number(percent).toPrecision(3)} {t('timer.PERCENT_OF_MINUTES')}
 						</p>
 					</>
 				) : (
