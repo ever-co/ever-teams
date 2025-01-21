@@ -128,3 +128,26 @@ export function updateTimesheetRequest(params: UpdateTimesheet, bearer_token: st
 		tenantId: params.tenantId
 	});
 }
+
+export interface ITimeLogReportDailyChartProps {
+    activityLevel: {
+        start: number;
+        end: number;
+    };
+    organizationId: string;
+    tenantId: string;
+    startDate: string;
+    endDate: string;
+    timeZone?: string;
+    groupBy?: string;
+}
+
+export function getTimeLogReportDailyChartRequest(params: ITimeLogReportDailyChartProps, bearer_token: string) {
+    const queries = qs.stringify(params);
+    return serverFetch<any>({
+        path: `/timesheet/time-log/report/daily-chart?${queries}`,
+        method: 'GET',
+        bearer_token,
+        tenantId: params.tenantId
+    });
+}

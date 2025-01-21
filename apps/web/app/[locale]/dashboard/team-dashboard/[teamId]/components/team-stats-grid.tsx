@@ -48,7 +48,7 @@ export function TeamStatsGrid() {
 					<Card key={stat.title} className="p-6">
 						<div className="flex flex-col">
 							<span className="text-sm font-medium text-gray-500">{stat.title}</span>
-							<span className={`text-2xl font-semibold mt-2 ${stat.color || "text-gray-900"}`}>
+							<span className={`text-2xl font-semibold mt-2 ${stat.color || "text-gray-900 dark:text-white"}`}>
 								{stat.value}
 							</span>
 							{stat.progress && (

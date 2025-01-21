@@ -267,7 +267,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 		<div className="relative z-10 w-full">
 			<div
 				className={clsxm(
-					'flex justify-between flex-col xs:flex-row  items-center w-full flex-wrap-reverse lg:flex-nowrap',
+					'flex flex-col flex-wrap-reverse justify-between items-center w-full xs:flex-row lg:flex-nowrap',
 					className
 				)}
 			>
@@ -393,7 +393,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex items-center justify-center w-full -mb-1 space-x-1 md:justify-start md:space-x-4 md:mt-0">
+		<nav className="flex justify-center items-center -mb-1 space-x-1 w-full md:justify-start md:space-x-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -445,7 +445,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	}, [dailyPlanTab, date]);
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
+			<div className="flex flex-wrap flex-1 justify-center space-x-3 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}

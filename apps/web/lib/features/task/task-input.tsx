@@ -354,7 +354,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -527,7 +527,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex justify-start gap-2">
+								<div className="flex gap-2 justify-start">
 									<ActiveTaskStatusDropdown
 										className="lg:min-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
@@ -634,7 +634,7 @@ function TaskCard({
 							className="py-2 text-xs cursor-pointer input-border"
 							onClick={() => datas.setFilter && datas.setFilter('open')}
 						>
-							<div className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')} />
+							<div className={clsxm('w-4 h-4 bg-green-300 rounded-full opacity-50')} />
 							<span
 								className={clsxm(
 									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
@@ -662,7 +662,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className={assignTaskPopup ? 'py-6 max-h-[40vh] overflow-y-auto' : 'py-6 max-h-56 overflow-y-auto'}>
+				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-56'}>
 					{forParentChildRelationship && (
 						<LazyRender items={data || []}>
 							{(task, i) => {
@@ -761,6 +761,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 			)}
 		>
 			<Combobox multiple={true}>
+<<<<<<< HEAD
 				<div className="relative h-full my-auto">
 					<div className=" w-full h-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
 						<Combobox.Button className=" h-full hover:transition-all flex justify-between w-40 items-center">
@@ -778,6 +779,14 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 								{t('common.ASSIGNEE')}
 							</div>
 							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
+=======
+				<div className="relative my-auto">
+					<div className="overflow-hidden relative w-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Input readOnly className="w-0 h-0" />
+						<Combobox.Button className="flex absolute inset-y-0 right-0 justify-between items-center w-40 hover:transition-all">
+							<span>{t('common.ASSIGNEE')}</span>
+							<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
+>>>>>>> 40facae7 (feat: implement time tracking analytics improvements)
 						</Combobox.Button>
 					</div>
 					<Transition
@@ -798,8 +807,8 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 									}
 									value={authMember}
 								>
-									<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
-										<CheckIcon className="h-5 w-5" aria-hidden="true" />
+									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
+										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
 									{authMember.employee.fullName}
 								</Combobox.Option>
@@ -833,8 +842,8 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 										value={member}
 									>
 										{assignees.current.map((el) => el.id).includes(member.employee.id) && (
-											<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
-												<CheckIcon className="h-5 w-5" aria-hidden="true" />
+											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
+												<CheckIcon className="w-5 h-5" aria-hidden="true" />
 											</span>
 										)}
 
