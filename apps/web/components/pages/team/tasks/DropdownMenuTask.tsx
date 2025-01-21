@@ -12,25 +12,32 @@ import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 import { ITeamTask } from '@app/interfaces';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@components/ui/use-toast';
 
 const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
-	const member = activeTeam?.members.find((m) => m?.employee?.user?.id === user?.id);
+	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);
+	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);
+	const { toast } = useToast();
 
 	const { toggleFavorite, isFavorite } = useFavoritesTask();
 	const t = useTranslations();
 
-	const handleAssignment = useCallback(() => {
-		if (memberInfo.member?.employee?.user?.id === user?.id) {
-			memberInfo.unassignTask(task);
+	const handleAssignment = useCallback(async () => {
+		if (isAssigned) {
+			await memberInfo.unassignTask(task);
+			toast({
+				variant: 'default',
+				title: t('task.toastMessages.TASK_UNASSIGNED')
+			});
 		} else {
 			memberInfo.assignTask(task);
 		}
-	}, [memberInfo, task]);
+	}, [isAssigned, memberInfo, t, task, toast]);
 
 	return (
 		<DropdownMenu>
@@ -65,24 +72,23 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem
+					className=" cursor-pointer"
 					onClick={() => taskEdition?.task?.id && navigator.clipboard.writeText(taskEdition.task.id)}
 				>
 					Copy Task ID
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 
-				<DropdownMenuItem className="relative" onClick={() => router.push(`/task/${task.id}`)}>
+				<DropdownMenuItem className="relative cursor-pointer" onClick={() => router.push(`/task/${task.id}`)}>
 					{t('common.TASK_DETAILS')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem onClick={() => toggleFavorite(task)}>
+				<DropdownMenuItem className=" cursor-pointer" onClick={() => toggleFavorite(task)}>
 					{isFavorite(task) ? t('common.REMOVE_FAVORITE_TASK') : t('common.ADD_FAVORITE_TASK')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem onClick={handleAssignment}>
-					{memberInfo.member?.employee?.user?.id !== user?.id
-						? t('common.ASSIGN_TASK')
-						: t('common.UNASSIGN_TASK')}
+				<DropdownMenuItem className=" cursor-pointer" onClick={handleAssignment}>
+					{isAssigned ? t('common.UNASSIGN_TASK') : t('common.ASSIGN_TASK')}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

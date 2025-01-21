@@ -23653,7 +23653,7 @@ runtime-required@^1.1.0:
   resolved "https://registry.npmjs.org/runtime-required/-/runtime-required-1.1.0.tgz"
   integrity sha512-yX97f5E0WfNpcQnfVjap6vzQcvErkYYCx6eTK4siqGEdC8lglwypUFgZVTX7ShvIlgfkC4XGFl9O1KTYcff0pw==
 
-rxjs@*, rxjs@7.8.1, rxjs@^7.5.1, rxjs@^7.5.5, rxjs@^7.8.0, rxjs@^7.8.1:
+rxjs@7.8.1, rxjs@^7.5.1, rxjs@^7.5.2, rxjs@^7.5.5, rxjs@^7.8.0, rxjs@^7.8.1:
   version "7.8.1"
   resolved "https://registry.npmjs.org/rxjs/-/rxjs-7.8.1.tgz"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==

@@ -749,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم والإجمالي في المهمة",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم في جميع المهام للفريق المحدد"
 		},
-		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة"
+		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "لم يتم تعيين المهمة"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",

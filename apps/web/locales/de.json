@@ -749,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Wie viele Stunden hat der Mitarbeiter heute und insgesamt an der Aufgabe gearbeitet",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Wie viele Stunden hat der Mitarbeiter heute an allen Aufgaben für das ausgewählte Team gearbeitet"
 		},
-		"CONFIRM_CLOSE_TASK": "Bitte bestätigen Sie, ob Sie die Aufgabe schließen möchten"
+		"CONFIRM_CLOSE_TASK": "Bitte bestätigen Sie, ob Sie die Aufgabe schließen möchten",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Aufgabe nicht zugewiesen"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan für heute",
