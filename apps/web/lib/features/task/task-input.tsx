@@ -761,10 +761,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 			)}
 		>
 			<Combobox multiple={true}>
-<<<<<<< HEAD
-				<div className="relative h-full my-auto">
-					<div className=" w-full h-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className=" h-full hover:transition-all flex justify-between w-40 items-center">
+				<div className="relative my-auto h-full">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default  focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center w-40 h-full  hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white',
@@ -779,14 +778,6 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 								{t('common.ASSIGNEE')}
 							</div>
 							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
-=======
-				<div className="relative my-auto">
-					<div className="overflow-hidden relative w-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="flex absolute inset-y-0 right-0 justify-between items-center w-40 hover:transition-all">
-							<span>{t('common.ASSIGNEE')}</span>
-							<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
->>>>>>> 40facae7 (feat: implement time tracking analytics improvements)
 						</Combobox.Button>
 					</div>
 					<Transition
