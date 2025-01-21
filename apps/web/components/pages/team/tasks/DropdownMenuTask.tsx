@@ -17,7 +17,8 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const { activeTeam } = useOrganizationTeams();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
-	const member = activeTeam?.members.find((m) => m?.employee?.user?.id === user?.id);
+	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);
+	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(task);
 
@@ -25,12 +26,12 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 	const t = useTranslations();
 
 	const handleAssignment = useCallback(() => {
-		if (memberInfo.member?.employee?.user?.id === user?.id) {
+		if (isAssigned) {
 			memberInfo.unassignTask(task);
 		} else {
 			memberInfo.assignTask(task);
 		}
-	}, [memberInfo, task]);
+	}, [isAssigned, memberInfo, task]);
 
 	return (
 		<DropdownMenu>
@@ -65,24 +66,23 @@ const DropdownMenuTask: FC<{ task: ITeamTask }> = ({ task }) => {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem
+					className=" cursor-pointer"
 					onClick={() => taskEdition?.task?.id && navigator.clipboard.writeText(taskEdition.task.id)}
 				>
 					Copy Task ID
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 
-				<DropdownMenuItem className="relative" onClick={() => router.push(`/task/${task.id}`)}>
+				<DropdownMenuItem className="relative cursor-pointer" onClick={() => router.push(`/task/${task.id}`)}>
 					{t('common.TASK_DETAILS')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem onClick={() => toggleFavorite(task)}>
+				<DropdownMenuItem className=" cursor-pointer" onClick={() => toggleFavorite(task)}>
 					{isFavorite(task) ? t('common.REMOVE_FAVORITE_TASK') : t('common.ADD_FAVORITE_TASK')}
 				</DropdownMenuItem>
 
-				<DropdownMenuItem onClick={handleAssignment}>
-					{memberInfo.member?.employee?.user?.id !== user?.id
-						? t('common.ASSIGN_TASK')
-						: t('common.UNASSIGN_TASK')}
+				<DropdownMenuItem className=" cursor-pointer" onClick={handleAssignment}>
+					{isAssigned ? t('common.UNASSIGN_TASK') : t('common.ASSIGN_TASK')}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
