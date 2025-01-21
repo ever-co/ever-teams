@@ -867,6 +867,7 @@ export function TaskStatus({
 			<div
 				className={cn(
 					'flex overflow-hidden gap-x-1 items-center whitespace-nowrap text-ellipsis',
+					'',
 					titleClassName
 				)}
 			>
@@ -1239,7 +1240,10 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 								taskStatusClassName
 							)}
-							titleClassName={clsxm(!value && 'dark:text-white text-slate-400')}
+							titleClassName={clsxm(
+								values.length > 0 && '!text-dark dark:!text-white',
+								!value && 'dark:text-white text-slate-400'
+							)}
 							name={
 								values.length > 0
 									? `Item${values.length === 1 ? '' : 's'} (${values.length})`

@@ -26,9 +26,9 @@ import {
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon, PlusIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
-import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
+import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import {
 	Fragment,
 	MutableRefObject,
@@ -49,6 +49,7 @@ import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 import { ObserverComponent } from '@components/shared/Observer';
 import { LazyRender } from 'lib/components/lazy-render';
 import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
+import { cn } from '@/lib/utils';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -569,7 +570,7 @@ function TaskCard({
 									<TaskLabels
 										className="lg:min-w-[170px] text-xs z-[9999]"
 										forDetails={false}
-										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-9 text-xs"
+										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {
 											taskLabelsData.filter((tag) =>
 												tag.name ? values?.includes(tag.name) : false
@@ -586,6 +587,7 @@ function TaskCard({
 
 									{taskAssignees !== undefined && (
 										<AssigneesSelect
+											className="lg:min-w-[170px] bg-white"
 											assignees={taskAssignees}
 											teamMembers={activeTeam?.members ?? []}
 										/>
@@ -731,6 +733,7 @@ interface ITeamMemberSelectProps {
 			id: string;
 		}[]
 	>;
+	className?: string;
 }
 /**
  * A multi select component for assignees
@@ -751,14 +754,30 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 	);
 
 	return (
-		<div className="w-52 rounded-xl bg-[#F2F2F2] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-2 px-3">
+		<div
+			className={cn(
+				'max-w-52 border rounded-xl bg-[#F2F2F2] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] px-3',
+				props.className
+			)}
+		>
 			<Combobox multiple={true}>
-				<div className="relative my-auto">
-					<div className="relative w-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="absolute hover:transition-all inset-y-0 right-0 flex justify-between w-40 items-center">
-							<span>{t('common.ASSIGNEE')}</span>
-							<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+				<div className="relative h-full my-auto">
+					<div className=" w-full h-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className=" h-full hover:transition-all flex justify-between w-40 items-center">
+							<div
+								className={cn(
+									'flex gap-1 items-center  !text-default dark:!text-white',
+									!assignees.current.length && ['!text-dark/40  dark:!text-white']
+								)}
+							>
+								{!assignees.current.length ? (
+									<CircleIcon className="w-4 h-4" />
+								) : (
+									<UserGroupIcon className="w-4 h-4" />
+								)}
+								{t('common.ASSIGNEE')}
+							</div>
+							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
 						</Combobox.Button>
 					</div>
 					<Transition
@@ -767,11 +786,14 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute mt-1 max-h-40 h-auto w-44 overflow-auto rounded-md dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute mt-1 max-h-40 h-auto overflow-auto rounded-md dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5 dark:bg-dark--theme-light dark:text-white' : 'text-gray-100'
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${
+											active
+												? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
+												: 'text-gray-900 dark:text-gray-200'
 										}`
 									}
 									value={authMember}
@@ -789,7 +811,10 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 									<Combobox.Option
 										key={member.id}
 										className={({ active }) =>
-											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights' : 'text-gray-900 dark:text-gray-200'
+											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+												active
+													? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
+													: 'text-gray-900 dark:text-gray-200'
 											}`
 										}
 										onClick={() => {

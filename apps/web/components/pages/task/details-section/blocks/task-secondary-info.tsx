@@ -380,7 +380,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												!selected && ' text-slate-400 flex gap-1 dark:text-white font-light'
 											)}
 										>
-											{!selected && <CircleIcon className="w-4 h-4" />}{' '}
+											{!selected && <CircleIcon className="w-4 h-4" />}
 											{selected?.name ?? 'Project'}
 										</p>
 									)}
