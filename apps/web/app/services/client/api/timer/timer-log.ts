@@ -182,6 +182,13 @@ export function getTimeLogReportDailyChart({
         ...(groupBy && { groupBy })
     };
 
+	if (!organizationId || !tenantId || !startDate || !endDate) {
+		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
+	}
+	if (activityLevel.start < 0 || activityLevel.end > 100 || activityLevel.start >= activityLevel.end) {
+		throw new Error('Invalid activity level range');
+	}
+
     const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
         values.forEach((value, index) => {
             params[`${key}[${index}]`] = value;
