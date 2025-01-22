@@ -20,6 +20,7 @@ import {
 	isEqual
 } from 'date-fns';
 import { DateRange } from 'react-day-picker';
+import { useTranslations } from 'next-intl';
 
 interface DateRangePickerProps {
 	className?: string;
@@ -27,6 +28,7 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ className, onDateRangeChange }: DateRangePickerProps) {
+	const t=useTranslations();
 	const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
 		from: new Date(),
 		to: new Date()
@@ -45,7 +47,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 
 	const predefinedRanges = [
 		{
-			label: 'Today',
+			label: t('common.TODAY'),
 			action: () => {
 				const today = new Date();
 				handleDateRangeChange({ from: today, to: today });
@@ -57,7 +59,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 			}
 		},
 		{
-			label: 'Yesterday',
+			label: t('common.YESTERDAY'),
 			action: () => {
 				const yesterday = subDays(new Date(), 1);
 				handleDateRangeChange({ from: yesterday, to: yesterday });
@@ -69,7 +71,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 			}
 		},
 		{
-			label: 'Current Week',
+			label: t('common.THIS_WEEK'),
 			action: () => {
 				const today = new Date();
 				handleDateRangeChange({
@@ -86,7 +88,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 			}
 		},
 		{
-			label: 'Last Week',
+			label: t('common.LAST_WEEK'),
 			action: () => {
 				const lastWeek = subWeeks(new Date(), 1);
 				handleDateRangeChange({
@@ -103,7 +105,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 			}
 		},
 		{
-			label: 'Current Month',
+			label:t('common.THIS_MONTH'),
 			action: () => {
 				const today = new Date();
 				handleDateRangeChange({
@@ -120,7 +122,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 			}
 		},
 		{
-			label: 'Last Month',
+			label: t('common.LAST_MONTH'),
 			action: () => {
 				const lastMonth = subMonths(new Date(), 1);
 				handleDateRangeChange({
@@ -162,7 +164,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 						className
 					)}
 				>
-					{dateRange ? formatDateRange(dateRange) : 'Select date range'}
+					{dateRange ? formatDateRange(dateRange) : t('common.SELECT')}
 					<ChevronDown className="w-4 h-4" />
 				</Button>
 			</PopoverTrigger>
@@ -180,7 +182,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 								key={range.label}
 								variant={range.isSelected(dateRange) ? 'default' : 'ghost'}
 								className={cn(
-									'justify-start w-full font-normal',
+									'justify-start w-full font-normal dark:text-gray-100',
 									range.isSelected(dateRange) &&
 										'bg-primary text-primary-foreground hover:bg-primary/90'
 								)}
@@ -216,14 +218,14 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							setIsPopoverOpen(false);
 						}}
 					>
-						Clear
+						{t('common.CLEAR')}
 					</Button>
 					<Button
 						onClick={() => {
 							setIsPopoverOpen(false);
 						}}
 					>
-						Apply
+						{t('common.APPLY')}
 					</Button>
 				</div>
 			</PopoverContent>

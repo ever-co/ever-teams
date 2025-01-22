@@ -1,4 +1,4 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet } from '@app/interfaces';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps } from '@app/interfaces';
 import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
@@ -154,4 +154,50 @@ export function updateTimesheetFromAPi(params: UpdateTimesheet) {
 	} catch (error) {
 		throw new Error('Failed to create timesheet log');
 	}
+}
+
+const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export function getTimeLogReportDailyChart({
+    activityLevel,
+    organizationId,
+    tenantId,
+    startDate,
+    endDate,
+    timeZone = getDefaultTimezone(),
+    groupBy,
+    projectIds = [],
+    employeeIds = [],
+    logType = [],
+    teamIds = []
+}: ITimeLogReportDailyChartProps) {
+    const baseParams = {
+        'activityLevel[start]': activityLevel.start.toString(),
+        'activityLevel[end]': activityLevel.end.toString(),
+        organizationId,
+        tenantId,
+        startDate,
+        endDate,
+        timeZone,
+        ...(groupBy && { groupBy })
+    };
+
+    const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
+        values.forEach((value, index) => {
+            params[`${key}[${index}]`] = value;
+        });
+    };
+
+    const queryParams = { ...baseParams };
+    if (projectIds.length) addArrayParams(queryParams, 'projectIds', projectIds);
+    if (employeeIds.length) addArrayParams(queryParams, 'employeeIds', employeeIds);
+    if (logType.length) addArrayParams(queryParams, 'logType', logType);
+    if (teamIds.length) addArrayParams(queryParams, 'teamIds', teamIds);
+
+    const queryString = new URLSearchParams(queryParams).toString();
+
+    return get<ITimerDailyLog[]>(
+        `/timesheet/time-log/report/daily-chart?${queryString}`,
+        { tenantId }
+    );
 }

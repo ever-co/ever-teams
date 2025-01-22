@@ -157,3 +157,34 @@ export interface UpdateTimesheet extends Pick<
     > {
     isBillable: boolean;
 }
+
+export interface ITimerValue {
+    TRACKED: number;
+    MANUAL: number;
+    IDLE: number;
+    RESUMED: number;
+}
+
+export interface ITimerDailyLog {
+    date: string;
+    value: ITimerValue;
+}
+
+export interface ITimeLogReportDailyChartProps {
+    activityLevel: {
+        start: number;
+        end: number;
+    };
+    start: number;
+    end: number;
+    organizationId: string;
+    tenantId: string;
+    startDate: string;
+    endDate: string;
+    timeZone?: string;
+    projectIds?: string[],
+	employeeIds?: string[],
+    logType?: string[],
+    teamIds?:string[],
+    groupBy?: string;
+}

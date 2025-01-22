@@ -1,7 +1,7 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
+import { ITimerDailyLog, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/app/interfaces';
 
 export type TTasksTimesheetStatisticsParams = {
@@ -142,7 +142,7 @@ export interface ITimeLogReportDailyChartProps {
 
 export function getTimeLogReportDailyChartRequest(params: ITimeLogReportDailyChartProps, bearer_token: string) {
 	const queries = qs.stringify(params);
-	return serverFetch<any>({
+	return serverFetch<ITimerDailyLog[]>({
 		path: `/timesheet/time-log/report/daily-chart?${queries}`,
 		method: 'GET',
 		bearer_token,

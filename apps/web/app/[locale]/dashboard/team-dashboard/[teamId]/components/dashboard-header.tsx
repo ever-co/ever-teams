@@ -14,7 +14,7 @@ export function DashboardHeader() {
 		<div className="flex justify-between items-center">
 			<h1 className="text-2xl font-semibold">Team Dashboard</h1>
 			<div className="flex gap-4 items-center">
-				<DateRangePicker />
+				<DateRangePicker  />
 				<Select defaultValue="filter">
 					<SelectTrigger className="w-[100px]">
 						<SelectValue placeholder="Filter" />
