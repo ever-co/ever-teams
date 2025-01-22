@@ -8,14 +8,49 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { DateRangePicker } from "./date-range-picker";
+import { DateRange } from "react-day-picker";
+import { ITimeLogReportDailyChartProps } from "@/app/interfaces/timer/ITimerLog";
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
+	onUpdateFilters: (filters: Partial<Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>>) => void;
+}
+
+export function DashboardHeader({ onUpdateDateRange, onUpdateFilters }: DashboardHeaderProps) {
+	const handleDateRangeChange = (range: DateRange | undefined) => {
+		if (range?.from && range?.to) {
+			onUpdateDateRange(range.from, range.to);
+		}
+	};
+
+	const handleFilterChange = (value: string) => {
+		const today = new Date();
+		let startDate = new Date();
+		const endDate = today;
+
+		switch (value) {
+			case 'today':
+				startDate = today;
+				break;
+			case 'week':
+				startDate.setDate(today.getDate() - 7);
+				break;
+			case 'month':
+				startDate.setMonth(today.getMonth() - 1);
+				break;
+			default:
+				return;
+		}
+
+		onUpdateDateRange(startDate, endDate);
+	};
+
 	return (
 		<div className="flex justify-between items-center">
 			<h1 className="text-2xl font-semibold">Team Dashboard</h1>
 			<div className="flex gap-4 items-center">
-				<DateRangePicker  />
-				<Select defaultValue="filter">
+				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
+				<Select defaultValue="filter" onValueChange={handleFilterChange}>
 					<SelectTrigger className="w-[100px]">
 						<SelectValue placeholder="Filter" />
 					</SelectTrigger>
