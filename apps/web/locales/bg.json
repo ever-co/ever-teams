@@ -314,7 +314,10 @@
 		"GROUP_BY": "Групирай по",
 		"DAILY_LIMIT": "Дневен лимит",
 		"WEEKLY_LIMIT": "Седмичен лимит",
-		"REPORTS": "Доклади"
+		"REPORTS": "Доклади",
+		"LEGEND": "Легенда",
+		"HOURS": "Часове",
+		"NOT_HOURS_WORKED": "Неотработени часове"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -746,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Колко часа работил служителят общо и днес по задача",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Колко часа е работил служителят днес по всички задачи за избрания екип"
 		},
-		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата"
+		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Задачата не е възложена"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "План за днес",

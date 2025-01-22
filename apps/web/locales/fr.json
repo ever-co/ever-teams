@@ -314,7 +314,10 @@
 		"GROUP_BY": "Regrouper par",
 		"DAILY_LIMIT": "Limite quotidienne",
 		"WEEKLY_LIMIT": "Limite hebdomadaire",
-		"REPORTS": "Rapports"
+		"REPORTS": "Rapports",
+		"LEGEND": "Légende",
+		"HOURS": "Heures",
+		"NOT_HOURS_WORKED": "Heures non travaillées"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -746,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Combien d'heures l'employé a-t-il travaillé au total et aujourd'hui sur la tâche",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Combien d'heures l'employé a-t-il travaillé aujourd'hui sur toutes les tâches pour l'équipe sélectionnée"
 		},
-		"CONFIRM_CLOSE_TASK": "Veuillez confirmer si vous voulez fermer la tâche"
+		"CONFIRM_CLOSE_TASK": "Veuillez confirmer si vous voulez fermer la tâche",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Tâche non attribuée"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan pour aujourd'hui",

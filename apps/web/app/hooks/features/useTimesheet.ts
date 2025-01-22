@@ -2,7 +2,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/app/stores/time-logs';
 import { useQuery } from '../useQuery';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { deleteTaskTimesheetLogsApi, getTaskTimesheetLogsApi, updateStatusTimesheetFromApi, createTimesheetFromApi, updateTimesheetFromAPi } from '@/app/services/client/api/timer/timer-log';
 import moment from 'moment';
 import { ID, TimesheetLog, TimesheetStatus, UpdateTimesheet } from '@/app/interfaces';
@@ -178,8 +178,8 @@ const groupByMonth = createGroupingFunction(getMonthKey);
  * @prop {boolean} isManage - Whether the user is authorized to manage the timesheet.
  */
 export function useTimesheet({
-    startDate,
-    endDate,
+    startDate = moment().startOf('month').toDate(),
+    endDate = moment().endOf('month').toDate(),
     timesheetViewMode,
     inputSearch
 }: TimesheetParams) {
@@ -193,18 +193,48 @@ export function useTimesheet({
     const { loading: loadingUpdateTimesheet, queryCall: queryUpdateTimesheet } = useQuery(updateTimesheetFromAPi);
     const isManage = user && isUserAllowedToAccess(user);
 
+    const [createTimesheetResponse, setCreateTimesheetResponse] = useState<any>(null);
+
+    /**
+     * Memoized date range with fallback to defaults
+     * Ensures all dates are converted to Date objects
+     */
+    const currentDateRange = useMemo(() => {
+        const defaultStart = moment().startOf('month').toDate();
+        const defaultEnd = moment().endOf('month').toDate();
+
+        return {
+            startDate: startDate ? moment(startDate).toDate() : defaultStart,
+            endDate: endDate ? moment(endDate).toDate() : defaultEnd
+        };
+    }, [startDate, endDate]);
+
+    /**
+     * Format date to YYYY-MM-DD ensuring valid date input
+     * @param date - Input date (optional)
+     * @param defaultDate - Default date if input is undefined
+     */
+    const formatDate = useCallback((date: Date | string | undefined, defaultDate: Date): string => {
+        try {
+            return moment(date || defaultDate).format('YYYY-MM-DD');
+        } catch (error) {
+            console.warn('Invalid date provided, using default date');
+            return moment(defaultDate).format('YYYY-MM-DD');
+        }
+    }, []);
+
     const getTaskTimesheet = useCallback(
         ({ startDate, endDate }: TimesheetParams) => {
             if (!user) return;
 
-            const from = moment(startDate).format('YYYY-MM-DD');
-            const to = moment(endDate).format('YYYY-MM-DD');
+            const from = formatDate(startDate, currentDateRange.startDate);
+            const to = formatDate(endDate, currentDateRange.endDate);
             queryTimesheet({
                 startDate: from,
                 endDate: to,
                 organizationId: user.employee?.organizationId,
                 tenantId: user.tenantId ?? '',
-                timeZone: user.timeZone?.split('(')[0].trim(),
+                timeZone: user.timeZone?.split('(')[0].trim() || 'UTC',
                 employeeIds: isManage
                     ? employee?.map(({ employee: { id } }) => id).filter(Boolean)
                     : [user.employee.id],
@@ -217,7 +247,7 @@ export function useTimesheet({
                 console.error('Error fetching timesheet:', error);
             });
         },
-        [user, queryTimesheet, isManage, employee, project, task, statusState, setTimesheet]
+        [user, formatDate, currentDateRange.startDate, currentDateRange.endDate, queryTimesheet, isManage, employee, project, task, statusState, setTimesheet]
     );
 
     const createTimesheet = useCallback(
@@ -226,10 +256,9 @@ export function useTimesheet({
                 throw new Error("User not authenticated");
             }
             try {
-                const response = queryCreateTimesheet(timesheetParams).then((res) => {
-                    return res.data
-                });
-                return response
+                const response = await queryCreateTimesheet(timesheetParams);
+                setCreateTimesheetResponse(response.data);
+                return response.data;
             } catch (error) {
                 if (axios.isAxiosError(error)) {
                     console.error('Axios Error:', {
@@ -446,9 +475,24 @@ export function useTimesheet({
     };
 
 
+    /**
+     * Combined effect for fetching timesheet data
+     * Handles both initial load and updates after timesheet creation
+     */
     useEffect(() => {
-        getTaskTimesheet({ startDate, endDate });
-    }, [getTaskTimesheet, startDate, endDate, timesheetGroupByDays, inputSearch]);
+        if (createTimesheetResponse) {
+            getTaskTimesheet(currentDateRange);
+            setCreateTimesheetResponse(null);
+        } else {
+            getTaskTimesheet(currentDateRange);
+        }
+    }, [
+        getTaskTimesheet,
+        currentDateRange,
+        createTimesheetResponse,
+        timesheetGroupByDays,
+        inputSearch
+    ]);
 
     return {
         loadingTimesheet,

@@ -57,10 +57,24 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		'ListView'
 	);
 
-	const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>({
-		from: startOfMonth(new Date()),
-		to: endOfMonth(new Date())
-	});
+    /**
+     * Default date range for the current month
+     */
+    const defaultDateRange = useMemo(() => ({
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date())
+    }), []);
+
+    const [dateRange, setDateRange] = React.useState<{ from: Date | null; to: Date | null }>(defaultDateRange);
+
+    /**
+     * Memoized date range for timesheet
+     * Returns default dates if current dates are null
+     */
+    const timesheetDateRange = useMemo(() => ({
+        startDate: dateRange.from || defaultDateRange.from,
+        endDate: dateRange.to || defaultDateRange.to
+    }), [dateRange.from, dateRange.to, defaultDateRange]);
 
 	const {
 		timesheet: filterDataTimesheet,
@@ -73,8 +87,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		updateTimesheetStatus,
 		deleteTaskTimesheet
 	} = useTimesheet({
-		startDate: dateRange.from!,
-		endDate: dateRange.to!,
+        startDate: timesheetDateRange.startDate,
+        endDate: timesheetDateRange.endDate,
 		timesheetViewMode: timesheetNavigator,
 		inputSearch: search
 	});

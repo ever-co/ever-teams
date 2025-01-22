@@ -96,10 +96,21 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		navMain: [
 			{
 				title: t('sidebar.DASHBOARD'),
-				url: '/',
+				url: '#',
 				icon: LayoutDashboard,
-				isActive: true,
-				label: 'dashboard'
+				label: 'dashboard',
+				items: [
+					{
+						title: 'Team Dashboard',
+						url: `/dashboard/team-dashboard/${user?.id}?name=${encodeURIComponent(username || '')}`,
+						label: 'team dashboard'
+					},
+					{
+						title: 'Apps & URLs',
+						url: `/dashboard/app-url/${user?.id}?name=${encodeURIComponent(username || '')}`,
+						label: 'apps-urls'
+					}
+				]
 			},
 			{
 				title: t('sidebar.FAVORITES'),
@@ -121,20 +132,20 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											)}
 											asChild
 										>
-											<span className="flex items-center justify-between w-full min-w-fit">
+											<span className="flex justify-between items-center w-full min-w-fit">
 												<Link href={`/task/${task?.id}`} className="flex items-center">
 													{task && (
 														// Show task issue and task number
 														<TaskIssueStatus
 															showIssueLabels={false}
-															className={cn('w-full px-2 flex items-center gap-1 mr-1')}
+															className={cn('flex gap-1 items-center px-2 mr-1 w-full')}
 															task={task}
 														/>
 													)}
-													<span className={cn('font-normal flex items-center')}>
+													<span className={cn('flex items-center font-normal')}>
 														<small
 															className={cn(
-																'text-gray-300 text-nowrap whitespace-nowrap text-xs mr-1 font-normal'
+																'mr-1 text-xs font-normal text-gray-300 whitespace-nowrap text-nowrap'
 															)}
 														>
 															#{task?.taskNumber}

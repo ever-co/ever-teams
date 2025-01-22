@@ -21,13 +21,14 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { useTranslations } from 'next-intl';
-import { AddIcon, ChevronDownIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
+import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import { Listbox, Transition } from '@headlessui/react';
 import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import ProjectIcon from '@components/ui/svgs/project-icon';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
 import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -373,13 +374,19 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									{updateLoading ? (
 										<SpinnerLoader size={10} />
 									) : (
-										<p className={clsxm('truncate', !selected && ' text-slate-400 font-light')}>
+										<p
+											className={clsxm(
+												'truncate',
+												!selected && ' text-slate-400 flex gap-1 dark:text-white font-light'
+											)}
+										>
+											{!selected && <CircleIcon className="w-4 h-4" />}
 											{selected?.name ?? 'Project'}
 										</p>
 									)}
 									<ChevronDownIcon
 										className={clsxm(
-											'h-4 w-4 text-slate-400 transition duration-150 ease-in-out group-hover:text-opacity-80'
+											'transition duration-150 ease-in-out group-hover:text-opacity-80 w-5 h-5 text-default dark:text-white'
 										)}
 										aria-hidden="true"
 									/>
@@ -408,7 +415,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 													{organizationProjects.map((item, i) => {
 														return (
 															<Listbox.Option key={item.id} value={item} as={Fragment}>
-																<li className="relative border h-[2rem] flex items-center gap-1 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
+																<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
 																	<ProjectIcon width={14} height={14} />{' '}
 																	<span className=" truncate">{item.name}</span>
 																</li>

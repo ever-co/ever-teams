@@ -314,7 +314,10 @@
 		"GROUP_BY": "Groeperen op",
 		"DAILY_LIMIT": "Daglimiet",
 		"WEEKLY_LIMIT": "Weeklimiet",
-		"REPORTS": "Rapporten"
+		"REPORTS": "Rapporten",
+		"LEGEND": "Legenda",
+		"HOURS": "Uren",
+		"NOT_HOURS_WORKED": "Niet-gewerkte uren"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -746,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer in totaal en vandaag aan de taak gewerkt",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer vandaag gewerkt aan alle taken voor het geselecteerde team"
 		},
-		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten"
+		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Taak niet toegewezen"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan voor vandaag",
