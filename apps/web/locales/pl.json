@@ -314,7 +314,10 @@
 		"GROUP_BY": "Grupuj według",
 		"DAILY_LIMIT": "Dzienne ograniczenie",
 		"WEEKLY_LIMIT": "Tygodniowe ograniczenie",
-		"REPORTS": "Raporty"
+		"REPORTS": "Raporty",
+		"LEGEND": "Legenda",
+		"HOURS": "Godziny",
+		"NOT_HOURS_WORKED": "Nieprzepracowane godziny"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -746,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Ile godzin pracowano ogółem i dzisiaj nad zadaniem",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Ile godzin pracowano dzisiaj nad wszystkimi zadaniami dla wybranego zespołu"
 		},
-		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie"
+		"CONFIRM_CLOSE_TASK": "Potwierdź, czy chcesz zamknąć zadanie",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Zadanie nieprzypisane"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan na dzisiaj",

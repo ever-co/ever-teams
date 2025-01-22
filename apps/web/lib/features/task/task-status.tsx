@@ -239,11 +239,14 @@ export function useStatusValue<T extends ITaskStatusField>({
 		(value: ITaskStatusStack[T]) => {
 			if (multipleRef.current) {
 				setValues((prevValues) => {
-					const newValues = typeof value === 'string'
-						? (prevValues.includes(value)
-							? prevValues.filter((v) => v !== value)
-							: [...prevValues, value])
-						: Array.isArray(value) ? value : [value];
+					const newValues =
+						typeof value === 'string'
+							? prevValues.includes(value)
+								? prevValues.filter((v) => v !== value)
+								: [...prevValues, value]
+							: Array.isArray(value)
+								? value
+								: [value];
 
 					onValueChangeRef.current?.(value, newValues);
 					return newValues;
@@ -823,18 +826,18 @@ export function TaskStatus({
 	isEpic
 }: PropsWithChildren<
 	TStatusItem &
-	IClassName & {
-		active?: boolean;
-		issueType?: 'status' | 'issue';
-		showIssueLabels?: boolean;
-		forDetails?: boolean;
-		titleClassName?: string;
-		cheched?: boolean;
-		sidebarUI?: boolean;
-		value?: string;
-		isVersion?: boolean;
-		isEpic?: boolean;
-	}
+		IClassName & {
+			active?: boolean;
+			issueType?: 'status' | 'issue';
+			showIssueLabels?: boolean;
+			forDetails?: boolean;
+			titleClassName?: string;
+			cheched?: boolean;
+			sidebarUI?: boolean;
+			value?: string;
+			isVersion?: boolean;
+			isEpic?: boolean;
+		}
 >) {
 	const { theme } = useTheme();
 	const readableColorHex = readableColor(backgroundColor || (theme === 'light' ? '#FFF' : '#000'));
@@ -864,6 +867,7 @@ export function TaskStatus({
 			<div
 				className={cn(
 					'flex overflow-hidden gap-x-1 items-center whitespace-nowrap text-ellipsis',
+					'',
 					titleClassName
 				)}
 			>
@@ -888,8 +892,8 @@ export function TaskStatus({
 						style={
 							isVersion || isEpic
 								? {
-									color: theme === 'light' ? '#000' : '#FFF'
-								}
+										color: theme === 'light' ? '#000' : '#FFF'
+									}
 								: {}
 						}
 					>
@@ -977,18 +981,24 @@ export function StatusDropdown<T extends TStatusItem>({
 			issueType={issueType}
 			sidebarUI={sidebarUI}
 			className={clsxm(
-				`justify-between capitalize`,
+				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
+				!forDetails && 'w-full max-w-[190px]',
+				'flex items-center gap-x-2',
 				sidebarUI && ['text-xs'],
-				!value && ['!text-dark/40 dark:text-white'],
-				isVersion || (forDetails && !value)
-					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-					: 'bg-white border',
-				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
-				taskStatusClassName,
+				!value && [
+					'!text-dark/40 dark:text-white/70',
+					'bg-white dark:bg-[#1B1D22] border border-gray-200 dark:border-[#FFFFFF33]'
+				],
+				value && ['text-black dark:text-black', 'bg-white dark:bg-white border border-gray-200'],
+				isVersion || (forDetails && !value) ? ['text-xs font-normal'] : ['text-sm font-normal'],
+				className,
 				isVersion && 'dark:text-white',
-				'h-full'
+				'h-full transition-colors duration-200'
 			)}
-			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
+			titleClassName={clsxm(
+				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%] text-ellipsis overflow-hidden'],
+				!value && 'dark:text-white'
+			)}
 			isVersion={isVersion}
 			isEpic={isEpic}
 		>
@@ -1047,7 +1057,7 @@ export function StatusDropdown<T extends TStatusItem>({
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
-												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 												taskStatusClassName
 											)}
 											name={
@@ -1226,9 +1236,13 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 							className={clsxm(
 								'justify-between w-full capitalize',
 								sidebarUI && ['text-xs'],
-								'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+								' dark:text-white bg-white border dark:bg-dark--theme-light',
 								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 								taskStatusClassName
+							)}
+							titleClassName={clsxm(
+								values.length > 0 && '!text-dark dark:!text-white',
+								!value && 'dark:text-white text-slate-400'
 							)}
 							name={
 								values.length > 0

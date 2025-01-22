@@ -26,9 +26,9 @@ import {
 import { activeTeamTaskId, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Combobox, Popover, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon, PlusIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
-import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
+import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
 import {
 	Fragment,
 	MutableRefObject,
@@ -49,6 +49,7 @@ import { useInfinityScrolling } from '@app/hooks/useInfinityFetch';
 import { ObserverComponent } from '@components/shared/Observer';
 import { LazyRender } from 'lib/components/lazy-render';
 import { ProjectDropDown } from '@components/pages/task/details-section/blocks/task-secondary-info';
+import { cn } from '@/lib/utils';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -353,7 +354,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -526,7 +527,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex justify-start gap-2">
+								<div className="flex gap-2 justify-start">
 									<ActiveTaskStatusDropdown
 										className="lg:min-w-[170px]"
 										taskStatusClassName="h-7 text-xs"
@@ -569,7 +570,7 @@ function TaskCard({
 									<TaskLabels
 										className="lg:min-w-[170px] text-xs z-[9999]"
 										forDetails={false}
-										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-9 text-xs"
+										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {
 											taskLabelsData.filter((tag) =>
 												tag.name ? values?.includes(tag.name) : false
@@ -586,6 +587,7 @@ function TaskCard({
 
 									{taskAssignees !== undefined && (
 										<AssigneesSelect
+											className="lg:min-w-[170px] bg-white"
 											assignees={taskAssignees}
 											teamMembers={activeTeam?.members ?? []}
 										/>
@@ -632,7 +634,7 @@ function TaskCard({
 							className="py-2 text-xs cursor-pointer input-border"
 							onClick={() => datas.setFilter && datas.setFilter('open')}
 						>
-							<div className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')} />
+							<div className={clsxm('w-4 h-4 bg-green-300 rounded-full opacity-50')} />
 							<span
 								className={clsxm(
 									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
@@ -660,7 +662,7 @@ function TaskCard({
 
 				<Divider className="mt-4" />
 				{/* Task list */}
-				<ul className={assignTaskPopup ? 'py-6 max-h-[40vh] overflow-y-auto' : 'py-6 max-h-56 overflow-y-auto'}>
+				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-56'}>
 					{forParentChildRelationship && (
 						<LazyRender items={data || []}>
 							{(task, i) => {
@@ -731,6 +733,7 @@ interface ITeamMemberSelectProps {
 			id: string;
 		}[]
 	>;
+	className?: string;
 }
 /**
  * A multi select component for assignees
@@ -751,14 +754,30 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 	);
 
 	return (
-		<div className="w-52 rounded-xl bg-[#F2F2F2] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-2 px-3">
+		<div
+			className={cn(
+				'max-w-52 border rounded-xl bg-[#F2F2F2] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] px-3',
+				props.className
+			)}
+		>
 			<Combobox multiple={true}>
-				<div className="relative my-auto">
-					<div className="relative w-full cursor-default overflow-hidden rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="absolute hover:transition-all inset-y-0 right-0 flex justify-between w-40 items-center">
-							<span>{t('common.ASSIGNEE')}</span>
-							<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+				<div className="relative my-auto h-full">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default  focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center w-40 h-full  hover:transition-all">
+							<div
+								className={cn(
+									'flex gap-1 items-center  !text-default dark:!text-white',
+									!assignees.current.length && ['!text-dark/40  dark:!text-white']
+								)}
+							>
+								{!assignees.current.length ? (
+									<CircleIcon className="w-4 h-4" />
+								) : (
+									<UserGroupIcon className="w-4 h-4" />
+								)}
+								{t('common.ASSIGNEE')}
+							</div>
+							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
 						</Combobox.Button>
 					</div>
 					<Transition
@@ -767,17 +786,20 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute mt-1 max-h-40 h-auto w-44 overflow-auto rounded-md dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute mt-1 max-h-40 h-auto overflow-auto rounded-md dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5 dark:bg-dark--theme-light dark:text-white' : 'text-gray-100'
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${
+											active
+												? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
+												: 'text-gray-900 dark:text-gray-200'
 										}`
 									}
 									value={authMember}
 								>
-									<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
-										<CheckIcon className="h-5 w-5" aria-hidden="true" />
+									<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
+										<CheckIcon className="w-5 h-5" aria-hidden="true" />
 									</span>
 									{authMember.employee.fullName}
 								</Combobox.Option>
@@ -789,7 +811,10 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 									<Combobox.Option
 										key={member.id}
 										className={({ active }) =>
-											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights' : 'text-gray-900 dark:text-gray-200'
+											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+												active
+													? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
+													: 'text-gray-900 dark:text-gray-200'
 											}`
 										}
 										onClick={() => {
@@ -808,8 +833,8 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 										value={member}
 									>
 										{assignees.current.map((el) => el.id).includes(member.employee.id) && (
-											<span className={`absolute inset-y-0 left-0 flex items-center pl-3 `}>
-												<CheckIcon className="h-5 w-5" aria-hidden="true" />
+											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
+												<CheckIcon className="w-5 h-5" aria-hidden="true" />
 											</span>
 										)}
 

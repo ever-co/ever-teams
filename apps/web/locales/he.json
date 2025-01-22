@@ -314,7 +314,10 @@
 		"GROUP_BY": "קבץ לפי",
 		"DAILY_LIMIT": "הגבלה יומית",
 		"WEEKLY_LIMIT": "הגבלה שבועית",
-		"REPORTS": "דוחות"
+		"REPORTS": "דוחות",
+		"LEGEND": "מקרא",
+		"HOURS": "שעות",
+		"NOT_HOURS_WORKED": "שעות לא עבודה"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -746,7 +749,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "כמה שעות עבד העובד בסך הכול והיום על המשימה",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "כמה שעות עבד העובד היום בכל המשימות לצוות שנבחר"
 		},
-		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה"
+		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "משימה לא הוקצתה"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "תוכנית להיום",

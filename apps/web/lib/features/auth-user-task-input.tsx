@@ -17,36 +17,36 @@ export function AuthUserTaskInput({ className }: IClassName) {
 	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (
-		<div className={clsxm('flex-1 flex flex-col mr-10 lg:mt-0 mt-8', className)}>
+		<div className={clsxm('flex flex-col flex-1 mt-8 mr-10 lg:mt-0', className)}>
 			<TaskInput
 				fullWidthCombobox={true}
 				createOnEnterClick={true}
 				showTaskNumber={true}
 				autoAssignTaskAuth={isTrackingEnabled}
 			/>
-			<div className="flex gap-5 flex-row lg:items-center justify-between ml-2">
-				<div className="xl:flex mb-4 lg:mb-0">
-					<span className="font-normal text-gray-500 pr-2">{t('common.ESTIMATE')}:</span>
+			<div className="flex flex-row gap-5 justify-between ml-2 lg:items-center">
+				<div className="mb-4 xl:flex lg:mb-0">
+					<span className="pr-2 font-normal text-gray-500">{t('common.ESTIMATE')}:</span>
 					<TaskEstimate />
 				</div>
 
-				<div className="flex-grow justify-end hidden flex-1 gap-2 md:flex">
+				<div className="hidden flex-1 flex-grow gap-2 justify-end md:flex">
 					<ActiveTaskStatusDropdown
-						className="lg:max-w-[190px] grow"
+						className="lg:max-w-[190px] grow dark:text-white dark:border-white"
 						disabled={!activeTeamTask}
-						taskStatusClassName="text-xs py-1.5 w-full"
+						taskStatusClassName="text-xs py-1.5 w-full dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] "
 					/>
 
 					<ActiveTaskPropertiesDropdown
-						className="lg:max-w-[190px] grow"
+						className="lg:max-w-[190px] grow dark:text-white dark:border-white"
 						disabled={!activeTeamTask}
-						taskStatusClassName="w-full py-1.5 text-xs"
+						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 					/>
 
 					<ActiveTaskSizesDropdown
-						className="lg:max-w-[190px] grow"
+						className="lg:max-w-[190px] grow dark:text-white dark:border-white"
 						disabled={!activeTeamTask}
-						taskStatusClassName="w-full py-1.5 text-xs"
+						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 					/>
 
 					<TaskLabels
@@ -67,11 +67,11 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				</div>
 				{/* <div className="grid justify-items-center md:hidden">
 					<div className="flex">
-						<ActiveTaskStatusDropdown className="w-32 mr-2" disabled={!activeTeamTask} />
+						<ActiveTaskStatusDropdown className="mr-2 w-32" disabled={!activeTeamTask} />
 						<ActiveTaskPropertiesDropdown className="w-32" disabled={!activeTeamTask} />
 					</div>
 					<div className="flex mt-2">
-						<ActiveTaskSizesDropdown className="w-32 mr-2" disabled={!activeTeamTask} />
+						<ActiveTaskSizesDropdown className="mr-2 w-32" disabled={!activeTeamTask} />
 						<TaskLabels task={activeTeamTask} className="lg:min-w-[170px]" forDetails={false} />
 					</div>
 				</div> */}
