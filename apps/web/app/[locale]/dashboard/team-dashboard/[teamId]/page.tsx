@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useParams,useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { ArrowLeftIcon } from 'lucide-react';
@@ -16,9 +16,11 @@ import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { withAuthentication } from '@/lib/app/authenticator';
+import { useReportActivity } from '@app/hooks/features/useReportActivity';
 
 function TeamDashboard() {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart } = useReportActivity();
 	const router = useRouter();
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -33,7 +35,6 @@ function TeamDashboard() {
 		],
 		[activeTeam?.name, currentLocale, t]
 	);
-
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -49,18 +50,25 @@ function TeamDashboard() {
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 							</button>
-							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
+							<Breadcrumb paths={breadcrumbPath} />
 						</div>
-						<div className="flex flex-col gap-4 px-4 pt-4 w-full">
-							<DashboardHeader />
+						<div className="flex flex-col gap-6 pb-6">
+							<DashboardHeader
+								onUpdateDateRange={updateDateRange}
+								onUpdateFilters={updateFilters}
+							/>
 							<TeamStatsGrid />
 							<Card className="p-6 w-full">
-								<TeamStatsChart />
+								<TeamStatsChart
+									rapportChartActivity={rapportChartActivity}
+									isLoading={loadingTimeLogReportDailyChart}
+								/>
 							</Card>
 						</div>
 					</Container>
 				</div>
-			}>
+			}
+		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
 				<Card className="p-6 w-full">
 					<TeamStatsTable />
