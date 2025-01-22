@@ -29,7 +29,7 @@ function TeamDashboard() {
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
-			{ title: 'team-dashboard', href: `/${currentLocale}/dashboard/team-dashboard` }
+			{ title: 'Team-Dashboard', href: `/${currentLocale}/dashboard/team-dashboard` }
 		],
 		[activeTeam?.name, currentLocale, t]
 	);
@@ -42,16 +42,16 @@ function TeamDashboard() {
 			mainHeaderSlot={
 				<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 w-full')}>
-						<div className="flex pt-6 w-full dark:bg-dark--theme">
+						<div className="flex items-center pt-6 dark:bg-dark--theme">
 							<button
 								onClick={() => router.back()}
 								className="p-1 rounded-full transition-colors hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-							</button>{' '}
+							</button>
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
-						<div className="flex flex-col gap-4 px-6 pt-4 w-full">
+						<div className="flex flex-col gap-4 px-4 pt-4 w-full">
 							<DashboardHeader />
 							<TeamStatsGrid />
 							<Card className="p-6 w-full">
@@ -60,8 +60,7 @@ function TeamDashboard() {
 						</div>
 					</Container>
 				</div>
-			}
-		>
+			}>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
 				<Card className="p-6 w-full">
 					<TeamStatsTable />

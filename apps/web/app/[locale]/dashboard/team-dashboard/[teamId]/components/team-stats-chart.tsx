@@ -32,13 +32,14 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 export function TeamStatsChart() {
 	return (
 		<div className="flex flex-col">
-			<div className="h-[300px] w-full">
+			<div className="h-[250px] w-full">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={chartData} margin={{ top: 20, right: 0, bottom: 20, left: 0 }}>
+					<LineChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
 						<CartesianGrid
-							vertical={true}
+							strokeDasharray="3 3"
 							horizontal={true}
-							className="stroke-gray-200"
+							className="stroke-gray-200 dark:stroke-gray-700"
+							vertical={true}
 						/>
 						<XAxis
 							dataKey="date"
