@@ -39,7 +39,7 @@ const timeSlots: ITimerSlot[] = Array.from({ length: 6 }, (_, i) => {
 			file: `screenshot-${id}-${k + 1}.png`,
 			thumb: `thumb-${id}-${k + 1}.png`,
 			thumbUrl: `https://dummyimage.com/150x150/011/fff&text=Thumb-${id}-${k + 1}`,
-			recordedAt: slotTime.toISOString(),
+			recordedAt: new Date(baseTime.getTime() + k * 6000),
 			isWorkRelated: true,
 			description: `Screenshot ${k + 1} for ${id}`,
 			timeSlotId: id,
