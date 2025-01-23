@@ -27,7 +27,7 @@ export const ScreenshootPerHour = ({
 		[openModal]
 	);
 	return (
-		<div className="p-5 my-4 rounded-xl space-y-5 dark:bg-[#1E2025] border-[.2rem] dark:border-[#FFFFFF0D] border-[#B993E6] ">
+		<div className="p-5 my-4 rounded-[1rem] space-y-5 dark:bg-[#1E2025] border-[.2rem] dark:border-[#FFFFFF0D] border-[#B993E6] ">
 			<h3 className=" font-medium">
 				{startedAt} - {stoppedAt}
 			</h3>

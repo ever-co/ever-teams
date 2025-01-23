@@ -24,6 +24,15 @@
 		"TASKS": "Tasks",
 		"MEN_HOURS": "Men Hours",
 		"MEMBERS_WORKED": "Members Worked",
+		"VIEW": "View",
+		"VIEW_INFO": "View info",
+		"SOURCE": "Source",
+		"CLIENT": "Client",
+		"NO_CLIENT": "No client",
+		"SCREENSHOTS": "Screenshots",
+		"TIME_LOG": "Time log",
+		"TO_DO": "To-do",
+
 		"COLLAPSE_COLUMN": "Collapse Column",
 		"EDIT_STATUS": "Edit Status",
 		"ADD_TIME_ENTRY": "Add Time Entry",
@@ -873,5 +882,8 @@
 			"UNPLANNED_WORK": "Unplanned work",
 			"TESTED_TIMER": "Tested timer"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Are you sure you want to delete this time slot?"
 	}
 }

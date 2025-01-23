@@ -14,7 +14,7 @@ const ScreenshotItem = ({
 	imageUrl,
 	percent,
 	startTime,
-	showProgress = true,
+	viewMode = 'default',
 	onShow,
 	isTeamPage = false
 }: IScreenShootItem) => {
@@ -24,15 +24,15 @@ const ScreenshotItem = ({
 	return (
 		<div
 			className={clsxm(
-				'rounded-[1.5rem] bg-white cursor-pointer max-w-[14rem] border-2 hover:border-transparent  dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-[16rem] w-full',
-				!showProgress && !isTeamPage && '!h-48 dark:!bg-[#191a20]',
-				isTeamPage && '!h-32'
+				'rounded-[1.5rem] shrink-0 bg-white cursor-pointer max-w-[14rem] border-2 hover:border-transparent  dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-[16rem] max-h-[16rem] w-full',
+				isTeamPage && '!h-32',
+				viewMode === 'screenShot-only' && 'h-[10rem]'
 			)}
 		>
 			<div
 				className={clsxm(
 					'w-full group h-[60%] bg-gray-200 overflow-hidden dark:bg-[#26272C] relative',
-					!showProgress && '!h-2/3'
+					viewMode === 'screenShot-only' && 'h-full'
 				)}
 			>
 				<Image
@@ -52,48 +52,36 @@ const ScreenshotItem = ({
 						</div>
 
 						<div className="w-full flex py-4 items-center h-auto justify-center gap-4 flex-col">
-							<button className="w-32 h-8 text-xs  rounded-full text-center bg-[#6E49E8] text-white">
-								View
+							<button className="w-32 h-8 text-xs  rounded-full text-center bg-[#6E49E8]  text-white">
+								{t('common.VIEW')}
 							</button>
-							<button className="w-32 h-8 text-xs  rounded-full text-center bg-white">View info</button>
+							<button
+								onClick={onShow}
+								className="w-32 h-8 text-xs  rounded-full text-black text-center bg-white"
+							>
+								{t('common.VIEW_INFO')}
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className={clsxm('w-full h-[40%] p-4 dark:bg-[#191a20]', !showProgress && '!h-1/3')} onClick={onShow}>
-				{showProgress ? (
-					<>
-						<h4 className="font-semibold text-xs">
-							{new Date(startTime).toLocaleTimeString('en-US', {
-								hour: '2-digit',
-								minute: '2-digit',
-								hour12: false
-							})}
-							-{' '}
-							{new Date(endTime).toLocaleTimeString('en-US', {
-								hour: '2-digit',
-								minute: '2-digit',
-								hour12: false
-							})}
-						</h4>
-						<div className="space-y-1">
-							<p className="text-[.6rem]">
-								{new Date(startTime).toLocaleDateString('en-US', {
-									weekday: 'long',
-									month: 'long',
-									day: 'numeric',
-									year: 'numeric'
-								})}
-							</p>
-							<ProgressBar width={'100%'} progress={`${percent}%`} className=" w-full" />
-							<p className="text-[.6rem] font-medium">
-								{Number(percent).toPrecision(3)} {t('timer.PERCENT_OF_MINUTES')}
-							</p>
-						</div>
-					</>
-				) : (
-					<div className="dark:text-gray-200">
-						<p className="text-sm text-center">
+			<div className={clsxm('w-full h-[40%] p-4 dark:bg-[#191a20]')} onClick={onShow}>
+				<>
+					<h4 className="font-semibold text-xs">
+						{new Date(startTime).toLocaleTimeString('en-US', {
+							hour: '2-digit',
+							minute: '2-digit',
+							hour12: false
+						})}{' '}
+						-{' '}
+						{new Date(endTime).toLocaleTimeString('en-US', {
+							hour: '2-digit',
+							minute: '2-digit',
+							hour12: false
+						})}
+					</h4>
+					<div className="space-y-1">
+						<p className="text-[.6rem]">
 							{new Date(startTime).toLocaleDateString('en-US', {
 								weekday: 'long',
 								month: 'long',
@@ -101,21 +89,24 @@ const ScreenshotItem = ({
 								year: 'numeric'
 							})}
 						</p>
-						<p className="text-sm text-center">{new Date(startTime).toLocaleTimeString()}</p>
+						<ProgressBar width={'100%'} progress={`${percent}%`} className=" w-full" />
+						<p className="text-[.6rem] font-medium">
+							{Number(percent).toPrecision(3)} {t('timer.PERCENT_OF_MINUTES')}
+						</p>
 					</div>
-				)}
+				</>
 			</div>
 			<Modal
 				isOpen={isOpen}
 				closeModal={closeModal}
-				className="bg-white dark:bg-[#343434f4] p-4 rounded-lg lg:w-[30vw] xl:w-[30vw] m-8"
+				className="bg-white dark:bg-[#343434f4] rounded-lg lg:w-[30vw] xl:w-[30vw]"
 			>
-				<div>
-					<p className="py-4 text-center">Are you sure to delete this slot ?</p>
+				<div className="w-full h-full p-6 flex justify-center flex-col items-center gap-6">
+					<p className=" text-center">{t('timeSlot.DELETE_MESSAGE')}</p>
 					<div className="flex gap-2">
 						<Button onClick={closeModal}>Cancel</Button>
 						<Button onClick={() => deleteTimeSlots([idSlot])} className="bg-red-500 dark:bg-red-600">
-							Delete
+							{t('common.DELETE')}
 						</Button>
 					</div>
 				</div>

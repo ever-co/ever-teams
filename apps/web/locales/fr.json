@@ -317,7 +317,15 @@
 		"REPORTS": "Rapports",
 		"LEGEND": "Légende",
 		"HOURS": "Heures",
-		"NOT_HOURS_WORKED": "Heures non travaillées"
+		"NOT_HOURS_WORKED": "Heures non travaillées",
+		"VIEW": "Voir",
+		"VIEW_INFO": "Voir les informations",
+		"SOURCE": "Source",
+		"CLIENT": "Client",
+		"NO_CLIENT": "Pas de client",
+		"SCREENSHOTS": "Captures d'écran",
+		"TIME_LOG": "Journal de temps",
+		"TO_DO": "À faire"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -873,5 +881,8 @@
 			"UNPLANNED_WORK": "Travail non planifié",
 			"TESTED_TIMER": "Test du chronomètre"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
 	}
 }

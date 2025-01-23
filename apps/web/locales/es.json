@@ -317,7 +317,15 @@
 		"REPORTS": "Informes",
 		"LEGEND": "Leyenda",
 		"HOURS": "Horas",
-		"NOT_HOURS_WORKED": "Horas no trabajadas"
+		"NOT_HOURS_WORKED": "Horas no trabajadas",
+		"VIEW": "Ver",
+		"VIEW_INFO": "Ver información",
+		"SOURCE": "Fuente",
+		"CLIENT": "Cliente",
+		"NO_CLIENT": "Sin cliente",
+		"SCREENSHOTS": "Capturas de pantalla",
+		"TIME_LOG": "Registro de tiempo",
+		"TO_DO": "Pendiente"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -873,5 +881,8 @@
 			"UNPLANNED_WORK": "Trabajo no planificado",
 			"TESTED_TIMER": "Temporizador probado"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "¿Está seguro de que desea eliminar este intervalo de tiempo?"
 	}
 }
