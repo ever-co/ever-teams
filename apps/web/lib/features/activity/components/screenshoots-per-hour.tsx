@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import { clsxm } from '@app/utils';
@@ -17,29 +17,31 @@ export const ScreenshootPerHour = ({
 	stoppedAt: string;
 }) => {
 	const { isOpen, closeModal, openModal } = useModal();
-	const [selectedElement, setSelectedELement]= React.useState<ITimerSlot | null>(null)
+	const [selectedElement, setSelectedELement] = React.useState<ITimerSlot | null>(null);
 
-	const openScreenModal = useCallback((el: ITimerSlot) => {
-		setSelectedELement(el)
-		openModal()
-	}, [openModal])
+	const openScreenModal = useCallback(
+		(el: ITimerSlot) => {
+			setSelectedELement(el);
+			openModal();
+		},
+		[openModal]
+	);
 	return (
-		<div className="p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-			<h3 className="px-4">
+		<div className="p-5 my-4 rounded-xl space-y-5 dark:bg-[#1E2025] border-[.2rem] dark:border-[#FFFFFF0D] border-[#B993E6] ">
+			<h3 className=" font-medium">
 				{startedAt} - {stoppedAt}
 			</h3>
-			<div className="flex justify-start items-start flex-wrap ">
+			<div className="flex gap-5 flex-wrap ">
 				{timeSlots.map((el, i) => (
-					<div key={i} className={clsxm('min-w-[20rem] xl:w-1/6 p-4')}>
-						<ScreenshotItem
-							endTime={el.stoppedAt}
-							startTime={el.startedAt}
-							percent={el.percentage}
-							imageUrl={el.screenshots[0]?.thumbUrl}
-							onShow={() => openScreenModal(el)}
-							idSlot={el.id}
-						/>
-					</div>
+					<ScreenshotItem
+						key={i}
+						endTime={el.stoppedAt}
+						startTime={el.startedAt}
+						percent={el.percentage}
+						imageUrl={el.screenshots[0]?.thumbUrl}
+						onShow={() => openScreenModal(el)}
+						idSlot={el.id}
+					/>
 				))}
 				<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={selectedElement} />
 			</div>

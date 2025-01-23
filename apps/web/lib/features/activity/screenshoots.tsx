@@ -1,4 +1,4 @@
-import { ProgressBar } from 'lib/components';
+import { ProgressBar, SegmentedProgressBar } from 'lib/components';
 import { ScreenshootPerHour, ScreenshootPerHourTeam } from './components/screenshoots-per-hour';
 import { useTimeSlots } from '@app/hooks/features/useTimeSlot';
 import { groupDataByHour } from '@app/helpers/array-data';
@@ -38,7 +38,7 @@ const timeSlots: ITimerSlot[] = Array.from({ length: 6 }, (_, i) => {
 			tenantId,
 			file: `screenshot-${id}-${k + 1}.png`,
 			thumb: `thumb-${id}-${k + 1}.png`,
-			thumbUrl: `https://dummyimage.com/150x150/000/fff&text=Thumb-${id}-${k + 1}`,
+			thumbUrl: `https://dummyimage.com/150x150/011/fff&text=Thumb-${id}-${k + 1}`,
 			recordedAt: slotTime.toISOString(),
 			isWorkRelated: true,
 			description: `Screenshot ${k + 1} for ${id}`,
@@ -142,20 +142,27 @@ export function ScreenshootTab() {
 	return (
 		<div>
 			<div className="flex items-center gap-4">
-				{/* Stats cards */}
-				<div className="shadow rounded-md sm:w-1/2 lg:w-1/3 xl:w-1/4 p-4 h-32 bg-white dark:bg-[#26272C]">
+				{/* Activity */}
+				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-[#26272C]">
 					<span>{t('timer.TIME_ACTIVITY')}</span>
-					<h2 className="text-3xl font-bold my-3">
-						{isNaN(parseFloat(activityPercent.toFixed(2))) ? '00' : activityPercent.toFixed(2)} %
-					</h2>
-					<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
+					<div className="flex flex-col gap-3">
+						<h2 className="text-3xl font-medium">
+							{isNaN(parseFloat(activityPercent.toFixed(2))) ? '00' : activityPercent.toFixed(2)} %
+						</h2>
+						<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
+					</div>
 				</div>
-				<div className="shadow rounded-md sm:w-1/2 lg:w-1/3 xl:w-1/4 p-4 h-32 bg-white dark:bg-[#26272C]">
+
+				{/* Total hours */}
+				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-[#26272C]">
 					<span>{t('timer.TOTAL_HOURS')}</span>
-					<h2 className="text-3xl font-bold my-3">{`${h}:${m}:00`}</h2>
-					<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
+					<div className="flex flex-col gap-3">
+						<h2 className="text-3xl font-medium">{`${h}:${m}:00`}</h2>
+						<SegmentedProgressBar width={'80%'} progress={`${activityPercent}%`} />
+					</div>
 				</div>
 			</div>
+
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshootPerHour
 					key={i}
