@@ -38,7 +38,7 @@ const timeSlots: ITimerSlot[] = Array.from({ length: 6 }, (_, i) => {
 			tenantId,
 			file: `screenshot-${id}-${k + 1}.png`,
 			thumb: `thumb-${id}-${k + 1}.png`,
-			thumbUrl: `https://dummyimage.com/150x150/000/fff&text=Thumb-${id}-${k + 1}`,
+			thumbUrl: `https://dummyimage.com/150x150/011/fff&text=Thumb-${id}-${k + 1}`,
 			recordedAt: slotTime.toISOString(),
 			isWorkRelated: true,
 			description: `Screenshot ${k + 1} for ${id}`,
