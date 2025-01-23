@@ -17,11 +17,11 @@ export const ScreenshootPerHour = ({
 	stoppedAt: string;
 }) => {
 	const { isOpen, closeModal, openModal } = useModal();
-	const [selectedElement, setSelectedELement] = React.useState<ITimerSlot | null>(null);
+	const [selectedElement, setSelectedElement] = React.useState<ITimerSlot | null>(null);
 
 	const openScreenModal = useCallback(
 		(el: ITimerSlot) => {
-			setSelectedELement(el);
+			setSelectedElement(el);
 			openModal();
 		},
 		[openModal]

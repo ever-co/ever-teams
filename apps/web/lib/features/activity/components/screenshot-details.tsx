@@ -17,14 +17,17 @@ const ScreenshotDetailsModal = ({
 }) => {
 	const t = useTranslations();
 
-	const timeInterval = `
-			${new Date(slot?.startedAt ?? '').toLocaleTimeString('en-US', {
+	const timeInterval =
+		slot?.startedAt &&
+		slot?.stoppedAt &&
+		`
+			${new Date(slot?.startedAt).toLocaleTimeString('en-US', {
 				hour: '2-digit',
 				minute: '2-digit',
 				hour12: false
 			})}
 			-
-			${new Date(slot?.stoppedAt ?? '').toLocaleTimeString('en-US', {
+			${new Date(slot?.stoppedAt).toLocaleTimeString('en-US', {
 				hour: '2-digit',
 				minute: '2-digit',
 				hour12: false
