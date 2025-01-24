@@ -1,4 +1,5 @@
 import { IEmployee } from '../IEmployee';
+import { ITimeLog } from './ITimerLogs';
 
 export interface ITimerSlot {
 	id: string;
@@ -20,7 +21,7 @@ export interface ITimerSlot {
 	percentage: number;
 	keyboardPercentage: number;
 	mousePercentage: number;
-
+	timeLogs: ITimeLog[];
 	screenshots: IScreenshot[];
 }
 

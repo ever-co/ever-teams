@@ -51,17 +51,19 @@ const ScreenshotItem = ({
 							<TrashIcon className="text-white text-center w-3" />
 						</div>
 
-						<div className="w-full flex py-4 items-center h-auto justify-center gap-4 flex-col">
-							<button className="w-32 h-8 text-xs  rounded-full text-center bg-[#6E49E8]  text-white">
-								{t('common.VIEW')}
-							</button>
-							<button
-								onClick={onShow}
-								className="w-32 h-8 text-xs  rounded-full text-black text-center bg-white"
-							>
-								{t('common.VIEW_INFO')}
-							</button>
-						</div>
+						{viewMode === 'screenShot-only' ? null : (
+							<div className="w-full flex py-4 items-center h-auto justify-center gap-4 flex-col">
+								<button className="w-32 h-8 text-xs  rounded-full text-center bg-[#6E49E8]  text-white">
+									{t('common.VIEW')}
+								</button>
+								<button
+									onClick={onShow}
+									className="w-32 h-8 text-xs  rounded-full text-black text-center bg-white"
+								>
+									{t('common.VIEW_INFO')}
+								</button>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
@@ -104,7 +106,7 @@ const ScreenshotItem = ({
 				<div className="w-full h-full p-6 flex justify-center flex-col items-center gap-6">
 					<p className=" text-center">{t('timeSlot.DELETE_MESSAGE')}</p>
 					<div className="flex gap-2">
-						<Button onClick={closeModal}>Cancel</Button>
+						<Button onClick={closeModal}>{t('common.CANCEL')}</Button>
 						<Button onClick={() => deleteTimeSlots([idSlot])} className="bg-red-500 dark:bg-red-600">
 							{t('common.DELETE')}
 						</Button>

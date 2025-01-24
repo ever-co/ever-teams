@@ -307,7 +307,8 @@
 		"NO_CLIENT": "لا يوجد عميل",
 		"SCREENSHOTS": "لقطات الشاشة",
 		"TIME_LOG": "سجل الوقت",
-		"TO_DO": "المهام"
+		"TO_DO": "المهام",
+		"MEMBERS_COUNT": "عدد الأعضاء"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

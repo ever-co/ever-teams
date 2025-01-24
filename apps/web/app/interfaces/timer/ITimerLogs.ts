@@ -38,7 +38,7 @@ export interface IAddManualTimeRequest {
 }
 
 export interface ITimeLog {
-	employee: IEmployee;
+	employee?: IEmployee;
 	employeeId: string;
 	timesheetId?: string;
 	task?: ITeamTask;
@@ -47,13 +47,26 @@ export interface ITimeLog {
 	projectId?: string;
 	startedAt?: Date;
 	stoppedAt?: Date;
-	/** Edited At* */
 	editedAt?: Date;
 	description?: string;
 	reason?: string;
-	duration: number;
+	duration?: number;
 	isBillable: boolean;
 	tags?: string[];
 	isRunning?: boolean;
 	isEdited?: boolean;
+	deletedAt?: Date;
+	createdAt: Date;
+	updatedAt: Date;
+	id: string;
+	isActive: boolean;
+	isArchived: boolean;
+	archivedAt?: Date;
+	tenantId: string;
+	organizationId: string;
+	logType?: string;
+	source?: string;
+	version?: string;
+	organizationContactId: string;
+	organizationTeamId: string;
 }

@@ -325,7 +325,8 @@
 		"NO_CLIENT": "Brak klienta",
 		"SCREENSHOTS": "Zrzuty ekranu",
 		"TIME_LOG": "Dziennik czasu",
-		"TO_DO": "Do zrobienia"
+		"TO_DO": "Do zrobienia",
+		"MEMBERS_COUNT": "Liczba członków"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

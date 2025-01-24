@@ -325,7 +325,8 @@
 		"NO_CLIENT": "אין לקוח",
 		"SCREENSHOTS": "צילומי מסך",
 		"TIME_LOG": "יומן זמן",
-		"TO_DO": "לבצע"
+		"TO_DO": "לבצע",
+		"MEMBERS_COUNT": "מספר חברים"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

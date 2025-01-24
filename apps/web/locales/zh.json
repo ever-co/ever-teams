@@ -325,7 +325,8 @@
 		"NO_CLIENT": "没有客户",
 		"SCREENSHOTS": "截图",
 		"TIME_LOG": "时间记录",
-		"TO_DO": "待办事项"
+		"TO_DO": "待办事项",
+		"MEMBERS_COUNT": "成员数"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

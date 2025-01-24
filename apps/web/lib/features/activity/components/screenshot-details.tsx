@@ -4,7 +4,11 @@ import { Modal, ProgressBar } from 'lib/components';
 import { ITimerSlot } from '@app/interfaces/timer/ITimerSlot';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useOrganizationProjects, useTeamTasks } from '@/app/hooks';
+import { IProject, ITeamTask } from '@/app/interfaces';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -34,6 +38,41 @@ const ScreenshotDetailsModal = ({
 			})}
 `;
 
+	const [project, setProject] = useState<IProject | null>(null);
+	const [task, setTask] = useState<ITeamTask | null>(null);
+
+	const { getOrganizationProject } = useOrganizationProjects();
+	const { getTaskById } = useTeamTasks();
+
+	const getProject = useCallback(
+		async (projectId: string) => {
+			const project = await getOrganizationProject(projectId);
+
+			project?.data && setProject(project?.data);
+		},
+		[getOrganizationProject]
+	);
+
+	const getTask = useCallback(
+		async (taskId: string) => {
+			const task = await getTaskById(taskId);
+			task?.data && setTask(task?.data);
+		},
+		[getTaskById]
+	);
+
+	useEffect(() => {
+		if (!slot?.timeLogs[0]?.projectId) return;
+
+		getProject(slot.timeLogs[0]?.projectId);
+	}, [getProject, slot?.timeLogs]);
+
+	useEffect(() => {
+		if (!slot?.timeLogs[0]?.taskId) return;
+
+		getTask(slot.timeLogs[0]?.taskId);
+	}, [getTask, slot?.timeLogs]);
+
 	return (
 		<Modal
 			isOpen={open}
@@ -53,7 +92,7 @@ const ScreenshotDetailsModal = ({
 						</span>
 						<span>{timeInterval}</span>
 					</h4>
-					<ProgressBar progress={slot ? `${slot.percentage}%` : '0%'} width={'100%'} />
+					<ProgressBar progress={slot ? `${slot?.percentage}%` : '0%'} width={'100%'} />
 					<span>{timeInterval}</span>
 				</div>
 
@@ -67,8 +106,8 @@ const ScreenshotDetailsModal = ({
 									viewMode="screenShot-only"
 									idSlot={slot?.id}
 									endTime={slot?.stoppedAt}
-									startTime={screenshot.recordedAt}
-									imageUrl={screenshot.thumbUrl}
+									startTime={screenshot?.recordedAt}
+									imageUrl={screenshot?.thumbUrl}
 									percent={0}
 									showProgress={false}
 									onShow={() => null}
@@ -82,7 +121,7 @@ const ScreenshotDetailsModal = ({
 										day: 'numeric'
 									})}
 									,{' '}
-									{new Date(screenshot.recordedAt ?? '').toLocaleTimeString('en-US', {
+									{new Date(screenshot?.recordedAt ?? '').toLocaleTimeString('en-US', {
 										hour: '2-digit',
 										minute: '2-digit',
 										hour12: false
@@ -101,12 +140,17 @@ const ScreenshotDetailsModal = ({
 						<div className="w-full flex flex-col gap-2">
 							<p className="text-[#707070] font-medium">{t('common.SOURCE')} : </p>
 							<div className="flex gap-1 ">
-								<div className="px-3 py-1  text-xs font-medium bg-[#4B2EFF] text-white rounded-sm">
-									Desktop
-								</div>
-								<div className="px-3 py-1  text-xs font-medium text-white rounded-sm bg-[#A5A4FF]">
-									v.2.3.4
-								</div>
+								{slot?.timeLogs?.[0]?.source && (
+									<div className="px-3 py-1  text-xs font-medium bg-[#4B2EFF] text-white rounded-sm">
+										{slot?.timeLogs?.[0]?.source}
+									</div>
+								)}
+
+								{slot?.timeLogs?.[0]?.version && (
+									<div className="px-3 py-1  text-xs font-medium text-white rounded-sm bg-[#A5A4FF]">
+										{slot?.timeLogs?.[0]?.version}
+									</div>
+								)}
 							</div>
 						</div>
 
@@ -114,32 +158,62 @@ const ScreenshotDetailsModal = ({
 						<div className="w-full flex flex-col gap-2">
 							<p className="text-[#707070] font-medium">{t('common.CLIENT')} : </p>
 							<div className="flex gap-1 ">
-								<div className="px-3 py-1  text-xs font-medium bg-[#FFA39D] text-white rounded-sm">
-									No client
-								</div>
+								{project?.owner ? (
+									<div className="px-3 py-1  text-xs font-medium bg-[#FFA39D] text-white rounded-sm">
+										{project?.owner}
+									</div>
+								) : (
+									<div className="px-3 py-1  text-xs font-medium bg-[#FFA39D] text-white rounded-sm">
+										{t('common.NO_CLIENT')}
+									</div>
+								)}
 							</div>
 						</div>
 
 						{/* Project */}
 						<div className="w-full flex flex-col gap-2">
 							<p className="text-[#707070] font-medium">{t('pages.taskDetails.PROJECT')} : </p>
-							<div className="flex gap-1 ">
-								<div className="flex h-8 gap-2">
-									<div className=" w-8  h-full uppercase  rounded-sm flex items-center justify-center text-[1rem] bg-[#A5A4FF]">
-										ET
-									</div>
-									<div className=" h-full flex flex-col  justify-center gap-[.4rem]">
-										<p className=" font-xs leading-3 font-medium">Ever Teams</p>
-										<p className=" text-[.6rem] leading-[.5rem]">Members count : 23</p>
+							{project ? (
+								<div className="flex gap-1 ">
+									<div className="flex h-8 gap-2">
+										<div
+											className={cn(
+												'w-8 overflow-hidden  h-full uppercase  rounded-sm flex items-center justify-center text-[1rem]',
+												!project?.imageUrl && 'bg-[#A5A4FF]'
+											)}
+										>
+											{project?.imageUrl ? (
+												<Image
+													src={project?.imageUrl}
+													alt={project?.name ?? ''}
+													width={400}
+													height={400}
+													className="w-full h-full object-cover"
+												/>
+											) : (
+												project?.name
+											)}
+										</div>
+
+										<div className=" h-full flex flex-col  justify-center gap-[.4rem]">
+											<p className=" font-xs leading-3 font-medium">{project?.name}</p>
+											<p className=" text-[.6rem] leading-[.5rem]">
+												{t('common.MEMBERS_COUNT')} : {project?.membersCount ?? '-'}
+											</p>
+										</div>
 									</div>
 								</div>
-							</div>
+							) : (
+								<div className="px-3 py-1  w-fit text-xs font-medium bg-[#A5A4FF] text-white rounded-sm">
+									{t('common.NO_PROJECT')}
+								</div>
+							)}
 						</div>
 
 						{/* To do */}
 						<div className="w-full flex flex-col gap-2">
-							<p className="text-[#707070] font-medium">To do : </p>
-							<div className="flex gap-1 ">No To do</div>
+							<p className="text-[#707070] font-medium">{t('common.TO_DO')}</p>
+							<div className="flex gap-1 text-xs">{task?.title}</div>
 						</div>
 					</div>
 				</div>
