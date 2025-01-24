@@ -326,7 +326,8 @@
 		"REPORTS": "Reports",
 		"LEGEND": "Legend",
 		"HOURS": "Hours",
-		"NOT_HOURS_WORKED": "Not hours worked"
+		"NOT_HOURS_WORKED": "Not hours worked",
+		"MEMBERS_COUNT": "Members count"
 	},
 	"hotkeys": {
 		"HELP": "Help",

@@ -22,7 +22,13 @@ export async function getTimerLogsRequestAPI({
 		employeeId,
 		todayEnd: todayEnd.toISOString(),
 		todayStart: todayStart.toISOString()
-	};
+	} as Record<string, string>;
+
+	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
 
 	const query = qs.stringify(params);
 
@@ -49,7 +55,13 @@ export async function deleteTimerLogsRequestAPI({
 	const params = {
 		tenantId: tenantId,
 		organizationId: organizationId
-	};
+	} as Record<string, string>;
+
+	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
 	const query = qs.stringify(params);
 	const endpoint = GAUZY_API_BASE_SERVER_URL.value
 		? `/timesheet/statistics/time-slots?${query}${idParams}`

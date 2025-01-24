@@ -325,7 +325,8 @@
 		"NO_CLIENT": "Geen klant",
 		"SCREENSHOTS": "Schermafbeeldingen",
 		"TIME_LOG": "Tijdlogboek",
-		"TO_DO": "Te doen"
+		"TO_DO": "Te doen",
+		"MEMBERS_COUNT": "Aantal leden"
 	},
 	"hotkeys": {
 		"HELP": "Help",

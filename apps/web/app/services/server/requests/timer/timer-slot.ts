@@ -23,7 +23,13 @@ export function getEmployeeTimeSlotsRequest({
 		employeeId,
 		startDate: todayEnd.toISOString(),
 		endDate: todayStart.toISOString()
-	};
+	} as Record<string, string>;
+
+	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
 	const query = qs.stringify(params);
 
 	return serverFetch<ITimerSlotDataRequest>({
@@ -52,7 +58,13 @@ export function deleteEmployeeTimeSlotsRequest({
 	const params = {
 		tenantId: tenantId,
 		organizationId: organizationId
-	};
+	} as Record<string, string>;
+
+	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
 	const query = qs.stringify(params);
 	return serverFetch<ITimerSlotDataRequest>({
 		path: `/timesheet/statistics/time-slots?${query}${idParams}`,
