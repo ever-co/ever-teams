@@ -317,7 +317,15 @@
 		"REPORTS": "Rapporten",
 		"LEGEND": "Legenda",
 		"HOURS": "Uren",
-		"NOT_HOURS_WORKED": "Niet-gewerkte uren"
+		"NOT_HOURS_WORKED": "Niet-gewerkte uren",
+		"VIEW": "Bekijken",
+		"VIEW_INFO": "Informatie bekijken",
+		"SOURCE": "Bron",
+		"CLIENT": "Klant",
+		"NO_CLIENT": "Geen klant",
+		"SCREENSHOTS": "Schermafbeeldingen",
+		"TIME_LOG": "Tijdlogboek",
+		"TO_DO": "Te doen"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -873,5 +881,8 @@
 			"UNPLANNED_WORK": "Ongeplande werkzaamheden",
 			"TESTED_TIMER": "Timer getest"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Weet u zeker dat u dit tijdslot wilt verwijderen?"
 	}
 }

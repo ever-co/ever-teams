@@ -317,7 +317,15 @@
 		"REPORTS": "Report",
 		"LEGEND": "Legenda",
 		"HOURS": "Ore",
-		"NOT_HOURS_WORKED": "Ore non lavorate"
+		"NOT_HOURS_WORKED": "Ore non lavorate",
+		"VIEW": "Visualizza",
+		"VIEW_INFO": "Visualizza informazioni",
+		"SOURCE": "Fonte",
+		"CLIENT": "Cliente",
+		"NO_CLIENT": "Nessun cliente",
+		"SCREENSHOTS": "Screenshot",
+		"TIME_LOG": "Registro del tempo",
+		"TO_DO": "Da fare"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -873,5 +881,8 @@
 			"UNPLANNED_WORK": "Lavoro non pianificato",
 			"TESTED_TIMER": "Timer testato"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Sei sicuro di voler eliminare questa fascia oraria?"
 	}
 }
