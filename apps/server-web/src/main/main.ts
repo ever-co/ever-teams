@@ -1,5 +1,5 @@
 import path from 'path';
-import { app, ipcMain, Tray, dialog, BrowserWindow, shell, Menu } from 'electron';
+import { app, ipcMain, Tray, dialog, BrowserWindow, shell, Menu, nativeImage } from 'electron';
 import { DesktopServer } from './helpers/desktop-server';
 import { LocalStore } from './helpers/services/libs/desktop-store';
 import { EventEmitter } from 'events';
@@ -14,6 +14,7 @@ import MenuBuilder from './menu';
 import { config } from '../configs/config';
 import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
+import { setupTitlebar } from 'custom-electron-titlebar/main';
 
 
 console.log = Log.log;
@@ -40,7 +41,7 @@ let logWindow: BrowserWindow | null = null;
 let setupWindow: BrowserWindow | any = null;
 let aboutWindow: BrowserWindow | null = null;
 const appMenu = new MenuBuilder(eventEmitter);
-
+setupTitlebar();
 const handleCloseWindow = (windowTypes: IWindowTypes) => {
   switch (windowTypes) {
     case WindowTypes.SETTING_WINDOW:
@@ -457,7 +458,7 @@ const onInitApplication = () => {
 
 const initTrayMenu = () => {
   const MAX_RETRIES = 2;
-  const retryInit = async (attempts: number = 0) => {
+  const retryInit = async (attempts = 0) => {
     try {
       LocalStore.setDefaultServerConfig();
       createIntervalAutoUpdate()
@@ -621,6 +622,11 @@ ipcMain.handle('current-language', async (): Promise<string> => {
 ipcMain.handle('get-platform', () => {
   return process.platform;
 })
+
+ipcMain.handle('get-app-icon', () => {
+  const nativeIcon = nativeImage.createFromPath(getAssetPath('icons/icon.png'));
+  return nativeIcon;
+});
 
 const createIntervalAutoUpdate = () => {
   if (intervalUpdate) {

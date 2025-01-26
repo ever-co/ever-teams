@@ -6,7 +6,7 @@ import fs from 'fs';
 import { EventEmitter } from 'events';
 import { EventLists, WindowOptions, WindowTypes, WINDOW_EVENTS } from '../helpers/constant';
 import { IAppWindow, IWindowTypes } from '../helpers/interfaces';
-import { platform } from 'os';
+import { attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
 export default class WindowsFactory {
     private preloadPath: string;
@@ -24,18 +24,18 @@ export default class WindowsFactory {
 
 
     defaultOptionWindow(): BrowserWindowConstructorOptions {
-        let windowOptions = {
+        let windowOptions: BrowserWindowConstructorOptions = {
             title: app.name,
-            frame: false,
+            frame: true,
             show: false,
             icon: this.iconPath,
             maximizable: false,
             resizable: false,
             width: 1024,
             height: 728,
-            transparent: true,
-            roundedCorners: true,
-            hasShadow: true,
+            transparent: false,
+            roundedCorners: false,
+            hasShadow: false,
             // titleBarStyle: 'hiddenInset',
             webPreferences: {
                 preload: this.preloadPath,
@@ -50,8 +50,16 @@ export default class WindowsFactory {
             ...windowOptions,
             transparent: true,
             roundedCorners: true,
-            hasShadow: true
+            hasShadow: true,
+            frame: false,
           }
+        } else {
+            windowOptions.titleBarStyle = 'hidden';
+            windowOptions.titleBarOverlay = true;
+        }
+
+        if (process.platform === 'linux') {
+            windowOptions.frame = false;
         }
         return windowOptions;
     }
@@ -84,6 +92,12 @@ export default class WindowsFactory {
             options.hashPath,
             menu
         )
+        if (windowType === 'ABOUT_WINDOW') {
+            Menu.setApplicationMenu(null);
+        } else {
+            attachTitlebarToWindow(browserWindow);
+        }
+        browserWindow.setMinimumSize(options.width, options.height);
         browserWindow.on(WINDOW_EVENTS.CLOSE, () => {
             this.eventEmitter.emit(EventLists.WINDOW_EVENT, {
                 windowType: WindowTypes[windowType],

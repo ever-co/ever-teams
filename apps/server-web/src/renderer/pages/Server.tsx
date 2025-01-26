@@ -5,7 +5,6 @@ import { EverTeamsLogo } from '../components/svgs';
 import { useTranslation } from 'react-i18next';
 import WindowControl from '../components/window-control';
 import Container from '../components/container';
-import WindowsControl from '../components/windows-control';
 import { CUSTOM_STYLE } from '../libs/constant';
 
 const LogView = ({ children }: { children: ReactNode }) => {
