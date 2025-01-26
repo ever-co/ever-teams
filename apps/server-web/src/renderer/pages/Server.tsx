@@ -26,7 +26,7 @@ export function ServerPage() {
   const { t } = useTranslation();
   const [logOpen, setLogOpen] = useState<boolean>(false);
 
-  const getCustoSyle = async () => {
+  const getCustomStyle = async () => {
     const platform = await window.electron.ipcRenderer.invoke('get-platform');
     console.log('platform', platform);
     setPlatform(platform);
@@ -35,11 +35,10 @@ export function ServerPage() {
     } else {
       setCustomStyle(CUSTOM_STYLE.WINDOWS); // windows or linux
     }
-    console.log('customstyle', customStyle);
   }
 
   useEffect(() => {
-    getCustoSyle()
+    getCustomStyle()
     window.electron.ipcRenderer.removeEventListener(IPC_TYPES.SERVER_PAGE);
     window.electron.ipcRenderer.on(IPC_TYPES.SERVER_PAGE, (arg: any) => {
       switch (arg.type) {
