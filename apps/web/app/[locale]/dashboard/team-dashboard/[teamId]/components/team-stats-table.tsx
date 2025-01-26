@@ -19,7 +19,11 @@ const getProgressColor = (activityLevel: number) => {
 const formatDuration = (duration: number) => {
 	const hours = Math.floor(duration / 3600);
 	const minutes = Math.floor((duration % 3600) / 60);
-	return `${hours}h ${minutes}m`;
+	const seconds = duration % 60;
+
+	const pad = (num: number) => num.toString().padStart(2, '0');
+	
+	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
 export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDailyActivity?: ITimerLogGrouped[], isLoading?: boolean }) {
@@ -55,7 +59,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 					<TableBody>
 						{rapportDailyActivity.map((dayData) => (
 							<>
-								<TableRow key={dayData.date} className="bg-gray-50">
+								<TableRow key={dayData.date} className="bg-gray-50 dark:bg-gray-700">
 									<TableCell colSpan={5} className="font-medium">
 										{format(new Date(dayData.date), 'PPP')}
 									</TableCell>
@@ -67,9 +71,9 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 												<TableCell className="font-medium">
 													<div className="flex gap-2 items-center">
 														<Avatar className="w-8 h-8">
-															<AvatarImage 
-																src={employeeLog.employee?.user?.imageUrl || ''} 
-																alt={employeeLog.employee?.user?.name || 'User'} 
+															<AvatarImage
+																src={employeeLog.employee?.user?.imageUrl || ''}
+																alt={employeeLog.employee?.user?.name || 'User'}
 															/>
 															<AvatarFallback>
 																{employeeLog.employee?.user?.name?.[0] || 'U'}
@@ -83,7 +87,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 												<TableCell>{formatDuration(task.duration || 0)}</TableCell>
 												<TableCell>
 													<div className="flex gap-2 items-center">
-														<div className="w-full h-2 bg-gray-100 rounded-full">
+														<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
 															<div
 																className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
 																style={{ width: `${employeeLog.activity || 0}%` }}
