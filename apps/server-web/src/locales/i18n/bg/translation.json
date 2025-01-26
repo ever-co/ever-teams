@@ -30,8 +30,7 @@
       "APP_REDO": "Повтори",
       "APP_CUT": "Изрежи",
       "APP_PASTE": "Постави",
-      "APP_SELECT_ALL": "Избери всичко",
-      "APP_EDIT": "Редактиране"
+      "APP_SELECT_ALL": "Избери всичко"
     },
     "APP_DEV": "Разработчик",
     "APP_HELP": "Помощ",
