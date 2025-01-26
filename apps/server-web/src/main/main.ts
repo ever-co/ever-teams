@@ -126,7 +126,7 @@ Log.hooks.push((message: any, transport) => {
 const updater = new Updater(eventEmitter, i18nextMainBackend);
 i18nextMainBackend.on('initialized', () => {
   const config = LocalStore.getStore('config');
-  const selectedLang = config && config.general && config.general.lang;
+  const selectedLang = config && config?.general && config.general.lang;
   i18nextMainBackend.changeLanguage(selectedLang || 'en');
   i18nextMainBackend.off('initialized'); // Remove listener to this event as it's not needed anymore
 });
@@ -290,7 +290,7 @@ const onInitApplication = () => {
  // check and set default config
   const storeConfig:WebServer = LocalStore.getStore('config');
   i18nextMainBackend.on('languageChanged', debounce((lng) => {
-    if (i18nextMainBackend.isInitialized && storeConfig.general?.setup) {
+    if (i18nextMainBackend.isInitialized && storeConfig?.general?.setup) {
       trayMenuItems = trayMenuItems.length ? trayMenuItems : defaultTrayMenuItem(eventEmitter);
       updateTrayMenu('none', {}, eventEmitter, tray, trayMenuItems, i18nextMainBackend);
       Menu.setApplicationMenu(appMenu.buildTemplateMenu(WindowTypes.LOG_WINDOW, i18nextMainBackend))
@@ -351,7 +351,7 @@ const onInitApplication = () => {
     settingWindow?.show();
     settingWindow?.webContents.once('did-finish-load', () => {
       setTimeout(() => {
-        settingWindow?.webContents.send('languageSignal', serverSetting.general?.lang);
+        settingWindow?.webContents.send('languageSignal', serverSetting?.general?.lang);
         SendMessageToSettingWindow(SettingPageTypeMessage.loadSetting, serverSetting);
       }, 50)
     })
@@ -501,7 +501,7 @@ const initTrayMenu = () => {
       setupWindow?.show();
       setupWindow?.webContents.once('did-finish-load', () => {
         setTimeout(() => {
-          setupWindow?.webContents.send('languageSignal', storeConfig.general?.lang);
+          setupWindow?.webContents.send('languageSignal', storeConfig?.general?.lang);
         }, 50)
       })
     }
@@ -610,7 +610,7 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
 
 ipcMain.handle('current-theme', async () => {
   const setting: WebServer = LocalStore.getStore('config');
-  return setting?.general?.theme;;
+  return setting?.general?.theme;
 })
 
 ipcMain.handle('current-language', async (): Promise<string> => {
@@ -618,12 +618,16 @@ ipcMain.handle('current-language', async (): Promise<string> => {
   return setting?.general?.lang || 'en';
 })
 
+ipcMain.handle('get-platform', () => {
+  return process.platform;
+})
+
 const createIntervalAutoUpdate = () => {
   if (intervalUpdate) {
     clearInterval(intervalUpdate)
   }
   const setting: WebServer = LocalStore.getStore('config');
-  if (setting.general?.autoUpdate && setting.general.updateCheckPeriod) {
+  if (setting?.general?.autoUpdate && setting.general.updateCheckPeriod) {
     const checkIntervalSecond = parseInt(setting.general.updateCheckPeriod);
     if (!Number.isNaN(checkIntervalSecond)) {
       const intervalMS = checkIntervalSecond * 60 * 1000;

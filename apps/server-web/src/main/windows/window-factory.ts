@@ -6,6 +6,7 @@ import fs from 'fs';
 import { EventEmitter } from 'events';
 import { EventLists, WindowOptions, WindowTypes, WINDOW_EVENTS } from '../helpers/constant';
 import { IAppWindow, IWindowTypes } from '../helpers/interfaces';
+import { platform } from 'os';
 
 export default class WindowsFactory {
     private preloadPath: string;
@@ -23,15 +24,19 @@ export default class WindowsFactory {
 
 
     defaultOptionWindow(): BrowserWindowConstructorOptions {
-        return {
+        let windowOptions = {
             title: app.name,
-            frame: true,
+            frame: false,
             show: false,
             icon: this.iconPath,
             maximizable: false,
             resizable: false,
             width: 1024,
             height: 728,
+            transparent: true,
+            roundedCorners: true,
+            hasShadow: true,
+            // titleBarStyle: 'hiddenInset',
             webPreferences: {
                 preload: this.preloadPath,
                 nodeIntegration: false,
@@ -40,6 +45,15 @@ export default class WindowsFactory {
                 webSecurity: true
             }
         }
+        if (process.platform === 'darwin') {
+          windowOptions = {
+            ...windowOptions,
+            transparent: true,
+            roundedCorners: true,
+            hasShadow: true
+          }
+        }
+        return windowOptions;
     }
 
     createWindow(
@@ -51,7 +65,10 @@ export default class WindowsFactory {
         const windowOptions: BrowserWindowConstructorOptions = this.defaultOptionWindow();
         windowOptions.width = width;
         windowOptions.height = height;
-        let browserWindow = new BrowserWindow(windowOptions);
+        const browserWindow = new BrowserWindow(windowOptions);
+        if (process.platform === 'darwin') {
+          browserWindow.setBackgroundColor('#00000000');
+        }
         const url = resolveHtmlPath('index.html', hashPath);
         browserWindow.loadURL(url);
         mainBindings(ipcMain, browserWindow, fs);

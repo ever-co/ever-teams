@@ -24,10 +24,17 @@
       "APP_LEARN_MORE": "Научете повече",
       "APP_DOC": "Документация",
       "APP_SETTING_DEV": "Настройки за разработчици",
-      "APP_SERVER_DEV": "Сървър за разработчици"
+      "APP_SERVER_DEV": "Сървър за разработчици",
+      "APP_COPY": "Copy",
+      "APP_UNDO": "Undo",
+      "APP_REDO": "Redo",
+      "APP_CUT": "Cut",
+      "APP_PASTE": "Paste",
+      "APP_SELECT_ALL": "Select All"
     },
     "APP_DEV": "Разработчик",
-    "APP_HELP": "Помощ"
+    "APP_HELP": "Помощ",
+    "APP_EDIT": "Edit"
   },
   "FORM": {
     "FIELDS": {

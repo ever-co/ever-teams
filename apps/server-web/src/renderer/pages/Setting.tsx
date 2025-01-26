@@ -247,7 +247,7 @@ export function Setting() {
             updateCheckPeriod: arg.data.general.updateCheckPeriod,
           });
           break;
-        case SettingPageTypeMessage.mainResponse:
+        case SettingPageTypeMessage.mainResponse: {
           let typeMessage: any;
           if (arg.data.status && arg.data.isServerRun) {
             typeMessage = 'warning';
@@ -260,6 +260,7 @@ export function Setting() {
             isDialog: arg.data.isServerRun,
           });
           break;
+        }
         case SettingPageTypeMessage.showVersion:
           setVersion(arg.data);
           break;
