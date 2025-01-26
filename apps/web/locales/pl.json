@@ -317,7 +317,16 @@
 		"REPORTS": "Raporty",
 		"LEGEND": "Legenda",
 		"HOURS": "Godziny",
-		"NOT_HOURS_WORKED": "Nieprzepracowane godziny"
+		"NOT_HOURS_WORKED": "Nieprzepracowane godziny",
+		"VIEW": "Widok",
+		"VIEW_INFO": "Zobacz informacje",
+		"SOURCE": "Źródło",
+		"CLIENT": "Klient",
+		"NO_CLIENT": "Brak klienta",
+		"SCREENSHOTS": "Zrzuty ekranu",
+		"TIME_LOG": "Dziennik czasu",
+		"TO_DO": "Do zrobienia",
+		"MEMBERS_COUNT": "Liczba członków"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -873,5 +882,8 @@
 			"UNPLANNED_WORK": "Nieplanowana praca",
 			"TESTED_TIMER": "Testowany stoper"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Czy na pewno chcesz usunąć ten przedział czasowy?"
 	}
 }

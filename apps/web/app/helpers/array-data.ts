@@ -17,7 +17,7 @@ export function groupDataByHour(data: ITimerSlot[]) {
 		} else {
 			groupedData.push({
 				startedAt: formatTime(item.startedAt, false),
-				stoppedAt: formatTime(item.startedAt, true),
+				stoppedAt: formatTime(item.stoppedAt, true),
 				items: [item]
 			});
 		}
@@ -75,7 +75,6 @@ const formatTime = (d: Date | string, addHour: boolean) => {
 	else return `${new Date(d).getHours() < 10 ? pad(new Date(d).getHours()) : new Date(d).getHours()}:00`;
 };
 
-
 /**
  * Groups an array of items by the key returned by the `key` function.
  *
@@ -98,8 +97,11 @@ const formatTime = (d: Date | string, addHour: boolean) => {
  * @returns An object where the keys are the unique values of the key function and the values are arrays of items.
  */
 export const groupBy = <T, K extends keyof any>(array: T[], key: (item: T) => K): Record<K, T[]> =>
-	array.reduce((acc, item) => {
-		const groupKey = key(item);
-		(acc[groupKey] ||= []).push(item);
-		return acc;
-	}, {} as Record<K, T[]>);
+	array.reduce(
+		(acc, item) => {
+			const groupKey = key(item);
+			(acc[groupKey] ||= []).push(item);
+			return acc;
+		},
+		{} as Record<K, T[]>
+	);

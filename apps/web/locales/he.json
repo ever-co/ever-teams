@@ -317,7 +317,16 @@
 		"REPORTS": "דוחות",
 		"LEGEND": "מקרא",
 		"HOURS": "שעות",
-		"NOT_HOURS_WORKED": "שעות לא עבודה"
+		"NOT_HOURS_WORKED": "שעות לא עבודה",
+		"VIEW": "צפה",
+		"VIEW_INFO": "צפה במידע",
+		"SOURCE": "מקור",
+		"CLIENT": "לקוח",
+		"NO_CLIENT": "אין לקוח",
+		"SCREENSHOTS": "צילומי מסך",
+		"TIME_LOG": "יומן זמן",
+		"TO_DO": "לבצע",
+		"MEMBERS_COUNT": "מספר חברים"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -873,5 +882,8 @@
 			"UNPLANNED_WORK": "עבודה לא מתוכננת",
 			"TESTED_TIMER": "טיימר נבדק"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "האם אתה בטוח שברצונך למחוק את פרק הזמן הזה?"
 	}
 }

@@ -299,7 +299,16 @@
 		"REPORTS": "التقارير",
 		"LEGEND": "مفتاح الخريطة",
 		"HOURS": "ساعات",
-		"NOT_HOURS_WORKED": "ساعات غير مُشتغَلة"
+		"NOT_HOURS_WORKED": "ساعات غير مُشتغَلة",
+		"VIEW": "عرض",
+		"VIEW_INFO": "عرض المعلومات",
+		"SOURCE": "المصدر",
+		"CLIENT": "العميل",
+		"NO_CLIENT": "لا يوجد عميل",
+		"SCREENSHOTS": "لقطات الشاشة",
+		"TIME_LOG": "سجل الوقت",
+		"TO_DO": "المهام",
+		"MEMBERS_COUNT": "عدد الأعضاء"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -873,5 +882,8 @@
 			"UNPLANNED_WORK": "عمل غير مخطط له",
 			"TESTED_TIMER": "اختبار المؤقت"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "هل أنت متأكد أنك تريد حذف فترة الوقت هذه؟"
 	}
 }
