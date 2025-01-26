@@ -1,7 +1,7 @@
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITimerDailyLog, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
+import { ITimerDailyLog, ITimerLogGrouped, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/app/interfaces';
 
 export type TTasksTimesheetStatisticsParams = {
@@ -140,10 +140,77 @@ export interface ITimeLogReportDailyChartProps {
 	groupBy?: string;
 }
 
-export function getTimeLogReportDailyChartRequest(params: ITimeLogReportDailyChartProps, bearer_token: string) {
-	const queries = qs.stringify(params);
+export interface ITimeLogRequestParams {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	groupBy?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	teamIds?: string[];
+	activityLevel?: {
+		start: number;
+		end: number;
+	};
+}
+
+
+function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
+	const baseParams = new URLSearchParams({
+		organizationId: params.organizationId,
+		tenantId: params.tenantId,
+		startDate: params.startDate instanceof Date ? params.startDate.toISOString() : params.startDate,
+		endDate: params.endDate instanceof Date ? params.endDate.toISOString() : params.endDate,
+		...(params.timeZone && { timeZone: params.timeZone }),
+		...(params.groupBy && { groupBy: params.groupBy })
+	});
+
+	if (params.activityLevel) {
+		baseParams.append('activityLevel[start]', params.activityLevel.start.toString());
+		baseParams.append('activityLevel[end]', params.activityLevel.end.toString());
+	}
+
+	const arrayParams = {
+		projectIds: params.projectIds,
+		employeeIds: params.employeeIds,
+		taskIds: params.taskIds,
+		teamIds: params.teamIds
+	};
+
+	Object.entries(arrayParams).forEach(([key, values]) => {
+		values?.forEach((value, index) => {
+			baseParams.append(`${key}[${index}]`, value);
+		});
+	});
+
+	return baseParams;
+}
+
+export async function getTimeLogReportDailyChartRequest(
+	params: ITimeLogRequestParams,
+	bearer_token?: string
+) {
+	const queries = buildTimeLogParams(params);
+
 	return serverFetch<ITimerDailyLog[]>({
 		path: `/timesheet/time-log/report/daily-chart?${queries}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: params.tenantId
+	});
+}
+
+export async function getTimeLogReportDailyRequest(
+	params: ITimeLogRequestParams,
+	bearer_token?: string
+) {
+	const queries = buildTimeLogParams(params);
+
+	return serverFetch<ITimerLogGrouped[]>({
+		path: `/timesheet/time-log/report/daily?${queries}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: params.tenantId

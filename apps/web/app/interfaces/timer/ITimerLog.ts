@@ -50,13 +50,13 @@ interface TaskStatus extends BaseEntity {
     organizationTeamId: string | null;
     fullIconUrl: string;
 }
+
 interface Task extends ITeamTask {
     taskStatus: TaskStatus | null,
     number: number;
     description: string;
     startDate: string | null;
 }
-
 
 interface Timesheet extends BaseEntity {
     duration: number;
@@ -75,6 +75,7 @@ interface Timesheet extends BaseEntity {
     approvedById: string | null;
     isEdited: boolean;
 }
+
 interface Project extends BaseEntity, ImageEntity {
     name: string;
     membersCount: number;
@@ -110,8 +111,6 @@ export interface TimesheetLog extends BaseEntity {
     isEdited: boolean;
 }
 
-
-
 export interface UpdateTimesheetStatus extends BaseEntity {
     duration: number;
     keyboard: number;
@@ -135,6 +134,7 @@ export interface UpdateTimesheetStatus extends BaseEntity {
     employee: Employee;
     isEdited: boolean;
 }
+
 export interface UpdateTimesheet extends Pick<
     Partial<TimesheetLog>,
     | 'id'
@@ -183,8 +183,89 @@ export interface ITimeLogReportDailyChartProps {
     endDate: string;
     timeZone?: string;
     projectIds?: string[],
-	employeeIds?: string[],
+    employeeIds?: string[],
     logType?: string[],
-    teamIds?:string[],
+    teamIds?: string[],
     groupBy?: string;
+}
+
+export interface IOrganizationContact {
+    id: string;
+    name: string;
+    imageUrl: string;
+    image: string | null;
+}
+
+export interface ITimerProject {
+    id: string;
+    name: string;
+    imageUrl: string;
+    membersCount: number;
+    organizationContact: IOrganizationContact;
+    image: string | null;
+}
+
+export interface ITimerUser {
+    id: string;
+    firstName: string;
+    lastName: string;
+    imageUrl: string;
+    image: string | null;
+    name: string;
+}
+
+export interface ITimerEmployee {
+    id: string;
+    isOnline: boolean;
+    isAway: boolean;
+    userId: string;
+    user: ITimerUser;
+    fullName: string;
+}
+
+export interface ITimerTask {
+    id: string;
+    isActive: boolean;
+    isArchived: boolean;
+    tenantId: string;
+    organizationId: string;
+    number: number;
+    prefix: string;
+    title: string;
+    description: string;
+    status: string;
+    priority: string | null;
+    size: string | null;
+    issueType: string | null;
+    estimate: string | null;
+    dueDate: string;
+    startDate: string | null;
+    resolvedAt: string | null;
+    version: string | null;
+    taskStatus: string | null;
+    taskNumber: string;
+}
+
+export interface ITimerTaskLog {
+    task: ITimerTask;
+    description: string;
+    duration: number;
+    client: IOrganizationContact;
+}
+
+export interface ITimerEmployeeLog {
+    employee: ITimerEmployee;
+    sum: number;
+    tasks: ITimerTaskLog[];
+    activity: number;
+}
+
+export interface ITimerProjectLog {
+    project: ITimerProject;
+    employeeLogs: ITimerEmployeeLog[];
+}
+
+export interface ITimerLogGrouped {
+    date: string;
+    logs: ITimerProjectLog[];
 }

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
-import { getTimeLogReportDailyChart } from '@/app/services/client/api/timer/timer-log';
+import { getTimeLogReportDaily, getTimeLogReportDailyChart } from '@/app/services/client/api/timer/timer-log';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useQuery } from '../useQuery';
 import { useAtom } from 'jotai';
-import { timeLogsRapportChartState } from '@/app/stores';
+import { timeLogsRapportChartState, timeLogsRapportDailyState } from '@/app/stores';
 
 type UseReportActivityProps = Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>;
 
@@ -29,64 +29,96 @@ const defaultProps: UseReportActivityProps = {
 export function useReportActivity() {
     const { user } = useAuthenticateUser();
     const [rapportChartActivity, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
+    const [rapportDailyActivity, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
     const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQuery(getTimeLogReportDailyChart);
+    const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(getTimeLogReportDaily);
     const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
 
-    const fetchReportActivity = useCallback(async (customProps?: Partial<UseReportActivityProps>) => {
-        if (!user) return;
+    // Memoize the merged props to avoid recalculation
+    const getMergedProps = useMemo(() => {
+        if (!user?.employee.organizationId) {
+            return null;
+        }
+
+        return (customProps?: Partial<UseReportActivityProps>): ITimeLogReportDailyChartProps => ({
+            ...defaultProps,
+            ...currentFilters,
+            ...(customProps || {}),
+            organizationId: user.employee.organizationId,
+            tenantId: user.tenantId ?? ''
+        });
+    }, [user?.employee.organizationId, user?.tenantId, currentFilters]);
+
+    // Generic fetch function to reduce code duplication
+    const fetchReport = useCallback(async <T>(
+        queryFn: typeof queryTimeLogReportDailyChart | typeof queryTimeLogReportDaily,
+        setData: (data: T[]) => void,
+        customProps?: Partial<UseReportActivityProps>
+    ) => {
+        if (!user || !getMergedProps) {
+            setData([]);
+            return;
+        }
+
         try {
-            const mergedProps = {
-                ...defaultProps,
-                ...currentFilters,
-                ...(customProps || {}),
-                organizationId: user?.employee.organizationId,
-                tenantId: user?.tenantId ?? ''
-            };
-            const { data } = await queryTimeLogReportDailyChart(mergedProps);
-            if (data) {
-                setRapportChartActivity(data);
-                if (customProps) {
-                    setCurrentFilters(prev => ({
-                        ...prev,
-                        ...customProps
-                    }));
-                }
-            } else {
-                setRapportChartActivity([]);
+            const mergedProps = getMergedProps(customProps);
+            const { data } = await queryFn(mergedProps);
+
+            setData(data as T[]);
+
+            if (customProps) {
+                setCurrentFilters(prev => ({
+                    ...prev,
+                    ...customProps
+                }));
             }
         } catch (err) {
-            console.error('Failed to fetch activity report:', err);
-            setRapportChartActivity([]);
+            console.error('Failed to fetch report:', err);
+            setData([]);
         }
-    }, [user, queryTimeLogReportDailyChart, currentFilters, setRapportChartActivity]);
+    }, [user, getMergedProps]);
+
+    const fetchReportActivity = useCallback((customProps?: Partial<UseReportActivityProps>) =>
+        fetchReport(queryTimeLogReportDailyChart, setRapportChartActivity, customProps),
+    [fetchReport, queryTimeLogReportDailyChart, setRapportChartActivity]);
+
+    const fetchDailyReport = useCallback((customProps?: Partial<UseReportActivityProps>) =>
+        fetchReport(queryTimeLogReportDaily, setRapportDailyActivity, customProps),
+    [fetchReport, queryTimeLogReportDaily, setRapportDailyActivity]);
 
     const updateDateRange = useCallback((startDate: Date, endDate: Date) => {
         const newProps = {
-            ...currentFilters,
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0]
         };
-        fetchReportActivity(newProps);
-    }, [fetchReportActivity, currentFilters]);
+
+        Promise.all([
+            fetchReportActivity(newProps),
+            fetchDailyReport(newProps)
+        ]).catch(console.error);
+    }, [fetchReportActivity, fetchDailyReport]);
 
     const updateFilters = useCallback((newFilters: Partial<UseReportActivityProps>) => {
-        fetchReportActivity(newFilters);
-    }, [fetchReportActivity]);
-
-    const initialFetch = useCallback(() => {
-        if (user) {
-            fetchReportActivity();
-        }
-    }, [user, fetchReportActivity]);
+        Promise.all([
+            fetchReportActivity(newFilters),
+            fetchDailyReport(newFilters)
+        ]).catch(console.error);
+    }, [fetchReportActivity, fetchDailyReport]);
 
     useEffect(() => {
-        initialFetch();
-    }, [initialFetch]);
-
+        if (user) {
+            Promise.all([
+                fetchReportActivity(),
+                fetchDailyReport()
+            ]).catch(console.error);
+        }
+    }, [user, fetchReportActivity, fetchDailyReport]);
 
     return {
         loadingTimeLogReportDailyChart,
+        loadingTimeLogReportDaily,
         rapportChartActivity,
+        rapportDailyActivity,
         updateDateRange,
         updateFilters,
         currentFilters
