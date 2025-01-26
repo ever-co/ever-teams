@@ -421,7 +421,11 @@
 		"Xlarge",
 		"xlcard",
 		"xlight",
-		"yellowbox"
+		"yellowbox",
+		"titleBar",
+		"flexbox",
+		"rounded",
+		"customSyle"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
