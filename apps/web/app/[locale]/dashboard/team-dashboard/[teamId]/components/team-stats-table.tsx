@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { members } from '../data/mock-data';
+import { ITimerLogGrouped } from '@/app/interfaces';
+import { Spinner } from '@/components/ui/loaders/spinner';
 
 const getProgressColor = (activityLevel: string) => {
 	const level = parseInt(activityLevel, 10);
@@ -15,7 +17,23 @@ const getProgressColor = (activityLevel: string) => {
 	return 'bg-green-500';
 };
 
-export function TeamStatsTable() {
+export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDailyActivity?: ITimerLogGrouped[], isLoading?: boolean }) {
+	if (isLoading) {
+		return (
+			<div className="flex justify-center items-center min-h-[400px]">
+				<Spinner />
+			</div>
+		);
+	}
+
+	if (!rapportDailyActivity?.length) {
+		return (
+			<div className="flex justify-center items-center min-h-[400px] text-gray-500">
+				No data available
+			</div>
+		);
+	}
+
 	return (
 		<div className="space-y-4">
 			<div className="overflow-auto relative w-full">

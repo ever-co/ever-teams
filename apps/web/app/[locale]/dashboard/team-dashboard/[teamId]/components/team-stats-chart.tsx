@@ -121,7 +121,7 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 
 	return (
 		<div className="flex flex-col">
-			<div className="flex gap-2 justify-end mb-4 dark:text-white">
+			<div className="flex gap-2 justify-end mb-4">
 				<Button
 					size="sm"
 					variant={groupBy === 'daily' ? 'default' : 'outline'}
