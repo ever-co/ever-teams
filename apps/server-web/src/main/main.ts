@@ -75,7 +75,6 @@ const handleLinkAction = (linkType: string) => {
 }
 
 const handleButtonClose = (windowTypes: IWindowTypes) => {
-  console.log('about window', windowTypes);
   switch (windowTypes) {
     case WindowTypes.LOG_WINDOW:
       logWindow?.close();
@@ -84,7 +83,6 @@ const handleButtonClose = (windowTypes: IWindowTypes) => {
       setupWindow?.close();
       break;
     case WindowTypes.ABOUT_WINDOW:
-      console.log('minimize about');
       aboutWindow?.close();
       break;
     case WindowTypes.SETTING_WINDOW:
@@ -651,7 +649,6 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
 })
 
 ipcMain.on(IPC_TYPES.CONTROL_BUTTON, (_, arg) => {
-  console.log('test arg control', arg);
   switch (arg.type) {
     case 'close':
       handleButtonClose(arg.windowTypes);
