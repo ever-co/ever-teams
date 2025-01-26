@@ -6,6 +6,7 @@ import fs from 'fs';
 import { EventEmitter } from 'events';
 import { EventLists, WindowOptions, WindowTypes, WINDOW_EVENTS } from '../helpers/constant';
 import { IAppWindow, IWindowTypes } from '../helpers/interfaces';
+import { attachTitlebarToWindow } from 'custom-electron-titlebar/main';
 
 export default class WindowsFactory {
     private preloadPath: string;
@@ -23,7 +24,7 @@ export default class WindowsFactory {
 
 
     defaultOptionWindow(): BrowserWindowConstructorOptions {
-        return {
+        let windowOptions: BrowserWindowConstructorOptions = {
             title: app.name,
             frame: true,
             show: false,
@@ -32,6 +33,10 @@ export default class WindowsFactory {
             resizable: false,
             width: 1024,
             height: 728,
+            transparent: false,
+            roundedCorners: false,
+            hasShadow: false,
+            // titleBarStyle: 'hiddenInset',
             webPreferences: {
                 preload: this.preloadPath,
                 nodeIntegration: false,
@@ -40,6 +45,23 @@ export default class WindowsFactory {
                 webSecurity: true
             }
         }
+        if (process.platform === 'darwin') {
+          windowOptions = {
+            ...windowOptions,
+            transparent: true,
+            roundedCorners: true,
+            hasShadow: true,
+            frame: false,
+          }
+        } else {
+            windowOptions.titleBarStyle = 'hidden';
+            windowOptions.titleBarOverlay = true;
+        }
+
+        if (process.platform === 'linux') {
+            windowOptions.frame = false;
+        }
+        return windowOptions;
     }
 
     createWindow(
@@ -51,7 +73,10 @@ export default class WindowsFactory {
         const windowOptions: BrowserWindowConstructorOptions = this.defaultOptionWindow();
         windowOptions.width = width;
         windowOptions.height = height;
-        let browserWindow = new BrowserWindow(windowOptions);
+        const browserWindow = new BrowserWindow(windowOptions);
+        if (process.platform === 'darwin') {
+          browserWindow.setBackgroundColor('#00000000');
+        }
         const url = resolveHtmlPath('index.html', hashPath);
         browserWindow.loadURL(url);
         mainBindings(ipcMain, browserWindow, fs);
@@ -67,6 +92,12 @@ export default class WindowsFactory {
             options.hashPath,
             menu
         )
+        if ((windowType === 'ABOUT_WINDOW' || windowType === 'SETUP_WINDOW') && process.platform !== 'darwin') {
+            Menu.setApplicationMenu(Menu.buildFromTemplate([]));
+        } else {
+            attachTitlebarToWindow(browserWindow);
+        }
+        browserWindow.setMinimumSize(options.width, options.height);
         browserWindow.on(WINDOW_EVENTS.CLOSE, () => {
             this.eventEmitter.emit(EventLists.WINDOW_EVENT, {
                 windowType: WindowTypes[windowType],
