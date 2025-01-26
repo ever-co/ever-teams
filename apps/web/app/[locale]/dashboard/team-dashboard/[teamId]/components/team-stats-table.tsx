@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useState } from 'react';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -30,7 +31,25 @@ const formatPercentage = (value: number) => {
 	return `${Math.round(value)}%`;
 };
 
+const ITEMS_PER_PAGE = 10;
+
 export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDailyActivity?: ITimerLogGrouped[], isLoading?: boolean }) {
+	const [currentPage, setCurrentPage] = useState(1);
+	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / ITEMS_PER_PAGE) : 0;
+	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+	const endIndex = startIndex + ITEMS_PER_PAGE;
+	
+	const paginatedData = rapportDailyActivity?.slice(startIndex, endIndex);
+
+	const goToPage = (page: number) => {
+		setCurrentPage(page);
+	};
+
+	const goToFirstPage = () => goToPage(1);
+	const goToLastPage = () => goToPage(totalPages);
+	const goToPreviousPage = () => goToPage(Math.max(1, currentPage - 1));
+	const goToNextPage = () => goToPage(Math.min(totalPages, currentPage + 1));
+
 	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center min-h-[400px]">
@@ -64,7 +83,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{rapportDailyActivity.map((dayData) => (
+						{paginatedData?.map((dayData) => (
 							<>
 								<TableRow key={dayData.date} className="bg-gray-50 dark:bg-gray-700">
 									<TableCell colSpan={8} className="font-medium">
@@ -116,23 +135,53 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 			<div className="flex justify-between items-center px-2">
 				<div className="flex items-center space-x-6">
 					<p className="text-sm text-gray-500">
-						Showing 1 to {rapportDailyActivity.length} of {rapportDailyActivity.length} entries
+						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of {rapportDailyActivity.length} entries
 					</p>
 				</div>
 				<div className="flex items-center space-x-2">
-					<Button variant="outline" size="icon" disabled>
+					<Button 
+						variant="outline" 
+						size="icon" 
+						onClick={goToFirstPage}
+						disabled={currentPage === 1}
+					>
 						<ChevronsLeft className="w-4 h-4" />
 					</Button>
-					<Button variant="outline" size="icon" disabled>
+					<Button 
+						variant="outline" 
+						size="icon"
+						onClick={goToPreviousPage}
+						disabled={currentPage === 1}
+					>
 						<ChevronLeft className="w-4 h-4" />
 					</Button>
-					<Button variant="outline" size="sm">
-						1
-					</Button>
-					<Button variant="outline" size="icon">
+					<div className="flex items-center gap-1">
+						{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+							<Button
+								key={page}
+								variant="outline"
+								size="sm"
+								onClick={() => goToPage(page)}
+								className={currentPage === page ? 'bg-primary text-primary-foreground' : ''}
+							>
+								{page}
+							</Button>
+						))}
+					</div>
+					<Button 
+						variant="outline" 
+						size="icon"
+						onClick={goToNextPage}
+						disabled={currentPage === totalPages}
+					>
 						<ChevronRight className="w-4 h-4" />
 					</Button>
-					<Button variant="outline" size="icon">
+					<Button 
+						variant="outline" 
+						size="icon"
+						onClick={goToLastPage}
+						disabled={currentPage === totalPages}
+					>
 						<ChevronsRight className="w-4 h-4" />
 					</Button>
 				</div>
