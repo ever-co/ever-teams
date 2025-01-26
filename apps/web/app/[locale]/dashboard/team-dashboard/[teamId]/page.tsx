@@ -20,7 +20,7 @@ import { useReportActivity } from '@app/hooks/features/useReportActivity';
 
 function TeamDashboard() {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
-	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart } = useReportActivity();
+	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily } = useReportActivity();
 	const router = useRouter();
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -71,7 +71,10 @@ function TeamDashboard() {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
 				<Card className="p-6 w-full">
-					<TeamStatsTable />
+					<TeamStatsTable
+						rapportDailyActivity={rapportDailyActivity}
+						isLoading={loadingTimeLogReportDaily}
+					/>
 				</Card>
 			</Container>
 		</MainLayout>
