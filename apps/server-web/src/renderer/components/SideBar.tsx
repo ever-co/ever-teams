@@ -7,6 +7,7 @@ import Container from './container';
 import WindowControl from './window-control';
 import { useEffect, useState } from 'react';
 import { WindowTypes } from '../../main/helpers/constant';
+import { IDevices } from '../../main/helpers/interfaces';
 
 export function SideBar({
   children,
@@ -14,7 +15,7 @@ export function SideBar({
   menuChange,
   lang,
 }: ISidebarComponent) {
-  const [platform, setPlatform] = useState('win');
+  const [platform, setPlatform] = useState<IDevices>('win32');
   const { t } = useTranslation();
   const getPlatform = async () => {
     const devicePlatform = await window.electron.ipcRenderer.invoke('get-platform');
@@ -22,7 +23,7 @@ export function SideBar({
   }
   useEffect(() => {
     getPlatform();
-  })
+  }, [])
   return (
     <>
       {platform === 'darwin' && (

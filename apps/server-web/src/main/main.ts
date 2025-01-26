@@ -685,7 +685,7 @@ const createIntervalAutoUpdate = () => {
     clearInterval(intervalUpdate)
   }
   const setting: WebServer = LocalStore.getStore('config');
-  if (setting?.general?.autoUpdate && setting.general.updateCheckPeriod) {
+  if (setting?.general?.autoUpdate && setting?.general?.updateCheckPeriod) {
     const checkIntervalSecond = parseInt(setting.general.updateCheckPeriod);
     if (!Number.isNaN(checkIntervalSecond)) {
       const intervalMS = checkIntervalSecond * 60 * 1000;

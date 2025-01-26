@@ -1,6 +1,6 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, NativeImage, ipcRenderer, IpcRendererEvent, nativeImage } from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { Channels } from './helpers/interfaces';
 import { CustomTitlebar, TitlebarColor } from 'custom-electron-titlebar';
 

@@ -9,6 +9,7 @@ import {
 import { Link } from 'react-router-dom';
 import WindowControl from '../components/window-control';
 import Container from '../components/container';
+import { IDevices } from '../../main/helpers/interfaces';
 
 const AboutPage = () => {
   const [aboutApp, setAboutApp] = useState<{
@@ -18,7 +19,7 @@ const AboutPage = () => {
     name: 'Web Server',
     version: '0.1.0',
   });
-  const [platform, setPlatform] = useState('win');
+  const [platform, setPlatform] = useState<IDevices>('win32');
 
   const handleLinkClick = (linkType: string) => {
     window.electron.ipcRenderer.sendMessage(IPC_TYPES.SETTING_PAGE, {

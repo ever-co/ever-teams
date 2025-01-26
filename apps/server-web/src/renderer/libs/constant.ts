@@ -1,3 +1,5 @@
+import { CustomStyle } from "../../main/helpers/interfaces"
+
 export const SettingPageTypeMessage = {
     loadSetting: 'load-setting',
     checkUpdate: 'check-for-update',
@@ -30,12 +32,12 @@ export const DefaultRangeUpdateTimes = [
   ]
 
 
-export const CUSTOM_STYLE = {
+export const CUSTOM_STYLE: CustomStyle = {
   WINDOWS: {
     bgColor: 'bg-[#F2F2F2] dark:bg-[#1e2025]',
     rounded: 'rounded-lg',
     sideBar: '',
-    sideServer: 'flex flex-col w-1/4 relative top-10 rounded-lg left-2  dark:bg-[#1e2025] bg-gray-200 rounded-3xl"',
+    sideServer: 'flex flex-col w-1/4 relative top-10 rounded-lg left-2  dark:bg-[#1e2025] bg-gray-200 rounded-3xl',
     maxHeight: {
       maxHeight: '680px'
     },

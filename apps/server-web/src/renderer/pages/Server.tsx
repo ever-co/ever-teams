@@ -6,14 +6,15 @@ import { useTranslation } from 'react-i18next';
 import WindowControl from '../components/window-control';
 import Container from '../components/container';
 import { CUSTOM_STYLE } from '../libs/constant';
+import { IDevices } from '../../main/helpers/interfaces';
 
 const LogView = ({ children }: { children: ReactNode }) => {
   return <div className="py-1">{children}</div>;
 };
 
 export function ServerPage() {
-  const [customStyle, setCustomStyle] = useState({});
-  const [ platform, setPlatform ] = useState('windows');
+  const [customStyle, setCustomStyle] = useState(CUSTOM_STYLE.WINDOWS);
+  const [ platform, setPlatform ] = useState<IDevices>('win32');
   const logRef = useRef<HTMLDivElement>(null);
   const [isRun, setIsRun] = useState<boolean>(false);
   const [logs, setLogs] = useState<
@@ -28,7 +29,6 @@ export function ServerPage() {
 
   const getCustomStyle = async () => {
     const platform = await window.electron.ipcRenderer.invoke('get-platform');
-    console.log('platform', platform);
     setPlatform(platform);
     if (platform === 'darwin') {
       setCustomStyle(CUSTOM_STYLE.MAC);
