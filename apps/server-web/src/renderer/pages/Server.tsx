@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, ReactNode } from 'react';
-import { ServerPageTypeMessage } from '../../main/helpers/constant';
+import { ServerPageTypeMessage, WindowTypes } from '../../main/helpers/constant';
 import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
 import { EverTeamsLogo } from '../components/svgs';
 import { useTranslation } from 'react-i18next';
@@ -97,7 +97,7 @@ export function ServerPage() {
   return (
     <>
       {platform === 'darwin' && (
-        <WindowControl />
+        <WindowControl windowTypes={WindowTypes.LOG_WINDOW}/>
       )}
       <Container>
         <div className={customStyle.sideServer} style={customStyle.maxHeight}>

@@ -51,6 +51,10 @@ export type themeChange = {
 
 
 window.addEventListener('DOMContentLoaded', async () => {
+  const platform = await ipcRenderer.invoke('get-platform');
+  if (platform === 'darwin') {
+    return;
+  }
   const iconPath = await ipcRenderer.invoke('get-app-icon');
   const currentTheme: 'dark' | 'light' = await ipcRenderer.invoke('current-theme');
   const themeColor = {

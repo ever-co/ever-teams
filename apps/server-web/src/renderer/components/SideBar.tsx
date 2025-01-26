@@ -6,6 +6,7 @@ import LanguageSelector from './LanguageSelector';
 import Container from './container';
 import WindowControl from './window-control';
 import { useEffect, useState } from 'react';
+import { WindowTypes } from '../../main/helpers/constant';
 
 export function SideBar({
   children,
@@ -25,7 +26,7 @@ export function SideBar({
   return (
     <>
       {platform === 'darwin' && (
-        <WindowControl />
+        <WindowControl windowTypes={WindowTypes.SETTING_WINDOW}/>
       )}
     <Container>
       <div className="fixed flex flex-col top-0 left-0 h-full w-1/4 dark:bg-[#2b2b2f] bg-gray-200 rounded-3xl">

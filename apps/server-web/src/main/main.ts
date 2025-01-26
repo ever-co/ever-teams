@@ -74,6 +74,46 @@ const handleLinkAction = (linkType: string) => {
   }
 }
 
+const handleButtonClose = (windowTypes: IWindowTypes) => {
+  console.log('about window', windowTypes);
+  switch (windowTypes) {
+    case WindowTypes.LOG_WINDOW:
+      logWindow?.close();
+      break;
+    case WindowTypes.SETUP_WINDOW:
+      setupWindow?.close();
+      break;
+    case WindowTypes.ABOUT_WINDOW:
+      console.log('minimize about');
+      aboutWindow?.close();
+      break;
+    case WindowTypes.SETTING_WINDOW:
+      settingWindow?.close();
+      break;
+    default:
+      break;
+  }
+}
+
+const handleMinimizeButton = (windowTypes: IWindowTypes) => {
+  switch (windowTypes) {
+    case WindowTypes.LOG_WINDOW:
+      logWindow?.minimize();
+      break;
+    case WindowTypes.SETUP_WINDOW:
+      setupWindow?.minimize();
+      break;
+    case WindowTypes.ABOUT_WINDOW:
+      aboutWindow?.minimize();
+      break;
+    case WindowTypes.SETTING_WINDOW:
+      settingWindow?.minimize();
+      break;
+    default:
+      break;
+  }
+}
+
 Log.hooks.push((message: any, transport) => {
   if (transport !== Log.transports.file) {
     return message;
@@ -217,6 +257,7 @@ const handleOpenWindow = async (data: IOpenWindow) => {
         browserWindow = aboutWindow
       } else {
         browserWindow = await createWindow(data.windowType)
+        aboutWindow = browserWindow;
       }
       break;
     default:
@@ -604,6 +645,20 @@ ipcMain.on(IPC_TYPES.SERVER_PAGE, (_, arg) => {
       }
       break;
 
+    default:
+      break;
+  }
+})
+
+ipcMain.on(IPC_TYPES.CONTROL_BUTTON, (_, arg) => {
+  console.log('test arg control', arg);
+  switch (arg.type) {
+    case 'close':
+      handleButtonClose(arg.windowTypes);
+      break;
+    case 'minimize':
+      handleMinimizeButton(arg.windowTypes);
+      break;
     default:
       break;
   }

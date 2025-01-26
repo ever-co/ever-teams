@@ -4,6 +4,7 @@ import {
   APP_LINK,
   IPC_TYPES,
   SettingPageTypeMessage,
+  WindowTypes,
 } from '../../main/helpers/constant';
 import { Link } from 'react-router-dom';
 import WindowControl from '../components/window-control';
@@ -52,7 +53,7 @@ const AboutPage = () => {
   return (
     <>
       {platform === 'darwin' && (
-        <WindowControl />
+        <WindowControl windowTypes={WindowTypes.ABOUT_WINDOW}/>
       )}
       <Container>
         <div className="w-full text-white rounded-lg shadow-md p-6">

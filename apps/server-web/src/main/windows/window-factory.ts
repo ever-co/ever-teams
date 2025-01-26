@@ -92,8 +92,8 @@ export default class WindowsFactory {
             options.hashPath,
             menu
         )
-        if (windowType === 'ABOUT_WINDOW') {
-            Menu.setApplicationMenu(null);
+        if ((windowType === 'ABOUT_WINDOW' || windowType === 'SETUP_WINDOW') && process.platform !== 'darwin') {
+            Menu.setApplicationMenu(Menu.buildFromTemplate([]));
         } else {
             attachTitlebarToWindow(browserWindow);
         }
