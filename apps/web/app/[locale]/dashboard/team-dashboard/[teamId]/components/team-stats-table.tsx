@@ -3,18 +3,23 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { members } from '../data/mock-data';
+import { format } from 'date-fns';
 import { ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
-const getProgressColor = (activityLevel: string) => {
-	const level = parseInt(activityLevel, 10);
-	if (isNaN(level) || level < 0) return 'bg-gray-300';
-	if (level > 100) return 'bg-green-500';
-	if (level <= 20) return 'bg-red-500';
-	if (level <= 50) return 'bg-yellow-500';
+const getProgressColor = (activityLevel: number) => {
+	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
+	if (activityLevel > 100) return 'bg-green-500';
+	if (activityLevel <= 20) return 'bg-red-500';
+	if (activityLevel <= 50) return 'bg-yellow-500';
 	return 'bg-green-500';
+};
+
+const formatDuration = (duration: number) => {
+	const hours = Math.floor(duration / 3600);
+	const minutes = Math.floor((duration % 3600) / 60);
+	return `${hours}h ${minutes}m`;
 };
 
 export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDailyActivity?: ITimerLogGrouped[], isLoading?: boolean }) {
@@ -40,42 +45,58 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Member</TableHead>
-							<TableHead>Tracked Time</TableHead>
-							<TableHead>Manual Time</TableHead>
-							<TableHead>Idle Time</TableHead>
-							<TableHead>Unknown Activity</TableHead>
-							<TableHead>Activity Level</TableHead>
+							<TableHead>Employee</TableHead>
+							<TableHead>Project</TableHead>
+							<TableHead>Task</TableHead>
+							<TableHead>Duration</TableHead>
+							<TableHead>Activity</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{members.map((member) => (
-							<TableRow key={member.name}>
-								<TableCell className="font-medium">
-									<div className="flex gap-2 items-center">
-										<Avatar className="w-8 h-8">
-											<AvatarImage src={member.avatar} alt={member.name} />
-											<AvatarFallback>{member.name[0]}</AvatarFallback>
-										</Avatar>
-										{member.name}
-									</div>
-								</TableCell>
-								<TableCell>{member.trackedTime}</TableCell>
-								<TableCell>{member.manualTime}</TableCell>
-								<TableCell>{member.idleTime}</TableCell>
-								<TableCell>{member.unknownActivity}</TableCell>
-								<TableCell>
-									<div className="flex gap-2 items-center">
-										<div className="w-full h-2 bg-gray-100 rounded-full">
-											<div
-												className={`h-full rounded-full ${getProgressColor(member.activityLevel)}`}
-												style={{ width: member.activityLevel }}
-											/>
-										</div>
-										<span className="w-9 text-sm">{member.activityLevel}</span>
-									</div>
-								</TableCell>
-							</TableRow>
+						{rapportDailyActivity.map((dayData) => (
+							<>
+								<TableRow key={dayData.date} className="bg-gray-50">
+									<TableCell colSpan={5} className="font-medium">
+										{format(new Date(dayData.date), 'PPP')}
+									</TableCell>
+								</TableRow>
+								{dayData.logs?.map((projectLog) => (
+									projectLog.employeeLogs?.map((employeeLog) => (
+										employeeLog.tasks?.map((task) => (
+											<TableRow key={`${employeeLog.employee?.id}-${task.task?.id}`}>
+												<TableCell className="font-medium">
+													<div className="flex gap-2 items-center">
+														<Avatar className="w-8 h-8">
+															<AvatarImage 
+																src={employeeLog.employee?.user?.imageUrl || ''} 
+																alt={employeeLog.employee?.user?.name || 'User'} 
+															/>
+															<AvatarFallback>
+																{employeeLog.employee?.user?.name?.[0] || 'U'}
+															</AvatarFallback>
+														</Avatar>
+														{employeeLog.employee?.user?.name || 'Unknown User'}
+													</div>
+												</TableCell>
+												<TableCell>{projectLog.project?.name || 'Unknown Project'}</TableCell>
+												<TableCell>{task.task?.title || 'Unknown Task'}</TableCell>
+												<TableCell>{formatDuration(task.duration || 0)}</TableCell>
+												<TableCell>
+													<div className="flex gap-2 items-center">
+														<div className="w-full h-2 bg-gray-100 rounded-full">
+															<div
+																className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
+																style={{ width: `${employeeLog.activity || 0}%` }}
+															/>
+														</div>
+														<span className="w-12 text-sm">{(employeeLog.activity || 0).toFixed(1)}%</span>
+													</div>
+												</TableCell>
+											</TableRow>
+										)) || []
+									)) || []
+								)) || []}
+							</>
 						))}
 					</TableBody>
 				</Table>
@@ -83,7 +104,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 			<div className="flex justify-between items-center px-2">
 				<div className="flex items-center space-x-6">
 					<p className="text-sm text-gray-500">
-						Showing 1 to {members.length} of {members.length} entries
+						Showing 1 to {rapportDailyActivity.length} of {rapportDailyActivity.length} entries
 					</p>
 				</div>
 				<div className="flex items-center space-x-2">
