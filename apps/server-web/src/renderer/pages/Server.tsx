@@ -75,7 +75,7 @@ export function ServerPage() {
           break;
       }
     });
-  }, [customStyle]);
+  }, []);
 
   const runServer = () => {
     setLoading(true);

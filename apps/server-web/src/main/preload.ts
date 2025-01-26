@@ -49,8 +49,13 @@ export type themeChange = {
   theme: (callback: any) => void
 }
 
+const cleanup = () => {
+  ipcRenderer.removeAllListeners('refresh-menu');
+  ipcRenderer.removeAllListeners('hide-menu');
+};
 
 window.addEventListener('DOMContentLoaded', async () => {
+  cleanup();
   const platform = await ipcRenderer.invoke('get-platform');
   if (platform === 'darwin') {
     return;
