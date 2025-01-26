@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ITimerDailyLog } from '@/app/interfaces/timer/ITimerLog';
 import { useState } from 'react';
 import { Spinner } from '@/components/ui/loaders/spinner';
+import { format } from 'date-fns';
 
 interface TooltipProps {
 	active?: boolean;
@@ -53,7 +54,7 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 
 	const formattedData =
 		rapportChartActivity?.map((item: ITimerDailyLog) => ({
-			date: new Date(item.date).toLocaleDateString(),
+			date: format(new Date(item.date), 'MMM. dd yyyy'),
 			tracked: item.value.TRACKED || 0,
 			manual: item.value.MANUAL || 0,
 			idle: item.value.IDLE || 0,

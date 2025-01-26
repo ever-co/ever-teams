@@ -12,4 +12,5 @@ export interface IScreenShootItem {
 	showProgress?: boolean;
 	isTeamPage?: boolean;
 	onShow: () => any;
+	viewMode?: 'default' | 'screenShot-only';
 }

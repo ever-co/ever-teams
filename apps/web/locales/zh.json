@@ -317,7 +317,16 @@
 		"REPORTS": "报告",
 		"LEGEND": "图例",
 		"HOURS": "小时",
-		"NOT_HOURS_WORKED": "非工作小时"
+		"NOT_HOURS_WORKED": "非工作小时",
+		"VIEW": "查看",
+		"VIEW_INFO": "查看信息",
+		"SOURCE": "来源",
+		"CLIENT": "客户",
+		"NO_CLIENT": "没有客户",
+		"SCREENSHOTS": "截图",
+		"TIME_LOG": "时间记录",
+		"TO_DO": "待办事项",
+		"MEMBERS_COUNT": "成员数"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -873,5 +882,8 @@
 			"UNPLANNED_WORK": "未計劃的工作",
 			"TESTED_TIMER": "計時器測試"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "您确定要删除此时间段吗？"
 	}
 }

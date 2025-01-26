@@ -24,7 +24,14 @@ export interface IProject {
 	isTasksAutoSync?: boolean;
 	isTasksAutoSyncOnLabel?: boolean;
 	syncTag?: string;
-	name?: string
+	name?: string;
+	imageUrl: string | null;
+	membersCount?: number;
+	owner?: string;
+}
+
+export interface CustomFields {
+	repositoryId: any;
 }
 
 export interface IProjectCreate {
