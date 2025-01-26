@@ -22,8 +22,12 @@ const formatDuration = (duration: number) => {
 	const seconds = duration % 60;
 
 	const pad = (num: number) => num.toString().padStart(2, '0');
-	
+
 	return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};
+
+const formatPercentage = (value: number) => {
+	return `${Math.round(value)}%`;
 };
 
 export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDailyActivity?: ITimerLogGrouped[], isLoading?: boolean }) {
@@ -49,55 +53,59 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Employee</TableHead>
-							<TableHead>Project</TableHead>
-							<TableHead>Task</TableHead>
-							<TableHead>Duration</TableHead>
-							<TableHead>Activity</TableHead>
+							<TableHead>Member</TableHead>
+							<TableHead>Total Time</TableHead>
+							<TableHead>Tracked</TableHead>
+							<TableHead>Manually Added</TableHead>
+							<TableHead>Active Time</TableHead>
+							<TableHead>Idle Time</TableHead>
+							<TableHead>Unknown Activity</TableHead>
+							<TableHead>Activity Level</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{rapportDailyActivity.map((dayData) => (
 							<>
 								<TableRow key={dayData.date} className="bg-gray-50 dark:bg-gray-700">
-									<TableCell colSpan={5} className="font-medium">
-										{format(new Date(dayData.date), 'PPP')}
+									<TableCell colSpan={8} className="font-medium">
+										{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 									</TableCell>
 								</TableRow>
 								{dayData.logs?.map((projectLog) => (
 									projectLog.employeeLogs?.map((employeeLog) => (
-										employeeLog.tasks?.map((task) => (
-											<TableRow key={`${employeeLog.employee?.id}-${task.task?.id}`}>
-												<TableCell className="font-medium">
-													<div className="flex gap-2 items-center">
-														<Avatar className="w-8 h-8">
-															<AvatarImage
-																src={employeeLog.employee?.user?.imageUrl || ''}
-																alt={employeeLog.employee?.user?.name || 'User'}
-															/>
-															<AvatarFallback>
-																{employeeLog.employee?.user?.name?.[0] || 'U'}
-															</AvatarFallback>
-														</Avatar>
-														{employeeLog.employee?.user?.name || 'Unknown User'}
+										<TableRow key={employeeLog.employee?.id}>
+											<TableCell className="font-medium">
+												<div className="flex gap-2 items-center">
+													<Avatar className="w-8 h-8">
+														<AvatarImage
+															src={employeeLog.employee?.user?.imageUrl || ''}
+															alt={employeeLog.employee?.user?.name || 'User'}
+														/>
+														<AvatarFallback>
+															{employeeLog.employee?.user?.name?.[0] || 'U'}
+														</AvatarFallback>
+													</Avatar>
+													{employeeLog.employee?.user?.name || 'Unknown User'}
+												</div>
+											</TableCell>
+											<TableCell>{formatDuration(employeeLog.sum || 0)}</TableCell>
+											<TableCell>{formatPercentage(employeeLog.activity)}</TableCell>
+											<TableCell>{formatPercentage(0)}</TableCell>
+											<TableCell className="text-green-500">{formatPercentage(100)}</TableCell>
+											<TableCell className="text-gray-500">{formatPercentage(0)}</TableCell>
+											<TableCell className="text-gray-500">{formatPercentage(0)}</TableCell>
+											<TableCell>
+												<div className="flex gap-2 items-center">
+													<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
+														<div
+															className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
+															style={{ width: `${employeeLog.activity || 0}%` }}
+														/>
 													</div>
-												</TableCell>
-												<TableCell>{projectLog.project?.name || 'Unknown Project'}</TableCell>
-												<TableCell>{task.task?.title || 'Unknown Task'}</TableCell>
-												<TableCell>{formatDuration(task.duration || 0)}</TableCell>
-												<TableCell>
-													<div className="flex gap-2 items-center">
-														<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
-															<div
-																className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
-																style={{ width: `${employeeLog.activity || 0}%` }}
-															/>
-														</div>
-														<span className="w-12 text-sm">{(employeeLog.activity || 0).toFixed(1)}%</span>
-													</div>
-												</TableCell>
-											</TableRow>
-										)) || []
+													<span className="w-12 text-sm">{(employeeLog.activity || 0).toFixed(1)}%</span>
+												</div>
+											</TableCell>
+										</TableRow>
 									)) || []
 								)) || []}
 							</>
