@@ -25,16 +25,17 @@
       "APP_DOC": "Документация",
       "APP_SETTING_DEV": "Настройки за разработчици",
       "APP_SERVER_DEV": "Сървър за разработчици",
-      "APP_COPY": "Copy",
-      "APP_UNDO": "Undo",
-      "APP_REDO": "Redo",
-      "APP_CUT": "Cut",
-      "APP_PASTE": "Paste",
-      "APP_SELECT_ALL": "Select All"
+      "APP_COPY": "Копирай",
+      "APP_UNDO": "Отмени",
+      "APP_REDO": "Повтори",
+      "APP_CUT": "Изрежи",
+      "APP_PASTE": "Постави",
+      "APP_SELECT_ALL": "Избери всичко",
+      "APP_EDIT": "Редактиране"
     },
     "APP_DEV": "Разработчик",
     "APP_HELP": "Помощ",
-    "APP_EDIT": "Edit"
+    "APP_EDIT": "Редактиране"
   },
   "FORM": {
     "FIELDS": {
