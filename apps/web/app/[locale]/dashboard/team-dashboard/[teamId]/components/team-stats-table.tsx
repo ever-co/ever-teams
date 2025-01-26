@@ -38,7 +38,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / ITEMS_PER_PAGE) : 0;
 	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 	const endIndex = startIndex + ITEMS_PER_PAGE;
-	
+
 	const paginatedData = rapportDailyActivity?.slice(startIndex, endIndex);
 
 	const goToPage = (page: number) => {
@@ -84,7 +84,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 					</TableHeader>
 					<TableBody>
 						{paginatedData?.map((dayData) => (
-							<>
+							<div key={dayData.date}>
 								<TableRow key={dayData.date} className="bg-gray-50 dark:bg-gray-700">
 									<TableCell colSpan={8} className="font-medium">
 										{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
@@ -127,7 +127,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 										</TableRow>
 									)) || []
 								)) || []}
-							</>
+							</div>
 						))}
 					</TableBody>
 				</Table>
@@ -139,23 +139,23 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 					</p>
 				</div>
 				<div className="flex items-center space-x-2">
-					<Button 
-						variant="outline" 
-						size="icon" 
+					<Button
+						variant="outline"
+						size="icon"
 						onClick={goToFirstPage}
 						disabled={currentPage === 1}
 					>
 						<ChevronsLeft className="w-4 h-4" />
 					</Button>
-					<Button 
-						variant="outline" 
+					<Button
+						variant="outline"
 						size="icon"
 						onClick={goToPreviousPage}
 						disabled={currentPage === 1}
 					>
 						<ChevronLeft className="w-4 h-4" />
 					</Button>
-					<div className="flex items-center gap-1">
+					<div className="flex gap-1 items-center">
 						{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 							<Button
 								key={page}
@@ -168,16 +168,16 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 							</Button>
 						))}
 					</div>
-					<Button 
-						variant="outline" 
+					<Button
+						variant="outline"
 						size="icon"
 						onClick={goToNextPage}
 						disabled={currentPage === totalPages}
 					>
 						<ChevronRight className="w-4 h-4" />
 					</Button>
-					<Button 
-						variant="outline" 
+					<Button
+						variant="outline"
 						size="icon"
 						onClick={goToLastPage}
 						disabled={currentPage === totalPages}
