@@ -9,6 +9,8 @@ import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import SocialLogins from '../social-logins-buttons';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
+import Turnstile from "react-turnstile";
 
 function AuthTeam() {
 	const {
@@ -131,6 +133,28 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const t = useTranslations();
+	const captchaType = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
+
+	const renderCaptcha = () => {
+		switch (captchaType) {
+			case 'hcaptcha':
+				return (
+					<HCaptcha
+						sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ''}
+					/>
+				);
+			case 'cloudflare':
+				return (
+					<Turnstile
+						sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
+					/>
+				);
+			case 'google':
+			default:
+				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
+		}
+	};
+
 
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
@@ -161,7 +185,7 @@ function FillUserDataForm({
 						onChange={handleOnChange}
 						autoComplete="off"
 					/>
-					<ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />
+					{renderCaptcha()}
 				</div>
 
 				<div className="flex items-center justify-between w-full">
@@ -179,6 +203,7 @@ function FillUserDataForm({
 function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: any }) {
 	const t = useTranslations();
 	const [feedback, setFeedback] = useState<string>('');
+
 
 	const content = RECAPTCHA_SITE_KEY.value && (
 		<div className="w-full flex">
