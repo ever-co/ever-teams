@@ -68,75 +68,93 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 
 	return (
 		<div className="space-y-4">
-			<div className="overflow-auto relative w-full">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Member</TableHead>
-							<TableHead>Total Time</TableHead>
-							<TableHead>Tracked</TableHead>
-							<TableHead>Manually Added</TableHead>
-							<TableHead>Active Time</TableHead>
-							<TableHead>Idle Time</TableHead>
-							<TableHead>Unknown Activity</TableHead>
-							<TableHead>Activity Level</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{paginatedData?.map((dayData) => (
-							<div key={dayData.date}>
-								<TableRow key={dayData.date} className="bg-gray-50 dark:bg-gray-700">
-									<TableCell colSpan={8} className="font-medium">
-										{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
-									</TableCell>
+			<div className="relative rounded-md border">
+				<div className="overflow-x-auto">
+					<div className="inline-block min-w-full align-middle">
+						<Table>
+							<TableHeader>
+								<TableRow className="bg-gray-50 dark:bg-gray-800">
+									<TableHead className="min-w-[200px] py-3">Member</TableHead>
+									<TableHead className="min-w-[100px]">Total Time</TableHead>
+									<TableHead className="min-w-[80px]">Tracked</TableHead>
+									<TableHead className="min-w-[120px]">Manually Added</TableHead>
+									<TableHead className="min-w-[100px]">Active Time</TableHead>
+									<TableHead className="min-w-[80px]">Idle Time</TableHead>
+									<TableHead className="min-w-[120px]">Unknown Activity</TableHead>
+									<TableHead className="min-w-[200px]">Activity Level</TableHead>
 								</TableRow>
-								{dayData.logs?.map((projectLog) => (
-									projectLog.employeeLogs?.map((employeeLog) => (
-										<TableRow key={employeeLog.employee?.id}>
-											<TableCell className="font-medium">
-												<div className="flex gap-2 items-center">
-													<Avatar className="w-8 h-8">
-														<AvatarImage
-															src={employeeLog.employee?.user?.imageUrl || ''}
-															alt={employeeLog.employee?.user?.name || 'User'}
-														/>
-														<AvatarFallback>
-															{employeeLog.employee?.user?.name?.[0] || 'U'}
-														</AvatarFallback>
-													</Avatar>
-													{employeeLog.employee?.user?.name || 'Unknown User'}
-												</div>
-											</TableCell>
-											<TableCell>{formatDuration(employeeLog.sum || 0)}</TableCell>
-											<TableCell>{formatPercentage(employeeLog.activity)}</TableCell>
-											<TableCell>{formatPercentage(0)}</TableCell>
-											<TableCell className="text-green-500">{formatPercentage(100)}</TableCell>
-											<TableCell className="text-gray-500">{formatPercentage(0)}</TableCell>
-											<TableCell className="text-gray-500">{formatPercentage(0)}</TableCell>
-											<TableCell>
-												<div className="flex gap-2 items-center">
-													<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
-														<div
-															className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
-															style={{ width: `${employeeLog.activity || 0}%` }}
-														/>
-													</div>
-													<span className="w-12 text-sm">{(employeeLog.activity || 0).toFixed(1)}%</span>
-												</div>
+							</TableHeader>
+							<TableBody>
+								{paginatedData?.map((dayData) => (
+									<div key={dayData.date}>
+										<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
+											<TableCell colSpan={8} className="font-medium py-3">
+												{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 											</TableCell>
 										</TableRow>
-									)) || []
-								)) || []}
-							</div>
-						))}
-					</TableBody>
-				</Table>
+										{dayData.logs?.map((projectLog) => (
+											projectLog.employeeLogs?.map((employeeLog) => (
+												<TableRow key={employeeLog.employee?.id}>
+													<TableCell className="font-medium whitespace-nowrap">
+														<div className="flex gap-2 items-center">
+															<Avatar className="w-8 h-8 shrink-0">
+																<AvatarImage
+																	src={employeeLog.employee?.user?.imageUrl || ''}
+																	alt={employeeLog.employee?.user?.name || 'User'}
+																/>
+																<AvatarFallback>
+																	{employeeLog.employee?.user?.name?.[0] || 'U'}
+																</AvatarFallback>
+															</Avatar>
+															<span className="truncate">
+																{employeeLog.employee?.user?.name || 'Unknown User'}
+															</span>
+														</div>
+													</TableCell>
+													<TableCell className="whitespace-nowrap">
+														{formatDuration(employeeLog.sum || 0)}
+													</TableCell>
+													<TableCell className="whitespace-nowrap">
+														{formatPercentage(employeeLog.activity)}
+													</TableCell>
+													<TableCell className="whitespace-nowrap">
+														{formatPercentage(0)}
+													</TableCell>
+													<TableCell className="whitespace-nowrap text-green-500">
+														{formatPercentage(100)}
+													</TableCell>
+													<TableCell className="whitespace-nowrap text-gray-500">
+														{formatPercentage(0)}
+													</TableCell>
+													<TableCell className="whitespace-nowrap text-gray-500">
+														{formatPercentage(0)}
+													</TableCell>
+													<TableCell>
+														<div className="flex gap-2 items-center min-w-[150px]">
+															<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
+																<div
+																	className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
+																	style={{ width: `${employeeLog.activity || 0}%` }}
+																/>
+															</div>
+															<span className="w-12 text-sm whitespace-nowrap">
+																{(employeeLog.activity || 0).toFixed(1)}%
+															</span>
+														</div>
+													</TableCell>
+												</TableRow>
+											)) || []
+										)) || []}
+									</div>
+								))}
+							</TableBody>
+						</Table>
+					</div>
+				</div>
 			</div>
-			<div className="flex justify-between items-center px-2">
-				<div className="flex items-center space-x-6">
-					<p className="text-sm text-gray-500">
-						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of {rapportDailyActivity.length} entries
-					</p>
+			<div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-2">
+				<div className="text-sm text-gray-500 text-center sm:text-left">
+					Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of {rapportDailyActivity.length} entries
 				</div>
 				<div className="flex items-center space-x-2">
 					<Button
@@ -155,7 +173,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 					>
 						<ChevronLeft className="w-4 h-4" />
 					</Button>
-					<div className="flex gap-1 items-center">
+					<div className="flex gap-1 items-center overflow-x-auto max-w-[300px] p-1">
 						{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 							<Button
 								key={page}
