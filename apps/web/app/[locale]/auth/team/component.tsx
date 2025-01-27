@@ -135,18 +135,51 @@ function FillUserDataForm({
 	const t = useTranslations();
 	const captchaType = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
 
+	// const renderCaptcha = () => {
+	// 	switch (captchaType) {
+	// 		case 'hcaptcha':
+	// 			return (
+	// 				<HCaptcha
+	// 					sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ''}
+	// 				/>
+	// 			);
+	// 		case 'cloudflare':
+	// 			return (
+	// 				<Turnstile
+	// 					sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
+	// 				/>
+	// 			);
+	// 		case 'google':
+	// 		default:
+	// 			return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
+	// 	}
+	// };
+
 	const renderCaptcha = () => {
+		const handleCaptchaVerify = (token: string) => {
+			handleOnChange({ target: { name: 'captchaToken', value: token } });
+		};
+
+		const handleCaptchaError = () => {
+			handleOnChange({ target: { name: 'captchaToken', value: '' } });
+			console.error('CAPTCHA verification failed.');
+		};
+
 		switch (captchaType) {
 			case 'hcaptcha':
 				return (
 					<HCaptcha
 						sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ''}
+						onVerify={(token) => handleCaptchaVerify(token)}
+						onError={() => handleCaptchaError()}
 					/>
 				);
 			case 'cloudflare':
 				return (
 					<Turnstile
 						sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
+						onSuccess={(token) => handleCaptchaVerify(token)}
+						onError={() => handleCaptchaError()}
 					/>
 				);
 			case 'google':
