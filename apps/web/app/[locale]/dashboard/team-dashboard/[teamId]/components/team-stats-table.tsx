@@ -71,7 +71,7 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 			<div className="relative rounded-md border">
 				<div className="overflow-x-auto">
 					<div className="inline-block min-w-full align-middle">
-						<Table>
+						<Table className='min-w-full'>
 							<TableHeader>
 								<TableRow className="bg-gray-50 dark:bg-gray-800">
 									<TableHead className="min-w-[200px] py-3">Member</TableHead>
@@ -84,11 +84,11 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 									<TableHead className="min-w-[200px]">Activity Level</TableHead>
 								</TableRow>
 							</TableHeader>
-							<TableBody>
+							<TableBody className='min-w-full'>
 								{paginatedData?.map((dayData) => (
 									<div key={dayData.date}>
 										<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
-											<TableCell colSpan={8} className="font-medium py-3">
+											<TableCell colSpan={8} className="py-3 font-medium">
 												{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 											</TableCell>
 										</TableRow>
@@ -120,13 +120,13 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 													<TableCell className="whitespace-nowrap">
 														{formatPercentage(0)}
 													</TableCell>
-													<TableCell className="whitespace-nowrap text-green-500">
+													<TableCell className="text-green-500 whitespace-nowrap">
 														{formatPercentage(100)}
 													</TableCell>
-													<TableCell className="whitespace-nowrap text-gray-500">
+													<TableCell className="text-gray-500 whitespace-nowrap">
 														{formatPercentage(0)}
 													</TableCell>
-													<TableCell className="whitespace-nowrap text-gray-500">
+													<TableCell className="text-gray-500 whitespace-nowrap">
 														{formatPercentage(0)}
 													</TableCell>
 													<TableCell>
@@ -152,8 +152,8 @@ export function TeamStatsTable({ rapportDailyActivity, isLoading }: { rapportDai
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-2">
-				<div className="text-sm text-gray-500 text-center sm:text-left">
+			<div className="flex flex-col gap-4 justify-between items-center px-2 sm:flex-row">
+				<div className="text-sm text-center text-gray-500 sm:text-left">
 					Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of {rapportDailyActivity.length} entries
 				</div>
 				<div className="flex items-center space-x-2">
