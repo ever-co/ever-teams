@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import SocialLogins from '../social-logins-buttons';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
-import Turnstile from "react-turnstile";
+import Turnstile from 'react-turnstile';
 
 function AuthTeam() {
 	const {
@@ -133,7 +133,10 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const t = useTranslations();
-	const captchaType = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
+    const captchaType = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
+	if (captchaType && !['hcaptcha', 'cloudflare', 'google'].includes(captchaType)) {
+		console.warn(`Invalid CAPTCHA type: ${captchaType}. Falling back to default.`);
+	}
 
 
 	const renderCaptcha = () => {
@@ -143,7 +146,6 @@ function FillUserDataForm({
 
 		const handleCaptchaError = () => {
 			handleOnChange({ target: { name: 'captchaToken', value: '' } });
-			console.error('CAPTCHA verification failed.');
 		};
 
 		switch (captchaType) {
@@ -163,7 +165,6 @@ function FillUserDataForm({
 						onError={() => handleCaptchaError()}
 					/>
 				);
-			case 'google':
 			default:
 				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
 		}
