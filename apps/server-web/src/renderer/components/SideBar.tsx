@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { ISidebarComponent } from '../libs/interfaces';
 import { ThemeToggler } from './Toggler';
 import LanguageSelector from './LanguageSelector';
+import Container from './container';
+import WindowControl from './window-control';
+import { useEffect, useState } from 'react';
+import { WindowTypes } from '../../main/helpers/constant';
+import { IDevices } from '../../main/helpers/interfaces';
 
 export function SideBar({
   children,
@@ -10,11 +15,23 @@ export function SideBar({
   menuChange,
   lang,
 }: ISidebarComponent) {
+  const [platform, setPlatform] = useState<IDevices>('win32');
   const { t } = useTranslation();
+  const getPlatform = async () => {
+    const devicePlatform = await window.electron.ipcRenderer.invoke('get-platform');
+    setPlatform(devicePlatform);
+  }
+  useEffect(() => {
+    getPlatform();
+  }, [])
   return (
-    <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased text-gray-800">
-      <div className="fixed flex flex-col top-0 left-0 w-1/4 h-full dark:bg-[#2b2b2f] bg-gray-200">
-        <div className="overflow-y-auto overflow-x-hidden flex-grow">
+    <>
+      {platform === 'darwin' && (
+        <WindowControl windowTypes={WindowTypes.SETTING_WINDOW}/>
+      )}
+    <Container>
+      <div className="fixed flex flex-col top-0 left-0 h-full w-1/4 dark:bg-[#2b2b2f] bg-gray-200 rounded-3xl">
+        <div className="overflow-y-auto overflow-x-hidden flex-grow rounded-3xl content-start">
           <ul className="flex flex-col py-4 space-y-1">
             {menus.length > 0 &&
               menus.map((menu) => (
@@ -45,7 +62,8 @@ export function SideBar({
           </div>
         </div>
       </div>
-      <div className="flex flex-col relative left-64 w-3/4">{children}</div>
-    </div>
+      <div className="flex flex-col relative left-64 w-3/4 content-start">{children}</div>
+    </Container>
+    </>
   );
 }
