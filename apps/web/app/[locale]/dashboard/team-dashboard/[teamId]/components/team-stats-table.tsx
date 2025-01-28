@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 import { useState } from 'react';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
+import { useModal } from '@/app/hooks';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -162,11 +163,24 @@ export function TeamStatsTable({
 																</div>
 															</TableCell>
 															<TableCell className="w-[10px] text-green-500">
-																<ActivityModal employeeLog={employeeLog}>
-																	<button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-																		<ChartIcon />
-																	</button>
-																</ActivityModal>
+																{(() => {
+																	const { isOpen, openModal, closeModal } = useModal();
+																	return (
+																		<>
+																			<button 
+																				className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+																				onClick={openModal}
+																			>
+																				<ChartIcon />
+																			</button>
+																			<ActivityModal 
+																				employeeLog={employeeLog}
+																				isOpen={isOpen}
+																				closeModal={closeModal}
+																			/>
+																		</>
+																	);
+																})()}
 															</TableCell>
 														</TableRow>
 													)) || []
