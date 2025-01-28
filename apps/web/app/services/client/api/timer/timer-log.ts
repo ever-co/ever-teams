@@ -16,6 +16,27 @@ export async function getTimerLogs(
 // todayStart, todayEnd;
 
 
+interface ITaskTimesheetParams {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	status?: string[];
+}
+
+const TIMESHEET_RELATIONS = [
+	'project',
+	'task',
+	'organizationContact',
+	'employee.user',
+	'task.taskStatus',
+	'timesheet'
+] as const;
+
 export async function getTaskTimesheetLogsApi({
 	organizationId,
 	tenantId,
@@ -26,26 +47,18 @@ export async function getTaskTimesheetLogsApi({
 	employeeIds = [],
 	taskIds = [],
 	status = []
-}: {
-	organizationId: string,
-	tenantId: string,
-	startDate: string | Date,
-	endDate: string | Date,
-	timeZone?: string,
-	projectIds?: string[],
-	employeeIds?: string[],
-	taskIds?: string[],
-	status?: string[]
-}) {
-
+}: ITaskTimesheetParams) {
 	if (!organizationId || !tenantId || !startDate || !endDate) {
 		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
 	}
+
 	const start = typeof startDate === 'string' ? new Date(startDate).toISOString() : startDate.toISOString();
 	const end = typeof endDate === 'string' ? new Date(endDate).toISOString() : endDate.toISOString();
+
 	if (isNaN(new Date(start).getTime()) || isNaN(new Date(end).getTime())) {
 		throw new Error('Invalid date format provided');
 	}
+
 	const params = new URLSearchParams({
 		'activityLevel[start]': '0',
 		'activityLevel[end]': '100',
@@ -53,34 +66,25 @@ export async function getTaskTimesheetLogsApi({
 		tenantId,
 		startDate: start,
 		endDate: end,
-		timeZone: timeZone || '',
-		'relations[0]': 'project',
-		'relations[1]': 'task',
-		'relations[2]': 'organizationContact',
-		'relations[3]': 'employee.user',
-		'relations[4]': 'task.taskStatus',
-		'relations[5]': 'timesheet'
-
+		timeZone: timeZone || getDefaultTimezone()
 	});
 
-	projectIds.forEach((id, index) => {
-		params.append(`projectIds[${index}]`, id);
+	TIMESHEET_RELATIONS.forEach((relation, index) => {
+		params.append(`relations[${index}]`, relation);
 	});
 
-	employeeIds.forEach((id, index) => {
-		params.append(`employeeIds[${index}]`, id);
-	});
+	const addArrayParam = (key: string, values: string[]) => {
+		values.forEach((value, index) => {
+			if (value) params.append(`${key}[${index}]`, value);
+		});
+	};
 
-	taskIds.forEach((id, index) => {
-		params.append(`taskIds[${index}]`, id)
-	});
+	addArrayParam('projectIds', projectIds);
+	addArrayParam('employeeIds', employeeIds);
+	addArrayParam('taskIds', taskIds);
+	addArrayParam('status', status);
 
-	status.forEach((name, index) => {
-		params.append(`status[${index}]`, name);
-	})
-
-	const endpoint = `/timesheet/time-log?${params.toString()}`;
-	return get<TimesheetLog[]>(endpoint, { tenantId });
+	return get<TimesheetLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId });
 }
 
 
