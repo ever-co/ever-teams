@@ -93,7 +93,7 @@ export function TeamStatsTable({
 								</TableHeader>
 								<TableBody>
 									{paginatedData?.map((dayData) => (
-										<>
+										<div key={`date-${dayData.date}`}>
 											<TableRow
 												key={`date-${dayData.date}`}
 												className="bg-gray-50/50 dark:bg-gray-800/50"
@@ -185,7 +185,7 @@ export function TeamStatsTable({
 														</TableRow>
 													)) || []
 											) || []}
-										</>
+										</div>
 									))}
 								</TableBody>
 							</Table>
