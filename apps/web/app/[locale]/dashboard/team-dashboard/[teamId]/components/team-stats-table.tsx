@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
@@ -93,9 +93,8 @@ export function TeamStatsTable({
 								</TableHeader>
 								<TableBody>
 									{paginatedData?.map((dayData) => (
-										<div key={`date-${dayData.date}`}>
-											<TableRow
-												key={`date-${dayData.date}`}
+										<Fragment key={`date-group-${dayData.date}`}>
+																<TableRow
 												className="bg-gray-50/50 dark:bg-gray-800/50"
 											>
 												<TableCell colSpan={9} className="py-3 font-medium">
@@ -164,28 +163,24 @@ export function TeamStatsTable({
 																</div>
 															</TableCell>
 															<TableCell className="w-[10px] text-green-500">
-																{(() => {
-																	return (
-																		<>
-																			<button
-																				className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-																				onClick={openModal}
-																			>
-																				<ChartIcon />
-																			</button>
-																			<ActivityModal
-																				employeeLog={employeeLog}
-																				isOpen={isOpen}
-																				closeModal={closeModal}
-																			/>
-																		</>
-																	);
-																})()}
+																<>
+																	<button
+																		className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+																		onClick={openModal}
+																	>
+																		<ChartIcon />
+																	</button>
+																	<ActivityModal
+																		employeeLog={employeeLog}
+																		isOpen={isOpen}
+																		closeModal={closeModal}
+																	/>
+																</>
 															</TableCell>
 														</TableRow>
 													)) || []
 											) || []}
-										</div>
+										</Fragment>
 									))}
 								</TableBody>
 							</Table>
