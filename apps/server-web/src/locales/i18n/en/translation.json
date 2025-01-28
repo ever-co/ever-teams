@@ -24,10 +24,17 @@
       "APP_LEARN_MORE": "Learn More",
       "APP_DOC": "Documentation",
       "APP_SETTING_DEV": "Setting Dev.",
-      "APP_SERVER_DEV": "Server Dev."
+      "APP_SERVER_DEV": "Server Dev.",
+      "APP_COPY": "Copy",
+      "APP_UNDO": "Undo",
+      "APP_REDO": "Redo",
+      "APP_CUT": "Cut",
+      "APP_PASTE": "Paste",
+      "APP_SELECT_ALL": "Select All"
     },
     "APP_DEV": "Developer",
-    "APP_HELP": "Help"
+    "APP_HELP": "Help",
+    "APP_EDIT": "Edit"
   },
   "FORM": {
     "FIELDS": {

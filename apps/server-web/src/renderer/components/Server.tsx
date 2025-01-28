@@ -18,9 +18,9 @@ export const ServerComponent = (props: IServerComponent) => {
   };
   return (
     <>
-      <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12 min-h-screen">
+      <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12" style={{minHeight: '700px'}}>
         <form method="post" onSubmit={saveSetting}>
-          <div className="rounded-lg bg-gray-50 dark:bg-[#25272D] px-16 py-10 mt-5 border-2 border-gray-200 dark:border-gray-600">
+          <div className="rounded-3xl shadow-inner bg-gray-50 dark:bg-[#25272D] px-16 py-10 mt-5 dark:border-gray-600">
             <div className="flex items-center">
               <div className="flex w-full flex-wrap">
                 <div className="md:flex md:items-center mb-5 w-full">

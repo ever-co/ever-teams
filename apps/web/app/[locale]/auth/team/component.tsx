@@ -1,6 +1,6 @@
 'use client';
 
-import { RECAPTCHA_SITE_KEY } from '@app/constants';
+import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@app/constants';
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -9,6 +9,8 @@ import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import SocialLogins from '../social-logins-buttons';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
+import Turnstile from 'react-turnstile';
 
 function AuthTeam() {
 	const {
@@ -132,6 +134,43 @@ function FillUserDataForm({
 } & IClassName) {
 	const t = useTranslations();
 
+	const renderCaptcha = () => {
+		const handleCaptchaVerify = (token: string) => {
+			handleOnChange({ target: { name: 'recaptcha', value: token } });
+		};
+
+		const handleCaptchaError = () => {
+			handleOnChange({ target: { name: 'recaptcha', value: '' } });
+		};
+
+		switch (CAPTCHA_TYPE) {
+			case 'hcaptcha':
+				return (
+					<>
+						<HCaptcha
+								sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
+								onVerify={(token) => handleCaptchaVerify(token)}
+								onError={() => handleCaptchaError()}
+						/>
+					</>
+				);
+			case 'cloudflare':
+				return (
+					<>
+						<Turnstile
+							sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
+							onSuccess={(token) => handleCaptchaVerify(token)}
+							onError={() => handleCaptchaError()}
+							onLoad={() => handleOnChange({ target: { name: 'captchaToken', value: '' } })}
+						/>
+					</>
+				);
+			default:
+				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
+		}
+	};
+
+
 	return (
 		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
 			<div className="flex flex-col items-center justify-between h-full">
@@ -161,7 +200,7 @@ function FillUserDataForm({
 						onChange={handleOnChange}
 						autoComplete="off"
 					/>
-					<ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />
+					{renderCaptcha()}
 				</div>
 
 				<div className="flex items-center justify-between w-full">
@@ -179,6 +218,7 @@ function FillUserDataForm({
 function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: any }) {
 	const t = useTranslations();
 	const [feedback, setFeedback] = useState<string>('');
+
 
 	const content = RECAPTCHA_SITE_KEY.value && (
 		<div className="w-full flex">
