@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useState } from 'react';
 import { ChartIcon } from './team-icon';
+import { ActivityModal } from './activity-modal';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -161,7 +162,11 @@ export function TeamStatsTable({
 																</div>
 															</TableCell>
 															<TableCell className="w-[10px] text-green-500">
-																<ChartIcon />
+																<ActivityModal employeeLog={employeeLog}>
+																	<button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+																		<ChartIcon />
+																	</button>
+																</ActivityModal>
 															</TableCell>
 														</TableRow>
 													)) || []
