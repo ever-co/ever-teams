@@ -296,7 +296,19 @@
 		"GROUP_BY": "تجميع حسب",
 		"DAILY_LIMIT": "الحد اليومي",
 		"WEEKLY_LIMIT": "الحد الأسبوعي",
-		"REPORTS": "التقارير"
+		"REPORTS": "التقارير",
+		"LEGEND": "مفتاح الخريطة",
+		"HOURS": "ساعات",
+		"NOT_HOURS_WORKED": "ساعات غير مُشتغَلة",
+		"VIEW": "عرض",
+		"VIEW_INFO": "عرض المعلومات",
+		"SOURCE": "المصدر",
+		"CLIENT": "العميل",
+		"NO_CLIENT": "لا يوجد عميل",
+		"SCREENSHOTS": "لقطات الشاشة",
+		"TIME_LOG": "سجل الوقت",
+		"TO_DO": "المهام",
+		"MEMBERS_COUNT": "عدد الأعضاء"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -746,7 +758,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم والإجمالي في المهمة",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم في جميع المهام للفريق المحدد"
 		},
-		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة"
+		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "لم يتم تعيين المهمة"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",
@@ -867,5 +882,8 @@
 			"UNPLANNED_WORK": "عمل غير مخطط له",
 			"TESTED_TIMER": "اختبار المؤقت"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "هل أنت متأكد أنك تريد حذف فترة الوقت هذه؟"
 	}
 }

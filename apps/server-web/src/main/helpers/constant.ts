@@ -65,11 +65,13 @@ export const LOG_TYPES = {
 export const IPC_TYPES: {
   SETTING_PAGE: Channels,
   UPDATER_PAGE: Channels,
-  SERVER_PAGE: Channels
+  SERVER_PAGE: Channels,
+  CONTROL_BUTTON: Channels
 } = {
   SETTING_PAGE: 'setting-page',
   UPDATER_PAGE: 'updater-page',
-  SERVER_PAGE: 'server-page'
+  SERVER_PAGE: 'server-page',
+  CONTROL_BUTTON: 'control-button'
 }
 
 export const WindowOptions = {

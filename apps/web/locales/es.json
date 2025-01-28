@@ -314,7 +314,19 @@
 		"GROUP_BY": "Agrupar por",
 		"DAILY_LIMIT": "Límite diario",
 		"WEEKLY_LIMIT": "Límite semanal",
-		"REPORTS": "Informes"
+		"REPORTS": "Informes",
+		"LEGEND": "Leyenda",
+		"HOURS": "Horas",
+		"NOT_HOURS_WORKED": "Horas no trabajadas",
+		"VIEW": "Ver",
+		"VIEW_INFO": "Ver información",
+		"SOURCE": "Fuente",
+		"CLIENT": "Cliente",
+		"NO_CLIENT": "Sin cliente",
+		"SCREENSHOTS": "Capturas de pantalla",
+		"TIME_LOG": "Registro de tiempo",
+		"TO_DO": "Pendiente",
+		"MEMBERS_COUNT": "Conteo de miembros"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -746,7 +758,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Cuántas horas trabajó el empleado en total y hoy en la tarea",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Cuántas horas trabajó el empleado hoy en todas las tareas para el equipo seleccionado"
 		},
-		"CONFIRM_CLOSE_TASK": "Por favor, confirma si deseas cerrar la tarea"
+		"CONFIRM_CLOSE_TASK": "Por favor, confirma si deseas cerrar la tarea",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Tarea no asignada"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan para hoy",
@@ -867,5 +882,8 @@
 			"UNPLANNED_WORK": "Trabajo no planificado",
 			"TESTED_TIMER": "Temporizador probado"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "¿Está seguro de que desea eliminar este intervalo de tiempo?"
 	}
 }

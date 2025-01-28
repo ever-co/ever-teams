@@ -314,7 +314,19 @@
 		"GROUP_BY": "分组依据",
 		"DAILY_LIMIT": "每日限制",
 		"WEEKLY_LIMIT": "每周限制",
-		"REPORTS": "报告"
+		"REPORTS": "报告",
+		"LEGEND": "图例",
+		"HOURS": "小时",
+		"NOT_HOURS_WORKED": "非工作小时",
+		"VIEW": "查看",
+		"VIEW_INFO": "查看信息",
+		"SOURCE": "来源",
+		"CLIENT": "客户",
+		"NO_CLIENT": "没有客户",
+		"SCREENSHOTS": "截图",
+		"TIME_LOG": "时间记录",
+		"TO_DO": "待办事项",
+		"MEMBERS_COUNT": "成员数"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -746,7 +758,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "员工今天和总共在任务上工作了多少小时",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "员工今天在所选团队的所有任务上工作了多少小时"
 		},
-		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务"
+		"CONFIRM_CLOSE_TASK": "请确认您是否要关闭此任务",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "任务未分配"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "今日计划",
@@ -867,5 +882,8 @@
 			"UNPLANNED_WORK": "未計劃的工作",
 			"TESTED_TIMER": "計時器測試"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "您确定要删除此时间段吗？"
 	}
 }

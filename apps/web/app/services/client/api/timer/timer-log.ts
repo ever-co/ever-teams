@@ -1,4 +1,4 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet } from '@app/interfaces';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps, ITimerLogGrouped } from '@app/interfaces';
 import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
@@ -16,6 +16,27 @@ export async function getTimerLogs(
 // todayStart, todayEnd;
 
 
+interface ITaskTimesheetParams {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	status?: string[];
+}
+
+const TIMESHEET_RELATIONS = [
+	'project',
+	'task',
+	'organizationContact',
+	'employee.user',
+	'task.taskStatus',
+	'timesheet'
+] as const;
+
 export async function getTaskTimesheetLogsApi({
 	organizationId,
 	tenantId,
@@ -26,26 +47,18 @@ export async function getTaskTimesheetLogsApi({
 	employeeIds = [],
 	taskIds = [],
 	status = []
-}: {
-	organizationId: string,
-	tenantId: string,
-	startDate: string | Date,
-	endDate: string | Date,
-	timeZone?: string,
-	projectIds?: string[],
-	employeeIds?: string[],
-	taskIds?: string[],
-	status?: string[]
-}) {
-
+}: ITaskTimesheetParams) {
 	if (!organizationId || !tenantId || !startDate || !endDate) {
 		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
 	}
+
 	const start = typeof startDate === 'string' ? new Date(startDate).toISOString() : startDate.toISOString();
 	const end = typeof endDate === 'string' ? new Date(endDate).toISOString() : endDate.toISOString();
+
 	if (isNaN(new Date(start).getTime()) || isNaN(new Date(end).getTime())) {
 		throw new Error('Invalid date format provided');
 	}
+
 	const params = new URLSearchParams({
 		'activityLevel[start]': '0',
 		'activityLevel[end]': '100',
@@ -53,34 +66,25 @@ export async function getTaskTimesheetLogsApi({
 		tenantId,
 		startDate: start,
 		endDate: end,
-		timeZone: timeZone || '',
-		'relations[0]': 'project',
-		'relations[1]': 'task',
-		'relations[2]': 'organizationContact',
-		'relations[3]': 'employee.user',
-		'relations[4]': 'task.taskStatus',
-		'relations[5]': 'timesheet'
-
+		timeZone: timeZone || getDefaultTimezone()
 	});
 
-	projectIds.forEach((id, index) => {
-		params.append(`projectIds[${index}]`, id);
+	TIMESHEET_RELATIONS.forEach((relation, index) => {
+		params.append(`relations[${index}]`, relation);
 	});
 
-	employeeIds.forEach((id, index) => {
-		params.append(`employeeIds[${index}]`, id);
-	});
+	const addArrayParam = (key: string, values: string[]) => {
+		values.forEach((value, index) => {
+			if (value) params.append(`${key}[${index}]`, value);
+		});
+	};
 
-	taskIds.forEach((id, index) => {
-		params.append(`taskIds[${index}]`, id)
-	});
+	addArrayParam('projectIds', projectIds);
+	addArrayParam('employeeIds', employeeIds);
+	addArrayParam('taskIds', taskIds);
+	addArrayParam('status', status);
 
-	status.forEach((name, index) => {
-		params.append(`status[${index}]`, name);
-	})
-
-	const endpoint = `/timesheet/time-log?${params.toString()}`;
-	return get<TimesheetLog[]>(endpoint, { tenantId });
+	return get<TimesheetLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId });
 }
 
 
@@ -150,8 +154,123 @@ export function updateTimesheetFromAPi(params: UpdateTimesheet) {
 		throw new Error('Required parameters missing: organizationId and tenantId are required');
 	}
 	try {
-		return put<TimesheetLog>(`/timesheet/time-log/${params.id}`, { ...data, organizationId }, { tenantId })
+		return put<TimesheetLog>(`/timesheet/time-log/${id}`, { ...data, organizationId }, { tenantId })
 	} catch (error) {
 		throw new Error('Failed to create timesheet log');
 	}
+}
+
+const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export function getTimeLogReportDailyChart({
+    activityLevel,
+    organizationId,
+    tenantId,
+    startDate,
+    endDate,
+    timeZone = getDefaultTimezone(),
+    groupBy,
+    projectIds = [],
+    employeeIds = [],
+    logType = [],
+    teamIds = []
+}: ITimeLogReportDailyChartProps) {
+    const baseParams = {
+        'activityLevel[start]': activityLevel.start.toString(),
+        'activityLevel[end]': activityLevel.end.toString(),
+        organizationId,
+        tenantId,
+        startDate,
+        endDate,
+        timeZone,
+        ...(groupBy && { groupBy })
+    };
+
+	if (!organizationId || !tenantId || !startDate || !endDate) {
+		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
+	}
+	if (activityLevel.start < 0 || activityLevel.end > 100 || activityLevel.start >= activityLevel.end) {
+		throw new Error('Invalid activity level range');
+	}
+
+    const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
+        values.forEach((value, index) => {
+            params[`${key}[${index}]`] = value;
+        });
+    };
+
+    const queryParams = { ...baseParams };
+    if (projectIds.length) addArrayParams(queryParams, 'projectIds', projectIds);
+    if (employeeIds.length) addArrayParams(queryParams, 'employeeIds', employeeIds);
+    if (logType.length) addArrayParams(queryParams, 'logType', logType);
+    if (teamIds.length) addArrayParams(queryParams, 'teamIds', teamIds);
+
+    const queryString = new URLSearchParams(queryParams).toString();
+
+    return get<ITimerDailyLog[]>(
+        `/timesheet/time-log/report/daily-chart?${queryString}`,
+        { tenantId }
+    );
+}
+
+interface ITimeLogReportDailyProps {
+	organizationId: string;
+	tenantId: string;
+	startDate: string | Date;
+	endDate: string | Date;
+	timeZone?: string;
+	groupBy?: string;
+	projectIds?: string[];
+	employeeIds?: string[];
+	taskIds?: string[];
+	teamIds?: string[];
+	activityLevel?: {
+		start: number;
+		end: number;
+	};
+}
+
+export function getTimeLogReportDaily({
+	organizationId,
+	tenantId,
+	startDate,
+	endDate,
+	timeZone = getDefaultTimezone(),
+	groupBy = 'date',
+	projectIds = [],
+	employeeIds = [],
+	taskIds = [],
+	teamIds = [],
+	activityLevel = { start: 0, end: 100 }
+}: ITimeLogReportDailyProps) {
+	if (!organizationId || !tenantId || !startDate || !endDate) {
+		throw new Error('Required parameters missing: organizationId, tenantId, startDate, and endDate are required');
+	}
+
+	const baseParams: Record<string, string> = {
+		'activityLevel[start]': activityLevel.start.toString(),
+		'activityLevel[end]': activityLevel.end.toString(),
+		organizationId,
+		tenantId,
+		startDate: startDate instanceof Date ? startDate.toISOString() : startDate,
+		endDate: endDate instanceof Date ? endDate.toISOString() : endDate,
+		timeZone,
+		...(groupBy && { groupBy })
+	};
+
+	const addArrayParams = (params: Record<string, string>, key: string, values: string[]) => {
+		values.forEach((value, index) => {
+			params[`${key}[${index}]`] = value;
+		});
+	};
+
+	const queryParams = { ...baseParams };
+	if (projectIds.length) addArrayParams(queryParams, 'projectIds', projectIds);
+	if (employeeIds.length) addArrayParams(queryParams, 'employeeIds', employeeIds);
+	if (taskIds.length) addArrayParams(queryParams, 'taskIds', taskIds);
+	if (teamIds.length) addArrayParams(queryParams, 'teamIds', teamIds);
+
+	const queryString = new URLSearchParams(queryParams).toString();
+
+	return get<ITimerLogGrouped[]>(`/timesheet/time-log/report/daily?${queryString}`, { tenantId });
 }

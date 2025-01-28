@@ -7,6 +7,8 @@
 		" X",
 		" X ",
 		"hookform",
+		"HCAPTCHA",
+		"hcaptcha",
 		"accepte",
 		"Accordian",
 		"adipiscing",
@@ -421,7 +423,11 @@
 		"Xlarge",
 		"xlcard",
 		"xlight",
-		"yellowbox"
+		"yellowbox",
+		"titleBar",
+		"flexbox",
+		"rounded",
+		"customStyle"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

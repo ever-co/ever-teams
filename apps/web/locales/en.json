@@ -24,6 +24,15 @@
 		"TASKS": "Tasks",
 		"MEN_HOURS": "Men Hours",
 		"MEMBERS_WORKED": "Members Worked",
+		"VIEW": "View",
+		"VIEW_INFO": "View info",
+		"SOURCE": "Source",
+		"CLIENT": "Client",
+		"NO_CLIENT": "No client",
+		"SCREENSHOTS": "Screenshots",
+		"TIME_LOG": "Time log",
+		"TO_DO": "To-do",
+
 		"COLLAPSE_COLUMN": "Collapse Column",
 		"EDIT_STATUS": "Edit Status",
 		"ADD_TIME_ENTRY": "Add Time Entry",
@@ -314,7 +323,11 @@
 		"GROUP_BY": "Group by",
 		"DAILY_LIMIT": "Daily limit",
 		"WEEKLY_LIMIT": "Weekly limit",
-		"REPORTS": "Reports"
+		"REPORTS": "Reports",
+		"LEGEND": "Legend",
+		"HOURS": "Hours",
+		"NOT_HOURS_WORKED": "Not hours worked",
+		"MEMBERS_COUNT": "Members count"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -746,7 +759,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "How many hours an employee worked for total and today on task",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "How many hours did employees work today on all tasks for the selected Team"
 		},
-		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task"
+		"CONFIRM_CLOSE_TASK": "Please confirm if you want to close the task",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Task unassigned"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",
@@ -867,5 +883,8 @@
 			"UNPLANNED_WORK": "Unplanned work",
 			"TESTED_TIMER": "Tested timer"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Are you sure you want to delete this time slot?"
 	}
 }

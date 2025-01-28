@@ -314,7 +314,19 @@
 		"GROUP_BY": "Raggruppa per",
 		"DAILY_LIMIT": "Limite giornaliero",
 		"WEEKLY_LIMIT": "Limite settimanale",
-		"REPORTS": "Report"
+		"REPORTS": "Report",
+		"LEGEND": "Legenda",
+		"HOURS": "Ore",
+		"NOT_HOURS_WORKED": "Ore non lavorate",
+		"VIEW": "Visualizza",
+		"VIEW_INFO": "Visualizza informazioni",
+		"SOURCE": "Fonte",
+		"CLIENT": "Cliente",
+		"NO_CLIENT": "Nessun cliente",
+		"SCREENSHOTS": "Screenshot",
+		"TIME_LOG": "Registro del tempo",
+		"TO_DO": "Da fare",
+		"MEMBERS_COUNT": "Conteggio dei membri"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -746,7 +758,10 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Quante ore ha lavorato l'impiegato in totale e oggi sul compito",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Quante ore ha lavorato l'impiegato oggi su tutte le attività per il team selezionato"
 		},
-		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito"
+		"CONFIRM_CLOSE_TASK": "Conferma se desideri chiudere il compito",
+		"toastMessages": {
+			"TASK_UNASSIGNED": "Attività non assegnata"
+		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Piano per oggi",
@@ -867,5 +882,8 @@
 			"UNPLANNED_WORK": "Lavoro non pianificato",
 			"TESTED_TIMER": "Timer testato"
 		}
+	},
+	"timeSlot": {
+		"DELETE_MESSAGE": "Sei sicuro di voler eliminare questa fascia oraria?"
 	}
 }

@@ -17,7 +17,7 @@ export const AboutComponent = (props: IAbout) => {
     });
   };
   return (
-    <div className="w-full text-white">
+    <div className="w-full text-white rounded-3xl" style={{minHeight: '700px'}}>
       <div className="text-center mt-8">
         <div className="flex justify-center items-center mb-4">
           <EverTeamsLogo />
