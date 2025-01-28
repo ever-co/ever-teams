@@ -47,7 +47,7 @@ export function TeamStatsTable({
 	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / ITEMS_PER_PAGE) : 0;
 	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 	const endIndex = startIndex + ITEMS_PER_PAGE;
-
+	const { openModal, closeModal, isOpen } = useModal();
 	const paginatedData = rapportDailyActivity?.slice(startIndex, endIndex);
 
 	const goToPage = (page: number) => {
@@ -96,7 +96,8 @@ export function TeamStatsTable({
 										<>
 											<TableRow
 												key={`date-${dayData.date}`}
-												className="bg-gray-50/50 dark:bg-gray-800/50">
+												className="bg-gray-50/50 dark:bg-gray-800/50"
+											>
 												<TableCell colSpan={9} className="py-3 font-medium">
 													{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 												</TableCell>
@@ -164,16 +165,15 @@ export function TeamStatsTable({
 															</TableCell>
 															<TableCell className="w-[10px] text-green-500">
 																{(() => {
-																	const { isOpen, openModal, closeModal } = useModal();
 																	return (
 																		<>
-																			<button 
+																			<button
 																				className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
 																				onClick={openModal}
 																			>
 																				<ChartIcon />
 																			</button>
-																			<ActivityModal 
+																			<ActivityModal
 																				employeeLog={employeeLog}
 																				isOpen={isOpen}
 																				closeModal={closeModal}
