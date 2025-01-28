@@ -1,6 +1,6 @@
 'use client';
 
-import { RECAPTCHA_SITE_KEY } from '@app/constants';
+import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@app/constants';
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -133,37 +133,37 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const t = useTranslations();
-    const captchaType = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
-	if (captchaType && !['hcaptcha', 'cloudflare', 'google'].includes(captchaType)) {
-		console.warn(`Invalid CAPTCHA type: ${captchaType}. Falling back to default.`);
-	}
-
 
 	const renderCaptcha = () => {
 		const handleCaptchaVerify = (token: string) => {
-			handleOnChange({ target: { name: 'captchaToken', value: token } });
+			handleOnChange({ target: { name: 'recaptcha', value: token } });
 		};
 
 		const handleCaptchaError = () => {
-			handleOnChange({ target: { name: 'captchaToken', value: '' } });
+			handleOnChange({ target: { name: 'recaptcha', value: '' } });
 		};
 
-		switch (captchaType) {
+		switch (CAPTCHA_TYPE) {
 			case 'hcaptcha':
 				return (
-					<HCaptcha
-						sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ''}
-						onVerify={(token) => handleCaptchaVerify(token)}
-						onError={() => handleCaptchaError()}
-					/>
+					<>
+						<HCaptcha
+								sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
+								onVerify={(token) => handleCaptchaVerify(token)}
+								onError={() => handleCaptchaError()}
+						/>
+					</>
 				);
 			case 'cloudflare':
 				return (
-					<Turnstile
-						sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
-						onSuccess={(token) => handleCaptchaVerify(token)}
-						onError={() => handleCaptchaError()}
-					/>
+					<>
+						<Turnstile
+							sitekey={RECAPTCHA_SITE_KEY.value ?? ''}
+							onSuccess={(token) => handleCaptchaVerify(token)}
+							onError={() => handleCaptchaError()}
+							onLoad={() => handleOnChange({ target: { name: 'captchaToken', value: '' } })}
+						/>
+					</>
 				);
 			default:
 				return <ReCAPTCHA errors={errors} handleOnChange={handleOnChange} />;
