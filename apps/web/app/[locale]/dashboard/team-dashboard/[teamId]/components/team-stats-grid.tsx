@@ -1,15 +1,9 @@
 "use client";
 
+import { secondsToTime } from "@/app/helpers";
 import { ITimesheetStatisticsData } from "@/app/interfaces";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-
-function formatDuration(seconds: number | undefined): string {
-    if (!seconds) return "00:00";
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-}
 
 function formatPercentage(value: number | undefined): number {
     if (!value) return 0;
@@ -23,43 +17,48 @@ export function TeamStatsGrid({
     statisticsCounts: ITimesheetStatisticsData | null;
     loadingTimesheetStatisticsCounts: boolean;
 }) {
+    const {h:hours, m:minutes, s:seconds} = secondsToTime(statisticsCounts?.weekDuration || 0);
+
     const stats = [
         {
             title: "Members worked",
             value: statisticsCounts?.employeesCount?.toString() || "0",
-            type: "number"
+            type: "number",
+            showProgress: false
         },
         {
             title: "Tracked",
-            value: formatDuration(statisticsCounts?.weekDuration),
+            value: `${hours}:${minutes}:${seconds}`,
             type: "time",
             color: "text-blue-500",
             progress: formatPercentage(statisticsCounts?.weekActivities),
-            progressColor: "bg-blue-500"
+            progressColor: "bg-blue-500",
+            showProgress: true
         },
         {
             title: "Manual",
-            value: formatDuration(statisticsCounts?.todayDuration),
+            value: `${hours}:${minutes}:${seconds}`,
             type: "time",
             color: "text-red-500",
-            progress: formatPercentage(statisticsCounts?.todayActivities),
-            progressColor: "bg-red-500"
+            progress: formatPercentage(statisticsCounts?.weekActivities),
+            progressColor: "bg-red-500",
+            showProgress: true
         },
         {
             title: "Idle",
-            value: formatDuration(statisticsCounts?.weekDuration),
+            value: `${hours}:${minutes}:${seconds}`,
             type: "time",
             color: "text-yellow-500",
-            progress: formatPercentage(100),
-            progressColor: "bg-yellow-500"
+            progress: formatPercentage(statisticsCounts?.weekActivities),
+            progressColor: "bg-yellow-500",
+            showProgress: true
         },
         {
             title: "Total Hours",
-            value: formatDuration(statisticsCounts?.todayDuration),
+            value: `${hours}:${minutes}:${seconds}`,
             type: "time",
             color: "text-green-500",
-            progress: formatPercentage(100),
-            progressColor: "bg-green-500"
+            showProgress: false
         }
     ];
 
@@ -81,14 +80,16 @@ export function TeamStatsGrid({
                                     </span>
                                 )}
                             </div>
-                            <div className="mt-4">
-                                <div className="w-full h-2 bg-gray-100 rounded-full">
-                                    <div
-                                        className={`h-full rounded-full ${stat.progressColor} transition-all duration-300`}
-                                        style={{ width: `${loadingTimesheetStatisticsCounts ? 0 : stat.progress}%` }}
-                                    />
+                            {stat.showProgress && (
+                                <div className="mt-4">
+                                    <div className="w-full h-2 bg-gray-100 rounded-full">
+                                        <div
+                                            className={`h-full rounded-full ${stat.progressColor} transition-all duration-300`}
+                                            style={{ width: `${loadingTimesheetStatisticsCounts ? 0 : stat.progress}%` }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </Card>
                 ))}
