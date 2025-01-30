@@ -270,11 +270,20 @@ export interface ITimerLogGrouped {
     logs: ITimerProjectLog[];
 }
 
+/**
+ * Interface for timesheet statistics counts.
+ */
 export interface ITimesheetStatisticsCounts {
+    /** Number of employees in the statistics */
     employeesCount: number;
+    /** Number of projects in the statistics */
     projectsCount: number;
+    /** Weekly activities percentage */
     weekActivities: number;
+    /** Total duration of activities this week in seconds */
     weekDuration: number;
+    /** Today's activities percentage */
     todayActivities: number;
+    /** Total duration of activities today in seconds */
     todayDuration: number;
 }

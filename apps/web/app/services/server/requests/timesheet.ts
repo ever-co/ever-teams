@@ -1,7 +1,7 @@
 import { ITasksTimesheet, TimeLogType } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITimerDailyLog, ITimerLogGrouped, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
+import { ITimerDailyLog, ITimerLogGrouped, ITimesheetStatisticsCounts, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/app/interfaces';
 
 export type TTasksTimesheetStatisticsParams = {
@@ -182,14 +182,14 @@ export interface ITimesheetStatisticsCountsProps {
 export async function getTimesheetStatisticsCountsRequest(
     { tenantId, ...params }: ITimesheetStatisticsCountsProps,
     bearer_token: string
-): Promise<{ data: ITimesheetStatisticsCountsProps }> {
+): Promise<{ data: ITimesheetStatisticsCounts }> {
     const queries = qs.stringify(params, {
         arrayFormat: 'indices',
         encode: true,
         strictNullHandling: true
     });
 
-    return serverFetch<ITimesheetStatisticsCountsProps>({
+    return serverFetch<ITimesheetStatisticsCounts>({
         path: `/timesheet/statistics/counts?${queries}`,
         method: 'GET',
         bearer_token,
