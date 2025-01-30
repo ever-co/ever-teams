@@ -269,3 +269,12 @@ export interface ITimerLogGrouped {
     date: string;
     logs: ITimerProjectLog[];
 }
+
+export interface ITimesheetStatisticsCounts {
+    employeesCount: number;
+    projectsCount: number;
+    weekActivities: number;
+    weekDuration: number;
+    todayActivities: number;
+    todayDuration: number;
+}
