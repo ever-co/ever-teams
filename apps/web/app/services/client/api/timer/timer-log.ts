@@ -1,4 +1,4 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps, ITimerLogGrouped, ITimesheetStatisticsCounts, TimeLogType } from '@app/interfaces';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps, ITimerLogGrouped, TimeLogType, ITimesheetStatisticsData } from '@app/interfaces';
 import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import qs from 'qs';
@@ -225,6 +225,7 @@ interface ITimeLogReportDailyProps {
 	employeeIds?: string[];
 	taskIds?: string[];
 	teamIds?: string[];
+	logType?: TimeLogType[];
 	activityLevel?: {
 		start: number;
 		end: number;
@@ -276,19 +277,6 @@ export function getTimeLogReportDaily({
 	return get<ITimerLogGrouped[]>(`/timesheet/time-log/report/daily?${queryString}`, { tenantId });
 }
 
-export interface ITimesheetStatisticsCountsRequest {
-	activityLevel: {
-		start: number;
-		end: number;
-	};
-	logType: TimeLogType[];
-	organizationId: string;
-	tenantId: string;
-	startDate: string;
-	endDate: string;
-	timeZone?: string;
-}
-
 /**
  * Format duration in seconds to human readable format (HH:mm:ss)
  */
@@ -325,7 +313,7 @@ export function formatActivity(activity: number): string {
  *   endDate: '2024-12-31 12:59:59',
  *   timeZone: 'Australia/Lord_Howe'
  * });
- * 
+ *
  * console.log({
  *   employees: data.employeesCount,
  *   projects: data.projectsCount,
@@ -343,7 +331,7 @@ export async function getTimesheetStatisticsCounts({
 	startDate,
 	endDate,
 	timeZone = 'Etc/UTC'
-}: ITimesheetStatisticsCountsRequest): Promise<{ data: ITimesheetStatisticsCounts }> {
+}: ITimeLogReportDailyProps): Promise<{ data: ITimesheetStatisticsData }> {
 	const queryString = qs.stringify(
 		{
 			activityLevel,
@@ -359,5 +347,5 @@ export async function getTimesheetStatisticsCounts({
 			strictNullHandling: true
 		}
 	);
-	return get<ITimesheetStatisticsCounts>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
+	return get<ITimesheetStatisticsData>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
 }
