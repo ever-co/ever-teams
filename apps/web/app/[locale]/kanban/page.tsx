@@ -121,17 +121,17 @@ const Kanban = () => {
 						}
 					>
 						<Container fullWidth={fullWidth} className="!pt-0">
-							<div className="flex flex-row items-start justify-between mt-4 bg-white dark:bg-dark-high">
-								<div className="flex items-center justify-center h-10 gap-8">
+							<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
+								<div className="flex gap-8 justify-center items-center h-10">
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 								</div>
-								<div className="flex items-center justify-center h-10 gap-1 w-max">
+								<div className="flex gap-1 justify-center items-center w-max h-10">
 									<HeaderTabs kanban={true} linkAll={true} />
 								</div>
 							</div>
-							<div className="flex items-center justify-between mt-4 bg-white dark:bg-dark-high">
-								<h1 className="text-4xl font-semibold ">
+							<div className="flex justify-between items-center mt-4 bg-white dark:bg-dark-high">
+								<h1 className="text-4xl font-semibold">
 									{t('common.KANBAN')} {t('common.BOARD')}
 								</h1>
 								<div className="flex items-center space-x-2 w-fit">
@@ -156,16 +156,17 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="relative z-10 flex flex-col-reverse items-center justify-between pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
+							<div className="flex flex-col-reverse justify-between items-center pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
 								<div className="flex flex-row">
 									{tabs.map((tab) => (
 										<div
 											key={tab.name}
 											onClick={() => setActiveTab(tab.value)}
-											className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${activeTab === tab.value
-												? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-												: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-												}`}
+											className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${
+												activeTab === tab.value
+													? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
+													: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
+											}`}
 											style={{
 												borderBottomWidth: '3px',
 												borderBottomStyle: 'solid'
@@ -175,7 +176,7 @@ const Kanban = () => {
 										</div>
 									))}
 								</div>
-								<div className="flex mt-4 space-x-2 lg:mt-0">
+								<div className="flex gap-5 mt-4 lg:mt-0">
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<EpicPropertiesDropdown
 											onValueChange={(_, values) => setEpics(values || [])}
@@ -183,49 +184,48 @@ const Kanban = () => {
 											multiple={true}
 										/>
 									</div>
-									{/* <div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"> */}
-									<div className="relative z-10">
-										<div className="bg-[#F2F2F2] dark:bg-dark--theme-light absolute flex items-center p-2 justify-between w-40 h-11 border input-border rounded-xl">
-											<span className="flex">
-												<div
-													className="h-6 w-6 p-1.5 rounded-md mr-1"
-													style={{
-														backgroundColor: issues.bgColor ?? 'transparent'
-													}}
-												>
-													{issues.icon ?? <CircleIcon className="w-3 h-3" />}
+									<div className="pr-[90px]">
+										<div className="inline-block relative z-10">
+											<div className="absolute inset-0 flex items-center justify-between w-40 h-11 p-2 bg-[#F2F2F2] dark:bg-dark--theme-light border input-border rounded-xl shadow-sm">
+												<div className="flex items-center">
+													<div
+														className="flex items-center justify-center w-6 h-6 p-1.5 mr-1 rounded-md"
+														style={{ backgroundColor: issues?.bgColor ?? 'transparent' }}
+													>
+														{issues?.icon ?? <CircleIcon className="w-3 h-3" />}
+													</div>
+													<span className="text-sm">{issues?.name ?? 'Issues'}</span>
 												</div>
-												<p>{issues.name}</p>
-											</span>
-											{issues.value && (
-												<div
-													onClick={() =>
-														setIssues({
-															name: 'Issues',
-															icon: null,
-															bgColor: '',
-															value: ''
-														})
-													}
-													className="w-5 h-5 z-10 p-0.5 cursor-pointer"
-												>
-													<XMarkIcon className="w-4 h-4 dark:text-white" />
-												</div>
-											)}
-										</div>
+												{issues?.value && (
+													<button
+														onClick={() =>
+															setIssues((prev) => ({
+																...prev,
+																name: 'Issues',
+																icon: null,
+																bgColor: '',
+																value: ''
+															}))
+														}
+														className="flex items-center justify-center w-5 h-5 p-0.5 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-hover"
+													>
+														<XMarkIcon className="w-4 h-4 dark:text-white" />
+													</button>
+												)}
+											</div>
 
-										<StatusDropdown
-											taskStatusClassName={'w-40 bg-red-500 h-10 opacity-0'}
-											showIssueLabels={true}
-											items={items}
-											value={issues}
-											onChange={(e) => {
-												setIssues(items.find((v) => v.name == e) as TStatusItem);
-											}}
-											issueType="issue"
-										/>
+											<StatusDropdown
+												taskStatusClassName="w-40 h-10 opacity-0"
+												showIssueLabels
+												items={items}
+												value={issues}
+												onChange={(e) =>
+													setIssues(items.find((v) => v.name === e) as TStatusItem)
+												}
+												issueType="issue"
+											/>
+										</div>
 									</div>
-									{/* </div> */}
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskLabelsDropdown
 											onValueChange={(_, values) => setLabels(values || [])}
@@ -260,11 +260,10 @@ const Kanban = () => {
 			>
 				{/** TODO:fetch teamtask based on days */}
 
-
 				<div className="pt-10">
 					{activeTab &&
 						(Object.keys(data).length > 0 ? (
-							<Container fullWidth={fullWidth} className={cn("!pt-0 px-5")}>
+							<Container fullWidth={fullWidth} className={cn('!pt-0 px-5')}>
 								<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
 							</Container>
 						) : (
@@ -274,7 +273,7 @@ const Kanban = () => {
 							</div>
 						))}
 				</div>
-			</MainLayout >
+			</MainLayout>
 			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
