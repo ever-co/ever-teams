@@ -179,7 +179,7 @@ const Kanban = () => {
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<EpicPropertiesDropdown
 											onValueChange={(_, values) => setEpics(values || [])}
-											className="lg:min-w-[140px] lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0 pt-1"
 											multiple={true}
 										/>
 									</div>
@@ -229,21 +229,21 @@ const Kanban = () => {
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskLabelsDropdown
 											onValueChange={(_, values) => setLabels(values || [])}
-											className="lg:min-w-[140px] lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0 pt-1"
 											multiple={true}
 										/>
 									</div>
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskPropertiesDropdown
 											onValueChange={(_, values) => setPriority(values || [])}
-											className="lg:min-w-[140px] lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0 pt-1"
 											multiple={true}
 										/>
 									</div>
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskSizesDropdown
 											onValueChange={(_, values) => setSizes(values || [])}
-											className="lg:min-w-[140px] lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0 pt-1"
 											multiple={true}
 										/>
 									</div>
