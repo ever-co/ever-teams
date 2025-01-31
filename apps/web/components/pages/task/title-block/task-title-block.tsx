@@ -176,7 +176,7 @@ const TaskTitleBlock = () => {
 				<div className="flex flex-row gap-2 justify-start items-center">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
-						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-9 py-1 px-2.5">
+						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
 							<span className="text-xs font-medium text-gray-700 dark:text-gray-200">#{task?.taskNumber}</span>
 						</div>
 
@@ -187,12 +187,13 @@ const TaskTitleBlock = () => {
 							showIssueLabels={true}
 							sidebarUI={true}
 							forParentChildRelationship={true}
-							taskStatusClassName="h-7 text-xs rounded-full border-none bg-red-100 text-red-700 dark:bg-dark--theme-light"
+							taskStatusClassName="h-7 text-xs rounded-full border-none bg-red-100 text-red-700 dark:bg-dark--theme-light dark:text-red-400"
+							className="h-7"
 						/>
 					</div>
-
+					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
 					{task?.issueType !== 'Epic' && task && (
-						<div className="flex gap-2 items-center h-9">
+						<div className="flex gap-2 items-center !h-7">
 							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
 							{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
 								task?.rootEpic &&
@@ -264,7 +265,7 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 						task.parent.issueType === 'Story' && 'bg-[#54BA951A]',
 						task.parent.issueType === 'Bug' && 'bg-[#C24A4A1A]',
 						(task.parent.issueType === 'Task' || !task.parent.issueType) && 'bg-[#5483ba]',
-						'rounded-[0.1875rem] text-center h-9 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
+						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
 					)}
 				>
 					<span
