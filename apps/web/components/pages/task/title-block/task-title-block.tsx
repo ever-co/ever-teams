@@ -173,7 +173,7 @@ const TaskTitleBlock = () => {
 			)}
 
 			<div className="flex flex-col items-start">
-				<div className="flex flex-row gap-2 justify-start items-center">
+				<div className="flex flex-row gap-3 justify-start items-center">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
 						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
@@ -192,8 +192,9 @@ const TaskTitleBlock = () => {
 						/>
 					</div>
 					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
+
 					{task?.issueType !== 'Epic' && task && (
-						<div className="flex gap-2 items-center !h-7">
+						<div className="flex gap-3 items-center">
 							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
 							{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
 								task?.rootEpic &&
@@ -216,7 +217,7 @@ const TaskTitleBlock = () => {
 					{task && (
 						<button
 							className={clsxm(
-								"flex justify-center items-center w-7 h-7 rounded-full transition-colors",
+								"flex justify-center items-center w-7 h-7 rounded-full transition-colors ml-1",
 								isFavoriteTask
 									? "text-red-600 bg-red-50 hover:bg-red-100"
 									: "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
@@ -311,10 +312,10 @@ const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
 	const t = useTranslations();
 
 	return task && task.issueType !== 'Epic' ? (
-		<div className="box-border flex justify-center items-center h-9 text-center bg-transparent rounded cursor-pointer min-w-48 3xl:h-6">
+		<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
 			<Button
 				variant="outline-danger"
-				className="text-[#f07258] font-medium text-[0.5rem] 3xl:text-xs py-[0.25rem] px-2.5 min-w-[4.75rem] outline-none h-9 3xl:h-6 rounded-[0.1875rem]"
+				className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"
 				onClick={modal.openModal}
 			>
 				{task.parentId ? t('common.CHANGE_PARENT') : `+ ${t('common.ADD_PARENT')}`}
