@@ -156,13 +156,13 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="relative z-10 flex flex-col-reverse items-center justify-between pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
-								<div className="flex flex-row">
+							<div className="relative z-10 flex flex-col items-center justify-center pt-6 -mb-1 w-full bg-white xl:flex-row dark:bg-dark-high">
+								<div className="flex flex-row items-center w-full max-w-[100%] overflow-auto">
 									{tabs.map((tab) => (
 										<div
 											key={tab.name}
 											onClick={() => setActiveTab(tab.value)}
-											className={`cursor-pointer pt-2.5 px-5 pb-[30px] text-base font-semibold ${activeTab === tab.value
+											className={`cursor-pointer pt-2.5 px-5 pb-[20px] text-base font-semibold ${activeTab === tab.value
 												? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
 												: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
 												}`}
@@ -179,7 +179,7 @@ const Kanban = () => {
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<EpicPropertiesDropdown
 											onValueChange={(_, values) => setEpics(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0"
 											multiple={true}
 										/>
 									</div>
@@ -229,21 +229,21 @@ const Kanban = () => {
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskLabelsDropdown
 											onValueChange={(_, values) => setLabels(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0"
 											multiple={true}
 										/>
 									</div>
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskPropertiesDropdown
 											onValueChange={(_, values) => setPriority(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0"
 											multiple={true}
 										/>
 									</div>
 									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
 										<TaskSizesDropdown
 											onValueChange={(_, values) => setSizes(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] lg:mt-0"
 											multiple={true}
 										/>
 									</div>
