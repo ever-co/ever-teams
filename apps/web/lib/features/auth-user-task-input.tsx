@@ -53,7 +53,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						task={activeTeamTask}
 						className="lg:max-w-[170px] grow text-xs"
 						forDetails={false}
-						taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] text-xs"
+						taskStatusClassName="dark:bg-[#1B1D22] text-xs dark:border dark:border-[#fff]"
 					/>
 					{activeTeamTask && (
 						<ProjectDropDown
