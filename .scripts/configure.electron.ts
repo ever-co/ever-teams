@@ -46,7 +46,7 @@ function modifiedNextServer() {
     }
 }
 
-function updateWebConstant(setDesktopApp) {
+function updateWebConstant(setDesktopApp:boolean) {
     const filePath = path.resolve(__dirname, '../apps/web/app/constants.ts');
     try {
        let fileContent = fs.readFileSync(filePath, 'utf8');
