@@ -85,7 +85,7 @@ export function TeamStatsGrid({
 	return (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
 			{stats.map((stat) => (
-				<Card key={stat.title} className="p-6">
+				<Card key={stat.title} className="p-6 dark:bg-dark--theme-light">
 					<div className="flex flex-col">
 						<span className="text-sm font-medium text-gray-500">{stat.title}</span>
 						<div className="mt-2 h-9">
@@ -99,7 +99,7 @@ export function TeamStatsGrid({
 						</div>
 						{stat.showProgress && (
 							<div className="mt-4">
-								<div className="w-full h-2 bg-gray-100 rounded-full">
+								<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-700">
 									<div
 										className={`h-full rounded-full ${stat.progressColor} transition-all duration-300`}
 										style={{

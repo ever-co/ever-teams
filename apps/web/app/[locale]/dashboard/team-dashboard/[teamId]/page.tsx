@@ -59,7 +59,7 @@ function TeamDashboard() {
 								loadingTimesheetStatisticsCounts={loadingTimesheetStatisticsCounts}
 							/>
 
-							<Card className="p-6 w-full">
+							<Card className="w-full dark:bg-dark--theme-light">
 								<TeamStatsChart
 									rapportChartActivity={rapportChartActivity}
 									isLoading={loadingTimeLogReportDailyChart}
@@ -71,7 +71,7 @@ function TeamDashboard() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
-				<Card className="py-6 w-full">
+				<Card className="w-full dark:bg-dark--theme-light min-h-[400px]">
 					<TeamStatsTable
 						rapportDailyActivity={rapportDailyActivity}
 						isLoading={loadingTimeLogReportDaily}
