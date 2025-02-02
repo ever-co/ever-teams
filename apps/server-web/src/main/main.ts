@@ -20,7 +20,6 @@ import { setupTitlebar } from 'custom-electron-titlebar/main';
 console.log = Log.log;
 Object.assign(console, Log.functions);
 
-
 app.name = config.DESCRIPTION;
 
 const eventEmitter = new EventEmitter();
@@ -134,7 +133,7 @@ Log.hooks.push((message: any, transport) => {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
         type: LOG_TYPES.SERVER_LOG,
         msg
-      });
+      })
     }
   }
 
@@ -287,7 +286,9 @@ const runServer = async () => {
       { api: serverPath },
       {
         ...(envVal || {}),
-        IS_DESKTOP_APP: true
+        IS_DESKTOP_APP: true,
+        NEXT_SHARP_PATH: path.join(process.resourcesPath, 'app.asar', 'node_modules', 'sharp'),
+        AUTH_SECRET: config.AUTH_SECRET
       },
       undefined,
       signal
