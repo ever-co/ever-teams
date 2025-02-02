@@ -72,7 +72,7 @@ export function TeamStatsTable({
 	}
 
 	return (
-		<div className="space-y-4 min-h-[400px] w-full dark:bg-dark--theme-light">
+		<div className="min-h-[400px] w-full dark:bg-dark--theme-light">
 			<div className="relative rounded-md border">
 				<div className="overflow-x-auto">
 					<div className="inline-block min-w-full align-middle">

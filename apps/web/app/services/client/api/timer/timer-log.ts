@@ -1,6 +1,7 @@
-import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps, ITimerLogGrouped } from '@app/interfaces';
+import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStatus, UpdateTimesheet, ITimerDailyLog, ITimeLogReportDailyChartProps, ITimerLogGrouped, TimeLogType, ITimesheetStatisticsData } from '@app/interfaces';
 import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
+import qs from 'qs';
 
 export async function getTimerLogs(
 	tenantId: string,
@@ -224,6 +225,7 @@ interface ITimeLogReportDailyProps {
 	employeeIds?: string[];
 	taskIds?: string[];
 	teamIds?: string[];
+	logType?: TimeLogType[];
 	activityLevel?: {
 		start: number;
 		end: number;
@@ -273,4 +275,77 @@ export function getTimeLogReportDaily({
 	const queryString = new URLSearchParams(queryParams).toString();
 
 	return get<ITimerLogGrouped[]>(`/timesheet/time-log/report/daily?${queryString}`, { tenantId });
+}
+
+/**
+ * Format duration in seconds to human readable format (HH:mm:ss)
+ */
+export function formatDuration(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+
+    return [
+        hours.toString().padStart(2, '0'),
+        minutes.toString().padStart(2, '0'),
+        remainingSeconds.toString().padStart(2, '0')
+    ].join(':');
+}
+
+/**
+ * Format activity percentage with 2 decimal places
+ */
+export function formatActivity(activity: number): string {
+    return `${activity.toFixed(2)}%`;
+}
+
+/**
+ * Get timesheet statistics counts
+ * @param params Request parameters including activity levels, log types, and date range
+ * @returns Promise with statistics counts data
+ * @example
+ * const { data } = await getTimesheetStatisticsCounts({
+ *   activityLevel: { start: 0, end: 100 },
+ *   logType: ['TRACKED'],
+ *   organizationId: '...',
+ *   tenantId: '...',
+ *   startDate: '2024-11-30 13:00:00',
+ *   endDate: '2024-12-31 12:59:59',
+ *   timeZone: 'Australia/Lord_Howe'
+ * });
+ *
+ * console.log({
+ *   employees: data.employeesCount,
+ *   projects: data.projectsCount,
+ *   weekActivity: formatActivity(data.weekActivities), // "49.93%"
+ *   weekDuration: formatDuration(data.weekDuration),   // "106:21:19"
+ *   todayActivity: formatActivity(data.todayActivities),
+ *   todayDuration: formatDuration(data.todayDuration)
+ * });
+ */
+export async function getTimesheetStatisticsCounts({
+	activityLevel,
+	logType,
+	organizationId,
+	tenantId,
+	startDate,
+	endDate,
+	timeZone = 'Etc/UTC'
+}: ITimeLogReportDailyProps): Promise<{ data: ITimesheetStatisticsData }> {
+	const queryString = qs.stringify(
+		{
+			activityLevel,
+			logType,
+			organizationId,
+			startDate,
+			endDate,
+			timeZone
+		},
+		{
+			arrayFormat: 'indices',
+			encode: true,
+			strictNullHandling: true
+		}
+	);
+	return get<ITimesheetStatisticsData>(`/timesheet/statistics/counts?${queryString}`, { tenantId });
 }
