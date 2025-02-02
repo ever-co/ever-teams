@@ -45,7 +45,7 @@ export function TeamStatsGrid() {
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
 				{stats.map((stat) => (
-					<Card key={stat.title} className="p-6">
+					<Card key={stat.title} className="p-6 dark:bg-dark--theme-light">
 						<div className="flex flex-col">
 							<span className="text-sm font-medium text-gray-500">{stat.title}</span>
 							<span className={`text-2xl font-semibold mt-2 ${stat.color || "text-gray-900 dark:text-white"}`}>

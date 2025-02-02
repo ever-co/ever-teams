@@ -58,7 +58,7 @@ function TeamDashboard() {
 								onUpdateFilters={updateFilters}
 							/>
 							<TeamStatsGrid />
-							<Card className="p-6 w-full">
+							<Card className="w-full">
 								<TeamStatsChart
 									rapportChartActivity={rapportChartActivity}
 									isLoading={loadingTimeLogReportDailyChart}
@@ -70,7 +70,7 @@ function TeamDashboard() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
-				<Card className="p-6 w-full">
+				<Card className="w-full">
 					<TeamStatsTable
 						rapportDailyActivity={rapportDailyActivity}
 						isLoading={loadingTimeLogReportDaily}
