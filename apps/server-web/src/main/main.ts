@@ -16,7 +16,6 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 
-
 console.log = Log.log;
 Object.assign(console, Log.functions);
 
@@ -109,6 +108,11 @@ const handleMinimizeButton = (windowTypes: IWindowTypes) => {
     default:
       break;
   }
+}
+
+const handleMenuLanguage = () => {
+  logWindow?.webContents?.send('refresh-menu');
+  settingWindow?.webContents?.send('refresh-menu');
 }
 
 Log.hooks.push((message: any, transport) => {
@@ -338,6 +342,7 @@ const onInitApplication = () => {
     } else {
       Menu.setApplicationMenu(appMenu.buildTemplateMenu(WindowTypes.SETUP_WINDOW, i18nextMainBackend))
     }
+    handleMenuLanguage()
   }, 250));
 
   eventEmitter.on(EventLists.webServerStop, async () => {
