@@ -99,7 +99,7 @@ function InnerItemList({ items, title }: { title: string; items: ITeamTask[]; dr
 					))}
 				{Array.isArray(items) && items?.length == 0 && (
 					<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full">
-						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] w-[340px] mt-3 flex justify-center items-center my-2 rounded-xl">
+						<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] mt-3 flex justify-center items-center my-2 rounded-xl">
 							{t('common.NOT_FOUND')}!
 						</div>
 						<div
