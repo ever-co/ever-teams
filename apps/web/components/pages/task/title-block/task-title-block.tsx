@@ -124,7 +124,7 @@ const TaskTitleBlock = () => {
 					/>
 
 					{edit ? (
-						<div className="flex flex-col justify-start gap-1 transition-all">
+						<div className="flex flex-col gap-1 justify-start transition-all">
 							<button
 								ref={saveButton}
 								onClick={() => saveTitle(title)}
@@ -141,7 +141,7 @@ const TaskTitleBlock = () => {
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col items-center justify-start gap-2">
+						<div className="flex flex-col gap-2 justify-start items-center">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
@@ -173,12 +173,13 @@ const TaskTitleBlock = () => {
 			)}
 
 			<div className="flex flex-col items-start">
-				<div className="flex flex-row items-center justify-start h-5 gap-2">
-					<div className="flex flex-row gap-[0.3125rem]">
+				<div className="flex flex-row gap-3 justify-start items-center">
+					<div className="flex flex-row gap-2">
 						{/* Task number */}
-						<div className="bg-[#D6D6D6] rounded-[0.1875rem] text-center min-w-48 flex justify-center items-center h-5 py-[0.0625rem] px-2.5 3xl:h-6">
-							<span className="text-[#293241] font-medium text-xs">#{task?.taskNumber}</span>
+						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
+							<span className="text-xs font-medium text-gray-700 dark:text-gray-200">#{task?.taskNumber}</span>
 						</div>
+
 						{/* Type of Issue */}
 						<ActiveTaskIssuesDropdown
 							key={task?.id}
@@ -186,60 +187,57 @@ const TaskTitleBlock = () => {
 							showIssueLabels={true}
 							sidebarUI={true}
 							forParentChildRelationship={true}
-							taskStatusClassName="h-5 3xl:h-6 text-[0.5rem] 3xl:text-xs rounded-[0.1875rem] border-none"
+							taskStatusClassName="h-7 text-xs rounded-full border-none bg-red-100 text-red-700 dark:bg-dark--theme-light dark:text-red-400"
+							className="h-7"
 						/>
 					</div>
-					{task?.issueType !== 'Epic' && task && <div className="w-[0.0625rem] h-5 bg-[#DBDBDB]"></div>}
+					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
 
-					<div className="flex flex-row gap-1">
-						{/* Creator Name */}
-						{/* {task?.creator && (
-							<div className="bg-[#E4ECF5] rounded-[0.1875rem] text-center min-w-48 h-5 flex justify-center items-center py-[0.0625rem] px-2.5">
-								<span className="text-[#538ed2] font-medium text-[0.5rem]">
-									{task.creator?.name}
-								</span>
-							</div>
-						)} */}
-						{/* Parent Issue/Task Name */}
+					{task?.issueType !== 'Epic' && task && (
+						<div className="flex gap-3 items-center">
+							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
+							{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
+								task?.rootEpic &&
+								task?.parentId !== task?.rootEpic.id && (
+									<ParentTaskBadge
+										task={{
+											...task,
+											parentId: task?.rootEpic.id,
+											parent: task?.rootEpic
+										}}
+									/>
+								)}
 
-						{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
-						{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
-							task?.rootEpic &&
-							task?.parentId !== task?.rootEpic.id && (
-								<ParentTaskBadge
-									task={{
-										...task,
-										parentId: task?.rootEpic.id,
-										parent: task?.rootEpic
-									}}
-								/>
-							)}
+							<ParentTaskBadge task={task} />
+							<ParentTaskInput task={task} />
+						</div>
+					)}
 
-						<ParentTaskBadge task={task} />
-						<ParentTaskInput task={task} />
-					</div>
 					{/* Favorites */}
-					{task ? (
+					{task && (
 						<button
-							className="flex items-center gap-1 cursor-pointer w-fit h-fit"
+							className={clsxm(
+								"flex justify-center items-center w-7 h-7 rounded-full transition-colors ml-1",
+								isFavoriteTask
+									? "text-red-600 bg-red-50 hover:bg-red-100"
+									: "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+							)}
 							onClick={() => toggleFavorite(task)}
 						>
 							{isFavoriteTask ? (
 								<svg
-									className="w-5 h-5"
+									className="w-4 h-4"
 									fill="currentColor"
-									width={20}
-									height={20}
 									viewBox="0 0 24 24"
 									xmlns="http://www.w3.org/2000/svg"
 								>
 									<path d="M14 20.408c-.492.308-.903.546-1.192.709-.153.086-.308.17-.463.252h-.002a.75.75 0 01-.686 0 16.709 16.709 0 01-.465-.252 31.147 31.147 0 01-4.803-3.34C3.8 15.572 1 12.331 1 8.513 1 5.052 3.829 2.5 6.736 2.5 9.03 2.5 10.881 3.726 12 5.605 13.12 3.726 14.97 2.5 17.264 2.5 20.17 2.5 23 5.052 23 8.514c0 3.818-2.801 7.06-5.389 9.262A31.146 31.146 0 0114 20.408z" />
 								</svg>
 							) : (
-								<Heart className="w-5 h-5" />
+								<Heart className="w-4 h-4" />
 							)}
 						</button>
-					) : null}
+					)}
 				</div>
 
 				<CopyTooltip text={task?.taskNumber || ''}>
@@ -260,6 +258,7 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 		<HoverCard>
 			<HoverCardTrigger asChild>
 				<Link
+
 					href={`/task/${task.parentId}`}
 					target="_blank"
 					className={clsxm(
@@ -267,7 +266,7 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 						task.parent.issueType === 'Story' && 'bg-[#54BA951A]',
 						task.parent.issueType === 'Bug' && 'bg-[#C24A4A1A]',
 						(task.parent.issueType === 'Task' || !task.parent.issueType) && 'bg-[#5483ba]',
-						'rounded-[0.1875rem] text-center h-5 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
+						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5'
 					)}
 				>
 					<span
@@ -313,10 +312,10 @@ const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
 	const t = useTranslations();
 
 	return task && task.issueType !== 'Epic' ? (
-		<div className="box-border flex items-center justify-center h-5 text-center bg-transparent rounded cursor-pointer min-w-48 3xl:h-6">
+		<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
 			<Button
 				variant="outline-danger"
-				className="text-[#f07258] font-medium text-[0.5rem] 3xl:text-xs py-[0.25rem] px-2.5 min-w-[4.75rem] outline-none h-5 3xl:h-6 rounded-[0.1875rem]"
+				className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"
 				onClick={modal.openModal}
 			>
 				{task.parentId ? t('common.CHANGE_PARENT') : `+ ${t('common.ADD_PARENT')}`}

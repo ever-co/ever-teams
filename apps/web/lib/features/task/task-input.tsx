@@ -265,7 +265,7 @@ export function TaskInput(props: Props) {
 		}
 
 		return updatedTaskList;
-	}, [props.task, datas.filteredTasks]);
+	}, [props.forParentChildRelationship, props.task?.issueType, props.task?.children, datas.filteredTasks]);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -762,8 +762,8 @@ function AssigneesSelect(props: ITeamMemberSelectProps): JSX.Element {
 		>
 			<Combobox multiple={true}>
 				<div className="relative my-auto h-full">
-					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default  focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex justify-between items-center w-40 h-full  hover:transition-all">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center w-40 h-full hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white',

@@ -168,7 +168,7 @@ export function TaskIssueStatus({
 			{...taskIssues[task?.issueType || 'Task']}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
-			className={clsxm('rounded-md px-2 text-white', className)}
+			className={clsxm('px-2 text-white rounded-md', className)}
 		/>
 	);
 }
@@ -188,12 +188,12 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[430px]" autoComplete="off" onSubmit={handleSubmit}>
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.CREATE_ISSUE')}
 						</Text.Heading>
 
-						<div className="w-full mt-5">
+						<div className="mt-5 w-full">
 							<InputField
 								name="name"
 								autoCustomFocus
@@ -202,7 +202,7 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 							/>
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-3">
+						<div className="flex justify-between items-center mt-3 w-full">
 							<BackButton onClick={closeModal} />
 							<Button type="submit">{t('common.CREATE')}</Button>
 						</div>
