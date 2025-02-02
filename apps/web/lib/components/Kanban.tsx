@@ -299,7 +299,7 @@ export const EmptyKanbanDroppable = ({
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
 														onClick={() => toggleColumn(title, false)}
 													>
-														{t('common.COLLAPSE_COLUMN')}
+														{t('common.EXPAND_COLUMN')}
 													</div>
 													<div
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
