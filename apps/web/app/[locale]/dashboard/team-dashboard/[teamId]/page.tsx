@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { ArrowLeftIcon } from 'lucide-react';
 import { TeamStatsChart } from './components/team-stats-chart';
@@ -16,24 +15,22 @@ import { cn } from '@/lib/utils';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { useReportActivity } from '@app/hooks/features/useReportActivity';
+import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 
 function TeamDashboard() {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
-	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily } = useReportActivity();
+	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily, statisticsCounts,loadingTimesheetStatisticsCounts} = useReportActivity();
 	const router = useRouter();
-	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
 	const breadcrumbPath = useMemo(
 		() => [
-			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: 'Team-Dashboard', href: `/${currentLocale}/dashboard/team-dashboard` }
 		],
-		[activeTeam?.name, currentLocale, t]
+		[activeTeam?.name, currentLocale]
 	);
 	return (
 		<MainLayout
@@ -57,8 +54,12 @@ function TeamDashboard() {
 								onUpdateDateRange={updateDateRange}
 								onUpdateFilters={updateFilters}
 							/>
-							<TeamStatsGrid />
-							<Card className="p-6 w-full">
+							<TeamStatsGrid
+								statisticsCounts={statisticsCounts}
+								loadingTimesheetStatisticsCounts={loadingTimesheetStatisticsCounts}
+							/>
+
+							<Card className="w-full dark:bg-dark--theme-light">
 								<TeamStatsChart
 									rapportChartActivity={rapportChartActivity}
 									isLoading={loadingTimeLogReportDailyChart}
@@ -70,7 +71,7 @@ function TeamDashboard() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
-				<Card className="p-6 w-full">
+				<Card className="w-full dark:bg-dark--theme-light min-h-[400px]">
 					<TeamStatsTable
 						rapportDailyActivity={rapportDailyActivity}
 						isLoading={loadingTimeLogReportDaily}

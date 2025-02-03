@@ -13,4 +13,5 @@ export interface IDesktopEnvironment extends Env {
     GAUZY_API_SERVER_URL: string;
     NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
     DESKTOP_WEB_SERVER_HOSTNAME: string;
+	AUTH_SECRET: string;
 }

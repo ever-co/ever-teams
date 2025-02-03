@@ -89,11 +89,12 @@
 		"build:web:desktop": "yarn config:electron:web:build -- --type=constant && cross-env NEXT_BUILD_OUTPUT_TYPE=standalone NEXT_SHARP_PATH=/tmp/node_modules/sharp yarn build:web",
 		"copy:build:web": "yarn ts-node .scripts/copy-web-build.ts && yarn config:electron:web:build -- --type=server",
 		"start:server-web": "cd apps/server-web && yarn run start",
+		"postinstall:electron": "cd apps/server-web && yarn run postinstall",
 		"prepare:server-web": "cd apps/server-web && yarn run prepare:electron && yarn run build",
 		"pack:server-web:mac": "cd apps/server-web && yarn run pack:mac",
 		"pack:server-web:win": "cd apps/server-web && yarn run pack:win",
 		"pack:server-web:linux": "cd apps/server-web && yarn run pack:linux",
-		"build:server-web": "yarn build:web:desktop && yarn prepare:server-web && yarn run copy:build:web",
+		"build:server-web": "yarn build:web:desktop && yarn prepare:server-web && yarn run copy:build:web && yarn postinstall:electron",
 		"package:server-web:mac": "yarn build:server-web && yarn pack:server-web:mac",
 		"package:server-web:win": "yarn build:server-web && yarn pack:server-web:win",
 		"package:server-web:linux": "yarn build:server-web && yarn pack:server-web:linux",
@@ -160,7 +161,8 @@
 		"@lexical/react": "^0.8.0",
 		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
-		"yargs": "^17.5.0"
+		"yargs": "^17.5.0",
+		"sharp": "^0.33.4"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.6.6",

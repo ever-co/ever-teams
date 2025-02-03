@@ -16,10 +16,8 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 
-
 console.log = Log.log;
 Object.assign(console, Log.functions);
-
 
 app.name = config.DESCRIPTION;
 
@@ -112,6 +110,11 @@ const handleMinimizeButton = (windowTypes: IWindowTypes) => {
   }
 }
 
+const handleMenuLanguage = () => {
+  logWindow?.webContents?.send('refresh-menu');
+  settingWindow?.webContents?.send('refresh-menu');
+}
+
 Log.hooks.push((message: any, transport) => {
   if (transport !== Log.transports.file) {
     return message;
@@ -134,7 +137,7 @@ Log.hooks.push((message: any, transport) => {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
         type: LOG_TYPES.SERVER_LOG,
         msg
-      });
+      })
     }
   }
 
@@ -287,7 +290,9 @@ const runServer = async () => {
       { api: serverPath },
       {
         ...(envVal || {}),
-        IS_DESKTOP_APP: true
+        IS_DESKTOP_APP: true,
+        NEXT_SHARP_PATH: path.join(process.resourcesPath, 'app.asar', 'node_modules', 'sharp'),
+        AUTH_SECRET: config.AUTH_SECRET
       },
       undefined,
       signal
@@ -337,6 +342,7 @@ const onInitApplication = () => {
     } else {
       Menu.setApplicationMenu(appMenu.buildTemplateMenu(WindowTypes.SETUP_WINDOW, i18nextMainBackend))
     }
+    handleMenuLanguage()
   }, 250));
 
   eventEmitter.on(EventLists.webServerStop, async () => {

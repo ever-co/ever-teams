@@ -23,6 +23,7 @@ export type Env = Readonly<{
     DESKTOP_WEB_SERVER_HOSTNAME: string;
     TERM_OF_SERVICE: string;
     PRIVACY_POLICY: string;
+	AUTH_SECRET: string;
 }>
 
 export const env = cleanEnv(process.env, {
@@ -77,5 +78,8 @@ export const env = cleanEnv(process.env, {
     }),
     PRIVACY_POLICY: str({
         default: 'https://ever.team/privacy'
-    })
+    }),
+	AUTH_SECRET: str({
+		default: 'development_auth_secret'
+	})
 });

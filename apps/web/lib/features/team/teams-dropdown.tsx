@@ -28,12 +28,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				if (
 					timerStatus &&
 					timerStatus?.running &&
-					timerStatus.lastLog &&
-					timerStatus.lastLog.organizationTeamId &&
-					timerStatus.lastLog.source === 'TEAMS' &&
+					timerStatus?.lastLog &&
+					timerStatus?.lastLog?.organizationTeamId &&
+					timerStatus?.lastLog?.source === 'TEAMS' &&
 					activeTeam &&
 					activeTeam?.id &&
-					timerStatus.lastLog.organizationTeamId === activeTeam?.id
+					timerStatus?.lastLog?.organizationTeamId === activeTeam?.id
 				) {
 					toast({
 						variant: 'default',
