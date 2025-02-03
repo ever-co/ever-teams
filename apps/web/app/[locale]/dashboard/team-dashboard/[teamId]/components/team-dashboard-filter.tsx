@@ -10,7 +10,7 @@ import { useTimelogFilterOptions } from '@/app/hooks';
 
 export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 	const t = useTranslations();
-	const { userManagedTeams, } = useOrganizationAndTeamManagers();
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { allteamsState, setAllTeamsState, alluserState, setAllUserState } = useTimelogFilterOptions();
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	React.useEffect(() => {
@@ -18,7 +18,6 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 			setShouldRemoveItems(false);
 		}
 	}, [shouldRemoveItems]);
-
 
 	const totalFilteredItems = React.useMemo(() => {
 		let total = 0;
@@ -29,7 +28,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 
 	return (
 		<div>
-			<Popover modal >
+			<Popover modal>
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
@@ -48,7 +47,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-96" >
+				<PopoverContent className="w-96">
 					<div className="flex flex-col w-full">
 						<div className="flex gap-2 mb-3 text-xl font-bold">
 							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
@@ -92,8 +91,14 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 									</span>
 								</label>
 								<MultiSelect
-									items={allteamsState.flatMap((team) => team.members ?? []) ?? []}
-									itemToString={(member) => member.employee?.fullName ?? ''}
+									items={allteamsState.flatMap((team) => {
+										const members = team.members ?? [];
+										return members.filter((member) => member && member.employee);
+									})}
+									itemToString={(member) => {
+										if (!member?.employee) return '';
+										return member.employee.fullName || t('manualTime.EMPLOYEE');
+									}}
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setAllUserState(selectedItems as any)}
 									multiSelect={true}
