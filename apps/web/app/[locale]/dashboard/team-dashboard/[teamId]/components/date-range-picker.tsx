@@ -169,7 +169,14 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 						{dateRange ? formatDateRange(dateRange) : t('common.SELECT')}
 						<ChevronDown className="w-4 h-4" />
 					</Button>
-					<button className="flex items-center justify-center gap-2 px-2 py-1 w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l  border-l-[#E4E4E7] dark:border-l-[#2D2D2D] rounded-r-md">
+					<button
+						onClick={() => {
+							/* Add handler */
+						}}
+						title="Open settings"
+						aria-label="Open settings"
+						className="flex items-center justify-center gap-2 px-2 py-1 w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l  border-l-[#E4E4E7] dark:border-l-[#2D2D2D] rounded-r-md"
+					>
 						<SettingsIcon />
 					</button>
 				</div>
