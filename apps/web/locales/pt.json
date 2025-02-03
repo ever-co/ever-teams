@@ -713,7 +713,9 @@
 		"ACTIVE": "Ativo",
 		"INACTIVE": "Inativo",
 		"ARCHIVED": "Arquivado",
-		"NOT_ARCHIVED": "Não arquivado"
+		"NOT_ARCHIVED": "Não arquivado",
+		"VISITED_SITES": "Sites visitados",
+		"NO_VISITED_SITE_MESSAGE": "Não há sites visitados"
 	},
 	"task": {
 		"TITLE": "Tarefa",

@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "ابدأ العمل",
 			"TIMER_RUNNING": "المؤقت قيد التشغيل بالفعل",
 			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
-		}
+		},
+		"VISITED_SITES": "المواقع التي تمت زيارتها",
+		"NO_VISITED_SITE_MESSAGE": "لا يوجد مواقع تمت زيارتها"
 	},
 	"task": {
 		"TITLE": "المهمة",

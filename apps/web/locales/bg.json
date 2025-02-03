@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "Започнете работа",
 			"TIMER_RUNNING": "Таймерът вече работи",
 			"WARNING_PLAN_ESTIMATION": "Моля, коригирайте планираните работни часове или преоценете задачата(ите) "
-		}
+		},
+		"VISITED_SITES": "Посетени сайтове",
+		"NO_VISITED_SITE_MESSAGE": "Няма посетени сайтове"
 	},
 	"task": {
 		"TITLE": "Задача",
