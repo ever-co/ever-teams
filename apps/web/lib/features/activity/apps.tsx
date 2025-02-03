@@ -9,7 +9,7 @@ import { useMemo } from 'react';
 export function AppsTab() {
 	const { visitedApps, loading } = useTimeDailyActivity('APP');
 	const t = useTranslations();
-	const apps = groupAppsByHour(visitedApps);
+	const apps = groupAppsByHour(visitedApps ?? []);
 
 	const headers = useMemo(
 		() => [
