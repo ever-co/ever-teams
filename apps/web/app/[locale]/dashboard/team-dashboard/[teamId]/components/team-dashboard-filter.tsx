@@ -22,8 +22,8 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 
 	const totalFilteredItems = React.useMemo(() => {
 		let total = 0;
-		if (allteamsState.length) total += allteamsState.length;
-		if (allteamsState.filter((team) => team.members?.length).length) total += allteamsState.length;
+		if (allteamsState?.length) total += allteamsState.length;
+		total += allteamsState?.reduce((acc, team) => acc + (team.members?.length || 0), 0) || 0;
 		return total;
 	}, [allteamsState]);
 
