@@ -226,21 +226,21 @@ const Kanban = () => {
 											/>
 										</div>
 									</div>
-									<div className="">
+									<div>
 										<TaskLabelsDropdown
 											onValueChange={(_, values) => setLabels(values || [])}
 											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
-									<div className="">
+									<div>
 										<TaskPropertiesDropdown
 											onValueChange={(_, values) => setPriority(values || [])}
 											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
-									<div className="">
+									<div>
 										<TaskSizesDropdown
 											onValueChange={(_, values) => setSizes(values || [])}
 											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
