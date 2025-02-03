@@ -23,7 +23,7 @@ export function ScreenshootTab() {
 					<span>{t('timer.TIME_ACTIVITY')}</span>
 					<div className="flex flex-col gap-3">
 						<h2 className="text-3xl font-medium">
-							{Number.isNaN(parseFloat(activityPercent.toFixed(2))) ? '00' : activityPercent.toFixed(2)}
+							{Number.isNaN(parseFloat(activityPercent.toFixed(2))) ? '0%' : activityPercent.toFixed(2)}
 						</h2>
 						<ProgressBar width={'80%'} progress={`${activityPercent}%`} />
 					</div>
