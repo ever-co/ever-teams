@@ -92,7 +92,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
 				<ActiveTaskVersionDropdown
 					task={task}
-					className="lg:min-w-fit text-black"
+					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -131,7 +131,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.STATUS')}>
 				<ActiveTaskStatusDropdown
 					task={task}
-					className="lg:w-auto text-black"
+					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -150,9 +150,9 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.LABELS')}>
 				<TaskLabels
 					task={task}
-					className="lg:min-w-fit text-black lg:mt-0"
+					className="lg:min-w-[130px] text-black lg:mt-0"
 					forDetails={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded 3xl:text-xs"
 				/>
 			</TaskRow>
 			{tags.length > 0 && (
@@ -179,7 +179,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.SIZE')} wrapperClassName="text-black">
 				<ActiveTaskSizesDropdown
 					task={task}
-					className="lg:min-w-fit text-black"
+					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -198,7 +198,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.PRIORITY')} wrapperClassName="text-black">
 				<ActiveTaskPropertiesDropdown
 					task={task}
-					className="lg:min-w-fit text-black"
+					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -360,14 +360,14 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								<Listbox.Button
 									className={clsxm(
 										`cursor-pointer outline-none w-full flex dark:text-white
-									items-center justify-between px-4 h-full
+									items-center justify-between px-2 h-full
 									border-solid border-color-[#F2F2F2]
 									dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] rounded-lg`,
 										styles?.value
 									)}
 								>
 									{selected && (
-										<div className="">
+										<div className="mx-1">
 											<ProjectIcon />
 										</div>
 									)}
