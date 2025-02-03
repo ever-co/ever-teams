@@ -1,8 +1,8 @@
-import { formatDateString, secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@app/helpers';
 import { ITimerApps } from '@app/interfaces/timer/ITimerApp';
 import { ProgressBar } from 'lib/components';
 import Link from 'next/link';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 const AppVisitedItem = ({
 	app,
@@ -13,21 +13,43 @@ const AppVisitedItem = ({
 	totalMilliseconds: number;
 	type: string;
 }) => {
-	const { h, m, s } = secondsToTime(+app.duration);
-	const percent = ((+app.duration * 100) / totalMilliseconds).toFixed(2);
+	const { h, m, s } = app?.duration ? secondsToTime(+app.duration) : { h: 0, m: 0, s: 0 };
+	const percent = app?.duration && ((+app.duration * 100) / totalMilliseconds).toFixed(2);
+
+	const itemCellsWidth = useMemo(
+		() => ({
+			apps: '20%',
+			'visited-dates': '25%',
+			'percent-used': '40%',
+			'time-spent-in-hours': '15%'
+		}),
+		[]
+	);
+
 	return (
-		<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] bg-gray-200 dark:bg-[#191a20] p-4 rounded-md flex justify-between apps-center my-2">
-			<p className="text-lg flex-1">
-				{type == 'SITE' ? <Link href={app.title}>{app.title}</Link> : <span>{app.title}</span>}
+		<div className=" flex">
+			<p style={{ flexBasis: itemCellsWidth['apps'] }} className="">
+				{type == 'SITE' ? <Link href={app?.title ?? ''}>{app?.title}</Link> : <span>{app?.title}</span>}
 			</p>
-			<p className="text-lg text-center 2xl:w-56 3xl:w-64">
-				{formatDateString(new Date(app.date).toISOString())} - {app.time}
-			</p>
-			<div className="text-lg flex-1 flex justify-center gap-2 px-4">
-				<p className="w-1/4 text-end">{percent}%</p>
-				<ProgressBar progress={percent + '%'} width={`75%`} />
+			{app?.date && (
+				<p style={{ flexBasis: itemCellsWidth['visited-dates'] }} className="">
+					{new Intl.DateTimeFormat('en-US', {
+						weekday: 'long',
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					}).format(new Date(app?.date))}
+					{'  '}
+					{app?.time}
+				</p>
+			)}
+			<div style={{ flexBasis: itemCellsWidth['percent-used'] }} className="flex gap-6">
+				<p className=" min-w-12 max-w-14 overflow-hidden">
+					{percent ? `${Number(percent).toPrecision(2)}%` : '0%'}
+				</p>
+				<ProgressBar backgroundColor="black" progress={percent + '%'} width={`75%`} />
 			</div>
-			<p className="text-lg 2xl:w-52 3xl:w-64 text-end">{`${h}:${m}:${s}`}</p>
+			<p style={{ flexBasis: itemCellsWidth['time-spent-in-hours'] }} className="">{`${h}:${m}:${s}`}</p>
 		</div>
 	);
 };

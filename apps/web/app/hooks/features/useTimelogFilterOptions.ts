@@ -1,11 +1,13 @@
 import { IUser, RoleNameEnum, TimesheetLog } from '@/app/interfaces';
-import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus, selectTimesheetIdState } from '@/app/stores';
+import { timesheetDeleteState, timesheetGroupByDayState, timesheetFilterEmployeeState, timesheetFilterProjectState, timesheetFilterStatusState, timesheetFilterTaskState, timesheetUpdateStatus, selectTimesheetIdState, allTeamsState, allUserState } from '@/app/stores';
 import { useAtom } from 'jotai';
 import React from 'react';
 
 export function useTimelogFilterOptions() {
 
     const [employeeState, setEmployeeState] = useAtom(timesheetFilterEmployeeState);
+    const [alluserState, setAllUserState] = useAtom(allUserState)
+    const [allteamsState, setAllTeamsState] = useAtom(allTeamsState)
     const [projectState, setProjectState] = useAtom(timesheetFilterProjectState);
     const [statusState, setStatusState] = useAtom(timesheetFilterStatusState);
     const [taskState, setTaskState] = useAtom(timesheetFilterTaskState);
@@ -94,6 +96,10 @@ export function useTimelogFilterOptions() {
         setPuTimesheetStatus,
         puTimesheetStatus,
         isUserAllowedToAccess,
-        normalizeText
+        normalizeText,
+        allteamsState,
+        setAllTeamsState,
+        alluserState,
+        setAllUserState
     };
 }

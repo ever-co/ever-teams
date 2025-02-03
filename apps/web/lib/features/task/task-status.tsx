@@ -1236,7 +1236,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 							className={clsxm(
 								'justify-between w-full capitalize',
 								sidebarUI && ['text-xs'],
-								' dark:text-white bg-white border dark:bg-dark--theme-light',
+								' dark:text-white dark:bg-dark--theme-light',
 								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 								taskStatusClassName
 							)}

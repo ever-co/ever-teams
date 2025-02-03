@@ -61,18 +61,18 @@ export function TeamStatsTable({
 
 	if (isLoading) {
 		return (
-			<div className="flex justify-center items-center min-h-[400px]">
+			<div className="flex justify-center items-center min-h-[400px] dark:bg-dark--theme-light">
 				<Spinner />
 			</div>
 		);
 	}
 
 	if (!rapportDailyActivity?.length) {
-		return <div className="flex justify-center items-center min-h-[400px] text-gray-500">No data available</div>;
+		return <div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">No data available</div>;
 	}
 
 	return (
-		<div className="space-y-4">
+		<div className="min-h-[400px] w-full dark:bg-dark--theme-light">
 			<div className="relative rounded-md border">
 				<div className="overflow-x-auto">
 					<div className="inline-block min-w-full align-middle">

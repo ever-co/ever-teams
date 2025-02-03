@@ -52,7 +52,8 @@
         "react-i18next": "^14.1.0",
         "@radix-ui/react-switch": "^1.1.0",
         "classnames": "^2.5.1",
-        "fast-glob": "^3.3.2"
+        "fast-glob": "^3.3.2",
+        "sharp": "^0.33.4"
     },
     "devDependencies": {
         "electron": "28.1.0",

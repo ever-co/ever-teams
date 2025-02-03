@@ -68,7 +68,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   const titleBar = new CustomTitlebar({
     icon: iconPath,
-    backgroundColor: TitlebarColor.fromHex(themeColor[currentTheme]),
+    backgroundColor: TitlebarColor.fromHex(themeColor[currentTheme] || themeColor.light),
     enableMnemonics: false,
     iconSize: 16,
     maximizable: false,
@@ -82,7 +82,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   ipcRenderer.on('themeSignal', (_, arg: any) => {
     const theme: 'dark' | 'light' = arg.data;
-    titleBar.updateBackground(TitlebarColor.fromHex(themeColor[theme]));
+    titleBar.updateBackground(TitlebarColor.fromHex(themeColor[theme] || themeColor.light));
     titleBar.refreshMenu();
   })
 

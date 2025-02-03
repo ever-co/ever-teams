@@ -1,7 +1,7 @@
-import { ITasksTimesheet } from '@app/interfaces/ITimer';
+import { ITasksTimesheet, TimeLogType } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITimerDailyLog, ITimerLogGrouped, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
+import { ITimerDailyLog, ITimerLogGrouped, ITimesheetStatisticsCounts, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/app/interfaces';
 
 export type TTasksTimesheetStatisticsParams = {
@@ -157,6 +157,45 @@ export interface ITimeLogRequestParams {
 	};
 }
 
+// export type LogType = 'TRACKED' | 'MANUAL' | 'IDLE';
+
+export interface ITimesheetStatisticsCountsProps {
+    activityLevel: {
+        start: number;
+        end: number;
+    };
+    logType: TimeLogType[];
+    organizationId: string;
+    tenantId: string;
+    startDate: string;
+    endDate: string;
+    timeZone?: string;
+}
+
+
+/**
+ * Fetches timesheet statistics counts from the API
+ * @param params - Parameters for the statistics request
+ * @param bearer_token - Authentication token
+ * @returns Promise with the statistics counts data
+ */
+export async function getTimesheetStatisticsCountsRequest(
+    { tenantId, ...params }: ITimesheetStatisticsCountsProps,
+    bearer_token: string
+): Promise<{ data: ITimesheetStatisticsCounts }> {
+    const queries = qs.stringify(params, {
+        arrayFormat: 'indices',
+        encode: true,
+        strictNullHandling: true
+    });
+
+    return serverFetch<ITimesheetStatisticsCounts>({
+        path: `/timesheet/statistics/counts?${queries}`,
+        method: 'GET',
+        bearer_token,
+        tenantId
+    });
+}
 
 function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 	const baseParams = new URLSearchParams({
