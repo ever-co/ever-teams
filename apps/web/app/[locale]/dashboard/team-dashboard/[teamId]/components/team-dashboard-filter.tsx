@@ -22,7 +22,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 
 	const totalFilteredItems = React.useMemo(() => {
 		let total = 0;
-		if (allteamsState?.length) total += allteamsState.length;
+		if (allteamsState.length) total += allteamsState.length;
 		if (allteamsState.filter((team) => team.members?.length).length) total += allteamsState.length;
 		return total;
 	}, [allteamsState]);
@@ -61,7 +61,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 									<span
 										className={cn(
 											'text-primary/10',
-											allteamsState?.length > 0 && 'text-primary dark:text-primary-light'
+											allteamsState.length > 0 && 'text-primary dark:text-primary-light'
 										)}
 									>
 										{t('common.CLEAR')}
@@ -85,7 +85,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 									<span
 										className={cn(
 											'text-primary/10',
-											alluserState?.length > 0 && 'text-primary dark:text-primary-light'
+											alluserState.length > 0 && 'text-primary dark:text-primary-light'
 										)}
 									>
 										{t('common.CLEAR')}
