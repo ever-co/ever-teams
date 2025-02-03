@@ -4,7 +4,7 @@ import { ProgressBar } from 'lib/components';
 import Link from 'next/link';
 import React, { useMemo } from 'react';
 
-const AppVisitedItem = ({
+const VisitedItem = ({
 	app,
 	totalMilliseconds,
 	type
@@ -49,9 +49,12 @@ const AppVisitedItem = ({
 				</p>
 				<ProgressBar backgroundColor="black" progress={percent + '%'} width={`75%`} />
 			</div>
-			<p style={{ flexBasis: itemCellsWidth['time-spent-in-hours'] }} className="">{`${h}:${m}:${s}`}</p>
+			<p
+				style={{ flexBasis: itemCellsWidth['time-spent-in-hours'] }}
+				className=""
+			>{`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`}</p>
 		</div>
 	);
 };
 
-export default AppVisitedItem;
+export default VisitedItem;

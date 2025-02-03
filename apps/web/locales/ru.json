@@ -712,7 +712,9 @@
 		"ACTIVE": "Активно",
 		"INACTIVE": "Неактивно",
 		"ARCHIVED": "Архивировано",
-		"NOT_ARCHIVED": "Не архивировано"
+		"NOT_ARCHIVED": "Не архивировано",
+		"VISITED_SITES": "Посещенные сайты",
+		"NO_VISITED_SITE_MESSAGE": "Нет посещенных сайтов"
 	},
 	"task": {
 		"TITLE": "Задача",
