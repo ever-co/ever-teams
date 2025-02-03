@@ -92,7 +92,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
 				<ActiveTaskVersionDropdown
 					task={task}
-					className="lg:min-w-[170px] text-black"
+					className="lg:min-w-fit text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -131,7 +131,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.STATUS')}>
 				<ActiveTaskStatusDropdown
 					task={task}
-					className="lg:min-w-[170px] text-black"
+					className="lg:w-auto text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -150,7 +150,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.LABELS')}>
 				<TaskLabels
 					task={task}
-					className="lg:min-w-[170px] text-black lg:mt-0"
+					className="lg:min-w-fit text-black lg:mt-0"
 					forDetails={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				/>
@@ -179,7 +179,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.SIZE')} wrapperClassName="text-black">
 				<ActiveTaskSizesDropdown
 					task={task}
-					className="lg:min-w-[170px] text-black"
+					className="lg:min-w-fit text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
@@ -198,7 +198,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle={t('pages.taskDetails.PRIORITY')} wrapperClassName="text-black">
 				<ActiveTaskPropertiesDropdown
 					task={task}
-					className="lg:min-w-[170px] text-black rounded-xl"
+					className="lg:min-w-fit text-black"
 					forDetails={true}
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
