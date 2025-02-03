@@ -1,15 +1,10 @@
-"use client";
+'use client';
 
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { DateRangePicker } from "./date-range-picker";
-import { DateRange } from "react-day-picker";
-import { ITimeLogReportDailyChartProps } from "@/app/interfaces/timer/ITimerLog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DateRangePicker } from './date-range-picker';
+import { DateRange } from 'react-day-picker';
+import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
+import { TeamDashboardFilter } from './team-dashboard-filter';
 
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
@@ -23,44 +18,13 @@ export function DashboardHeader({ onUpdateDateRange, onUpdateFilters }: Dashboar
 		}
 	};
 
-	const handleFilterChange = (value: string) => {
-		const today = new Date();
-		let startDate = new Date();
-		const endDate = today;
-
-		switch (value) {
-			case 'today':
-				startDate = today;
-				break;
-			case 'week':
-				startDate.setDate(today.getDate() - 7);
-				break;
-			case 'month':
-				startDate.setMonth(today.getMonth() - 1);
-				break;
-			default:
-				return;
-		}
-
-		onUpdateDateRange(startDate, endDate);
-	};
 
 	return (
 		<div className="flex justify-between items-center">
 			<h1 className="text-2xl font-semibold">Team Dashboard</h1>
 			<div className="flex gap-4 items-center">
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
-				<Select defaultValue="filter" onValueChange={handleFilterChange}>
-					<SelectTrigger className="w-[100px]  border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
-						<SelectValue placeholder="Filter" />
-					</SelectTrigger>
-					<SelectContent className="dark:bg-dark--theme-light">
-						<SelectItem value="filter">Filter</SelectItem>
-						<SelectItem value="today">Today</SelectItem>
-						<SelectItem value="week">This Week</SelectItem>
-						<SelectItem value="month">This Month</SelectItem>
-					</SelectContent>
-				</Select>
+				<TeamDashboardFilter />
 				<Select defaultValue="export">
 					<SelectTrigger className="w-[100px]  border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
 						<SelectValue placeholder="Export" />

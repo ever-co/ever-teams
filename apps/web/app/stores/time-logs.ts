@@ -1,6 +1,6 @@
 import { ITimerLogsDailyReport } from '@app/interfaces/timer/ITimerLogs';
 import { atom } from 'jotai';
-import { IProject, ITeamTask, ITimerDailyLog, ITimerLogGrouped, ITimesheetStatisticsData, OT_Member, TimesheetFilterByDays, TimesheetLog, UpdateTimesheetStatus } from '../interfaces';
+import { IOrganizationTeamList, IProject, ITeamTask, ITimerDailyLog, ITimerLogGrouped, ITimesheetStatisticsData, OT_Member, TimesheetFilterByDays, TimesheetLog, UpdateTimesheetStatus } from '../interfaces';
 
 interface IFilterOption {
     value: string;
@@ -25,3 +25,5 @@ export const selectTimesheetIdState = atom<TimesheetLog[]>([])
 export const timeLogsRapportChartState = atom<ITimerDailyLog[]>([]);
 export const timeLogsRapportDailyState = atom<ITimerLogGrouped[]>([])
 export const timesheetStatisticsCountsState = atom<ITimesheetStatisticsData | null>(null)
+export const allTeamsState=atom<IOrganizationTeamList[]>([]);
+export const allUserState=atom<OT_Member[]>([]);

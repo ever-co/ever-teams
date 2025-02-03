@@ -85,7 +85,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								aria-label={`${totalItems} items filtered`}
 								className="rounded-full bg-primary dark:bg-primary-light h-7 w-7 flex items-center justify-center text-white text-center text-[12px]"
 							>
-								{totalItems > 100 ? "100+" : totalItems}
+								{totalItems > 100 ? '100+' : totalItems}
 							</span>
 						)}
 					</Button>
@@ -193,15 +193,15 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
-							<div className="flex items-center justify-end w-full gap-x-4">
+							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
 									onClick={() => setShouldRemoveItems(true)}
 									variant={'outline'}
-									className="flex items-center justify-center h-10 text-sm rounded-lg dark:text-gray-300"
+									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button className="flex items-center justify-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
+								<Button className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>
