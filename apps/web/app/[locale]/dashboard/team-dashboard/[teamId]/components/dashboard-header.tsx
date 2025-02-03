@@ -51,10 +51,10 @@ export function DashboardHeader({ onUpdateDateRange, onUpdateFilters }: Dashboar
 			<div className="flex gap-4 items-center">
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
 				<Select defaultValue="filter" onValueChange={handleFilterChange}>
-					<SelectTrigger className="w-[100px]">
+					<SelectTrigger className="w-[100px]  border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
 						<SelectValue placeholder="Filter" />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="dark:bg-dark--theme-light">
 						<SelectItem value="filter">Filter</SelectItem>
 						<SelectItem value="today">Today</SelectItem>
 						<SelectItem value="week">This Week</SelectItem>
@@ -62,14 +62,14 @@ export function DashboardHeader({ onUpdateDateRange, onUpdateFilters }: Dashboar
 					</SelectContent>
 				</Select>
 				<Select defaultValue="export">
-					<SelectTrigger className="w-[100px]">
+					<SelectTrigger className="w-[100px]  border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
 						<SelectValue placeholder="Export" />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="dark:bg-dark--theme-light">
 						<SelectItem value="export">Export</SelectItem>
 						<SelectItem value="csv">CSV</SelectItem>
 						<SelectItem value="pdf">PDF</SelectItem>
-						<SelectItem value="excel">Excel</SelectItem>
+						<SelectItem value="xlsx">XLSX</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
