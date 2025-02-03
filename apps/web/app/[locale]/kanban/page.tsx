@@ -177,10 +177,10 @@ const Kanban = () => {
 									))}
 								</div>
 								<div className="flex gap-5 mt-4 lg:mt-0">
-									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<div className="">
 										<EpicPropertiesDropdown
 											onValueChange={(_, values) => setEpics(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light max-h-11"
 											multiple={true}
 										/>
 									</div>
@@ -226,24 +226,24 @@ const Kanban = () => {
 											/>
 										</div>
 									</div>
-									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<div>
 										<TaskLabelsDropdown
 											onValueChange={(_, values) => setLabels(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
-									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<div>
 										<TaskPropertiesDropdown
 											onValueChange={(_, values) => setPriority(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
-									<div className="input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light">
+									<div>
 										<TaskSizesDropdown
 											onValueChange={(_, values) => setSizes(values || [])}
-											className="lg:min-w-[140px] pt-[3px] mt-4 mb-2 lg:mt-0"
+											className="lg:min-w-[140px] pt-[3px] mb-2 lg:mt-0 input-border rounded-xl h-11 bg-[#F2F2F2] dark:bg-dark--theme-light"
 											multiple={true}
 										/>
 									</div>
