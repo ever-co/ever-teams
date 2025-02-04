@@ -169,16 +169,24 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 						{dateRange ? formatDateRange(dateRange) : t('common.SELECT')}
 						<ChevronDown className="w-4 h-4" />
 					</Button>
-					<button
+					<Button
+						variant="ghost"
 						onClick={() => {
-							/* Add handler */
+							const today = new Date();
+							setCurrentMonth(today);
+							handleDateRangeChange({
+								from: startOfMonth(today),
+								to: endOfMonth(today)
+							});
+							setIsPopoverOpen(true);
 						}}
-						title="Open settings"
-						aria-label="Open settings"
-						className="flex items-center justify-center gap-2 px-2 py-1 w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l  border-l-[#E4E4E7] dark:border-l-[#2D2D2D] rounded-r-md"
+						title="Open date settings"
+						aria-label="Open date settings"
+						size="icon"
+						className="flex items-center justify-center w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l border-l-[#E4E4E7] dark:border-l-[#2D2D2D] rounded-r-md hover:bg-gray-50 dark:hover:bg-gray-800"
 					>
 						<SettingsIcon />
-					</button>
+					</Button>
 				</div>
 			</PopoverTrigger>
 			<PopoverContent
