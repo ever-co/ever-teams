@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ChevronDown } from 'lucide-react';
+import {  ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
 	format,
@@ -23,6 +23,7 @@ import {
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
+import { CalendarIcon } from '@radix-ui/react-icons';
 
 interface DateRangePickerProps {
 	className?: string;
@@ -33,14 +34,13 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 	const t = useTranslations();
 	const [dateRange, setDateRange] = React.useState<DateRange | undefined>(() => {
 		const today = new Date();
-		const lastMonth = subMonths(today, 1);
 		return {
-			from: startOfMonth(lastMonth),
-			to: endOfMonth(lastMonth)
+			from: startOfMonth(today),
+			to: endOfMonth(today)
 		};
 	});
 	const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
-	const [currentMonth, setCurrentMonth] = React.useState<Date>(() => subMonths(new Date(), 1));
+	const [currentMonth, setCurrentMonth] = React.useState<Date>(() => new Date());
 
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		try {
@@ -171,6 +171,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							className
 						)}
 					>
+						<CalendarIcon className="w-4 h-4" />
 						{dateRange ? formatDateRange(dateRange) : t('common.SELECT')}
 						<ChevronDown className="w-4 h-4" />
 					</Button>
@@ -208,7 +209,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							mode="range"
 							selected={dateRange}
 							onSelect={handleDateRangeChange}
-							numberOfMonths={1}
+							numberOfMonths={2}
 							month={currentMonth}
 							onMonthChange={setCurrentMonth}
 							showOutsideDays={false}
