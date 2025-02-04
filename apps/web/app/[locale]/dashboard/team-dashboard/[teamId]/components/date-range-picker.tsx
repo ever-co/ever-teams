@@ -17,7 +17,8 @@ import {
 	subMonths,
 	isSameMonth,
 	isSameYear,
-	isEqual
+	isEqual,
+	startOfDay
 } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
@@ -197,17 +198,33 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 				onClick={(e) => e.stopPropagation()}
 				onMouseDown={(e) => e.stopPropagation()}
 				onChange={(e) => e.stopPropagation()}
-				className="p-0 w-auto dark:bg-dark--theme-light dark:border-[#2D2D2D] border border-[#E4E4E7] rounded-md"
+				className="p-0 w-auto dark:bg-dark--theme-light dark:border-[#2D2D2D] border border-[#E4E4E7] rounded-md shadow-lg"
 				align="center"
 			>
-				<div className="flex flex-row-reverse">
-					<div className="p-1 space-y-1 border-l max-w-36">
+				<div className="flex">
+					<div className="p-0.5">
+						<Calendar
+							className="min-w-[220px]"
+							mode="range"
+							selected={dateRange}
+							onSelect={handleDateRangeChange}
+							numberOfMonths={1}
+							month={currentMonth}
+							onMonthChange={setCurrentMonth}
+							showOutsideDays={false}
+							fixedWeeks
+							ISOWeek
+							initialFocus
+							disabled={(date) => date >= startOfDay(new Date())}
+						/>
+					</div>
+					<div className="p-0.5 space-y-0.5 border-l max-w-32">
 						{predefinedRanges.map((range) => (
 							<Button
 								key={range.label}
 								variant={range.isSelected(dateRange) ? 'default' : 'ghost'}
 								className={cn(
-									'justify-start w-full font-normal dark:text-gray-100',
+									'justify-start w-full text-sm font-normal dark:text-gray-100 h-8',
 									range.isSelected(dateRange) &&
 										'bg-primary text-primary-foreground hover:bg-primary/90'
 								)}
@@ -219,26 +236,11 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							</Button>
 						))}
 					</div>
-					<div className="p-1">
-						<Calendar
-							className="min-w-[240px]"
-							mode="range"
-							selected={dateRange}
-							onSelect={handleDateRangeChange}
-							numberOfMonths={2}
-							month={currentMonth}
-							onMonthChange={setCurrentMonth}
-							showOutsideDays={false}
-							fixedWeeks
-							ISOWeek
-							initialFocus
-							disabled={(date) => date >= startOfDay(new Date())}
-						/>
-					</div>
 				</div>
-				<div className="flex gap-2 justify-end p-1 border-t">
+				<div className="flex gap-1 justify-end p-0.5 border-t">
 					<Button
 						variant="outline"
+						size="sm"
 						onClick={() => {
 							handleDateRangeChange(undefined);
 							setIsPopoverOpen(false);
@@ -247,6 +249,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 						{t('common.CLEAR')}
 					</Button>
 					<Button
+						size="sm"
 						onClick={() => {
 							setIsPopoverOpen(false);
 						}}
