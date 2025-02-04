@@ -232,9 +232,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							fixedWeeks
 							ISOWeek
 							initialFocus
-							disabled={{
-								from: subDays(new Date(), -1) // This includes today in the disabled range
-							}}
+							disabled={(date) => date >= startOfDay(new Date())}
 						/>
 					</div>
 				</div>
