@@ -30,12 +30,16 @@ interface DateRangePickerProps {
 
 export function DateRangePicker({ className, onDateRangeChange }: DateRangePickerProps) {
 	const t = useTranslations();
-	const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-		from: new Date(),
-		to: new Date()
+	const [dateRange, setDateRange] = React.useState<DateRange | undefined>(() => {
+		const today = new Date();
+		const lastMonth = subMonths(today, 1);
+		return {
+			from: startOfMonth(lastMonth),
+			to: endOfMonth(lastMonth)
+		};
 	});
 	const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
-	const [currentMonth, setCurrentMonth] = React.useState<Date>(new Date());
+	const [currentMonth, setCurrentMonth] = React.useState<Date>(() => subMonths(new Date(), 1));
 
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		try {
@@ -228,6 +232,9 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							fixedWeeks
 							ISOWeek
 							initialFocus
+							disabled={{
+								from: subDays(new Date(), -1) // This includes today in the disabled range
+							}}
 						/>
 					</div>
 				</div>
