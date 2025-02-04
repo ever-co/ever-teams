@@ -36,9 +36,9 @@ export function NavProjects({
 	const { isMobile } = useSidebar();
 
 	const { user } = useAuthenticateUser();
-
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const t = useTranslations();
+
 	return userManagedTeams && userManagedTeams.length > 0 ? (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel>{t('sidebar.PROJECTS')}</SidebarGroupLabel>

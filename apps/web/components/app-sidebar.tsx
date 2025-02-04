@@ -8,8 +8,10 @@ import {
 	X,
 	Command,
 	AudioWaveform,
-	GalleryVerticalEnd
+	GalleryVerticalEnd,
+	FolderKanban
 } from 'lucide-react';
+import Image from 'next/image';
 
 import { NavMain } from '@/components/nav-main';
 import {
@@ -24,13 +26,14 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { useFavoritesTask } from '@/app/hooks/features/useFavoritesTask';
 import { CreateTeamModal, TaskIssueStatus } from '@/lib/features';
 import { useTranslations } from 'next-intl';
 import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { NavProjects } from './nav-projects';
+import { useEffect } from 'react';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -40,6 +43,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { state } = useSidebar();
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
+	const { getOrganizationProjects, organizationProjects } = useOrganizationProjects();
+
+	useEffect(() => {
+		getOrganizationProjects();
+	}, [getOrganizationProjects]);
+
 	// This is sample data.
 	const data = {
 		workspaces: [
@@ -191,6 +200,41 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						url: `/profile/${user?.id}?name=${encodeURIComponent(username || '')}`,
 						label: 'my-tasks'
 					}
+				]
+			},
+			{
+				title: t('sidebar.PROJECTS'),
+				url: '/projects',
+				icon: FolderKanban,
+				label: 'projects',
+				items: [
+					...organizationProjects.map((project) => {
+						return {
+							title: project.name ?? '',
+							label: 'project',
+							url: `/project/${project.id}`,
+							icon: (
+								<div
+									style={{ backgroundColor: project.color }}
+									className={cn(
+										'w-8 h-8  border overflow-hidden flex items-center justify-center rounded-full'
+									)}
+								>
+									{!project.imageUrl ? (
+										project.name?.substring(0, 2)
+									) : (
+										<Image
+											alt={project.name ?? ''}
+											height={40}
+											width={40}
+											className="w-full h-full"
+											src={project.imageUrl}
+										/>
+									)}
+								</div>
+							)
+						};
+					})
 				]
 			},
 			{

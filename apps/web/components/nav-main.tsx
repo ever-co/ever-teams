@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { activeMenuIndexState, activeSubMenuIndexState, openMenusState } from '@/app/stores/menu';
+import { ReactNode } from 'react';
 
 export function NavMain({
 	items
@@ -31,6 +32,7 @@ export function NavMain({
 			title: string;
 			url: string;
 			component?: JSX.Element;
+			icon?: ReactNode;
 		}[];
 	}[];
 }>) {
@@ -168,18 +170,29 @@ export function NavMain({
 															onClick={() => handleSubMenuToggle(key)}
 															asChild
 														>
-															<Link href={subItem.url}>
-																<span
-																	className={cn(
-																		'transition-all font-light !text-sm',
-																		state === 'collapsed'
-																			? 'opacity-0 hidden'
-																			: 'opacity-100'
-																	)}
-																>
-																	{subItem.title}
-																</span>
-															</Link>
+															<div className="w-full h-full flex  items-center gap-2">
+																{subItem.icon && (
+																	<div
+																		className={cn(
+																			'w-8 h-8 border rounded-full flex items-center justify-center'
+																		)}
+																	>
+																		{subItem.icon}
+																	</div>
+																)}
+																<Link href={subItem.url}>
+																	<span
+																		className={cn(
+																			'transition-all font-light !text-sm',
+																			state === 'collapsed'
+																				? 'opacity-0 hidden'
+																				: 'opacity-100'
+																		)}
+																	>
+																		{subItem.title}
+																	</span>
+																</Link>
+															</div>
 														</SidebarMenuSubButton>
 													)}
 												</SidebarMenuSubItem>
