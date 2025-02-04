@@ -56,7 +56,7 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered, user }: P
 	}, []);
 
 	return (
-		<div className="flex flex-col w-full h-full mt-10">
+		<div className="flex flex-col w-full h-full mt-12">
 			{tabFiltered.tab === 'worked' &&
 				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 				otherTasks.length > 0 && (
