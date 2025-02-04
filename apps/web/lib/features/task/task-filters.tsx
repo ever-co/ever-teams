@@ -544,7 +544,7 @@ export function TaskNameFilter({
 	};
 
 	return (
-		<div className={clsxm('flex flex-row w-full md:w-1/2 gap-2 mt-0 ml-auto', fullWidth && '!w-full')}>
+		<div className={clsxm('flex flex-row w-full md:w-1/2 gap-2 mt-0 ml-auto my-6', fullWidth && '!w-full')}>
 			<InputField
 				value={tempValue}
 				autoFocus={true}
