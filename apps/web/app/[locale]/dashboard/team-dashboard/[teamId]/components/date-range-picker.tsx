@@ -252,7 +252,8 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 				})
 			}
 		],
-		[createRange, t, weekOptions]	);
+		[createRange, t]
+	);
 
 	return (
 		<div className='flex flex-col gap-2 p-2'>
