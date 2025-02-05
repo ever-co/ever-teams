@@ -47,7 +47,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-96">
+				<PopoverContent className="w-96 dark:bg-dark--theme-light">
 					<div className="flex flex-col w-full">
 						<div className="flex gap-2 mb-3 text-xl font-bold">
 							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
@@ -61,13 +61,12 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 										className={cn(
 											'text-primary/10',
 											allteamsState.length > 0 && 'text-primary dark:text-primary-light'
-										)}
-									>
-										{t('common.CLEAR')}
+										)}>
+										{t('common.CLEAR')} ({allteamsState.length})
 									</span>
 								</label>
 								<MultiSelect
-									localStorageKey="timesheet-select-filter-employee"
+									localStorageKey="team-dashboard-select-filter-team"
 									removeItems={shouldRemoveItems}
 									items={userManagedTeams ?? []}
 									itemToString={(team) => team?.name ?? ''}
@@ -87,10 +86,12 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 											alluserState.length > 0 && 'text-primary dark:text-primary-light'
 										)}
 									>
-										{t('common.CLEAR')}
+										{t('common.CLEAR')} ({alluserState.length})
 									</span>
 								</label>
 								<MultiSelect
+									localStorageKey="team-dashboard-select-filter-employee"
+									removeItems={shouldRemoveItems}
 									items={allteamsState.flatMap((team) => {
 										const members = team.members ?? [];
 										return members.filter((member) => member && member.employee);

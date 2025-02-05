@@ -28,7 +28,7 @@ const Circle = ({ color, dashArray, dashOffset = '0' }: CircleProps) => (
 		strokeWidth="20"
 		strokeDasharray={`${dashArray} 251.327`}
 		strokeDashoffset={dashOffset}
-		className="transition-all duration-1000"
+		className="transition-all duration-1000 ease-in-out"
 	/>
 );
 
@@ -43,12 +43,12 @@ const LegendItem = ({
 	time: string;
 	percentage: number;
 }) => (
-	<div className="flex justify-between items-center text-sm">
+	<div className="flex justify-between items-center text-[14px] text-[#60646C]">
 		<div className="flex items-center space-x-2">
 			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
-			<span className="text-gray-700 dark:text-gray-300">{label}</span>
+			<span className="text-gray-700 dark:text-gray-300 text-[14px]">{label}</span>
 		</div>
-		<span className="font-normal text-gray-900 dark:text-gray-100">
+		<span className="font-normal text-[#60646C] dark:text-gray-100 text-[14px]">
 			{time} ({percentage}%)
 		</span>
 	</div>
@@ -104,7 +104,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 							imageTitle={employeeLog.employee.fullName}
 							className="relative"
 						/>
-						<h3 className="text-xl font-medium text-gray-900 dark:text-gray-100">
+						<h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 text-[28px]">
 							{employeeLog.employee.fullName}
 						</h3>
 					</div>

@@ -48,7 +48,7 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 		idle: true,
 		resumed: true
 	});
-	const [groupBy,setGroupBy] = useState<GroupBy>('daily');
+	const [groupBy, setGroupBy] = useState<GroupBy>('daily');
 
 	const toggleLine = (line: keyof typeof visibleLines) => {
 		setVisibleLines((prev) => ({
@@ -239,39 +239,31 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 				</ResponsiveContainer>
 				<div className="flex gap-2 justify-center mt-4">
 					<Button
-						size="sm"
-						variant="outline"
-						className={`gap-2 px-3 py-1.5 h-8 text-xs font-normal hover:bg-transparent ${!visibleLines.tracked ? 'line-through opacity-50' : ''}`}
+						size={'sm'}
+						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#0088FE] hover:bg-[#0088FE] text-xs font-normal  ${!visibleLines.tracked ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('tracked')}
 					>
-						<div className="w-2 h-2 bg-[#0284C7] rounded-full" />
 						Tracked
 					</Button>
 					<Button
-						size="sm"
-						variant="outline"
-						className={`gap-2 px-3 py-1.5 h-8 text-xs font-normal hover:bg-transparent ${!visibleLines.manual ? 'line-through opacity-50' : ''}`}
+						size={'sm'}
+						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#DC2626] hover:bg-[#DC2626] text-xs font-normal  ${!visibleLines.manual ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('manual')}
 					>
-						<div className="w-2 h-2 bg-[#DC2626] rounded-full" />
 						Manual
 					</Button>
 					<Button
-						size="sm"
-						variant="outline"
-						className={`gap-2 px-3 py-1.5 h-8 text-xs font-normal hover:bg-transparent ${!visibleLines.idle ? 'line-through opacity-50' : ''}`}
+						size={'sm'}
+						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#EAB308] hover:bg-[#EAB308] text-xs font-normal  ${!visibleLines.idle ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('idle')}
 					>
-						<div className="w-2 h-2 bg-[#EAB308] rounded-full" />
 						Idle
 					</Button>
 					<Button
-						size="sm"
-						variant="outline"
-						className={`gap-2 px-3 py-1.5 h-8 text-xs font-normal hover:bg-transparent ${!visibleLines.resumed ? 'line-through opacity-50' : ''}`}
+						size={'sm'}
+						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#22C55E] hover:bg-[#22C55E] text-xs font-normal  ${!visibleLines.resumed ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('resumed')}
 					>
-						<div className="w-2 h-2 bg-[#22C55E] rounded-full" />
 						Resumed
 					</Button>
 				</div>
