@@ -154,7 +154,7 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 		</Popover>
 	);
 }
-interface IpredefineRange {
+interface PredefinedRangeProps {
 	handleDateRangeChange: (range: DateRange | undefined) => void;
 	t: TranslationHooks;
 	dateRange: DateRange | undefined;
@@ -187,7 +187,7 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 	};
 };
 
-const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: IpredefineRange) => {
+const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRangeProps) => {
 	const createRange = createRangeHelper(handleDateRangeChange);
 	const weekOptions = { weekStartsOn: 1 as const };
 
