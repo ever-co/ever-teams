@@ -248,7 +248,7 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: IpredefineRan
 				})
 			}
 		],
-		[createRange, t, weekOptions]
+		[createRange, t]
 	);
 
 	return (
