@@ -295,7 +295,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		[user, queryTimesheet, isManage, employee, project, task, statusState, setTimesheet]
 	);
 
-	// Effet pour déclencher la requête quand les dates changent
 	useEffect(() => {
 		if (startDate || endDate) {
 			getTaskTimesheet({ startDate, endDate });

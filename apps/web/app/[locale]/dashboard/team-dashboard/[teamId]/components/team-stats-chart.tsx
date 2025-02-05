@@ -57,6 +57,25 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 		}));
 	};
 
+	const baseButtonClass = 'gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] text-xs font-normal';
+	const buttonColors = {
+		tracked: {
+			base: 'bg-[#0088FE]',
+			hover: 'hover:bg-[#0088FE]/80'
+		},
+		manual: {
+			base: 'bg-[#DC2626]',
+			hover: 'hover:bg-[#DC2626]/80'
+		},
+		idle: {
+			base: 'bg-[#EAB308]',
+			hover: 'hover:bg-[#EAB308]/80'
+		},
+		resumed: {
+			base: 'bg-[#22C55E]',
+			hover: 'hover:bg-[#22C55E]/80'
+		}
+	};
 	const groupData = (data: ITimerDailyLog[], grouping: GroupBy) => {
 		if (grouping === 'daily') return data;
 
@@ -240,28 +259,28 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 				<div className="flex gap-2 justify-center mt-4">
 					<Button
 						size={'sm'}
-						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#0088FE] hover:bg-[#0088FE] text-xs font-normal  ${!visibleLines.tracked ? 'line-through opacity-50' : ''}`}
+						className={`${baseButtonClass} ${buttonColors.tracked.base} ${buttonColors.tracked.hover} ${!visibleLines.tracked ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('tracked')}
 					>
 						Tracked
 					</Button>
 					<Button
 						size={'sm'}
-						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#DC2626] hover:bg-[#DC2626] text-xs font-normal  ${!visibleLines.manual ? 'line-through opacity-50' : ''}`}
+						className={`${baseButtonClass} ${buttonColors.manual.base} ${buttonColors.manual.hover} ${!visibleLines.manual ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('manual')}
 					>
 						Manual
 					</Button>
 					<Button
 						size={'sm'}
-						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#EAB308] hover:bg-[#EAB308] text-xs font-normal  ${!visibleLines.idle ? 'line-through opacity-50' : ''}`}
+						className={`${baseButtonClass} ${buttonColors.idle.base} ${buttonColors.idle.hover} ${!visibleLines.idle ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('idle')}
 					>
 						Idle
 					</Button>
 					<Button
 						size={'sm'}
-						className={`gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] bg-[#22C55E] hover:bg-[#22C55E] text-xs font-normal  ${!visibleLines.resumed ? 'line-through opacity-50' : ''}`}
+						className={`${baseButtonClass} ${buttonColors.resumed.base} ${buttonColors.resumed.hover} ${!visibleLines.resumed ? 'line-through opacity-50' : ''}`}
 						onClick={() => toggleLine('resumed')}
 					>
 						Resumed
