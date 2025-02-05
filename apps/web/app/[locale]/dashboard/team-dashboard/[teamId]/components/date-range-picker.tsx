@@ -23,6 +23,7 @@ import {
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
+import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
 
 interface DateRangePickerProps {
@@ -51,100 +52,6 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 		}
 	};
 
-	const predefinedRanges = [
-		{
-			label: t('common.TODAY'),
-			action: () => {
-				const today = new Date();
-				handleDateRangeChange({ from: today, to: today });
-			},
-			isSelected: (range: DateRange | undefined) => {
-				if (!range?.from || !range?.to) return false;
-				const today = new Date();
-				return isEqual(range.from, today) && isEqual(range.to, today);
-			}
-		},
-		{
-			label: t('common.YESTERDAY'),
-			action: () => {
-				const yesterday = subDays(new Date(), 1);
-				handleDateRangeChange({ from: yesterday, to: yesterday });
-			},
-			isSelected: (range: DateRange | undefined) => {
-				if (!range?.from || !range?.to) return false;
-				const yesterday = subDays(new Date(), 1);
-				return isEqual(range.from, yesterday) && isEqual(range.to, yesterday);
-			}
-		},
-		{
-			label: t('common.THIS_WEEK'),
-			action: () => {
-				const today = new Date();
-				handleDateRangeChange({
-					from: startOfWeek(today, { weekStartsOn: 1 }),
-					to: endOfWeek(today, { weekStartsOn: 1 })
-				});
-			},
-			isSelected: (range: DateRange | undefined) => {
-				if (!range?.from || !range?.to) return false;
-				const today = new Date();
-				const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-				const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
-				return isEqual(range.from, weekStart) && isEqual(range.to, weekEnd);
-			}
-		},
-		{
-			label: t('common.LAST_WEEK'),
-			action: () => {
-				const lastWeek = subWeeks(new Date(), 1);
-				handleDateRangeChange({
-					from: startOfWeek(lastWeek, { weekStartsOn: 1 }),
-					to: endOfWeek(lastWeek, { weekStartsOn: 1 })
-				});
-			},
-			isSelected: (range: DateRange | undefined) => {
-				if (!range?.from || !range?.to) return false;
-				const lastWeek = subWeeks(new Date(), 1);
-				const weekStart = startOfWeek(lastWeek, { weekStartsOn: 1 });
-				const weekEnd = endOfWeek(lastWeek, { weekStartsOn: 1 });
-				return isEqual(range.from, weekStart) && isEqual(range.to, weekEnd);
-			}
-		},
-		{
-			label: t('common.THIS_MONTH'),
-			action: () => {
-				const today = new Date();
-				handleDateRangeChange({
-					from: startOfMonth(today),
-					to: endOfMonth(today)
-				});
-			},
-			isSelected: (range: DateRange | undefined) => {
-				if (!range?.from || !range?.to) return false;
-				const today = new Date();
-				const monthStart = startOfMonth(today);
-				const monthEnd = endOfMonth(today);
-				return isEqual(range.from, monthStart) && isEqual(range.to, monthEnd);
-			}
-		},
-		{
-			label: t('common.LAST_MONTH'),
-			action: () => {
-				const lastMonth = subMonths(new Date(), 1);
-				handleDateRangeChange({
-					from: startOfMonth(lastMonth),
-					to: endOfMonth(lastMonth)
-				});
-			},
-			isSelected: (range: DateRange | undefined) => {
-				if (!range?.from || !range?.to) return false;
-				const lastMonth = subMonths(new Date(), 1);
-				const monthStart = startOfMonth(lastMonth);
-				const monthEnd = endOfMonth(lastMonth);
-				return isEqual(range.from, monthStart) && isEqual(range.to, monthEnd);
-			}
-		}
-	];
 
 	const formatDateRange = (range: DateRange) => {
 		if (!range.from) return 'Select date range';
@@ -202,8 +109,8 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 				className="p-0 w-auto dark:bg-dark--theme-light dark:border-[#2D2D2D] border border-[#E4E4E7] rounded-md shadow-lg"
 				align="center"
 			>
-				<div className="flex">
-					<div className="p-0.5">
+				<div className="flex flex-row-reverse">
+				<div className="p-0.5">
 						<Calendar
 							className="min-w-[220px]"
 							mode="range"
@@ -219,23 +126,8 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							disabled={(date) => date >= startOfDay(new Date())}
 						/>
 					</div>
-					<div className="p-0.5 space-y-0.5 border-l max-w-32">
-						{predefinedRanges.map((range) => (
-							<Button
-								key={range.label}
-								variant={range.isSelected(dateRange) ? 'default' : 'ghost'}
-								className={cn(
-									'justify-start w-full text-sm font-normal dark:text-gray-100 h-8',
-									range.isSelected(dateRange) &&
-										'bg-primary text-primary-foreground hover:bg-primary/90'
-								)}
-								onClick={() => {
-									range.action();
-								}}
-							>
-								{range.label}
-							</Button>
-						))}
+					<div className="p-1 space-y-1 border-l max-w-36">
+						<PredefinedRanges  handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
 					</div>
 				</div>
 				<div className="flex gap-1 justify-end p-0.5 border-t">
@@ -262,3 +154,120 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 		</Popover>
 	);
 }
+interface IpredefineRange {
+	handleDateRangeChange: (range: DateRange | undefined) => void;
+	t: TranslationHooks;
+	dateRange: DateRange | undefined;
+}
+
+type DateRangeGetter = () => { from: Date; to: Date };
+
+const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined) => void) => {
+	return (getRange: DateRangeGetter) => {
+		const range = getRange();
+		return {
+			action: () => {
+				const newRange = {
+					from: new Date(range.from),
+					to: new Date(range.to)
+				};
+				handleDateRangeChange(newRange);
+			},
+			isSelected: (currentRange: DateRange | undefined) => {
+				if (!currentRange?.from || !currentRange?.to) return false;
+				return isEqual(
+					startOfDay(currentRange.from),
+					startOfDay(range.from)
+				) && isEqual(
+					startOfDay(currentRange.to),
+					startOfDay(range.to)
+				);
+			}
+		};
+	};
+};
+
+const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: IpredefineRange) => {
+	const createRange = createRangeHelper(handleDateRangeChange);
+	const weekOptions = { weekStartsOn: 1 as const };
+
+	const predefinedRanges = React.useMemo(
+		() => [
+			{
+				label: t('common.TODAY'),
+				...createRange(() => {
+					const today = new Date();
+					return { from: today, to: today };
+				})
+			},
+			{
+				label: t('common.YESTERDAY'),
+				...createRange(() => {
+					const yesterday = subDays(new Date(), 1);
+					return { from: yesterday, to: yesterday };
+				})
+			},
+			{
+				label: t('common.THIS_WEEK'),
+				...createRange(() => {
+					const today = new Date();
+					return {
+						from: startOfWeek(today, weekOptions),
+						to: endOfWeek(today, weekOptions)
+					};
+				})
+			},
+			{
+				label: t('common.LAST_WEEK'),
+				...createRange(() => {
+					const lastWeek = subWeeks(new Date(), 1);
+					return {
+						from: startOfWeek(lastWeek, weekOptions),
+						to: endOfWeek(lastWeek, weekOptions)
+					};
+				})
+			},
+			{
+				label: t('common.THIS_MONTH'),
+				...createRange(() => {
+					const today = new Date();
+					return {
+						from: startOfMonth(today),
+						to: endOfMonth(today)
+					};
+				})
+			},
+			{
+				label: t('common.LAST_MONTH'),
+				...createRange(() => {
+					const lastMonth = subMonths(new Date(), 1);
+					return {
+						from: startOfMonth(lastMonth),
+						to: endOfMonth(lastMonth)
+					};
+				})
+			}
+		],
+		[createRange, t, weekOptions]
+	);
+
+	return (
+		<div className='flex flex-col gap-2 p-2'>
+			{predefinedRanges.map((range) => (
+				<Button
+					key={range.label}
+					variant={range.isSelected(dateRange) ? 'default' : 'ghost'}
+					className={cn(
+						'justify-start w-full font-normal dark:text-gray-100 border rounded',
+						range.isSelected(dateRange) && 'bg-primary text-primary-foreground hover:bg-primary/90'
+					)}
+					onClick={() => {
+						range.action();
+					}}
+				>
+					{range.label}
+				</Button>
+			))}
+		</div>
+	);
+};
