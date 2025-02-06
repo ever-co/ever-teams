@@ -35,8 +35,6 @@ const formatPercentage = (value: number) => {
 	return `${Math.round(value)}%`;
 };
 
-
-
 export function TeamStatsTable({
 	rapportDailyActivity,
 	isLoading
@@ -70,7 +68,11 @@ export function TeamStatsTable({
 	}
 
 	if (!rapportDailyActivity?.length) {
-		return <div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">No data available</div>;
+		return (
+			<div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">
+				No data available
+			</div>
+		);
 	}
 
 	return (
@@ -96,9 +98,7 @@ export function TeamStatsTable({
 								<TableBody>
 									{paginatedData?.map((dayData) => (
 										<Fragment key={`date-group-${dayData.date}`}>
-																<TableRow
-												className="bg-gray-50/50 dark:bg-gray-800/50"
-											>
+											<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
 												<TableCell colSpan={9} className="py-3 font-medium">
 													{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 												</TableCell>
@@ -227,8 +227,8 @@ export function TeamStatsTable({
 						total={rapportDailyActivity?.length}
 					/>
 					<div className="text-sm text-center text-[#111827] sm:text-left">
-						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of{' '}
-						{rapportDailyActivity.length} entries
+						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
+						{rapportDailyActivity?.length || 0} entries
 					</div>
 				</div>
 			</div>
