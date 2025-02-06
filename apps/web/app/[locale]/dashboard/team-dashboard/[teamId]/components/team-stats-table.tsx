@@ -151,7 +151,7 @@ export function TeamStatsTable({
 															</TableCell>
 															<TableCell className="w-[200px]">
 																<div className="flex gap-2 items-center">
-																	<div className="w-full h-[40px] bg-gray-100 rounded-full dark:bg-gray-600">
+																	<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
 																		<div
 																			className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
 																			style={{
@@ -219,10 +219,13 @@ export function TeamStatsTable({
 					</Button>
 				</div>
 				<div className="flex gap-4 items-center">
-					<PaginationDropdown setValue={(value) => {
-						setPageSize(value);
-						setCurrentPage(1);
-					}} />
+					<PaginationDropdown
+						setValue={(value) => {
+							setPageSize(value);
+							setCurrentPage(1);
+						}}
+						total={rapportDailyActivity?.length}
+					/>
 					<div className="text-sm text-center text-[#111827] sm:text-left">
 						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of{' '}
 						{rapportDailyActivity.length} entries
