@@ -477,7 +477,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 				{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(dailyPlanTab) && (
 					<TaskDatePickerWithRange
-						data={data}
+						data={data.data}
 						date={date}
 						onSelect={(range) => setDate(range)}
 						label="Planned date"

@@ -148,11 +148,11 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 			<Container fullWidth={fullWidth} className="">
 				<>
 					{profileDailyPlans?.items?.length > 0 ? (
-						<div className="space-y-4 ">
+						<div className="space-y-4">
 							<div className="flex items-center justify-between w-full min-w-fit max-w-[78svw]">
-								<div className={clsxm('flex items-center gap-4')}>
+								<div className={clsxm('flex gap-4 items-center')}>
 									{Object.keys(tabsScreens).map((filter, i) => (
-										<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
+										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
 											{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 											<div
 												className={clsxm(
@@ -199,7 +199,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 										</div>
 									))}
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex gap-2 items-center">
 									{currentTab === 'Today Tasks' && todayPlan[0] && (
 										<>
 											{canSeeActivity ? (
@@ -238,10 +238,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																}
 															}}
 															variant="destructive"
-															className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+															className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 														>
 															{deleteDailyPlanLoading && (
-																<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+																<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 															)}
 															{t('common.DELETE')}
 														</Button>
@@ -364,8 +364,8 @@ function AllPlans({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
@@ -518,7 +518,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 		>
 			{/* Planned Time */}
 
-			<div className="flex items-center gap-2">
+			<div className="flex gap-2 items-center">
 				{!editTime && !updateDailyPlanLoading ? (
 					<>
 						<div>
@@ -538,13 +538,13 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 							min={0}
 							type="number"
 							className={clsxm(
-								'outline-none p-0 bg-transparent border-b text-center max-w-[54px] text-xs font-medium'
+								'p-0 text-xs font-medium text-center bg-transparent border-b outline-none max-w-[54px]'
 							)}
 							onChange={(e) => setTime(parseFloat(e.target.value))}
 						/>
 						<span>
 							{updateDailyPlanLoading ? (
-								<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+								<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 							) : (
 								<TickSaveIcon
 									className="w-5 cursor-pointer"
@@ -562,7 +562,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{/* Total estimated time  based on tasks */}
 			<VerticalSeparator className="h-10" />
 
-			<div className="flex items-center gap-2">
+			<div className="flex gap-2 items-center">
 				<span className="font-medium">{t('dailyPlan.ESTIMATED_TIME')} : </span>
 				<span className="font-semibold">{formatIntegerToHour(estimatedTime / 3600)}</span>
 			</div>
@@ -571,7 +571,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 
 			{/* Total worked time for the plan */}
 			{planMode !== 'Future Tasks' && (
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2 items-center">
 					<span className="font-medium">{t('dailyPlan.TOTAL_TIME_WORKED')} : </span>
 					<span className="font-semibold">{formatIntegerToHour(totalWorkTime / 3600)}</span>
 				</div>
@@ -582,15 +582,15 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{/*  Completed tasks */}
 			{planMode !== 'Future Tasks' && (
 				<div>
-					<div className="flex items-center gap-2">
+					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.COMPLETED_TASKS')} : </span>
 						<span className="font-medium">{`${completedTasks}/${totalTasks}`}</span>
 					</div>
-					<div className="flex items-center gap-2">
+					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.READY')}: </span>
 						<span className="font-medium">{readyTasks}</span>
 					</div>
-					<div className="flex items-center gap-2">
+					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.LEFT')}: </span>
 						<span className="font-semibold">{totalTasks - completedTasks - readyTasks}</span>
 					</div>
@@ -602,7 +602,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{/*  Completion progress */}
 			{planMode !== 'Future Tasks' && (
 				<div className="flex flex-col gap-3">
-					<div className="flex items-center gap-2">
+					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.COMPLETION')}: </span>
 						<span className="font-semibold">{completionPercent}%</span>
 					</div>
@@ -613,7 +613,7 @@ export function PlanHeader({ plan, planMode }: { plan: IDailyPlan; planMode: Fil
 			{/* Future tasks total plan */}
 			{planMode === 'Future Tasks' && (
 				<div>
-					<div className="flex items-center gap-2">
+					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.PLANNED_TASKS')}: </span>
 						<span className="font-semibold">{totalTasks}</span>
 					</div>
