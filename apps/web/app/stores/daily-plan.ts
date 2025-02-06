@@ -127,7 +127,7 @@ export const getFirstAndLastDateState = atom((get) => {
 
 export const getPlanState = atom((get) => {
   const itemsData = get(dataDailyPlanState);
-  if (!itemsData?.length) return { data:[]||null };
+  if (!itemsData?.length) return { data: [] };
   return {
    data: itemsData
   };
