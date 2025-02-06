@@ -46,6 +46,13 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	const [pageSize, setPageSize] = useState(10);
+
+	const getPageSizeOptions = (total: number) => {
+		if (total <= 10) return [10];
+		if (total <= 20) return [10, 20];
+		if (total <= 30) return [10, 20, 30];
+		return [10, 20, 30, 50];
+	};
 	const { getOrganizationProjects } = useOrganizationProjects();
 
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -331,6 +338,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									totalGroups={totalGroups}
 									pageSize={pageSize}
 									onPageSizeChange={setPageSize}
+									pageSizeOptions={getPageSizeOptions(totalGroups || 0)}
 								/>
 							)}
 						</div>

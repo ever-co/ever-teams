@@ -19,6 +19,7 @@ interface TimesheetPaginationProps {
 	dates?: string[];
 	totalGroups?: number;
 	pageSize?: number;
+	pageSizeOptions?: number[];
 	onPageSizeChange?: (size: number) => void;
 }
 
@@ -46,6 +47,7 @@ function TimesheetPagination({
 	dates,
 	totalGroups,
 	pageSize = 10,
+	pageSizeOptions = [10, 20, 30, 50],
 	onPageSizeChange
 }: TimesheetPaginationProps) {
 	return (
@@ -67,10 +69,11 @@ function TimesheetPagination({
 									<SelectValue placeholder="Page size" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="10">10</SelectItem>
-									<SelectItem value="20">20</SelectItem>
-									<SelectItem value="30">30</SelectItem>
-									<SelectItem value="50">50</SelectItem>
+									{pageSizeOptions.map((size) => (
+										<SelectItem key={size} value={size.toString()}>
+											{size}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</div>
