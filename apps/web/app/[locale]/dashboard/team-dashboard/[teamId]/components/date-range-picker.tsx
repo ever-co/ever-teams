@@ -109,8 +109,8 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 				className="p-0 w-auto dark:bg-dark--theme-light dark:border-[#2D2D2D] border border-[#E4E4E7] rounded-md shadow-lg"
 				align="center"
 			>
-				<div className="flex flex-row-reverse">
-				<div className="p-0.5">
+				<div className="flex">
+					<div className="p-0.5">
 						<Calendar
 							className="min-w-[220px]"
 							mode="range"
