@@ -33,7 +33,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 	return (
 		<div
-			className={clsxm('flex justify-between items-center overflow-y-auto', className)}
+			className={clsxm('flex justify-between items-center', className)}
 			onClick={() => onClick && task && task.status !== 'closed' && onClick(task)}
 		>
 			<div
@@ -88,8 +88,8 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 				<div onClick={(e) => e.stopPropagation()}>
 					{task?.status !== 'closed' && (
 						<Tooltip label={`${t('common.CLOSE')} ${t('common.TASK')}`} enabled placement="left">
-							<ConfirmDropdown onConfirm={() => handleChange('closed')} confirmText={'Confirm'}>
-								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="w-5 h-5" />}
+							<ConfirmDropdown onConfirm={() => handleChange('closed')} confirmText={'Confirm'} className='fixed z-50'>
+								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="w-5 h-5 z-10" />}
 							</ConfirmDropdown>
 						</Tooltip>
 					)}
