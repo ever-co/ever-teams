@@ -197,11 +197,7 @@ export function TeamStatsTable({
 						</div>
 					</div>
 				</div>
-				<div className="flex flex-col gap-4 justify-between items-center px-2 sm:flex-row">
-					<div className="text-sm text-center text-gray-500 sm:text-left">
-						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of{' '}
-						{rapportDailyActivity.length} entries
-					</div>
+				<div className="flex gap-4 justify-between items-center p-2 sm:flex-row">
 					<div className="flex items-center space-x-2">
 						<Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1}>
 							<ChevronsLeft className="w-4 h-4" />
@@ -239,8 +235,7 @@ export function TeamStatsTable({
 							<ChevronsRight className="w-4 h-4" />
 						</Button>
 					</div>
-				</div>
-				<div className="flex gap-4 items-center">
+					<div className="flex gap-4 items-center">
 					<PaginationDropdown
 						setValue={(value) => {
 							setPageSize(value);
@@ -253,6 +248,8 @@ export function TeamStatsTable({
 						{rapportDailyActivity?.length || 0} entries
 					</div>
 				</div>
+				</div>
+
 			</div>
 		</>
 	);
