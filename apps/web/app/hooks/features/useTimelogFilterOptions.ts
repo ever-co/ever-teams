@@ -71,7 +71,7 @@ export function useTimelogFilterOptions() {
 
     React.useEffect(() => {
         return () => setSelectTimesheetId([]);
-    }, []);
+    }, [setSelectTimesheetId]);
 
     return {
         statusState,
