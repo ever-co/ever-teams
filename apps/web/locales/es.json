@@ -246,6 +246,10 @@
 		"NOT_WORKING": "No trabajando",
 		"WORKING": "Trabajando",
 		"PAUSED": "Pausado",
+		"START_DATE": "Fecha de inicio",
+		"END_DATE": "Fecha de finalización",
+		"MEMBERS": "Miembros",
+		"MANAGERS": "Gerentes",
 		"ONLINE": "En línea",
 		"SKIP_ADD_LATER": "Agregar más tarde",
 		"DAILYPLAN": "Planificado",
@@ -436,6 +440,17 @@
 			"ENTER_EMAIL": "Ingresar correo electrónico",
 			"WORKSPACES_NOT_FOUND": "Espacios de trabajo no encontrados",
 			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, inténtelo de nuevo."
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Proyectos",
+				"SINGULAR": "Proyecto"
+			},
+			"CREATE_NEW_PROJECT": "Crear nuevo proyecto",
+			"views": {
+				"LIST_VIEW": "Vista de lista",
+				"GRID_VIEW": "Vista de cuadrícula"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unirse a equipo existente",

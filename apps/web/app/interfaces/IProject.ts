@@ -1,5 +1,5 @@
 import { IEmployee } from './IEmployee';
-import { IOrganizationTeam } from './IOrganizationTeam';
+import { IOrganizationTeam, OT_Member } from './IOrganizationTeam';
 import { ITeamTask } from './ITask';
 import { TaskStatusEnum } from './ITaskStatus';
 import { ITimeLog } from './timer/ITimerLogs';
@@ -27,7 +27,7 @@ export interface IProject {
 	endDate?: Date;
 	billing?: ProjectBillingEnum;
 	currency?: string;
-	members?: IEmployee[];
+	members?: OT_Member[];
 	public?: boolean;
 	owner?: ProjectOwnerEnum;
 	tasks?: ITeamTask[];

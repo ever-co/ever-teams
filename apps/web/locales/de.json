@@ -26,6 +26,10 @@
 		"MEMBERS_WORKED": "Mitglieder gearbeitet",
 		"COLLAPSE_COLUMN": "Spalte einklappen",
 		"EXPAND_COLUMN": "Spalte ausklappen",
+		"START_DATE": "Startdatum",
+		"END_DATE": "Enddatum",
+		"MEMBERS": "Mitglieder",
+		"MANAGERS": "Manager",
 		"EDIT_STATUS": "Status bearbeiten",
 		"ADD_TIME_ENTRY": "Zeiteintrag hinzufügen",
 		"OPT_IN_UPDATES": "Abonnieren Sie Updates und Nachrichten zu Ever Teams.",
@@ -417,6 +421,17 @@
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Sie sind dabei, den Status {statusName} zu löschen, der von aktiven Aufgaben verwendet wird; bitte bestätigen Sie die Aktion"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projekte",
+				"SINGULAR": "Projekt"
+			},
+			"CREATE_NEW_PROJECT": "Neues Projekt erstellen",
+			"views": {
+				"LIST_VIEW": "Listenansicht",
+				"GRID_VIEW": "Rasteransicht"
+			}
 		},
 		"auth": {
 			"SEND_CODE": "Code senden",

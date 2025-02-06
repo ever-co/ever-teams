@@ -26,6 +26,10 @@
 		"MEMBERS_WORKED": "חברים שעבדו",
 		"COLLAPSE_COLUMN": "כווץ עמודה",
 		"EXPAND_COLUMN": "הרחב עמודה",
+		"START_DATE": "תאריך התחלה",
+		"END_DATE": "תאריך סיום",
+		"MEMBERS": "חברים",
+		"MANAGERS": "מנהלים",
 		"EDIT_STATUS": "ערוך סטטוס",
 		"ADD_TIME_ENTRY": "הוסף כניסת זמן",
 		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על Ever Teams.",
@@ -376,6 +380,17 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "לוח Kanban"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "פרויקטים",
+				"SINGULAR": "פרויקט"
+			},
+			"CREATE_NEW_PROJECT": "צור פרויקט חדש",
+			"views": {
+				"LIST_VIEW": "תצוגת רשימה",
+				"GRID_VIEW": "תצוגת רשת"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]",

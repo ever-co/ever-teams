@@ -1,4 +1,4 @@
-import {  IProject, PaginationResponse } from '@app/interfaces';
+import { IProject, PaginationResponse } from '@app/interfaces';
 import { get, put } from '../axios';
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
@@ -22,14 +22,20 @@ export function getOrganizationProjectAPI(id: string, tenantId?: string) {
 }
 
 export function getOrganizationProjectsAPI() {
-
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId,
-	}
+		'where[tenantId]': tenantId
+	} as Record<string, string>;
+
+	const relations = ['members', 'teams', 'members.employee', 'members.employee.user'];
+
+	relations.forEach((relation, i) => {
+		obj[`relations[${i}]`] = relation;
+	});
+
 	const query = qs.stringify(obj);
 
 	return get<PaginationResponse<IProject>>(`/organization-projects?${query}`, {

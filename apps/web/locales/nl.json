@@ -25,6 +25,10 @@
 		"MEN_HOURS": "Manuren",
 		"MEMBERS_WORKED": "Leden gewerkt",
 		"COLLAPSE_COLUMN": "Kolom samenvouwen",
+		"START_DATE": "Startdatum",
+		"END_DATE": "Einddatum",
+		"MEMBERS": "Leden",
+		"MANAGERS": "Managers",
 		"EXPAND_COLUMN": "Kolom uitvouwen",
 		"EDIT_STATUS": "Status bewerken",
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
@@ -414,6 +418,17 @@
 			"TASK_IS_ALREADY_EPIC": "Epic taaktype kan niet worden gewijzigd.",
 			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft.",
 			"PROJECT": "Project"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projecten",
+				"SINGULAR": "Project"
+			},
+			"CREATE_NEW_PROJECT": "Nieuw project aanmaken",
+			"views": {
+				"LIST_VIEW": "Lijstweergave",
+				"GRID_VIEW": "Ruwe weergave"
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"

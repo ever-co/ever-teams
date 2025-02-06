@@ -234,7 +234,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 								</div>
 							)
 						};
-					})
+					}),
+					{
+						title: 'Archived projects',
+						url: '',
+						label: 'Archived projects'
+					}
 				]
 			},
 			{

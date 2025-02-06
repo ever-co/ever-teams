@@ -23,6 +23,10 @@
 		"SHOW_MORE": "Покажи още",
 		"TASKS": "Задачи",
 		"MEN_HOURS": "Човеко-часове",
+		"START_DATE": "Начална дата",
+		"END_DATE": "Крайна дата",
+		"MEMBERS": "Членове",
+		"MANAGERS": "Мениджъри",
 		"MEMBERS_WORKED": "Работили членове",
 		"COLLAPSE_COLUMN": "Свий колона",
 		"EXPAND_COLUMN": "Разгъни колона",
@@ -376,6 +380,17 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Канбан дъска"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Проекти",
+				"SINGULAR": "Проект"
+			},
+			"CREATE_NEW_PROJECT": "Създайте нов проект",
+			"views": {
+				"LIST_VIEW": "Списъчен изглед",
+				"GRID_VIEW": "Мрежов изглед"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]",

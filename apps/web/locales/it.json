@@ -27,6 +27,10 @@
 		"COLLAPSE_COLUMN": "Comprimi colonna",
 		"EXPAND_COLUMN": "Espandi colonna",
 		"EDIT_STATUS": "Modifica stato",
+		"START_DATE": "Data di inizio",
+		"END_DATE": "Data di fine",
+		"MEMBERS": "Membri",
+		"MANAGERS": "Manager",
 		"ADD_TIME_ENTRY": "Aggiungi voce di tempo",
 		"OPT_IN_UPDATES": "Acconsenti a ricevere aggiornamenti e notizie su Ever Teams.",
 		"SUBSCRIBE_NEWSLETTER": "Iscriviti alla nostra newsletter",
@@ -382,6 +386,17 @@
 			"MEMBER_NOT_FOUND_MSG_1": "Il membro che stai cercando non esiste in un team, prova a cercare con una query diversa.",
 			"MEMBER_NOT_FOUND_MSG_2": "Se stai cercando un membro in un team diverso, seleziona il team dal menu a discesa sopra.",
 			"GO_TO_HOME": "Vai alla Home"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Progetti",
+				"SINGULAR": "Progetto"
+			},
+			"CREATE_NEW_PROJECT": "Crea nuovo progetto",
+			"views": {
+				"LIST_VIEW": "Vista elenco",
+				"GRID_VIEW": "Vista griglia"
+			}
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",

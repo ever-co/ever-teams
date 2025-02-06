@@ -24,6 +24,10 @@
 		"TASKS": "Zadania",
 		"MEN_HOURS": "Roboczogodziny",
 		"MEMBERS_WORKED": "Członkowie pracowali",
+		"START_DATE": "Data rozpoczęcia",
+		"END_DATE": "Data zakończenia",
+		"MEMBERS": "Członkowie",
+		"MANAGERS": "Menadżerowie",
 		"COLLAPSE_COLUMN": "Zwiń kolumnę",
 		"EXPAND_COLUMN": "Rozwiń kolumnę",
 		"EDIT_STATUS": "Edytuj status",
@@ -417,6 +421,17 @@
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Zaraz usuniesz status {statusName}, który jest używany przez aktywne zadania; proszę potwierdzić akcję"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projekty",
+				"SINGULAR": "Projekt"
+			},
+			"CREATE_NEW_PROJECT": "Utwórz nowy projekt",
+			"views": {
+				"LIST_VIEW": "Widok listy",
+				"GRID_VIEW": "Widok siatki"
+			}
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",
