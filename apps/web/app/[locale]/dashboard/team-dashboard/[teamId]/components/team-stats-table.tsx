@@ -3,6 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PaginationDropdown } from '@/lib/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
@@ -34,8 +35,6 @@ const formatPercentage = (value: number) => {
 	return `${Math.round(value)}%`;
 };
 
-const ITEMS_PER_PAGE = 10;
-
 export function TeamStatsTable({
 	rapportDailyActivity,
 	isLoading
@@ -44,9 +43,10 @@ export function TeamStatsTable({
 	isLoading?: boolean;
 }) {
 	const [currentPage, setCurrentPage] = useState(1);
-	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / ITEMS_PER_PAGE) : 0;
-	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-	const endIndex = startIndex + ITEMS_PER_PAGE;
+	const [pageSize, setPageSize] = useState(10);
+	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / pageSize) : 0;
+	const startIndex = (currentPage - 1) * pageSize;
+	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
 	const paginatedData = rapportDailyActivity?.slice(startIndex, endIndex);
 
@@ -68,7 +68,11 @@ export function TeamStatsTable({
 	}
 
 	if (!rapportDailyActivity?.length) {
-		return <div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">No data available</div>;
+		return (
+			<div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">
+				No data available
+			</div>
+		);
 	}
 
 	return (
@@ -94,9 +98,7 @@ export function TeamStatsTable({
 								<TableBody>
 									{paginatedData?.map((dayData) => (
 										<Fragment key={`date-group-${dayData.date}`}>
-																<TableRow
-												className="bg-gray-50/50 dark:bg-gray-800/50"
-											>
+											<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
 												<TableCell colSpan={9} className="py-3 font-medium">
 													{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 												</TableCell>
@@ -188,11 +190,7 @@ export function TeamStatsTable({
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-col gap-4 justify-between items-center px-2 sm:flex-row">
-				<div className="text-sm text-center text-gray-500 sm:text-left">
-					Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of{' '}
-					{rapportDailyActivity.length} entries
-				</div>
+			<div className="flex flex-col gap-4 justify-between items-center p-3 px-2 sm:flex-row">
 				<div className="flex items-center space-x-2">
 					<Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1}>
 						<ChevronsLeft className="w-4 h-4" />
@@ -219,6 +217,19 @@ export function TeamStatsTable({
 					<Button variant="outline" size="icon" onClick={goToLastPage} disabled={currentPage === totalPages}>
 						<ChevronsRight className="w-4 h-4" />
 					</Button>
+				</div>
+				<div className="flex gap-4 items-center">
+					<PaginationDropdown
+						setValue={(value) => {
+							setPageSize(value);
+							setCurrentPage(1);
+						}}
+						total={rapportDailyActivity?.length}
+					/>
+					<div className="text-sm text-center text-[#111827] sm:text-left">
+						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
+						{rapportDailyActivity?.length || 0} entries
+					</div>
 				</div>
 			</div>
 		</div>
