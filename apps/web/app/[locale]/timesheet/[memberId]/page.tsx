@@ -34,8 +34,6 @@ import { useTimesheetViewData } from '@/app/hooks/features/useTimesheetViewData'
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
-const TIMESHEET_PAGE_SIZE = 10;
-
 type ViewToggleButtonProps = {
 	mode: TimesheetViewMode;
 	active: boolean;
@@ -47,6 +45,7 @@ type ViewToggleButtonProps = {
 const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memberId: string } }) {
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	const [pageSize, setPageSize] = useState(10);
 	const { getOrganizationProjects } = useOrganizationProjects();
 
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
@@ -105,7 +104,7 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 		dates
 	} = useTimesheetPagination({
 		data: filterDataTimesheet,
-		pageSize: TIMESHEET_PAGE_SIZE
+		pageSize
 	});
 	const viewData = useTimesheetViewData({
         timesheetNavigator,
@@ -330,6 +329,8 @@ const TimeSheet = React.memo(function TimeSheetPage({ params }: { params: { memb
 									previousPage={previousPage}
 									dates={dates}
 									totalGroups={totalGroups}
+									pageSize={pageSize}
+									onPageSizeChange={setPageSize}
 								/>
 							)}
 						</div>
