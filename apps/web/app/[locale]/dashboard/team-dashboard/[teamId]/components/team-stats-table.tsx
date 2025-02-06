@@ -3,6 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PaginationDropdown } from '@/lib/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
@@ -34,7 +35,7 @@ const formatPercentage = (value: number) => {
 	return `${Math.round(value)}%`;
 };
 
-const ITEMS_PER_PAGE = 10;
+
 
 export function TeamStatsTable({
 	rapportDailyActivity,
@@ -44,9 +45,10 @@ export function TeamStatsTable({
 	isLoading?: boolean;
 }) {
 	const [currentPage, setCurrentPage] = useState(1);
-	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / ITEMS_PER_PAGE) : 0;
-	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-	const endIndex = startIndex + ITEMS_PER_PAGE;
+	const [pageSize, setPageSize] = useState(10);
+	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / pageSize) : 0;
+	const startIndex = (currentPage - 1) * pageSize;
+	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
 	const paginatedData = rapportDailyActivity?.slice(startIndex, endIndex);
 
@@ -149,7 +151,7 @@ export function TeamStatsTable({
 															</TableCell>
 															<TableCell className="w-[200px]">
 																<div className="flex gap-2 items-center">
-																	<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-600">
+																	<div className="w-full h-[40px] bg-gray-100 rounded-full dark:bg-gray-600">
 																		<div
 																			className={`h-full rounded-full ${getProgressColor(employeeLog.activity || 0)}`}
 																			style={{
@@ -188,11 +190,7 @@ export function TeamStatsTable({
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-col gap-4 justify-between items-center px-2 sm:flex-row">
-				<div className="text-sm text-center text-gray-500 sm:text-left">
-					Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of{' '}
-					{rapportDailyActivity.length} entries
-				</div>
+			<div className="flex flex-col gap-4 justify-between items-center p-3 px-2 sm:flex-row">
 				<div className="flex items-center space-x-2">
 					<Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1}>
 						<ChevronsLeft className="w-4 h-4" />
@@ -219,6 +217,16 @@ export function TeamStatsTable({
 					<Button variant="outline" size="icon" onClick={goToLastPage} disabled={currentPage === totalPages}>
 						<ChevronsRight className="w-4 h-4" />
 					</Button>
+				</div>
+				<div className="flex gap-4 items-center">
+					<PaginationDropdown setValue={(value) => {
+						setPageSize(value);
+						setCurrentPage(1);
+					}} />
+					<div className="text-sm text-center text-[#111827] sm:text-left">
+						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity.length)} of{' '}
+						{rapportDailyActivity.length} entries
+					</div>
 				</div>
 			</div>
 		</div>
