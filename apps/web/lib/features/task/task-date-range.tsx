@@ -13,6 +13,7 @@ import { DateRange } from 'react-day-picker';
 import { SetStateAction } from 'jotai';
 import moment from 'moment';
 import { SetAtom } from 'types';
+import { IDailyPlan } from '@/app/interfaces';
 
 interface ITaskDatePickerWithRange {
   className?: string;
@@ -20,7 +21,7 @@ interface ITaskDatePickerWithRange {
 
   onSelect?: SetAtom<[SetStateAction<DateRange | undefined>], void>;
   label?: string;
-  data?: any;
+  data?: IDailyPlan[];
 }
 export function TaskDatePickerWithRange({
   className,
@@ -29,11 +30,14 @@ export function TaskDatePickerWithRange({
   label,
   data
 }: ITaskDatePickerWithRange) {
-  const isDateDisabled = (dateToCheck: any) => {
-    const { from, to }: any = data;
-    const fromDate = new Date(moment(from)?.format('YYYY-MM-DD'));
-    const toDate = new Date(moment(to)?.format('YYYY-MM-DD'));
-    return dateToCheck < fromDate || dateToCheck > toDate;
+  const isDateDisabled = (dateToCheck: Date) => {
+    if (!data || !Array.isArray(data)) return true;
+
+    const checkDate = moment(dateToCheck).format('YYYY-MM-DD');
+    return !data.some(item => {
+      const itemDate = moment(item.date).format('YYYY-MM-DD');
+      return itemDate === checkDate;
+    });
   };
   const handleDateSelect = (newDate: DateRange | undefined) => {
     if (onSelect) {
@@ -52,7 +56,7 @@ export function TaskDatePickerWithRange({
               !date && 'text-muted-foreground'
             )}
           >
-            <CalendarDays className="w-4 h-4 mr-2" />
+            <CalendarDays className="mr-2 w-4 h-4" />
             {date?.from ? (
               date.to ? (
                 <>
@@ -67,7 +71,7 @@ export function TaskDatePickerWithRange({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="center">
+        <PopoverContent className="p-0 w-auto" align="center">
           <Calendar
             className="dark:bg-dark--theme"
             initialFocus
@@ -77,6 +81,19 @@ export function TaskDatePickerWithRange({
             onSelect={handleDateSelect}
             numberOfMonths={2}
             disabled={isDateDisabled}
+            modifiers={{
+              hasData: (date) => {
+                if (!data || !Array.isArray(data)) return false;
+                const checkDate = moment(date).format('YYYY-MM-DD');
+                return data.some(item => {
+                  const itemDate = moment(item.date).format('YYYY-MM-DD');
+                  return itemDate === checkDate;
+                });
+              }
+            }}
+            modifiersClassNames={{
+              hasData: 'relative before:absolute before:content-[""] before:w-1 before:h-1 before:bg-primary before:rounded-full before:bottom-1 before:left-1/2 before:-translate-x-1/2'
+            }}
           />
         </PopoverContent>
       </Popover>
