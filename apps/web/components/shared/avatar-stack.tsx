@@ -34,7 +34,11 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 								className="rounded-full border-2 border-white object-cover"
 							/>
 						) : (
-							<div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-500 text-white font-medium border-2 border-white">
+							<div
+								className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-500 text-white font-medium border-2 border-white"
+								role="img"
+								aria-label={`Avatar for ${avatar?.name}`}
+							>
 								{avatar?.name?.substring(0, 2).toUpperCase()}
 							</div>
 						)}

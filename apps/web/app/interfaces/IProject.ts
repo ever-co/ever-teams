@@ -43,7 +43,7 @@ export interface IProject {
 	openSourceProjectUrl?: string;
 	budget?: number;
 	membersCount?: number;
-	imageUrl?: string;
+	imageUrl: string | null;
 	status?: TaskStatusEnum;
 	icon?: string;
 	archiveTasksIn?: number;
@@ -55,15 +55,15 @@ export interface IProject {
 	syncTag?: string;
 	organizationContactId?: string;
 	imageId?: string | null;
-	organizationId?: string;
-	tenantId?: string;
-	id?: string;
-	readonly createdAt?: Date;
-	readonly updatedAt?: Date;
+	organizationId: string;
+	tenantId: string;
+	id: string;
+	readonly createdAt?: string;
+	readonly updatedAt?: string;
 	isActive?: boolean;
 	isArchived?: boolean;
-	archivedAt?: Date;
-	deletedAt?: Date;
+	archivedAt: string | null;
+	deletedAt: string | null;
 }
 
 export interface CustomFields {

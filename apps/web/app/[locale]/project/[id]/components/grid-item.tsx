@@ -83,7 +83,10 @@ export default function GridItem(props: IGridItemProps) {
 
 				<div className="w-full items-center flex gap-6">
 					<p className=" font-medium">{t('common.STATUS')}</p>
-					<div style={{ backgroundColor: statusColorsMap.get(data?.status) }} className="rounded px-4 py-1">
+					<div
+						style={{ backgroundColor: statusColorsMap.get(data?.status) ?? '#e5e7eb' }}
+						className="rounded px-4 py-1"
+					>
 						{data?.status ?? '-'}
 					</div>
 				</div>
@@ -131,7 +134,7 @@ export default function GridItem(props: IGridItemProps) {
 
 					<div className="w-full flex flex-col gap-2">
 						<p className="font-medium">{t('common.MANAGERS')}</p>
-						<div>{managers?.length > 0 ? <AvatarStack maxVisible={2} avatars={members} /> : '-'}</div>
+						<div>{managers?.length > 0 ? <AvatarStack maxVisible={2} avatars={managers} /> : '-'}</div>
 					</div>
 				</div>
 			</div>

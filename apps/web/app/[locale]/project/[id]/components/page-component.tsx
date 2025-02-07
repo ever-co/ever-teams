@@ -22,7 +22,14 @@ type TViewMode = 'GRID' | 'LIST';
 
 function PageComponent() {
 	const { isTrackingEnabled } = useOrganizationTeams();
-	const lastSelectedView = useMemo(() => localStorage.getItem(LAST_SELECTED_PROJECTS_VIEW) as TViewMode, []);
+	const lastSelectedView = useMemo(() => {
+		try {
+			return localStorage.getItem(LAST_SELECTED_PROJECTS_VIEW) as TViewMode;
+		} catch (error) {
+			console.error('Failed to access localStorage:', error);
+			return null;
+		}
+	}, []);
 	const [selectedView, setSelectedView] = useState<TViewMode>(lastSelectedView ?? 'LIST');
 	const { getOrganizationProjects, organizationProjects } = useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
@@ -110,7 +117,12 @@ function PageComponent() {
 							<InputField placeholder="Search ..." className=" h-full border-none" noWrapper />
 						</div>
 						<div className="flex gap-3">
-							<DatePickerWithRange defaultValue={dateRange} onChange={(data) => console.log(data)} />
+							<DatePickerWithRange
+								defaultValue={dateRange}
+								onChange={() => {
+									/* TODO: Implement date range handling */
+								}}
+							/>
 							<Button
 								type="button"
 								className=" border-gray-200 hover:bg-slate-100 text-sm min-w-fit text-black h-[2.2rem] font-light"
@@ -118,7 +130,12 @@ function PageComponent() {
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
 							</Button>
-							<ExportModeSelect className="hover:bg-slate-100" onChange={(data) => console.log(data)} />
+							<ExportModeSelect
+								className="hover:bg-slate-100"
+								onChange={() => {
+									/* TODO: Implement export handling */
+								}}
+							/>
 							<Button
 								type="button"
 								className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light"
