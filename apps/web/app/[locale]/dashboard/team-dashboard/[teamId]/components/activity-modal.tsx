@@ -92,19 +92,19 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 		<Modal
 			isOpen={isOpen}
 			closeModal={closeModal}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
+			className="bg-light--theme-light dark:bg-dark--theme-light rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
 			titleClass="font-bold flex justify-start w-full"
 		>
 			<div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[32rem] p-4">
 				<div className="flex justify-between items-center mb-2">
 					<div className="flex items-center space-x-3">
 						<Avatar
-							size={40}
+							size={30}
 							imageUrl={employeeLog.employee.user?.imageUrl}
 							imageTitle={employeeLog.employee.fullName}
 							className="relative"
 						/>
-						<h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 text-[28px]">
+						<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
 							{employeeLog.employee.fullName}
 						</h3>
 					</div>
