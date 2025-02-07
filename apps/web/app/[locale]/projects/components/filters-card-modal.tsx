@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Button } from '@components/ui/button';
 import { useTaskStatus } from '@/app/hooks';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -13,12 +14,12 @@ interface IFiltersCardModalProps {
 }
 
 const people: { value: string; id: string; imageUrl: string }[] = [
-	{ value: 'Wade Cooper', id: 'Wade Cooper', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
-	{ value: 'Arlene Mccoy', id: 'Arlene Mccoy', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
-	{ value: 'Devon Webb', id: 'Devon', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
-	{ value: 'Tom Cook', id: 'Tom', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
-	{ value: 'Tanya Fox', id: 'Tanya', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
-	{ value: 'Hellen Schmidt', id: 'Hellen', imageUrl: 'https://dummyimage.com/600x400/000/fff' }
+	{ value: 'Wade Cooper', id: '12', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
+	{ value: 'Arlene Mccoy', id: '23', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
+	{ value: 'Devon Webb', id: '34', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
+	{ value: 'Tom Cook', id: '45', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
+	{ value: 'Tanya Fox', id: '43', imageUrl: 'https://dummyimage.com/600x400/000/fff' },
+	{ value: 'Hellen Schmidt', id: '45', imageUrl: 'https://dummyimage.com/600x400/000/fff' }
 ];
 
 const budgetTypes: { value: string; id: string }[] = [
@@ -37,6 +38,8 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 
 	const { taskStatus } = useTaskStatus();
 
+	const router = useRouter();
+
 	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
 		return new Map(taskStatus.map((status) => [status.name, status.color]));
 	}, [taskStatus]);
@@ -48,6 +51,41 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 		setSelectedStatus([]);
 		setSelectedBudgetType([]);
 	}, []);
+
+	const handleApplyFilters = useCallback(() => {
+		const searchParams = new URLSearchParams(window.location.search);
+
+		const updateQueryParam = (key: string, values: string[]) => {
+			if (values.length > 0) {
+				searchParams.set(key, values.join(','));
+			} else {
+				searchParams.delete(key);
+			}
+		};
+
+		updateQueryParam(
+			'teams',
+			selectedTeams.map((team) => team.id)
+		);
+		updateQueryParam(
+			'members',
+			selectedMembers.map((member) => member.id)
+		);
+		updateQueryParam(
+			'managers',
+			selectedManagers.map((manager) => manager.id)
+		);
+		updateQueryParam(
+			'status',
+			selectedStatus.map((status) => status.id)
+		);
+		updateQueryParam(
+			'budgetTypes',
+			selectedBudgetType.map((budgetType) => budgetType.id)
+		);
+
+		router.replace(`?${searchParams.toString()}`, { scroll: false });
+	}, [selectedTeams, selectedMembers, selectedManagers, selectedStatus, selectedBudgetType]);
 
 	return (
 		<Modal className="w-[26rem]" isOpen={open} closeModal={closeModal}>
@@ -217,7 +255,7 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 
 										<button
 											onClick={() =>
-												setSelectedManagers(selectedManagers.filter((t) => t.id !== member.id))
+												setSelectedMembers(selectedMembers.filter((t) => t.id !== member.id))
 											}
 										>
 											<X size={10} />
@@ -267,8 +305,10 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 				</div>
 				<hr className="w-full my-4" />
 				<div className="w-full flex items-center justify-end gap-2">
-					<Button variant="outline">Clear Filters</Button>
-					<Button onClick={handleClearAllFilters}>Clear Filters</Button>
+					<Button onClick={handleClearAllFilters} variant="outline">
+						Clear Filters
+					</Button>
+					<Button onClick={handleApplyFilters}>Apply Filters</Button>
 				</div>
 			</Card>
 		</Modal>
