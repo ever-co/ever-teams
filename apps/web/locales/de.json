@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "Mit der Arbeit beginnen",
 			"TIMER_RUNNING": "Der Timer läuft bereits",
 			"WARNING_PLAN_ESTIMATION": "Bitte korrigieren Sie die geplanten Arbeitsstunden oder schätzen Sie die Aufgabe(n) neu ein."
-		}
+		},
+		"VISITED_SITES": "Besuchte Seiten",
+		"NO_VISITED_SITE_MESSAGE": "Es gibt keine besuchten Seiten"
 	},
 	"task": {
 		"TITLE": "Aufgabe",

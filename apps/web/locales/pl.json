@@ -712,7 +712,9 @@
 		"ACTIVE": "Aktywny",
 		"INACTIVE": "Nieaktywny",
 		"ARCHIVED": "Zarchiwizowany",
-		"NOT_ARCHIVED": "Niezarchiwizowany"
+		"NOT_ARCHIVED": "Niezarchiwizowany",
+		"VISITED_SITES": "Odwiedzone strony",
+		"NO_VISITED_SITE_MESSAGE": "Brak odwiedzonych stron"
 	},
 	"task": {
 		"TITLE": "Zadanie",

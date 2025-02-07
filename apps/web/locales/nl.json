@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "Begin met werken",
 			"TIMER_RUNNING": "De timer loopt al",
 			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
-		}
+		},
+		"VISITED_SITES": "Bezochte sites",
+		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites"
 	},
 	"task": {
 		"TITLE": "Taak",

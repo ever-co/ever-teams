@@ -38,7 +38,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
             showCloseIcon
             className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded w-full md:w-40 md:min-w-[35rem]"
             titleClass="font-bold flex justify-start w-full text-xl">
-            <div className=' py-4 w-full'>
+            <div className='py-4 w-full'>
                 <div className="flex flex-col  w-full  gap-4  h-[60vh] max-h-[60vh]  overflow-y-auto ">
                     {(() => {
                         switch (timesheetDetailMode) {
@@ -89,13 +89,13 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[], t: Transla
                             <AccordionTrigger
                                 type="button"
                                 className={cn(
-                                    'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+                                    'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-[50px] hover:no-underline',
 
                                 )}
                             >
                                 <div className='flex justify-between items-center w-full'>
-                                    <div className='flex items-center gap-2'>
-                                        <EmployeeAvatar className='w-10 h-10 rounded-full shadow-md border' imageUrl={timesheet.element[0].employee.user?.imageUrl!} />
+                                    <div className='flex gap-2 items-center'>
+                                        <EmployeeAvatar className='w-10 h-10 rounded-full border shadow-md' imageUrl={timesheet.element[0].employee.user?.imageUrl??''} />
                                         <span className='font-bold'>{timesheet.element[0].employee.fullName}</span>
                                     </div>
                                     <Badge
@@ -121,10 +121,10 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[], t: Transla
                                                     'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
                                                     statusColor(status).text
                                                 )}>
-                                                <div className="flex items-center justify-between w-full space-x-1">
+                                                <div className="flex justify-between items-center space-x-1 w-full">
                                                     <div className="flex items-center space-x-1">
                                                         <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
-                                                        <div className="flex items-center gap-x-1">
+                                                        <div className="flex gap-x-1 items-center">
                                                             <span className="text-base font-normal text-gray-400 uppercase">
                                                                 {status === 'DENIED' ? 'REJECTED' : status}
                                                             </span>
@@ -150,7 +150,7 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[], t: Transla
                                                             borderBottomColor: statusColor(status).bg
                                                         }}
                                                         className={cn(
-                                                            'flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]'
+                                                            'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
                                                         )} >
                                                         <div className="flex-[2]">
                                                             <TaskNameInfoDisplay
@@ -166,7 +166,7 @@ const MembersWorkedCard = ({ element, t }: { element: TimesheetLog[], t: Transla
                                                                 taskNumberClassName="text-sm"
                                                             />
                                                         </div>
-                                                        <div className="flex items-center gap-2 flex-1">
+                                                        <div className="flex flex-1 gap-2 items-center">
                                                             {items.project?.imageUrl && <ProjectLogo className='w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]' imageUrl={items.project.imageUrl} />}
                                                             <span className="font-medium">{items.project?.name}</span>
                                                         </div>
@@ -218,11 +218,11 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
                                 style={{ backgroundColor: statusColor(timesheet.element[0].timesheet.status).bgOpacity }}
                                 type="button"
                                 className={cn(
-                                    'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
+                                    'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full rounded-sm h-[50px] hover:no-underline',
 
                                 )}>
                                 <div className='flex justify-between items-center w-full'>
-                                    <div className='flex items-center gap-2'>
+                                    <div className='flex gap-2 items-center'>
                                         <div className={cn('p-2 rounded-[3px] gap-2 w-[20px] h-[20px]', statusColor(timesheet.element[0].timesheet.status).bg)}></div>
                                         <span className='font-bold'>{timesheet.element[0].timesheet.status === 'DENIED' ? 'REJECTED' : timesheet.element[0].timesheet.status}</span>
                                     </div>
@@ -249,10 +249,10 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
                                                     'flex flex-row-reverse justify-end items-center w-full h-[50px] rounded-sm gap-x-2 hover:no-underline px-2',
                                                     statusColor(status).text
                                                 )}>
-                                                <div className="flex items-center justify-between w-full space-x-1">
+                                                <div className="flex justify-between items-center space-x-1 w-full">
                                                     <div className="flex items-center space-x-1">
                                                         <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
-                                                        <div className="flex items-center gap-x-1">
+                                                        <div className="flex gap-x-1 items-center">
                                                             <span className="text-base font-normal text-gray-400 uppercase">
                                                                 {status === 'DENIED' ? 'REJECTED' : status}
                                                             </span>
@@ -278,7 +278,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
                                                             borderBottomColor: statusColor(status).bg
                                                         }}
                                                         className={cn(
-                                                            'flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]'
+                                                            'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
                                                         )} >
                                                         <div className="flex-[2]">
                                                             <TaskNameInfoDisplay
@@ -294,7 +294,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
                                                                 taskNumberClassName="text-sm"
                                                             />
                                                         </div>
-                                                        <div className="flex items-center gap-2 flex-1">
+                                                        <div className="flex flex-1 gap-2 items-center">
                                                             {items.project?.imageUrl && <ProjectLogo className='w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]' imageUrl={items.project.imageUrl} />}
                                                             <span className="font-medium">{items.project?.name}</span>
                                                         </div>

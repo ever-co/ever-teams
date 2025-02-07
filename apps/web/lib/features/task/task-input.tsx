@@ -675,7 +675,7 @@ function TaskCard({
 											task={task}
 											selected={active}
 											onClick={onItemClick}
-											className="cursor-pointer"
+											className="cursor-pointer overflow-y-auto"
 										/>
 										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
 										{!last && <Divider className="my-5" />}

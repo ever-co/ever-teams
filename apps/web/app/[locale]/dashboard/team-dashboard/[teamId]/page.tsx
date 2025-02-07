@@ -16,9 +16,11 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@app/stores/fullWidth';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
+import { useTranslations } from 'next-intl';
 
 function TeamDashboard() {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+	const t=useTranslations();
 	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily, statisticsCounts,loadingTimesheetStatisticsCounts} = useReportActivity();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -27,11 +29,13 @@ function TeamDashboard() {
 
 	const breadcrumbPath = useMemo(
 		() => [
+			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: 'Team-Dashboard', href: `/${currentLocale}/dashboard/team-dashboard` }
 		],
-		[activeTeam?.name, currentLocale]
+		[activeTeam?.name, currentLocale,t]
 	);
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -49,7 +53,7 @@ function TeamDashboard() {
 							</button>
 							<Breadcrumb paths={breadcrumbPath} />
 						</div>
-						<div className="flex flex-col gap-6 pb-6">
+						<div className="flex flex-col gap-6">
 							<DashboardHeader
 								onUpdateDateRange={updateDateRange}
 								onUpdateFilters={updateFilters}
@@ -68,10 +72,9 @@ function TeamDashboard() {
 						</div>
 					</Container>
 				</div>
-			}
-		>
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 py-6 w-full')}>
-				<Card className="w-full dark:bg-dark--theme-light min-h-[400px]">
+			}>
+			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+				<Card className="w-full dark:bg-dark--theme-light min-h-[500px]">
 					<TeamStatsTable
 						rapportDailyActivity={rapportDailyActivity}
 						isLoading={loadingTimeLogReportDaily}

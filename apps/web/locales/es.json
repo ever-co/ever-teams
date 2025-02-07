@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "Empezar a trabajar",
 			"TIMER_RUNNING": "El temporizador ya está en ejecución",
 			"WARNING_PLAN_ESTIMATION": "Por favor, corrija las horas de trabajo previstas o reevalúe la(s) tarea(s)"
-		}
+		},
+		"VISITED_SITES": "Sitios visitados",
+		"NO_VISITED_SITE_MESSAGE": "No hay sitios visitados"
 	},
 	"task": {
 		"TITLE": "Tarea",

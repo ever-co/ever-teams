@@ -10,11 +10,29 @@ import { ChevronDownIcon } from 'lucide-react';
 
 export const PaginationDropdown = ({
 	setValue,
-	active
+	active,
+	total
 }: {
 	setValue: Dispatch<SetStateAction<number>>;
 	active?: IPagination | null;
+	total?: number;
 }) => {
+	const calculatePaginationOptions = useCallback((total = 0) => {
+		const baseOptions = [10, 20, 30,40, 50];
+
+		if (total > 50) {
+			const nextOption = Math.ceil(total / 10) * 10;
+			if (!baseOptions.includes(nextOption)) {
+				baseOptions.push(nextOption);
+			}
+		}
+		baseOptions.sort((a, b) => a - b);
+
+		return baseOptions.map(size => ({
+			title: size.toString()
+		}));
+	}, []);
+
 	const [paginationList, setPagination] = useState<IPagination[]>([
 		{
 			title: '10'
@@ -32,6 +50,12 @@ export const PaginationDropdown = ({
 			title: '50'
 		}
 	]);
+
+	useEffect(() => {
+		if (total) {
+			setPagination(calculatePaginationOptions(total));
+		}
+	}, [total, calculatePaginationOptions]);
 
 	const items: PaginationItems[] = useMemo(() => mappaginationItems(paginationList), [paginationList]);
 	const [open, setOpen] = useState(false);
@@ -72,9 +96,9 @@ export const PaginationDropdown = ({
 					onClick={() => setOpen(!open)}
 					className={clsxm(
 						'input-border',
-						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
+						'flex justify-between items-center px-3 py-2 w-full text-sm rounded-xl',
 						'font-normal outline-none',
-						'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light'
+						'z-10 py-0 font-medium outline-none h-[45px] w-[145px] dark:bg-dark--theme-light'
 					)}
 				>
 					<span>{paginationItem?.selectedLabel || (paginationItem?.Label && <paginationItem.Label />)}</span>{' '}

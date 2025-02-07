@@ -1,8 +1,8 @@
 import { useTimeDailyActivity } from '@app/hooks/features/useTimeDailyActivity';
-import { AppVisitedSkeleton } from './components/app-visited-skeleton';
+import { VisitedItemSkeleton } from './components/visited-item-skeleton';
 import { groupAppsByHour } from '@app/helpers/array-data';
 import { useTranslations } from 'next-intl';
-import AppVisitedItem from './components/app-visited-Item';
+import VisitedItem from './components/visited-Item';
 import { useMemo } from 'react';
 // import { AppVisitedModal } from './components/app-visited-details';
 
@@ -49,7 +49,7 @@ export function AppsTab() {
 							{app?.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									{/* <AppVisitedModal> */}
-									<AppVisitedItem app={item} totalMilliseconds={app?.totalMilliseconds} type="APP" />
+									<VisitedItem app={item} totalMilliseconds={app?.totalMilliseconds} type="APP" />
 									{/* </AppVisitedModal> */}
 								</div>
 							))}
@@ -63,8 +63,8 @@ export function AppsTab() {
 				)}
 				{loading && visitedApps?.length < 1 && (
 					<>
-						<AppVisitedSkeleton />
-						<AppVisitedSkeleton />
+						<VisitedItemSkeleton />
+						<VisitedItemSkeleton />
 					</>
 				)}
 			</div>
