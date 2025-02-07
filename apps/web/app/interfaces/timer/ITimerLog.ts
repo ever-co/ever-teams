@@ -179,6 +179,8 @@ export interface ITimeLogReportDailyChartProps {
 	logType?: TimeLogType[];
 	teamIds?: string[];
 	groupBy?: string;
+	teamId?: string;
+	userId?: string;
 }
 
 export interface IOrganizationContact {

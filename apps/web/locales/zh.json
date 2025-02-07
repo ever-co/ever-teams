@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "开始工作",
 			"TIMER_RUNNING": "计时器已经在运行",
 			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
-		}
+		},
+		"VISITED_SITES": "访问过的网站",
+		"NO_VISITED_SITE_MESSAGE": "没有访问过的网站"
 	},
 	"task": {
 		"TITLE": "任务",

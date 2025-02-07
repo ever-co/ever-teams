@@ -712,7 +712,9 @@
 			"START_WORKING_BUTTON": "התחל לעבוד",
 			"TIMER_RUNNING": "הטיימר כבר פועל",
 			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
-		}
+		},
+		"VISITED_SITES": "אתרים שביקרת בהם",
+		"NO_VISITED_SITE_MESSAGE": "אין אתרים שביקרת בהם"
 	},
 	"task": {
 		"TITLE": "משימה",

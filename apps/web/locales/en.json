@@ -713,7 +713,9 @@
 			"START_WORKING_BUTTON": "Start working",
 			"TIMER_RUNNING": "The timer is already running",
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
-		}
+		},
+		"VISITED_SITES": "Visited sites",
+		"NO_VISITED_SITE_MESSAGE": "There are no visited sites"
 	},
 	"task": {
 		"TITLE": "Task",

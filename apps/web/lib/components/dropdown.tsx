@@ -182,7 +182,7 @@ export function ConfirmDropdown({
 				<Popover.Panel>
 					<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
 						<ul className="flex flex-col">
-							<li className="w-full mb-2 font-semibold text-primary dark:text-white">
+							<li className="w-full mb-2 font-medium text-primary dark:text-white">
 								<Popover.Button className="w-full" onClick={onConfirm}>
 									{confirmText}
 								</Popover.Button>
