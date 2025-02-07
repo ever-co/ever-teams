@@ -93,7 +93,7 @@ export function NavProjects({
 					<SidebarMenuItem className="w-full max-w-[230px]">
 						<SidebarMenuSubButton asChild>
 							<Button
-								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] w-full max-w-[230px]"
+								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] max-w-[230px]"
 								variant="outline"
 								disabled={!user?.isEmailVerified}
 							>
