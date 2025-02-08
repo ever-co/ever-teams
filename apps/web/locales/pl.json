@@ -281,6 +281,21 @@
 			"ADD_PLAN": "Dodaj plan",
 			"DELETE_THIS_PLAN": "Usuń ten plan"
 		},
+		"teamStats": {
+			"MEMBER": "Członek",
+			"MEMBERS_WORKED": "Członkowie, Którzy Pracowali",
+			"TOTAL_TIME": "Łączny Czas",
+			"TOTAL_HOURS": "Łączne Godziny",
+			"TRACKED": "Śledzony",
+			"MANUALLY_ADDED": "Dodany Ręcznie",
+			"MANUAL": "Ręczny",
+			"ACTIVE_TIME": "Czas Aktywny",
+			"IDLE_TIME": "Czas Bezczynności",
+			"IDLE": "Bezczynny",
+			"UNKNOWN_ACTIVITY": "Nieznana Aktywność",
+			"ACTIVITY_LEVEL": "Poziom Aktywności",
+			"NO_DATA_AVAILABLE": "Brak dostępnych danych"
+		},
 		"COPY_ISSUE_LINK": "Skopiuj link do zgłoszenia",
 		"MAKE_A_COPY": "Zrób kopię",
 		"ASSIGNEE": "Cesjonariusz",

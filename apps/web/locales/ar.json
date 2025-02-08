@@ -250,6 +250,21 @@
 			"ADD_PLAN": "إضافة خطة",
 			"DELETE_THIS_PLAN": "احذف هذه الخطة"
 		},
+		"teamStats": {
+			"MEMBER": "عضو",
+			"MEMBERS_WORKED": "الأعضاء الذين عملوا",
+			"TOTAL_TIME": "الوقت الكلي",
+			"TOTAL_HOURS": "إجمالي الساعات",
+			"TRACKED": "متتبع",
+			"MANUALLY_ADDED": "مضاف يدويًا",
+			"MANUAL": "يدوي",
+			"ACTIVE_TIME": "الوقت النشط",
+			"IDLE_TIME": "وقت الخمول",
+			"IDLE": "خامل",
+			"UNKNOWN_ACTIVITY": "نشاط غير معروف",
+			"ACTIVITY_LEVEL": "مستوى النشاط",
+			"NO_DATA_AVAILABLE": "لا توجد بيانات متاحة"
+		},
 		"timesheets": {
 			"SINGULAR": "ورقة الحضور",
 			"PLURAL": "ورقات الحضور"

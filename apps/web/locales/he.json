@@ -268,6 +268,21 @@
 			"ADD_PLAN": "הוסף תוכנית",
 			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
 		},
+		"teamStats": {
+			"MEMBER": "חבר",
+			"MEMBERS_WORKED": "חברים שעבדו",
+			"TOTAL_TIME": "זמן כולל",
+			"TOTAL_HOURS": "סך השעות",
+			"TRACKED": "נעקב",
+			"MANUALLY_ADDED": "נוסף ידנית",
+			"MANUAL": "ידני",
+			"ACTIVE_TIME": "זמן פעיל",
+			"IDLE_TIME": "זמן סרק",
+			"IDLE": "לא פעיל",
+			"UNKNOWN_ACTIVITY": "פעילות לא ידועה",
+			"ACTIVITY_LEVEL": "רמת פעילות",
+			"NO_DATA_AVAILABLE": "לא יוכל להציג נתונים"
+		},
 		"timesheets": {
 			"SINGULAR": "דוח שעות",
 			"PLURAL": "דוחות שעות"

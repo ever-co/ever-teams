@@ -281,6 +281,21 @@
 			"ADD_PLAN": "添加计划",
 			"DELETE_THIS_PLAN": "删除此计划"
 		},
+		"teamStats": {
+			"MEMBER": "成员",
+			"MEMBERS_WORKED": "已工作的成员",
+			"TOTAL_TIME": "总时间",
+			"TOTAL_HOURS": "总小时数",
+			"TRACKED": "已跟踪",
+			"MANUALLY_ADDED": "手动添加",
+			"MANUAL": "手动",
+			"ACTIVE_TIME": "活动时间",
+			"IDLE_TIME": "空闲时间",
+			"IDLE": "空闲",
+			"UNKNOWN_ACTIVITY": "未知活动",
+			"ACTIVITY_LEVEL": "活动水平",
+			"NO_DATA_AVAILABLE": "没有可用数据"
+		},
 		"COPY_ISSUE_LINK": "复制问题链接",
 		"MAKE_A_COPY": "制作副本",
 		"ASSIGNEE": "受让人",

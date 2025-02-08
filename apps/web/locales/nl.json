@@ -281,6 +281,21 @@
 			"ADD_PLAN": "Plan toevoegen",
 			"DELETE_THIS_PLAN": "Verwijder dit plan"
 		},
+		"teamStats": {
+			"MEMBER": "Lid",
+			"MEMBERS_WORKED": "Leden die Hebben Gewerkt",
+			"TOTAL_TIME": "Totale Tijd",
+			"TOTAL_HOURS": "Totale Uren",
+			"TRACKED": "Bijgehouden",
+			"MANUALLY_ADDED": "Handmatig Toegevoegd",
+			"MANUAL": "Handmatig",
+			"ACTIVE_TIME": "Actieve Tijd",
+			"IDLE_TIME": "Inactieve Tijd",
+			"IDLE": "Inactief",
+			"UNKNOWN_ACTIVITY": "Onbekende Activiteit",
+			"ACTIVITY_LEVEL": "Activiteitsniveau",
+			"NO_DATA_AVAILABLE": "Geen gegevens beschikbaar"
+		},
 		"COPY_ISSUE_LINK": "Probleemlink kopiëren",
 		"MAKE_A_COPY": "Maak een kopie",
 		"ASSIGNEE": "Cessionaris",

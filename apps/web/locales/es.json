@@ -268,6 +268,21 @@
 			"FOR_TOMORROW": "Plan de mañana",
 			"DELETE_THIS_PLAN": "Eliminar este plan"
 		},
+		"teamStats": {
+			"MEMBER": "Miembro",
+			"MEMBERS_WORKED": "Miembros que Trabajaron",
+			"TOTAL_TIME": "Tiempo Total",
+			"TOTAL_HOURS": "Horas Totales",
+			"TRACKED": "Rastreado",
+			"MANUALLY_ADDED": "Agregado Manualmente",
+			"MANUAL": "Manual",
+			"ACTIVE_TIME": "Tiempo Activo",
+			"IDLE_TIME": "Tiempo Inactivo",
+			"IDLE": "Inactivo",
+			"UNKNOWN_ACTIVITY": "Actividad Desconocida",
+			"ACTIVITY_LEVEL": "Nivel de Actividad",
+			"NO_DATA_AVAILABLE": "No hay datos disponibles"
+		},
 		"timesheets": {
 			"SINGULAR": "Hoja de horas",
 			"PLURAL": "Hojas de horas"
