@@ -61,7 +61,7 @@ export function useReportActivity() {
 	const [rapportChartActivity, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
 	const [rapportDailyActivity, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
 	const [statisticsCounts, setStatisticsCounts] = useAtom(timesheetStatisticsCountsState);
-	const { allteamsState, alluserState } = useTimelogFilterOptions();
+	const { allteamsState, alluserState,isUserAllowedToAccess } = useTimelogFilterOptions();
 
 	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } =
 		useQuery(getTimeLogReportDailyChart);
@@ -70,6 +70,7 @@ export function useReportActivity() {
 		useQuery(getTimesheetStatisticsCounts);
 
 	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
+	const isManage = user && isUserAllowedToAccess(user);
 
 	// Memoize the merged props to avoid recalculation
 	const getMergedProps = useMemo(() => {
@@ -92,8 +93,10 @@ export function useReportActivity() {
 				projectIds: (customProps?.projectIds ||
 					currentFilters.projectIds ||
 					defaultProps.projectIds) as string[],
-				employeeIds: alluserState?.map(({ employee: { id } }) => id).filter(Boolean),
-				teamIds:allteamsState?.map(({ id }) => id).filter(Boolean),
+				employeeIds: isManage
+					? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+					: [user.employee.id],
+				teamIds: allteamsState?.map(({ id }) => id).filter(Boolean),
 				activityLevel: {
 					start:
 						customProps?.activityLevel?.start ??
@@ -109,7 +112,7 @@ export function useReportActivity() {
 			};
 			return merged as Required<UseReportActivityProps>;
 		};
-	}, [user?.employee.organizationId, user?.tenantId, currentFilters, alluserState, allteamsState]);
+	}, [user?.employee.organizationId, user?.tenantId, currentFilters, alluserState, allteamsState, isManage]);
 
 	// Generic fetch function to reduce code duplication
 	const fetchReport = useCallback(
@@ -233,6 +236,7 @@ export function useReportActivity() {
 		updateDateRange,
 		updateFilters,
 		currentFilters,
-		setStatisticsCounts
+		setStatisticsCounts,
+		isManage
 	};
 }
