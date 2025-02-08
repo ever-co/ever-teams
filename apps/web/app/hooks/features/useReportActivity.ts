@@ -112,7 +112,7 @@ export function useReportActivity() {
 			};
 			return merged as Required<UseReportActivityProps>;
 		};
-	}, [user?.employee.organizationId, user?.tenantId, currentFilters, alluserState, allteamsState, isManage]);
+	}, [user?.employee.organizationId, user?.employee.id, user?.tenantId, currentFilters, isManage, alluserState, allteamsState]);
 
 	// Generic fetch function to reduce code duplication
 	const fetchReport = useCallback(
