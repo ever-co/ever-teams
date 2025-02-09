@@ -1,61 +1,58 @@
+import { SortConfig } from '@/app/hooks/useSortableData';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {  ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
 
-export type SortConfig = {
-  key: string;
-  direction: 'asc' | 'desc';
-} | null;
-
-interface SortPopoverProps<T> {
+interface SortPopoverProps {
   label: string;
   sortKey: string;
-  sortConfig: SortConfig;
-  onSortChange: (config: SortConfig, sortedData: T[]) => void;
-  data: T[];
-  sortFunction: (a: T, b: T) => number;
+  currentConfig: SortConfig;
+  onSort: (key: string) => void;
 }
 
-export function SortPopover<T>({
+export function SortPopover({
   label,
   sortKey,
-  sortConfig,
-  onSortChange,
-  data,
-  sortFunction
-}: SortPopoverProps<T>) {
-  const handleSort = (direction: 'asc' | 'desc') => {
-    const newConfig = { key: sortKey, direction };
-    const sortedData = [...data].sort((a, b) => {
-      const comparison = sortFunction(a, b);
-      return direction === 'asc' ? comparison : -comparison;
-    });
-    onSortChange(newConfig, sortedData);
-  };
+  currentConfig,
+  onSort,
+}: SortPopoverProps) {
+  const isActive = currentConfig?.key === sortKey;
+  const currentDirection = isActive ? currentConfig.direction : null;
+
   return (
     <div className="flex gap-2 items-center">
       {label}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="w-4 h-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-          <ChevronsUpDown />
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`w-4 h-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${isActive ? 'bg-gray-100 dark:bg-dark--theme-light' : ''}`}
+          >
+            <ChevronsUpDown className={isActive ? 'text-primary' : ''} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-2 w-28">
+        <PopoverContent className="p-2 w-28 dark:bg-dark--theme-light dark:text-white">
           <div className="flex flex-col gap-1">
             <Button
-              variant="ghost"
+              variant={currentDirection === 'asc' ? 'secondary' : 'ghost'}
               className="justify-start text-[12px]"
-              onClick={() => handleSort('asc')}
+              onClick={() => onSort(sortKey)}
             >
               ASC
+              {currentDirection === 'asc' && (
+                <span className="ml-2 text-xs text-muted-foreground">•</span>
+              )}
             </Button>
             <Button
-              variant="ghost"
+              variant={currentDirection === 'desc' ? 'secondary' : 'ghost'}
               className="justify-start text-[12px]"
-              onClick={() => handleSort('desc')}
+              onClick={() => onSort(sortKey)}
             >
               DESC
+              {currentDirection === 'desc' && (
+                <span className="ml-2 text-xs text-muted-foreground">•</span>
+              )}
             </Button>
           </div>
         </PopoverContent>

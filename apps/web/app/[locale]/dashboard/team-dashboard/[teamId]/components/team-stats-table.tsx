@@ -8,12 +8,13 @@ import { format } from 'date-fns';
 import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { Fragment, useState, useEffect } from 'react';
-import { SortPopover, SortConfig } from '@/components/ui/sort-popover';
+import { Fragment, useState } from 'react';
+import { SortPopover } from '@/components/ui/sort-popover';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
 import { useTranslations } from 'next-intl';
+import { useSortableData } from '@/app/hooks/useSortableData';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -44,26 +45,66 @@ export function TeamStatsTable({
 	rapportDailyActivity?: ITimerLogGrouped[];
 	isLoading?: boolean;
 }) {
-
-    const t=useTranslations();
+	const t = useTranslations();
 	const [employeeLog, setEmployeeLog] = useState<ITimerEmployeeLog | undefined>(undefined);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
-	const [sortConfig, setSortConfig] = useState<SortConfig>(null);
-	const [sortedData, setSortedData] = useState<ITimerLogGrouped[]>([]);
 	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / pageSize) : 0;
 	const startIndex = (currentPage - 1) * pageSize;
 	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
-	const sortMembersByName = (a: ITimerLogGrouped, b: ITimerLogGrouped) => {
-		const nameA = a.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
-		const nameB = b.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
-		return nameA.localeCompare(nameB);
+
+	const getEmployeeLog = (data: ITimerLogGrouped) => data?.logs?.[0]?.employeeLogs?.[0];
+
+	const getTaskDurationByType = (employeeLog: any, type: string) => {
+		return employeeLog?.tasks.reduce((sum: number, task: any) =>
+			task.description.toLowerCase().includes(type) ? sum + task.duration : sum, 0) || 0;
 	};
 
-	useEffect(() => {
-		setSortedData(rapportDailyActivity || []);
-	}, [rapportDailyActivity]);
+	const getTotalTime = (data: ITimerLogGrouped) => {
+		return data.logs.reduce((sum, log) =>
+			sum + log.employeeLogs.reduce((empSum, empLog) => empSum + empLog.sum, 0), 0);
+	};
+
+	const sortableColumns = {
+		member: {
+			getValue: (data: ITimerLogGrouped) => getEmployeeLog(data)?.employee?.fullName?.toLowerCase() || '',
+			compare: (a: string, b: string) => a.localeCompare(b)
+		},
+		totalTime: {
+			getValue: getTotalTime,
+			compare: (a: number, b: number) => a - b
+		},
+		tracked: {
+			getValue: (data: ITimerLogGrouped) => getEmployeeLog(data)?.tasks.reduce((sum, task) => sum + task.duration, 0) || 0,
+			compare: (a: number, b: number) => a - b
+		},
+		manual: {
+			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'manual'),
+			compare: (a: number, b: number) => a - b
+		},
+		activeTime: {
+			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'active'),
+			compare: (a: number, b: number) => a - b
+		},
+		idleTime: {
+			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'idle'),
+			compare: (a: number, b: number) => a - b
+		},
+		unknownActivity: {
+			getValue: (data: ITimerLogGrouped) => getTaskDurationByType(getEmployeeLog(data), 'unknown'),
+			compare: (a: number, b: number) => a - b
+		},
+		activityLevel: {
+			getValue: (data: ITimerLogGrouped) => getEmployeeLog(data)?.activity || 0,
+			compare: (a: number, b: number) => a - b
+		}
+	};
+
+	const { items: sortedData, sortConfig, requestSort } = useSortableData(
+		rapportDailyActivity || [],
+		sortableColumns
+	);
 
 	const paginatedData = sortedData.slice(startIndex, endIndex);
 
@@ -94,9 +135,7 @@ export function TeamStatsTable({
 
 	return (
 		<>
-			{employeeLog && (
-				<ActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />
-			)}
+			{employeeLog && <ActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />}
 			<div className="min-h-[500px] w-full dark:bg-dark--theme-light">
 				<div className="relative rounded-md border">
 					<div className="overflow-x-auto">
@@ -106,25 +145,69 @@ export function TeamStatsTable({
 									<TableHeader>
 										<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200">
 											<TableHead className="w-[320px] py-3">
-										<SortPopover
-											label={t('common.teamStats.MEMBER')}
-											sortKey="member"
-											sortConfig={sortConfig}
-											onSortChange={(config, newSortedData) => {
-												setSortConfig(config);
-												setSortedData(newSortedData);
-											}}
-											data={sortedData}
-											sortFunction={sortMembersByName}
-										/>
-									</TableHead>
-											<TableHead className="w-[100px]">{t('common.teamStats.TOTAL_TIME')}</TableHead>
-											<TableHead className="w-[80px]">{t('common.teamStats.TRACKED')}</TableHead>
-											<TableHead className="w-[120px]">{t('common.teamStats.MANUALLY_ADDED')}</TableHead>
-											<TableHead className="w-[100px]">{t('common.teamStats.ACTIVE_TIME')}</TableHead>
-											<TableHead className="w-[80px]">{t('common.teamStats.IDLE_TIME')}</TableHead>
-											<TableHead className="w-[120px]">{t('common.teamStats.UNKNOWN_ACTIVITY')}</TableHead>
-											<TableHead className="w-[200px]">{t('common.teamStats.ACTIVITY_LEVEL')}</TableHead>
+												<SortPopover
+													label={t('common.teamStats.MEMBER')}
+													sortKey="member"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[100px]">
+												<SortPopover
+													label={t('common.teamStats.TOTAL_TIME')}
+													sortKey="totalTime"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[80px]">
+												<SortPopover
+													label={t('common.teamStats.TRACKED')}
+													sortKey="tracked"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[120px]">
+												<SortPopover
+													label={t('common.teamStats.MANUALLY_ADDED')}
+													sortKey="manual"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[100px]">
+												<SortPopover
+													label={t('common.teamStats.ACTIVE_TIME')}
+													sortKey="activeTime"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[80px]">
+												<SortPopover
+													label={t('common.teamStats.IDLE_TIME')}
+													sortKey="idleTime"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[120px]">
+												<SortPopover
+													label={t('common.teamStats.UNKNOWN_ACTIVITY')}
+													sortKey="unknownActivity"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
+											<TableHead className="w-[200px]">
+												<SortPopover
+													label={t('common.teamStats.ACTIVITY_LEVEL')}
+													sortKey="activityLevel"
+													currentConfig={sortConfig}
+													onSort={requestSort}
+												/>
+											</TableHead>
 											<TableHead className="w-[10px]"></TableHead>
 										</TableRow>
 									</TableHeader>
@@ -207,7 +290,8 @@ export function TeamStatsTable({
 																				openModal();
 																			}}
 																			aria-label={`View activity chart for ${employeeLog.employee?.user?.name || 'employee'}`}
-																			title="View activity chart">
+																			title="View activity chart"
+																		>
 																			<ChartIcon />
 																		</Button>
 																	</>
@@ -262,20 +346,19 @@ export function TeamStatsTable({
 						</Button>
 					</div>
 					<div className="flex gap-4 items-center">
-					<PaginationDropdown
-						setValue={(value) => {
-							setPageSize(value);
-							setCurrentPage(1);
-						}}
-						total={rapportDailyActivity?.length}
-					/>
-					<div className="text-sm text-center text-[#111827] sm:text-left">
-						Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
-						{rapportDailyActivity?.length || 0} entries
+						<PaginationDropdown
+							setValue={(value) => {
+								setPageSize(value);
+								setCurrentPage(1);
+							}}
+							total={rapportDailyActivity?.length}
+						/>
+						<div className="text-sm text-center text-[#111827] dark:text-gray-400 sm:text-left">
+							Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
+							{rapportDailyActivity?.length || 0} entries
+						</div>
 					</div>
 				</div>
-				</div>
-
 			</div>
 		</>
 	);
