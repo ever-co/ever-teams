@@ -52,9 +52,13 @@ export function SortPopover<T>({
             size="icon"
             className={`w-4 h-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${direction ? 'text-primary' : ''}`}
           >
-            <div className='flex gap-1'>
-              <ChevronLeft className='rotate-180'/>
-              <ChevronRight className='rotate-90'/>
+            <div className="relative w-4 h-4">
+              <ChevronLeft 
+                className={`absolute top-0 left-0 rotate-180 transition-opacity ${direction === 'desc' ? 'opacity-50' : ''}`} 
+              />
+              <ChevronRight 
+                className={`absolute top-0 left-0 rotate-90 transition-opacity ${direction === 'asc' ? 'opacity-50' : ''}`} 
+              />
             </div>
           </Button>
         </PopoverTrigger>
