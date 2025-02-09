@@ -9,6 +9,7 @@ import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
+import { SortPopover } from '@/components/ui/sort-popover';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
@@ -48,11 +49,23 @@ export function TeamStatsTable({
 	const [employeeLog, setEmployeeLog] = useState<ITimerEmployeeLog | undefined>(undefined);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
+	const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / pageSize) : 0;
 	const startIndex = (currentPage - 1) * pageSize;
 	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
-	const paginatedData = rapportDailyActivity?.slice(startIndex, endIndex);
+	const sortedData = rapportDailyActivity ? [...rapportDailyActivity].sort((a, b) => {
+		if (!sortConfig) return 0;
+
+		if (sortConfig.key === 'member') {
+			const nameA = a.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
+			const nameB = b.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
+			return sortConfig.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+		}
+		return 0;
+	}) : [];
+
+	const paginatedData = sortedData.slice(startIndex, endIndex);
 
 	const goToPage = (page: number) => {
 		setCurrentPage(page);
@@ -92,7 +105,12 @@ export function TeamStatsTable({
 								<Table className="w-full">
 									<TableHeader>
 										<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200">
-											<TableHead className="w-[320px] py-3">{t('common.teamStats.MEMBER')}</TableHead>
+											<TableHead className="w-[320px] py-3">
+										<SortPopover
+											label={t('common.teamStats.MEMBER')}
+											onSort={(direction) => setSortConfig({ key: 'member', direction })}
+										/>
+									</TableHead>
 											<TableHead className="w-[100px]">{t('common.teamStats.TOTAL_TIME')}</TableHead>
 											<TableHead className="w-[80px]">{t('common.teamStats.TRACKED')}</TableHead>
 											<TableHead className="w-[120px]">{t('common.teamStats.MANUALLY_ADDED')}</TableHead>
