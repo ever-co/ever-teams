@@ -1,79 +1,58 @@
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import {  ChevronsUpDown } from 'lucide-react';
 
-type SortDirection = 'asc' | 'desc' | null;
+export type SortConfig = {
+  key: string;
+  direction: 'asc' | 'desc';
+} | null;
 
 interface SortPopoverProps<T> {
   label: string;
-  field: keyof T;
+  sortKey: string;
+  sortConfig: SortConfig;
+  onSortChange: (config: SortConfig, sortedData: T[]) => void;
   data: T[];
-  onChange: (sortedData: T[]) => void;
-  sortFn?: (a: T, b: T, field: keyof T) => number;
+  sortFunction: (a: T, b: T) => number;
 }
 
 export function SortPopover<T>({
   label,
-  field,
+  sortKey,
+  sortConfig,
+  onSortChange,
   data,
-  onChange,
-  sortFn
+  sortFunction
 }: SortPopoverProps<T>) {
-  const [direction, setDirection] = useState<SortDirection>(null);
-
-  const handleSort = (newDirection: 'asc' | 'desc') => {
-    setDirection(newDirection);
-
+  const handleSort = (direction: 'asc' | 'desc') => {
+    const newConfig = { key: sortKey, direction };
     const sortedData = [...data].sort((a, b) => {
-      if (sortFn) {
-        return newDirection === 'asc'
-          ? sortFn(a, b, field)
-          : sortFn(b, a, field);
-      }
-
-      const valueA = (a[field] as any)?.toString().toLowerCase() ?? '';
-      const valueB = (b[field] as any)?.toString().toLowerCase() ?? '';
-
-      return newDirection === 'asc'
-        ? valueA.localeCompare(valueB)
-        : valueB.localeCompare(valueA);
+      const comparison = sortFunction(a, b);
+      return direction === 'asc' ? comparison : -comparison;
     });
-
-    onChange(sortedData);
+    onSortChange(newConfig, sortedData);
   };
   return (
     <div className="flex gap-2 items-center">
       {label}
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`w-4 h-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${direction ? 'text-primary' : ''}`}
-          >
-            <div className="relative w-4 h-4">
-              <ChevronLeft 
-                className={`absolute top-0 left-0 rotate-180 transition-opacity ${direction === 'desc' ? 'opacity-50' : ''}`} 
-              />
-              <ChevronRight 
-                className={`absolute top-0 left-0 rotate-90 transition-opacity ${direction === 'asc' ? 'opacity-50' : ''}`} 
-              />
-            </div>
+          <Button variant="ghost" size="icon" className="w-4 h-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <ChevronsUpDown />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-2 w-48">
+        <PopoverContent className="p-2 w-28">
           <div className="flex flex-col gap-1">
             <Button
               variant="ghost"
-              className={`justify-start ${direction === 'asc' ? 'bg-accent' : ''}`}
+              className="justify-start text-[12px]"
               onClick={() => handleSort('asc')}
             >
               ASC
             </Button>
             <Button
               variant="ghost"
-              className={`justify-start ${direction === 'desc' ? 'bg-accent' : ''}`}
+              className="justify-start text-[12px]"
               onClick={() => handleSort('desc')}
             >
               DESC

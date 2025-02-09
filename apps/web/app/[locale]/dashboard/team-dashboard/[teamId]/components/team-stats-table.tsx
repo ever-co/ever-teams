@@ -8,8 +8,8 @@ import { format } from 'date-fns';
 import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
 import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { Fragment, useState } from 'react';
-import { SortPopover } from '@/components/ui/sort-popover';
+import { Fragment, useState, useEffect } from 'react';
+import { SortPopover, SortConfig } from '@/components/ui/sort-popover';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
@@ -49,21 +49,21 @@ export function TeamStatsTable({
 	const [employeeLog, setEmployeeLog] = useState<ITimerEmployeeLog | undefined>(undefined);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
-	const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+	const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+	const [sortedData, setSortedData] = useState<ITimerLogGrouped[]>([]);
 	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / pageSize) : 0;
 	const startIndex = (currentPage - 1) * pageSize;
 	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
-	const sortedData = rapportDailyActivity ? [...rapportDailyActivity].sort((a, b) => {
-		if (!sortConfig) return 0;
+	const sortMembersByName = (a: ITimerLogGrouped, b: ITimerLogGrouped) => {
+		const nameA = a.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
+		const nameB = b.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
+		return nameA.localeCompare(nameB);
+	};
 
-		if (sortConfig.key === 'member') {
-			const nameA = a.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
-			const nameB = b.logs[0]?.employeeLogs[0]?.employee?.fullName?.toLowerCase() || '';
-			return sortConfig.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-		}
-		return 0;
-	}) : [];
+	useEffect(() => {
+		setSortedData(rapportDailyActivity || []);
+	}, [rapportDailyActivity]);
 
 	const paginatedData = sortedData.slice(startIndex, endIndex);
 
@@ -108,7 +108,14 @@ export function TeamStatsTable({
 											<TableHead className="w-[320px] py-3">
 										<SortPopover
 											label={t('common.teamStats.MEMBER')}
-											onSort={(direction) => setSortConfig({ key: 'member', direction })}
+											sortKey="member"
+											sortConfig={sortConfig}
+											onSortChange={(config, newSortedData) => {
+												setSortConfig(config);
+												setSortedData(newSortedData);
+											}}
+											data={sortedData}
+											sortFunction={sortMembersByName}
 										/>
 									</TableHead>
 											<TableHead className="w-[100px]">{t('common.teamStats.TOTAL_TIME')}</TableHead>
