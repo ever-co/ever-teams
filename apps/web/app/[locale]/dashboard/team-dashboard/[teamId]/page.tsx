@@ -21,7 +21,7 @@ import { useTranslations } from 'next-intl';
 function TeamDashboard() {
 	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
 	const t=useTranslations();
-	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily, statisticsCounts,loadingTimesheetStatisticsCounts} = useReportActivity();
+	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily, statisticsCounts,loadingTimesheetStatisticsCounts, isManage} = useReportActivity();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
@@ -57,6 +57,7 @@ function TeamDashboard() {
 							<DashboardHeader
 								onUpdateDateRange={updateDateRange}
 								onUpdateFilters={updateFilters}
+								isManage={isManage}
 							/>
 							<TeamStatsGrid
 								statisticsCounts={statisticsCounts}

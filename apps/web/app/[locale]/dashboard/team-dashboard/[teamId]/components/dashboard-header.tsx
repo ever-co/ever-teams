@@ -5,26 +5,25 @@ import { DateRangePicker } from './date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
 import { TeamDashboardFilter } from './team-dashboard-filter';
-
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onUpdateFilters: (filters: Partial<Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>>) => void;
+	isManage?: boolean;
 }
 
-export function DashboardHeader({ onUpdateDateRange, onUpdateFilters }: DashboardHeaderProps) {
+export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, isManage }: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
 			onUpdateDateRange(range.from, range.to);
 		}
 	};
 
-
 	return (
 		<div className="flex justify-between items-center">
 			<h1 className="text-2xl font-semibold">Team Dashboard</h1>
 			<div className="flex gap-4 items-center">
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
-				<TeamDashboardFilter />
+				<TeamDashboardFilter isManage={isManage} />
 				<Select defaultValue="export">
 					<SelectTrigger className="w-[100px]  border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
 						<SelectValue placeholder="Export" />
