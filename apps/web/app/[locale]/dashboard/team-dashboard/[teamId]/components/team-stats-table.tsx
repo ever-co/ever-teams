@@ -54,16 +54,26 @@ export function TeamStatsTable({
 	const endIndex = startIndex + pageSize;
 	const { openModal, closeModal, isOpen } = useModal();
 
-	const getEmployeeLog = (data: ITimerLogGrouped) => data?.logs?.[0]?.employeeLogs?.[0];
-
-	const getTaskDurationByType = (employeeLog: any, type: string) => {
-		return employeeLog?.tasks.reduce((sum: number, task: any) =>
-			task.description.toLowerCase().includes(type) ? sum + task.duration : sum, 0) || 0;
+	const getEmployeeLog = (data: ITimerLogGrouped): ITimerEmployeeLog | undefined => {
+		return data?.logs?.[0]?.employeeLogs?.[0];
 	};
 
-	const getTotalTime = (data: ITimerLogGrouped) => {
-		return data.logs.reduce((sum, log) =>
-			sum + log.employeeLogs.reduce((empSum, empLog) => empSum + empLog.sum, 0), 0);
+	const getTaskDurationByType = (employeeLog: ITimerEmployeeLog | undefined, type: string): number => {
+		if (!employeeLog?.tasks) return 0;
+		return (
+			employeeLog?.tasks.reduce(
+				(sum: number, task: any) => (task.description.toLowerCase().includes(type) ? sum + task.duration : sum),
+				0
+			) || 0
+		);
+	};
+
+	const getTotalTime = (data: ITimerLogGrouped): number => {
+		if (!data?.logs) return 0;
+		return data.logs.reduce(
+			(sum, log) => sum + log.employeeLogs.reduce((empSum, empLog) => empSum + empLog.sum, 0),
+			0
+		);
 	};
 
 	const sortableColumns = {
@@ -76,7 +86,8 @@ export function TeamStatsTable({
 			compare: (a: number, b: number) => a - b
 		},
 		tracked: {
-			getValue: (data: ITimerLogGrouped) => getEmployeeLog(data)?.tasks.reduce((sum, task) => sum + task.duration, 0) || 0,
+			getValue: (data: ITimerLogGrouped) =>
+				getEmployeeLog(data)?.tasks.reduce((sum, task) => sum + task.duration, 0) || 0,
 			compare: (a: number, b: number) => a - b
 		},
 		manual: {
@@ -101,10 +112,7 @@ export function TeamStatsTable({
 		}
 	};
 
-	const { items: sortedData, sortConfig, requestSort } = useSortableData(
-		rapportDailyActivity || [],
-		sortableColumns
-	);
+	const { items: sortedData, sortConfig, requestSort } = useSortableData(rapportDailyActivity || [], sortableColumns);
 
 	const paginatedData = sortedData.slice(startIndex, endIndex);
 
