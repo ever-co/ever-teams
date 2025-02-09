@@ -281,6 +281,21 @@
 			"ADD_PLAN": "Agregar Plan",
 			"DELETE_THIS_PLAN": "Удалить этот план"
 		},
+		"teamStats": {
+			"MEMBER": "Участник",
+			"MEMBERS_WORKED": "Участники, Которые Работали",
+			"TOTAL_TIME": "Общее Время",
+			"TOTAL_HOURS": "Общее Количество Часов",
+			"TRACKED": "Отслежено",
+			"MANUALLY_ADDED": "Добавлено Вручную",
+			"MANUAL": "Вручную",
+			"ACTIVE_TIME": "Активное Время",
+			"IDLE_TIME": "Время Бездействия",
+			"IDLE": "Бездействие",
+			"UNKNOWN_ACTIVITY": "Неизвестная Активность",
+			"ACTIVITY_LEVEL": "Уровень Активности",
+			"NO_DATA_AVAILABLE": "Нет доступных данных"
+		},
 		"COPY_ISSUE_LINK": "Скопировать ссылку на проблему",
 		"MAKE_A_COPY": "Сделать копию",
 		"ASSIGNEE": "Исполнитель",

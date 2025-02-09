@@ -268,6 +268,21 @@
 			"ADD_PLAN": "Plan hinzufügen",
 			"DELETE_THIS_PLAN": "Diesen Plan löschen"
 		},
+		"teamStats": {
+			"MEMBER": "Mitglied",
+			"MEMBERS_WORKED": "Mitglieder, die gearbeitet haben",
+			"TOTAL_TIME": "Gesamtzeit",
+			"TOTAL_HOURS": "Gesamtstunden",
+			"TRACKED": "Verfolgt",
+			"MANUALLY_ADDED": "Manuell hinzugefügt",
+			"MANUAL": "Manuell",
+			"ACTIVE_TIME": "Aktive Zeit",
+			"IDLE_TIME": "Leerlaufzeit",
+			"IDLE": "Inaktiv",
+			"UNKNOWN_ACTIVITY": "Unbekannte Aktivität",
+			"ACTIVITY_LEVEL": "Aktivitätsniveau",
+			"NO_DATA_AVAILABLE": "Keine Daten verfügbar"
+		},
 		"timesheets": {
 			"SINGULAR": "Stundenzettel",
 			"PLURAL": "Stundenzettel"

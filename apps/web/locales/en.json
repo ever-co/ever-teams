@@ -277,6 +277,21 @@
 			"ADD_PLAN": "Add Plan",
 			"DELETE_THIS_PLAN": "Delete this plan"
 		},
+		"teamStats": {
+			"MEMBER": "Member",
+			"MEMBERS_WORKED": "Members Worked",
+			"TOTAL_TIME": "Total Time",
+			"TOTAL_HOURS": "Total Hours",
+			"TRACKED": "Tracked",
+			"MANUALLY_ADDED": "Manually Added",
+			"MANUAL": "Manual",
+			"ACTIVE_TIME": "Active Time",
+			"IDLE_TIME": "Idle Time",
+			"IDLE": "Idle",
+			"UNKNOWN_ACTIVITY": "Unknown Activity",
+			"ACTIVITY_LEVEL": "Activity Level",
+			"NO_DATA_AVAILABLE": "No Data Available"
+		},
 		"timesheets": {
 			"SINGULAR": "Timesheet",
 			"PLURAL": "Timesheets"

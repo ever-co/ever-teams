@@ -12,6 +12,7 @@ import { Fragment, useState } from 'react';
 import { ChartIcon } from './team-icon';
 import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
+import { useTranslations } from 'next-intl';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -43,7 +44,7 @@ export function TeamStatsTable({
 	isLoading?: boolean;
 }) {
 
-
+    const t=useTranslations();
 	const [employeeLog, setEmployeeLog] = useState<ITimerEmployeeLog | undefined>(undefined);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
@@ -73,7 +74,7 @@ export function TeamStatsTable({
 	if (!rapportDailyActivity?.length) {
 		return (
 			<div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">
-				No data available
+				{t('common.teamStats.NO_DATA_AVAILABLE')}
 			</div>
 		);
 	}
@@ -91,14 +92,14 @@ export function TeamStatsTable({
 								<Table className="w-full">
 									<TableHeader>
 										<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200">
-											<TableHead className="w-[320px] py-3">Member</TableHead>
-											<TableHead className="w-[100px]">Total Time</TableHead>
-											<TableHead className="w-[80px]">Tracked</TableHead>
-											<TableHead className="w-[120px]">Manually Added</TableHead>
-											<TableHead className="w-[100px]">Active Time</TableHead>
-											<TableHead className="w-[80px]">Idle Time</TableHead>
-											<TableHead className="w-[120px]">Unknown Activity</TableHead>
-											<TableHead className="w-[200px]">Activity Level</TableHead>
+											<TableHead className="w-[320px] py-3">{t('common.teamStats.MEMBER')}</TableHead>
+											<TableHead className="w-[100px]">{t('common.teamStats.TOTAL_TIME')}</TableHead>
+											<TableHead className="w-[80px]">{t('common.teamStats.TRACKED')}</TableHead>
+											<TableHead className="w-[120px]">{t('common.teamStats.MANUALLY_ADDED')}</TableHead>
+											<TableHead className="w-[100px]">{t('common.teamStats.ACTIVE_TIME')}</TableHead>
+											<TableHead className="w-[80px]">{t('common.teamStats.IDLE_TIME')}</TableHead>
+											<TableHead className="w-[120px]">{t('common.teamStats.UNKNOWN_ACTIVITY')}</TableHead>
+											<TableHead className="w-[200px]">{t('common.teamStats.ACTIVITY_LEVEL')}</TableHead>
 											<TableHead className="w-[10px]"></TableHead>
 										</TableRow>
 									</TableHeader>
