@@ -8,10 +8,11 @@ import { TeamDashboardFilter } from './team-dashboard-filter';
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onUpdateFilters: (filters: Partial<Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>>) => void;
+	title?: string;
 	isManage?: boolean;
 }
 
-export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, isManage }: DashboardHeaderProps) {
+export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, title, isManage }: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
 			onUpdateDateRange(range.from, range.to);
@@ -19,8 +20,8 @@ export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, isManage }
 	};
 
 	return (
-		<div className="flex justify-between items-center">
-			<h1 className="text-2xl font-semibold">Team Dashboard</h1>
+		<div className="flex justify-between items-center w-full">
+			<h1 className="text-2xl font-semibold">{title}</h1>
 			<div className="flex gap-4 items-center">
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
 				<TeamDashboardFilter isManage={isManage} />
