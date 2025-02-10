@@ -26,6 +26,7 @@ export function NavMain({
 	items: {
 		title: string;
 		url: string;
+		selectable: boolean;
 		icon: LucideIcon;
 		isActive?: boolean;
 		items?: {
@@ -65,6 +66,41 @@ export function NavMain({
 	const handleSubMenuToggle = (subIndex: number) => {
 		setActiveSubMenuIndex(subIndex);
 	};
+
+	const ItemContent = (props: {
+		title: string;
+		url: string;
+		selectable: boolean;
+		icon: LucideIcon;
+		isActive?: boolean;
+		items?: {
+			title: string;
+			url: string;
+			component?: JSX.Element;
+			icon?: ReactNode;
+		}[];
+	}) => {
+		return (
+			<>
+				{state === 'collapsed' ? (
+					<SidebarTriggerButton className="!p-0 !bg-inherit !text-inherit">
+						<props.icon />
+					</SidebarTriggerButton>
+				) : (
+					<props.icon />
+				)}
+
+				<span
+					className={cn(
+						'transition-all font-light !text-sm',
+						state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+					)}
+				>
+					{props.title}
+				</span>
+			</>
+		);
+	};
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -93,24 +129,15 @@ export function NavMain({
 										asChild
 										tooltip={item.title}
 									>
-										<span>
-											{state === 'collapsed' ? (
-												<SidebarTriggerButton className="!p-0 !bg-inherit !text-inherit">
-													<item.icon />
-												</SidebarTriggerButton>
-											) : (
-												<item.icon />
-											)}
-
-											<span
-												className={cn(
-													'transition-all font-light !text-sm',
-													state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
-												)}
-											>
-												{item.title}
+										{item.selectable ? (
+											<Link href={item.url}>
+												<ItemContent {...item} />
+											</Link>
+										) : (
+											<span>
+												<ItemContent {...item} />
 											</span>
-										</span>
+										)}
 									</SidebarMenuButton>
 								</CollapsibleTrigger>
 							) : (

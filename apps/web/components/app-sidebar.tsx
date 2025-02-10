@@ -33,7 +33,9 @@ import { useTranslations } from 'next-intl';
 import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { NavProjects } from './nav-projects';
-import { useEffect } from 'react';
+import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
+import { usePathname } from 'next/navigation';
+import { useMemo } from 'react';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -43,11 +45,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { state } = useSidebar();
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const { getOrganizationProjects, organizationProjects } = useOrganizationProjects();
-
-	useEffect(() => {
-		getOrganizationProjects();
-	}, [getOrganizationProjects]);
+	const { activeTeam } = useActiveTeam();
+	const pathname = usePathname();
+	const { organizationProjects } = useOrganizationProjects();
+	const projects = useMemo(
+		() => (pathname.split('/')[1] == 'all-teams' ? organizationProjects : activeTeam?.projects),
+		[activeTeam?.projects, organizationProjects, pathname]
+	);
 
 	// This is sample data.
 	const data = {
@@ -106,6 +110,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.DASHBOARD'),
 				url: '#',
+				selectable: false,
 				icon: LayoutDashboard,
 				label: 'dashboard',
 				items: [
@@ -124,6 +129,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.FAVORITES'),
 				url: '#',
+				selectable: false,
 				icon: Heart,
 				label: 'favorites',
 				items:
@@ -187,6 +193,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.TASKS'),
 				url: '#',
+				selectable: false,
 				icon: Files,
 				label: 'tasks',
 				items: [
@@ -205,36 +212,39 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.PROJECTS'),
 				url: '/projects',
+				selectable: true,
 				icon: FolderKanban,
 				label: 'projects',
 				items: [
-					...organizationProjects.map((project) => {
-						return {
-							title: project.name ?? '',
-							label: 'project',
-							url: `/project/${project.id}`,
-							icon: (
-								<div
-									style={{ backgroundColor: project.color }}
-									className={cn(
-										'w-8 h-8  border overflow-hidden flex items-center justify-center rounded-full'
-									)}
-								>
-									{!project.imageUrl ? (
-										project.name?.substring(0, 2)
-									) : (
-										<Image
-											alt={project.name ?? ''}
-											height={40}
-											width={40}
-											className="w-full h-full"
-											src={project.imageUrl}
-										/>
-									)}
-								</div>
-							)
-						};
-					}),
+					...(projects
+						? projects.map((project) => {
+								return {
+									title: project.name ?? '',
+									label: 'project',
+									url: `/projects/${project.id}`,
+									icon: (
+										<div
+											style={{ backgroundColor: project.color }}
+											className={cn(
+												'w-8 h-8  border overflow-hidden flex items-center justify-center rounded-full'
+											)}
+										>
+											{!project.imageUrl ? (
+												project.name?.substring(0, 2)
+											) : (
+												<Image
+													alt={project.name ?? ''}
+													height={40}
+													width={40}
+													className="w-full h-full"
+													src={project.imageUrl}
+												/>
+											)}
+										</div>
+									)
+								};
+							})
+						: []),
 					{
 						title: 'Archived projects',
 						url: '',
@@ -245,6 +255,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.MY_WORKS'),
 				url: '#',
+				selectable: false,
 				icon: MonitorSmartphone,
 				label: 'my-work',
 				items: [
@@ -266,6 +277,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 							title: t('sidebar.REPORTS'),
 							label: 'reports',
 							url: '#',
+							selectable: false,
 							icon: SquareActivity,
 							items: [
 								{

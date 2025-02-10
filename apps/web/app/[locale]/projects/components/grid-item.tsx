@@ -24,10 +24,12 @@ export default function GridItem(props: IGridItemProps) {
 
 	const members = useMemo(
 		() =>
-			data?.members?.map((el) => ({
-				imageUrl: el?.employee?.user?.imageUrl,
-				name: el?.employee?.fullName
-			})) || [],
+			data?.members
+				?.filter((el) => !el.isManager)
+				?.map((el) => ({
+					imageUrl: el?.employee?.user?.imageUrl,
+					name: el?.employee?.fullName
+				})) || [],
 		[data?.members]
 	);
 
@@ -83,12 +85,16 @@ export default function GridItem(props: IGridItemProps) {
 
 				<div className="w-full items-center flex gap-6">
 					<p className=" font-medium">{t('common.STATUS')}</p>
-					<div
-						style={{ backgroundColor: statusColorsMap.get(data?.status) ?? '#e5e7eb' }}
-						className="rounded px-4 py-1"
-					>
-						{data?.status ?? '-'}
-					</div>
+					{data?.status ? (
+						<div
+							style={{ backgroundColor: statusColorsMap.get(data?.status) ?? 'transparent' }}
+							className="rounded px-4 py-1"
+						>
+							{data?.status}
+						</div>
+					) : (
+						'-'
+					)}
 				</div>
 
 				<div className="w-full flex items-center gap-10">

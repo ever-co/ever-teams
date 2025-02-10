@@ -6,7 +6,7 @@ import {
 	createOrganizationProjectAPI
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
@@ -64,15 +64,20 @@ export function useOrganizationProjects() {
 		[getOrganizationProjectQueryCall]
 	);
 
-	const getOrganizationProjects = useCallback(async () => {
-		try {
-			const res = await getOrganizationProjectsQueryCall();
+	const getOrganizationProjects = useCallback(
+		async ({ queries }: { queries?: Record<string, string> } = {}) => {
+			try {
+				const res = await getOrganizationProjectsQueryCall({ queries });
 
-			setOrganizationProjects(res.data.items);
-		} catch (error) {
-			console.log(error);
-		}
-	}, [getOrganizationProjectsQueryCall, setOrganizationProjects]);
+				console.log(res.data);
+
+				return res.data;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		[getOrganizationProjectsQueryCall]
+	);
 
 	const createOrganizationProject = useCallback(
 		async (data: { name: string }) => {
@@ -91,6 +96,12 @@ export function useOrganizationProjects() {
 		},
 		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
 	);
+
+	useEffect(() => {
+		getOrganizationProjects().then((data) => {
+			setOrganizationProjects(data?.items ?? []);
+		});
+	}, [getOrganizationProjects, setOrganizationProjects]);
 
 	return {
 		editOrganizationProjectSetting,

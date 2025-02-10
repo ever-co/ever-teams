@@ -21,7 +21,7 @@ export function getOrganizationProjectAPI(id: string, tenantId?: string) {
 	});
 }
 
-export function getOrganizationProjectsAPI() {
+export function getOrganizationProjectsAPI({ queries }: { queries?: Record<string, string> } = {}) {
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 
@@ -35,6 +35,12 @@ export function getOrganizationProjectsAPI() {
 	relations.forEach((relation, i) => {
 		obj[`relations[${i}]`] = relation;
 	});
+
+	if (queries) {
+		Object.entries(queries).forEach(([key, value]) => {
+			obj[key] = value;
+		});
+	}
 
 	const query = qs.stringify(obj);
 

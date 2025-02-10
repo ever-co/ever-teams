@@ -27,6 +27,7 @@ import moment from 'moment';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import AvatarStack from '@components/shared/avatar-stack';
+import { SpinnerLoader } from '@/lib/components';
 
 export type ProjectTableDataType = {
 	project: {
@@ -48,13 +49,14 @@ export type ProjectTableDataType = {
  * @component
  * @param {Object} props - The component props.
  * @param {ProjectTableDataType[]} props.data - Array of data objects projects information.
+ * @param {boolean} props.loading - Whether to show loading indicator when loading projects data.
  *
  * @returns {JSX.Element} A table showing projects information.
  *
  */
 
-export function DataTableProject(props: { data: ProjectTableDataType[] }) {
-	const { data } = props;
+export function DataTableProject(props: { data: ProjectTableDataType[]; loading: boolean }) {
+	const { data, loading } = props;
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -183,10 +185,12 @@ export function DataTableProject(props: { data: ProjectTableDataType[] }) {
 			header: () => <div>{t('common.MEMBERS')}</div>,
 			cell: ({ row }) => {
 				const members =
-					row.original?.members?.map((el) => ({
-						imageUrl: el?.employee?.user?.imageUrl,
-						name: el?.employee?.fullName
-					})) || [];
+					row.original?.members
+						?.filter((el) => !el.isManager)
+						?.map((el) => ({
+							imageUrl: el?.employee?.user?.imageUrl,
+							name: el?.employee?.fullName
+						})) || [];
 
 				return members?.length > 0 ? <AvatarStack avatars={members} /> : null;
 			}
@@ -239,9 +243,17 @@ export function DataTableProject(props: { data: ProjectTableDataType[] }) {
 		}
 	});
 
+	React.useEffect(() => {
+		console.log(loading);
+	}, [loading]);
+
 	return (
 		<div className="w-full">
-			{table?.getRowModel()?.rows.length ? (
+			{loading ? (
+				<div className="w-full flex justify-center items-center">
+					<SpinnerLoader />
+				</div>
+			) : table?.getRowModel()?.rows.length ? (
 				<div className="rounded-md">
 					<Table>
 						<TableHeader>
@@ -259,7 +271,6 @@ export function DataTableProject(props: { data: ProjectTableDataType[] }) {
 								</TableRow>
 							))}
 						</TableHeader>
-
 						<TableBody>
 							{table?.getRowModel()?.rows.length ? (
 								table?.getRowModel().rows.map((row) => (
