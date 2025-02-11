@@ -19,7 +19,7 @@ import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { useTranslations } from 'next-intl';
 
 function TeamDashboard() {
-	const { activeTeam, isTrackingEnabled } = useOrganizationTeams();
+	const { isTrackingEnabled } = useOrganizationTeams();
 	const t=useTranslations();
 	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily, statisticsCounts,loadingTimesheetStatisticsCounts, isManage} = useReportActivity();
 	const router = useRouter();
@@ -30,10 +30,9 @@ function TeamDashboard() {
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-			{ title: activeTeam?.name || '', href: '/' },
 			{ title: 'Team-Dashboard', href: `/${currentLocale}/dashboard/team-dashboard` }
 		],
-		[activeTeam?.name, currentLocale,t]
+		[currentLocale,t]
 	);
 
 	return (
@@ -57,6 +56,7 @@ function TeamDashboard() {
 							<DashboardHeader
 								onUpdateDateRange={updateDateRange}
 								onUpdateFilters={updateFilters}
+								title="Team Dashboard"
 								isManage={isManage}
 							/>
 							<TeamStatsGrid
