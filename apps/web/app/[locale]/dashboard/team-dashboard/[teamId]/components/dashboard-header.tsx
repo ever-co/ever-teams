@@ -12,6 +12,7 @@ interface DashboardHeaderProps {
 	isManage?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, title, isManage }: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
