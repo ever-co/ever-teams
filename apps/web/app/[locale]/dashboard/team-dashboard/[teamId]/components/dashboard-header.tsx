@@ -5,15 +5,26 @@ import { DateRangePicker } from './date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
 import { TeamDashboardFilter } from './team-dashboard-filter';
+import { GroupBySelect } from '../../../app-url/components/GroupBySelect';
+
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onUpdateFilters: (filters: Partial<Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>>) => void;
 	title?: string;
 	isManage?: boolean;
+	showGroupBy?: boolean;
+	onGroupByChange?: (value: string) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, title, isManage }: DashboardHeaderProps) {
+export function DashboardHeader({
+	onUpdateDateRange,
+	onUpdateFilters,
+	title,
+	isManage,
+	showGroupBy,
+	onGroupByChange
+}: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
 			onUpdateDateRange(range.from, range.to);
@@ -24,10 +35,11 @@ export function DashboardHeader({ onUpdateDateRange, onUpdateFilters, title, isM
 		<div className="flex justify-between items-center w-full">
 			<h1 className="text-2xl font-semibold">{title}</h1>
 			<div className="flex gap-4 items-center">
+				{showGroupBy && <GroupBySelect onGroupByChange={onGroupByChange} />}
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
 				<TeamDashboardFilter isManage={isManage} />
 				<Select defaultValue="export">
-					<SelectTrigger className="w-[100px]  border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
+					<SelectTrigger className="w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
 						<SelectValue placeholder="Export" />
 					</SelectTrigger>
 					<SelectContent className="dark:bg-dark--theme-light">

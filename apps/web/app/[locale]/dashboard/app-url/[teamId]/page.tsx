@@ -7,7 +7,7 @@ import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, Card, Container } from '@/lib/components';
@@ -27,6 +27,9 @@ interface ProductivityData {
 function AppUrls() {
   const { isTrackingEnabled } = useOrganizationTeams();
   const { updateDateRange, updateFilters, isManage } = useReportActivity();
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [groupBy, setGroupBy] = useState<string>('date');
 
   const router = useRouter();
   const t = useTranslations();
@@ -88,6 +91,7 @@ function AppUrls() {
     ],
     [currentLocale, t]
   );
+  console.log("=====>",groupBy)
 
   return (
     <MainLayout
@@ -112,6 +116,8 @@ function AppUrls() {
                 onUpdateFilters={updateFilters}
                 title="Apps & URLs Dashboard"
                 isManage={isManage}
+                showGroupBy={true}
+                onGroupByChange={setGroupBy}
               />
               <Card shadow="bigger" className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
                 <div className="flex flex-col gap-6 w-full">
