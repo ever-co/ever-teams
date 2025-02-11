@@ -123,14 +123,21 @@ export function ProductivityTable({
                       <AvatarImage src={item.member.avatarUrl} alt={item.member.name} />
                     )}
                     <AvatarFallback>
-                      {item.member.name.split(' ').map((n) => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{item.member.name}</span>
-                </div>
-              </TableCell>
-              <TableCell>{item.project}</TableCell>
-              <TableCell>{item.application}</TableCell>
+                    {item.member.name?.trim()
+                      ? item.member.name
+                          .trim()
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                      : '?'}
+                  </AvatarFallback>
+                </Avatar>
+                <span>{item.member.name}</span>
+              </div>
+            </TableCell>
+            <TableCell>{item.project}</TableCell>
+            <TableCell>{item.application}</TableCell>
               <TableCell>{item.timeSpent}</TableCell>
               <TableCell>
                 <div className="flex gap-2 items-center">
