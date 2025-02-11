@@ -38,38 +38,21 @@ function AppUrls() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 
-	const monthData: ProductivityData[] = [
-		{ date: '2024-10-01', productive: 70, neutral: 20, unproductive: 10 },
-		{ date: '2024-10-02', productive: 75, neutral: 15, unproductive: 10 },
-		{ date: '2024-10-03', productive: 80, neutral: 15, unproductive: 5 },
-		{ date: '2024-10-04', productive: 85, neutral: 10, unproductive: 5 },
-		{ date: '2024-10-05', productive: 75, neutral: 20, unproductive: 5 },
-		{ date: '2024-10-06', productive: 65, neutral: 25, unproductive: 10 },
-		{ date: '2024-10-07', productive: 90, neutral: 5, unproductive: 5 },
-		{ date: '2024-10-08', productive: 85, neutral: 10, unproductive: 5 },
-		{ date: '2024-10-09', productive: 80, neutral: 15, unproductive: 5 },
-		{ date: '2024-10-10', productive: 70, neutral: 20, unproductive: 10 },
-		{ date: '2024-10-11', productive: 60, neutral: 30, unproductive: 10 },
-		{ date: '2024-10-12', productive: 75, neutral: 15, unproductive: 10 },
-		{ date: '2024-10-13', productive: 85, neutral: 10, unproductive: 5 },
-		{ date: '2024-10-14', productive: 80, neutral: 15, unproductive: 5 },
-		{ date: '2024-10-15', productive: 75, neutral: 20, unproductive: 5 },
-		{ date: '2024-10-16', productive: 70, neutral: 20, unproductive: 10 },
-		{ date: '2024-10-17', productive: 65, neutral: 25, unproductive: 10 },
-		{ date: '2024-10-18', productive: 85, neutral: 10, unproductive: 5 },
-		{ date: '2024-10-19', productive: 80, neutral: 15, unproductive: 5 },
-		{ date: '2024-10-20', productive: 90, neutral: 5, unproductive: 5 },
-		{ date: '2024-10-21', productive: 85, neutral: 10, unproductive: 5 },
-		{ date: '2024-10-22', productive: 80, neutral: 15, unproductive: 5 },
-		{ date: '2024-10-23', productive: 75, neutral: 20, unproductive: 5 },
-		{ date: '2024-10-24', productive: 70, neutral: 20, unproductive: 10 },
-		{ date: '2024-10-25', productive: 85, neutral: 10, unproductive: 5 },
-		{ date: '2024-10-26', productive: 80, neutral: 15, unproductive: 5 },
-		{ date: '2024-10-27', productive: 75, neutral: 20, unproductive: 5 },
-		{ date: '2024-10-28', productive: 70, neutral: 20, unproductive: 10 },
-		{ date: '2024-10-29', productive: 90, neutral: 5, unproductive: 5 },
-		{ date: '2024-10-30', productive: 85, neutral: 10, unproductive: 5 }
-	];
+
+
+  const generateMonthData = (date: Date): ProductivityData[] => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    return Array.from({ length: daysInMonth }, (_, i) => ({
+      date: new Date(year, month, i + 1).toISOString().split('T')[0],
+      productive: Math.floor(Math.random() * 30) + 60,
+      neutral: Math.floor(Math.random() * 20) + 10,
+      unproductive: Math.floor(Math.random() * 10) + 5,
+    }));
+  };
+  const monthData = generateMonthData(new Date());
 
 	const monthTotals = monthData.reduce(
 		(acc, day) => ({

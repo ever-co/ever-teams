@@ -67,7 +67,7 @@ export function ProductivityTable({
   ];
 
   // Use sample data for now
-  const displayData = sampleData;
+  const displayData = data || sampleData;
 
   if (isLoading) {
     return (
