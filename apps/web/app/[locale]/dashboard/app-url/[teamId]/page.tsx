@@ -29,7 +29,6 @@ function AppUrls() {
 	const { isTrackingEnabled } = useOrganizationTeams();
 	const { updateDateRange, updateFilters, isManage } = useReportActivity();
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [groupBy, setGroupBy] = useState<string>('date');
 
 	const router = useRouter();
@@ -47,9 +46,9 @@ function AppUrls() {
 
     return Array.from({ length: daysInMonth }, (_, i) => ({
       date: new Date(year, month, i + 1).toISOString().split('T')[0],
-      productive: Math.floor(Math.random() * 30) + 60,
-      neutral: Math.floor(Math.random() * 20) + 10,
-      unproductive: Math.floor(Math.random() * 10) + 5,
+      productive: Math.floor(Math.random() * 50) + 25,
+      neutral: Math.floor(Math.random() * 40) + 20,
+      unproductive: Math.floor(Math.random() * 35) + 15,
     }));
   };
   const monthData = generateMonthData(new Date());
@@ -75,7 +74,6 @@ function AppUrls() {
 		],
 		[currentLocale, t]
 	);
-	console.log('=====>', groupBy);
 
 	return (
 		<MainLayout
@@ -101,7 +99,7 @@ function AppUrls() {
 								title="Apps & URLs Dashboard"
 								isManage={isManage}
 								showGroupBy={true}
-								onGroupByChange={setGroupBy}
+								onGroupByChange={()=>setGroupBy(groupBy)}
 							/>
 							<Card
 								shadow="bigger"
