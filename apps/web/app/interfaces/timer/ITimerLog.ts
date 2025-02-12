@@ -282,3 +282,4 @@ export interface ITimesheetStatisticsData {
 	weekActivities: number;
 	weekDuration: number;
 }
+
