@@ -2,6 +2,7 @@ import { TimesheetLog, ITimerStatus, IUpdateTimesheetStatus, UpdateTimesheetStat
 import { get, deleteApi, put, post } from '../../axios';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import qs from 'qs';
+import { IActivityReport } from '@/app/interfaces/activity/IActivityReport';
 
 export async function getTimerLogs(
 	tenantId: string,
@@ -410,5 +411,5 @@ export async function getActivityReport({
 		}
 	);
 
-	return get('/timesheet/activity/report?' + queryString, { tenantId });
+	return get<IActivityReport[]>('/timesheet/activity/report?' + queryString, { tenantId });
 }
