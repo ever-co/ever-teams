@@ -9,7 +9,7 @@ import {
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useQuery } from '../useQuery';
 import { useAtom } from 'jotai';
-import { timeLogsRapportChartState, timeLogsRapportDailyState, timesheetStatisticsCountsState } from '@/app/stores';
+import { activityReportState, timeLogsRapportChartState, timeLogsRapportDailyState, timesheetStatisticsCountsState } from '@/app/stores';
 import { TimeLogType } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
@@ -62,8 +62,9 @@ export function useReportActivity() {
 	const [rapportChartActivity, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
 	const [rapportDailyActivity, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
 	const [statisticsCounts, setStatisticsCounts] = useAtom(timesheetStatisticsCountsState);
-	const [activityReport, setActivityReport] = useState<any>(null);
-	const { allteamsState, alluserState,isUserAllowedToAccess } = useTimelogFilterOptions();
+	const [activityReport, setActivityReport] = useAtom(activityReportState);
+
+	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
 
 	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } =
 		useQuery(getTimeLogReportDailyChart);
