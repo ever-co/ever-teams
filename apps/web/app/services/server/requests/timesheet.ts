@@ -3,7 +3,7 @@ import { serverFetch } from '../fetch';
 import qs from 'qs';
 import { ITimerDailyLog, ITimerLogGrouped, ITimesheetStatisticsCounts, TimesheetLog, UpdateTimesheet, UpdateTimesheetStatus } from '@/app/interfaces/timer/ITimerLog';
 import { IUpdateTimesheetStatus } from '@/app/interfaces';
-import { IActivityReport, IActivityReportParams } from '@/app/interfaces/activity/IActivityReport';
+import { IActivityReport } from '@/app/interfaces/activity/IActivityReport';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -173,6 +173,15 @@ export interface ITimesheetStatisticsCountsProps {
     timeZone?: string;
 }
 
+/**
+ * Parameters specific to activity report requests
+ */
+export interface IActivityRequestParams extends ITimeLogRequestParams {
+    /** Activity sources to include */
+    source?: string[];
+    /** Types of logs to include */
+    logType?: TimeLogType[];
+}
 
 /**
  * Fetches timesheet statistics counts from the API
@@ -264,7 +273,7 @@ export async function getTimeLogReportDailyRequest(
  * @returns Promise with the activity report data
  */
 export function getActivityReportRequest(
-	params: IActivityReportParams,
+	params: IActivityRequestParams,
 	bearer_token?: string
 ) {
 	const queries = buildTimeLogParams(params);

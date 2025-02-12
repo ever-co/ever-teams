@@ -125,27 +125,6 @@ export interface IActivityReportGroupByDate {
 export type IActivityReport = IActivityReportGroupByDate[];
 
 /**
- * Activity source types
- */
-export enum ActivitySourceEnum {
-    BROWSER = 'BROWSER',
-    DESKTOP = 'DESKTOP',
-    MOBILE = 'MOBILE',
-    UPWORK = 'UPWORK',
-    HUBSTAFF = 'HUBSTAFF'
-}
-
-/**
- * Log types for activity
- */
-export enum ActivityLogTypeEnum {
-    MANUAL = 'MANUAL',
-    RESUMED = 'RESUMED',
-    IDLE = 'IDLE',
-    TRACKED = 'TRACKED'
-}
-
-/**
  * Group by options for activity report
  */
 export enum ActivityReportGroupByEnum {
@@ -153,35 +132,4 @@ export enum ActivityReportGroupByEnum {
     EMPLOYEE = 'employee',
     PROJECT = 'project',
     CLIENT = 'client'
-}
-
-/**
- * Parameters for activity report API request
- */
-export interface IActivityReportParams {
-    /** Activity sources to include */
-    source?: ActivitySourceEnum[];
-    /** Activity level range */
-    activityLevel: {
-        start: number;
-        end: number;
-    };
-    /** Types of logs to include */
-    logType?: ActivityLogTypeEnum[];
-    /** Filter by specific projects */
-    projectIds?: string[];
-    /** Filter by specific employees */
-    employeeIds?: string[];
-    /** Organization identifier */
-    organizationId: string;
-    /** Tenant identifier */
-    tenantId: string;
-    /** Start date for the report */
-    startDate: string;
-    /** End date for the report */
-    endDate: string;
-    /** Timezone for the report */
-    timeZone: string;
-    /** How to group the report data */
-    groupBy?: ActivityReportGroupByEnum;
 }
