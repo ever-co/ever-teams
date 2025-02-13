@@ -333,7 +333,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="teams"
 								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
-								options={teams || []}
+								options={teams}
 								onChange={(value) => {
 									setTeam(value.id);
 								}}
@@ -351,7 +351,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="task"
 								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
-								options={tasks || []}
+								options={tasks}
 								onChange={(value) => {
 									setTaskId(value.id);
 								}}
@@ -378,7 +378,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="REASON"
 								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
-								options={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`)) || []}
+								options={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
 								onChange={(value) => {
 									setReason(value);
 								}}
