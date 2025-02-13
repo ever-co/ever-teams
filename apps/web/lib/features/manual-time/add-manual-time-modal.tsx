@@ -2,7 +2,7 @@
 import '../../../styles/style.css';
 
 import { format } from 'date-fns';
-import { Button, Modal, SelectItems } from 'lib/components';
+import { Button, Modal } from 'lib/components';
 import { cn } from 'lib/utils';
 import { CalendarDays } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -18,6 +18,7 @@ import { clsxm } from '@app/utils';
 import { DatePicker } from '@components/ui/DatePicker';
 
 import { getNestedValue, Item, ManageOrMemberComponent } from './manage-member-component';
+import { CustomSelect } from '../multiple-select';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -168,15 +169,15 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		},
 		...(timeSheetStatus === 'ManagerTimesheet'
 			? [
-				{
-					label: t('manualTime.EMPLOYEE'),
-					placeholder: 'Select an employee',
-					isRequired: true,
-					valueKey: 'id',
-					displayKey: 'employee.fullName',
-					element: 'Employee'
-				}
-			]
+					{
+						label: t('manualTime.EMPLOYEE'),
+						placeholder: 'Select an employee',
+						isRequired: true,
+						valueKey: 'id',
+						displayKey: 'employee.fullName',
+						element: 'Employee'
+					}
+				]
 			: []),
 		{
 			label: t('manualTime.TASK'),
@@ -206,7 +207,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		>
 			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-4">
 				<div className="flex flex-col">
-					<label className="block text-gray-500 mb-1">
+					<label className="block mb-1 text-gray-500">
 						{t('manualTime.DATE')}
 						<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
@@ -218,7 +219,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						}
 						customInput={
 							<>
-								<CalendarDays className="h-5 w-5 dark:text-gray-700" />
+								<CalendarDays className="w-5 h-5 dark:text-gray-700" />
 								<Button
 									variant={'outline'}
 									className={cn(
@@ -238,8 +239,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					/>
 				</div>
 
-				<div className=" flex items-center">
-					<label className="block text-gray-500 mr-2">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
+				<div className="flex items-center">
+					<label className="block mr-2 text-gray-500">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
 					<div
 						className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
 						onClick={() => setIsBillable(!isBillable)}
@@ -256,7 +257,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				</div>
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
-						<label className="block text-gray-500 mb-1">
+						<label className="block mb-1 text-gray-500">
 							{t('manualTime.START_TIME')}
 							<span className="text-[#de5505e1] ml-1">*</span>
 						</label>
@@ -264,13 +265,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="w-full p-2 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
+							className="p-2 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
 
 					<div className=" w-[48%]">
-						<label className="block text-gray-500 mb-1">
+						<label className="block mb-1 text-gray-500">
 							{t('manualTime.END_TIME')}
 							<span className="text-[#de5505e1] ml-1">*</span>
 						</label>
@@ -279,14 +280,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="w-full p-2 border font-normal border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md"
+							className="p-2 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
 				</div>
 
-				<div className=" flex items-center">
-					<label className="block text-primary mb-1">
+				<div className="flex items-center">
+					<label className="block mb-1 text-primary">
 						{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}:{' '}
 					</label>
 					<div className="ml-[10px] p-1 flex items-center font-semibold dark:border-regal-rose  pr-3">
@@ -315,38 +316,45 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What did you worked on..."
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+								className="p-2 w-full h-32 rounded-md border border-gray-300 resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 					</>
 				) : (
 					<>
 						<div className="">
-							<label className="block text-gray-500 mb-1">
+							<label className="block mb-1 text-gray-500">
 								{t('manualTime.TEAM')}
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
-							<SelectItems
-								defaultValue={activeTeam!}
-								items={teams}
-								onValueChange={(team) => setTeam(team)}
-								itemId={(team) => (team ? team.id : '')}
-								itemToString={(team) => (team ? team.name : '')}
-								triggerClassName="border-gray-300 dark:border-slate-600"
+							<CustomSelect
+								valueKey="id"
+								defaultValue={activeTeam?.id ?? ''}
+								classNameGroup="max-h-[40vh] dark:!text-white "
+								ariaLabel="teams"
+								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
+								options={teams || []}
+								onChange={(value) => {
+									setTeam(value.id);
+								}}
 							/>
+
 						</div>
 						<div className="">
-							<label className="block text-gray-500 mb-1">
+							<label className="block mb-1 text-gray-500">
 								{t('manualTime.TASK')}
 								<span className="text-[#de5505e1] ml-1">*</span>
 							</label>
-							<SelectItems
-								defaultValue={activeTeamTask}
-								items={tasks}
-								onValueChange={(task) => setTaskId(task ? task.id : '')}
-								itemId={(task) => (task ? task.id : '')}
-								itemToString={(task) => (task ? task.title : '')}
-								triggerClassName="border-gray-300 dark:border-slate-600"
+							<CustomSelect
+								valueKey="id"
+								defaultValue={activeTeamTask?.id ?? ''}
+								classNameGroup="max-h-[40vh] dark:!text-white "
+								ariaLabel="task"
+								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
+								options={tasks || []}
+								onChange={(value) => {
+									setTaskId(value.id);
+								}}
 							/>
 						</div>
 
@@ -358,21 +366,22 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What worked on? "
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full resize-none p-2 grow border border-gray-300 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-32"
+								className="p-2 w-full h-32 rounded-md border border-gray-300 resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 
 						<div className="">
-							<label className="block text-gray-500 mb-1">
+							<label className="block mb-1 text-gray-500">
 								{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})
 							</label>
-							<SelectItems
-								items={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`))}
-								onValueChange={(reason) => setReason(reason)}
-								itemId={(reason) => reason}
-								defaultValue={t('manualTime.reasons.DEFAULT')}
-								itemToString={(reason) => reason}
-								triggerClassName="border-gray-300 dark:border-slate-600"
+							<CustomSelect
+								classNameGroup="max-h-[40vh] dark:!text-white "
+								ariaLabel="REASON"
+								className="w-full border-gray-300 dark:border-slate-600 dark:text-white"
+								options={manualTimeReasons.map((reason) => t(`manualTime.reasons.${reason}`)) || []}
+								onChange={(value) => {
+									setReason(value);
+								}}
 							/>
 						</div>
 					</>
@@ -389,7 +398,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							<Button
 								variant="outline"
 								type="button"
-								className="dark:text-primary border-gray-300 dark:border-slate-600 font-bold dark:bg-dark--theme-light"
+								className="font-bold border-gray-300 dark:text-primary dark:border-slate-600 dark:bg-dark--theme-light"
 							>
 								{t('common.VIEW_TIMESHEET')}
 							</Button>

@@ -102,7 +102,7 @@ export function ProductivityTable({
   }
 
   return (
-    <Card shadow="custom" className="rounded-md border bg-white border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[403px]">
+    <Card shadow="custom" className="rounded-md border bg-white border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
       <Table>
         <TableHeader>
           <TableRow>
