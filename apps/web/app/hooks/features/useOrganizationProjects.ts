@@ -68,9 +68,6 @@ export function useOrganizationProjects() {
 		async ({ queries }: { queries?: Record<string, string> } = {}) => {
 			try {
 				const res = await getOrganizationProjectsQueryCall({ queries });
-
-				console.log(res.data);
-
 				return res.data;
 			} catch (error) {
 				console.log(error);

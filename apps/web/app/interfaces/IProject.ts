@@ -42,6 +42,7 @@ export interface IProject {
 	projectUrl?: string;
 	openSourceProjectUrl?: string;
 	budget?: number;
+	budgetType?: OrganizationProjectBudgetTypeEnum;
 	membersCount?: number;
 	imageUrl: string | null;
 	status?: TaskStatusEnum;
@@ -85,4 +86,9 @@ export enum ProjectBillingEnum {
 export enum ProjectOwnerEnum {
 	CLIENT = 'CLIENT',
 	INTERNAL = 'INTERNAL'
+}
+
+export enum OrganizationProjectBudgetTypeEnum {
+	HOURS = 'hours',
+	COST = 'cost'
 }
