@@ -1,9 +1,9 @@
 'use client';
 
 import { MainLayout } from '@/lib/layout';
-import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
+import { useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, InputField, Paginate, SpinnerLoader } from '@/lib/components';
@@ -17,11 +17,18 @@ import GridItem from './grid-item';
 import { DataTableProject } from './data-table';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import FiltersCardModal from './filters-card-modal';
 
 type TViewMode = 'GRID' | 'LIST';
 
 function PageComponent() {
 	const t = useTranslations();
+	const {
+		isOpen: isFiltersCardModalOpen,
+		closeModal: closeFiltersCardModal,
+		openModal: openFiltersCardModal
+	} = useModal();
 	const { isTrackingEnabled } = useOrganizationTeams();
 	const lastSelectedView = useMemo(() => {
 		try {
@@ -32,13 +39,15 @@ function PageComponent() {
 		}
 	}, []);
 	const [selectedView, setSelectedView] = useState<TViewMode>(lastSelectedView ?? 'LIST');
-	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjects();
+	const [projects, setProjects] = useState<IProject[]>([]);
+	const { getOrganizationProjects, getOrganizationProjectsLoading } = useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
 		to: endOfMonth(new Date())
 	});
 	const { activeTeam } = useOrganizationTeams();
 	const activeTeamProjects = useMemo(() => activeTeam?.projects?.map((el) => el.id) ?? [], [activeTeam?.projects]);
+	const params = useSearchParams();
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
 			{
@@ -56,7 +65,33 @@ function PageComponent() {
 	);
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<IProject>(organizationProjects ?? []);
+		usePagination<IProject>(projects ?? []);
+
+	useEffect(() => {
+		const members = [...(params.get('managers')?.split(',') ?? []), ...(params.get('members')?.split(',') ?? [])];
+
+		const queries = {
+			...(members.length > 0 && {
+				'where[members][employeeId]': members[0] // Available but can work with one employee ID
+			})
+		};
+
+		/*
+		TO DO:
+		 - Filter by status
+		 - Filter by budget type
+		 - Filter by date range
+		 - Filter by team
+
+		 when the api is ready
+		*/
+
+		getOrganizationProjects({ queries }).then((data) => {
+			if (data && data?.items?.length > 0) {
+				setProjects(data.items);
+			}
+		});
+	}, [getOrganizationProjects, params]);
 
 	const filteredProjects = useMemo(
 		() =>
@@ -147,6 +182,7 @@ function PageComponent() {
 								className="bg-transparent dark:bg-transparent dark:border-white"
 							/>
 							<Button
+								onClick={openFiltersCardModal}
 								type="button"
 								className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
 								variant="outline"
@@ -196,6 +232,7 @@ function PageComponent() {
 						</div>
 					) : null}
 				</div>
+				<FiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
 			</div>
 		</MainLayout>
 	);

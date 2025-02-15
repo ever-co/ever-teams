@@ -43,7 +43,7 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 				id: OrganizationProjectBudgetTypeEnum.HOURS
 			}
 		],
-		[]
+		[t]
 	);
 	const { taskStatus } = useTaskStatus();
 	const router = useRouter();
