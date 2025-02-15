@@ -18,6 +18,10 @@
 		"DELETE_CONFIRMATION": "هل أنت متأكد أنك تريد الحذف؟",
 		"IRREVERSIBLE_ACTION_WARNING": "هذا الإجراء لا رجعة فيه. ستفقد جميع البيانات ذات الصلة.",
 		"SHIFT_TIMING": "توقيت العمل",
+		"START_DATE": "تاريخ البدء",
+		"END_DATE": "تاريخ الانتهاء",
+		"MEMBERS": "الأعضاء",
+		"MANAGERS": "المدراء",
 		"ADD_ANOTHER_PERIOD": "إضافة فترة أخرى",
 		"REMOVE_PERIOD": "إزالة الفترة",
 		"DATE_AND_TIME": "التاريخ والوقت",
@@ -285,6 +289,12 @@
 		"SET_AS_NEXT": "تعيين كالتالي",
 		"MOVE_TO": "نقل إلى",
 		"SORT": "فرز",
+		"COST_BASED": "قائم على التكلفة",
+		"HOURS_BASED": "قائم على الساعات",
+		"MANAGER": "مدير",
+		"BUDGET_TYPE": "نوع الميزانية",
+		"CLEAR_FILTERS": "مسح الفلاتر",
+		"APPLY_FILTERS": "تطبيق الفلاتر",
 		"ICON": "أيقونة",
 		"SELECT_DATE": "اختر التاريخ",
 		"SELECT_AND_CLOSE": "اختر وأغلق",
@@ -391,6 +401,17 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "لوحة كانبان"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "المشاريع",
+				"SINGULAR": "المشروع"
+			},
+			"CREATE_NEW_PROJECT": "إنشاء مشروع جديد",
+			"views": {
+				"LIST_VIEW": "عرض القائمة",
+				"GRID_VIEW": "عرض الشبكة"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]",

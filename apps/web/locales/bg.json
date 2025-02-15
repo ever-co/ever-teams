@@ -23,6 +23,10 @@
 		"SHOW_MORE": "Покажи още",
 		"TASKS": "Задачи",
 		"MEN_HOURS": "Човеко-часове",
+		"START_DATE": "Начална дата",
+		"END_DATE": "Крайна дата",
+		"MEMBERS": "Членове",
+		"MANAGERS": "Мениджъри",
 		"MEMBERS_WORKED": "Работили членове",
 		"COLLAPSE_COLUMN": "Свий колона",
 		"EXPAND_COLUMN": "Разгъни колона",
@@ -305,6 +309,12 @@
 		"SELECT_DATE": "Изберете дата",
 		"SELECT_AND_CLOSE": "Изберете и затворете",
 		"SORT": "Подредете",
+		"COST_BASED": "Базирано на разходи",
+		"HOURS_BASED": "Базирано на часове",
+		"MANAGER": "Мениджър",
+		"BUDGET_TYPE": "Тип бюджет",
+		"CLEAR_FILTERS": "Изчисти филтрите",
+		"APPLY_FILTERS": "Приложи филтрите",
 		"ICON": "Икона",
 		"SELECT_ROLE": "Моля, изберете роля",
 		"ADD_TIME": "Добавете време",
@@ -391,6 +401,17 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Канбан дъска"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Проекти",
+				"SINGULAR": "Проект"
+			},
+			"CREATE_NEW_PROJECT": "Създайте нов проект",
+			"views": {
+				"LIST_VIEW": "Списъчен изглед",
+				"GRID_VIEW": "Мрежов изглед"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]",

@@ -121,6 +121,10 @@
 		"PREV": "上一个",
 		"DETAILS": "详情",
 		"CLOSED": "已关闭",
+		"START_DATE": "开始日期",
+		"END_DATE": "结束日期",
+		"MEMBERS": "成员",
+		"MANAGERS": "管理员",
 		"CLOSE": "关闭",
 		"USER_NOT_FOUND": "未找到用户。",
 		"TASK_TITTLE": "任务标题",
@@ -236,6 +240,12 @@
 		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签",
 		"THERE_IS_NO_TASK_ASSIGNED": "没有分配任务",
 		"NO_USERS_ONLINE": "没有在线用户",
+		"COST_BASED": "基于成本",
+		"HOURS_BASED": "基于小时",
+		"MANAGER": "经理",
+		"BUDGET_TYPE": "预算类型",
+		"CLEAR_FILTERS": "清除筛选器",
+		"APPLY_FILTERS": "应用筛选器",
 		"NOT_FOUND": "未找到",
 		"PAGE_NOT_FOUND": "页面未找到",
 		"NO_USERS_WORKING": "目前没有活跃用户",
@@ -387,6 +397,17 @@
 				"USER_LABEL": "未完成的任务，请检查",
 				"OUTSTANDING_VIEW": "突出",
 				"VIEW_BUTTON": "查看"
+			}
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "项目",
+				"SINGULAR": "项目"
+			},
+			"CREATE_NEW_PROJECT": "创建新项目",
+			"views": {
+				"LIST_VIEW": "列表视图",
+				"GRID_VIEW": "网格视图"
 			}
 		},
 		"kanban": {
