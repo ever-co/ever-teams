@@ -253,6 +253,12 @@
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Later toevoegen",
 		"DAILYPLAN": "Gepland",
+		"COST_BASED": "Kosten-gebaseerd",
+		"HOURS_BASED": "Uren-gebaseerd",
+		"MANAGER": "Manager",
+		"BUDGET_TYPE": "Budgettype",
+		"CLEAR_FILTERS": "Filters wissen",
+		"APPLY_FILTERS": "Filter toepassen",
 		"INVITATION_SENT": "Uitnodiging verzonden",
 		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}.",
 		"timesheets": {

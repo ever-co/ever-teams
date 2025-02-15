@@ -27,7 +27,9 @@ export function getOrganizationProjectsAPI({ queries }: { queries?: Record<strin
 
 	const obj = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId
+		'where[tenantId]': tenantId,
+		'join[alias]': 'organization_project',
+		'join[leftJoin][tags]': 'organization_project.tags'
 	} as Record<string, string>;
 
 	const relations = ['members', 'teams', 'members.employee', 'members.employee.user'];
