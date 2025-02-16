@@ -25,6 +25,10 @@
 		"MEN_HOURS": "Manuren",
 		"MEMBERS_WORKED": "Leden gewerkt",
 		"COLLAPSE_COLUMN": "Kolom samenvouwen",
+		"START_DATE": "Startdatum",
+		"END_DATE": "Einddatum",
+		"MEMBERS": "Leden",
+		"MANAGERS": "Managers",
 		"EXPAND_COLUMN": "Kolom uitvouwen",
 		"EDIT_STATUS": "Status bewerken",
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
@@ -249,6 +253,12 @@
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Later toevoegen",
 		"DAILYPLAN": "Gepland",
+		"COST_BASED": "Kosten-gebaseerd",
+		"HOURS_BASED": "Uren-gebaseerd",
+		"MANAGER": "Manager",
+		"BUDGET_TYPE": "Budgettype",
+		"CLEAR_FILTERS": "Filters wissen",
+		"APPLY_FILTERS": "Filter toepassen",
 		"INVITATION_SENT": "Uitnodiging verzonden",
 		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}.",
 		"timesheets": {
@@ -280,6 +290,21 @@
 			"SEE_PLANS": "Plannen bekijken",
 			"ADD_PLAN": "Plan toevoegen",
 			"DELETE_THIS_PLAN": "Verwijder dit plan"
+		},
+		"teamStats": {
+			"MEMBER": "Lid",
+			"MEMBERS_WORKED": "Leden die Hebben Gewerkt",
+			"TOTAL_TIME": "Totale Tijd",
+			"TOTAL_HOURS": "Totale Uren",
+			"TRACKED": "Bijgehouden",
+			"MANUALLY_ADDED": "Handmatig Toegevoegd",
+			"MANUAL": "Handmatig",
+			"ACTIVE_TIME": "Actieve Tijd",
+			"IDLE_TIME": "Inactieve Tijd",
+			"IDLE": "Inactief",
+			"UNKNOWN_ACTIVITY": "Onbekende Activiteit",
+			"ACTIVITY_LEVEL": "Activiteitsniveau",
+			"NO_DATA_AVAILABLE": "Geen gegevens beschikbaar"
 		},
 		"COPY_ISSUE_LINK": "Probleemlink kopiëren",
 		"MAKE_A_COPY": "Maak een kopie",
@@ -414,6 +439,17 @@
 			"TASK_IS_ALREADY_EPIC": "Epic taaktype kan niet worden gewijzigd.",
 			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft.",
 			"PROJECT": "Project"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projecten",
+				"SINGULAR": "Project"
+			},
+			"CREATE_NEW_PROJECT": "Nieuw project aanmaken",
+			"views": {
+				"LIST_VIEW": "Lijstweergave",
+				"GRID_VIEW": "Ruwe weergave"
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"

@@ -36,9 +36,9 @@ export function NavProjects({
 	const { isMobile } = useSidebar();
 
 	const { user } = useAuthenticateUser();
-
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const t = useTranslations();
+
 	return userManagedTeams && userManagedTeams.length > 0 ? (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel>{t('sidebar.PROJECTS')}</SidebarGroupLabel>
@@ -93,7 +93,7 @@ export function NavProjects({
 					<SidebarMenuItem className="w-full max-w-[230px]">
 						<SidebarMenuSubButton asChild>
 							<Button
-								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] w-full max-w-[230px]"
+								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] max-w-[230px]"
 								variant="outline"
 								disabled={!user?.isEmailVerified}
 							>

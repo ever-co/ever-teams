@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { activeMenuIndexState, activeSubMenuIndexState, openMenusState } from '@/app/stores/menu';
+import { ReactNode } from 'react';
 
 export function NavMain({
 	items
@@ -25,12 +26,14 @@ export function NavMain({
 	items: {
 		title: string;
 		url: string;
+		selectable: boolean;
 		icon: LucideIcon;
 		isActive?: boolean;
 		items?: {
 			title: string;
 			url: string;
 			component?: JSX.Element;
+			icon?: ReactNode;
 		}[];
 	}[];
 }>) {
@@ -63,6 +66,41 @@ export function NavMain({
 	const handleSubMenuToggle = (subIndex: number) => {
 		setActiveSubMenuIndex(subIndex);
 	};
+
+	const ItemContent = (props: {
+		title: string;
+		url: string;
+		selectable: boolean;
+		icon: LucideIcon;
+		isActive?: boolean;
+		items?: {
+			title: string;
+			url: string;
+			component?: JSX.Element;
+			icon?: ReactNode;
+		}[];
+	}) => {
+		return (
+			<>
+				{state === 'collapsed' ? (
+					<SidebarTriggerButton className="!p-0 !bg-inherit !text-inherit">
+						<props.icon />
+					</SidebarTriggerButton>
+				) : (
+					<props.icon />
+				)}
+
+				<span
+					className={cn(
+						'transition-all font-light !text-sm',
+						state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+					)}
+				>
+					{props.title}
+				</span>
+			</>
+		);
+	};
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -91,24 +129,15 @@ export function NavMain({
 										asChild
 										tooltip={item.title}
 									>
-										<span>
-											{state === 'collapsed' ? (
-												<SidebarTriggerButton className="!p-0 !bg-inherit !text-inherit">
-													<item.icon />
-												</SidebarTriggerButton>
-											) : (
-												<item.icon />
-											)}
-
-											<span
-												className={cn(
-													'transition-all font-light !text-sm',
-													state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
-												)}
-											>
-												{item.title}
+										{item.selectable ? (
+											<Link href={item.url}>
+												<ItemContent {...item} />
+											</Link>
+										) : (
+											<span>
+												<ItemContent {...item} />
 											</span>
-										</span>
+										)}
 									</SidebarMenuButton>
 								</CollapsibleTrigger>
 							) : (
@@ -168,18 +197,29 @@ export function NavMain({
 															onClick={() => handleSubMenuToggle(key)}
 															asChild
 														>
-															<Link href={subItem.url}>
-																<span
-																	className={cn(
-																		'transition-all font-light !text-sm',
-																		state === 'collapsed'
-																			? 'opacity-0 hidden'
-																			: 'opacity-100'
-																	)}
-																>
-																	{subItem.title}
-																</span>
-															</Link>
+															<div className="w-full h-full flex  items-center gap-2">
+																{subItem.icon && (
+																	<div
+																		className={cn(
+																			'w-8 h-8 border rounded-full flex items-center justify-center'
+																		)}
+																	>
+																		{subItem.icon}
+																	</div>
+																)}
+																<Link href={subItem.url}>
+																	<span
+																		className={cn(
+																			'transition-all font-light !text-sm',
+																			state === 'collapsed'
+																				? 'opacity-0 hidden'
+																				: 'opacity-100'
+																		)}
+																	>
+																		{subItem.title}
+																	</span>
+																</Link>
+															</div>
 														</SidebarMenuSubButton>
 													)}
 												</SidebarMenuSubItem>

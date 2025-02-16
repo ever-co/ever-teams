@@ -4,6 +4,7 @@ import { secondsToTime } from '@/app/helpers';
 import { ITimesheetStatisticsData } from '@/app/interfaces';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 function formatPercentage(value: number | undefined): number {
@@ -35,17 +36,18 @@ export function TeamStatsGrid({
 	const { h: hours, m: minutes, s: seconds } = secondsToTime(statisticsCounts?.weekDuration || 0);
 	const timeValue = formatTime(hours, minutes, seconds);
 	const progress = formatPercentage(statisticsCounts?.weekActivities);
+	const t = useTranslations();
 
 	const stats: StatItem[] = useMemo(
 		() => [
 			{
-				title: 'Members worked',
+				title: t('common.teamStats.MEMBERS_WORKED'),
 				value: statisticsCounts?.employeesCount?.toString() || '0',
 				type: 'number',
 				showProgress: false
 			},
 			{
-				title: 'Tracked',
+				title: t('common.teamStats.TRACKED'),
 				value: timeValue,
 				type: 'time',
 				color: 'text-blue-500',
@@ -54,7 +56,7 @@ export function TeamStatsGrid({
 				showProgress: true
 			},
 			{
-				title: 'Manual',
+				title: t('common.teamStats.MANUAL'),
 				value: timeValue,
 				type: 'time',
 				color: 'text-red-500',
@@ -63,7 +65,7 @@ export function TeamStatsGrid({
 				showProgress: true
 			},
 			{
-				title: 'Idle',
+				title: t('common.teamStats.IDLE'),
 				value: timeValue,
 				type: 'time',
 				color: 'text-yellow-500',
@@ -72,14 +74,14 @@ export function TeamStatsGrid({
 				showProgress: true
 			},
 			{
-				title: 'Total Hours',
+				title: t('common.teamStats.TOTAL_HOURS'),
 				value: timeValue,
 				type: 'time',
 				color: 'text-green-500',
 				showProgress: false
 			}
 		],
-		[timeValue, progress, statisticsCounts?.employeesCount]
+		[timeValue, progress, statisticsCounts?.employeesCount,t]
 	);
 
 	return (

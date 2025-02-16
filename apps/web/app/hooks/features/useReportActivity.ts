@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
 import {
+	getActivityReport,
 	getTimeLogReportDaily,
 	getTimeLogReportDailyChart,
 	getTimesheetStatisticsCounts
@@ -8,7 +9,7 @@ import {
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useQuery } from '../useQuery';
 import { useAtom } from 'jotai';
-import { timeLogsRapportChartState, timeLogsRapportDailyState, timesheetStatisticsCountsState } from '@/app/stores';
+import { activityReportState, timeLogsRapportChartState, timeLogsRapportDailyState, timesheetStatisticsCountsState } from '@/app/stores';
 import { TimeLogType } from '@/app/interfaces';
 import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
@@ -61,15 +62,19 @@ export function useReportActivity() {
 	const [rapportChartActivity, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
 	const [rapportDailyActivity, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
 	const [statisticsCounts, setStatisticsCounts] = useAtom(timesheetStatisticsCountsState);
-	const { allteamsState, alluserState } = useTimelogFilterOptions();
+	const [activityReport, setActivityReport] = useAtom(activityReportState);
+
+	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
 
 	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } =
 		useQuery(getTimeLogReportDailyChart);
 	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(getTimeLogReportDaily);
 	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } =
 		useQuery(getTimesheetStatisticsCounts);
+	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(getActivityReport);
 
 	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
+	const isManage = user && isUserAllowedToAccess(user);
 
 	// Memoize the merged props to avoid recalculation
 	const getMergedProps = useMemo(() => {
@@ -92,8 +97,10 @@ export function useReportActivity() {
 				projectIds: (customProps?.projectIds ||
 					currentFilters.projectIds ||
 					defaultProps.projectIds) as string[],
-				employeeIds: alluserState?.map(({ employee: { id } }) => id).filter(Boolean),
-				teamIds:allteamsState?.map(({ id }) => id).filter(Boolean),
+				employeeIds: isManage
+					? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+					: [user.employee.id],
+				teamIds: allteamsState?.map(({ id }) => id).filter(Boolean),
 				activityLevel: {
 					start:
 						customProps?.activityLevel?.start ??
@@ -109,7 +116,7 @@ export function useReportActivity() {
 			};
 			return merged as Required<UseReportActivityProps>;
 		};
-	}, [user?.employee.organizationId, user?.tenantId, currentFilters, alluserState, allteamsState]);
+	}, [user?.employee.organizationId, user?.employee.id, user?.tenantId, currentFilters, isManage, alluserState, allteamsState]);
 
 	// Generic fetch function to reduce code duplication
 	const fetchReport = useCallback(
@@ -117,7 +124,8 @@ export function useReportActivity() {
 			queryFn:
 				| typeof queryTimeLogReportDailyChart
 				| typeof queryTimeLogReportDaily
-				| typeof queryTimesheetStatisticsCounts,
+				| typeof queryTimesheetStatisticsCounts
+				| typeof queryActivityReport,
 			setData: ((data: T[]) => void) | null,
 			customProps?: Partial<UseReportActivityProps>
 		) => {
@@ -164,6 +172,12 @@ export function useReportActivity() {
 		[fetchReport, queryTimeLogReportDaily, setRapportDailyActivity]
 	);
 
+	const fetchActivityReport = useCallback(
+		(customProps?: Partial<UseReportActivityProps>) =>
+			fetchReport(queryActivityReport, setActivityReport, customProps),
+		[fetchReport, queryActivityReport, setActivityReport]
+	);
+
 	const fetchStatisticsCounts = useCallback(
 		async (customProps?: Partial<UseReportActivityProps>) => {
 			if (!user || !getMergedProps) {
@@ -200,10 +214,11 @@ export function useReportActivity() {
 			Promise.all([
 				fetchReportActivity(newProps),
 				fetchDailyReport(newProps),
-				fetchStatisticsCounts(newProps)
+				fetchStatisticsCounts(newProps),
+				fetchActivityReport(newProps)
 			]).catch(console.error);
 		},
-		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]
+		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport]
 	);
 
 	const updateFilters = useCallback(
@@ -211,28 +226,37 @@ export function useReportActivity() {
 			Promise.all([
 				fetchReportActivity(newFilters),
 				fetchDailyReport(newFilters),
-				fetchStatisticsCounts(newFilters)
+				fetchStatisticsCounts(newFilters),
+				fetchActivityReport(newFilters)
 			]).catch(console.error);
 		},
-		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]
+		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport]
 	);
 
 	useEffect(() => {
 		if (user) {
-			Promise.all([fetchReportActivity(), fetchDailyReport(), fetchStatisticsCounts()]).catch(console.error);
+			Promise.all([
+				fetchReportActivity(),
+				fetchDailyReport(),
+				fetchStatisticsCounts(),
+				fetchActivityReport()
+			]).catch(console.error);
 		}
-	}, [user, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
+	}, [user, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport]);
 
 	return {
 		loadingTimeLogReportDailyChart,
 		loadingTimeLogReportDaily,
 		loadingTimesheetStatisticsCounts,
+		loadingActivityReport,
 		rapportChartActivity,
 		rapportDailyActivity,
 		statisticsCounts,
+		activityReport,
 		updateDateRange,
 		updateFilters,
 		currentFilters,
-		setStatisticsCounts
+		setStatisticsCounts,
+		isManage
 	};
 }

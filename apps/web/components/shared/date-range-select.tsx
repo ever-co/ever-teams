@@ -25,10 +25,12 @@ import { useEffect, useMemo } from 'react';
 
 export function DatePickerWithRange({
 	onChange,
-	defaultValue
+	defaultValue,
+	className
 }: {
 	defaultValue: DateRange;
 	onChange: (dateRange: DateRange) => void;
+	className?: string;
 }) {
 	const [date, setDate] = React.useState<DateRange | undefined>(defaultValue);
 	const [selectedDate, setSelectedDate] = React.useState<DateRange | undefined>(defaultValue);
@@ -44,7 +46,8 @@ export function DatePickerWithRange({
 						className={cn(
 							'w-[16rem] h-[2.2rem] justify-start text-left font-light',
 							!date && 'text-muted-foreground',
-							'overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent'
+							'overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent',
+							className
 						)}
 					>
 						<CalendarIcon />

@@ -1,8 +1,10 @@
+import { cn } from '@/lib/utils';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@components/ui/select';
 import { useMemo, useState, useCallback } from 'react';
 
 interface IProps {
 	onChange: (mode: TExportMode) => void;
+	className?: string;
 }
 
 /**
@@ -17,7 +19,7 @@ interface IProps {
 
 type TExportMode = 'Excel' | 'PDF';
 export function ExportModeSelect(props: IProps) {
-	const { onChange } = props;
+	const { onChange, className } = props;
 	const options = useMemo<TExportMode[]>(() => ['Excel', 'PDF'], []);
 	const [selected, setSelected] = useState<TExportMode>();
 
@@ -31,7 +33,12 @@ export function ExportModeSelect(props: IProps) {
 
 	return (
 		<Select aria-label="Select export format" value={selected} onValueChange={handleChange}>
-			<SelectTrigger className="w-36 overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger
+				className={cn(
+					'w-32 overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent',
+					className
+				)}
+			>
 				<SelectValue placeholder="Export" />
 			</SelectTrigger>
 			<SelectContent>

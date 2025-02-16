@@ -26,6 +26,10 @@
 		"MEMBERS_WORKED": "חברים שעבדו",
 		"COLLAPSE_COLUMN": "כווץ עמודה",
 		"EXPAND_COLUMN": "הרחב עמודה",
+		"START_DATE": "תאריך התחלה",
+		"END_DATE": "תאריך סיום",
+		"MEMBERS": "חברים",
+		"MANAGERS": "מנהלים",
 		"EDIT_STATUS": "ערוך סטטוס",
 		"ADD_TIME_ENTRY": "הוסף כניסת זמן",
 		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על Ever Teams.",
@@ -244,6 +248,12 @@
 		"SELECT_TEAM_MEMBER": "בחר חבר צוות",
 		"ALL_MEMBERS": "כל החברים",
 		"NOT_WORKING": "לא עובד",
+		"COST_BASED": "מבוסס על עלות",
+		"HOURS_BASED": "מבוסס על שעות",
+		"MANAGER": "מנהל",
+		"BUDGET_TYPE": "סוג תקציב",
+		"CLEAR_FILTERS": "נקה סננים",
+		"APPLY_FILTERS": "החל סננים",
 		"WORKING": "עובד",
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
@@ -267,6 +277,21 @@
 			"SEE_PLANS": "ראה תוכניות",
 			"ADD_PLAN": "הוסף תוכנית",
 			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
+		},
+		"teamStats": {
+			"MEMBER": "חבר",
+			"MEMBERS_WORKED": "חברים שעבדו",
+			"TOTAL_TIME": "זמן כולל",
+			"TOTAL_HOURS": "סך השעות",
+			"TRACKED": "נעקב",
+			"MANUALLY_ADDED": "נוסף ידנית",
+			"MANUAL": "ידני",
+			"ACTIVE_TIME": "זמן פעיל",
+			"IDLE_TIME": "זמן סרק",
+			"IDLE": "לא פעיל",
+			"UNKNOWN_ACTIVITY": "פעילות לא ידועה",
+			"ACTIVITY_LEVEL": "רמת פעילות",
+			"NO_DATA_AVAILABLE": "לא יוכל להציג נתונים"
 		},
 		"timesheets": {
 			"SINGULAR": "דוח שעות",
@@ -376,6 +401,17 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "לוח Kanban"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "פרויקטים",
+				"SINGULAR": "פרויקט"
+			},
+			"CREATE_NEW_PROJECT": "צור פרויקט חדש",
+			"views": {
+				"LIST_VIEW": "תצוגת רשימה",
+				"GRID_VIEW": "תצוגת רשת"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]",

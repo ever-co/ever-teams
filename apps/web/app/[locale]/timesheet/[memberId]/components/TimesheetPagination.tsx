@@ -54,21 +54,22 @@ function TimesheetPagination({
 		// totalPages > 1
 		<>
 			{totalPages && totalPages > 1 && (
-				<Pagination className="flex flex-row justify-between items-center gap-4 w-full h-[64px] rounded-b-[6px] p-1">
+				<Pagination className="flex flex-row justify-between items-center gap-4 w-full h-[64px] rounded-b-[6px] p-2">
 					<div className="flex items-center gap-4 text-[#7E7991] font-medium">
-						<div>
+						<span className="text-[#71717A] text-[12px] whitespace-nowrap">
 							{dates?.length || 0} of {totalGroups || 0} row(s) selected
-						</div>
-						<div className="flex gap-x-3 justify-start items-center">
-							<span>Rows per page</span>
+						</span>
+					</div>
+					<PaginationContent className="flex justify-end w-full">
+					<div className="flex gap-x-3 justify-start items-center pr-2">
+							<span className="text-sm whitespace-nowrap">Rows per page</span>
 							<Select
 								value={pageSize?.toString()}
-								onValueChange={(value) => onPageSizeChange?.(Number(value))}
-							>
-								<SelectTrigger className="w-[100px]">
+								onValueChange={(value) => onPageSizeChange?.(Number(value))}>
+								<SelectTrigger className="w-[80px] border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px] dark:bg-dark--theme-light bg-white">
 									<SelectValue placeholder="Page size" />
 								</SelectTrigger>
-								<SelectContent>
+								<SelectContent className="bg-white dark:bg-dark--theme-light">
 									{pageSizeOptions.map((size) => (
 										<SelectItem key={size} value={size.toString()}>
 											{size}
@@ -76,9 +77,8 @@ function TimesheetPagination({
 									))}
 								</SelectContent>
 							</Select>
+							<span className="text-sm whitespace-nowrap">Page {currentPage} of {totalPages}</span>
 						</div>
-					</div>
-					<PaginationContent className="flex justify-end w-full">
 						<PaginationItem>
 							<button
 								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 bg-white dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px]"
@@ -113,9 +113,6 @@ function TimesheetPagination({
 							</button>
 						</PaginationItem>
 					</PaginationContent>
-					<div>
-						Page {currentPage} of {totalPages}
-					</div>
 				</Pagination>
 			)}
 		</>
