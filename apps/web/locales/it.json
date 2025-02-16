@@ -27,6 +27,10 @@
 		"COLLAPSE_COLUMN": "Comprimi colonna",
 		"EXPAND_COLUMN": "Espandi colonna",
 		"EDIT_STATUS": "Modifica stato",
+		"START_DATE": "Data di inizio",
+		"END_DATE": "Data di fine",
+		"MEMBERS": "Membri",
+		"MANAGERS": "Manager",
 		"ADD_TIME_ENTRY": "Aggiungi voce di tempo",
 		"OPT_IN_UPDATES": "Acconsenti a ricevere aggiornamenti e notizie su Ever Teams.",
 		"SUBSCRIBE_NEWSLETTER": "Iscriviti alla nostra newsletter",
@@ -281,6 +285,21 @@
 			"ADD_PLAN": "Aggiungi Piano",
 			"DELETE_THIS_PLAN": "Elimina questo piano"
 		},
+		"teamStats": {
+			"MEMBER": "Membro",
+			"MEMBERS_WORKED": "Membri che Hanno Lavorato",
+			"TOTAL_TIME": "Tempo Totale",
+			"TOTAL_HOURS": "Ore Totali",
+			"TRACKED": "Tracciato",
+			"MANUALLY_ADDED": "Aggiunto Manualmente",
+			"MANUAL": "Manuale",
+			"ACTIVE_TIME": "Tempo Attivo",
+			"IDLE_TIME": "Tempo Inattivo",
+			"IDLE": "Inattivo",
+			"UNKNOWN_ACTIVITY": "Attività Sconosciuta",
+			"ACTIVITY_LEVEL": "Livello di Attività",
+			"NO_DATA_AVAILABLE": "Nessun Dato Disponibile"
+		},
 		"COPY_ISSUE_LINK": "Copia collegamento problema",
 		"MAKE_A_COPY": "Fai una copia",
 		"ASSIGNEE": "Assegnatario",
@@ -309,6 +328,12 @@
 		"LAST_WEEK": "La settimana scorsa",
 		"THIS_MONTH": "Questo mese",
 		"LAST_MONTH": "Il mese scorso",
+		"COST_BASED": "Basato sui costi",
+		"HOURS_BASED": "Basato sulle ore",
+		"MANAGER": "Manager",
+		"BUDGET_TYPE": "Tipo di budget",
+		"CLEAR_FILTERS": "Pulisci filtri",
+		"APPLY_FILTERS": "Applica filtri",
 		"LAST_TWO_WEEKS": "Ultime due settimane",
 		"DATE": "Data",
 		"WEEK": "Settimana",
@@ -382,6 +407,17 @@
 			"MEMBER_NOT_FOUND_MSG_1": "Il membro che stai cercando non esiste in un team, prova a cercare con una query diversa.",
 			"MEMBER_NOT_FOUND_MSG_2": "Se stai cercando un membro in un team diverso, seleziona il team dal menu a discesa sopra.",
 			"GO_TO_HOME": "Vai alla Home"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Progetti",
+				"SINGULAR": "Progetto"
+			},
+			"CREATE_NEW_PROJECT": "Crea nuovo progetto",
+			"views": {
+				"LIST_VIEW": "Vista elenco",
+				"GRID_VIEW": "Vista griglia"
+			}
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",

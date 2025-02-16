@@ -27,6 +27,10 @@
 		"COLLAPSE_COLUMN": "Réduire la colonne",
 		"EXPAND_COLUMN": "Développer la colonne",
 		"EDIT_STATUS": "Modifier le statut",
+		"START_DATE": "Date de début",
+		"END_DATE": "Date de fin",
+		"MEMBERS": "Membres",
+		"MANAGERS": "Gestionnaires",
 		"ADD_TIME_ENTRY": "Ajouter une entrée de temps",
 		"OPT_IN_UPDATES": "Acceptez de recevoir des mises à jour et des nouvelles sur Ever Teams.",
 		"SUBSCRIBE_NEWSLETTER": "Abonnez-vous à notre newsletter",
@@ -245,6 +249,12 @@
 		"ALL_MEMBERS": "Tous les membres",
 		"NOT_WORKING": "Non actif",
 		"WORKING": "Actif",
+		"COST_BASED": "Basé sur les coûts",
+		"HOURS_BASED": "Basé sur les heures",
+		"MANAGER": "Gestionnaire",
+		"BUDGET_TYPE": "Type de budget",
+		"CLEAR_FILTERS": "Effacer les filtres",
+		"APPLY_FILTERS": "Appliquer les filtres",
 		"PAUSED": "En pause",
 		"ONLINE": "En ligne",
 		"SKIP_ADD_LATER": "Ajouter plus tard",
@@ -267,6 +277,22 @@
 			"SEE_PLANS": "Voir les plans",
 			"ADD_PLAN": "Ajouter un plan",
 			"DELETE_THIS_PLAN": "Supprimer ce plan"
+		},
+		"teamStats": {
+			"MEMBER": "Membre",
+			"MEMBERS_WORKED": "Membres Ayant Travaillé",
+			"TOTAL_TIME": "Temps Total",
+			"TOTAL_HOURS": "Heures Totales",
+			"TRACKED": "Suivi",
+			"MANUALLY_ADDED": "Ajouté Manuellement",
+			"MANUAL": "Manuel",
+			"ACTIVE_TIME": "Temps Actif",
+			"IDLE_TIME": "Temps Inactif",
+			"IDLE": "Inactif",
+			"UNKNOWN_ACTIVITY": "Activité Inconnue",
+			"ACTIVITY_LEVEL": "Niveau d’Activité",
+			"NO_DATA_AVAILABLE": "Aucune donnée disponible"
+
 		},
 		"timesheets": {
 			"SINGULAR": "Feuille de temps",
@@ -414,6 +440,17 @@
 			"TASK_IS_ALREADY_EPIC": "Le type de tâche épique ne peut pas être modifié.",
 			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent.",
 			"PROJECT": "Projet"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projets",
+				"SINGULAR": "Projet"
+			},
+			"CREATE_NEW_PROJECT": "Créer un nouveau projet",
+			"views": {
+				"LIST_VIEW": "Vue liste",
+				"GRID_VIEW": "Vue grille"
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Vous êtes sur le point de supprimer le statut {statusName} qui est utilisé par des tâches actives ; veuillez confirmer l'action"

@@ -24,6 +24,10 @@
 		"TASKS": "Zadania",
 		"MEN_HOURS": "Roboczogodziny",
 		"MEMBERS_WORKED": "Członkowie pracowali",
+		"START_DATE": "Data rozpoczęcia",
+		"END_DATE": "Data zakończenia",
+		"MEMBERS": "Członkowie",
+		"MANAGERS": "Menadżerowie",
 		"COLLAPSE_COLUMN": "Zwiń kolumnę",
 		"EXPAND_COLUMN": "Rozwiń kolumnę",
 		"EDIT_STATUS": "Edytuj status",
@@ -281,6 +285,21 @@
 			"ADD_PLAN": "Dodaj plan",
 			"DELETE_THIS_PLAN": "Usuń ten plan"
 		},
+		"teamStats": {
+			"MEMBER": "Członek",
+			"MEMBERS_WORKED": "Członkowie, Którzy Pracowali",
+			"TOTAL_TIME": "Łączny Czas",
+			"TOTAL_HOURS": "Łączne Godziny",
+			"TRACKED": "Śledzony",
+			"MANUALLY_ADDED": "Dodany Ręcznie",
+			"MANUAL": "Ręczny",
+			"ACTIVE_TIME": "Czas Aktywny",
+			"IDLE_TIME": "Czas Bezczynności",
+			"IDLE": "Bezczynny",
+			"UNKNOWN_ACTIVITY": "Nieznana Aktywność",
+			"ACTIVITY_LEVEL": "Poziom Aktywności",
+			"NO_DATA_AVAILABLE": "Brak dostępnych danych"
+		},
 		"COPY_ISSUE_LINK": "Skopiuj link do zgłoszenia",
 		"MAKE_A_COPY": "Zrób kopię",
 		"ASSIGNEE": "Cesjonariusz",
@@ -307,6 +326,12 @@
 		"PICK_A_DATE": "Wybierz datę",
 		"THIS_WEEK": "Ten tydzień",
 		"LAST_WEEK": "Ostatni tydzień",
+		"COST_BASED": "Na podstawie kosztów",
+		"HOURS_BASED": "Na podstawie godzin",
+		"MANAGER": "Menadżer",
+		"BUDGET_TYPE": "Typ budżetu",
+		"CLEAR_FILTERS": "Wyczyść filtry",
+		"APPLY_FILTERS": "Zastosuj filtry",
 		"THIS_MONTH": "Ten miesiąc",
 		"LAST_MONTH": "Ostatni miesiąc",
 		"LAST_TWO_WEEKS": "Ostatnie dwa tygodnie",
@@ -417,6 +442,17 @@
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Zaraz usuniesz status {statusName}, który jest używany przez aktywne zadania; proszę potwierdzić akcję"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projekty",
+				"SINGULAR": "Projekt"
+			},
+			"CREATE_NEW_PROJECT": "Utwórz nowy projekt",
+			"views": {
+				"LIST_VIEW": "Widok listy",
+				"GRID_VIEW": "Widok siatki"
+			}
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",

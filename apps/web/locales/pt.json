@@ -26,6 +26,10 @@
 		"MEMBERS_WORKED": "Membros Trabalharam",
 		"COLLAPSE_COLUMN": "Colapsar Coluna",
 		"EXPAND_COLUMN": "Expandir Coluna",
+		"START_DATE": "Data de início",
+		"END_DATE": "Data de término",
+		"MEMBERS": "Membros",
+		"MANAGERS": "Gerentes",
 		"EDIT_STATUS": "Editar Status",
 		"ADD_TIME_ENTRY": "Adicionar Entrada de Tempo",
 		"OPT_IN_UPDATES": "Concorde em receber atualizações e notícias sobre Ever Teams.",
@@ -282,10 +286,31 @@
 			"ADD_PLAN": "Adicionar Plano",
 			"DELETE_THIS_PLAN": "Excluir este plano"
 		},
+		"teamStats": {
+			"MEMBER": "Membro",
+			"MEMBERS_WORKED": "Membros que Trabalharam",
+			"TOTAL_TIME": "Tempo Total",
+			"TOTAL_HOURS": "Horas Totais",
+			"TRACKED": "Rastreado",
+			"MANUALLY_ADDED": "Adicionado Manualmente",
+			"MANUAL": "Manual",
+			"ACTIVE_TIME": "Tempo Ativo",
+			"IDLE_TIME": "Tempo Inativo",
+			"IDLE": "Inativo",
+			"UNKNOWN_ACTIVITY": "Atividade Desconhecida",
+			"ACTIVITY_LEVEL": "Nível de Atividade",
+			"NO_DATA_AVAILABLE": "Nenhum dado disponível"
+		},
 		"COPY_ISSUE_LINK": "Copiar link do problema",
 		"MAKE_A_COPY": "Fazer uma cópia",
 		"ASSIGNEE": "Cessionário",
 		"CHANGE_RELATIONS": "Alterar relações",
+		"COST_BASED": "Baseado em custo",
+		"HOURS_BASED": "Baseado em horas",
+		"MANAGER": "Gerente",
+		"BUDGET_TYPE": "Tipo de orçamento",
+		"CLEAR_FILTERS": "Limpar filtros",
+		"APPLY_FILTERS": "Aplicar filtros",
 		"SET_AS_NEXT": "Definir como o próximo",
 		"MOVE_TO": "Mover para",
 		"SELECT_DATE": "Selecionar data",
@@ -418,6 +443,17 @@
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Está prestes a eliminar o status {statusName} que está a ser usado por tarefas ativas; por favor, confirme a ação"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projetos",
+				"SINGULAR": "Projeto"
+			},
+			"CREATE_NEW_PROJECT": "Criar novo projeto",
+			"views": {
+				"LIST_VIEW": "Vista de lista",
+				"GRID_VIEW": "Vista em grade"
+			}
 		},
 		"auth": {
 			"SEND_CODE": "enviar código",

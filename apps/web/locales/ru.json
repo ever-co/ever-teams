@@ -26,6 +26,10 @@
 		"MEMBERS_WORKED": "Члены, которые работали",
 		"COLLAPSE_COLUMN": "Свернуть столбец",
 		"EXPAND_COLUMN": "Развернуть столбец",
+		"START_DATE": "Дата начала",
+		"END_DATE": "Дата окончания",
+		"MEMBERS": "Участники",
+		"MANAGERS": "Менеджеры",
 		"EDIT_STATUS": "Редактировать статус",
 		"ADD_TIME_ENTRY": "Добавить запись времени",
 		"OPT_IN_UPDATES": "Согласитесь получать обновления и новости о Ever Teams.",
@@ -281,6 +285,21 @@
 			"ADD_PLAN": "Agregar Plan",
 			"DELETE_THIS_PLAN": "Удалить этот план"
 		},
+		"teamStats": {
+			"MEMBER": "Участник",
+			"MEMBERS_WORKED": "Участники, Которые Работали",
+			"TOTAL_TIME": "Общее Время",
+			"TOTAL_HOURS": "Общее Количество Часов",
+			"TRACKED": "Отслежено",
+			"MANUALLY_ADDED": "Добавлено Вручную",
+			"MANUAL": "Вручную",
+			"ACTIVE_TIME": "Активное Время",
+			"IDLE_TIME": "Время Бездействия",
+			"IDLE": "Бездействие",
+			"UNKNOWN_ACTIVITY": "Неизвестная Активность",
+			"ACTIVITY_LEVEL": "Уровень Активности",
+			"NO_DATA_AVAILABLE": "Нет доступных данных"
+		},
 		"COPY_ISSUE_LINK": "Скопировать ссылку на проблему",
 		"MAKE_A_COPY": "Сделать копию",
 		"ASSIGNEE": "Исполнитель",
@@ -289,6 +308,12 @@
 		"MOVE_TO": "Переместить в",
 		"SELECT_DATE": "Выберите дату",
 		"SELECT_AND_CLOSE": "Выбрать и закрыть",
+		"COST_BASED": "Основано на стоимости",
+		"HOURS_BASED": "Основано на часах",
+		"MANAGER": "Менеджер",
+		"BUDGET_TYPE": "Тип бюджета",
+		"CLEAR_FILTERS": "Очистить фильтры",
+		"APPLY_FILTERS": "Применить фильтры",
 		"SORT": "Сортировать",
 		"ICON": "Иконка",
 		"SELECT_ROLE": "Пожалуйста, выберите роль",
@@ -414,6 +439,17 @@
 			"TASK_IS_ALREADY_EPIC": "Тип задачи 'Epic' не может быть изменен.",
 			"TASK_HAS_PARENT": "Тип задачи не может быть изменен, так как у задачи уже есть родитель.",
 			"PROJECT": "Проект"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Проекты",
+				"SINGULAR": "Проект"
+			},
+			"CREATE_NEW_PROJECT": "Создать новый проект",
+			"views": {
+				"LIST_VIEW": "Список",
+				"GRID_VIEW": "Сетка"
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Вы собираетесь удалить статус {statusName}, который используется активными задачами; пожалуйста, подтвердите действие"

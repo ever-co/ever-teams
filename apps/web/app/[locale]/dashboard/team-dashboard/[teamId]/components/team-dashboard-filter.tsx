@@ -7,8 +7,10 @@ import { MultiSelect } from '@/lib/components/custom-select';
 import { cn } from '@/lib/utils';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useTimelogFilterOptions } from '@/app/hooks';
-
-export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
+interface TeamDashboardFilterProps {
+	isManage?: boolean;
+}
+export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({ isManage }: TeamDashboardFilterProps) {
 	const t = useTranslations();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { allteamsState, setAllTeamsState, alluserState, setAllUserState } = useTimelogFilterOptions();
@@ -61,7 +63,8 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 										className={cn(
 											'text-primary/10',
 											allteamsState.length > 0 && 'text-primary dark:text-primary-light'
-										)}>
+										)}
+									>
 										{t('common.CLEAR')} ({allteamsState.length})
 									</span>
 								</label>
@@ -77,35 +80,37 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter() {
 								/>
 							</div>
 
-							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
-									<span
-										className={cn(
-											'text-primary/10',
-											alluserState.length > 0 && 'text-primary dark:text-primary-light'
-										)}
-									>
-										{t('common.CLEAR')} ({alluserState.length})
-									</span>
-								</label>
-								<MultiSelect
-									localStorageKey="team-dashboard-select-filter-employee"
-									removeItems={shouldRemoveItems}
-									items={allteamsState.flatMap((team) => {
-										const members = team.members ?? [];
-										return members.filter((member) => member && member.employee);
-									})}
-									itemToString={(member) => {
-										if (!member?.employee) return '';
-										return member.employee.fullName || t('manualTime.EMPLOYEE');
-									}}
-									itemId={(item) => item.id}
-									onValueChange={(selectedItems) => setAllUserState(selectedItems as any)}
-									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
-								/>
-							</div>
+							{isManage && (
+								<div className="">
+									<label className="flex justify-between mb-1 text-sm text-gray-600">
+										<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
+										<span
+											className={cn(
+												'text-primary/10',
+												alluserState.length > 0 && 'text-primary dark:text-primary-light'
+											)}
+										>
+											{t('common.CLEAR')} ({alluserState.length})
+										</span>
+									</label>
+									<MultiSelect
+										localStorageKey="team-dashboard-select-filter-employee"
+										removeItems={shouldRemoveItems}
+										items={allteamsState.flatMap((team) => {
+											const members = team.members ?? [];
+											return members.filter((member) => member && member.employee);
+										})}
+										itemToString={(member) => {
+											if (!member?.employee) return '';
+											return member.employee.fullName || t('manualTime.EMPLOYEE');
+										}}
+										itemId={(item) => item.id}
+										onValueChange={(selectedItems) => setAllUserState(selectedItems as any)}
+										multiSelect={true}
+										triggerClassName="dark:border-gray-700"
+									/>
+								</div>
+							)}
 
 							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button

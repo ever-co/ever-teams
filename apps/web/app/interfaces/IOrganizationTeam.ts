@@ -101,6 +101,7 @@ export interface OT_Member {
 	totalWorkedTasks: ITasksTimesheet[];
 	timerStatus?: ITimerStatusEnum;
 	activeTaskId?: string;
+	isManager: boolean;
 }
 
 export type ITimerStatusEnum = 'running' | 'idle' | 'pause' | 'online' | 'suspended';
