@@ -401,17 +401,22 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 	});
 
 	useEffect(() => {
-		const lastSorting = JSON.parse(
-			localStorage.getItem(PROJECTS_TABLE_VIEW_LAST_SORTING) as string
-		) as SortingState;
-
-		if (lastSorting) {
-			setSorting(lastSorting);
+		try {
+			const stored = localStorage.getItem(PROJECTS_TABLE_VIEW_LAST_SORTING);
+			if (stored) {
+				const lastSorting = JSON.parse(stored) as SortingState;
+				setSorting(lastSorting);
+			}
+		} catch (error) {
+			console.error('Failed to load sorting preferences:', error);
 		}
 	}, []);
-
 	useEffect(() => {
-		localStorage.setItem(PROJECTS_TABLE_VIEW_LAST_SORTING, JSON.stringify(sorting));
+		try {
+			localStorage.setItem(PROJECTS_TABLE_VIEW_LAST_SORTING, JSON.stringify(sorting));
+		} catch (error) {
+			console.error('Failed to save sorting preferences:', error);
+		}
 	}, [sorting]);
 
 	return (
