@@ -21,12 +21,12 @@ import { useTranslations } from 'next-intl';
 import { IProject } from '@/app/interfaces';
 import { cn } from '@/lib/utils';
 import { useTaskStatus } from '@/app/hooks';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ArrowUpDown } from 'lucide-react';
-import { Button } from '@components/ui/button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
 import { SpinnerLoader } from '@/lib/components';
+import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 
 export type ProjectTableDataType = {
 	project: {
@@ -62,7 +62,6 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 	const [rowSelection, setRowSelection] = React.useState({});
 	const t = useTranslations();
 	const { taskStatus } = useTaskStatus();
-
 	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
 		return new Map(taskStatus.map((status) => [status.name, status.color]));
 	}, [taskStatus]);
@@ -90,13 +89,42 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'project',
-			header: ({ column }) => {
+			id: 'project',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('pages.projects.projectTitle.PLURAL')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => {
+							column.toggleSorting(undefined, true);
+						}}
+					>
+						<span>{t('pages.projects.projectTitle.PLURAL')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.project.name;
+				const b = rowB.original.project.name;
+
+				if (a && b) {
+					if (a.toLowerCase() < b.toLowerCase()) return -1;
+					if (a.toLowerCase() > b.toLowerCase()) return 1;
+				}
+				return 0;
 			},
 			cell: function ({ row }) {
 				return (
@@ -128,13 +156,40 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'status',
-			header: ({ column }) => {
+			id: 'status',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('common.STATUS')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => column.toggleSorting(undefined, true)}
+					>
+						<span>{t('common.STATUS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableMultiSort: true,
+			enableSorting: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.status;
+				const b = rowB.original.status;
+
+				if (a && b) {
+					if (a.toLowerCase() < b.toLowerCase()) return -1;
+					if (a.toLowerCase() > b.toLowerCase()) return 1;
+				}
+				return 0;
 			},
 			cell: ({ row }) => {
 				return (
@@ -151,13 +206,38 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'startDate',
-			header: ({ column }) => {
+			id: 'startDate',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('common.START_DATE')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => {
+							column.toggleSorting(undefined, true);
+						}}
+					>
+						<span>{t('common.START_DATE')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.startDate ? moment(rowA.original.startDate).toDate() : new Date(0); // Default to epoch if no date
+				const b = rowB.original.startDate ? moment(rowB.original.startDate).toDate() : new Date(0);
+
+				return b.getTime() - a.getTime();
 			},
 			cell: ({ row }) => (
 				<div className="">
@@ -167,21 +247,63 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'endDate',
-			header: ({ column }) => {
+			id: 'endDate',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('common.END_DATE')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => column.toggleSorting(undefined, true)}
+					>
+						<span>{t('common.END_DATE')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.endDate ? moment(rowA.original.endDate).toDate() : new Date(0); // Default to epoch if no date
+				const b = rowB.original.endDate ? moment(rowB.original.endDate).toDate() : new Date(0);
+
+				return b.getTime() - a.getTime();
 			},
 			cell: ({ row }) => (
 				<div className="">{row.original?.endDate && moment(row.original?.endDate).format('MMM. DD YYYY')}</div>
 			)
 		},
+
 		{
 			accessorKey: 'members',
-			header: () => <div>{t('common.MEMBERS')}</div>,
+			id: 'members',
+			header: ({ column }) => {
+				const isSort = column.getIsSorted();
+				return (
+					<div className="flex items-center cursor-pointer  gap-2">
+						<span>{t('common.MEMBERS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
 			cell: ({ row }) => {
 				const members =
 					row.original?.members
@@ -196,7 +318,25 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'teams',
-			header: () => <div>{t('common.TEAMS')}</div>,
+			id: 'teams',
+			header: ({ column }) => {
+				const isSort = column.getIsSorted();
+				return (
+					<div className="flex items-center cursor-pointer  gap-2">
+						<span>{t('common.TEAMS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
 			cell: ({ row }) => {
 				const teams =
 					row.original?.teams?.map((el) => ({
@@ -208,7 +348,25 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'managers',
-			header: () => <div>{t('common.MANAGERS')}</div>,
+			id: 'managers',
+			header: ({ column }) => {
+				const isSort = column.getIsSorted();
+				return (
+					<div className="flex items-center cursor-pointer  gap-2">
+						<span>{t('common.MANAGERS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
 			cell: ({ row }) => {
 				const managers =
 					row.original?.managers
@@ -242,9 +400,24 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		}
 	});
 
-	React.useEffect(() => {
-		console.log(loading);
-	}, [loading]);
+	useEffect(() => {
+		try {
+			const stored = localStorage.getItem(PROJECTS_TABLE_VIEW_LAST_SORTING);
+			if (stored) {
+				const lastSorting = JSON.parse(stored) as SortingState;
+				setSorting(lastSorting);
+			}
+		} catch (error) {
+			console.error('Failed to load sorting preferences:', error);
+		}
+	}, []);
+	useEffect(() => {
+		try {
+			localStorage.setItem(PROJECTS_TABLE_VIEW_LAST_SORTING, JSON.stringify(sorting));
+		} catch (error) {
+			console.error('Failed to save sorting preferences:', error);
+		}
+	}, [sorting]);
 
 	return (
 		<div className="w-full">
