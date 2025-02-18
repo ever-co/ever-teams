@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import { useState } from 'react';
 import AddOrEditContainer from './container';
+import FinancialSettingsForm from './steps/financial-settings';
 import BasicInformationForm from './steps/basic-information';
 
 interface IAddOrEditProjectModallProps {
@@ -22,20 +23,6 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 
 	const [steps, setSteps] = useState(initialSteps);
 	const [currentStep, setCurrentStep] = useState(0);
-
-	const nextStep = () => {
-		setSteps((prevSteps) =>
-			prevSteps.map((step, index) => ({
-				...step,
-				isCompleted: index < currentStep + 1
-			}))
-		);
-		setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-	};
-
-	const prevStep = () => {
-		setCurrentStep((prev) => Math.max(prev - 1, 0));
-	};
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>
@@ -73,7 +60,8 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 				</div>
 				<div className="w-full">
 					<AddOrEditContainer>
-						<BasicInformationForm />
+						{/* <BasicInformationForm /> */}
+						<FinancialSettingsForm />
 					</AddOrEditContainer>
 				</div>
 			</Card>

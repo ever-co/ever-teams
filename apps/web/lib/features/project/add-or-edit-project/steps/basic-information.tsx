@@ -1,4 +1,4 @@
-import { InputField } from '@/lib/components';
+import { Button, InputField } from '@/lib/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@components/ui/calendar';
 import { Popover } from '@headlessui/react';
@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 
 export default function BasicInformationForm() {
 	return (
-		<div className="w-full space-y-5 py-4">
+		<div className="w-full space-y-5 pt-4">
 			<div className="flex w-full gap-1 flex-col">
 				<label htmlFor="project_title" className=" text-xs font-medium">
 					Project Title
@@ -81,6 +81,9 @@ export default function BasicInformationForm() {
 					</div>
 					<input id="dropzone-file" type="file" className="hidden" />
 				</label>
+			</div>
+			<div className="w-full flex items-center justify-end">
+				<Button className=" h-[2.5rem]">Next</Button>
 			</div>
 		</div>
 	);
