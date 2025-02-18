@@ -5,6 +5,7 @@ import { useState } from 'react';
 import AddOrEditContainer from './container';
 import FinancialSettingsForm from './steps/financial-settings';
 import BasicInformationForm from './steps/basic-information';
+import CategorizationForm from './steps/categorization-form';
 
 interface IAddOrEditProjectModallProps {
 	open: boolean;
@@ -61,7 +62,8 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 				<div className="w-full">
 					<AddOrEditContainer>
 						{/* <BasicInformationForm /> */}
-						<FinancialSettingsForm />
+						{/* <FinancialSettingsForm /> */}
+						<CategorizationForm />
 					</AddOrEditContainer>
 				</div>
 			</Card>
