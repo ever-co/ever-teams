@@ -19,6 +19,7 @@ import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
+import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -29,6 +30,7 @@ function PageComponent() {
 		closeModal: closeFiltersCardModal,
 		openModal: openFiltersCardModal
 	} = useModal();
+	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
 	const { isTrackingEnabled } = useOrganizationTeams();
 	const lastSelectedView = useMemo(() => {
 		try {
@@ -153,7 +155,7 @@ function PageComponent() {
 							</div>
 
 							<div className="h-full flex items-end">
-								<Button variant="grey" className=" text-primary font-medium">
+								<Button onClick={openProjectModal} variant="grey" className=" text-primary font-medium">
 									<Plus size={15} /> <span>{t('pages.projects.CREATE_NEW_PROJECT')}</span>
 								</Button>
 							</div>
@@ -233,6 +235,7 @@ function PageComponent() {
 					) : null}
 				</div>
 				<FiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
+				<AddOrEditProjectModal closeModal={closeProjectModal} open={isProjectModalOpen} />
 			</div>
 		</MainLayout>
 	);
