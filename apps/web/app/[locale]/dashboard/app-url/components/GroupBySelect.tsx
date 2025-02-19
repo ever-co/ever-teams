@@ -1,9 +1,10 @@
 'use client';
 
+import { GroupByType } from '@/app/hooks/features/useReportActivity';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface GroupBySelectProps {
-    onGroupByChange?: (value: string) => void;
+    onGroupByChange?: (value: GroupByType) => void;
 }
 
 export function GroupBySelect({ onGroupByChange }: GroupBySelectProps) {

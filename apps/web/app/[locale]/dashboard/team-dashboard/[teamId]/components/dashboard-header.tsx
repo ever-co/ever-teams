@@ -7,6 +7,7 @@ import { DateRange } from 'react-day-picker';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
 import { TeamDashboardFilter } from './team-dashboard-filter';
 import { GroupBySelect } from '../../../app-url/components/GroupBySelect';
+import { GroupByType } from '@/app/hooks/features/useReportActivity';
 
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
@@ -14,7 +15,7 @@ interface DashboardHeaderProps {
 	title?: string;
 	isManage?: boolean;
 	showGroupBy?: boolean;
-	onGroupByChange?: (value: string) => void;
+	onGroupByChange?: (value: GroupByType) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

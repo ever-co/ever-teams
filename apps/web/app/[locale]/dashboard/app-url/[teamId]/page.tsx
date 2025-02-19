@@ -7,16 +7,17 @@ import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
-import { Breadcrumb, Card, Container } from '@/lib/components';
+import { Breadcrumb, Container } from '@/lib/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { ProductivityStats } from '../components/ProductivityStats';
 import { ProductivityChart } from '../components/ProductivityChart';
 import { ProductivityHeader } from '../components/ProductivityHeader';
 import { ProductivityTable } from '../components/ProductivityTable';
+import { Card } from '@components/ui/card';
 
 interface ProductivityData {
 	date: string;
@@ -26,34 +27,36 @@ interface ProductivityData {
 }
 
 function AppUrls() {
-	// const { rapportDailyActivity } = useReportActivity();
-	const { isTrackingEnabled } = useOrganizationTeams();
-	const { updateDateRange, updateFilters, isManage } = useReportActivity();
-
-	const [groupBy, setGroupBy] = useState<string>('date');
-
-	const router = useRouter();
 	const t = useTranslations();
+	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
+	const { isTrackingEnabled } = useOrganizationTeams();
 
+	const {
+		activityReport,
+		loadingActivityReport,
+		handleGroupByChange,
+		updateDateRange,
+		updateFilters,
+		isManage
+	} = useReportActivity({ types: 'APPS-URLS' });
 
+	const generateMonthData = (date: Date): ProductivityData[] => {
+		const year = date.getFullYear();
+		const month = date.getMonth();
+		const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const generateMonthData = (date: Date): ProductivityData[] => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+		return Array.from({ length: daysInMonth }, (_, i) => ({
+			date: new Date(year, month, i + 1).toISOString().split('T')[0],
+			productive: Math.floor(Math.random() * 50) + 25,
+			neutral: Math.floor(Math.random() * 40) + 20,
+			unproductive: Math.floor(Math.random() * 35) + 15
+		}));
+	};
 
-    return Array.from({ length: daysInMonth }, (_, i) => ({
-      date: new Date(year, month, i + 1).toISOString().split('T')[0],
-      productive: Math.floor(Math.random() * 50) + 25,
-      neutral: Math.floor(Math.random() * 40) + 20,
-      unproductive: Math.floor(Math.random() * 35) + 15,
-    }));
-  };
-  const monthData = generateMonthData(new Date());
-
+	const monthData = generateMonthData(new Date());
 	const monthTotals = monthData.reduce(
 		(acc, day) => ({
 			productive: acc.productive + day.productive,
@@ -76,6 +79,8 @@ function AppUrls() {
 		[currentLocale, t]
 	);
 
+	const handleBack = () => router.back();
+
 	return (
 		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -86,7 +91,7 @@ function AppUrls() {
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
 						<div className="flex items-center pt-6 w-full">
 							<button
-								onClick={() => router.back()}
+								onClick={handleBack}
 								className="p-1 rounded-full transition-colors hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -100,12 +105,9 @@ function AppUrls() {
 								title="Apps & URLs Dashboard"
 								isManage={isManage}
 								showGroupBy={true}
-								onGroupByChange={()=>setGroupBy(groupBy)}
+								onGroupByChange={handleGroupByChange}
 							/>
-							<Card
-								shadow="bigger"
-								className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0"
-							>
+							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
 								<div className="flex flex-col gap-6 w-full">
 									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700">
 										<ProductivityHeader month="October" year={2024} />
@@ -126,7 +128,7 @@ function AppUrls() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<ProductivityTable />
+				<ProductivityTable data={activityReport} isLoading={loadingActivityReport} />
 			</Container>
 		</MainLayout>
 	);
