@@ -1,10 +1,11 @@
 import { Button, InputField } from '@/lib/components';
 import RichTextEditor from '../text-editor';
 import { Calendar } from '@components/ui/calendar';
-import { Popover } from '@headlessui/react';
+import { Listbox, Popover } from '@headlessui/react';
 import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, CheckIcon, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
+import { Fragment } from 'react';
 
 export default function BasicInformationForm() {
 	return (
@@ -69,9 +70,9 @@ export default function BasicInformationForm() {
 						>
 							<path
 								stroke="currentColor"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="1"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="1"
 								d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
 							/>
 						</svg>
@@ -88,6 +89,16 @@ export default function BasicInformationForm() {
 		</div>
 	);
 }
+
+/**
+ * ----------------------------------------------------------------
+ * Some common components for the project creation flow.
+ * ----------------------------------------------------------------
+ */
+
+/**
+ * Date picker
+ */
 
 interface IDatePickerProps {
 	className?: string;
@@ -125,5 +136,84 @@ export function DatePicker(props: IDatePickerProps) {
 				/>
 			</Popover.Panel>
 		</Popover>
+	);
+}
+
+/**
+ * Select (mono / multi)
+ */
+
+interface ISelectProps<IItem> {
+	options: IItem[];
+	selected: string | string[] | null;
+	placeholder?: string;
+	className?: string;
+	onChange?: (value: string | string[]) => void;
+	multiple?: boolean;
+	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
+}
+
+export function Select<T extends { value: string | number; id: string }>(props: ISelectProps<T>) {
+	const { options, placeholder, className, selected, onChange, renderItem, multiple } = props;
+
+	const isMulti = multiple ?? false;
+
+	return (
+		<div className="relative">
+			<Listbox multiple={isMulti} value={selected} onChange={onChange}>
+				<Listbox.Button
+					className={cn(
+						'w-full border rounded-lg flex items-center justify-between text-left px-2 py-1 text-xs h-[2.2rem]',
+						className
+					)}
+				>
+					<span className={cn(!selected?.length && 'text-gray-400')}>
+						{isMulti ? placeholder : options.find((el) => el.id == selected)?.value || placeholder}
+					</span>
+					<ChevronDown size={15} className=" text-gray-400" />
+				</Listbox.Button>
+				<Listbox.Options
+					className={cn(
+						'absolute z-20 text-xs top-11 border space-y-1 w-full bg-white rounded-md p-1 shadow-md'
+					)}
+				>
+					{options.map((item) => (
+						<Listbox.Option key={item.id} value={item.id} as={Fragment}>
+							{({ active, selected: isSelected }) => (
+								<li className={cn('text-xs cursor-pointer rounded ')}>
+									{renderItem ? (
+										renderItem(item, isSelected, active)
+									) : isMulti ? (
+										// Default multi-select render
+										<div className="w-full h-full p-1 px-2 flex items-center gap-2">
+											<span
+												className={cn(
+													'h-4 w-4 rounded border border-primary flex items-center justify-center',
+													isSelected && 'bg-primary text-primary-foreground'
+												)}
+											>
+												{isSelected && <CheckIcon size={10} />}
+											</span>
+											<span>{item.value}</span>
+										</div>
+									) : (
+										// Default single-select render
+										<div
+											className={cn(
+												'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
+												isSelected && 'bg-primary text-primary-foreground'
+											)}
+										>
+											{isSelected && <CheckIcon size={10} />}
+											<span className={cn(selected && !isSelected && 'pl-5')}>{item.value}</span>
+										</div>
+									)}
+								</li>
+							)}
+						</Listbox.Option>
+					))}
+				</Listbox.Options>
+			</Listbox>
+		</div>
 	);
 }

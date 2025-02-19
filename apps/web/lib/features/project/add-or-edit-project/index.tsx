@@ -3,8 +3,6 @@ import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import { useState } from 'react';
 import AddOrEditContainer from './container';
-import FinancialSettingsForm from './steps/financial-settings';
-import BasicInformationForm from './steps/basic-information';
 import CategorizationForm from './steps/categorization-form';
 
 interface IAddOrEditProjectModallProps {
@@ -64,6 +62,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 						{/* <BasicInformationForm /> */}
 						{/* <FinancialSettingsForm /> */}
 						<CategorizationForm />
+						{/* <TeamAndRelationsForm /> */}
 					</AddOrEditContainer>
 				</div>
 			</Card>
