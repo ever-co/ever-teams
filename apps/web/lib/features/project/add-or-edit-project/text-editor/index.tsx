@@ -18,6 +18,7 @@ import {
 } from '@components/pages/task/description-block/editor-components/TextEditorService';
 import Toolbar from './tool-bar';
 import { cn } from '@/lib/utils';
+import type { BaseElement as BsE } from 'slate';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -29,17 +30,17 @@ const HOTKEYS: { [key: string]: string } = {
 interface IRichTextProps {
 	defaultValue?: string;
 	readonly?: boolean;
-	handleTemplateChange?: (key: string, value: any) => void;
+	onChange?: (value: string) => void;
 }
 
-const RichTextEditor = ({ readonly }: IRichTextProps) => {
+const RichTextEditor = ({ readonly, onChange }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 	const editor = useMemo(() => withChecklists(withHtml(withHistory(withReact(createEditor())))), []);
 	const [task] = useAtom(detailedTaskState);
-	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-	const [editorValue, setEditorValue] = useState<any>();
+	const [editorValue, setEditorValue] = useState<any>([]);
 	const editorRef = useRef<HTMLDivElement>(null);
+	const [characters, setCharacters] = useState(0);
 
 	const initialValue = useMemo((): Descendant[] => {
 		let value;
@@ -83,20 +84,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 
 		// Insert array of children nodes
 		Transforms.insertNodes(editor, initialValue);
-
-		setIsUpdated(false);
 	};
-
-	const selectEmoji = (emoji: { native: string }) => {
-		const { selection } = editor;
-		if (selection) {
-			const [start] = Editor.edges(editor, selection);
-			Transforms.insertText(editor, emoji.native, { at: start });
-			Transforms.collapse(editor, { edge: 'end' });
-		}
-		setIsUpdated(false);
-	};
-
 	return (
 		<div>
 			<div className="flex flex-col prose border rounded-xl text-xs dark:prose-invert" ref={editorRef}>
@@ -105,18 +93,17 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					editor={editor}
 					value={editorValue}
 					onChange={(e) => {
+						const data = e as BsE[];
+						const texts = data.flatMap((el) => el.children) as { text: string }[];
 						setEditorValue(e);
-						setIsUpdated(true);
+						onChange?.(texts.map((el) => el.text).join(' '));
+						setCharacters(texts.map((el) => el.text).join(' ').length);
 					}}
 				>
-					<Toolbar
-						isMarkActive={isMarkActive}
-						isBlockActive={isBlockActive}
-						showEmojiIcon={true}
-						selectEmoji={selectEmoji}
-					/>
+					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} />
 
 					<Editable
+						onChange={(e) => console.log(e.target)}
 						className={cn(
 							'px-[.65rem] text-xs',
 							readonly
@@ -134,6 +121,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						placeholder="Insert a description here..."
 						spellCheck
 						readOnly={readonly}
+						maxLength={120}
 						onKeyDown={(event) => {
 							for (const hotkey in HOTKEYS) {
 								if (isHotkey(hotkey, event as any)) {
@@ -146,7 +134,10 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					/>
 				</Slate>
 			</div>
-			<div className="w-full flex text-gray-500 items-center text-xs py-[.125rem] px-2 justify-end">0/120</div>
+			<div className="w-full flex text-gray-500 items-center text-xs py-[.125rem] px-2 justify-end">
+				{characters}
+				/120
+			</div>
 		</div>
 	);
 };

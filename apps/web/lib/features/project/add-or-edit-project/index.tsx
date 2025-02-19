@@ -7,14 +7,14 @@ import TeamAndRelationsForm from './steps/team-and-relations-form';
 import BasicInformationForm from './steps/basic-information-form';
 import CategorizationForm from './steps/categorization-form';
 import FinancialSettingsForm from './steps/financial-settings-form';
-import FinalReview from './steps/final-review';
+import FinalReview from './steps/review-summary';
 
-interface IAddOrEditProjectModallProps {
+interface IAddOrEditProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 }
 
-export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProps) {
+export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps) {
 	const { open, closeModal } = props;
 
 	const initialSteps = [

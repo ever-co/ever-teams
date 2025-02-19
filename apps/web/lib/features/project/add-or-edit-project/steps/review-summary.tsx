@@ -21,7 +21,7 @@ export default function FinalReview(props: IStepElementProps) {
 						endDate="7.07.2024"
 						websiteUrl="https://dummyimage.com/16:9x1080/"
 						projectImageUrl="https://dummyimage.com/16:9x1080/"
-						description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vitae tincidunt augue. Pellentesque faucibus vulputate accumsan. Suspendisse et lectus dolor. Fusce at consectetur ante. Fusce quis sapien varius, ultrices dui a, porta justo. Sed egestas odio tempor eros vestibulum, sit amet tincidunt felis condimentum. Maecenas volutpat, odio eu feugiat iaculis, sem enim maximus tellus, non efficitur justo elit quis ligula. Sed accumsan finibus ligula at faucibus. Integer at velit in nisi ultrices semper. "
+						description="This is the project description ..."
 					/>
 					<FinancialSettings
 						budgetAmount="10000"
@@ -43,15 +43,15 @@ export default function FinalReview(props: IStepElementProps) {
 						colorCode="#BB87FC"
 					/>
 					<TeamAndRelations
-						managerIds={['sdfdf', 'fdfdfdf', 'fdfdfdfd']}
+						managerIds={['id1', 'id2', 'id3']}
 						relations={[
 							{
 								relation: 'is blocked by',
-								projectId: 'rerererer'
+								projectId: 'id'
 							},
 							{
 								relation: 'is related to',
-								projectId: 'dfdfdfdf'
+								projectId: 'id'
 							}
 						]}
 					/>
@@ -270,7 +270,7 @@ function Categorization(props: ICategorizationProps) {
 }
 
 /**
- * Team & Realtions
+ * Team & Relations
  */
 
 interface ITeamAndRelationsProps {

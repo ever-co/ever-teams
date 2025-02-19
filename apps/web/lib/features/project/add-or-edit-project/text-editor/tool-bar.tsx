@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import {
 	AlignCenterIcon,
 	AlignLeftIcon,
@@ -17,12 +16,9 @@ import BlockButton from '@components/pages/task/description-block/editor-compone
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
 	isBlockActive?: (editor: any, format: any, blockType?: string) => boolean;
-	selectEmoji?: (emoji: { native: string }) => void;
-	showEmojiIcon?: boolean;
 }
 
 const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
-	const t = useTranslations();
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const popupRef = useRef<any>(null);
 	const inputRef = useRef<any>(null);

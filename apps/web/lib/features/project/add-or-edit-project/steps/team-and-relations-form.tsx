@@ -1,30 +1,13 @@
 import { Button } from '@/lib/components';
 import { Plus, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { Select } from './basic-information-form';
+import { Identifiable, Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
-
-const membersData = [
-	{ id: '1', value: 'Jane Doe' },
-	{ id: '2', value: 'John Doe' },
-	{ id: '3', value: 'Alice Doe' },
-	{ id: '4', value: 'Bob Doe' },
-	{ id: '5', value: 'Charlie Doe' },
-	{ id: '6', value: 'David Doe' },
-	{ id: '7', value: 'Emily Doe' },
-	{ id: '8', value: 'Frank Doe' },
-	{ id: '9', value: 'Grace Doe' }
-];
+import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 
 const rolesData = [
 	{ id: '1', value: 'Manager' },
 	{ id: '2', value: 'Member' }
-];
-
-const projectsData = [
-	{ id: '1', value: 'Team A' },
-	{ id: '2', value: 'Team B' },
-	{ id: '3', value: 'Team C' }
 ];
 
 const relationTypesData = [
@@ -37,6 +20,8 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext } = props;
 	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>([]);
 	const [relations, setRelations] = useState<{ projectId: string; relationType: string; id: string }[]>([]);
+	const { organizationProjects } = useOrganizationProjects();
+	const { teams } = useOrganizationTeams();
 
 	const handleAddNewMember = useCallback(() => {
 		setMembers((prev) => [...prev, { id: crypto.randomUUID(), memberId: '', roleId: '' }]);
@@ -63,7 +48,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 						{members.length > 0 ? (
 							members.map((el) => (
 								<PairingItem
-									keys={membersData}
+									keys={teams
+										?.flatMap((el) => el.members)
+										?.map((el) => ({
+											id: el.id,
+											value: el.employee.fullName
+										}))}
 									values={rolesData}
 									onRemove={handleRemoveMember}
 									key={el.id}
@@ -93,12 +83,15 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 						{relations.length > 0 ? (
 							relations.map((el) => (
 								<PairingItem
-									keys={projectsData}
+									keys={organizationProjects?.map((el) => ({
+										id: el.id,
+										value: el.name ?? '-'
+									}))}
 									values={relationTypesData}
 									onRemove={handleRemoveRelation}
 									key={el.id}
 									id={el.id}
-									keysLabel="Select a peoject..."
+									keysLabel="Select a project..."
 									valuesLabel="Choose a relation type..."
 								/>
 							))
@@ -123,11 +116,6 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 			</div>
 		</div>
 	);
-}
-
-interface Identifiable {
-	id: string;
-	value: string | number;
 }
 
 interface IPairingItemProps<K extends Identifiable, V extends Identifiable> {
