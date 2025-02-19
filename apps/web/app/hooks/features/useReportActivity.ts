@@ -158,9 +158,6 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 			try {
 				const mergedProps = getMergedProps(customProps);
-				if (!mergedProps || !setData) {
-					return;
-				}
 
 				const response = await queryFn(mergedProps);
 
@@ -214,9 +211,6 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 			}
 			try {
 				const mergedProps = getMergedProps(customProps);
-				if (!mergedProps) {
-					return;
-				}
 				const response = await queryTimesheetStatisticsCounts({
 					...mergedProps,
 					logType: [TimeLogType.TRACKED]
