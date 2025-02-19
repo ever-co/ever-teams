@@ -158,12 +158,12 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 			try {
 				const mergedProps = getMergedProps(customProps);
-				// if (!mergedProps) {
-				// 	if (setData) {
-				// 		setData([]);
-				// 	}
-				// 	return;
-				// }
+				if (!mergedProps) {
+					if (setData) {
+						setData([]);
+					}
+					return;
+				}
 
 				const response = await queryFn(mergedProps);
 
