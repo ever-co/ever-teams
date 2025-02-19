@@ -5,8 +5,10 @@ import { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
+import { IStepElementProps } from '../container';
 
-export default function CategorizationForm() {
+export default function CategorizationForm(props: IStepElementProps) {
+	const { goToNext } = props;
 	const [value, setValue] = useState<string[]>([]);
 
 	return (
@@ -33,7 +35,7 @@ export default function CategorizationForm() {
 										<span
 											className={cn(
 												'h-4 w-4 rounded border border-primary flex items-center justify-center',
-												selected && 'bg-primary text-primary-foreground'
+												selected && 'bg-primary text-primary-foreground dark:text-white'
 											)}
 										>
 											{selected && <CheckIcon size={10} />}
@@ -69,7 +71,7 @@ export default function CategorizationForm() {
 										<span
 											className={cn(
 												'h-4 w-4 rounded border border-primary flex items-center justify-center',
-												selected && 'bg-primary text-primary-foreground'
+												selected && 'bg-primary text-primary-foreground dark:text-white'
 											)}
 										>
 											{selected && <CheckIcon size={10} />}
@@ -106,7 +108,9 @@ export default function CategorizationForm() {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button className=" h-[2.5rem]">Next</Button>
+				<Button onClick={goToNext} className=" h-[2.5rem]">
+					Next
+				</Button>
 			</div>
 		</div>
 	);

@@ -1,9 +1,13 @@
 import { Card, Modal } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import AddOrEditContainer from './container';
+import TeamAndRelationsForm from './steps/team-and-relations-form';
+import BasicInformationForm from './steps/basic-information-form';
 import CategorizationForm from './steps/categorization-form';
+import FinancialSettingsForm from './steps/financial-settings-form';
+import FinalReview from './steps/final-review';
 
 interface IAddOrEditProjectModallProps {
 	open: boolean;
@@ -23,6 +27,23 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 	const [steps, setSteps] = useState(initialSteps);
 	const [currentStep, setCurrentStep] = useState(0);
 
+	const onNextStep = useCallback(() => {
+		if (currentStep < steps.length - 1) {
+			const updatedSteps = [...steps];
+			updatedSteps[currentStep].isCompleted = true;
+			updatedSteps[currentStep + 1].isCompleted = false;
+			setCurrentStep(currentStep + 1);
+			setSteps(updatedSteps);
+		}
+
+		if (currentStep === steps.length - 1) {
+			const updatedSteps = [...steps];
+			updatedSteps[currentStep].isCompleted = true;
+			setCurrentStep(currentStep + 1);
+			setSteps(updatedSteps);
+		}
+	}, [currentStep, steps]);
+
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>
 			<Card className="w-full  h-full " shadow="custom">
@@ -36,12 +57,16 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 							<div key={step.id} className={cn('flex gap-2 items-center', !isLastStep && 'grow')}>
 								<div
 									className={cn(
-										'h-5 w-5 shrink-0 bg-gray-400 flex items-center justify-center rounded-full text-white',
+										'h-4 w-4 shrink-0 bg-gray-400 flex items-center justify-center rounded-full text-white',
 										step.isCompleted && 'bg-green-700 text-white',
 										isCurrent && 'bg-primary text-primary-foreground'
 									)}
 								>
-									{step.isCompleted ? <Check size={15} /> : <span>{step.id}</span>}
+									{step.isCompleted ? (
+										<Check size={10} />
+									) : (
+										<span className=" text-xs">{step.id}</span>
+									)}
 								</div>
 								<div
 									className={cn(
@@ -58,11 +83,27 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModallProp
 					})}
 				</div>
 				<div className="w-full">
-					<AddOrEditContainer>
-						{/* <BasicInformationForm /> */}
-						{/* <FinancialSettingsForm /> */}
-						<CategorizationForm />
-						{/* <TeamAndRelationsForm /> */}
+					<AddOrEditContainer onNext={onNextStep} step={currentStep}>
+						{
+							//@ts-ignore
+							<BasicInformationForm />
+						}
+						{
+							//@ts-ignore
+							<FinancialSettingsForm />
+						}
+						{
+							//@ts-ignore
+							<CategorizationForm />
+						}
+						{
+							//@ts-ignore
+							<TeamAndRelationsForm />
+						}
+						{
+							//@ts-ignore
+							<FinalReview />
+						}
 					</AddOrEditContainer>
 				</div>
 			</Card>

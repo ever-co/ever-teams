@@ -1,8 +1,10 @@
 import { Button, InputField } from '@/lib/components';
 import { useState } from 'react';
 import { Select } from './basic-information-form';
+import { IStepElementProps } from '../container';
 
-export default function FinancialSettingsForm() {
+export default function FinancialSettingsForm(props: IStepElementProps) {
+	const { goToNext } = props;
 	const [value, setValue] = useState<string | null>(null);
 
 	return (
@@ -30,6 +32,7 @@ export default function FinancialSettingsForm() {
 						</label>
 						<div className="w-full">
 							<InputField
+								type="number"
 								id="budget_amout"
 								placeholder="10 000$..."
 								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
@@ -77,7 +80,9 @@ export default function FinancialSettingsForm() {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button className=" h-[2.5rem]">Next</Button>
+				<Button onClick={goToNext} className=" h-[2.5rem]">
+					Next
+				</Button>
 			</div>
 		</div>
 	);

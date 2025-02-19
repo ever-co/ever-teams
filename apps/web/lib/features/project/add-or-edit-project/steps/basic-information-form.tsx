@@ -6,8 +6,11 @@ import { cn } from '@/lib/utils';
 import { CalendarIcon, CheckIcon, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { Fragment } from 'react';
+import { IStepElementProps } from '../container';
 
-export default function BasicInformationForm() {
+export default function BasicInformationForm(props: IStepElementProps) {
+	const { goToNext } = props;
+
 	return (
 		<div className="w-full space-y-5 pt-4">
 			<div className="flex w-full gap-1 flex-col">
@@ -84,7 +87,9 @@ export default function BasicInformationForm() {
 				</label>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button className=" h-[2.5rem]">Next</Button>
+				<Button onClick={goToNext} className=" h-[2.5rem]">
+					Next
+				</Button>
 			</div>
 		</div>
 	);
@@ -174,7 +179,7 @@ export function Select<T extends { value: string | number; id: string }>(props: 
 				</Listbox.Button>
 				<Listbox.Options
 					className={cn(
-						'absolute z-20 text-xs top-11 border space-y-1 w-full bg-white rounded-md p-1 shadow-md'
+						'absolute z-20 text-xs top-11 border space-y-1 w-full bg-white dark:bg-dark--theme rounded-md p-1 shadow-md'
 					)}
 				>
 					{options.map((item) => (
@@ -189,19 +194,19 @@ export function Select<T extends { value: string | number; id: string }>(props: 
 											<span
 												className={cn(
 													'h-4 w-4 rounded border border-primary flex items-center justify-center',
-													isSelected && 'bg-primary text-primary-foreground'
+													isSelected && 'bg-primary text-primary-foreground dark:text-white'
 												)}
 											>
-												{isSelected && <CheckIcon size={10} />}
+												{isSelected && <CheckIcon className=" dark:text-white" size={10} />}
 											</span>
-											<span>{item.value}</span>
+											<span className="dark:text-white">{item.value}</span>
 										</div>
 									) : (
 										// Default single-select render
 										<div
 											className={cn(
 												'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
-												isSelected && 'bg-primary text-primary-foreground'
+												isSelected && 'bg-primary text-primary-foreground dark:text-white'
 											)}
 										>
 											{isSelected && <CheckIcon size={10} />}

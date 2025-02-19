@@ -2,6 +2,7 @@ import { Button } from '@/lib/components';
 import { Plus, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { Select } from './basic-information-form';
+import { IStepElementProps } from '../container';
 
 const membersData = [
 	{ id: '1', value: 'Jane Doe' },
@@ -32,7 +33,8 @@ const relationTypesData = [
 	{ id: '3', value: 'Blocking' }
 ];
 
-export default function TeamAndRelationsForm() {
+export default function TeamAndRelationsForm(props: IStepElementProps) {
+	const { goToNext } = props;
 	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>([]);
 	const [relations, setRelations] = useState<{ projectId: string; relationType: string; id: string }[]>([]);
 
@@ -112,6 +114,12 @@ export default function TeamAndRelationsForm() {
 						<Plus size={15} /> <span>Add Relation</span>
 					</Button>
 				</div>
+			</div>
+
+			<div className="w-full flex items-center justify-end">
+				<Button onClick={goToNext} className=" h-[2.5rem]">
+					Next
+				</Button>
 			</div>
 		</div>
 	);

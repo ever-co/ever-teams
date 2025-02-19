@@ -2,22 +2,25 @@ import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
 	onNext?: () => void;
-	step?: number;
+	step: number;
 }
 
-interface IStepElementProps extends PropsWithChildren {
-	onNext: () => void;
+export interface IStepElementProps extends PropsWithChildren {
+	goToNext: () => void;
 }
 
 export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
-	const { onNext, children } = props;
+	const { onNext, children, step } = props;
 
-	const childrenArray = Children.toArray(children);
+	const childrenArray = Children.toArray(children) as ReactElement<IStepElementProps>[];
 
-	return childrenArray.map((child) => {
-		if (isValidElement<IStepElementProps>(child)) {
-			return cloneElement(child as ReactElement<IStepElementProps>, { onNext });
-		}
-		return child;
-	});
+	const currentStep = childrenArray[step];
+
+	if (!currentStep) return null;
+
+	if (isValidElement<IStepElementProps>(currentStep)) {
+		return cloneElement(currentStep as ReactElement<IStepElementProps>, { goToNext: onNext });
+	}
+
+	return currentStep;
 }
