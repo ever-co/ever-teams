@@ -19,12 +19,24 @@ import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { useTranslations } from 'next-intl';
 
 function TeamDashboard() {
-	const { isTrackingEnabled } = useOrganizationTeams();
-	const t=useTranslations();
-	const { rapportChartActivity, updateDateRange, updateFilters, loadingTimeLogReportDailyChart, rapportDailyActivity, loadingTimeLogReportDaily, statisticsCounts,loadingTimesheetStatisticsCounts, isManage} = useReportActivity();
+	const t = useTranslations();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
+	const { isTrackingEnabled } = useOrganizationTeams();
+
+	const {
+		rapportChartActivity,
+		rapportDailyActivity,
+		statisticsCounts,
+		updateDateRange,
+		updateFilters,
+		loadingTimeLogReportDailyChart,
+		loadingTimeLogReportDaily,
+		loadingTimesheetStatisticsCounts,
+		isManage
+	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
+
 	const currentLocale = paramsUrl?.locale;
 
 	const breadcrumbPath = useMemo(
@@ -32,8 +44,10 @@ function TeamDashboard() {
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: 'Team-Dashboard', href: `/${currentLocale}/dashboard/team-dashboard` }
 		],
-		[currentLocale,t]
+		[currentLocale, t]
 	);
+
+	const handleBack = () => router.back();
 
 	return (
 		<MainLayout
@@ -45,7 +59,7 @@ function TeamDashboard() {
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 w-full')}>
 						<div className="flex items-center pt-6 dark:bg-dark--theme">
 							<button
-								onClick={() => router.back()}
+								onClick={handleBack}
 								className="p-1 rounded-full transition-colors hover:bg-gray-100"
 							>
 								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -73,7 +87,8 @@ function TeamDashboard() {
 						</div>
 					</Container>
 				</div>
-			}>
+			}
+		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[500px]">
 					<TeamStatsTable
