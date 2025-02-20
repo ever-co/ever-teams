@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/table';
 import { IActivityReport, IActivityReportGroupByDate } from '@/app/interfaces/activity/IActivityReport';
 import React from 'react';
-import { ActivityRow, DateHeaderRow, DateSummaryRow, ProjectHeaderRow } from './components';
+import { ActivityRow, DateHeaderRow, ProjectHeaderRow } from './components';
 import { EmptyState, LoadingSkeleton } from './states';
 import { groupActivitiesByProjectAndDate } from './utils';
 
@@ -26,7 +26,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
   }
 
   const reportData = data as IActivityReportGroupByDate[] | undefined;
-  
+
   if (!reportData || reportData.length === 0) {
     return <EmptyState />;
   }
@@ -59,7 +59,6 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
                       activity={activity}
                     />
                   ))}
-                  <DateSummaryRow date={date} activities={activities} />
                 </React.Fragment>
               ))}
             </React.Fragment>

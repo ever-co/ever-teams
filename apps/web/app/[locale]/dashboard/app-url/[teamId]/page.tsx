@@ -128,10 +128,8 @@ function AppUrls() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<div className="p-10">
 					{/* <ProductivityTable data={activityReport} isLoading={loadingActivityReport} /> */}
 					<ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />
-				</div>
 			</Container>
 		</MainLayout>
 	);

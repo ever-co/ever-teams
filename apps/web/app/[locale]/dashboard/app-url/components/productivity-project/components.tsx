@@ -7,7 +7,7 @@ import { formatDuration } from './utils';
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className }) => (
   <div className={cn("flex gap-2 items-center", className)}>
-    <div className="overflow-hidden w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+    <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
       <div
         className="h-full bg-blue-500"
         style={{ width: `${percentage}%` }}
@@ -18,7 +18,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className 
 );
 
 export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) => (
-  <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+  <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800">
     <TableCell></TableCell>
     <TableCell>
       <div className="flex gap-2 items-center">
@@ -49,11 +49,11 @@ export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities
   const totalPercentage = activities.reduce((sum, { activity }) => sum + parseFloat(activity.duration_percentage), 0);
 
   return (
-    <TableRow className="bg-gray-800 border-t border-gray-200 dark:border-gray-800">
+    <TableRow className="bg-gray-800 border-t border-gray-200 dark:bg-dark--theme-light">
       <TableCell></TableCell>
-      <TableCell colSpan={2} className="text-sm text-gray-500 dark:text-gray-400">
+      {/* <TableCell colSpan={2} className="text-sm text-gray-500 dark:text-gray-400">
         Total for {format(new Date(date), 'MMM dd')}
-      </TableCell>
+      </TableCell> */}
       <TableCell className="text-gray-600 dark:text-gray-300">
         {formatDuration(totalDuration.toString())}
       </TableCell>
