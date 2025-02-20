@@ -50,9 +50,15 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 			...prev,
 			...stepData
 		}));
-		console.log(data);
-		console.log('second');
 		onNextStep();
+	};
+
+	const handleFinish = () => {
+		//Reset the flow
+		setCurrentStep(0);
+		setSteps(initialSteps);
+		setData({});
+		closeModal();
 	};
 
 	return (
@@ -94,7 +100,12 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 					})}
 				</div>
 				<div className="w-full">
-					<AddOrEditContainer currentData={data} onNext={handleNext} step={currentStep}>
+					<AddOrEditContainer
+						currentData={data}
+						onFinish={handleFinish}
+						onNext={handleNext}
+						step={currentStep}
+					>
 						{
 							//@ts-ignore
 							<BasicInformationForm />

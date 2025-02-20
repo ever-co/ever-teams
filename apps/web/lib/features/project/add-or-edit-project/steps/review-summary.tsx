@@ -5,6 +5,7 @@ import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 import {
+	ICreateProjectInput,
 	ILabel,
 	IProjectRelation,
 	ITag,
@@ -15,9 +16,36 @@ import { IStepElementProps } from '../container';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { finish, currentData: finalData } = props;
+	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
+
+	const newProject: Partial<ICreateProjectInput> = {
+		name: finalData?.name,
+		startDate: moment(finalData?.startDate).toISOString(),
+		endDate: moment(finalData?.startDate).toISOString(),
+		website: finalData?.website,
+		description: finalData?.description,
+		imageUrl: finalData?.imageUrl ?? undefined,
+		tags: finalData?.tags,
+		color: finalData?.color ?? '#000',
+		managerIds: finalData?.managerIds ?? [],
+		memberIds: finalData?.memberIds ?? [],
+		budget: finalData?.budget,
+		currency: finalData?.currency,
+		budgetType: finalData?.budgetType,
+		billing: finalData?.billing
+	};
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const project = await createOrganizationProject(newProject);
+
+		if (project) {
+			finish(project);
+		}
+	};
 
 	return (
-		<form className="w-full space-y-5 pt-4">
+		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="w-full flex flex-col gap-6">
 				<h2 className=" text-xl font-medium">Review</h2>
 				<div className="w-full flex flex-col  gap-8">
@@ -45,7 +73,7 @@ export default function FinalReview(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button type="submit" className=" h-[2.5rem]">
+				<Button loading={createOrganizationProjectLoading} type="submit" className=" h-[2.5rem]">
 					Create Project
 				</Button>
 			</div>
@@ -266,7 +294,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				<div className="w-full flex wrap items-center gap-2">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
-							const member = members.find((el) => el.id === managerId);
+							const member = members.find((el) => el.employeeId === managerId);
 
 							const memberImgUrl = member?.employee.user?.imageUrl;
 

@@ -7,6 +7,7 @@ import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { useRoles } from '@/app/hooks/features/useRoles';
 import { cn } from '@/lib/utils';
 import { IProjectRelation, ProjectRelationEnum } from '@/app/interfaces';
+import { RolesEnum } from '@/app/interfaces/IRoles';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext } = props;
@@ -41,8 +42,8 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
-		const simpleMemberRole = roles?.find((role) => role.name == 'EMPLOYEE');
-		const managerRole = roles?.find((role) => role.name == 'MANAGER');
+		const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
+		const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
 
 		goToNext({
 			memberIds: members.filter((el) => el.roleId == simpleMemberRole?.id).map((el) => el.memberId),
@@ -63,12 +64,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 									keys={teams
 										?.flatMap((el) => el.members)
 										?.map((el) => ({
-											id: el.id,
+											id: el.employeeId,
 											value: el.employee.fullName,
 											imgUrl: el.employee.user?.imageUrl
 										}))}
 									values={roles
-										?.filter((el) => el.name == 'EMPLOYEE' || el.name == 'MANAGER')
+										?.filter((el) => el.name == RolesEnum.EMPLOYEE || el.name == RolesEnum.MANAGER)
 										?.map((el) => ({
 											id: el.id!,
 											value: el.name

@@ -11,6 +11,7 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
+import { ICreateProjectInput } from '@/app/interfaces';
 
 export function useOrganizationProjects() {
 	const [user] = useAtom(userState);
@@ -77,7 +78,7 @@ export function useOrganizationProjects() {
 	);
 
 	const createOrganizationProject = useCallback(
-		async (data: { name: string }) => {
+		async (data: Partial<ICreateProjectInput>) => {
 			try {
 				const organizationId = getOrganizationIdCookie();
 				const tenantId = getTenantIdCookie();

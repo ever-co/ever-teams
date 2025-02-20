@@ -75,12 +75,6 @@ export interface CustomFields {
 	repositoryId: any;
 }
 
-export interface IProjectCreate {
-	name: string;
-	organizationId: string;
-	tenantId: string;
-}
-
 export enum ProjectBillingEnum {
 	RATE = 'RATE',
 	FLAT_FEE = 'FLAT_FEE',
@@ -143,7 +137,7 @@ export interface ICreateProjectInput {
 	website?: string;
 	description?: string;
 	color?: string;
-	tags?: string[];
+	tags?: ITag[];
 	imageUrl?: string;
 	budget?: number;
 	budgetType?: OrganizationProjectBudgetTypeEnum;

@@ -1,9 +1,9 @@
-import { ICreateProjectInput, ILabel, IProject, IProjectRelation } from '@/app/interfaces';
+import { ILabel, IProject, IProjectRelation } from '@/app/interfaces';
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
 	onNext?: (data: TStepData) => void;
-	onFinish?: (project: Partial<ICreateProjectInput>) => void;
+	onFinish?: (project: IProject) => void;
 	step: number;
 	currentData: TStepData;
 }
@@ -20,7 +20,7 @@ export type TStepData = Partial<
 
 export interface IStepElementProps extends PropsWithChildren {
 	goToNext: (stepData: TStepData) => void;
-	finish: (newProject: Partial<ICreateProjectInput>) => void;
+	finish: (newProject: IProject) => void;
 	currentData: TStepData;
 }
 
@@ -39,7 +39,7 @@ export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
 		}
 	};
 
-	const handleFinish = (data: Partial<ICreateProjectInput>) => {
+	const handleFinish = (data: IProject) => {
 		onFinish?.(data);
 	};
 

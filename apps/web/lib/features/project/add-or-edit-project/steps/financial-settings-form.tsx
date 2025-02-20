@@ -43,7 +43,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 								onChange={(data) => setBudgetType(data as OrganizationProjectBudgetTypeEnum)}
 								selected={budgetType as string}
 								placeholder="Select a budget type"
-								options={billingTypes}
+								options={budgetTypes}
 							/>
 						</div>
 					</div>
@@ -89,7 +89,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 								onChange={(data) => setBillingType(data as ProjectBillingEnum)}
 								selected={billingType as string}
 								placeholder="Select interval..."
-								options={budgetTypes}
+								options={billingTypes}
 							/>
 						</div>
 					</div>
