@@ -17,7 +17,7 @@ import { Card } from '@components/ui/card';
 import { ProductivityHeader } from '../components/ProductivityHeader';
 import { ProductivityChart } from '../components/ProductivityChart';
 import { ProductivityStats } from '../components/ProductivityStats';
-import { ProductivityProjectTable } from '../components/ProductivityProjectTable';
+import { ProductivityProjectTable } from '../components/productivity-project';
 
 interface ProductivityData {
 	date: string;
