@@ -75,7 +75,7 @@ export function ProductivityProjectTable({
         if (!projectAcc[projectName][dayData.date]) {
           projectAcc[projectName][dayData.date] = {
             activities: [],
-            totalDuration: 0,
+            totalDuration: "0",
             members: new Set()
           };
         }
@@ -85,14 +85,14 @@ export function ProductivityProjectTable({
           employee: employeeData.employee || employeeData,
           activity
         });
-        dateGroup.totalDuration += parseInt(activity.duration);
+        dateGroup.totalDuration = (parseInt(dateGroup.totalDuration) + parseInt(activity.duration)).toString();
         dateGroup.members.add((employeeData.employee || employeeData).id);
       });
     });
     return projectAcc;
   }, {} as Record<string, Record<string, {
     activities: Array<{employee: any; activity: IActivityItem}>;
-    totalDuration: number;
+    totalDuration: string;
     members: Set<string>;
   }>>);
 
@@ -155,8 +155,7 @@ export function ProductivityProjectTable({
                   <TableCell>
                     {formatDuration(
                       activities
-                        .reduce((sum, { activity }) => sum + parseInt(activity.duration), 0)
-                        .toString()
+                        .reduce((sum, { activity }) => (parseInt(sum) + parseInt(activity.duration)).toString(), "0")
                     )}
                   </TableCell>
                   <TableCell>
