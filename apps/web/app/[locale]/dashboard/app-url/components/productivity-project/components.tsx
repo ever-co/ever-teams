@@ -23,14 +23,14 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) 
     <TableCell>
       <div className="flex gap-2 items-center">
         <Avatar className="w-8 h-8">
-          {employee?.user?.imageUrl && (
+          {employee.user?.imageUrl && (
             <AvatarImage
               src={employee.user.imageUrl}
               alt={employee.fullName}
             />
           )}
           <AvatarFallback>
-            {employee?.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+            {employee.fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <span className="text-gray-700 dark:text-gray-300">{employee.fullName}</span>
