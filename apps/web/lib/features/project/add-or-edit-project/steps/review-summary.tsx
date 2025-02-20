@@ -1,7 +1,7 @@
 import { Button, VerticalSeparator } from '@/lib/components';
-import { Fragment, ReactNode } from 'react';
+import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
-import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
+import { useAuthenticateUser, useImageAssets, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 import {
@@ -17,6 +17,8 @@ import { IStepElementProps } from '../container';
 export default function FinalReview(props: IStepElementProps) {
 	const { finish, currentData: finalData } = props;
 	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
+	const { createImageAssets } = useImageAssets();
+	const { user } = useAuthenticateUser();
 
 	const newProject: Partial<ICreateProjectInput> = {
 		name: finalData?.name,
@@ -35,9 +37,32 @@ export default function FinalReview(props: IStepElementProps) {
 		billing: finalData?.billing
 	};
 
+	const createProjectImage = useCallback(
+		async (file: File) => {
+			return createImageAssets(
+				file,
+				'project_images',
+				user?.tenantId as string,
+				user?.employee?.organizationId as string
+			).then((image) => {
+				return image;
+			});
+		},
+		[user, createImageAssets]
+	);
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		const project = await createOrganizationProject(newProject);
+
+		const projectImage = finalData?.projectImageFile && (await createProjectImage(finalData?.projectImageFile));
+
+		console.log(projectImage);
+
+		const project = await createOrganizationProject({
+			...newProject,
+			imageUrl: projectImage?.fullUrl,
+			imageId: projectImage?.id
+		});
 
 		if (project) {
 			finish(project);
@@ -54,7 +79,9 @@ export default function FinalReview(props: IStepElementProps) {
 						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
 						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
 						websiteUrl={finalData?.website}
-						projectImageUrl={finalData?.imageUrl ?? undefined}
+						projectImageUrl={
+							finalData?.projectImageFile ? URL.createObjectURL(finalData?.projectImageFile) : undefined
+						}
 						description={finalData?.description}
 					/>
 					<FinancialSettings
@@ -66,7 +93,9 @@ export default function FinalReview(props: IStepElementProps) {
 					<Categorization labels={finalData?.labels} tags={finalData?.tags} colorCode={finalData?.color} />
 					<TeamAndRelations
 						projectTitle={finalData?.name}
-						projectImgUrl={finalData?.imageUrl ?? undefined}
+						projectImgUrl={
+							finalData?.projectImageFile ? URL.createObjectURL(finalData?.projectImageFile) : undefined
+						}
 						managerIds={finalData?.managerIds}
 						relations={finalData?.relations}
 					/>

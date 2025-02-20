@@ -139,6 +139,7 @@ export interface ICreateProjectInput {
 	color?: string;
 	tags?: ITag[];
 	imageUrl?: string;
+	imageId?: string;
 	budget?: number;
 	budgetType?: OrganizationProjectBudgetTypeEnum;
 	startDate: string;

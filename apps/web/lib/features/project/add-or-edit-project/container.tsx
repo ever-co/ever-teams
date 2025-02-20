@@ -12,6 +12,7 @@ export type TStepData = Partial<
 	IProject & {
 		memberIds?: string[];
 		managerIds?: string[];
+		projectImageFile?: File;
 		// TO BE DONE ON THE API side :
 		labels?: Omit<ILabel, 'id'>[]; // labelling
 		relations: IProjectRelation[]; // relationship
@@ -32,9 +33,7 @@ export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
 	const currentStep = childrenArray[step];
 
 	const handleNext = (data: TStepData) => {
-		console.log('third');
 		if (step < childrenArray.length - 1) {
-			console.log('fourth');
 			onNext?.(data);
 		}
 	};

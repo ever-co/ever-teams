@@ -21,7 +21,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const [endDate, setEndDate] = useState(new Date());
 	const [projectTitle, setProjectTitle] = useState('');
 	const [description, setDescription] = useState('');
-	const [projectImageUrl, setProjectImageUrl] = useState<string>('');
+	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
 	const [websiteUrl, setWebsiteUrl] = useState<string>('');
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
 
@@ -29,13 +29,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const isValidImageFile = useCallback((file: File) => {
 		if (file.size > 5 * 1024 * 1024) {
 			setErrors((prevErrors) => new Map(prevErrors.set('projectImage', 'File size must be less than 5MB.')));
-			setProjectImageUrl('');
+			setProjectImageFile(null);
 			return false;
 		}
 
 		if (!['image/jpeg', 'image/png'].includes(file.type)) {
 			setErrors((prevErrors) => new Map(prevErrors.set('projectImage', 'Only JPG and PNG formats are allowed.')));
-			setProjectImageUrl('');
+			setProjectImageFile(null);
 			return false;
 		}
 
@@ -49,15 +49,19 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	}, []);
 
 	// Project image file
-	const handleProjectImageFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
+	const handleProjectImageFileChange = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			const file = event.target.files?.[0];
 
-		if (!file) return;
+			if (!file) return;
 
-		// Validation
-		isValidImageFile(file);
-		setProjectImageUrl(URL.createObjectURL(file));
-	}, []);
+			// Validation
+			isValidImageFile(file);
+			// setProjectImageUrl(URL.createObjectURL(file));
+			setProjectImageFile(file);
+		},
+		[isValidImageFile]
+	);
 
 	const validateForm = () => {
 		const newErrors = new Map<BasicInfoErrorKeys, string>(errors);
@@ -116,7 +120,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			endDate: endDate,
 			name: projectTitle,
 			description,
-			imageUrl: projectImageUrl,
+			projectImageFile: projectImageFile ?? undefined,
 			website: websiteUrl
 		});
 	};
@@ -204,13 +208,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				<span className=" text-xs font-medium">Project Thumbnail</span>
 				<div className="w-full flex flex-col gap-1">
 					<div className="w-full flex items-center gap-5">
-						{projectImageUrl && (
+						{projectImageFile && (
 							<div className="h-20 group rounded-lg overflow-hidden w-20 relative">
 								<Image
 									height={50}
 									width={50}
 									className=" w-full  h-full rounded-lg overflow-hidden   aspect-square object-cover"
-									src={projectImageUrl}
+									src={URL.createObjectURL(projectImageFile)}
 									alt={projectTitle}
 								/>
 								<div
@@ -220,7 +224,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								>
 									<X
 										onClick={() => {
-											setProjectImageUrl('');
+											setProjectImageFile(null);
 											errors.delete('projectImage');
 										}}
 										size={20}
@@ -405,7 +409,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 
 	const items = searchEnabled && searchTerm.length ? filteredItems : options ?? [];
 
-	// Dynamic heigh calculation based on nummber of items
+	// Dynamic heigh calculation based on number of items
 	const maxVisibleItems = 7;
 	const itemHeight = 1.5; //rem
 	const listHeight = items?.length > maxVisibleItems ? '12rem' : `${items?.length * itemHeight}rem`;
