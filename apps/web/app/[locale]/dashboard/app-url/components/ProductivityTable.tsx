@@ -142,7 +142,7 @@ export function ProductivityTable({
                       <TableCell>{formatDuration(activity.duration.toString())}</TableCell>
                       <TableCell>
                         <div className="flex gap-2 items-center">
-                          <div className="overflow-hidden w-24 h-2 bg-gray-200 rounded-full">
+                          <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
                             <div
                               className="h-full bg-blue-500"
                               style={{ width: `${activity.duration_percentage}%` }}
