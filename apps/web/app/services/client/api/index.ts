@@ -36,3 +36,4 @@ export * from './activity/activity';
 export * from './activity';
 export * from './default';
 export * from './projects';
+export * from './tags';

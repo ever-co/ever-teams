@@ -352,3 +352,39 @@ export const statusOptions = [
 ];
 
 export const DEFAULT_WORK_HOURS_PER_DAY = 8;
+
+// 20+ Major currencies
+export enum CurrencyEnum {
+	USD = 'US Dollar',
+	EUR = 'Euro',
+	JPY = 'Japanese Yen',
+	GBP = 'British Pound Sterling',
+	AUD = 'Australian Dollar',
+	CAD = 'Canadian Dollar',
+	CHF = 'Swiss Franc',
+	CNY = 'Chinese Yuan',
+	HKD = 'Hong Kong Dollar',
+	NZD = 'New Zealand Dollar',
+	SEK = 'Swedish Krona',
+	KRW = 'South Korean Won',
+	SGD = 'Singapore Dollar',
+	NOK = 'Norwegian Krone',
+	MXN = 'Mexican Peso',
+	INR = 'Indian Rupee',
+	RUB = 'Russian Ruble',
+	BRL = 'Brazilian Real',
+	ZAR = 'South African Rand',
+	TRY = 'Turkish Lira',
+	THB = 'Thai Baht',
+	IDR = 'Indonesian Rupiah',
+	PLN = 'Polish Złoty',
+	TWD = 'New Taiwan Dollar'
+}
+
+export const predefinedLabels = [
+	{ name: 'backend', color: '#234356' },
+	{ name: 'frontend', color: '#456789' },
+	{ name: 'mobile', color: '#A3B4C5' },
+	{ name: 'UX/UI', color: '#C7D0D9' },
+	{ name: 'data', color: '#D9E2E8' }
+];

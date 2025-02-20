@@ -1,36 +1,36 @@
 import { Button } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Popover } from '@headlessui/react';
-import { useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
 import { IStepElementProps } from '../container';
-
-const labelsDataSource = [
-	{ id: 'Backend', value: 'Backend', color: '#234356' },
-	{ id: 'Frontend', value: 'Frontend', color: '#456789' },
-	{ id: 'Mobile', value: 'Mobile', color: '#A3B4C5' },
-	{ id: 'UX/UI', value: 'UX/UI', color: '#C7D0D9' },
-	{ id: 'Data', value: 'Data', color: '#D9E2E8' }
-];
-
-const tagsDataSource = [
-	{ id: 'vip', value: ' VIP', color: '#12B43A' },
-	{ id: 'priority', value: ' Priority', color: '#F5A623' },
-	{ id: 'urgent', value: 'Urgent', color: '#ED4444' },
-	{ id: 'internal', value: 'Internal', color: '#456789' },
-	{ id: 'external', value: 'External', color: '#A3B4C5' }
-];
+import { useTags } from '@/app/hooks/features/useTags';
+import { predefinedLabels } from '@/app/constants';
 
 export default function CategorizationForm(props: IStepElementProps) {
 	const { goToNext } = props;
 	const [labels, setLabels] = useState<string[]>([]);
 	const [tags, setTags] = useState<string[]>([]);
 	const [colorCode, setColorCode] = useState<string>('#000000');
+	const { tags: tagData, getTags, createTag, createTagLoading } = useTags();
+
+	useEffect(() => {
+		getTags();
+	}, [getTags]);
+
+	const handleSubmit = (event: FormEvent) => {
+		event.preventDefault();
+		goToNext({
+			tags: tagData?.filter((tag) => tags.includes(tag.id)),
+			labels: predefinedLabels.filter((label) => labels.includes(label.name)),
+			color: colorCode
+		});
+	};
 
 	return (
-		<div className="w-full space-y-5 pt-4">
+		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="w-full flex gap-3">
 				<div className="flex flex-1 gap-1 flex-col">
 					<label htmlFor="project_labels" className=" text-xs font-medium">
@@ -38,11 +38,16 @@ export default function CategorizationForm(props: IStepElementProps) {
 					</label>
 					<div className="w-full">
 						<Select
+							searchEnabled
 							multiple
 							onChange={(data) => setLabels(data as string[])}
 							selected={labels}
 							placeholder="Select labels..."
-							options={labelsDataSource}
+							options={predefinedLabels.map((el) => ({
+								id: el.name,
+								value: el.name,
+								color: el.color
+							}))}
 							renderItem={(item, selected) => {
 								return (
 									<div className="w-full h-full p-1 px-2 flex items-center gap-2">
@@ -58,11 +63,12 @@ export default function CategorizationForm(props: IStepElementProps) {
 											<span
 												style={{
 													backgroundColor:
-														labelsDataSource.find((el) => el.id == item.id)?.color ?? '#000'
+														predefinedLabels.find((el) => el.name == item.id)?.color ??
+														'#000'
 												}}
 												className="w-4 h-4 rounded-full"
 											/>
-											<span>{item?.value ?? '-'}</span>
+											<span className="capitalize">{item?.value ?? '-'}</span>
 										</div>
 									</div>
 								);
@@ -77,10 +83,23 @@ export default function CategorizationForm(props: IStepElementProps) {
 					<div className="w-full">
 						<Select
 							multiple
+							searchEnabled
+							createLoading={createTagLoading}
+							onCreate={(tagName) => {
+								// Create a random hex color
+								const newColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+								createTag({ name: tagName, color: newColor });
+							}}
 							onChange={(data) => setTags(data as string[])}
 							selected={tags}
 							placeholder="Select tags..."
-							options={tagsDataSource}
+							options={tagData?.map((el) => {
+								return {
+									id: el.id,
+									value: el.name,
+									color: el.color ?? '#000'
+								};
+							})}
 							renderItem={(item, selected) => {
 								return (
 									<div className="w-full h-full p-1 px-2 flex items-center gap-2">
@@ -96,11 +115,11 @@ export default function CategorizationForm(props: IStepElementProps) {
 											<span
 												style={{
 													backgroundColor:
-														tagsDataSource.find((el) => el.id == item.id)?.color ?? '#000'
+														tagData?.find((el) => el.id == item.id)?.color ?? '#000'
 												}}
 												className="w-4 h-4 rounded-full"
 											/>
-											<span>{item?.value ?? ''}</span>
+											<span className="capitalize">{item?.value ?? ''}</span>
 										</div>
 									</div>
 								);
@@ -116,10 +135,12 @@ export default function CategorizationForm(props: IStepElementProps) {
 						<Popover className={cn('relative w-full')}>
 							<Popover.Button className={cn('w-full')}>
 								<div className="flex w-full items-center gap-1 dark:bg-dark--theme-light rounded-lg cursor-pointer h-[2.2rem]">
-									<div
-										className="h-full w-[2.2rem] rounded-lg"
-										style={{ backgroundColor: colorCode }}
-									/>
+									<div className="h-full border w-[2.2rem] p-1 rounded-lg">
+										<div
+											className="w-full h-full rounded-md"
+											style={{ backgroundColor: colorCode }}
+										/>
+									</div>
 									<span className=" border h-full grow flex items-center px-3 uppercase rounded-lg">
 										{colorCode}
 									</span>
@@ -133,10 +154,10 @@ export default function CategorizationForm(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button onClick={goToNext} className=" h-[2.5rem]">
+				<Button type="submit" className=" h-[2.5rem]">
 					Next
 				</Button>
 			</div>
-		</div>
+		</form>
 	);
 }

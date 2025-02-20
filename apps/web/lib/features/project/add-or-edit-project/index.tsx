@@ -2,7 +2,7 @@ import { Card, Modal } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import AddOrEditContainer from './container';
+import AddOrEditContainer, { TStepData } from './container';
 import TeamAndRelationsForm from './steps/team-and-relations-form';
 import BasicInformationForm from './steps/basic-information-form';
 import CategorizationForm from './steps/categorization-form';
@@ -26,6 +26,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 
 	const [steps, setSteps] = useState(initialSteps);
 	const [currentStep, setCurrentStep] = useState(0);
+	const [data, setData] = useState<TStepData>({});
 
 	const onNextStep = useCallback(() => {
 		if (currentStep < steps.length - 1) {
@@ -43,6 +44,16 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 			setSteps(updatedSteps);
 		}
 	}, [currentStep, steps]);
+
+	const handleNext = (stepData: TStepData) => {
+		setData((prev) => ({
+			...prev,
+			...stepData
+		}));
+		console.log(data);
+		console.log('second');
+		onNextStep();
+	};
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>
@@ -83,7 +94,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 					})}
 				</div>
 				<div className="w-full">
-					<AddOrEditContainer onNext={onNextStep} step={currentStep}>
+					<AddOrEditContainer currentData={data} onNext={handleNext} step={currentStep}>
 						{
 							//@ts-ignore
 							<BasicInformationForm />

@@ -3,37 +3,39 @@ import RichTextEditor from '../text-editor';
 import { Calendar } from '@components/ui/calendar';
 import { Listbox, Popover } from '@headlessui/react';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, CheckIcon, ChevronDown, X } from 'lucide-react';
+import { CalendarIcon, CheckIcon, ChevronDown, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { FormEvent, Fragment, useCallback, useState } from 'react';
+import { FormEvent, Fragment, useCallback, useEffect, useState } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
 import { isValidUrl } from '@/app/utils';
+import { ScrollArea } from '@components/ui/scroll-bar';
+import { ScrollBar } from '@components/ui/scroll-area';
 
-type ErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
+type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 
 export default function BasicInformationForm(props: IStepElementProps) {
 	const { goToNext } = props;
 	const [startDate, setStartDate] = useState(new Date());
 	const [endDate, setEndDate] = useState(new Date());
 	const [projectTitle, setProjectTitle] = useState('');
-	const [, setDescription] = useState('');
-	const [projectImageUrl, setProjectImageUrl] = useState<string | null>(null);
+	const [description, setDescription] = useState('');
+	const [projectImageUrl, setProjectImageUrl] = useState<string>('');
 	const [websiteUrl, setWebsiteUrl] = useState<string>('');
-	const [errors, setErrors] = useState<Map<ErrorKeys, string>>(new Map());
+	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
 
 	// Validate projectImageFile
 	const isValidImageFile = useCallback((file: File) => {
 		if (file.size > 5 * 1024 * 1024) {
 			setErrors((prevErrors) => new Map(prevErrors.set('projectImage', 'File size must be less than 5MB.')));
-			setProjectImageUrl(null);
+			setProjectImageUrl('');
 			return false;
 		}
 
 		if (!['image/jpeg', 'image/png'].includes(file.type)) {
 			setErrors((prevErrors) => new Map(prevErrors.set('projectImage', 'Only JPG and PNG formats are allowed.')));
-			setProjectImageUrl(null);
+			setProjectImageUrl('');
 			return false;
 		}
 
@@ -53,45 +55,21 @@ export default function BasicInformationForm(props: IStepElementProps) {
 		if (!file) return;
 
 		// Validation
-		if (isValidImageFile(file)) {
-			setProjectImageUrl(URL.createObjectURL(file));
-		}
+		isValidImageFile(file);
+		setProjectImageUrl(URL.createObjectURL(file));
 	}, []);
 
-	// Field validator
-	const validateField = (
-		field: ErrorKeys,
-		value: any,
-		rules: Array<(value: any) => string | null>,
-		errors: Map<ErrorKeys, string>
-	) => {
-		let errorMessage = null;
-
-		for (const rule of rules) {
-			errorMessage = rule(value);
-			if (errorMessage) {
-				break;
-			}
-		}
-
-		if (errorMessage) {
-			errors.set(field, errorMessage);
-		} else {
-			errors.delete(field);
-		}
-	};
-
 	const validateForm = () => {
-		const newErrors = new Map<ErrorKeys, string>(errors);
+		const newErrors = new Map<BasicInfoErrorKeys, string>(errors);
 
 		// Validate projectTitle
 		validateField(
 			'projectTitle',
 			projectTitle,
 			[
-				(value) => (!value.trim() ? 'Project title is required.' : null),
+				(value) => (!value?.trim() ? 'Project title is required.' : null),
 				(value) =>
-					value.length < 3 || value.length > 100
+					value?.length < 3 || value?.length > 100
 						? 'Project title must be between 3 and 100 characters.'
 						: null
 			],
@@ -127,13 +105,20 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
-		validateForm();
+		const errors = validateForm();
 
 		if (errors.size > 0) {
 			return;
 		}
 
-		goToNext();
+		goToNext({
+			startDate: startDate,
+			endDate: endDate,
+			name: projectTitle,
+			description,
+			imageUrl: projectImageUrl,
+			website: websiteUrl
+		});
 	};
 
 	return (
@@ -194,7 +179,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 						/>
 					</div>
 				</div>
-				{errors.get('dateRange') && (
+				{errors?.get('dateRange') && (
 					<p className="text-red-600 text-xs font-light">{errors.get('dateRange')}</p>
 				)}
 			</div>
@@ -224,9 +209,9 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								<Image
 									height={50}
 									width={50}
-									className=" w-full  h-full   aspect-square object-cover"
+									className=" w-full  h-full rounded-lg overflow-hidden   aspect-square object-cover"
 									src={projectImageUrl}
-									alt=""
+									alt={projectTitle}
 								/>
 								<div
 									className={cn(
@@ -234,7 +219,10 @@ export default function BasicInformationForm(props: IStepElementProps) {
 									)}
 								>
 									<X
-										onClick={() => setProjectImageUrl(null)}
+										onClick={() => {
+											setProjectImageUrl('');
+											errors.delete('projectImage');
+										}}
 										size={20}
 										className={cn(' text-white')}
 									/>
@@ -276,8 +264,8 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							/>
 						</label>
 					</div>
-					{errors.get('projectImage') && (
-						<p className="text-red-600 text-xs font-light">{errors.get('projectImage')}</p>
+					{errors?.get('projectImage') && (
+						<p className="text-red-600 text-xs font-light">{errors?.get('projectImage')}</p>
 					)}
 				</div>
 			</div>
@@ -289,15 +277,35 @@ export default function BasicInformationForm(props: IStepElementProps) {
 }
 
 /**
+ * Field validator
+ */
+export function validateField<ErrorKeys>(
+	field: ErrorKeys,
+	value: any,
+	rules: Array<(value: any) => string | null>,
+	errors: Map<ErrorKeys, string>
+) {
+	let errorMessage = null;
+
+	for (const rule of rules) {
+		errorMessage = rule(value);
+		if (errorMessage) {
+			break;
+		}
+	}
+
+	if (errorMessage) {
+		errors?.set(field, errorMessage);
+	} else {
+		errors?.delete(field);
+	}
+}
+
+/**
  * ----------------------------------------------------------------
  * Some common components for the project creation flow.
  * ----------------------------------------------------------------
  */
-
-export interface Identifiable {
-	id: string;
-	value: string | number;
-}
 
 /**
  * Date picker
@@ -344,8 +352,15 @@ export function DatePicker(props: IDatePickerProps) {
 
 /**
  * Select (mono / multi)
+ * With:
+ * - Search
+ * - Create new term if not found in the search results
  */
 
+export interface Identifiable {
+	id: string;
+	value: string | number;
+}
 interface ISelectProps<IItem> {
 	options: IItem[];
 	selected: string | string[] | null;
@@ -354,12 +369,46 @@ interface ISelectProps<IItem> {
 	onChange?: (value: string | string[]) => void;
 	multiple?: boolean;
 	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
+	searchEnabled?: boolean;
+	onCreate?: (newTerm: string) => void;
+	createLoading?: boolean;
 }
 
 export function Select<T extends Identifiable>(props: ISelectProps<T>) {
-	const { options, placeholder, className, selected, onChange, renderItem, multiple } = props;
+	const {
+		options,
+		placeholder,
+		className,
+		selected,
+		onChange,
+		renderItem,
+		multiple,
+		searchEnabled,
+		onCreate,
+		createLoading
+	} = props;
+	// When search enabled
+	const [searchTerm, setSearchTerm] = useState('');
+	const [filteredItems, setFilteredItems] = useState<T[]>([]);
 
 	const isMulti = multiple ?? false;
+
+	useEffect(() => {
+		if (searchTerm.length) {
+			setFilteredItems(
+				options?.filter((el) => String(el.value).toLowerCase().includes(searchTerm.toLowerCase()))
+			);
+		} else {
+			setFilteredItems(options);
+		}
+	}, [searchTerm, options]);
+
+	const items = searchEnabled && searchTerm.length ? filteredItems : options ?? [];
+
+	// Dynamic heigh calculation based on nummber of items
+	const maxVisibleItems = 7;
+	const itemHeight = 1.5; //rem
+	const listHeight = items?.length > maxVisibleItems ? '12rem' : `${items?.length * itemHeight}rem`;
 
 	return (
 		<div className="relative">
@@ -370,7 +419,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 						className
 					)}
 				>
-					<span className={cn(!selected?.length && 'text-gray-400')}>
+					<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
 						{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
 					</span>
 					<ChevronDown size={15} className=" text-gray-400" />
@@ -380,45 +429,116 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 						'absolute z-20 text-xs top-11 border space-y-1 w-full bg-white dark:bg-dark--theme rounded-md p-1 shadow-md'
 					)}
 				>
-					{options?.map((item) => (
-						<Listbox.Option key={item?.id} value={item?.id} as={Fragment}>
-							{({ active, selected: isSelected }) => (
-								<li className={cn('text-xs cursor-pointer rounded ')}>
-									{renderItem ? (
-										renderItem(item, isSelected, active)
-									) : isMulti ? (
-										// Default multi-select render
-										<div className="w-full h-full p-1 px-2 flex items-center gap-2">
-											<span
+					{searchEnabled && (
+						<div className="w-full flex border dark:border-white rounded-md   h-[2rem] items-center px-1">
+							<Search size={15} className=" text-slate-300" />
+							<InputField
+								value={searchTerm}
+								onChange={(e) => {
+									setSearchTerm(e.target.value);
+								}}
+								placeholder={items?.length == 0 ? 'Type new ...' : 'Search ...'}
+								className=" text-xs h-full border-none bg-transparent dark:bg-transparent"
+								noWrapper
+							/>
+						</div>
+					)}
+
+					<ScrollArea style={{ height: listHeight }}>
+						{items?.map((item) => (
+							<Listbox.Option key={item?.id} value={item?.id} as={Fragment}>
+								{({ active, selected: isSelected }) => (
+									<li className={cn('text-xs cursor-pointer rounded ')}>
+										{renderItem ? (
+											renderItem(item, isSelected, active)
+										) : isMulti ? (
+											// Default multi-select render
+											<div className="w-full h-full p-1 px-2 flex items-center gap-2">
+												<span
+													className={cn(
+														'h-4 w-4 rounded border border-primary flex items-center justify-center',
+														isSelected &&
+															'bg-primary text-primary-foreground dark:text-white'
+													)}
+												>
+													{isSelected && <CheckIcon className=" dark:text-white" size={10} />}
+												</span>
+												<span className="dark:text-white capitalize">{item?.value ?? '-'}</span>
+											</div>
+										) : (
+											// Default single-select render
+											<div
 												className={cn(
-													'h-4 w-4 rounded border border-primary flex items-center justify-center',
+													'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
 													isSelected && 'bg-primary text-primary-foreground dark:text-white'
 												)}
 											>
-												{isSelected && <CheckIcon className=" dark:text-white" size={10} />}
-											</span>
-											<span className="dark:text-white">{item?.value ?? '-'}</span>
-										</div>
-									) : (
-										// Default single-select render
-										<div
-											className={cn(
-												'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
-												isSelected && 'bg-primary text-primary-foreground dark:text-white'
-											)}
-										>
-											{isSelected && <CheckIcon size={10} />}
-											<span className={cn(selected && !isSelected && 'pl-5')}>
-												{item?.value ?? '-'}
-											</span>
-										</div>
-									)}
-								</li>
-							)}
-						</Listbox.Option>
-					))}
+												{isSelected && <CheckIcon size={10} />}
+												<span className={cn(' capitalize', selected && !isSelected && 'pl-5')}>
+													{item?.value ?? '-'}
+												</span>
+											</div>
+										)}
+									</li>
+								)}
+							</Listbox.Option>
+						))}
+						<ScrollBar className="-pl-7" />
+					</ScrollArea>
+					{searchEnabled && items?.length == 0 && onCreate && (
+						<div className="flex items-center justify-center w-full h-[2.2rem] px-1 py-2">
+							<Button
+								loading={createLoading}
+								onClick={() => onCreate?.(searchTerm)}
+								variant="outline"
+								className="text-xs w-full h-full"
+							>
+								Add new
+							</Button>
+						</div>
+					)}
 				</Listbox.Options>
 			</Listbox>
+		</div>
+	);
+}
+
+/**
+ * Show image or identifier letters
+ */
+
+interface IThumbnailProps {
+	imgUrl?: string;
+	identifier: string;
+	size?: number | string;
+	className?: string;
+}
+
+export function Thumbnail(props: IThumbnailProps) {
+	const { imgUrl, identifier, size = 15, className } = props;
+	return (
+		<div
+			style={{
+				width: size,
+				height: size
+			}}
+			className={cn(
+				'rounded-md flex items-center justify-center overflow-hidden',
+				!imgUrl && 'border',
+				className
+			)}
+		>
+			{imgUrl ? (
+				<Image
+					className="h-full w-full object-cover rounded-md"
+					src={imgUrl}
+					alt={identifier}
+					width={40}
+					height={40}
+				/>
+			) : (
+				<span className=" text-[.5rem] uppercase">{identifier.substring(0, 2)}</span>
+			)}
 		</div>
 	);
 }
