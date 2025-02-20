@@ -62,24 +62,39 @@ export function ProductivityProjectTable({
     );
   }
 
-  // Group data by project first
-  const projectGroups = reportData.reduce((acc, dayData) => {
+  // Group data by project and date
+  const projectGroups = reportData.reduce((projectAcc, dayData) => {
     dayData.employees.forEach((employeeData: any) => {
       const activities = employeeData.projects?.[0]?.activity || employeeData.activity || [];
       activities.forEach((activity: IActivityItem) => {
         const projectName = activity.projectId || 'Ever Teams';
-        if (!acc[projectName]) {
-          acc[projectName] = [];
+        if (!projectAcc[projectName]) {
+          projectAcc[projectName] = {};
         }
-        acc[projectName].push({
-          date: dayData.date,
+        
+        if (!projectAcc[projectName][dayData.date]) {
+          projectAcc[projectName][dayData.date] = {
+            activities: [],
+            totalDuration: 0,
+            members: new Set()
+          };
+        }
+
+        const dateGroup = projectAcc[projectName][dayData.date];
+        dateGroup.activities.push({
           employee: employeeData.employee || employeeData,
           activity
         });
+        dateGroup.totalDuration += parseInt(activity.duration);
+        dateGroup.members.add((employeeData.employee || employeeData).id);
       });
     });
-    return acc;
-  }, {} as Record<string, Array<{date: string; employee: any; activity: IActivityItem}>>);
+    return projectAcc;
+  }, {} as Record<string, Record<string, {
+    activities: Array<{employee: any; activity: IActivityItem}>;
+    totalDuration: number;
+    members: Set<string>;
+  }>>);
 
   return (
     <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
@@ -94,7 +109,7 @@ export function ProductivityProjectTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Object.entries(projectGroups).map(([projectName, activities]) => (
+          {Object.entries(projectGroups).map(([projectName, dateGroups]) => (
             <React.Fragment key={projectName}>
               <TableRow className="bg-gray-50/50">
                 <TableCell colSpan={5} className="py-2">
@@ -107,36 +122,52 @@ export function ProductivityProjectTable({
                   </div>
                 </TableCell>
               </TableRow>
-              {activities.map(({ date, employee, activity }, index) => (
-                <TableRow key={`${employee.id}-${index}`} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+              {Object.entries(dateGroups).map(([date, { activities }]) => (
+                <TableRow key={`${projectName}-${date}`} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <TableCell>{format(new Date(date), 'EEEE dd MMM yyyy')}</TableCell>
                   <TableCell>
-                    <div className="flex gap-2 items-center">
-                      <Avatar className="w-8 h-8">
-                        {employee.user?.imageUrl && (
-                          <AvatarImage
-                            src={employee.user.imageUrl}
-                            alt={employee.fullName}
-                          />
-                        )}
-                        <AvatarFallback>
-                          {employee.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>{employee.fullName}</span>
+                    <div className="flex flex-wrap gap-1">
+                      {Array.from(new Set(activities.map(a => a.employee.id))).map(employeeId => {
+                        const employee = activities.find(a => a.employee.id === employeeId)?.employee;
+                        return (
+                          <Avatar key={employeeId} className="w-8 h-8">
+                            {employee?.user?.imageUrl && (
+                              <AvatarImage
+                                src={employee.user.imageUrl}
+                                alt={employee.fullName}
+                              />
+                            )}
+                            <AvatarFallback>
+                              {employee?.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        );
+                      })}
                     </div>
                   </TableCell>
-                  <TableCell>{activity.title}</TableCell>
-                  <TableCell>{formatDuration(activity.duration.toString())}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {Array.from(new Set(activities.map(a => a.activity.title))).map(appName => (
+                        <span key={appName}>{appName}</span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {formatDuration(
+                      activities
+                        .reduce((sum, { activity }) => sum + parseInt(activity.duration), 0)
+                        .toString()
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2 items-center">
                       <div className="overflow-hidden w-24 h-2 bg-gray-200 rounded-full">
                         <div
                           className="h-full bg-blue-500"
-                          style={{ width: `${activity.duration_percentage}%` }}
+                          style={{ width: `${activities.reduce((sum, { activity }) => sum + parseFloat(activity.duration_percentage), 0)}%` }}
                         />
                       </div>
-                      <span>{Math.round(parseFloat(activity.duration_percentage))}%</span>
+                      <span>{Math.round(activities.reduce((sum, { activity }) => sum + parseFloat(activity.duration_percentage), 0))}%</span>
                     </div>
                   </TableCell>
                 </TableRow>
