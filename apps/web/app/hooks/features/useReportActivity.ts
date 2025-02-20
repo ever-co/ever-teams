@@ -85,12 +85,10 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	// API queries
 	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } =
 		useQuery(getTimeLogReportDailyChart);
-	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } =
-		useQuery(getTimeLogReportDaily);
+	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(getTimeLogReportDaily);
 	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } =
 		useQuery(getTimesheetStatisticsCounts);
-	const { loading: loadingActivityReport, queryCall: queryActivityReport } =
-		useQuery(getActivityReport);
+	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(getActivityReport);
 
 	// Props merging logic
 	const getMergedProps = useMemo(() => {
@@ -111,16 +109,20 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				startDate: (customProps?.startDate || currentFilters.startDate || defaultProps.startDate) as string,
 				endDate: (customProps?.endDate || currentFilters.endDate || defaultProps.endDate) as string,
 				groupBy: (customProps?.groupBy || currentFilters.groupBy || defaultProps.groupBy) as string,
-				projectIds: (customProps?.projectIds || currentFilters.projectIds || defaultProps.projectIds) as string[],
+				projectIds: (customProps?.projectIds ||
+					currentFilters.projectIds ||
+					defaultProps.projectIds) as string[],
 				employeeIds: isManage
 					? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
 					: [user.employee.id],
 				teamIds: allteamsState?.map(({ id }) => id).filter(Boolean),
 				activityLevel: {
-					start: customProps?.activityLevel?.start ??
+					start:
+						customProps?.activityLevel?.start ??
 						currentFilters.activityLevel?.start ??
 						defaultProps.activityLevel.start,
-					end: customProps?.activityLevel?.end ??
+					end:
+						customProps?.activityLevel?.end ??
 						currentFilters.activityLevel?.end ??
 						defaultProps.activityLevel.end
 				},
@@ -142,10 +144,11 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	// Generic fetch function
 	const fetchReport = useCallback(
 		async <T>(
-			queryFn: typeof queryTimeLogReportDailyChart |
-				typeof queryTimeLogReportDaily |
-				typeof queryTimesheetStatisticsCounts |
-				typeof queryActivityReport,
+			queryFn:
+				| typeof queryTimeLogReportDailyChart
+				| typeof queryTimeLogReportDaily
+				| typeof queryTimesheetStatisticsCounts
+				| typeof queryActivityReport,
 			setData: ((data: T[]) => void) | null,
 			customProps?: Partial<UseReportActivityProps>
 		) => {
@@ -237,13 +240,18 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				startDate: startDate.toISOString().split('T')[0],
 				endDate: endDate.toISOString().split('T')[0]
 			};
-
-			Promise.all([
-				fetchReportActivity(newProps),
-				fetchDailyReport(newProps),
-				fetchStatisticsCounts(newProps),
-				(types === 'APPS-URLS' && fetchActivityReport(newProps)) || null
-			]).catch(console.error);
+			switch (types) {
+				case 'APPS-URLS':
+					fetchActivityReport(newProps).catch(console.error);
+					break;
+				default:
+					Promise.all([
+						fetchReportActivity(newProps),
+						fetchDailyReport(newProps),
+						fetchStatisticsCounts(newProps)
+					]).catch(console.error);
+					break;
+			}
 		},
 		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]
 	);
@@ -262,12 +270,18 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	const updateFilters = useCallback(
 		(newFilters: Partial<UseReportActivityProps>) => {
-			Promise.all([
-				fetchReportActivity(newFilters),
-				fetchDailyReport(newFilters),
-				fetchStatisticsCounts(newFilters),
-				(types === 'APPS-URLS' && fetchActivityReport(newFilters)) || null
-			]).catch(console.error);
+			switch (types) {
+				case 'APPS-URLS':
+					fetchActivityReport(newFilters).catch(console.error);
+					break;
+				default:
+					Promise.all([
+						fetchReportActivity(newFilters),
+						fetchDailyReport(newFilters),
+						fetchStatisticsCounts(newFilters)
+					]).catch(console.error);
+					break;
+			}
 		},
 		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]
 	);
@@ -275,12 +289,18 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	// Initial data fetch
 	useEffect(() => {
 		if (user) {
-			Promise.all([
-				fetchReportActivity(),
-				fetchDailyReport(),
-				fetchStatisticsCounts(),
-				(types === 'APPS-URLS' && fetchActivityReport()) || null
-			]).catch(console.error);
+			switch (types) {
+				case 'APPS-URLS':
+					fetchActivityReport().catch(console.error);
+					break;
+				default:
+					Promise.all([
+						fetchReportActivity(),
+						fetchDailyReport(),
+						fetchStatisticsCounts()
+					]).catch(console.error);
+					break;
+			}
 		}
 	}, [user, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]);
 
