@@ -51,9 +51,9 @@ export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities
   return (
     <TableRow className="bg-gray-800 border-t border-gray-200 dark:bg-dark--theme-light">
       <TableCell></TableCell>
-      {/* <TableCell colSpan={2} className="text-sm text-gray-500 dark:text-gray-400">
+      <TableCell colSpan={2} className="text-sm text-gray-500 dark:text-gray-400">
         Total for {format(new Date(date), 'MMM dd')}
-      </TableCell> */}
+      </TableCell>
       <TableCell className="text-gray-600 dark:text-gray-300">
         {formatDuration(totalDuration.toString())}
       </TableCell>
