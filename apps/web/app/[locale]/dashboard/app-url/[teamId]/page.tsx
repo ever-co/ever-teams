@@ -13,11 +13,11 @@ import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
-import { ProductivityStats } from '../components/ProductivityStats';
-import { ProductivityChart } from '../components/ProductivityChart';
-import { ProductivityHeader } from '../components/ProductivityHeader';
-import { ProductivityTable } from '../components/ProductivityTable';
 import { Card } from '@components/ui/card';
+import { ProductivityHeader } from '../components/ProductivityHeader';
+import { ProductivityChart } from '../components/ProductivityChart';
+import { ProductivityStats } from '../components/ProductivityStats';
+import { ProductivityProjectTable } from '../components/ProductivityProjectTable';
 
 interface ProductivityData {
 	date: string;
@@ -128,7 +128,10 @@ function AppUrls() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<ProductivityTable data={activityReport} isLoading={loadingActivityReport} />
+				<div className="p-10">
+					{/* <ProductivityTable data={activityReport} isLoading={loadingActivityReport} /> */}
+					<ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />
+				</div>
 			</Container>
 		</MainLayout>
 	);
