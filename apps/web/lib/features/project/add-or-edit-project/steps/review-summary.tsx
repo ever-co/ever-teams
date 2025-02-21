@@ -18,14 +18,14 @@ import { useTranslations } from 'next-intl';
 export default function FinalReview(props: IStepElementProps) {
 	const { finish, currentData: finalData } = props;
 	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
-	const { createImageAssets } = useImageAssets();
+	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
 	const newProject: Partial<ICreateProjectInput> = {
 		name: finalData?.name,
 		startDate: moment(finalData?.startDate).toISOString(),
-		endDate: moment(finalData?.startDate).toISOString(),
+		endDate: moment(finalData?.endDate).toISOString(),
 		website: finalData?.website,
 		description: finalData?.description,
 		imageUrl: finalData?.imageUrl ?? undefined,
@@ -57,8 +57,6 @@ export default function FinalReview(props: IStepElementProps) {
 		e.preventDefault();
 
 		const projectImage = finalData?.projectImageFile && (await createProjectImage(finalData?.projectImageFile));
-
-		console.log(projectImage);
 
 		const project = await createOrganizationProject({
 			...newProject,
@@ -104,7 +102,12 @@ export default function FinalReview(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button loading={createOrganizationProjectLoading} type="submit" className=" h-[2.5rem]">
+				<Button
+					loading={createOrganizationProjectLoading || createImageAssetLoading}
+					disabled={createOrganizationProjectLoading || createImageAssetLoading}
+					type="submit"
+					className=" h-[2.5rem]"
+				>
 					{t('pages.projects.addOrEditModal.steps.createProject')}
 				</Button>
 			</div>

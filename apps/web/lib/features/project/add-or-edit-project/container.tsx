@@ -15,7 +15,7 @@ export type TStepData = Partial<
 		projectImageFile?: File;
 		// TO BE DONE ON THE API side :
 		labels?: Omit<ILabel, 'id'>[]; // labelling
-		relations: IProjectRelation[]; // relationship
+		relations?: IProjectRelation[]; // relationship
 	}
 >;
 

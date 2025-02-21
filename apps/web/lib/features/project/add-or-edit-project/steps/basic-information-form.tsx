@@ -28,37 +28,46 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const t = useTranslations();
 
 	// Validate projectImageFile
-	const isValidImageFile = useCallback((file: File) => {
-		if (file.size > 5 * 1024 * 1024) {
-			setErrors(
-				(prevErrors) =>
-					new Map(
-						prevErrors.set('projectImage', t('pages.projects.basicInformationForm.errors.fileSizeLimit'))
-					)
-			);
-			setProjectImageFile(null);
-			return false;
-		}
+	const isValidImageFile = useCallback(
+		(file: File) => {
+			if (file.size > 5 * 1024 * 1024) {
+				setErrors(
+					(prevErrors) =>
+						new Map(
+							prevErrors.set(
+								'projectImage',
+								t('pages.projects.basicInformationForm.errors.fileSizeLimit')
+							)
+						)
+				);
+				setProjectImageFile(null);
+				return false;
+			}
 
-		if (!['image/jpeg', 'image/png'].includes(file.type)) {
-			setErrors(
-				(prevErrors) =>
-					new Map(
-						prevErrors.set('projectImage', t('pages.projects.basicInformationForm.errors.fileFormatLimit'))
-					)
-			);
-			setProjectImageFile(null);
-			return false;
-		}
+			if (!['image/jpeg', 'image/png'].includes(file.type)) {
+				setErrors(
+					(prevErrors) =>
+						new Map(
+							prevErrors.set(
+								'projectImage',
+								t('pages.projects.basicInformationForm.errors.fileFormatLimit')
+							)
+						)
+				);
+				setProjectImageFile(null);
+				return false;
+			}
 
-		setErrors((prevErrors) => {
-			const newErrors = new Map(prevErrors);
-			newErrors.delete('projectImage');
-			return newErrors;
-		});
+			setErrors((prevErrors) => {
+				const newErrors = new Map(prevErrors);
+				newErrors.delete('projectImage');
+				return newErrors;
+			});
 
-		return true;
-	}, []);
+			return true;
+		},
+		[t]
+	);
 
 	// Project image file
 	const handleProjectImageFileChange = useCallback(
@@ -519,6 +528,7 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 					{searchEnabled && items?.length == 0 && onCreate && (
 						<div className="flex items-center justify-center w-full h-[2.2rem] px-1 py-2">
 							<Button
+								type="button"
 								loading={createLoading}
 								onClick={() => onCreate?.(searchTerm)}
 								variant="outline"

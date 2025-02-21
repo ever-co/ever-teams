@@ -25,10 +25,10 @@ export const useTags = () => {
 	const createTag = useCallback(
 		async (tag: Omit<ITag, 'id'>) => {
 			return createTagQueryCall(tag).then((response) => {
-				setTags([response.data, ...tags]);
+				setTags((prevTags) => [response.data, ...prevTags]);
 			});
 		},
-		[tags, createTagQueryCall, setTags]
+		[createTagQueryCall, setTags]
 	);
 
 	const updateTag = useCallback(
