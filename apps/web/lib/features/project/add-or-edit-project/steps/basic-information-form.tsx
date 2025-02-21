@@ -12,6 +12,7 @@ import moment from 'moment';
 import { isValidUrl } from '@/app/utils';
 import { ScrollArea } from '@components/ui/scroll-bar';
 import { ScrollBar } from '@components/ui/scroll-area';
+import { useTranslations } from 'next-intl';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 
@@ -24,17 +25,28 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
 	const [websiteUrl, setWebsiteUrl] = useState<string>('');
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
+	const t = useTranslations();
 
 	// Validate projectImageFile
 	const isValidImageFile = useCallback((file: File) => {
 		if (file.size > 5 * 1024 * 1024) {
-			setErrors((prevErrors) => new Map(prevErrors.set('projectImage', 'File size must be less than 5MB.')));
+			setErrors(
+				(prevErrors) =>
+					new Map(
+						prevErrors.set('projectImage', t('pages.projects.basicInformationForm.errors.fileSizeLimit'))
+					)
+			);
 			setProjectImageFile(null);
 			return false;
 		}
 
 		if (!['image/jpeg', 'image/png'].includes(file.type)) {
-			setErrors((prevErrors) => new Map(prevErrors.set('projectImage', 'Only JPG and PNG formats are allowed.')));
+			setErrors(
+				(prevErrors) =>
+					new Map(
+						prevErrors.set('projectImage', t('pages.projects.basicInformationForm.errors.fileFormatLimit'))
+					)
+			);
 			setProjectImageFile(null);
 			return false;
 		}
@@ -71,7 +83,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			'projectTitle',
 			projectTitle,
 			[
-				(value) => (!value?.trim() ? 'Project title is required.' : null),
+				(value) => (!value?.trim() ? t('pages.projects.basicInformationForm.errors.titleRequired') : null),
 				(value) =>
 					value?.length < 3 || value?.length > 100
 						? 'Project title must be between 3 and 100 characters.'
@@ -81,15 +93,23 @@ export default function BasicInformationForm(props: IStepElementProps) {
 		);
 
 		// Validate startDate (required)
-		validateField('dateRange', startDate, [(value) => (!value ? 'Start date is required.' : null)], newErrors);
+		validateField(
+			'dateRange',
+			startDate,
+			[(value) => (!value ? t('pages.projects.basicInformationForm.errors.startDateRequired') : null)],
+			newErrors
+		);
 
 		// Validate endDate (required, and endDate must be after startDate)
 		validateField(
 			'dateRange',
 			endDate,
 			[
-				(value) => (!value ? 'End date is required.' : null),
-				(value) => (moment(startDate).isBefore(value) ? null : 'End date must be after start date.')
+				(value) => (!value ? t('pages.projects.basicInformationForm.errors.endDateRequired') : null),
+				(value) =>
+					moment(startDate).isBefore(value)
+						? null
+						: t('pages.projects.basicInformationForm.errors.endDateAfterStart')
 			],
 			newErrors
 		);
@@ -98,7 +118,10 @@ export default function BasicInformationForm(props: IStepElementProps) {
 		validateField(
 			'websiteUrl',
 			websiteUrl,
-			[(value) => value && !isValidUrl(value) && 'Invalid website URL.'],
+			[
+				(value) =>
+					value && !isValidUrl(value) && t('pages.projects.basicInformationForm.errors.invalidWebsiteUrl')
+			],
 			newErrors
 		);
 
@@ -129,7 +152,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="flex w-full gap-2 flex-col">
 				<label htmlFor="project_title" className=" text-xs font-medium">
-					Project Title
+					{t('pages.projects.basicInformationForm.formFields.title')}
 				</label>
 				<div className="w-full ">
 					<InputField
@@ -139,7 +162,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 						minLength={3}
 						value={projectTitle}
 						id="project_title"
-						placeholder="Client Project #1..."
+						placeholder={t('pages.projects.basicInformationForm.formFields.titlePlaceholder')}
 						className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
 						noWrapper
 					/>
@@ -152,7 +175,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				<div className="w-full flex gap-2">
 					<div className="flex w-full gap-1 flex-col">
 						<label htmlFor="project_start_date" className="text-xs font-medium">
-							Start Date
+							{t('common.START_DATE')}
 						</label>
 						<DatePicker
 							onChange={(date) => {
@@ -168,7 +191,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 					</div>
 					<div className="flex w-full gap-2 flex-col">
 						<label htmlFor="project_end_date" className="text-xs font-medium">
-							End Date
+							{t('common.END_DATE')}
 						</label>
 						<DatePicker
 							onChange={(date) => {
@@ -189,7 +212,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			</div>
 			<div className="flex w-full gap-2 flex-col">
 				<label htmlFor="website_url" className=" text-xs font-medium">
-					Website URL
+					{t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 				</label>
 				<div className="w-full ">
 					<InputField
@@ -197,7 +220,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 						onChange={(e) => setWebsiteUrl(e.target.value)}
 						type="url"
 						id="website_url"
-						placeholder="https://example.com"
+						placeholder={t('pages.projects.basicInformationForm.formFields.websiteUrlPlaceholder')}
 						className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
 						noWrapper
 					/>
@@ -205,7 +228,9 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			</div>
 
 			<div className="flex w-full gap-2 flex-col">
-				<span className=" text-xs font-medium">Project Thumbnail</span>
+				<span className=" text-xs font-medium">
+					{t('pages.projects.basicInformationForm.formFields.projectThumbnail')}
+				</span>
 				<div className="w-full flex flex-col gap-1">
 					<div className="w-full flex items-center gap-5">
 						{projectImageFile && (
@@ -257,7 +282,9 @@ export default function BasicInformationForm(props: IStepElementProps) {
 									/>
 								</svg>
 								<p className="text-sm text-gray-500 dark:text-gray-400">
-									<span className=" text-xs">Upload photo</span>
+									<span className=" text-xs">
+										{t('pages.projects.basicInformationForm.formFields.uploadPhoto')}
+									</span>
 								</p>
 							</div>
 							<input
@@ -274,7 +301,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button className=" h-[2.5rem]">Next</Button>
+				<Button className=" h-[2.5rem]">{t('common.NEXT')}</Button>
 			</div>
 		</form>
 	);

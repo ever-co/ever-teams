@@ -8,6 +8,7 @@ import { useRoles } from '@/app/hooks/features/useRoles';
 import { cn } from '@/lib/utils';
 import { IProjectRelation, ProjectRelationEnum } from '@/app/interfaces';
 import { RolesEnum } from '@/app/interfaces/IRoles';
+import { useTranslations } from 'next-intl';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext } = props;
@@ -17,6 +18,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { teams } = useOrganizationTeams();
 	const { roles, getRoles } = useRoles();
 	const relationsData = Object.values(ProjectRelationEnum);
+	const t = useTranslations();
 
 	const handleAddNewMember = () => {
 		setMembers((prev) => [...prev, { id: crypto.randomUUID(), memberId: '', roleId: '' }]);
@@ -55,7 +57,9 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="w-full flex flex-col gap-2">
-				<label className="text-xs font-medium">Assign Members & Managers</label>
+				<label className="text-xs font-medium">
+					{t('pages.projects.teamAndRelationsForm.formFields.assignMembers')}
+				</label>
 				<div className="w-full flex flex-col gap-2">
 					<div className="w-full flex flex-col gap-1">
 						{members.length ? (
@@ -77,7 +81,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 									onRemove={handleRemoveMember}
 									key={el.id}
 									id={el.id}
-									keysLabel="Select a member..."
+									keysLabel={t('pages.projects.teamAndRelationsForm.formFields.selectMember')}
 									valuesLabel="Select role..."
 									onKeyChange={(itemId, memberId) =>
 										setMembers((prev) =>
@@ -102,7 +106,9 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className=" text-xs ">No members or managers</span>
+							<span className=" text-xs ">
+								{t('pages.projects.teamAndRelationsForm.formFields.noMembers')}
+							</span>
 						)}
 					</div>
 					<Button
@@ -111,13 +117,15 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 						variant="outline"
 						onClick={handleAddNewMember}
 					>
-						<Plus size={15} /> <span>Add Member</span>
+						<Plus size={15} /> <span>{t('pages.projects.teamAndRelationsForm.formFields.addMember')}</span>
 					</Button>
 				</div>
 			</div>
 
 			<div className="w-full flex flex-col gap-2">
-				<label className="text-xs font-medium">Relations</label>
+				<label className="text-xs font-medium">
+					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
+				</label>
 				<div className="w-full flex flex-col gap-2">
 					<div className="w-full flex flex-col gap-1">
 						{relations.length ? (
@@ -135,8 +143,8 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 									onRemove={handleRemoveRelation}
 									key={el.id}
 									id={el.id}
-									keysLabel="Select a project..."
-									valuesLabel="Choose a relation type..."
+									keysLabel={t('pages.projects.teamAndRelationsForm.formFields.selectProject')}
+									valuesLabel={t('pages.projects.teamAndRelationsForm.formFields.selectRelationType')}
 									onKeyChange={(itemId, projectId) =>
 										setRelations((prev) =>
 											prev.map((el) => {
@@ -160,7 +168,9 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className=" text-xs ">No relations</span>
+							<span className=" text-xs ">
+								{t('pages.projects.teamAndRelationsForm.formFields.noRelations')}
+							</span>
 						)}
 					</div>
 					<Button
@@ -169,14 +179,15 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 						variant="outline"
 						onClick={handleAddNewRelation}
 					>
-						<Plus size={15} /> <span>Add Relation</span>
+						<Plus size={15} />{' '}
+						<span>{t('pages.projects.teamAndRelationsForm.formFields.addRelation')}</span>
 					</Button>
 				</div>
 			</div>
 
 			<div className="w-full flex items-center justify-end">
 				<Button type="submit" className=" h-[2.5rem]">
-					Next
+					{t('common.NEXT')}
 				</Button>
 			</div>
 		</form>

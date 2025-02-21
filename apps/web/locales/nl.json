@@ -352,7 +352,8 @@
 		"SCREENSHOTS": "Schermafbeeldingen",
 		"TIME_LOG": "Tijdlogboek",
 		"TO_DO": "Te doen",
-		"MEMBERS_COUNT": "Aantal leden"
+		"MEMBERS_COUNT": "Aantal leden",
+		"REVIEW": "BEKEKEN"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -449,6 +450,77 @@
 			"views": {
 				"LIST_VIEW": "Lijstweergave",
 				"GRID_VIEW": "Ruwe weergave"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Projecttitel",
+					"titlePlaceholder": "Klantproject #1...",
+					"description": "Beschrijving",
+					"datePickerPlaceholder": "Kies een datum",
+					"websiteUrl": "Website-URL",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Projectminiatuur",
+					"uploadPhoto": "Foto uploaden"
+				},
+				"errors": {
+					"titleRequired": "Projecttitel is verplicht.",
+					"titleLength": "Projecttitel moet tussen 3 en 100 tekens bevatten.",
+					"invalidWebsiteUrl": "Ongeldige website-URL.",
+					"fileSizeLimit": "Bestandsgrootte moet kleiner zijn dan 5MB.",
+					"fileFormatLimit": "Alleen JPG- en PNG-formaten zijn toegestaan.",
+					"startDateRequired": "Startdatum is verplicht.",
+					"endDateRequired": "Einddatum is verplicht.",
+					"endDateAfterStart": "Einddatum moet na startdatum liggen.",
+					"invalidUrl": "Voer een geldige URL in."
+				},
+				"common": {
+					"search": "Zoeken ...",
+					"typeNew": "Typ nieuw ...",
+					"addNew": "Nieuw toevoegen"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Labels",
+					"labelsPlaceholder": "Selecteer labels...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Selecteer tags...",
+					"colorCode": "Kleurcode"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Budgettype",
+					"budgetTypePlaceholder": "Selecteer budgettype",
+					"budgetAmount": "Budgetbedrag",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Valutaselectie",
+					"currencyPlaceholder": "Selecteer een valuta...",
+					"billing": "Facturatietype",
+					"billingPlaceholder": "Selecteer interval..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Leden & Managers toewijzen",
+					"noMembers": "Geen leden of managers",
+					"addMember": "Lid toevoegen",
+					"selectMember": "Selecteer een lid...",
+					"selectRole": "Selecteer een rol...",
+					"relations": "Relaties",
+					"noRelations": "Geen relaties",
+					"addRelation": "Relatie toevoegen",
+					"selectProject": "Selecteer een project...",
+					"selectRelationType": "Kies een relatietype..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Project aanmaken",
+					"financialSettings": "Financiële instellingen",
+					"categorization": "Categorisering",
+					"teamAndRelations": "Team & Relaties"
+				}
 			}
 		},
 		"taskStatus": {

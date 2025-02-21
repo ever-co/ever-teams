@@ -13,12 +13,14 @@ import {
 	ProjectBillingEnum
 } from '@/app/interfaces';
 import { IStepElementProps } from '../container';
+import { useTranslations } from 'next-intl';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { finish, currentData: finalData } = props;
 	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
 	const { createImageAssets } = useImageAssets();
 	const { user } = useAuthenticateUser();
+	const t = useTranslations();
 
 	const newProject: Partial<ICreateProjectInput> = {
 		name: finalData?.name,
@@ -72,7 +74,7 @@ export default function FinalReview(props: IStepElementProps) {
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="w-full flex flex-col gap-6">
-				<h2 className=" text-xl font-medium">Review</h2>
+				<h2 className=" text-xl font-medium">{t('common.REVIEW')}</h2>
 				<div className="w-full flex flex-col  gap-8">
 					<BasicInformation
 						projectTitle={finalData?.name ?? '-'}
@@ -103,7 +105,7 @@ export default function FinalReview(props: IStepElementProps) {
 			</div>
 			<div className="w-full flex items-center justify-end">
 				<Button loading={createOrganizationProjectLoading} type="submit" className=" h-[2.5rem]">
-					Create Project
+					{t('pages.projects.addOrEditModal.steps.createProject')}
 				</Button>
 			</div>
 		</form>
@@ -147,20 +149,21 @@ interface IBasicInformationProps {
 }
 function BasicInformation(props: IBasicInformationProps) {
 	const { projectTitle, projectImageUrl, description, startDate, endDate, websiteUrl } = props;
+	const t = useTranslations();
 	return (
 		<div className="w-full flex flex-col gap-8">
 			<div className="w-full flex gap-5">
 				<Attribute
-					_key="Project Title"
+					_key={t('pages.projects.basicInformationForm.formFields.title')}
 					icon={<Thumbnail imgUrl={projectImageUrl} size={'20px'} identifier={projectTitle} />}
 					value={projectTitle}
 				/>
 				<VerticalSeparator />
-				<Attribute _key="Start Date" value={startDate} icon={<Calendar size={10} />} />
-				<Attribute _key="End Date" value={endDate} icon={<Calendar size={10} />} />
+				<Attribute _key={t('common.START_DATE')} value={startDate} icon={<Calendar size={10} />} />
+				<Attribute _key={t('common.END_DATE')} value={endDate} icon={<Calendar size={10} />} />
 				<VerticalSeparator />
 				<Attribute
-					_key="Website URL"
+					_key={t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 					value={
 						<div className="flex items-center gap-1">
 							{websiteUrl ? (
@@ -176,7 +179,7 @@ function BasicInformation(props: IBasicInformationProps) {
 			</div>
 
 			<div className="w-full flex flex-col gap-2">
-				<span className="text-xs font-medium">Description</span>
+				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
 				{description ? <p className="border min-h-20 rounded-lg text-xs p-3">{description}</p> : <span>-</span>}
 			</div>
 		</div>
@@ -195,14 +198,15 @@ interface FinancialSettingsProps {
 }
 function FinancialSettings(props: FinancialSettingsProps) {
 	const { budgetType, budgetAmount, budgetCurrency, billingType } = props;
+	const t = useTranslations();
 
 	const data = [
 		{
-			key: 'Budget Type',
+			key: t('pages.projects.financialSettingsForm.formFields.budgetType'),
 			value: budgetType ?? '-'
 		},
 		{
-			key: 'Budget Amount',
+			key: t('pages.projects.financialSettingsForm.formFields.budgetAmount'),
 			value: budgetAmount
 				? new Intl.NumberFormat('us-US', {
 						useGrouping: true
@@ -210,11 +214,11 @@ function FinancialSettings(props: FinancialSettingsProps) {
 				: '-'
 		},
 		{
-			key: 'Billing Type',
+			key: t('pages.projects.financialSettingsForm.formFields.billing'),
 			value: billingType ?? '-'
 		},
 		{
-			key: 'Currency',
+			key: t('pages.projects.financialSettingsForm.formFields.currency'),
 			value: budgetCurrency ?? '-'
 		}
 	];
@@ -248,6 +252,7 @@ interface ICategorizationProps {
 
 function Categorization(props: ICategorizationProps) {
 	const { labels, tags, colorCode } = props;
+	const t = useTranslations();
 
 	const ItemWithColor = ({ label, color }: { label: string; color: string }) => (
 		<div key={label} className="px-1 shrink-0  text-[.7rem] border flex items-center gap-2 rounded">
@@ -259,7 +264,7 @@ function Categorization(props: ICategorizationProps) {
 	return (
 		<div className="w-full flex items-center gap-8 flex-wrap">
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">Labels</p>
+				<p className=" text-xs font-medium"> {t('pages.projects.categorizationForm.formFields.labels')}</p>
 				<div className="w-full flex wrap items-center gap-2">
 					{labels?.length ? (
 						labels?.map((el) => {
@@ -271,7 +276,7 @@ function Categorization(props: ICategorizationProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">Tags</p>
+				<p className=" text-xs font-medium">{t('pages.projects.categorizationForm.formFields.tags')}</p>
 				<div className="w-full flex wrap items-center gap-2">
 					{tags?.length ? (
 						tags?.map((el) => {
@@ -283,7 +288,7 @@ function Categorization(props: ICategorizationProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">Color Code</p>
+				<p className=" text-xs font-medium">{t('pages.projects.categorizationForm.formFields.colorCode')}</p>
 				<ItemWithColor color={colorCode ?? 'black'} label={colorCode ?? '-'} />
 			</div>
 		</div>
@@ -303,6 +308,7 @@ interface ITeamAndRelationsProps {
 
 function TeamAndRelations(props: ITeamAndRelationsProps) {
 	const { managerIds, relations, projectImgUrl, projectTitle } = props;
+	const t = useTranslations();
 
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
@@ -319,7 +325,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 	return (
 		<div className="w-full flex gap-8 flex-col">
 			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium">Managers</p>
+				<p className=" text-xs font-medium">{t('common.MANAGERS')}</p>
 				<div className="w-full flex wrap items-center gap-2">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
@@ -337,7 +343,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium">Relations</p>
+				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.relations')}</p>
 				<div className="w-full flex-col flex gap-2">
 					{relations?.length ? (
 						relations?.map((relation) => {

@@ -8,6 +8,7 @@ import BasicInformationForm from './steps/basic-information-form';
 import CategorizationForm from './steps/categorization-form';
 import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
+import { useTranslations } from 'next-intl';
 
 interface IAddOrEditProjectModalProps {
 	open: boolean;
@@ -16,12 +17,13 @@ interface IAddOrEditProjectModalProps {
 
 export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps) {
 	const { open, closeModal } = props;
+	const t = useTranslations();
 
 	const initialSteps = [
-		{ id: 1, title: 'Create Project', isCompleted: false },
-		{ id: 2, title: 'Financial Settings', isCompleted: false },
-		{ id: 3, title: 'Categorization', isCompleted: false },
-		{ id: 4, title: 'Team & Relations', isCompleted: false }
+		{ id: 1, title: t('pages.projects.addOrEditModal.steps.createProject'), isCompleted: false },
+		{ id: 2, title: t('pages.projects.addOrEditModal.steps.financialSettings'), isCompleted: false },
+		{ id: 3, title: t('pages.projects.addOrEditModal.steps.categorization'), isCompleted: false },
+		{ id: 4, title: t('pages.projects.addOrEditModal.steps.teamAndRelations'), isCompleted: false }
 	];
 
 	const [steps, setSteps] = useState(initialSteps);

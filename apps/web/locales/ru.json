@@ -352,7 +352,8 @@
 		"SCREENSHOTS": "Скриншоты",
 		"TIME_LOG": "Журнал времени",
 		"TO_DO": "Список дел",
-		"MEMBERS_COUNT": "Количество участников"
+		"MEMBERS_COUNT": "Количество участников",
+		"REVIEW": "ОБЗОР"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -449,6 +450,77 @@
 			"views": {
 				"LIST_VIEW": "Список",
 				"GRID_VIEW": "Сетка"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Название проекта",
+					"titlePlaceholder": "Клиентский проект #1...",
+					"description": "Описание",
+					"datePickerPlaceholder": "Выберите дату",
+					"websiteUrl": "URL сайта",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Эскиз проекта",
+					"uploadPhoto": "Загрузить фото"
+				},
+				"errors": {
+					"titleRequired": "Название проекта обязательно.",
+					"titleLength": "Название проекта должно быть от 3 до 100 символов.",
+					"invalidWebsiteUrl": "Неверный URL сайта.",
+					"fileSizeLimit": "Размер файла должен быть меньше 5 МБ.",
+					"fileFormatLimit": "Разрешены только форматы JPG и PNG.",
+					"startDateRequired": "Дата начала обязательна.",
+					"endDateRequired": "Дата окончания обязательна.",
+					"endDateAfterStart": "Дата окончания должна быть после даты начала.",
+					"invalidUrl": "Пожалуйста, введите действительный URL."
+				},
+				"common": {
+					"search": "Поиск ...",
+					"typeNew": "Введите новое ...",
+					"addNew": "Добавить новое"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Метки",
+					"labelsPlaceholder": "Выберите метки...",
+					"tags": "Теги",
+					"tagsPlaceholder": "Выберите теги...",
+					"colorCode": "Цветовой код"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Тип бюджета",
+					"budgetTypePlaceholder": "Выберите тип бюджета",
+					"budgetAmount": "Сумма бюджета",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Выбор валюты",
+					"currencyPlaceholder": "Выберите валюту...",
+					"billing": "Тип биллинга",
+					"billingPlaceholder": "Выберите интервал..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Назначить участников и менеджеров",
+					"noMembers": "Нет участников или менеджеров",
+					"addMember": "Добавить участника",
+					"selectMember": "Выберите участника...",
+					"selectRole": "Выберите роль...",
+					"relations": "Связи",
+					"noRelations": "Нет связей",
+					"addRelation": "Добавить связь",
+					"selectProject": "Выберите проект...",
+					"selectRelationType": "Выберите тип связи..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Создать проект",
+					"financialSettings": "Финансовые настройки",
+					"categorization": "Категоризация",
+					"teamAndRelations": "Команда и связи"
+				}
 			}
 		},
 		"taskStatus": {

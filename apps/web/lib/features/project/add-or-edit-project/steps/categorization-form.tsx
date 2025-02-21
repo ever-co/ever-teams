@@ -8,6 +8,7 @@ import { CheckIcon } from 'lucide-react';
 import { IStepElementProps } from '../container';
 import { useTags } from '@/app/hooks/features/useTags';
 import { predefinedLabels } from '@/app/constants';
+import { useTranslations } from 'next-intl';
 
 export default function CategorizationForm(props: IStepElementProps) {
 	const { goToNext } = props;
@@ -15,6 +16,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 	const [tags, setTags] = useState<string[]>([]);
 	const [colorCode, setColorCode] = useState<string>('#000000');
 	const { tags: tagData, getTags, createTag, createTagLoading } = useTags();
+	const t = useTranslations();
 
 	useEffect(() => {
 		getTags();
@@ -34,7 +36,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 			<div className="w-full flex gap-3">
 				<div className="flex flex-1 gap-1 flex-col">
 					<label htmlFor="project_labels" className=" text-xs font-medium">
-						Labels
+						{t('pages.projects.categorizationForm.formFields.labels')}
 					</label>
 					<div className="w-full">
 						<Select
@@ -42,7 +44,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 							multiple
 							onChange={(data) => setLabels(data as string[])}
 							selected={labels}
-							placeholder="Select labels..."
+							placeholder={t('pages.projects.categorizationForm.formFields.labelsPlaceholder')}
 							options={predefinedLabels.map((el) => ({
 								id: el.name,
 								value: el.name,
@@ -78,7 +80,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 				</div>
 				<div className="flex gap-1  flex-1 flex-col">
 					<label htmlFor="project_tags" className=" text-xs font-medium">
-						Tags
+						{t('pages.projects.categorizationForm.formFields.tags')}
 					</label>
 					<div className="w-full">
 						<Select
@@ -92,7 +94,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 							}}
 							onChange={(data) => setTags(data as string[])}
 							selected={tags}
-							placeholder="Select tags..."
+							placeholder={t('pages.projects.categorizationForm.formFields.tagsPlaceholder')}
 							options={tagData?.map((el) => {
 								return {
 									id: el.id,
@@ -129,7 +131,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 				</div>
 				<div className="flex gap-1 flex-1 flex-col">
 					<label htmlFor="project_color" className=" text-xs font-medium">
-						Color Code
+						{t('pages.projects.categorizationForm.formFields.colorCode')}
 					</label>
 					<div className="w-full">
 						<Popover className={cn('relative w-full')}>
@@ -155,7 +157,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 			</div>
 			<div className="w-full flex items-center justify-end">
 				<Button type="submit" className=" h-[2.5rem]">
-					Next
+					{t('common.NEXT')}
 				</Button>
 			</div>
 		</form>

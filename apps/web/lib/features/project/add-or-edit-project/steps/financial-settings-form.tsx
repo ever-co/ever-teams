@@ -4,6 +4,7 @@ import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/app/interfaces';
 import { CurrencyEnum } from '@/app/constants';
+import { useTranslations } from 'next-intl';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext } = props;
@@ -21,6 +22,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 		id: value,
 		value: value
 	}));
+	const t = useTranslations();
 
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
@@ -37,19 +39,21 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 			<div className="w-full flex gap-4">
 				<div className="flex-1 flex flex-col gap-5">
 					<div className="flex flex-1 gap-1 flex-col">
-						<label className=" text-xs font-medium">Budget Type</label>
+						<label className=" text-xs font-medium">
+							{t('pages.projects.financialSettingsForm.formFields.budgetType')}
+						</label>
 						<div className="w-full">
 							<Select
 								onChange={(data) => setBudgetType(data as OrganizationProjectBudgetTypeEnum)}
 								selected={budgetType as string}
-								placeholder="Select a budget type"
+								placeholder={t('pages.projects.financialSettingsForm.formFields.budgetTypePlaceholder')}
 								options={budgetTypes}
 							/>
 						</div>
 					</div>
 					<div className="flex gap-1 flex-col">
 						<label htmlFor="budget_amount" className=" text-xs font-medium">
-							Budget Amount
+							{t('pages.projects.financialSettingsForm.formFields.budgetAmount')}
 						</label>
 						<div className="w-full">
 							<InputField
@@ -57,7 +61,9 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 								value={budgetAmount}
 								onChange={(e) => setBudgetAmount(parseFloat(e.target.value))}
 								id="budget_amount"
-								placeholder="10 000$..."
+								placeholder={t(
+									'pages.projects.financialSettingsForm.formFields.budgetAmountPlaceholder'
+								)}
 								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
 								noWrapper
 							/>
@@ -67,12 +73,14 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 
 				<div className="flex-1 flex flex-col gap-5">
 					<div className="flex flex-1 gap-1 flex-col">
-						<label className=" text-xs font-medium">Currency Selection</label>
+						<label className=" text-xs font-medium">
+							{t('pages.projects.financialSettingsForm.formFields.currency')}
+						</label>
 						<div className="w-full">
 							<Select
 								onChange={(data) => setCurrency(data as CurrencyEnum)}
 								selected={currency ?? null}
-								placeholder="Select a currency..."
+								placeholder={t('pages.projects.financialSettingsForm.formFields.currencyPlaceholder')}
 								options={Object.keys(CurrencyEnum).map((currency) => ({
 									id: currency,
 									value: currency
@@ -82,13 +90,13 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 					</div>
 					<div className="flex gap-1 flex-col">
 						<label htmlFor="project_title" className=" text-xs font-medium">
-							Billing Configuration
+							{t('pages.projects.financialSettingsForm.formFields.billing')}
 						</label>
 						<div className="w-full">
 							<Select
 								onChange={(data) => setBillingType(data as ProjectBillingEnum)}
 								selected={billingType as string}
-								placeholder="Select interval..."
+								placeholder={t('pages.projects.financialSettingsForm.formFields.billingPlaceholder')}
 								options={billingTypes}
 							/>
 						</div>
@@ -97,7 +105,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 			</div>
 			<div className="w-full flex items-center justify-end">
 				<Button type="submit" className=" h-[2.5rem]">
-					Next
+					{t('common.NEXT')}
 				</Button>
 			</div>
 		</form>

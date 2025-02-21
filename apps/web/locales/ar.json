@@ -334,7 +334,8 @@
 		"SCREENSHOTS": "لقطات الشاشة",
 		"TIME_LOG": "سجل الوقت",
 		"TO_DO": "المهام",
-		"MEMBERS_COUNT": "عدد الأعضاء"
+		"MEMBERS_COUNT": "عدد الأعضاء",
+		"REVIEW": "مراجعة"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -411,6 +412,78 @@
 			"views": {
 				"LIST_VIEW": "عرض القائمة",
 				"GRID_VIEW": "عرض الشبكة"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "عنوان المشروع",
+					"titlePlaceholder": "مشروع العميل #1...",
+					"description": "الوصف",
+					"datePickerPlaceholder": "اختر تاريخًا",
+					"websiteUrl": "رابط الموقع",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "صورة مصغرة للمشروع",
+					"uploadPhoto": "رفع صورة"
+				},
+				"errors": {
+					"titleRequired": "عنوان المشروع مطلوب.",
+					"titleLength": "يجب أن يتراوح عنوان المشروع بين 3 و 100 حرفًا.",
+					"invalidWebsiteUrl": "رابط الموقع غير صالح.",
+					"fileSizeLimit": "يجب أن يكون حجم الملف أقل من 5 ميجابايت.",
+					"fileFormatLimit": "يتم قبول تنسيقات JPG و PNG فقط.",
+					"startDateRequired": "تاريخ البدء مطلوب.",
+					"endDateRequired": "تاريخ الانتهاء مطلوب.",
+					"endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.",
+					"invalidUrl": "يرجى إدخال رابط صالح."
+				},
+				"common": {
+					"search": "بحث ...",
+					"typeNew": "اكتب جديد ...",
+					"addNew": "إضافة جديد"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "نوع الميزانية",
+					"budgetTypePlaceholder": "اختر نوع الميزانية",
+					"budgetAmount": "مقدار الميزانية",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "اختيار العملة",
+					"currencyPlaceholder": "اختر عملة...",
+					"billing": "نوع الفاتورة",
+					"billingPlaceholder": "اختر الفاصل الزمني..."
+				}
+			},
+
+			"categorizationForm": {
+				"formFields": {
+					"labels": "التصنيفات",
+					"labelsPlaceholder": "حدد التصنيفات...",
+					"tags": "الوسوم",
+					"tagsPlaceholder": "حدد الوسوم...",
+					"colorCode": "رمز اللون"
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "تعيين الأعضاء والمديرين",
+					"noMembers": "لا يوجد أعضاء أو مديرين",
+					"addMember": "إضافة عضو",
+					"selectMember": "اختر عضو...",
+					"selectRole": "اختر دور...",
+					"relations": "العلاقات",
+					"noRelations": "لا توجد علاقات",
+					"addRelation": "إضافة علاقة",
+					"selectProject": "اختر مشروع...",
+					"selectRelationType": "اختر نوع العلاقة..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "إنشاء مشروع",
+					"financialSettings": "الإعدادات المالية",
+					"categorization": "التصنيف",
+					"teamAndRelations": "الفريق والعلاقات"
+				}
 			}
 		},
 		"profile": {
@@ -704,6 +777,14 @@
 			"IN_REVIEW": "قيد المراجعة",
 			"DRAFT": "مسودة",
 			"REJECTED": "مرفوض"
+		},
+		"addOrEditModal": {
+			"steps": {
+				"createProject": "إنشاء مشروع",
+				"financialSettings": "الإعدادات المالية",
+				"categorization": "التصنيف",
+				"teamAndRelations": "الفريق والعلاقات"
+			}
 		}
 	},
 	"timer": {

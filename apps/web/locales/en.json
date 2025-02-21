@@ -353,7 +353,8 @@
 		"MEMBERS": "Members",
 		"MANAGERS": "Managers",
 		"NOT_HOURS_WORKED": "Not hours worked",
-		"MEMBERS_COUNT": "Members count"
+		"MEMBERS_COUNT": "Members count",
+		"REVIEW": "REVIEW"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -393,6 +394,77 @@
 			"views": {
 				"LIST_VIEW": "List View",
 				"GRID_VIEW": "Grid View"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Project Title",
+					"titlePlaceholder": "Client Project #1...",
+					"description": "Description",
+					"datePickerPlaceholder": "Pick a date",
+					"websiteUrl": "Website URL",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Project Thumbnail",
+					"uploadPhoto": "Upload photo"
+				},
+				"errors": {
+					"titleRequired": "Project title is required.",
+					"titleLength": "Project title must be between 3 and 100 characters.",
+					"invalidWebsiteUrl": "Invalid website URL.",
+					"fileSizeLimit": "File size must be less than 5MB.",
+					"fileFormatLimit": "Only JPG and PNG formats are allowed.",
+					"startDateRequired": "Start date is required",
+					"endDateRequired": "End date is required",
+					"endDateAfterStart": "End date must be after start date",
+					"invalidUrl": "Please enter a valid URL"
+				},
+				"common": {
+					"search": "Search ...",
+					"typeNew": "Type new ...",
+					"addNew": "Add new"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Labels",
+					"labelsPlaceholder": "Select labels...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Select tags...",
+					"colorCode": "Color Code"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Budget Type",
+					"budgetTypePlaceholder": "Select a budget type",
+					"budgetAmount": "Budget Amount",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Currency Selection",
+					"currencyPlaceholder": "Select a currency...",
+					"billing": "Billing Type",
+					"billingPlaceholder": "Select interval..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Assign Members & Managers",
+					"noMembers": "No members or managers",
+					"addMember": "Add Member",
+					"selectMember": "Select a member...",
+					"selectRole": "Select role...",
+					"relations": "Relations",
+					"noRelations": "No relations",
+					"addRelation": "Add Relation",
+					"selectProject": "Select a project...",
+					"selectRelationType": "Choose a relation type..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Create Project",
+					"financialSettings": "Financial Settings",
+					"categorization": "Categorization",
+					"teamAndRelations": "Team & Relations"
+				}
 			}
 		},
 		"home": {
