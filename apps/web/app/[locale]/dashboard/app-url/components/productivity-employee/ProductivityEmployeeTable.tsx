@@ -247,12 +247,10 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
   const [localData, setLocalData] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    console.log("New data received:", data);
     setLocalData(data);
   }, [data]);
 
   const groupedData = React.useMemo(() => {
-    console.log("Grouping data:", localData);
     const employeeMap = new Map<string, EmployeeActivityGroup>();
 
     if (!Array.isArray(localData)) {
@@ -260,7 +258,6 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
       return employeeMap;
     }
 
-    // Sort data by date (newest first)
     const sortedData = [...localData].sort((a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
