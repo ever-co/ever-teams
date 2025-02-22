@@ -66,7 +66,7 @@ interface IEmployee {
 }
 
 interface Props {
-  data?: any[];
+  data?: any[] ;
   isLoading?: boolean;
 }
 
@@ -193,10 +193,10 @@ const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, is
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <span>{activity.title}</span>
+            <span>{activity.title || 'No project'}</span>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Application: {activity.title}</p>
+            <p>Project: {activity.title || 'No project'}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -220,6 +220,25 @@ const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, is
 ));
 
 ActivityRow.displayName = 'ActivityRow';
+
+const MemoizedActivityGroup: React.FC<{
+  activity: IActivityItem;
+  date: string;
+  index: number;
+}> = React.memo(({ activity, date, index }) => (
+  <ActivityRow
+    key={`${date}-${activity.employeeId}-${index}`}
+    date={date}
+    activity={{
+      title: activity.title,
+      duration: activity.duration,
+      duration_percentage: activity.duration_percentage
+    }}
+    isFirstOfDay={index === 0}
+  />
+));
+
+MemoizedActivityGroup.displayName = 'MemoizedActivityGroup';
 
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
   const [localData, setLocalData] = React.useState<any[]>([]);
@@ -330,15 +349,11 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
                 {dates.map(date => {
                   const dateGroup = dateGroups.get(date)!;
                   return dateGroup.activities.map((activity, index) => (
-                    <ActivityRow
+                    <MemoizedActivityGroup
                       key={`${date}-${activity.employeeId}-${index}`}
+                      activity={activity}
                       date={date}
-                      activity={{
-                        title: activity.title,
-                        duration: activity.duration,
-                        duration_percentage: activity.duration_percentage
-                      }}
-                      isFirstOfDay={index === 0}
+                      index={index}
                     />
                   ));
                 })}
