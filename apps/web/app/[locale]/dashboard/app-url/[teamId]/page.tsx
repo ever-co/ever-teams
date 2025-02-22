@@ -19,6 +19,7 @@ import { ProductivityChart } from '../components/ProductivityChart';
 import { ProductivityStats } from '../components/ProductivityStats';
 import { ProductivityProjectTable } from '../components/productivity-project';
 import { ProductivityTable } from '../components/ProductivityTable';
+import { ProductivityEmployeeTable } from '../components/productivity-employee/ProductivityEmployeeTable';
 
 interface ProductivityData {
 	date: string;
@@ -44,6 +45,11 @@ function AppUrls() {
 		updateFilters,
 		isManage
 	} = useReportActivity({ types: 'APPS-URLS' });
+
+	const handleGroupTypeChange = (type: GroupByType) => {
+		setGroupByType(type);
+		handleGroupByChange(type);
+	};
 
 	const generateMonthData = (date: Date): ProductivityData[] => {
 		const year = date.getFullYear();
@@ -104,10 +110,7 @@ function AppUrls() {
 							<DashboardHeader
 								onUpdateDateRange={updateDateRange}
 								onUpdateFilters={updateFilters}
-								onGroupByChange={(value) => {
-									setGroupByType(value);
-									handleGroupByChange(value);
-								}}
+								onGroupByChange={handleGroupTypeChange}
 								showGroupBy={true}
 								title="Apps & URLs Dashboard"
 								isManage={isManage}
@@ -139,8 +142,8 @@ function AppUrls() {
 							return <ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />;
 						case 'date':
 							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
-						default:
-							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
+						case 'employee':
+							return <ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />;
 					}
 				})()}
 			</Container>

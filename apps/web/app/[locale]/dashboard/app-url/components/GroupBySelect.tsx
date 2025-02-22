@@ -19,7 +19,7 @@ export function GroupBySelect({ onGroupByChange }: GroupBySelectProps) {
             <SelectContent className="dark:bg-dark--theme-light">
                 <SelectItem value="date">Date</SelectItem>
                 <SelectItem value="project">Project</SelectItem>
-                <SelectItem value="person">Person</SelectItem>
+                <SelectItem value="employee">Person</SelectItem>
                 <SelectItem value="application">Application</SelectItem>
             </SelectContent>
         </Select>

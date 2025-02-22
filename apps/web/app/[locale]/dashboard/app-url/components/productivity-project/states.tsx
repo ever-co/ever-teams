@@ -41,11 +41,27 @@ export const LoadingSkeleton: React.FC = () => (
   </Card>
 );
 
-export const EmptyState: React.FC = () => (
-  <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] flex items-center justify-center w-full">
-    <div className="text-center text-gray-500 dark:text-gray-400">
-      <p className="text-lg font-medium">No activity data available</p>
-      <p className="text-sm">Select a different date range or check back later</p>
-    </div>
-  </Card>
-);
+interface EmptyStateProps {
+  selectedDate?: string;
+}
+
+export const EmptyState: React.FC<EmptyStateProps> = ({ selectedDate }) => {
+  const formattedDate = selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  }) : '';
+
+  return (
+    <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] flex items-center justify-center w-full">
+      <div className="text-center text-gray-500 dark:text-gray-400">
+        <p className="text-lg font-medium">No activity data available</p>
+        {selectedDate && (
+          <p className="mb-2 text-sm">for {formattedDate}</p>
+        )}
+        <p className="text-sm">Select a different date range or check back later</p>
+      </div>
+    </Card>
+  );
+};

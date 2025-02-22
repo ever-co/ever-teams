@@ -11,10 +11,36 @@ export const formatDuration = (seconds: string): string => {
 };
 
 export const groupActivitiesByProjectAndDate = (reportData: IActivityReportGroupByDate[]): ProjectGroups => {
+  if (!Array.isArray(reportData)) {
+    console.warn('reportData must be an array');
+    return {} as ProjectGroups;
+  }
+
   return reportData.reduce((projectAcc, dayData) => {
+    if (!dayData || !Array.isArray(dayData.employees)) {
+      console.warn('Invalid data structure for dayData:', dayData);
+      return projectAcc;
+    }
+
     dayData.employees.forEach((employeeData: any) => {
+      if (!employeeData) {
+        console.warn('employeeData is undefined');
+        return;
+      }
+
       const activities = employeeData.projects?.[0]?.activity || employeeData.activity || [];
+
+      if (!Array.isArray(activities)) {
+        console.warn('activities must be an array');
+        return;
+      }
+
       activities.forEach((activity: any) => {
+        if (!activity) {
+          console.warn('activity is undefined');
+          return;
+        }
+
         const projectName = activity.projectId || 'No project';
         if (!projectAcc[projectName]) {
           projectAcc[projectName] = {};
@@ -29,12 +55,19 @@ export const groupActivitiesByProjectAndDate = (reportData: IActivityReportGroup
         }
 
         const dateGroup = projectAcc[projectName][dayData.date];
+        const employee = employeeData.employee || employeeData;
+
+        if (!employee || !employee.id) {
+          console.warn('Invalid employee data:', employee);
+          return;
+        }
+
         dateGroup.activities.push({
-          employee: employeeData.employee || employeeData,
+          employee,
           activity
         });
-        dateGroup.totalDuration += (activity.duration as number);
-        dateGroup.members.add((employeeData.employee || employeeData).id);
+        dateGroup.totalDuration += parseInt(activity.duration || '0');
+        dateGroup.members.add(employee.id);
       });
     });
     return projectAcc;
