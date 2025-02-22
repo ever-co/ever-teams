@@ -221,24 +221,27 @@ const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, is
 
 ActivityRow.displayName = 'ActivityRow';
 
-const MemoizedActivityGroup: React.FC<{
+const MemoizedActivityRow: React.FC<{
   activity: IActivityItem;
   date: string;
-  index: number;
-}> = React.memo(({ activity, date, index }) => (
-  <ActivityRow
-    key={`${date}-${activity.employeeId}-${index}`}
-    date={date}
-    activity={{
-      title: activity.title,
-      duration: activity.duration,
-      duration_percentage: activity.duration_percentage
-    }}
-    isFirstOfDay={index === 0}
-  />
-));
+  isFirstOfDay: boolean;
+}> = React.memo(({ activity, date, isFirstOfDay }) => {
+  const activityProps = React.useMemo(() => ({
+    title: activity.title,
+    duration: activity.duration,
+    duration_percentage: activity.duration_percentage
+  }), [activity.title, activity.duration, activity.duration_percentage]);
 
-MemoizedActivityGroup.displayName = 'MemoizedActivityGroup';
+  return (
+    <ActivityRow
+      date={date}
+      activity={activityProps}
+      isFirstOfDay={isFirstOfDay}
+    />
+  );
+});
+
+MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
   const [localData, setLocalData] = React.useState<any[]>([]);
@@ -349,11 +352,11 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
                 {dates.map(date => {
                   const dateGroup = dateGroups.get(date)!;
                   return dateGroup.activities.map((activity, index) => (
-                    <MemoizedActivityGroup
+                    <MemoizedActivityRow
                       key={`${date}-${activity.employeeId}-${index}`}
                       activity={activity}
                       date={date}
-                      index={index}
+                      isFirstOfDay={index === 0}
                     />
                   ));
                 })}
