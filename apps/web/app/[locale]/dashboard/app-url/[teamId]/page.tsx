@@ -12,12 +12,14 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { DashboardHeader } from '../../team-dashboard/[teamId]/components/dashboard-header';
-import { useReportActivity } from '@/app/hooks/features/useReportActivity';
-import { ProductivityStats } from '../components/ProductivityStats';
-import { ProductivityChart } from '../components/ProductivityChart';
-import { ProductivityHeader } from '../components/ProductivityHeader';
-import { ProductivityTable } from '../components/ProductivityTable';
+import { GroupByType, useReportActivity } from '@/app/hooks/features/useReportActivity';
 import { Card } from '@components/ui/card';
+import { ProductivityHeader } from '../components/ProductivityHeader';
+import { ProductivityChart } from '../components/ProductivityChart';
+import { ProductivityStats } from '../components/ProductivityStats';
+import { ProductivityProjectTable } from '../components/productivity-project';
+import { ProductivityTable } from '../components/ProductivityTable';
+import { ProductivityEmployeeTable } from '../components/productivity-employee/ProductivityEmployeeTable';
 
 interface ProductivityData {
 	date: string;
@@ -33,6 +35,7 @@ function AppUrls() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { isTrackingEnabled } = useOrganizationTeams();
+	const [groupByType, setGroupByType] = React.useState<GroupByType>('date');
 
 	const {
 		activityReport,
@@ -42,6 +45,11 @@ function AppUrls() {
 		updateFilters,
 		isManage
 	} = useReportActivity({ types: 'APPS-URLS' });
+
+	const handleGroupTypeChange = (type: GroupByType) => {
+		setGroupByType(type);
+		handleGroupByChange(type);
+	};
 
 	const generateMonthData = (date: Date): ProductivityData[] => {
 		const year = date.getFullYear();
@@ -102,10 +110,10 @@ function AppUrls() {
 							<DashboardHeader
 								onUpdateDateRange={updateDateRange}
 								onUpdateFilters={updateFilters}
+								onGroupByChange={handleGroupTypeChange}
+								showGroupBy={true}
 								title="Apps & URLs Dashboard"
 								isManage={isManage}
-								showGroupBy={true}
-								onGroupByChange={handleGroupByChange}
 							/>
 							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
 								<div className="flex flex-col gap-6 w-full">
@@ -128,7 +136,16 @@ function AppUrls() {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<ProductivityTable data={activityReport} isLoading={loadingActivityReport} />
+				{(() => {
+					switch (groupByType) {
+						case 'project':
+							return <ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />;
+						case 'date':
+							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
+						case 'employee':
+							return <ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />;
+					}
+				})()}
 			</Container>
 		</MainLayout>
 	);

@@ -1,0 +1,50 @@
+import { IActivityItem } from '@/app/interfaces/activity/IActivityReport';
+
+export interface Employee {
+  id: string;
+  fullName: string;
+  user?: {
+    imageUrl?: string;
+  };
+}
+
+export interface ActivityData {
+  employee: Employee;
+  activity: IActivityItem;
+}
+
+export interface ProjectGroupData {
+  activities: ActivityData[];
+  totalDuration: number;
+  members: Set<string>;
+}
+
+export interface ProjectGroups {
+  [projectName: string]: {
+    [date: string]: ProjectGroupData;
+  };
+}
+
+export interface DateSummaryRowProps {
+  date: string;
+  activities: ActivityData[];
+}
+
+export interface ProjectHeaderRowProps {
+  projectName: string;
+}
+
+export interface DateHeaderRowProps {
+  date: string;
+  activities: ActivityData[];
+}
+
+export interface ActivityRowProps {
+  employee: Employee;
+  activity: IActivityItem;
+}
+
+export interface ProgressBarProps {
+  percentage: number;
+  className?: string;
+}
