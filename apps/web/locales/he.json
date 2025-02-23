@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "תקציב פרויקט"
 	},
 	"common": {
+		"APPLICATION": "יישום",
+		"TIME_SPENT": "זמן שנוצל",
+		"PERCENT_USED": "אחוז בשימוש",
+		"NO_ACTIVITY_DATA": "אין נתוני פעילות זמינים",
+		"SELECT_DIFFERENT_DATE": "בחר טווח תאריכים אחר או בדוק מאוחר יותר",
 		"PENDING_TASKS": "משימות ממתינות",
 		"SHOW_MORE": "הצג עוד",
 		"TASKS": "משימות",

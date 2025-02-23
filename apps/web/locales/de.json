@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "Projektbudget"
 	},
 	"common": {
+	    "APPLICATION": "Anwendung",
+		"TIME_SPENT": "Verbrachte Zeit",
+		"PERCENT_USED": "Prozentsatz genutzt",
+		"NO_ACTIVITY_DATA": "Keine Aktivitätsdaten verfügbar",
+		"SELECT_DIFFERENT_DATE": "Wählen Sie einen anderen Zeitraum oder kommen Sie später zurück",
 		"PENDING_TASKS": "Ausstehende Aufgaben",
 		"SHOW_MORE": "Mehr anzeigen",
 		"TASKS": "Aufgaben",

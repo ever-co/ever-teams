@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "Orçamento do Projeto"
 	},
 	"common": {
+		"APPLICATION": "Aplicação",
+		"TIME_SPENT": "Tempo gasto",
+		"PERCENT_USED": "Percentagem utilizada",
+		"NO_ACTIVITY_DATA": "Nenhum dado de atividade disponível",
+		"SELECT_DIFFERENT_DATE": "Selecione um intervalo de datas diferente ou volte mais tarde",
 		"PENDING_TASKS": "Tarefas pendentes",
 		"SHOW_MORE": "Mostrar mais",
 		"TASKS": "Tarefas",

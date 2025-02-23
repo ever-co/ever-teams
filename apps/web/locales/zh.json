@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "项目预算"
 	},
 	"common": {
+		"APPLICATION": "应用程序",
+		"TIME_SPENT": "使用时间",
+		"PERCENT_USED": "使用百分比",
+		"NO_ACTIVITY_DATA": "无可用活动数据",
+		"SELECT_DIFFERENT_DATE": "选择不同的日期范围或稍后再试",
 		"PENDING_TASKS": "待处理任务",
 		"SHOW_MORE": "显示更多",
 		"TASKS": "任务",

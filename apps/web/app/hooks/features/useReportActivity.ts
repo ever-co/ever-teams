@@ -33,6 +33,10 @@ export interface UseReportActivityProps
 	groupBy?: string;
 }
 
+const now = new Date();
+const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
 const defaultProps: Required<
 	Pick<
 		UseReportActivityProps,
@@ -48,8 +52,8 @@ const defaultProps: Required<
 		| 'teamIds'
 	>
 > = {
-	startDate: new Date().toISOString().split('T')[0],
-	endDate: new Date().toISOString().split('T')[0],
+	startDate: firstDayOfMonth.toISOString().split('T')[0],
+	endDate: lastDayOfMonth.toISOString().split('T')[0],
 	groupBy: 'date',
 	activityLevel: {
 		start: 0,
