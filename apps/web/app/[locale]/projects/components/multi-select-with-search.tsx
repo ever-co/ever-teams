@@ -24,12 +24,12 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 
 	const handleSelect = useCallback(
 		(selectedOption: T) => {
-			const newSelectedOptions = selectedOptions;
+			let newSelectedOptions = selectedOptions;
 
 			if (!selectedOptions.map((el) => el.value).includes(selectedOption.value)) {
 				newSelectedOptions.push(selectedOption);
 			} else {
-				newSelectedOptions.splice(newSelectedOptions.indexOf(selectedOption), 1);
+				newSelectedOptions = newSelectedOptions.filter((el) => el.id !== selectedOption.id);
 			}
 			onChange(newSelectedOptions);
 		},

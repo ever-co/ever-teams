@@ -357,7 +357,8 @@
 		"SCREENSHOTS": "截图",
 		"TIME_LOG": "时间记录",
 		"TO_DO": "待办事项",
-		"MEMBERS_COUNT": "成员数"
+		"MEMBERS_COUNT": "成员数",
+		"REVIEW": "审查"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -413,6 +414,78 @@
 			"views": {
 				"LIST_VIEW": "列表视图",
 				"GRID_VIEW": "网格视图"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "项目标题",
+					"titlePlaceholder": "客户项目 #1...",
+					"description": "描述",
+					"datePickerPlaceholder": "选择日期",
+					"websiteUrl": "网站URL",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "项目缩略图",
+					"uploadPhoto": "上传照片"
+				},
+				"errors": {
+					"titleRequired": "项目标题是必需的。",
+					"titleLength": "项目标题必须介于3到100个字符之间。",
+					"invalidWebsiteUrl": "无效的网站URL。",
+					"fileSizeLimit": "文件大小必须小于5MB。",
+					"fileFormatLimit": "只允许JPG和PNG格式。",
+					"startDateRequired": "开始日期是必需的。",
+					"endDateRequired": "结束日期是必需的。",
+					"endDateAfterStart": "结束日期必须在开始日期之后。",
+					"invalidUrl": "请输入有效的URL。"
+				},
+				"common": {
+					"search": "搜索 ...",
+					"typeNew": "输入新的 ...",
+					"addNew": "添加新项"
+				}
+			},
+
+			"categorizationForm": {
+				"formFields": {
+					"labels": "标签",
+					"labelsPlaceholder": "选择标签...",
+					"tags": "标记",
+					"tagsPlaceholder": "选择标记...",
+					"colorCode": "颜色代码"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "预算类型",
+					"budgetTypePlaceholder": "选择预算类型",
+					"budgetAmount": "预算金额",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "货币选择",
+					"currencyPlaceholder": "选择货币...",
+					"billing": "账单类型",
+					"billingPlaceholder": "选择间隔..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "分配成员和管理员",
+					"noMembers": "没有成员或管理员",
+					"addMember": "添加成员",
+					"selectMember": "选择成员...",
+					"selectRole": "选择角色...",
+					"relations": "关系",
+					"noRelations": "没有关系",
+					"addRelation": "添加关系",
+					"selectProject": "选择项目...",
+					"selectRelationType": "选择关系类型..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "创建项目",
+					"financialSettings": "财务设置",
+					"categorization": "分类",
+					"teamAndRelations": "团队和关系"
+				}
 			}
 		},
 		"kanban": {

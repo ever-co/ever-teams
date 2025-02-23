@@ -357,7 +357,8 @@
 		"SCREENSHOTS": "Screenshot",
 		"TIME_LOG": "Registro del tempo",
 		"TO_DO": "Da fare",
-		"MEMBERS_COUNT": "Conteggio dei membri"
+		"MEMBERS_COUNT": "Conteggio dei membri",
+		"REVIEW": "REVISIONE"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -422,6 +423,77 @@
 			"views": {
 				"LIST_VIEW": "Vista elenco",
 				"GRID_VIEW": "Vista griglia"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Titolo del Progetto",
+					"titlePlaceholder": "Progetto Cliente #1...",
+					"description": "Descrizione",
+					"datePickerPlaceholder": "Seleziona una data",
+					"websiteUrl": "URL del sito web",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Miniatura del Progetto",
+					"uploadPhoto": "Carica foto"
+				},
+				"errors": {
+					"titleRequired": "Il titolo del progetto è obbligatorio.",
+					"titleLength": "Il titolo del progetto deve essere tra 3 e 100 caratteri.",
+					"invalidWebsiteUrl": "URL del sito web non valido.",
+					"fileSizeLimit": "La dimensione del file deve essere inferiore a 5 MB.",
+					"fileFormatLimit": "Sono consentiti solo i formati JPG e PNG.",
+					"startDateRequired": "La data di inizio è obbligatoria.",
+					"endDateRequired": "La data di fine è obbligatoria.",
+					"endDateAfterStart": "La data di fine deve essere successiva alla data di inizio.",
+					"invalidUrl": "Inserisci un URL valido."
+				},
+				"common": {
+					"search": "Cerca ...",
+					"typeNew": "Digita nuovo ...",
+					"addNew": "Aggiungi nuovo"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Etichette",
+					"labelsPlaceholder": "Seleziona etichette...",
+					"tags": "Tag",
+					"tagsPlaceholder": "Seleziona tag...",
+					"colorCode": "Codice colore"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Tipo di budget",
+					"budgetTypePlaceholder": "Seleziona tipo di budget",
+					"budgetAmount": "Importo del budget",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Selezione valuta",
+					"currencyPlaceholder": "Seleziona una valuta...",
+					"billing": "Tipo di fatturazione",
+					"billingPlaceholder": "Seleziona intervallo..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Assegna Membri e Manager",
+					"noMembers": "Nessun membro o manager",
+					"addMember": "Aggiungi Membro",
+					"selectMember": "Seleziona un membro...",
+					"selectRole": "Seleziona un ruolo...",
+					"relations": "Relazioni",
+					"noRelations": "Nessuna relazione",
+					"addRelation": "Aggiungi Relazione",
+					"selectProject": "Seleziona un progetto...",
+					"selectRelationType": "Scegli tipo di relazione..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Crea Progetto",
+					"financialSettings": "Impostazioni Finanziarie",
+					"categorization": "Categorizzazione",
+					"teamAndRelations": "Team e Relazioni"
+				}
 			}
 		},
 		"taskDetails": {

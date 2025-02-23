@@ -357,7 +357,8 @@
 		"SCREENSHOTS": "צילומי מסך",
 		"TIME_LOG": "יומן זמן",
 		"TO_DO": "לבצע",
-		"MEMBERS_COUNT": "מספר חברים"
+		"MEMBERS_COUNT": "מספר חברים",
+		"REVIEW": "בְּחִינָה"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -416,6 +417,77 @@
 			"views": {
 				"LIST_VIEW": "תצוגת רשימה",
 				"GRID_VIEW": "תצוגת רשת"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "כותרת הפרויקט",
+					"titlePlaceholder": "פרויקט לקוח #1...",
+					"description": "תיאור",
+					"datePickerPlaceholder": "בחר תאריך",
+					"websiteUrl": "כתובת אתר",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "תמונה ממוזערת של הפרויקט",
+					"uploadPhoto": "העלה תמונה"
+				},
+				"errors": {
+					"titleRequired": "כותרת הפרויקט נדרשת.",
+					"titleLength": "כותרת הפרויקט חייבת להיות בין 3 ל-100 תווים.",
+					"invalidWebsiteUrl": "כתובת אתר לא חוקית.",
+					"fileSizeLimit": "גודל הקובץ חייב להיות קטן מ-5MB.",
+					"fileFormatLimit": "ניתן להעלות רק קבצי JPG ו-PNG.",
+					"startDateRequired": "תאריך התחלה נדרש.",
+					"endDateRequired": "תאריך סיום נדרש.",
+					"endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה.",
+					"invalidUrl": "אנא הזן כתובת אתר חוקית."
+				},
+				"common": {
+					"search": "חפש ...",
+					"typeNew": "הקלד חדש ...",
+					"addNew": "הוסף חדש"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "תוויות",
+					"labelsPlaceholder": "בחר תוויות...",
+					"tags": "תגיות",
+					"tagsPlaceholder": "בחר תגיות...",
+					"colorCode": "קוד צבע"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "סוג תקציב",
+					"budgetTypePlaceholder": "בחר סוג תקציב",
+					"budgetAmount": "סכום תקציב",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "בחירת מטבע",
+					"currencyPlaceholder": "בחר מטבע...",
+					"billing": "סוג חיוב",
+					"billingPlaceholder": "בחר מרווח..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "הקצאת חברים ומנהלים",
+					"noMembers": "אין חברים או מנהלים",
+					"addMember": "הוסף חבר",
+					"selectMember": "בחר חבר...",
+					"selectRole": "בחר תפקיד...",
+					"relations": "קשרים",
+					"noRelations": "אין קשרים",
+					"addRelation": "הוסף קשר",
+					"selectProject": "בחר פרויקט...",
+					"selectRelationType": "בחר סוג קשר..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "יצירת פרויקט",
+					"financialSettings": "הגדרות כספיות",
+					"categorization": "קטגוריזציה",
+					"teamAndRelations": "צוות וקשרים"
+				}
 			}
 		},
 		"profile": {
