@@ -1,6 +1,11 @@
 {
 	"TITLE": "إيفر تيمز",
 	"common": {
+		"APPLICATION": "تطبيق",
+		"TIME_SPENT": "الوقت المستغرق",
+		"PERCENT_USED": "النسبة المستخدمة",
+		"NO_ACTIVITY_DATA": "لا توجد بيانات نشاط متاحة",
+		"SELECT_DIFFERENT_DATE": "حدد نطاق تاريخ مختلف أو تحقق لاحقًا",
 		"PENDING_TASKS": "المهام المعلقة",
 		"SHOW_MORE": "عرض المزيد",
 		"TASKS": "المهام",

@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "Project Budget"
 	},
 	"common": {
+		"APPLICATION": "Application",
+		"TIME_SPENT": "Time Spent",
+		"PERCENT_USED": "Percent Used",
+		"NO_ACTIVITY_DATA": "No activity data available",
+		"SELECT_DIFFERENT_DATE": "Select a different date range or check back later",
 		"PENDING_TASKS": "Pending Tasks",
 		"SHOW_MORE": "Show More",
 		"TASKS": "Tasks",

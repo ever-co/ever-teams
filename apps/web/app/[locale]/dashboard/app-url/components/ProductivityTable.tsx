@@ -7,6 +7,7 @@ import { Card } from '@components/ui/card';
 import { format } from 'date-fns';
 import { IActivityReport, IActivityReportGroupByDate, IActivityItem } from '@app/interfaces/activity/IActivityReport';
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export function ProductivityTable({
   data,
@@ -16,18 +17,18 @@ export function ProductivityTable({
   isLoading?: boolean;
 }) {
   const reportData = data as IActivityReportGroupByDate[] | undefined;
-
+ const t=useTranslations();
   if (isLoading) {
     return (
       <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Member</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Application</TableHead>
-              <TableHead>Time Spent</TableHead>
-              <TableHead>Percent used</TableHead>
+              <TableHead>{t('common.MEMBER')}</TableHead>
+              <TableHead>{t('sidebar.PROJECTS')}</TableHead>
+              <TableHead>{t('common.APPLICATION')}</TableHead>
+              <TableHead>{t('common.TIME_SPENT')}</TableHead>
+              <TableHead>{t('common.PERCENT_USED')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -42,7 +43,7 @@ export function ProductivityTable({
                 <TableCell><Skeleton className="w-24 h-4"/></TableCell>
                 <TableCell><Skeleton className="w-16 h-4"/></TableCell>
                 <TableCell><Skeleton className="w-16 h-4"/></TableCell>
-                <TableCell><Skeleton className="w-24 h-4"/></TableCell>
+                <TableCell><Skeleton className="w-full h-4"/></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -55,8 +56,8 @@ export function ProductivityTable({
     return (
       <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px] flex items-center justify-center">
         <div className="text-center text-gray-500 dark:text-gray-400">
-          <p className="text-lg font-medium">No activity data available</p>
-          <p className="text-sm">Select a different date range or check back later</p>
+          <p className="text-lg font-medium">{t('common.NO_ACTIVITY_DATA')}</p>
+          <p className="text-sm">{t('common.SELECT_DIFFERENT_DATE')}</p>
         </div>
       </Card>
     );
@@ -67,11 +68,11 @@ export function ProductivityTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Member</TableHead>
-            <TableHead>Project</TableHead>
-            <TableHead>Application</TableHead>
-            <TableHead>Time Spent</TableHead>
-            <TableHead>Percent used</TableHead>
+            <TableHead>{t('common.MEMBER')}</TableHead>
+            <TableHead>{t('sidebar.PROJECTS')}</TableHead>
+            <TableHead>{t('common.APPLICATION')}</TableHead>
+            <TableHead>{t('common.TIME_SPENT')}</TableHead>
+            <TableHead>{t('common.PERCENT_USED')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -142,7 +143,7 @@ export function ProductivityTable({
                       <TableCell>{formatDuration(activity.duration.toString())}</TableCell>
                       <TableCell>
                         <div className="flex gap-2 items-center">
-                          <div className="overflow-hidden w-24 h-2 bg-gray-200 rounded-full">
+                          <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
                             <div
                               className="h-full bg-blue-500"
                               style={{ width: `${activity.duration_percentage}%` }}
