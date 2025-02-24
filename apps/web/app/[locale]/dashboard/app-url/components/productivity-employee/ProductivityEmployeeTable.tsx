@@ -7,6 +7,7 @@ import { Card } from '@components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import React from 'react';
 import { EmptyState } from '../productivity-project/states';
+import { useTranslations } from 'next-intl';
 
 // Constants
 const TABLE_HEADERS = [
@@ -245,7 +246,7 @@ MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
   const [localData, setLocalData] = React.useState<any[]>([]);
-
+ const t = useTranslations();
   React.useEffect(() => {
     setLocalData(data);
   }, [data]);
@@ -308,7 +309,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 
   if (!localData?.length) {
     const selectedDate = localData?.[0]?.date || new Date().toISOString().split('T')[0];
-    return <EmptyState selectedDate={selectedDate} />;
+    return <EmptyState selectedDate={selectedDate} t={t} />;
   }
 
   const employeeList = Array.from(groupedData.values());

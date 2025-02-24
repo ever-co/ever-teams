@@ -11,6 +11,7 @@ import React from 'react';
 import { ActivityRow, DateHeaderRow, ProjectHeaderRow } from './components';
 import { EmptyState, LoadingSkeleton } from './states';
 import { groupActivitiesByProjectAndDate } from './utils';
+import { useTranslations } from 'next-intl';
 
 interface ProductivityProjectTableProps {
   data?: IActivityReport[];
@@ -21,6 +22,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
   data,
   isLoading
 }) => {
+  const t=useTranslations();
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -28,7 +30,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
   const reportData = data as IActivityReportGroupByDate[] | undefined;
 
   if (!reportData || reportData.length === 0) {
-    return <EmptyState />;
+    return <EmptyState t={t} />;
   }
 
   const projectGroups = groupActivitiesByProjectAndDate(reportData);
@@ -38,11 +40,11 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50 dark:bg-gray-800">
-            <TableHead className="font-semibold">Date</TableHead>
-            <TableHead className="font-semibold">Member</TableHead>
-            <TableHead className="font-semibold">Application</TableHead>
-            <TableHead className="font-semibold">Time Spent</TableHead>
-            <TableHead className="font-semibold">Percent used</TableHead>
+            <TableHead className="font-semibold">{t('common.DATE')}</TableHead>
+            <TableHead className="font-semibold">{t('common.MEMBER')}</TableHead>
+            <TableHead className="font-semibold">{t('common.APPLICATION')}</TableHead>
+            <TableHead className="font-semibold">{t('common.TIME_SPENT')}</TableHead>
+            <TableHead className="font-semibold">{t('common.PERCENT_USED')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
