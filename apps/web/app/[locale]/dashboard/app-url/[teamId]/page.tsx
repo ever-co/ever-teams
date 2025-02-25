@@ -140,10 +140,10 @@ function AppUrls() {
 					switch (groupByType) {
 						case 'project':
 							return <ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />;
-						case 'date':
-							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
 						case 'employee':
 							return <ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />;
+						case 'date':
+							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
 					}
 				})()}
 			</Container>

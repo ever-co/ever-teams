@@ -22,6 +22,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
   data,
   isLoading
 }) => {
+
   const t=useTranslations();
   if (isLoading) {
     return <LoadingSkeleton />;
