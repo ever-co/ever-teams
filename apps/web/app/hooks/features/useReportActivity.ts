@@ -315,7 +315,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				if (retryCount < maxRetries) {
 					retryCount++;
 					console.log(`Retrying fetch attempt ${retryCount}...`);
-					setTimeout(fetchData, 1000 * retryCount); // Exponential backoff
+					setTimeout(fetchData, 1000 * retryCount);
 				}
 			}
 		};
