@@ -409,6 +409,7 @@ interface ISelectProps<IItem> {
 	onChange?: (value: string | string[]) => void;
 	multiple?: boolean;
 	renderItem?: (item: IItem, selected: boolean, active: boolean) => React.ReactNode;
+	renderValue?: (value: string | string[] | null) => React.ReactNode;
 	searchEnabled?: boolean;
 	onCreate?: (newTerm: string) => void;
 	createLoading?: boolean;
@@ -425,7 +426,8 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 		multiple,
 		searchEnabled,
 		onCreate,
-		createLoading
+		createLoading,
+		renderValue
 	} = props;
 	// When search enabled
 	const [searchTerm, setSearchTerm] = useState('');
@@ -459,9 +461,14 @@ export function Select<T extends Identifiable>(props: ISelectProps<T>) {
 						className
 					)}
 				>
-					<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
-						{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
-					</span>
+					{renderValue ? (
+						renderValue(selected)
+					) : (
+						<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
+							{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
+						</span>
+					)}
+
 					<ChevronDown size={15} className=" text-gray-400" />
 				</Listbox.Button>
 				<Listbox.Options

@@ -1,14 +1,14 @@
 import { Button, InputField } from '@/lib/components';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/app/interfaces';
-import { CurrencyEnum } from '@/app/constants';
 import { useTranslations } from 'next-intl';
+import { useCurrencies } from '@/app/hooks/features/useCurrencies';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext } = props;
-	const [currency, setCurrency] = useState<CurrencyEnum>(CurrencyEnum.USD);
+	const [currency, setCurrency] = useState<string>();
 	const [billingType, setBillingType] = useState<ProjectBillingEnum>(ProjectBillingEnum.FLAT_FEE);
 	const [budgetType, setBudgetType] = useState<OrganizationProjectBudgetTypeEnum>(
 		OrganizationProjectBudgetTypeEnum.HOURS
@@ -23,6 +23,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 		value: value
 	}));
 	const t = useTranslations();
+	const { currencies, getCurrencies } = useCurrencies();
 
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
@@ -33,6 +34,10 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 			billing: billingType
 		});
 	};
+
+	useEffect(() => {
+		getCurrencies();
+	}, [getCurrencies]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
@@ -78,13 +83,14 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 						</label>
 						<div className="w-full">
 							<Select
-								onChange={(data) => setCurrency(data as CurrencyEnum)}
+								onChange={(data) => setCurrency(data as string)}
 								selected={currency ?? null}
 								placeholder={t('pages.projects.financialSettingsForm.formFields.currencyPlaceholder')}
-								options={Object.keys(CurrencyEnum).map((currency) => ({
-									id: currency,
-									value: currency
+								options={currencies.map((currency) => ({
+									id: currency.id,
+									value: `${currency.isoCode} - ${currency.currency}`
 								}))}
+								searchEnabled
 							/>
 						</div>
 					</div>
