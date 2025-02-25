@@ -20,6 +20,7 @@ import { ProductivityStats } from '../components/ProductivityStats';
 import { ProductivityProjectTable } from '../components/productivity-project';
 import { ProductivityTable } from '../components/ProductivityTable';
 import { ProductivityEmployeeTable } from '../components/productivity-employee/ProductivityEmployeeTable';
+import { useLocalStorageState } from '@/app/hooks';
 
 interface ProductivityData {
 	date: string;
@@ -35,7 +36,7 @@ function AppUrls() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { isTrackingEnabled } = useOrganizationTeams();
-	const [groupByType, setGroupByType] = React.useState<GroupByType>('date');
+	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type','date');
 
 	const {
 		activityReport,
@@ -114,10 +115,11 @@ function AppUrls() {
 								showGroupBy={true}
 								title="Apps & URLs Dashboard"
 								isManage={isManage}
+								groupByType={groupByType}
 							/>
 							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
 								<div className="flex flex-col gap-6 w-full">
-									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700">
+									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700 pl-8">
 										<ProductivityHeader month="October" year={2024} />
 										<ProductivityStats
 											productivePercentage={productivePercentage}

@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface GroupBySelectProps {
     onGroupByChange?: (value: GroupByType) => void;
+    groupByType?: GroupByType;
 }
 
-export function GroupBySelect({ onGroupByChange }: GroupBySelectProps) {
+export function GroupBySelect({ onGroupByChange, groupByType }: GroupBySelectProps) {
     return (
-        <Select defaultValue="date" onValueChange={onGroupByChange}>
+        <Select defaultValue={groupByType} onValueChange={onGroupByChange}>
             <SelectTrigger className="w-[180px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
                 <div className="flex gap-2 items-center">
                     <span className="text-gray-500">Group by</span>
@@ -20,7 +21,7 @@ export function GroupBySelect({ onGroupByChange }: GroupBySelectProps) {
                 <SelectItem value="date">Date</SelectItem>
                 <SelectItem value="project">Project</SelectItem>
                 <SelectItem value="employee">Person</SelectItem>
-                <SelectItem value="application">Application</SelectItem>
+                {/* <SelectItem value="application">Application</SelectItem> */}
             </SelectContent>
         </Select>
     );
