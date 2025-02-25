@@ -292,21 +292,16 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	// Initial data fetch
 	useEffect(() => {
-		if (user) {
-			switch (types) {
-				case 'APPS-URLS':
-					fetchActivityReport().catch(console.error);
-					break;
-				default:
-					Promise.all([
-						fetchReportActivity(),
-						fetchDailyReport(),
-						fetchStatisticsCounts()
-					]).catch(console.error);
-					break;
-			}
+		if (user && types === 'APPS-URLS') {
+			fetchActivityReport().catch(console.error);
+		} else if (user) {
+			Promise.all([
+				fetchReportActivity(),
+				fetchDailyReport(),
+				fetchStatisticsCounts()
+			]).catch(console.error);
 		}
-	}, [user, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]);
+	}, [user, types, fetchActivityReport, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
 
 	return {
 		// Loading states
