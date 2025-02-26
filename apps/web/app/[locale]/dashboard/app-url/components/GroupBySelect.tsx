@@ -5,22 +5,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface GroupBySelectProps {
     onGroupByChange?: (value: GroupByType) => void;
+    groupByType?: GroupByType;
 }
 
-export function GroupBySelect({ onGroupByChange }: GroupBySelectProps) {
+export function GroupBySelect({ onGroupByChange, groupByType }: GroupBySelectProps) {
     return (
-        <Select defaultValue="date" onValueChange={onGroupByChange}>
+        <Select defaultValue={groupByType} onValueChange={onGroupByChange}>
             <SelectTrigger className="w-[180px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
                 <div className="flex gap-2 items-center">
                     <span className="text-gray-500">Group by</span>
-                    <SelectValue placeholder="Date"  className='text-[#2563EB]'/>
+                    <SelectValue placeholder="Date" className="text-blue-600 dark:text-blue-500" />
                 </div>
             </SelectTrigger>
-            <SelectContent className="dark:bg-dark--theme-light">
-                <SelectItem value="date">Date</SelectItem>
-                <SelectItem value="project">Project</SelectItem>
-                <SelectItem value="employee">Person</SelectItem>
-                <SelectItem value="application">Application</SelectItem>
+            <SelectContent className="dark:bg-dark--theme-light min-w-[180px]">
+                <SelectItem value="date" className="min-w-[160px] data-[state=checked]:text-blue-600">Date</SelectItem>
+                <SelectItem value="project" className="min-w-[160px] data-[state=checked]:text-blue-600">Project</SelectItem>
+                <SelectItem value="employee" className="min-w-[160px] data-[state=checked]:text-blue-600">Person</SelectItem>
+                <SelectItem value="application" className="min-w-[160px] data-[state=checked]:text-blue-600">Application</SelectItem>
             </SelectContent>
         </Select>
     );

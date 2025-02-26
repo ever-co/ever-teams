@@ -67,7 +67,7 @@ const defaultProps: Required<
 	teamIds: []
 };
 
-export type GroupByType = 'date' | 'project' | 'employee';
+export type GroupByType = 'date' | 'project' | 'employee' | 'application';
 
 interface GroupByOptions {
 	groupBy: GroupByType;
@@ -145,7 +145,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		allteamsState
 	]);
 
-	// Generic fetch function
+	// Generic fetch function with improved error handling and type safety
 	const fetchReport = useCallback(
 		async <T>(
 			queryFn:
@@ -157,21 +157,24 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 			customProps?: Partial<UseReportActivityProps>
 		) => {
 			if (!user || !getMergedProps) {
-				if (setData) {
-					setData([]);
-				}
+				if (setData) setData([]);
 				return;
 			}
 
 			try {
 				const mergedProps = getMergedProps(customProps);
-
 				const response = await queryFn(mergedProps);
+
+				// Validate response data
+				if (!response || typeof response !== 'object') {
+					throw new Error('Invalid response format');
+				}
 
 				if (setData) {
 					if (response?.data && Array.isArray(response.data)) {
 						setData(response.data as T[]);
 					} else {
+						console.warn('Response data is not an array:', response.data);
 						setData([]);
 					}
 				}
@@ -184,9 +187,8 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				}
 			} catch (err) {
 				console.error('Failed to fetch report:', err);
-				if (setData) {
-					setData([]);
-				}
+				if (setData) setData([]);
+				throw err; // Re-throw for retry logic
 			}
 		},
 		[user, getMergedProps]
@@ -263,7 +265,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const handleGroupByChange = useCallback(
 		async (groupByType: GroupByType): Promise<void> => {
 			try {
-				const options: GroupByOptions = { groupBy: groupByType };
+				const options: GroupByOptions = { groupBy: groupByType === 'application' ? 'date' : groupByType };
 				await fetchActivityReport(options);
 			} catch (error) {
 				console.error('Failed to update activity grouping:', error);
@@ -290,23 +292,32 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]
 	);
 
-	// Initial data fetch
+	// Initial data fetch with retry logic and loading state management
 	useEffect(() => {
-		if (user) {
-			switch (types) {
-				case 'APPS-URLS':
-					fetchActivityReport().catch(console.error);
-					break;
-				default:
-					Promise.all([
-						fetchReportActivity(),
-						fetchDailyReport(),
-						fetchStatisticsCounts()
-					]).catch(console.error);
-					break;
+		const maxRetries = 3;
+		let retryCount = 0;
+
+		const fetchData = async () => {
+			if (!user) return;
+
+			try {
+				if (types === 'APPS-URLS') {
+					await fetchActivityReport();
+				} else {
+					await Promise.all([fetchReportActivity(), fetchDailyReport(), fetchStatisticsCounts()]);
+				}
+			} catch (error) {
+				console.error('Error fetching data:', error);
+				if (retryCount < maxRetries) {
+					retryCount++;
+					console.log(`Retrying fetch attempt ${retryCount}...`);
+					setTimeout(fetchData, 1000 * retryCount);
+				}
 			}
-		}
-	}, [user, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]);
+		};
+
+		fetchData();
+	}, [user, types, fetchActivityReport, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
 
 	return {
 		// Loading states
