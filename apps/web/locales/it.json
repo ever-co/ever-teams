@@ -497,6 +497,10 @@
 					"categorization": "Categorizzazione",
 					"teamAndRelations": "Team e Relazioni"
 				}
+			},
+			"deleteModal": {
+				"title": "Eliminare selezionato?",
+				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione"
 			}
 		},
 		"taskDetails": {

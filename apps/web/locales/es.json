@@ -552,6 +552,10 @@
 					"categorization": "Categorización",
 					"teamAndRelations": "Equipo y Relaciones"
 				}
+			},
+			"deleteModal": {
+				"title": "¿Eliminar seleccionado?",
+				"description": "Está a punto de eliminar permanentemente este proyecto. Haga clic en 'Eliminar' para confirmar la acción"
 			}
 		},
 		"authPasscode": {

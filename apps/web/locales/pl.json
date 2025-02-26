@@ -532,6 +532,10 @@
 					"categorization": "Kategoryzacja",
 					"teamAndRelations": "Zespół i Relacje"
 				}
+			},
+			"deleteModal": {
+				"title": "Usunąć wybrane?",
+				"description": "Zamierzasz trwale usunąć ten projekt. Kliknij 'Usuń', aby potwierdzić akcję"
 			}
 		},
 		"auth": {

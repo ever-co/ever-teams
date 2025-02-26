@@ -384,7 +384,7 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 		},
 		{
 			id: 'actions',
-			cell: ({ row }) => {
+			cell: function Cell({ row }) {
 				const {
 					openModal: openDeleteConfirmModal,
 					closeModal: closeDeleteConfirmModal,

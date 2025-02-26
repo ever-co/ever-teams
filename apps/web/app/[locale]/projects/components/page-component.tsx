@@ -112,7 +112,7 @@ function PageComponent() {
 				setProjects(activeTeamProjectsIds);
 			}
 		});
-	}, [getOrganizationProjects, params, organizationProjects]);
+	}, [getOrganizationProjects, params, organizationProjects, activeTeam]);
 
 	return (
 		<MainLayout

@@ -529,6 +529,10 @@
 					"categorization": "Catégorisation",
 					"teamAndRelations": "Équipe et Relations"
 				}
+			},
+			"deleteModal": {
+				"title": "Supprimer la sélection?",
+				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action"
 			}
 		},
 		"taskStatus": {

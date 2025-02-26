@@ -473,6 +473,10 @@
 					"categorization": "Categorization",
 					"teamAndRelations": "Team & Relations"
 				}
+			},
+			"deleteModal": {
+				"title": "Delete Selected?",
+				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
 			}
 		},
 		"home": {

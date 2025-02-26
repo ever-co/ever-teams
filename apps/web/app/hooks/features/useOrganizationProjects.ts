@@ -108,7 +108,7 @@ export function useOrganizationProjects() {
 				console.error(error);
 			}
 		},
-		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
+		[deleteOrganizationProjectQueryCall]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
@@ -121,7 +121,13 @@ export function useOrganizationProjects() {
 			}
 			setOrganizationProjects(data?.items ?? []);
 		});
-	}, [user, organizationProjects, getOrganizationProjectsQueryCall, setOrganizationProjects]);
+	}, [
+		user,
+		organizationProjects,
+		getOrganizationProjectsQueryCall,
+		setOrganizationProjects,
+		getOrganizationProjects
+	]);
 
 	useEffect(() => {
 		loadOrganizationProjects();

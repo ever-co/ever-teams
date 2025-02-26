@@ -35,18 +35,18 @@ export function DeleteProjectConfirmModal(props: ICreateProjectModalProps) {
 		} catch (err) {
 			console.error('Failed to delete project', err);
 		}
-	}, []);
+	}, [closeModal, deleteOrganizationProject, projectId, setOrganizationProjects]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<Card className=" sm:w-[33rem] w-[20rem]" shadow="custom">
 				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
-						Delete Selected?
+						{t('pages.projects.deleteModal.title')}
 					</Text.Heading>
 
 					<p className=" text-center text-[1rem] text-gray-600">
-						You are about to permanently delete this Project. Click "Delete" to confirm the action.
+						{t('pages.projects.deleteModal.description')}
 					</p>
 
 					<div className="flex items-center justify-between w-full">

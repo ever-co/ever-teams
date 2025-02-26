@@ -492,6 +492,10 @@
 					"categorization": "التصنيف",
 					"teamAndRelations": "الفريق والعلاقات"
 				}
+			},
+			"deleteModal": {
+				"title": "حذف المحدد؟",
+				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
 			}
 		},
 		"profile": {

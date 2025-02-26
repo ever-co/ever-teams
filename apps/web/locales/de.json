@@ -533,6 +533,10 @@
 					"categorization": "Kategorisierung",
 					"teamAndRelations": "Team & Beziehungen"
 				}
+			},
+			"deleteModal": {
+				"title": "Ausgewähltes löschen?",
+				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen"
 			}
 		},
 		"auth": {

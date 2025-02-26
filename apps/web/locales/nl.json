@@ -529,6 +529,10 @@
 					"categorization": "Categorisering",
 					"teamAndRelations": "Team & Relaties"
 				}
+			},
+			"deleteModal": {
+				"title": "Geselecteerde verwijderen?",
+				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
 			}
 		},
 		"taskStatus": {

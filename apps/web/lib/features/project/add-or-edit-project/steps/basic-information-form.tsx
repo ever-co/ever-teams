@@ -168,7 +168,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 		}
 
 		if (projectImageFile) {
-			const image = await createProjectImage(projectImageFile).catch((err) => {
+			const image = await createProjectImage(projectImageFile).catch(() => {
 				const newErrors = new Map<BasicInfoErrorKeys, string>(errors);
 
 				newErrors.set('projectImage', t('pages.projects.basicInformationForm.errors.uploadError'));

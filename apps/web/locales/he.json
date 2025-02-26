@@ -491,6 +491,10 @@
 					"categorization": "קטגוריזציה",
 					"teamAndRelations": "צוות וקשרים"
 				}
+			},
+			"deleteModal": {
+				"title": "למחוק את הנבחר?",
+				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה"
 			}
 		},
 		"profile": {
