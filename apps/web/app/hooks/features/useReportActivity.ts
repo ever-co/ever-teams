@@ -265,7 +265,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const handleGroupByChange = useCallback(
 		async (groupByType: GroupByType): Promise<void> => {
 			try {
-				const options: GroupByOptions = { groupBy: groupByType };
+				const options: GroupByOptions = { groupBy: groupByType === 'application' ? 'date' : groupByType };
 				await fetchActivityReport(options);
 			} catch (error) {
 				console.error('Failed to update activity grouping:', error);
@@ -304,11 +304,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 				if (types === 'APPS-URLS') {
 					await fetchActivityReport();
 				} else {
-					await Promise.all([
-						fetchReportActivity(),
-						fetchDailyReport(),
-						fetchStatisticsCounts()
-					]);
+					await Promise.all([fetchReportActivity(), fetchDailyReport(), fetchStatisticsCounts()]);
 				}
 			} catch (error) {
 				console.error('Error fetching data:', error);

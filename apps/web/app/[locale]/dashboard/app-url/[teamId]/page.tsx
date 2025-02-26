@@ -17,10 +17,9 @@ import { Card } from '@components/ui/card';
 import { ProductivityHeader } from '../components/ProductivityHeader';
 import { ProductivityChart } from '../components/ProductivityChart';
 import { ProductivityStats } from '../components/ProductivityStats';
-import { ProductivityProjectTable } from '../components/productivity-project';
 import { ProductivityTable } from '../components/ProductivityTable';
-import { ProductivityEmployeeTable } from '../components/productivity-employee/ProductivityEmployeeTable';
 import { useLocalStorageState } from '@/app/hooks';
+import { ProductivityApplicationTable, ProductivityEmployeeTable, ProductivityProjectTable } from '../components';
 
 interface ProductivityData {
 	date: string;
@@ -142,10 +141,12 @@ function AppUrls() {
 					switch (groupByType) {
 						case 'project':
 							return <ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />;
-						case 'employee':
-							return <ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />;
 						case 'date':
 							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
+						case 'employee':
+							return <ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />;
+						case 'application':
+							return <ProductivityApplicationTable data={activityReport} isLoading={loadingActivityReport} />;
 					}
 				})()}
 			</Container>
