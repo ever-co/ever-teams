@@ -116,18 +116,9 @@ export function useOrganizationProjects() {
 		if (organizationProjects.length) return; // Prevent duplicate API calls.
 
 		getOrganizationProjects().then((data) => {
-			if (data?.items) {
-				setOrganizationProjects(data.items);
-			}
 			setOrganizationProjects(data?.items ?? []);
 		});
-	}, [
-		user,
-		organizationProjects,
-		getOrganizationProjectsQueryCall,
-		setOrganizationProjects,
-		getOrganizationProjects
-	]);
+	}, [user, organizationProjects, setOrganizationProjects, getOrganizationProjects]);
 
 	useEffect(() => {
 		loadOrganizationProjects();

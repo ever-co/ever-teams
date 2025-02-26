@@ -230,7 +230,7 @@ function PageComponent() {
 									<SpinnerLoader />
 								</div>
 							) : (
-								currentItems.map((el) => <GridItem key={el.project.name} data={el} />)
+								currentItems.map((el) => <GridItem key={el.project.id} data={el} />)
 							)}
 						</div>
 					) : null}
