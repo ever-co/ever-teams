@@ -1,75 +1,113 @@
 import { IActivityReportGroupByDate } from '@/app/interfaces/activity/IActivityReport';
-import { ProjectGroups } from './types';
+import { ProjectGroups, DateGroup, DailyReportData } from './types';
 
-export const formatDuration = (seconds: string): string => {
-  const totalSeconds = parseInt(seconds);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const remainingSeconds = totalSeconds % 60;
+export const formatDuration = (seconds: number | string): string => {
+	let totalSeconds: number;
 
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+	if (typeof seconds === 'string') {
+		totalSeconds = parseInt(seconds);
+	} else {
+		totalSeconds = seconds;
+	}
+
+	if (isNaN(totalSeconds) || totalSeconds < 0) {
+		console.warn('Invalid time value:', seconds);
+		return '00:00:00';
+	}
+
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const remainingSeconds = totalSeconds % 60;
+
+	return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
-export const groupActivitiesByProjectAndDate = (reportData: IActivityReportGroupByDate[]): ProjectGroups => {
-  if (!Array.isArray(reportData)) {
-    console.warn('reportData must be an array');
-    return {} as ProjectGroups;
-  }
+export const groupActivitiesByProjectAndDate = (data: IActivityReportGroupByDate[]): ProjectGroups => {
+	const reportData: DailyReportData[] = data as any;
 
-  return reportData.reduce((projectAcc, dayData) => {
-    if (!dayData || !Array.isArray(dayData.employees)) {
-      console.warn('Invalid data structure for dayData:', dayData);
-      return projectAcc;
-    }
+	if (!Array.isArray(reportData)) {
+		console.warn('reportData must be an array');
+		return {} as ProjectGroups;
+	}
 
-    dayData.employees.forEach((employeeData: any) => {
-      if (!employeeData) {
-        console.warn('employeeData is undefined');
-        return;
-      }
+	const projectGroups: ProjectGroups = {};
 
-      const activities = employeeData.projects?.[0]?.activity || employeeData.activity || [];
+	reportData.forEach((dayData) => {
+		if (!dayData.dates || !Array.isArray(dayData.dates)) {
+			console.warn('Invalid data structure for dayData:', dayData);
+			return;
+		}
 
-      if (!Array.isArray(activities)) {
-        console.warn('activities must be an array');
-        return;
-      }
+		dayData.dates.forEach((dateGroup: DateGroup) => {
+			if (!dateGroup?.date || !Array.isArray(dateGroup.employees)) {
+				console.warn('Invalid date group structure:', dateGroup);
+				return;
+			}
 
-      activities.forEach((activity: any) => {
-        if (!activity) {
-          console.warn('activity is undefined');
-          return;
-        }
+			const date = new Date(dateGroup.date).toISOString().split('T')[0];
 
-        const projectName = activity.projectId || 'No project';
-        if (!projectAcc[projectName]) {
-          projectAcc[projectName] = {};
-        }
+			dateGroup.employees.forEach((employeeData) => {
+				if (!employeeData?.employee || !employeeData.activity) {
+					return;
+				}
 
-        if (!projectAcc[projectName][dayData.date]) {
-          projectAcc[projectName][dayData.date] = {
-            activities: [],
-            totalDuration: 0,
-            members: new Set()
-          };
-        }
+				const activities = Array.isArray(employeeData.activity)
+					? employeeData.activity
+					: [employeeData.activity];
 
-        const dateGroup = projectAcc[projectName][dayData.date];
-        const employee = employeeData.employee || employeeData;
+				activities.forEach((activity) => {
+					if (!activity) return;
 
-        if (!employee || !employee.id) {
-          console.warn('Invalid employee data:', employee);
-          return;
-        }
+					const projectName = activity.project?.name || 'No Project';
 
-        dateGroup.activities.push({
-          employee,
-          activity
-        });
-        dateGroup.totalDuration += parseInt(activity.duration || '0');
-        dateGroup.members.add(employee.id);
-      });
-    });
-    return projectAcc;
-  }, {} as ProjectGroups);
+					if (!projectGroups[projectName]) {
+						projectGroups[projectName] = {};
+					}
+
+					if (!projectGroups[projectName][date]) {
+						projectGroups[projectName][date] = {
+							activities: [],
+							totalDuration: 0,
+							members: new Set<string>()
+						};
+					}
+
+					const dateGroup = projectGroups[projectName][date];
+					const employee = employeeData.employee;
+
+					if (!employee?.id) {
+						console.warn('Invalid employee data:', employee);
+						return;
+					}
+
+					const duration =
+						typeof activity.duration === 'number' ? activity.duration : parseInt(activity.duration || '0');
+
+					if (isNaN(duration)) {
+						console.warn('Invalid duration value:', activity.duration);
+						return;
+					}
+
+					dateGroup.activities.push({
+						employee: {
+							id: employee.id,
+							fullName: employee.fullName || 'Unknown',
+							user: {
+								imageUrl: employee.user?.imageUrl
+							}
+						},
+						activity: {
+							...activity,
+							duration
+						}
+					});
+
+					dateGroup.totalDuration += duration;
+					dateGroup.members.add(employee.id);
+				});
+			});
+		});
+	});
+
+	return projectGroups;
 };

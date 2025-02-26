@@ -48,3 +48,22 @@ export interface ProgressBarProps {
   percentage: number;
   className?: string;
 }
+
+export interface EmployeeWithProjects {
+  employee: Employee;
+  projects: string[];
+}
+
+// Interface for the daily report data structure
+export interface DailyReportData {
+  dates: DateGroup[];
+}
+
+// Interface for the date group structure
+export interface DateGroup {
+  date: string;
+  employees: Array<{
+    employee: Employee;
+    activity: IActivityItem | IActivityItem[];
+  }>;
+}

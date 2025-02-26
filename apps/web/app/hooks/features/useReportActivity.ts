@@ -325,6 +325,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		updateDateRange,
 		updateFilters,
 		handleGroupByChange,
+		fetchActivityReport,
 
 		// Other states
 		currentFilters,
