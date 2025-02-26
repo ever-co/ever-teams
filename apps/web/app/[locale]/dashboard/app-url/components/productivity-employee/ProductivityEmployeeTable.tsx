@@ -7,6 +7,7 @@ import { Card } from '@components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import React from 'react';
 import { EmptyState } from '../productivity-project/states';
+import { useTranslations } from 'next-intl';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -256,6 +257,7 @@ const MemoizedActivityRow: React.FC<{
 MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
+  const t = useTranslations();
   const groupedData = React.useMemo(() => {
     const employeeMap = new Map<
       string,
@@ -334,7 +336,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 
   if (!data.length) {
     const selectedDate = new Date().toISOString().split('T')[0];
-    return <EmptyState selectedDate={selectedDate} />;
+    return <EmptyState selectedDate={selectedDate} t={t} />;
   }
 
   const employeeList = Array.from(groupedData.values());
