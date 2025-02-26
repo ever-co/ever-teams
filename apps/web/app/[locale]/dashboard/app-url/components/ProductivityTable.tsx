@@ -8,6 +8,8 @@ import { format } from 'date-fns';
 import { IActivityReport, IActivityReportGroupByDate, IActivityItem } from '@app/interfaces/activity/IActivityReport';
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { useSortableData } from '@/app/hooks/useSortableData';
+import { SortPopover } from '@components/ui/sort-popover';
 
 export function ProductivityTable({
   data,
@@ -17,7 +19,81 @@ export function ProductivityTable({
   isLoading?: boolean;
 }) {
   const reportData = data as IActivityReportGroupByDate[] | undefined;
- const t=useTranslations();
+  const t = useTranslations();
+
+  const getTotalDuration = (activities: IActivityItem[]) => {
+    return activities.reduce((sum, activity) => sum + (activity.duration || 0), 0);
+  };
+
+  const getProjectCount = (data: IActivityReportGroupByDate) => {
+    const uniqueProjects = new Set();
+    data.employees.forEach(employee => {
+      employee.projects.forEach(project => {
+        uniqueProjects.add(project.project?.id || project.activity[0]?.projectId);
+      });
+    });
+    return uniqueProjects.size;
+  };
+
+  const getApplicationCount = (data: IActivityReportGroupByDate) => {
+    const uniqueApps = new Set();
+    data.employees.forEach(employee => {
+      employee.projects.forEach(project => {
+        project.activity.forEach(activity => {
+          uniqueApps.add(activity.title);
+        });
+      });
+    });
+    return uniqueApps.size;
+  };
+
+  const sortableColumns = {
+    date: {
+      getValue: (data: IActivityReportGroupByDate) => new Date(data.date).getTime(),
+      compare: (a: number, b: number) => a - b
+    },
+    projects: {
+      getValue: (data: IActivityReportGroupByDate) => getProjectCount(data),
+      compare: (a: number, b: number) => a - b
+    },
+    applications: {
+      getValue: (data: IActivityReportGroupByDate) => getApplicationCount(data),
+      compare: (a: number, b: number) => a - b
+    },
+    totalTime: {
+      getValue: (data: IActivityReportGroupByDate) => {
+        let total = 0;
+        data.employees.forEach(employee => {
+          employee.projects.forEach(project => {
+            total += getTotalDuration(project.activity);
+          });
+        });
+        return total;
+      },
+      compare: (a: number, b: number) => a - b
+    },
+    activity: {
+      getValue: (data: IActivityReportGroupByDate) => {
+        let totalActivity = 0;
+        let count = 0;
+        data.employees.forEach(employee => {
+          employee.projects.forEach(project => {
+            project.activity.forEach(activity => {
+              if (activity.duration_percentage) {
+                totalActivity += Number(activity.duration_percentage);
+                count++;
+              }
+            });
+          });
+        });
+        return count > 0 ? totalActivity / count : 0;
+      },
+      compare: (a: number, b: number) => a - b
+    }
+  };
+
+  const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
+
   if (isLoading) {
     return (
       <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
@@ -68,15 +144,50 @@ export function ProductivityTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('common.MEMBER')}</TableHead>
-            <TableHead>{t('sidebar.PROJECTS')}</TableHead>
-            <TableHead>{t('common.APPLICATION')}</TableHead>
-            <TableHead>{t('common.TIME_SPENT')}</TableHead>
-            <TableHead>{t('common.PERCENT_USED')}</TableHead>
+            <TableHead>
+              <SortPopover
+                label={t('common.teamStats.MEMBER')}
+                sortKey="member"
+                currentConfig={sortConfig}
+                onSort={requestSort}
+              />
+            </TableHead>
+            <TableHead>
+              <SortPopover
+                label={t('sidebar.PROJECTS')}
+                sortKey="projects"
+                currentConfig={sortConfig}
+                onSort={requestSort}
+              />
+            </TableHead>
+            <TableHead>
+              <SortPopover
+                label={t('common.APPLICATION')}
+                sortKey="application"
+                currentConfig={sortConfig}
+                onSort={requestSort}
+              />
+            </TableHead>
+            <TableHead>
+              <SortPopover
+                label={t('common.TIME_SPENT')}
+                sortKey="timeSpent"
+                currentConfig={sortConfig}
+                onSort={requestSort}
+              />
+            </TableHead>
+            <TableHead>
+              <SortPopover
+                label={t('common.PERCENT_USED')}
+                sortKey="percentUsed"
+                currentConfig={sortConfig}
+                onSort={requestSort}
+              />
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {reportData.map((dayData) => {
+          {sortedData.map((dayData) => {
             const employeeActivities = new Map<string, { employee: any; activities: IActivityItem[] }>();
             dayData.employees.forEach(employeeData => {
               employeeData.projects[0]?.activity.forEach((activity: IActivityItem) => {
