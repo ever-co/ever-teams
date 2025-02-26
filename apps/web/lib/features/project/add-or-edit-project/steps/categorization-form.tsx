@@ -50,6 +50,15 @@ export default function CategorizationForm(props: IStepElementProps) {
 								value: el.name,
 								color: el.color
 							}))}
+							renderValue={(selected) => {
+								return (
+									<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
+										{labels.length
+											? `Item${labels.length > 1 ? 's' : ''} (${labels.length})`
+											: t('pages.projects.categorizationForm.formFields.labelsPlaceholder')}
+									</span>
+								);
+							}}
 							renderItem={(item, selected) => {
 								return (
 									<div className="w-full h-full p-1 px-2 flex items-center gap-2">
@@ -102,6 +111,15 @@ export default function CategorizationForm(props: IStepElementProps) {
 									color: el.color ?? '#000'
 								};
 							})}
+							renderValue={(selected) => {
+								return (
+									<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
+										{tags.length
+											? `Item${tags.length > 1 ? 's' : ''} (${tags.length})`
+											: t('pages.projects.categorizationForm.formFields.tagsPlaceholder')}
+									</span>
+								);
+							}}
 							renderItem={(item, selected) => {
 								return (
 									<div className="w-full h-full p-1 px-2 flex items-center gap-2">
