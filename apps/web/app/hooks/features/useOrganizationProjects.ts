@@ -3,7 +3,8 @@ import {
 	editOrganizationProjectAPI,
 	getOrganizationProjectAPI,
 	getOrganizationProjectsAPI,
-	createOrganizationProjectAPI
+	createOrganizationProjectAPI,
+	deleteOrganizationProjectAPI
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
@@ -31,6 +32,9 @@ export function useOrganizationProjects() {
 
 	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } =
 		useQuery(createOrganizationProjectAPI);
+
+	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } =
+		useQuery(deleteOrganizationProjectAPI);
 
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
@@ -95,10 +99,32 @@ export function useOrganizationProjects() {
 		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
 	);
 
-	useEffect(() => {
+	const deleteOrganizationProject = useCallback(
+		async (id: string) => {
+			try {
+				const res = await deleteOrganizationProjectQueryCall(id);
+				return res;
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
+	);
+
+	const loadOrganizationProjects = useCallback(async () => {
+		if (!user) return; // No user? No API call.
+		if (organizationProjects.length) return; // Prevent duplicate API calls.
+
 		getOrganizationProjects().then((data) => {
+			if (data?.items) {
+				setOrganizationProjects(data.items);
+			}
 			setOrganizationProjects(data?.items ?? []);
 		});
+	}, [user, organizationProjects, getOrganizationProjectsQueryCall, setOrganizationProjects]);
+
+	useEffect(() => {
+		loadOrganizationProjects();
 	}, [getOrganizationProjects, setOrganizationProjects]);
 
 	return {
@@ -112,6 +138,9 @@ export function useOrganizationProjects() {
 		getOrganizationProjectsLoading,
 		organizationProjects,
 		createOrganizationProject,
-		createOrganizationProjectLoading
+		createOrganizationProjectLoading,
+		deleteOrganizationProject,
+		deleteOrganizationProjectLoading,
+		setOrganizationProjects
 	};
 }

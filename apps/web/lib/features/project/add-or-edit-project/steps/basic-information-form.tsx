@@ -13,6 +13,7 @@ import { isValidUrl } from '@/app/utils';
 import { ScrollArea } from '@components/ui/scroll-bar';
 import { ScrollBar } from '@components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
+import { useAuthenticateUser, useImageAssets } from '@/app/hooks';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 
@@ -26,6 +27,8 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const [websiteUrl, setWebsiteUrl] = useState<string>('');
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
 	const t = useTranslations();
+	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
+	const { user } = useAuthenticateUser();
 
 	// Validate projectImageFile
 	const isValidImageFile = useCallback(
@@ -87,6 +90,9 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const validateForm = () => {
 		const newErrors = new Map<BasicInfoErrorKeys, string>(errors);
 
+		// Clean up before next try
+		newErrors.delete('projectImage');
+
 		// Validate projectTitle
 		validateField(
 			'projectTitle',
@@ -138,7 +144,21 @@ export default function BasicInformationForm(props: IStepElementProps) {
 		return newErrors;
 	};
 
-	const handleSubmit = (e: FormEvent) => {
+	const createProjectImage = useCallback(
+		async (file: File) => {
+			return createImageAssets(
+				file,
+				'project_images',
+				user?.tenantId as string,
+				user?.employee?.organizationId as string
+			).then((image) => {
+				return image;
+			});
+		},
+		[user, createImageAssets]
+	);
+
+	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 
 		const errors = validateForm();
@@ -147,12 +167,34 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			return;
 		}
 
+		if (projectImageFile) {
+			const image = await createProjectImage(projectImageFile).catch((err) => {
+				const newErrors = new Map<BasicInfoErrorKeys, string>(errors);
+
+				newErrors.set('projectImage', t('pages.projects.basicInformationForm.errors.uploadError'));
+
+				setErrors(newErrors);
+			});
+
+			if (!image) {
+				return;
+			}
+
+			goToNext({
+				startDate: startDate,
+				endDate: endDate,
+				name: projectTitle,
+				description,
+				projectImage: image,
+				website: websiteUrl
+			});
+		}
+
 		goToNext({
 			startDate: startDate,
 			endDate: endDate,
 			name: projectTitle,
 			description,
-			projectImageFile: projectImageFile ?? undefined,
 			website: websiteUrl
 		});
 	};
@@ -310,7 +352,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button className=" h-[2.5rem]">{t('common.NEXT')}</Button>
+				<Button loading={createImageAssetLoading} className=" h-[2.5rem]">
+					{createImageAssetLoading
+						? t('pages.projects.basicInformationForm.common.uploadingImage')
+						: t('common.NEXT')}
+				</Button>
 			</div>
 		</form>
 	);

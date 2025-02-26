@@ -358,7 +358,8 @@
 		"TIME_LOG": "יומן זמן",
 		"TO_DO": "לבצע",
 		"MEMBERS_COUNT": "מספר חברים",
-		"REVIEW": "בְּחִינָה"
+		"REVIEW": "בְּחִינָה",
+		"ARCHIVE": "ארכיון"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -438,12 +439,14 @@
 					"startDateRequired": "תאריך התחלה נדרש.",
 					"endDateRequired": "תאריך סיום נדרש.",
 					"endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה.",
-					"invalidUrl": "אנא הזן כתובת אתר חוקית."
+					"invalidUrl": "אנא הזן כתובת אתר חוקית.",
+					"uploadError": "משהו השתבש בעת העלאת תמונת הפרויקט, אנא נסה שוב!"
 				},
 				"common": {
 					"search": "חפש ...",
 					"typeNew": "הקלד חדש ...",
-					"addNew": "הוסף חדש"
+					"addNew": "הוסף חדש",
+					"uploadingImage": "מעלה את תמונת הפרויקט"
 				}
 			},
 			"categorizationForm": {

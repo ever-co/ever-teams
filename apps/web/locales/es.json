@@ -358,7 +358,8 @@
 		"TIME_LOG": "Registro de tiempo",
 		"TO_DO": "Pendiente",
 		"MEMBERS_COUNT": "Conteo de miembros",
-		"REVIEW": "REVISIÓN"
+		"REVIEW": "REVISIÓN",
+		"ARCHIVE": "Archivo"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -498,12 +499,14 @@
 					"startDateRequired": "Se requiere la fecha de inicio.",
 					"endDateRequired": "Se requiere la fecha de finalización.",
 					"endDateAfterStart": "La fecha de finalización debe ser posterior a la de inicio.",
-					"invalidUrl": "Por favor ingrese una URL válida."
+					"invalidUrl": "Por favor ingrese una URL válida.",
+					"uploadError": "Algo salió mal al subir la imagen del proyecto, ¡inténtalo de nuevo!"
 				},
 				"common": {
 					"search": "Buscar ...",
 					"typeNew": "Escribir nuevo ...",
-					"addNew": "Agregar nuevo"
+					"addNew": "Agregar nuevo",
+					"uploadingImage": "Subiendo la imagen del proyecto"
 				}
 			},
 

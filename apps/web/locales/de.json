@@ -19,7 +19,7 @@
 		"PROJECT_BUDGET": "Projektbudget"
 	},
 	"common": {
-	    "APPLICATION": "Anwendung",
+		"APPLICATION": "Anwendung",
 		"TIME_SPENT": "Verbrachte Zeit",
 		"PERCENT_USED": "Prozentsatz genutzt",
 		"NO_ACTIVITY_DATA": "Keine Aktivitätsdaten verfügbar",
@@ -358,7 +358,8 @@
 		"TIME_LOG": "Zeitprotokoll",
 		"TO_DO": "Zu erledigen",
 		"MEMBERS_COUNT": "Mitgliederanzahl",
-		"REVIEW": "ÜBERPRÜFUNG"
+		"REVIEW": "ÜBERPRÜFUNG",
+		"ARCHIVE": "Archiv"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -479,12 +480,14 @@
 					"startDateRequired": "Startdatum ist erforderlich.",
 					"endDateRequired": "Enddatum ist erforderlich.",
 					"endDateAfterStart": "Das Enddatum muss nach dem Startdatum liegen.",
-					"invalidUrl": "Bitte geben Sie eine gültige URL ein."
+					"invalidUrl": "Bitte geben Sie eine gültige URL ein.",
+					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!"
 				},
 				"common": {
 					"search": "Suchen ...",
 					"typeNew": "Neues eingeben ...",
-					"addNew": "Neu hinzufügen"
+					"addNew": "Neu hinzufügen",
+					"uploadingImage": "Projektbild wird hochgeladen"
 				}
 			},
 			"financialSettingsForm": {

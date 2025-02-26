@@ -358,7 +358,8 @@
 		"TIME_LOG": "Dziennik czasu",
 		"TO_DO": "Do zrobienia",
 		"MEMBERS_COUNT": "Liczba członków",
-		"REVIEW": "PRZEGLĄD"
+		"REVIEW": "PRZEGLĄD",
+		"ARCHIVE": "Archiwum"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -479,12 +480,14 @@
 					"startDateRequired": "Data rozpoczęcia jest wymagana.",
 					"endDateRequired": "Data zakończenia jest wymagana.",
 					"endDateAfterStart": "Data zakończenia musi być po dacie rozpoczęcia.",
-					"invalidUrl": "Proszę podać prawidłowy URL."
+					"invalidUrl": "Proszę podać prawidłowy URL.",
+					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!"
 				},
 				"common": {
 					"search": "Szukaj ...",
 					"typeNew": "Wpisz nowy ...",
-					"addNew": "Dodaj nowy"
+					"addNew": "Dodaj nowy",
+					"uploadingImage": "Przesyłanie obrazu projektu"
 				}
 			},
 			"categorizationForm": {

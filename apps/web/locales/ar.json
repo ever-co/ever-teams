@@ -340,7 +340,8 @@
 		"TIME_LOG": "سجل الوقت",
 		"TO_DO": "المهام",
 		"MEMBERS_COUNT": "عدد الأعضاء",
-		"REVIEW": "مراجعة"
+		"REVIEW": "مراجعة",
+		"ARCHIVE": "أرشيف"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -438,12 +439,14 @@
 					"startDateRequired": "تاريخ البدء مطلوب.",
 					"endDateRequired": "تاريخ الانتهاء مطلوب.",
 					"endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.",
-					"invalidUrl": "يرجى إدخال رابط صالح."
+					"invalidUrl": "يرجى إدخال رابط صالح.",
+					"uploadError": "حدث خطأ أثناء تحميل صورة المشروع، يرجى المحاولة مرة أخرى!"
 				},
 				"common": {
 					"search": "بحث ...",
 					"typeNew": "اكتب جديد ...",
-					"addNew": "إضافة جديد"
+					"addNew": "إضافة جديد",
+					"uploadingImage": "جارٍ تحميل صورة المشروع"
 				}
 			},
 			"financialSettingsForm": {

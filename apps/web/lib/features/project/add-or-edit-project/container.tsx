@@ -1,4 +1,4 @@
-import { ILabel, IProject, IProjectRelation } from '@/app/interfaces';
+import { IImageAssets, ILabel, IProject, IProjectRelation } from '@/app/interfaces';
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
@@ -12,7 +12,7 @@ export type TStepData = Partial<
 	IProject & {
 		memberIds?: string[];
 		managerIds?: string[];
-		projectImageFile?: File;
+		projectImage?: IImageAssets;
 		// TO BE DONE ON THE API side :
 		labels?: Omit<ILabel, 'id'>[]; // labelling
 		relations?: IProjectRelation[]; // relationship

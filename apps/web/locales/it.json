@@ -358,7 +358,8 @@
 		"TIME_LOG": "Registro del tempo",
 		"TO_DO": "Da fare",
 		"MEMBERS_COUNT": "Conteggio dei membri",
-		"REVIEW": "REVISIONE"
+		"REVIEW": "REVISIONE",
+		"ARCHIVE": "Archivio"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -444,12 +445,14 @@
 					"startDateRequired": "La data di inizio è obbligatoria.",
 					"endDateRequired": "La data di fine è obbligatoria.",
 					"endDateAfterStart": "La data di fine deve essere successiva alla data di inizio.",
-					"invalidUrl": "Inserisci un URL valido."
+					"invalidUrl": "Inserisci un URL valido.",
+					"uploadError": "Si è verificato un errore durante il caricamento dell'immagine del progetto, riprova!"
 				},
 				"common": {
 					"search": "Cerca ...",
 					"typeNew": "Digita nuovo ...",
-					"addNew": "Aggiungi nuovo"
+					"addNew": "Aggiungi nuovo",
+					"uploadingImage": "Caricamento dell'immagine del progetto"
 				}
 			},
 			"categorizationForm": {

@@ -358,7 +358,8 @@
 		"TIME_LOG": "Journal de temps",
 		"TO_DO": "À faire",
 		"MEMBERS_COUNT": "Nombre de membres",
-		"REVIEW": "EXAMEN"
+		"REVIEW": "EXAMEN",
+		"ARCHIVE": "Archive"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -476,12 +477,14 @@
 					"startDateRequired": "La date de début est obligatoire.",
 					"endDateRequired": "La date de fin est obligatoire.",
 					"endDateAfterStart": "La date de fin doit être après la date de début.",
-					"invalidUrl": "Veuillez entrer une URL valide."
+					"invalidUrl": "Veuillez entrer une URL valide.",
+					"uploadError": "Une erreur s'est produite lors du téléchargement de l'image du projet, veuillez réessayer!"
 				},
 				"common": {
 					"search": "Recherche ...",
 					"typeNew": "Tapez nouveau ...",
-					"addNew": "Ajouter nouveau"
+					"addNew": "Ajouter nouveau",
+					"uploadingImage": "Subiendo la imagen del proyecto"
 				}
 			},
 			"categorizationForm": {
