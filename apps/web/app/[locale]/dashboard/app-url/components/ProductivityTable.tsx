@@ -22,14 +22,19 @@ export function ProductivityTable({
   const t = useTranslations();
 
   const getTotalDuration = (activities: IActivityItem[]) => {
-    return activities.reduce((sum, activity) => sum + (activity.duration || 0), 0);
+    return activities.reduce((sum, activity) => {
+      const duration = typeof activity.duration === 'string'
+        ? parseInt(activity.duration, 10)
+        : activity.duration || 0;
+      return sum + duration;
+    }, 0);
   };
 
   const getProjectCount = (data: IActivityReportGroupByDate) => {
     const uniqueProjects = new Set();
     data.employees.forEach(employee => {
       employee.projects.forEach(project => {
-        uniqueProjects.add(project.project?.id || project.activity[0]?.projectId);
+        uniqueProjects.add(project.project?.id || project.activity[0]?.projectId || 'unknown');
       });
     });
     return uniqueProjects.size;
@@ -40,7 +45,9 @@ export function ProductivityTable({
     data.employees.forEach(employee => {
       employee.projects.forEach(project => {
         project.activity.forEach(activity => {
-          uniqueApps.add(activity.title);
+          if (activity.title) {
+            uniqueApps.add(activity.title);
+          }
         });
       });
     });
@@ -56,11 +63,11 @@ export function ProductivityTable({
       getValue: (data: IActivityReportGroupByDate) => getProjectCount(data),
       compare: (a: number, b: number) => a - b
     },
-    applications: {
+    application: {
       getValue: (data: IActivityReportGroupByDate) => getApplicationCount(data),
       compare: (a: number, b: number) => a - b
     },
-    totalTime: {
+    timeSpent: {
       getValue: (data: IActivityReportGroupByDate) => {
         let total = 0;
         data.employees.forEach(employee => {
@@ -72,21 +79,21 @@ export function ProductivityTable({
       },
       compare: (a: number, b: number) => a - b
     },
-    activity: {
+    percentUsed: {
       getValue: (data: IActivityReportGroupByDate) => {
-        let totalActivity = 0;
+        let totalPercentage = 0;
         let count = 0;
         data.employees.forEach(employee => {
           employee.projects.forEach(project => {
             project.activity.forEach(activity => {
               if (activity.duration_percentage) {
-                totalActivity += Number(activity.duration_percentage);
+                totalPercentage += parseFloat(activity.duration_percentage);
                 count++;
               }
             });
           });
         });
-        return count > 0 ? totalActivity / count : 0;
+        return count > 0 ? totalPercentage / count : 0;
       },
       compare: (a: number, b: number) => a - b
     }
@@ -94,17 +101,42 @@ export function ProductivityTable({
 
   const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
 
+  const tableColumns = [
+    {
+      key: 'member',
+      label: t('common.teamStats.MEMBER')
+    },
+    {
+      key: 'projects',
+      label: t('sidebar.PROJECTS')
+    },
+    {
+      key: 'application',
+      label: t('common.APPLICATION')
+    },
+    {
+      key: 'timeSpent',
+      label: t('common.TIME_SPENT')
+    },
+    {
+      key: 'percentUsed',
+      label: t('common.PERCENT_USED')
+    }
+  ] as const;
+
+  const getProjectName = (activity: IActivityItem) => {
+    return activity.project?.name || 'No project';
+  };
+
   if (isLoading) {
     return (
       <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t('common.MEMBER')}</TableHead>
-              <TableHead>{t('sidebar.PROJECTS')}</TableHead>
-              <TableHead>{t('common.APPLICATION')}</TableHead>
-              <TableHead>{t('common.TIME_SPENT')}</TableHead>
-              <TableHead>{t('common.PERCENT_USED')}</TableHead>
+              {tableColumns.map((column) => (
+                <TableHead key={column.key}>{column.label}</TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -144,46 +176,16 @@ export function ProductivityTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>
-              <SortPopover
-                label={t('common.teamStats.MEMBER')}
-                sortKey="member"
-                currentConfig={sortConfig}
-                onSort={requestSort}
-              />
-            </TableHead>
-            <TableHead>
-              <SortPopover
-                label={t('sidebar.PROJECTS')}
-                sortKey="projects"
-                currentConfig={sortConfig}
-                onSort={requestSort}
-              />
-            </TableHead>
-            <TableHead>
-              <SortPopover
-                label={t('common.APPLICATION')}
-                sortKey="application"
-                currentConfig={sortConfig}
-                onSort={requestSort}
-              />
-            </TableHead>
-            <TableHead>
-              <SortPopover
-                label={t('common.TIME_SPENT')}
-                sortKey="timeSpent"
-                currentConfig={sortConfig}
-                onSort={requestSort}
-              />
-            </TableHead>
-            <TableHead>
-              <SortPopover
-                label={t('common.PERCENT_USED')}
-                sortKey="percentUsed"
-                currentConfig={sortConfig}
-                onSort={requestSort}
-              />
-            </TableHead>
+            {tableColumns.map((column) => (
+              <TableHead key={column.key}>
+                <SortPopover
+                  label={column.label}
+                  sortKey={column.key}
+                  currentConfig={sortConfig}
+                  onSort={requestSort}
+                />
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -249,7 +251,9 @@ export function ProductivityTable({
                           </div>
                         </TableCell>
                       )}
-                      <TableCell>Ever Teams</TableCell>
+                      <TableCell>
+                        {getProjectName(activity)}
+                      </TableCell>
                       <TableCell>{activity.title}</TableCell>
                       <TableCell>{formatDuration(activity.duration.toString())}</TableCell>
                       <TableCell>
