@@ -1,7 +1,7 @@
 import { Button, VerticalSeparator } from '@/lib/components';
-import { Fragment, ReactNode, useCallback } from 'react';
+import { Fragment, ReactNode } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
-import { useAuthenticateUser, useImageAssets, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
+import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 import {
@@ -10,7 +10,8 @@ import {
 	IProjectRelation,
 	ITag,
 	OrganizationProjectBudgetTypeEnum,
-	ProjectBillingEnum
+	ProjectBillingEnum,
+	TaskStatusEnum
 } from '@/app/interfaces';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
@@ -18,9 +19,8 @@ import { useTranslations } from 'next-intl';
 export default function FinalReview(props: IStepElementProps) {
 	const { finish, currentData: finalData } = props;
 	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
-	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
-	const { user } = useAuthenticateUser();
 	const t = useTranslations();
+	const { activeTeam } = useOrganizationTeams();
 
 	const newProject: Partial<ICreateProjectInput> = {
 		name: finalData?.name,
@@ -28,7 +28,8 @@ export default function FinalReview(props: IStepElementProps) {
 		endDate: moment(finalData?.endDate).toISOString(),
 		website: finalData?.website,
 		description: finalData?.description,
-		imageUrl: finalData?.imageUrl ?? undefined,
+		imageUrl: finalData?.projectImage?.fullUrl ?? undefined,
+		imageId: finalData?.projectImage?.id,
 		tags: finalData?.tags,
 		color: finalData?.color ?? '#000',
 		managerIds: finalData?.managerIds ?? [],
@@ -36,32 +37,20 @@ export default function FinalReview(props: IStepElementProps) {
 		budget: finalData?.budget,
 		currency: finalData?.currency,
 		budgetType: finalData?.budgetType,
-		billing: finalData?.billing
+		billing: finalData?.billing,
+		teams: [...(activeTeam ? [activeTeam] : [])],
+		status: TaskStatusEnum.OPEN,
+		isActive: true,
+		isArchived: false,
+		isTasksAutoSync: true,
+		isTasksAutoSyncOnLabel: true
 	};
-
-	const createProjectImage = useCallback(
-		async (file: File) => {
-			return createImageAssets(
-				file,
-				'project_images',
-				user?.tenantId as string,
-				user?.employee?.organizationId as string
-			).then((image) => {
-				return image;
-			});
-		},
-		[user, createImageAssets]
-	);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const projectImage = finalData?.projectImageFile && (await createProjectImage(finalData?.projectImageFile));
-
 		const project = await createOrganizationProject({
-			...newProject,
-			imageUrl: projectImage?.fullUrl,
-			imageId: projectImage?.id
+			...newProject
 		});
 
 		if (project) {
@@ -79,9 +68,7 @@ export default function FinalReview(props: IStepElementProps) {
 						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
 						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
 						websiteUrl={finalData?.website}
-						projectImageUrl={
-							finalData?.projectImageFile ? URL.createObjectURL(finalData?.projectImageFile) : undefined
-						}
+						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 						description={finalData?.description}
 					/>
 					<FinancialSettings
@@ -93,9 +80,7 @@ export default function FinalReview(props: IStepElementProps) {
 					<Categorization labels={finalData?.labels} tags={finalData?.tags} colorCode={finalData?.color} />
 					<TeamAndRelations
 						projectTitle={finalData?.name}
-						projectImgUrl={
-							finalData?.projectImageFile ? URL.createObjectURL(finalData?.projectImageFile) : undefined
-						}
+						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 						managerIds={finalData?.managerIds}
 						relations={finalData?.relations}
 					/>
@@ -103,8 +88,8 @@ export default function FinalReview(props: IStepElementProps) {
 			</div>
 			<div className="w-full flex items-center justify-end">
 				<Button
-					loading={createOrganizationProjectLoading || createImageAssetLoading}
-					disabled={createOrganizationProjectLoading || createImageAssetLoading}
+					loading={createOrganizationProjectLoading}
+					disabled={createOrganizationProjectLoading}
 					type="submit"
 					className=" h-[2.5rem]"
 				>
@@ -305,12 +290,12 @@ function Categorization(props: ICategorizationProps) {
 interface ITeamAndRelationsProps {
 	managerIds?: string[];
 	relations?: IProjectRelation[];
-	projectImgUrl?: string;
+	projectImageUrl?: string;
 	projectTitle?: string;
 }
 
 function TeamAndRelations(props: ITeamAndRelationsProps) {
-	const { managerIds, relations, projectImgUrl, projectTitle } = props;
+	const { managerIds, relations, projectImageUrl, projectTitle } = props;
 	const t = useTranslations();
 
 	const { organizationProjects } = useOrganizationProjects();
@@ -353,7 +338,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 							const project = organizationProjects?.find((el) => el.id === relation.projectId);
 							return (
 								<div key={project?.id} className="flex items-center gap-3">
-									<Item name={projectTitle ?? '-'} imgUrl={projectImgUrl} />
+									<Item name={projectTitle ?? '-'} imgUrl={projectImageUrl} />
 									<span className="text-xs italic text-gray-500 min-w-20">
 										{relation.relationType}
 									</span>

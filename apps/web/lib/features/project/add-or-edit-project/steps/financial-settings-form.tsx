@@ -28,7 +28,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		goToNext({
-			currency,
+			currency: currencies.find((el) => el.id === currency)?.isoCode,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType

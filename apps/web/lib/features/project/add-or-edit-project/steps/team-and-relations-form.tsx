@@ -48,8 +48,10 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 		const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
 
 		goToNext({
-			memberIds: members.filter((el) => el.roleId == simpleMemberRole?.id).map((el) => el.memberId),
-			managerIds: members.filter((el) => el.roleId == managerRole?.id).map((el) => el.memberId),
+			memberIds: members
+				.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
+				.map((el) => el.memberId),
+			managerIds: members.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId),
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});
 	};

@@ -20,16 +20,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTranslations } from 'next-intl';
 import { IProject } from '@/app/interfaces';
 import { cn } from '@/lib/utils';
-import { useTaskStatus } from '@/app/hooks';
-import { useEffect, useMemo } from 'react';
+import { useModal, useTaskStatus } from '@/app/hooks';
+import { Fragment, memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Archive, ChevronDown, ChevronUp, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
-import { SpinnerLoader } from '@/lib/components';
+import { HorizontalSeparator, SpinnerLoader } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
+import { Menu, Transition } from '@headlessui/react';
+import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-confirm-modal';
 
 export type ProjectTableDataType = {
 	project: {
+		id: string;
 		name: IProject['name'];
 		imageUrl: IProject['imageUrl'];
 		color: IProject['color'];
@@ -54,7 +57,7 @@ export type ProjectTableDataType = {
  *
  */
 
-export function DataTableProject(props: { data: ProjectTableDataType[]; loading: boolean }) {
+export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loading: boolean }) => {
 	const { data, loading } = props;
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -128,7 +131,7 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 			},
 			cell: function ({ row }) {
 				return (
-					<div className="capitalize">
+					<div className="">
 						<div className="flex items-center font-medium gap-2">
 							<div
 								style={{ backgroundColor: row.original?.project?.color }}
@@ -378,6 +381,88 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 
 				return managers?.length > 0 ? <AvatarStack avatars={managers} /> : null;
 			}
+		},
+		{
+			id: 'actions',
+			cell: function Cell({ row }) {
+				const {
+					openModal: openDeleteConfirmModal,
+					closeModal: closeDeleteConfirmModal,
+					isOpen: isDeleteConfirmModalOpen
+				} = useModal();
+
+				return (
+					<>
+						<Menu as="div" className="relative inline-block text-left">
+							<div>
+								<Menu.Button>
+									<Ellipsis />
+								</Menu.Button>
+							</div>
+							<Transition
+								as={Fragment}
+								enter="transition ease-out duration-100"
+								enterFrom="transform opacity-0 scale-95"
+								enterTo="transform opacity-100 scale-100"
+								leave="transition ease-in duration-75"
+								leaveFrom="transform opacity-100 scale-100"
+								leaveTo="transform opacity-0 scale-95"
+							>
+								<Menu.Items className="absolute z-[999] right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+									<div className="p-1 flex flex-col gap-1">
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Eye size={15} /> <span>{t('common.VIEW_INFO')}</span>
+												</button>
+											)}
+										</Menu.Item>
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Pencil size={15} /> <span>{t('common.EDIT')}</span>
+												</button>
+											)}
+										</Menu.Item>
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Archive size={15} /> <span>{t('common.ARCHIVE')}</span>
+												</button>
+											)}
+										</Menu.Item>
+										<HorizontalSeparator />
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													onClick={openDeleteConfirmModal}
+													className={`${active && 'bg-red-400/10'} gap-2 text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Trash size={15} /> <span>{t('common.DELETE')}</span>
+												</button>
+											)}
+										</Menu.Item>
+									</div>
+								</Menu.Items>
+							</Transition>
+						</Menu>
+						<DeleteProjectConfirmModal
+							key={row.original.project.id}
+							projectId={row.original.project.id}
+							open={isDeleteConfirmModalOpen}
+							closeModal={closeDeleteConfirmModal}
+						/>
+					</>
+				);
+			},
+			enableSorting: false,
+			enableHiding: false
 		}
 	];
 
@@ -471,4 +556,6 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 			)}
 		</div>
 	);
-}
+});
+
+DataTableProject.displayName = 'DataTableProject';

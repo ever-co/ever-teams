@@ -359,7 +359,8 @@
 		"TIME_LOG": "Registro de tempo",
 		"TO_DO": "Tarefas",
 		"MEMBERS_COUNT": "Contagem de membros",
-		"REVIEW": "REVISÃO"
+		"REVIEW": "REVISÃO",
+		"ARCHIVE": "Arquivo"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -480,12 +481,14 @@
 					"startDateRequired": "A data de início é obrigatória.",
 					"endDateRequired": "A data de término é obrigatória.",
 					"endDateAfterStart": "A data de término deve ser posterior à data de início.",
-					"invalidUrl": "Por favor, insira um URL válido."
+					"invalidUrl": "Por favor, insira um URL válido.",
+					"uploadError": "Algo deu errado ao enviar a imagem do projeto, tente novamente!"
 				},
 				"common": {
 					"search": "Buscar ...",
 					"typeNew": "Digite novo ...",
-					"addNew": "Adicionar novo"
+					"addNew": "Adicionar novo",
+					"uploadingImage": "Enviando a imagem do projeto"
 				}
 			},
 			"categorizationForm": {
@@ -530,6 +533,10 @@
 					"categorization": "Categorização",
 					"teamAndRelations": "Equipe & Relações"
 				}
+			},
+			"deleteModal": {
+				"title": "Excluir selecionado?",
+				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
 			}
 		},
 		"auth": {

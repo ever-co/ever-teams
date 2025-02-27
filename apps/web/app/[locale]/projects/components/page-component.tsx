@@ -8,13 +8,12 @@ import { Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-reac
 import { cn } from '@/lib/utils';
 import { Button, InputField, Paginate, SpinnerLoader } from '@/lib/components';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { IProject } from '@/app/interfaces';
 import { ExportModeSelect } from '@components/shared/export-mode-select';
 import { DatePickerWithRange } from '@components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import GridItem from './grid-item';
-import { DataTableProject } from './data-table';
+import { DataTableProject, ProjectTableDataType } from './data-table';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -31,7 +30,7 @@ function PageComponent() {
 		openModal: openFiltersCardModal
 	} = useModal();
 	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const lastSelectedView = useMemo(() => {
 		try {
 			return localStorage.getItem(LAST_SELECTED_PROJECTS_VIEW) as TViewMode;
@@ -41,14 +40,13 @@ function PageComponent() {
 		}
 	}, []);
 	const [selectedView, setSelectedView] = useState<TViewMode>(lastSelectedView ?? 'LIST');
-	const [projects, setProjects] = useState<IProject[]>([]);
-	const { getOrganizationProjects, getOrganizationProjectsLoading } = useOrganizationProjects();
+	const [projects, setProjects] = useState<ProjectTableDataType[]>([]);
+	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
 		to: endOfMonth(new Date())
 	});
-	const { activeTeam } = useOrganizationTeams();
-	const activeTeamProjects = useMemo(() => activeTeam?.projects?.map((el) => el.id) ?? [], [activeTeam?.projects]);
+	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
@@ -67,7 +65,9 @@ function PageComponent() {
 	);
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<IProject>(projects ?? []);
+		usePagination<ProjectTableDataType>(
+			searchTerm ? projects.filter((el) => el.project?.name?.includes(searchTerm)) : projects || []
+		);
 
 	useEffect(() => {
 		const members = [...(params.get('managers')?.split(',') ?? []), ...(params.get('members')?.split(',') ?? [])];
@@ -89,31 +89,30 @@ function PageComponent() {
 		*/
 
 		getOrganizationProjects({ queries }).then((data) => {
-			if (data && data?.items?.length > 0) {
-				setProjects(data.items);
+			if (data && data?.items?.length > 0 && activeTeam) {
+				// Consider only active team projects
+
+				const activeTeamProjectsIds = data.items
+					?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam.id))
+					?.map((el) => ({
+						project: {
+							name: el.name,
+							imageUrl: el.imageUrl,
+							color: el.color,
+							id: el.id
+						},
+						status: el.status,
+						startDate: el.startDate,
+						endDate: el.endDate,
+						members: el.members,
+						managers: el.members,
+						teams: el.teams
+					}));
+
+				setProjects(activeTeamProjectsIds);
 			}
 		});
-	}, [getOrganizationProjects, params]);
-
-	const filteredProjects = useMemo(
-		() =>
-			currentItems
-				?.filter((el) => activeTeamProjects.includes(el.id))
-				?.map((el) => ({
-					project: {
-						name: el.name,
-						imageUrl: el.imageUrl,
-						color: el.color
-					},
-					status: el.status,
-					startDate: el.startDate,
-					endDate: el.endDate,
-					members: el.members,
-					managers: el.members,
-					teams: el.teams
-				})),
-		[currentItems, activeTeamProjects]
-	);
+	}, [getOrganizationProjects, params, organizationProjects, activeTeam]);
 
 	return (
 		<MainLayout
@@ -170,6 +169,8 @@ function PageComponent() {
 						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">
 							<Search size={15} className=" text-slate-300" />{' '}
 							<InputField
+								onChange={(e) => setSearchTerm(e.target.value)}
+								value={searchTerm}
 								placeholder="Search ..."
 								className=" h-full border-none bg-transparent dark:bg-transparent"
 								noWrapper
@@ -208,7 +209,7 @@ function PageComponent() {
 					</div>
 					{selectedView === 'LIST' ? (
 						<div key="list" className="w-full">
-							<DataTableProject loading={getOrganizationProjectsLoading} data={filteredProjects} />
+							<DataTableProject loading={getOrganizationProjectsLoading} data={currentItems} />
 							<div className=" dark:bg-dark--theme px-4 py-4 flex">
 								<Paginate
 									total={total}
@@ -229,7 +230,7 @@ function PageComponent() {
 									<SpinnerLoader />
 								</div>
 							) : (
-								filteredProjects.map((el) => <GridItem key={el.project.name} data={el} />)
+								currentItems.map((el) => <GridItem key={el.project.id} data={el} />)
 							)}
 						</div>
 					) : null}

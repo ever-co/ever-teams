@@ -358,7 +358,8 @@
 		"TIME_LOG": "Tijdlogboek",
 		"TO_DO": "Te doen",
 		"MEMBERS_COUNT": "Aantal leden",
-		"REVIEW": "BEKEKEN"
+		"REVIEW": "BEKEKEN",
+		"ARCHIVE": "Archief"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -476,12 +477,14 @@
 					"startDateRequired": "Startdatum is verplicht.",
 					"endDateRequired": "Einddatum is verplicht.",
 					"endDateAfterStart": "Einddatum moet na startdatum liggen.",
-					"invalidUrl": "Voer een geldige URL in."
+					"invalidUrl": "Voer een geldige URL in.",
+					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!"
 				},
 				"common": {
 					"search": "Zoeken ...",
 					"typeNew": "Typ nieuw ...",
-					"addNew": "Nieuw toevoegen"
+					"addNew": "Nieuw toevoegen",
+					"uploadingImage": "Projectafbeelding wordt geüpload"
 				}
 			},
 			"categorizationForm": {
@@ -526,6 +529,10 @@
 					"categorization": "Categorisering",
 					"teamAndRelations": "Team & Relaties"
 				}
+			},
+			"deleteModal": {
+				"title": "Geselecteerde verwijderen?",
+				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
 			}
 		},
 		"taskStatus": {

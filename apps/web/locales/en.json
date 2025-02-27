@@ -359,7 +359,8 @@
 		"MANAGERS": "Managers",
 		"NOT_HOURS_WORKED": "Not hours worked",
 		"MEMBERS_COUNT": "Members count",
-		"REVIEW": "REVIEW"
+		"REVIEW": "REVIEW",
+		"ARCHIVE": "Archive"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -420,12 +421,14 @@
 					"startDateRequired": "Start date is required",
 					"endDateRequired": "End date is required",
 					"endDateAfterStart": "End date must be after start date",
-					"invalidUrl": "Please enter a valid URL"
+					"invalidUrl": "Please enter a valid URL",
+					"uploadError": "Something went wrong while uploading the project image, please try again!"
 				},
 				"common": {
 					"search": "Search ...",
 					"typeNew": "Type new ...",
-					"addNew": "Add new"
+					"addNew": "Add new",
+					"uploadingImage": "Uploading the project image"
 				}
 			},
 			"categorizationForm": {
@@ -470,6 +473,10 @@
 					"categorization": "Categorization",
 					"teamAndRelations": "Team & Relations"
 				}
+			},
+			"deleteModal": {
+				"title": "Delete Selected?",
+				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
 			}
 		},
 		"home": {

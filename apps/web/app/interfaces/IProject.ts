@@ -1,6 +1,6 @@
 import { IEmployee } from './IEmployee';
 import { IOrganization } from './IOrganization';
-import { IOrganizationTeam, OT_Member } from './IOrganizationTeam';
+import { IOrganizationTeam, IOrganizationTeamList, OT_Member } from './IOrganizationTeam';
 import { ITeamTask } from './ITask';
 import { TaskStatusEnum } from './ITaskStatus';
 import { ITenant } from './ITenant';
@@ -148,4 +148,10 @@ export interface ICreateProjectInput {
 	currency?: string;
 	memberIds?: string[];
 	managerIds?: string[];
+	teams?: IOrganizationTeamList[];
+	status?: IProject['status'];
+	isActive: boolean;
+	isArchived: boolean;
+	isTasksAutoSync: boolean;
+	isTasksAutoSyncOnLabel: boolean;
 }

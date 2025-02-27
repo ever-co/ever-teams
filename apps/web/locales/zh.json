@@ -358,7 +358,8 @@
 		"TIME_LOG": "时间记录",
 		"TO_DO": "待办事项",
 		"MEMBERS_COUNT": "成员数",
-		"REVIEW": "审查"
+		"REVIEW": "审查",
+		"ARCHIVE": "存档"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -435,12 +436,14 @@
 					"startDateRequired": "开始日期是必需的。",
 					"endDateRequired": "结束日期是必需的。",
 					"endDateAfterStart": "结束日期必须在开始日期之后。",
-					"invalidUrl": "请输入有效的URL。"
+					"invalidUrl": "请输入有效的URL。",
+					"uploadError": "上传项目图片时出错，请重试！"
 				},
 				"common": {
 					"search": "搜索 ...",
 					"typeNew": "输入新的 ...",
-					"addNew": "添加新项"
+					"addNew": "添加新项",
+					"uploadingImage": "正在上传项目图片"
 				}
 			},
 
@@ -486,6 +489,10 @@
 					"categorization": "分类",
 					"teamAndRelations": "团队和关系"
 				}
+			},
+			"deleteModal": {
+				"title": "删除所选？",
+				"description": "您即将永久删除此项目。单击 '删除' 以确认操作"
 			}
 		},
 		"kanban": {
