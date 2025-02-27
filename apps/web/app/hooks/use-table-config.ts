@@ -206,3 +206,45 @@ export const useProductivityApplicationTableConfig = (): TableConfig<IActivityRe
     ]
   });
 };
+
+export const useProductivityProjectTableConfig = (): TableConfig<IActivityItem> => {
+  return useTableConfig<IActivityItem>({
+    columnDefinitions: [
+      {
+        key: 'date',
+        label: 'common.DATE',
+        sortable: true,
+        getValue: (data) => data.date,
+        compare: createDateCompare()
+      },
+      {
+        key: 'member',
+        label: 'common.MEMBER',
+        sortable: true,
+        getValue: (data) => data.employee?.fullName || 'Unknown',
+        compare: createStringCompare()
+      },
+      {
+        key: 'application',
+        label: 'common.APPLICATION',
+        sortable: true,
+        getValue: (data) => data.title || 'No activity',
+        compare: createStringCompare()
+      },
+      {
+        key: 'timeSpent',
+        label: 'common.TIME_SPENT',
+        sortable: true,
+        getValue: (data) => data.duration.toString(),
+        compare: createNumericCompare()
+      },
+      {
+        key: 'percentUsed',
+        label: 'common.PERCENT_USED',
+        sortable: true,
+        getValue: (data) => data.duration_percentage,
+        compare: createNumericCompare()
+      }
+    ]
+  });
+};
