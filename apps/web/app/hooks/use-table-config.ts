@@ -121,7 +121,7 @@ export const useProductivityEmployeeTableConfig = (): TableConfig<IActivityItem>
       },
       {
         key: 'activity',
-        label: 'common.APPLICATION',
+        label: 'common.ACTIVITY',
         sortable: true,
         getValue: (data) => data.title || 'No activity',
         compare: createStringCompare()
@@ -138,6 +138,69 @@ export const useProductivityEmployeeTableConfig = (): TableConfig<IActivityItem>
         label: 'common.PERCENT_USED',
         sortable: true,
         getValue: (data) => data.duration_percentage,
+        compare: createNumericCompare()
+      }
+    ]
+  });
+};
+
+
+export const useProductivityApplicationTableConfig = (): TableConfig<IActivityReportGroupByDate> => {
+  return useTableConfig<IActivityReportGroupByDate>({
+    columnDefinitions: [
+      {
+        key: 'date',
+        label: 'common.DATE',
+        sortable: true,
+        getValue: (data) => data.date,
+        compare: createDateCompare()
+      },
+      {
+        key: 'project',
+        label: 'sidebar.PROJECTS',
+        sortable: true,
+        getValue: (data) => {
+          const project = data.employees?.[0]?.projects?.[0]?.project;
+          return project?.name || 'No project';
+        },
+        compare: createStringCompare()
+      },
+      {
+        key: 'member',
+        label: 'common.MEMBER',
+        sortable: true,
+        getValue: (data) => {
+          const employee = data.employees?.[0];
+          return employee?.employee.fullName || 'Unknown';
+        },
+        compare: createStringCompare()
+      },
+      {
+        key: 'timeSpent',
+        label: 'common.TIME_SPENT',
+        sortable: true,
+        getValue: (data) => {
+          return data.employees?.reduce((total, emp) =>
+            total + emp.projects.reduce((pTotal, proj) =>
+              pTotal + proj.activity.reduce((aTotal, act) => aTotal + act.duration, 0)
+            , 0)
+          , 0) || 0;
+        },
+        compare: createNumericCompare()
+      },
+      {
+        key: 'percentUsed',
+        label: 'common.PERCENT_USED',
+        sortable: true,
+        getValue: (data) => {
+          const activities = data.employees?.flatMap(emp =>
+            emp.projects.flatMap(proj => proj.activity)
+          ) || [];
+          const totalPercentage = activities.reduce((sum, act) =>
+            sum + parseFloat(act.duration_percentage), 0
+          );
+          return activities.length ? totalPercentage / activities.length : 0;
+        },
         compare: createNumericCompare()
       }
     ]

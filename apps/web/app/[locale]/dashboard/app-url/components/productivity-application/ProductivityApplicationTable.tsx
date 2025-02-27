@@ -6,16 +6,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@components/ui/card';
 import { format } from 'date-fns';
 import {
-    IActivityReport,
-    IActivityReportGroupByDate,
-    IActivityItem,
-    IProjectWithActivity,
+	IActivityReport,
+	IActivityReportGroupByDate,
+	IActivityItem,
+	IProjectWithActivity
 } from '@app/interfaces/activity/IActivityReport';
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { useProductivityApplicationTableConfig } from '@/app/hooks/use-table-config';
+import { useSortableData } from '@/app/hooks/useSortableData';
+import { SortPopover } from '@components/ui/sort-popover';
 
 export function ProductivityApplicationTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {
 	const reportData = data as IActivityReportGroupByDate[] | undefined;
+	const { sortableColumns, tableColumns } = useProductivityApplicationTableConfig();
+
+	const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
 	const t = useTranslations();
 
 	if (isLoading) {
@@ -34,11 +40,21 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 					<TableBody>
 						{[...Array(7)].map((_, i) => (
 							<TableRow key={i}>
-								<TableCell><Skeleton className="w-32 h-4" /></TableCell>
-								<TableCell><Skeleton className="w-24 h-4" /></TableCell>
-								<TableCell><Skeleton className="w-32 h-4" /></TableCell>
-								<TableCell><Skeleton className="w-24 h-4" /></TableCell>
-								<TableCell><Skeleton className="w-full h-4" /></TableCell>
+								<TableCell>
+									<Skeleton className="w-32 h-4" />
+								</TableCell>
+								<TableCell>
+									<Skeleton className="w-24 h-4" />
+								</TableCell>
+								<TableCell>
+									<Skeleton className="w-32 h-4" />
+								</TableCell>
+								<TableCell>
+									<Skeleton className="w-24 h-4" />
+								</TableCell>
+								<TableCell>
+									<Skeleton className="w-full h-4" />
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
@@ -59,36 +75,44 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 	}
 
 	// Group activities by application
-	const groupedByApp = reportData.reduce((apps, dayData) => {
-		dayData.employees.forEach((employeeData) => {
-			employeeData.projects.forEach((projectData: IProjectWithActivity) => {
-				projectData.activity.forEach((activity: IActivityItem) => {
-					if (!apps[activity.title]) {
-						apps[activity.title] = [];
-					}
-					const projectName = projectData.project?.name || activity.project?.name || 'Ever Teams';
-					apps[activity.title].push({
-						date: dayData.date,
-						activity,
-						employee: activity.employee,
-						projectName
+	const groupedByApp = sortedData.reduce(
+		(apps, dayData) => {
+			dayData.employees.forEach((employeeData) => {
+				employeeData.projects.forEach((projectData: IProjectWithActivity) => {
+					projectData.activity.forEach((activity: IActivityItem) => {
+						if (!apps[activity.title]) {
+							apps[activity.title] = [];
+						}
+						const projectName = projectData.project?.name || activity.project?.name || 'Ever Teams';
+						apps[activity.title].push({
+							date: dayData.date,
+							activity,
+							employee: activity.employee,
+							projectName
+						});
 					});
 				});
 			});
-		});
-		return apps;
-	}, {} as Record<string, Array<{ date: string; activity: IActivityItem; employee: any; projectName: string }>>);
+			return apps;
+		},
+		{} as Record<string, Array<{ date: string; activity: IActivityItem; employee: any; projectName: string }>>
+	);
 
 	return (
 		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>{t('common.DATE')}</TableHead>
-						<TableHead>{t('sidebar.PROJECTS')}</TableHead>
-						<TableHead>{t('common.MEMBER')}</TableHead>
-						<TableHead>{t('common.TIME_SPENT')}</TableHead>
-						<TableHead>{t('common.PERCENT_USED')}</TableHead>
+						{tableColumns.map((column) => (
+							<TableHead key={column.key}>
+								<SortPopover
+									label={column.label}
+									sortKey={column.key}
+									currentConfig={sortConfig}
+									onSort={requestSort}
+								/>
+							</TableHead>
+						))}
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -96,10 +120,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 						<React.Fragment key={appName}>
 							{/* Application Header */}
 							<TableRow>
-								<TableCell
-									colSpan={5}
-									className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800"
-								>
+								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800">
 									{appName}
 								</TableCell>
 							</TableRow>
@@ -120,10 +141,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 										<div className="flex gap-2 items-center">
 											<Avatar className="w-8 h-8">
 												{employee.user.imageUrl && (
-													<AvatarImage
-														src={employee.user.imageUrl}
-														alt={employee.fullName}
-													/>
+													<AvatarImage src={employee.user.imageUrl} alt={employee.fullName} />
 												)}
 												<AvatarFallback>
 													{employee.fullName

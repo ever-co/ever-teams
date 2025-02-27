@@ -43,14 +43,14 @@ const calculateTotalDuration = (activities: IActivityItem[]): number => {
 	}, 0);
 };
 
-interface IUserImage {
+export interface IUserImage {
 	id: string;
 	url: string;
 	fullUrl: string;
 	thumbUrl: string;
 }
 
-interface IUser {
+export interface IUser {
 	id: string;
 	firstName: string;
 	lastName: string;
@@ -60,7 +60,7 @@ interface IUser {
 	image?: IUserImage;
 }
 
-interface IEmployee {
+ export interface IEmployee {
 	id: string;
 	fullName: string;
 	isActive: boolean;
@@ -68,7 +68,7 @@ interface IEmployee {
 	user: IUser;
 }
 
-interface IActivityItem {
+export  interface IActivityItem {
 	sessions: string;
 	duration: string;
 	employeeId: string;
@@ -80,7 +80,7 @@ interface IActivityItem {
 	projectName?: string;
 }
 
-interface IDateGroup {
+export interface IDateGroup {
 	date: string;
 	employees: Array<{
 		employee: IEmployee;
@@ -90,7 +90,7 @@ interface IDateGroup {
 	}>;
 }
 
-interface Props {
+export interface Props {
 	data?: IDateGroup[] | any[];
 	isLoading?: boolean;
 }
@@ -258,6 +258,7 @@ MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
   const t = useTranslations();
+
   const groupedData = React.useMemo(() => {
     const employeeMap = new Map<
       string,

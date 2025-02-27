@@ -18,20 +18,51 @@ export interface SortConfig {
 
 // Generic comparison functions
 export const createNumericCompare = () => (a: number | string, b: number | string): number => {
-  const numA = typeof a === 'string' ? parseFloat(a) || 0 : a;
-  const numB = typeof b === 'string' ? parseFloat(b) || 0 : b;
+  // Handle null/undefined values
+  if (a == null && b == null) return 0;
+  if (a == null) return -1;
+  if (b == null) return 1;
+
+  // Convert to numbers, handling edge cases
+  const numA = typeof a === 'string' ? parseFloat(a.replace(/[^\d.-]/g, '')) || 0 : a;
+  const numB = typeof b === 'string' ? parseFloat(b.replace(/[^\d.-]/g, '')) || 0 : b;
+
+  // Handle NaN values
+  if (isNaN(numA) && isNaN(numB)) return 0;
+  if (isNaN(numA)) return -1;
+  if (isNaN(numB)) return 1;
+
   return numA - numB;
 };
 
-export const createStringCompare = () => (a: string | number, b: string | number): number => {
-  const strA = String(a).toLowerCase();
-  const strB = String(b).toLowerCase();
-  return strA.localeCompare(strB);
+export const createStringCompare = () => (a: string | number | null | undefined, b: string | number | null | undefined): number => {
+  // Handle null/undefined values
+  if (a == null && b == null) return 0;
+  if (a == null) return -1;
+  if (b == null) return 1;
+
+  // Convert to strings and normalize
+  const strA = String(a).toLowerCase().trim();
+  const strB = String(b).toLowerCase().trim();
+
+  return strA.localeCompare(strB, undefined, { numeric: true, sensitivity: 'base' });
 };
 
-export const createDateCompare = () => (a: number | string, b: number | string): number => {
+export const createDateCompare = () => (a: number | string | null | undefined, b: number | string | null | undefined): number => {
+  // Handle null/undefined values
+  if (a == null && b == null) return 0;
+  if (a == null) return -1;
+  if (b == null) return 1;
+
+  // Convert to timestamps
   const dateA = typeof a === 'string' ? new Date(a).getTime() : a;
   const dateB = typeof b === 'string' ? new Date(b).getTime() : b;
+
+  // Handle invalid dates
+  if (isNaN(dateA) && isNaN(dateB)) return 0;
+  if (isNaN(dateA)) return -1;
+  if (isNaN(dateB)) return 1;
+
   return dateA - dateB;
 };
 
