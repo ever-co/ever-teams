@@ -10,6 +10,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { SortPopover } from '@components/ui/sort-popover';
+import { useProductivityTableConfig } from '@/app/hooks/use-table-config';
 
 export function ProductivityTable({
   data,
@@ -21,109 +22,8 @@ export function ProductivityTable({
   const reportData = data as IActivityReportGroupByDate[] | undefined;
   const t = useTranslations();
 
-  const getTotalDuration = (activities: IActivityItem[]) => {
-    return activities.reduce((sum, activity) => {
-      const duration = typeof activity.duration === 'string'
-        ? parseInt(activity.duration, 10)
-        : activity.duration || 0;
-      return sum + duration;
-    }, 0);
-  };
-
-  const getProjectCount = (data: IActivityReportGroupByDate) => {
-    const uniqueProjects = new Set();
-    data.employees.forEach(employee => {
-      employee.projects.forEach(project => {
-        uniqueProjects.add(project.project?.id || project.activity[0]?.projectId || 'unknown');
-      });
-    });
-    return uniqueProjects.size;
-  };
-
-  const getApplicationCount = (data: IActivityReportGroupByDate) => {
-    const uniqueApps = new Set();
-    data.employees.forEach(employee => {
-      employee.projects.forEach(project => {
-        project.activity.forEach(activity => {
-          if (activity.title) {
-            uniqueApps.add(activity.title);
-          }
-        });
-      });
-    });
-    return uniqueApps.size;
-  };
-
-  const sortableColumns = {
-    date: {
-      getValue: (data: IActivityReportGroupByDate) => new Date(data.date).getTime(),
-      compare: (a: number, b: number) => a - b
-    },
-    projects: {
-      getValue: (data: IActivityReportGroupByDate) => getProjectCount(data),
-      compare: (a: number, b: number) => a - b
-    },
-    application: {
-      getValue: (data: IActivityReportGroupByDate) => getApplicationCount(data),
-      compare: (a: number, b: number) => a - b
-    },
-    timeSpent: {
-      getValue: (data: IActivityReportGroupByDate) => {
-        let total = 0;
-        data.employees.forEach(employee => {
-          employee.projects.forEach(project => {
-            total += getTotalDuration(project.activity);
-          });
-        });
-        return total;
-      },
-      compare: (a: number, b: number) => a - b
-    },
-    percentUsed: {
-      getValue: (data: IActivityReportGroupByDate) => {
-        let totalPercentage = 0;
-        let count = 0;
-        data.employees.forEach(employee => {
-          employee.projects.forEach(project => {
-            project.activity.forEach(activity => {
-              if (activity.duration_percentage) {
-                totalPercentage += parseFloat(activity.duration_percentage);
-                count++;
-              }
-            });
-          });
-        });
-        return count > 0 ? totalPercentage / count : 0;
-      },
-      compare: (a: number, b: number) => a - b
-    }
-  };
-
+  const { sortableColumns, tableColumns } = useProductivityTableConfig();
   const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
-
-  const tableColumns = [
-    {
-      key: 'member',
-      label: t('common.teamStats.MEMBER')
-    },
-    {
-      key: 'projects',
-      label: t('sidebar.PROJECTS')
-    },
-    {
-      key: 'application',
-      label: t('common.APPLICATION')
-    },
-    {
-      key: 'timeSpent',
-      label: t('common.TIME_SPENT')
-    },
-    {
-      key: 'percentUsed',
-      label: t('common.PERCENT_USED')
-    }
-  ] as const;
-
   const getProjectName = (activity: IActivityItem) => {
     return activity.project?.name || 'No project';
   };
