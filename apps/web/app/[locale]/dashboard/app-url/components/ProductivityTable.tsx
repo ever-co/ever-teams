@@ -11,6 +11,8 @@ import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { SortPopover } from '@components/ui/sort-popover';
 import { useProductivityTableConfig } from '@/app/hooks/use-table-config';
+import { Paginate } from '@/lib/components';
+import { usePagination } from '@/app/hooks/features/usePagination';
 
 export function ProductivityTable({
   data,
@@ -21,9 +23,21 @@ export function ProductivityTable({
 }) {
   const reportData = data as IActivityReportGroupByDate[] | undefined;
   const t = useTranslations();
-
   const { sortableColumns, tableColumns } = useProductivityTableConfig();
   const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
+
+  const {
+    total,
+    onPageChange,
+    itemsPerPage,
+    itemOffset,
+    endOffset,
+    setItemsPerPage,
+    currentItems
+  } = usePagination<IActivityReportGroupByDate>(
+    sortedData
+  );
+
   const getProjectName = (activity: IActivityItem) => {
     return activity.project?.name || 'No project';
   };
@@ -74,7 +88,7 @@ export function ProductivityTable({
   return (
     <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
           <TableRow>
             {tableColumns.map((column) => (
               <TableHead key={column.key}>
@@ -89,7 +103,7 @@ export function ProductivityTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedData.map((dayData) => {
+          {currentItems.map((dayData) => {
             const employeeActivities = new Map<string, { employee: any; activities: IActivityItem[] }>();
             dayData.employees.forEach(employeeData => {
               employeeData.projects[0]?.activity.forEach((activity: IActivityItem) => {
@@ -175,6 +189,18 @@ export function ProductivityTable({
           })}
         </TableBody>
       </Table>
+      <div className="p-2 mt-4">
+        <Paginate
+          total={total}
+          onPageChange={onPageChange}
+          pageCount={1}
+          itemsPerPage={itemsPerPage}
+          itemOffset={itemOffset}
+          endOffset={endOffset}
+          setItemsPerPage={setItemsPerPage}
+          className="pt-0"
+        />
+      </div>
     </Card>
   );
 }
