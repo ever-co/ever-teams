@@ -8,6 +8,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import React from 'react';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
+import { usePagination } from '@/app/hooks/features/usePagination';
+import { Paginate } from '@/lib/components';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -259,7 +261,20 @@ MemoizedActivityRow.displayName = 'MemoizedActivityRow';
 export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoading }) => {
   const t = useTranslations();
 
+  const {
+    total,
+    onPageChange,
+    itemsPerPage,
+    itemOffset,
+    endOffset,
+    setItemsPerPage,
+    currentItems
+  } = usePagination<any>(
+    data || []
+  );
+
   const groupedData = React.useMemo(() => {
+    const paginatedData = currentItems;
     const employeeMap = new Map<
       string,
       {
@@ -276,12 +291,12 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 
     try {
       // Ensure data is an array
-      if (!Array.isArray(data)) {
-        console.warn('Data is not an array:', data);
+      if (!Array.isArray(paginatedData)) {
+        console.warn('Data is not an array:', paginatedData);
         return employeeMap;
       }
 
-      data.forEach((employeeData) => {
+      paginatedData.forEach((employeeData) => {
         if (!employeeData?.employee?.id || !employeeData?.dates) {
           console.warn('Invalid employee data:', employeeData);
           return;
@@ -396,6 +411,18 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
           })}
         </TableBody>
       </Table>
+      <div className="p-2 mt-4">
+        <Paginate
+          total={total}
+          onPageChange={onPageChange}
+          pageCount={1}
+          itemsPerPage={itemsPerPage}
+          itemOffset={itemOffset}
+          endOffset={endOffset}
+          setItemsPerPage={setItemsPerPage}
+          className="pt-0"
+        />
+      </div>
     </Card>
   );
 };
