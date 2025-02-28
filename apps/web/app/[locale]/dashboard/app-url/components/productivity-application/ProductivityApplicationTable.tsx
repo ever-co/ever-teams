@@ -16,6 +16,8 @@ import { useTranslations } from 'next-intl';
 import { useProductivityApplicationTableConfig } from '@/app/hooks/use-table-config';
 import { useSortableData } from '@/app/hooks/useSortableData';
 import { SortPopover } from '@components/ui/sort-popover';
+import { usePagination } from '@/app/hooks/features/usePagination';
+import { Paginate } from '@/lib/components';
 
 export function ProductivityApplicationTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {
 	const reportData = data as IActivityReportGroupByDate[] | undefined;
@@ -23,6 +25,18 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 
 	const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
 	const t = useTranslations();
+
+	const {
+		total,
+		onPageChange,
+		itemsPerPage,
+		itemOffset,
+		endOffset,
+		setItemsPerPage,
+		currentItems
+	} = usePagination<IActivityReportGroupByDate>(
+		sortedData
+	);
 
 	if (isLoading) {
 		return (
@@ -172,6 +186,18 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 					))}
 				</TableBody>
 			</Table>
+			<div className="p-2 mt-4">
+				<Paginate
+					total={total}
+					onPageChange={onPageChange}
+					pageCount={1}
+					itemsPerPage={itemsPerPage}
+					itemOffset={itemOffset}
+					endOffset={endOffset}
+					setItemsPerPage={setItemsPerPage}
+					className="pt-0"
+				/>
+			</div>
 		</Card>
 	);
 }
