@@ -89,7 +89,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 	}
 
 	// Group activities by application
-	const groupedByApp = sortedData.reduce(
+	const groupedByApp = currentItems.reduce(
 		(apps, dayData) => {
 			dayData.employees.forEach((employeeData) => {
 				employeeData.projects.forEach((projectData: IProjectWithActivity) => {
