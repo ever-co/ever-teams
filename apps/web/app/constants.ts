@@ -380,11 +380,3 @@ export enum CurrencyEnum {
 	PLN = 'Polish Złoty',
 	TWD = 'New Taiwan Dollar'
 }
-
-export const predefinedLabels = [
-	{ name: 'backend', color: '#234356' },
-	{ name: 'frontend', color: '#456789' },
-	{ name: 'mobile', color: '#A3B4C5' },
-	{ name: 'UX/UI', color: '#C7D0D9' },
-	{ name: 'data', color: '#D9E2E8' }
-];
