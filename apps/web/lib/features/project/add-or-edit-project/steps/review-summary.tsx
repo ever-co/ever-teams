@@ -1,12 +1,11 @@
 import { Button, VerticalSeparator } from '@/lib/components';
-import { Fragment, ReactNode } from 'react';
+import { Fragment, ReactNode, useEffect } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 import {
 	ICreateProjectInput,
-	ILabel,
 	IProjectRelation,
 	ITag,
 	OrganizationProjectBudgetTypeEnum,
@@ -15,25 +14,42 @@ import {
 } from '@/app/interfaces';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
+import { useRoles } from '@/app/hooks/features/useRoles';
+import { RolesEnum } from '@/app/interfaces/IRoles';
 
 export default function FinalReview(props: IStepElementProps) {
-	const { finish, currentData: finalData } = props;
-	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
+	const { finish, currentData: finalData, mode } = props;
+	const {
+		createOrganizationProject,
+		createOrganizationProjectLoading,
+		editOrganizationProject,
+		editOrganizationProjectLoading,
+		setOrganizationProjects
+	} = useOrganizationProjects();
 	const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
+	const { roles, getRoles } = useRoles();
+
+	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
 
 	const newProject: Partial<ICreateProjectInput> = {
 		name: finalData?.name,
-		startDate: moment(finalData?.startDate).toISOString(),
-		endDate: moment(finalData?.endDate).toISOString(),
-		website: finalData?.website,
+		startDate: finalData?.startDate,
+		endDate: finalData?.endDate,
+		projectUrl: finalData?.projectUrl,
 		description: finalData?.description,
 		imageUrl: finalData?.projectImage?.fullUrl ?? undefined,
 		imageId: finalData?.projectImage?.id,
 		tags: finalData?.tags,
 		color: finalData?.color ?? '#000',
-		managerIds: finalData?.managerIds ?? [],
-		memberIds: finalData?.memberIds ?? [],
+		memberIds:
+			finalData?.members
+				?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
+				.map((el) => el.memberId) || [],
+		managerIds:
+			finalData?.members?.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId) ||
+			[],
 		budget: finalData?.budget,
 		currency: finalData?.currency,
 		budgetType: finalData?.budgetType,
@@ -49,14 +65,38 @@ export default function FinalReview(props: IStepElementProps) {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const project = await createOrganizationProject({
-			...newProject
-		});
+		if (mode == 'create') {
+			const project = await createOrganizationProject({
+				...newProject
+			});
 
-		if (project) {
-			finish(project);
+			if (project) {
+				finish(project);
+			}
+		}
+
+		if (mode == 'edit' && finalData.id) {
+			const project = await editOrganizationProject(finalData.id, {
+				...newProject
+			});
+
+			if (project) {
+				setOrganizationProjects((prev) =>
+					prev.map((el) => {
+						if (el.id === finalData.id) {
+							return { ...project.data };
+						}
+						return el;
+					})
+				);
+				finish(project.data);
+			}
 		}
 	};
+
+	useEffect(() => {
+		getRoles();
+	}, [getRoles]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
@@ -67,7 +107,7 @@ export default function FinalReview(props: IStepElementProps) {
 						projectTitle={finalData?.name ?? '-'}
 						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
 						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
-						websiteUrl={finalData?.website}
+						websiteUrl={finalData?.projectUrl}
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 						description={finalData?.description}
 					/>
@@ -77,24 +117,39 @@ export default function FinalReview(props: IStepElementProps) {
 						budgetCurrency={finalData?.currency}
 						budgetType={finalData?.budgetType}
 					/>
-					<Categorization labels={finalData?.labels} tags={finalData?.tags} colorCode={finalData?.color} />
+					<Categorization tags={finalData?.tags} colorCode={finalData?.color} />
 					<TeamAndRelations
 						projectTitle={finalData?.name}
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						managerIds={finalData?.managerIds}
+						managerIds={
+							finalData?.members
+								?.filter((el) => el.roleId == managerRole?.id && el.memberId)
+								.map((el) => el.memberId) || []
+						}
 						relations={finalData?.relations}
 					/>
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-end">
-				<Button
-					loading={createOrganizationProjectLoading}
-					disabled={createOrganizationProjectLoading}
-					type="submit"
-					className=" h-[2.5rem]"
-				>
-					{t('pages.projects.addOrEditModal.steps.createProject')}
-				</Button>
+				{mode == 'edit' ? (
+					<Button
+						loading={editOrganizationProjectLoading}
+						disabled={editOrganizationProjectLoading}
+						type="submit"
+						className=" h-[2.5rem]"
+					>
+						{t('common.SAVE_CHANGES')}
+					</Button>
+				) : (
+					<Button
+						loading={createOrganizationProjectLoading}
+						disabled={createOrganizationProjectLoading}
+						type="submit"
+						className=" h-[2.5rem]"
+					>
+						{t('pages.projects.addOrEditModal.steps.createProject')}
+					</Button>
+				)}
 			</div>
 		</form>
 	);
@@ -233,13 +288,12 @@ function FinancialSettings(props: FinancialSettingsProps) {
  */
 
 interface ICategorizationProps {
-	labels?: Omit<ILabel, 'id'>[];
 	tags?: ITag[];
 	colorCode?: string;
 }
 
 function Categorization(props: ICategorizationProps) {
-	const { labels, tags, colorCode } = props;
+	const { tags, colorCode } = props;
 	const t = useTranslations();
 
 	const ItemWithColor = ({ label, color }: { label: string; color: string }) => (
@@ -251,18 +305,6 @@ function Categorization(props: ICategorizationProps) {
 
 	return (
 		<div className="w-full flex items-center gap-8 flex-wrap">
-			<div className="flex flex-col gap-2">
-				<p className=" text-xs font-medium"> {t('pages.projects.categorizationForm.formFields.labels')}</p>
-				<div className="w-full flex wrap items-center gap-2">
-					{labels?.length ? (
-						labels?.map((el) => {
-							return <ItemWithColor key={el.name} label={el.name} color={el.color} />;
-						})
-					) : (
-						<span>-</span>
-					)}
-				</div>
-			</div>
 			<div className="flex flex-col gap-2">
 				<p className=" text-xs font-medium">{t('pages.projects.categorizationForm.formFields.tags')}</p>
 				<div className="w-full flex wrap items-center gap-2">
@@ -330,7 +372,10 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 					)}
 				</div>
 			</div>
-			<div className="flex flex-col gap-2">
+			{
+				// Will be implemented later on the api side (we keep this here)
+			}
+			<div className="hidden flex-col gap-2">
 				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.relations')}</p>
 				<div className="w-full flex-col flex gap-2">
 					{relations?.length ? (

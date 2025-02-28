@@ -14,21 +14,33 @@ import { ScrollArea } from '@components/ui/scroll-bar';
 import { ScrollBar } from '@components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser, useImageAssets } from '@/app/hooks';
+import { getInitialValue } from '../utils';
 
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
 
 export default function BasicInformationForm(props: IStepElementProps) {
-	const { goToNext } = props;
-	const [startDate, setStartDate] = useState(new Date());
-	const [endDate, setEndDate] = useState(new Date());
-	const [projectTitle, setProjectTitle] = useState('');
-	const [description, setDescription] = useState('');
+	const { goToNext, currentData, mode } = props;
+	const [startDate, setStartDate] = useState(() => getInitialValue(currentData, mode, 'startDate', new Date()));
+	const [endDate, setEndDate] = useState(() => getInitialValue(currentData, mode, 'endDate', new Date()));
+	const [projectTitle, setProjectTitle] = useState(() => getInitialValue(currentData, mode, 'name', ''));
+	const [description, setDescription] = useState(() => getInitialValue(currentData, mode, 'description', ''));
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
-	const [websiteUrl, setWebsiteUrl] = useState<string>('');
+	const [websiteUrl, setWebsiteUrl] = useState<string>(() => getInitialValue(currentData, mode, 'projectUrl', ''));
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
 	const t = useTranslations();
 	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
 	const { user } = useAuthenticateUser();
+	const [projectImageUrl, setProjectImageUrl] = useState(() => {
+		if (mode == 'edit' && currentData.imageUrl) {
+			return currentData.imageUrl;
+		}
+
+		if (projectImageFile) {
+			return URL.createObjectURL(projectImageFile);
+		}
+
+		return null;
+	});
 
 	// Validate projectImageFile
 	const isValidImageFile = useCallback(
@@ -83,6 +95,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			isValidImageFile(file);
 			// setProjectImageUrl(URL.createObjectURL(file));
 			setProjectImageFile(file);
+			setProjectImageUrl(URL.createObjectURL(file));
 		},
 		[isValidImageFile]
 	);
@@ -181,21 +194,21 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			}
 
 			goToNext({
-				startDate: startDate,
-				endDate: endDate,
+				startDate: startDate.toISOString(),
+				endDate: endDate.toISOString(),
 				name: projectTitle,
 				description,
 				projectImage: image,
-				website: websiteUrl
+				projectUrl: websiteUrl
 			});
 		}
 
 		goToNext({
-			startDate: startDate,
-			endDate: endDate,
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString(),
 			name: projectTitle,
 			description,
-			website: websiteUrl
+			projectUrl: websiteUrl
 		});
 	};
 
@@ -220,7 +233,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full">
-				<RichTextEditor onChange={(value) => setDescription(value)} />
+				<RichTextEditor defaultValue={description} onChange={(value) => setDescription(value)} />
 			</div>
 			<div className="w-full flex flex-col">
 				<div className="w-full flex gap-2">
@@ -284,13 +297,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				</span>
 				<div className="w-full flex flex-col gap-1">
 					<div className="w-full flex items-center gap-5">
-						{projectImageFile && (
+						{projectImageUrl && (
 							<div className="h-20 group rounded-lg overflow-hidden w-20 relative">
 								<Image
 									height={50}
 									width={50}
 									className=" w-full  h-full rounded-lg overflow-hidden   aspect-square object-cover"
-									src={URL.createObjectURL(projectImageFile)}
+									src={projectImageUrl}
 									alt={projectTitle}
 								/>
 								<div
@@ -301,6 +314,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 									<X
 										onClick={() => {
 											setProjectImageFile(null);
+											setProjectImageUrl(null);
 											errors.delete('projectImage');
 										}}
 										size={20}

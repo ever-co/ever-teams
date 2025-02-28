@@ -7,14 +7,13 @@ import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
 import { IStepElementProps } from '../container';
 import { useTags } from '@/app/hooks/features/useTags';
-import { predefinedLabels } from '@/app/constants';
 import { useTranslations } from 'next-intl';
+import { getInitialValue } from '../utils';
 
 export default function CategorizationForm(props: IStepElementProps) {
-	const { goToNext } = props;
-	const [labels, setLabels] = useState<string[]>([]);
-	const [tags, setTags] = useState<string[]>([]);
-	const [colorCode, setColorCode] = useState<string>('#000000');
+	const { goToNext, currentData, mode } = props;
+	const [tags, setTags] = useState<string[]>(() => getInitialValue(currentData, mode, 'tags', []));
+	const [colorCode, setColorCode] = useState<string>(() => getInitialValue(currentData, mode, 'color', '#000'));
 	const { tags: tagData, getTags, createTag, createTagLoading } = useTags();
 	const t = useTranslations();
 
@@ -26,67 +25,15 @@ export default function CategorizationForm(props: IStepElementProps) {
 		event.preventDefault();
 		goToNext({
 			tags: tagData?.filter((tag) => tags.includes(tag.id)),
-			labels: predefinedLabels.filter((label) => labels.includes(label.name)),
 			color: colorCode
 		});
 	};
 
+	console.log(currentData);
+
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="w-full flex gap-3">
-				<div className="flex flex-1 gap-1 flex-col">
-					<label htmlFor="project_labels" className=" text-xs font-medium">
-						{t('pages.projects.categorizationForm.formFields.labels')}
-					</label>
-					<div className="w-full">
-						<Select
-							searchEnabled
-							multiple
-							onChange={(data) => setLabels(data as string[])}
-							selected={labels}
-							placeholder={t('pages.projects.categorizationForm.formFields.labelsPlaceholder')}
-							options={predefinedLabels.map((el) => ({
-								id: el.name,
-								value: el.name,
-								color: el.color
-							}))}
-							renderValue={(selected) => {
-								return (
-									<span className={cn(' capitalize', !selected?.length && 'text-gray-400')}>
-										{labels.length
-											? `Item${labels.length > 1 ? 's' : ''} (${labels.length})`
-											: t('pages.projects.categorizationForm.formFields.labelsPlaceholder')}
-									</span>
-								);
-							}}
-							renderItem={(item, selected) => {
-								return (
-									<div className="w-full h-full p-1 px-2 flex items-center gap-2">
-										<span
-											className={cn(
-												'h-4 w-4 rounded border border-primary flex items-center justify-center',
-												selected && 'bg-primary text-primary-foreground dark:text-white'
-											)}
-										>
-											{selected && <CheckIcon size={10} />}
-										</span>
-										<div className="h-full flex items-center gap-1">
-											<span
-												style={{
-													backgroundColor:
-														predefinedLabels.find((el) => el.name == item.id)?.color ??
-														'#000'
-												}}
-												className="w-4 h-4 rounded-full"
-											/>
-											<span className="capitalize">{item?.value ?? '-'}</span>
-										</div>
-									</div>
-								);
-							}}
-						/>
-					</div>
-				</div>
 				<div className="flex gap-1  flex-1 flex-col">
 					<label htmlFor="project_tags" className=" text-xs font-medium">
 						{t('pages.projects.categorizationForm.formFields.tags')}

@@ -10,12 +10,14 @@ interface IRichTextProps {
 	onChange?: (value: string) => void;
 }
 
-const RichTextEditor = ({ readonly = false, onChange }: IRichTextProps) => {
+const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-	const [editorValue, setEditorValue] = useState<Descendant[]>([
-		// @ts-ignore
-		{ type: 'paragraph', children: [{ text: '' }] }
-	]);
+	const [editorValue, setEditorValue] = useState<Descendant[]>(
+		defaultValue
+			? // @ts-ignore
+				[{ type: 'paragraph', children: [{ text: defaultValue }] }]
+			: [{ type: 'paragraph', children: [{ text: '' }] }]
+	);
 	const [editorText, setEditorText] = useState('');
 
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
@@ -46,12 +48,13 @@ const RichTextEditor = ({ readonly = false, onChange }: IRichTextProps) => {
 				value={editorValue}
 				onChange={(value) => {
 					setEditorValue(value);
-					const text = value.map((n) => Editor.string(editor, [])).join(' ');
+					const text = value.map(() => Editor.string(editor, [])).join(' ');
 					setEditorText(text);
 					onChange?.(text);
 				}}
 			>
 				<Editable
+					defaultValue={defaultValue}
 					className=" p-2 h-20 outline-none"
 					placeholder="Insert description here..."
 					renderElement={renderElement}
