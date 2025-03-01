@@ -12,6 +12,8 @@ import { ActivityRow, DateHeaderRow, ProjectHeaderRow } from './components';
 import { EmptyState, LoadingSkeleton } from './states';
 import { groupActivitiesByProjectAndDate } from './utils';
 import { useTranslations } from 'next-intl';
+import { usePagination } from '@/app/hooks/features/usePagination';
+import { Paginate } from '@/lib/components';
 
 interface ProductivityProjectTableProps {
   data?: IActivityReport[];
@@ -23,24 +25,36 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
   isLoading
 }) => {
 
-  const t=useTranslations();
+  const t = useTranslations();
+  const reportData = data as IActivityReportGroupByDate[] | undefined;
+
+  const {
+    total,
+    onPageChange,
+    itemsPerPage,
+    itemOffset,
+    endOffset,
+    setItemsPerPage,
+    currentItems
+  } = usePagination<IActivityReportGroupByDate>(
+    reportData || []
+  );
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }
-
-  const reportData = data as IActivityReportGroupByDate[] | undefined;
 
   if (!reportData || reportData.length === 0) {
     return <EmptyState t={t} />;
   }
 
-  const projectGroups = groupActivitiesByProjectAndDate(reportData);
+  const projectGroups = groupActivitiesByProjectAndDate(currentItems);
 
   return (
     <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] w-full">
       <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50 dark:bg-gray-800">
+        <TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
+          <TableRow>
             <TableHead className="font-semibold">{t('common.DATE')}</TableHead>
             <TableHead className="font-semibold">{t('common.MEMBER')}</TableHead>
             <TableHead className="font-semibold">{t('common.APPLICATION')}</TableHead>
@@ -68,6 +82,18 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
           ))}
         </TableBody>
       </Table>
+      <div className="p-2 mt-4">
+        <Paginate
+          total={total}
+          onPageChange={onPageChange}
+          pageCount={1}
+          itemsPerPage={itemsPerPage}
+          itemOffset={itemOffset}
+          endOffset={endOffset}
+          setItemsPerPage={setItemsPerPage}
+          className="pt-0"
+        />
+      </div>
     </Card>
   );
 };
