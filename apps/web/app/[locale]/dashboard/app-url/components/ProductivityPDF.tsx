@@ -213,9 +213,17 @@ const getProjectName = (project: IProjectWithActivity) => {
 };
 
 const formatDateHeader = (date: string) => {
-	const d = new Date(date);
-	return `${d.toLocaleDateString('en-US', { weekday: 'long' })} ${d.getDate().toString().padStart(2, '0')} ${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getFullYear()}`;
-};
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) {
+      return 'Invalid Date';
+    }
+    return `${d.toLocaleDateString('en-US', { weekday: 'long' })} ${d.getDate().toString().padStart(2, '0')} ${d.toLocaleDateString('en-US', { month: 'short' })} ${d.getFullYear()}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid Date';
+  }
+  };
 
 export const ProductivityPDF = ({ data, title = 'Activity Report' }: ProductivityPDFProps) => {
 	// Calculate summary statistics
