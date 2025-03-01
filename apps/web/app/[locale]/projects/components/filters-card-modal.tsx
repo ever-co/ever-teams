@@ -51,29 +51,43 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 		return new Map(taskStatus.map((status) => [status.name, status.color]));
 	}, [taskStatus]);
 
-	const members = useMemo(
-		() =>
-			teamMembers
-				?.filter((el) => !el?.isManager)
-				?.map((el) => ({
-					imageUrl: el?.employee?.user?.imageUrl,
-					value: el?.employee?.fullName,
-					id: el?.employeeId
-				})) || [],
-		[teamMembers]
-	);
+	const members = useMemo(() => {
+		const uniqueMembers = new Map();
 
-	const managers = useMemo(
-		() =>
-			teamMembers
-				?.filter((el) => el?.isManager)
-				?.map((el) => ({
-					imageUrl: el?.employee?.user?.imageUrl,
-					value: el?.employee?.fullName,
-					id: el?.employeeId
-				})) || [],
-		[teamMembers]
-	);
+		teamMembers
+			?.filter((el) => !el?.isManager)
+			?.forEach((el) => {
+				const id = el?.employeeId;
+				if (!uniqueMembers.has(id)) {
+					uniqueMembers.set(id, {
+						imageUrl: el?.employee?.user?.imageUrl,
+						value: el?.employee?.fullName,
+						id
+					});
+				}
+			});
+
+		return Array.from(uniqueMembers.values());
+	}, [teamMembers]);
+
+	const managers = useMemo(() => {
+		const uniqueManagers = new Map();
+
+		teamMembers
+			?.filter((el) => el?.isManager)
+			?.forEach((el) => {
+				const id = el?.employeeId;
+				if (!uniqueManagers.has(id)) {
+					uniqueManagers.set(id, {
+						imageUrl: el?.employee?.user?.imageUrl,
+						value: el?.employee?.fullName,
+						id
+					});
+				}
+			});
+
+		return Array.from(uniqueManagers.values());
+	}, [teamMembers]);
 
 	const handleApplyFilters = useCallback(() => {
 		const searchParams = new URLSearchParams(window.location.search);
@@ -186,14 +200,14 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 						</div>
 						<MultiSelectWithSearch
 							selectedOptions={selectedStatus.map((statusId) => {
-								const name = taskStatus.find((status) => status.id === statusId)?.name ?? '-';
+								const name = taskStatus.find((status) => status.name === statusId)?.name ?? '-';
 
 								return {
 									value: name,
 									id: statusId
 								};
 							})}
-							onChange={(data) => setSelectedStatus(data.map((status) => status.id))}
+							onChange={(data) => setSelectedStatus(data.map((status) => status.value))}
 							options={taskStatus
 								?.filter((el) => el.name)
 								?.map((status) => ({ id: status.id, value: status.name! }))}
@@ -204,14 +218,14 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 								<div
 									style={{
 										backgroundColor: statusColorsMap.get(
-											taskStatus.find((el) => el.id == statusId)?.name
+											taskStatus.find((el) => el.name == statusId)?.name
 										)
 									}}
 									className=" rounded-md flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
 									key={statusId}
 								>
 									<span className="text-[.65rem] font-light">
-										{taskStatus.find((el) => el.id == statusId)?.name}
+										{taskStatus.find((el) => el.name == statusId)?.name}
 									</span>
 									<button
 										onClick={() => setSelectedStatus(selectedStatus.filter((t) => t !== statusId))}

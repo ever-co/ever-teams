@@ -3,86 +3,58 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@/lib/components';
-
-interface AppUsageData {
-  member: {
-    name: string;
-    avatarUrl?: string;
-  };
-  project?: string;
-  application?: string;
-  timeSpent?: string;
-  percentUsed: number;
-}
+import { Card } from '@components/ui/card';
+import { format } from 'date-fns';
+import { IActivityReport, IActivityReportGroupByDate, IActivityItem } from '@app/interfaces/activity/IActivityReport';
+import React from 'react';
+import { useTranslations } from 'next-intl';
+import { useSortableData } from '@/app/hooks/useSortableData';
+import { SortPopover } from '@components/ui/sort-popover';
+import { useProductivityTableConfig } from '@/app/hooks/use-table-config';
+import { Paginate } from '@/lib/components';
+import { usePagination } from '@/app/hooks/features/usePagination';
 
 export function ProductivityTable({
   data,
   isLoading
 }: {
-  data?: AppUsageData[];
+  data?: IActivityReport[];
   isLoading?: boolean;
 }) {
-  const sampleData: AppUsageData[] = [
-    {
-      member: {
-        name: 'Elanor Pena',
-        avatarUrl: '/avatars/elanor.jpg'
-      },
-      project: 'EverTeams',
-      application: 'Figma',
-      timeSpent: '03:46:11',
-      percentUsed: 60
-    },
-    {
-      member: {
-        name: 'Elanor Pena',
-        avatarUrl: '/avatars/elanor.jpg'
-      },
-      project: 'EverTeams',
-      application: 'Slack',
-      timeSpent: '1:17:02',
-      percentUsed: 20
-    },
-    {
-      member: {
-        name: 'Elanor Pena',
-        avatarUrl: '/avatars/elanor.jpg'
-      },
-      project: 'EverTeams',
-      application: 'Arc',
-      timeSpent: '46:44',
-      percentUsed: 15
-    },
-    {
-      member: {
-        name: 'Elanor Pena',
-        avatarUrl: '/avatars/elanor.jpg'
-      },
-      project: 'EverTeams',
-      application: 'Postman',
-      timeSpent: '12:54',
-      percentUsed: 5
-    }
-  ];
+  const reportData = data as IActivityReportGroupByDate[] | undefined;
+  const t = useTranslations();
+  const { sortableColumns, tableColumns } = useProductivityTableConfig();
+  const { items: sortedData, sortConfig, requestSort } = useSortableData(reportData || [], sortableColumns);
 
-  // Use sample data for now
-  const displayData = data || sampleData;
+  const {
+    total,
+    onPageChange,
+    itemsPerPage,
+    itemOffset,
+    endOffset,
+    setItemsPerPage,
+    currentItems
+  } = usePagination<IActivityReportGroupByDate>(
+    sortedData
+  );
+
+  const getProjectName = (activity: IActivityItem) => {
+    return activity.project?.name || 'No project';
+  };
 
   if (isLoading) {
     return (
+      <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Member</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Application</TableHead>
-              <TableHead>Time Spent</TableHead>
-              <TableHead>Percent used</TableHead>
+              {tableColumns.map((column) => (
+                <TableHead key={column.key}>{column.label}</TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...Array(4)].map((_, i) => (
+            {[...Array(7)].map((_, i) => (
               <TableRow key={i}>
                 <TableCell>
                   <div className="flex gap-2 items-center">
@@ -90,70 +62,154 @@ export function ProductivityTable({
                     <Skeleton className="w-24 h-4" />
                   </div>
                 </TableCell>
-                <TableCell><Skeleton className="w-24 h-4" /></TableCell>
-                <TableCell><Skeleton className="w-16 h-4" /></TableCell>
-                <TableCell><Skeleton className="w-16 h-4" /></TableCell>
-                <TableCell><Skeleton className="w-24 h-4" /></TableCell>
+                <TableCell><Skeleton className="w-24 h-4"/></TableCell>
+                <TableCell><Skeleton className="w-16 h-4"/></TableCell>
+                <TableCell><Skeleton className="w-16 h-4"/></TableCell>
+                <TableCell><Skeleton className="w-full h-4"/></TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+      </Card>
+    );
+  }
+
+  if (!reportData || reportData.length === 0) {
+    return (
+      <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px] flex items-center justify-center">
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          <p className="text-lg font-medium">{t('common.NO_ACTIVITY_DATA')}</p>
+          <p className="text-sm">{t('common.SELECT_DIFFERENT_DATE')}</p>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <Card shadow="custom" className="rounded-md border bg-white border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+    <Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
           <TableRow>
-            <TableHead>Member</TableHead>
-            <TableHead>Project</TableHead>
-            <TableHead>Application</TableHead>
-            <TableHead>Time Spent</TableHead>
-            <TableHead>Percent used</TableHead>
+            {tableColumns.map((column) => (
+              <TableHead key={column.key}>
+                <SortPopover
+                  label={column.label}
+                  sortKey={column.key}
+                  currentConfig={sortConfig}
+                  onSort={requestSort}
+                />
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {displayData?.map((item, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <div className="flex gap-2 items-center">
-                  <Avatar className="w-8 h-8">
-                    {item.member.avatarUrl && (
-                      <AvatarImage src={item.member.avatarUrl} alt={item.member.name} />
-                    )}
-                    <AvatarFallback>
-                    {item.member.name?.trim()
-                      ? item.member.name
-                          .trim()
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .toUpperCase()
-                      : '?'}
-                  </AvatarFallback>
-                </Avatar>
-                <span>{item.member.name}</span>
-              </div>
-            </TableCell>
-            <TableCell>{item.project}</TableCell>
-            <TableCell>{item.application}</TableCell>
-              <TableCell>{item.timeSpent}</TableCell>
-              <TableCell>
-                <div className="flex gap-2 items-center">
-                  <div className="overflow-hidden w-24 h-2 bg-gray-200 rounded-full">
-                    <div
-                      className="h-full bg-blue-500"
-                      style={{ width: `${item.percentUsed}%` }}
-                    />
-                  </div>
-                  <span>{item.percentUsed}%</span>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {currentItems.map((dayData) => {
+            const employeeActivities = new Map<string, { employee: any; activities: IActivityItem[] }>();
+            dayData.employees.forEach(employeeData => {
+              employeeData.projects[0]?.activity.forEach((activity: IActivityItem) => {
+                const employeeId = activity.employee.id;
+                if (!employeeActivities.has(employeeId)) {
+                  employeeActivities.set(employeeId, {
+                    employee: activity.employee,
+                    activities: []
+                  });
+                }
+                employeeActivities.get(employeeId)?.activities.push(activity);
+              });
+            });
+
+            const hasActivities = Array.from(employeeActivities.values()).some(({ activities }) => activities.length > 0);
+
+            if (!hasActivities) {
+              return (
+                <React.Fragment key={dayData.date}>
+                  <TableRow>
+                    <TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800">
+                      {format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-4 text-center text-gray-500 dark:text-gray-400">
+                      No activities recorded for this day
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              );
+            }
+
+            return (
+              <React.Fragment key={dayData.date}>
+                <TableRow>
+                  <TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800">
+                    {format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
+                  </TableCell>
+                </TableRow>
+                {Array.from(employeeActivities.values()).map(({ employee, activities }) => (
+                  activities.map((activity, index) => (
+                    <TableRow key={`${employee.id}-${index}`}>
+                      {index === 0 && (
+                        <TableCell className="align-top" rowSpan={activities.length}>
+                          <div className="flex gap-2 items-center">
+                            <Avatar className="w-8 h-8">
+                              {employee.user.imageUrl && (
+                                <AvatarImage
+                                  src={employee.user.imageUrl}
+                                  alt={employee.fullName}
+                                />
+                              )}
+                              <AvatarFallback>
+                                {employee.fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>{employee.fullName}</span>
+                          </div>
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        {getProjectName(activity)}
+                      </TableCell>
+                      <TableCell>{activity.title}</TableCell>
+                      <TableCell>{formatDuration(activity.duration.toString())}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2 items-center">
+                          <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
+                            <div
+                              className="h-full bg-blue-500"
+                              style={{ width: `${activity.duration_percentage}%` }}
+                            />
+                          </div>
+                          <span>{Math.round(parseFloat(activity.duration_percentage))}%</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ))}
+              </React.Fragment>
+            );
+          })}
         </TableBody>
       </Table>
+      <div className="p-2 mt-4">
+        <Paginate
+          total={total}
+          onPageChange={onPageChange}
+          pageCount={1}
+          itemsPerPage={itemsPerPage}
+          itemOffset={itemOffset}
+          endOffset={endOffset}
+          setItemsPerPage={setItemsPerPage}
+          className="pt-0"
+        />
+      </div>
     </Card>
   );
+}
+
+function formatDuration(seconds: string): string {
+  const totalSeconds = parseInt(seconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }

@@ -45,7 +45,7 @@ export function UnverifiedEmail() {
 					'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]'
 				)}
 			>
-				<Text className="flex items-center gap-1">
+				<Text className="flex gap-1 items-center">
 					{t('pages.home.SENT_EMAIL_VERIFICATION_YOU_NEED_TO')}
 					<span className="cursor-pointer text-primary dark:text-primary-light" onClick={openModal}>
 						{t('common.VERIFY')}
@@ -100,12 +100,12 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form onSubmit={handleVerifyEmail} className="w-[98%] md:w-[530px]" autoComplete="off">
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.SECURITY_CODE')}
 						</Text.Heading>
 
-						<div className="w-full mt-5">
+						<div className="mt-5 w-full">
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
 								length={6}
@@ -117,7 +117,7 @@ export function ConfirmUserModal({ open, user, closeModal }: { open: boolean; us
 							/>
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-6">
+						<div className="flex justify-between items-center mt-6 w-full">
 							<div className="flex flex-col items-start">
 								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{"Didn't recieve code ?"}

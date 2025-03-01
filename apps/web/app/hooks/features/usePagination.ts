@@ -4,10 +4,10 @@ export function usePagination<T>(items: T[], defaultItemsPerPage = 10) {
 	const [itemOffset, setItemOffset] = useState(0);
 	const [itemsPerPage, setItemsPerPage] = useState(defaultItemsPerPage);
 
-	const total = items.length;
+	const total = items?.length || 0;
 
 	const endOffset = itemOffset + itemsPerPage;
-	const currentItems = items.slice(itemOffset, endOffset);
+	const currentItems = items?.slice(itemOffset, endOffset);
 
 	const onPageChange = (selectedItem: { selected: number }) => {
 		const newOffset = (selectedItem.selected * itemsPerPage) % total;
@@ -15,7 +15,7 @@ export function usePagination<T>(items: T[], defaultItemsPerPage = 10) {
 	};
 
 	return {
-		total: items.length || 0,
+		total: items?.length || 0,
 		onPageChange,
 		itemsPerPage,
 		itemOffset,

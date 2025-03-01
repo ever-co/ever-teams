@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { PaginationDropdown } from '@/lib/settings/page-dropdown';
 import { format } from 'date-fns';
 import { ITimerEmployeeLog, ITimerLogGrouped } from '@/app/interfaces';
-import { Spinner } from '@/components/ui/loaders/spinner';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/components/ui/sort-popover';
@@ -15,6 +14,8 @@ import { ActivityModal } from './activity-modal';
 import { useModal } from '@/app/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/app/hooks/useSortableData';
+import { Skeleton } from '@components/ui/skeleton';
+import { Card } from '@components/ui/card';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -126,16 +127,12 @@ export function TeamStatsTable({
 	const goToNextPage = () => goToPage(Math.min(totalPages, currentPage + 1));
 
 	if (isLoading) {
-		return (
-			<div className="flex justify-center items-center min-h-[500px] dark:bg-dark--theme-light">
-				<Spinner />
-			</div>
-		);
+		return <LoadingTable />;
 	}
 
 	if (!rapportDailyActivity?.length) {
 		return (
-			<div className="flex justify-center items-center min-h-[400px] text-gray-500 dark:text-white dark:bg-dark--theme-light">
+			<div className="flex justify-center items-center min-h-[600px] text-gray-500 dark:text-white dark:bg-dark--theme-light">
 				{t('common.teamStats.NO_DATA_AVAILABLE')}
 			</div>
 		);
@@ -144,7 +141,7 @@ export function TeamStatsTable({
 	return (
 		<>
 			{employeeLog && <ActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />}
-			<div className="min-h-[500px] w-full dark:bg-dark--theme-light">
+			<div className="min-h-[600px] w-full dark:bg-dark--theme-light">
 				<div className="relative rounded-md border">
 					<div className="overflow-x-auto">
 						<div className="inline-block min-w-full align-middle">
@@ -371,3 +368,46 @@ export function TeamStatsTable({
 		</>
 	);
 }
+
+const LoadingTable = () => {
+	const t = useTranslations();
+	return (
+		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+			<Table>
+				<TableHeader>
+					<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200">
+						<TableHead className="w-[320px] py-3">{t('common.teamStats.MEMBER')}</TableHead>
+						<TableHead className="w-[100px]">{t('common.teamStats.TOTAL_TIME')}</TableHead>
+						<TableHead className="w-[80px]">{t('common.teamStats.TRACKED')}</TableHead>
+						<TableHead className="w-[120px]">{t('common.teamStats.MANUALLY_ADDED')}</TableHead>
+						<TableHead className="w-[100px]">{t('common.teamStats.ACTIVE_TIME')}</TableHead>
+						<TableHead className="w-[80px]">{t('common.teamStats.IDLE_TIME')}</TableHead>
+						<TableHead className="w-[120px]">{t('common.teamStats.UNKNOWN_ACTIVITY')}</TableHead>
+						<TableHead className="w-[200px]">{t('common.teamStats.ACTIVITY_LEVEL')}</TableHead>
+						<TableHead className="w-[10px]"></TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{[...Array(7)].map((_, i) => (
+						<TableRow key={i}>
+							<TableCell className="w-[320px]">
+								<div className="flex gap-2 items-center">
+									<Skeleton className="w-8 h-8 rounded-full" />
+									<Skeleton className="w-32 h-4" />
+								</div>
+							</TableCell>
+							<TableCell className="w-[100px]"><Skeleton className="w-16 h-4"/></TableCell>
+							<TableCell className="w-[80px]"><Skeleton className="w-12 h-4"/></TableCell>
+							<TableCell className="w-[120px]"><Skeleton className="w-20 h-4"/></TableCell>
+							<TableCell className="w-[100px]"><Skeleton className="w-16 h-4"/></TableCell>
+							<TableCell className="w-[80px]"><Skeleton className="w-12 h-4"/></TableCell>
+							<TableCell className="w-[120px]"><Skeleton className="w-20 h-4"/></TableCell>
+							<TableCell className="w-[200px]"><Skeleton className="w-32 h-4"/></TableCell>
+							<TableCell className="w-[10px]"></TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+		</Card>
+	);
+};

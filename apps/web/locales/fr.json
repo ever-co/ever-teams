@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "Budget du projet"
 	},
 	"common": {
+		"APPLICATION": "Application",
+		"TIME_SPENT": "Temps passé",
+		"PERCENT_USED": "Pourcentage utilisé",
+		"NO_ACTIVITY_DATA": "Aucune donnée d'activité disponible",
+		"SELECT_DIFFERENT_DATE": "Sélectionnez une autre plage de dates ou revenez plus tard",
 		"PENDING_TASKS": "Tâches en attente",
 		"SHOW_MORE": "Voir plus",
 		"TASKS": "Tâches",
@@ -290,9 +295,8 @@
 			"IDLE_TIME": "Temps Inactif",
 			"IDLE": "Inactif",
 			"UNKNOWN_ACTIVITY": "Activité Inconnue",
-			"ACTIVITY_LEVEL": "Niveau d’Activité",
+			"ACTIVITY_LEVEL": "Niveau d'Activité",
 			"NO_DATA_AVAILABLE": "Aucune donnée disponible"
-
 		},
 		"timesheets": {
 			"SINGULAR": "Feuille de temps",
@@ -353,7 +357,9 @@
 		"SCREENSHOTS": "Captures d'écran",
 		"TIME_LOG": "Journal de temps",
 		"TO_DO": "À faire",
-		"MEMBERS_COUNT": "Nombre de membres"
+		"MEMBERS_COUNT": "Nombre de membres",
+		"REVIEW": "EXAMEN",
+		"ARCHIVE": "Archive"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -450,6 +456,83 @@
 			"views": {
 				"LIST_VIEW": "Vue liste",
 				"GRID_VIEW": "Vue grille"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Titre du projet",
+					"titlePlaceholder": "Projet client #1...",
+					"description": "Description",
+					"datePickerPlaceholder": "Choisir une date",
+					"websiteUrl": "URL du site",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Miniature du projet",
+					"uploadPhoto": "Télécharger une photo"
+				},
+				"errors": {
+					"titleRequired": "Le titre du projet est obligatoire.",
+					"titleLength": "Le titre du projet doit être compris entre 3 et 100 caractères.",
+					"invalidWebsiteUrl": "URL du site invalide.",
+					"fileSizeLimit": "La taille du fichier doit être inférieure à 5 Mo.",
+					"fileFormatLimit": "Seuls les formats JPG et PNG sont autorisés.",
+					"startDateRequired": "La date de début est obligatoire.",
+					"endDateRequired": "La date de fin est obligatoire.",
+					"endDateAfterStart": "La date de fin doit être après la date de début.",
+					"invalidUrl": "Veuillez entrer une URL valide.",
+					"uploadError": "Une erreur s'est produite lors du téléchargement de l'image du projet, veuillez réessayer!"
+				},
+				"common": {
+					"search": "Recherche ...",
+					"typeNew": "Tapez nouveau ...",
+					"addNew": "Ajouter nouveau",
+					"uploadingImage": "Téléchargement de l'image du projet"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Étiquettes",
+					"labelsPlaceholder": "Sélectionner des étiquettes...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Sélectionner des tags...",
+					"colorCode": "Code couleur"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Type de budget",
+					"budgetTypePlaceholder": "Sélectionner le type de budget",
+					"budgetAmount": "Montant du budget",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Sélection de la devise",
+					"currencyPlaceholder": "Sélectionner une devise...",
+					"billing": "Type de facturation",
+					"billingPlaceholder": "Sélectionner l'intervalle..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Assigner des Membres et Gestionnaires",
+					"noMembers": "Aucun membre ou gestionnaire",
+					"addMember": "Ajouter un Membre",
+					"selectMember": "Sélectionner un membre...",
+					"selectRole": "Sélectionner un rôle...",
+					"relations": "Relations",
+					"noRelations": "Aucune relation",
+					"addRelation": "Ajouter une Relation",
+					"selectProject": "Sélectionner un projet...",
+					"selectRelationType": "Choisir un type de relation..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Créer un Projet",
+					"financialSettings": "Paramètres Financiers",
+					"categorization": "Catégorisation",
+					"teamAndRelations": "Équipe et Relations"
+				}
+			},
+			"deleteModal": {
+				"title": "Supprimer la sélection?",
+				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action"
 			}
 		},
 		"taskStatus": {

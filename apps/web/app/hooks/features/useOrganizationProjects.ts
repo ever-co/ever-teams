@@ -3,7 +3,8 @@ import {
 	editOrganizationProjectAPI,
 	getOrganizationProjectAPI,
 	getOrganizationProjectsAPI,
-	createOrganizationProjectAPI
+	createOrganizationProjectAPI,
+	deleteOrganizationProjectAPI
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
@@ -11,6 +12,7 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
+import { ICreateProjectInput } from '@/app/interfaces';
 
 export function useOrganizationProjects() {
 	const [user] = useAtom(userState);
@@ -30,6 +32,9 @@ export function useOrganizationProjects() {
 
 	const { loading: createOrganizationProjectLoading, queryCall: createOrganizationProjectQueryCall } =
 		useQuery(createOrganizationProjectAPI);
+
+	const { loading: deleteOrganizationProjectLoading, queryCall: deleteOrganizationProjectQueryCall } =
+		useQuery(deleteOrganizationProjectAPI);
 
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
@@ -77,7 +82,7 @@ export function useOrganizationProjects() {
 	);
 
 	const createOrganizationProject = useCallback(
-		async (data: { name: string }) => {
+		async (data: Partial<ICreateProjectInput>) => {
 			try {
 				const organizationId = getOrganizationIdCookie();
 				const tenantId = getTenantIdCookie();
@@ -94,11 +99,30 @@ export function useOrganizationProjects() {
 		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
 	);
 
-	useEffect(() => {
+	const deleteOrganizationProject = useCallback(
+		async (id: string) => {
+			try {
+				const res = await deleteOrganizationProjectQueryCall(id);
+				return res;
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[deleteOrganizationProjectQueryCall]
+	);
+
+	const loadOrganizationProjects = useCallback(async () => {
+		if (!user) return; // No user? No API call.
+		if (organizationProjects.length) return; // Prevent duplicate API calls.
+
 		getOrganizationProjects().then((data) => {
 			setOrganizationProjects(data?.items ?? []);
 		});
-	}, [getOrganizationProjects, setOrganizationProjects]);
+	}, [user, organizationProjects, setOrganizationProjects, getOrganizationProjects]);
+
+	useEffect(() => {
+		loadOrganizationProjects();
+	}, [getOrganizationProjects, loadOrganizationProjects, setOrganizationProjects]);
 
 	return {
 		editOrganizationProjectSetting,
@@ -111,6 +135,9 @@ export function useOrganizationProjects() {
 		getOrganizationProjectsLoading,
 		organizationProjects,
 		createOrganizationProject,
-		createOrganizationProjectLoading
+		createOrganizationProjectLoading,
+		deleteOrganizationProject,
+		deleteOrganizationProjectLoading,
+		setOrganizationProjects
 	};
 }

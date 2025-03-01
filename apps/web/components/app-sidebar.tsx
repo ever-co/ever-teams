@@ -34,8 +34,6 @@ import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { NavProjects } from './nav-projects';
 import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
-import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -46,12 +44,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	const { activeTeam } = useActiveTeam();
-	const pathname = usePathname();
 	const { organizationProjects } = useOrganizationProjects();
-	const projects = useMemo(
-		() => (pathname.split('/')[1] == 'all-teams' ? organizationProjects : activeTeam?.projects),
-		[activeTeam?.projects, organizationProjects, pathname]
-	);
+	const projects = activeTeam
+		? organizationProjects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam.id))
+		: []; // Consider projects for the active team
 
 	// This is sample data.
 	const data = {

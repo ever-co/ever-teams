@@ -1,7 +1,6 @@
-import { IProject, IProjectCreate } from '@app/interfaces';
+import { ICreateProjectInput, IProject } from '@app/interfaces';
 import { post } from '../axios';
 
-export function createOrganizationProjectAPI(data: IProjectCreate) {
-
+export function createOrganizationProjectAPI(data: Partial<ICreateProjectInput>) {
 	return post<IProject>(`/organization-projects`, data);
 }

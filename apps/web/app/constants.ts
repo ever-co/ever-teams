@@ -298,6 +298,7 @@ export const LAST_OPTION__CREATE_DAILY_PLAN_MODAL = 'last-option--create-daily-p
 export const HAS_VISITED_OUTSTANDING_TASKS = 'has-visited-outstanding-tasks';
 export const HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL = 'has-seen-daily-plan-suggestion-modal';
 export const LAST_SELECTED_PROJECTS_VIEW = 'last-selected-projects-view';
+export const PROJECTS_TABLE_VIEW_LAST_SORTING = 'projects-table-view-last-sorting';
 
 // OAuth provider's keys
 
@@ -351,3 +352,31 @@ export const statusOptions = [
 ];
 
 export const DEFAULT_WORK_HOURS_PER_DAY = 8;
+
+// 20+ Major currencies
+export enum CurrencyEnum {
+	USD = 'US Dollar',
+	EUR = 'Euro',
+	JPY = 'Japanese Yen',
+	GBP = 'British Pound Sterling',
+	AUD = 'Australian Dollar',
+	CAD = 'Canadian Dollar',
+	CHF = 'Swiss Franc',
+	CNY = 'Chinese Yuan',
+	HKD = 'Hong Kong Dollar',
+	NZD = 'New Zealand Dollar',
+	SEK = 'Swedish Krona',
+	KRW = 'South Korean Won',
+	SGD = 'Singapore Dollar',
+	NOK = 'Norwegian Krone',
+	MXN = 'Mexican Peso',
+	INR = 'Indian Rupee',
+	RUB = 'Russian Ruble',
+	BRL = 'Brazilian Real',
+	ZAR = 'South African Rand',
+	TRY = 'Turkish Lira',
+	THB = 'Thai Baht',
+	IDR = 'Indonesian Rupiah',
+	PLN = 'Polish Złoty',
+	TWD = 'New Taiwan Dollar'
+}
