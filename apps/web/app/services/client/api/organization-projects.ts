@@ -1,5 +1,5 @@
 import { IProject, PaginationResponse } from '@app/interfaces';
-import { get, put } from '../axios';
+import { deleteApi, get, put } from '../axios';
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
@@ -32,7 +32,7 @@ export function getOrganizationProjectsAPI({ queries }: { queries?: Record<strin
 		'join[leftJoin][tags]': 'organization_project.tags'
 	} as Record<string, string>;
 
-	const relations = ['members', 'teams', 'members.employee', 'members.employee.user'];
+	const relations = ['members', 'teams', 'members.employee', 'members.employee.user', 'tags'];
 
 	relations.forEach((relation, i) => {
 		obj[`relations[${i}]`] = relation;
@@ -48,5 +48,15 @@ export function getOrganizationProjectsAPI({ queries }: { queries?: Record<strin
 
 	return get<PaginationResponse<IProject>>(`/organization-projects?${query}`, {
 		tenantId
+	});
+}
+
+export function deleteOrganizationProjectAPI(organizationProjectId: string) {
+	const tenantId = getTenantIdCookie();
+
+	return deleteApi(`/organization-projects/${organizationProjectId}`, {
+		data: {
+			tenantId
+		}
 	});
 }

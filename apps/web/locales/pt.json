@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "Orçamento do Projeto"
 	},
 	"common": {
+		"APPLICATION": "Aplicação",
+		"TIME_SPENT": "Tempo gasto",
+		"PERCENT_USED": "Percentagem utilizada",
+		"NO_ACTIVITY_DATA": "Nenhum dado de atividade disponível",
+		"SELECT_DIFFERENT_DATE": "Selecione um intervalo de datas diferente ou volte mais tarde",
 		"PENDING_TASKS": "Tarefas pendentes",
 		"SHOW_MORE": "Mostrar mais",
 		"TASKS": "Tarefas",
@@ -353,7 +358,9 @@
 		"SCREENSHOTS": "Capturas de tela",
 		"TIME_LOG": "Registro de tempo",
 		"TO_DO": "Tarefas",
-		"MEMBERS_COUNT": "Contagem de membros"
+		"MEMBERS_COUNT": "Contagem de membros",
+		"REVIEW": "REVISÃO",
+		"ARCHIVE": "Arquivo"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -453,6 +460,83 @@
 			"views": {
 				"LIST_VIEW": "Vista de lista",
 				"GRID_VIEW": "Vista em grade"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Título do Projeto",
+					"titlePlaceholder": "Projeto do Cliente #1...",
+					"description": "Descrição",
+					"datePickerPlaceholder": "Escolher uma data",
+					"websiteUrl": "URL do site",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Miniatura do Projeto",
+					"uploadPhoto": "Carregar foto"
+				},
+				"errors": {
+					"titleRequired": "O título do projeto é obrigatório.",
+					"titleLength": "O título do projeto deve ter entre 3 e 100 caracteres.",
+					"invalidWebsiteUrl": "URL do site inválido.",
+					"fileSizeLimit": "O tamanho do arquivo deve ser inferior a 5MB.",
+					"fileFormatLimit": "Somente formatos JPG e PNG são permitidos.",
+					"startDateRequired": "A data de início é obrigatória.",
+					"endDateRequired": "A data de término é obrigatória.",
+					"endDateAfterStart": "A data de término deve ser posterior à data de início.",
+					"invalidUrl": "Por favor, insira um URL válido.",
+					"uploadError": "Algo deu errado ao enviar a imagem do projeto, tente novamente!"
+				},
+				"common": {
+					"search": "Buscar ...",
+					"typeNew": "Digite novo ...",
+					"addNew": "Adicionar novo",
+					"uploadingImage": "Enviando a imagem do projeto"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Rótulos",
+					"labelsPlaceholder": "Selecionar rótulos...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Selecionar tags...",
+					"colorCode": "Código de cor"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Tipo de orçamento",
+					"budgetTypePlaceholder": "Selecionar tipo de orçamento",
+					"budgetAmount": "Valor do orçamento",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Seleção de moeda",
+					"currencyPlaceholder": "Selecionar uma moeda...",
+					"billing": "Tipo de cobrança",
+					"billingPlaceholder": "Selecionar intervalo..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Atribuir Membros e Gerentes",
+					"noMembers": "Sem membros ou gerentes",
+					"addMember": "Adicionar Membro",
+					"selectMember": "Selecionar um membro...",
+					"selectRole": "Selecionar função...",
+					"relations": "Relações",
+					"noRelations": "Sem relações",
+					"addRelation": "Adicionar Relação",
+					"selectProject": "Selecionar um projeto...",
+					"selectRelationType": "Escolher tipo de relação..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Criar Projeto",
+					"financialSettings": "Configurações Financeiras",
+					"categorization": "Categorização",
+					"teamAndRelations": "Equipe & Relações"
+				}
+			},
+			"deleteModal": {
+				"title": "Excluir selecionado?",
+				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
 			}
 		},
 		"auth": {

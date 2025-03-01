@@ -125,6 +125,25 @@ export interface IActivityReportGroupByDate {
 export type IActivityReport = IActivityReportGroupByDate[];
 
 /**
+ * Project activity information
+ */
+export interface IProjectActivity {
+    title: string;
+    totalDuration: number;
+    totalSessions: number;
+    activities: IActivityItem[];
+    duration_percentage: number;
+}
+
+/**
+ * Activity report data grouped by project
+ */
+export interface IActivityReportByProject {
+    date: string;
+    projects: IProjectActivity[];
+}
+
+/**
  * Group by options for activity report
  */
 export enum ActivityReportGroupByEnum {

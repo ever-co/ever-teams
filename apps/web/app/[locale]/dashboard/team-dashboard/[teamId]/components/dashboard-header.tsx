@@ -7,6 +7,7 @@ import { DateRange } from 'react-day-picker';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
 import { TeamDashboardFilter } from './team-dashboard-filter';
 import { GroupBySelect } from '../../../app-url/components/GroupBySelect';
+import { GroupByType } from '@/app/hooks/features/useReportActivity';
 
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
@@ -14,7 +15,9 @@ interface DashboardHeaderProps {
 	title?: string;
 	isManage?: boolean;
 	showGroupBy?: boolean;
-	onGroupByChange?: (value: string) => void;
+	groupByType?: GroupByType;
+	onGroupByChange?: (value: GroupByType) => void;
+
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -24,6 +27,7 @@ export function DashboardHeader({
 	title,
 	isManage,
 	showGroupBy,
+	groupByType,
 	onGroupByChange
 }: DashboardHeaderProps) {
 	const handleDateRangeChange = (range: DateRange | undefined) => {
@@ -36,7 +40,7 @@ export function DashboardHeader({
 		<div className="flex justify-between items-center w-full">
 			<h1 className="text-2xl font-semibold">{title}</h1>
 			<div className="flex gap-4 items-center">
-				{showGroupBy && <GroupBySelect onGroupByChange={onGroupByChange} />}
+				{showGroupBy && <GroupBySelect groupByType={groupByType} onGroupByChange={onGroupByChange} />}
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
 				<TeamDashboardFilter isManage={isManage} />
 				<Select defaultValue="export">

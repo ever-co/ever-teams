@@ -20,16 +20,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTranslations } from 'next-intl';
 import { IProject } from '@/app/interfaces';
 import { cn } from '@/lib/utils';
-import { useTaskStatus } from '@/app/hooks';
-import { useMemo } from 'react';
+import { useModal, useTaskStatus } from '@/app/hooks';
+import { Fragment, memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ArrowUpDown } from 'lucide-react';
-import { Button } from '@components/ui/button';
+import { Archive, ChevronDown, ChevronUp, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
-import { SpinnerLoader } from '@/lib/components';
+import { HorizontalSeparator, SpinnerLoader } from '@/lib/components';
+import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
+import { Menu, Transition } from '@headlessui/react';
+import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-confirm-modal';
+import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 
 export type ProjectTableDataType = {
 	project: {
+		id: string;
 		name: IProject['name'];
 		imageUrl: IProject['imageUrl'];
 		color: IProject['color'];
@@ -54,7 +58,7 @@ export type ProjectTableDataType = {
  *
  */
 
-export function DataTableProject(props: { data: ProjectTableDataType[]; loading: boolean }) {
+export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loading: boolean }) => {
 	const { data, loading } = props;
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -62,7 +66,6 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 	const [rowSelection, setRowSelection] = React.useState({});
 	const t = useTranslations();
 	const { taskStatus } = useTaskStatus();
-
 	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
 		return new Map(taskStatus.map((status) => [status.name, status.color]));
 	}, [taskStatus]);
@@ -90,17 +93,46 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'project',
-			header: ({ column }) => {
+			id: 'project',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('pages.projects.projectTitle.PLURAL')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => {
+							column.toggleSorting(undefined, true);
+						}}
+					>
+						<span>{t('pages.projects.projectTitle.PLURAL')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.project.name;
+				const b = rowB.original.project.name;
+
+				if (a && b) {
+					if (a.toLowerCase() < b.toLowerCase()) return -1;
+					if (a.toLowerCase() > b.toLowerCase()) return 1;
+				}
+				return 0;
 			},
 			cell: function ({ row }) {
 				return (
-					<div className="capitalize">
+					<div className="">
 						<div className="flex items-center font-medium gap-2">
 							<div
 								style={{ backgroundColor: row.original?.project?.color }}
@@ -128,13 +160,40 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'status',
-			header: ({ column }) => {
+			id: 'status',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('common.STATUS')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => column.toggleSorting(undefined, true)}
+					>
+						<span>{t('common.STATUS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableMultiSort: true,
+			enableSorting: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.status;
+				const b = rowB.original.status;
+
+				if (a && b) {
+					if (a.toLowerCase() < b.toLowerCase()) return -1;
+					if (a.toLowerCase() > b.toLowerCase()) return 1;
+				}
+				return 0;
 			},
 			cell: ({ row }) => {
 				return (
@@ -151,13 +210,38 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'startDate',
-			header: ({ column }) => {
+			id: 'startDate',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('common.START_DATE')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => {
+							column.toggleSorting(undefined, true);
+						}}
+					>
+						<span>{t('common.START_DATE')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.startDate ? moment(rowA.original.startDate).toDate() : new Date(0); // Default to epoch if no date
+				const b = rowB.original.startDate ? moment(rowB.original.startDate).toDate() : new Date(0);
+
+				return b.getTime() - a.getTime();
 			},
 			cell: ({ row }) => (
 				<div className="">
@@ -167,21 +251,63 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'endDate',
-			header: ({ column }) => {
+			id: 'endDate',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
 				return (
-					<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-						{t('common.END_DATE')}
-						<ArrowUpDown size={10} />
-					</Button>
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => column.toggleSorting(undefined, true)}
+					>
+						<span>{t('common.END_DATE')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
 				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.endDate ? moment(rowA.original.endDate).toDate() : new Date(0); // Default to epoch if no date
+				const b = rowB.original.endDate ? moment(rowB.original.endDate).toDate() : new Date(0);
+
+				return b.getTime() - a.getTime();
 			},
 			cell: ({ row }) => (
 				<div className="">{row.original?.endDate && moment(row.original?.endDate).format('MMM. DD YYYY')}</div>
 			)
 		},
+
 		{
 			accessorKey: 'members',
-			header: () => <div>{t('common.MEMBERS')}</div>,
+			id: 'members',
+			header: ({ column }) => {
+				const isSort = column.getIsSorted();
+				return (
+					<div className="flex items-center cursor-pointer  gap-2">
+						<span>{t('common.MEMBERS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
 			cell: ({ row }) => {
 				const members =
 					row.original?.members
@@ -196,7 +322,25 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'teams',
-			header: () => <div>{t('common.TEAMS')}</div>,
+			id: 'teams',
+			header: ({ column }) => {
+				const isSort = column.getIsSorted();
+				return (
+					<div className="flex items-center cursor-pointer  gap-2">
+						<span>{t('common.TEAMS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
 			cell: ({ row }) => {
 				const teams =
 					row.original?.teams?.map((el) => ({
@@ -208,7 +352,25 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		},
 		{
 			accessorKey: 'managers',
-			header: () => <div>{t('common.MANAGERS')}</div>,
+			id: 'managers',
+			header: ({ column }) => {
+				const isSort = column.getIsSorted();
+				return (
+					<div className="flex items-center cursor-pointer  gap-2">
+						<span>{t('common.MANAGERS')}</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
 			cell: ({ row }) => {
 				const managers =
 					row.original?.managers
@@ -220,6 +382,100 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 
 				return managers?.length > 0 ? <AvatarStack avatars={managers} /> : null;
 			}
+		},
+		{
+			id: 'actions',
+			cell: function Cell({ row }) {
+				const {
+					openModal: openDeleteConfirmModal,
+					closeModal: closeDeleteConfirmModal,
+					isOpen: isDeleteConfirmModalOpen
+				} = useModal();
+				const {
+					isOpen: isProjectModalOpen,
+					closeModal: closeProjectModal,
+					openModal: openProjectModal
+				} = useModal();
+
+				return (
+					<>
+						<Menu as="div" className="relative inline-block text-left">
+							<div>
+								<Menu.Button>
+									<Ellipsis />
+								</Menu.Button>
+							</div>
+							<Transition
+								as={Fragment}
+								enter="transition ease-out duration-100"
+								enterFrom="transform opacity-0 scale-95"
+								enterTo="transform opacity-100 scale-100"
+								leave="transition ease-in duration-75"
+								leaveFrom="transform opacity-100 scale-100"
+								leaveTo="transform opacity-0 scale-95"
+							>
+								<Menu.Items className="absolute z-[999] right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+									<div className="p-1 flex flex-col gap-1">
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Eye size={15} /> <span>{t('common.VIEW_INFO')}</span>
+												</button>
+											)}
+										</Menu.Item>
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													onClick={openProjectModal}
+													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Pencil size={15} /> <span>{t('common.EDIT')}</span>
+												</button>
+											)}
+										</Menu.Item>
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Archive size={15} /> <span>{t('common.ARCHIVE')}</span>
+												</button>
+											)}
+										</Menu.Item>
+										<HorizontalSeparator />
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													onClick={openDeleteConfirmModal}
+													className={`${active && 'bg-red-400/10'} gap-2 text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+												>
+													<Trash size={15} /> <span>{t('common.DELETE')}</span>
+												</button>
+											)}
+										</Menu.Item>
+									</div>
+								</Menu.Items>
+							</Transition>
+						</Menu>
+						<DeleteProjectConfirmModal
+							key={row.original.project.id}
+							projectId={row.original.project.id}
+							open={isDeleteConfirmModalOpen}
+							closeModal={closeDeleteConfirmModal}
+						/>
+						<AddOrEditProjectModal
+							projectId={row.original.project.id}
+							mode="edit"
+							closeModal={closeProjectModal}
+							open={isProjectModalOpen}
+						/>
+					</>
+				);
+			},
+			enableSorting: false,
+			enableHiding: false
 		}
 	];
 
@@ -242,9 +498,24 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 		}
 	});
 
-	React.useEffect(() => {
-		console.log(loading);
-	}, [loading]);
+	useEffect(() => {
+		try {
+			const stored = localStorage.getItem(PROJECTS_TABLE_VIEW_LAST_SORTING);
+			if (stored) {
+				const lastSorting = JSON.parse(stored) as SortingState;
+				setSorting(lastSorting);
+			}
+		} catch (error) {
+			console.error('Failed to load sorting preferences:', error);
+		}
+	}, []);
+	useEffect(() => {
+		try {
+			localStorage.setItem(PROJECTS_TABLE_VIEW_LAST_SORTING, JSON.stringify(sorting));
+		} catch (error) {
+			console.error('Failed to save sorting preferences:', error);
+		}
+	}, [sorting]);
 
 	return (
 		<div className="w-full">
@@ -298,4 +569,6 @@ export function DataTableProject(props: { data: ProjectTableDataType[]; loading:
 			)}
 		</div>
 	);
-}
+});
+
+DataTableProject.displayName = 'DataTableProject';
