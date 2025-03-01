@@ -61,7 +61,6 @@ export function DashboardHeader({
 						</SelectTrigger>
 						<SelectContent className="dark:bg-dark--theme-light">
 							<SelectItem value="export">Export</SelectItem>
-							<SelectItem value="csv">CSV</SelectItem>
 							<SelectItem value="pdf">PDF</SelectItem>
 							<SelectItem value="xlsx">XLSX</SelectItem>
 						</SelectContent>
