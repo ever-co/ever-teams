@@ -1,21 +1,20 @@
-import { IImageAssets, ILabel, IProject, IProjectRelation } from '@/app/interfaces';
+import { ICreateProjectInput, IImageAssets, IProject } from '@/app/interfaces';
 import { Children, cloneElement, isValidElement, PropsWithChildren, ReactElement } from 'react';
+import { TModalMode } from '.';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
 	onNext?: (data: TStepData) => void;
 	onFinish?: (project: IProject) => void;
 	step: number;
 	currentData: TStepData;
+	mode: TModalMode;
 }
 
 export type TStepData = Partial<
-	IProject & {
-		memberIds?: string[];
-		managerIds?: string[];
+	ICreateProjectInput & {
 		projectImage?: IImageAssets;
-		// TO BE DONE ON THE API side :
-		labels?: Omit<ILabel, 'id'>[]; // labelling
-		relations?: IProjectRelation[]; // relationship
+		members?: { memberId: string; roleId: string; id: string }[];
+		id?: string;
 	}
 >;
 
@@ -23,10 +22,11 @@ export interface IStepElementProps extends PropsWithChildren {
 	goToNext: (stepData: TStepData) => void;
 	finish: (newProject: IProject) => void;
 	currentData: TStepData;
+	mode: TModalMode;
 }
 
 export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
-	const { onNext, children, step, onFinish, currentData } = props;
+	const { onNext, children, step, onFinish, currentData, mode } = props;
 
 	const childrenArray = Children.toArray(children) as ReactElement<IStepElementProps>[];
 
@@ -49,7 +49,8 @@ export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
 		return cloneElement(currentStep as ReactElement<IStepElementProps>, {
 			goToNext: handleNext,
 			finish: handleFinish,
-			currentData
+			currentData,
+			mode
 		});
 	}
 

@@ -122,7 +122,7 @@ export function useOrganizationProjects() {
 
 	useEffect(() => {
 		loadOrganizationProjects();
-	}, [getOrganizationProjects, setOrganizationProjects]);
+	}, [getOrganizationProjects, loadOrganizationProjects, setOrganizationProjects]);
 
 	return {
 		editOrganizationProjectSetting,

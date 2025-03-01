@@ -9,10 +9,13 @@ import { cn } from '@/lib/utils';
 import { IProjectRelation, ProjectRelationEnum } from '@/app/interfaces';
 import { RolesEnum } from '@/app/interfaces/IRoles';
 import { useTranslations } from 'next-intl';
+import { getInitialValue } from '../utils';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
-	const { goToNext } = props;
-	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>([]);
+	const { goToNext, currentData, mode } = props;
+	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>(() =>
+		getInitialValue(currentData, mode, 'members', [])
+	);
 	const [relations, setRelations] = useState<(IProjectRelation & { id: string })[]>([]);
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
@@ -44,14 +47,8 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
-		const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
-		const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
-
 		goToNext({
-			memberIds: members
-				.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
-				.map((el) => el.memberId),
-			managerIds: members.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId),
+			members,
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});
 	};
@@ -67,6 +64,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 						{members.length ? (
 							members.map((el) => (
 								<PairingItem
+									selected={[el.memberId, el.roleId]}
 									keys={teams
 										?.flatMap((el) => el.members)
 										?.map((el) => ({
@@ -77,7 +75,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 									values={roles
 										?.filter((el) => el.name == RolesEnum.EMPLOYEE || el.name == RolesEnum.MANAGER)
 										?.map((el) => ({
-											id: el.id!,
+											id: String(el.id),
 											value: el.name
 										}))}
 									onRemove={handleRemoveMember}
@@ -123,8 +121,10 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 					</Button>
 				</div>
 			</div>
-
-			<div className="w-full flex flex-col gap-2">
+			{
+				// Will be implemented later on the api side (we keep this here)
+			}
+			<div className="w-full hidden flex-col gap-2">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
 				</label>
@@ -142,6 +142,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 										id: el,
 										value: el
 									}))}
+									selected={[el.projectId, el.relationType]}
 									onRemove={handleRemoveRelation}
 									key={el.id}
 									id={el.id}
@@ -202,15 +203,16 @@ interface IPairingItemProps<K extends Identifiable, V extends Identifiable> {
 	keys: (K & { imgUrl?: string })[];
 	values: V[];
 	keysLabel?: string;
+	selected: [string, string];
 	valuesLabel?: string;
 	onKeyChange?: (id: string, key: string) => void;
 	onValueChange?: (id: string, value: string) => void;
 }
 
 function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPairingItemProps<K, V>) {
-	const { id, onRemove, keys, values, keysLabel, valuesLabel, onKeyChange, onValueChange } = props;
-	const [keyId, setKeyId] = useState<string | null>(null);
-	const [valueId, setValueId] = useState<string | null>(null);
+	const { id, onRemove, keys, values, keysLabel, valuesLabel, onKeyChange, onValueChange, selected } = props;
+	const [keyId, setKeyId] = useState<string | null>(selected[0] || null);
+	const [valueId, setValueId] = useState<string | null>(selected[1] || null);
 
 	return (
 		<div className="w-full flex items-center gap-3">

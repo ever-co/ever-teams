@@ -29,6 +29,7 @@ import { HorizontalSeparator, SpinnerLoader } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { Menu, Transition } from '@headlessui/react';
 import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-confirm-modal';
+import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 
 export type ProjectTableDataType = {
 	project: {
@@ -390,6 +391,11 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 					closeModal: closeDeleteConfirmModal,
 					isOpen: isDeleteConfirmModalOpen
 				} = useModal();
+				const {
+					isOpen: isProjectModalOpen,
+					closeModal: closeProjectModal,
+					openModal: openProjectModal
+				} = useModal();
 
 				return (
 					<>
@@ -422,6 +428,7 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 										<Menu.Item>
 											{({ active }) => (
 												<button
+													onClick={openProjectModal}
 													className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
 												>
 													<Pencil size={15} /> <span>{t('common.EDIT')}</span>
@@ -457,6 +464,12 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 							projectId={row.original.project.id}
 							open={isDeleteConfirmModalOpen}
 							closeModal={closeDeleteConfirmModal}
+						/>
+						<AddOrEditProjectModal
+							projectId={row.original.project.id}
+							mode="edit"
+							closeModal={closeProjectModal}
+							open={isProjectModalOpen}
 						/>
 					</>
 				);

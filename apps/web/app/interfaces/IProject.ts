@@ -68,7 +68,6 @@ export interface IProject {
 	archivedAt: string | null;
 	deletedAt: string | null;
 	tags?: ITag[];
-	website?: string;
 }
 
 export interface CustomFields {
@@ -134,7 +133,7 @@ export interface ICreateProjectInput {
 	name: string;
 	organizationId: string;
 	tenantId: string;
-	website?: string;
+	projectUrl?: string;
 	description?: string;
 	color?: string;
 	tags?: ITag[];
@@ -150,8 +149,11 @@ export interface ICreateProjectInput {
 	managerIds?: string[];
 	teams?: IOrganizationTeamList[];
 	status?: IProject['status'];
-	isActive: boolean;
-	isArchived: boolean;
-	isTasksAutoSync: boolean;
-	isTasksAutoSyncOnLabel: boolean;
+	isActive?: boolean;
+	isArchived?: boolean;
+	isTasksAutoSync?: boolean;
+	isTasksAutoSyncOnLabel?: boolean;
+	owner?: ProjectOwnerEnum;
+	// Will be implemented on the  API side much later :
+	relations?: IProjectRelation[]; // relationship
 }

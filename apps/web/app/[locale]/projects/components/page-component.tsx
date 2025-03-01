@@ -66,7 +66,13 @@ function PageComponent() {
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<ProjectTableDataType>(
-			searchTerm ? projects.filter((el) => el.project?.name?.includes(searchTerm)) : projects || []
+			activeTeam
+				? searchTerm
+					? projects
+							?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id))
+							.filter((el) => el.project?.name?.includes(searchTerm))
+					: projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) || []
+				: []
 		);
 
 	useEffect(() => {
@@ -89,30 +95,28 @@ function PageComponent() {
 		*/
 
 		getOrganizationProjects({ queries }).then((data) => {
-			if (data && data?.items?.length > 0 && activeTeam) {
+			if (data && data?.items?.length > 0) {
 				// Consider only active team projects
 
-				const activeTeamProjectsIds = data.items
-					?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam.id))
-					?.map((el) => ({
-						project: {
-							name: el.name,
-							imageUrl: el.imageUrl,
-							color: el.color,
-							id: el.id
-						},
-						status: el.status,
-						startDate: el.startDate,
-						endDate: el.endDate,
-						members: el.members,
-						managers: el.members,
-						teams: el.teams
-					}));
+				const activeTeamProjectsIds = data.items?.map((el) => ({
+					project: {
+						name: el.name,
+						imageUrl: el.imageUrl,
+						color: el.color,
+						id: el.id
+					},
+					status: el.status,
+					startDate: el.startDate,
+					endDate: el.endDate,
+					members: el.members,
+					managers: el.members,
+					teams: el.teams
+				}));
 
 				setProjects(activeTeamProjectsIds);
 			}
 		});
-	}, [getOrganizationProjects, params, organizationProjects, activeTeam]);
+	}, [getOrganizationProjects, params, organizationProjects]);
 
 	return (
 		<MainLayout

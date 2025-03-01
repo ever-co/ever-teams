@@ -1,7 +1,7 @@
 import { Card, Modal } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddOrEditContainer, { TStepData } from './container';
 import TeamAndRelationsForm from './steps/team-and-relations-form';
 import BasicInformationForm from './steps/basic-information-form';
@@ -9,15 +9,85 @@ import CategorizationForm from './steps/categorization-form';
 import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
 import { useTranslations } from 'next-intl';
+import {
+	OrganizationProjectBudgetTypeEnum,
+	ProjectBillingEnum,
+	ProjectOwnerEnum,
+	TaskStatusEnum
+} from '@/app/interfaces';
+import { useOrganizationProjects } from '@/app/hooks';
+import { useRoles } from '@/app/hooks/features/useRoles';
+import { RolesEnum } from '@/app/interfaces/IRoles';
+
+export type TModalMode = 'edit' | 'create';
 
 interface IAddOrEditProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
+	mode?: TModalMode;
+	projectId?: string;
 }
 
 export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps) {
-	const { open, closeModal } = props;
+	const { open, closeModal, mode = 'create', projectId } = props;
 	const t = useTranslations();
+	const { organizationProjects } = useOrganizationProjects();
+	const project = useMemo(
+		() => organizationProjects.find((el) => el.id === projectId),
+		[organizationProjects, projectId]
+	);
+	const { roles, getRoles } = useRoles();
+
+	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
+	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
+
+	// Initialize step data
+	const handleInitStepData = (): Omit<TStepData, 'organizationId' | 'tenantId' | 'projectImage'> => {
+		const initialValues = {
+			name: '',
+			budgetType: OrganizationProjectBudgetTypeEnum.HOURS,
+			description: '',
+			memberIds: [],
+			managerIds: [],
+			labels: [],
+			tags: [],
+			startDate: '',
+			endDate: '',
+			billing: ProjectBillingEnum.FLAT_FEE,
+			currency: '',
+			imageUrl: '',
+			imageId: '',
+			relations: [],
+			color: '#000',
+			website: '',
+			teams: [],
+			isActive: true,
+			isArchived: false,
+			isTasksAutoSync: false,
+			isTasksAutoSyncOnLabel: false,
+			status: TaskStatusEnum.OPEN,
+			owner: ProjectOwnerEnum.CLIENT
+		};
+		if (mode === 'create') {
+			return initialValues;
+		} else if (mode === 'edit' && project !== undefined) {
+			const projectData = {
+				...project,
+				members:
+					project.members?.map((el) => ({
+						id: `${el.id}-${String(el.role)}`,
+						memberId: el.employeeId,
+						roleId: el.isManager ? managerRole?.id : simpleMemberRole?.id
+					})) || [],
+				tags: project.tags?.map((el) => el.id),
+
+				relations: []
+			} as TStepData;
+			return projectData;
+		} else {
+			return initialValues;
+		}
+	};
 
 	const initialSteps = [
 		{ id: 1, title: t('pages.projects.addOrEditModal.steps.createProject'), isCompleted: false },
@@ -28,7 +98,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 
 	const [steps, setSteps] = useState(initialSteps);
 	const [currentStep, setCurrentStep] = useState(0);
-	const [data, setData] = useState<TStepData>({});
+	const [data, setData] = useState<TStepData>(handleInitStepData);
 
 	const onNextStep = useCallback(() => {
 		if (currentStep < steps.length - 1) {
@@ -62,6 +132,10 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 		setData({});
 		closeModal();
 	};
+
+	useEffect(() => {
+		getRoles();
+	}, [getRoles]);
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>
@@ -107,6 +181,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 						onFinish={handleFinish}
 						onNext={handleNext}
 						step={currentStep}
+						mode={mode}
 					>
 						{
 							//@ts-ignore
