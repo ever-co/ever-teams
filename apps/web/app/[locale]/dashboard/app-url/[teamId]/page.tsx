@@ -115,6 +115,7 @@ function AppUrls() {
 								title="Apps & URLs Dashboard"
 								isManage={isManage}
 								groupByType={groupByType}
+								reportData={activityReport}
 							/>
 							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
 								<div className="flex flex-col gap-6 w-full">
