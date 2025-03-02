@@ -38,6 +38,13 @@
 			[
 				"expo-build-properties",
 				{
+					"ios": {
+						"newArchEnabled": false,
+						"deploymentTarget": "18.0",
+						"config": {
+							"usesNonExemptEncryption": false
+						}
+					},
 					"android": {
 						"enableProguardInReleaseBuilds": true,
 						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
