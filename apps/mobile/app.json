@@ -1,9 +1,9 @@
 {
-	"name": "$EXPO_PROJECT_SLUG",
-	"displayName": "$EXPO_PROJECT_NAME",
+	"name": "ever-teams-mobile",
+	"displayName": "Ever Teams Mobile",
 	"expo": {
-		"name": "$EXPO_PROJECT_NAME",
-		"slug": "$EXPO_PROJECT_SLUG",
+		"name": "Ever Teams Mobile",
+		"slug": "ever-teams-mobile",
 		"version": "0.1.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/ever-teams-logo.png",
@@ -12,10 +12,10 @@
 			"resizeMode": "cover",
 			"backgroundColor": "#ffffff"
 		},
-		"owner": "$EXPO_PROJECT_OWNER",
+		"owner": "everco",
 		"updates": {
 			"fallbackToCacheTimeout": 0,
-			"url": "https://u.expo.dev/$EXPO_PROJECT_ID"
+			"url": "https://u.expo.dev/2ff924e4-7a91-4b23-9db9-7453a8063bb0"
 		},
 		"jsEngine": "hermes",
 		"assetBundlePatterns": ["**/*"],
@@ -53,11 +53,13 @@
 						"targetSdkVersion": 34
 					}
 				}
-			]
+			],
+			"expo-font",
+			"expo-localization"
 		],
 		"android": {
 			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
-			"package": "$EXPO_PROJECT_PACKAGE_NAME",
+			"package": "ever.team",
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground-ever.png",
 				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
@@ -78,7 +80,7 @@
 		"ios": {
 			"icon": "./assets/images/app-icon-ios-ever-teams.png",
 			"supportsTablet": true,
-			"bundleIdentifier": "$EXPO_PROJECwssT_IOS_BUNDLE_IDENTIFIER",
+			"bundleIdentifier": "co.ever.teams",
 			"splash": {
 				"image": "./assets/images/splash-ever-teams.png",
 				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",
@@ -104,7 +106,7 @@
 		},
 		"extra": {
 			"eas": {
-				"projectId": "$EXPO_PROJECT_ID"
+				"projectId": "2ff924e4-7a91-4b23-9db9-7453a8063bb0"
 			}
 		},
 		"runtimeVersion": "exposdk:51.0.0"
