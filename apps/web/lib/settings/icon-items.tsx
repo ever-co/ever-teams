@@ -59,8 +59,8 @@ export function IconItem({
 		<div
 			title={title}
 			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm',
-				'cursor-pointer mb-4 max-w-full',
+				'flex justify-start items-center space-x-2 text-sm',
+				'mb-4 max-w-full cursor-pointer',
 				className
 			)}
 		>
@@ -82,6 +82,7 @@ export function IconItem({
 							decoding="async"
 							data-nimg="1"
 							loading="lazy"
+							className='dark:invert'
 						/>
 					</div>
 				) : (
