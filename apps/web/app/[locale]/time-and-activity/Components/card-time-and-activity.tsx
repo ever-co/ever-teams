@@ -11,7 +11,7 @@ interface StatisticCardProps {
   isLoading?: boolean;
 }
 
-const CardTimeandActivity: React.FC<StatisticCardProps> = ({
+const CardTimeAndActivity: React.FC<StatisticCardProps> = ({
   title,
   value,
   showProgress = false,
@@ -44,4 +44,4 @@ const CardTimeandActivity: React.FC<StatisticCardProps> = ({
   );
 };
 
-export default CardTimeandActivity;
+export default CardTimeAndActivity;

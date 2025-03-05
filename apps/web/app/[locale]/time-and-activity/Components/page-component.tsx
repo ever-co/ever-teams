@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo } from 'react';
 import TimeActivityHeader from './time-activity-header';
-import CardTimeandActivity from './card-time-and-activity';
+import CardTimeAndActivity from './card-time-and-activity';
 
-const TimectivityComponents = () => {
+const TimeActivityComponents = () => {
 	const t = useTranslations();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -52,12 +52,12 @@ const TimectivityComponents = () => {
 						<div className="flex flex-col gap-6 w-full">
 							<TimeActivityHeader />
 							<div className="grid grid-cols-3 gap-[30px] w-full">
-								<CardTimeandActivity
+								<CardTimeAndActivity
 									title="Total Hours"
 									value="1,020h"
 									showProgress={false}
 								/>
-								<CardTimeandActivity
+								<CardTimeAndActivity
 									title="Average Activity"
 									value="74%"
 									showProgress={true}
@@ -65,7 +65,7 @@ const TimectivityComponents = () => {
 									progressColor="bg-[#0088CC]"
 									isLoading={false}
 								/>
-								<CardTimeandActivity
+								<CardTimeAndActivity
 									title="Total Earnings"
 									value="1,200.00 USD"
 									showProgress={false}
@@ -79,4 +79,4 @@ const TimectivityComponents = () => {
 	);
 };
 
-export default withAuthentication(TimectivityComponents, { displayName: 'Time and Activity' });
+export default withAuthentication(TimeActivityComponents, { displayName: 'Time and Activity' });
