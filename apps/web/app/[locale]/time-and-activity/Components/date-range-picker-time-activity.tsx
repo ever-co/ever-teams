@@ -18,7 +18,10 @@ import {
 	isSameMonth,
 	isSameYear,
 	isEqual,
-	startOfDay
+	startOfDay,
+    subYears,
+    startOfYear,
+    endOfYear
 } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
@@ -250,9 +253,19 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 						to: endOfMonth(lastMonth)
 					};
 				})
+			},
+			{
+				label: "All Times",
+				...createRange(() => {
+					const lastYear = subYears(new Date(), 1);
+					return {
+						from: startOfYear(lastYear),
+						to: endOfYear(lastYear)
+					};
+				})
 			}
 		],
-		[createRange, t]
+		[createRange, t, weekOptions]
 	);
 
 	return (
