@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import ProgressBar from './progress-bar';
 
 interface StatisticCardProps {
   title: string;
@@ -33,16 +34,11 @@ const CardTimeandActivity: React.FC<StatisticCardProps> = ({
           )}
         </div>
         {showProgress && (
-          <div className="mt-4">
-            <div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-700">
-              <div
-                className={`h-full rounded-full transition-all duration-300 ${progressColor}`}
-                style={{
-                  width: `${isLoading ? 0 : progress}%`,
-                }}
-              />
-            </div>
-          </div>
+          <ProgressBar
+            progress={progress}
+            color={progressColor}
+            isLoading={isLoading}
+          />
         )}
       </div>
     </Card>
