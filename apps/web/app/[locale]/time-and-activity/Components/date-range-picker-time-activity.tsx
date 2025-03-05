@@ -191,7 +191,10 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 };
 
 const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRangeProps) => {
-	const weekOptions = { weekStartsOn: 1 as const };
+	const weekOptions = React.useMemo(
+		() => ({ weekStartsOn: 1 as const }),
+		[]
+	);
 
 	const createRange = React.useMemo(
 		() => createRangeHelper(handleDateRangeChange),
