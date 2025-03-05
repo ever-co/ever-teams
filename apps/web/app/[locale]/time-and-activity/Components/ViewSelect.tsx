@@ -1,12 +1,11 @@
 import React from 'react';
-import { Checkbox } from '@components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@components/ui/dropdown-menu';
 import { Button } from '@components/ui/button';
-import { useTranslations } from 'next-intl';
+import { Check } from 'lucide-react';
 
 interface ViewOption {
   id: string;
@@ -15,7 +14,6 @@ interface ViewOption {
 }
 
 export default function ViewSelect() {
-  const t = useTranslations();
   const [viewOptions, setViewOptions] = React.useState<ViewOption[]>([
     { id: 'member', label: 'Member', checked: true },
     { id: 'project', label: 'Project', checked: true },
@@ -59,18 +57,15 @@ export default function ViewSelect() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-2 w-56">
         {viewOptions.map((option) => (
-          <div key={option.id} className="flex items-center p-2 space-x-2">
-            <Checkbox
-              id={option.id}
-              checked={option.checked}
-              onCheckedChange={() => handleCheckChange(option.id)}
-            />
-            <label
-              htmlFor={option.id}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {option.label}
-            </label>
+          <div 
+            key={option.id} 
+            className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            onClick={() => handleCheckChange(option.id)}
+          >
+            <div className="flex items-center justify-center w-4 h-4">
+              {option.checked && <Check className="w-4 h-4" />}
+            </div>
+            <span className="text-sm">{option.label}</span>
           </div>
         ))}
       </DropdownMenuContent>
