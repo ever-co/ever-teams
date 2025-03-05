@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { MainLayout } from '@/lib/layout';
 import { useTranslations } from 'next-intl';
@@ -13,6 +13,7 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo } from 'react';
 import { Card } from '@components/ui/card';
 import TimeActivityHeader from './time-activity-header';
+import CardTimeandActivity from './card-time-and-activity';
 
 const TimectivityComponents = () => {
 	const t = useTranslations();
@@ -33,7 +34,7 @@ const TimectivityComponents = () => {
 	const handleBack = () => router.back();
 
 	return (
-        <MainLayout
+		<MainLayout
 			className="items-start pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
@@ -50,23 +51,41 @@ const TimectivityComponents = () => {
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 						<div className="flex flex-col gap-6 w-full">
-                        <TimeActivityHeader/>
-							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
+							<TimeActivityHeader />
+							<Card className="p-8 px-0 py-0 rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark h-[245px] theme-light h-">
 								<div className="flex flex-col gap-6 w-full">
-									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700 pl-8">
+									<div className="flex justify-between items-center h-[105px] w-full  pl-8">
+										<CardTimeandActivity
+											title="Total Hours"
+											value="1,020h"
+											showProgress={false}
+											progress={75}
+										/>
+										<CardTimeandActivity
+											title="Average Activity"
+											value="74%"
+											showProgress={true}
+											progress={74}
+											progressColor="bg-blue-500"
+											isLoading={false}
+										/>
+										<CardTimeandActivity
+											title="Total Earnings"
+											value="1,200.00 USD"
+											showProgress={false}
+											progress={75}
 
+										/>
 									</div>
-									<div className="flex flex-col px-8 w-full">
-									</div>
+									<div className="flex flex-col px-8 w-full"></div>
 								</div>
 							</Card>
 						</div>
 					</Container>
 				</div>
 			}
-		>
-        </MainLayout>
-    )
+		></MainLayout>
+	);
 };
 
 export default withAuthentication(TimectivityComponents, { displayName: 'Time and Activity' });
