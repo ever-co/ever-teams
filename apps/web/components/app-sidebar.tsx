@@ -309,7 +309,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 								{
 									title: t('sidebar.TIME_AND_ACTIVITY'),
 									label: 'time-and-activity',
-									url: '/reports/time-and-activity'
+									url: '/time-and-activity'
 								}
 							]
 						}

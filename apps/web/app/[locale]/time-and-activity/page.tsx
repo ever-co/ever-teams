@@ -1,10 +1,8 @@
 import React from 'react'
-import TimeAndActivityComponents from './Components/page-component'
+import TimectivityComponents from './Components/page-component'
 
-function page() {
-  return (
-	<TimeAndActivityComponents/>
-  )
+function TimeAndActivity() {
+  return (<TimectivityComponents/> )
 }
 
-export default page
+export default TimeAndActivity
