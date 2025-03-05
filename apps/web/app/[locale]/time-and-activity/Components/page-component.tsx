@@ -11,7 +11,6 @@ import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo } from 'react';
-import { Card } from '@components/ui/card';
 import TimeActivityHeader from './time-activity-header';
 import CardTimeandActivity from './card-time-and-activity';
 
@@ -52,34 +51,26 @@ const TimectivityComponents = () => {
 						</div>
 						<div className="flex flex-col gap-6 w-full">
 							<TimeActivityHeader />
-							<Card className="p-8 px-0 py-0 rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark h-[245px] theme-light h-">
-								<div className="flex flex-col gap-6 w-full">
-									<div className="flex justify-between items-center h-[105px] w-full  pl-8">
-										<CardTimeandActivity
-											title="Total Hours"
-											value="1,020h"
-											showProgress={false}
-											progress={75}
-										/>
-										<CardTimeandActivity
-											title="Average Activity"
-											value="74%"
-											showProgress={true}
-											progress={74}
-											progressColor="bg-blue-500"
-											isLoading={false}
-										/>
-										<CardTimeandActivity
-											title="Total Earnings"
-											value="1,200.00 USD"
-											showProgress={false}
-											progress={75}
-
-										/>
-									</div>
-									<div className="flex flex-col px-8 w-full"></div>
-								</div>
-							</Card>
+							<div className="grid grid-cols-3 gap-[30px] w-full">
+								<CardTimeandActivity
+									title="Total Hours"
+									value="1,020h"
+									showProgress={false}
+								/>
+								<CardTimeandActivity
+									title="Average Activity"
+									value="74%"
+									showProgress={true}
+									progress={74}
+									progressColor="bg-[#0088CC]"
+									isLoading={false}
+								/>
+								<CardTimeandActivity
+									title="Total Earnings"
+									value="1,200.00 USD"
+									showProgress={false}
+								/>
+							</div>
 						</div>
 					</Container>
 				</div>
