@@ -67,7 +67,7 @@ const defaultProps: Required<
 	teamIds: []
 };
 
-export type GroupByType = 'date' | 'project' | 'employee' | 'application';
+export type GroupByType = 'date' | 'project' | 'employee' | 'application'|'daily'|'weekly'|'member';
 
 interface GroupByOptions {
 	groupBy: GroupByType;
