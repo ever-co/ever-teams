@@ -17,9 +17,11 @@
 			"fallbackToCacheTimeout": 0,
 			"url": "https://u.expo.dev/$EXPO_PROJECT_ID"
 		},
+		"newArchEnabled": false,
 		"jsEngine": "hermes",
 		"assetBundlePatterns": ["**/*"],
 		"plugins": [
+			"sentry-expo",
 			[
 				"expo-media-library",
 				{
@@ -34,7 +36,6 @@
 					"photosPermission": "The app accesses your photos to let you share them with your team members."
 				}
 			],
-			"sentry-expo",
 			[
 				"expo-build-properties",
 				{
@@ -78,7 +79,7 @@
 		"ios": {
 			"icon": "./assets/images/app-icon-ios-ever-teams.png",
 			"supportsTablet": true,
-			"bundleIdentifier": "$EXPO_PROJECwssT_IOS_BUNDLE_IDENTIFIER",
+			"bundleIdentifier": "$EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER",
 			"splash": {
 				"image": "./assets/images/splash-ever-teams.png",
 				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",
@@ -107,6 +108,6 @@
 				"projectId": "$EXPO_PROJECT_ID"
 			}
 		},
-		"runtimeVersion": "exposdk:51.0.0"
+		"runtimeVersion": "exposdk:52.0.0"
 	}
 }
