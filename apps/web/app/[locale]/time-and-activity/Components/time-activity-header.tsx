@@ -6,7 +6,7 @@ import ViewSelect from './ViewSelect'
 function TimeActivityHeader() {
   return (
     <div className="flex justify-between items-center w-full">
-    <h1 className="text-2xl font-semibold">Time Worked</h1>
+    <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>
         {/* <TeamDashboardFilter isManage={isManage} /> */}
