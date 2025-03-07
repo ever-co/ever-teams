@@ -80,7 +80,7 @@ const TimeActivityComponents = () => {
 			}
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<Card className="w-full dark:bg-dark--theme-light min-h-[500px]">
+				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
 					<ActivityTable period={exampleData} />
 				</Card>
 			</Container>

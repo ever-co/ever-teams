@@ -1,0 +1,141 @@
+import React from 'react';
+import { Button } from '@components/ui/button';
+import { MultiSelect } from 'lib/components/custom-select';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { SettingFilterIcon } from '@/assets/svg';
+import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
+
+
+export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover() {
+	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
+	const t = useTranslations();
+	return (
+		<>
+			<Popover>
+				<PopoverTrigger asChild>
+					<Button
+						variant="outline"
+						className="flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
+					>
+						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
+						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-96">
+					<div className="flex flex-col w-full">
+						<div className="flex gap-2 mb-3 text-xl font-bold">
+							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
+							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						</div>
+						<div className="grid gap-5">
+							<div className="">
+								<label className="flex justify-between mb-1 text-sm text-gray-600">
+									<span className="text-[12px]">{t('common.TEAM')}</span>
+									<span
+										className={cn(
+											'text-primary/10',
+											'text-primary dark:text-primary-light'
+										)}
+									>
+										{t('common.CLEAR')}
+									</span>
+								</label>
+								<MultiSelect
+									localStorageKey="time-activity-select-filter-teams"
+									removeItems={shouldRemoveItems}
+									items={[]}
+									itemToString={(project) => (project)}
+									itemId={(item) =>item}
+									onValueChange={(selectedItems) => selectedItems}
+									multiSelect={true}
+									triggerClassName="dark:border-gray-700"
+								/>
+							</div>
+							<div className="">
+								<label className="flex justify-between mb-1 text-sm text-gray-600">
+									<span className="text-[12px]">{t('common.MEMBER')}</span>
+									<span
+										className={cn(
+											'text-primary/10',
+											'text-primary dark:text-primary-light'
+										)}
+									>
+										{t('common.CLEAR')}
+									</span>
+								</label>
+								<MultiSelect
+									localStorageKey="time-activity-select-filter-member"
+									removeItems={shouldRemoveItems}
+									items={[]}
+									itemToString={(project) => (project)}
+									itemId={(item) =>item}
+									onValueChange={(selectedItems) => selectedItems}
+									multiSelect={true}
+									triggerClassName="dark:border-gray-700"
+								/>
+							</div>
+							<div className="">
+								<label className="flex justify-between mb-1 text-sm text-gray-600">
+									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
+									<span
+										className={cn(
+											'text-primary/10',
+											'text-primary dark:text-primary-light'
+										)}
+									>
+										{t('common.CLEAR')}
+									</span>
+								</label>
+								<MultiSelect
+									localStorageKey="time-activity-select-filter-projects"
+									removeItems={shouldRemoveItems}
+									items={[]}
+									itemToString={(project) => (project)}
+									itemId={(item) =>item}
+									onValueChange={(selectedItems) => selectedItems}
+									multiSelect={true}
+									triggerClassName="dark:border-gray-700"
+								/>
+							</div>
+							<div className="">
+								<label className="flex justify-between mb-1 text-sm text-gray-600">
+									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
+									<span
+										className={cn(
+											'text-primary/10',
+											'text-primary dark:text-primary-light'
+										)}>
+										{t('common.CLEAR')}
+									</span>
+								</label>
+								<MultiSelect
+									localStorageKey="time-activity-select-filter-task"
+									removeItems={shouldRemoveItems}
+									items={[]}
+									itemToString={(project) => (project)}
+									itemId={(item) =>item}
+									onValueChange={(selectedItems) => selectedItems}
+									multiSelect={true}
+									triggerClassName="dark:border-gray-700"
+								/>
+							</div>
+							<div className="flex gap-x-4 justify-end items-center w-full">
+								<Button
+									onClick={() => setShouldRemoveItems(true)}
+									variant={'outline'}
+									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
+								>
+									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
+								</Button>
+								<Button className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
+									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
+								</Button>
+							</div>
+						</div>
+					</div>
+				</PopoverContent>
+			</Popover>
+		</>
+	);
+});

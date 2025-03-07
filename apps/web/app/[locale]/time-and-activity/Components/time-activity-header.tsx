@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select'
 import React from 'react'
-import { DateRangePickerTimeActivity, GroupBySelectTimeActivity } from '.'
+import { DateRangePickerTimeActivity, GroupBySelectTimeActivity, TimeActivityFilterPopover } from '.'
 import ViewSelect from './ViewSelect'
 
 function TimeActivityHeader() {
@@ -9,7 +9,7 @@ function TimeActivityHeader() {
     <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>
-        {/* <TeamDashboardFilter isManage={isManage} /> */}
+        <TimeActivityFilterPopover/>
         <ViewSelect/>
         <DateRangePickerTimeActivity/>
         <div className="flex gap-2 items-center">

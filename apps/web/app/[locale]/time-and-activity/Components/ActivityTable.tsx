@@ -35,7 +35,7 @@ interface ActivityTableProps {
 
 const ActivityTable: React.FC<ActivityTableProps> = ({ period }) => {
   return (
-    <div className="w-full">
+    <div className="w-full min-h-[500px]">
       {/* Period Header */}
       <div className="flex flex-col gap-2 px-6 py-3 bg-gray-50/50 dark:bg-dark--theme">
         <div className="text-sm text-gray-900 dark:text-gray-400">
@@ -58,7 +58,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period }) => {
       </div>
 
       {/* Members Table */}
-      <div className="overflow-hidden rounded-md border border-gray-200">
+      <div className="overflow-hidden rounded-m">
         <Table>
           <TableHeader>
             <TableRow className="border-0 hover:bg-transparent">
