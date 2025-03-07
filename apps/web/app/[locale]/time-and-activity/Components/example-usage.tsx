@@ -35,7 +35,7 @@ export const exampleData = {
     },
     {
       id: '4',
-      name: 'Theo Tom',
+      name: 'Tom',
       avatarUrl: '/path-to-avatar',
       trackedHours: '20:00:00h',
       earnings: '160.00 USD',
