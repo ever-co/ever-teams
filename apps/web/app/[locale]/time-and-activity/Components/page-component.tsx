@@ -13,6 +13,9 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo } from 'react';
 import TimeActivityHeader from './time-activity-header';
 import CardTimeAndActivity from './card-time-and-activity';
+import { Card } from '@components/ui/card';
+import ActivityTable from './ActivityTable';
+import { exampleData } from './example-usage';
 
 const TimeActivityComponents = () => {
 	const t = useTranslations();
@@ -75,7 +78,13 @@ const TimeActivityComponents = () => {
 					</Container>
 				</div>
 			}
-		></MainLayout>
+		>
+			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
+					<ActivityTable period={exampleData} />
+				</Card>
+			</Container>
+		</MainLayout>
 	);
 };
 
