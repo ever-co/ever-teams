@@ -19,7 +19,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     <div className="mt-4">
       <div className={`w-full ${size === 'sm' ? 'h-1' : size === 'md' ? 'h-2' : 'h-3'} bg-[#E4E4E7] dark:bg-gray-700 rounded-full overflow-hidden`}>
         <div
-          className={`h-full rounded-full transition-all duration-500 ease-out transform ${color}`}
+          className={`h-full transition-all duration-300 with-dynamic ${color}`}
           style={{
             width: `${progressValue}%`,
             transition: 'width 500ms cubic-bezier(0.4, 0, 0.2, 1)',
