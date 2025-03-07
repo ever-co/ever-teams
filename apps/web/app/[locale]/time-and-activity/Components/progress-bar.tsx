@@ -4,18 +4,20 @@ interface ProgressBarProps {
   progress: number;
   color?: string;
   isLoading?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   color = 'bg-[#0088CC]',
   isLoading = false,
+  size = 'md',
 }) => {
   const progressValue = isLoading ? 0 : Math.min(Math.max(progress, 0), 100);
 
   return (
-    <div className="-mt-0.5" role="progressbar" aria-valuenow={progressValue} aria-valuemin={0} aria-valuemax={100}>
-      <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+    <div className="mt-4">
+      <div className={`w-full ${size === 'sm' ? 'h-1' : size === 'md' ? 'h-2' : 'h-3'} bg-[#E4E4E7] dark:bg-gray-700 rounded-full overflow-hidden`}>
         <div
           className={`h-full rounded-full transition-all duration-500 ease-out transform ${color}`}
           style={{
