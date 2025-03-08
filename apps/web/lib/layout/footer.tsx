@@ -33,8 +33,8 @@ export function Footer({ className }: IClassName) {
 				<Text.Link href={APP_LINK}>{APP_NAME}</Text.Link> {t('layout.footer.BY')}{' '}
 				<Text.Link href={COMPANY_LINK!}>{COMPANY_NAME}</Text.Link> {t('layout.footer.RIGHTS_RESERVED')}
 			</p>
-			<div className="flex items-center" style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
-				<LanguageDropDownWithFlags />
+			<div className="flex gap-3 items-center" style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
+				<LanguageDropDownWithFlags btnClassName="bg-light--theme-dark dark:bg-[#1D222A]" />
 				<ThemeToggler />
 			</div>
 		</footer>
