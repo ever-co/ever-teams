@@ -2,11 +2,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import React from 'react'
 import { DateRangePickerTimeActivity, GroupBySelectTimeActivity, TimeActivityFilterPopover } from '.'
 import ViewSelect, { ViewOption } from './ViewSelect'
+import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 
 export interface TimeActivityHeaderProps {
   viewOptions?: ViewOption[];
   onViewOptionsChange?: (options: ViewOption[]) => void;
+  userManagedTeams?: IOrganizationTeamList[];
+  projects?: IProject[];
+  tasks?: ITeamTask[];
+  activeTeam?: IOrganizationTeamList | null;
 }
+
 
 const defaultViewOptions: ViewOption[] = [
   { id: 'member', label: 'Member', checked: true },
@@ -17,7 +23,7 @@ const defaultViewOptions: ViewOption[] = [
   { id: 'activityLevel', label: 'Activity Level', checked: true },
 ];
 
-function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsChange }: TimeActivityHeaderProps) {
+function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsChange, ...props }: TimeActivityHeaderProps) {
   const [internalViewOptions, setInternalViewOptions] = React.useState<ViewOption[]>(
     defaultViewOptions
   );
@@ -36,7 +42,7 @@ function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsCha
     <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>
-        <TimeActivityFilterPopover/>
+        <TimeActivityFilterPopover {...props}/>
         <ViewSelect
           viewOptions={currentViewOptions}
           onChange={handleViewOptionsChange}

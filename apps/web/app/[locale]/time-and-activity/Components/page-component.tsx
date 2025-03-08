@@ -66,6 +66,10 @@ const TimeActivityComponents = () => {
 							<TimeActivityHeader
 								viewOptions={viewOptions}
 								onViewOptionsChange={handleViewOptionsChange}
+								userManagedTeams={userManagedTeams}
+								projects={organizationProjects}
+								tasks={tasks}
+								activeTeam={activeTeam}
 							/>
 							<div className="grid grid-cols-3 gap-[30px] w-full">
 								<CardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
