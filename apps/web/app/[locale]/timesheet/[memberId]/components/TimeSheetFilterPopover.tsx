@@ -10,10 +10,14 @@ import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { cn } from '@/lib/utils';
 import { statusTable } from './TimesheetAction';
 
+/** Represents a generic filter item with required id and label properties */
 interface FilterItem {
 	id: string;
+	label?: string;
 	[key: string]: any;
 }
+
+/** Component for filtering timesheet entries by various criteria */
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
@@ -31,10 +35,12 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 			setShouldRemoveItems(false);
 		}
 	}, [shouldRemoveItems]);
+	// Calculate total number of items in the timesheet
 	const totalItems = React.useMemo(() => 
 		statusTimesheet ? Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0) : 0
 	, [statusTimesheet]);
 
+	// Calculate total number of active filters
 	const totalFilteredItems = React.useMemo(() => 
 		[employee, project, task, statusState].reduce((total, items) => total + (items?.length || 0), 0)
 	, [employee, project, task, statusState]);
