@@ -33,6 +33,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 		setSelectedMembers([]);
 		setSelectedProjects([]);
 		setSelectedTasks([]);
+		setTimeout(() => setShouldRemoveItems(false), 100);
 	}, []);
 
 	const totalFilteredItems = React.useMemo(() => {
