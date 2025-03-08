@@ -42,27 +42,47 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
-	const getFilteredResults = React.useCallback((data: typeof timesheet) => {
-		if (!data) return [];
-		return data.filter((item) => {
-			const taskData = item.tasks[0];
-			if (!taskData) return false;
+	interface TaskData {
+		tasks: Array<{
+			employee: { id: string };
+			projectId: string;
+			taskId: string;
+			timesheet: { status: string };
+		}>;
+	}
 
-			const matchesEmployee = !employee?.length || 
-				employee.some(emp => emp.employeeId === taskData.employee.id);
+	const getFilteredResults = React.useCallback(
+		(data: TaskData[] | null | undefined): TaskData[] => {
+			if (!Array.isArray(data)) return [];
 
-			const matchesProject = !project?.length || 
-				project.some(proj => proj.id === taskData.projectId);
+			return data.filter((item) => {
+				try {
+					const taskData = item.tasks[0];
+					if (!taskData?.employee?.id || !taskData.projectId || !taskData.taskId || !taskData.timesheet?.status) {
+						return false;
+					}
 
-			const matchesTask = !task?.length || 
-				task.some(t => t.id === taskData.taskId);
+					const matchesEmployee = !employee?.length || 
+						employee.some(emp => emp.employeeId === taskData.employee.id);
 
-			const matchesStatus = !statusState?.length || 
-				statusState.some(status => status.label === taskData.timesheet.status);
+					const matchesProject = !project?.length || 
+						project.some(proj => proj.id === taskData.projectId);
 
-			return matchesEmployee && matchesProject && matchesTask && matchesStatus;
-		});
-	}, [employee, project, task, statusState]);
+					const matchesTask = !task?.length || 
+						task.some(t => t.id === taskData.taskId);
+
+					const matchesStatus = !statusState?.length || 
+						statusState.some(status => status.label === taskData.timesheet.status);
+
+					return matchesEmployee && matchesProject && matchesTask && matchesStatus;
+				} catch (error) {
+					console.error('Error filtering timesheet item:', error);
+					return false;
+				}
+			});
+		},
+		[employee, project, task, statusState]
+	);
 
 	React.useEffect(() => {
 		if (timesheet && statusTimesheet) {
