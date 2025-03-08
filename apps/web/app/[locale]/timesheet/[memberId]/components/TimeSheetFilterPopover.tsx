@@ -10,15 +10,6 @@ import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { cn } from '@/lib/utils';
 import { statusTable } from './TimesheetAction';
 
-/** Represents a generic filter item with required id and label properties */
-interface FilterItem {
-	id: string;
-	label?: string;
-	[key: string]: any;
-}
-
-/** Component for filtering timesheet entries by various criteria */
-
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const { activeTeam } = useOrganizationTeams();
@@ -35,37 +26,50 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 			setShouldRemoveItems(false);
 		}
 	}, [shouldRemoveItems]);
-	// Calculate total number of items in the timesheet
-	const totalItems = React.useMemo(() => 
-		statusTimesheet ? Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0) : 0
-	, [statusTimesheet]);
+	const totalItems = React.useMemo(() => {
+		if (!statusTimesheet) return 0;
+		return Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0);
+	}, [statusTimesheet]);
 
-	// Calculate total number of active filters
-	const totalFilteredItems = React.useMemo(() => 
-		[employee, project, task, statusState].reduce((total, items) => total + (items?.length || 0), 0)
-	, [employee, project, task, statusState]);
+	const totalFilteredItems = React.useMemo(() => {
+		let total = 0;
+		if (employee?.length) total += employee.length;
+		if (project?.length) total += project.length;
+		if (task?.length) total += task.length;
+		if (statusState?.length) total += statusState.length;
+		return total;
+	}, [employee, project, task, statusState]);
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
-	const filteredResults = React.useMemo(() => {
-		if (!timesheet || !statusTimesheet) return [];
-
-		return timesheet.filter((item) => {
+	const getFilteredResults = React.useCallback((data: typeof timesheet) => {
+		if (!data) return [];
+		return data.filter((item) => {
 			const taskData = item.tasks[0];
 			if (!taskData) return false;
 
-			const matchesEmployee = !employee?.length || employee.some(emp => emp.employeeId === taskData.employee.id);
-			const matchesProject = !project?.length || project.some(proj => proj.id === taskData.projectId);
-			const matchesTask = !task?.length || task.some(t => t.id === taskData.taskId);
-			const matchesStatus = !statusState?.length || statusState.some(status => status.label === taskData.timesheet.status);
+			const matchesEmployee = !employee?.length || 
+				employee.some(emp => emp.employeeId === taskData.employee.id);
+
+			const matchesProject = !project?.length || 
+				project.some(proj => proj.id === taskData.projectId);
+
+			const matchesTask = !task?.length || 
+				task.some(t => t.id === taskData.taskId);
+
+			const matchesStatus = !statusState?.length || 
+				statusState.some(status => status.label === taskData.timesheet.status);
 
 			return matchesEmployee && matchesProject && matchesTask && matchesStatus;
 		});
-	}, [timesheet, employee, project, task, statusState, statusTimesheet]);
+	}, [employee, project, task, statusState]);
 
 	React.useEffect(() => {
-		setFilteredCount(filteredResults.length);
-	}, [filteredResults]);
+		if (timesheet && statusTimesheet) {
+			const filteredResults = getFilteredResults(timesheet);
+			setFilteredCount(filteredResults.length);
+		}
+	}, [timesheet, statusTimesheet, getFilteredResults]);
 
 	return (
 		<>
@@ -112,10 +116,10 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 										localStorageKey="timesheet-select-filter-employee"
 										removeItems={shouldRemoveItems}
 										items={activeTeam?.members ?? []}
-										itemToString={(member) => member?.employee?.fullName ?? ''}
-										itemId={(item) => item?.id ?? ''}
-										onValueChange={setEmployeeState}
-										multiSelect
+										itemToString={(members) => (members ? members.employee.fullName : '')}
+										itemId={(item) => item.id}
+										onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
+										multiSelect={true}
 										triggerClassName="dark:border-gray-700"
 									/>
 								</div>
@@ -136,10 +140,12 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									localStorageKey="timesheet-select-filter-projects"
 									removeItems={shouldRemoveItems}
 									items={organizationProjects ?? []}
-									itemToString={(project) => project?.name ?? ''}
-									itemId={(item) => item?.id ?? ''}
-									onValueChange={setProjectState}
-									multiSelect
+									itemToString={(project) =>
+										(organizationProjects && project ? project.name : '') || ''
+									}
+									itemId={(item) => item.id}
+									onValueChange={(selectedItems) => setProjectState(selectedItems as any)}
+									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
@@ -159,10 +165,10 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									localStorageKey="timesheet-select-filter-task"
 									removeItems={shouldRemoveItems}
 									items={tasks}
-									itemToString={(task) => task?.title ?? ''}
-									itemId={(task) => task?.id ?? ''}
-									onValueChange={setTaskState}
-									multiSelect
+									onValueChange={(selectedItems) => setTaskState(selectedItems as any)}
+									itemId={(task) => (task ? task.id : '')}
+									itemToString={(task) => (task ? task.title : '')}
+									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
@@ -181,11 +187,11 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-status"
 									removeItems={shouldRemoveItems}
-									items={statusTable?.flat() ?? []}
-									itemToString={(status) => status?.label ?? ''}
-									itemId={(item) => item?.label ?? ''}
-									onValueChange={setStatusState}
-									multiSelect
+									items={statusTable?.flat()}
+									itemToString={(status) => (status ? status.label : '')}
+									itemId={(item) => item.label}
+									onValueChange={(selectedItems) => setStatusState(selectedItems as any)}
+									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
