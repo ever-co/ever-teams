@@ -42,32 +42,70 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
+
+
+	interface TaskData {
+		tasks: Array<{
+			employee: { id: string };
+			projectId: string;
+			taskId: string;
+			timesheet: { status: string };
+		}>;
+	}
+
+	// Memoize filter criteria maps for O(1) lookup
+	const employeeMap = React.useMemo(
+		() => new Set(employee?.map(emp => emp.employeeId)),
+		[employee]
+	);
+
+	const projectMap = React.useMemo(
+		() => new Set(project?.map(proj => proj.id)),
+		[project]
+	);
+
+	const taskMap = React.useMemo(
+		() => new Set(task?.map(t => t.id)),
+		[task]
+	);
+
+	const statusMap = React.useMemo(
+		() => new Set(statusState?.map(status => status.label)),
+		[statusState]
+	);
+
+	const getFilteredResults = React.useCallback(
+		(data: TaskData[] | null | undefined): TaskData[] => {
+			if (!Array.isArray(data)) return [];
+
+			return data.filter((item) => {
+				try {
+					const taskData = item.tasks[0];
+					if (!taskData?.employee?.id || !taskData.projectId || !taskData.taskId || !taskData.timesheet?.status) {
+						return false;
+					}
+
+					const matchesEmployee = !employeeMap.size || employeeMap.has(taskData.employee.id);
+					const matchesProject = !projectMap.size || projectMap.has(taskData.projectId);
+					const matchesTask = !taskMap.size || taskMap.has(taskData.taskId);
+					const matchesStatus = !statusMap.size || statusMap.has(taskData.timesheet.status);
+
+					return matchesEmployee && matchesProject && matchesTask && matchesStatus;
+				} catch (error) {
+					console.error('Error filtering timesheet item:', error);
+					return false;
+				}
+			});
+		},
+		[employeeMap, projectMap, taskMap, statusMap]
+	);
+
 	React.useEffect(() => {
 		if (timesheet && statusTimesheet) {
-			let filteredResults = timesheet;
-			if (employee?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					employee.some((emp) => emp.employeeId === item.tasks[0]?.employee.id)
-				);
-			}
-			if (project?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					project.some((proj) => proj.id === item.tasks[0]?.projectId)
-				);
-			}
-			if (task?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					task.some((t) => t.id === item.tasks[0]?.taskId)
-				);
-			}
-			if (statusState?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					statusState.some((status) => status.label === item.tasks[0]?.timesheet.status)
-				);
-			}
+			const filteredResults = getFilteredResults(timesheet);
 			setFilteredCount(filteredResults.length);
 		}
-	}, [timesheet, employee, project, task, statusState, statusTimesheet]);
+	}, [timesheet, statusTimesheet, getFilteredResults]);
 
 	return (
 		<>
