@@ -209,7 +209,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button 
+								<Button
 									onClick={() => {
 										saveFilterState({
 											teams: selectedTeams,
