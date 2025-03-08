@@ -42,32 +42,25 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
-	React.useEffect(() => {
-		if (timesheet && statusTimesheet) {
-			let filteredResults = timesheet;
-			if (employee?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					employee.some((emp) => emp.employeeId === item.tasks[0]?.employee.id)
-				);
-			}
-			if (project?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					project.some((proj) => proj.id === item.tasks[0]?.projectId)
-				);
-			}
-			if (task?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					task.some((t) => t.id === item.tasks[0]?.taskId)
-				);
-			}
-			if (statusState?.length > 0) {
-				filteredResults = filteredResults.filter((item) =>
-					statusState.some((status) => status.label === item.tasks[0]?.timesheet.status)
-				);
-			}
-			setFilteredCount(filteredResults.length);
-		}
+	const filteredResults = React.useMemo(() => {
+		if (!timesheet || !statusTimesheet) return [];
+
+		return timesheet.filter((item) => {
+			const taskData = item.tasks[0];
+			if (!taskData) return false;
+
+			const matchesEmployee = !employee?.length || employee.some(emp => emp.employeeId === taskData.employee.id);
+			const matchesProject = !project?.length || project.some(proj => proj.id === taskData.projectId);
+			const matchesTask = !task?.length || task.some(t => t.id === taskData.taskId);
+			const matchesStatus = !statusState?.length || statusState.some(status => status.label === taskData.timesheet.status);
+
+			return matchesEmployee && matchesProject && matchesTask && matchesStatus;
+		});
 	}, [timesheet, employee, project, task, statusState, statusTimesheet]);
+
+	React.useEffect(() => {
+		setFilteredCount(filteredResults.length);
+	}, [filteredResults]);
 
 	return (
 		<>
