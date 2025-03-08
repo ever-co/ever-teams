@@ -7,29 +7,24 @@ import {
 import { Button } from '@components/ui/button';
 import { Check } from 'lucide-react';
 
-interface ViewOption {
+export interface ViewOption {
   id: string;
   label: string;
   checked: boolean;
 }
 
-export default function ViewSelect() {
-  const [viewOptions, setViewOptions] = React.useState<ViewOption[]>([
-    { id: 'member', label: 'Member', checked: true },
-    { id: 'project', label: 'Project', checked: true },
-    { id: 'task', label: 'Task', checked: true },
-    { id: 'trackedHours', label: 'Tracked Hours', checked: true },
-    { id: 'earnings', label: 'Earnings', checked: true },
-    { id: 'activityLevel', label: 'Activity Level', checked: true },
-  ]);
+interface ViewSelectProps {
+  viewOptions: ViewOption[];
+  onChange: (options: ViewOption[]) => void;
+}
 
-  const handleCheckChange = (id: string) => {
-    setViewOptions(prev =>
-      prev.map(option =>
-        option.id === id ? { ...option, checked: !option.checked } : option
-      )
+export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
+  const handleCheckChange = React.useCallback((id: string) => {
+    const newOptions = viewOptions.map(option =>
+      option.id === id ? { ...option, checked: !option.checked } : option
     );
-  };
+    onChange(newOptions);
+  }, [viewOptions, onChange]);
 
   return (
     <DropdownMenu>
@@ -59,13 +54,22 @@ export default function ViewSelect() {
         {viewOptions.map((option) => (
           <div
             key={option.id}
-            className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            role="menuitem"
+            tabIndex={0}
+            className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+            data-state={option.checked ? 'checked' : 'unchecked'}
             onClick={() => handleCheckChange(option.id)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCheckChange(option.id)}
           >
-            <div className="flex items-center justify-center w-4 h-4">
-              {option.checked && <Check className="w-4 h-4" />}
+            <div className="flex items-center justify-center w-4 h-4 text-primary transition-colors">
+              <Check className={`w-4 h-4 transition-opacity ${option.checked ? 'opacity-100' : 'opacity-0'}`} />
             </div>
-            <span className="text-sm">{option.label}</span>
+            <span
+              className="text-sm transition-colors data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400"
+              data-state={option.checked ? 'checked' : 'unchecked'}
+            >
+              {option.label}
+            </span>
           </div>
         ))}
       </DropdownMenuContent>

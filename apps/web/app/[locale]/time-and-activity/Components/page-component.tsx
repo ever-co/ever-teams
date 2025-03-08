@@ -9,8 +9,8 @@ import { useParams } from 'next/navigation';
 import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import { useMemo } from 'react';
-import TimeActivityHeader from './time-activity-header';
+import React, { useMemo } from 'react';
+import TimeActivityHeader, { ViewOption, defaultViewOptions } from './time-activity-header';
 import CardTimeAndActivity from './card-time-and-activity';
 import { Card } from '@components/ui/card';
 import ActivityTable from './ActivityTable';
@@ -18,7 +18,28 @@ import { exampleData } from './example-usage';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 
+const STORAGE_KEY = 'ever-teams-activity-view-options';
+
 const TimeActivityComponents = () => {
+	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(() => {
+		if (typeof window === 'undefined') return defaultViewOptions;
+
+		const savedOptions = localStorage.getItem(STORAGE_KEY);
+		if (!savedOptions) return defaultViewOptions;
+
+		try {
+			const parsedOptions = JSON.parse(savedOptions);
+			if (!Array.isArray(parsedOptions)) return defaultViewOptions;
+			return parsedOptions;
+		} catch {
+			return defaultViewOptions;
+		}
+	});
+
+	const handleViewOptionsChange = React.useCallback((newOptions: ViewOption[]) => {
+		setViewOptions(newOptions);
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(newOptions));
+	}, []);
 	const t = useTranslations();
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
@@ -59,6 +80,8 @@ const TimeActivityComponents = () => {
 						</div>
 						<div className="flex flex-col gap-6 w-full">
 							<TimeActivityHeader
+								viewOptions={viewOptions}
+								onViewOptionsChange={handleViewOptionsChange}
 								userManagedTeams={userManagedTeams}
 								projects={organizationProjects}
 								tasks={tasks}
@@ -83,7 +106,10 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					<ActivityTable period={exampleData} />
+					<ActivityTable
+						period={exampleData}
+						viewOptions={viewOptions}
+					/>
 				</Card>
 			</Container>
 		</MainLayout>

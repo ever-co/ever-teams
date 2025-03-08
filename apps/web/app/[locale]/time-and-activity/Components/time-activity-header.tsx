@@ -1,22 +1,52 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select'
 import React from 'react'
 import { DateRangePickerTimeActivity, GroupBySelectTimeActivity, TimeActivityFilterPopover } from '.'
-import ViewSelect from './ViewSelect'
+import ViewSelect, { ViewOption } from './ViewSelect'
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
-interface TimeActivityHeaderProps {
-    userManagedTeams?: IOrganizationTeamList[];
-    projects?: IProject[];
-    tasks?:ITeamTask[]
-    activeTeam?:IOrganizationTeamList|null
+
+export interface TimeActivityHeaderProps {
+  viewOptions?: ViewOption[];
+  onViewOptionsChange?: (options: ViewOption[]) => void;
+  userManagedTeams?: IOrganizationTeamList[];
+  projects?: IProject[];
+  tasks?: ITeamTask[];
+  activeTeam?: IOrganizationTeamList | null;
 }
-function TimeActivityHeader({ ...props }: TimeActivityHeaderProps) {
+
+
+const defaultViewOptions: ViewOption[] = [
+  { id: 'member', label: 'Member', checked: true },
+  { id: 'project', label: 'Project', checked: true },
+  { id: 'task', label: 'Task', checked: true },
+  { id: 'trackedHours', label: 'Tracked Hours', checked: true },
+  { id: 'earnings', label: 'Earnings', checked: true },
+  { id: 'activityLevel', label: 'Activity Level', checked: true },
+];
+
+function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsChange, ...props }: TimeActivityHeaderProps) {
+  const [internalViewOptions, setInternalViewOptions] = React.useState<ViewOption[]>(
+    defaultViewOptions
+  );
+
+  const handleViewOptionsChange = React.useCallback((newOptions: ViewOption[]) => {
+    if (onViewOptionsChange) {
+      onViewOptionsChange(newOptions);
+    } else {
+      setInternalViewOptions(newOptions);
+    }
+  }, [onViewOptionsChange]);
+
+  const currentViewOptions = externalViewOptions || internalViewOptions;
   return (
     <div className="flex justify-between items-center w-full">
     <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>
         <TimeActivityFilterPopover {...props}/>
-        <ViewSelect/>
+        <ViewSelect
+          viewOptions={currentViewOptions}
+          onChange={handleViewOptionsChange}
+        />
         <DateRangePickerTimeActivity/>
         <div className="flex gap-2 items-center">
             <Select defaultValue="export">
@@ -36,4 +66,6 @@ function TimeActivityHeader({ ...props }: TimeActivityHeaderProps) {
   )
 }
 
-export default TimeActivityHeader
+export type { ViewOption };
+export { defaultViewOptions };
+export default TimeActivityHeader;

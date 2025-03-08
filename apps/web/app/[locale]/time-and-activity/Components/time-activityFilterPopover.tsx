@@ -14,6 +14,40 @@ interface TimeActivityHeaderProps {
 	activeTeam?: IOrganizationTeamList | null;
 }
 
+const STORAGE_KEY = 'ever-teams-activity-filters';
+
+interface FilterState {
+	teams: any[];
+	members: any[];
+	projects: any[];
+	tasks: any[];
+}
+
+const loadFilterState = (): FilterState => {
+	if (typeof window === 'undefined') {
+		return { teams: [], members: [], projects: [], tasks: [] };
+	}
+
+	try {
+		const savedState = localStorage.getItem(STORAGE_KEY);
+		if (!savedState) return { teams: [], members: [], projects: [], tasks: [] };
+
+		const parsedState = JSON.parse(savedState);
+		return {
+			teams: Array.isArray(parsedState.teams) ? parsedState.teams : [],
+			members: Array.isArray(parsedState.members) ? parsedState.members : [],
+			projects: Array.isArray(parsedState.projects) ? parsedState.projects : [],
+			tasks: Array.isArray(parsedState.tasks) ? parsedState.tasks : []
+		};
+	} catch {
+		return { teams: [], members: [], projects: [], tasks: [] };
+	}
+};
+
+const saveFilterState = (state: FilterState) => {
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+};
+
 export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover({
 	userManagedTeams,
 	projects,
@@ -21,10 +55,12 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	activeTeam
 }: TimeActivityHeaderProps) {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	const [selectedTeams, setSelectedTeams] = React.useState([]);
-	const [selectedMembers, setSelectedMembers] = React.useState([]);
-	const [selectedProjects, setSelectedProjects] = React.useState([]);
-	const [selectedTasks, setSelectedTasks] = React.useState([]);
+	const initialState = React.useMemo(() => loadFilterState(), []);
+
+	const [selectedTeams, setSelectedTeams] = React.useState(initialState.teams);
+	const [selectedMembers, setSelectedMembers] = React.useState(initialState.members);
+	const [selectedProjects, setSelectedProjects] = React.useState(initialState.projects);
+	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
 	const t = useTranslations();
 
 	const clearAllFilters = React.useCallback(() => {
@@ -33,6 +69,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 		setSelectedMembers([]);
 		setSelectedProjects([]);
 		setSelectedTasks([]);
+		saveFilterState({ teams: [], members: [], projects: [], tasks: [] });
 		setTimeout(() => setShouldRemoveItems(false), 100);
 	}, []);
 
@@ -172,7 +209,17 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
+								<Button
+									onClick={() => {
+										saveFilterState({
+											teams: selectedTeams,
+											members: selectedMembers,
+											projects: selectedProjects,
+											tasks: selectedTasks
+										});
+									}}
+									className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90 transition-opacity"
+								>
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>
