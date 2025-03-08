@@ -8,19 +8,32 @@ import { cn } from '@/lib/utils';
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 
 interface TimeActivityHeaderProps {
-    userManagedTeams?: IOrganizationTeamList[];
-    projects?: IProject[];
-    tasks?:ITeamTask[]
-	activeTeam?:IOrganizationTeamList|null
+	userManagedTeams?: IOrganizationTeamList[];
+	projects?: IProject[];
+	tasks?: ITeamTask[];
+	activeTeam?: IOrganizationTeamList | null;
 }
 
-export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover({ userManagedTeams, projects, tasks, activeTeam }: TimeActivityHeaderProps) {
+export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover({
+	userManagedTeams,
+	projects,
+	tasks,
+	activeTeam
+}: TimeActivityHeaderProps) {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const [selectedTeams, setSelectedTeams] = React.useState([]);
 	const [selectedMembers, setSelectedMembers] = React.useState([]);
 	const [selectedProjects, setSelectedProjects] = React.useState([]);
 	const [selectedTasks, setSelectedTasks] = React.useState([]);
 	const t = useTranslations();
+
+	const clearAllFilters = React.useCallback(() => {
+		setShouldRemoveItems(true);
+		setSelectedTeams([]);
+		setSelectedMembers([]);
+		setSelectedProjects([]);
+		setSelectedTasks([]);
+	}, []);
 
 	const totalFilteredItems = React.useMemo(() => {
 		return selectedTeams.length + selectedMembers.length + selectedProjects.length + selectedTasks.length;
@@ -70,8 +83,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-teams"
 									removeItems={shouldRemoveItems}
 									items={userManagedTeams || []}
-									itemToString={(team) => (team.name)}
-									itemId={(item) =>item.id}
+									itemToString={(team) => team.name}
+									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -94,8 +107,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-member"
 									removeItems={shouldRemoveItems}
 									items={activeTeam?.members || []}
-									itemToString={(member) => (member?.employee.fullName || '')}
-									itemId={(item) =>item?.id}
+									itemToString={(member) => member?.employee.fullName || ''}
+									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -118,8 +131,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-projects"
 									removeItems={shouldRemoveItems}
 									items={projects || []}
-									itemToString={(project) => (project?.name || '')}
-									itemId={(item) =>item?.id}
+									itemToString={(project) => project?.name || ''}
+									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -133,7 +146,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 										className={cn(
 											'text-primary/10',
 											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
-										)}>
+										)}
+									>
 										{t('common.CLEAR')}
 									</button>
 								</label>
@@ -141,8 +155,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									localStorageKey="time-activity-select-filter-task"
 									removeItems={shouldRemoveItems}
 									items={tasks || []}
-									itemToString={(task) => (task?.title || '')}
-									itemId={(item) =>item?.id}
+									itemToString={(task) => task?.title || ''}
+									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -150,15 +164,10 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
-									onClick={() => {
-							setShouldRemoveItems(true);
-							setSelectedTeams([]);
-							setSelectedMembers([]);
-							setSelectedProjects([]);
-							setSelectedTasks([]);
-						}}
+									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
+									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
