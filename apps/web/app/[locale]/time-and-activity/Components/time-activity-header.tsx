@@ -18,9 +18,9 @@ function TimeActivityHeader() {
                     <SelectValue placeholder="Export" />
                 </SelectTrigger>
                 <SelectContent className="dark:bg-dark--theme-light">
-                    <SelectItem value="export">Export</SelectItem>
-                    <SelectItem value="pdf">PDF</SelectItem>
-                    <SelectItem value="xlsx">XLSX</SelectItem>
+                    <SelectItem className=' data-[state=checked]:text-blue-600' value="export">Export</SelectItem>
+                    <SelectItem className=' data-[state=checked]:text-blue-600' value="pdf">PDF</SelectItem>
+                    <SelectItem className=' data-[state=checked]:text-blue-600' value="xlsx">XLSX</SelectItem>
                 </SelectContent>
             </Select>
         </div>

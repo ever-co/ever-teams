@@ -57,8 +57,8 @@ export default function ViewSelect() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-2 w-56">
         {viewOptions.map((option) => (
-          <div 
-            key={option.id} 
+          <div
+            key={option.id}
             className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
             onClick={() => handleCheckChange(option.id)}
           >
