@@ -42,6 +42,11 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
+	type Employee = { employeeId: string };
+	type Project = { id: string };
+	type Task = { id: string };
+	type Status = { label: string };
+
 	interface TaskData {
 		tasks: Array<{
 			employee: { id: string };
@@ -50,6 +55,27 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 			timesheet: { status: string };
 		}>;
 	}
+
+	// Memoize filter criteria maps for O(1) lookup
+	const employeeMap = React.useMemo(
+		() => new Set(employee?.map(emp => emp.employeeId)),
+		[employee]
+	);
+
+	const projectMap = React.useMemo(
+		() => new Set(project?.map(proj => proj.id)),
+		[project]
+	);
+
+	const taskMap = React.useMemo(
+		() => new Set(task?.map(t => t.id)),
+		[task]
+	);
+
+	const statusMap = React.useMemo(
+		() => new Set(statusState?.map(status => status.label)),
+		[statusState]
+	);
 
 	const getFilteredResults = React.useCallback(
 		(data: TaskData[] | null | undefined): TaskData[] => {
@@ -62,17 +88,11 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 						return false;
 					}
 
-					const matchesEmployee = !employee?.length || 
-						employee.some(emp => emp.employeeId === taskData.employee.id);
-
-					const matchesProject = !project?.length || 
-						project.some(proj => proj.id === taskData.projectId);
-
-					const matchesTask = !task?.length || 
-						task.some(t => t.id === taskData.taskId);
-
-					const matchesStatus = !statusState?.length || 
-						statusState.some(status => status.label === taskData.timesheet.status);
+					// Use Set.has() for O(1) lookups instead of Array.some()
+					const matchesEmployee = !employeeMap.size || employeeMap.has(taskData.employee.id);
+					const matchesProject = !projectMap.size || projectMap.has(taskData.projectId);
+					const matchesTask = !taskMap.size || taskMap.has(taskData.taskId);
+					const matchesStatus = !statusMap.size || statusMap.has(taskData.timesheet.status);
 
 					return matchesEmployee && matchesProject && matchesTask && matchesStatus;
 				} catch (error) {
@@ -81,7 +101,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 				}
 			});
 		},
-		[employee, project, task, statusState]
+		[employeeMap, projectMap, taskMap, statusMap]
 	);
 
 	React.useEffect(() => {
