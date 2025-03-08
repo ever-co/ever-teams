@@ -104,22 +104,22 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
               role="row"
             >
               {columnVisibility.member && (
-                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500">Member</TableHead>
+                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">Member</TableHead>
               )}
               {columnVisibility.project && (
-                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500">Project</TableHead>
+                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">Project</TableHead>
               )}
               {columnVisibility.task && (
-                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500">Task</TableHead>
+                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">Task</TableHead>
               )}
               {columnVisibility.trackedHours && (
-                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500">Tracked Hours</TableHead>
+                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">Tracked Hours</TableHead>
               )}
               {columnVisibility.earnings && (
-                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500">Earnings</TableHead>
+                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">Earnings</TableHead>
               )}
               {columnVisibility.activityLevel && (
-                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500">Activity Level</TableHead>
+                <TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">Activity Level</TableHead>
               )}
             </TableRow>
           </TableHeader>
