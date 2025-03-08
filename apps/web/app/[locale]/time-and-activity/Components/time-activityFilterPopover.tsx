@@ -56,14 +56,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('common.TEAM')}</span>
-									<span
+									<button
+										onClick={() => setSelectedTeams([])}
 										className={cn(
 											'text-primary/10',
-											'text-primary dark:text-primary-light'
+											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
 										)}
 									>
 										{t('common.CLEAR')}
-									</span>
+									</button>
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-teams"
@@ -79,14 +80,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('common.MEMBER')}</span>
-									<span
+									<button
+										onClick={() => setSelectedMembers([])}
 										className={cn(
 											'text-primary/10',
-											'text-primary dark:text-primary-light'
+											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
 										)}
 									>
 										{t('common.CLEAR')}
-									</span>
+									</button>
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-member"
@@ -102,14 +104,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
-									<span
+									<button
+										onClick={() => setSelectedProjects([])}
 										className={cn(
 											'text-primary/10',
-											'text-primary dark:text-primary-light'
+											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
 										)}
 									>
 										{t('common.CLEAR')}
-									</span>
+									</button>
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-projects"
@@ -125,13 +128,14 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
 									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
-									<span
+									<button
+										onClick={() => setSelectedTasks([])}
 										className={cn(
 											'text-primary/10',
-											'text-primary dark:text-primary-light'
+											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
 										)}>
 										{t('common.CLEAR')}
-									</span>
+									</button>
 								</label>
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-task"
@@ -139,7 +143,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={tasks || []}
 									itemToString={(task) => (task?.title || '')}
 									itemId={(item) =>item?.id}
-									onValueChange={setSelectedTasks}
+									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
