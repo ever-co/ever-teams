@@ -64,8 +64,8 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
             <div className="flex items-center justify-center w-4 h-4 text-primary transition-colors">
               <Check className={`w-4 h-4 transition-opacity ${option.checked ? 'opacity-100' : 'opacity-0'}`} />
             </div>
-            <span 
-              className="text-sm transition-colors data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400" 
+            <span
+              className="text-sm transition-colors data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400"
               data-state={option.checked ? 'checked' : 'unchecked'}
             >
               {option.label}
