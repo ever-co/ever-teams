@@ -19,6 +19,7 @@ const GlobalHeader = forwardRef(
 	) => {
 		const { state } = useSidebar();
 		const [headerSize, setHeaderSize] = useState(10);
+
 		return (
 			<div
 				ref={ref as LegacyRef<HTMLDivElement>}
@@ -49,6 +50,8 @@ const GlobalHeader = forwardRef(
 				</header>
 				{mainHeaderSlot ? (
 					<ResizablePanel
+						key="main-header-slot"
+						id="main-header-slot"
 						defaultSize={30}
 						className={cn(
 							headerSize < 20 ? '!overflow-hidden h-fit' : '!overflow-visible',
