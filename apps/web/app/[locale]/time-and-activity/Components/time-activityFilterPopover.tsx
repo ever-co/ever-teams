@@ -39,7 +39,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							<span
 								role="status"
 								aria-label={`${totalFilteredItems} items filtered`}
-								className="rounded-full bg-primary dark:bg-primary-light h-7 w-7 flex items-center justify-center text-white text-center text-[12px]"
+								className="ml-1 rounded-full bg-primary dark:bg-primary-light min-h-[1.75rem] min-w-[1.75rem] flex items-center justify-center text-white text-center text-[12px] font-medium shadow-sm transition-all"
 							>
 								{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
 							</span>
