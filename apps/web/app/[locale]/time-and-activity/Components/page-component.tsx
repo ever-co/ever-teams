@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/app/stores/fullWidth';
 import { useParams } from 'next/navigation';
-import { useOrganizationTeams } from '@app/hooks';
 import { Breadcrumb, Container } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
@@ -16,6 +15,8 @@ import CardTimeAndActivity from './card-time-and-activity';
 import { Card } from '@components/ui/card';
 import ActivityTable from './ActivityTable';
 import { exampleData } from './example-usage';
+import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
+import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 
 const TimeActivityComponents = () => {
 	const t = useTranslations();
@@ -24,6 +25,10 @@ const TimeActivityComponents = () => {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { isTrackingEnabled } = useOrganizationTeams();
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
+	const { activeTeam } = useOrganizationTeams();
+	const { organizationProjects } = useOrganizationProjects();
+	const { tasks } = useTeamTasks();
 
 	const breadcrumbPath = useMemo(
 		() => [
@@ -53,13 +58,14 @@ const TimeActivityComponents = () => {
 							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 						</div>
 						<div className="flex flex-col gap-6 w-full">
-							<TimeActivityHeader />
+							<TimeActivityHeader
+								userManagedTeams={userManagedTeams}
+								projects={organizationProjects}
+								tasks={tasks}
+								activeTeam={activeTeam}
+							/>
 							<div className="grid grid-cols-3 gap-[30px] w-full">
-								<CardTimeAndActivity
-									title="Total Hours"
-									value="1,020h"
-									showProgress={false}
-								/>
+								<CardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
 								<CardTimeAndActivity
 									title="Average Activity"
 									value="74%"
@@ -68,11 +74,7 @@ const TimeActivityComponents = () => {
 									progressColor="bg-[#0088CC]"
 									isLoading={false}
 								/>
-								<CardTimeAndActivity
-									title="Total Earnings"
-									value="1,200.00 USD"
-									showProgress={false}
-								/>
+								<CardTimeAndActivity title="Total Earnings" value="1,200.00 USD" showProgress={false} />
 							</div>
 						</div>
 					</Container>

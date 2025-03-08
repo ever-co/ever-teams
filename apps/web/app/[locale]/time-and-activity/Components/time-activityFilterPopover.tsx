@@ -5,9 +5,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover'
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
 
+interface TimeActivityHeaderProps {
+    userManagedTeams?: IOrganizationTeamList[];
+    projects?: IProject[];
+    tasks?:ITeamTask[]
+	activeTeam?:IOrganizationTeamList|null
+}
 
-export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover() {
+export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover({ userManagedTeams, projects, tasks, activeTeam }: TimeActivityHeaderProps) {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const t = useTranslations();
 	return (
@@ -44,9 +51,9 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-teams"
 									removeItems={shouldRemoveItems}
-									items={[]}
-									itemToString={(project) => (project)}
-									itemId={(item) =>item}
+									items={userManagedTeams || []}
+									itemToString={(team) => (team.name)}
+									itemId={(item) =>item.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -67,9 +74,9 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-member"
 									removeItems={shouldRemoveItems}
-									items={[]}
-									itemToString={(project) => (project)}
-									itemId={(item) =>item}
+									items={activeTeam?.members || []}
+									itemToString={(member) => (member?.employee.fullName || '')}
+									itemId={(item) =>item?.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -90,9 +97,9 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-projects"
 									removeItems={shouldRemoveItems}
-									items={[]}
-									itemToString={(project) => (project)}
-									itemId={(item) =>item}
+									items={projects || []}
+									itemToString={(project) => (project?.name || '')}
+									itemId={(item) =>item?.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
@@ -112,9 +119,9 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<MultiSelect
 									localStorageKey="time-activity-select-filter-task"
 									removeItems={shouldRemoveItems}
-									items={[]}
-									itemToString={(project) => (project)}
-									itemId={(item) =>item}
+									items={tasks || []}
+									itemToString={(task) => (task?.title || '')}
+									itemId={(item) =>item?.id}
 									onValueChange={(selectedItems) => selectedItems}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"

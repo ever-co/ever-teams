@@ -2,14 +2,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import React from 'react'
 import { DateRangePickerTimeActivity, GroupBySelectTimeActivity, TimeActivityFilterPopover } from '.'
 import ViewSelect from './ViewSelect'
-
-function TimeActivityHeader() {
+import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
+interface TimeActivityHeaderProps {
+    userManagedTeams?: IOrganizationTeamList[];
+    projects?: IProject[];
+    tasks?:ITeamTask[]
+    activeTeam?:IOrganizationTeamList|null
+}
+function TimeActivityHeader({ ...props }: TimeActivityHeaderProps) {
   return (
     <div className="flex justify-between items-center w-full">
     <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>
-        <TimeActivityFilterPopover/>
+        <TimeActivityFilterPopover {...props}/>
         <ViewSelect/>
         <DateRangePickerTimeActivity/>
         <div className="flex gap-2 items-center">
