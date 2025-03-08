@@ -10,6 +10,11 @@ import { useTimesheet } from '@/app/hooks/features/useTimesheet';
 import { cn } from '@/lib/utils';
 import { statusTable } from './TimesheetAction';
 
+interface FilterItem {
+	id: string;
+	[key: string]: any;
+}
+
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 	const { activeTeam } = useOrganizationTeams();
@@ -26,19 +31,13 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 			setShouldRemoveItems(false);
 		}
 	}, [shouldRemoveItems]);
-	const totalItems = React.useMemo(() => {
-		if (!statusTimesheet) return 0;
-		return Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0);
-	}, [statusTimesheet]);
+	const totalItems = React.useMemo(() => 
+		statusTimesheet ? Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0) : 0
+	, [statusTimesheet]);
 
-	const totalFilteredItems = React.useMemo(() => {
-		let total = 0;
-		if (employee?.length) total += employee.length;
-		if (project?.length) total += project.length;
-		if (task?.length) total += task.length;
-		if (statusState?.length) total += statusState.length;
-		return total;
-	}, [employee, project, task, statusState]);
+	const totalFilteredItems = React.useMemo(() => 
+		[employee, project, task, statusState].reduce((total, items) => total + (items?.length || 0), 0)
+	, [employee, project, task, statusState]);
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
