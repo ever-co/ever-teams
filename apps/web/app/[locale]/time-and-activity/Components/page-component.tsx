@@ -18,11 +18,27 @@ import { exampleData } from './example-usage';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 
+const STORAGE_KEY = 'ever-teams-activity-view-options';
+
 const TimeActivityComponents = () => {
-	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(defaultViewOptions);
+	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(() => {
+		if (typeof window === 'undefined') return defaultViewOptions;
+
+		const savedOptions = localStorage.getItem(STORAGE_KEY);
+		if (!savedOptions) return defaultViewOptions;
+
+		try {
+			const parsedOptions = JSON.parse(savedOptions);
+			if (!Array.isArray(parsedOptions)) return defaultViewOptions;
+			return parsedOptions;
+		} catch {
+			return defaultViewOptions;
+		}
+	});
 
 	const handleViewOptionsChange = React.useCallback((newOptions: ViewOption[]) => {
 		setViewOptions(newOptions);
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(newOptions));
 	}, []);
 	const t = useTranslations();
 	const router = useRouter();
