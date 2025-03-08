@@ -85,7 +85,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={userManagedTeams || []}
 									itemToString={(team) => team.name}
 									itemId={(item) => item.id}
-									onValueChange={(selectedItems) => selectedItems}
+									onValueChange={(selectedItems) => setSelectedTeams(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
@@ -109,7 +109,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={activeTeam?.members || []}
 									itemToString={(member) => member?.employee.fullName || ''}
 									itemId={(item) => item?.id}
-									onValueChange={(selectedItems) => selectedItems}
+									onValueChange={(selectedItems) => setSelectedMembers(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
@@ -133,7 +133,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={projects || []}
 									itemToString={(project) => project?.name || ''}
 									itemId={(item) => item?.id}
-									onValueChange={(selectedItems) => selectedItems}
+									onValueChange={(selectedItems) => setSelectedProjects(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
@@ -157,7 +157,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={tasks || []}
 									itemToString={(task) => task?.title || ''}
 									itemId={(item) => item?.id}
-									onValueChange={(selectedItems) => selectedItems}
+									onValueChange={(selectedItems) => setSelectedTasks(selectedItems as any)}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
