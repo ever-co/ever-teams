@@ -16,17 +16,34 @@ interface TimeActivityHeaderProps {
 
 export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover({ userManagedTeams, projects, tasks, activeTeam }: TimeActivityHeaderProps) {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
+	const [selectedTeams, setSelectedTeams] = React.useState([]);
+	const [selectedMembers, setSelectedMembers] = React.useState([]);
+	const [selectedProjects, setSelectedProjects] = React.useState([]);
+	const [selectedTasks, setSelectedTasks] = React.useState([]);
 	const t = useTranslations();
+
+	const totalFilteredItems = React.useMemo(() => {
+		return selectedTeams.length + selectedMembers.length + selectedProjects.length + selectedTasks.length;
+	}, [selectedTeams, selectedMembers, selectedProjects, selectedTasks]);
 	return (
 		<>
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
-						className="flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
+						className="flex items-center justify-center h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
 					>
 						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
 						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						{totalFilteredItems > 0 && (
+							<span
+								role="status"
+								aria-label={`${totalFilteredItems} items filtered`}
+								className="rounded-full bg-primary dark:bg-primary-light h-7 w-7 flex items-center justify-center text-white text-center text-[12px]"
+							>
+								{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
+							</span>
+						)}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-96">
@@ -122,14 +139,20 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									items={tasks || []}
 									itemToString={(task) => (task?.title || '')}
 									itemId={(item) =>item?.id}
-									onValueChange={(selectedItems) => selectedItems}
+									onValueChange={setSelectedTasks}
 									multiSelect={true}
 									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
 							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
-									onClick={() => setShouldRemoveItems(true)}
+									onClick={() => {
+							setShouldRemoveItems(true);
+							setSelectedTeams([]);
+							setSelectedMembers([]);
+							setSelectedProjects([]);
+							setSelectedTasks([]);
+						}}
 									variant={'outline'}
 									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
 								>
