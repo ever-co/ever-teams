@@ -42,10 +42,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 
 	const [filteredCount, setFilteredCount] = React.useState(0);
 
-	type Employee = { employeeId: string };
-	type Project = { id: string };
-	type Task = { id: string };
-	type Status = { label: string };
+
 
 	interface TaskData {
 		tasks: Array<{
@@ -88,7 +85,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 						return false;
 					}
 
-					// Use Set.has() for O(1) lookups instead of Array.some()
 					const matchesEmployee = !employeeMap.size || employeeMap.has(taskData.employee.id);
 					const matchesProject = !projectMap.size || projectMap.has(taskData.projectId);
 					const matchesTask = !taskMap.size || taskMap.has(taskData.taskId);
