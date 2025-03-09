@@ -26,6 +26,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 			setShouldRemoveItems(false);
 		}
 	}, [shouldRemoveItems]);
+
 	const totalItems = React.useMemo(() => {
 		if (!statusTimesheet) return 0;
 		return Object.values(statusTimesheet).reduce((sum, status) => sum + status.length, 0);
