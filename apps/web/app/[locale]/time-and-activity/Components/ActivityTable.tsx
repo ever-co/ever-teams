@@ -99,7 +99,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
         ) : (
         <Table>
           <TableHeader>
-            <TableRow 
+            <TableRow
               className="border-0 hover:bg-transparent"
               role="row"
             >
@@ -125,8 +125,8 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
           </TableHeader>
           <TableBody>
             {period.members.map((member) => (
-              <TableRow 
-              key={member.id} 
+              <TableRow
+              key={member.id}
               className="border-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
               role="row"
             >
