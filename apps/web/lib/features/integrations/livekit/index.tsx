@@ -7,7 +7,7 @@ import {
     formatChatMessageLinks,
     LocalUserChoices,
 } from '@livekit/components-react';
-import { RoomConnectOptions } from 'livekit-client';
+import { RoomConnectOptions, RoomError } from 'livekit-client';
 import '@livekit/components-styles';
 import { SettingsMenu } from './settings-livekit';
 
@@ -92,15 +92,16 @@ export default function LiveKitPage({
         <LiveKitRoom
             className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors duration-200"
             onConnected={() => setIsLoading(false)}
-            onError={(err) => {
+            onError={(err: RoomError) => {
                 console.error('LiveKit connection error:', err);
-                setError(
-                    err.message === 'Room is full' 
-                        ? 'The video conference room is full' 
-                        : err.message === 'Permission denied'
-                        ? 'Permission denied. Please allow camera/microphone access'
-                        : 'Failed to connect to video conference'
-                );
+                const errorMessages = {
+                    'Room is full': 'The video conference room is full',
+                    'Permission denied': 'Permission denied. Please allow camera/microphone access',
+                    'Connection failed': 'Failed to connect. Please check your internet connection',
+                    'Invalid token': 'Authentication failed. Please try again',
+                } as const;
+                
+                setError(errorMessages[err.message as keyof typeof errorMessages] ?? 'Failed to connect to video conference');
             }}
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
