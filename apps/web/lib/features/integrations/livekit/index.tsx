@@ -34,15 +34,13 @@ interface ActiveRoomProps {
  * Default connection options for LiveKit room
  * @constant defaultConnectOptions
  */
-const defaultConnectOptions: RoomConnectOptions = {
+/**
+ * Default connection options for LiveKit room
+ * Keeping only essential options that are confirmed to work with the current version
+ */
+const connectOptions = {
     autoSubscribe: true,
-    dynacast: true,
-    stopMicTrackOnMute: true, // Better resource management
-    publishDefaults: {
-        simulcast: true, // Enable simulcast for better quality scaling
-        dtx: true, // Discontinuous transmission for audio
-    },
-};
+} satisfies RoomConnectOptions;
 
 /**
  * LiveKitPage component for video conferencing
@@ -61,11 +59,8 @@ export default function LiveKitPage({
         throw new Error('LiveKitPage: token and liveKitUrl are required');
     }
 
-    // Memoize connection options to prevent unnecessary re-renders
-    const connectOptions = React.useMemo(
-        () => ({ ...defaultConnectOptions }),
-        []
-    );
+    // Connection options are static, no need for memoization
+    // since we're using a constant object with satisfies
 
     // Cast LiveKitRoom to ElementType to handle dynamic imports
     return (
