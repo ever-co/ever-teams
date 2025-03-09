@@ -1,5 +1,4 @@
 'use client';
-
 import React from 'react';
 import {
     LiveKitRoom,
@@ -7,54 +6,29 @@ import {
     formatChatMessageLinks,
     LocalUserChoices,
 } from '@livekit/components-react';
-import { RoomConnectOptions, Room, RoomOptions } from 'livekit-client';
-import '@livekit/components-styles';
+import { RoomConnectOptions } from 'livekit-client';
+import "@livekit/components-styles";
 import { SettingsMenu } from './settings-livekit';
 
-/**
- * Props for the LiveKitPage component
- * @interface ActiveRoomProps
- * @property {LocalUserChoices} userChoices - User's audio/video preferences
- * @property {string} [roomName] - Optional name of the room to join
- * @property {string} [region] - Optional geographic region for the room
- * @property {string} [token] - Authentication token for LiveKit
- * @property {string} [liveKitUrl] - URL of the LiveKit server
- * @property {() => void} [onLeave] - Callback when user leaves the room
- */
-interface ActiveRoomProps {
+type LiveKitPageProps = {
     userChoices: LocalUserChoices;
     roomName?: string;
     region?: string;
     token?: string;
     liveKitUrl?: string;
     onLeave?: () => void;
-}
+};
 
-/**
- * Default connection options for LiveKit room
- * @constant connectOptions
- * @description Keeping only essential options that are confirmed to work with the current version
- */
-const connectOptions = {
-    autoSubscribe: true,
-} satisfies RoomConnectOptions;
-
-/**
- * LiveKitPage component for video conferencing
- * @component
- * @param {ActiveRoomProps} props - Component props
- * @returns {JSX.Element} LiveKit video conference room
- */
 export default function LiveKitPage({
     userChoices,
     onLeave,
     token,
     liveKitUrl,
-    roomName = 'default-room', // Provide default room name
-}: ActiveRoomProps): JSX.Element {
-    const [isLoading, setIsLoading] = React.useState(true);
+}: LiveKitPageProps) {
+
     const [error, setError] = React.useState<string>();
-    // Validate required props
+    const [isLoading, setIsLoading] = React.useState(true);
+
     React.useEffect(() => {
         if (!token || !liveKitUrl) {
             setError('LiveKitPage: token and liveKitUrl are required');
@@ -63,13 +37,12 @@ export default function LiveKitPage({
         setError(undefined);
     }, [token, liveKitUrl]);
 
-    // Handle cleanup of media streams when component unmounts
+
     React.useEffect(() => {
         let mounted = true;
 
         return () => {
             mounted = false;
-            // Cleanup any active media streams
             navigator.mediaDevices?.getUserMedia({ audio: true, video: true })
                 .then(stream => {
                     if (!mounted) {
@@ -79,19 +52,26 @@ export default function LiveKitPage({
                 .catch(() => console.error('Failed to cleanup media streams')); // Ignore errors during cleanup
         };
     }, []);
+
+    const connectOptions = React.useMemo((): RoomConnectOptions => ({
+        autoSubscribe: true,
+    }), []);
+
+    const LiveKitRoomComponent = LiveKitRoom as React.ElementType;
+
     if (error) {
         return (
-            <div className="flex items-center justify-center h-[100dvh] text-red-500">
-                {error}
+            <div className="flex items-center justify-center h-[100dvh] text-red-500 dark:text-red-400 p-4 text-center">
+                <div className="bg-red-50 dark:bg-red-900/10 rounded-lg p-4 max-w-md">
+                    {error}
+                </div>
             </div>
         );
     }
-
     return (
-        <LiveKitRoom
-            className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors duration-200"
-            onConnected={() => setIsLoading(false)}
-            onError={(err: any) => {
+        <LiveKitRoomComponent
+            className='!bg-light--theme-dark dark:!bg-dark--theme-light'
+            onError={(err: Error) => {
                 console.error('LiveKit connection error:', err);
                 const errorMessages = {
                     'Room is full': 'The video conference room is full',
@@ -101,12 +81,12 @@ export default function LiveKitPage({
                 } as const;
                 setError(errorMessages[err.message as keyof typeof errorMessages] ?? 'Failed to connect to video conference');
             }}
+            onConnected={() => setIsLoading(false)}
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
             video={userChoices.videoEnabled}
             token={token}
             serverUrl={liveKitUrl}
-            name={roomName}
             connect={true}
             data-lk-theme="default"
             style={{
@@ -116,13 +96,16 @@ export default function LiveKitPage({
                 flexDirection: 'column',
                 position: 'relative',
                 overflow: 'hidden',
-                isolation: 'isolate', // Create stacking context
+                isolation: 'isolate',
             }}
             onDisconnected={onLeave}
         >
-            {isLoading ? (
+           {isLoading ? (
                 <div className="flex items-center justify-center h-full text-primary dark:text-primary-light">
-                    Loading video conference...
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent dark:border-primary-light dark:border-t-transparent"></div>
+                        <span>Loading video conference...</span>
+                    </div>
                 </div>
             ) : (
                 <VideoConference
@@ -130,6 +113,6 @@ export default function LiveKitPage({
                     SettingsComponent={SettingsMenu}
                 />
             )}
-        </LiveKitRoom>
+        </LiveKitRoomComponent>
     );
 }
