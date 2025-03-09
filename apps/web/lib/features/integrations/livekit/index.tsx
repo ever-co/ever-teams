@@ -52,10 +52,16 @@ export default function LiveKitPage({
     liveKitUrl,
     roomName = 'default-room', // Provide default room name
 }: ActiveRoomProps): JSX.Element {
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [error, setError] = React.useState<string>();
     // Validate required props
-    if (!token || !liveKitUrl) {
-        throw new Error('LiveKitPage: token and liveKitUrl are required');
-    }
+    React.useEffect(() => {
+        if (!token || !liveKitUrl) {
+            setError('LiveKitPage: token and liveKitUrl are required');
+            return;
+        }
+        setError(undefined);
+    }, [token, liveKitUrl]);
 
     // Handle cleanup of media streams when component unmounts
     React.useEffect(() => {
@@ -73,9 +79,22 @@ export default function LiveKitPage({
                 .catch(() => {}); // Ignore errors during cleanup
         };
     }, []);
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-[100dvh] text-red-500">
+                {error}
+            </div>
+        );
+    }
+
     return (
         <LiveKitRoom
             className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors duration-200"
+            onConnected={() => setIsLoading(false)}
+            onError={(err) => {
+                console.error('LiveKit connection error:', err);
+                setError('Failed to connect to video conference');
+            }}
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
             video={userChoices.videoEnabled}
@@ -94,10 +113,16 @@ export default function LiveKitPage({
             }}
             onDisconnected={onLeave}
         >
-            <VideoConference
-                chatMessageFormatter={formatChatMessageLinks}
-                SettingsComponent={SettingsMenu}
-            />
+            {isLoading ? (
+                <div className="flex items-center justify-center h-full text-primary dark:text-primary-light">
+                    Loading video conference...
+                </div>
+            ) : (
+                <VideoConference
+                    chatMessageFormatter={formatChatMessageLinks}
+                    SettingsComponent={SettingsMenu}
+                />
+            )}
         </LiveKitRoom>
     );
 }
