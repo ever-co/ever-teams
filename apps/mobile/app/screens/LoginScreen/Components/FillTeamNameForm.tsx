@@ -20,7 +20,7 @@ interface Props {
 }
 
 const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStatus, setWithTeam }) => {
-	const authTeamInput = useRef<TextInput>();
+	const authTeamInput = useRef<TextInput | null>(null);
 
 	const { colors, dark } = useAppTheme();
 

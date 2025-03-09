@@ -95,7 +95,7 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 			alert(`Image size must be smaller than 2MB!`);
 			return;
 		}
-
+		// @ts-ignore
 		const type = mime.getType(imageUri);
 		const name = imageUri.split('/').pop();
 		const image = {
@@ -168,7 +168,7 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 					</TouchableOpacity>
 					<View style={styles.wrapCirclePic}>
 						<View style={[styles.circlePic, { backgroundColor: dark ? '#303540' : '#fff' }]}>
-							<Ionicons name="md-document-outline" size={24} color={colors.primary} />
+							<Ionicons name="document-outline" size={24} color={colors.primary} />
 						</View>
 						<Text style={styles.selectText}>{translate('settingScreen.changeAvatar.selectFromFiles')}</Text>
 					</View>

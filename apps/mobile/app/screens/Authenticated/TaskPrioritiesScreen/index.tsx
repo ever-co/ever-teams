@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList, StatusBar } from 'react-native';
+import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList, StatusBar, Animated } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
@@ -9,7 +9,6 @@ import { translate } from '../../../i18n';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { typography, useAppTheme } from '../../../theme';
 import { ActivityIndicator } from 'react-native-paper';
-import Animated from 'react-native-reanimated';
 import { ITaskPriorityItem } from '../../../services/interfaces/ITaskPriority';
 import TaskPriorityForm from './components/TaskPriorityForm';
 import { useTaskPriority } from '../../../services/hooks/features/useTaskPriority';

@@ -1,7 +1,17 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList, StatusBar, Keyboard } from 'react-native';
+import {
+	View,
+	Text,
+	ViewStyle,
+	TouchableOpacity,
+	StyleSheet,
+	FlatList,
+	StatusBar,
+	Keyboard,
+	Animated
+} from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
@@ -9,7 +19,6 @@ import { translate } from '../../../i18n';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { typography, useAppTheme } from '../../../theme';
 import { ActivityIndicator } from 'react-native-paper';
-import Animated from 'react-native-reanimated';
 import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
 import TaskSizeForm from './components/TaskSizeForm';
 import SizeItem from './components/SizeItem';
