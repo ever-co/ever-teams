@@ -35,14 +35,14 @@ const TaskMainInfo = () => {
 				/>
 			</TaskRow>
 			<TaskRow labelIconPath="/assets/svg/profile.svg" labelTitle={t('pages.taskDetails.CREATOR')}>
-				{task?.creator && (
+				{task?.createdByUser && (
 					<Link
-						title={`${task?.creator?.firstName || ''} ${task?.creator?.lastName || ''}`}
-						href={`/profile/${task.creatorId}`}
+						title={`${task?.createdByUser?.firstName || ''} ${task?.createdByUser?.lastName || ''}`}
+						href={`/profile/${task.createdByUserId}`}
 					>
 						<ProfileInfo
-							profilePicSrc={task?.creator?.imageUrl}
-							names={`${task?.creator?.firstName || ''} ${task?.creator?.lastName || ''}`}
+							profilePicSrc={task?.createdByUser?.imageUrl}
+							names={`${task?.createdByUser?.firstName || ''} ${task?.createdByUser?.lastName || ''}`}
 						/>
 					</Link>
 				)}

@@ -37,19 +37,19 @@ const IconPopover = ({
 		<Popover className="relative border-none no-underline w-[auto]" onProgressCapture={(e) => e.stopPropagation()}>
 			{() => (
 				<>
-					<Popover.Button className="outline-none w-full" ref={buttonRef}>
-						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-[#34353D] rounded-xl flex items-center justify-between">
-							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
+					<Popover.Button className="w-full outline-none" ref={buttonRef}>
+						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-[#34353D] rounded-xl flex items-center justify-between bg-white dark:bg-[#1B1D22]">
+							<div className="flex gap-[8px] h-[40px] items-center pl-[15px] text-gray-900 dark:text-gray-100">
 								<IconItem
 									title={values?.title ? values.title.split('-').join(' ') : 'Icons'}
-									className="w-full cursor-pointer py-2 mb-0"
+									className="py-2 mb-0 w-full cursor-pointer dark:text-gray-300"
 									url={values?.fullUrl ? values.fullUrl : ''}
 								/>
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
 								<ChevronDownIcon
 									className={clsxm(
-										'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+										'ml-2 w-5 h-5 text-gray-600 transition duration-150 ease-in-out dark:text-gray-300 group-hover:text-opacity-80'
 									)}
 									aria-hidden="true"
 								/>
@@ -66,13 +66,13 @@ const IconPopover = ({
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel className="absolute left-1/2 z-10 mt-0 w-[375px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
-							<div className="bg-light--theme-light shadow dark:bg-[#E7E7EA] rounded-[10px] text-[14px] font-light p-[16px]">
-								<div className="text-[18px] text-[#7E7991] font-[500]">
+							<div className="bg-white shadow dark:bg-[#1B1D22] rounded-[10px] text-[14px] font-light p-[16px]">
+								<div className="text-[18px] dark:text-gray-300 font-[500] border-b border-[#00000021] dark:border-[#34353D]">
 									<InputField
 										type="search"
-										wrapperClassName="search-border bg-transparent dark:bg-[#E7E7EA]"
+										wrapperClassName="search-border bg-transparent dark:bg-[#282A30]"
 										placeholder="Search Icon"
-										className="px-0 dark:bg-[#E7E7EA] rounded-none"
+										className="px-0 rounded-none dark:text-gray-200"
 										// trailingNode={
 										// 	<Tooltip
 										// 		enabled={true}
@@ -116,7 +116,7 @@ const IconPopover = ({
 													key={index}
 												>
 													<div
-														className="hover:bg-[#F1EDFD] rounded-[10px] h-[48px] w-[48px] hover:cursor-pointer flex items-center justify-center"
+														className="hover:bg-[#F1EDFD] dark:hover:bg-[#282A30] rounded-[10px] h-[48px] w-[48px] hover:cursor-pointer flex items-center justify-center"
 														key={index}
 														onClick={() => onSelect(ic)}
 													>
@@ -129,7 +129,7 @@ const IconPopover = ({
 																decoding="async"
 																data-nimg="1"
 																loading="lazy"
-																className="min-h-[20px]"
+																className="min-h-[20px] dark:invert"
 															/>
 														)}
 													</div>

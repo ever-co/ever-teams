@@ -6,11 +6,17 @@ import { ITimerStatusEnum, ThemeInterface } from '@app/interfaces';
 import { publicState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Avatar, Card, Divider, FullWidthToggler, Text, ThemeToggler, Tooltip } from 'lib/components';
 
-import { DevicesIcon, LogoutRoundIcon, MoonLightOutlineIcon as MoonIcon, PeoplesIcon } from 'assets/svg';
-import { BriefCaseIcon, SettingOutlineIcon } from 'assets/svg';
+import {
+	DevicesIcon,
+	LogoutRoundIcon,
+	MoonLightOutlineIcon as MoonIcon,
+	PeoplesIcon,
+	BriefCaseIcon,
+	SettingOutlineIcon,
+	FullWidthIcon
+} from 'assets/svg';
 import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
@@ -25,8 +31,7 @@ import { TeamsDropDown } from './team/teams-dropdown';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { AllSidesIcon } from '@radix-ui/react-icons';
-import { Globe2Icon } from 'lucide-react';
+import { ChevronDown, Globe2Icon } from 'lucide-react';
 import { LanguageDropDownWithFlags } from 'lib/settings/language-dropdown-flags';
 import { signOutFunction } from '@app/[locale]/auth/social-logins';
 
@@ -97,7 +102,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute right-0 z-[60] mt-5 xl:-right-5">
+				<Popover.Panel className="absolute right-0 z-[60] top-12 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>
@@ -154,7 +159,7 @@ function UserNavMenu() {
 	return (
 		<Card
 			shadow="custom"
-			className="w-[308px] flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard dark:bg-[#1B1D22] border-[0.125rem] border-transparent dark:border-[#26272C]"
+			className="w-[308px relative flex flex-col nav-items--shadow z-10 shadow-darker dark:bg-[#1B1D22] border dark:border-[#26272C]"
 		>
 			<div className="flex flex-col items-center justify-center">
 				<Link href={`/settings/personal`}>
@@ -218,7 +223,7 @@ function UserNavMenu() {
 				<Divider className="mt-6" />
 				<ul className="w-full mt-4">
 					{/* Task menu */}
-					<li className="mb-3 ">
+					<li className=" h-10  flex items-center ">
 						<Link
 							href={`/profile/${user?.id}?name=${name || ''}`}
 							className="flex items-center space-x-3 font-normal text-center"
@@ -227,47 +232,52 @@ function UserNavMenu() {
 						</Link>
 					</li>
 					{/* Team menu */}
-					<li className="mb-3">
+					<li className="h-10  flex items-center ">
 						<Link href="/" className="flex items-center space-x-3 font-normal">
-							<PeoplesIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
+							<PeoplesIcon strokeWidth="1.7" className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
 							<span>{t('common.MY_TEAM')}</span>
 						</Link>
 					</li>
 					{/* Settings menu */}
 
-					<li className="mb-3">
+					<li className="h-10  flex items-center ">
 						<Link href={'/settings/personal'} className="flex items-center space-x-3 font-normal">
-							<SettingOutlineIcon className="w-5 h-5" /> <span>{t('common.SETTINGS')}</span>
+							<SettingOutlineIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
+							<span>{t('common.SETTINGS')}</span>
 						</Link>
 					</li>
 
 					{/* fullWidth menu */}
-					<li className="flex items-center justify-between space-x-3 font-normal">
-						<div className="flex items-center flex-1 space-x-3">
-							<AllSidesIcon className="w-5 h-5" /> <span>{t('common.FULL_WIDTH')}</span>
+					<li className="flex h-10  items-center justify-between space-x-3 font-normal">
+						<div className="flex items-center flex-1  font-normal space-x-3">
+							<FullWidthIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
+							<span>{t('common.FULL_WIDTH')}</span>
 						</div>
 						<FullWidthToggler className="scale-75" />
 					</li>
 
 					{/* Darkmode menu */}
-					<li className="flex items-center justify-between mb-1 space-x-3 font-normal">
+					<li className="flex h-10 items-center justify-between mb-1 space-x-3 font-normal">
 						<div className="flex items-center flex-1 space-x-3">
-							<MoonIcon className="w-5 h-5" /> <span>{t('common.DARK_MODE')}</span>
+							<MoonIcon strokeWidth="1.3" className="w-5 h-5" /> <span>{t('common.DARK_MODE')}</span>
 						</div>
 						<ThemeToggler className="scale-75" />
 					</li>
-					<li className="flex items-center justify-between mb-3 space-x-3 font-normal">
+					<li className="flex h-10   items-center justify-between  space-x-3 font-normal">
 						<div className="flex items-center flex-1 space-x-3">
 							<Globe2Icon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.LANGUAGE')}</span>
 						</div>
-						<LanguageDropDownWithFlags btnClassName="dark:bg-transparent w-[120px]" />
+						<LanguageDropDownWithFlags
+							showFlag={false}
+							btnClassName="dark:bg-transparent border-none flex items-center justify-end w-[120px]"
+						/>
 					</li>
 
 					{/* 3D Mode menu */}
 					{/* TODO
 					- Uncomment it when we have 3D mode ready
 					*/}
-					{/* <li className="flex items-center mb-3 space-x-3 font-normal">
+					{/* <li className="flex items-center  space-x-3 font-normal">
 						<div className="flex items-center flex-1 space-x-3">
 							<BoxIcon className="w-5 h-5" />{' '}
 							<span>{trans.common['3D_MODE']}</span>
@@ -276,14 +286,15 @@ function UserNavMenu() {
 					</li> */}
 
 					{/* Themes menu */}
-					<li className="flex items-center mb-3 space-x-3 font-normal">
+					<li className="flex h-10 w-full  items-center justify-between  space-x-3 pr-3 font-normal">
 						<div className="flex flex-1 space-x-3">
-							<DevicesIcon className="w-5 h-5" /> <span>{t('common.THEMES')}</span>
+							<DevicesIcon strokeWidth="1.7" className="w-5 h-5" /> <span>{t('common.THEMES')}</span>
 						</div>
+
 						<ThemeDropdown />
 					</li>
 				</ul>
-				<Divider className="mt-4 mb-3" />
+				<Divider className="mt-4 " />
 				<ul className="flex flex-col items-center justify-start gap-2 md:hidden">
 					{!publicTeam && <Collaborate />}
 
@@ -292,11 +303,11 @@ function UserNavMenu() {
 					<KeyboardShortcuts />
 					<Divider className="w-full mt-1 mb-3" />
 				</ul>
-				<ul className="w-full">
+				<ul className="w-full py-4">
 					{/* Logout menu */}
 					<li>
 						<button
-							className="flex space-x-3 items-center font-normal mb-3 text-[#DE437B]"
+							className="flex space-x-3 items-center font-normal text-[#DE437B]"
 							onClick={() => {
 								logOut();
 								signOutFunction();
@@ -307,6 +318,7 @@ function UserNavMenu() {
 					</li>
 				</ul>
 			</div>
+			<div className="w-10 h-10 bg-inherit border-inherit border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-5 right-8 rounded-xl rotate-[135deg] " />
 		</Card>
 	);
 }
@@ -332,15 +344,10 @@ function ThemeDropdown() {
 	const selectedThemeText = themes.find((item: ThemeInterface): boolean => item.theme === theme)?.text;
 
 	return (
-		<Popover className="relative z-30">
-			<Popover.Button className="flex items-center">
+		<Popover className="relative h-full flex items-center z-30">
+			<Popover.Button className="flex h-full items-center text-sm font-light">
 				<p className="text-sm text-neutral">{selectedThemeText?.replace('2D', '')}</p>
-				<ChevronDownIcon
-					className={clsxm(
-						'ml-1 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
-					)}
-					aria-hidden="true"
-				/>
+				<ChevronDown className="h-4 w-4 ml-2 opacity-50" />
 			</Popover.Button>
 			<Transition
 				enter="transition duration-100 ease-out"

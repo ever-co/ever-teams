@@ -112,3 +112,4 @@ export { default as MailIcon } from './unique/mail.svg';
 export { default as PhoneUpArrowIcon } from './unique/phone-up-arrow.svg';
 export { default as SquareBoxIcon } from './unique/square-box.svg';
 export { default as CubeIcon } from './unique/cube.svg';
+export { default as FullWidthIcon } from './unique/full-width.svg';

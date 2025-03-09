@@ -93,6 +93,7 @@ export function MultiSelect<T>({
         setSelectedItems(newSelectedItems);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const removeAllItems = () => {
         setSelectedItems([]);
     };
