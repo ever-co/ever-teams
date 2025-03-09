@@ -32,11 +32,8 @@ interface ActiveRoomProps {
 
 /**
  * Default connection options for LiveKit room
- * @constant defaultConnectOptions
- */
-/**
- * Default connection options for LiveKit room
- * Keeping only essential options that are confirmed to work with the current version
+ * @constant connectOptions
+ * @description Keeping only essential options that are confirmed to work with the current version
  */
 const connectOptions = {
     autoSubscribe: true,
@@ -53,19 +50,32 @@ export default function LiveKitPage({
     onLeave,
     token,
     liveKitUrl,
+    roomName = 'default-room', // Provide default room name
 }: ActiveRoomProps): JSX.Element {
     // Validate required props
     if (!token || !liveKitUrl) {
         throw new Error('LiveKitPage: token and liveKitUrl are required');
     }
 
-    // Connection options are static, no need for memoization
-    // since we're using a constant object with satisfies
+    // Handle cleanup of media streams when component unmounts
+    React.useEffect(() => {
+        let mounted = true;
 
-    // Cast LiveKitRoom to ElementType to handle dynamic imports
+        return () => {
+            mounted = false;
+            // Cleanup any active media streams
+            navigator.mediaDevices?.getUserMedia({ audio: true, video: true })
+                .then(stream => {
+                    if (!mounted) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                })
+                .catch(() => {}); // Ignore errors during cleanup
+        };
+    }, []);
     return (
         <LiveKitRoom
-            className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors"
+            className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors duration-200"
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
             video={userChoices.videoEnabled}
