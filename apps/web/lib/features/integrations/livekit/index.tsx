@@ -6,8 +6,8 @@ import {
     VideoConference,
     formatChatMessageLinks,
     LocalUserChoices,
-    RoomConnectOptions,
 } from '@livekit/components-react';
+import { RoomConnectOptions } from 'livekit-client';
 import '@livekit/components-styles';
 import { SettingsMenu } from './settings-livekit';
 
