@@ -7,7 +7,7 @@ import {
     formatChatMessageLinks,
     LocalUserChoices,
 } from '@livekit/components-react';
-import { RoomConnectOptions, RoomError } from 'livekit-client';
+import { RoomConnectOptions, Room, RoomOptions } from 'livekit-client';
 import '@livekit/components-styles';
 import { SettingsMenu } from './settings-livekit';
 
@@ -51,7 +51,6 @@ export default function LiveKitPage({
     token,
     liveKitUrl,
     roomName = 'default-room', // Provide default room name
-    region = 'auto', // Default to auto region selection
 }: ActiveRoomProps): JSX.Element {
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState<string>();
@@ -92,7 +91,7 @@ export default function LiveKitPage({
         <LiveKitRoom
             className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors duration-200"
             onConnected={() => setIsLoading(false)}
-            onError={(err: RoomError) => {
+            onError={(err: any) => {
                 console.error('LiveKit connection error:', err);
                 const errorMessages = {
                     'Room is full': 'The video conference room is full',
@@ -100,7 +99,6 @@ export default function LiveKitPage({
                     'Connection failed': 'Failed to connect. Please check your internet connection',
                     'Invalid token': 'Authentication failed. Please try again',
                 } as const;
-                
                 setError(errorMessages[err.message as keyof typeof errorMessages] ?? 'Failed to connect to video conference');
             }}
             connectOptions={connectOptions}
@@ -108,8 +106,7 @@ export default function LiveKitPage({
             video={userChoices.videoEnabled}
             token={token}
             serverUrl={liveKitUrl}
-            roomName={roomName}
-            region={region}
+            name={roomName}
             connect={true}
             data-lk-theme="default"
             style={{
