@@ -19,12 +19,22 @@
 		"PROJECT_BUDGET": "תקציב פרויקט"
 	},
 	"common": {
+		"APPLICATION": "יישום",
+		"TIME_SPENT": "זמן שנוצל",
+		"PERCENT_USED": "אחוז בשימוש",
+		"NO_ACTIVITY_DATA": "אין נתוני פעילות זמינים",
+		"SELECT_DIFFERENT_DATE": "בחר טווח תאריכים אחר או בדוק מאוחר יותר",
 		"PENDING_TASKS": "משימות ממתינות",
 		"SHOW_MORE": "הצג עוד",
 		"TASKS": "משימות",
 		"MEN_HOURS": "שעות עבודה",
 		"MEMBERS_WORKED": "חברים שעבדו",
 		"COLLAPSE_COLUMN": "כווץ עמודה",
+		"EXPAND_COLUMN": "הרחב עמודה",
+		"START_DATE": "תאריך התחלה",
+		"END_DATE": "תאריך סיום",
+		"MEMBERS": "חברים",
+		"MANAGERS": "מנהלים",
 		"EDIT_STATUS": "ערוך סטטוס",
 		"ADD_TIME_ENTRY": "הוסף כניסת זמן",
 		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על Ever Teams.",
@@ -243,6 +253,12 @@
 		"SELECT_TEAM_MEMBER": "בחר חבר צוות",
 		"ALL_MEMBERS": "כל החברים",
 		"NOT_WORKING": "לא עובד",
+		"COST_BASED": "מבוסס על עלות",
+		"HOURS_BASED": "מבוסס על שעות",
+		"MANAGER": "מנהל",
+		"BUDGET_TYPE": "סוג תקציב",
+		"CLEAR_FILTERS": "נקה סננים",
+		"APPLY_FILTERS": "החל סננים",
 		"WORKING": "עובד",
 		"PAUSED": "מושהה",
 		"ONLINE": "מחובר",
@@ -266,6 +282,21 @@
 			"SEE_PLANS": "ראה תוכניות",
 			"ADD_PLAN": "הוסף תוכנית",
 			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
+		},
+		"teamStats": {
+			"MEMBER": "חבר",
+			"MEMBERS_WORKED": "חברים שעבדו",
+			"TOTAL_TIME": "זמן כולל",
+			"TOTAL_HOURS": "סך השעות",
+			"TRACKED": "נעקב",
+			"MANUALLY_ADDED": "נוסף ידנית",
+			"MANUAL": "ידני",
+			"ACTIVE_TIME": "זמן פעיל",
+			"IDLE_TIME": "זמן סרק",
+			"IDLE": "לא פעיל",
+			"UNKNOWN_ACTIVITY": "פעילות לא ידועה",
+			"ACTIVITY_LEVEL": "רמת פעילות",
+			"NO_DATA_AVAILABLE": "לא יוכל להציג נתונים"
 		},
 		"timesheets": {
 			"SINGULAR": "דוח שעות",
@@ -326,7 +357,9 @@
 		"SCREENSHOTS": "צילומי מסך",
 		"TIME_LOG": "יומן זמן",
 		"TO_DO": "לבצע",
-		"MEMBERS_COUNT": "מספר חברים"
+		"MEMBERS_COUNT": "מספר חברים",
+		"REVIEW": "בְּחִינָה",
+		"ARCHIVE": "ארכיון"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -375,6 +408,94 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "לוח Kanban"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "פרויקטים",
+				"SINGULAR": "פרויקט"
+			},
+			"CREATE_NEW_PROJECT": "צור פרויקט חדש",
+			"views": {
+				"LIST_VIEW": "תצוגת רשימה",
+				"GRID_VIEW": "תצוגת רשת"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "כותרת הפרויקט",
+					"titlePlaceholder": "פרויקט לקוח #1...",
+					"description": "תיאור",
+					"datePickerPlaceholder": "בחר תאריך",
+					"websiteUrl": "כתובת אתר",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "תמונה ממוזערת של הפרויקט",
+					"uploadPhoto": "העלה תמונה"
+				},
+				"errors": {
+					"titleRequired": "כותרת הפרויקט נדרשת.",
+					"titleLength": "כותרת הפרויקט חייבת להיות בין 3 ל-100 תווים.",
+					"invalidWebsiteUrl": "כתובת אתר לא חוקית.",
+					"fileSizeLimit": "גודל הקובץ חייב להיות קטן מ-5MB.",
+					"fileFormatLimit": "ניתן להעלות רק קבצי JPG ו-PNG.",
+					"startDateRequired": "תאריך התחלה נדרש.",
+					"endDateRequired": "תאריך סיום נדרש.",
+					"endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה.",
+					"invalidUrl": "אנא הזן כתובת אתר חוקית.",
+					"uploadError": "משהו השתבש בעת העלאת תמונת הפרויקט, אנא נסה שוב!"
+				},
+				"common": {
+					"search": "חפש ...",
+					"typeNew": "הקלד חדש ...",
+					"addNew": "הוסף חדש",
+					"uploadingImage": "מעלה את תמונת הפרויקט"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "תוויות",
+					"labelsPlaceholder": "בחר תוויות...",
+					"tags": "תגיות",
+					"tagsPlaceholder": "בחר תגיות...",
+					"colorCode": "קוד צבע"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "סוג תקציב",
+					"budgetTypePlaceholder": "בחר סוג תקציב",
+					"budgetAmount": "סכום תקציב",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "בחירת מטבע",
+					"currencyPlaceholder": "בחר מטבע...",
+					"billing": "סוג חיוב",
+					"billingPlaceholder": "בחר מרווח..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "הקצאת חברים ומנהלים",
+					"noMembers": "אין חברים או מנהלים",
+					"addMember": "הוסף חבר",
+					"selectMember": "בחר חבר...",
+					"selectRole": "בחר תפקיד...",
+					"relations": "קשרים",
+					"noRelations": "אין קשרים",
+					"addRelation": "הוסף קשר",
+					"selectProject": "בחר פרויקט...",
+					"selectRelationType": "בחר סוג קשר..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "יצירת פרויקט",
+					"financialSettings": "הגדרות כספיות",
+					"categorization": "קטגוריזציה",
+					"teamAndRelations": "צוות וקשרים"
+				}
+			},
+			"deleteModal": {
+				"title": "למחוק את הנבחר?",
+				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]",
@@ -711,7 +832,9 @@
 			"START_WORKING_BUTTON": "התחל לעבוד",
 			"TIMER_RUNNING": "הטיימר כבר פועל",
 			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
-		}
+		},
+		"VISITED_SITES": "אתרים שביקרת בהם",
+		"NO_VISITED_SITE_MESSAGE": "אין אתרים שביקרת בהם"
 	},
 	"task": {
 		"TITLE": "משימה",

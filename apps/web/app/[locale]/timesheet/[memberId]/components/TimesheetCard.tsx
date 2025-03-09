@@ -62,9 +62,9 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
             </div>
             <div
                 className={cn(
-                    'h-16 w-16 rounded-lg p-5',
-                    'flex items-center justify-center',
-                    'text-white font-bold text-sm',
+                    'p-5 w-16 h-16 rounded-lg',
+                    'flex justify-center items-center',
+                    'text-sm font-bold text-white',
                     'shadow-lg dark:shadow-gray-800',
                     classNameIcon
                 )}
@@ -119,10 +119,10 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
                                         statusColor(status).text
                                     )}
                                 >
-                                    <div className="flex items-center justify-between w-full space-x-1">
+                                    <div className="flex justify-between items-center space-x-1 w-full">
                                         <div className="flex items-center space-x-1">
                                             <div className={cn('p-2 rounded', statusColor(status).bg)}></div>
-                                            <div className="flex items-center gap-x-1">
+                                            <div className="flex gap-x-1 items-center">
                                                 <span className="text-base font-normal text-gray-400 uppercase">
                                                     {status === 'DENIED' ? 'REJECTED' : status}
                                                 </span>
@@ -147,7 +147,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
                                                 borderBottomColor: statusColor(status).bg
                                             }}
                                             className={cn(
-                                                'flex items-center border-b border-b-gray-200 dark:border-b-gray-600 space-x-4 p-1 h-[60px]'
+                                                'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
                                             )}>
                                             <div className="flex-[2]">
                                                 <TaskNameInfoDisplay
@@ -163,7 +163,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<TimesheetStatus, T
                                                     taskNumberClassName="text-sm"
                                                 />
                                             </div>
-                                            <div className="flex items-center flex-1 gap-x-2">
+                                            <div className="flex flex-1 gap-x-2 items-center">
                                                 <EmployeeAvatar
                                                     imageUrl={task.employee.user.imageUrl!}
                                                 />

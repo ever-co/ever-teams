@@ -1,12 +1,15 @@
 import { IEmployee } from '../IEmployee';
 
 export interface ITimerApps {
-	sessions: string;
-	duration: string;
-	employeeId: string;
-	date: Date | string;
 	time: string;
-	title: string;
+	sessions?: number;
+	duration?: number;
+	employeeId?: string;
+	date?: string;
+	title?: string;
+	description?: string;
+	durationPercentage?: number;
+	childItems?: ITimerApps[];
 }
 
 export interface IDetailTimerSite {

@@ -1,126 +1,346 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
-import { getTimeLogReportDaily, getTimeLogReportDailyChart } from '@/app/services/client/api/timer/timer-log';
+import {
+	getActivityReport,
+	getTimeLogReportDaily,
+	getTimeLogReportDailyChart,
+	getTimesheetStatisticsCounts
+} from '@/app/services/client/api/timer/timer-log';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useQuery } from '../useQuery';
 import { useAtom } from 'jotai';
-import { timeLogsRapportChartState, timeLogsRapportDailyState } from '@/app/stores';
+import {
+	activityReportState,
+	timeLogsRapportChartState,
+	timeLogsRapportDailyState,
+	timesheetStatisticsCountsState
+} from '@/app/stores';
+import { TimeLogType } from '@/app/interfaces';
+import { useTimelogFilterOptions } from './useTimelogFilterOptions';
 
-type UseReportActivityProps = Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>;
+export interface UseReportActivityProps
+	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
+	logType?: TimeLogType[];
+	activityLevel: {
+		start: number;
+		end: number;
+	};
+	start?: number;
+	end?: number;
+	projectIds?: string[];
+	employeeIds?: string[];
+	teamIds?: string[];
+	groupBy?: string;
+}
 
-const getDefaultDates = () => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 7);
+const now = new Date();
+const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    return {
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0]
-    };
+const defaultProps: Required<
+	Pick<
+		UseReportActivityProps,
+		| 'startDate'
+		| 'endDate'
+		| 'groupBy'
+		| 'activityLevel'
+		| 'logType'
+		| 'start'
+		| 'end'
+		| 'employeeIds'
+		| 'projectIds'
+		| 'teamIds'
+	>
+> = {
+	startDate: firstDayOfMonth.toISOString().split('T')[0],
+	endDate: lastDayOfMonth.toISOString().split('T')[0],
+	groupBy: 'date',
+	activityLevel: {
+		start: 0,
+		end: 100
+	},
+	logType: [TimeLogType.TRACKED],
+	start: 0,
+	end: 100,
+	employeeIds: [],
+	projectIds: [],
+	teamIds: []
 };
 
-const defaultProps: UseReportActivityProps = {
-    activityLevel: { start: 0, end: 100 },
-    ...getDefaultDates(),
-    start: 0,
-    end: 100
-};
+export type GroupByType = 'date' | 'project' | 'employee' | 'application'|'daily'|'weekly'|'member';
 
-export function useReportActivity() {
-    const { user } = useAuthenticateUser();
-    const [rapportChartActivity, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
-    const [rapportDailyActivity, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
-    const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } = useQuery(getTimeLogReportDailyChart);
-    const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(getTimeLogReportDaily);
-    const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
+interface GroupByOptions {
+	groupBy: GroupByType;
+}
 
-    // Memoize the merged props to avoid recalculation
-    const getMergedProps = useMemo(() => {
-        if (!user?.employee.organizationId) {
-            return null;
-        }
+export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-URLS' }) {
+	// User and authentication
+	const { user } = useAuthenticateUser();
+	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
+	const isManage = user && isUserAllowedToAccess(user);
 
-        return (customProps?: Partial<UseReportActivityProps>): ITimeLogReportDailyChartProps => ({
-            ...defaultProps,
-            ...currentFilters,
-            ...(customProps || {}),
-            organizationId: user.employee.organizationId,
-            tenantId: user.tenantId ?? ''
-        });
-    }, [user?.employee.organizationId, user?.tenantId, currentFilters]);
+	// State management
+	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
+	const [rapportChartActivity, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
+	const [rapportDailyActivity, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
+	const [statisticsCounts, setStatisticsCounts] = useAtom(timesheetStatisticsCountsState);
+	const [activityReport, setActivityReport] = useAtom(activityReportState);
 
-    // Generic fetch function to reduce code duplication
-    const fetchReport = useCallback(async <T>(
-        queryFn: typeof queryTimeLogReportDailyChart | typeof queryTimeLogReportDaily,
-        setData: (data: T[]) => void,
-        customProps?: Partial<UseReportActivityProps>
-    ) => {
-        if (!user || !getMergedProps) {
-            setData([]);
-            return;
-        }
+	// API queries
+	const { loading: loadingTimeLogReportDailyChart, queryCall: queryTimeLogReportDailyChart } =
+		useQuery(getTimeLogReportDailyChart);
+	const { loading: loadingTimeLogReportDaily, queryCall: queryTimeLogReportDaily } = useQuery(getTimeLogReportDaily);
+	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } =
+		useQuery(getTimesheetStatisticsCounts);
+	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(getActivityReport);
 
-        try {
-            const mergedProps = getMergedProps(customProps);
-            const { data } = await queryFn(mergedProps);
+	// Props merging logic
+	const getMergedProps = useMemo(() => {
+		if (!user?.employee.organizationId) {
+			return null;
+		}
 
-            setData(data as T[]);
+		return (customProps?: Partial<UseReportActivityProps>) => {
+			const merged = {
+				...defaultProps,
+				...currentFilters,
+				...(customProps || {}),
+				organizationId: user.employee.organizationId,
+				teamId: customProps?.teamId || currentFilters.teamId,
+				userId: customProps?.userId || currentFilters.userId,
+				tenantId: user.tenantId ?? '',
+				logType: (customProps?.logType || currentFilters.logType || defaultProps.logType) as TimeLogType[],
+				startDate: (customProps?.startDate || currentFilters.startDate || defaultProps.startDate) as string,
+				endDate: (customProps?.endDate || currentFilters.endDate || defaultProps.endDate) as string,
+				groupBy: (customProps?.groupBy || currentFilters.groupBy || defaultProps.groupBy) as string,
+				projectIds: (customProps?.projectIds ||
+					currentFilters.projectIds ||
+					defaultProps.projectIds) as string[],
+				employeeIds: isManage
+					? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+					: [user.employee.id],
+				teamIds: allteamsState?.map(({ id }) => id).filter(Boolean),
+				activityLevel: {
+					start:
+						customProps?.activityLevel?.start ??
+						currentFilters.activityLevel?.start ??
+						defaultProps.activityLevel.start,
+					end:
+						customProps?.activityLevel?.end ??
+						currentFilters.activityLevel?.end ??
+						defaultProps.activityLevel.end
+				},
+				start: customProps?.start ?? currentFilters.start ?? defaultProps.start,
+				end: customProps?.end ?? currentFilters.end ?? defaultProps.end
+			};
+			return merged as Required<UseReportActivityProps>;
+		};
+	}, [
+		user?.employee.organizationId,
+		user?.employee.id,
+		user?.tenantId,
+		currentFilters,
+		isManage,
+		alluserState,
+		allteamsState
+	]);
 
-            if (customProps) {
-                setCurrentFilters(prev => ({
-                    ...prev,
-                    ...customProps
-                }));
-            }
-        } catch (err) {
-            console.error('Failed to fetch report:', err);
-            setData([]);
-        }
-    }, [user, getMergedProps]);
+	// Generic fetch function with improved error handling and type safety
+	const fetchReport = useCallback(
+		async <T>(
+			queryFn:
+				| typeof queryTimeLogReportDailyChart
+				| typeof queryTimeLogReportDaily
+				| typeof queryTimesheetStatisticsCounts
+				| typeof queryActivityReport,
+			setData: ((data: T[]) => void) | null,
+			customProps?: Partial<UseReportActivityProps>
+		) => {
+			if (!user || !getMergedProps) {
+				if (setData) setData([]);
+				return;
+			}
 
-    const fetchReportActivity = useCallback((customProps?: Partial<UseReportActivityProps>) =>
-        fetchReport(queryTimeLogReportDailyChart, setRapportChartActivity, customProps),
-    [fetchReport, queryTimeLogReportDailyChart, setRapportChartActivity]);
+			try {
+				const mergedProps = getMergedProps(customProps);
+				const response = await queryFn(mergedProps);
 
-    const fetchDailyReport = useCallback((customProps?: Partial<UseReportActivityProps>) =>
-        fetchReport(queryTimeLogReportDaily, setRapportDailyActivity, customProps),
-    [fetchReport, queryTimeLogReportDaily, setRapportDailyActivity]);
+				// Validate response data
+				if (!response || typeof response !== 'object') {
+					throw new Error('Invalid response format');
+				}
 
-    const updateDateRange = useCallback((startDate: Date, endDate: Date) => {
-        const newProps = {
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0]
-        };
+				if (setData) {
+					if (response?.data && Array.isArray(response.data)) {
+						setData(response.data as T[]);
+					} else {
+						console.warn('Response data is not an array:', response.data);
+						setData([]);
+					}
+				}
 
-        Promise.all([
-            fetchReportActivity(newProps),
-            fetchDailyReport(newProps)
-        ]).catch(console.error);
-    }, [fetchReportActivity, fetchDailyReport]);
+				if (customProps) {
+					setCurrentFilters((prev) => ({
+						...prev,
+						...customProps
+					}));
+				}
+			} catch (err) {
+				console.error('Failed to fetch report:', err);
+				if (setData) setData([]);
+				throw err; // Re-throw for retry logic
+			}
+		},
+		[user, getMergedProps]
+	);
 
-    const updateFilters = useCallback((newFilters: Partial<UseReportActivityProps>) => {
-        Promise.all([
-            fetchReportActivity(newFilters),
-            fetchDailyReport(newFilters)
-        ]).catch(console.error);
-    }, [fetchReportActivity, fetchDailyReport]);
+	// Specific fetch functions
+	const fetchReportActivity = useCallback(
+		(customProps?: Partial<UseReportActivityProps>) =>
+			fetchReport(queryTimeLogReportDailyChart, setRapportChartActivity, customProps),
+		[fetchReport, queryTimeLogReportDailyChart, setRapportChartActivity]
+	);
 
-    useEffect(() => {
-        if (user) {
-            Promise.all([
-                fetchReportActivity(),
-                fetchDailyReport()
-            ]).catch(console.error);
-        }
-    }, [user, fetchReportActivity, fetchDailyReport]);
+	const fetchDailyReport = useCallback(
+		(customProps?: Partial<UseReportActivityProps>) =>
+			fetchReport(queryTimeLogReportDaily, setRapportDailyActivity, customProps),
+		[fetchReport, queryTimeLogReportDaily, setRapportDailyActivity]
+	);
 
-    return {
-        loadingTimeLogReportDailyChart,
-        loadingTimeLogReportDaily,
-        rapportChartActivity,
-        rapportDailyActivity,
-        updateDateRange,
-        updateFilters,
-        currentFilters
-    };
+	const fetchActivityReport = useCallback(
+		(customProps?: Partial<UseReportActivityProps>) =>
+			fetchReport(queryActivityReport, setActivityReport, customProps),
+		[fetchReport, queryActivityReport, setActivityReport]
+	);
+
+	const fetchStatisticsCounts = useCallback(
+		async (customProps?: Partial<UseReportActivityProps>) => {
+			if (!user || !getMergedProps) {
+				return;
+			}
+			try {
+				const mergedProps = getMergedProps(customProps);
+				const response = await queryTimesheetStatisticsCounts({
+					...mergedProps,
+					logType: [TimeLogType.TRACKED]
+				});
+				setStatisticsCounts(response.data);
+				if (customProps) {
+					setCurrentFilters((prev) => ({
+						...prev,
+						...customProps
+					}));
+				}
+			} catch (error) {
+				console.error('Error fetching statistics:', error);
+				setStatisticsCounts(null);
+			}
+		},
+		[user, getMergedProps, queryTimesheetStatisticsCounts, setStatisticsCounts]
+	);
+
+	// Update handlers
+	const updateDateRange = useCallback(
+		(startDate: Date, endDate: Date) => {
+			const newProps = {
+				startDate: startDate.toISOString().split('T')[0],
+				endDate: endDate.toISOString().split('T')[0]
+			};
+			switch (types) {
+				case 'APPS-URLS':
+					fetchActivityReport(newProps).catch(console.error);
+					break;
+				default:
+					Promise.all([
+						fetchReportActivity(newProps),
+						fetchDailyReport(newProps),
+						fetchStatisticsCounts(newProps)
+					]).catch(console.error);
+					break;
+			}
+		},
+		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]
+	);
+
+	const handleGroupByChange = useCallback(
+		async (groupByType: GroupByType): Promise<void> => {
+			try {
+				const options: GroupByOptions = { groupBy: groupByType === 'application' ? 'date' : groupByType };
+				await fetchActivityReport(options);
+			} catch (error) {
+				console.error('Failed to update activity grouping:', error);
+			}
+		},
+		[fetchActivityReport]
+	);
+
+	const updateFilters = useCallback(
+		(newFilters: Partial<UseReportActivityProps>) => {
+			switch (types) {
+				case 'APPS-URLS':
+					fetchActivityReport(newFilters).catch(console.error);
+					break;
+				default:
+					Promise.all([
+						fetchReportActivity(newFilters),
+						fetchDailyReport(newFilters),
+						fetchStatisticsCounts(newFilters)
+					]).catch(console.error);
+					break;
+			}
+		},
+		[fetchReportActivity, fetchDailyReport, fetchStatisticsCounts, fetchActivityReport, types]
+	);
+
+	// Initial data fetch with retry logic and loading state management
+	useEffect(() => {
+		const maxRetries = 3;
+		let retryCount = 0;
+
+		const fetchData = async () => {
+			if (!user) return;
+
+			try {
+				if (types === 'APPS-URLS') {
+					await fetchActivityReport();
+				} else {
+					await Promise.all([fetchReportActivity(), fetchDailyReport(), fetchStatisticsCounts()]);
+				}
+			} catch (error) {
+				console.error('Error fetching data:', error);
+				if (retryCount < maxRetries) {
+					retryCount++;
+					console.log(`Retrying fetch attempt ${retryCount}...`);
+					setTimeout(fetchData, 1000 * retryCount);
+				}
+			}
+		};
+
+		fetchData();
+	}, [user, types, fetchActivityReport, fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
+
+	return {
+		// Loading states
+		loadingTimeLogReportDailyChart,
+		loadingTimeLogReportDaily,
+		loadingTimesheetStatisticsCounts,
+		loadingActivityReport,
+
+		// Data states
+		rapportChartActivity,
+		rapportDailyActivity,
+		statisticsCounts,
+		activityReport,
+
+		// Update handlers
+		updateDateRange,
+		updateFilters,
+		handleGroupByChange,
+		fetchActivityReport,
+
+		// Other states
+		currentFilters,
+		setStatisticsCounts,
+		isManage
+	};
 }

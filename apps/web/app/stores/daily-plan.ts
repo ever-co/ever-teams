@@ -123,3 +123,12 @@ export const getFirstAndLastDateState = atom((get) => {
     to: new Date(sortedData[sortedData.length - 1]?.date)
   };
 });
+
+
+export const getPlanState = atom((get) => {
+  const itemsData = get(dataDailyPlanState);
+  if (!itemsData?.length) return { data: [] };
+  return {
+   data: itemsData
+  };
+});

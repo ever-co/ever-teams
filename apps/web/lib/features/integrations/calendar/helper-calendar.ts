@@ -45,7 +45,7 @@ export type headTimeSheet = {
     isDraft: false,
     parentId: string,
     projectId: string,
-    creatorId: string,
+    createdByUserId: string,
     organizationSprintId: string,
     taskStatusId: string,
     taskSizeId: string,

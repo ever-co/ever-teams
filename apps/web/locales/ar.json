@@ -1,12 +1,18 @@
 {
 	"TITLE": "إيفر تيمز",
 	"common": {
+		"APPLICATION": "تطبيق",
+		"TIME_SPENT": "الوقت المستغرق",
+		"PERCENT_USED": "النسبة المستخدمة",
+		"NO_ACTIVITY_DATA": "لا توجد بيانات نشاط متاحة",
+		"SELECT_DIFFERENT_DATE": "حدد نطاق تاريخ مختلف أو تحقق لاحقًا",
 		"PENDING_TASKS": "المهام المعلقة",
 		"SHOW_MORE": "عرض المزيد",
 		"TASKS": "المهام",
 		"MEN_HOURS": "ساعات العمل",
 		"MEMBERS_WORKED": "الأعضاء الذين عملوا",
 		"COLLAPSE_COLUMN": "طي العمود",
+		"EXPAND_COLUMN": "توسيع العمود",
 		"EDIT_STATUS": "تعديل الحالة",
 		"ADD_TIME_ENTRY": "إضافة إدخال وقت",
 		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول Ever Teams.",
@@ -17,6 +23,10 @@
 		"DELETE_CONFIRMATION": "هل أنت متأكد أنك تريد الحذف؟",
 		"IRREVERSIBLE_ACTION_WARNING": "هذا الإجراء لا رجعة فيه. ستفقد جميع البيانات ذات الصلة.",
 		"SHIFT_TIMING": "توقيت العمل",
+		"START_DATE": "تاريخ البدء",
+		"END_DATE": "تاريخ الانتهاء",
+		"MEMBERS": "الأعضاء",
+		"MANAGERS": "المدراء",
 		"ADD_ANOTHER_PERIOD": "إضافة فترة أخرى",
 		"REMOVE_PERIOD": "إزالة الفترة",
 		"DATE_AND_TIME": "التاريخ والوقت",
@@ -249,6 +259,21 @@
 			"ADD_PLAN": "إضافة خطة",
 			"DELETE_THIS_PLAN": "احذف هذه الخطة"
 		},
+		"teamStats": {
+			"MEMBER": "عضو",
+			"MEMBERS_WORKED": "الأعضاء الذين عملوا",
+			"TOTAL_TIME": "الوقت الكلي",
+			"TOTAL_HOURS": "إجمالي الساعات",
+			"TRACKED": "متتبع",
+			"MANUALLY_ADDED": "مضاف يدويًا",
+			"MANUAL": "يدوي",
+			"ACTIVE_TIME": "الوقت النشط",
+			"IDLE_TIME": "وقت الخمول",
+			"IDLE": "خامل",
+			"UNKNOWN_ACTIVITY": "نشاط غير معروف",
+			"ACTIVITY_LEVEL": "مستوى النشاط",
+			"NO_DATA_AVAILABLE": "لا توجد بيانات متاحة"
+		},
 		"timesheets": {
 			"SINGULAR": "ورقة الحضور",
 			"PLURAL": "ورقات الحضور"
@@ -269,6 +294,12 @@
 		"SET_AS_NEXT": "تعيين كالتالي",
 		"MOVE_TO": "نقل إلى",
 		"SORT": "فرز",
+		"COST_BASED": "قائم على التكلفة",
+		"HOURS_BASED": "قائم على الساعات",
+		"MANAGER": "مدير",
+		"BUDGET_TYPE": "نوع الميزانية",
+		"CLEAR_FILTERS": "مسح الفلاتر",
+		"APPLY_FILTERS": "تطبيق الفلاتر",
 		"ICON": "أيقونة",
 		"SELECT_DATE": "اختر التاريخ",
 		"SELECT_AND_CLOSE": "اختر وأغلق",
@@ -308,7 +339,9 @@
 		"SCREENSHOTS": "لقطات الشاشة",
 		"TIME_LOG": "سجل الوقت",
 		"TO_DO": "المهام",
-		"MEMBERS_COUNT": "عدد الأعضاء"
+		"MEMBERS_COUNT": "عدد الأعضاء",
+		"REVIEW": "مراجعة",
+		"ARCHIVE": "أرشيف"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -375,6 +408,95 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "لوحة كانبان"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "المشاريع",
+				"SINGULAR": "المشروع"
+			},
+			"CREATE_NEW_PROJECT": "إنشاء مشروع جديد",
+			"views": {
+				"LIST_VIEW": "عرض القائمة",
+				"GRID_VIEW": "عرض الشبكة"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "عنوان المشروع",
+					"titlePlaceholder": "مشروع العميل #1...",
+					"description": "الوصف",
+					"datePickerPlaceholder": "اختر تاريخًا",
+					"websiteUrl": "رابط الموقع",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "صورة مصغرة للمشروع",
+					"uploadPhoto": "رفع صورة"
+				},
+				"errors": {
+					"titleRequired": "عنوان المشروع مطلوب.",
+					"titleLength": "يجب أن يتراوح عنوان المشروع بين 3 و 100 حرفًا.",
+					"invalidWebsiteUrl": "رابط الموقع غير صالح.",
+					"fileSizeLimit": "يجب أن يكون حجم الملف أقل من 5 ميجابايت.",
+					"fileFormatLimit": "يتم قبول تنسيقات JPG و PNG فقط.",
+					"startDateRequired": "تاريخ البدء مطلوب.",
+					"endDateRequired": "تاريخ الانتهاء مطلوب.",
+					"endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.",
+					"invalidUrl": "يرجى إدخال رابط صالح.",
+					"uploadError": "حدث خطأ أثناء تحميل صورة المشروع، يرجى المحاولة مرة أخرى!"
+				},
+				"common": {
+					"search": "بحث ...",
+					"typeNew": "اكتب جديد ...",
+					"addNew": "إضافة جديد",
+					"uploadingImage": "جارٍ تحميل صورة المشروع"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "نوع الميزانية",
+					"budgetTypePlaceholder": "اختر نوع الميزانية",
+					"budgetAmount": "مقدار الميزانية",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "اختيار العملة",
+					"currencyPlaceholder": "اختر عملة...",
+					"billing": "نوع الفاتورة",
+					"billingPlaceholder": "اختر الفاصل الزمني..."
+				}
+			},
+
+			"categorizationForm": {
+				"formFields": {
+					"labels": "التصنيفات",
+					"labelsPlaceholder": "حدد التصنيفات...",
+					"tags": "الوسوم",
+					"tagsPlaceholder": "حدد الوسوم...",
+					"colorCode": "رمز اللون"
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "تعيين الأعضاء والمديرين",
+					"noMembers": "لا يوجد أعضاء أو مديرين",
+					"addMember": "إضافة عضو",
+					"selectMember": "اختر عضو...",
+					"selectRole": "اختر دور...",
+					"relations": "العلاقات",
+					"noRelations": "لا توجد علاقات",
+					"addRelation": "إضافة علاقة",
+					"selectProject": "اختر مشروع...",
+					"selectRelationType": "اختر نوع العلاقة..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "إنشاء مشروع",
+					"financialSettings": "الإعدادات المالية",
+					"categorization": "التصنيف",
+					"teamAndRelations": "الفريق والعلاقات"
+				}
+			},
+			"deleteModal": {
+				"title": "حذف المحدد؟",
+				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]",
@@ -667,6 +789,14 @@
 			"IN_REVIEW": "قيد المراجعة",
 			"DRAFT": "مسودة",
 			"REJECTED": "مرفوض"
+		},
+		"addOrEditModal": {
+			"steps": {
+				"createProject": "إنشاء مشروع",
+				"financialSettings": "الإعدادات المالية",
+				"categorization": "التصنيف",
+				"teamAndRelations": "الفريق والعلاقات"
+			}
 		}
 	},
 	"timer": {
@@ -711,7 +841,9 @@
 			"START_WORKING_BUTTON": "ابدأ العمل",
 			"TIMER_RUNNING": "المؤقت قيد التشغيل بالفعل",
 			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
-		}
+		},
+		"VISITED_SITES": "المواقع التي تمت زيارتها",
+		"NO_VISITED_SITE_MESSAGE": "لا يوجد مواقع تمت زيارتها"
 	},
 	"task": {
 		"TITLE": "المهمة",

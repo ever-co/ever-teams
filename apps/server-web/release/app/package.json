@@ -1,18 +1,20 @@
 {
-  "name": "ever-teams-web-server",
-  "version": "0.1.0",
-  "description": "Ever Teams Web Server",
-  "license": "AGPL-3.0",
-  "author": {
-    "name": "Ever Co. LTD",
-    "email": "ever@ever.co",
-    "url": "https://ever.co"
-  },
-  "main": "./dist/main/main.js",
-  "scripts": {
-    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
-    "postinstall": "npm run rebuild && npm run link-modules",
-    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
-  },
-  "dependencies": {}
+    "name": "ever-teams-server-web",
+    "version": "0.1.0",
+    "description": "Ever Teams Server Web",
+    "license": "AGPL-3.0",
+    "author": {
+        "name": "Ever Co. LTD",
+        "email": "ever@ever.co",
+        "url": "https://ever.co"
+    },
+    "main": "./dist/main/main.js",
+    "scripts": {
+        "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+        "postinstall": "npm run rebuild && npm run link-modules",
+        "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
+    },
+    "dependencies": {
+        "sharp": "^0.33.4"
+    }
 }

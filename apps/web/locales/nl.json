@@ -19,12 +19,22 @@
 		"PROJECT_BUDGET": "Projectbudget"
 	},
 	"common": {
+		"APPLICATION": "Applicatie",
+		"TIME_SPENT": "Tijd besteed",
+		"PERCENT_USED": "Percentage gebruikt",
+		"NO_ACTIVITY_DATA": "Geen activiteitsgegevens beschikbaar",
+		"SELECT_DIFFERENT_DATE": "Selecteer een andere datumbereik of probeer later opnieuw",
 		"PENDING_TASKS": "In afwachting Taken",
 		"SHOW_MORE": "Meer weergeven",
 		"TASKS": "Taken",
 		"MEN_HOURS": "Manuren",
 		"MEMBERS_WORKED": "Leden gewerkt",
 		"COLLAPSE_COLUMN": "Kolom samenvouwen",
+		"START_DATE": "Startdatum",
+		"END_DATE": "Einddatum",
+		"MEMBERS": "Leden",
+		"MANAGERS": "Managers",
+		"EXPAND_COLUMN": "Kolom uitvouwen",
 		"EDIT_STATUS": "Status bewerken",
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
 		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over Ever Teams te ontvangen.",
@@ -248,6 +258,12 @@
 		"ONLINE": "Online",
 		"SKIP_ADD_LATER": "Later toevoegen",
 		"DAILYPLAN": "Gepland",
+		"COST_BASED": "Kosten-gebaseerd",
+		"HOURS_BASED": "Uren-gebaseerd",
+		"MANAGER": "Manager",
+		"BUDGET_TYPE": "Budgettype",
+		"CLEAR_FILTERS": "Filters wissen",
+		"APPLY_FILTERS": "Filter toepassen",
 		"INVITATION_SENT": "Uitnodiging verzonden",
 		"INVITATION_SENT_TO_USER": "Een teamuitnodiging is verzonden naar {email}.",
 		"timesheets": {
@@ -279,6 +295,21 @@
 			"SEE_PLANS": "Plannen bekijken",
 			"ADD_PLAN": "Plan toevoegen",
 			"DELETE_THIS_PLAN": "Verwijder dit plan"
+		},
+		"teamStats": {
+			"MEMBER": "Lid",
+			"MEMBERS_WORKED": "Leden die Hebben Gewerkt",
+			"TOTAL_TIME": "Totale Tijd",
+			"TOTAL_HOURS": "Totale Uren",
+			"TRACKED": "Bijgehouden",
+			"MANUALLY_ADDED": "Handmatig Toegevoegd",
+			"MANUAL": "Handmatig",
+			"ACTIVE_TIME": "Actieve Tijd",
+			"IDLE_TIME": "Inactieve Tijd",
+			"IDLE": "Inactief",
+			"UNKNOWN_ACTIVITY": "Onbekende Activiteit",
+			"ACTIVITY_LEVEL": "Activiteitsniveau",
+			"NO_DATA_AVAILABLE": "Geen gegevens beschikbaar"
 		},
 		"COPY_ISSUE_LINK": "Probleemlink kopiëren",
 		"MAKE_A_COPY": "Maak een kopie",
@@ -326,7 +357,9 @@
 		"SCREENSHOTS": "Schermafbeeldingen",
 		"TIME_LOG": "Tijdlogboek",
 		"TO_DO": "Te doen",
-		"MEMBERS_COUNT": "Aantal leden"
+		"MEMBERS_COUNT": "Aantal leden",
+		"REVIEW": "BEKEKEN",
+		"ARCHIVE": "Archief"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -413,6 +446,94 @@
 			"TASK_IS_ALREADY_EPIC": "Epic taaktype kan niet worden gewijzigd.",
 			"TASK_HAS_PARENT": "Taaktype kan niet worden gewijzigd omdat de taak al een bovenliggende taak heeft.",
 			"PROJECT": "Project"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projecten",
+				"SINGULAR": "Project"
+			},
+			"CREATE_NEW_PROJECT": "Nieuw project aanmaken",
+			"views": {
+				"LIST_VIEW": "Lijstweergave",
+				"GRID_VIEW": "Ruwe weergave"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Projecttitel",
+					"titlePlaceholder": "Klantproject #1...",
+					"description": "Beschrijving",
+					"datePickerPlaceholder": "Kies een datum",
+					"websiteUrl": "Website-URL",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Projectminiatuur",
+					"uploadPhoto": "Foto uploaden"
+				},
+				"errors": {
+					"titleRequired": "Projecttitel is verplicht.",
+					"titleLength": "Projecttitel moet tussen 3 en 100 tekens bevatten.",
+					"invalidWebsiteUrl": "Ongeldige website-URL.",
+					"fileSizeLimit": "Bestandsgrootte moet kleiner zijn dan 5MB.",
+					"fileFormatLimit": "Alleen JPG- en PNG-formaten zijn toegestaan.",
+					"startDateRequired": "Startdatum is verplicht.",
+					"endDateRequired": "Einddatum is verplicht.",
+					"endDateAfterStart": "Einddatum moet na startdatum liggen.",
+					"invalidUrl": "Voer een geldige URL in.",
+					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!"
+				},
+				"common": {
+					"search": "Zoeken ...",
+					"typeNew": "Typ nieuw ...",
+					"addNew": "Nieuw toevoegen",
+					"uploadingImage": "Projectafbeelding wordt geüpload"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Labels",
+					"labelsPlaceholder": "Selecteer labels...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Selecteer tags...",
+					"colorCode": "Kleurcode"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Budgettype",
+					"budgetTypePlaceholder": "Selecteer budgettype",
+					"budgetAmount": "Budgetbedrag",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Valutaselectie",
+					"currencyPlaceholder": "Selecteer een valuta...",
+					"billing": "Facturatietype",
+					"billingPlaceholder": "Selecteer interval..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Leden & Managers toewijzen",
+					"noMembers": "Geen leden of managers",
+					"addMember": "Lid toevoegen",
+					"selectMember": "Selecteer een lid...",
+					"selectRole": "Selecteer een rol...",
+					"relations": "Relaties",
+					"noRelations": "Geen relaties",
+					"addRelation": "Relatie toevoegen",
+					"selectProject": "Selecteer een project...",
+					"selectRelationType": "Kies een relatietype..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Project aanmaken",
+					"financialSettings": "Financiële instellingen",
+					"categorization": "Categorisering",
+					"teamAndRelations": "Team & Relaties"
+				}
+			},
+			"deleteModal": {
+				"title": "Geselecteerde verwijderen?",
+				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"
@@ -711,7 +832,9 @@
 			"START_WORKING_BUTTON": "Begin met werken",
 			"TIMER_RUNNING": "De timer loopt al",
 			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
-		}
+		},
+		"VISITED_SITES": "Bezochte sites",
+		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites"
 	},
 	"task": {
 		"TITLE": "Taak",

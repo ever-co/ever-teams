@@ -34,15 +34,16 @@ export function groupAppsByHour(apps: ITimerApps[]) {
 
 		const hourDataIndex = groupedData.findIndex((el) => el.hour == time);
 
-		if (hourDataIndex !== -1) {
-			groupedData[hourDataIndex].apps.push(app);
-			groupedData[hourDataIndex].totalMilliseconds += +app.duration;
-		} else
-			groupedData.push({
-				hour: app.time.slice(0, 5),
-				totalMilliseconds: +app.duration,
-				apps: [app]
-			});
+		if (app.duration)
+			if (hourDataIndex !== -1) {
+				groupedData[hourDataIndex].apps.push(app);
+				groupedData[hourDataIndex].totalMilliseconds += +app.duration;
+			} else
+				groupedData.push({
+					hour: app.time.slice(0, 5),
+					totalMilliseconds: +app.duration,
+					apps: [app]
+				});
 	});
 
 	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));

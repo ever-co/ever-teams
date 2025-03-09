@@ -8,7 +8,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: string }) {
+export function LanguageDropDownWithFlags({
+	btnClassName,
+	showFlag = true
+}: {
+	btnClassName?: string;
+	showFlag?: boolean;
+}) {
 	const { changeLanguage } = useLanguage();
 	const { languages, loadLanguagesData, setActiveLanguage } = useLanguageSettings();
 	const { setValue } = useForm();
@@ -50,14 +56,16 @@ export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: str
 				setActiveLanguage(e);
 			}}
 		>
-			<SelectTrigger className={clsxm('border-none bg-light--theme-dark mr-4 dark:bg-[#1D222A]', btnClassName)}>
-				<ActiveFlag className=" h-4 w-[24px] mr-2.5 " />
+			<SelectTrigger className={clsxm(btnClassName)}>
+				{showFlag ? <ActiveFlag className=" h-3 w-4 mr-2.5 " /> : null}
 
-				{items.filter((v) => v.data?.code == pathArray[1]).length
-					? items.filter((v) => v.data?.code == pathArray[1])[0].data?.name
-					: 'English'}
+				<span className=" font-light text-sm text-gray-500">
+					{items.filter((v) => v.data?.code == pathArray[1]).length
+						? items.filter((v) => v.data?.code == pathArray[1])[0].data?.name
+						: 'English'}
+				</span>
 			</SelectTrigger>
-			<SelectContent className="bg-light--theme-light overflow-y-auto rounded-[16px] z-[50000] relative p-3 min-w-28 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]">
+			<SelectContent className="bg-light--theme-light overflow-y-auto w-auto rounded-xl z-[50000] relative  rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]">
 				{items.map((item: any) => {
 					const Flag = converLanguageToObject[item.data.code].Flag;
 					return (
@@ -66,11 +74,11 @@ export function LanguageDropDownWithFlags({ btnClassName }: { btnClassName?: str
 							key={item.key}
 							value={item.data}
 							className={clsxm(
-								'cursor-pointer relative flex pl-2 hover:!bg-transparent hover:font-semibold'
+								'cursor-pointer relative flex hover:!bg-transparent hover:font-semibold !p-2'
 							)}
 						>
-							<div className="flex">
-								<Flag className="h-4 w-6 mr-2.5" />
+							<div className="flex gap-2 text-xs">
+								<Flag className="h-4 w-6" />
 								<span>{item.data.name}</span>
 							</div>
 						</SelectItem>

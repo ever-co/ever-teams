@@ -4,19 +4,21 @@ export function ProgressBar({
 	width,
 	progress,
 	className,
-	showPercents
+	showPercents,
+	backgroundColor
 }: {
 	width: number | string;
 	progress: number | string;
 	className?: string;
 	showPercents?: boolean;
+	backgroundColor?: string;
 }) {
 	return (
 		<>
 			<div className={clsxm('flex justify-between items-center relative', className)} style={{ width }}>
 				<div
 					className={clsxm(
-						' h-2 rounded-full absolute z-[1] ',
+						' h-2 rounded-full absolute z-[1] bg-black ',
 						+parseInt(progress.toString()) < 25 && 'bg-red-600 dark:bg-red-400',
 						+parseInt(progress.toString()) >= 25 &&
 							+parseInt(progress.toString()) < 50 &&
@@ -28,7 +30,7 @@ export function ProgressBar({
 					)}
 					style={{ width: progress }}
 				/>
-				<div className="bg-[#dfdfdf] dark:bg-[#2B303B] h-2 rounded-full w-full" />
+				<div style={{ backgroundColor }} className="bg-[#dfdfdf] dark:bg-[#2B303B] h-2 rounded-full w-full" />
 			</div>
 			{showPercents && (
 				<div className="not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] ml-2 text-[#28204880] dark:text-white">

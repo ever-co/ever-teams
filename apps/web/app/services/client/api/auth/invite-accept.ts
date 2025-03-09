@@ -69,7 +69,7 @@ export function getAllOrganizationTeamAPI(params: ITeamRequestParams, bearer_tok
 		'members.role',
 		'members.employee',
 		'members.employee.user',
-		'createdBy',
+		'createdByUser',
 		'projects',
 		'projects.customFields.repository'
 	];

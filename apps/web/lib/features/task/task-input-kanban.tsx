@@ -395,7 +395,7 @@ function TaskCard({
 									<TaskLabels
 										className="lg:min-w-[170px] text-xs"
 										forDetails={false}
-										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+										taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-11 text-xs"
 										onValueChange={(_: any, values: string[] | undefined) => {
 											taskLabelsData.filter((tag) =>
 												tag.name ? values?.includes(tag.name) : false

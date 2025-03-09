@@ -19,6 +19,11 @@
 		"PROJECT_BUDGET": "Project Budget"
 	},
 	"common": {
+		"APPLICATION": "Application",
+		"TIME_SPENT": "Time Spent",
+		"PERCENT_USED": "Percent Used",
+		"NO_ACTIVITY_DATA": "No activity data available",
+		"SELECT_DIFFERENT_DATE": "Select a different date range or check back later",
 		"PENDING_TASKS": "Pending Tasks",
 		"SHOW_MORE": "Show More",
 		"TASKS": "Tasks",
@@ -34,6 +39,7 @@
 		"TO_DO": "To-do",
 
 		"COLLAPSE_COLUMN": "Collapse Column",
+		"EXPAND_COLUMN": "Expand Column",
 		"EDIT_STATUS": "Edit Status",
 		"ADD_TIME_ENTRY": "Add Time Entry",
 		"OPT_IN_UPDATES": "Opt-in to receive updates and news about Ever Teams.",
@@ -90,6 +96,12 @@
 		"BOARD": "Board",
 		"SECURITY_CODE": "Security Code",
 		"CONFIRM": "Confirm",
+		"COST_BASED": "Cost-Based",
+		"HOURS_BASED": "Hours-Based",
+		"MANAGER": "Manager",
+		"BUDGET_TYPE": "Budget Type",
+		"CLEAR_FILTERS": "Clear Filters",
+		"APPLY_FILTERS": "Apply Filters",
 		"YOUR_EMAIL": "your email",
 		"CONTINUE": "Continue",
 		"EDIT_TASK": "Edit Task",
@@ -276,6 +288,21 @@
 			"ADD_PLAN": "Add Plan",
 			"DELETE_THIS_PLAN": "Delete this plan"
 		},
+		"teamStats": {
+			"MEMBER": "Member",
+			"MEMBERS_WORKED": "Members Worked",
+			"TOTAL_TIME": "Total Time",
+			"TOTAL_HOURS": "Total Hours",
+			"TRACKED": "Tracked",
+			"MANUALLY_ADDED": "Manually Added",
+			"MANUAL": "Manual",
+			"ACTIVE_TIME": "Active Time",
+			"IDLE_TIME": "Idle Time",
+			"IDLE": "Idle",
+			"UNKNOWN_ACTIVITY": "Unknown Activity",
+			"ACTIVITY_LEVEL": "Activity Level",
+			"NO_DATA_AVAILABLE": "No Data Available"
+		},
 		"timesheets": {
 			"SINGULAR": "Timesheet",
 			"PLURAL": "Timesheets"
@@ -326,8 +353,14 @@
 		"REPORTS": "Reports",
 		"LEGEND": "Legend",
 		"HOURS": "Hours",
+		"START_DATE": "Start Date",
+		"END_DATE": "End Date",
+		"MEMBERS": "Members",
+		"MANAGERS": "Managers",
 		"NOT_HOURS_WORKED": "Not hours worked",
-		"MEMBERS_COUNT": "Members count"
+		"MEMBERS_COUNT": "Members count",
+		"REVIEW": "REVIEW",
+		"ARCHIVE": "Archive"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -357,6 +390,94 @@
 			"GROUP_BY": "Group by",
 			"DAILY_LIMIT": "Daily limit",
 			"WEEKLY_LIMIT": "Weekly limit"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projects",
+				"SINGULAR": "Project"
+			},
+			"CREATE_NEW_PROJECT": "Create New Project",
+			"views": {
+				"LIST_VIEW": "List View",
+				"GRID_VIEW": "Grid View"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Project Title",
+					"titlePlaceholder": "Client Project #1...",
+					"description": "Description",
+					"datePickerPlaceholder": "Pick a date",
+					"websiteUrl": "Website URL",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Project Thumbnail",
+					"uploadPhoto": "Upload photo"
+				},
+				"errors": {
+					"titleRequired": "Project title is required.",
+					"titleLength": "Project title must be between 3 and 100 characters.",
+					"invalidWebsiteUrl": "Invalid website URL.",
+					"fileSizeLimit": "File size must be less than 5MB.",
+					"fileFormatLimit": "Only JPG and PNG formats are allowed.",
+					"startDateRequired": "Start date is required",
+					"endDateRequired": "End date is required",
+					"endDateAfterStart": "End date must be after start date",
+					"invalidUrl": "Please enter a valid URL",
+					"uploadError": "Something went wrong while uploading the project image, please try again!"
+				},
+				"common": {
+					"search": "Search ...",
+					"typeNew": "Type new ...",
+					"addNew": "Add new",
+					"uploadingImage": "Uploading the project image"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Labels",
+					"labelsPlaceholder": "Select labels...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Select tags...",
+					"colorCode": "Color Code"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Budget Type",
+					"budgetTypePlaceholder": "Select a budget type",
+					"budgetAmount": "Budget Amount",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Currency Selection",
+					"currencyPlaceholder": "Select a currency...",
+					"billing": "Billing Type",
+					"billingPlaceholder": "Select interval..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Assign Members & Managers",
+					"noMembers": "No members or managers",
+					"addMember": "Add Member",
+					"selectMember": "Select a member...",
+					"selectRole": "Select role...",
+					"relations": "Relations",
+					"noRelations": "No relations",
+					"addRelation": "Add Relation",
+					"selectProject": "Select a project...",
+					"selectRelationType": "Choose a relation type..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Create Project",
+					"financialSettings": "Financial Settings",
+					"categorization": "Categorization",
+					"teamAndRelations": "Team & Relations"
+				}
+			},
+			"deleteModal": {
+				"title": "Delete Selected?",
+				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
+			}
 		},
 		"home": {
 			"BREADCRUMB": "[\"Dashboard\"]",
@@ -712,7 +833,9 @@
 			"START_WORKING_BUTTON": "Start working",
 			"TIMER_RUNNING": "The timer is already running",
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
-		}
+		},
+		"VISITED_SITES": "Visited sites",
+		"NO_VISITED_SITE_MESSAGE": "There are no visited sites"
 	},
 	"task": {
 		"TITLE": "Task",

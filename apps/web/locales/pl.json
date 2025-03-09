@@ -19,12 +19,22 @@
 		"PROJECT_BUDGET": "Budżet projektu"
 	},
 	"common": {
+		"APPLICATION": "Aplikacja",
+		"TIME_SPENT": "Czas spędzony",
+		"PERCENT_USED": "Procent wykorzystany",
+		"NO_ACTIVITY_DATA": "Brak dostępnych danych o aktywności",
+		"SELECT_DIFFERENT_DATE": "Wybierz inny zakres dat lub sprawdź później",
 		"PENDING_TASKS": "Zadania oczekujące",
 		"SHOW_MORE": "Pokaż więcej",
 		"TASKS": "Zadania",
 		"MEN_HOURS": "Roboczogodziny",
 		"MEMBERS_WORKED": "Członkowie pracowali",
+		"START_DATE": "Data rozpoczęcia",
+		"END_DATE": "Data zakończenia",
+		"MEMBERS": "Członkowie",
+		"MANAGERS": "Menadżerowie",
 		"COLLAPSE_COLUMN": "Zwiń kolumnę",
+		"EXPAND_COLUMN": "Rozwiń kolumnę",
 		"EDIT_STATUS": "Edytuj status",
 		"ADD_TIME_ENTRY": "Dodaj wpis czasu",
 		"OPT_IN_UPDATES": "Zgódź się na otrzymywanie aktualizacji i wiadomości o Ever Teams.",
@@ -280,6 +290,21 @@
 			"ADD_PLAN": "Dodaj plan",
 			"DELETE_THIS_PLAN": "Usuń ten plan"
 		},
+		"teamStats": {
+			"MEMBER": "Członek",
+			"MEMBERS_WORKED": "Członkowie, Którzy Pracowali",
+			"TOTAL_TIME": "Łączny Czas",
+			"TOTAL_HOURS": "Łączne Godziny",
+			"TRACKED": "Śledzony",
+			"MANUALLY_ADDED": "Dodany Ręcznie",
+			"MANUAL": "Ręczny",
+			"ACTIVE_TIME": "Czas Aktywny",
+			"IDLE_TIME": "Czas Bezczynności",
+			"IDLE": "Bezczynny",
+			"UNKNOWN_ACTIVITY": "Nieznana Aktywność",
+			"ACTIVITY_LEVEL": "Poziom Aktywności",
+			"NO_DATA_AVAILABLE": "Brak dostępnych danych"
+		},
 		"COPY_ISSUE_LINK": "Skopiuj link do zgłoszenia",
 		"MAKE_A_COPY": "Zrób kopię",
 		"ASSIGNEE": "Cesjonariusz",
@@ -306,6 +331,12 @@
 		"PICK_A_DATE": "Wybierz datę",
 		"THIS_WEEK": "Ten tydzień",
 		"LAST_WEEK": "Ostatni tydzień",
+		"COST_BASED": "Na podstawie kosztów",
+		"HOURS_BASED": "Na podstawie godzin",
+		"MANAGER": "Menadżer",
+		"BUDGET_TYPE": "Typ budżetu",
+		"CLEAR_FILTERS": "Wyczyść filtry",
+		"APPLY_FILTERS": "Zastosuj filtry",
 		"THIS_MONTH": "Ten miesiąc",
 		"LAST_MONTH": "Ostatni miesiąc",
 		"LAST_TWO_WEEKS": "Ostatnie dwa tygodnie",
@@ -326,7 +357,9 @@
 		"SCREENSHOTS": "Zrzuty ekranu",
 		"TIME_LOG": "Dziennik czasu",
 		"TO_DO": "Do zrobienia",
-		"MEMBERS_COUNT": "Liczba członków"
+		"MEMBERS_COUNT": "Liczba członków",
+		"REVIEW": "PRZEGLĄD",
+		"ARCHIVE": "Archiwum"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -416,6 +449,94 @@
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Zaraz usuniesz status {statusName}, który jest używany przez aktywne zadania; proszę potwierdzić akcję"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projekty",
+				"SINGULAR": "Projekt"
+			},
+			"CREATE_NEW_PROJECT": "Utwórz nowy projekt",
+			"views": {
+				"LIST_VIEW": "Widok listy",
+				"GRID_VIEW": "Widok siatki"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Tytuł projektu",
+					"titlePlaceholder": "Projekt klienta #1...",
+					"description": "Opis",
+					"datePickerPlaceholder": "Wybierz datę",
+					"websiteUrl": "URL strony internetowej",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Miniatura projektu",
+					"uploadPhoto": "Prześlij zdjęcie"
+				},
+				"errors": {
+					"titleRequired": "Tytuł projektu jest wymagany.",
+					"titleLength": "Tytuł projektu musi mieć od 3 do 100 znaków.",
+					"invalidWebsiteUrl": "Nieprawidłowy URL strony internetowej.",
+					"fileSizeLimit": "Rozmiar pliku musi wynosić mniej niż 5 MB.",
+					"fileFormatLimit": "Dozwolone tylko formaty JPG i PNG.",
+					"startDateRequired": "Data rozpoczęcia jest wymagana.",
+					"endDateRequired": "Data zakończenia jest wymagana.",
+					"endDateAfterStart": "Data zakończenia musi być po dacie rozpoczęcia.",
+					"invalidUrl": "Proszę podać prawidłowy URL.",
+					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!"
+				},
+				"common": {
+					"search": "Szukaj ...",
+					"typeNew": "Wpisz nowy ...",
+					"addNew": "Dodaj nowy",
+					"uploadingImage": "Przesyłanie obrazu projektu"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Etykiety",
+					"labelsPlaceholder": "Wybierz etykiety...",
+					"tags": "Tagi",
+					"tagsPlaceholder": "Wybierz tagi...",
+					"colorCode": "Kod koloru"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Typ budżetu",
+					"budgetTypePlaceholder": "Wybierz typ budżetu",
+					"budgetAmount": "Kwota budżetu",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Wybór waluty",
+					"currencyPlaceholder": "Wybierz walutę...",
+					"billing": "Typ fakturowania",
+					"billingPlaceholder": "Wybierz interwał..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Przypisz Członków i Menedżerów",
+					"noMembers": "Brak członków lub menedżerów",
+					"addMember": "Dodaj Członka",
+					"selectMember": "Wybierz członka...",
+					"selectRole": "Wybierz rolę...",
+					"relations": "Relacje",
+					"noRelations": "Brak relacji",
+					"addRelation": "Dodaj Relację",
+					"selectProject": "Wybierz projekt...",
+					"selectRelationType": "Wybierz typ relacji..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Utwórz Projekt",
+					"financialSettings": "Ustawienia Finansowe",
+					"categorization": "Kategoryzacja",
+					"teamAndRelations": "Zespół i Relacje"
+				}
+			},
+			"deleteModal": {
+				"title": "Usunąć wybrane?",
+				"description": "Zamierzasz trwale usunąć ten projekt. Kliknij 'Usuń', aby potwierdzić akcję"
+			}
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",
@@ -711,7 +832,9 @@
 		"ACTIVE": "Aktywny",
 		"INACTIVE": "Nieaktywny",
 		"ARCHIVED": "Zarchiwizowany",
-		"NOT_ARCHIVED": "Niezarchiwizowany"
+		"NOT_ARCHIVED": "Niezarchiwizowany",
+		"VISITED_SITES": "Odwiedzone strony",
+		"NO_VISITED_SITE_MESSAGE": "Brak odwiedzonych stron"
 	},
 	"task": {
 		"TITLE": "Zadanie",

@@ -22,14 +22,14 @@ export type ITeamTask = {
 	public: boolean;
 	taskStatusId?: string;
 	resolvedAt?: string;
-	creatorId: string;
+	createdByUserId: string;
 	members: IEmployee[];
 	selectedTeam?: IOrganizationTeamList;
 	tags: Tag[];
 	teams: SelectedTeam[];
 	linkedIssues?: LinkedTaskIssue[];
 	children?: Omit<ITeamTask, 'children'>[];
-	creator: Creator;
+	createdByUser: Creator;
 	taskNumber: string;
 	label?: string;
 	parentId?: string;
@@ -137,17 +137,9 @@ export type ITaskStatusField =
 	| 'tags'
 	| 'status type';
 
-export type TimesheetStatus =
-	| "DRAFT"
-	| "PENDING"
-	| "IN REVIEW"
-	| "DENIED"
-	| "APPROVED";
+export type TimesheetStatus = 'DRAFT' | 'PENDING' | 'IN REVIEW' | 'DENIED' | 'APPROVED';
 
-export type TimesheetFilterByDays =
-	| "Daily"
-	| "Weekly"
-	| "Monthly"
+export type TimesheetFilterByDays = 'Daily' | 'Weekly' | 'Monthly';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
@@ -170,7 +162,7 @@ export interface ICreateTask {
 	priority?: string;
 	taskStatusId?: string;
 	issueType?: string;
-	members?: { id: string;[x: string]: any }[];
+	members?: { id: string; [x: string]: any }[];
 	estimateDays?: number;
 	estimateHours?: string;
 	estimateMinutes?: string;

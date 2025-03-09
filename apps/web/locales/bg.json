@@ -19,12 +19,22 @@
 		"PROJECT_BUDGET": "Бюджет на проекта"
 	},
 	"common": {
+		"APPLICATION": "Приложение",
+		"TIME_SPENT": "Изразходвано време",
+		"PERCENT_USED": "Използван процент",
+		"NO_ACTIVITY_DATA": "Няма налични данни за активност",
+		"SELECT_DIFFERENT_DATE": "Изберете различен период или проверете по-късно",
 		"PENDING_TASKS": "Чакащи задачи",
 		"SHOW_MORE": "Покажи още",
 		"TASKS": "Задачи",
 		"MEN_HOURS": "Човеко-часове",
+		"START_DATE": "Начална дата",
+		"END_DATE": "Крайна дата",
+		"MEMBERS": "Членове",
+		"MANAGERS": "Мениджъри",
 		"MEMBERS_WORKED": "Работили членове",
 		"COLLAPSE_COLUMN": "Свий колона",
+		"EXPAND_COLUMN": "Разгъни колона",
 		"EDIT_STATUS": "Редактирай статус",
 		"ADD_TIME_ENTRY": "Добавяне на запис на време",
 		"OPT_IN_UPDATES": "Абонирайте се за актуализации и новини за Ever Teams.",
@@ -267,6 +277,21 @@
 			"ADD_PLAN": "Добави план",
 			"DELETE_THIS_PLAN": "Изтрийте този план"
 		},
+		"teamStats": {
+			"MEMBER": "Член",
+			"MEMBERS_WORKED": "Членове, които са работили",
+			"TOTAL_TIME": "Общо време",
+			"TOTAL_HOURS": "Общо часове",
+			"TRACKED": "Проследено",
+			"MANUALLY_ADDED": "Добавено ръчно",
+			"MANUAL": "Ръчно",
+			"ACTIVE_TIME": "Активно време",
+			"IDLE_TIME": "Време на бездействие",
+			"IDLE": "Неактивен",
+			"UNKNOWN_ACTIVITY": "Неизвестна дейност",
+			"ACTIVITY_LEVEL": "Ниво на активност",
+			"NO_DATA_AVAILABLE": "Няма налични данни"
+		},
 		"timesheets": {
 			"SINGULAR": "Работен лист",
 			"PLURAL": "Работни листове"
@@ -289,6 +314,12 @@
 		"SELECT_DATE": "Изберете дата",
 		"SELECT_AND_CLOSE": "Изберете и затворете",
 		"SORT": "Подредете",
+		"COST_BASED": "Базирано на разходи",
+		"HOURS_BASED": "Базирано на часове",
+		"MANAGER": "Мениджър",
+		"BUDGET_TYPE": "Тип бюджет",
+		"CLEAR_FILTERS": "Изчисти филтрите",
+		"APPLY_FILTERS": "Приложи филтрите",
 		"ICON": "Икона",
 		"SELECT_ROLE": "Моля, изберете роля",
 		"ADD_TIME": "Добавете време",
@@ -326,7 +357,9 @@
 		"SCREENSHOTS": "Снимки на екрана",
 		"TIME_LOG": "Дневник на времето",
 		"TO_DO": "Списък със задачи",
-		"MEMBERS_COUNT": "Брой членове"
+		"MEMBERS_COUNT": "Брой членове",
+		"REVIEW": "ПРЕГЛЕД",
+		"ARCHIVE": "Архив"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -375,6 +408,95 @@
 		},
 		"kanban": {
 			"KANBAN_BOARD": "Канбан дъска"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Проекти",
+				"SINGULAR": "Проект"
+			},
+			"CREATE_NEW_PROJECT": "Създайте нов проект",
+			"views": {
+				"LIST_VIEW": "Списъчен изглед",
+				"GRID_VIEW": "Мрежов изглед"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Заглавие на проекта",
+					"titlePlaceholder": "Клиентски проект #1...",
+					"description": "Описание",
+					"datePickerPlaceholder": "Изберете дата",
+					"websiteUrl": "URL на сайта",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Миниатюра на проекта",
+					"uploadPhoto": "Качи снимка"
+				},
+				"errors": {
+					"titleRequired": "Заглавието на проекта е задължително.",
+					"titleLength": "Заглавието на проекта трябва да бъде между 3 и 100 знака.",
+					"invalidWebsiteUrl": "Невалиден URL на сайта.",
+					"fileSizeLimit": "Размерът на файла трябва да бъде по-малък от 5MB.",
+					"fileFormatLimit": "Допустими формати: JPG и PNG.",
+					"startDateRequired": "Дата на започване е задължителна.",
+					"endDateRequired": "Дата на завършване е задължителна.",
+					"endDateAfterStart": "Дата на завършване трябва да бъде след дата на започване.",
+					"invalidUrl": "Моля, въведете валиден URL.",
+					"uploadError": "Възникна грешка при качването на изображението на проекта, моля опитайте отново!"
+				},
+				"common": {
+					"search": "Търсене ...",
+					"typeNew": "Въведете ново ...",
+					"addNew": "Добави нов",
+					"uploadingImage": "Качване на изображението на проекта"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Етикети",
+					"labelsPlaceholder": "Изберете етикети...",
+					"tags": "Тагове",
+					"tagsPlaceholder": "Изберете тагове...",
+					"colorCode": "Цветови код"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Тип бюджет",
+					"budgetTypePlaceholder": "Изберете тип бюджет",
+					"budgetAmount": "Сума на бюджета",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Избор на валута",
+					"currencyPlaceholder": "Изберете валута...",
+					"billing": "Тип фактуриране",
+
+					"billingPlaceholder": "Изберете интервал..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Назначаване на членове и мениджъри",
+					"noMembers": "Няма членове или мениджъри",
+					"addMember": "Добави член",
+					"selectMember": "Изберете член...",
+					"selectRole": "Изберете роля...",
+					"relations": "Връзки",
+					"noRelations": "Няма връзки",
+					"addRelation": "Добави връзка",
+					"selectProject": "Изберете проект...",
+					"selectRelationType": "Изберете тип връзка..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Създаване на проект",
+					"financialSettings": "Финансови настройки",
+					"categorization": "Категоризация",
+					"teamAndRelations": "Екип и връзки"
+				}
+			},
+			"deleteModal": {
+				"title": "Изтриване на избраното?",
+				"description": "Вие сте на път да изтриете този проект за постоянно. Натиснете 'Изтриване', за да потвърдите действието"
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]",
@@ -711,7 +833,9 @@
 			"START_WORKING_BUTTON": "Започнете работа",
 			"TIMER_RUNNING": "Таймерът вече работи",
 			"WARNING_PLAN_ESTIMATION": "Моля, коригирайте планираните работни часове или преоценете задачата(ите) "
-		}
+		},
+		"VISITED_SITES": "Посетени сайтове",
+		"NO_VISITED_SITE_MESSAGE": "Няма посетени сайтове"
 	},
 	"task": {
 		"TITLE": "Задача",

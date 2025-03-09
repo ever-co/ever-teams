@@ -19,13 +19,23 @@
 		"PROJECT_BUDGET": "Budget du projet"
 	},
 	"common": {
+		"APPLICATION": "Application",
+		"TIME_SPENT": "Temps passé",
+		"PERCENT_USED": "Pourcentage utilisé",
+		"NO_ACTIVITY_DATA": "Aucune donnée d'activité disponible",
+		"SELECT_DIFFERENT_DATE": "Sélectionnez une autre plage de dates ou revenez plus tard",
 		"PENDING_TASKS": "Tâches en attente",
 		"SHOW_MORE": "Voir plus",
 		"TASKS": "Tâches",
 		"MEN_HOURS": "Heures Homme",
 		"MEMBERS_WORKED": "Membres ayant travaillé",
 		"COLLAPSE_COLUMN": "Réduire la colonne",
+		"EXPAND_COLUMN": "Développer la colonne",
 		"EDIT_STATUS": "Modifier le statut",
+		"START_DATE": "Date de début",
+		"END_DATE": "Date de fin",
+		"MEMBERS": "Membres",
+		"MANAGERS": "Gestionnaires",
 		"ADD_TIME_ENTRY": "Ajouter une entrée de temps",
 		"OPT_IN_UPDATES": "Acceptez de recevoir des mises à jour et des nouvelles sur Ever Teams.",
 		"SUBSCRIBE_NEWSLETTER": "Abonnez-vous à notre newsletter",
@@ -244,6 +254,12 @@
 		"ALL_MEMBERS": "Tous les membres",
 		"NOT_WORKING": "Non actif",
 		"WORKING": "Actif",
+		"COST_BASED": "Basé sur les coûts",
+		"HOURS_BASED": "Basé sur les heures",
+		"MANAGER": "Gestionnaire",
+		"BUDGET_TYPE": "Type de budget",
+		"CLEAR_FILTERS": "Effacer les filtres",
+		"APPLY_FILTERS": "Appliquer les filtres",
 		"PAUSED": "En pause",
 		"ONLINE": "En ligne",
 		"SKIP_ADD_LATER": "Ajouter plus tard",
@@ -266,6 +282,21 @@
 			"SEE_PLANS": "Voir les plans",
 			"ADD_PLAN": "Ajouter un plan",
 			"DELETE_THIS_PLAN": "Supprimer ce plan"
+		},
+		"teamStats": {
+			"MEMBER": "Membre",
+			"MEMBERS_WORKED": "Membres Ayant Travaillé",
+			"TOTAL_TIME": "Temps Total",
+			"TOTAL_HOURS": "Heures Totales",
+			"TRACKED": "Suivi",
+			"MANUALLY_ADDED": "Ajouté Manuellement",
+			"MANUAL": "Manuel",
+			"ACTIVE_TIME": "Temps Actif",
+			"IDLE_TIME": "Temps Inactif",
+			"IDLE": "Inactif",
+			"UNKNOWN_ACTIVITY": "Activité Inconnue",
+			"ACTIVITY_LEVEL": "Niveau d'Activité",
+			"NO_DATA_AVAILABLE": "Aucune donnée disponible"
 		},
 		"timesheets": {
 			"SINGULAR": "Feuille de temps",
@@ -326,7 +357,9 @@
 		"SCREENSHOTS": "Captures d'écran",
 		"TIME_LOG": "Journal de temps",
 		"TO_DO": "À faire",
-		"MEMBERS_COUNT": "Nombre de membres"
+		"MEMBERS_COUNT": "Nombre de membres",
+		"REVIEW": "EXAMEN",
+		"ARCHIVE": "Archive"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -413,6 +446,94 @@
 			"TASK_IS_ALREADY_EPIC": "Le type de tâche épique ne peut pas être modifié.",
 			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent.",
 			"PROJECT": "Projet"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projets",
+				"SINGULAR": "Projet"
+			},
+			"CREATE_NEW_PROJECT": "Créer un nouveau projet",
+			"views": {
+				"LIST_VIEW": "Vue liste",
+				"GRID_VIEW": "Vue grille"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Titre du projet",
+					"titlePlaceholder": "Projet client #1...",
+					"description": "Description",
+					"datePickerPlaceholder": "Choisir une date",
+					"websiteUrl": "URL du site",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Miniature du projet",
+					"uploadPhoto": "Télécharger une photo"
+				},
+				"errors": {
+					"titleRequired": "Le titre du projet est obligatoire.",
+					"titleLength": "Le titre du projet doit être compris entre 3 et 100 caractères.",
+					"invalidWebsiteUrl": "URL du site invalide.",
+					"fileSizeLimit": "La taille du fichier doit être inférieure à 5 Mo.",
+					"fileFormatLimit": "Seuls les formats JPG et PNG sont autorisés.",
+					"startDateRequired": "La date de début est obligatoire.",
+					"endDateRequired": "La date de fin est obligatoire.",
+					"endDateAfterStart": "La date de fin doit être après la date de début.",
+					"invalidUrl": "Veuillez entrer une URL valide.",
+					"uploadError": "Une erreur s'est produite lors du téléchargement de l'image du projet, veuillez réessayer!"
+				},
+				"common": {
+					"search": "Recherche ...",
+					"typeNew": "Tapez nouveau ...",
+					"addNew": "Ajouter nouveau",
+					"uploadingImage": "Téléchargement de l'image du projet"
+				}
+			},
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Étiquettes",
+					"labelsPlaceholder": "Sélectionner des étiquettes...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Sélectionner des tags...",
+					"colorCode": "Code couleur"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Type de budget",
+					"budgetTypePlaceholder": "Sélectionner le type de budget",
+					"budgetAmount": "Montant du budget",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Sélection de la devise",
+					"currencyPlaceholder": "Sélectionner une devise...",
+					"billing": "Type de facturation",
+					"billingPlaceholder": "Sélectionner l'intervalle..."
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Assigner des Membres et Gestionnaires",
+					"noMembers": "Aucun membre ou gestionnaire",
+					"addMember": "Ajouter un Membre",
+					"selectMember": "Sélectionner un membre...",
+					"selectRole": "Sélectionner un rôle...",
+					"relations": "Relations",
+					"noRelations": "Aucune relation",
+					"addRelation": "Ajouter une Relation",
+					"selectProject": "Sélectionner un projet...",
+					"selectRelationType": "Choisir un type de relation..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Créer un Projet",
+					"financialSettings": "Paramètres Financiers",
+					"categorization": "Catégorisation",
+					"teamAndRelations": "Équipe et Relations"
+				}
+			},
+			"deleteModal": {
+				"title": "Supprimer la sélection?",
+				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action"
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Vous êtes sur le point de supprimer le statut {statusName} qui est utilisé par des tâches actives ; veuillez confirmer l'action"
@@ -711,7 +832,9 @@
 		"ACTIVE": "Actif",
 		"INACTIVE": "Inactif",
 		"ARCHIVED": "Archivé",
-		"NOT_ARCHIVED": "Non archivé"
+		"NOT_ARCHIVED": "Non archivé",
+		"VISITED_SITES": "Sites visités",
+		"NO_VISITED_SITE_MESSAGE": "Il n'y a pas de sites visités"
 	},
 	"task": {
 		"TITLE": "Tâche",

@@ -66,8 +66,8 @@ export interface IOrganizationTeamList {
 	shareProfileView?: boolean;
 	requirePlanToTrack?: boolean;
 	public?: boolean;
-	createdById: string;
-	createdBy: IUser;
+	createdByUserId: string;
+	createdByUser: IUser;
 	profile_link?: string;
 	imageId?: string | null;
 	image?: IImageAssets | null;
@@ -101,6 +101,7 @@ export interface OT_Member {
 	totalWorkedTasks: ITasksTimesheet[];
 	timerStatus?: ITimerStatusEnum;
 	activeTaskId?: string;
+	isManager: boolean;
 }
 
 export type ITimerStatusEnum = 'running' | 'idle' | 'pause' | 'online' | 'suspended';

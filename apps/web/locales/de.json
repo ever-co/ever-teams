@@ -19,12 +19,22 @@
 		"PROJECT_BUDGET": "Projektbudget"
 	},
 	"common": {
+		"APPLICATION": "Anwendung",
+		"TIME_SPENT": "Verbrachte Zeit",
+		"PERCENT_USED": "Prozentsatz genutzt",
+		"NO_ACTIVITY_DATA": "Keine Aktivitätsdaten verfügbar",
+		"SELECT_DIFFERENT_DATE": "Wählen Sie einen anderen Zeitraum oder kommen Sie später zurück",
 		"PENDING_TASKS": "Ausstehende Aufgaben",
 		"SHOW_MORE": "Mehr anzeigen",
 		"TASKS": "Aufgaben",
 		"MEN_HOURS": "Mannstunden",
 		"MEMBERS_WORKED": "Mitglieder gearbeitet",
 		"COLLAPSE_COLUMN": "Spalte einklappen",
+		"EXPAND_COLUMN": "Spalte ausklappen",
+		"START_DATE": "Startdatum",
+		"END_DATE": "Enddatum",
+		"MEMBERS": "Mitglieder",
+		"MANAGERS": "Manager",
 		"EDIT_STATUS": "Status bearbeiten",
 		"ADD_TIME_ENTRY": "Zeiteintrag hinzufügen",
 		"OPT_IN_UPDATES": "Abonnieren Sie Updates und Nachrichten zu Ever Teams.",
@@ -267,6 +277,21 @@
 			"ADD_PLAN": "Plan hinzufügen",
 			"DELETE_THIS_PLAN": "Diesen Plan löschen"
 		},
+		"teamStats": {
+			"MEMBER": "Mitglied",
+			"MEMBERS_WORKED": "Mitglieder, die gearbeitet haben",
+			"TOTAL_TIME": "Gesamtzeit",
+			"TOTAL_HOURS": "Gesamtstunden",
+			"TRACKED": "Verfolgt",
+			"MANUALLY_ADDED": "Manuell hinzugefügt",
+			"MANUAL": "Manuell",
+			"ACTIVE_TIME": "Aktive Zeit",
+			"IDLE_TIME": "Leerlaufzeit",
+			"IDLE": "Inaktiv",
+			"UNKNOWN_ACTIVITY": "Unbekannte Aktivität",
+			"ACTIVITY_LEVEL": "Aktivitätsniveau",
+			"NO_DATA_AVAILABLE": "Keine Daten verfügbar"
+		},
 		"timesheets": {
 			"SINGULAR": "Stundenzettel",
 			"PLURAL": "Stundenzettel"
@@ -316,6 +341,12 @@
 		"WEEKLY_LIMIT": "Wöchentliches Limit",
 		"REPORTS": "Berichte",
 		"LEGEND": "Legende",
+		"COST_BASED": "Kostenbasiert",
+		"HOURS_BASED": "Stundenbasiert",
+		"MANAGER": "Manager",
+		"BUDGET_TYPE": "Budgettyp",
+		"CLEAR_FILTERS": "Filter löschen",
+		"APPLY_FILTERS": "Filter anwenden",
 		"HOURS": "Stunden",
 		"NOT_HOURS_WORKED": "Nicht gearbeitete Stunden",
 		"VIEW": "Ansicht",
@@ -326,7 +357,9 @@
 		"SCREENSHOTS": "Screenshots",
 		"TIME_LOG": "Zeitprotokoll",
 		"TO_DO": "Zu erledigen",
-		"MEMBERS_COUNT": "Mitgliederanzahl"
+		"MEMBERS_COUNT": "Mitgliederanzahl",
+		"REVIEW": "ÜBERPRÜFUNG",
+		"ARCHIVE": "Archiv"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -416,6 +449,95 @@
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Sie sind dabei, den Status {statusName} zu löschen, der von aktiven Aufgaben verwendet wird; bitte bestätigen Sie die Aktion"
+		},
+		"projects": {
+			"projectTitle": {
+				"PLURAL": "Projekte",
+				"SINGULAR": "Projekt"
+			},
+			"CREATE_NEW_PROJECT": "Neues Projekt erstellen",
+			"views": {
+				"LIST_VIEW": "Listenansicht",
+				"GRID_VIEW": "Rasteransicht"
+			},
+			"basicInformationForm": {
+				"formFields": {
+					"title": "Projekt Titel",
+					"titlePlaceholder": "Kundenprojekt #1...",
+					"description": "Beschreibung",
+					"datePickerPlaceholder": "Wählen Sie ein Datum",
+					"websiteUrl": "Website URL",
+					"websiteUrlPlaceholder": "https://example.com",
+					"projectThumbnail": "Projekt Vorschaubild",
+					"uploadPhoto": "Foto hochladen"
+				},
+				"errors": {
+					"titleRequired": "Der Projekttitel ist erforderlich.",
+					"titleLength": "Der Projekttitel muss zwischen 3 und 100 Zeichen liegen.",
+					"invalidWebsiteUrl": "Ungültige Website-URL.",
+					"fileSizeLimit": "Die Dateigröße muss kleiner als 5 MB sein.",
+					"fileFormatLimit": "Nur JPG- und PNG-Formate sind erlaubt.",
+					"startDateRequired": "Startdatum ist erforderlich.",
+					"endDateRequired": "Enddatum ist erforderlich.",
+					"endDateAfterStart": "Das Enddatum muss nach dem Startdatum liegen.",
+					"invalidUrl": "Bitte geben Sie eine gültige URL ein.",
+					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!"
+				},
+				"common": {
+					"search": "Suchen ...",
+					"typeNew": "Neues eingeben ...",
+					"addNew": "Neu hinzufügen",
+					"uploadingImage": "Projektbild wird hochgeladen"
+				}
+			},
+			"financialSettingsForm": {
+				"formFields": {
+					"budgetType": "Budgettyp",
+					"budgetTypePlaceholder": "Wählen Sie einen Budgettyp",
+					"budgetAmount": "Budgetbetrag",
+					"budgetAmountPlaceholder": "10 000$...",
+					"currency": "Währungsauswahl",
+					"currencyPlaceholder": "Wählen Sie eine Währung...",
+					"billing": "Abrechnungsart",
+					"billingPlaceholder": "Wählen Sie einen Intervall..."
+				}
+			},
+
+			"categorizationForm": {
+				"formFields": {
+					"labels": "Bezeichnungen",
+					"labelsPlaceholder": "Bezeichnungen auswählen...",
+					"tags": "Tags",
+					"tagsPlaceholder": "Tags auswählen...",
+					"colorCode": "Farbcode"
+				}
+			},
+			"teamAndRelationsForm": {
+				"formFields": {
+					"assignMembers": "Mitglieder & Manager zuweisen",
+					"noMembers": "Keine Mitglieder oder Manager",
+					"addMember": "Mitglied hinzufügen",
+					"selectMember": "Mitglied auswählen...",
+					"selectRole": "Rolle auswählen...",
+					"relations": "Beziehungen",
+					"noRelations": "Keine Beziehungen",
+					"addRelation": "Beziehung hinzufügen",
+					"selectProject": "Projekt auswählen...",
+					"selectRelationType": "Beziehungstyp auswählen..."
+				}
+			},
+			"addOrEditModal": {
+				"steps": {
+					"createProject": "Projekt erstellen",
+					"financialSettings": "Finanzeinstellungen",
+					"categorization": "Kategorisierung",
+					"teamAndRelations": "Team & Beziehungen"
+				}
+			},
+			"deleteModal": {
+				"title": "Ausgewähltes löschen?",
+				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen"
+			}
 		},
 		"auth": {
 			"SEND_CODE": "Code senden",
@@ -711,7 +833,9 @@
 			"START_WORKING_BUTTON": "Mit der Arbeit beginnen",
 			"TIMER_RUNNING": "Der Timer läuft bereits",
 			"WARNING_PLAN_ESTIMATION": "Bitte korrigieren Sie die geplanten Arbeitsstunden oder schätzen Sie die Aufgabe(n) neu ein."
-		}
+		},
+		"VISITED_SITES": "Besuchte Seiten",
+		"NO_VISITED_SITE_MESSAGE": "Es gibt keine besuchten Seiten"
 	},
 	"task": {
 		"TITLE": "Aufgabe",

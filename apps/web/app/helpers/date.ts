@@ -78,7 +78,6 @@ export function differenceBetweenHours(startedAt: Date, stoppedAt: Date): number
 	return 0;
 }
 
-
 /**
  * Converts a given date string to a time string in the format HH:mm.
  *
@@ -91,7 +90,7 @@ export function differenceBetweenHours(startedAt: Date, stoppedAt: Date): number
  * @returns {string} The formatted time string
  */
 export const formatTimeFromDate = (date: string | Date | undefined) => {
-	if (!date) return "";
+	if (!date) return '';
 	const dateObject = date instanceof Date ? date : new Date(date);
 	const hours = dateObject.getHours().toString().padStart(2, '0');
 	const minutes = dateObject.getMinutes().toString().padStart(2, '0');
@@ -109,9 +108,7 @@ export const formatTimeFromDate = (date: string | Date | undefined) => {
  * @param {Date | string} date - The date input, which can be either a Date object or a string.
  * @returns {Date} The corresponding Date object.
  */
-export const toDate = (date: Date | string) =>
-	(date instanceof Date ? date : new Date(date));
-
+export const toDate = (date: Date | string) => (date instanceof Date ? date : new Date(date));
 
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
@@ -175,7 +172,6 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
-
 
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	if (dateString.toString().length > 10) {
@@ -261,7 +257,7 @@ export const getGreeting = (t: TranslationHooks) => {
 		MORNING_START: 5,
 		AFTERNOON_START: 12,
 		EVENING_START: 18
-	} as const
+	} as const;
 	const currentHour = new Date().getHours();
 
 	if (currentHour >= GREETING_TIMES.MORNING_START && currentHour < GREETING_TIMES.AFTERNOON_START) {
@@ -271,7 +267,7 @@ export const getGreeting = (t: TranslationHooks) => {
 	} else {
 		return t('pages.timesheet.GREETINGS.GOOD_EVENING');
 	}
-}
+};
 
 export const formatDate = (dateStr: string | Date): string => {
 	try {
@@ -280,8 +276,7 @@ export const formatDate = (dateStr: string | Date): string => {
 		console.error('Invalid date format:', error);
 		return '';
 	}
-}
-
+};
 
 export function toLocal(date: string | Date | moment.Moment): moment.Moment {
 	const localDate = moment(date);
