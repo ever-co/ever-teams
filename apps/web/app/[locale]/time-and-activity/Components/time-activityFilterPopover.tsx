@@ -106,7 +106,14 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 						<div className="grid gap-5">
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('common.TEAM')}</span>
+									<div className="flex items-center gap-2">
+										<span className="text-[12px]">{t('common.TEAM')}</span>
+										{selectedTeams.length > 0 && (
+											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+												{selectedTeams.length}
+											</span>
+										)}
+									</div>
 									<button
 										onClick={() => setSelectedTeams([])}
 										className={cn(
@@ -130,7 +137,14 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('common.MEMBER')}</span>
+									<div className="flex items-center gap-2">
+										<span className="text-[12px]">{t('common.MEMBER')}</span>
+										{selectedMembers.length > 0 && (
+											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+												{selectedMembers.length}
+											</span>
+										)}
+									</div>
 									<button
 										onClick={() => setSelectedMembers([])}
 										className={cn(
@@ -154,7 +168,14 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
+									<div className="flex items-center gap-2">
+										<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
+										{selectedProjects.length > 0 && (
+											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+												{selectedProjects.length}
+											</span>
+										)}
+									</div>
 									<button
 										onClick={() => setSelectedProjects([])}
 										className={cn(
@@ -178,7 +199,14 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 							</div>
 							<div className="">
 								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
+									<div className="flex items-center gap-2">
+										<span className="text-[12px]">{t('hotkeys.TASK')}</span>
+										{selectedTasks.length > 0 && (
+											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+												{selectedTasks.length}
+											</span>
+										)}
+									</div>
 									<button
 										onClick={() => setSelectedTasks([])}
 										className={cn(
