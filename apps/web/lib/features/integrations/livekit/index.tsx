@@ -34,11 +34,17 @@ interface ActiveRoomProps {
  * Default connection options for LiveKit room
  * @constant defaultConnectOptions
  */
-const defaultConnectOptions: RoomConnectOptions = {
+const defaultConnectOptions = {
     autoSubscribe: true,
     adaptiveStream: true,
     dynacast: true,
-} as const;
+    stopMicTrackOnMute: true, // Better resource management
+    publishDefaults: {
+        simulcast: true, // Enable simulcast for better quality scaling
+        videoSimulcastLayers: [0, 1, 2], // Low, medium, high quality
+        dtx: true, // Discontinuous transmission for audio
+    },
+} as const satisfies RoomConnectOptions;
 
 /**
  * LiveKitPage component for video conferencing
@@ -64,10 +70,8 @@ export default function LiveKitPage({
     );
 
     // Cast LiveKitRoom to ElementType to handle dynamic imports
-    const LiveKitRoomComponent = LiveKitRoom as React.ElementType;
-
     return (
-        <LiveKitRoomComponent
+        <LiveKitRoom
             className="!bg-light--theme-dark dark:!bg-dark--theme-light transition-colors"
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
@@ -81,7 +85,10 @@ export default function LiveKitPage({
                 width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-            }}
+                position: 'relative',
+                overflow: 'hidden',
+                isolation: 'isolate', // Create stacking context
+            }} as const
             onDisconnected={onLeave}
         >
             <VideoConference
