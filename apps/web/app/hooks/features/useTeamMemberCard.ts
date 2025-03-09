@@ -252,7 +252,7 @@ export function useTeamMemberCard(
     unMakeMemberManager,
     isTeamCreator,
     unassignTask,
-    isTeamOwner: activeTeam?.createdBy?.id === memberUser?.id
+    isTeamOwner: activeTeam?.createdByUser?.id === memberUser?.id
   };
 }
 

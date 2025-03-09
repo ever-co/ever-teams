@@ -222,7 +222,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 										<div
 											style={{ backgroundColor: project.color }}
 											className={cn(
-												'w-8 h-8  border overflow-hidden flex items-center justify-center rounded-full'
+												'flex overflow-hidden justify-center items-center w-8 h-8 rounded-full border'
 											)}
 										>
 											{!project.imageUrl ? (
@@ -309,7 +309,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 								{
 									title: t('sidebar.TIME_AND_ACTIVITY'),
 									label: 'time-and-activity',
-									url: '#'
+									url: '/time-and-activity'
 								}
 							]
 						}

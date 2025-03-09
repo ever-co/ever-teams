@@ -29,7 +29,7 @@ export async function getOrganizationTeamsAPI(organizationId: string, tenantId: 
 		'members.role',
 		'members.employee',
 		'members.employee.user',
-		'createdBy',
+		'createdByUser',
 		'projects',
 		'projects.customFields.repository'
 	];
@@ -104,7 +104,7 @@ export async function getOrganizationTeamAPI(teamId: string, organizationId: str
 		'members.role',
 		'members.employee',
 		'members.employee.user',
-		'createdBy',
+		'createdByUser',
 		'projects',
 		'projects.customFields.repository'
 	];

@@ -1,6 +1,6 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
-import { UserProfilePlans } from 'lib/features';
+import { EmptyPlans, UserProfilePlans } from 'lib/features';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 import { useTranslations } from 'next-intl';
@@ -108,7 +108,8 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered, user }: P
 
 			{tabFiltered.tab !== 'dailyplan' && (
 				<ul className="flex flex-col gap-4">
-					{slicedItems.map((task) => {
+
+					{slicedItems.length>0 ?slicedItems.map((task) => {
 						return (
 							<li key={task.id}>
 								<TaskCard
@@ -128,7 +129,7 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered, user }: P
 								/>
 							</li>
 						);
-					})}
+					}) : <EmptyPlans planMode='Today Tasks' />}
 				</ul>
 			)}
 		</div>

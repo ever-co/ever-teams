@@ -29,7 +29,7 @@ export function useIsMemberManager(user: IUser | undefined | null) {
       setTeamManager(!!isM);
 
       // Team creatoe
-      setTeamCreator(activeTeam.createdById === user.id);
+      setTeamCreator(activeTeam.createdByUserId === user.id);
     } else {
       setTeamManager(false);
       setTeamCreator(false);
