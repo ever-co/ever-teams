@@ -76,7 +76,7 @@ export default function LiveKitPage({
                         stream.getTracks().forEach(track => track.stop());
                     }
                 })
-                .catch(() => {}); // Ignore errors during cleanup
+                .catch(() => console.error('Failed to cleanup media streams')); // Ignore errors during cleanup
         };
     }, []);
     if (error) {
@@ -100,6 +100,7 @@ export default function LiveKitPage({
             video={userChoices.videoEnabled}
             token={token}
             serverUrl={liveKitUrl}
+            roomName={roomName}
             connect={true}
             data-lk-theme="default"
             style={{
