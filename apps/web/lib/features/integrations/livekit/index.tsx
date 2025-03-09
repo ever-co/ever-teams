@@ -51,6 +51,7 @@ export default function LiveKitPage({
     token,
     liveKitUrl,
     roomName = 'default-room', // Provide default room name
+    region = 'auto', // Default to auto region selection
 }: ActiveRoomProps): JSX.Element {
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState<string>();
@@ -93,7 +94,13 @@ export default function LiveKitPage({
             onConnected={() => setIsLoading(false)}
             onError={(err) => {
                 console.error('LiveKit connection error:', err);
-                setError('Failed to connect to video conference');
+                setError(
+                    err.message === 'Room is full' 
+                        ? 'The video conference room is full' 
+                        : err.message === 'Permission denied'
+                        ? 'Permission denied. Please allow camera/microphone access'
+                        : 'Failed to connect to video conference'
+                );
             }}
             connectOptions={connectOptions}
             audio={userChoices.audioEnabled}
@@ -101,6 +108,7 @@ export default function LiveKitPage({
             token={token}
             serverUrl={liveKitUrl}
             roomName={roomName}
+            region={region}
             connect={true}
             data-lk-theme="default"
             style={{
