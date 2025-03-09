@@ -115,7 +115,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 										)}
 									</div>
 									<button
-										onClick={() => setSelectedTeams([])}
+										onClick={() => {
+											setSelectedTeams([]);
+											saveFilterState({
+												teams: [],
+												members: selectedMembers,
+												projects: selectedProjects,
+												tasks: selectedTasks
+											});
+										}}
 										className={cn(
 											'text-primary/10',
 											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
@@ -146,7 +154,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 										)}
 									</div>
 									<button
-										onClick={() => setSelectedMembers([])}
+										onClick={() => {
+											setSelectedMembers([]);
+											saveFilterState({
+												teams: selectedTeams,
+												members: [],
+												projects: selectedProjects,
+												tasks: selectedTasks
+											});
+										}}
 										className={cn(
 											'text-primary/10',
 											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
@@ -177,7 +193,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 										)}
 									</div>
 									<button
-										onClick={() => setSelectedProjects([])}
+										onClick={() => {
+											setSelectedProjects([]);
+											saveFilterState({
+												teams: selectedTeams,
+												members: selectedMembers,
+												projects: [],
+												tasks: selectedTasks
+											});
+										}}
 										className={cn(
 											'text-primary/10',
 											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
@@ -208,7 +232,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 										)}
 									</div>
 									<button
-										onClick={() => setSelectedTasks([])}
+										onClick={() => {
+											setSelectedTasks([]);
+											saveFilterState({
+												teams: selectedTeams,
+												members: selectedMembers,
+												projects: selectedProjects,
+												tasks: []
+											});
+										}}
 										className={cn(
 											'text-primary/10',
 											'text-primary dark:text-primary-light hover:opacity-80 cursor-pointer'
