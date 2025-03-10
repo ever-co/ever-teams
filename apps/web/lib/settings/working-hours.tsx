@@ -90,15 +90,14 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 			<div className="space-y-4">
 				<div className="flex items-center">
 					<p className="text-2xl w-40">Timezone</p>
-					<div className='md:w-72'>
-					<TimezoneDropDown
-						currentTimezone={currentTimezone}
-						onChange={(t: string) => {
-							handleChangeTimezone(t);
-						}}
-					/>
+					<div className="md:w-72">
+						<TimezoneDropDown
+							currentTimezone={currentTimezone}
+							onChange={(t: string) => {
+								handleChangeTimezone(t);
+							}}
+						/>
 					</div>
-
 				</div>
 				{schedule.map((workDay, index) => (
 					<div key={workDay.day} className="flex items-center">
@@ -160,7 +159,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, r
 			}
 		>
 			<div
-				className={`w-4 h-4 rounded-full shadow-md transform transition-transform  ${enabled ? 'translate-x-0 bg-[#2ead81]' : 'translate-x-9 bg-[#ea3124]'}`}
+				className={`w-4 h-4 rounded-full shadow-md transform transition-transform  ${enabled ? 'translate-x-0 bg-[#2ead81]' : 'translate-x-8 bg-[#ea3124]'}`}
 			>
 				{renderTrackingIcon(!enabled)}
 			</div>
