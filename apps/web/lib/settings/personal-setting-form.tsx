@@ -342,9 +342,10 @@ export const PersonalSettingForm = () => {
                   <div className="flex flex-col relative lg:flex-row gap-2 w-full">
                     <TimezoneDropDown
                       currentTimezone={currentTimezone}
-                      onChangeTimezone={(t: string) => {
+                      onChange={(t: string) => {
                         handleChangeTimezone(t);
                       }}
+					  className='md:w-[469px]'
                     />
                     <Button
                       variant="grey"
@@ -352,7 +353,7 @@ export const PersonalSettingForm = () => {
                       onClick={() => {
                         handleChangeTimezone(undefined);
                       }}
-                      className="min-w-[100px] h-[54px] rounded-[8px] font-[600] ml-5"
+                      className="min-w-[100px] shrink-0 h-[54px] rounded-[8px] font-[600] ml-5"
                     >
                       {t('common.DETECT')}
                     </Button>
