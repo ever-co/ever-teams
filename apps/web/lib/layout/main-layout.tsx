@@ -127,7 +127,7 @@ export function MainLayout({
 				<AppSidebar publicTeam={publicTeam || false} />
 				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
-					<ResizablePanelGroup  direction="vertical" className="min-h-full">
+					<ResizablePanelGroup direction="vertical" className="min-h-full">
 						<GlobalHeader
 							ref={headerRef}
 							fullWidth={fullWidth}
@@ -145,7 +145,7 @@ export function MainLayout({
 							className="!overflow-y-auto custom-scrollbar w-full min-h-svh h-full"
 							style={{ flex: 'none', minHeight: '90svh' }}
 						>
-							<div className={cn('flex-1 p-4 w-full h-full', className)}>
+							<div className={cn('flex-1 p-4 border-2 border-yellow-500 w-full h-full', className)}>
 								<MainSidebarTrigger />
 								{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
 								<div
