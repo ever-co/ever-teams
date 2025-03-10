@@ -283,6 +283,15 @@
 			"ADD_PLAN": "הוסף תוכנית",
 			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
 		},
+		"DAYOFWEEK":{
+			"Monday": "יום ראשון",
+			"Tuesday": "יום שני",
+			"Wednesday": "יום שלישי",
+			"Thursday": "יום רביעי",
+			"Friday": "יום חמישי",
+			"Saturday": "יום שישי",
+			"Sunday": "יום שבת"
+		},
 		"teamStats": {
 			"MEMBER": "חבר",
 			"MEMBERS_WORKED": "חברים שעבדו",

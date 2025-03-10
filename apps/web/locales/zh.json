@@ -296,6 +296,15 @@
 			"ADD_PLAN": "添加计划",
 			"DELETE_THIS_PLAN": "删除此计划"
 		},
+		"DAYOFWEEK": {
+			"Monday": "星期一",
+			"Tuesday": "星期二",
+			"Wednesday": "星期三",
+			"Thursday": "星期四",
+			"Friday": "星期五",
+			"Saturday": "星期六",
+			"Sunday": "星期天"
+		},
 		"teamStats": {
 			"MEMBER": "成员",
 			"MEMBERS_WORKED": "已工作的成员",

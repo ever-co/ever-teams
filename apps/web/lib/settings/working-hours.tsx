@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { userState } from '@/app/stores';
 import { renderTrackingIcon } from './table-action-popover';
+import { useTranslations } from 'next-intl';
 
 interface WorkDay {
 	day: string;
@@ -23,26 +24,25 @@ interface WorkScheduleProps {
 	initialSchedule?: WorkDay[];
 }
 
-const defaultWorkDays: WorkDay[] = [
-	{ day: 'Monday', startTime: '09:00', endTime: '17:00', enabled: true },
-	{ day: 'Tuesday', startTime: '09:00', endTime: '17:00', enabled: true },
-	{ day: 'Wednesday', startTime: '09:00', endTime: '17:00', enabled: true },
-	{ day: 'Thursday', startTime: '09:00', endTime: '17:00', enabled: true },
-	{ day: 'Friday', startTime: '09:00', endTime: '17:00', enabled: true },
-	{ day: 'Saturday', startTime: '09:00', endTime: '17:00', enabled: false },
-	{ day: 'Sunday', startTime: '09:00', endTime: '17:00', enabled: false }
-];
-
 export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) => {
 	const [currentTimezone, setCurrentTimezone] = React.useState('');
 	const [user] = useAtom(userState);
-
+	const t = useTranslations();
 	const { setValue } = useForm();
+
+	const defaultWorkDays: WorkDay[] = [
+		{ day: t('common.DAYOFWEEK.Monday'), startTime: '09:00', endTime: '17:00', enabled: true },
+		{ day: t('common.DAYOFWEEK.Tuesday'), startTime: '09:00', endTime: '17:00', enabled: true },
+		{ day: t('common.DAYOFWEEK.Wednesday'), startTime: '09:00', endTime: '17:00', enabled: true },
+		{ day: t('common.DAYOFWEEK.Thursday'), startTime: '09:00', endTime: '17:00', enabled: true },
+		{ day: t('common.DAYOFWEEK.Friday'), startTime: '09:00', endTime: '17:00', enabled: true },
+		{ day: t('common.DAYOFWEEK.Saturday'), startTime: '09:00', endTime: '17:00', enabled: false },
+		{ day: t('common.DAYOFWEEK.Sunday'), startTime: '09:00', endTime: '17:00', enabled: false }
+	];
 
 	const [schedule, setSchedule] = React.useState<WorkDay[]>(initialSchedule || defaultWorkDays);
 	const handleChangeTimezone = React.useCallback(
 		(newTimezone: string | undefined) => {
-			console.log(newTimezone);
 			setActiveTimezoneCookie(newTimezone || userTimezone());
 			setCurrentTimezone(newTimezone || userTimezone());
 			setValue('timeZone', newTimezone || userTimezone());
@@ -89,7 +89,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 		<div className="p-6">
 			<div className="space-y-4">
 				<div className="flex items-center">
-					<p className="text-2xl w-40">Timezone</p>
+					<p className="w-40 text-2xl">Timezone</p>
 					<div className="md:w-72">
 						<TimezoneDropDown
 							currentTimezone={currentTimezone}

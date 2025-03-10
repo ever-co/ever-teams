@@ -288,6 +288,15 @@
 			"ADD_PLAN": "Add Plan",
 			"DELETE_THIS_PLAN": "Delete this plan"
 		},
+		"DAYOFWEEK":{
+			"Monday": "Monday",
+			"Tuesday": "Tuesday",
+			"Wednesday": "Wednesday",
+			"Thursday": "Thursday",
+			"Friday": "Friday",
+			"Saturday": "Saturday",
+			"Sunday": "Sunday"
+		},
 		"teamStats": {
 			"MEMBER": "Member",
 			"MEMBERS_WORKED": "Members Worked",

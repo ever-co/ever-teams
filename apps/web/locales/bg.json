@@ -277,6 +277,15 @@
 			"ADD_PLAN": "Добави план",
 			"DELETE_THIS_PLAN": "Изтрийте този план"
 		},
+		"DAYOFWEEK":{
+			"Monday": "Понеделник",
+			"Tuesday": "Вторник",
+			"Wednesday": "Сряда",
+			"Thursday": "Четвъртък",
+			"Friday": "Петък",
+			"Saturday": "Събота",
+			"Sunday": "Неделя"
+		},
 		"teamStats": {
 			"MEMBER": "Член",
 			"MEMBERS_WORKED": "Членове, които са работили",
