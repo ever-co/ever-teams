@@ -277,6 +277,15 @@
 			"ADD_PLAN": "Plan hinzufügen",
 			"DELETE_THIS_PLAN": "Diesen Plan löschen"
 		},
+		"DAYOFWEEK":{
+			"Monday": "Montag",
+			"Tuesday": "Dienstag",
+			"Wednesday": "Mittwoch",
+			"Thursday": "Donnerstag",
+			"Friday": "Freitag",
+			"Saturday": "Samstag",
+			"Sunday": "Sonntag"
+		},
 		"teamStats": {
 			"MEMBER": "Mitglied",
 			"MEMBERS_WORKED": "Mitglieder, die gearbeitet haben",

@@ -264,6 +264,7 @@
 			"SINGULAR": "Scheda attività",
 			"PLURAL": "Schede attività"
 		},
+
 		"DAYS": {
 			"sun": "Dom",
 			"mon": "Lun",
@@ -289,6 +290,15 @@
 			"SEE_PLANS": "Vedi piani",
 			"ADD_PLAN": "Aggiungi Piano",
 			"DELETE_THIS_PLAN": "Elimina questo piano"
+		},
+		"DAYOFWEEK": {
+			"Monday": "Lunedì",
+			"Tuesday": "Martedì",
+			"Wednesday": "Mercoledì",
+			"Thursday": "Giovedì",
+			"Friday": "Venerdì",
+			"Saturday": "Sabato",
+			"Sunday": "Domenica"
 		},
 		"teamStats": {
 			"MEMBER": "Membro",
