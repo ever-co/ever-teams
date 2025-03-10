@@ -259,6 +259,15 @@
 			"ADD_PLAN": "إضافة خطة",
 			"DELETE_THIS_PLAN": "احذف هذه الخطة"
 		},
+		"DAYOFWEEK":{
+			"Monday": "الإثنين",
+			"Tuesday": "الثلاثاء",
+			"Wednesday": "الأربعاء",
+			"Thursday": "الخميس",
+			"Friday": "الجمعة",
+			"Saturday": "السبت",
+			"Sunday": "الأحد"
+		},
 		"teamStats": {
 			"MEMBER": "عضو",
 			"MEMBERS_WORKED": "الأعضاء الذين عملوا",

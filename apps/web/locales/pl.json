@@ -290,6 +290,15 @@
 			"ADD_PLAN": "Dodaj plan",
 			"DELETE_THIS_PLAN": "Usuń ten plan"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Poniedziałek",
+			"Tuesday": "Wtorek",
+			"Wednesday": "Środa",
+			"Thursday": "Czwartek",
+			"Friday": "Piątek",
+			"Saturday": "Sobota",
+			"Sunday": "Niedziela"
+		},
 		"teamStats": {
 			"MEMBER": "Członek",
 			"MEMBERS_WORKED": "Członkowie, Którzy Pracowali",

@@ -296,6 +296,15 @@
 			"ADD_PLAN": "Plan toevoegen",
 			"DELETE_THIS_PLAN": "Verwijder dit plan"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Maandag",
+			"Tuesday": "Dinsdag",
+			"Wednesday": "Woensdag",
+			"Thursday": "Donderdag",
+			"Friday": "Vrijdag",
+			"Saturday": "Zaterdag",
+			"Sunday": "Zondag"
+		},
 		"teamStats": {
 			"MEMBER": "Lid",
 			"MEMBERS_WORKED": "Leden die Hebben Gewerkt",
