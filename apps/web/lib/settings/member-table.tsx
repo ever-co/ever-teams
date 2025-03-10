@@ -83,9 +83,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	const handleRoleChange = useCallback(
 		(newRole: IRole) => {
-			if (!editMemberRef.current || !activeTeamRef.current) return;
-
-			console.log({ newRole });
+			if (!editMemberRef.current || !activeTeamRef.current) return;			
 
 			const { employeeId, role } = editMemberRef.current;
 
@@ -102,6 +100,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	const handelNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
 		const name = event.target.value || '';
+
 		if (name === editMemberRef.current?.employee.fullName) {
 			return;
 		}
@@ -116,6 +115,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			editMemberRef.current = tempMember;
 		}
 	}, []);
+
 	const handleEditMemberSave = useCallback(() => {
 		const member = editMemberRef.current;
 		if (member) {
@@ -294,7 +294,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			<Paginate
 				total={total}
 				onPageChange={onPageChange}
-				pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
+				pageCount={1} // Set Static to 1 - It will be calculated dynamically in the Paginate component
 				itemsPerPage={itemsPerPage}
 				itemOffset={itemOffset}
 				endOffset={endOffset}
