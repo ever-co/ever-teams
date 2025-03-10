@@ -30,7 +30,7 @@ const Team = () => {
 	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 
 	return (
-		<div className="overflow-hidden border-2 border-red-500 pb-16">
+		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
@@ -42,7 +42,7 @@ const Team = () => {
 					<InteractionObserverVisible id="general-settings" setActiveSection={setActiveTeam}>
 						<Accordian
 							title={t('pages.settingsTeam.HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme border-2 border-violet-700"
+							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
 						>
 							<div className="flex flex-col">
 								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />

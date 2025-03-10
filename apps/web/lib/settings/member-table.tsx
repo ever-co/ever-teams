@@ -20,8 +20,8 @@ import { EditUserRoleDropdown } from './edit-role-dropdown';
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<OT_Member>(members);
-	const { activeTeam, updateOrganizationTeam, } = useOrganizationTeams();
+		usePagination<OT_Member>(members, 5);
+	const { activeTeam, updateOrganizationTeam } = useOrganizationTeams();
 	const { updateAvatar } = useSettings();
 
 	const activeTeamRef = useSyncRef(activeTeam);
@@ -30,90 +30,92 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
 	const editMemberRef = useRef<OT_Member | null>(null);
 
-	const updateTeamMember = useCallback((updatedMember: OT_Member) => {
-		const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
-		if (teamIndex === -1) return;
+	const updateTeamMember = useCallback(
+		(updatedMember: OT_Member) => {
+			const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
+			if (teamIndex === -1) return;
 
-		const tempTeams = cloneDeep(organizationTeams);
-		const memberIndex = tempTeams[teamIndex].members.findIndex(
-			(member) => member.id === updatedMember.id);
+			const tempTeams = cloneDeep(organizationTeams);
+			const memberIndex = tempTeams[teamIndex].members.findIndex((member) => member.id === updatedMember.id);
 
-		if (memberIndex === -1) return;
+			if (memberIndex === -1) return;
 
-		tempTeams[teamIndex].members[memberIndex] = updatedMember;
-		setOrganizationTeams(tempTeams);
-	}, [activeTeamId, organizationTeams, setOrganizationTeams]);
+			tempTeams[teamIndex].members[memberIndex] = updatedMember;
+			setOrganizationTeams(tempTeams);
+		},
+		[activeTeamId, organizationTeams, setOrganizationTeams]
+	);
 
 	const handleEdit = useCallback((member: OT_Member) => {
 		editMemberRef.current = member;
 	}, []);
 
+	const handleManagerRoleUpdate = useCallback(
+		(employeeId: string, isPromotingToManager: boolean) => {
+			if (!activeTeamRef.current) return;
 
-	const handleManagerRoleUpdate = useCallback((employeeId: string, isPromotingToManager: boolean) => {
-		if (!activeTeamRef.current) return;
+			// Get current managers
+			const currentManagers: string[] =
+				activeTeamRef.current?.members
+					.filter((member: OT_Member) => member.role?.name === 'MANAGER')
+					.map((manager: OT_Member) => manager.employee.id) || [];
 
-		// Get current managers
-		const currentManagers: string[] = activeTeamRef.current?.members
-			.filter((member: OT_Member) => member.role?.name === 'MANAGER')
-			.map((manager: OT_Member) => manager.employee.id) || [];
+			if (isPromotingToManager) {
+				// Add new manager
+				const updatedManagerIds = [...new Set([...currentManagers, employeeId])];
 
-		if (isPromotingToManager) {
-			// Add new manager
-			const updatedManagerIds = [...new Set([...currentManagers, employeeId])];
+				return updateOrganizationTeam(activeTeamRef.current, {
+					...activeTeamRef.current,
+					managerIds: updatedManagerIds
+				});
+			} else {
+				// Remove manager
+				const updatedManagerIds = currentManagers.filter((id) => id !== employeeId);
 
-			return updateOrganizationTeam(activeTeamRef.current, {
-				...activeTeamRef.current,
-				managerIds: updatedManagerIds
-			});
-		} else {
-			// Remove manager
-			const updatedManagerIds = currentManagers.filter(id => id !== employeeId);
-
-			return updateOrganizationTeam(activeTeamRef.current, {
-				...activeTeamRef.current,
-				managerIds: updatedManagerIds,
-			});
-		}
-
-	}, [updateOrganizationTeam, activeTeamRef]);
-
-
-	const handleRoleChange = useCallback((newRole: IRole) => {
-		if (!editMemberRef.current || !activeTeamRef.current) return;
-
-		console.log({ newRole })
-
-		const { employeeId, role } = editMemberRef.current;
-
-		const isPromotingToManager = role?.name !== 'MANAGER' && newRole?.name === 'MANAGER';
-		handleManagerRoleUpdate(employeeId, isPromotingToManager);
-
-		// Update Organization Team
-		// const updatedMember = { ...editMemberRef.current, roleId: !isPromotingToManager ? '' :  };
-		// updateTeamMember(updatedMember);
-		editMemberRef.current = null;
-
-	}, [activeTeamRef, handleManagerRoleUpdate]);
-
-	const handelNameChange = useCallback(
-		(event: ChangeEvent<HTMLInputElement>) => {
-			const name = event.target.value || '';
-			if (name === editMemberRef.current?.employee.fullName) {
-				return;
-			}
-
-			const names = name.split(' ');
-			const tempMember: OT_Member | null = cloneDeep(editMemberRef.current);
-
-			if (tempMember?.employee?.user) {
-				tempMember.employee.fullName = name;
-				tempMember.employee.user.firstName = names[0] || '';
-				tempMember.employee.user.lastName = names[1] || '';
-				editMemberRef.current = tempMember;
+				return updateOrganizationTeam(activeTeamRef.current, {
+					...activeTeamRef.current,
+					managerIds: updatedManagerIds
+				});
 			}
 		},
-		[]
+		[updateOrganizationTeam, activeTeamRef]
 	);
+
+	const handleRoleChange = useCallback(
+		(newRole: IRole) => {
+			if (!editMemberRef.current || !activeTeamRef.current) return;
+
+			console.log({ newRole });
+
+			const { employeeId, role } = editMemberRef.current;
+
+			const isPromotingToManager = role?.name !== 'MANAGER' && newRole?.name === 'MANAGER';
+			handleManagerRoleUpdate(employeeId, isPromotingToManager);
+
+			// Update Organization Team
+			// const updatedMember = { ...editMemberRef.current, roleId: !isPromotingToManager ? '' :  };
+			// updateTeamMember(updatedMember);
+			editMemberRef.current = null;
+		},
+		[activeTeamRef, handleManagerRoleUpdate]
+	);
+
+	const handelNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+		const name = event.target.value || '';
+		if (name === editMemberRef.current?.employee.fullName) {
+			return;
+		}
+
+		const names = name.split(' ');
+		const tempMember: OT_Member | null = cloneDeep(editMemberRef.current);
+
+		if (tempMember?.employee?.user) {
+			tempMember.employee.fullName = name;
+			tempMember.employee.user.firstName = names[0] || '';
+			tempMember.employee.user.lastName = names[1] || '';
+			editMemberRef.current = tempMember;
+		}
+	}, []);
 	const handleEditMemberSave = useCallback(() => {
 		const member = editMemberRef.current;
 		if (member) {
@@ -138,8 +140,8 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	return (
 		<div>
-			<div className="sm:rounded-lg">
-				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
+			<div className="sm:rounded-lg h-[28rem] overflow-hidden">
+				<table className="w-full  text-sm text-left text-gray-500 dark:bg-dark--theme-light">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
 							<th

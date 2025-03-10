@@ -51,7 +51,7 @@ const SettingsLayout = ({ children }: { children: JSX.Element }) => {
 					</div>
 				}
 			>
-				<Container fullWidth={fullWidth} className={cn('!p-0 w-full border-2 border-blue-600')}>
+				<Container fullWidth={fullWidth} className={cn('!p-0 w-full')}>
 					<div className="flex w-full">
 						<LeftSideSettingMenu />
 						<div className="h-[calc(100svh-_291px)] mt-3 px-5 overflow-y-auto w-full">{children}</div>
