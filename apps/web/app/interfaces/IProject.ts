@@ -143,6 +143,7 @@ export interface ICreateProjectInput {
 	budgetType?: OrganizationProjectBudgetTypeEnum;
 	startDate: string;
 	endDate: string;
+	archivedAt: string;
 	billing?: ProjectBillingEnum;
 	currency?: string;
 	memberIds?: string[];

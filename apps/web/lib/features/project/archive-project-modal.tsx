@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { clsxm } from '@/app/utils';
 import { TaskNameInfoDisplay } from '../task/task-displays';
+import moment from 'moment';
 
 interface IArchiveProjectModalProps {
 	open: boolean;
@@ -50,7 +51,10 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 
 	const handleArchive = useCallback(async () => {
 		try {
-			const res = await editOrganizationProject(projectId, { isArchived: true });
+			const res = await editOrganizationProject(projectId, {
+				isArchived: true,
+				archivedAt: moment(Date.now()).format()
+			});
 
 			if (res) {
 				closeModal();
