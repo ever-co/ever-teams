@@ -368,7 +368,9 @@
 		"TO_DO": "לבצע",
 		"MEMBERS_COUNT": "מספר חברים",
 		"REVIEW": "בְּחִינָה",
-		"ARCHIVE": "ארכיון"
+		"ARCHIVE": "ארכיון",
+		"ARCHIVE_AT": "ארכוב בתאריך",
+		"RESTORE": "שחזר"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

@@ -368,7 +368,9 @@
 		"TO_DO": "Pendiente",
 		"MEMBERS_COUNT": "Conteo de miembros",
 		"REVIEW": "REVISIÓN",
-		"ARCHIVE": "Archivo"
+		"ARCHIVE": "Archivo",
+		"ARCHIVE_AT": "Archivar en",
+		"RESTORE": "Restaurar"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",

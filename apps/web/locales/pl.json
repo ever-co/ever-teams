@@ -368,7 +368,9 @@
 		"TO_DO": "Do zrobienia",
 		"MEMBERS_COUNT": "Liczba członków",
 		"REVIEW": "PRZEGLĄD",
-		"ARCHIVE": "Archiwum"
+		"ARCHIVE": "Archiwum",
+		"ARCHIVE_AT": "Archiwizuj o",
+		"RESTORE": "Przywróć"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

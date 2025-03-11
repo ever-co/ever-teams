@@ -368,7 +368,9 @@
 		"TO_DO": "待办事项",
 		"MEMBERS_COUNT": "成员数",
 		"REVIEW": "审查",
-		"ARCHIVE": "存档"
+		"ARCHIVE": "存档",
+		"ARCHIVE_AT": "归档于",
+		"RESTORE": "恢复"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

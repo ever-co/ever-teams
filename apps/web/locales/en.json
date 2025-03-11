@@ -369,7 +369,10 @@
 		"NOT_HOURS_WORKED": "Not hours worked",
 		"MEMBERS_COUNT": "Members count",
 		"REVIEW": "REVIEW",
-		"ARCHIVE": "Archive"
+		"ARCHIVE": "Archive",
+
+		"ARCHIVE_AT": "Archive at",
+		"RESTORE": "Restore"
 	},
 	"hotkeys": {
 		"HELP": "Help",

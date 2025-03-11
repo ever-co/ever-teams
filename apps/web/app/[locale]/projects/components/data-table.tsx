@@ -239,7 +239,7 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 							column.toggleSorting(undefined, true);
 						}}
 					>
-						<span>Archived At</span>
+						<span>{t("common.ARCHIVE_AT")}t</span>
 						<div className="flex items-center flex-col">
 							<ChevronUp
 								size={15}
@@ -456,7 +456,7 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 				<button
 					className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
 				>
-					<RotateCcw size={15} /> <span>Restore</span>
+					<RotateCcw size={15} /> <span>{t("common.RESTORE")}</span>
 				</button>
 			),
 			enableSorting: false,

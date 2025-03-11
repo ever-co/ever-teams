@@ -92,7 +92,7 @@ export default function GridItem(props: IGridItemProps) {
 						<button
 							className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
 						>
-							<RotateCcw size={15} /> <span>Restore</span>
+							<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
 						</button>
 					) : (
 						<Ellipsis size={20} />
@@ -118,19 +118,21 @@ export default function GridItem(props: IGridItemProps) {
 							'-'
 						)}
 					</div>
-				) : <div className="flex flex-col gap-2">
-				<p className="font-medium">Archived At</p>
-				<div className="flex items-center gap-1">
-					{data?.archivedAt ? (
-						<>
-							<CalendarDays size={15} className=" text-slate-400" />
-							<p>{moment(data?.archivedAt).format('D.MM.YYYY')}</p>
-						</>
-					) : (
-						'-'
-					)}
-				</div>
-			</div>}
+				) : (
+					<div className="flex flex-col gap-2">
+						<p className="font-medium">{t('common.ARCHIVE_AT')}</p>
+						<div className="flex items-center gap-1">
+							{data?.archivedAt ? (
+								<>
+									<CalendarDays size={15} className=" text-slate-400" />
+									<p>{moment(data?.archivedAt).format('D.MM.YYYY')}</p>
+								</>
+							) : (
+								'-'
+							)}
+						</div>
+					</div>
+				)}
 
 				<div className="w-full flex items-center gap-10">
 					<div className="flex flex-col gap-2">
