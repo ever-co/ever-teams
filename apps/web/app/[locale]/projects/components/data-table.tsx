@@ -62,7 +62,7 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 	const { data, loading, archived = false  } = props;
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+	const [, setColumnVisibility] = React.useState<VisibilityState>({
 		project: true,
         status: !archived,
 		archivedAt: archived,
