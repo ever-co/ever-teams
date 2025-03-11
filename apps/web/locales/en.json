@@ -288,7 +288,7 @@
 			"ADD_PLAN": "Add Plan",
 			"DELETE_THIS_PLAN": "Delete this plan"
 		},
-		"DAYOFWEEK":{
+		"DAYOFWEEK": {
 			"Monday": "Monday",
 			"Tuesday": "Tuesday",
 			"Wednesday": "Wednesday",
@@ -486,6 +486,10 @@
 			"deleteModal": {
 				"title": "Delete Selected?",
 				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
+			},
+			"archiveModal": {
+				"title": "Archive {projectName}?",
+				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
 			}
 		},
 		"home": {

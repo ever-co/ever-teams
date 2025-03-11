@@ -472,10 +472,10 @@ export function TaskInfo({
 	task,
 	taskBadgeClassName,
 	taskTitleClassName,
-	tab,
+	tab = 'default',
 	dayPlanTab
 }: IClassName & {
-	tab: 'default' | 'unassign' | 'dailyplan';
+	tab?: 'default' | 'unassign' | 'dailyplan';
 	dayPlanTab?: FilterTabs;
 	task?: Nullable<ITeamTask>;
 	taskBadgeClassName?: string;

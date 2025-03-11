@@ -511,6 +511,10 @@
 			"deleteModal": {
 				"title": "Eliminare selezionato?",
 				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione"
+			},
+			"archiveModal": {
+				"title": "Archivia {projectName}?",
+				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}."
 			}
 		},
 		"taskDetails": {

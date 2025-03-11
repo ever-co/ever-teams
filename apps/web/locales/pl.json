@@ -545,6 +545,10 @@
 			"deleteModal": {
 				"title": "Usunąć wybrane?",
 				"description": "Zamierzasz trwale usunąć ten projekt. Kliknij 'Usuń', aby potwierdzić akcję"
+			},
+			"archiveModal": {
+				"title": "Archiwizować {projectName}?",
+				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}."
 			}
 		},
 		"auth": {

@@ -157,3 +157,5 @@ export interface ICreateProjectInput {
 	// Will be implemented on the  API side much later :
 	relations?: IProjectRelation[]; // relationship
 }
+
+export type IEditProjectInput = Partial<ICreateProjectInput>;

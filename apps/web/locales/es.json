@@ -283,7 +283,7 @@
 			"FOR_TOMORROW": "Plan de mañana",
 			"DELETE_THIS_PLAN": "Eliminar este plan"
 		},
-		"DAYOFWEEK":{
+		"DAYOFWEEK": {
 			"Monday": "Lunes",
 			"Tuesday": "Martes",
 			"Wednesday": "Miércoles",
@@ -565,6 +565,10 @@
 			"deleteModal": {
 				"title": "¿Eliminar seleccionado?",
 				"description": "Está a punto de eliminar permanentemente este proyecto. Haga clic en 'Eliminar' para confirmar la acción"
+			},
+			"archiveModal": {
+				"title": "¿Archivar {projectName}?",
+				"description": "{affectedTasksCount} tareas se verán afectadas al archivar {projectName}."
 			}
 		},
 		"authPasscode": {

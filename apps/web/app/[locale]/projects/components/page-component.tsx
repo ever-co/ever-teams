@@ -98,20 +98,22 @@ function PageComponent() {
 			if (data && data?.items?.length > 0) {
 				// Consider only active team projects
 
-				const activeTeamProjectsIds = data.items?.map((el) => ({
-					project: {
-						name: el.name,
-						imageUrl: el.imageUrl,
-						color: el.color,
-						id: el.id
-					},
-					status: el.status,
-					startDate: el.startDate,
-					endDate: el.endDate,
-					members: el.members,
-					managers: el.members,
-					teams: el.teams
-				}));
+				const activeTeamProjectsIds = data.items
+					?.filter((el) => !el.isArchived)
+					.map((el) => ({
+						project: {
+							name: el.name,
+							imageUrl: el.imageUrl,
+							color: el.color,
+							id: el.id
+						},
+						status: el.status,
+						startDate: el.startDate,
+						endDate: el.endDate,
+						members: el.members,
+						managers: el.members,
+						teams: el.teams
+					}));
 
 				setProjects(activeTeamProjectsIds);
 			}

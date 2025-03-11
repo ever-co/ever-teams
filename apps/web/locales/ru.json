@@ -542,6 +542,10 @@
 			"deleteModal": {
 				"title": "Удалить выбранное?",
 				"description": "Вы собираетесь навсегда удалить этот проект. Нажмите 'Удалить', чтобы подтвердить действие"
+			},
+			"archiveModal": {
+				"title": "Архивировать {projectName}?",
+				"description": "Архивация {projectName} затронет {affectedTasksCount} задач."
 			}
 		},
 		"taskStatus": {

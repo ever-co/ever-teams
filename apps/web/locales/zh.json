@@ -502,6 +502,10 @@
 			"deleteModal": {
 				"title": "删除所选？",
 				"description": "您即将永久删除此项目。单击 '删除' 以确认操作"
+			},
+			"archiveModal": {
+				"title": "归档 {projectName}?",
+				"description": "归档 {projectName} 将影响 {affectedTasksCount} 个任务。"
 			}
 		},
 		"kanban": {
