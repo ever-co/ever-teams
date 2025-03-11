@@ -32,7 +32,6 @@ import { CreateTeamModal, TaskIssueStatus } from '@/lib/features';
 import { useTranslations } from 'next-intl';
 import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
-import { NavProjects } from './nav-projects';
 import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
@@ -245,7 +244,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						: []),
 					{
 						title: 'Archived projects',
-						url: '',
+						url: '/projects?archived=true',
 						label: 'Archived projects'
 					}
 				]
@@ -339,7 +338,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				</SidebarHeader>
 				<SidebarContent>
 					<NavMain items={data.navMain} />
-					<NavProjects projects={data.projects} />
+					{/* <NavProjects projects={data.projects} /> */}
 				</SidebarContent>
 
 				<SidebarFooter className="p-1 mt-auto">

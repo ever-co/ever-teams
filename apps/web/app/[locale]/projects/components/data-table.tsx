@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { useTaskStatus } from '@/app/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
 import { SpinnerLoader } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
@@ -38,6 +38,7 @@ export type ProjectTableDataType = {
 		color: IProject['color'];
 	};
 	status: IProject['status'];
+	archivedAt: IProject['archivedAt'];
 	startDate: IProject['startDate'];
 	endDate: IProject['endDate'];
 	members: IProject['members'];
@@ -57,11 +58,22 @@ export type ProjectTableDataType = {
  *
  */
 
-export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loading: boolean }) => {
-	const { data, loading } = props;
+export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loading: boolean; archived ?: boolean }) => {
+	const { data, loading, archived = false  } = props;
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+		project: true,
+        status: !archived,
+		archivedAt: archived,
+        startDate: true,
+        endDate: true,
+        members: true,
+        managers: true,
+        teams: true,
+		actions: !archived,
+		restore: archived,
+	});
 	const [rowSelection, setRowSelection] = React.useState({});
 	const t = useTranslations();
 	const { taskStatus } = useTaskStatus();
@@ -213,6 +225,47 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 					</div>
 				);
 			}
+		},
+		{
+			accessorKey: 'archivedAt',
+			id: 'archivedAt',
+			header: function Header({ column }) {
+				const isSort = column.getIsSorted();
+
+				return (
+					<div
+						className="flex items-center cursor-pointer  gap-2"
+						onClick={() => {
+							column.toggleSorting(undefined, true);
+						}}
+					>
+						<span>Archived At</span>
+						<div className="flex items-center flex-col">
+							<ChevronUp
+								size={15}
+								className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+							/>
+							<ChevronDown
+								size={15}
+								className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+							/>
+						</div>
+					</div>
+				);
+			},
+			enableSorting: true,
+			enableMultiSort: true,
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.original.startDate ? moment(rowA.original.startDate).toDate() : new Date(0); // Default to epoch if no date
+				const b = rowB.original.startDate ? moment(rowB.original.startDate).toDate() : new Date(0);
+
+				return b.getTime() - a.getTime();
+			},
+			cell: ({ row }) => (
+				<div className="">
+					{row.original?.archivedAt && moment(row.original?.archivedAt).format('MMM. DD YYYY')}
+				</div>
+			)
 		},
 		{
 			accessorKey: 'startDate',
@@ -396,6 +449,18 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 			},
 			enableSorting: false,
 			enableHiding: false
+		},
+		{
+			id: 'restore',
+			cell: () => (
+				<button
+					className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
+				>
+					<RotateCcw size={15} /> <span>Restore</span>
+				</button>
+			),
+			enableSorting: false,
+			enableHiding: false
 		}
 	];
 
@@ -413,7 +478,18 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 		state: {
 			sorting,
 			columnFilters,
-			columnVisibility,
+			columnVisibility : {
+				project: true,
+				status: !archived,
+				archivedAt: archived,
+				startDate: true,
+				endDate: true,
+				members: true,
+				managers: true,
+				teams: true,
+				actions: !archived,
+				restore: archived,
+			},
 			rowSelection
 		}
 	});
