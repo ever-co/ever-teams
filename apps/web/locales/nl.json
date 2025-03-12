@@ -542,6 +542,10 @@
 			"deleteModal": {
 				"title": "Geselecteerde verwijderen?",
 				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
+			},
+			"archiveModal": {
+				"title": "{projectName} archiveren?",
+				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
 			}
 		},
 		"taskStatus": {

@@ -283,7 +283,7 @@
 			"ADD_PLAN": "הוסף תוכנית",
 			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
 		},
-		"DAYOFWEEK":{
+		"DAYOFWEEK": {
 			"Monday": "יום ראשון",
 			"Tuesday": "יום שני",
 			"Wednesday": "יום שלישי",
@@ -504,6 +504,10 @@
 			"deleteModal": {
 				"title": "למחוק את הנבחר?",
 				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה"
+			},
+			"archiveModal": {
+				"title": "לארכב את {projectName}?",
+				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}."
 			}
 		},
 		"profile": {

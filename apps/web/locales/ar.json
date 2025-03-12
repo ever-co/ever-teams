@@ -259,7 +259,7 @@
 			"ADD_PLAN": "إضافة خطة",
 			"DELETE_THIS_PLAN": "احذف هذه الخطة"
 		},
-		"DAYOFWEEK":{
+		"DAYOFWEEK": {
 			"Monday": "الإثنين",
 			"Tuesday": "الثلاثاء",
 			"Wednesday": "الأربعاء",
@@ -505,6 +505,10 @@
 			"deleteModal": {
 				"title": "حذف المحدد؟",
 				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
+			},
+			"archiveModal": {
+				"title": "أرشفة {projectName}؟",
+				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
 			}
 		},
 		"profile": {

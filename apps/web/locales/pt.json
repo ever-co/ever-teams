@@ -546,6 +546,10 @@
 			"deleteModal": {
 				"title": "Excluir selecionado?",
 				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
+			},
+			"archiveModal": {
+				"title": "Arquivar {projectName}?",
+				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}."
 			}
 		},
 		"auth": {

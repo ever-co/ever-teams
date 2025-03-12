@@ -46,7 +46,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { activeTeam } = useActiveTeam();
 	const { organizationProjects } = useOrganizationProjects();
 	const projects = activeTeam
-		? organizationProjects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam.id))
+		? organizationProjects
+				?.filter((el) => !el.isArchived)
+				?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam.id))
 		: []; // Consider projects for the active team
 
 	// This is sample data.

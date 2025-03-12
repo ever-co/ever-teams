@@ -12,7 +12,7 @@ import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
-import { ICreateProjectInput } from '@/app/interfaces';
+import { ICreateProjectInput, IEditProjectInput } from '@/app/interfaces';
 
 export function useOrganizationProjects() {
 	const [user] = useAtom(userState);
@@ -48,14 +48,11 @@ export function useOrganizationProjects() {
 	);
 
 	const editOrganizationProject = useCallback(
-		(id: string, data: any) => {
-			if (user?.tenantId) {
-				return editOrganizationProjectQueryCall(id, data, user?.tenantId || '').then((res) => {
-					return res;
-				});
-			}
+		async (id: string, data: IEditProjectInput) => {
+			const res = await editOrganizationProjectQueryCall(id, data);
+			return res;
 		},
-		[user, editOrganizationProjectQueryCall]
+		[editOrganizationProjectQueryCall]
 	);
 
 	const getOrganizationProject = useCallback(
