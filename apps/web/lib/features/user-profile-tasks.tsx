@@ -129,7 +129,7 @@ export function UserProfileTask({ profile, paginateTasks, tabFiltered, user }: P
 								/>
 							</li>
 						);
-					}) : <EmptyPlans planMode='Today Tasks' />}
+					}) :tabFiltered.tab !== 'stats' && (<EmptyPlans planMode='Today Tasks' />)}
 				</ul>
 			)}
 		</div>

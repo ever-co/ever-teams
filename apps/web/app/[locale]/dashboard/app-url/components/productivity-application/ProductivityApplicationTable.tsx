@@ -202,7 +202,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 	);
 }
 
-function formatDuration(duration: string | number): string {
+export function formatDuration(duration: string | number): string {
 	const totalSeconds = typeof duration === 'string' ? parseInt(duration) : duration;
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
