@@ -102,7 +102,7 @@ export default function GridItem(props: IGridItemProps) {
 								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
 							</button>
 						) : (
-							<Ellipsis size={20} />
+							<ProjectItemActions item={data} />
 						)}
 					</div>
 
