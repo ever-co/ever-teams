@@ -350,7 +350,9 @@
 		"TO_DO": "المهام",
 		"MEMBERS_COUNT": "عدد الأعضاء",
 		"REVIEW": "مراجعة",
-		"ARCHIVE": "أرشيف"
+		"ARCHIVE": "أرشيف",
+		"ARCHIVE_AT": "أرشفة في",
+		"RESTORE": "استعادة"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

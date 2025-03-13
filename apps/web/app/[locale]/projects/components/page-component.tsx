@@ -63,9 +63,11 @@ function PageComponent() {
 		],
 		[t]
 	);
+	const showArchivedProjects = params.get('archived');
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<ProjectTableDataType>(
+			// Consider only active team projects
 			activeTeam
 				? searchTerm
 					? projects
@@ -96,10 +98,9 @@ function PageComponent() {
 
 		getOrganizationProjects({ queries }).then((data) => {
 			if (data && data?.items?.length > 0) {
-				// Consider only active team projects
 
-				const activeTeamProjectsIds = data.items
-					?.filter((el) => !el.isArchived)
+				const projects = data.items
+					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
 					.map((el) => ({
 						project: {
 							name: el.name,
@@ -108,6 +109,7 @@ function PageComponent() {
 							id: el.id
 						},
 						status: el.status,
+						archivedAt: el.archivedAt,
 						startDate: el.startDate,
 						endDate: el.endDate,
 						members: el.members,
@@ -115,10 +117,10 @@ function PageComponent() {
 						teams: el.teams
 					}));
 
-				setProjects(activeTeamProjectsIds);
+				setProjects(projects);
 			}
 		});
-	}, [getOrganizationProjects, params, organizationProjects]);
+	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
 
 	return (
 		<MainLayout
@@ -215,7 +217,7 @@ function PageComponent() {
 					</div>
 					{selectedView === 'LIST' ? (
 						<div key="list" className="w-full">
-							<DataTableProject loading={getOrganizationProjectsLoading} data={currentItems} />
+							<DataTableProject archived={Boolean(showArchivedProjects)}  loading={getOrganizationProjectsLoading} data={currentItems} />
 							<div className=" dark:bg-dark--theme px-4 py-4 flex">
 								<Paginate
 									total={total}
@@ -236,7 +238,7 @@ function PageComponent() {
 									<SpinnerLoader />
 								</div>
 							) : (
-								currentItems.map((el) => <GridItem key={el.project.id} data={el} />)
+								currentItems.map((el) => <GridItem isArchived={Boolean(showArchivedProjects)} key={el.project.id} data={el} />)
 							)}
 						</div>
 					) : null}

@@ -368,7 +368,9 @@
 		"TO_DO": "À faire",
 		"MEMBERS_COUNT": "Nombre de membres",
 		"REVIEW": "EXAMEN",
-		"ARCHIVE": "Archive"
+		"ARCHIVE": "Archive",
+		"ARCHIVE_AT": "Archiver le",
+		"RESTORE": "Restaurer"
 	},
 	"hotkeys": {
 		"HELP": "Aide",

@@ -368,7 +368,9 @@
 		"TO_DO": "Te doen",
 		"MEMBERS_COUNT": "Aantal leden",
 		"REVIEW": "BEKEKEN",
-		"ARCHIVE": "Archief"
+		"ARCHIVE": "Archief",
+		"ARCHIVE_AT": "Archiveren op",
+		"RESTORE": "Herstellen"
 	},
 	"hotkeys": {
 		"HELP": "Help",
