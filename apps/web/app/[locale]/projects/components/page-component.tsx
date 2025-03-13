@@ -67,6 +67,7 @@ function PageComponent() {
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<ProjectTableDataType>(
+			// Consider only active team projects
 			activeTeam
 				? searchTerm
 					? projects
@@ -97,10 +98,9 @@ function PageComponent() {
 
 		getOrganizationProjects({ queries }).then((data) => {
 			if (data && data?.items?.length > 0) {
-				// Consider only active team projects
 
-				const activeTeamProjectsIds = data.items
-					?.filter((project) => (showArchivedProjects ? project.isArchived : project))
+				const projects = data.items
+					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
 					.map((el) => ({
 						project: {
 							name: el.name,
@@ -117,7 +117,7 @@ function PageComponent() {
 						teams: el.teams
 					}));
 
-				setProjects(activeTeamProjectsIds);
+				setProjects(projects);
 			}
 		});
 	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);

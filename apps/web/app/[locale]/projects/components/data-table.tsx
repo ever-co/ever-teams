@@ -239,7 +239,7 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 							column.toggleSorting(undefined, true);
 						}}
 					>
-						<span>{t("common.ARCHIVE_AT")}t</span>
+						<span>{t("common.ARCHIVE_AT")}</span>
 						<div className="flex items-center flex-col">
 							<ChevronUp
 								size={15}
@@ -256,8 +256,8 @@ export const DataTableProject = memo((props: { data: ProjectTableDataType[]; loa
 			enableSorting: true,
 			enableMultiSort: true,
 			sortingFn: (rowA, rowB) => {
-				const a = rowA.original.startDate ? moment(rowA.original.startDate).toDate() : new Date(0); // Default to epoch if no date
-				const b = rowB.original.startDate ? moment(rowB.original.startDate).toDate() : new Date(0);
+				const a = rowA.original.startDate ? moment(rowA.original.archivedAt).toDate() : new Date(0); // Default to epoch if no date
+				const b = rowB.original.startDate ? moment(rowB.original.archivedAt).toDate() : new Date(0);
 
 				return b.getTime() - a.getTime();
 			},
