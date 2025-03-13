@@ -1,8 +1,11 @@
 'use client';
 
+import ReactPDF from '@react-pdf/renderer';
+
 import { MainLayout } from '@/lib/layout';
 import { useOrganizationTeams } from '@/app/hooks';
-import { withAuthentication } from '@/lib/app/authenticator';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFProjectExportDocument } from '../components/exports/pdf';
 
 function Page() {
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -20,8 +23,16 @@ function Page() {
 					</div>
 				</div>
 			}
-		></MainLayout>
+		>
+			<div className="my-20">
+				<PDFDownloadLink document={<PDFProjectExportDocument />} fileName="somename.pdf">
+					download
+				</PDFDownloadLink>
+			</div>
+
+			{}
+		</MainLayout>
 	);
 }
 
-export default withAuthentication(Page, { displayName: 'ProjectPage' });
+export default ReactPDF.render(<PDFProjectExportDocument />, '');
