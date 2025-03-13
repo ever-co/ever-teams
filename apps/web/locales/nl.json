@@ -548,7 +548,11 @@
 			"archiveModal": {
 				"title": "{projectName} archiveren?",
 				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
-			}
+			},"restoreModal": {
+				"title": "Project herstellen",
+				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
+			  }
+
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"

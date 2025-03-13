@@ -548,7 +548,11 @@
 			"archiveModal": {
 				"title": "Архивировать {projectName}?",
 				"description": "Архивация {projectName} затронет {affectedTasksCount} задач."
-			}
+			},"restoreModal": {
+				"title": "Восстановить проект",
+				"description": "Вы уверены, что хотите восстановить {projectName}?"
+			  }
+
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Вы собираетесь удалить статус {statusName}, который используется активными задачами; пожалуйста, подтвердите действие"

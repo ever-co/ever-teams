@@ -517,7 +517,11 @@
 			"archiveModal": {
 				"title": "Archivia {projectName}?",
 				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}."
-			}
+			},"restoreModal": {
+				"title": "Ripristina progetto",
+				"description": "Sei sicuro di voler ripristinare {projectName}?"
+			  }
+
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",

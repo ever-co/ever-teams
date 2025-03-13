@@ -511,7 +511,11 @@
 			"archiveModal": {
 				"title": "Архивиране на {projectName}?",
 				"description": "{affectedTasksCount} задачи ще бъдат засегнати от архивирането на {projectName}."
-			}
+			},"restoreModal": {
+				"title": "Възстановяване на проект",
+				"description": "Сигурни ли сте, че искате да възстановите {projectName}?"
+			  }
+
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]",

@@ -493,7 +493,11 @@
 			"archiveModal": {
 				"title": "Archive {projectName}?",
 				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
-			}
+			},"restoreModal": {
+				"title": "Restore project",
+				"description": "Are you sure you want to restore {projectName}?"
+			  }
+
 		},
 		"home": {
 			"BREADCRUMB": "[\"Dashboard\"]",

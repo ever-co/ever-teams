@@ -551,7 +551,11 @@
 			"archiveModal": {
 				"title": "Archiwizować {projectName}?",
 				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}."
-			}
+			},"restoreModal": {
+				"title": "Przywróć projekt",
+				"description": "Czy na pewno chcesz przywrócić {projectName}?"
+			  }
+
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",

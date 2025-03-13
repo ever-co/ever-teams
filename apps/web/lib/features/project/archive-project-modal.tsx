@@ -53,6 +53,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 		try {
 			const res = await editOrganizationProject(projectId, {
 				isArchived: true,
+				isActive: false,
 				archivedAt: moment(Date.now()).format()
 			});
 

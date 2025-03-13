@@ -508,7 +508,11 @@
 			"archiveModal": {
 				"title": "归档 {projectName}?",
 				"description": "归档 {projectName} 将影响 {affectedTasksCount} 个任务。"
-			}
+			},"restoreModal": {
+				"title": "恢复项目",
+				"description": "您确定要恢复 {projectName} 吗？"
+			  }
+
 		},
 		"kanban": {
 			"KANBAN_BOARD": "看板"

@@ -20,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTranslations } from 'next-intl';
 import { IProject } from '@/app/interfaces';
 import { cn } from '@/lib/utils';
-import { useTaskStatus } from '@/app/hooks';
+import { useModal, useTaskStatus } from '@/app/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
@@ -29,6 +29,7 @@ import { SpinnerLoader } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { useTheme } from 'next-themes';
 import { ProjectItemActions } from './grid-item';
+import { RestoreProjectConfirmModal } from '@/lib/features/project/restore-project-modal';
 
 export type ProjectTableDataType = {
 	project: {
@@ -459,13 +460,30 @@ export const DataTableProject = memo(
 			},
 			{
 				id: 'restore',
-				cell: () => (
-					<button
-						className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
-					>
-						<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
-					</button>
-				),
+				cell: function Cell({ row }) {
+					const {
+						openModal: openRestoreProjectModal,
+						closeModal: closeRestoreProjectModal,
+						isOpen: isRestoreProjectModalOpen
+					} = useModal();
+
+					return (
+						<>
+							<button
+								onClick={openRestoreProjectModal}
+								className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
+							>
+								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
+							</button>
+
+							<RestoreProjectConfirmModal
+								projectId={row.original?.project?.id}
+								open={isRestoreProjectModalOpen}
+								closeModal={closeRestoreProjectModal}
+							/>
+						</>
+					);
+				},
 				enableSorting: false,
 				enableHiding: false
 			}
