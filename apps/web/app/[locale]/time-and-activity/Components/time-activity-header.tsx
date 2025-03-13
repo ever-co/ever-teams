@@ -38,7 +38,7 @@ function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsCha
 
   const currentViewOptions = externalViewOptions || internalViewOptions;
   return (
-    <div className="flex justify-between items-center w-full">
+    <div className="flex justify-between items-center w-full dark:bg-dar">
     <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>

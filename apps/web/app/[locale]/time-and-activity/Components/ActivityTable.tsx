@@ -97,10 +97,10 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
             <p>No activity data available for this period</p>
           </div>
         ) : (
-        <Table>
+        <Table className="w-full">
           <TableHeader>
             <TableRow
-              className="border-0 hover:bg-transparent"
+              className="border-0 hover:bg-transparent dark:hover:bg-dark--theme-light"
               role="row"
             >
               {columnVisibility.member && (
@@ -184,7 +184,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
                       <div className="flex-1 max-w-32 transition-opacity group-hover:opacity-80">
                         <ProgressBar
                           progress={member.activityLevel}
-                          color="bg-primary"
+                          color="bg-[#0088CC]"
                         />
                       </div>
                       <span className="text-sm transition-colors group-hover:text-primary">{member.activityLevel}%</span>

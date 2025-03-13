@@ -67,7 +67,7 @@ const TimeActivityComponents = () => {
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
-				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark--theme">
+				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
 						<div className="flex items-center pt-6 w-full">
 							<button

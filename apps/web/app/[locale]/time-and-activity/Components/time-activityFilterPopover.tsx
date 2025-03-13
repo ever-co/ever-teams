@@ -97,7 +97,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-96">
+				<PopoverContent className="w-96 dark:bg-dark-high">
 					<div className="flex flex-col w-full">
 						<div className="flex gap-2 mb-3 text-xl font-bold">
 							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
