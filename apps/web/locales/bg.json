@@ -370,8 +370,9 @@
 		"REVIEW": "ПРЕГЛЕД",
 		"ARCHIVE": "Архив",
 		"ARCHIVE_AT": "Архивиране на",
-		"RESTORE": "Възстановяване","EXPORT": "Експортиране"
-
+		"RESTORE": "Възстановяване",
+		"HIDE": "Скрий",
+		"EXPORT": "Експортиране"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -512,11 +513,11 @@
 			"archiveModal": {
 				"title": "Архивиране на {projectName}?",
 				"description": "{affectedTasksCount} задачи ще бъдат засегнати от архивирането на {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Възстановяване на проект",
 				"description": "Сигурни ли сте, че искате да възстановите {projectName}?"
-			  }
-
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Задачи за член\"]",

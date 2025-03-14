@@ -352,8 +352,9 @@
 		"REVIEW": "مراجعة",
 		"ARCHIVE": "أرشيف",
 		"ARCHIVE_AT": "أرشفة في",
-		"RESTORE": "استعادة","EXPORT": "تصدير"
-
+		"RESTORE": "استعادة",
+		"HIDE": "إخفاء",
+		"EXPORT": "تصدير"
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -512,11 +513,11 @@
 			"archiveModal": {
 				"title": "أرشفة {projectName}؟",
 				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "استعادة المشروع",
 				"description": "هل أنت متأكد أنك تريد استعادة {projectName}؟"
-			  }
-
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]",

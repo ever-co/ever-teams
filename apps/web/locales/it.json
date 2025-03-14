@@ -371,8 +371,9 @@
 		"REVIEW": "REVISIONE",
 		"ARCHIVE": "Archivio",
 		"ARCHIVE_AT": "Archiviare il",
-		"RESTORE": "Ripristina","EXPORT": "Esporta"
-
+		"RESTORE": "Ripristina",
+		"HIDE": "Nascondere",
+		"EXPORT": "Esporta"
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -518,11 +519,11 @@
 			"archiveModal": {
 				"title": "Archivia {projectName}?",
 				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Ripristina progetto",
 				"description": "Sei sicuro di voler ripristinare {projectName}?"
-			  }
-
+			}
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",

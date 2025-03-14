@@ -370,8 +370,9 @@
 		"REVIEW": "בְּחִינָה",
 		"ARCHIVE": "ארכיון",
 		"ARCHIVE_AT": "ארכוב בתאריך",
-		"RESTORE": "שחזר","EXPORT": "ייצוא"
-
+		"RESTORE": "שחזר",
+		"HIDE": "הסתר",
+		"EXPORT": "ייצוא"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -511,11 +512,11 @@
 			"archiveModal": {
 				"title": "לארכב את {projectName}?",
 				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "שחזור פרויקט",
 				"description": "האם אתה בטוח שברצונך לשחזר את {projectName}?"
-			  }
-
+			}
 		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]",

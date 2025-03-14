@@ -370,8 +370,9 @@
 		"REVIEW": "ОБЗОР",
 		"ARCHIVE": "Архив",
 		"ARCHIVE_AT": "Архивировать на",
-		"RESTORE": "Восстановить","EXPORT": "Экспорт"
-
+		"RESTORE": "Восстановить",
+		"HIDE": "Скрыть",
+		"EXPORT": "Экспорт"
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -549,11 +550,11 @@
 			"archiveModal": {
 				"title": "Архивировать {projectName}?",
 				"description": "Архивация {projectName} затронет {affectedTasksCount} задач."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Восстановить проект",
 				"description": "Вы уверены, что хотите восстановить {projectName}?"
-			  }
-
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Вы собираетесь удалить статус {statusName}, который используется активными задачами; пожалуйста, подтвердите действие"

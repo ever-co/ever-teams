@@ -370,8 +370,9 @@
 		"REVIEW": "ÜBERPRÜFUNG",
 		"ARCHIVE": "Archiv",
 		"ARCHIVE_AT": "Archivieren am",
-		"RESTORE": "Wiederherstellen","EXPORT": "Exportieren"
-
+		"RESTORE": "Wiederherstellen",
+		"HIDE": "Verstecken",
+		"EXPORT": "Exportieren"
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -553,11 +554,11 @@
 			"archiveModal": {
 				"title": "{projectName} archivieren?",
 				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Projekt wiederherstellen",
 				"description": "Sind Sie sicher, dass Sie {projectName} wiederherstellen möchten?"
-			  }
-
+			}
 		},
 		"auth": {
 			"SEND_CODE": "Code senden",

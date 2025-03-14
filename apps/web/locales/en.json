@@ -372,8 +372,9 @@
 		"ARCHIVE": "Archive",
 
 		"ARCHIVE_AT": "Archive at",
-		"RESTORE": "Restore","EXPORT": "Export"
-
+		"RESTORE": "Restore",
+		"HIDE": "Hide",
+		"EXPORT": "Export"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -494,11 +495,11 @@
 			"archiveModal": {
 				"title": "Archive {projectName}?",
 				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Restore project",
 				"description": "Are you sure you want to restore {projectName}?"
-			  }
-
+			}
 		},
 		"home": {
 			"BREADCRUMB": "[\"Dashboard\"]",
