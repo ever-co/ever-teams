@@ -370,7 +370,8 @@
 		"REVIEW": "REVISIÓN",
 		"ARCHIVE": "Archivo",
 		"ARCHIVE_AT": "Archivar en",
-		"RESTORE": "Restaurar"
+		"RESTORE": "Restaurar","EXPORT": "Exportar"
+
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",

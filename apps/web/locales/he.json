@@ -370,7 +370,8 @@
 		"REVIEW": "בְּחִינָה",
 		"ARCHIVE": "ארכיון",
 		"ARCHIVE_AT": "ארכוב בתאריך",
-		"RESTORE": "שחזר"
+		"RESTORE": "שחזר","EXPORT": "ייצוא"
+
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

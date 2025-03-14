@@ -352,7 +352,8 @@
 		"REVIEW": "مراجعة",
 		"ARCHIVE": "أرشيف",
 		"ARCHIVE_AT": "أرشفة في",
-		"RESTORE": "استعادة"
+		"RESTORE": "استعادة","EXPORT": "تصدير"
+
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

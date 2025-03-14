@@ -371,7 +371,8 @@
 		"REVIEW": "REVISIONE",
 		"ARCHIVE": "Archivio",
 		"ARCHIVE_AT": "Archiviare il",
-		"RESTORE": "Ripristina"
+		"RESTORE": "Ripristina","EXPORT": "Esporta"
+
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

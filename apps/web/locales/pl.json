@@ -370,7 +370,8 @@
 		"REVIEW": "PRZEGLĄD",
 		"ARCHIVE": "Archiwum",
 		"ARCHIVE_AT": "Archiwizuj o",
-		"RESTORE": "Przywróć"
+		"RESTORE": "Przywróć","EXPORT": "Eksport"
+
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

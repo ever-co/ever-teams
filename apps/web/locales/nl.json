@@ -370,7 +370,8 @@
 		"REVIEW": "BEKEKEN",
 		"ARCHIVE": "Archief",
 		"ARCHIVE_AT": "Archiveren op",
-		"RESTORE": "Herstellen"
+		"RESTORE": "Herstellen","EXPORT": "Exporteren"
+
 	},
 	"hotkeys": {
 		"HELP": "Help",

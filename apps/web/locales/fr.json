@@ -370,7 +370,8 @@
 		"REVIEW": "EXAMEN",
 		"ARCHIVE": "Archive",
 		"ARCHIVE_AT": "Archiver le",
-		"RESTORE": "Restaurer"
+		"RESTORE": "Restaurer","EXPORT": "Exporter"
+
 	},
 	"hotkeys": {
 		"HELP": "Aide",
