@@ -28,17 +28,20 @@ function TeamDashboard() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const { isTrackingEnabled } = useOrganizationTeams();
 
+
 	const {
 		rapportChartActivity,
 		rapportDailyActivity,
 		statisticsCounts,
 		updateDateRange,
-		updateFilters,
 		loadingTimeLogReportDailyChart,
 		loadingTimeLogReportDaily,
 		loadingTimesheetStatisticsCounts,
-		isManage
+		isManage,
+		currentFilters
 	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
+
+
 
 	const currentLocale = paramsUrl?.locale;
 
@@ -72,9 +75,12 @@ function TeamDashboard() {
 						<div className="flex flex-col gap-3">
 							<DashboardHeader
 								onUpdateDateRange={updateDateRange}
-								onUpdateFilters={updateFilters}
 								title="Team Dashboard"
 								isManage={isManage}
+								teamName="Team Dashboard"
+								reportData={rapportDailyActivity||[]}
+								startDate={new Date(currentFilters.startDate || '')}
+								endDate={new Date(currentFilters.endDate || '')}
 							/>
 							<TeamStatsGrid
 								statisticsCounts={statisticsCounts}
