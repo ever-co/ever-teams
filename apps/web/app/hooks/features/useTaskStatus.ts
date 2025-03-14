@@ -70,7 +70,7 @@ export function useTaskStatus() {
 
   useEffect(() => {
     if (user?.tenantId && (activeTeamId || getActiveTeamIdCookie())) {
-    //   loadTaskStatusData();
+      loadTaskStatusData();
     }
   }, [user?.tenantId, activeTeamId, loadTaskStatusData]);
 
