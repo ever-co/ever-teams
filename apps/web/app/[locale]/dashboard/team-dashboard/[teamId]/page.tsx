@@ -89,31 +89,35 @@ function TeamDashboard() {
 											className="gap-0.5 text-[10px] tracking-tight font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
 											onClick={() => setShowChart(!showChart)}
 										>
-											<ChevronUpIcon className={`h-2.5 w-2.5 transition-transform duration-300 transform ${showChart ? 'rotate-180' : 'rotate-0'}`} />
+										<ChevronUpIcon className={`h-2.5 w-2.5 transition-transform duration-300 transform rotate-0`} />
 										</Button>
 									</div>
 								)}
 								{showChart && (
 									<Card className="w-full dark:bg-dark--theme-light transition-all duration-300 ease-in-out transform origin-top overflow-hidden">
-									<div className={`transition-all duration-300 ease-in-out transform origin-top ${showChart ? 'scale-y-100 opacity-100 h-auto' : 'scale-y-0 opacity-0 h-0'}`}>
-										<div className="relative">
-											<TeamStatsChart
-												rapportChartActivity={rapportChartActivity}
-												isLoading={loadingTimeLogReportDailyChart}
-											/>
-											<div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-gradient-to-t from-gray-50/60 dark:from-gray-900/60 to-transparent py-0.5">
-												<Button
-													variant="ghost"
-													size="sm"
-													className="gap-0.5 text-[10px] tracking-tight font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
-													onClick={() => setShowChart(!showChart)}
-												>
-													<ChevronDownIcon className={`h-2.5 w-2.5 transition-transform duration-300 ${!showChart ? 'rotate-180' : 'rotate-0'}`} />
-												</Button>
+										<div
+											className={`transition-all duration-300 ease-in-out transform origin-top ${showChart ? 'scale-y-100 opacity-100 h-auto' : 'scale-y-0 opacity-0 h-0'}`}
+										>
+											<div className="relative">
+												<TeamStatsChart
+													rapportChartActivity={rapportChartActivity}
+													isLoading={loadingTimeLogReportDailyChart}
+												/>
+												<div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-gradient-to-t from-gray-50/60 dark:from-gray-900/60 to-transparent py-0.5">
+													<Button
+														variant="ghost"
+														size="sm"
+														className="gap-0.5 text-[10px] tracking-tight font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
+														onClick={() => setShowChart(!showChart)}
+													>
+														<ChevronDownIcon
+															className={`h-2.5 w-2.5 transition-transform duration-300 rotate-0`}
+														/>
+													</Button>
+												</div>
 											</div>
 										</div>
-									</div>
-								</Card>
+									</Card>
 								)}
 							</div>
 						</div>
@@ -123,10 +127,7 @@ function TeamDashboard() {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light">
-					<TeamStatsTable
-						rapportDailyActivity={rapportDailyActivity}
-						isLoading={loadingTimeLogReportDaily}
-					/>
+					<TeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loadingTimeLogReportDaily} />
 				</Card>
 			</Container>
 		</MainLayout>
