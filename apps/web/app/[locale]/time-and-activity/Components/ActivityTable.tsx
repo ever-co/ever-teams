@@ -38,7 +38,8 @@ interface ActivityTableProps {
 }
 
 const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] }) => {
-  // Memoize column visibility checks
+
+
   const columnVisibility = React.useMemo(() => {
     const visibilityMap = new Map(viewOptions.map(opt => [opt.id, opt.checked]));
     return {

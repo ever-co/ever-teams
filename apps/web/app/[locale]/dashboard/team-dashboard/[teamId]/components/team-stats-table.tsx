@@ -141,7 +141,7 @@ export function TeamStatsTable({
 	return (
 		<>
 			{employeeLog && <ActivityModal employeeLog={employeeLog} isOpen={isOpen} closeModal={closeModal} />}
-			<div className="min-h-[600px] w-full dark:bg-dark--theme-light">
+			<div className="w-full dark:bg-dark--theme-light">
 				<div className="relative rounded-md border">
 					<div className="overflow-x-auto">
 						<div className="inline-block min-w-full align-middle">
