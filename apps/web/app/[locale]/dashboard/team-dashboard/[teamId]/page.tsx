@@ -96,7 +96,7 @@ function TeamDashboard() {
 								{showChart && (
 									<Card className="w-full dark:bg-dark--theme-light transition-all duration-300 ease-in-out transform origin-top overflow-hidden">
 										<div
-											className={`transition-all duration-300 ease-in-out transform origin-top ${showChart ? 'scale-y-100 opacity-100 h-auto' : 'scale-y-0 opacity-0 h-0'}`}
+											className="transition-all duration-300 ease-in-out transform origin-top scale-y-100 opacity-100 h-auto"
 										>
 											<div className="relative">
 												<TeamStatsChart
