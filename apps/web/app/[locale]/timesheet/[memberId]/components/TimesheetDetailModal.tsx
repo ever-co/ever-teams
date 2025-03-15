@@ -44,14 +44,23 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
                         switch (timesheetDetailMode) {
                             case 'Pending':
                                 return timesheet?.PENDING.length === 0 ? (
-                                    <div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme flex flex-col items-center justify-center min-h-[280px]">
-                                        <p>{t('pages.timesheet.NO_ENTRIES_FOUND')}</p>
-                                    </div>
-                                ) : (
-                                    <TimesheetCardDetail data={timesheet} />
-                                );
-                            case 'MemberWork':
-                                return <MembersWorkedCard element={timesheetDetail} t={t} />;
+                                    <div className="grow w-full bg-white dark:bg-dark--theme rounded-md border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center h-full min-h-[280px] transition-colors duration-150">
+                                        <div className="text-center space-y-3">
+                                            <div className="space-y-2">
+                                                <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                                                    {t('pages.timesheet.NO_ENTRIES_FOUND')}
+                                                </p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        {t('common.SELECT_DIFFERENT_DATE')}
+                                                </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <TimesheetCardDetail data={timesheet} />
+                                    );
+                                case 'MemberWork':
+                                    return <MembersWorkedCard element={timesheetDetail} t={t} />;
                             case 'MenHours':
                                 return <MenHoursCard element={timesheetDetail} t={t} />;
                             default:

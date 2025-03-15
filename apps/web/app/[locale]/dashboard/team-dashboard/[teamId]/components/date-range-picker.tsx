@@ -252,6 +252,7 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 				})
 			}
 		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[createRange, t]
 	);
 
