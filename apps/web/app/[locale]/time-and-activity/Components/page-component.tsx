@@ -17,10 +17,14 @@ import ActivityTable from './ActivityTable';
 import { exampleData } from './example-usage';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
+import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
 const TimeActivityComponents = () => {
+	const { rapportDailyActivity,updateDateRange } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	// Memoize column visibility checks
+	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(() => {
 		if (typeof window === 'undefined') return defaultViewOptions;
 
@@ -86,6 +90,7 @@ const TimeActivityComponents = () => {
 								projects={organizationProjects}
 								tasks={tasks}
 								activeTeam={activeTeam}
+								onUpdateDateRange={updateDateRange}
 							/>
 							<div className="grid grid-cols-3 gap-[30px] w-full">
 								<CardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />
