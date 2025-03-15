@@ -259,6 +259,15 @@
 			"ADD_PLAN": "إضافة خطة",
 			"DELETE_THIS_PLAN": "احذف هذه الخطة"
 		},
+		"DAYOFWEEK": {
+			"Monday": "الإثنين",
+			"Tuesday": "الثلاثاء",
+			"Wednesday": "الأربعاء",
+			"Thursday": "الخميس",
+			"Friday": "الجمعة",
+			"Saturday": "السبت",
+			"Sunday": "الأحد"
+		},
 		"teamStats": {
 			"MEMBER": "عضو",
 			"MEMBERS_WORKED": "الأعضاء الذين عملوا",
@@ -341,7 +350,10 @@
 		"TO_DO": "المهام",
 		"MEMBERS_COUNT": "عدد الأعضاء",
 		"REVIEW": "مراجعة",
-		"ARCHIVE": "أرشيف"
+		"ARCHIVE": "أرشيف",
+		"ARCHIVE_AT": "أرشفة في",
+		"RESTORE": "استعادة","EXPORT": "تصدير"
+
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
@@ -496,7 +508,15 @@
 			"deleteModal": {
 				"title": "حذف المحدد؟",
 				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
-			}
+			},
+			"archiveModal": {
+				"title": "أرشفة {projectName}؟",
+				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
+			},"restoreModal": {
+				"title": "استعادة المشروع",
+				"description": "هل أنت متأكد أنك تريد استعادة {projectName}؟"
+			  }
+
 		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]",

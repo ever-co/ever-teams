@@ -33,11 +33,13 @@ const CardTimeAndActivity: React.FC<StatisticCardProps> = ({
           )}
         </div>
         {showProgress && (
-          <ProgressBar
+        <div className='w-28'>
+            <ProgressBar
             progress={progress}
             color={progressColor}
             isLoading={isLoading}
           />
+        </div>
         )}
       </div>
     </div>

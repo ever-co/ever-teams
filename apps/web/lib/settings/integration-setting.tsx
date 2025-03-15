@@ -151,12 +151,12 @@ export const IntegrationSetting = () => {
 			const projectId = getActiveProjectIdCookie();
 
 			if (projectId) {
-				editOrganizationProject(projectId, {
+				editOrganizationProjectSetting(projectId, {
 					syncTag: e.target.value
 				});
 			}
 		},
-		[editOrganizationProject]
+		[editOrganizationProjectSetting]
 	);
 
 	const handleDeleteIntegrationTenant = useCallback(() => {

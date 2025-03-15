@@ -143,6 +143,7 @@ export interface ICreateProjectInput {
 	budgetType?: OrganizationProjectBudgetTypeEnum;
 	startDate: string;
 	endDate: string;
+	archivedAt: string | null;
 	billing?: ProjectBillingEnum;
 	currency?: string;
 	memberIds?: string[];
@@ -157,3 +158,5 @@ export interface ICreateProjectInput {
 	// Will be implemented on the  API side much later :
 	relations?: IProjectRelation[]; // relationship
 }
+
+export type IEditProjectInput = Partial<ICreateProjectInput>;

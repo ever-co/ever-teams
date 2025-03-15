@@ -33,9 +33,9 @@ export function DashboardHeader({
 	reportData
 }: DashboardHeaderProps) {
 	const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
-	const [selectedExportType, setSelectedExportType] = React.useState<string>('');
+	const [selectedExportType, setSelectedExportType] = React.useState<'export' | 'pdf' | 'xlsx'>('export');
 
-	const handleExportSelect = (value: string) => {
+	const handleExportSelect = (value: 'export' | 'pdf' | 'xlsx') => {
 		if (value !== 'export') {
 			setSelectedExportType(value);
 			setExportDialogOpen(true);

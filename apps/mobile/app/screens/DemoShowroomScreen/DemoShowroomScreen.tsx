@@ -19,12 +19,12 @@ export interface Demo {
 }
 
 export const DemoShowroomScreen: FC<DemoTabScreenProps<'DemoShowroom'>> = function DemoShowroomScreen(_props) {
-	const [open, setOpen] = useState(false);
-	const timeout = useRef<ReturnType<typeof setTimeout>>();
-	const drawerRef = useRef<DrawerLayout>();
-	const listRef = useRef<SectionList>();
-	const menuRef = useRef<FlatList>();
-	const progress = useSharedValue(0);
+	const [open, setOpen] = useState<boolean>(false);
+	const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const drawerRef = useRef<DrawerLayout | null>(null);
+	const listRef = useRef<SectionList | null>(null);
+	const menuRef = useRef<FlatList | null>(null);
+	const progress = useSharedValue<number>(0);
 
 	const toggleDrawer = () => {
 		if (!open) {
@@ -91,12 +91,12 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<'DemoShowroom'>> = functi
 					<FlatList<{ name: string; useCases: string[] }>
 						ref={menuRef}
 						contentContainerStyle={$flatListContentContainer}
-						data={Object.values(Demos).map((d) => ({
+						data={Object.values(Demos).map((d: any) => ({
 							name: d.name,
-							useCases: d.data.map((u) => u.props.name)
+							useCases: d.data.map((u: any) => u.props?.name)
 						}))}
-						keyExtractor={(item) => item.name}
-						renderItem={({ item, index: sectionIndex }) => (
+						keyExtractor={(item: any) => item.name}
+						renderItem={({ item, index: sectionIndex }: any) => (
 							<View>
 								<Text onPress={() => handleScroll(sectionIndex)} preset="bold" style={$menuContainer}>
 									{item.name}

@@ -264,6 +264,7 @@
 			"SINGULAR": "Scheda attività",
 			"PLURAL": "Schede attività"
 		},
+
 		"DAYS": {
 			"sun": "Dom",
 			"mon": "Lun",
@@ -289,6 +290,15 @@
 			"SEE_PLANS": "Vedi piani",
 			"ADD_PLAN": "Aggiungi Piano",
 			"DELETE_THIS_PLAN": "Elimina questo piano"
+		},
+		"DAYOFWEEK": {
+			"Monday": "Lunedì",
+			"Tuesday": "Martedì",
+			"Wednesday": "Mercoledì",
+			"Thursday": "Giovedì",
+			"Friday": "Venerdì",
+			"Saturday": "Sabato",
+			"Sunday": "Domenica"
 		},
 		"teamStats": {
 			"MEMBER": "Membro",
@@ -359,7 +369,10 @@
 		"TO_DO": "Da fare",
 		"MEMBERS_COUNT": "Conteggio dei membri",
 		"REVIEW": "REVISIONE",
-		"ARCHIVE": "Archivio"
+		"ARCHIVE": "Archivio",
+		"ARCHIVE_AT": "Archiviare il",
+		"RESTORE": "Ripristina","EXPORT": "Esporta"
+
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -501,7 +514,15 @@
 			"deleteModal": {
 				"title": "Eliminare selezionato?",
 				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione"
-			}
+			},
+			"archiveModal": {
+				"title": "Archivia {projectName}?",
+				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}."
+			},"restoreModal": {
+				"title": "Ripristina progetto",
+				"description": "Sei sicuro di voler ripristinare {projectName}?"
+			  }
+
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Dettagli attività\"]",

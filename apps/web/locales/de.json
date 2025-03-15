@@ -277,6 +277,15 @@
 			"ADD_PLAN": "Plan hinzufügen",
 			"DELETE_THIS_PLAN": "Diesen Plan löschen"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Montag",
+			"Tuesday": "Dienstag",
+			"Wednesday": "Mittwoch",
+			"Thursday": "Donnerstag",
+			"Friday": "Freitag",
+			"Saturday": "Samstag",
+			"Sunday": "Sonntag"
+		},
 		"teamStats": {
 			"MEMBER": "Mitglied",
 			"MEMBERS_WORKED": "Mitglieder, die gearbeitet haben",
@@ -359,7 +368,10 @@
 		"TO_DO": "Zu erledigen",
 		"MEMBERS_COUNT": "Mitgliederanzahl",
 		"REVIEW": "ÜBERPRÜFUNG",
-		"ARCHIVE": "Archiv"
+		"ARCHIVE": "Archiv",
+		"ARCHIVE_AT": "Archivieren am",
+		"RESTORE": "Wiederherstellen","EXPORT": "Exportieren"
+
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -537,7 +549,15 @@
 			"deleteModal": {
 				"title": "Ausgewähltes löschen?",
 				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen"
-			}
+			},
+			"archiveModal": {
+				"title": "{projectName} archivieren?",
+				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein."
+			},"restoreModal": {
+				"title": "Projekt wiederherstellen",
+				"description": "Sind Sie sicher, dass Sie {projectName} wiederherstellen möchten?"
+			  }
+
 		},
 		"auth": {
 			"SEND_CODE": "Code senden",

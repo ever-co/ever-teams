@@ -10,7 +10,8 @@ import {
 	ActivityIndicator,
 	FlatList,
 	StatusBar,
-	Keyboard
+	Keyboard,
+	Animated
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
@@ -18,7 +19,6 @@ import { AuthenticatedDrawerScreenProps } from '../../../navigators/Authenticate
 import { translate } from '../../../i18n';
 import { typography, useAppTheme } from '../../../theme';
 import BottomSheet from 'reanimated-bottom-sheet';
-import Animated from 'react-native-reanimated';
 import { useTaskVersion } from '../../../services/hooks/features/useTaskVersion';
 import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
 import { BlurView } from 'expo-blur';

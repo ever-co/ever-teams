@@ -3,12 +3,11 @@
 import { MainLayout } from '@/lib/layout';
 import { useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { useEffect, useMemo, useState } from 'react';
-import { Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { ChevronDown, Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, InputField, Paginate, SpinnerLoader } from '@/lib/components';
 import { usePagination } from '@/app/hooks/features/usePagination';
-import { ExportModeSelect } from '@components/shared/export-mode-select';
 import { DatePickerWithRange } from '@components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
@@ -19,6 +18,10 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
 import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
+import { Menu, Transition } from '@headlessui/react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDocument } from '../export-formats/pdf';
+import moment from 'moment';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -63,9 +66,11 @@ function PageComponent() {
 		],
 		[t]
 	);
+	const showArchivedProjects = params.get('archived');
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<ProjectTableDataType>(
+			// Consider only active team projects
 			activeTeam
 				? searchTerm
 					? projects
@@ -96,27 +101,28 @@ function PageComponent() {
 
 		getOrganizationProjects({ queries }).then((data) => {
 			if (data && data?.items?.length > 0) {
-				// Consider only active team projects
+				const projects = data.items
+					?.filter((project) => (showArchivedProjects ? project.isArchived : !project.isArchived))
+					.map((el) => ({
+						project: {
+							name: el.name,
+							imageUrl: el.imageUrl,
+							color: el.color,
+							id: el.id
+						},
+						status: el.status,
+						archivedAt: el.archivedAt,
+						startDate: el.startDate,
+						endDate: el.endDate,
+						members: el.members,
+						managers: el.members,
+						teams: el.teams
+					}));
 
-				const activeTeamProjectsIds = data.items?.map((el) => ({
-					project: {
-						name: el.name,
-						imageUrl: el.imageUrl,
-						color: el.color,
-						id: el.id
-					},
-					status: el.status,
-					startDate: el.startDate,
-					endDate: el.endDate,
-					members: el.members,
-					managers: el.members,
-					teams: el.teams
-				}));
-
-				setProjects(activeTeamProjectsIds);
+				setProjects(projects);
 			}
 		});
-	}, [getOrganizationProjects, params, organizationProjects]);
+	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
 
 	return (
 		<MainLayout
@@ -196,12 +202,113 @@ function PageComponent() {
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
 							</Button>
-							<ExportModeSelect
-								className="hover:bg-slate-100 bg-transparent dark:bg-transparent dark:border-white hover:dark:bg-transparent "
-								onChange={() => {
-									/* TODO: Implement export handling */
-								}}
-							/>
+							<Menu as="div" className="relative inline-block text-left">
+								<Menu.Button className=" w-full h-full items-center justify-between">
+									<Button
+										type="button"
+										className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
+										variant="outline"
+									>
+										<span>{t("common.EXPORT")}</span> <ChevronDown size={15} />
+									</Button>
+								</Menu.Button>
+								<Transition
+									as={Fragment}
+									enter="transition ease-out duration-100"
+									enterFrom="transform opacity-0 scale-95"
+									enterTo="transform opacity-100 scale-100"
+									leave="transition ease-in duration-75"
+									leaveFrom="transform opacity-100 scale-100"
+									leaveTo="transform opacity-0 scale-95"
+								>
+									<Menu.Items
+										static
+										className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none"
+									>
+										<div className="p-1 flex flex-col gap-1">
+											<Menu.Item>
+												{({ active }) => (
+													<button
+														className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+													>
+														<PDFDownloadLink
+															className="w-full h-full text-left"
+															document={
+																<PDFDocument
+																	data={currentItems.map((el) => {
+																		return {
+																			projectName: el.project.name || '-',
+																			status: el.status || '-',
+																			archivedAt: el.archivedAt
+																				? moment(el.archivedAt).format(
+																						'YYYY-MM-DD'
+																					)
+																				: '-',
+																			startDate: el.startDate
+																				? moment(el.startDate).format(
+																						'YYYY-MM-DD'
+																					)
+																				: '-',
+																			endDate: el.endDate
+																				? moment(el.endDate).format(
+																						'YYYY-MM-DD'
+																					)
+																				: '-',
+																			members:
+																				el.members?.map(
+																					(el) => el.employee.fullName
+																				) ?? [],
+																			managers:
+																				el.managers?.map(
+																					(el) => el.employee.fullName
+																				) ?? [],
+																			teams: el.teams?.map((el) => el.name) ?? []
+																		};
+																	})}
+																	headers={{
+																		projectName: t(
+																			'pages.projects.projectTitle.SINGULAR'
+																		),
+																		status: t('common.STATUS'),
+																		archivedAt: t('common.ARCHIVE_AT'),
+																		startDate: t('common.START_DATE'),
+																		endDate: t('common.END_DATE'),
+																		members: t('common.MEMBERS'),
+																		managers: t('common.MANAGERS'),
+																		teams: t('common.TEAMS')
+																	}}
+																	title={`${activeTeam?.name} Organization Projects`}
+																/>
+															}
+															fileName={`${activeTeam?.name}-organization-projects.pdf`}
+														>
+															{({ loading }) =>
+																loading ? (
+																	<p className="w-full h-full">
+																		{t('common.LOADING')}...
+																	</p>
+																) : (
+																	<p className="w-full h-full">PDF</p>
+																)
+															}
+														</PDFDownloadLink>
+													</button>
+												)}
+											</Menu.Item>
+											<Menu.Item>
+												{({ active }) => (
+													<button
+														disabled // Will be implemented later
+														className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+													>
+														<span>CSV</span>
+													</button>
+												)}
+											</Menu.Item>
+										</div>
+									</Menu.Items>
+								</Transition>
+							</Menu>
 							<Button
 								type="button"
 								className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
@@ -213,7 +320,11 @@ function PageComponent() {
 					</div>
 					{selectedView === 'LIST' ? (
 						<div key="list" className="w-full">
-							<DataTableProject loading={getOrganizationProjectsLoading} data={currentItems} />
+							<DataTableProject
+								archived={Boolean(showArchivedProjects)}
+								loading={getOrganizationProjectsLoading}
+								data={currentItems}
+							/>
 							<div className=" dark:bg-dark--theme px-4 py-4 flex">
 								<Paginate
 									total={total}
@@ -234,7 +345,13 @@ function PageComponent() {
 									<SpinnerLoader />
 								</div>
 							) : (
-								currentItems.map((el) => <GridItem key={el.project.id} data={el} />)
+								currentItems.map((el) => (
+									<GridItem
+										isArchived={Boolean(showArchivedProjects)}
+										key={el.project.id}
+										data={el}
+									/>
+								))
 							)}
 						</div>
 					) : null}

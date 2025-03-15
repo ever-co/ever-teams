@@ -127,7 +127,7 @@ export function MainLayout({
 				<AppSidebar publicTeam={publicTeam || false} />
 				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
-					<ResizablePanelGroup  direction="vertical" className="min-h-full">
+					<ResizablePanelGroup direction="vertical" className="min-h-full">
 						<GlobalHeader
 							ref={headerRef}
 							fullWidth={fullWidth}

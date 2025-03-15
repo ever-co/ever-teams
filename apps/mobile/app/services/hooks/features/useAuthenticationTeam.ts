@@ -15,7 +15,7 @@ import { VerificationResponse } from '../../interfaces/IAuthentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function useAuthenticationTeam() {
-	const authTeamInput = useRef<TextInput>();
+	const authTeamInput = useRef<TextInput | null>(null);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [joinError, setJoinError] = useState(null);
