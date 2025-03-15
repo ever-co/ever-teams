@@ -14,6 +14,7 @@ import { HorizontalSeparator } from '@/lib/components';
 import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-project-modal';
 import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 import { ArchiveProjectModal } from '@/lib/features/project/archive-project-modal';
+import { RestoreProjectConfirmModal } from '@/lib/features/project/restore-project-modal';
 
 interface IGridItemProps {
 	data: ProjectTableDataType;
@@ -22,7 +23,11 @@ interface IGridItemProps {
 
 export default function GridItem(props: IGridItemProps) {
 	const { data, isArchived } = props;
-
+	const {
+		openModal: openRestoreProjectModal,
+		closeModal: closeRestoreProjectModal,
+		isOpen: isRestoreProjectModalOpen
+	} = useModal();
 	const { taskStatus } = useTaskStatus();
 
 	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
@@ -63,125 +68,133 @@ export default function GridItem(props: IGridItemProps) {
 	const { resolvedTheme } = useTheme();
 
 	return (
-		<div className="w-[24rem] shrink-0 border rounded-xl p-4 gap-4 flex">
-			<Checkbox className=" shrink-0" />
-			<div className=" h-full flex flex-col gap-8 grow">
-				<div className="w-full gap-4 flex items-center justify-between">
-					<div className="flex items-center font-medium gap-2">
-						<div
-							style={{ backgroundColor: data?.project?.color }}
-							className={cn(
-								'w-10 h-10  border overflow-hidden flex items-center justify-center rounded-xl'
-							)}
-						>
-							{!data?.project?.imageUrl ? (
-								data?.project?.name?.substring(0, 2)
-							) : (
-								<Image
-									alt={data?.project?.name ?? ''}
-									height={40}
-									width={40}
-									className="w-full h-full"
-									src={data?.project?.imageUrl}
-								/>
-							)}
-						</div>
-						<p>{data?.project?.name}</p>
-					</div>
-					{isArchived ? (
-						<button
-							className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
-						>
-							<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
-						</button>
-					) : (
-						<Ellipsis size={20} />
-					)}
-				</div>
-
-				{!isArchived ? (
-					<div className="w-full items-center flex gap-6">
-						<p className=" font-medium">{t('common.STATUS')}</p>
-						{data?.status ? (
+		<>
+			<div className="w-[24rem] shrink-0 border rounded-xl p-4 gap-4 flex">
+				<Checkbox className=" shrink-0" />
+				<div className=" h-full flex flex-col gap-8 grow">
+					<div className="w-full gap-4 flex items-center justify-between">
+						<div className="flex items-center font-medium gap-2">
 							<div
-								style={{
-								backgroundColor:
-									resolvedTheme == 'light'
-										? statusColorsMap.get(data?.status) ?? 'transparent'
-										: '#6A7280'
-							}}
-								className="rounded px-4 py-1"
+								style={{ backgroundColor: data?.project?.color }}
+								className={cn(
+									'w-10 h-10  border overflow-hidden flex items-center justify-center rounded-xl'
+								)}
 							>
-								{data?.status}
+								{!data?.project?.imageUrl ? (
+									data?.project?.name?.substring(0, 2)
+								) : (
+									<Image
+										alt={data?.project?.name ?? ''}
+										height={40}
+										width={40}
+										className="w-full h-full"
+										src={data?.project?.imageUrl}
+									/>
+								)}
 							</div>
+							<p>{data?.project?.name}</p>
+						</div>
+						{isArchived ? (
+							<button
+								onClick={openRestoreProjectModal}
+								className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
+							>
+								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
+							</button>
 						) : (
-							'-'
+							<ProjectItemActions item={data} />
 						)}
 					</div>
-				) : (
-					<div className="flex flex-col gap-2">
-						<p className="font-medium">{t('common.ARCHIVE_AT')}</p>
-						<div className="flex items-center gap-1">
-							{data?.archivedAt ? (
-								<>
-									<CalendarDays size={15} className=" text-slate-400" />
-									<p>{moment(data?.archivedAt).format('D.MM.YYYY')}</p>
-								</>
+
+					{!isArchived ? (
+						<div className="w-full items-center flex gap-6">
+							<p className=" font-medium">{t('common.STATUS')}</p>
+							{data?.status ? (
+								<div
+									style={{
+										backgroundColor:
+											resolvedTheme == 'light'
+												? statusColorsMap.get(data?.status) ?? 'transparent'
+												: '#6A7280'
+									}}
+									className="rounded px-4 py-1"
+								>
+									{data?.status}
+								</div>
 							) : (
 								'-'
 							)}
 						</div>
-					</div>
-				)}
+					) : (
+						<div className="flex flex-col gap-2">
+							<p className="font-medium">{t('common.ARCHIVE_AT')}</p>
+							<div className="flex items-center gap-1">
+								{data?.archivedAt ? (
+									<>
+										<CalendarDays size={15} className=" text-slate-400" />
+										<p>{moment(data?.archivedAt).format('D.MM.YYYY')}</p>
+									</>
+								) : (
+									'-'
+								)}
+							</div>
+						</div>
+					)}
 
-				<div className="w-full flex items-center gap-10">
-					<div className="flex flex-col gap-2">
-						<p className="font-medium">{t('common.START_DATE')}</p>
-						<div className="flex items-center gap-1">
-							{data?.startDate ? (
-								<>
-									<CalendarDays size={15} className=" text-slate-400" />
-									<p>{moment(data?.startDate).format('D.MM.YYYY')}</p>
-								</>
-							) : (
-								'-'
-							)}
+					<div className="w-full flex items-center gap-10">
+						<div className="flex flex-col gap-2">
+							<p className="font-medium">{t('common.START_DATE')}</p>
+							<div className="flex items-center gap-1">
+								{data?.startDate ? (
+									<>
+										<CalendarDays size={15} className=" text-slate-400" />
+										<p>{moment(data?.startDate).format('D.MM.YYYY')}</p>
+									</>
+								) : (
+									'-'
+								)}
+							</div>
+						</div>
+
+						<div className="flex flex-col gap-2">
+							<p className="font-medium">{t('common.END_DATE')}</p>
+							<div className="flex items-center gap-1">
+								{data?.endDate ? (
+									<>
+										<CalendarDays size={15} className=" text-slate-400" />
+										<p>{moment(data?.endDate).format('D.MM.YYYY')}</p>
+									</>
+								) : (
+									'-'
+								)}
+							</div>
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-2">
-						<p className="font-medium">{t('common.END_DATE')}</p>
-						<div className="flex items-center gap-1">
-							{data?.endDate ? (
-								<>
-									<CalendarDays size={15} className=" text-slate-400" />
-									<p>{moment(data?.endDate).format('D.MM.YYYY')}</p>
-								</>
-							) : (
-								'-'
-							)}
+					<div className="w-full flex items-center justify-between">
+						<div className="w-full flex flex-col gap-2">
+							<p className="font-medium">{t('common.MEMBERS')}</p>
+							<div>{members?.length > 0 ? <AvatarStack maxVisible={3} avatars={members} /> : '-'}</div>
 						</div>
-					</div>
-				</div>
 
-				<div className="w-full flex items-center justify-between">
-					<div className="w-full flex flex-col gap-2">
-						<p className="font-medium">{t('common.MEMBERS')}</p>
-						<div>{members?.length > 0 ? <AvatarStack maxVisible={3} avatars={members} /> : '-'}</div>
-					</div>
+						<div className="w-full flex flex-col gap-2">
+							<p className="font-medium">{t('common.TEAMS')}</p>
+							<div>{teams?.length > 0 ? <AvatarStack maxVisible={2} avatars={teams} /> : '-'}</div>
+						</div>
 
-					<div className="w-full flex flex-col gap-2">
-						<p className="font-medium">{t('common.TEAMS')}</p>
-						<div>{teams?.length > 0 ? <AvatarStack maxVisible={2} avatars={teams} /> : '-'}</div>
-					</div>
-
-					<div className="w-full flex flex-col gap-2">
-						<p className="font-medium">{t('common.MANAGERS')}</p>
-						<div>{managers?.length > 0 ? <AvatarStack maxVisible={2} avatars={managers} /> : '-'}</div>
+						<div className="w-full flex flex-col gap-2">
+							<p className="font-medium">{t('common.MANAGERS')}</p>
+							<div>{managers?.length > 0 ? <AvatarStack maxVisible={2} avatars={managers} /> : '-'}</div>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+			<RestoreProjectConfirmModal
+				projectId={data?.project.id}
+				open={isRestoreProjectModalOpen}
+				closeModal={closeRestoreProjectModal}
+			/>
+		</>
 	);
 }
 

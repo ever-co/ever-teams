@@ -511,7 +511,11 @@
 			"archiveModal": {
 				"title": "أرشفة {projectName}؟",
 				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
-			}
+			},"restoreModal": {
+				"title": "استعادة المشروع",
+				"description": "هل أنت متأكد أنك تريد استعادة {projectName}؟"
+			  }
+
 		},
 		"profile": {
 			"BREADCRUMB": "[\"مهام العضو\"]",

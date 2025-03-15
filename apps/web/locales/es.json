@@ -571,7 +571,11 @@
 			"archiveModal": {
 				"title": "¿Archivar {projectName}?",
 				"description": "{affectedTasksCount} tareas se verán afectadas al archivar {projectName}."
-			}
+			},"restoreModal": {
+				"title": "Restaurar proyecto",
+				"description": "¿Estás seguro de que quieres restaurar {projectName}?"
+			  }
+
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unirse a equipo existente",

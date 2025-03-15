@@ -510,7 +510,11 @@
 			"archiveModal": {
 				"title": "לארכב את {projectName}?",
 				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}."
-			}
+			},"restoreModal": {
+				"title": "שחזור פרויקט",
+				"description": "האם אתה בטוח שברצונך לשחזר את {projectName}?"
+			  }
+
 		},
 		"profile": {
 			"BREADCRUMB": "[\"משימות חבר\"]",

@@ -33,6 +33,7 @@ import { useTranslations } from 'next-intl';
 import { WorkspacesSwitcher } from './workspace-switcher';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { useActiveTeam } from '@/app/hooks/features/useActiveTeam';
+import { useMemo } from 'react';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { user } = useAuthenticateUser();
@@ -44,14 +45,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const t = useTranslations();
 	const { activeTeam } = useActiveTeam();
 	const { organizationProjects } = useOrganizationProjects();
-	const projects = activeTeam
+	const projects = useMemo(() => activeTeam
 		? organizationProjects
-				?.filter((el) => !el.isArchived)
-				?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam.id))
-		: []; // Consider projects for the active team
+				?.filter((el) => !el.isArchived)?.filter(el => activeTeam?.projects?.map(el => el.id).includes(el.id))
+		: [], [activeTeam, organizationProjects]) ; // Consider projects for the active team
 
 	// This is sample data.
-	const data = {
+	const data = useMemo(() => ({
 		workspaces: [
 			{
 				name: 'Ever Teams',
@@ -318,7 +318,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				: [])
 		],
 		projects: []
-	};
+	}), [favoriteTasks, isTeamManager, projects, t, toggleFavorite, user?.id, username]) ;
 
 	return (
 		<>
