@@ -370,7 +370,8 @@
 		"REVIEW": "审查",
 		"ARCHIVE": "存档",
 		"ARCHIVE_AT": "归档于",
-		"RESTORE": "恢复"
+		"RESTORE": "恢复","EXPORT": "导出"
+
 	},
 	"hotkeys": {
 		"HELP": "帮助",
