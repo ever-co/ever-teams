@@ -1,50 +1,50 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
-import React from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import React from 'react';
 import { DateRangePicker } from './date-range-picker';
 import { DateRange } from 'react-day-picker';
-import { ITimeLogReportDailyChartProps } from '@/app/interfaces/timer/ITimerLog';
+
 import { TeamDashboardFilter } from './team-dashboard-filter';
 import { GroupBySelect } from '../../../app-url/components/GroupBySelect';
 import { GroupByType } from '@/app/hooks/features/useReportActivity';
-import { ExportDialog } from '@components/ui/export-dialog';
+import { ExportMenu } from '@/components/export-menu';
+import { TeamStatsPDF } from './pdf';
 
 interface DashboardHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
-	onUpdateFilters: (filters: Partial<Omit<ITimeLogReportDailyChartProps, 'organizationId' | 'tenantId'>>) => void;
 	title?: string;
 	isManage?: boolean;
 	showGroupBy?: boolean;
 	groupByType?: GroupByType;
 	onGroupByChange?: (value: GroupByType) => void;
 	reportData?: any[];
+	teamName?: string;
+	startDate?: Date;
+	endDate?: Date;
+	onUpdateFilters?: (filters: any) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function DashboardHeader({
 	onUpdateDateRange,
-	onUpdateFilters,
 	title,
 	isManage,
 	showGroupBy,
 	groupByType,
 	onGroupByChange,
-	reportData
+	reportData,
+	teamName,
+	startDate,
+	endDate
 }: DashboardHeaderProps) {
-	const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
-	const [selectedExportType, setSelectedExportType] = React.useState<'export' | 'pdf' | 'xlsx'>('export');
-
-	const handleExportSelect = (value: 'export' | 'pdf' | 'xlsx') => {
-		if (value !== 'export') {
-			setSelectedExportType(value);
-			setExportDialogOpen(true);
-		}
-	};
 	const handleDateRangeChange = (range: DateRange | undefined) => {
 		if (range?.from && range?.to) {
 			onUpdateDateRange(range.from, range.to);
 		}
+	};
+
+	const handleCSVExport = () => {
+		// CSV export functionality will be implemented later
+		console.log('CSV export clicked');
 	};
 
 	return (
@@ -54,23 +54,18 @@ export function DashboardHeader({
 				{showGroupBy && <GroupBySelect groupByType={groupByType} onGroupByChange={onGroupByChange} />}
 				<DateRangePicker onDateRangeChange={handleDateRangeChange} />
 				<TeamDashboardFilter isManage={isManage} />
-				<div className="flex gap-2 items-center">
-					<Select defaultValue="export" onValueChange={handleExportSelect}>
-						<SelectTrigger className="w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
-							<SelectValue placeholder="Export" />
-						</SelectTrigger>
-						<SelectContent className="dark:bg-dark--theme-light">
-							<SelectItem className=' data-[state=checked]:text-blue-600' value="export">Export</SelectItem>
-							<SelectItem className=' data-[state=checked]:text-blue-600' value="pdf">PDF</SelectItem>
-							<SelectItem className=' data-[state=checked]:text-blue-600' value="xlsx">XLSX</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-				<ExportDialog
-					isOpen={exportDialogOpen}
-					onClose={() => setExportDialogOpen(false)}
-					exportType={selectedExportType}
-					reportData={reportData}
+				<ExportMenu
+					pdfDocument={
+						<TeamStatsPDF
+							rapportDailyActivity={reportData || []}
+							title={`${teamName || 'Team'} Activity Report for ${startDate?.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })} - ${endDate?.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}`}
+							startDate={startDate?.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
+							endDate={endDate?.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
+						/>
+					}
+					fileName={`${(teamName || 'team')}-activity-report-for-${startDate?.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}-${endDate?.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}.pdf`}
+					onCSVExport={handleCSVExport}
+					csvDisabled={true}
 				/>
 			</div>
 		</div>
