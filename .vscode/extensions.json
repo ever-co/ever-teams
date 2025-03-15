@@ -1,6 +1,5 @@
 {
-	"recommendations": [
-		"nrwl.angular-console",
+	"recommendations": [		
 		"deepscan.vscode-deepscan",
 		"folke.vscode-monorepo-workspace",
 		"seatonjiang.gitmoji-vscode",
