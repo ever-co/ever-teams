@@ -21,6 +21,7 @@ interface DashboardHeaderProps {
 	teamName?: string;
 	startDate?: Date;
 	endDate?: Date;
+	onUpdateFilters?: (filters: any) => void;
 }
 
 export function DashboardHeader({
