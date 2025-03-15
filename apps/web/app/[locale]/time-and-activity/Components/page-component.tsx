@@ -17,10 +17,14 @@ import ActivityTable from './ActivityTable';
 import { exampleData } from './example-usage';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
+import { useReportActivity } from '@/app/hooks/features/useReportActivity';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
 const TimeActivityComponents = () => {
+	const { rapportDailyActivity,updateDateRange } = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	// Memoize column visibility checks
+	console.log('rapportDailyActivity', rapportDailyActivity);
 	const [viewOptions, setViewOptions] = React.useState<ViewOption[]>(() => {
 		if (typeof window === 'undefined') return defaultViewOptions;
 
@@ -67,7 +71,7 @@ const TimeActivityComponents = () => {
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
-				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark--theme">
+				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
 					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
 						<div className="flex items-center pt-6 w-full">
 							<button
@@ -86,6 +90,7 @@ const TimeActivityComponents = () => {
 								projects={organizationProjects}
 								tasks={tasks}
 								activeTeam={activeTeam}
+								onUpdateDateRange={updateDateRange}
 							/>
 							<div className="grid grid-cols-3 gap-[30px] w-full">
 								<CardTimeAndActivity title="Total Hours" value="1,020h" showProgress={false} />

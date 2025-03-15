@@ -1,7 +1,17 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList, StatusBar, Keyboard } from 'react-native';
+import {
+	View,
+	Text,
+	ViewStyle,
+	TouchableOpacity,
+	StyleSheet,
+	FlatList,
+	StatusBar,
+	Keyboard,
+	Animated
+} from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/AuthenticatedNavigator';
@@ -11,7 +21,6 @@ import { typography, useAppTheme } from '../../../theme';
 import StatusItem from './components/StatusItem';
 import { ActivityIndicator } from 'react-native-paper';
 import { useTaskStatus } from '../../../services/hooks/features/useTaskStatus';
-import Animated from 'react-native-reanimated';
 import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
 import TaskStatusForm from './components/TaskStatusForm';
 import { BlurView } from 'expo-blur';

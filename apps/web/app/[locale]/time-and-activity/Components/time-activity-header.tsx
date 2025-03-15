@@ -3,6 +3,7 @@ import React from 'react'
 import { DateRangePickerTimeActivity, GroupBySelectTimeActivity, TimeActivityFilterPopover } from '.'
 import ViewSelect, { ViewOption } from './ViewSelect'
 import { IOrganizationTeamList, IProject, ITeamTask } from '@/app/interfaces';
+import { DateRange } from 'react-day-picker';
 
 export interface TimeActivityHeaderProps {
   viewOptions?: ViewOption[];
@@ -11,6 +12,7 @@ export interface TimeActivityHeaderProps {
   projects?: IProject[];
   tasks?: ITeamTask[];
   activeTeam?: IOrganizationTeamList | null;
+	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 }
 
 
@@ -36,9 +38,14 @@ function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsCha
     }
   }, [onViewOptionsChange]);
 
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+		if (range?.from && range?.to) {
+			props.onUpdateDateRange(range.from, range.to);
+		}
+	};
   const currentViewOptions = externalViewOptions || internalViewOptions;
   return (
-    <div className="flex justify-between items-center w-full">
+    <div className="flex justify-between items-center w-full dark:bg-dar">
     <h1 className="text-2xl font-semibold">Time and Activity</h1>
     <div className="flex gap-4 items-center">
         <GroupBySelectTimeActivity/>
@@ -47,7 +54,7 @@ function TimeActivityHeader({ viewOptions: externalViewOptions, onViewOptionsCha
           viewOptions={currentViewOptions}
           onChange={handleViewOptionsChange}
         />
-        <DateRangePickerTimeActivity/>
+        <DateRangePickerTimeActivity onDateRangeChange={handleDateRangeChange}/>
         <div className="flex gap-2 items-center">
             <Select defaultValue="export">
                 <SelectTrigger className="w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">

@@ -186,6 +186,7 @@ export function NavMain({
 												<SidebarMenuSubItem className="w-full max-w-[230px]" key={key}>
 													{subItem?.component || (
 														<SidebarMenuSubButton
+														key={`sub-${key}`}
 															className={cn(
 																'hover:bg-[#eaeef4] text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300 !text-sm',
 

@@ -1,7 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox, StatusBar, Keyboard } from 'react-native';
-import Animated from 'react-native-reanimated';
+import {
+	View,
+	ViewStyle,
+	Dimensions,
+	TouchableWithoutFeedback,
+	LogBox,
+	StatusBar,
+	Keyboard,
+	Animated
+} from 'react-native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { BlurView } from 'expo-blur';
 import { ActivityIndicator } from 'react-native-paper';

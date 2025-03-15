@@ -54,7 +54,7 @@ const PassCode: FC<Props> = observer(
 			teamStore: { activeTeamId, setActiveTeamId }
 		} = useStores();
 
-		const authTeamInput = useRef<TextInput>();
+		const authTeamInput = useRef<TextInput | null>(null);
 		const [step, setStep] = useState<'Email' | 'Code' | 'Tenant'>('Email');
 		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean; step3: boolean }>({
 			step1: false,

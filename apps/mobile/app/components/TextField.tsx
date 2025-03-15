@@ -190,7 +190,7 @@ export const TextField = forwardRef(function TextField(props: TextFieldProps, re
 					placeholderTextColor={colors.textDim}
 					{...TextInputProps}
 					editable={!disabled}
-					style={[$inputStyles, { color: dark ? appThemeColors.primary : colors.text }]}
+					style={[$inputStyles as any, { color: dark ? appThemeColors.primary : colors.text }]}
 				/>
 
 				{!!RightAccessory && (

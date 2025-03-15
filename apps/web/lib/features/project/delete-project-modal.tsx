@@ -3,7 +3,7 @@ import { Button, Card, Modal, Text } from 'lib/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
-interface ICreateProjectModalProps {
+interface IDeleteProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	projectId: string;
@@ -17,7 +17,7 @@ interface ICreateProjectModalProps {
  *
  * @returns {JSX.Element} The modal element
  */
-export function DeleteProjectConfirmModal(props: ICreateProjectModalProps) {
+export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
 	const { deleteOrganizationProject, deleteOrganizationProjectLoading, setOrganizationProjects } =

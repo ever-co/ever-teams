@@ -290,6 +290,15 @@
 			"ADD_PLAN": "Agregar Plan",
 			"DELETE_THIS_PLAN": "Удалить этот план"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Понедельник",
+			"Tuesday": "Вторник",
+			"Wednesday": "Среда",
+			"Thursday": "Четверг",
+			"Friday": "Пятница",
+			"Saturday": "Суббота",
+			"Sunday": "Воскресенье"
+		},
 		"teamStats": {
 			"MEMBER": "Участник",
 			"MEMBERS_WORKED": "Участники, Которые Работали",
@@ -359,7 +368,10 @@
 		"TO_DO": "Список дел",
 		"MEMBERS_COUNT": "Количество участников",
 		"REVIEW": "ОБЗОР",
-		"ARCHIVE": "Архив"
+		"ARCHIVE": "Архив",
+		"ARCHIVE_AT": "Архивировать на",
+		"RESTORE": "Восстановить","EXPORT": "Экспорт"
+
 	},
 	"hotkeys": {
 		"HELP": "Помощь",
@@ -533,7 +545,15 @@
 			"deleteModal": {
 				"title": "Удалить выбранное?",
 				"description": "Вы собираетесь навсегда удалить этот проект. Нажмите 'Удалить', чтобы подтвердить действие"
-			}
+			},
+			"archiveModal": {
+				"title": "Архивировать {projectName}?",
+				"description": "Архивация {projectName} затронет {affectedTasksCount} задач."
+			},"restoreModal": {
+				"title": "Восстановить проект",
+				"description": "Вы уверены, что хотите восстановить {projectName}?"
+			  }
+
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Вы собираетесь удалить статус {statusName}, который используется активными задачами; пожалуйста, подтвердите действие"

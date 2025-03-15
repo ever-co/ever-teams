@@ -22,7 +22,7 @@ interface Props {
 }
 
 const FillUserInfoForm: FC<Props> = observer(({ isLoading, errors, setScreenStatus, createNewTeam }) => {
-	const authTeamInput = useRef<TextInput>();
+	const authTeamInput = useRef<TextInput | null>(null);
 
 	const {
 		authenticationStore: { authEmail, setAuthEmail, authUsername, setAuthUsername }

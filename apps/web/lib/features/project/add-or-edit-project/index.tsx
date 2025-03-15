@@ -135,7 +135,8 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 
 	useEffect(() => {
 		getRoles();
-	}, [getRoles]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>
