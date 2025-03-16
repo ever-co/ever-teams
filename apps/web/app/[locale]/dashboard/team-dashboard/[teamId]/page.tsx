@@ -28,7 +28,6 @@ function TeamDashboard() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const { isTrackingEnabled } = useOrganizationTeams();
 
-
 	const {
 		rapportChartActivity,
 		rapportDailyActivity,
@@ -40,8 +39,6 @@ function TeamDashboard() {
 		isManage,
 		currentFilters
 	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
-
-
 
 	const currentLocale = paramsUrl?.locale;
 
@@ -77,8 +74,8 @@ function TeamDashboard() {
 								onUpdateDateRange={updateDateRange}
 								title="Team Dashboard"
 								isManage={isManage}
-								teamName="Team Dashboard"
-								reportData={rapportDailyActivity||[]}
+								teamName="TEAM-DASHBOARD"
+								reportData={rapportDailyActivity || []}
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
 							/>
@@ -95,15 +92,15 @@ function TeamDashboard() {
 											className="gap-0.5 text-[10px] tracking-tight font-normal text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 px-1.5 h-4 rounded-t-none hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-transform duration-300"
 											onClick={() => setShowChart(!showChart)}
 										>
-										<ChevronUpIcon className={`h-2.5 w-2.5 transition-transform duration-300 transform rotate-0`} />
+											<ChevronUpIcon
+												className={`h-2.5 w-2.5 transition-transform duration-300 transform rotate-0`}
+											/>
 										</Button>
 									</div>
 								)}
 								{showChart && (
 									<Card className="w-full dark:bg-dark--theme-light transition-all duration-300 ease-in-out transform origin-top overflow-hidden">
-										<div
-											className="transition-all duration-300 ease-in-out transform origin-top scale-y-100 opacity-100 h-auto"
-										>
+										<div className="transition-all duration-300 ease-in-out transform origin-top scale-y-100 opacity-100 h-auto">
 											<div className="relative">
 												<TeamStatsChart
 													rapportChartActivity={rapportChartActivity}

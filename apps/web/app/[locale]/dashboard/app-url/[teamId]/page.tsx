@@ -18,7 +18,7 @@ import { ProductivityHeader } from '../components/ProductivityHeader';
 import { ProductivityChart } from '../components/ProductivityChart';
 import { ProductivityStats } from '../components/ProductivityStats';
 import { ProductivityTable } from '../components/ProductivityTable';
-import { useLocalStorageState } from '@/app/hooks';
+import { useLocalStorageState, useModal } from '@/app/hooks';
 import { ProductivityApplicationTable, ProductivityEmployeeTable, ProductivityProjectTable } from '../components';
 
 interface ProductivityData {
@@ -35,7 +35,8 @@ function AppUrls() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { isTrackingEnabled } = useOrganizationTeams();
-	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type','date');
+	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type', 'date');
+	const { closeModal, isOpen, openModal } = useModal();
 
 	const {
 		activityReport,
@@ -43,6 +44,7 @@ function AppUrls() {
 		handleGroupByChange,
 		updateDateRange,
 		updateFilters,
+		currentFilters,
 		isManage
 	} = useReportActivity({ types: 'APPS-URLS' });
 
@@ -113,9 +115,15 @@ function AppUrls() {
 								onGroupByChange={handleGroupTypeChange}
 								showGroupBy={true}
 								title="Apps & URLs Dashboard"
+								teamName="APPS-URLS"
 								isManage={isManage}
 								groupByType={groupByType}
 								reportData={activityReport}
+								startDate={new Date(currentFilters.startDate || '')}
+								endDate={new Date(currentFilters.endDate || '')}
+								closeModal={closeModal}
+								isOpen={isOpen}
+								openModal={openModal}
 							/>
 							<Card className="bg-white rounded-xl border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light h-[403px] p-8 py-0 px-0">
 								<div className="flex flex-col gap-6 w-full">
@@ -145,9 +153,13 @@ function AppUrls() {
 						case 'date':
 							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
 						case 'employee':
-							return <ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />;
+							return (
+								<ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />
+							);
 						case 'application':
-							return <ProductivityApplicationTable data={activityReport} isLoading={loadingActivityReport} />;
+							return (
+								<ProductivityApplicationTable data={activityReport} isLoading={loadingActivityReport} />
+							);
 					}
 				})()}
 			</Container>
