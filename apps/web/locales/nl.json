@@ -370,8 +370,9 @@
 		"REVIEW": "BEKEKEN",
 		"ARCHIVE": "Archief",
 		"ARCHIVE_AT": "Archiveren op",
-		"RESTORE": "Herstellen","EXPORT": "Exporteren"
-
+		"RESTORE": "Herstellen",
+		"HIDE": "Verbergen",
+		"EXPORT": "Exporteren"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -549,11 +550,11 @@
 			"archiveModal": {
 				"title": "{projectName} archiveren?",
 				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Project herstellen",
 				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
-			  }
-
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "U staat op het punt de status {statusName} te verwijderen die wordt gebruikt door actieve taken; bevestig alstublieft de actie"

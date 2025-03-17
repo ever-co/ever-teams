@@ -370,8 +370,9 @@
 		"REVIEW": "PRZEGLĄD",
 		"ARCHIVE": "Archiwum",
 		"ARCHIVE_AT": "Archiwizuj o",
-		"RESTORE": "Przywróć","EXPORT": "Eksport"
-
+		"RESTORE": "Przywróć",
+		"HIDE": "Ukryj",
+		"EXPORT": "Eksport"
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",
@@ -552,11 +553,11 @@
 			"archiveModal": {
 				"title": "Archiwizować {projectName}?",
 				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Przywróć projekt",
 				"description": "Czy na pewno chcesz przywrócić {projectName}?"
-			  }
-
+			}
 		},
 		"auth": {
 			"SEND_CODE": "wyślij kod",
