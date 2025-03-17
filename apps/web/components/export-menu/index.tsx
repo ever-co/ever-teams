@@ -87,7 +87,7 @@ export function ExportMenu({
 							{({ active }) => (
 								<button
 									onClick={() => {
-										if (!showModal) openModal!();
+										if (!showModal && openModal) openModal();
 									}}
 									className={`${active && 'bg-primary/10'} data-[state=checked]:text-blue-600 group flex w-full items-center px-2 py-2 text-sm`}
 								>
@@ -115,7 +115,7 @@ export function ExportMenu({
 							{({ active }) => (
 								<button
 									onClick={() => {
-										!showModal && onCSVExport;
+										if (!showModal && onCSVExport) onCSVExport();
 									}}
 									disabled={csvDisabled}
 									className={`${active && 'bg-primary/10'} data-[state=checked]:text-blue-600 group flex w-full items-center px-2 py-2 text-sm ${csvDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}

@@ -286,11 +286,6 @@ export const ProductivityPDF = ({ data, title = 'Activity Report', startDate, en
 	};
 
 	const summary = calculateSummary(data);
-	const today = new Date().toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric'
-	});
 
 	const formatDuration = (duration: string | number) => {
 		if (!duration) return '0h 0m';
