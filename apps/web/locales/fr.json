@@ -370,8 +370,9 @@
 		"REVIEW": "EXAMEN",
 		"ARCHIVE": "Archive",
 		"ARCHIVE_AT": "Archiver le",
-		"RESTORE": "Restaurer","EXPORT": "Exporter"
-
+		"RESTORE": "Restaurer",
+		"HIDE": "Cacher",
+		"EXPORT": "Exporter"
 	},
 	"hotkeys": {
 		"HELP": "Aide",
@@ -549,11 +550,11 @@
 			"archiveModal": {
 				"title": "Archiver {projectName}?",
 				"description": "{affectedTasksCount} tâches seront affectées par l'archivage de {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Restaurer le projet",
 				"description": "Êtes-vous sûr de vouloir restaurer {projectName}?"
-			  }
-
+			}
 		},
 		"taskStatus": {
 			"DELETE_STATUS_CONFIRMATION": "Vous êtes sur le point de supprimer le statut {statusName} qui est utilisé par des tâches actives ; veuillez confirmer l'action"

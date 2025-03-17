@@ -371,8 +371,9 @@
 		"REVIEW": "REVISÃO",
 		"ARCHIVE": "Arquivo",
 		"ARCHIVE_AT": "Arquivar em",
-		"RESTORE": "Restaurar","EXPORT": "Exportar"
-
+		"RESTORE": "Restaurar",
+		"HIDE": "Ocultar",
+		"EXPORT": "Exportar"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -553,11 +554,11 @@
 			"archiveModal": {
 				"title": "Arquivar {projectName}?",
 				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}."
-			},"restoreModal": {
+			},
+			"restoreModal": {
 				"title": "Restaurar projeto",
 				"description": "Tem certeza de que deseja restaurar {projectName}?"
-			  }
-
+			}
 		},
 		"auth": {
 			"SEND_CODE": "enviar código",

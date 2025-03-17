@@ -4,7 +4,7 @@ import { MainLayout } from '@/lib/layout';
 import { useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { ChevronDown, Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-react';
+import { Check, ChevronDown, Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, InputField, Paginate, SpinnerLoader } from '@/lib/components';
 import { usePagination } from '@/app/hooks/features/usePagination';
@@ -12,12 +12,13 @@ import { DatePickerWithRange } from '@components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import GridItem from './grid-item';
-import { DataTableProject, ProjectTableDataType } from './data-table';
+import { DataTableProject, hidableColumnNames, ProjectTableDataType } from './data-table';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
 import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
+import { VisibilityState } from '@tanstack/react-table';
 import { Menu, Transition } from '@headlessui/react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PDFDocument } from '../export-formats/pdf';
@@ -66,7 +67,20 @@ function PageComponent() {
 		],
 		[t]
 	);
-	const showArchivedProjects = params.get('archived');
+	const showArchivedProjects = Boolean(params.get('archived'));
+
+	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
+		project: true,
+		status: !showArchivedProjects,
+		archivedAt: showArchivedProjects,
+		startDate: true,
+		endDate: true,
+		members: true,
+		managers: true,
+		teams: true,
+		actions: !showArchivedProjects,
+		restore: showArchivedProjects
+	});
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
 		usePagination<ProjectTableDataType>(
@@ -123,6 +137,17 @@ function PageComponent() {
 			}
 		});
 	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
+
+	// Handle archived / active - table columns visibility
+	useEffect(() => {
+		setTableColumnsVisibility((prev) => ({
+			...prev,
+			status: !showArchivedProjects,
+			archivedAt: showArchivedProjects,
+			actions: !showArchivedProjects,
+			restore: showArchivedProjects
+		}));
+	}, [showArchivedProjects]);
 
 	return (
 		<MainLayout
@@ -209,7 +234,7 @@ function PageComponent() {
 										className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
 										variant="outline"
 									>
-										<span>{t("common.EXPORT")}</span> <ChevronDown size={15} />
+										<span>{t('common.EXPORT')}</span> <ChevronDown size={15} />
 									</Button>
 								</Menu.Button>
 								<Transition
@@ -309,19 +334,65 @@ function PageComponent() {
 									</Menu.Items>
 								</Transition>
 							</Menu>
-							<Button
-								type="button"
-								className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
-								variant="outline"
-							>
-								<Settings2 size={15} /> <span>{t('common.VIEW')}</span>
-							</Button>
+
+							<Menu as="div" className="relative inline-block text-left">
+								<div>
+									<Menu.Button>
+										<Button
+											type="button"
+											className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
+											variant="outline"
+										>
+											<Settings2 size={15} /> <span>{t('common.VIEW')}</span>
+										</Button>
+									</Menu.Button>
+								</div>
+								<Transition
+									as={Fragment}
+									enter="transition ease-out duration-100"
+									enterFrom="transform opacity-0 scale-95"
+									enterTo="transform opacity-100 scale-100"
+									leave="transition ease-in duration-75"
+									leaveFrom="transform opacity-100 scale-100"
+									leaveTo="transform opacity-0 scale-95"
+								>
+									<Menu.Items className="absolute z-[999] right-0 mt-2 w-36 origin-top-right space-y-[1px] p-[1px]  rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
+										{Object.entries(tableColumnsVisibility).map(([column, isVisible]) => {
+											return hidableColumnNames
+												.filter((el) => (!showArchivedProjects ? el !== 'archivedAt' : el))
+												.includes(column) ? (
+												<Menu.Item key={column}>
+													{({ active }) => (
+														<button
+															onClick={() =>
+																setTableColumnsVisibility((prev) => ({
+																	...prev,
+																	[column]: !isVisible
+																}))
+															}
+															className={cn(
+																`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
+															)}
+														>
+															<div className="w-5 h-full flex items-center justify-center ">
+																{isVisible && <Check size={12} />}
+															</div>
+															<span className="capitalize">{column}</span>
+														</button>
+													)}
+												</Menu.Item>
+											) : null;
+										})}
+									</Menu.Items>
+								</Transition>
+							</Menu>
 						</div>
 					</div>
 					{selectedView === 'LIST' ? (
 						<div key="list" className="w-full">
 							<DataTableProject
-								archived={Boolean(showArchivedProjects)}
+								columnVisibility={tableColumnsVisibility}
+								onColumnVisibilityChange={setTableColumnsVisibility}
 								loading={getOrganizationProjectsLoading}
 								data={currentItems}
 							/>
