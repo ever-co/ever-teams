@@ -288,6 +288,15 @@
 			"ADD_PLAN": "Add Plan",
 			"DELETE_THIS_PLAN": "Delete this plan"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Monday",
+			"Tuesday": "Tuesday",
+			"Wednesday": "Wednesday",
+			"Thursday": "Thursday",
+			"Friday": "Friday",
+			"Saturday": "Saturday",
+			"Sunday": "Sunday"
+		},
 		"teamStats": {
 			"MEMBER": "Member",
 			"MEMBERS_WORKED": "Members Worked",
@@ -360,7 +369,12 @@
 		"NOT_HOURS_WORKED": "Not hours worked",
 		"MEMBERS_COUNT": "Members count",
 		"REVIEW": "REVIEW",
-		"ARCHIVE": "Archive"
+		"ARCHIVE": "Archive",
+
+		"ARCHIVE_AT": "Archive at",
+		"RESTORE": "Restore",
+		"HIDE": "Hide",
+		"EXPORT": "Export"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -477,6 +491,14 @@
 			"deleteModal": {
 				"title": "Delete Selected?",
 				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
+			},
+			"archiveModal": {
+				"title": "Archive {projectName}?",
+				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
+			},
+			"restoreModal": {
+				"title": "Restore project",
+				"description": "Are you sure you want to restore {projectName}?"
 			}
 		},
 		"home": {

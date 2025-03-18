@@ -291,6 +291,15 @@
 			"ADD_PLAN": "Adicionar Plano",
 			"DELETE_THIS_PLAN": "Excluir este plano"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Segunda-feira",
+			"Tuesday": "Terça-feira",
+			"Wednesday": "Quarta-feira",
+			"Thursday": "Quinta-feira",
+			"Friday": "Sexta-feira",
+			"Saturday": "Sábado",
+			"Sunday": "Domingo"
+		},
 		"teamStats": {
 			"MEMBER": "Membro",
 			"MEMBERS_WORKED": "Membros que Trabalharam",
@@ -360,7 +369,11 @@
 		"TO_DO": "Tarefas",
 		"MEMBERS_COUNT": "Contagem de membros",
 		"REVIEW": "REVISÃO",
-		"ARCHIVE": "Arquivo"
+		"ARCHIVE": "Arquivo",
+		"ARCHIVE_AT": "Arquivar em",
+		"RESTORE": "Restaurar",
+		"HIDE": "Ocultar",
+		"EXPORT": "Exportar"
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -537,6 +550,14 @@
 			"deleteModal": {
 				"title": "Excluir selecionado?",
 				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
+			},
+			"archiveModal": {
+				"title": "Arquivar {projectName}?",
+				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}."
+			},
+			"restoreModal": {
+				"title": "Restaurar projeto",
+				"description": "Tem certeza de que deseja restaurar {projectName}?"
 			}
 		},
 		"auth": {

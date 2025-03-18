@@ -283,6 +283,15 @@
 			"ADD_PLAN": "הוסף תוכנית",
 			"DELETE_THIS_PLAN": "מחק את התוכנית הזו"
 		},
+		"DAYOFWEEK": {
+			"Monday": "יום ראשון",
+			"Tuesday": "יום שני",
+			"Wednesday": "יום שלישי",
+			"Thursday": "יום רביעי",
+			"Friday": "יום חמישי",
+			"Saturday": "יום שישי",
+			"Sunday": "יום שבת"
+		},
 		"teamStats": {
 			"MEMBER": "חבר",
 			"MEMBERS_WORKED": "חברים שעבדו",
@@ -359,7 +368,11 @@
 		"TO_DO": "לבצע",
 		"MEMBERS_COUNT": "מספר חברים",
 		"REVIEW": "בְּחִינָה",
-		"ARCHIVE": "ארכיון"
+		"ARCHIVE": "ארכיון",
+		"ARCHIVE_AT": "ארכוב בתאריך",
+		"RESTORE": "שחזר",
+		"HIDE": "הסתר",
+		"EXPORT": "ייצוא"
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -495,6 +508,14 @@
 			"deleteModal": {
 				"title": "למחוק את הנבחר?",
 				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה"
+			},
+			"archiveModal": {
+				"title": "לארכב את {projectName}?",
+				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}."
+			},
+			"restoreModal": {
+				"title": "שחזור פרויקט",
+				"description": "האם אתה בטוח שברצונך לשחזר את {projectName}?"
 			}
 		},
 		"profile": {

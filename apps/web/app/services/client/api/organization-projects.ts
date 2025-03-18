@@ -1,4 +1,4 @@
-import { IProject, PaginationResponse } from '@app/interfaces';
+import { IEditProjectInput, IProject, PaginationResponse } from '@app/interfaces';
 import { deleteApi, get, put } from '../axios';
 import qs from 'qs';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
@@ -9,7 +9,8 @@ export function editOrganizationProjectSettingAPI(id: string, data: any, tenantI
 	});
 }
 
-export function editOrganizationProjectAPI(id: string, data: any, tenantId?: string) {
+export function editOrganizationProjectAPI(id: string, data: IEditProjectInput) {
+	const tenantId = getTenantIdCookie();
 	return put<IProject>(`/organization-projects/${id}`, data, {
 		tenantId
 	});
@@ -32,7 +33,7 @@ export function getOrganizationProjectsAPI({ queries }: { queries?: Record<strin
 		'join[leftJoin][tags]': 'organization_project.tags'
 	} as Record<string, string>;
 
-	const relations = ['members', 'teams', 'members.employee', 'members.employee.user', 'tags'];
+	const relations = ['members', 'teams', 'members.employee', 'members.employee.user', 'tags', 'tasks'];
 
 	relations.forEach((relation, i) => {
 		obj[`relations[${i}]`] = relation;

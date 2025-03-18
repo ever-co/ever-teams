@@ -38,7 +38,8 @@ interface ActivityTableProps {
 }
 
 const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] }) => {
-  // Memoize column visibility checks
+
+
   const columnVisibility = React.useMemo(() => {
     const visibilityMap = new Map(viewOptions.map(opt => [opt.id, opt.checked]));
     return {
@@ -97,10 +98,10 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
             <p>No activity data available for this period</p>
           </div>
         ) : (
-        <Table>
+        <Table className="w-full">
           <TableHeader>
-            <TableRow 
-              className="border-0 hover:bg-transparent"
+            <TableRow
+              className="border-0 hover:bg-transparent dark:hover:bg-dark--theme-light"
               role="row"
             >
               {columnVisibility.member && (
@@ -125,8 +126,8 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
           </TableHeader>
           <TableBody>
             {period.members.map((member) => (
-              <TableRow 
-              key={member.id} 
+              <TableRow
+              key={member.id}
               className="border-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
               role="row"
             >
@@ -184,7 +185,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ period, viewOptions = [] 
                       <div className="flex-1 max-w-32 transition-opacity group-hover:opacity-80">
                         <ProgressBar
                           progress={member.activityLevel}
-                          color="bg-primary"
+                          color="bg-[#0088CC]"
                         />
                       </div>
                       <span className="text-sm transition-colors group-hover:text-primary">{member.activityLevel}%</span>

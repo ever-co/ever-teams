@@ -296,6 +296,15 @@
 			"ADD_PLAN": "Plan toevoegen",
 			"DELETE_THIS_PLAN": "Verwijder dit plan"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Maandag",
+			"Tuesday": "Dinsdag",
+			"Wednesday": "Woensdag",
+			"Thursday": "Donderdag",
+			"Friday": "Vrijdag",
+			"Saturday": "Zaterdag",
+			"Sunday": "Zondag"
+		},
 		"teamStats": {
 			"MEMBER": "Lid",
 			"MEMBERS_WORKED": "Leden die Hebben Gewerkt",
@@ -359,7 +368,11 @@
 		"TO_DO": "Te doen",
 		"MEMBERS_COUNT": "Aantal leden",
 		"REVIEW": "BEKEKEN",
-		"ARCHIVE": "Archief"
+		"ARCHIVE": "Archief",
+		"ARCHIVE_AT": "Archiveren op",
+		"RESTORE": "Herstellen",
+		"HIDE": "Verbergen",
+		"EXPORT": "Exporteren"
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -533,6 +546,14 @@
 			"deleteModal": {
 				"title": "Geselecteerde verwijderen?",
 				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
+			},
+			"archiveModal": {
+				"title": "{projectName} archiveren?",
+				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
+			},
+			"restoreModal": {
+				"title": "Project herstellen",
+				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
 			}
 		},
 		"taskStatus": {

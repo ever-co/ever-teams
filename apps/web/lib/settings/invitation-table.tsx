@@ -25,41 +25,25 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 						<tr>
 							<th
 								scope="col"
-								className="pl-5 min-w-[20rem] py-3 text-sm font-normal capitalize text-[#B1AEBC]"
+								className="pl-5 w-[18%]  py-3 text-sm font-normal capitalize text-[#B1AEBC]"
 							>
 								{t('pages.invite.invitationTable.NAME_AND_EMAIL')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
-							>
+							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
 								{t('pages.invite.invitationTable.POSITION')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
-							>
+							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
 								{t('pages.invite.invitationTable.DATE_AND_TIME_REQUEST')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
-							>
+							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
 								{t('pages.invite.invitationTable.CV_OR_ATTACHMENT')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
-							>
+							<th scope="col" className="text-sm w-[18%]  font-normal capitalize py-3 text-[#B1AEBC]">
 								{t('common.LINK')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm min-w-[10rem] font-normal capitalize py-3 text-[#B1AEBC]"
-							>
+							<th scope="col" className="text-sm w-[13%]  font-normal capitalize py-3 text-[#B1AEBC]">
 								{t('common.STATUS')}
 							</th>
-							<th scope="col" className="text-sm  font-normal capitalize py-3 text-[#B1AEBC]"></th>
 						</tr>
 					</thead>
 					<tbody className="dark:bg-dark--theme-light">
@@ -86,25 +70,25 @@ export const InvitationTable = ({ invitations }: { invitations: (IInvitation | I
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">
 											{invitation.fullName}
 										</div>
-										<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal">
+										<Text className="text-xs w-60 truncate dark:text-white text-[#B1AEBC] font-normal">
 											{invitation.email || ''}
 										</Text>
 									</div>
 								</th>
-								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+								<td className="text-sm font-semibold pl-2 py-4 text-[#282048] dark:text-white">
 									{/* TODO: Position is not implemented yet */}-
 								</td>
-								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+								<td className="text-sm font-semibold pl-2 py-4 text-[#282048] dark:text-white">
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(invitation.createdAt).format('DD MMM YYYY hh:mm a')}
 								</td>
-								<td className="text-xs font-semibold py-4 text-[#282048] dark:text-white">
+								<td className="text-xs font-semibold pl-2 py-4 text-[#282048] dark:text-white">
 									{/* curriculum vitae.pdf */}-
 								</td>
-								<td className="text-xs font-semibold py-4 text-[#1A79D0] dark:text-white">
+								<td className="text-xs font-semibold pl-2 py-4 text-[#1A79D0] dark:text-white">
 									{/* http:// www.borde.. */}-
 								</td>
-								<td className="py-4 text-xs font-semibold ">
+								<td className="py-4 text-xs font-semibold pl-2 ">
 									<InvitationTableStatus
 										status={invitation.status}
 										acceptJoinRequest={() => {

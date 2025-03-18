@@ -283,6 +283,15 @@
 			"FOR_TOMORROW": "Plan de mañana",
 			"DELETE_THIS_PLAN": "Eliminar este plan"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Lunes",
+			"Tuesday": "Martes",
+			"Wednesday": "Miércoles",
+			"Thursday": "Jueves",
+			"Friday": "Viernes",
+			"Saturday": "Sábado",
+			"Sunday": "Domingo"
+		},
 		"teamStats": {
 			"MEMBER": "Miembro",
 			"MEMBERS_WORKED": "Miembros que Trabajaron",
@@ -359,7 +368,11 @@
 		"TO_DO": "Pendiente",
 		"MEMBERS_COUNT": "Conteo de miembros",
 		"REVIEW": "REVISIÓN",
-		"ARCHIVE": "Archivo"
+		"ARCHIVE": "Archivo",
+		"ARCHIVE_AT": "Archivar en",
+		"RESTORE": "Restaurar",
+		"HIDE": "Ocultar",
+		"EXPORT": "Exportar"
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -556,6 +569,14 @@
 			"deleteModal": {
 				"title": "¿Eliminar seleccionado?",
 				"description": "Está a punto de eliminar permanentemente este proyecto. Haga clic en 'Eliminar' para confirmar la acción"
+			},
+			"archiveModal": {
+				"title": "¿Archivar {projectName}?",
+				"description": "{affectedTasksCount} tareas se verán afectadas al archivar {projectName}."
+			},
+			"restoreModal": {
+				"title": "Restaurar proyecto",
+				"description": "¿Estás seguro de que quieres restaurar {projectName}?"
 			}
 		},
 		"authPasscode": {

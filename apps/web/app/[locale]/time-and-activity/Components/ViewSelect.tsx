@@ -29,7 +29,7 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2 -white dark:bg-dark--theme-light">
           <svg
             width="24"
             height="24"
@@ -50,7 +50,7 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
           View
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="p-2 w-56">
+      <DropdownMenuContent className="p-2 w-56 dark:bg-dark-high">
         {viewOptions.map((option) => (
           <div
             key={option.id}
@@ -61,7 +61,7 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
             onClick={() => handleCheckChange(option.id)}
             onKeyDown={(e) => e.key === 'Enter' && handleCheckChange(option.id)}
           >
-            <div className="flex items-center justify-center w-4 h-4 text-primary transition-colors">
+            <div className="flex items-center justify-center w-4 h-4 text-gray-700 dark:text-white transition-colors">
               <Check className={`w-4 h-4 transition-opacity ${option.checked ? 'opacity-100' : 'opacity-0'}`} />
             </div>
             <span

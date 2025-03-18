@@ -67,13 +67,13 @@ const defaultProps: Required<
 	teamIds: []
 };
 
-export type GroupByType = 'date' | 'project' | 'employee' | 'application'|'daily'|'weekly'|'member';
+export type GroupByType = 'date' | 'project' | 'employee' | 'application' | 'daily' | 'weekly' | 'member';
 
 interface GroupByOptions {
 	groupBy: GroupByType;
 }
 
-export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-URLS' }) {
+export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-URLS' | 'TIME-AND-ACTIVITY' }) {
 	// User and authentication
 	const { user } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();

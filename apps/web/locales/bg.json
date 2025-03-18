@@ -277,6 +277,15 @@
 			"ADD_PLAN": "Добави план",
 			"DELETE_THIS_PLAN": "Изтрийте този план"
 		},
+		"DAYOFWEEK": {
+			"Monday": "Понеделник",
+			"Tuesday": "Вторник",
+			"Wednesday": "Сряда",
+			"Thursday": "Четвъртък",
+			"Friday": "Петък",
+			"Saturday": "Събота",
+			"Sunday": "Неделя"
+		},
 		"teamStats": {
 			"MEMBER": "Член",
 			"MEMBERS_WORKED": "Членове, които са работили",
@@ -359,7 +368,11 @@
 		"TO_DO": "Списък със задачи",
 		"MEMBERS_COUNT": "Брой членове",
 		"REVIEW": "ПРЕГЛЕД",
-		"ARCHIVE": "Архив"
+		"ARCHIVE": "Архив",
+		"ARCHIVE_AT": "Архивиране на",
+		"RESTORE": "Възстановяване",
+		"HIDE": "Скрий",
+		"EXPORT": "Експортиране"
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -496,6 +509,14 @@
 			"deleteModal": {
 				"title": "Изтриване на избраното?",
 				"description": "Вие сте на път да изтриете този проект за постоянно. Натиснете 'Изтриване', за да потвърдите действието"
+			},
+			"archiveModal": {
+				"title": "Архивиране на {projectName}?",
+				"description": "{affectedTasksCount} задачи ще бъдат засегнати от архивирането на {projectName}."
+			},
+			"restoreModal": {
+				"title": "Възстановяване на проект",
+				"description": "Сигурни ли сте, че искате да възстановите {projectName}?"
 			}
 		},
 		"profile": {
