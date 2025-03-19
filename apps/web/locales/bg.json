@@ -517,6 +517,16 @@
 			"restoreModal": {
 				"title": "Възстановяване на проект",
 				"description": "Сигурни ли сте, че искате да възстановите {projectName}?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Архивиране на {projectsCount} проекта",
+					"description": "Сигурни ли сте, че искате да архивирате"
+				},
+				"bulkRestoreModal": {
+					"title": "Възстановяване на {projectsCount} проекта",
+					"description": "Сигурни ли сте, че искате да възстановите"
+				}
 			}
 		},
 		"profile": {

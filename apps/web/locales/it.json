@@ -523,6 +523,16 @@
 			"restoreModal": {
 				"title": "Ripristina progetto",
 				"description": "Sei sicuro di voler ripristinare {projectName}?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Archivia {projectsCount} progetti",
+					"description": "Sei sicuro di voler archiviare"
+				},
+				"bulkRestoreModal": {
+					"title": "Ripristina {projectsCount} progetti",
+					"description": "Sei sicuro di voler ripristinare"
+				}
 			}
 		},
 		"taskDetails": {

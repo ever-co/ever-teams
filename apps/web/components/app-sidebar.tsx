@@ -221,6 +221,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 									url: `/projects/${project.id}`,
 									icon: (
 										<div
+										key={project.name}
 											style={{ backgroundColor: project.color }}
 											className={cn(
 												'flex overflow-hidden justify-center items-center w-8 h-8 rounded-full border'
