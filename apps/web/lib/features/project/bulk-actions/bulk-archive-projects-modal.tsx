@@ -66,11 +66,13 @@ export function BulkArchiveProjectsModal(props: IBulkArchiveProjectModalProps) {
 			<Card className=" sm:w-[28rem] w-[16rem]" shadow="custom">
 				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
-						Archive {projectIds.length} projects
+						{t('pages.projects.bulkActions.bulkArchiveModal.title', { projectsCount: projects.length })}
 					</Text.Heading>
 
 					<div className="w-full flex flex-col items-center gap-1">
-						<p className=" text-center text-[1rem] text-gray-600">Are you sure you want to archive:</p>
+						<p className=" text-center text-[1rem] text-gray-600">
+							{t('pages.projects.bulkActions.bulkArchiveModal.description')}:
+						</p>
 
 						<p className=" font-medium">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
 					</div>

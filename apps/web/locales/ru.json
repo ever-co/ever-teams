@@ -554,6 +554,16 @@
 			"restoreModal": {
 				"title": "Восстановить проект",
 				"description": "Вы уверены, что хотите восстановить {projectName}?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Архивировать {projectsCount} проектов",
+					"description": "Вы уверены, что хотите архивировать"
+				},
+				"bulkRestoreModal": {
+					"title": "Восстановить {projectsCount} проектов",
+					"description": "Вы уверены, что хотите восстановить"
+				}
 			}
 		},
 		"taskStatus": {

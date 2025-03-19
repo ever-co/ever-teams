@@ -70,11 +70,13 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 
 				<div className="flex flex-col items-center justify-between gap-5">
 					<Text.Heading as="h3" className="text-center">
-						Restore {projectIds.length} projects
+						{t('pages.projects.bulkActions.bulkRestoreModal.title', { projectsCount: projects.length })}
 					</Text.Heading>
 
 					<div className="w-full flex flex-col items-center gap-1">
-						<p className=" text-center text-[1rem] text-gray-600">Are you sure you want to restore:</p>
+						<p className=" text-center text-[1rem] text-gray-600">
+							{t('pages.projects.bulkActions.bulkRestoreModal.description')}:
+						</p>
 
 						<p className=" font-medium">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
 					</div>
