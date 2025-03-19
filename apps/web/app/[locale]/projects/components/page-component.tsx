@@ -3,26 +3,28 @@
 import { MainLayout } from '@/lib/layout';
 import { useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Check, ChevronDown, Grid, List, ListFilterPlus, Plus, Search, Settings2 } from 'lucide-react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Archive, Check, Grid, List, ListFilterPlus, Plus, RotateCcw, Search, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button, InputField, Paginate, SpinnerLoader } from '@/lib/components';
-import { usePagination } from '@/app/hooks/features/usePagination';
+import { Button, InputField, VerticalSeparator } from '@/lib/components';
 import { DatePickerWithRange } from '@components/shared/date-range-select';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
-import GridItem from './grid-item';
-import { DataTableProject, hidableColumnNames, ProjectTableDataType } from './data-table';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
 import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
+import { ProjectsListView } from './project-views/list-view';
 import { VisibilityState } from '@tanstack/react-table';
+import { ProjectViewDataType } from './project-views';
+import { ProjectsGridView } from './project-views/grid-view';
+import { ProjectExportMenu } from './project-export-menu';
 import { Menu, Transition } from '@headlessui/react';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { PDFDocument } from '../export-formats/pdf';
-import moment from 'moment';
+import { hidableColumnNames } from './project-views/list-view/data-table';
+import { Checkbox } from '@components/ui/checkbox';
+import { BulkArchiveProjectsModal } from '@/lib/features/project/bulk-actions/bulk-archive-projects-modal';
+import { BulkRestoreProjectsModal } from '@/lib/features/project/bulk-actions/bulk-restore-projects-modal';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -44,7 +46,7 @@ function PageComponent() {
 		}
 	}, []);
 	const [selectedView, setSelectedView] = useState<TViewMode>(lastSelectedView ?? 'LIST');
-	const [projects, setProjects] = useState<ProjectTableDataType[]>([]);
+	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
@@ -68,7 +70,18 @@ function PageComponent() {
 		[t]
 	);
 	const showArchivedProjects = Boolean(params.get('archived'));
-
+	const activeTeamProjects = useMemo(
+		() => (activeTeam ? projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) : []),
+		[activeTeam, projects]
+	);
+	const filteredProjects = useMemo(
+		() =>
+			searchTerm
+				? activeTeamProjects.filter((el) => el.project?.name?.includes(searchTerm))
+				: activeTeamProjects || [],
+		[activeTeamProjects, searchTerm]
+	);
+	const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
 	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
 		project: true,
 		status: !showArchivedProjects,
@@ -81,18 +94,6 @@ function PageComponent() {
 		actions: !showArchivedProjects,
 		restore: showArchivedProjects
 	});
-
-	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
-		usePagination<ProjectTableDataType>(
-			// Consider only active team projects
-			activeTeam
-				? searchTerm
-					? projects
-							?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id))
-							.filter((el) => el.project?.name?.includes(searchTerm))
-					: projects?.filter((el) => el.teams?.map((el) => el.id).includes(activeTeam?.id)) || []
-				: []
-		);
 
 	useEffect(() => {
 		const members = [...(params.get('managers')?.split(',') ?? []), ...(params.get('members')?.split(',') ?? [])];
@@ -126,6 +127,7 @@ function PageComponent() {
 						},
 						status: el.status,
 						archivedAt: el.archivedAt,
+						isArchived: el.isArchived,
 						startDate: el.startDate,
 						endDate: el.endDate,
 						members: el.members,
@@ -134,11 +136,12 @@ function PageComponent() {
 					}));
 
 				setProjects(projects);
+				setSelectedProjects({}); // Reset projects selection
 			}
 		});
 	}, [getOrganizationProjects, params, organizationProjects, showArchivedProjects]);
 
-	// Handle archived / active - table columns visibility
+	// Handle archived / active - table columns visibility / projects selection
 	useEffect(() => {
 		setTableColumnsVisibility((prev) => ({
 			...prev,
@@ -147,7 +150,41 @@ function PageComponent() {
 			actions: !showArchivedProjects,
 			restore: showArchivedProjects
 		}));
+
+		setSelectedProjects({});
 	}, [showArchivedProjects]);
+
+	const handleSelectAllProjects = useCallback(() => {
+		const areAllProjectsSelected = Object.keys(selectedProjects).length == filteredProjects.length;
+
+		if (areAllProjectsSelected) {
+			setSelectedProjects({});
+		} else {
+			setSelectedProjects(
+				Object.fromEntries(
+					activeTeamProjects.map((el) => {
+						return [el.project.id, true];
+					})
+				)
+			);
+		}
+	}, [activeTeamProjects, filteredProjects.length, selectedProjects]);
+
+	/**
+	 * --- Bulk actions -------
+	 */
+	const isBulkAction = Object.keys(selectedProjects).length > 1;
+	const {
+		openModal: openBulkArchiveProjectsModal,
+		closeModal: closeBulkArchiveProjectsModal,
+		isOpen: isBulkArchiveProjectsModalOpen
+	} = useModal();
+
+	const {
+		openModal: openBulkRestoreProjectsModal,
+		closeModal: closeBulkRestoreProjectsModal,
+		isOpen: isBulkRestoreProjectsModalOpen
+	} = useModal();
 
 	return (
 		<MainLayout
@@ -227,208 +264,160 @@ function PageComponent() {
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
 							</Button>
-							<Menu as="div" className="relative inline-block text-left">
-								<Menu.Button className=" w-full h-full items-center justify-between">
-									<Button
-										type="button"
-										className=" border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black  h-[2.2rem] font-light hover:dark:bg-transparent"
-										variant="outline"
+							<ProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
+							{selectedView == 'LIST' && (
+								<Menu as="div" className="relative inline-block text-left">
+									<div>
+										<Menu.Button>
+											<Button
+												type="button"
+												className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
+												variant="outline"
+											>
+												<Settings2 size={15} /> <span>{t('common.VIEW')}</span>
+											</Button>
+										</Menu.Button>
+									</div>
+									<Transition
+										as={Fragment}
+										enter="transition ease-out duration-100"
+										enterFrom="transform opacity-0 scale-95"
+										enterTo="transform opacity-100 scale-100"
+										leave="transition ease-in duration-75"
+										leaveFrom="transform opacity-100 scale-100"
+										leaveTo="transform opacity-0 scale-95"
 									>
-										<span>{t('common.EXPORT')}</span> <ChevronDown size={15} />
-									</Button>
-								</Menu.Button>
-								<Transition
-									as={Fragment}
-									enter="transition ease-out duration-100"
-									enterFrom="transform opacity-0 scale-95"
-									enterTo="transform opacity-100 scale-100"
-									leave="transition ease-in duration-75"
-									leaveFrom="transform opacity-100 scale-100"
-									leaveTo="transform opacity-0 scale-95"
-								>
-									<Menu.Items
-										static
-										className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none"
-									>
-										<div className="p-1 flex flex-col gap-1">
-											<Menu.Item>
-												{({ active }) => (
-													<button
-														className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-													>
-														<PDFDownloadLink
-															className="w-full h-full text-left"
-															document={
-																<PDFDocument
-																	data={currentItems.map((el) => {
-																		return {
-																			projectName: el.project.name || '-',
-																			status: el.status || '-',
-																			archivedAt: el.archivedAt
-																				? moment(el.archivedAt).format(
-																						'YYYY-MM-DD'
-																					)
-																				: '-',
-																			startDate: el.startDate
-																				? moment(el.startDate).format(
-																						'YYYY-MM-DD'
-																					)
-																				: '-',
-																			endDate: el.endDate
-																				? moment(el.endDate).format(
-																						'YYYY-MM-DD'
-																					)
-																				: '-',
-																			members:
-																				el.members?.map(
-																					(el) => el.employee.fullName
-																				) ?? [],
-																			managers:
-																				el.managers?.map(
-																					(el) => el.employee.fullName
-																				) ?? [],
-																			teams: el.teams?.map((el) => el.name) ?? []
-																		};
-																	})}
-																	headers={{
-																		projectName: t(
-																			'pages.projects.projectTitle.SINGULAR'
-																		),
-																		status: t('common.STATUS'),
-																		archivedAt: t('common.ARCHIVE_AT'),
-																		startDate: t('common.START_DATE'),
-																		endDate: t('common.END_DATE'),
-																		members: t('common.MEMBERS'),
-																		managers: t('common.MANAGERS'),
-																		teams: t('common.TEAMS')
-																	}}
-																	title={`${activeTeam?.name} Organization Projects`}
-																/>
-															}
-															fileName={`${activeTeam?.name}-organization-projects.pdf`}
-														>
-															{({ loading }) =>
-																loading ? (
-																	<p className="w-full h-full">
-																		{t('common.LOADING')}...
-																	</p>
-																) : (
-																	<p className="w-full h-full">PDF</p>
-																)
-															}
-														</PDFDownloadLink>
-													</button>
-												)}
-											</Menu.Item>
-											<Menu.Item>
-												{({ active }) => (
-													<button
-														disabled // Will be implemented later
-														className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-													>
-														<span>CSV</span>
-													</button>
-												)}
-											</Menu.Item>
-										</div>
-									</Menu.Items>
-								</Transition>
-							</Menu>
+										<Menu.Items className="absolute z-[999] right-0 mt-2 w-36 origin-top-right space-y-[1px] p-[1px]  rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
+											{Object.entries(tableColumnsVisibility).map(([column, isVisible]) => {
+												return hidableColumnNames
+													.filter((el) => (!showArchivedProjects ? el !== 'archivedAt' : el))
+													.includes(column) ? (
+													<Menu.Item key={column}>
+														{({ active }) => (
+															<button
+																onClick={() =>
+																	setTableColumnsVisibility((prev) => ({
+																		...prev,
+																		[column]: !isVisible
+																	}))
+																}
+																className={cn(
+																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
+																)}
+															>
+																<div className="w-5 h-full flex items-center justify-center ">
+																	{isVisible && <Check size={12} />}
+																</div>
+																<span className="capitalize">{column}</span>
+															</button>
+														)}
+													</Menu.Item>
+												) : null;
+											})}
+										</Menu.Items>
+									</Transition>
+								</Menu>
+							)}
+						</div>
+					</div>
 
-							<Menu as="div" className="relative inline-block text-left">
-								<div>
-									<Menu.Button>
-										<Button
-											type="button"
-											className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
-											variant="outline"
+					<div
+						className={cn(
+							'w-full transition-all flex items-center bg-slate-400/10 border rounded-md py-2 px-3',
+							selectedView == 'GRID' ||
+								(selectedView == 'LIST' && Object.keys(selectedProjects).length > 1)
+								? 'h-[3.2rem]'
+								: 'h-0 p-0 border-none'
+						)}
+					>
+						<div
+							className={cn(
+								'h-full  overflow-hidden  items-center gap-6',
+								selectedView == 'GRID' ||
+									(selectedView == 'LIST' && Object.keys(selectedProjects).length > 1)
+									? 'flex'
+									: 'hidden'
+							)}
+						>
+							<div className="flex h-full  items-center gap-2">
+								{selectedView == 'GRID' && (
+									<Checkbox
+										checked={Object.keys(selectedProjects).length == filteredProjects.length}
+										className=" shrink-0"
+										onCheckedChange={handleSelectAllProjects}
+									/>
+								)}
+								<p className=" min-w-[10rem]">
+									{Object.keys(selectedProjects).length == 0 ||
+									Object.keys(selectedProjects).length == filteredProjects.length
+										? `All projects (${filteredProjects.length})`
+										: `${Object.keys(selectedProjects).length} projects selected`}
+								</p>
+							</div>
+							<div
+								className={cn(
+									'h-full flex relative items-center gap-2 transition-all',
+									isBulkAction ? ' bottom-[0%] ' : ' -bottom-[100%]'
+								)}
+							>
+								<VerticalSeparator />
+
+								{showArchivedProjects ? (
+									isBulkAction ? (
+										<button
+											onClick={openBulkRestoreProjectsModal}
+											className={` bg-[#E2E8F0] gap-2 group flex items-center rounded-md px-2 py-2 shrink-0 text-xs`}
 										>
-											<Settings2 size={15} /> <span>{t('common.VIEW')}</span>
-										</Button>
-									</Menu.Button>
-								</div>
-								<Transition
-									as={Fragment}
-									enter="transition ease-out duration-100"
-									enterFrom="transform opacity-0 scale-95"
-									enterTo="transform opacity-100 scale-100"
-									leave="transition ease-in duration-75"
-									leaveFrom="transform opacity-100 scale-100"
-									leaveTo="transform opacity-0 scale-95"
-								>
-									<Menu.Items className="absolute z-[999] right-0 mt-2 w-36 origin-top-right space-y-[1px] p-[1px]  rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-										{Object.entries(tableColumnsVisibility).map(([column, isVisible]) => {
-											return hidableColumnNames
-												.filter((el) => (!showArchivedProjects ? el !== 'archivedAt' : el))
-												.includes(column) ? (
-												<Menu.Item key={column}>
-													{({ active }) => (
-														<button
-															onClick={() =>
-																setTableColumnsVisibility((prev) => ({
-																	...prev,
-																	[column]: !isVisible
-																}))
-															}
-															className={cn(
-																`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
-															)}
-														>
-															<div className="w-5 h-full flex items-center justify-center ">
-																{isVisible && <Check size={12} />}
-															</div>
-															<span className="capitalize">{column}</span>
-														</button>
-													)}
-												</Menu.Item>
-											) : null;
-										})}
-									</Menu.Items>
-								</Transition>
-							</Menu>
+											<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
+										</button>
+									) : null
+								) : isBulkAction ? (
+									<button
+										onClick={openBulkArchiveProjectsModal}
+										className={` bg-[#E2E8F0] cursor-pointer gap-2 group flex items-center rounded-md px-2 py-2 shrink-0 text-xs`}
+									>
+										<Archive size={15} /> <span>{t('common.ARCHIVE')}</span>
+									</button>
+								) : null}
+							</div>
 						</div>
 					</div>
 					{selectedView === 'LIST' ? (
-						<div key="list" className="w-full">
-							<DataTableProject
-								columnVisibility={tableColumnsVisibility}
-								onColumnVisibilityChange={setTableColumnsVisibility}
-								loading={getOrganizationProjectsLoading}
-								data={currentItems}
-							/>
-							<div className=" dark:bg-dark--theme px-4 py-4 flex">
-								<Paginate
-									total={total}
-									onPageChange={onPageChange}
-									pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
-									itemsPerPage={itemsPerPage}
-									itemOffset={itemOffset}
-									endOffset={endOffset}
-									setItemsPerPage={setItemsPerPage}
-									className="pt-0"
-								/>
-							</div>
-						</div>
+						<ProjectsListView
+							projects={filteredProjects}
+							loading={getOrganizationProjectsLoading}
+							columnVisibility={tableColumnsVisibility}
+							selectedProjects={selectedProjects}
+							setSelectedProjects={setSelectedProjects}
+							onColumnVisibilityChange={setTableColumnsVisibility}
+						/>
 					) : selectedView === 'GRID' ? (
-						<div key="grid" className=" w-full flex-wrap flex gap-3">
-							{getOrganizationProjectsLoading ? (
-								<div className="w-full flex items-center justify-center">
-									<SpinnerLoader />
-								</div>
-							) : (
-								currentItems.map((el) => (
-									<GridItem
-										isArchived={Boolean(showArchivedProjects)}
-										key={el.project.id}
-										data={el}
-									/>
-								))
-							)}
-						</div>
+						<ProjectsGridView
+							loading={getOrganizationProjectsLoading}
+							projects={filteredProjects}
+							selectedProjects={selectedProjects}
+							setSelectedProjects={setSelectedProjects}
+						/>
 					) : null}
 				</div>
 				<FiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
 				<AddOrEditProjectModal closeModal={closeProjectModal} open={isProjectModalOpen} />
+				{isBulkAction && (
+					<>
+						<BulkArchiveProjectsModal
+							key={`bulk-archive-project`}
+							projectIds={Object.keys(selectedProjects)}
+							open={isBulkArchiveProjectsModalOpen}
+							closeModal={closeBulkArchiveProjectsModal}
+						/>
+						<BulkRestoreProjectsModal
+							key={`bulk-restore-project`}
+							projectIds={Object.keys(selectedProjects)}
+							open={isBulkRestoreProjectsModalOpen}
+							closeModal={closeBulkRestoreProjectsModal}
+						/>
+					</>
+				)}
 			</div>
 		</MainLayout>
 	);

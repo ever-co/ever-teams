@@ -1,28 +1,24 @@
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@components/ui/checkbox';
 import Image from 'next/image';
-import { ProjectTableDataType } from './data-table';
-import { Archive, CalendarDays, Ellipsis, Eye, Pencil, Trash, RotateCcw } from 'lucide-react';
+import { CalendarDays,RotateCcw } from 'lucide-react';
 import { useModal, useTaskStatus } from '@/app/hooks';
-import { Fragment, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import AvatarStack from '@components/shared/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { Menu, Transition } from '@headlessui/react';
-import { HorizontalSeparator } from '@/lib/components';
-import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-project-modal';
-import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
-import { ArchiveProjectModal } from '@/lib/features/project/archive-project-modal';
-import { RestoreProjectConfirmModal } from '@/lib/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { ProjectItemActions, ProjectViewDataType } from '..';
 
 interface IGridItemProps {
-	data: ProjectTableDataType;
-	isArchived: boolean;
+	data: ProjectViewDataType;
+	isSelected: boolean;
+	onSelect?: (projectId : string) => void
 }
 
 export default function GridItem(props: IGridItemProps) {
-	const { data, isArchived } = props;
+	const { data, isSelected, onSelect } = props;
 	const {
 		openModal: openRestoreProjectModal,
 		closeModal: closeRestoreProjectModal,
@@ -67,10 +63,14 @@ export default function GridItem(props: IGridItemProps) {
 	const t = useTranslations();
 	const { resolvedTheme } = useTheme();
 
+	const handleSelect = useCallback(() => {
+		onSelect?.(data?.project?.id);
+	},[data?.project.id, onSelect])
+
 	return (
 		<>
 			<div className="w-[24rem] shrink-0 border rounded-xl p-4 gap-4 flex">
-				<Checkbox className=" shrink-0" />
+				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className=" shrink-0" />
 				<div className=" h-full flex flex-col gap-8 grow">
 					<div className="w-full gap-4 flex items-center justify-between">
 						<div className="flex items-center font-medium gap-2">
@@ -94,7 +94,7 @@ export default function GridItem(props: IGridItemProps) {
 							</div>
 							<p>{data?.project?.name}</p>
 						</div>
-						{isArchived ? (
+						{data?.isArchived ? (
 							<button
 								onClick={openRestoreProjectModal}
 								className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
@@ -106,7 +106,7 @@ export default function GridItem(props: IGridItemProps) {
 						)}
 					</div>
 
-					{!isArchived ? (
+					{!data?.isArchived ? (
 						<div className="w-full items-center flex gap-6">
 							<p className=" font-medium">{t('common.STATUS')}</p>
 							{data?.status ? (
@@ -189,111 +189,10 @@ export default function GridItem(props: IGridItemProps) {
 					</div>
 				</div>
 			</div>
-			<RestoreProjectConfirmModal
+			<RestoreProjectModal
 				projectId={data?.project.id}
 				open={isRestoreProjectModalOpen}
 				closeModal={closeRestoreProjectModal}
-			/>
-		</>
-	);
-}
-
-export function ProjectItemActions({ item }: { item: ProjectTableDataType }) {
-	const {
-		openModal: openDeleteProjectModal,
-		closeModal: closeDeleteProjectModal,
-		isOpen: isDeleteProjectModalOpen
-	} = useModal();
-	const {
-		openModal: openArchiveProjectModal,
-		closeModal: closeArchiveProjectModal,
-		isOpen: isArchiveProjectModalOpen
-	} = useModal();
-	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
-
-	const t = useTranslations();
-
-	return (
-		<>
-			<Menu as="div" className="relative inline-block text-left">
-				<div>
-					<Menu.Button>
-						<Ellipsis />
-					</Menu.Button>
-				</div>
-				<Transition
-					as={Fragment}
-					enter="transition ease-out duration-100"
-					enterFrom="transform opacity-0 scale-95"
-					enterTo="transform opacity-100 scale-100"
-					leave="transition ease-in duration-75"
-					leaveFrom="transform opacity-100 scale-100"
-					leaveTo="transform opacity-0 scale-95"
-				>
-					<Menu.Items className="absolute z-[999] right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-						<div className="p-1 flex flex-col gap-1">
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Eye size={15} /> <span>{t('common.VIEW_INFO')}</span>
-									</button>
-								)}
-							</Menu.Item>
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										onClick={openProjectModal}
-										className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Pencil size={15} /> <span>{t('common.EDIT')}</span>
-									</button>
-								)}
-							</Menu.Item>
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										onClick={openArchiveProjectModal}
-										className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Archive size={15} /> <span>{t('common.ARCHIVE')}</span>
-									</button>
-								)}
-							</Menu.Item>
-							<HorizontalSeparator />
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										onClick={openDeleteProjectModal}
-										className={`${active && 'bg-red-400/10'} gap-2 text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Trash size={15} /> <span>{t('common.DELETE')}</span>
-									</button>
-								)}
-							</Menu.Item>
-						</div>
-					</Menu.Items>
-				</Transition>
-			</Menu>
-			<DeleteProjectConfirmModal
-				key={`${item.project.id}-delete-project`}
-				projectId={item.project.id}
-				open={isDeleteProjectModalOpen}
-				closeModal={closeDeleteProjectModal}
-			/>
-			<AddOrEditProjectModal
-				key={`${item.project.id}-add-or-edit-project`}
-				projectId={item.project.id}
-				mode="edit"
-				closeModal={closeProjectModal}
-				open={isProjectModalOpen}
-			/>
-			<ArchiveProjectModal
-				key={`${item.project.id}-archive-project`}
-				projectId={item.project.id}
-				open={isArchiveProjectModalOpen}
-				closeModal={closeArchiveProjectModal}
 			/>
 		</>
 	);

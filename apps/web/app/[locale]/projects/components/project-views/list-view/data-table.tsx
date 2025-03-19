@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import {
-	Column,
 	ColumnDef,
 	ColumnFiltersState,
 	OnChangeFn,
+	RowSelectionState,
 	SortingState,
 	VisibilityState,
 	flexRender,
@@ -20,35 +20,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
-import { IProject } from '@/app/interfaces';
 import { cn } from '@/lib/utils';
 import { useModal, useTaskStatus } from '@/app/hooks';
-import { Fragment, memo, useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
-import { HorizontalSeparator, SpinnerLoader } from '@/lib/components';
+import { SpinnerLoader } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { useTheme } from 'next-themes';
-import { ProjectItemActions } from './grid-item';
-import { RestoreProjectConfirmModal } from '@/lib/features/project/restore-project-modal';
-import { Menu, Transition } from '@headlessui/react';
-
-export type ProjectTableDataType = {
-	project: {
-		id: string;
-		name: IProject['name'];
-		imageUrl: IProject['imageUrl'];
-		color: IProject['color'];
-	};
-	status: IProject['status'];
-	archivedAt: IProject['archivedAt'];
-	startDate: IProject['startDate'];
-	endDate: IProject['endDate'];
-	members: IProject['members'];
-	managers: IProject['members'];
-	teams: IProject['teams'];
-};
+import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { ProjectItemActions, ProjectViewDataType } from '..';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -60,29 +42,39 @@ export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members
  * @param {Object} props - The component props.
  * @param {ProjectTableDataType[]} props.data - Array of data objects projects information.
  * @param {boolean} props.loading - Whether to show loading indicator when loading projects data.
+ * @param {VisibilityState} props.columnVisibility - Columns visibility state
+ * @param {OnChangeFn<VisibilityState> | undefined} props.onColumnVisibilityChange - Function to call when column visibility state changes
  *
  * @returns {JSX.Element} A table showing projects information.
  *
  */
 
-export const DataTableProject = memo(
+export const ProjectsTable = memo(
 	(props: {
-		data: ProjectTableDataType[];
+		data: ProjectViewDataType[];
 		loading: boolean;
 		columnVisibility: VisibilityState;
+		selectedProjects: Record<string, boolean>;
+		onSelectedProjectsChange?: OnChangeFn<RowSelectionState>;
 		onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
 	}) => {
-		const { data, loading, columnVisibility, onColumnVisibilityChange } = props;
+		const {
+			data,
+			loading,
+			columnVisibility,
+			onColumnVisibilityChange,
+			selectedProjects,
+			onSelectedProjectsChange
+		} = props;
 		const [sorting, setSorting] = React.useState<SortingState>([]);
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-		const [rowSelection, setRowSelection] = React.useState({});
 		const t = useTranslations();
 		const { taskStatus } = useTaskStatus();
 		const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
 			return new Map(taskStatus.map((status) => [status.name, status.color]));
 		}, [taskStatus]);
 
-		const columns: ColumnDef<ProjectTableDataType>[] = [
+		const columns: ColumnDef<ProjectViewDataType>[] = [
 			{
 				id: 'select',
 				header: ({ table }) => (
@@ -111,21 +103,30 @@ export const DataTableProject = memo(
 				accessorKey: 'project',
 				id: 'project',
 				header: function Header({ column }) {
+					const isSort = column.getIsSorted();
+
 					return (
-						<ColumnHandlerDropdown
-							sorting={{
-								ascLabel: 'A-Z',
-								descLabel: 'Z-A'
+						<div
+							className="flex items-center cursor-pointer  gap-2"
+							onClick={() => {
+								column.toggleSorting(undefined, true);
 							}}
-							column={{
-								name: t('pages.projects.projectTitle.SINGULAR'),
-								entity: column
-							}}
-						/>
+						>
+							<span>{t('pages.projects.projectTitle.PLURAL')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
 				enableSorting: true,
-				enableHiding: false,
 				enableMultiSort: true,
 				sortingFn: (rowA, rowB) => {
 					const a = rowA.original.project.name;
@@ -169,22 +170,29 @@ export const DataTableProject = memo(
 				accessorKey: 'status',
 				id: 'status',
 				header: function Header({ column }) {
+					const isSort = column.getIsSorted();
+
 					return (
-						<ColumnHandlerDropdown
-							sorting={{
-								ascLabel: 'A-Z',
-								descLabel: 'Z-A'
-							}}
-							column={{
-								name: t('common.STATUS'),
-								entity: column
-							}}
-						/>
+						<div
+							className="flex items-center cursor-pointer  gap-2"
+							onClick={() => column.toggleSorting(undefined, true)}
+						>
+							<span>{t('common.STATUS')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
 				enableMultiSort: true,
 				enableSorting: true,
-				enableHiding: false,
 				sortingFn: (rowA, rowB) => {
 					const a = rowA.original.status;
 					const b = rowB.original.status;
@@ -219,21 +227,30 @@ export const DataTableProject = memo(
 				accessorKey: 'archivedAt',
 				id: 'archivedAt',
 				header: function Header({ column }) {
+					const isSort = column.getIsSorted();
+
 					return (
-						<ColumnHandlerDropdown
-							sorting={{
-								ascLabel: 'Newest',
-								descLabel: 'Oldest'
+						<div
+							className="flex items-center cursor-pointer  gap-2"
+							onClick={() => {
+								column.toggleSorting(undefined, true);
 							}}
-							column={{
-								name: t('common.ARCHIVE_AT'),
-								entity: column
-							}}
-						/>
+						>
+							<span>{t('common.ARCHIVE_AT')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
 				enableSorting: true,
-				enableHiding: true,
 				enableMultiSort: true,
 				sortingFn: (rowA, rowB) => {
 					const a = rowA.original.startDate ? moment(rowA.original.archivedAt).toDate() : new Date(0); // Default to epoch if no date
@@ -251,22 +268,31 @@ export const DataTableProject = memo(
 				accessorKey: 'startDate',
 				id: 'startDate',
 				header: function Header({ column }) {
+					const isSort = column.getIsSorted();
+
 					return (
-						<ColumnHandlerDropdown
-							sorting={{
-								ascLabel: 'Newest',
-								descLabel: 'Oldest'
+						<div
+							className="flex items-center cursor-pointer  gap-2"
+							onClick={() => {
+								column.toggleSorting(undefined, true);
 							}}
-							column={{
-								name: t('common.START_DATE'),
-								entity: column
-							}}
-						/>
+						>
+							<span>{t('common.START_DATE')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
 				enableSorting: true,
 				enableMultiSort: true,
-				enableHiding: false,
 				sortingFn: (rowA, rowB) => {
 					const a = rowA.original.startDate ? moment(rowA.original.startDate).toDate() : new Date(0); // Default to epoch if no date
 					const b = rowB.original.startDate ? moment(rowB.original.startDate).toDate() : new Date(0);
@@ -283,22 +309,29 @@ export const DataTableProject = memo(
 				accessorKey: 'endDate',
 				id: 'endDate',
 				header: function Header({ column }) {
+					const isSort = column.getIsSorted();
+
 					return (
-						<ColumnHandlerDropdown
-							sorting={{
-								ascLabel: 'Newest',
-								descLabel: 'Oldest'
-							}}
-							column={{
-								name: t('common.END_DATE'),
-								entity: column
-							}}
-						/>
+						<div
+							className="flex items-center cursor-pointer  gap-2"
+							onClick={() => column.toggleSorting(undefined, true)}
+						>
+							<span>{t('common.END_DATE')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
 				enableSorting: true,
 				enableMultiSort: true,
-				enableHiding: true,
 				sortingFn: (rowA, rowB) => {
 					const a = rowA.original.endDate ? moment(rowA.original.endDate).toDate() : new Date(0); // Default to epoch if no date
 					const b = rowB.original.endDate ? moment(rowB.original.endDate).toDate() : new Date(0);
@@ -315,18 +348,24 @@ export const DataTableProject = memo(
 			{
 				accessorKey: 'members',
 				id: 'members',
-				header: function Header({ column }) {
+				header: ({ column }) => {
+					const isSort = column.getIsSorted();
 					return (
-						<ColumnHandlerDropdown
-							column={{
-								name: t('common.MEMBERS'),
-								entity: column
-							}}
-						/>
+						<div className="flex items-center cursor-pointer  gap-2">
+							<span>{t('common.MEMBERS')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
-				enableHiding: true,
-				enableSorting: false,
 				cell: ({ row }) => {
 					const members =
 						row.original?.members
@@ -342,18 +381,24 @@ export const DataTableProject = memo(
 			{
 				accessorKey: 'teams',
 				id: 'teams',
-				header: function Header({ column }) {
+				header: ({ column }) => {
+					const isSort = column.getIsSorted();
 					return (
-						<ColumnHandlerDropdown
-							column={{
-								name: t('common.TEAMS'),
-								entity: column
-							}}
-						/>
+						<div className="flex items-center cursor-pointer  gap-2">
+							<span>{t('common.TEAMS')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
-				enableHiding: true,
-				enableSorting: false,
 				cell: ({ row }) => {
 					const teams =
 						row.original?.teams?.map((el) => ({
@@ -366,18 +411,24 @@ export const DataTableProject = memo(
 			{
 				accessorKey: 'managers',
 				id: 'managers',
-				header: function Header({ column }) {
+				header: ({ column }) => {
+					const isSort = column.getIsSorted();
 					return (
-						<ColumnHandlerDropdown
-							column={{
-								name: t('common.MANAGERS'),
-								entity: column
-							}}
-						/>
+						<div className="flex items-center cursor-pointer  gap-2">
+							<span>{t('common.MANAGERS')}</span>
+							<div className="flex items-center flex-col">
+								<ChevronUp
+									size={15}
+									className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								/>
+								<ChevronDown
+									size={15}
+									className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								/>
+							</div>
+						</div>
 					);
 				},
-				enableHiding: true,
-				enableSorting: false,
 				cell: ({ row }) => {
 					const managers =
 						row.original?.managers
@@ -395,6 +446,7 @@ export const DataTableProject = memo(
 				cell: function Cell({ row }) {
 					return <ProjectItemActions item={row.original} />;
 				},
+				enableSorting: false,
 				enableHiding: false
 			},
 			{
@@ -415,7 +467,7 @@ export const DataTableProject = memo(
 								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
 							</button>
 
-							<RestoreProjectConfirmModal
+							<RestoreProjectModal
 								projectId={row.original?.project?.id}
 								open={isRestoreProjectModalOpen}
 								closeModal={closeRestoreProjectModal}
@@ -423,6 +475,7 @@ export const DataTableProject = memo(
 						</>
 					);
 				},
+				enableSorting: false,
 				enableHiding: false
 			}
 		];
@@ -437,13 +490,14 @@ export const DataTableProject = memo(
 			getSortedRowModel: getSortedRowModel(),
 			getFilteredRowModel: getFilteredRowModel(),
 			onColumnVisibilityChange,
-			onRowSelectionChange: setRowSelection,
+			onRowSelectionChange: onSelectedProjectsChange,
 			state: {
 				sorting,
 				columnFilters,
 				columnVisibility,
-				rowSelection
-			}
+				rowSelection: selectedProjects
+			},
+			getRowId: (row) => row.project.id
 		});
 
 		useEffect(() => {
@@ -523,98 +577,4 @@ export const DataTableProject = memo(
 	}
 );
 
-DataTableProject.displayName = 'DataTableProject';
-
-function ColumnHandlerDropdown(args: {
-	column: { name: string; entity: Column<ProjectTableDataType> };
-	sorting?: { ascLabel: string; descLabel: string };
-}) {
-	const { column, sorting } = args;
-
-	const t = useTranslations();
-
-	const isSort = column.entity.getIsSorted();
-
-	return (
-		<Menu as="div" className="relative inline-block text-left">
-			<div>
-				<Menu.Button>
-					<div className="flex items-center cursor-pointer  gap-2">
-						<span>{column.name}</span>
-						<div className="flex items-center flex-col">
-							<ChevronUp
-								size={15}
-								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
-							/>
-							<ChevronDown
-								size={15}
-								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
-							/>
-						</div>
-					</div>
-				</Menu.Button>
-			</div>
-			<Transition
-				as={Fragment}
-				enter="transition ease-out duration-100"
-				enterFrom="transform opacity-0 scale-95"
-				enterTo="transform opacity-100 scale-100"
-				leave="transition ease-in duration-75"
-				leaveFrom="transform opacity-100 scale-100"
-				leaveTo="transform opacity-0 scale-95"
-			>
-				<Menu.Items className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-					<div className="p-1 flex flex-col gap-1">
-						{column.entity.getCanSort() && sorting && (
-							<>
-								<Menu.Item>
-									{({ active }) => (
-										<button
-											onClick={() => column.entity.toggleSorting(false)}
-											className={cn(
-												`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`,
-												isSort == 'asc' && 'bg-primary/10'
-											)}
-										>
-											<MoveUp size={12} /> <span>{sorting.ascLabel}</span>
-										</button>
-									)}
-								</Menu.Item>
-								<Menu.Item>
-									{({ active }) => (
-										<button
-											onClick={() => column.entity.toggleSorting(true)}
-											className={cn(
-												`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`,
-												isSort == 'desc' && 'bg-primary/10'
-											)}
-										>
-											<MoveDown size={12} /> <span>{sorting.descLabel}</span>
-										</button>
-									)}
-								</Menu.Item>
-							</>
-						)}
-
-						{column.entity.getCanHide() && (
-							<>
-								{sorting && <HorizontalSeparator className="border-t" />}
-
-								<Menu.Item>
-									{({ active }) => (
-										<button
-											onClick={column.entity.getToggleVisibilityHandler()}
-											className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-										>
-											<EyeOff size={12} /> <span>{t('common.HIDE')}</span>
-										</button>
-									)}
-								</Menu.Item>
-							</>
-						)}
-					</div>
-				</Menu.Items>
-			</Transition>
-		</Menu>
-	);
-}
+ProjectsTable.displayName = 'ProjectsTable';
