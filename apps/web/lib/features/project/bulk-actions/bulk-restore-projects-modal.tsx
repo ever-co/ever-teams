@@ -55,7 +55,7 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 				}
 			}
 		} catch (error) {
-			console.error('Failed to archive projects', error);
+			console.error('Failed to restore projects', error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -90,7 +90,6 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 							loading={isLoading}
 							disabled={isLoading}
 							className="h-[2.75rem] bg-primary text-primary-foreground"
-							type="submit"
 						>
 							{t('common.RESTORE')}
 						</Button>

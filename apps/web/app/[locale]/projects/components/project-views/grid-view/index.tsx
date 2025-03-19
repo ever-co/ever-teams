@@ -19,7 +19,6 @@ export function ProjectsGridView(props: IProps) {
 		(projectId: string) => {
 			setSelectedProjects((prevSelectedProjects) => {
 				const newSelectedProjects = { ...prevSelectedProjects };
-				console.log(newSelectedProjects);
 				if (newSelectedProjects[projectId]) {
 					delete newSelectedProjects[projectId];
 				} else {

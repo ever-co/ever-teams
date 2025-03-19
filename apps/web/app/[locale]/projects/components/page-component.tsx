@@ -151,7 +151,7 @@ function PageComponent() {
 			restore: showArchivedProjects
 		}));
 
-		setSelectedProjects({});  // Reset projects selection
+		setSelectedProjects({}); // Reset projects selection
 	}, [showArchivedProjects]);
 
 	const handleSelectAllProjects = useCallback(() => {
@@ -162,13 +162,13 @@ function PageComponent() {
 		} else {
 			setSelectedProjects(
 				Object.fromEntries(
-					activeTeamProjects.map((el) => {
+					filteredProjects.map((el) => {
 						return [el.project.id, true];
 					})
 				)
 			);
 		}
-	}, [activeTeamProjects, filteredProjects.length, selectedProjects]);
+	}, [filteredProjects, selectedProjects]);
 
 	/**
 	 * --- Bulk actions -------
@@ -324,7 +324,7 @@ function PageComponent() {
 					<div
 						className={cn(
 							'w-full transition-all flex items-center bg-slate-400/10 border rounded-md py-2 px-3',
-							selectedView == 'GRID' && Object.keys(selectedProjects).length > 0 ||
+							(selectedView == 'GRID' && Object.keys(selectedProjects).length > 0) ||
 								(selectedView == 'LIST' && Object.keys(selectedProjects).length > 1)
 								? 'h-[3.2rem]'
 								: 'h-0 p-0 border-none'
@@ -333,7 +333,7 @@ function PageComponent() {
 						<div
 							className={cn(
 								'h-full  overflow-hidden  items-center gap-6',
-								selectedView == 'GRID' && Object.keys(selectedProjects).length > 0 ||
+								(selectedView == 'GRID' && Object.keys(selectedProjects).length > 0) ||
 									(selectedView == 'LIST' && Object.keys(selectedProjects).length > 1)
 									? 'flex'
 									: 'hidden'
@@ -342,7 +342,10 @@ function PageComponent() {
 							<div className="flex h-full  items-center gap-2">
 								{selectedView == 'GRID' && (
 									<Checkbox
-										checked={Object.keys(selectedProjects).length > 0 && Object.keys(selectedProjects).length == filteredProjects.length}
+										checked={
+											Object.keys(selectedProjects).length > 0 &&
+											Object.keys(selectedProjects).length == filteredProjects.length
+										}
 										className=" shrink-0"
 										onCheckedChange={handleSelectAllProjects}
 									/>

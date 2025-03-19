@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@components/ui/checkbox';
 import Image from 'next/image';
-import { CalendarDays,RotateCcw } from 'lucide-react';
+import { CalendarDays, RotateCcw } from 'lucide-react';
 import { useModal, useTaskStatus } from '@/app/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
@@ -14,7 +14,7 @@ import { ProjectItemActions, ProjectViewDataType } from '..';
 interface IGridItemProps {
 	data: ProjectViewDataType;
 	isSelected: boolean;
-	onSelect?: (projectId : string) => void
+	onSelect?: (projectId: string) => void;
 }
 
 export default function GridItem(props: IGridItemProps) {
@@ -65,7 +65,7 @@ export default function GridItem(props: IGridItemProps) {
 
 	const handleSelect = useCallback(() => {
 		onSelect?.(data?.project?.id);
-	},[data?.project.id, onSelect])
+	}, [data?.project?.id, onSelect]);
 
 	return (
 		<>
