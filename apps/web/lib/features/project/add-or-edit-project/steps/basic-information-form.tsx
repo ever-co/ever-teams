@@ -435,7 +435,7 @@ export function DatePicker(props: IDatePickerProps) {
 				{value ? format(value, 'PPP') : <span className=" text-xs">{placeholder}</span>}
 				<CalendarIcon size={15} />
 			</Popover.Button>
-			<Popover.Panel className="w-auto border  rounded-lg bg-white shadow-md absolute right-0 top-11 p-0">
+			<Popover.Panel className="w-auto border  rounded-lg bg-white dark:bg-dark--theme shadow-md absolute right-0 top-11 p-0">
 				<Calendar
 					id={id}
 					required={required}
