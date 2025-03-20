@@ -65,13 +65,13 @@ export const TaskStatusesForm = ({
   ],[]) ;
 
   const {
-    loading,
-    taskStatus,
+    getTaskStatusesLoading,
+    taskStatuses,
     createTaskStatus,
     deleteTaskStatus,
     editTaskStatus,
     createTaskStatusLoading,
-    editTaskStatusLoading
+    editTaskStatusLoading,setTaskStatuses
   } = useTaskStatus();
   const { refetch } = useRefetchData();
 
@@ -81,7 +81,7 @@ export const TaskStatusesForm = ({
       setValue('color', '');
       setValue('icon', '');
     }
-  }, [taskStatus, edit, setValue, getValues]);
+  }, [taskStatuses, edit, setValue, getValues]);
 
   useEffect(() => {
     if (edit) {
@@ -105,7 +105,7 @@ export const TaskStatusesForm = ({
   const onSubmit = useCallback(
     async (values: any) => {
       if (createNew) {
-        createTaskStatus({
+        await createTaskStatus({
           name: values.name,
           value: values.name.split(' ').join('-').toLowerCase(),
           color: values.color,
@@ -129,7 +129,7 @@ export const TaskStatusesForm = ({
           values.color !== edit.color ||
           values.icon !== edit.icon)
       ) {
-        editTaskStatus(edit.id, {
+       await editTaskStatus(edit.id, {
           name: values.name,
           color: values.color,
           icon: values.icon
@@ -151,7 +151,7 @@ export const TaskStatusesForm = ({
       refetch
     ]
   );
-  const updateArray = taskStatus.slice();
+  const updateArray = taskStatuses.slice();
   const sortedArray =
     Array.isArray(updateArray) && updateArray.length > 0
       ? updateArray.sort((a: any, b: any) => a.order - b.order)
@@ -178,7 +178,7 @@ export const TaskStatusesForm = ({
 			const name = STATUS_MAPPINGS[iconName] || iconName;
 
 			const icon = iconList.find((icon) => icon.title === name);
-			
+
 			if (icon) {
 				setValue('icon', icon.path);
 			}
@@ -325,14 +325,14 @@ export const TaskStatusesForm = ({
                 </>
               )}
 
-              {!formOnly && taskStatus.length > 0 && (
+              {!formOnly && taskStatuses.length > 0 && (
                 <>
                   <Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
                     {t('pages.settingsTeam.LIST_OF_STATUSES')}
                   </Text>
                   <div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-                    {loading && <Spinner dark={false} />}
-                    {!loading && sortedArray.length ? (
+                    {getTaskStatusesLoading && <Spinner dark={false} />}
+                    {!getTaskStatusesLoading && sortedArray.length ? (
                       sortedArray.map((status) => (
                         <StatusesListCard
                           key={status.id}
@@ -355,6 +355,11 @@ export const TaskStatusesForm = ({
 									openDeleteConfirmationModal();
 								} else {
 									await deleteTaskStatus(status.id);
+
+									// Update the task status state
+			                        setTaskStatuses((prev) => {
+				                        return prev.filter((el) => el.id !== status.id);
+			                        });
 								}
 							} catch (error) {
 								console.error(error);

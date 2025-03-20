@@ -192,7 +192,7 @@ export function useTimer() {
     activeTeam,
     activeTeamTask
   } = useTeamTasks();
-  const { taskStatus } = useTaskStatus();
+  const { taskStatuses } = useTaskStatus();
   const {
     updateOrganizationTeamEmployeeActiveTask
   } = useOrganizationEmployeeTeams();
@@ -372,7 +372,7 @@ export function useTimer() {
       activeTeamTaskRef.current &&
       activeTeamTaskRef.current.status !== 'in-progress'
     ) {
-      const selectedStatus = taskStatus.find(
+      const selectedStatus = taskStatuses.find(
         (s) => s.name === 'in-progress' && s.value === 'in-progress'
       );
       const taskStatusId = selectedStatus?.id;
@@ -412,7 +412,7 @@ export function useTimer() {
     activeTeamTaskRef,
     timerStatus,
     setTimerStatus,
-    taskStatus,
+    taskStatuses,
     updateTask,
     activeTeam?.members,
     activeTeam?.id,
