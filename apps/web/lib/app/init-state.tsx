@@ -6,6 +6,7 @@ import {
 	useIssueType,
 	useLanguageSettings,
 	useOTRefreshInterval,
+	useOrganizationProjects,
 	useOrganizationTeams,
 	useRefreshIntervalV2,
 	useSyncTimer,
@@ -43,7 +44,7 @@ function InitState() {
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
-
+	const { firstOrganizationProjectsLoadData } = useOrganizationProjects();
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
@@ -68,7 +69,7 @@ function InitState() {
 		firstLoadtasksStatisticsData();
 		firstLoadLanguagesData();
 		firstLoadAutoAssignTask();
-
+		firstOrganizationProjectsLoadData();
 		firstLoadTaskStatusesData();
 		firstLoadTaskVersionData();
 		firstLoadTaskPrioritiesData();

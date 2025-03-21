@@ -7,16 +7,20 @@ import {
 	deleteOrganizationProjectAPI
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 import { ICreateProjectInput, IEditProjectInput } from '@/app/interfaces';
+import { useFirstLoad } from '../useFirstLoad';
 
 export function useOrganizationProjects() {
-	const [user] = useAtom(userState);
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
 	const [organizationProjects, setOrganizationProjects] = useAtom(organizationProjectsState);
+	const [user] = useAtom(userState);
+	const { firstLoadData: firstOrganizationProjectsLoad } = useFirstLoad();
 
 	const { loading: editOrganizationProjectLoading, queryCall: editOrganizationProjectQueryCall } =
 		useQuery(editOrganizationProjectAPI);
@@ -38,19 +42,29 @@ export function useOrganizationProjects() {
 
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
-			if (user?.tenantId) {
-				return editOrganizationProjectSettingQueryCall(id, data, user?.tenantId || '').then((res) => {
-					return res;
-				});
+			try {
+				if (tenantId) {
+					return editOrganizationProjectSettingQueryCall(id, data, tenantId).then((res) => {
+						return res;
+					});
+				} else {
+					throw new Error('Required parameters missing: tenantId. Ensure you have tenantId set in cookies.');
+				}
+			} catch (error) {
+				console.error('Failed to edit the organization project setting', error);
 			}
 		},
-		[user, editOrganizationProjectSettingQueryCall]
+		[tenantId, editOrganizationProjectSettingQueryCall]
 	);
 
 	const editOrganizationProject = useCallback(
 		async (id: string, data: IEditProjectInput) => {
-			const res = await editOrganizationProjectQueryCall(id, data);
-			return res;
+			try {
+				const res = await editOrganizationProjectQueryCall(id, data);
+				return res;
+			} catch (error) {
+				console.error('Failed to edit the organization project', error);
+			}
 		},
 		[editOrganizationProjectQueryCall]
 	);
@@ -60,7 +74,7 @@ export function useOrganizationProjects() {
 			try {
 				return await getOrganizationProjectQueryCall(id);
 			} catch (error) {
-				console.log(error);
+				console.error('Failed to get the organization project', error);
 			}
 		},
 		[getOrganizationProjectQueryCall]
@@ -72,7 +86,7 @@ export function useOrganizationProjects() {
 				const res = await getOrganizationProjectsQueryCall({ queries });
 				return res.data;
 			} catch (error) {
-				console.log(error);
+				console.error('Failed to get the organization projects', error);
 			}
 		},
 		[getOrganizationProjectsQueryCall]
@@ -81,19 +95,16 @@ export function useOrganizationProjects() {
 	const createOrganizationProject = useCallback(
 		async (data: Partial<ICreateProjectInput>) => {
 			try {
-				const organizationId = getOrganizationIdCookie();
-				const tenantId = getTenantIdCookie();
-
 				const res = await createOrganizationProjectQueryCall({ ...data, organizationId, tenantId });
 
 				setOrganizationProjects([...organizationProjects, res.data]);
 
 				return res.data;
 			} catch (error) {
-				console.error(error);
+				console.error('Failed to create the organization project', error);
 			}
 		},
-		[createOrganizationProjectQueryCall, organizationProjects, setOrganizationProjects]
+		[createOrganizationProjectQueryCall, organizationId, organizationProjects, setOrganizationProjects, tenantId]
 	);
 
 	const deleteOrganizationProject = useCallback(
@@ -109,17 +120,24 @@ export function useOrganizationProjects() {
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
-		if (!user) return; // No user? No API call.
-		if (organizationProjects.length) return; // Prevent duplicate API calls.
+		try {
+			if (!user) return;
+			if (organizationProjects.length) return;
 
-		getOrganizationProjects().then((data) => {
-			setOrganizationProjects(data?.items ?? []);
-		});
+			const res = await getOrganizationProjects();
+
+			if (res) {
+				setOrganizationProjects(res.items ?? []);
+			}
+		} catch (error) {
+			console.error('Failed to load organization projects', error);
+		}
 	}, [user, organizationProjects, setOrganizationProjects, getOrganizationProjects]);
 
-	useEffect(() => {
+	const handleFirstLoad = useCallback(async () => {
 		loadOrganizationProjects();
-	}, [getOrganizationProjects, loadOrganizationProjects, setOrganizationProjects]);
+		firstOrganizationProjectsLoad();
+	}, [firstOrganizationProjectsLoad, loadOrganizationProjects]);
 
 	return {
 		editOrganizationProjectSetting,
@@ -135,6 +153,7 @@ export function useOrganizationProjects() {
 		createOrganizationProjectLoading,
 		deleteOrganizationProject,
 		deleteOrganizationProjectLoading,
-		setOrganizationProjects
+		setOrganizationProjects,
+		firstOrganizationProjectsLoadData: handleFirstLoad
 	};
 }

@@ -1,9 +1,9 @@
 'use client';
 
-import { useCustomEmblaCarousel, useDailyPlan, useOrganizationProjects, useSyncRef } from '@app/hooks';
-import { IProject, ITeamTask, Nullable } from '@app/interfaces';
+import { useCustomEmblaCarousel, useDailyPlan, useSyncRef } from '@app/hooks';
+import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
 	TaskStatus,
 	useTaskLabelsValue,
@@ -16,6 +16,8 @@ import { planBadgeContent, planBadgeContPast } from '@app/helpers';
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../user-profile-plans';
 import ProjectIcon from '@components/ui/svgs/project-icon';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState } from '@/app/stores/organization-projects';
 
 export function TaskAllStatusTypes({
 	task,
@@ -36,8 +38,11 @@ export function TaskAllStatusTypes({
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
-	const { getOrganizationProject } = useOrganizationProjects();
-	const [project, setProject] = useState<IProject>();
+	const projects = useAtomValue(organizationProjectsState);
+	const taskProject = useMemo(
+		() => (task ? projects.find((project) => project.tasks?.some((el) => el.id === task.id)) : null),
+		[projects, task]
+	);
 
 	const { dailyPlan } = useDailyPlan();
 
@@ -55,10 +60,6 @@ export function TaskAllStatusTypes({
 		emblaApiRef.current?.reInit();
 	}, [task, emblaApiRef]);
 
-	// useEffect(() => {
-	// 	getAllDayPlans();
-	// }, [getAllDayPlans]);
-
 	const tags = useMemo(() => {
 		return (
 			task?.tags
@@ -70,17 +71,6 @@ export function TaskAllStatusTypes({
 	}, [taskLabels, task?.tags]);
 
 	const taskId = task ? planBadgeContPast(dailyPlan.items, task.id) : '';
-
-	useEffect(() => {
-		const fetchProject = async () => {
-			if (task?.projectId) {
-				const res = await getOrganizationProject(task.projectId);
-				setProject(res?.data);
-			}
-		};
-
-		fetchProject();
-	}, [getOrganizationProject, task?.projectId]);
 
 	return (
 		<div className="relative w-full h-full flex flex-col justify-center">
@@ -113,9 +103,9 @@ export function TaskAllStatusTypes({
 							titleClassName={'text-[0.625rem] font-[500]'}
 						/>
 					)}
-					{project && (
+					{taskProject && (
 						<div className="flex items-center justify-center gap-1 h-full px-2 bg-slate-200">
-							<ProjectIcon /> <span className=" text-xs truncate">{project.name}</span>
+							<ProjectIcon /> <span className=" text-xs truncate">{taskProject.name}</span>
 						</div>
 					)}
 					{planBadgeContent(dailyPlan.items, task?.id ?? '', tab) && (
