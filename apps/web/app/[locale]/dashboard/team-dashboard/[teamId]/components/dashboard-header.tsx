@@ -82,7 +82,7 @@ export function DashboardHeader({
 				<h1 className="text-2xl font-semibold">{title}</h1>
 				<div className="flex gap-4 items-center">
 					{showGroupBy && <GroupBySelect groupByType={groupByType} onGroupByChange={onGroupByChange} />}
-					<DateRangePicker onDateRangeChange={handleDateRangeChange} />
+					<DateRangePicker onDateRangeChange={handleDateRangeChange} data={reportData} />
 					<TeamDashboardFilter isManage={isManage} />
 					<ExportMenu
 						pdfDocument={

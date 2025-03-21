@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {  ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
 	format,
@@ -25,13 +25,15 @@ import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
+import { ITimerLogGrouped } from '@/app/interfaces';
 
 interface DateRangePickerProps {
 	className?: string;
 	onDateRangeChange?: (range: DateRange | undefined) => void;
+	data?: ITimerLogGrouped[];
 }
 
-export function DateRangePicker({ className, onDateRangeChange }: DateRangePickerProps) {
+export function DateRangePicker({ className, onDateRangeChange, data }: DateRangePickerProps) {
 	const t = useTranslations();
 	const [dateRange, setDateRange] = React.useState<DateRange | undefined>(() => {
 		const today = new Date();
@@ -52,10 +54,9 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 		}
 	};
 
-
-	const formatDateRange = (range: DateRange) => {
-		if (!range.from) return 'Select date range';
-		if (!range.to) return format(range.from, 'd MMM yyyy');
+	const formatDateRange = (range: DateRange | undefined) => {
+		if (!range?.from) return 'Select date range';
+		if (!range?.to) return format(range.from, 'd MMM yyyy');
 
 		if (isSameYear(range.from, range.to)) {
 			if (isSameMonth(range.from, range.to)) {
@@ -121,13 +122,31 @@ export function DateRangePicker({ className, onDateRangeChange }: DateRangePicke
 							onMonthChange={setCurrentMonth}
 							showOutsideDays={false}
 							fixedWeeks
-							ISOWeek
 							initialFocus
-							disabled={(date) => date >= startOfDay(new Date())}
+							disabled={(date) => {
+								// Disable future dates
+								if (date >= startOfDay(new Date())) return true;
+
+								// If no data provided, only disable future dates
+								if (!data) return false;
+
+								// Check if there's any data for this date
+								const hasDataForDate = data.some((log) => {
+									const logDate = new Date(log.date);
+									return (
+										logDate.getDate() === date.getDate() &&
+										logDate.getMonth() === date.getMonth() &&
+										logDate.getFullYear() === date.getFullYear()
+									);
+								});
+
+								// Disable dates with no data
+								return hasDataForDate;
+							}}
 						/>
 					</div>
 					<div className="p-1 space-y-1 border-l max-w-36">
-						<PredefinedRanges  handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
+						<PredefinedRanges handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
 					</div>
 				</div>
 				<div className="flex gap-1 justify-end p-0.5 border-t">
@@ -175,12 +194,9 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 			},
 			isSelected: (currentRange: DateRange | undefined) => {
 				if (!currentRange?.from || !currentRange?.to) return false;
-				return isEqual(
-					startOfDay(currentRange.from),
-					startOfDay(range.from)
-				) && isEqual(
-					startOfDay(currentRange.to),
-					startOfDay(range.to)
+				return (
+					isEqual(startOfDay(currentRange.from), startOfDay(range.from)) &&
+					isEqual(startOfDay(currentRange.to), startOfDay(range.to))
 				);
 			}
 		};
@@ -190,10 +206,7 @@ const createRangeHelper = (handleDateRangeChange: (range: DateRange | undefined)
 const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRangeProps) => {
 	const weekOptions = { weekStartsOn: 1 as const };
 
-	const createRange = React.useMemo(
-		() => createRangeHelper(handleDateRangeChange),
-		[handleDateRangeChange]
-	);
+	const createRange = React.useMemo(() => createRangeHelper(handleDateRangeChange), [handleDateRangeChange]);
 
 	const predefinedRanges = React.useMemo(
 		() => [
@@ -257,7 +270,7 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 	);
 
 	return (
-		<div className='flex flex-col gap-2 p-2'>
+		<div className="flex flex-col gap-2 p-2">
 			{predefinedRanges.map((range) => (
 				<Button
 					key={range.label}
