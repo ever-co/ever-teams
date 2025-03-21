@@ -1,13 +1,13 @@
-import { useModal } from "@/app/hooks";
-import { IProject } from "@/app/interfaces";
-import { HorizontalSeparator } from "@/lib/components";
-import AddOrEditProjectModal from "@/lib/features/project/add-or-edit-project";
-import { ArchiveProjectModal } from "@/lib/features/project/archive-project-modal";
-import { DeleteProjectConfirmModal } from "@/lib/features/project/delete-project-modal";
-import { Menu, Transition } from "@headlessui/react";
-import { Archive, Ellipsis, Eye, Pencil, Trash } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Fragment } from "react";
+import { useModal } from '@/app/hooks';
+import { IProject } from '@/app/interfaces';
+import { HorizontalSeparator } from '@/lib/components';
+import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
+import { ArchiveProjectModal } from '@/lib/features/project/archive-project-modal';
+import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-project-modal';
+import { Menu, Transition } from '@headlessui/react';
+import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Fragment } from 'react';
 
 export type ProjectViewDataType = {
 	project: {
@@ -18,13 +18,13 @@ export type ProjectViewDataType = {
 	};
 	status: IProject['status'];
 	archivedAt: IProject['archivedAt'];
-	isArchived : IProject['isArchived'];
+	isArchived: IProject['isArchived'];
 	startDate: IProject['startDate'];
 	endDate: IProject['endDate'];
 	members: IProject['members'];
 	managers: IProject['members'];
 	teams: IProject['teams'];
-}
+};
 
 export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 	const {

@@ -107,7 +107,8 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 						<>
 							<p className=" text-center text-[1rem] text-gray-600">
 								{t('pages.projects.archiveModal.description', {
-									affectedTasksCount: affectedTasks.length
+									affectedTasksCount: affectedTasks.length,
+									projectName: project?.name
 								})}
 							</p>
 

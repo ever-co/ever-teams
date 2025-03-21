@@ -154,6 +154,6 @@ export function useOrganizationProjects() {
 		deleteOrganizationProject,
 		deleteOrganizationProjectLoading,
 		setOrganizationProjects,
-		firstOrganizationProjectsLoadData: handleFirstLoad
+		firstLoadOrganizationProjectsData: handleFirstLoad
 	};
 }

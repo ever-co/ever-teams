@@ -27,6 +27,7 @@ import { publicState, userState } from '@app/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
+import { useRoles } from '@/app/hooks/features/useRoles';
 
 export function AppState() {
 	const user = useAtomValue(userState);
@@ -44,9 +45,9 @@ function InitState() {
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
-	const { firstOrganizationProjectsLoadData } = useOrganizationProjects();
+	const { firstLoadOrganizationProjectsData } = useOrganizationProjects();
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
-
+	const { firstLoadRolesData } = useRoles();
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
 	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersion();
 	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPriorities();
@@ -69,7 +70,7 @@ function InitState() {
 		firstLoadtasksStatisticsData();
 		firstLoadLanguagesData();
 		firstLoadAutoAssignTask();
-		firstOrganizationProjectsLoadData();
+		firstLoadOrganizationProjectsData();
 		firstLoadTaskStatusesData();
 		firstLoadTaskVersionData();
 		firstLoadTaskPrioritiesData();
@@ -80,6 +81,7 @@ function InitState() {
 		firstLoadDailyPlanData();
 		firstLoadTimeLogs();
 		firstLoadDataEmployee();
+		firstLoadRolesData();
 		// --------------
 
 		getTimerStatus();

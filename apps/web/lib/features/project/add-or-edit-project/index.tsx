@@ -36,7 +36,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 		() => organizationProjects.find((el) => el.id === projectId),
 		[organizationProjects, projectId]
 	);
-	const { roles, getRoles } = useRoles();
+	const { roles } = useRoles();
 
 	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
@@ -134,8 +134,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 	};
 
 	useEffect(() => {
-		getRoles();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		console.log('first');
 	}, []);
 
 	return (

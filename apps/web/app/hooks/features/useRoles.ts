@@ -1,86 +1,100 @@
 import { IRole } from '@app/interfaces';
-import {
-  createRoleAPI,
-  deleteRoleAPI,
-  getRolesAPI,
-  updateRoleAPI
-} from '@app/services/client/api';
+import { createRoleAPI, deleteRoleAPI, getRolesAPI, updateRoleAPI } from '@app/services/client/api';
 import { rolesState } from '@app/stores/';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useQuery } from '../useQuery';
-import cloneDeep from 'lodash/cloneDeep';
+import { useFirstLoad } from '../useFirstLoad';
 
 export const useRoles = () => {
-  const [roles, setRoles] = useAtom(rolesState);
+	const [roles, setRoles] = useAtom(rolesState);
+	const { firstLoadData: firstRolesLoad } = useFirstLoad();
+	const { loading, queryCall: getRolesQueryCall } = useQuery(getRolesAPI);
+	const { loading: createRoleLoading, queryCall: createRoleQueryCall } = useQuery(createRoleAPI);
+	const { loading: updateRoleLoading, queryCall: updateRoleQueryCall } = useQuery(updateRoleAPI);
+	const { loading: deleteRoleLoading, queryCall: deleteRoleQueryCall } = useQuery(deleteRoleAPI);
 
-  const { loading, queryCall: getRolesQueryCall } = useQuery(getRolesAPI);
-  const {
-    loading: createRoleLoading,
-    queryCall: createRoleQueryCall
-  } = useQuery(createRoleAPI);
-  const {
-    loading: updateRoleLoading,
-    queryCall: updateRoleQueryCall
-  } = useQuery(updateRoleAPI);
-  const {
-    loading: deleteRoleLoading,
-    queryCall: deleteRoleQueryCall
-  } = useQuery(deleteRoleAPI);
+	const getRoles = useCallback(async () => {
+		try {
+			const res = await getRolesQueryCall();
 
-  const getRoles = useCallback(() => {
-    getRolesQueryCall().then((response) => {
-      if (response.data.items.length) {
-        setRoles(response.data.items);
-      }
-    });
-  }, [getRolesQueryCall, setRoles]);
+			return res;
+		} catch (error) {
+			console.error('Failed to get roles', error);
+		}
+	}, [getRolesQueryCall]);
 
-  const createRole = useCallback(
-    async (role: IRole) => {
-      createRoleQueryCall(role).then((response) => {
-        setRoles([response.data, ...roles]);
-      });
-    },
-    [roles, createRoleQueryCall, setRoles]
-  );
+	const createRole = useCallback(
+		async (role: IRole) => {
+			try {
+				const res = await createRoleQueryCall(role);
 
-  const updateRole = useCallback(
-    async (role: IRole) => {
-      updateRoleQueryCall(role).then(() => {
-        const index = roles.findIndex((item) => item.id === role.id);
-        const tempRoles = cloneDeep(roles);
-        if (index >= 0) {
-          tempRoles[index].name = role.name;
-        }
+				return res;
+			} catch (error) {
+				console.error('Failed to create role', error);
+			}
+		},
+		[createRoleQueryCall]
+	);
 
-        setRoles(tempRoles);
-      });
-    },
-    [roles, setRoles, updateRoleQueryCall]
-  );
+	const updateRole = useCallback(
+		async (role: IRole) => {
+			try {
+				const res = await updateRoleQueryCall(role);
+				return res;
+			} catch (error) {
+				console.error('Failed to update role', error);
+			}
+		},
+		[updateRoleQueryCall]
+	);
 
-  const deleteRole = useCallback(
-    async (id: string) => {
-      deleteRoleQueryCall(id).then(() => {
-        setRoles(roles.filter((role) => role.id !== id));
-      });
-    },
-    [deleteRoleQueryCall, setRoles, roles]
-  );
+	const deleteRole = useCallback(
+		async (id: string) => {
+			try {
+				const res = await deleteRoleQueryCall(id);
+				return res;
+			} catch (error) {
+				console.error('Failed to delete role:', error);
+			}
+		},
+		[deleteRoleQueryCall]
+	);
 
-  return {
-    roles,
-    loading,
-    getRoles,
+	const loadRoles = useCallback(async () => {
+		try {
+			const res = await getRoles();
 
-    createRole,
-    createRoleLoading,
+			if (res) {
+				setRoles(res.data.items);
+				return;
+			} else {
+				throw new Error('Could not load roles');
+			}
+		} catch (error) {
+			console.error('Failed to load roles', error);
+		}
+	}, [getRoles, setRoles]);
 
-    deleteRole,
-    deleteRoleLoading,
+	const handleFirstRolesLoad = useCallback(() => {
+		loadRoles();
+		firstRolesLoad();
+	}, [firstRolesLoad, loadRoles]);
 
-    updateRole,
-    updateRoleLoading
-  };
+	return {
+		roles,
+		setRoles,
+		loading,
+		getRoles,
+
+		createRole,
+		createRoleLoading,
+
+		deleteRole,
+		deleteRoleLoading,
+
+		updateRole,
+		updateRoleLoading,
+		firstLoadRolesData: handleFirstRolesLoad
+	};
 };
