@@ -141,7 +141,7 @@ export function useKanban() {
 						if (el.id === status.id) {
 							return { ...status, ...reOrderedStatus.data };
 						}
-						return status;
+						return el;
 					});
 				});
 			}
