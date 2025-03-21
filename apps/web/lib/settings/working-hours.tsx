@@ -134,10 +134,10 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	};
 
 	return (
-		<div className="p-6 bg-white dark:bg-dark--theme-light rounded-lg shadow">
-			<div className="space-y-3">
-				<div className="flex items-center mb-8">
-					<p className="w-40 text-lg font-semibold text-gray-900 dark:text-white">Timezone</p>
+		<div className="p-6 bg-white dark:bg-dark--theme-light rounded-lg shadow-sm">
+			<div className="space-y-2">
+				<div className="flex items-center mb-6">
+					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">Timezone</p>
 					<div className="md:w-72">
 						<TimezoneDropDown
 							currentTimezone={currentTimezone}
@@ -148,66 +148,51 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 					</div>
 				</div>
 				{schedule.map((workDay, dayIndex) => (
-					<div
-						key={workDay.day}
-						className={`relative ${workDay.enabled ? 'bg-purple-50/50 dark:bg-purple-50/5 rounded-lg' : ''}`}
-					>
-						<div className="flex items-center mb-3 px-4 pt-3">
-							<div className="w-40 flex items-center relative">
-								<div className="flex items-center">
-									<button
-										type="button"
-										className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${workDay.enabled ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-600'}`}
-										onClick={() => handleToggleDay(dayIndex)}
-									>
-										<span
-											className={`pointer-events-none relative inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${workDay.enabled ? 'translate-x-3.5' : 'translate-x-0'}`}
-										/>
-									</button>
-									<label
-										className="ml-2.5 cursor-pointer select-none"
-										onClick={() => handleToggleDay(dayIndex)}
-									>
-										<span className="font-medium text-gray-700 dark:text-gray-400">
-											{workDay.day}
-										</span>
-									</label>
-								</div>
+					<div key={workDay.day} className={`relative rounded-lg`}>
+						<div className="flex items-center px-4 py-2.5 gap-2">
+							<div className="w-[180px]">
+								<ToggleSwitch
+									enabled={workDay.enabled}
+									onToggle={() => handleToggleDay(dayIndex)}
+									label={workDay.day}
+								/>
 							</div>
 							{workDay.enabled && (
 								<button
 									onClick={() => handleAddTimeSlot(dayIndex)}
-									className="ml-auto w-5 h-5 flex items-center justify-center text-purple-600 hover:text-purple-700 rounded-sm hover:bg-purple-50/50"
+									className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded hover:bg-[#DBD3FA]/20"
 								>
-									<span className="text-xl leading-none">+</span>
+									<span className="text-2xl leading-none">+</span>
 								</button>
 							)}
 						</div>
 						{workDay.enabled &&
 							workDay.timeSlots.map((timeSlot, slotIndex) => (
-								<div key={slotIndex} className="flex items-center mb-2 pl-14 space-x-2">
+								<div key={slotIndex} className="flex items-center mb-3 pl-[180px] gap-3">
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
-										className="w-[104px] text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400"
+										className="w-[100px] text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md"
 									/>
-									<span className="text-gray-500 mx-2">-</span>
+									<span className="text-gray-400 dark:text-gray-500 mx-1">-</span>
 									<TimePicker
 										value={timeSlot.endTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'endTime', value)}
-										className="w-[104px] text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400"
+										className="w-[100px] text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400 "
 									/>
 									{workDay.timeSlots.length > 1 && (
 										<button
 											onClick={() => handleRemoveTimeSlot(dayIndex, slotIndex)}
-											className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-400 hover:text-gray-600 rounded-sm hover:bg-gray-50/50"
+											className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
 										>
-											<span className="text-lg leading-none">×</span>
+											<span className="text-xl leading-none font-medium">×</span>
 										</button>
 									)}
 								</div>
 							))}
-						{!workDay.enabled && <div className="pl-14 text-gray-400 text-sm py-2">Unavailable</div>}
+						{!workDay.enabled && (
+							<div className="pl-[180px] text-gray-400 dark:text-gray-500 text-sm py-3">Unavailable</div>
+						)}
 					</div>
 				))}
 			</div>
@@ -218,34 +203,24 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 interface ToggleSwitchProps {
 	enabled: boolean;
 	onToggle: () => void;
-	renderTrackingIcon: (enabled: boolean) => React.ReactNode;
+	label?: string;
 }
 
-/**
- * A toggle switch component that can be used to toggle a setting on and off.
- * The component takes in three props: enabled, onToggle, and renderTrackingIcon.
- * The enabled prop is a boolean that indicates whether the setting is currently enabled or not.
- * The onToggle prop is a function that is called when the user clicks on the toggle switch.
- * The renderTrackingIcon prop is a function that is called to render the icon that is displayed
- * on the toggle switch. The function takes a boolean argument indicating whether the setting
- * is enabled or not.
- */
-export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, renderTrackingIcon }) => {
-	return (
-		<div
-			className={`flex items-center p-1 w-14 h-6 rounded-full transition-colors cursor-pointer`}
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label }) => (
+	<div className="flex items-center">
+		<button
+			type="button"
+			className={`relative inline-flex h-[32px] w-16 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
 			onClick={onToggle}
-			style={
-				enabled
-					? { background: '#2ead805b' }
-					: { background: 'linear-gradient(to right, #ea31244d, #ea312479)' }
-			}
 		>
-			<div
-				className={`w-4 h-4 rounded-full shadow-md transform transition-transform  ${enabled ? 'translate-x-0 bg-[#2ead81]' : 'translate-x-8 bg-[#ea3124]'}`}
-			>
-				{renderTrackingIcon(!enabled)}
-			</div>
-		</div>
-	);
-};
+			<span
+				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-1 top-[0.9px] inline-block h-6 w-6 transform rounded-full shadow-sm ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-7' : 'translate-x-0'}`}
+			/>
+		</button>
+		{label && (
+			<label className="ml-3 cursor-pointer select-none" onClick={onToggle}>
+				<span className="font-medium text-gray-700 dark:text-gray-400">{label}</span>
+			</label>
+		)}
+	</div>
+);
