@@ -19,7 +19,7 @@ import { useTeamTasks } from './useTeamTasks';
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall, loadingRef } = useQuery(getPublicOrganizationTeamsAPI);
 	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(getPublicOrganizationTeamsMiscDataAPI);
-	const { activeTeam, teams, setTeams, teamsFetching } = useOrganizationTeams();
+	const { activeTeam, teams, setTeams, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
 	const { setTaskStatuses } = useTaskStatus();
 	const { setTaskSizes } = useTaskSizes();
@@ -112,7 +112,7 @@ export function usePublicOrganizationTeams() {
 	);
 
 	return {
-		teamsFetching,
+		getOrganizationTeamsLoading,
 		loadPublicTeamData,
 		loadPublicTeamMiscData,
 		loading,
