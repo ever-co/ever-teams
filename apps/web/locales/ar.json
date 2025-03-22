@@ -517,6 +517,16 @@
 			"restoreModal": {
 				"title": "استعادة المشروع",
 				"description": "هل أنت متأكد أنك تريد استعادة {projectName}؟"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "أرشفة {projectsCount} مشروع",
+					"description": "هل أنت متأكد أنك تريد الأرشفة"
+				},
+				"bulkRestoreModal": {
+					"title": "استعادة {projectsCount} مشروع",
+					"description": "هل أنت متأكد أنك تريد الاستعادة"
+				}
 			}
 		},
 		"profile": {
