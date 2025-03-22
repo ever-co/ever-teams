@@ -91,12 +91,12 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
 					}}
 				>
 					<SelectTrigger
-						className="w-[120px] bg-white rounded-md border border-gray-200 hover:border-gray-300 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-700 text-sm font-normal transition-colors"
+						className="w-[120px] bg-white dark:bg-dark--theme-light rounded-md border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-700 dark:text-gray-300 text-sm font-normal transition-colors"
 						onClick={() => setIsEditing(true)}
 					>
 						<SelectValue placeholder="Select time">{value}</SelectValue>
 					</SelectTrigger>
-					<SelectContent className="max-h-[200px] overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+					<SelectContent className="max-h-[200px] overflow-y-auto bg-white dark:bg-dark--theme-light border border-gray-200 dark:border-gray-600 rounded-md shadow-lg">
 						<div className="p-2 border-b">
 							<Input
 								type="text"

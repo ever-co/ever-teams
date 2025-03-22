@@ -137,7 +137,9 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 		<div className="p-6 bg-white dark:bg-dark--theme-light rounded-lg shadow-sm">
 			<div className="space-y-2">
 				<div className="flex items-center mb-6">
-					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">Timezone</p>
+					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">
+						{t('common.TIME_ZONE')}
+					</p>
 					<div className="md:w-72">
 						<TimezoneDropDown
 							currentTimezone={currentTimezone}
@@ -149,7 +151,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 				</div>
 				{schedule.map((workDay, dayIndex) => (
 					<div key={workDay.day} className={`relative rounded-lg`}>
-						<div className="flex items-center px-4 py-2.5 gap-2">
+						<div className="flex items-center px-4 py-2.5 gap-2 justify-between absolute -top-1 ">
 							<div className="w-[180px]">
 								<ToggleSwitch
 									enabled={workDay.enabled}
@@ -157,18 +159,18 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 									label={workDay.day}
 								/>
 							</div>
-							{workDay.enabled && (
-								<button
-									onClick={() => handleAddTimeSlot(dayIndex)}
-									className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded hover:bg-[#DBD3FA]/20"
-								>
-									<span className="text-2xl leading-none">+</span>
-								</button>
-							)}
 						</div>
+						{workDay.enabled && (
+							<button
+								onClick={() => handleAddTimeSlot(dayIndex)}
+								className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded hover:bg-[#DBD3FA]/20 top-2 right-0 absolute"
+							>
+								<span className="text-2xl leading-none">+</span>
+							</button>
+						)}
 						{workDay.enabled &&
 							workDay.timeSlots.map((timeSlot, slotIndex) => (
-								<div key={slotIndex} className="flex items-center mb-3 pl-[180px] gap-3">
+								<div key={slotIndex} className="flex items-center mb-3 pl-[180px] gap-x-5 ">
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
