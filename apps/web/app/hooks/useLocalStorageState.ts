@@ -1,30 +1,57 @@
-"use client"
-import { useState, useEffect } from 'react';
+"use client";
+
+import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
+
 /**
- * Custom hook to manage state that is synchronized with `localStorage`.
+ * Custom hook to manage state that is synchronized with localStorage.
+ * Handles serialization/deserialization of data and provides error handling.
  *
- * @template T - The type of the state value.
- * @param {string} key - The key under which the value is stored in `localStorage`.
- * @param {T} defaultValue - The default value to use if the key is not found in `localStorage`.
- *
- * @returns {[T, React.Dispatch<React.SetStateAction<T>>]} - Returns a stateful value and a function to update it.
+ * @template T - The type of the state value
+ * @param {string} key - The key under which the value is stored in localStorage
+ * @param {T} defaultValue - The default value to use if the key is not found in localStorage
+ * @returns {[T, Dispatch<SetStateAction<T>>, () => void]} A tuple containing:
+ * - The current state value
+ * - A function to update the state
+ * - A function to reset the state to its default value
  *
  * @example
- * const [calendar, setCalendar] = useLocalStorageState<ChangeCalendar>('calendar-timesheet', 'Calendar');
+ * const [theme, setTheme, resetTheme] = useLocalStorageState('app-theme', 'light');
  *
- * - The state `calendar` will be initialized with the value from `localStorage` if it exists, or 'Calendar' if not.
- * - Any updates to `calendar` will be reflected in `localStorage`.
+ * // Update theme
+ * setTheme('dark');
+ *
+ * // Reset to default value
+ * resetTheme();
  */
+export const useLocalStorageState = <T,>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>, () => void] => {
+  // Initialize state with value from localStorage or default
+  const [state, setState] = useState<T>(() => {
+    if (typeof window === 'undefined') return defaultValue;
 
-export const useLocalStorageState = <T,>(key: string, defaultValue: T) => {
-  const [state, setState] = useState<T>(() =>
-    (typeof window !== 'undefined' && window.localStorage.getItem(key) as T) || defaultValue
-  );
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(key, state as any);
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? (JSON.parse(item) as T) : defaultValue;
+    } catch (error) {
+      console.error(`Error reading localStorage key "${key}":`, error);
+      return defaultValue;
     }
-  }, [state, key]);
+  });
 
-  return [state, setState] as const;
+  // Update localStorage when state changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      window.localStorage.setItem(key, JSON.stringify(state));
+    } catch (error) {
+      console.error(`Error writing to localStorage key "${key}":`, error);
+    }
+  }, [key, state]);
+
+  // Reset state to default value
+  const reset = useCallback(() => {
+    setState(defaultValue);
+  }, [defaultValue]);
+
+  return [state, setState, reset];
 };

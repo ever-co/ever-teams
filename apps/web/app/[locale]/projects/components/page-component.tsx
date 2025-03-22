@@ -1,7 +1,7 @@
 'use client';
 
 import { MainLayout } from '@/lib/layout';
-import { useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
+import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { withAuthentication } from '@/lib/app/authenticator';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Archive, Check, Grid, List, ListFilterPlus, Plus, RotateCcw, Search, Settings2 } from 'lucide-react';
@@ -37,15 +37,7 @@ function PageComponent() {
 	} = useModal();
 	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const lastSelectedView = useMemo(() => {
-		try {
-			return localStorage.getItem(LAST_SELECTED_PROJECTS_VIEW) as TViewMode;
-		} catch (error) {
-			console.error('Failed to access localStorage:', error);
-			return null;
-		}
-	}, []);
-	const [selectedView, setSelectedView] = useState<TViewMode>(lastSelectedView ?? 'LIST');
+	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 	const { getOrganizationProjects, getOrganizationProjectsLoading, organizationProjects } = useOrganizationProjects();
 	const [dateRange] = useState<DateRange>({
