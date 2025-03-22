@@ -50,8 +50,9 @@ export const useLocalStorageState = <T,>(key: string, defaultValue: T): [T, Disp
 
   // Reset state to default value
   const reset = useCallback(() => {
+    window.localStorage.removeItem(key);
     setState(defaultValue);
-  }, [defaultValue]);
+  }, [defaultValue, key]);
 
   return [state, setState, reset];
 };
