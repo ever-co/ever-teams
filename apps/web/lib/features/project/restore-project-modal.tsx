@@ -18,7 +18,7 @@ interface IRestoreProjectModalProps {
  *
  * @returns {JSX.Element} The modal element
  */
-export function RestoreProjectConfirmModal(props: IRestoreProjectModalProps) {
+export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
 	const { editOrganizationProject, editOrganizationProjectLoading, setOrganizationProjects, organizationProjects } =

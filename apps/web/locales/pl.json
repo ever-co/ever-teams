@@ -557,6 +557,16 @@
 			"restoreModal": {
 				"title": "Przywróć projekt",
 				"description": "Czy na pewno chcesz przywrócić {projectName}?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Archiwizuj {projectsCount} projekty",
+					"description": "Czy na pewno chcesz archiwizować"
+				},
+				"bulkRestoreModal": {
+					"title": "Przywróć {projectsCount} projekty",
+					"description": "Czy na pewno chcesz przywrócić"
+				}
 			}
 		},
 		"auth": {

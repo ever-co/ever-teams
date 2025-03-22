@@ -499,6 +499,16 @@
 			"restoreModal": {
 				"title": "Restore project",
 				"description": "Are you sure you want to restore {projectName}?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Archive {projectsCount} projects",
+					"description": "Are you sure you want to archive"
+				},
+				"bulkRestoreModal": {
+					"title": "Restore {projectsCount} projects",
+					"description": "Are you sure you want to restore"
+				}
 			}
 		},
 		"home": {

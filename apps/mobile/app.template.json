@@ -41,7 +41,7 @@
 				{
 					"ios": {
 						"newArchEnabled": false,
-						"deploymentTarget": "18.0",
+						"deploymentTarget": "15.1",
 						"config": {
 							"usesNonExemptEncryption": false
 						}
@@ -50,8 +50,8 @@
 						"enableProguardInReleaseBuilds": true,
 						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
 						"allowBackup": false,
-						"minSdkVersion": 23,
-						"targetSdkVersion": 34
+						"minSdkVersion": 24,
+						"targetSdkVersion": 35
 					}
 				}
 			]

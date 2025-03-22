@@ -514,6 +514,16 @@
 			"restoreModal": {
 				"title": "恢复项目",
 				"description": "您确定要恢复 {projectName} 吗？"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "归档 {projectsCount} 个项目",
+					"description": "您确定要归档"
+				},
+				"bulkRestoreModal": {
+					"title": "恢复 {projectsCount} 个项目",
+					"description": "您确定要恢复"
+				}
 			}
 		},
 		"kanban": {

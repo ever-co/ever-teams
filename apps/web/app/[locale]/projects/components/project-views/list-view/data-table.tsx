@@ -6,6 +6,7 @@ import {
 	ColumnDef,
 	ColumnFiltersState,
 	OnChangeFn,
+	RowSelectionState,
 	SortingState,
 	VisibilityState,
 	flexRender,
@@ -20,35 +21,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
-import { IProject } from '@/app/interfaces';
 import { cn } from '@/lib/utils';
 import { useModal, useTaskStatus } from '@/app/hooks';
-import { Fragment, memo, useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
 import AvatarStack from '@components/shared/avatar-stack';
 import { HorizontalSeparator, SpinnerLoader } from '@/lib/components';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/app/constants';
 import { useTheme } from 'next-themes';
-import { ProjectItemActions } from './grid-item';
-import { RestoreProjectConfirmModal } from '@/lib/features/project/restore-project-modal';
+import { RestoreProjectModal } from '@/lib/features/project/restore-project-modal';
+import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
-
-export type ProjectTableDataType = {
-	project: {
-		id: string;
-		name: IProject['name'];
-		imageUrl: IProject['imageUrl'];
-		color: IProject['color'];
-	};
-	status: IProject['status'];
-	archivedAt: IProject['archivedAt'];
-	startDate: IProject['startDate'];
-	endDate: IProject['endDate'];
-	members: IProject['members'];
-	managers: IProject['members'];
-	teams: IProject['teams'];
-};
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -60,29 +44,39 @@ export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members
  * @param {Object} props - The component props.
  * @param {ProjectTableDataType[]} props.data - Array of data objects projects information.
  * @param {boolean} props.loading - Whether to show loading indicator when loading projects data.
+ * @param {VisibilityState} props.columnVisibility - Columns visibility state
+ * @param {OnChangeFn<VisibilityState> | undefined} props.onColumnVisibilityChange - Function to call when column visibility state changes
  *
  * @returns {JSX.Element} A table showing projects information.
  *
  */
 
-export const DataTableProject = memo(
+export const ProjectsTable = memo(
 	(props: {
-		data: ProjectTableDataType[];
+		data: ProjectViewDataType[];
 		loading: boolean;
 		columnVisibility: VisibilityState;
+		selectedProjects: Record<string, boolean>;
+		onSelectedProjectsChange?: OnChangeFn<RowSelectionState>;
 		onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
 	}) => {
-		const { data, loading, columnVisibility, onColumnVisibilityChange } = props;
+		const {
+			data,
+			loading,
+			columnVisibility,
+			onColumnVisibilityChange,
+			selectedProjects,
+			onSelectedProjectsChange
+		} = props;
 		const [sorting, setSorting] = React.useState<SortingState>([]);
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-		const [rowSelection, setRowSelection] = React.useState({});
 		const t = useTranslations();
 		const { taskStatus } = useTaskStatus();
 		const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
 			return new Map(taskStatus.map((status) => [status.name, status.color]));
 		}, [taskStatus]);
 
-		const columns: ColumnDef<ProjectTableDataType>[] = [
+		const columns: ColumnDef<ProjectViewDataType>[] = [
 			{
 				id: 'select',
 				header: ({ table }) => (
@@ -415,7 +409,7 @@ export const DataTableProject = memo(
 								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
 							</button>
 
-							<RestoreProjectConfirmModal
+							<RestoreProjectModal
 								projectId={row.original?.project?.id}
 								open={isRestoreProjectModalOpen}
 								closeModal={closeRestoreProjectModal}
@@ -437,13 +431,14 @@ export const DataTableProject = memo(
 			getSortedRowModel: getSortedRowModel(),
 			getFilteredRowModel: getFilteredRowModel(),
 			onColumnVisibilityChange,
-			onRowSelectionChange: setRowSelection,
+			onRowSelectionChange: onSelectedProjectsChange,
 			state: {
 				sorting,
 				columnFilters,
 				columnVisibility,
-				rowSelection
-			}
+				rowSelection: selectedProjects
+			},
+			getRowId: (row) => row.project.id
 		});
 
 		useEffect(() => {
@@ -523,10 +518,10 @@ export const DataTableProject = memo(
 	}
 );
 
-DataTableProject.displayName = 'DataTableProject';
+ProjectsTable.displayName = 'ProjectsTable';
 
 function ColumnHandlerDropdown(args: {
-	column: { name: string; entity: Column<ProjectTableDataType> };
+	column: { name: string; entity: Column<ProjectViewDataType> };
 	sorting?: { ascLabel: string; descLabel: string };
 }) {
 	const { column, sorting } = args;
@@ -555,7 +550,7 @@ function ColumnHandlerDropdown(args: {
 				</Menu.Button>
 			</div>
 			<Transition
-				as={Fragment}
+				as={React.Fragment}
 				enter="transition ease-out duration-100"
 				enterFrom="transform opacity-0 scale-95"
 				enterTo="transform opacity-100 scale-100"

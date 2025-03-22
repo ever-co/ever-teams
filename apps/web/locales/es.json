@@ -577,6 +577,16 @@
 			"restoreModal": {
 				"title": "Restaurar proyecto",
 				"description": "¿Estás seguro de que quieres restaurar {projectName}?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Archivar {projectsCount} proyectos",
+					"description": "Estás seguro de que quieres archivar"
+				},
+				"bulkRestoreModal": {
+					"title": "Restaurar {projectsCount} proyectos",
+					"description": "Estás seguro de que quieres restaurar"
+				}
 			}
 		},
 		"authPasscode": {

@@ -22,7 +22,7 @@ import { TeamStatsChart } from './components/team-stats-chart';
 
 function TeamDashboard() {
 	const t = useTranslations();
-	const [showChart, setShowChart] = useState(true);
+	const [showChart, setShowChart] = useState(false);
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();

@@ -554,6 +554,16 @@
 			"restoreModal": {
 				"title": "Project herstellen",
 				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
+			},
+			"bulkActions": {
+				"bulkArchiveModal": {
+					"title": "Archiveer {projectsCount} projecten",
+					"description": "Weet je zeker dat je wilt archiveren"
+				},
+				"bulkRestoreModal": {
+					"title": "Herstel {projectsCount} projecten",
+					"description": "Weet je zeker dat je wilt herstellen"
+				}
 			}
 		},
 		"taskStatus": {

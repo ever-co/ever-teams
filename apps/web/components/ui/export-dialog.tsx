@@ -61,7 +61,7 @@ const ExportButtons = ({
 				>
 					{({ loading }) => (
 						<Button
-							className="bg-light--theme-light dark:bg-dark-high"
+							className="bg-light--theme-light dark:bg-dark-high cursor-pointer"
 							variant="outline"
 							size="sm"
 							disabled={loading}
@@ -72,7 +72,7 @@ const ExportButtons = ({
 				</PDFDownloadLink>
 			)}
 			{exportType === 'xlsx' && (
-				<Button className="bg-light--theme-light dark:bg-dark-high" variant="outline" size="sm">
+				<Button className="bg-light--theme-light dark:bg-dark-high cursor-pointer" variant="outline" size="sm">
 					Download XLSX
 				</Button>
 			)}
