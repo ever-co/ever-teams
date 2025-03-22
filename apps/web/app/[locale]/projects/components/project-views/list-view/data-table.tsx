@@ -71,10 +71,10 @@ export const ProjectsTable = memo(
 		const [sorting, setSorting] = React.useState<SortingState>([]);
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 		const t = useTranslations();
-		const { taskStatus } = useTaskStatus();
+		const { taskStatuses } = useTaskStatus();
 		const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
-			return new Map(taskStatus.map((status) => [status.name, status.color]));
-		}, [taskStatus]);
+			return new Map(taskStatuses.map((status) => [status.name, status.color]));
+		}, [taskStatuses]);
 
 		const columns: ColumnDef<ProjectViewDataType>[] = [
 			{

@@ -25,7 +25,7 @@ export function useKanban() {
 	const [sizes, setSizes] = useState<string[]>([]);
 	const employee = useSearchParams().get('employee');
 	useEffect(() => {
-		if (!taskStatusHook.loading && !tasksFetching) {
+		if (!taskStatusHook.getTaskStatusesLoading && !tasksFetching) {
 			let kanban = {};
 			setLoading(true);
 			const tasks = newTask
@@ -61,7 +61,7 @@ export function useKanban() {
 				});
 			};
 
-			taskStatusHook.taskStatus.map((taskStatus: ITaskStatusItemList) => {
+			taskStatusHook.taskStatuses.map((taskStatus: ITaskStatusItemList) => {
 				kanban = {
 					...kanban,
 					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
@@ -71,46 +71,81 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.loading, tasksFetching, newTask, searchTasks, priority, sizes, labels, epics, issues, employee]);
+	}, [
+		taskStatusHook.getTaskStatusesLoading,
+		tasksFetching,
+		newTask,
+		searchTasks,
+		priority,
+		sizes,
+		labels,
+		epics,
+		issues,
+		employee
+	]);
 
 	/**
 	 * collapse or show kanban column
 	 */
-	const toggleColumn = (column: string, status: boolean) => {
-		const columnData = taskStatusHook.taskStatus.filter((taskStatus: ITaskStatusItemList) => {
+	const toggleColumn = async (column: string, status: boolean) => {
+		const columnData = taskStatusHook.taskStatuses.filter((taskStatus: ITaskStatusItemList) => {
 			return taskStatus.name === column;
 		});
 
 		const columnId = columnData[0].id;
 
-		taskStatusHook.editTaskStatus(columnId, {
+		const updatedStatus = await taskStatusHook.editTaskStatus(columnId, {
 			isCollapsed: status
 		});
+
+		if (updatedStatus) {
+			// Update task statuses state
+			taskStatusHook.setTaskStatuses((prev) => {
+				return prev.map((status) => {
+					if (status.id === columnId) {
+						return { ...status, ...updatedStatus.data };
+					}
+					return status;
+				});
+			});
+		}
 	};
 
 	const isColumnCollapse = (column: string) => {
-		const columnData = taskStatusHook.taskStatus.find((taskStatus: ITaskStatusItemList) => {
+		const columnData = taskStatusHook.taskStatuses.find((taskStatus: ITaskStatusItemList) => {
 			return taskStatus.name === column;
 		});
 
 		return columnData?.isCollapsed;
 	};
 	const isAllColumnCollapse = () => {
-		return taskStatusHook.taskStatus.every((taskStatus: ITaskStatusItemList) => {
+		return taskStatusHook.taskStatuses.every((taskStatus: ITaskStatusItemList) => {
 			return taskStatus.isCollapsed;
 		});
 	};
 
-	const reorderStatus = (itemStatus: string, index: number) => {
-		taskStatusHook.taskStatus
-			.filter((status: ITaskStatusItemList) => {
-				return status.id === itemStatus;
-			})
-			.map((status: ITaskStatusItemList) => {
-				taskStatusHook.editTaskStatus(status.id, {
-					order: index
-				});
+	const reorderStatus = async (itemStatus: string, index: number) => {
+		const status = taskStatusHook.taskStatuses?.find((status) => {
+			return status.id === itemStatus;
+		});
+
+		if (status) {
+			const reOrderedStatus = await taskStatusHook.editTaskStatus(status.id, {
+				order: index
 			});
+
+			if (reOrderedStatus) {
+				// Update task statuses state
+				taskStatusHook.setTaskStatuses((prev) => {
+					return prev.map((el) => {
+						if (el.id === status.id) {
+							return { ...status, ...reOrderedStatus.data };
+						}
+						return el;
+					});
+				});
+			}
+		}
 	};
 	const addNewTask = (task: ITeamTask, status: string) => {
 		const updatedBoard = {
@@ -122,7 +157,7 @@ export function useKanban() {
 	return {
 		data: kanbanBoard as IKanban,
 		isLoading: loading,
-		columns: taskStatusHook.taskStatus,
+		columns: taskStatusHook.taskStatuses,
 		searchTasks,
 		issues,
 		setPriority,

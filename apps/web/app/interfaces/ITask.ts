@@ -204,3 +204,8 @@ export enum TaskRelatedIssuesRelationEnum {
 	DUPLICATES = 6,
 	RELATES_TO = 7
 }
+
+export type ITaskStatusOrder = {
+	organizationId: string;
+	reorder: { id: string; order: number }[];
+};

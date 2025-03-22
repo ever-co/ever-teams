@@ -21,7 +21,7 @@ export function usePublicOrganizationTeams() {
 	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(getPublicOrganizationTeamsMiscDataAPI);
 	const { activeTeam, teams, setTeams, teamsFetching } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
-	const { setTaskStatus } = useTaskStatus();
+	const { setTaskStatuses } = useTaskStatus();
 	const { setTaskSizes } = useTaskSizes();
 	const { setTaskPriorities } = useTaskPriorities();
 	const { setTaskLabels } = useTaskLabels();
@@ -99,7 +99,7 @@ export function usePublicOrganizationTeams() {
 				}
 
 				if (res.data) {
-					setTaskStatus(res.data?.statuses || []);
+					setTaskStatuses(res.data?.statuses || []);
 					setTaskSizes(res.data?.sizes || []);
 					setTaskPriorities(res.data?.priorities || []);
 					setTaskLabels(res.data?.labels || []);
@@ -108,7 +108,7 @@ export function usePublicOrganizationTeams() {
 				return res;
 			});
 		},
-		[queryCallMiscData, setTaskLabels, setTaskPriorities, setTaskSizes, setTaskStatus, setTeams]
+		[queryCallMiscData, setTaskLabels, setTaskPriorities, setTaskSizes, setTaskStatuses, setTeams]
 	);
 
 	return {

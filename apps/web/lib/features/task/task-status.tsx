@@ -124,7 +124,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 ) {
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
-	const { taskStatus } = useTaskStatus();
+	const { taskStatuses } = useTaskStatus();
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 	const $task = useSyncRef(task);
@@ -152,7 +152,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		if (field === 'status') {
-			const selectedStatus = taskStatus.find((s) => s.name === status && s.value === status);
+			const selectedStatus = taskStatuses.find((s) => s.name === status && s.value === status);
 			taskStatusId = selectedStatus?.id;
 		}
 
@@ -270,8 +270,8 @@ export function useStatusValue<T extends ITaskStatusField>({
 //! =============== Task Status ================= //
 
 export function useTaskStatusValue() {
-	const { taskStatus } = useTaskStatus();
-	return useMapToTaskStatusValues(taskStatus);
+	const { taskStatuses } = useTaskStatus();
+	return useMapToTaskStatusValues(taskStatuses);
 }
 
 /**

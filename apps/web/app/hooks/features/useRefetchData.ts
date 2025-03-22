@@ -6,19 +6,19 @@ import { useTaskStatus } from './useTaskStatus';
 import { useTaskVersion } from './useTaskVersion';
 
 export function useRefetchData() {
-	const { loadTaskStatusData } = useTaskStatus();
+	const { loadTaskStatuses } = useTaskStatus();
 	const { loadTaskVersionData } = useTaskVersion();
 	const { loadTaskPriorities } = useTaskPriorities();
 	const { loadTaskSizes } = useTaskSizes();
 	const { loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
 	const refetch = useCallback(() => {
-		loadTaskStatusData();
+		loadTaskStatuses();
 		loadTaskVersionData();
 		loadTaskPriorities();
 		loadTaskSizes();
 		loadTaskRelatedIssueTypeData();
-	}, [loadTaskStatusData, loadTaskVersionData, loadTaskPriorities, loadTaskSizes, loadTaskRelatedIssueTypeData]);
+	}, [loadTaskStatuses, loadTaskVersionData, loadTaskPriorities, loadTaskSizes, loadTaskRelatedIssueTypeData]);
 
 	return { refetch };
 }

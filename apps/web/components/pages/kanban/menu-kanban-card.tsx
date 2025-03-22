@@ -16,7 +16,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useTeamTasks();
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
-	const { taskStatus } = useTaskStatus();
+	const { taskStatuses } = useTaskStatus();
 	const { activeTeam } = useOrganizationTeams();
 	const menu = [
 		{
@@ -81,7 +81,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: ITeamTask
 				try {
 					await createTask({
 						...task,
-						taskStatusId: task.taskStatusId ?? taskStatus[0].id,
+						taskStatusId: task.taskStatusId ?? taskStatuses[0].id,
 						title: `Copy ${task.title}`,
 						issueType: task.issueType ?? 'Bug'
 					});

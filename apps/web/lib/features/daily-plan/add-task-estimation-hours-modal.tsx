@@ -552,7 +552,7 @@ interface ISearchTaskInputProps {
 export function SearchTaskInput(props: ISearchTaskInputProps) {
 	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate } = props;
 	const { tasks: teamTasks, createTask } = useTeamTasks();
-	const { taskStatus } = useTaskStatus();
+	const { taskStatuses } = useTaskStatus();
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<ITeamTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
@@ -592,8 +592,8 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 			if (taskName.trim().length < 5) return;
 			await createTask({
 				title: taskName.trim(),
-				status: taskStatus[0].name,
-				taskStatusId: taskStatus[0].id,
+				status: taskStatuses[0].name,
+				taskStatusId: taskStatuses[0].id,
 				issueType: 'Bug' // TODO: Let the user choose the issue type
 			});
 		} catch (error) {
@@ -601,7 +601,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 		} finally {
 			setCreateTaskLoading(false);
 		}
-	}, [createTask, taskName, taskStatus]);
+	}, [createTask, taskName, taskStatuses]);
 
 	/**
 	 * Focus on the search input when the popover is mounted.
@@ -799,7 +799,7 @@ function TaskCard(props: ITaskCardProps) {
 								<span
 									className="h-6 w-28 flex items-center justify-center"
 									style={{
-										backgroundColor: status.taskStatus.filter((s) => s.value === task.status)[0]
+										backgroundColor: status.taskStatuses.filter((s) => s.value === task.status)[0]
 											.color
 									}}
 								>

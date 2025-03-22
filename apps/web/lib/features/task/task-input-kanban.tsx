@@ -427,7 +427,7 @@ function TaskCard({
 								onClick={() => {
 									handleTaskCreation();
 									setTimeout(() => {
-										taskStatusHook.loadTaskStatusData();
+										taskStatusHook.loadTaskStatuses();
 									}, 4000);
 								}}
 							>

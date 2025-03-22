@@ -1,152 +1,164 @@
 'use client';
 
-import { ITaskStatusCreate } from '@app/interfaces';
+import { ITaskStatusCreate, ITaskStatusOrder } from '@app/interfaces';
 import {
-  createTaskStatusAPI,
-  getTaskStatusList,
-  deleteTaskStatusAPI,
-  editTaskStatusAPI,
-  editTaskStatusOrderAPI
+	createTaskStatusAPI,
+	getTaskStatusesAPI,
+	deleteTaskStatusAPI,
+	editTaskStatusAPI,
+	editTaskStatusOrderAPI
 } from '@app/services/client/api';
-import {
-  userState,
-  taskStatusFetchingState,
-  taskStatusListState,
-  activeTeamIdState
-} from '@app/stores';
-import { useCallback, useEffect } from 'react';
+import { taskStatusesState, activeTeamIdState } from '@app/stores';
+import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import { getActiveTeamIdCookie } from '@app/helpers';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@app/helpers';
 
 export function useTaskStatus() {
-  const [user] = useAtom(userState);
-  const activeTeamId = useAtomValue(activeTeamIdState);
+	const activeTeamId = useAtomValue(activeTeamIdState);
+	const [taskStatuses, setTaskStatuses] = useAtom(taskStatusesState);
+	const { firstLoadData: firstLoadTaskStatusesData } = useFirstLoad();
+	const teamId = getActiveTeamIdCookie() || activeTeamId;
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
 
-  const { loading, queryCall, loadingRef } = useQuery(getTaskStatusList);
-  const {
-    loading: createTaskStatusLoading,
-    queryCall: createQueryCall
-  } = useQuery(createTaskStatusAPI);
-  const {
-    loading: deleteTaskStatusLoading,
-    queryCall: deleteQueryCall
-  } = useQuery(deleteTaskStatusAPI);
-  const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(
-    editTaskStatusAPI
-  );
-  const {
-    loading: reOrderTaskStatusLoading,
-    queryCall: reOrderQueryCall
-  } = useQuery(editTaskStatusOrderAPI);
+	const {
+		loading: getTaskStatusesLoading,
+		queryCall: getTaskStatusesQueryCall,
+		loadingRef: getTaskStatusesLoadingRef
+	} = useQuery(getTaskStatusesAPI);
+	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(createTaskStatusAPI);
+	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskStatusAPI);
+	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(editTaskStatusAPI);
+	const { loading: reOrderTaskStatusLoading, queryCall: reOrderQueryCall } = useQuery(editTaskStatusOrderAPI);
 
-  const [taskStatus, setTaskStatus] = useAtom(taskStatusListState);
-  const [taskStatusFetching, setTaskStatusFetching] = useAtom(
-    taskStatusFetchingState
-  );
-  const { firstLoadData: firstLoadTaskStatusData, firstLoad } = useFirstLoad();
+	const getTaskStatuses = useCallback(async () => {
+		try {
+			if (getTaskStatusesLoadingRef.current) {
+				return;
+			}
+			if (organizationId && teamId && tenantId) {
+				const res = await getTaskStatusesQueryCall(tenantId, organizationId, teamId);
 
-  useEffect(() => {
-    if (firstLoad) {
-      setTaskStatusFetching(loading);
-    }
-  }, [loading, firstLoad, setTaskStatusFetching]);
+				return res;
+			} else {
+				throw Error(
+					'Required parameters missing: organizationId and teamId are required. Ensure you have tenant,  active team and organization ids set in cookies.'
+				);
+			}
+		} catch (error) {
+			console.error('Failed to get task statuses:', error);
+		}
+	}, [getTaskStatusesLoadingRef, getTaskStatusesQueryCall, organizationId, teamId, tenantId]);
 
-  const loadTaskStatusData = useCallback(() => {
-    if (loadingRef.current) {
-      return;
-    }
-    const teamId = getActiveTeamIdCookie();
-    queryCall(
-      user?.tenantId as string,
-      user?.employee?.organizationId as string,
-      activeTeamId || teamId || null
-    ).then((res) => {
-      setTaskStatus(res.data?.items || []);
-      return res;
-    });
-  }, [user, activeTeamId, setTaskStatus, queryCall, loadingRef]);
+	const createTaskStatus = useCallback(
+		async (data: ITaskStatusCreate) => {
+			try {
+				if (tenantId) {
+					const res = await createQueryCall({ ...data, organizationTeamId: activeTeamId }, tenantId);
+					return res;
+				} else {
+					throw Error(
+						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
+					);
+				}
+			} catch (error) {
+				console.error('Failed to create task status:', error);
+			}
+		},
 
-  useEffect(() => {
-    if (user?.tenantId && (activeTeamId || getActiveTeamIdCookie())) {
-      loadTaskStatusData();
-    }
-  }, [user?.tenantId, activeTeamId, loadTaskStatusData]);
+		[tenantId, createQueryCall, activeTeamId]
+	);
 
-  useEffect(() => {
-    if (firstLoad) {
-      loadTaskStatusData();
-    }
-  }, [loadTaskStatusData, firstLoad]);
+	const deleteTaskStatus = useCallback(
+		async (id: string) => {
+			try {
+				if (tenantId) {
+					const res = await deleteQueryCall(id);
 
-  const createTaskStatus = useCallback(
-    (data: ITaskStatusCreate) => {
-      if (user?.tenantId) {
-        return createQueryCall(
-          { ...data, organizationTeamId: activeTeamId },
-          user?.tenantId || ''
-        ).then((res) => {
-          return res;
-        });
-      }
-    },
+					return res;
+				} else {
+					throw Error(
+						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
+					);
+				}
+			} catch (error) {
+				console.error('Failed to delete task status:', error);
+			}
+		},
+		[tenantId, deleteQueryCall]
+	);
 
-    [createQueryCall, activeTeamId, user]
-  );
+	const editTaskStatus = useCallback(
+		async (id: string, data: ITaskStatusCreate) => {
+			try {
+				if (tenantId) {
+					const res = await editQueryCall(id, data, tenantId);
 
-  const deleteTaskStatus = useCallback(
-    (id: string) => {
-      if (user?.tenantId) {
-        return deleteQueryCall(id).then((res) => {
-          queryCall(
-            user?.tenantId as string,
-            user?.employee?.organizationId as string,
-            activeTeamId || null
-          ).then((res) => {
-            setTaskStatus(res.data?.items || []);
-            return res;
-          });
-          return res;
-        });
-      }
-    },
-    [deleteQueryCall, user, activeTeamId, queryCall, setTaskStatus]
-  );
+					return res;
+				} else {
+					throw Error(
+						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
+					);
+				}
+			} catch (error) {
+				console.error('Failed to edit task status:', error);
+			}
+		},
+		[tenantId, editQueryCall]
+	);
 
-  const editTaskStatus = useCallback(
-    (id: string, data: ITaskStatusCreate) => {
-      if (user?.tenantId) {
-        return editQueryCall(id, data, user?.tenantId || '').then((res) => {
-          queryCall(
-            user?.tenantId as string,
-            user?.employee?.organizationId as string,
-            activeTeamId || null
-          ).then((res) => {
-            setTaskStatus(res.data?.items || []);
-            return res;
-          });
-          return res;
-        });
-      }
-    },
-    [user, activeTeamId, editQueryCall, queryCall, setTaskStatus]
-  );
+	const reOrderTaskStatus = useCallback(
+		async (data: ITaskStatusOrder) => {
+			try {
+				if (tenantId) {
+					const res = await reOrderQueryCall(data, tenantId);
 
-  return {
-    loading: taskStatusFetching,
-    taskStatus,
-    taskStatusFetching,
-    firstLoadTaskStatusData,
-    createTaskStatus,
-    reOrderQueryCall,
-    reOrderTaskStatusLoading,
-    createTaskStatusLoading,
-    deleteTaskStatusLoading,
-    deleteTaskStatus,
-    editTaskStatusLoading,
-    editTaskStatus,
-    setTaskStatus,
-    loadTaskStatusData
-  };
+					return res;
+				} else {
+					throw Error(
+						'Required parameters missing: tenantId is required. Ensure you have tenant id set in cookies.'
+					);
+				}
+			} catch (error) {
+				console.error('Failed to re-order task status:', error);
+			}
+		},
+		[reOrderQueryCall, tenantId]
+	);
+
+	const loadTaskStatuses = useCallback(async () => {
+		try {
+			const res = await getTaskStatuses();
+
+			if (res) {
+				setTaskStatuses(res.data.items);
+			}
+		} catch (error) {
+			console.error('Failed to load task statuses:', error);
+		}
+	}, [getTaskStatuses, setTaskStatuses]);
+
+	const handleFirstLoad = useCallback(() => {
+		loadTaskStatuses();
+		firstLoadTaskStatusesData();
+	}, [firstLoadTaskStatusesData, loadTaskStatuses]);
+
+	return {
+		getTaskStatuses,
+		getTaskStatusesLoading,
+		createTaskStatus,
+		createTaskStatusLoading,
+		deleteTaskStatus,
+		deleteTaskStatusLoading,
+		editTaskStatus,
+		editTaskStatusLoading,
+		reOrderTaskStatus,
+		reOrderTaskStatusLoading,
+		taskStatuses,
+		setTaskStatuses,
+		firstLoadTaskStatusesData: handleFirstLoad,
+		loadTaskStatuses
+	};
 }
