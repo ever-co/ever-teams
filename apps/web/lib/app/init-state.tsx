@@ -119,7 +119,7 @@ function InitState() {
 			// 	true /* used as getTimerStatus deepCheck param */
 			// );
 
-			useRefreshIntervalV2(myInvitations, 10 * 1000, true /* used as loadTeamTasksData deepCheck param */);
+			useRefreshIntervalV2(myInvitations, 60 * 1000, true /* used as loadTeamTasksData deepCheck param */);
 
 			useRefreshIntervalV2(loadTaskStatusesData, five_minutes, true);
 			useRefreshIntervalV2(loadTaskPriorities, five_minutes, true);

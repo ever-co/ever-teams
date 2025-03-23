@@ -1,7 +1,7 @@
 import { Card, Modal } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import AddOrEditContainer, { TStepData } from './container';
 import TeamAndRelationsForm from './steps/team-and-relations-form';
 import BasicInformationForm from './steps/basic-information-form';
@@ -132,10 +132,6 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 		setData({});
 		closeModal();
 	};
-
-	useEffect(() => {
-		console.log('first');
-	}, []);
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>

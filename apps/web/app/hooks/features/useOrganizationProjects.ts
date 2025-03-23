@@ -135,7 +135,7 @@ export function useOrganizationProjects() {
 	}, [user, organizationProjects, setOrganizationProjects, getOrganizationProjects]);
 
 	const handleFirstLoad = useCallback(async () => {
-		loadOrganizationProjects();
+		await loadOrganizationProjects();
 		firstOrganizationProjectsLoad();
 	}, [firstOrganizationProjectsLoad, loadOrganizationProjects]);
 

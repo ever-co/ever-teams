@@ -71,7 +71,7 @@ export function useDailyPlan() {
 			if (res) {
 				return res.data;
 			} else {
-				console.error('Error fetching all day plans:');
+				console.error('Error fetching all day plans');
 			}
 		} catch (error) {
 			console.error('Error fetching all day plans:', error);
