@@ -90,8 +90,8 @@ function InitState() {
 	});
 
 	const AutoRefresher = useMemo(() => {
-		const sixty_two_seconds = 1000 * 62;
-		const five_seconds = 1000 * 5;
+		const five_minutes = 1000 * 60 * 5; // in milliseconds
+		const one_minute = 1000 * 60; // in milliseconds
 
 		// eslint-disable-next-line react/no-unstable-nested-components
 		const Component = () => {
@@ -101,16 +101,16 @@ function InitState() {
 			 * Refresh Timer Running status,
 			 * This will sync timer in all the open tabs
 			 */
-			useRefreshIntervalV2(getTimerStatus, five_seconds);
+			useRefreshIntervalV2(getTimerStatus, one_minute);
 
 			/**
 			 * Refresh Teams data every 5 seconds.
 			 *
 			 * So that if Team is deleted by manager it updates the UI accordingly
 			 */
-			useOTRefreshInterval(loadTeamsData, five_seconds, publicTeam);
+			useOTRefreshInterval(loadTeamsData, one_minute, publicTeam);
 			// Refresh tasks with a deep compare
-			useRefreshIntervalV2(loadTeamTasksData, five_seconds, true /* used as loadTeamTasksData deepCheck param */);
+			useRefreshIntervalV2(loadTeamTasksData, one_minute, true /* used as loadTeamTasksData deepCheck param */);
 
 			// Timer status
 			// useRefreshIntervalV2(
@@ -121,16 +121,16 @@ function InitState() {
 
 			useRefreshIntervalV2(myInvitations, 10 * 1000, true /* used as loadTeamTasksData deepCheck param */);
 
-			useRefreshIntervalV2(loadTaskStatusesData, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadTaskPriorities, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadTaskSizes, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadTaskLabels, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadTaskRelatedIssueTypeData, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadTaskVersionData, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadTaskStatusesData, five_minutes, true);
+			useRefreshIntervalV2(loadTaskPriorities, five_minutes, true);
+			useRefreshIntervalV2(loadTaskSizes, five_minutes, true);
+			useRefreshIntervalV2(loadTaskLabels, five_minutes, true);
+			useRefreshIntervalV2(loadTaskRelatedIssueTypeData, five_minutes, true);
+			useRefreshIntervalV2(loadTaskVersionData, five_minutes, true);
 
-			useRefreshIntervalV2(loadAllDayPlans, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadMyDailyPlans, sixty_two_seconds, true);
-			useRefreshIntervalV2(loadEmployeeDayPlans, sixty_two_seconds, true);
+			useRefreshIntervalV2(loadAllDayPlans, five_minutes, true);
+			useRefreshIntervalV2(loadMyDailyPlans, five_minutes, true);
+			useRefreshIntervalV2(loadEmployeeDayPlans, five_minutes, true);
 
 			return <></>;
 		};

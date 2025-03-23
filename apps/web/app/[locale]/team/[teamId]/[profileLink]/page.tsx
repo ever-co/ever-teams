@@ -22,7 +22,7 @@ const Team = () => {
 	const {
 		loadPublicTeamData,
 		loadPublicTeamMiscData,
-		teamsFetching,
+		loading : teamsFetching,
 		publicTeam: publicTeamData
 	} = usePublicOrganizationTeams();
 	const t = useTranslations();

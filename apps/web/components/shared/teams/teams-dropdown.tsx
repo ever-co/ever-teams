@@ -9,7 +9,7 @@ import { Spinner } from '../../ui/loaders/spinner';
 import { useTranslations } from 'next-intl';
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
-	const { teams, activeTeam, setActiveTeam, teamsFetching } = useOrganizationTeams();
+	const { teams, activeTeam, setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const t = useTranslations();
 	return (
 		<div className="w-[290px] max-w-sm">
@@ -31,7 +31,7 @@ export const TeamsDropDown = () => {
 									</span>
 								</div>
 
-								{teamsFetching ? (
+								{getOrganizationTeamsLoading ? (
 									<Spinner dark={false} />
 								) : (
 									<ChevronDownIcon

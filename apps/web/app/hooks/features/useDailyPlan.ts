@@ -34,7 +34,7 @@ export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmpployeeQueryCall } =
+	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } =
 		useQuery(getDayPlansByEmployeeAPI);
 	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQuery(getAllDayPlansAPI);
 	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQuery(getMyDailyPlansAPI);
@@ -110,13 +110,13 @@ export function useDailyPlan() {
 		}
 	}, [getMyDailyPlans, setMyDailyPlans]);
 
-	// Emplyee day plans
+	// Employee day plans
 
 	const getEmployeeDayPlans = useCallback(
 		async (employeeId: string) => {
 			try {
-				if (typeof employeeId === 'string') {
-					const res = await getDayPlansByEmpployeeQueryCall(employeeId);
+				if (employeeId && typeof employeeId === 'string') {
+					const res = await getDayPlansByEmployeeQueryCall(employeeId);
 
 					if (res) {
 						return res.data;
@@ -130,7 +130,7 @@ export function useDailyPlan() {
 				console.error(`Error when fetching day plans for employee: ${employeeId}`, error);
 			}
 		},
-		[getDayPlansByEmpployeeQueryCall]
+		[getDayPlansByEmployeeQueryCall]
 	);
 
 	const loadEmployeeDayPlans = useCallback(async () => {

@@ -59,11 +59,11 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
   const {
     loading,
     taskSizes,
-    createTaskSizes,
-    deleteTaskSizes,
-    editTaskSizes,
-    createTaskSizesLoading,
-    editTaskSizesLoading
+    createTaskSize,
+    deleteTaskSize,
+    editTaskSize,
+    createTaskSizeLoading,
+    editTaskSizeLoading
   } = useTaskSizes();
   const { refetch } = useRefetchData();
 
@@ -90,7 +90,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
   const onSubmit = useCallback(
     async (values: any) => {
       if (createNew) {
-        createTaskSizes({
+        createTaskSize({
           name: values.name,
           color: values.color,
           // description: '',
@@ -112,7 +112,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
           values.color !== edit.color ||
           values.icon !== edit.icon)
       ) {
-        editTaskSizes(edit.id, {
+        editTaskSize(edit.id, {
           name: values.name,
           color: values.color,
           icon: values.icon
@@ -126,11 +126,11 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
       edit,
       createNew,
       formOnly,
-      editTaskSizes,
+      editTaskSize,
       onCreated,
       user,
       reset,
-      createTaskSizes,
+      createTaskSize,
       refetch
     ]
   );
@@ -208,8 +208,8 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
                       variant="primary"
                       className="px-4 py-4 font-normal rounded-xl text-md"
                       type="submit"
-                      disabled={createTaskSizesLoading || editTaskSizesLoading}
-                      loading={createTaskSizesLoading || editTaskSizesLoading}
+                      disabled={createTaskSizeLoading || editTaskSizeLoading}
+                      loading={createTaskSizeLoading || editTaskSizeLoading}
                     >
                       {edit ? t('common.SAVE') : t('common.CREATE')}
                     </Button>
@@ -250,8 +250,9 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
                             setCreateNew(false);
                             setEdit(size);
                           }}
-                          onDelete={() => {
-                            deleteTaskSizes(size.id);
+                          onDelete={async() => {
+                            await deleteTaskSize(size.id);
+							refetch()
                           }}
                         />
                       ))

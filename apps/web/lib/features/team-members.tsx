@@ -23,7 +23,7 @@ export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.
 	const { user } = useAuthenticateUser();
 	const activeFilter = useAtomValue(taskBlockFilterState);
 	const fullWidth = useAtomValue(fullWidthState);
-	const { activeTeam, teamsFetching } = useOrganizationTeams();
+	const { activeTeam, getOrganizationTeamsLoading : teamsFetching } = useOrganizationTeams();
 
 	const [members, orderedMembers] = useMemo(() => {
 		const members = (activeTeam?.members || []).filter((member) => member.employee !== null);

@@ -24,7 +24,7 @@ export const TeamSettingForm = () => {
   const {
     activeTeam,
     editOrganizationTeam,
-    loading,
+    getOrganizationTeamsLoading : loading ,
     loadingTeam
   } = useOrganizationTeams();
   const { isTeamManager, activeManager } = useIsMemberManager(user);
