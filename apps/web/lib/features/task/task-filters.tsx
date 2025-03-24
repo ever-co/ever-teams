@@ -92,7 +92,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[profile.tasksGrouped.assignedTasks, profile.tasksGrouped.unassignedTasks, profile.tasksGrouped.workedTasks]
 	);
 
-	const tasks = useMemo(() => tasksFiltered[tab], [tab, tasksFiltered]);
+	const tasks = useMemo(() => tasksFiltered[tab] || [], [tab, tasksFiltered]);
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 
 	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
@@ -214,7 +214,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		const n = taskName.trim().toLowerCase();
 		const statusFilters = appliedStatusFilter;
 
-		return tasks
+		return (tasks || [])
 			.filter((task) => {
 				return n ? task.title.toLowerCase().includes(n) : true;
 			})
