@@ -1,6 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-cd "apps/web"
-
-yarn lint
+# Run lint-staged to lint staged files
+yarn lint-staged
