@@ -8,8 +8,12 @@ import { Button, VerticalSeparator } from 'lib/components';
 import { useTaskFilter, TaskNameFilter } from 'lib/features';
 import { useAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
-interface IFilter {
+type TimerStatus = 'running' | 'online' | 'pause' | 'idle' | 'suspended';
+type FilterType = 'all' | TimerStatus;
+
+interface IFilter extends Record<TimerStatus, number> {
 	running: number;
 	online: number;
 	pause: number;
@@ -17,32 +21,43 @@ interface IFilter {
 	suspended: number;
 }
 
+const initialFilter: IFilter = {
+	running: 0,
+	online: 0,
+	pause: 0,
+	idle: 0,
+	suspended: 0
+};
+
 export function UserTeamBlockHeader() {
 	const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
-	const [activeFilter, setActiveFilter] = useAtom<'all' | 'running' | 'online' | 'pause' | 'idle' | 'suspended'>(
-		taskBlockFilterState
-	);
+	const [activeFilter, setActiveFilter] = useAtom<FilterType>(taskBlockFilterState);
 
 	const profile = useUserProfilePage();
 	const hook = useTaskFilter(profile);
 
-	const membersStatusNumber: IFilter = {
-		running: 0,
-		online: 0,
-		pause: 0,
-		idle: 0,
-		suspended: 0
-	};
+	// Memoize members status count to prevent unnecessary recalculations
+	const membersStatusNumber = useMemo(() => {
+		if (!activeTeam?.members?.length) return initialFilter;
 
-	const members = activeTeam?.members ? activeTeam?.members : [];
-	members?.map((item) => {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		membersStatusNumber[item.timerStatus!]++;
-		if (item.timerStatus === undefined) membersStatusNumber.idle += 1;
-	});
+		return activeTeam.members.reduce<IFilter>(
+			(acc, item) => {
+				// Handle undefined status as 'idle'
+				const status = item.timerStatus || 'idle';
+
+				// Type guard to ensure status is a valid TimerStatus
+				if (status in acc) {
+					acc[status as TimerStatus] += 1;
+				}
+
+				return acc;
+			},
+			{ ...initialFilter }
+		);
+	}, [activeTeam?.members]);
 
 	return (
 		<>
@@ -54,44 +69,45 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
-							activeFilter == 'all' && 'border-primary dark:border-white  text-primary dark:text-white'
+							activeFilter === 'all' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('all')}
 					>
 						<StopCircleIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-300 dark:!text-white',
-								activeFilter == 'all' && 'text-primary dark:text-white'
+								activeFilter === 'all' && 'text-primary dark:text-white'
 							)}
 						/>
 						<p>{t('common.ALL_MEMBERS')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
-								activeFilter == 'all' && 'bg-primary dark:bg-[#47484D] text-white'
+								activeFilter === 'all' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
-							{members?.length}
+							{activeTeam?.members?.length}
 						</span>
 					</div>
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
-							activeFilter == 'idle' && 'border-primary dark:border-white  text-primary dark:text-white'
+							activeFilter === 'idle' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('idle')}
 					>
 						<CrossCircleIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-300  dark:!text-white',
-								activeFilter == 'idle' && '!text-primary !fill-white  dark:!text-white dark:!fill-white'
+								activeFilter === 'idle' &&
+									'!text-primary !fill-white  dark:!text-white dark:!fill-white'
 							)}
 						/>
 						<p>{t('common.NOT_WORKING')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
-								activeFilter == 'idle' && 'bg-primary dark:bg-[#47484D] text-white'
+								activeFilter === 'idle' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.idle}
@@ -100,7 +116,7 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
-							activeFilter == 'running' &&
+							activeFilter === 'running' &&
 								'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('running')}
@@ -108,7 +124,7 @@ export function UserTeamBlockHeader() {
 						<TimerPlayIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-300 !fill-gray-400 dark:!text-white',
-								activeFilter == 'running' &&
+								activeFilter === 'running' &&
 									'!text-primary !fill-primary  dark:!text-white dark:!fill-white'
 							)}
 						/>
@@ -116,7 +132,7 @@ export function UserTeamBlockHeader() {
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
-								activeFilter == 'running' && 'bg-primary dark:bg-[#47484D] text-white'
+								activeFilter === 'running' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.running}
@@ -125,21 +141,21 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
-							activeFilter == 'pause' && 'border-primary dark:border-white  text-primary dark:text-white'
+							activeFilter === 'pause' && 'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('pause')}
 					>
 						<PauseIcon
 							className={clsxm(
 								'w-7 h-7 p-1 text-gray-400 dark:text-white',
-								activeFilter == 'pause' && 'text-primary dark:text-white'
+								activeFilter === 'pause' && 'text-primary dark:text-white'
 							)}
 						/>
 						<p>{t('common.PAUSED')}</p>
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
-								activeFilter == 'pause' && 'bg-primary dark:bg-[#47484D] text-white'
+								activeFilter === 'pause' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.pause}
@@ -148,14 +164,15 @@ export function UserTeamBlockHeader() {
 					<div
 						className={clsxm(
 							'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
-							activeFilter == 'online' && 'border-primary dark:border-white  text-primary dark:text-white'
+							activeFilter === 'online' &&
+								'border-primary dark:border-white  text-primary dark:text-white'
 						)}
 						onClick={() => setActiveFilter('online')}
 					>
 						<CheckCircleTickIcon
 							className={clsxm(
 								'w-7 h-7 p-1 !text-gray-400  dark:!text-white',
-								activeFilter == 'online' &&
+								activeFilter === 'online' &&
 									'!text-primary !fill-white  dark:!text-primary dark:!fill-white'
 							)}
 						/>
@@ -163,7 +180,7 @@ export function UserTeamBlockHeader() {
 						<span
 							className={clsxm(
 								' bg-gray-500/40 p-1 px-2 text-xs rounded-md',
-								activeFilter == 'online' && 'bg-primary dark:bg-[#47484D] text-white'
+								activeFilter === 'online' && 'bg-primary dark:bg-[#47484D] text-white'
 							)}
 						>
 							{membersStatusNumber.online}
