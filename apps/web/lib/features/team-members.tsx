@@ -12,7 +12,7 @@ import { taskBlockFilterState } from '@app/stores/task-filter';
 import { OT_Member } from '@app/interfaces';
 import { Container } from 'lib/components';
 import { fullWidthState } from '@app/stores/fullWidth';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
@@ -20,28 +20,48 @@ type TeamMembersProps = {
 };
 
 export function TeamMembers({ publicTeam = false, kanbanView: view = IssuesView.CARDS }: Readonly<TeamMembersProps>) {
+	// Hooks with expensive computations
 	const { user } = useAuthenticateUser();
 	const activeFilter = useAtomValue(taskBlockFilterState);
 	const fullWidth = useAtomValue(fullWidthState);
 	const { activeTeam, getOrganizationTeamsLoading : teamsFetching } = useOrganizationTeams();
 
+	// Memoize the filter function to prevent recreation on every render
+	const filterValidMembers = useCallback((members: OT_Member[]) => {
+		return members.filter((member) => member.employee !== null);
+	}, []);
+
+	// Memoize the sort function
+	const sortMembers = useCallback((members: OT_Member[]) => {
+		return [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
+	}, []);
+
+	// Combine filter and sort in one memoized computation
 	const [members, orderedMembers] = useMemo(() => {
-		const members = (activeTeam?.members || []).filter((member) => member.employee !== null);
-		const orderedMembers = [...members].sort((a, b) => (sortByWorkStatus(a, b) ? -1 : 1));
+		const validMembers = filterValidMembers(activeTeam?.members || []);
+		const sortedMembers = sortMembers(validMembers);
+		return [validMembers, sortedMembers];
+	}, [activeTeam?.members, filterValidMembers, sortMembers]);
 
-		return [members, orderedMembers];
-	}, [activeTeam]);
+	// Memoize the block view filter function
+	const filterBlockViewMembers = useCallback((members: OT_Member[], filter: string) => {
+		if (filter === 'all') return members;
+		if (filter === 'idle') {
+			return members.filter((m) => m.timerStatus === undefined || m.timerStatus === 'idle');
+		}
+		return members.filter((m) => m.timerStatus === filter);
+	}, []);
 
-	const blockViewMembers = useMemo(() => {
-		return activeFilter == 'all'
-			? orderedMembers
-			: activeFilter == 'idle'
-				? orderedMembers.filter((m: OT_Member) => m.timerStatus == undefined || m.timerStatus == 'idle')
-				: orderedMembers.filter((m) => m.timerStatus === activeFilter);
-	}, [activeFilter, orderedMembers]);
+	// Memoize block view members with proper dependencies
+	const blockViewMembers = useMemo(
+		() => filterBlockViewMembers(orderedMembers, activeFilter),
+		[orderedMembers, activeFilter, filterBlockViewMembers]
+	);
 
-	const currentUser = useMemo(() => members.find((m) => m.employee.userId === user?.id), [members, user?.id]);
+	// Memoize current user lookup with proper dependencies
+	const currentUser = useMemo(() => members.find((m) => m.employee?.userId === user?.id), [members, user?.id]);
 
+	// Simple computation, no need for useMemo
 	const $teamsFetching = teamsFetching && members.length === 0;
 
 	return (
@@ -81,14 +101,27 @@ export function TeamMembersView({
 }: TeamMembersViewProps) {
 	let teamMembersView;
 
+	// Memoize the filter function to prevent recreation on every render
+	const filterOtherMembers = useCallback((members: OT_Member[], currentUser: OT_Member | undefined) => {
+		return members.filter((member) => member.id !== currentUser?.id);
+	}, []);
+
+	// Memoize the sort function
+	const sortOtherMembers = useCallback((members: OT_Member[]) => {
+		return members.sort((a, b) => {
+			if (a.order && b.order) return a.order > b.order ? -1 : 1;
+			if (a.order) return -1;
+			if (b.order) return 1;
+			return -1;
+		});
+	}, []);
+
+	// Combine filter and sort in one memoized computation
 	const $members = useMemo(() => {
-		return members
-			.filter((member) => member.id !== currentUser?.id)
-			.sort((a, b) => {
-				if (a.order && b.order) return a.order > b.order ? -1 : 1;
-				else return -1;
-			});
-	}, [members, currentUser]);
+		const otherMembers = filterOtherMembers(members, currentUser);
+		const sortedMembers = sortOtherMembers(otherMembers);
+		return sortedMembers;
+	}, [members, currentUser, filterOtherMembers, sortOtherMembers]);
 
 	switch (true) {
 		case members.length === 0:
@@ -144,7 +177,7 @@ export function TeamMembersView({
 			);
 			break;
 
-		case view == IssuesView.BLOCKS:
+		case view === IssuesView.BLOCKS:
 			teamMembersView = (
 				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
 					<TeamMembersBlockView
@@ -173,11 +206,11 @@ export function TeamMembersView({
 }
 
 const sortByWorkStatus = (user_a: OT_Member, user_b: OT_Member) => {
-	return user_a.timerStatus == 'running' ||
-		(user_a.timerStatus == 'online' && user_b.timerStatus != 'running') ||
-		(user_a.timerStatus == 'pause' && user_b.timerStatus !== 'running' && user_b.timerStatus !== 'online') ||
-		(user_a.timerStatus == 'idle' && user_b.timerStatus == 'suspended') ||
-		(user_a.timerStatus === undefined && user_b.timerStatus == 'suspended')
-		? true
-		: false;
+	return (
+		user_a.timerStatus === 'running' ||
+		(user_a.timerStatus === 'online' && user_b.timerStatus !== 'running') ||
+		(user_a.timerStatus === 'pause' && user_b.timerStatus !== 'running' && user_b.timerStatus !== 'online') ||
+		(user_a.timerStatus === 'idle' && user_b.timerStatus === 'suspended') ||
+		(user_a.timerStatus === undefined && user_b.timerStatus === 'suspended')
+	);
 };
