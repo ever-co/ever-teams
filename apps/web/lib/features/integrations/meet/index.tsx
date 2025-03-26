@@ -36,20 +36,23 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 	}, [router]);
 
 	// Handle API ready
-	const handleApiReady = useCallback((externalApi: any) => {
-		try {
-			externalApi.addListener('readyToClose', handleClose);
-			
-			// Add error handling
-			externalApi.addListener('videoConferenceLeft', handleClose);
-			externalApi.addListener('connectionFailed', () => {
-				setError(new Error('Failed to connect to meeting'));
-			});
-		} catch (err) {
-			console.error('Failed to setup meeting API:', err);
-			setError(err as Error);
-		}
-	}, [handleClose]);
+	const handleApiReady = useCallback(
+		(externalApi: any) => {
+			try {
+				externalApi.addListener('readyToClose', handleClose);
+
+				// Add error handling
+				externalApi.addListener('videoConferenceLeft', handleClose);
+				externalApi.addListener('connectionFailed', () => {
+					setError(new Error('Failed to connect to meeting'));
+				});
+			} catch (err) {
+				console.error('Failed to setup meeting API:', err);
+				setError(err as Error);
+			}
+		},
+		[handleClose]
+	);
 
 	// Handle iframe setup
 	const handleIFrameRef = useCallback((parentNode: HTMLDivElement) => {
