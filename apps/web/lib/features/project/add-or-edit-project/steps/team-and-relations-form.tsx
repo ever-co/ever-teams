@@ -1,6 +1,6 @@
 import { Button } from '@/lib/components';
 import { CheckIcon, Plus, X } from 'lucide-react';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
@@ -19,7 +19,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const [relations, setRelations] = useState<(IProjectRelation & { id: string })[]>([]);
 	const { organizationProjects } = useOrganizationProjects();
 	const { teams } = useOrganizationTeams();
-	const { roles, getRoles } = useRoles();
+	const { roles } = useRoles();
 	const relationsData = Object.values(ProjectRelationEnum);
 	const t = useTranslations();
 
@@ -39,10 +39,6 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const handleRemoveRelation = (id: string) => {
 		setRelations((prev) => prev.filter((el) => el.id !== id));
 	};
-
-	useEffect(() => {
-		getRoles();
-	}, [getRoles]);
 
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();

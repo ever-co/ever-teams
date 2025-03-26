@@ -29,10 +29,7 @@ const Permissions = () => {
 		selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
 	}, [selectedRole, getRolePermissions]);
 
-	const { getRoles, roles } = useRoles();
-	useEffect(() => {
-		getRoles();
-	}, [getRoles]);
+	const { roles } = useRoles();
 
 	const handleToggleRolePermission = useCallback(
 		(name: string) => {
@@ -66,10 +63,11 @@ const Permissions = () => {
 					<div className="flex flex-col w-[35%] overflow-auto gap-2 mt-5">
 						{roles.map((role) => (
 							<div
-								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${selectedRole && selectedRole.id === role.id
-									? 'bg-primary dark:bg-primary-light text-white'
-									: ''
-									}`}
+								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${
+									selectedRole && selectedRole.id === role.id
+										? 'bg-primary dark:bg-primary-light text-white'
+										: ''
+								}`}
 								key={role?.id}
 								onClick={() => {
 									setSelectedRole(role);
@@ -283,7 +281,7 @@ function SelectRole() {
 			</div>
 
 			<Text className="text-2xl font-normal text-center mt-10 text-[#282048] dark:text-light--theme">
-				{t("common.SELECT_ROLE")}
+				{t('common.SELECT_ROLE')}
 			</Text>
 		</div>
 	);

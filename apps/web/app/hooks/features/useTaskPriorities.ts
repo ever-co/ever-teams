@@ -10,10 +10,9 @@ import {
 import {
   userState,
   taskPrioritiesListState,
-  taskPrioritiesFetchingState,
   activeTeamIdState
 } from '@app/stores';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
@@ -24,7 +23,7 @@ export function useTaskPriorities() {
   const [user] = useAtom(userState);
   const activeTeamId = useAtomValue(activeTeamIdState);
 
-  const { loading, queryCall, loadingRef } = useQuery(getTaskPrioritiesList);
+  const { loading : getTaskPrioritiesLoading, queryCall : getTaskPrioritiesQueryCall, loadingRef : getTaskPrioritiesLoadingRef } = useQuery(getTaskPrioritiesList);
   const {
     loading: createTaskPrioritiesLoading,
     queryCall: createQueryCall
@@ -40,27 +39,18 @@ export function useTaskPriorities() {
 
   const [taskPriorities, setTaskPriorities] = useAtom(taskPrioritiesListState);
 
-  const [taskPrioritiesFetching, setTaskPrioritiesFetching] = useAtom(
-    taskPrioritiesFetchingState
-  );
   const {
-    firstLoadData: firstLoadTaskPrioritiesData,
-    firstLoad
+    firstLoadData: firstLoadTaskPrioritiesData
   } = useFirstLoad();
 
-  useEffect(() => {
-    if (firstLoad) {
-      setTaskPrioritiesFetching(loading);
-    }
-  }, [loading, firstLoad, setTaskPrioritiesFetching]);
 
-  const loadTaskPriorities = useCallback(() => {
-    if (loadingRef.current) {
+  const loadTaskPriorities = useCallback(async () => {
+    if (getTaskPrioritiesLoadingRef.current) {
       return;
     }
 
     const teamId = getActiveTeamIdCookie();
-    queryCall(
+    getTaskPrioritiesQueryCall(
       user?.tenantId as string,
       user?.employee?.organizationId as string,
       activeTeamId || teamId || null
@@ -71,20 +61,7 @@ export function useTaskPriorities() {
 
       return res;
     });
-  }, [
-    user,
-    activeTeamId,
-    setTaskPriorities,
-    taskPriorities,
-    queryCall,
-    loadingRef
-  ]);
-
-  useEffect(() => {
-    if (!firstLoad) return;
-
-    loadTaskPriorities();
-  }, [activeTeamId, firstLoad, loadTaskPriorities]);
+  }, [getTaskPrioritiesLoadingRef, getTaskPrioritiesQueryCall, user?.tenantId, user?.employee?.organizationId, activeTeamId, taskPriorities, setTaskPriorities]);
 
   const createTaskPriorities = useCallback(
     (data: ITaskPrioritiesCreate) => {
@@ -105,7 +82,7 @@ export function useTaskPriorities() {
     (id: string) => {
       if (user?.tenantId) {
         return deleteQueryCall(id).then((res) => {
-          queryCall(
+			getTaskPrioritiesQueryCall(
             user?.tenantId as string,
             user?.employee?.organizationId as string,
             activeTeamId || null
@@ -117,14 +94,14 @@ export function useTaskPriorities() {
         });
       }
     },
-    [deleteQueryCall, user, activeTeamId, queryCall, setTaskPriorities]
+    [user?.tenantId, user?.employee?.organizationId, deleteQueryCall, getTaskPrioritiesQueryCall, activeTeamId, setTaskPriorities]
   );
 
   const editTaskPriorities = useCallback(
     (id: string, data: ITaskPrioritiesCreate) => {
       if (user?.tenantId) {
         return editQueryCall(id, data, user?.tenantId || '').then((eRes) => {
-          queryCall(
+          getTaskPrioritiesQueryCall(
             user?.tenantId as string,
             user?.employee?.organizationId as string,
             activeTeamId || null
@@ -136,14 +113,18 @@ export function useTaskPriorities() {
         });
       }
     },
-    [user, activeTeamId, editQueryCall, queryCall, setTaskPriorities]
+    [user?.tenantId, user?.employee?.organizationId, editQueryCall, getTaskPrioritiesQueryCall, activeTeamId, setTaskPriorities]
   );
 
+  const handleFirstLoad = useCallback(async () => {
+	await loadTaskPriorities()
+	firstLoadTaskPrioritiesData()
+  },[firstLoadTaskPrioritiesData, loadTaskPriorities])
+
   return {
-    loading: taskPrioritiesFetching,
+    loading : getTaskPrioritiesLoading,
     taskPriorities,
-    taskPrioritiesFetching,
-    firstLoadTaskPrioritiesData,
+    firstLoadTaskPrioritiesData : handleFirstLoad,
     createTaskPriorities,
     createTaskPrioritiesLoading,
     deleteTaskPrioritiesLoading,

@@ -1,5 +1,5 @@
 'use client';
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useDailyPlan } from '@app/hooks';
 import { IDailyPlan, IEmployee, IUser } from '@app/interfaces';
 import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { Tooltip } from 'lib/components';
@@ -16,13 +16,8 @@ interface IEmployeeWithOutstanding {
 }
 
 export function TeamOutstandingNotifications() {
-	const { dailyPlan, getAllDayPlans, outstandingPlans } = useDailyPlan();
-	const { activeTeam } = useOrganizationTeams();
+	const { dailyPlan, outstandingPlans } = useDailyPlan();
 	const { isTeamManager, user } = useAuthenticateUser();
-
-	useEffect(() => {
-		getAllDayPlans();
-	}, [activeTeam, getAllDayPlans]);
 
 	return (
 		<div className="flex flex-col gap-4">

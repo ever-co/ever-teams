@@ -14,8 +14,7 @@ type EditSet = {
 	icon: string;
 };
 const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose: any; setColumn: any }) => {
-	const { editTaskStatus, loading,editTaskStatusLoading } = useTaskStatus();
-	const editStatus: any = editTaskStatus;
+	const { editTaskStatus, editTaskStatusLoading, setTaskStatuses } = useTaskStatus();
 	const [createNew] = useState(status);
 	const t = useTranslations();
 	const { register, handleSubmit, setValue, getValues } = useForm({
@@ -43,7 +42,21 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 
 	const onSubmit = async (values: EditSet) => {
 		if (status && values) {
-			await editStatus(status.id, { ...values, color: !values.color ? status.color : values.color }).then(() => {
+			await editTaskStatus(status.id, {
+				...values,
+				color: !values.color ? status.color : values.color
+			}).then((taskStatus) => {
+				if (taskStatus) {
+					// Update task statuses state
+					setTaskStatuses((prev) => {
+						return prev.map((el) => {
+							if (el.id === status.id) {
+								return { ...status, ...taskStatus.data };
+							}
+							return el;
+						});
+					});
+				}
 				renameProperty(values.name, values.icon);
 
 				// Call this function with 'Open1' and 'Open2' when you need to change the property name.
@@ -92,8 +105,8 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 							variant="primary"
 							className="px-4 py-4 font-normal rounded-xl text-md"
 							type="submit"
-							disabled={loading}
-							loading={loading}
+							disabled={editTaskStatusLoading}
+							loading={editTaskStatusLoading}
 						>
 							{t('common.EDIT')} {editTaskStatusLoading && <Loader className="h-4 w-4 animate-spin	" />}
 						</Button>

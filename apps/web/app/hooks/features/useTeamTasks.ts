@@ -91,7 +91,7 @@ export function useTeamTasks() {
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
 	// const [employeeState, setEmployeeState] = useAtom(employeeTasksState);
-	const { taskStatus } = useTaskStatus();
+	const { taskStatuses } = useTaskStatus();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 
@@ -287,49 +287,44 @@ export function useTeamTasks() {
 	);
 
 	const createTask = useCallback(
-		(
-			{
+		({
+			title,
+			issueType,
+			taskStatusId,
+			status = taskStatuses[0]?.name,
+			priority,
+			size,
+			tags,
+			description,
+			projectId,
+			members
+		}: {
+			title: string;
+			issueType?: string;
+			status?: string;
+			taskStatusId: string;
+			priority?: string;
+			size?: string;
+			tags?: ITaskLabelsItemList[];
+			description?: string | null;
+			projectId?: string | null;
+			members?: { id: string }[];
+		}) => {
+			return createQueryCall({
 				title,
 				issueType,
-				taskStatusId,
-				status = taskStatus[0]?.name,
+				status,
 				priority,
 				size,
 				tags,
-				description,
+				// Set Project Id to cookie
+				// TODO: Make it dynamic when we add Dropdown in Navbar
+
 				projectId,
-				members
-			}: {
-				title: string;
-				issueType?: string;
-				status?: string;
-				taskStatusId: string;
-				priority?: string;
-				size?: string;
-				tags?: ITaskLabelsItemList[];
-				description?: string | null;
-				projectId?: string | null;
-				members?: { id: string }[]
-			},
-		) => {
-
-			return createQueryCall(
-				{
-					title,
-					issueType,
-					status,
-					priority,
-					size,
-					tags,
-					// Set Project Id to cookie
-					// TODO: Make it dynamic when we add Dropdown in Navbar
-
-					projectId,
-					...(description ? { description: `<p>${description}</p>` } : {}),
-					members,
-					taskStatusId: taskStatusId
-				},
-			).then((res) => {
+				...(description ? { description: `<p>${description}</p>` } : {}),
+				members,
+				taskStatusId: taskStatusId
+			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;
 			});

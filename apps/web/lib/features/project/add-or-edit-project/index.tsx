@@ -1,7 +1,7 @@
 import { Card, Modal } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import AddOrEditContainer, { TStepData } from './container';
 import TeamAndRelationsForm from './steps/team-and-relations-form';
 import BasicInformationForm from './steps/basic-information-form';
@@ -36,7 +36,7 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 		() => organizationProjects.find((el) => el.id === projectId),
 		[organizationProjects, projectId]
 	);
-	const { roles, getRoles } = useRoles();
+	const { roles } = useRoles();
 
 	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
@@ -132,11 +132,6 @@ export default function AddOrEditProjectModal(props: IAddOrEditProjectModalProps
 		setData({});
 		closeModal();
 	};
-
-	useEffect(() => {
-		getRoles();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal}>

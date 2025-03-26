@@ -1,5 +1,5 @@
 import { Button, VerticalSeparator } from '@/lib/components';
-import { Fragment, ReactNode, useEffect } from 'react';
+import { Fragment, ReactNode } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { Thumbnail } from './basic-information-form';
@@ -28,7 +28,7 @@ export default function FinalReview(props: IStepElementProps) {
 	} = useOrganizationProjects();
 	const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
-	const { roles, getRoles } = useRoles();
+	const { roles } = useRoles();
 
 	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
@@ -93,10 +93,6 @@ export default function FinalReview(props: IStepElementProps) {
 			}
 		}
 	};
-
-	useEffect(() => {
-		getRoles();
-	}, [getRoles]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">

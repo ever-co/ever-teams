@@ -10,10 +10,9 @@ import {
 import {
   userState,
   taskLabelsListState,
-  taskLabelsFetchingState,
   activeTeamIdState
 } from '@app/stores';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
@@ -24,7 +23,7 @@ export function useTaskLabels() {
   const [user] = useAtom(userState);
   const activeTeamId = useAtomValue(activeTeamIdState);
 
-  const { loading, queryCall, loadingRef } = useQuery(getTaskLabelsList);
+  const { loading : getTaskLabelsLoading , queryCall : getTaskLabelsQueryCall, loadingRef : getTaskLabelsLoadingRef } = useQuery(getTaskLabelsList);
   const {
     loading: createTaskLabelsLoading,
     queryCall: createQueryCall
@@ -39,23 +38,14 @@ export function useTaskLabels() {
 
   const [taskLabels, setTaskLabels] = useAtom(taskLabelsListState);
 
-  const [taskLabelsFetching, setTaskLabelsFetching] = useAtom(
-    taskLabelsFetchingState
-  );
-  const { firstLoadData: firstLoadTaskLabelsData, firstLoad } = useFirstLoad();
+  const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
 
-  useEffect(() => {
-    if (firstLoad) {
-      setTaskLabelsFetching(loading);
-    }
-  }, [loading, firstLoad, setTaskLabelsFetching]);
-
-  const loadTaskLabels = useCallback(() => {
-    if (loadingRef.current) {
+  const loadTaskLabels = useCallback(async () => {
+    if (getTaskLabelsLoadingRef.current) {
       return;
     }
     const teamId = getActiveTeamIdCookie();
-    queryCall(
+    getTaskLabelsQueryCall(
       user?.tenantId as string,
       user?.employee?.organizationId as string,
       activeTeamId || teamId || null
@@ -67,13 +57,7 @@ export function useTaskLabels() {
       return res;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, activeTeamId, setTaskLabels, taskLabels, queryCall]);
-
-  useEffect(() => {
-    if (!firstLoad) return;
-
-    loadTaskLabels();
-  }, [activeTeamId, firstLoad, loadTaskLabels]);
+  }, [user, activeTeamId, setTaskLabels, taskLabels, getTaskLabelsQueryCall]);
 
   const createTaskLabels = useCallback(
     (data: ITaskLabelsCreate) => {
@@ -86,7 +70,7 @@ export function useTaskLabels() {
           user?.tenantId || ''
         ).then((res) => {
           if (res?.data && res?.data?.name) {
-            queryCall(
+            getTaskLabelsQueryCall(
               user?.tenantId as string,
               user?.employee?.organizationId as string,
               activeTeamId || null
@@ -101,14 +85,14 @@ export function useTaskLabels() {
       }
     },
 
-    [createQueryCall, user, activeTeamId, queryCall, setTaskLabels]
+    [createQueryCall, user, activeTeamId, getTaskLabelsQueryCall, setTaskLabels]
   );
 
   const deleteTaskLabels = useCallback(
     (id: string) => {
       if (user?.tenantId) {
         return deleteQueryCall(id).then((res) => {
-          queryCall(
+			getTaskLabelsQueryCall(
             user?.tenantId as string,
             user?.employee?.organizationId as string,
             activeTeamId || null
@@ -120,14 +104,14 @@ export function useTaskLabels() {
         });
       }
     },
-    [deleteQueryCall, user, activeTeamId, queryCall, setTaskLabels]
+    [deleteQueryCall, user, activeTeamId, getTaskLabelsQueryCall, setTaskLabels]
   );
 
   const editTaskLabels = useCallback(
     (id: string, data: ITaskLabelsCreate) => {
       if (user?.tenantId) {
         return editQueryCall(id, data, user?.tenantId || '').then((res) => {
-          queryCall(
+			getTaskLabelsQueryCall(
             user?.tenantId as string,
             user?.employee?.organizationId as string,
             activeTeamId || null
@@ -139,14 +123,18 @@ export function useTaskLabels() {
         });
       }
     },
-    [user, activeTeamId, editQueryCall, queryCall, setTaskLabels]
+    [user, activeTeamId, editQueryCall, getTaskLabelsQueryCall, setTaskLabels]
   );
 
+  const handleFirstLoad = useCallback(async () => {
+		await loadTaskLabels()
+		firstLoadTaskLabelsData()
+  },[firstLoadTaskLabelsData, loadTaskLabels])
+
   return {
-    loading: taskLabelsFetching,
+    loading: getTaskLabelsLoading,
     taskLabels,
-    taskLabelsFetching,
-    firstLoadTaskLabelsData,
+    firstLoadTaskLabelsData : handleFirstLoad,
     createTaskLabels,
     createTaskLabelsLoading,
     deleteTaskLabelsLoading,

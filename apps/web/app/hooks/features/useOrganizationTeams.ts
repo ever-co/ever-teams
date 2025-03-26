@@ -2,6 +2,8 @@
 
 import {
 	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie,
 	setActiveProjectIdCookie,
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
@@ -23,7 +25,6 @@ import {
 	isTeamMemberJustDeletedState,
 	isTeamMemberState,
 	organizationTeamsState,
-	teamsFetchingState,
 	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -279,7 +280,11 @@ function useUpdateOrganizationTeam() {
  */
 
 export function useOrganizationTeams() {
-	const { loading, queryCall, loadingRef } = useQuery(getOrganizationTeamsAPI);
+	const {
+		loading: getOrganizationTeamsLoading,
+		queryCall: getOrganizationTeamsQueryCall,
+		loadingRef: getOrganizationTeamsLoadingRef
+	} = useQuery(getOrganizationTeamsAPI);
 	const {
 		loading: loadingTeam,
 		queryCall: queryCallTeam,
@@ -287,16 +292,17 @@ export function useOrganizationTeams() {
 	} = useQuery(getOrganizationTeamAPI);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useAtomValue(activeTeamState);
+	const organizationId = getOrganizationIdCookie();
+	const tenantId = getTenantIdCookie();
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
-	const loadingTeamsRef = useSyncRef(loading);
+	const loadingTeamsRef = useSyncRef(getOrganizationTeamsLoading);
 
 	const [activeTeamId, setActiveTeamId] = useAtom(activeTeamIdState);
-	const [teamsFetching, setTeamsFetching] = useAtom(teamsFetchingState);
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	// const [isTeamJustDeleted, setIsTeamJustDeleted] = useAtom(isTeamJustDeletedState);
-	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
+	const { firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
@@ -316,10 +322,6 @@ export function useOrganizationTeams() {
 	)
 		? true
 		: false;
-
-	// useEffect(() => {
-	// 	setMemberActiveTaskId(memberActiveTaskId);
-	// }, [setMemberActiveTaskId, memberActiveTaskId]);
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
@@ -341,9 +343,6 @@ export function useOrganizationTeams() {
 		});
 		setIsTeamManager(!!isM);
 	}, [user, members]);
-	useEffect(() => {
-		setTeamsFetching(loading);
-	}, [loading, setTeamsFetching]);
 
 	const setActiveTeam = useCallback(
 		(team: (typeof teams)[0]) => {
@@ -365,7 +364,7 @@ export function useOrganizationTeams() {
 
 	const loadTeamsData = useCallback(() => {
 		if (
-			loadingRef.current ||
+			getOrganizationTeamsLoadingRef.current ||
 			loadingRefTeam.current ||
 			!user?.employee.organizationId ||
 			!user?.employee.tenantId
@@ -376,7 +375,7 @@ export function useOrganizationTeams() {
 		let teamId = getActiveTeamIdCookie();
 		setActiveTeamId(teamId);
 
-		return queryCall(user?.employee.organizationId, user?.employee.tenantId).then((res) => {
+		return getOrganizationTeamsQueryCall(user?.employee.organizationId, user?.employee.tenantId).then((res) => {
 			if (res.data?.items && res.data?.items?.length === 0) {
 				setIsTeamMember(false);
 				setIsTeamMemberJustDeleted(true);
@@ -432,26 +431,26 @@ export function useOrganizationTeams() {
 			return res;
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [queryCall, queryCallTeam, setActiveTeam, setActiveTeamId, setIsTeamMember, setTeams]);
+	}, [getOrganizationTeamsQueryCall, queryCallTeam, setActiveTeam, setActiveTeamId, setIsTeamMember, setTeams]);
 
-	/**
-	 * Get active team profile from api
-	 */
-	useEffect(() => {
-		if (activeTeamId && firstLoad && user?.employee.organizationId && user?.employee.tenantId) {
-			getOrganizationTeamAPI(activeTeamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
-				!loadingTeamsRef.current && setTeamsUpdate(res.data);
-			});
-		}
-	}, [
-		activeTeamId,
-		firstLoad,
-		loadingTeamsRef,
-		setTeams,
-		setTeamsUpdate,
-		user?.employee?.organizationId,
-		user?.employee?.tenantId
-	]);
+	// /**
+	//  * Get active team profile from api
+	//  */
+	// useEffect(() => {
+	// 	if (activeTeamId && firstLoad && user?.employee.organizationId && user?.employee.tenantId) {
+	// 		getOrganizationTeamAPI(activeTeamId, user?.employee.organizationId, user?.employee.tenantId).then((res) => {
+	// 			!loadingTeamsRef.current && setTeamsUpdate(res.data);
+	// 		});
+	// 	}
+	// }, [
+	// 	activeTeamId,
+	// 	firstLoad,
+	// 	loadingTeamsRef,
+	// 	setTeams,
+	// 	setTeamsUpdate,
+	// 	user?.employee?.organizationId,
+	// 	user?.employee?.tenantId
+	// ]);
 
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {
@@ -494,16 +493,29 @@ export function useOrganizationTeams() {
 		isManager();
 	}, [activeTeam, isManager]);
 
+	const handleFirstLoad = useCallback(async () => {
+		await loadTeamsData();
+
+		if (activeTeamId && organizationId && tenantId) {
+			const res = await getOrganizationTeamAPI(activeTeamId, organizationId, tenantId);
+
+			if (res) {
+				!loadingTeamsRef.current && setTeamsUpdate(res.data);
+			}
+		}
+
+		firstLoadTeamsData();
+	}, [activeTeamId, firstLoadTeamsData, loadTeamsData, loadingTeamsRef, organizationId, setTeamsUpdate, tenantId]);
+
 	return {
 		loadTeamsData,
-		loading,
+		getOrganizationTeamsLoading,
 		teams,
-		teamsFetching,
 		activeTeam,
 		setActiveTeam,
 		createOrganizationTeam,
 		createOTeamLoading,
-		firstLoadTeamsData,
+		firstLoadTeamsData: handleFirstLoad,
 		editOrganizationTeam,
 		editOrganizationTeamLoading,
 		deleteOrganizationTeam,

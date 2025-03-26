@@ -8,12 +8,12 @@ import { useTranslations } from 'next-intl';
 
 const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
-	const { activeTeam, teamsFetching } = useOrganizationTeams();
+	const { activeTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
 	const members = activeTeam?.members || [];
 	// const style = { width: `${100 / members.length}%` };
 
-	const $teamsFetching = teamsFetching && members.length === 0;
+	const $teamsFetching = getOrganizationTeamsLoading && members.length === 0;
 
 	const currentUser = members.find((m) => {
 		return m.employee.userId === user?.id;
