@@ -25,7 +25,7 @@ export function SidebarOptInForm() {
 	});
 
 	const subscribe = async () => {
-		let tags = ['Ever Teams, Ever Teams App', 'Open', 'Cloud'];
+		const tags = ['Ever Teams, Ever Teams App', 'Open', 'Cloud'];
 		setLoading((prev) => true);
 		const res = await fetch('/api/subscribe', {
 			body: JSON.stringify({

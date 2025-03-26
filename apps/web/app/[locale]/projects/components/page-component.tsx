@@ -14,7 +14,7 @@ import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
-import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
+// import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 import { ProjectsListView } from './project-views/list-view';
 import { VisibilityState } from '@tanstack/react-table';
 import { ProjectViewDataType } from './project-views';
@@ -25,6 +25,7 @@ import { hidableColumnNames } from './project-views/list-view/data-table';
 import { Checkbox } from '@components/ui/checkbox';
 import { BulkArchiveProjectsModal } from '@/lib/features/project/bulk-actions/bulk-archive-projects-modal';
 import { BulkRestoreProjectsModal } from '@/lib/features/project/bulk-actions/bulk-restore-projects-modal';
+import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -396,7 +397,7 @@ function PageComponent() {
 					) : null}
 				</div>
 				<FiltersCardModal closeModal={closeFiltersCardModal} open={isFiltersCardModalOpen} />
-				<AddOrEditProjectModal closeModal={closeProjectModal} open={isProjectModalOpen} />
+				<CreateProjectModal key={'create-project'} open={isProjectModalOpen} closeModal={closeProjectModal} />
 				{isBulkAction && (
 					<>
 						<BulkArchiveProjectsModal

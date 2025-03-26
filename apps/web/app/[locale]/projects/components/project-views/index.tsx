@@ -1,9 +1,9 @@
 import { useModal } from '@/app/hooks';
 import { IProject } from '@/app/interfaces';
 import { HorizontalSeparator } from '@/lib/components';
-import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 import { ArchiveProjectModal } from '@/lib/features/project/archive-project-modal';
 import { DeleteProjectConfirmModal } from '@/lib/features/project/delete-project-modal';
+import { EditProjectModal } from '@/lib/features/project/edit-project-modal';
 import { Menu, Transition } from '@headlessui/react';
 import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -110,12 +110,11 @@ export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 				open={isDeleteProjectModalOpen}
 				closeModal={closeDeleteProjectModal}
 			/>
-			<AddOrEditProjectModal
-				key={`${item.project.id}-add-or-edit-project`}
+			<EditProjectModal
 				projectId={item.project.id}
-				mode="edit"
-				closeModal={closeProjectModal}
 				open={isProjectModalOpen}
+				closeModal={closeProjectModal}
+				key={`${item.project.id}-edit-project`}
 			/>
 			<ArchiveProjectModal
 				key={`${item.project.id}-archive-project`}

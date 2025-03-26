@@ -1,6 +1,6 @@
 import { Button } from '@/lib/components';
 import { CheckIcon, Plus, X } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
@@ -12,9 +12,9 @@ import { useTranslations } from 'next-intl';
 import { getInitialValue } from '../utils';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
-	const { goToNext, currentData, mode } = props;
+	const { goToNext, goToPrevious, currentData } = props;
 	const [members, setMembers] = useState<{ memberId: string; roleId: string; id: string }[]>(() =>
-		getInitialValue(currentData, mode, 'members', [])
+		getInitialValue(currentData, 'members', [])
 	);
 	const [relations, setRelations] = useState<(IProjectRelation & { id: string })[]>([]);
 	const { organizationProjects } = useOrganizationProjects();
@@ -48,6 +48,13 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 			relations: relations.filter((el) => el.projectId && el.relationType)
 		});
 	};
+
+	const handlePrevious = useCallback(() => {
+		goToPrevious({
+			members,
+			relations: relations.filter((el) => el.projectId && el.relationType)
+		});
+	}, [goToPrevious, members, relations]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
@@ -184,7 +191,10 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 				</div>
 			</div>
 
-			<div className="w-full flex items-center justify-end">
+			<div className="w-full flex items-center justify-between">
+				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
+					{t('common.BACK')}
+				</Button>
 				<Button type="submit" className=" h-[2.5rem]">
 					{t('common.NEXT')}
 				</Button>
