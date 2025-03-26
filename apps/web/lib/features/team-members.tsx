@@ -110,7 +110,9 @@ export function TeamMembersView({
 	const sortOtherMembers = useCallback((members: OT_Member[]) => {
 		return members.sort((a, b) => {
 			if (a.order && b.order) return a.order > b.order ? -1 : 1;
-			else return -1;
+			if (a.order) return -1;
+			if (b.order) return 1;
+			return -1;
 		});
 	}, []);
 
