@@ -56,12 +56,6 @@ export function useDailyPlan() {
 	const [taskPlanList, setTaskPlans] = useAtom(taskPlans);
 	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
-	// useEffect(() => {
-	// 	if (firstLoad) {
-	// 		setDailyPlanFetching(getDayPlansByEmployeeLoading);
-	// 	}
-	// }, [getDayPlansByEmployeeLoading, firstLoad, setDailyPlanFetching]);
-
 	// All day plans
 
 	const getAllDayPlans = useCallback(async () => {
@@ -71,7 +65,6 @@ export function useDailyPlan() {
 			if (res) {
 				return res.data;
 			} else {
-<<<<<<< HEAD
 				console.error('Error fetching all day plans');
 			}
 		} catch (error) {
@@ -112,17 +105,6 @@ export function useDailyPlan() {
 	}, [getMyDailyPlans, setMyDailyPlans]);
 
 	// Employee day plans
-=======
-				// If no plans found, initialize with empty array
-				setMyDailyPlans({ items: [], total: 0 });
-			}
-		}).catch((error) => {
-			console.error('Failed to fetch daily plans:', error);
-			// In case of error, initialize with empty array
-			setMyDailyPlans({ items: [], total: 0 });
-		});
-	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
->>>>>>> e5db32f0 (docs: translate comments to English in useDailyPlan)
 
 	const getEmployeeDayPlans = useCallback(
 		async (employeeId: string) => {
