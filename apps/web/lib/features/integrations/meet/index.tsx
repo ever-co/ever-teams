@@ -86,7 +86,7 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 				disableModeratorIndicator: false,
 				startScreenSharing: false,
 				enableEmailInStats: false,
-				prejoinPageEnabled: true,
+				preJoinPageEnabled: true,
 				enableClosePage: true
 			}}
 			interfaceConfigOverwrite={{
