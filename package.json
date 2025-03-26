@@ -115,7 +115,22 @@
 	"commitlint": {
 		"extends": [
 			"@commitlint/config-conventional"
-		]
+		],
+		"rules": {
+			"type-enum": [
+				2,
+				"always",
+				[
+					"feat",
+					"fix",
+					"test",
+					"build",
+					"refactor",
+					"docs",
+					"chore"
+				]
+			]
+		}
 	},
 	"husky": {
 		"hooks": {
@@ -124,7 +139,10 @@
 		}
 	},
 	"lint-staged": {
-		"./apps/web/**/*.tsx": "eslint --fix"
+		"./apps/web/**/*.{ts,tsx,css,js,jsx,md}": [
+			"eslint --fix",
+			"prettier --write --config \"apps/web/.prettierrc\""
+		]
 	},
 	"release": {
 		"verifyConditions": [
