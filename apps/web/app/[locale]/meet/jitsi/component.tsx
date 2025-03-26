@@ -1,7 +1,7 @@
 'use client';
 
 import { useCollaborative, useQuery } from '@app/hooks';
-import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
+import { getMeetJwtAuthTokenAPI } from '@app/services/client/api/meet-auth';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import dynamic from 'next/dynamic';
@@ -18,7 +18,7 @@ const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 	loading: () => <BackdropLoader show />
 });
 
-function useMeetJwtToken() {
+function useMeetJwtToken(room?: string) {
 	const [token, setToken] = useState<string>();
 	const [error, setError] = useState<Error>();
 	const [retryCount, setRetryCount] = useState(0);
@@ -27,16 +27,16 @@ function useMeetJwtToken() {
 	useEffect(() => {
 		const getToken = async () => {
 			try {
-				const res = await queryCall();
+				const res = await queryCall({ room });
 				setToken(res.data.token);
 				setError(undefined);
 			} catch (err) {
 				console.error('Failed to fetch JWT token:', err);
-				
+
 				// If we haven't exceeded max retries, try again after delay
 				if (retryCount < MAX_RETRIES) {
 					setTimeout(() => {
-						setRetryCount(prev => prev + 1);
+						setRetryCount((prev) => prev + 1);
 					}, RETRY_DELAY);
 					return;
 				}
@@ -45,13 +45,15 @@ function useMeetJwtToken() {
 			}
 		};
 
-		getToken();
-	}, [queryCall, retryCount]); // Added retryCount to dependencies
+		if (room) {
+			getToken();
+		}
+	}, [queryCall, retryCount, room]); // Added room to dependencies
 
-	// Reset retry count when query changes
+	// Reset retry count when query or room changes
 	useEffect(() => {
 		setRetryCount(0);
-	}, [queryCall]);
+	}, [queryCall, room]);
 
 	return { loading, token, error, retrying: retryCount > 0 };
 }
@@ -59,8 +61,6 @@ function useMeetJwtToken() {
 function MeetPage() {
 	const router = useRouter();
 	const pathname = usePathname();
-	const { token, error, retrying } = useMeetJwtToken();
-	const { randomMeetName } = useCollaborative();
 	const replaced = useRef(false);
 
 	// Extract room name from URL with proper validation
@@ -76,6 +76,9 @@ function MeetPage() {
 
 		return roomParam && /^[A-Za-z0-9+/=]+$/.test(roomParam) ? roomParam : null;
 	}, [pathname]);
+
+	const { token, error, retrying } = useMeetJwtToken(room || undefined);
+	const { randomMeetName } = useCollaborative();
 
 	// Handle room creation and navigation
 	useEffect(() => {
@@ -108,7 +111,7 @@ function MeetPage() {
 			<div className="flex flex-col items-center justify-center p-4">
 				<h2 className="text-xl font-semibold text-red-600 mb-2">Failed to initialize meeting</h2>
 				<p className="text-gray-600 mb-4">{error.message}</p>
-				<button 
+				<button
 					onClick={() => window.location.reload()}
 					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 				>
