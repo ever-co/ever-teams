@@ -8,6 +8,10 @@ import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+// Maximum number of retry attempts
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
 // Lazy load Meet component
 const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 	ssr: false,
@@ -17,6 +21,7 @@ const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 function useMeetJwtToken() {
 	const [token, setToken] = useState<string>();
 	const [error, setError] = useState<Error>();
+	const [retryCount, setRetryCount] = useState(0);
 	const { queryCall, loading } = useQuery(getMeetJwtAuthTokenAPI);
 
 	useEffect(() => {
@@ -24,21 +29,37 @@ function useMeetJwtToken() {
 			try {
 				const res = await queryCall();
 				setToken(res.data.token);
+				setError(undefined);
 			} catch (err) {
+				console.error('Failed to fetch JWT token:', err);
+				
+				// If we haven't exceeded max retries, try again after delay
+				if (retryCount < MAX_RETRIES) {
+					setTimeout(() => {
+						setRetryCount(prev => prev + 1);
+					}, RETRY_DELAY);
+					return;
+				}
+
 				setError(err as Error);
 			}
 		};
 
 		getToken();
-	}, [queryCall]); // Added queryCall to dependencies
+	}, [queryCall, retryCount]); // Added retryCount to dependencies
 
-	return { loading, token, error };
+	// Reset retry count when query changes
+	useEffect(() => {
+		setRetryCount(0);
+	}, [queryCall]);
+
+	return { loading, token, error, retrying: retryCount > 0 };
 }
 
 function MeetPage() {
 	const router = useRouter();
 	const pathname = usePathname();
-	const { token, error } = useMeetJwtToken();
+	const { token, error, retrying } = useMeetJwtToken();
 	const { randomMeetName } = useCollaborative();
 	const replaced = useRef(false);
 
@@ -81,9 +102,29 @@ function MeetPage() {
 		}
 	}, [room]);
 
-	// Show error state if token fetch failed
+	// Show error or retrying state
 	if (error) {
-		return <div>Failed to initialize meeting: {error.message}</div>;
+		return (
+			<div className="flex flex-col items-center justify-center p-4">
+				<h2 className="text-xl font-semibold text-red-600 mb-2">Failed to initialize meeting</h2>
+				<p className="text-gray-600 mb-4">{error.message}</p>
+				<button 
+					onClick={() => window.location.reload()}
+					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+				>
+					Try Again
+				</button>
+			</div>
+		);
+	}
+
+	if (retrying) {
+		return (
+			<div className="flex items-center justify-center p-4">
+				<BackdropLoader show />
+				<p className="ml-2">Reconnecting...</p>
+			</div>
+		);
 	}
 
 	return (
