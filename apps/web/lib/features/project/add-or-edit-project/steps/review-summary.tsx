@@ -131,7 +131,12 @@ export default function FinalReview(props: IStepElementProps) {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-between">
-				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
+				<Button
+					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
+					onClick={handlePrevious}
+					className=" h-[2.5rem]"
+					type="button"
+				>
 					{t('common.BACK')}
 				</Button>
 				{mode == 'edit' ? (

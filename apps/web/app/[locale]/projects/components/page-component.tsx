@@ -14,7 +14,6 @@ import { LAST_SELECTED_PROJECTS_VIEW } from '@/app/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import FiltersCardModal from './filters-card-modal';
-// import AddOrEditProjectModal from '@/lib/features/project/add-or-edit-project';
 import { ProjectsListView } from './project-views/list-view';
 import { VisibilityState } from '@tanstack/react-table';
 import { ProjectViewDataType } from './project-views';

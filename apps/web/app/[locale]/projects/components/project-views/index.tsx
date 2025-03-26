@@ -111,10 +111,10 @@ export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 				closeModal={closeDeleteProjectModal}
 			/>
 			<EditProjectModal
+				key={`${item.project.id}-edit-project`}
 				projectId={item.project.id}
 				open={isProjectModalOpen}
 				closeModal={closeProjectModal}
-				key={`${item.project.id}-edit-project`}
 			/>
 			<ArchiveProjectModal
 				key={`${item.project.id}-archive-project`}
