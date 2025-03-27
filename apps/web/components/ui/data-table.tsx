@@ -32,12 +32,7 @@ interface DataTableProps<TData, TValue> {
 	isScrollable?: boolean;
 }
 
-function DataTable<TData, TValue>({
-	columns,
-	data,
-	footerRows,
-	isHeader,
-}: Readonly<DataTableProps<TData, TValue>>) {
+function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Readonly<DataTableProps<TData, TValue>>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -119,7 +114,7 @@ function DataTable<TData, TValue>({
 									data-state={row.getIsSelected() && 'selected'}
 									className={clsxm(
 										'my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40',
-										i == 1 && 'max-w-[615px'
+										i == 1 && 'max-w-[615px]'
 									)}
 								>
 									{row.getVisibleCells().map((cell, index) => {

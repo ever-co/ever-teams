@@ -3,7 +3,7 @@ import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
 import { differenceBetweenHours, formatDate, secondsToTime } from '@/app/helpers';
-import { ClockIcon } from "@radix-ui/react-icons"
+import { ClockIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -57,7 +57,7 @@ export function TaskNameInfoDisplay({
 					<div className="">
 						<TaskIssueStatus
 							showIssueLabels={false}
-							className={clsxm( taskIssueStatusClassName)}
+							className={clsxm(taskIssueStatusClassName)}
 							task={task}
 						/>
 					</div>
@@ -67,7 +67,7 @@ export function TaskNameInfoDisplay({
 						#{task?.taskNumber} {dash && '-'}
 					</span>
 					{task?.title}
-					{showSize && <span className={clsxm(size && `${color}`,'bg-red-600')}>{size && '  ' + short}</span>}
+					{showSize && <span className={clsxm(size && `${color}`)}>{size && '  ' + short}</span>}
 				</span>
 			</span>
 		</Tooltip>
@@ -89,8 +89,13 @@ const formatTime = (hours: number, minutes: number, second?: number) => (
 	</div>
 );
 
-export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLog: TimesheetLog, logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined }) => {
-
+export const DisplayTimeForTimesheet = ({
+	timesheetLog,
+	logType
+}: {
+	timesheetLog: TimesheetLog;
+	logType?: 'TRACKED' | 'MANUAL' | 'IDLE' | undefined;
+}) => {
 	const seconds = differenceBetweenHours(
 		timesheetLog.startedAt instanceof Date ? timesheetLog.startedAt : new Date(timesheetLog.startedAt),
 		timesheetLog.stoppedAt instanceof Date ? timesheetLog.stoppedAt : new Date(timesheetLog.stoppedAt)
@@ -102,7 +107,7 @@ export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLo
 	const icons = {
 		MANUAL: <UserPlusIcon className={`text-red-500 ${iconClasses}`} />,
 		TRACKED: <ClockIcon className={`text-green-400 ${iconClasses}`} />,
-		IDLE: <CalendarArrowDown className={`text-yellow-400 ${iconClasses}`} />,
+		IDLE: <CalendarArrowDown className={`text-yellow-400 ${iconClasses}`} />
 	};
 	const resolvedLogType: keyof typeof icons = logType ?? 'TRACKED';
 	return (
@@ -113,52 +118,52 @@ export const DisplayTimeForTimesheet = ({ timesheetLog, logType }: { timesheetLo
 			</div>
 		</div>
 	);
-}
+};
 
+export const TotalTimeDisplay = React.memo(
+	({ timesheetLog, className }: { timesheetLog: TimesheetLog[]; className?: string }) => {
+		const totalDuration = Array.isArray(timesheetLog)
+			? timesheetLog.reduce((acc, item) => {
+					const seconds = differenceBetweenHours(
+						item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+						item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+					);
+					return acc + seconds;
+				}, 0)
+			: 0;
 
-export const TotalTimeDisplay = React.memo(({ timesheetLog, className }: { timesheetLog: TimesheetLog[], className?: string }) => {
-
-	const totalDuration = Array.isArray(timesheetLog)
-		? timesheetLog.reduce((acc, item) => {
-			const seconds = differenceBetweenHours(
-				item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
-				item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
-			);
-			return acc + seconds
-		}, 0)
-		: 0;
-
-	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
-	return (
-		<div className={cn("flex items-center text-[#868688]", className)}>
-			{formatTime(hours, minute)}
-		</div>)
-});
+		const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+		return <div className={cn('flex items-center text-[#868688]', className)}>{formatTime(hours, minute)}</div>;
+	}
+);
 TotalTimeDisplay.displayName = 'TotalTimeDisplay';
 
-
 export const TotalDurationByDate = React.memo(
-	({ timesheetLog, createdAt, className }: { timesheetLog: TimesheetLog[]; createdAt: Date | string, className?: string }) => {
-
+	({
+		timesheetLog,
+		createdAt,
+		className
+	}: {
+		timesheetLog: TimesheetLog[];
+		createdAt: Date | string;
+		className?: string;
+	}) => {
 		const filteredLogs = timesheetLog.filter(
-			(item) => formatDate(item.timesheet.createdAt) === formatDate(createdAt));
+			(item) => formatDate(item.timesheet.createdAt) === formatDate(createdAt)
+		);
 
 		const totalDurationInSeconds = Array.isArray(filteredLogs)
 			? filteredLogs.reduce((acc, item) => {
-				const seconds = differenceBetweenHours(
-					item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
-					item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
-				)
-				return acc + seconds
-			}, 0)
+					const seconds = differenceBetweenHours(
+						item.startedAt instanceof Date ? item.startedAt : new Date(item.startedAt),
+						item.stoppedAt instanceof Date ? item.stoppedAt : new Date(item.stoppedAt)
+					);
+					return acc + seconds;
+				}, 0)
 			: 0;
 
-		const { h: hours, m: minutes, } = secondsToTime(totalDurationInSeconds);
-		return (
-			<div className={clsxm("flex items-center text-[#868688]", className)}>
-				{formatTime(hours, minutes)}
-			</div>
-		);
+		const { h: hours, m: minutes } = secondsToTime(totalDurationInSeconds);
+		return <div className={clsxm('flex items-center text-[#868688]', className)}>{formatTime(hours, minutes)}</div>;
 	}
 );
 TotalDurationByDate.displayName = 'TotalDurationByDate';
