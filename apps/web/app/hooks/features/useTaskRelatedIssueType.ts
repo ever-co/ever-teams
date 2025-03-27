@@ -13,7 +13,7 @@ import {
   taskRelatedIssueTypeListState,
   activeTeamIdState
 } from '@app/stores';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
@@ -24,7 +24,7 @@ export function useTaskRelatedIssueType() {
   const [user] = useAtom(userState);
   const activeTeamId = useAtomValue(activeTeamIdState);
 
-  const { loading, queryCall } = useQuery(getTaskRelatedIssueTypeList);
+  const { loading : getTaskRelatedIssueTypeLoading , queryCall : getTaskRelatedIssueTypeQueryCall } = useQuery(getTaskRelatedIssueTypeList);
   const {
     loading: createTaskRelatedIssueTypeLoading,
     queryCall: createQueryCall
@@ -43,22 +43,15 @@ export function useTaskRelatedIssueType() {
   );
   const [
     taskRelatedIssueTypeFetching,
-    setTaskRelatedIssueTypeFetching
   ] = useAtom(taskRelatedIssueTypeFetchingState);
   const {
     firstLoadData: firstLoadTaskRelatedIssueTypeData,
-    firstLoad
   } = useFirstLoad();
 
-  useEffect(() => {
-    if (firstLoad) {
-      setTaskRelatedIssueTypeFetching(loading);
-    }
-  }, [loading, firstLoad, setTaskRelatedIssueTypeFetching]);
 
-  const loadTaskRelatedIssueTypeData = useCallback(() => {
+  const loadTaskRelatedIssueTypeData = useCallback(async () => {
     const teamId = getActiveTeamIdCookie();
-    queryCall(
+    getTaskRelatedIssueTypeQueryCall(
       user?.tenantId as string,
       user?.employee?.organizationId as string,
       activeTeamId || teamId || null
@@ -68,18 +61,8 @@ export function useTaskRelatedIssueType() {
       }
       return res;
     });
-  }, [
-    user,
-    activeTeamId,
-    setTaskRelatedIssueType,
-    taskRelatedIssueType,
-    queryCall
-  ]);
+  }, [getTaskRelatedIssueTypeQueryCall, user?.tenantId, user?.employee?.organizationId, activeTeamId, taskRelatedIssueType, setTaskRelatedIssueType]);
 
-  useEffect(() => {
-    if (!firstLoad) return;
-    loadTaskRelatedIssueTypeData();
-  }, [activeTeamId, firstLoad, loadTaskRelatedIssueTypeData]);
 
   const createTaskRelatedIssueType = useCallback(
     (data: ITaskRelatedIssueTypeCreate) => {
@@ -100,7 +83,7 @@ export function useTaskRelatedIssueType() {
     (id: string) => {
       if (user?.tenantId) {
         return deleteQueryCall(id).then((res) => {
-          queryCall(
+			getTaskRelatedIssueTypeQueryCall(
             user?.tenantId as string,
             user?.employee?.organizationId as string,
             activeTeamId || null
@@ -112,14 +95,14 @@ export function useTaskRelatedIssueType() {
         });
       }
     },
-    [deleteQueryCall, user, activeTeamId, queryCall, setTaskRelatedIssueType]
+    [user?.tenantId, user?.employee?.organizationId, deleteQueryCall, getTaskRelatedIssueTypeQueryCall, activeTeamId, setTaskRelatedIssueType]
   );
 
   const editTaskRelatedIssueType = useCallback(
     (id: string, data: ITaskRelatedIssueTypeCreate) => {
       if (user?.tenantId) {
         return editQueryCall(id, data, user?.tenantId || '').then((res) => {
-          queryCall(
+			getTaskRelatedIssueTypeQueryCall(
             user?.tenantId as string,
             user?.employee?.organizationId as string,
             activeTeamId || null
@@ -131,14 +114,19 @@ export function useTaskRelatedIssueType() {
         });
       }
     },
-    [user, activeTeamId, setTaskRelatedIssueType, editQueryCall, queryCall]
+    [user?.tenantId, user?.employee?.organizationId, editQueryCall, getTaskRelatedIssueTypeQueryCall, activeTeamId, setTaskRelatedIssueType]
   );
 
+  const handleFirstLoad = useCallback(async () => {
+	await loadTaskRelatedIssueTypeData()
+	firstLoadTaskRelatedIssueTypeData()
+  },[firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData])
+
   return {
-    loading: taskRelatedIssueTypeFetching,
+    loading : getTaskRelatedIssueTypeLoading,
     taskRelatedIssueType,
     taskRelatedIssueTypeFetching,
-    firstLoadTaskRelatedIssueTypeData,
+    firstLoadTaskRelatedIssueTypeData : handleFirstLoad,
     createTaskRelatedIssueType,
     createTaskRelatedIssueTypeLoading,
     deleteTaskRelatedIssueTypeLoading,

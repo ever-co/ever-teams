@@ -43,7 +43,7 @@ export function useTaskInput({
   const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
     null
   );
-  const { taskStatus: taskStatusList } = useTaskStatus();
+  const { taskStatuses: taskStatusList } = useTaskStatus();
   const {
     tasks: teamTasks,
     activeTeamTask,

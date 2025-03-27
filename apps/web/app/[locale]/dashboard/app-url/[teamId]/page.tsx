@@ -38,15 +38,8 @@ function AppUrls() {
 	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type', 'date');
 	const { closeModal, isOpen, openModal } = useModal();
 
-	const {
-		activityReport,
-		loadingActivityReport,
-		handleGroupByChange,
-		updateDateRange,
-		updateFilters,
-		currentFilters,
-		isManage
-	} = useReportActivity({ types: 'APPS-URLS' });
+	const { activityReport, handleGroupByChange, updateDateRange, updateFilters, currentFilters, isManage, loading } =
+		useReportActivity({ types: 'APPS-URLS' });
 
 	const handleGroupTypeChange = (type: GroupByType) => {
 		setGroupByType(type);
@@ -149,17 +142,13 @@ function AppUrls() {
 				{(() => {
 					switch (groupByType) {
 						case 'project':
-							return <ProductivityProjectTable data={activityReport} isLoading={loadingActivityReport} />;
+							return <ProductivityProjectTable data={activityReport} isLoading={loading} />;
 						case 'date':
-							return <ProductivityTable data={activityReport} isLoading={loadingActivityReport} />;
+							return <ProductivityTable data={activityReport} isLoading={loading} />;
 						case 'employee':
-							return (
-								<ProductivityEmployeeTable data={activityReport} isLoading={loadingActivityReport} />
-							);
+							return <ProductivityEmployeeTable data={activityReport} isLoading={loading} />;
 						case 'application':
-							return (
-								<ProductivityApplicationTable data={activityReport} isLoading={loadingActivityReport} />
-							);
+							return <ProductivityApplicationTable data={activityReport} isLoading={loading} />;
 					}
 				})()}
 			</Container>

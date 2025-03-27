@@ -1,5 +1,5 @@
 import { Button, VerticalSeparator } from '@/lib/components';
-import { Fragment, ReactNode, useEffect } from 'react';
+import { Fragment, ReactNode, useCallback } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { useOrganizationProjects, useOrganizationTeams } from '@/app/hooks';
 import { Thumbnail } from './basic-information-form';
@@ -18,7 +18,7 @@ import { useRoles } from '@/app/hooks/features/useRoles';
 import { RolesEnum } from '@/app/interfaces/IRoles';
 
 export default function FinalReview(props: IStepElementProps) {
-	const { finish, currentData: finalData, mode } = props;
+	const { goToPrevious, finish, currentData: finalData, mode } = props;
 	const {
 		createOrganizationProject,
 		createOrganizationProjectLoading,
@@ -28,7 +28,7 @@ export default function FinalReview(props: IStepElementProps) {
 	} = useOrganizationProjects();
 	const t = useTranslations();
 	const { activeTeam } = useOrganizationTeams();
-	const { roles, getRoles } = useRoles();
+	const { roles } = useRoles();
 
 	const simpleMemberRole = roles?.find((role) => role.name == RolesEnum.EMPLOYEE);
 	const managerRole = roles?.find((role) => role.name == RolesEnum.MANAGER);
@@ -94,9 +94,9 @@ export default function FinalReview(props: IStepElementProps) {
 		}
 	};
 
-	useEffect(() => {
-		getRoles();
-	}, [getRoles]);
+	const handlePrevious = useCallback(() => {
+		goToPrevious(finalData);
+	}, [finalData, goToPrevious]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
@@ -130,7 +130,15 @@ export default function FinalReview(props: IStepElementProps) {
 					/>
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-end">
+			<div className="w-full flex items-center justify-between">
+				<Button
+					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
+					onClick={handlePrevious}
+					className=" h-[2.5rem]"
+					type="button"
+				>
+					{t('common.BACK')}
+				</Button>
 				{mode == 'edit' ? (
 					<Button
 						loading={editOrganizationProjectLoading}

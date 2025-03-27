@@ -1,4 +1,4 @@
-import { useModal, useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@app/hooks';
+import { useModal, useTeamTasks } from '@app/hooks';
 import { IProject, ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -27,7 +27,7 @@ import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import ProjectIcon from '@components/ui/svgs/project-icon';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
-import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
+import { QuickCreateProjectModal } from '@/lib/features/project/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
@@ -285,14 +285,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const { getOrganizationProjects } = useOrganizationProjects();
 	const { updateTask, updateLoading } = useTeamTasks();
-	const { teams } = useOrganizationTeams();
 	const t = useTranslations();
-
-	useEffect(() => {
-		getOrganizationProjects();
-	}, [getOrganizationProjects, teams]);
 
 	const [selected, setSelected] = useState<IProject>();
 
@@ -412,7 +406,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										>
 											<ScrollArea className="w-full h-full">
 												<div className="flex flex-col gap-2.5 w-full p-4">
-													{organizationProjects.map((item, i) => {
+													{organizationProjects.map((item) => {
 														return (
 															<Listbox.Option key={item.id} value={item} as={Fragment}>
 																<li className="relative border h-[2rem] flex items-center gap-2 px-2 rounded-lg outline-none cursor-pointer dark:text-white">
@@ -452,7 +446,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					}}
 				</Listbox>
 			</div>
-			<CreateProjectModal
+			<QuickCreateProjectModal
 				onSuccess={(project) => {
 					setSelected(project);
 					onChange?.(project);

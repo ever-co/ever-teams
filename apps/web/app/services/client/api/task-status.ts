@@ -1,8 +1,12 @@
-import { DeleteResponse, ITaskStatusCreate, ITaskStatusItemList, PaginationResponse } from '@app/interfaces';
+import {
+	DeleteResponse,
+	ITaskStatusCreate,
+	ITaskStatusItemList,
+	ITaskStatusOrder,
+	PaginationResponse
+} from '@app/interfaces';
 import { deleteApi, get, post, put, patch } from '../axios';
 import qs from 'qs';
-
-import { UUID } from 'crypto';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
 	return post<ITaskStatusCreate>('/task-statuses', data, {
@@ -16,12 +20,8 @@ export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?
 	});
 }
 
-type ITaskStatusOrder = {
-	organizationId: UUID;
-	reorder: { id: string; order: number }[];
-};
 export function editTaskStatusOrderAPI(data: ITaskStatusOrder, tenantId?: string) {
-	return patch<ITaskStatusCreate>(`/task-statuses/reorder`, data, {
+	return patch<ITaskStatusOrder["reorder"]>(`/task-statuses/reorder`, data, {
 		tenantId,
 		method: 'PATCH'
 	});
@@ -30,7 +30,7 @@ export function deleteTaskStatusAPI(id: string) {
 	return deleteApi<DeleteResponse>(`/task-statuses/${id}`);
 }
 
-export async function getTaskStatusList(tenantId: string, organizationId: string, organizationTeamId: string | null) {
+export async function getTaskStatusesAPI(tenantId: string, organizationId: string, organizationTeamId: string | null) {
 	const query = qs.stringify({
 		tenantId,
 		organizationId,

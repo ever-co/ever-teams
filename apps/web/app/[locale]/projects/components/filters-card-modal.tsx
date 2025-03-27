@@ -45,11 +45,11 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 		],
 		[t]
 	);
-	const { taskStatus } = useTaskStatus();
+	const { taskStatuses } = useTaskStatus();
 	const router = useRouter();
 	const statusColorsMap: Map<string | undefined, string | undefined> = useMemo(() => {
-		return new Map(taskStatus.map((status) => [status.name, status.color]));
-	}, [taskStatus]);
+		return new Map(taskStatuses.map((status) => [status.name, status.color]));
+	}, [taskStatuses]);
 
 	const members = useMemo(() => {
 		const uniqueMembers = new Map();
@@ -200,7 +200,7 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 						</div>
 						<MultiSelectWithSearch
 							selectedOptions={selectedStatus.map((statusId) => {
-								const name = taskStatus.find((status) => status.name === statusId)?.name ?? '-';
+								const name = taskStatuses.find((status) => status.name === statusId)?.name ?? '-';
 
 								return {
 									value: name,
@@ -208,7 +208,7 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 								};
 							})}
 							onChange={(data) => setSelectedStatus(data.map((status) => status.value))}
-							options={taskStatus
+							options={taskStatuses
 								?.filter((el) => el.name)
 								?.map((status) => ({ id: status.id, value: status.name! }))}
 							placeholder="Select a status..."
@@ -218,14 +218,14 @@ export default function FiltersCardModal(props: IFiltersCardModalProps) {
 								<div
 									style={{
 										backgroundColor: statusColorsMap.get(
-											taskStatus.find((el) => el.name == statusId)?.name
+											taskStatuses.find((el) => el.name == statusId)?.name
 										)
 									}}
 									className=" rounded-md flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
 									key={statusId}
 								>
 									<span className="text-[.65rem] font-light">
-										{taskStatus.find((el) => el.name == statusId)?.name}
+										{taskStatuses.find((el) => el.name == statusId)?.name}
 									</span>
 									<button
 										onClick={() => setSelectedStatus(selectedStatus.filter((t) => t !== statusId))}

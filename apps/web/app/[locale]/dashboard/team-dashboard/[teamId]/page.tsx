@@ -33,9 +33,7 @@ function TeamDashboard() {
 		rapportDailyActivity,
 		statisticsCounts,
 		updateDateRange,
-		loadingTimeLogReportDailyChart,
-		loadingTimeLogReportDaily,
-		loadingTimesheetStatisticsCounts,
+		loading,
 		isManage,
 		currentFilters
 	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
@@ -81,7 +79,7 @@ function TeamDashboard() {
 							/>
 							<TeamStatsGrid
 								statisticsCounts={statisticsCounts}
-								loadingTimesheetStatisticsCounts={loadingTimesheetStatisticsCounts}
+								loadingTimesheetStatisticsCounts={loading}
 							/>
 							<div className="w-full">
 								{!showChart && (
@@ -104,7 +102,7 @@ function TeamDashboard() {
 											<div className="relative">
 												<TeamStatsChart
 													rapportChartActivity={rapportChartActivity}
-													isLoading={loadingTimeLogReportDailyChart}
+													isLoading={loading}
 												/>
 												<div className="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-gradient-to-t from-gray-50/60 dark:from-gray-900/60 to-transparent py-0.5">
 													<Button
@@ -130,7 +128,7 @@ function TeamDashboard() {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light">
-					<TeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loadingTimeLogReportDaily} />
+					<TeamStatsTable rapportDailyActivity={rapportDailyActivity} isLoading={loading} />
 				</Card>
 			</Container>
 		</MainLayout>

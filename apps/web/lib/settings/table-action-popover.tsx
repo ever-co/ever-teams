@@ -3,7 +3,7 @@ import { useRoles } from '@app/hooks/features/useRoles';
 import { OT_Member, RoleNameEnum } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
-import { Fragment, useEffect } from 'react';
+import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
@@ -12,7 +12,7 @@ import { useEmployeeUpdate } from '@app/hooks/features/useEmployee';
 type Props = {
 	member: OT_Member;
 	handleEdit?: (member: OT_Member) => void;
-	status?: 'settings' | 'profile'
+	status?: 'settings' | 'profile';
 };
 /**
  *
@@ -52,19 +52,23 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}>
+						<Popover.Panel
+							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}
+						>
 							{/* TODO Dynamic */}
 							{/* Edit */}
-							{status === 'settings' && <div
-								className="flex items-center w-auto h-8 hover:cursor-pointer"
-								onClick={() => {
-									handleEdit && handleEdit(member);
-								}}
-							>
-								<span className="text-[#282048] text-xs font-semibold dark:text-white">
-									{t('common.EDIT')}
-								</span>
-							</div>}
+							{status === 'settings' && (
+								<div
+									className="flex items-center w-auto h-8 hover:cursor-pointer"
+									onClick={() => {
+										handleEdit && handleEdit(member);
+									}}
+								>
+									<span className="text-[#282048] text-xs font-semibold dark:text-white">
+										{t('common.EDIT')}
+									</span>
+								</div>
+							)}
 
 							{/* TODO Dynamic */}
 							{/* Change Role */}
@@ -74,7 +78,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 								</span>
 							</div> */}
 							<RolePopover />
-							{isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER &&
+							{isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER && (
 								<div className=" flex justify-between items-center gap-x-2">
 									<span>Time tracking</span>
 									<div
@@ -100,16 +104,29 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 										<div
 											className={` ${member.employee.isTrackingEnabled ? 'bg-[#ea3124]' : 'bg-[#2ead81]'} w-4 h-4 rounded-full shadow-md transform transition-transform ${member.employee.isTrackingEnabled ? 'translate-x-9' : 'translate-x-0'}`}
 										>
-
 											{!isLoading && renderTrackingIcon(member.employee.isTrackingEnabled)}
 
-											{isLoading ?
-												<svg className='animate-spin' width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.90321 7.29677C1.90321 10.341 4.11041 12.4147 6.58893 12.8439C6.87255 12.893 7.06266 13.1627 7.01355 13.4464C6.96444 13.73 6.69471 13.9201 6.41109 13.871C3.49942 13.3668 0.86084 10.9127 0.86084 7.29677C0.860839 5.76009 1.55996 4.55245 2.37639 3.63377C2.96124 2.97568 3.63034 2.44135 4.16846 2.03202L2.53205 2.03202C2.25591 2.03202 2.03205 1.80816 2.03205 1.53202C2.03205 1.25588 2.25591 1.03202 2.53205 1.03202L5.53205 1.03202C5.80819 1.03202 6.03205 1.25588 6.03205 1.53202L6.03205 4.53202C6.03205 4.80816 5.80819 5.03202 5.53205 5.03202C5.25591 5.03202 5.03205 4.80816 5.03205 4.53202L5.03205 2.68645L5.03054 2.68759L5.03045 2.68766L5.03044 2.68767L5.03043 2.68767C4.45896 3.11868 3.76059 3.64538 3.15554 4.3262C2.44102 5.13021 1.90321 6.10154 1.90321 7.29677ZM13.0109 7.70321C13.0109 4.69115 10.8505 2.6296 8.40384 2.17029C8.12093 2.11718 7.93465 1.84479 7.98776 1.56188C8.04087 1.27898 8.31326 1.0927 8.59616 1.14581C11.4704 1.68541 14.0532 4.12605 14.0532 7.70321C14.0532 9.23988 13.3541 10.4475 12.5377 11.3662C11.9528 12.0243 11.2837 12.5586 10.7456 12.968L12.3821 12.968C12.6582 12.968 12.8821 13.1918 12.8821 13.468C12.8821 13.7441 12.6582 13.968 12.3821 13.968L9.38205 13.968C9.10591 13.968 8.88205 13.7441 8.88205 13.468L8.88205 10.468C8.88205 10.1918 9.10591 9.96796 9.38205 9.96796C9.65819 9.96796 9.88205 10.1918 9.88205 10.468L9.88205 12.3135L9.88362 12.3123C10.4551 11.8813 11.1535 11.3546 11.7585 10.6738C12.4731 9.86976 13.0109 8.89844 13.0109 7.70321Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg> : null
-											}
+											{isLoading ? (
+												<svg
+													className="animate-spin"
+													width="15"
+													height="15"
+													viewBox="0 0 15 15"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M1.90321 7.29677C1.90321 10.341 4.11041 12.4147 6.58893 12.8439C6.87255 12.893 7.06266 13.1627 7.01355 13.4464C6.96444 13.73 6.69471 13.9201 6.41109 13.871C3.49942 13.3668 0.86084 10.9127 0.86084 7.29677C0.860839 5.76009 1.55996 4.55245 2.37639 3.63377C2.96124 2.97568 3.63034 2.44135 4.16846 2.03202L2.53205 2.03202C2.25591 2.03202 2.03205 1.80816 2.03205 1.53202C2.03205 1.25588 2.25591 1.03202 2.53205 1.03202L5.53205 1.03202C5.80819 1.03202 6.03205 1.25588 6.03205 1.53202L6.03205 4.53202C6.03205 4.80816 5.80819 5.03202 5.53205 5.03202C5.25591 5.03202 5.03205 4.80816 5.03205 4.53202L5.03205 2.68645L5.03054 2.68759L5.03045 2.68766L5.03044 2.68767L5.03043 2.68767C4.45896 3.11868 3.76059 3.64538 3.15554 4.3262C2.44102 5.13021 1.90321 6.10154 1.90321 7.29677ZM13.0109 7.70321C13.0109 4.69115 10.8505 2.6296 8.40384 2.17029C8.12093 2.11718 7.93465 1.84479 7.98776 1.56188C8.04087 1.27898 8.31326 1.0927 8.59616 1.14581C11.4704 1.68541 14.0532 4.12605 14.0532 7.70321C14.0532 9.23988 13.3541 10.4475 12.5377 11.3662C11.9528 12.0243 11.2837 12.5586 10.7456 12.968L12.3821 12.968C12.6582 12.968 12.8821 13.1918 12.8821 13.468C12.8821 13.7441 12.6582 13.968 12.3821 13.968L9.38205 13.968C9.10591 13.968 8.88205 13.7441 8.88205 13.468L8.88205 10.468C8.88205 10.1918 9.10591 9.96796 9.38205 9.96796C9.65819 9.96796 9.88205 10.1918 9.88205 10.468L9.88205 12.3135L9.88362 12.3123C10.4551 11.8813 11.1535 11.3546 11.7585 10.6738C12.4731 9.86976 13.0109 8.89844 13.0109 7.70321Z"
+														fill="currentColor"
+														fillRule="evenodd"
+														clipRule="evenodd"
+													></path>
+												</svg>
+											) : null}
 										</div>
 									</div>
 								</div>
-							}
+							)}
 
 							{/* TODO Dynamic */}
 							{/* Need to integrate with API */}
@@ -123,20 +140,27 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 							</div> */}
 
 							{/* Delete */}
-							{status === 'settings' && <div
-								className={`flex items-center h-8 w-auto ${!isCurrentUser ? 'hover:cursor-pointer' : ''
+							{status === 'settings' && (
+								<div
+									className={`flex items-center h-8 w-auto ${
+										!isCurrentUser ? 'hover:cursor-pointer' : ''
 									}`}
-								onClick={isCurrentUser ? () => undefined : () => openModal()}
-							>
-								<span className={`${!isCurrentUser ? 'text-[#E27474]' : ''} text-xs font-semibold`}>
-									{t('common.DELETE')}
-								</span>
-							</div>}
+									onClick={isCurrentUser ? () => undefined : () => openModal()}
+								>
+									<span className={`${!isCurrentUser ? 'text-[#E27474]' : ''} text-xs font-semibold`}>
+										{t('common.DELETE')}
+									</span>
+								</div>
+							)}
 						</Popover.Panel>
 					</Transition>
-					{(status === 'settings' || (status === 'profile' && isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER)) && (
+					{(status === 'settings' ||
+						(status === 'profile' && isManager !== -1 && member.role?.name !== RoleNameEnum.MANAGER)) && (
 						<Popover.Button className="w-full mt-2 outline-none">
-							<ThreeCircleOutlineHorizontalIcon className="w-6 text-[#292D32] relative dark:text-white" strokeWidth="2.5" />
+							<ThreeCircleOutlineHorizontalIcon
+								className="w-6 text-[#292D32] relative dark:text-white"
+								strokeWidth="2.5"
+							/>
 						</Popover.Button>
 					)}
 					<ConfirmationModal
@@ -153,10 +177,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 };
 
 const RolePopover = () => {
-	const { getRoles, roles } = useRoles();
-	useEffect(() => {
-		getRoles();
-	}, [getRoles]);
+	const { roles } = useRoles();
 
 	return (
 		<Popover className="relative w-full no-underline border-none">
@@ -189,7 +210,6 @@ const RolePopover = () => {
 	);
 };
 
-
 export const renderTrackingIcon = (isTrackingEnabled: boolean) => {
 	return isTrackingEnabled ? (
 		<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -210,4 +230,4 @@ export const renderTrackingIcon = (isTrackingEnabled: boolean) => {
 			/>
 		</svg>
 	);
-}
+};

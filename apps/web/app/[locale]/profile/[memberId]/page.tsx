@@ -1,7 +1,13 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useUserProfilePage } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useDailyPlan,
+	useLocalStorageState,
+	useOrganizationTeams,
+	useUserProfilePage
+} from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Button, Container, Text, VerticalSeparator } from 'lib/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -31,7 +37,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const members = activeTeam?.members;
 	const { getEmployeeDayPlans } = useDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
-	const [activityFilter, setActivityFilter] = useState<FilterTab>('Tasks');
+	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
 	const hook = useTaskFilter(profile);
 
