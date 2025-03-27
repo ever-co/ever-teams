@@ -119,7 +119,7 @@ function DataTable<TData, TValue>({
 									data-state={row.getIsSelected() && 'selected'}
 									className={clsxm(
 										'my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40',
-										i == 1 && 'max-w-[615px]'
+										i == 1 && 'max-w-[615px'
 									)}
 								>
 									{row.getVisibleCells().map((cell, index) => {
@@ -145,7 +145,7 @@ function DataTable<TData, TValue>({
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
-								ß No results.
+								No results.
 							</TableCell>
 						</TableRow>
 					)}

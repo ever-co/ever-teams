@@ -13,6 +13,7 @@ type Props = {
 	className?: string;
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;
+	taskIssueStatusClassName?: string;
 	dash?: boolean;
 	showSize?: boolean;
 };
@@ -30,6 +31,7 @@ export function TaskNameInfoDisplay({
 	className,
 	taskTitleClassName,
 	taskNumberClassName,
+	taskIssueStatusClassName,
 	dash = false,
 	showSize = false
 }: Props) {
@@ -43,24 +45,29 @@ export function TaskNameInfoDisplay({
 	// @ts-expect-error
 	const short: string = taskSizeColor[size].short;
 	return (
-		<Tooltip label={task?.title || ''} placement="top" enabled={(task?.title && task?.title.length > 60) || false}>
-			<span className="flex items-center">
+		<Tooltip
+			label={task?.title || ''}
+			placement="top"
+			className={clsxm(className)}
+			enabled={(task?.title && task?.title.length > 60) || false}
+		>
+			<span className=" w-full h-full gap-1 flex items-center">
 				{task && (
 					// Show task issue and task number
-					<div>
-						<div className="inline-flex items-center">
-							<div className="mr-1">
-								<TaskIssueStatus showIssueLabels={false} className={clsxm(className)} task={task} />
-							</div>
-						</div>
+					<div className="">
+						<TaskIssueStatus
+							showIssueLabels={false}
+							className={clsxm( taskIssueStatusClassName)}
+							task={task}
+						/>
 					</div>
 				)}
-				<span className={clsxm('font-normal', taskTitleClassName)}>
-					<span className={clsxm('mr-1 font-normal text-gray-500', taskNumberClassName)}>
+				<span className={clsxm('font-normal grow truncate', taskTitleClassName)}>
+					<span className={clsxm('font-normal text-gray-500', taskNumberClassName)}>
 						#{task?.taskNumber} {dash && '-'}
 					</span>
 					{task?.title}
-					{showSize && <span className={clsxm(size && `${color}`)}>{size && '  ' + short}</span>}
+					{showSize && <span className={clsxm(size && `${color}`,'bg-red-600')}>{size && '  ' + short}</span>}
 				</span>
 			</span>
 		</Tooltip>
