@@ -1,24 +1,29 @@
-import { Tooltip } from 'lib/components';
+import { fullWidthState } from '@/app/stores/fullWidth';
+import { useAtomValue } from 'jotai';
+import { Container, Tooltip } from 'lib/components';
 import { useTranslations } from 'next-intl';
 
 function UserTeamTableHeader() {
 	const t = useTranslations();
+	const fullWidth = useAtomValue(fullWidthState);
 	return (
-		<thead className="font-normal h-14 w-full dark:text-[#7B8089] dark:bg-dark-high px-8 py-3 mb-[11px]">
-			<tr className="text-center w-full items-center">
-				<th className="w-[32%] 2xl:!w-[28%] pl-10 font-normal text-left">
-					{t('common.TEAM')} {t('common.MEMBER')}
-				</th>
-				<th className="!w-[39%] font-normal">{t('common.TASK')}</th>
-				<th className={`!w-[16%] font-normal`}>
-					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
-						{t('dailyPlan.TASK_TIME')}
-					</Tooltip>
-				</th>
-				<th className="!w-[16%] font-normal">{t('common.ESTIMATE')}</th>
-				<th className="!w-[50%] font-normal">{t('common.ACTION')}</th>
-			</tr>
-		</thead>
+		<Container fullWidth={fullWidth} className="!overflow-x-auto  !mx-0 px-[3.2rem]">
+			<div className="font-normal h-14   dark:text-[#7B8089] dark:bg-dark-high py-3 mb-[11px]">
+				<div className="text-center flex w-full items-center">
+					<div className="w-[29.2%] shrink-0 font-normal ">
+						{t('common.TEAM')} {t('common.MEMBER')}
+					</div>
+					<div className="w-[31.2%] shrink-0 font-normal">{t('common.TASK')}</div>
+					<div className={`w-[15.6%] shrink-0 font-normal`}>
+						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+							{t('dailyPlan.TASK_TIME')}
+						</Tooltip>
+					</div>
+					<div className="w-[19.5%] shrink-0 font-normal">{t('common.ESTIMATE')}</div>
+					<div className="font-normal grow">{t('common.ACTION')}</div>
+				</div>
+			</div>
+		</Container>
 	);
 }
 
