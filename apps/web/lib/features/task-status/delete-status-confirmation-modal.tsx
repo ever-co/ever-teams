@@ -24,7 +24,7 @@ interface DeleteTaskStatusModalProps {
  */
 export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalProps) {
 	const { closeModal, open, status, onCancel } = props;
-	const { deleteTaskStatus, deleteTaskStatusLoading } = useTaskStatus();
+	const { deleteTaskStatus, deleteTaskStatusLoading, setTaskStatuses } = useTaskStatus();
 	const t = useTranslations();
 	const { tasks, updateTask } = useTeamTasks();
 
@@ -51,12 +51,17 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 
 			// Delete the task status after updating related tasks
 			await deleteTaskStatus(status.id);
+
+			// Update the task status state
+			setTaskStatuses((prev) => {
+				return prev.filter((el) => el.id !== status.id);
+			});
 		} catch (error) {
 			console.error('Error while deleting task status:', error);
 		} finally {
 			handleCloseModal();
 		}
-	}, [deleteTaskStatus, handleCloseModal, status, tasksUsingStatus, updateTask]);
+	}, [deleteTaskStatus, handleCloseModal, setTaskStatuses, status.id, tasksUsingStatus, updateTask]);
 
 	return (
 		<Modal

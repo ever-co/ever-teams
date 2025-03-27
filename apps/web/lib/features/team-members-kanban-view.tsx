@@ -37,7 +37,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		})
 	);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { taskStatus: ts } = useTaskStatus();
+	const { taskStatuses } = useTaskStatus();
 	const reorderTask = (list: ITeamTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);
 		const [removedTask] = tasks.splice(startIndex, 1);
@@ -82,7 +82,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		const updateTaskStatusData = {
 			...targetStatus,
 			status: taskstatus,
-			taskStatusId: ts.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
+			taskStatusId: taskStatuses.find((v) => v.name?.toLowerCase() == taskstatus.toLowerCase())?.id
 		};
 
 		// update task status on the server

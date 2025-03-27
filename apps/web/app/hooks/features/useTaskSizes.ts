@@ -1,146 +1,102 @@
 'use client';
 
 import { ITaskSizesCreate } from '@app/interfaces';
-import {
-  createTaskSizesAPI,
-  deleteTaskSizesAPI,
-  getTaskSizesList,
-  editTaskSizesAPI
-} from '@app/services/client/api';
-import { activeTeamIdState, userState } from '@app/stores';
-import {
-  taskSizesFetchingState,
-  taskSizesListState
-} from '@app/stores/task-sizes';
-import { useCallback, useEffect } from 'react';
+import { createTaskSizeAPI, deleteTaskSizeAPI, getTaskSizes, editTaskSizeAPI } from '@app/services/client/api';
+import { activeTeamIdState } from '@app/stores';
+import { taskSizesListState } from '@app/stores/task-sizes';
+import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import isEqual from 'lodash/isEqual';
-import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function useTaskSizes() {
-  const [user] = useAtom(userState);
-  const activeTeamId = useAtomValue(activeTeamIdState);
+	const activeTeamId = useAtomValue(activeTeamIdState);
+	const [taskSizes, setTaskSizes] = useAtom(taskSizesListState);
+	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
 
-  const { loading, queryCall, loadingRef } = useQuery(getTaskSizesList);
-  const {
-    loading: createTaskSizesLoading,
-    queryCall: createQueryCall
-  } = useQuery(createTaskSizesAPI);
-  const {
-    loading: deleteTaskSizesLoading,
-    queryCall: deleteQueryCall
-  } = useQuery(deleteTaskSizesAPI);
-  const { loading: editTaskSizesLoading, queryCall: editQueryCall } = useQuery(
-    editTaskSizesAPI
-  );
+	const {
+		loading: getTaskSizesLoading,
+		queryCall: getTaskSizesQueryCall,
+		loadingRef: getTaskSizesLoadingRef
+	} = useQuery(getTaskSizes);
+	const { loading: createTaskSizeLoading, queryCall: createTaskSizeQueryCall } = useQuery(createTaskSizeAPI);
+	const { loading: deleteTaskSizeLoading, queryCall: deleteTaskSizeQueryCall } = useQuery(deleteTaskSizeAPI);
+	const { loading: editTaskSizeLoading, queryCall: editTaskSizeQueryCall } = useQuery(editTaskSizeAPI);
 
-  const [taskSizes, setTaskSizes] = useAtom(taskSizesListState);
-  // const activeTaskStatus = useAtomValue(activeTaskStatusState);
-  // const [, setActiveTaskStatusId] = useAtom(activeTaskStatusIdState);
-  const [taskSizesFetching, setTaskSizesFetching] = useAtom(
-    taskSizesFetchingState
-  );
-  const { firstLoadData: firstLoadTaskSizesData, firstLoad } = useFirstLoad();
+	const loadTaskSizes = useCallback(async () => {
+		try {
+			if (getTaskSizesLoadingRef.current) {
+				return;
+			}
 
-  useEffect(() => {
-    if (firstLoad) {
-      setTaskSizesFetching(loading);
-    }
-  }, [loading, firstLoad, setTaskSizesFetching]);
+			const res = await getTaskSizesQueryCall();
 
-  const loadTaskSizes = useCallback(() => {
-    if (loadingRef.current) {
-      return;
-    }
+			if (res?.data?.items) {
+				setTaskSizes(res?.data?.items || []);
+			}
+		} catch (error) {
+			console.error('Failed to load task sizes:', error);
+		}
+	}, [getTaskSizesLoadingRef, getTaskSizesQueryCall, setTaskSizes]);
 
-    const teamId = getActiveTeamIdCookie();
-    queryCall(
-      user?.tenantId as string,
-      user?.employee?.organizationId as string,
-      activeTeamId || teamId || null
-    ).then((res) => {
-      if (!isEqual(res?.data?.items || [], taskSizes)) {
-        setTaskSizes(res?.data?.items || []);
-      }
+	const createTaskSize = useCallback(
+		async (data: ITaskSizesCreate) => {
+			try {
+				const res = await createTaskSizeQueryCall({ ...data, organizationTeamId: activeTeamId });
 
-      return res;
-    });
-  }, [user, activeTeamId, setTaskSizes, taskSizes, queryCall, loadingRef]);
+				return res.data;
+			} catch (error) {
+				console.error('Failed to create task size:', error);
+			}
+		},
 
-  useEffect(() => {
-    if (!firstLoad) return;
+		[createTaskSizeQueryCall, activeTeamId]
+	);
 
-    loadTaskSizes();
-  }, [activeTeamId, firstLoad, loadTaskSizes]);
+	const deleteTaskSize = useCallback(
+		async (id: string) => {
+			try {
+				const res = await deleteTaskSizeQueryCall(id);
 
-  const createTaskSizes = useCallback(
-    (data: ITaskSizesCreate) => {
-      if (user?.tenantId) {
-        return createQueryCall(
-          { ...data, organizationTeamId: activeTeamId },
-          user?.tenantId || ''
-        ).then((res) => {
-          return res;
-        });
-      }
-    },
+				return res.data;
+			} catch (error) {
+				console.error('Failed to delete task size:', error);
+			}
+		},
+		[deleteTaskSizeQueryCall]
+	);
 
-    [createQueryCall, user, activeTeamId]
-  );
+	const editTaskSize = useCallback(
+		async (id: string, data: ITaskSizesCreate) => {
+			try {
+				const res = await editTaskSizeQueryCall(id, { ...data, organizationTeamId: activeTeamId });
 
-  const deleteTaskSizes = useCallback(
-    (id: string) => {
-      if (user?.tenantId) {
-        return deleteQueryCall(id).then((res) => {
-          queryCall(
-            user?.tenantId as string,
-            user?.employee?.organizationId as string,
-            activeTeamId || null
-          ).then((res) => {
-            setTaskSizes(res?.data?.items || []);
-            return res;
-          });
-          return res;
-        });
-      }
-    },
-    [deleteQueryCall, user, activeTeamId, queryCall, setTaskSizes]
-  );
+				return res.data;
+			} catch (error) {
+				console.error('Failed to edit task size:', error);
+			}
 
-  const editTaskSizes = useCallback(
-    (id: string, data: ITaskSizesCreate) => {
-      if (user?.tenantId) {
-        return editQueryCall(id, data, user?.tenantId || '').then((res) => {
-          queryCall(
-            user?.tenantId as string,
-            user?.employee?.organizationId as string,
-            activeTeamId || null
-          ).then((res) => {
-            setTaskSizes(res?.data?.items || []);
-            return res;
-          });
-          return res;
-        });
-      }
-    },
-    [user, activeTeamId, editQueryCall, queryCall, setTaskSizes]
-  );
+		},
+		[editTaskSizeQueryCall, activeTeamId]
+	);
 
-  return {
-    // loadTaskStatus,
-    loading: taskSizesFetching,
-    taskSizes,
-    taskSizesFetching,
-    firstLoadTaskSizesData,
-    createTaskSizes,
-    deleteTaskSizes,
-    createTaskSizesLoading,
-    deleteTaskSizesLoading,
-    editTaskSizesLoading,
-    editTaskSizes,
-    setTaskSizes,
-    loadTaskSizes
-  };
+	const handleFirstLoad = useCallback(async () => {
+		await loadTaskSizes();
+
+		firstLoadTaskSizesData();
+	}, [firstLoadTaskSizesData, loadTaskSizes]);
+
+	return {
+		loading: getTaskSizesLoading,
+		taskSizes,
+		firstLoadTaskSizesData: handleFirstLoad,
+		createTaskSize,
+		deleteTaskSize,
+		createTaskSizeLoading,
+		deleteTaskSizeLoading,
+		editTaskSizeLoading,
+		editTaskSize,
+		setTaskSizes,
+		loadTaskSizes
+	};
 }

@@ -1,23 +1,32 @@
 import { DeleteResponse, ITaskSizesCreate, ITaskSizesItemList, PaginationResponse } from '@app/interfaces';
 import { deleteApi, get, post, put } from '../axios';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/app/helpers';
 
-export function createTaskSizesAPI(data: ITaskSizesCreate, tenantId?: string) {
-	return post<ITaskSizesCreate>('/task-sizes', data, {
+export function createTaskSizeAPI(data: ITaskSizesCreate) {
+	const tenantId = getTenantIdCookie();
+
+	return post<ITaskSizesItemList>('/task-sizes', data, {
 		tenantId
 	});
 }
 
-export function editTaskSizesAPI(id: string, data: ITaskSizesCreate, tenantId?: string) {
+export function editTaskSizeAPI(id: string, data: ITaskSizesCreate) {
+	const tenantId = getTenantIdCookie();
+
 	return put<ITaskSizesCreate>(`/task-sizes/${id}`, data, {
 		tenantId
 	});
 }
 
-export function deleteTaskSizesAPI(id: string) {
+export function deleteTaskSizeAPI(id: string) {
 	return deleteApi<DeleteResponse>(`/task-sizes/${id}`);
 }
 
-export async function getTaskSizesList(tenantId: string, organizationId: string, activeTeamId: string | null) {
+export async function getTaskSizes() {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const activeTeamId = getActiveTeamIdCookie();
+
 	const endpoint = `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
 	return get<PaginationResponse<ITaskSizesItemList>>(endpoint);
 }

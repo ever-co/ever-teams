@@ -5,7 +5,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Card, InputField } from 'lib/components';
 import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
-import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { PermissonItem } from './permission-item';
 import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
@@ -17,7 +17,7 @@ export const PermissionDropDown = ({
 	selectedRole: IRole | null;
 	setSelectedRole: Dispatch<SetStateAction<IRole | null>>;
 }) => {
-	const { getRoles, roles, createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
+	const { roles, createRole, createRoleLoading, deleteRole, updateRole, setRoles } = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
 	const [editRole, setEditRole] = useState<IRole | null>(null);
@@ -25,19 +25,21 @@ export const PermissionDropDown = ({
 		setEditRole(role);
 	};
 
-	useEffect(() => {
-		getRoles();
-	}, [getRoles]);
-
 	// CREATE
 	const handleCreateRole = useCallback(async () => {
 		if (filterValue.length) {
-			await createRole({
+			const res = await createRole({
 				name: filterValue
 			});
+
+			if (res) {
+				// Update roles state
+				setRoles([...roles, res.data]);
+			}
+
 			setFilterValue('');
 		}
-	}, [filterValue, createRole]);
+	}, [filterValue, createRole, setRoles, roles]);
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleCreateRole();
@@ -56,10 +58,22 @@ export const PermissionDropDown = ({
 	);
 	const handleEditRole = useCallback(async () => {
 		if (editRole) {
-			await updateRole(editRole);
+			const res = await updateRole(editRole);
+
+			if (res) {
+				setRoles((prev) => {
+					return prev.map((role) => {
+						if (role.id === editRole.id) {
+							return res.data;
+						}
+						return role;
+					});
+				});
+			}
 			setEditRole(null);
 		}
-	}, [editRole, updateRole]);
+	}, [editRole, setRoles, updateRole]);
+
 	const handleEditOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleEditRole();
@@ -79,11 +93,25 @@ export const PermissionDropDown = ({
 				: roles.map((role) => ({
 						...role,
 						name: role.name.split('_').join(' ')
-				  })),
+					})),
 		[roles, filterValue]
 	);
 
 	const t = useTranslations();
+
+	const handleDeleteRole = useCallback(
+		async (roleId: string) => {
+			const res = await deleteRole(roleId);
+
+			if (res) {
+				// Update roles state
+				setRoles((prev) => {
+					return prev.filter((role) => role.id !== roleId);
+				});
+			}
+		},
+		[deleteRole, setRoles]
+	);
 
 	return (
 		<>
@@ -156,12 +184,11 @@ export const PermissionDropDown = ({
 												}}
 											>
 												<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer text-[#888F97]" />
-
 											</span>
 
 											<span
 												onClick={() => {
-													role.id && deleteRole(role.id);
+													role.id && handleDeleteRole(role.id);
 												}}
 											>
 												<TrashIcon className="cursor-pointer w-3.5" />

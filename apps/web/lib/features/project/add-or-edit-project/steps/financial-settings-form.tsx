@@ -1,5 +1,5 @@
 import { Button, InputField } from '@/lib/components';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { OrganizationProjectBudgetTypeEnum, ProjectBillingEnum } from '@/app/interfaces';
@@ -9,18 +9,16 @@ import { getInitialValue } from '../utils';
 import { cn } from '@/lib/utils';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
-	const { goToNext, currentData, mode } = props;
+	const { goToNext, goToPrevious, currentData } = props;
 	const { currencies, getCurrencies } = useCurrencies();
-	const [currency, setCurrency] = useState<string>(() => getInitialValue(currentData, mode, 'currency', undefined));
+	const [currency, setCurrency] = useState<string>(() => getInitialValue(currentData, 'currency', undefined));
 	const [billingType, setBillingType] = useState<ProjectBillingEnum>(() =>
-		getInitialValue(currentData, mode, 'billing', ProjectBillingEnum.FLAT_FEE)
+		getInitialValue(currentData, 'billing', ProjectBillingEnum.FLAT_FEE)
 	);
 	const [budgetType, setBudgetType] = useState<OrganizationProjectBudgetTypeEnum>(() =>
-		getInitialValue(currentData, mode, 'budgetType', OrganizationProjectBudgetTypeEnum.HOURS)
+		getInitialValue(currentData, 'budgetType', OrganizationProjectBudgetTypeEnum.HOURS)
 	);
-	const [budgetAmount, setBudgetAmount] = useState<number>(() =>
-		getInitialValue(currentData, mode, 'budget', undefined)
-	);
+	const [budgetAmount, setBudgetAmount] = useState<number>(() => getInitialValue(currentData, 'budget', undefined));
 	const budgetTypes = Object.values(OrganizationProjectBudgetTypeEnum).map((value) => ({
 		id: value,
 		value: value
@@ -45,7 +43,14 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 		getCurrencies();
 	}, [getCurrencies]);
 
-	console.log(currentData);
+	const handlePrevious = useCallback(() => {
+		goToPrevious({
+			currency: currencies.find((el) => el.isoCode === currency)?.isoCode,
+			budget: budgetAmount,
+			budgetType,
+			billing: billingType
+		});
+	}, [billingType, budgetAmount, budgetType, currencies, currency, goToPrevious]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
@@ -124,7 +129,10 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 					</div>
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-end">
+			<div className="w-full flex items-center justify-between">
+				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
+					{t('common.BACK')}
+				</Button>
 				<Button type="submit" className=" h-[2.5rem]">
 					{t('common.NEXT')}
 				</Button>

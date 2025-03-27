@@ -77,7 +77,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	// User and authentication
 	const { user } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
-	const isManage = user && isUserAllowedToAccess(user);
+	const isManage = useMemo(() => user && isUserAllowedToAccess(user), [user, isUserAllowedToAccess]);
 
 	// State management
 	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
@@ -93,6 +93,20 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	const { loading: loadingTimesheetStatisticsCounts, queryCall: queryTimesheetStatisticsCounts } =
 		useQuery(getTimesheetStatisticsCounts);
 	const { loading: loadingActivityReport, queryCall: queryActivityReport } = useQuery(getActivityReport);
+
+
+	// Memoized employee and team IDs
+	const employeeIds = useMemo(() =>
+		isManage
+			? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+			: user?.employee?.id ? [user.employee.id] : [],
+		[isManage, alluserState, user?.employee?.id]
+	);
+
+	const teamIds = useMemo(() =>
+		allteamsState?.map(({ id }) => id).filter(Boolean) || [],
+		[allteamsState]
+	);
 
 	// Props merging logic
 	const getMergedProps = useMemo(() => {
@@ -117,9 +131,9 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 					currentFilters.projectIds ||
 					defaultProps.projectIds) as string[],
 				employeeIds: isManage
-					? alluserState?.map(({ employee: { id } }) => id).filter(Boolean)
+					? employeeIds
 					: [user.employee.id],
-				teamIds: allteamsState?.map(({ id }) => id).filter(Boolean),
+				teamIds: teamIds,
 				activityLevel: {
 					start:
 						customProps?.activityLevel?.start ??
@@ -135,15 +149,21 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 			};
 			return merged as Required<UseReportActivityProps>;
 		};
-	}, [
-		user?.employee.organizationId,
-		user?.employee.id,
-		user?.tenantId,
-		currentFilters,
-		isManage,
-		alluserState,
-		allteamsState
-	]);
+	}, [user?.employee?.organizationId, user?.employee?.id, user?.tenantId, currentFilters, isManage, employeeIds, teamIds]);
+
+	const loading = useMemo(
+		() =>
+			loadingTimeLogReportDailyChart ||
+			loadingTimeLogReportDaily ||
+			loadingTimesheetStatisticsCounts ||
+			loadingActivityReport,
+		[
+			loadingTimeLogReportDailyChart,
+			loadingTimeLogReportDaily,
+			loadingTimesheetStatisticsCounts,
+			loadingActivityReport
+		]
+	);
 
 	// Generic fetch function with improved error handling and type safety
 	const fetchReport = useCallback(
@@ -321,11 +341,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 
 	return {
 		// Loading states
-		loadingTimeLogReportDailyChart,
-		loadingTimeLogReportDaily,
-		loadingTimesheetStatisticsCounts,
-		loadingActivityReport,
-
+		loading,
 		// Data states
 		rapportChartActivity,
 		rapportDailyActivity,

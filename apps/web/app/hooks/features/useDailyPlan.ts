@@ -1,11 +1,10 @@
 'use client';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '../useQuery';
 import {
 	activeTeamState,
-	dailyPlanFetchingState,
 	dailyPlanListState,
 	employeePlansListState,
 	myDailyPlanListState,
@@ -35,8 +34,9 @@ export function useDailyPlan() {
 	const { user } = useAuthenticateUser();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const { loading, queryCall } = useQuery(getDayPlansByEmployeeAPI);
-	const { loading: getAllDayPlansLoading, queryCall: getAllQueryCall } = useQuery(getAllDayPlansAPI);
+	const { loading: getDayPlansByEmployeeLoading, queryCall: getDayPlansByEmployeeQueryCall } =
+		useQuery(getDayPlansByEmployeeAPI);
+	const { loading: getAllDayPlansLoading, queryCall: getAllDayPlansQueryCall } = useQuery(getAllDayPlansAPI);
 	const { loading: getMyDailyPlansLoading, queryCall: getMyDailyPlansQueryCall } = useQuery(getMyDailyPlansAPI);
 	const { loading: createDailyPlanLoading, queryCall: createQueryCall } = useQuery(createDailyPlanAPI);
 	const { loading: updateDailyPlanLoading, queryCall: updateQueryCall } = useQuery(updateDailyPlanAPI);
@@ -54,45 +54,89 @@ export function useDailyPlan() {
 	const [profileDailyPlans, setProfileDailyPlans] = useAtom(profileDailyPlanListState);
 	const [employeePlans, setEmployeePlans] = useAtom(employeePlansListState);
 	const [taskPlanList, setTaskPlans] = useAtom(taskPlans);
-	const [dailyPlanFetching, setDailyPlanFetching] = useAtom(dailyPlanFetchingState);
-	const { firstLoadData: firstLoadDailyPlanData, firstLoad } = useFirstLoad();
+	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
-	useEffect(() => {
-		if (firstLoad) {
-			setDailyPlanFetching(loading);
+	// All day plans
+
+	const getAllDayPlans = useCallback(async () => {
+		try {
+			const res = await getAllDayPlansQueryCall();
+
+			if (res) {
+				return res.data;
+			} else {
+				console.error('Error fetching all day plans');
+			}
+		} catch (error) {
+			console.error('Error fetching all day plans:', error);
 		}
-	}, [loading, firstLoad, setDailyPlanFetching]);
+	}, [getAllDayPlansQueryCall]);
 
-	const getAllDayPlans = useCallback(() => {
-		getAllQueryCall().then((response) => {
-			if (response.data.items.length) {
-				const { items, total } = response.data;
-				setDailyPlan({ items, total });
-			}
-		});
-	}, [getAllQueryCall, setDailyPlan]);
+	const loadAllDayPlans = useCallback(async () => {
+		const allDayPlans = await getAllDayPlans();
 
-	const getMyDailyPlans = useCallback(() => {
-		getMyDailyPlansQueryCall().then((response) => {
-			if (response.data.items.length) {
-				const { items, total } = response.data;
-				setMyDailyPlans({ items, total });
+		if (allDayPlans) {
+			setDailyPlan(allDayPlans);
+		}
+	}, [getAllDayPlans, setDailyPlan]);
+
+	// My day plans
+
+	const getMyDailyPlans = useCallback(async () => {
+		try {
+			const res = await getMyDailyPlansQueryCall();
+
+			if (res) {
+				return res.data;
+			} else {
+				console.error('Error fetching my daily plans');
 			}
-		});
-	}, [getMyDailyPlansQueryCall, setMyDailyPlans]);
+		} catch (error) {
+			console.error('Error fetching my daily plans:', error);
+		}
+	}, [getMyDailyPlansQueryCall]);
+
+	const loadMyDailyPlans = useCallback(async () => {
+		const myDailyPlans = await getMyDailyPlans();
+
+		if (myDailyPlans) {
+			setMyDailyPlans(myDailyPlans);
+		}
+	}, [getMyDailyPlans, setMyDailyPlans]);
+
+	// Employee day plans
 
 	const getEmployeeDayPlans = useCallback(
-		(employeeId: string) => {
-			if (employeeId && typeof employeeId === 'string') {
-				queryCall(employeeId).then((response) => {
-					const { items, total } = response.data;
-					setProfileDailyPlans({ items, total });
-					setEmployeePlans(items);
-				});
+		async (employeeId: string) => {
+			try {
+				if (employeeId && typeof employeeId === 'string') {
+					const res = await getDayPlansByEmployeeQueryCall(employeeId);
+
+					if (res) {
+						return res.data;
+					} else {
+						console.error('Error fetching day plans by employee:', employeeId);
+					}
+				} else {
+					throw new Error('Employee ID should be a string');
+				}
+			} catch (error) {
+				console.error(`Error when fetching day plans for employee: ${employeeId}`, error);
 			}
 		},
-		[queryCall, setEmployeePlans, setProfileDailyPlans]
+		[getDayPlansByEmployeeQueryCall]
 	);
+
+	const loadEmployeeDayPlans = useCallback(async () => {
+		if (user?.employee.id) {
+			const employeeDayPlans = await getEmployeeDayPlans(user?.employee?.id);
+
+			if (employeeDayPlans) {
+				setEmployeePlans(employeeDayPlans.items);
+				setProfileDailyPlans(employeeDayPlans);
+			}
+		}
+	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, user?.employee.id]);
 
 	const getPlansByTask = useCallback(
 		(taskId?: string) => {
@@ -389,13 +433,12 @@ export function useDailyPlan() {
 		);
 	}, [profileDailyPlans]);
 
-	useEffect(() => {
-		if (firstLoad) {
-			getMyDailyPlans();
-			getAllDayPlans();
-			getEmployeeDayPlans(user?.employee.id || '');
-		}
-	}, [getMyDailyPlans, activeTeam?.id, getAllDayPlans, firstLoad, getEmployeeDayPlans, user?.employee.id]);
+	const handleFirstLoad = useCallback(async () => {
+		await loadAllDayPlans();
+		await loadMyDailyPlans();
+		await loadEmployeeDayPlans();
+		firstLoadDailyPlanData();
+	}, [firstLoadDailyPlanData, loadAllDayPlans, loadEmployeeDayPlans, loadMyDailyPlans]);
 
 	return {
 		dailyPlan,
@@ -403,14 +446,11 @@ export function useDailyPlan() {
 
 		profileDailyPlans,
 		setProfileDailyPlans,
-		dailyPlanFetching,
 
 		employeePlans,
 		setEmployeePlans,
 
 		taskPlanList,
-
-		firstLoadDailyPlanData,
 
 		getAllDayPlans,
 		getAllDayPlansLoading,
@@ -420,7 +460,7 @@ export function useDailyPlan() {
 		getMyDailyPlansLoading,
 
 		getEmployeeDayPlans,
-		loading,
+		getDayPlansByEmployeeLoading,
 
 		getPlansByTask,
 		getPlansByTaskLoading,
@@ -447,6 +487,11 @@ export function useDailyPlan() {
 		pastPlans,
 		outstandingPlans,
 		todayPlan,
-		sortedPlans
+		sortedPlans,
+
+		loadAllDayPlans,
+		loadMyDailyPlans,
+		loadEmployeeDayPlans,
+		firstLoadDailyPlanData: handleFirstLoad
 	};
 }

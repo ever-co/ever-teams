@@ -4,6 +4,7 @@ import { TModalMode } from '.';
 
 interface IAddOrEditContainerProps extends PropsWithChildren {
 	onNext?: (data: TStepData) => void;
+	onPrevious?: (data: TStepData) => void;
 	onFinish?: (project: IProject) => void;
 	step: number;
 	currentData: TStepData;
@@ -20,13 +21,14 @@ export type TStepData = Partial<
 
 export interface IStepElementProps extends PropsWithChildren {
 	goToNext: (stepData: TStepData) => void;
+	goToPrevious: (stepData: TStepData) => void;
 	finish: (newProject: IProject) => void;
 	currentData: TStepData;
 	mode: TModalMode;
 }
 
 export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
-	const { onNext, children, step, onFinish, currentData, mode } = props;
+	const { onNext, onPrevious, children, step, onFinish, currentData, mode } = props;
 
 	const childrenArray = Children.toArray(children) as ReactElement<IStepElementProps>[];
 
@@ -35,6 +37,12 @@ export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
 	const handleNext = (data: TStepData) => {
 		if (step < childrenArray.length - 1) {
 			onNext?.(data);
+		}
+	};
+
+	const handlePrevious = (data: TStepData) => {
+		if (step > 0) {
+			onPrevious?.(data);
 		}
 	};
 
@@ -48,6 +56,7 @@ export default function AddOrEditContainer(props: IAddOrEditContainerProps) {
 	if (isValidElement<IStepElementProps>(currentStep)) {
 		return cloneElement(currentStep as ReactElement<IStepElementProps>, {
 			goToNext: handleNext,
+			goToPrevious: handlePrevious,
 			finish: handleFinish,
 			currentData,
 			mode
