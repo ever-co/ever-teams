@@ -56,12 +56,6 @@ export function useDailyPlan() {
 	const [taskPlanList, setTaskPlans] = useAtom(taskPlans);
 	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
-	// useEffect(() => {
-	// 	if (firstLoad) {
-	// 		setDailyPlanFetching(getDayPlansByEmployeeLoading);
-	// 	}
-	// }, [getDayPlansByEmployeeLoading, firstLoad, setDailyPlanFetching]);
-
 	// All day plans
 
 	const getAllDayPlans = useCallback(async () => {

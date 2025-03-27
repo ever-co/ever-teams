@@ -1,7 +1,7 @@
 import { Button } from '@/lib/components';
 import { cn } from '@/lib/utils';
 import { Popover } from '@headlessui/react';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
@@ -11,9 +11,9 @@ import { useTranslations } from 'next-intl';
 import { getInitialValue } from '../utils';
 
 export default function CategorizationForm(props: IStepElementProps) {
-	const { goToNext, currentData, mode } = props;
-	const [tags, setTags] = useState<string[]>(() => getInitialValue(currentData, mode, 'tags', []));
-	const [colorCode, setColorCode] = useState<string>(() => getInitialValue(currentData, mode, 'color', '#000'));
+	const { goToNext, goToPrevious, currentData } = props;
+	const [tags, setTags] = useState<string[]>(() => getInitialValue(currentData, 'tags', []));
+	const [colorCode, setColorCode] = useState<string>(() => getInitialValue(currentData, 'color', '#000'));
 	const { tags: tagData, getTags, createTag, createTagLoading } = useTags();
 	const t = useTranslations();
 
@@ -29,7 +29,12 @@ export default function CategorizationForm(props: IStepElementProps) {
 		});
 	};
 
-	console.log(currentData);
+	const handlePrevious = useCallback(() => {
+		goToPrevious({
+			tags: tagData?.filter((tag) => tags.includes(tag.id)),
+			color: colorCode
+		});
+	}, [colorCode, goToPrevious, tagData, tags]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
@@ -69,7 +74,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 							}}
 							renderItem={(item, selected) => {
 								return (
-									<div className="w-full h-full p-1 px-2 flex items-center gap-2">
+									<div key={item.id} className="w-full h-full p-1 px-2 flex items-center gap-2">
 										<span
 											className={cn(
 												'h-4 w-4 rounded border border-primary flex items-center justify-center',
@@ -120,7 +125,10 @@ export default function CategorizationForm(props: IStepElementProps) {
 					</div>
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-end">
+			<div className="w-full flex items-center justify-between">
+				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
+					{t('common.BACK')}
+				</Button>
 				<Button type="submit" className=" h-[2.5rem]">
 					{t('common.NEXT')}
 				</Button>

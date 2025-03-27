@@ -27,7 +27,7 @@ import { clsxm } from '@/app/utils';
 import { organizationProjectsState } from '@/app/stores/organization-projects';
 import ProjectIcon from '@components/ui/svgs/project-icon';
 import { ScrollArea, ScrollBar } from '@components/ui/scroll-bar';
-import { CreateProjectModal } from '@/lib/features/project/create-project-modal';
+import { QuickCreateProjectModal } from '@/lib/features/project/quick-create-project-modal';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
@@ -446,7 +446,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 					}}
 				</Listbox>
 			</div>
-			<CreateProjectModal
+			<QuickCreateProjectModal
 				onSuccess={(project) => {
 					setSelected(project);
 					onChange?.(project);

@@ -20,12 +20,12 @@ type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'project
 
 export default function BasicInformationForm(props: IStepElementProps) {
 	const { goToNext, currentData, mode } = props;
-	const [startDate, setStartDate] = useState(() => getInitialValue(currentData, mode, 'startDate', new Date()));
-	const [endDate, setEndDate] = useState(() => getInitialValue(currentData, mode, 'endDate', new Date()));
-	const [projectTitle, setProjectTitle] = useState(() => getInitialValue(currentData, mode, 'name', ''));
-	const [description, setDescription] = useState(() => getInitialValue(currentData, mode, 'description', ''));
+	const [startDate, setStartDate] = useState(() => getInitialValue(currentData, 'startDate', new Date()));
+	const [endDate, setEndDate] = useState(() => getInitialValue(currentData, 'endDate', new Date()));
+	const [projectTitle, setProjectTitle] = useState(() => getInitialValue(currentData, 'name', ''));
+	const [description, setDescription] = useState(() => getInitialValue(currentData, 'description', ''));
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
-	const [websiteUrl, setWebsiteUrl] = useState<string>(() => getInitialValue(currentData, mode, 'projectUrl', ''));
+	const [websiteUrl, setWebsiteUrl] = useState<string>(() => getInitialValue(currentData, 'projectUrl', ''));
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
 	const t = useTranslations();
 	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
