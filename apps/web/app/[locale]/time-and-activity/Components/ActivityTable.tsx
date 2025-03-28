@@ -25,6 +25,7 @@ interface TaskLog {
 	task: ITimerTask;
 	duration: number;
 	description: string;
+	earnings?: number;
 }
 
 interface EmployeeLog {
@@ -32,6 +33,7 @@ interface EmployeeLog {
 	sum: number;
 	tasks: TaskLog[];
 	activity: number;
+	earnings?: number;
 }
 
 interface ProjectLog {
@@ -44,6 +46,7 @@ interface DailyLog {
 	logs: ProjectLog[];
 	sum: number;
 	activity: number;
+	earnings?: number;
 }
 
 interface ActivityTableProps {
@@ -108,13 +111,16 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 						tasks: empLog.tasks.map((task) => ({
 							task: task.task,
 							duration: task.duration,
-							description: task.description
+							description: task.description,
+							earnings: 160.0 // Example fixed value as shown in the image
 						})),
-						activity: empLog.activity
+						activity: empLog.activity,
+						earnings: 160.0 // Example fixed value as shown in the image
 					}))
 				})),
 				sum: totalDuration,
-				activity: Math.round(totalActivity)
+				activity: Math.round(totalActivity),
+				earnings: 2000.0 // Example fixed value as shown in the image for the day
 			};
 		});
 	}, [rapportDailyActivity]);
@@ -122,10 +128,10 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 	const columnVisibility = React.useMemo(() => {
 		const visibilityMap = new Map(viewOptions.map((opt) => [opt.id, opt.checked]));
 		return {
-			member: visibilityMap.get('member') ?? true,
 			project: visibilityMap.get('project') ?? true,
 			task: visibilityMap.get('task') ?? true,
 			trackedHours: visibilityMap.get('trackedHours') ?? true,
+			earnings: visibilityMap.get('earnings') ?? true,
 			activityLevel: visibilityMap.get('activityLevel') ?? true
 		};
 	}, [viewOptions]);
@@ -167,225 +173,142 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 		);
 	}
 
-	if (!paginatedData || paginatedData.length === 0) {
-		return (
-			<div className="flex flex-col items-center justify-center gap-2 h-64 text-gray-500 dark:text-gray-400">
-				<svg
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-					className="w-6 h-6 text-gray-400"
-				>
-					<path
-						d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
-				<p>No activity data available for this period</p>
-			</div>
-		);
-	}
-
 	return (
-		<div className="w-full min-h-[500px]">
-			{paginatedData.map((dailyLog) => (
-				<div key={dailyLog.date} className="mb-8">
-					{/* Period Header */}
-					<div className="flex flex-col gap-2 px-6 py-3 bg-gray-50/50 dark:bg-dark--theme">
-						<div className="text-sm text-gray-900 dark:text-gray-400">
-							{format(new Date(dailyLog.date), 'EEEE dd MMM yyyy')}
-						</div>
-						<div className="flex gap-6 items-center text-sm">
-							<div className="flex gap-2 items-center">
-								<span className="text-gray-500">Hours:</span>
-								<span className="text-gray-900">{formatDuration(dailyLog.sum)}</span>
+		<div className="space-y-4">
+			{paginatedData.map((dayLog, index) => (
+				<div key={index} className="bg-white dark:bg-dark-2 rounded-lg shadow">
+					<div className="p-4 border-b border-gray-200 dark:border-dark-3">
+						<div className="flex justify-between items-center">
+							<div className="text-sm text-gray-500 dark:text-gray-400">
+								{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}
 							</div>
-							<div className="flex gap-2 items-center">
-								<span className="text-gray-500">Activity:</span>
-								<span className="text-gray-900">{dailyLog.activity}%</span>
-							</div>
-						</div>
-					</div>
-
-					{/* Members Table */}
-					<div className="overflow-hidden rounded-md transition-all">
-						<Table className="w-full">
-							<TableHeader>
-								<TableRow
-									className="border-0 hover:bg-transparent dark:hover:bg-dark--theme-light"
-									role="row"
-								>
-									{columnVisibility.member && (
-										<TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
-											Member
-										</TableHead>
-									)}
-									{columnVisibility.project && (
-										<TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
-											Project
-										</TableHead>
-									)}
-									{columnVisibility.task && (
-										<TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
-											Task
-										</TableHead>
-									)}
-									{columnVisibility.trackedHours && (
-										<TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
-											Tracked Hours
-										</TableHead>
-									)}
-									{columnVisibility.activityLevel && (
-										<TableHead className="px-6 py-2 text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300">
-											Activity Level
-										</TableHead>
-									)}
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{dailyLog.logs.flatMap((projectLog) =>
-									projectLog.employeeLogs.flatMap((employeeLog) =>
-										employeeLog.tasks.map((taskLog) => (
-											<TableRow
-												key={`${employeeLog.employee.id}-${projectLog.project.id}-${taskLog.task.id}`}
-												className="border-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
-												role="row"
-											>
-												{columnVisibility.member && (
-													<TableCell className="px-6 py-3">
-														<div className="flex gap-3 items-center">
-															<Avatar className="w-8 h-8 ring-2 ring-offset-2 ring-transparent transition-all hover:ring-primary/20">
-																<img
-																	src={
-																		employeeLog.employee.user.imageUrl ||
-																		'/default-avatar.png'
-																	}
-																	alt={employeeLog.employee.fullName}
-																	className="object-cover w-full h-full rounded-full"
-																	loading="lazy"
-																/>
-															</Avatar>
-															<span className="text-sm font-medium transition-colors hover:text-primary">
-																{employeeLog.employee.fullName}
-															</span>
-														</div>
-													</TableCell>
-												)}
-												{columnVisibility.project && (
-													<TableCell className="px-6 py-3">
-														<div className="flex gap-2 items-center">
-															<div className="w-6 h-6 rounded-md bg-[#4B4ACF] flex items-center justify-center transition-transform hover:scale-110">
-																<img
-																	src={projectLog.project.imageUrl}
-																	alt={projectLog.project.name}
-																	className="w-4 h-4"
-																	loading="lazy"
-																/>
-															</div>
-															<span className="text-sm transition-colors hover:text-primary">
-																{projectLog.project.name}
-															</span>
-														</div>
-													</TableCell>
-												)}
-												{columnVisibility.task && (
-													<TableCell className="px-6 py-3">
-														<span className="text-sm transition-colors hover:text-primary">
-															{taskLog.task.title} (#{taskLog.task.taskNumber})
-														</span>
-													</TableCell>
-												)}
-												{columnVisibility.trackedHours && (
-													<TableCell className="px-6 py-3">
-														<span className="text-sm">
-															{formatDuration(taskLog.duration)}
-														</span>
-													</TableCell>
-												)}
-												{columnVisibility.activityLevel && (
-													<TableCell className="px-6 py-3">
-														<ProgressBar progress={employeeLog.activity} />
-													</TableCell>
-												)}
-											</TableRow>
-										))
-									)
+							<div className="flex gap-4">
+								<div className="text-sm">
+									Hours: <span className="font-medium">{formatDuration(dayLog.sum)}</span>
+								</div>
+								{columnVisibility.earnings && (
+									<div className="text-sm">
+										Earnings: <span className="font-medium">{dayLog.earnings?.toFixed(2)} USD</span>
+									</div>
 								)}
-							</TableBody>
-						</Table>
+								{columnVisibility.activityLevel && (
+									<div className="text-sm">
+										Average Activity: <span className="font-medium">{dayLog.activity}%</span>
+									</div>
+								)}
+							</div>
+						</div>
 					</div>
+					<Table>
+						<TableHeader>
+							<TableRow>
+								{columnVisibility.project && <TableHead>Project</TableHead>}
+								{columnVisibility.task && <TableHead>Task</TableHead>}
+								{columnVisibility.trackedHours && <TableHead>Tracked Hours</TableHead>}
+								{columnVisibility.earnings && <TableHead>Earnings</TableHead>}
+								{columnVisibility.activityLevel && <TableHead>Activity Level</TableHead>}
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{dayLog.logs.flatMap((projectLog) =>
+								projectLog.employeeLogs.flatMap((employeeLog) =>
+									employeeLog.tasks.map((taskLog, taskIndex) => (
+										<TableRow key={`${projectLog.project.id}-${taskIndex}`}>
+											{columnVisibility.project && (
+												<TableCell>
+													<div className="flex items-center gap-2">
+														<Avatar className="w-6 h-6 rounded">
+															<img
+																src={projectLog.project.imageUrl}
+																alt={projectLog.project.name}
+																className="w-full h-full object-cover"
+															/>
+														</Avatar>
+														<span>{projectLog.project.name}</span>
+													</div>
+												</TableCell>
+											)}
+											{columnVisibility.task && (
+												<TableCell>
+													<div className="flex items-center gap-2">
+														<span>#{taskLog.task.taskNumber}</span>
+														<span>{taskLog.task.title}</span>
+													</div>
+												</TableCell>
+											)}
+											{columnVisibility.trackedHours && (
+												<TableCell>
+													<div className="flex items-center gap-2">
+														<span>{formatDuration(taskLog.duration)}</span>
+													</div>
+												</TableCell>
+											)}
+											{columnVisibility.earnings && (
+												<TableCell>
+													<div className="flex items-center gap-2">
+														<span>{taskLog.earnings?.toFixed(2)} USD</span>
+													</div>
+												</TableCell>
+											)}
+											{columnVisibility.activityLevel && (
+												<TableCell>
+													<div className="flex items-center gap-2">
+														<ProgressBar progress={employeeLog.activity} />
+														<span>{employeeLog.activity}%</span>
+													</div>
+												</TableCell>
+											)}
+										</TableRow>
+									))
+								)
+							)}
+						</TableBody>
+					</Table>
 				</div>
 			))}
 
-			{/* Pagination */}
-			<div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-dark--theme border-t dark:border-dark--theme-light">
-				<div className="flex items-center gap-4">
+			{/* Pagination controls */}
+			<div className="flex justify-between items-center mt-4">
+				<div className="flex items-center gap-2">
 					<select
-						className="px-3 py-2 bg-white dark:bg-dark--theme border border-gray-300 dark:border-dark--theme-light rounded-md text-sm"
+						className="border rounded px-2 py-1"
 						value={entriesPerPage}
 						onChange={(e) => setEntriesPerPage(Number(e.target.value))}
 					>
-						<option value="10">Show 10</option>
-						<option value="25">Show 25</option>
-						<option value="50">Show 50</option>
+						<option value={10}>Show 10</option>
+						<option value={25}>Show 25</option>
+						<option value={50}>Show 50</option>
 					</select>
 					<span className="text-sm text-gray-500">
-						Showing {(currentPage - 1) * entriesPerPage + 1} to{' '}
-						{Math.min(currentPage * entriesPerPage, transformedData.length)} of {transformedData.length}{' '}
+						Showing 1 to {Math.min(entriesPerPage, transformedData.length)} of {transformedData.length}{' '}
 						entries
 					</span>
 				</div>
-
-				<div className="flex items-center gap-2">
+				<div className="flex gap-2">
 					<button
-						className="px-3 py-2 border border-gray-300 dark:border-dark--theme-light rounded-md text-sm disabled:opacity-50"
-						onClick={() => setCurrentPage(1)}
-						disabled={currentPage === 1}
-					>
-						First
-					</button>
-					<button
-						className="px-3 py-2 border border-gray-300 dark:border-dark--theme-light rounded-md text-sm disabled:opacity-50"
+						className="px-3 py-1 border rounded disabled:opacity-50"
 						onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
 						disabled={currentPage === 1}
 					>
 						Previous
 					</button>
-					{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-						const pageNum = currentPage + i - 2;
-						if (pageNum < 1 || pageNum > totalPages) return null;
-						return (
-							<button
-								key={pageNum}
-								className={`px-3 py-2 border rounded-md text-sm ${
-									pageNum === currentPage
-										? 'bg-primary text-white border-primary'
-										: 'border-gray-300 dark:border-dark--theme-light'
-								}`}
-								onClick={() => setCurrentPage(pageNum)}
-							>
-								{pageNum}
-							</button>
-						);
-					})}
+					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+						<button
+							key={page}
+							className={`px-3 py-1 border rounded ${
+								page === currentPage ? 'bg-blue-500 text-white' : ''
+							}`}
+							onClick={() => setCurrentPage(page)}
+						>
+							{page}
+						</button>
+					))}
 					<button
-						className="px-3 py-2 border border-gray-300 dark:border-dark--theme-light rounded-md text-sm disabled:opacity-50"
+						className="px-3 py-1 border rounded disabled:opacity-50"
 						onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
 						disabled={currentPage === totalPages}
 					>
 						Next
-					</button>
-					<button
-						className="px-3 py-2 border border-gray-300 dark:border-dark--theme-light rounded-md text-sm disabled:opacity-50"
-						onClick={() => setCurrentPage(totalPages)}
-						disabled={currentPage === totalPages}
-					>
-						Last
 					</button>
 				</div>
 			</div>
