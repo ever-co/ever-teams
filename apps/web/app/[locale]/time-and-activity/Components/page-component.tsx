@@ -14,7 +14,6 @@ import TimeActivityHeader, { ViewOption, defaultViewOptions } from './time-activ
 import CardTimeAndActivity from './card-time-and-activity';
 import { Card } from '@components/ui/card';
 import ActivityTable from './ActivityTable';
-import { exampleData } from './example-usage';
 import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/app/hooks';
 import { useOrganizationAndTeamManagers } from '@/app/hooks/features/useOrganizationTeamManagers';
 import { useReportActivity } from '@/app/hooks/features/useReportActivity';
@@ -111,7 +110,7 @@ const TimeActivityComponents = () => {
 		>
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
-					<ActivityTable period={exampleData} viewOptions={viewOptions} />
+					<ActivityTable rapportDailyActivity={rapportDailyActivity} viewOptions={viewOptions} />
 				</Card>
 			</Container>
 		</MainLayout>
