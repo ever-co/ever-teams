@@ -32,6 +32,7 @@ import { fullWidthState } from '@app/stores/fullWidth';
 import { CircleIcon } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/lib/utils';
+import { ITeamTask } from '@app/interfaces';
 
 const Kanban = () => {
 	const {
@@ -88,6 +89,63 @@ const Kanban = () => {
 		value: issues as any,
 		onValueChange: setIssues as any
 	});
+
+	// Filter tasks based on active tab
+	const filteredTasks = useMemo(() => {
+		if (!data) return {};
+
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		const yesterday = new Date(today);
+		yesterday.setDate(yesterday.getDate() - 1);
+
+		const tomorrow = new Date(today);
+		tomorrow.setDate(tomorrow.getDate() + 1);
+
+		const filterByDate = (tasks: ITeamTask[], date: Date) => {
+			const filtered = tasks.filter((task) => {
+				if (!task.createdAt) {
+					return false;
+				}
+
+				const taskDate = new Date(task.createdAt);
+				const localTaskDate = new Date(taskDate.getTime() - taskDate.getTimezoneOffset() * 60000);
+				localTaskDate.setHours(0, 0, 0, 0);
+
+				const compareDate = new Date(date.getTime());
+				compareDate.setHours(0, 0, 0, 0);
+
+				console.log('Task date (local):', localTaskDate, 'Compare date:', compareDate);
+				return localTaskDate.toDateString() === compareDate.toDateString();
+			});
+
+			console.log('Filtered tasks:', filtered);
+			return filtered;
+		};
+
+		const filteredBoard: Record<string, ITeamTask[]> = {};
+		Object.entries(data).forEach(([status, tasks]) => {
+			let filteredStatusTasks;
+			switch (activeTab) {
+				case KanbanTabs.TODAY:
+					filteredStatusTasks = filterByDate(tasks as ITeamTask[], today);
+					break;
+				case KanbanTabs.YESTERDAY:
+					filteredStatusTasks = filterByDate(tasks as ITeamTask[], yesterday);
+					break;
+				case KanbanTabs.TOMORROW:
+					filteredStatusTasks = filterByDate(tasks as ITeamTask[], tomorrow);
+					break;
+				default:
+					filteredStatusTasks = tasks;
+			}
+			filteredBoard[status] = filteredStatusTasks;
+		});
+
+		console.log('Filtered board:', filteredBoard);
+		return filteredBoard;
+	}, [data, activeTab]);
 
 	useEffect(() => {
 		const lastPath = breadcrumbPath.slice(-1)[0];
@@ -262,9 +320,9 @@ const Kanban = () => {
 
 				<div className="pt-10">
 					{activeTab &&
-						(Object.keys(data).length > 0 ? (
+						(Object.keys(filteredTasks).length > 0 ? (
 							<Container fullWidth={fullWidth} className={cn('!pt-0 px-5')}>
-								<KanbanView isLoading={isLoading} kanbanBoardTasks={data} />
+								<KanbanView isLoading={isLoading} kanbanBoardTasks={filteredTasks} />
 							</Container>
 						) : (
 							// add filter for today, yesterday and tomorrow
