@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Avatar } from '@components/ui/avatar';
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import ProgressBar from './progress-bar';
 import { ViewOption } from './time-activity-header';
@@ -55,8 +55,9 @@ interface ActivityTableProps {
 }
 
 const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, viewOptions = [] }) => {
-	const [currentPage, setCurrentPage] = React.useState(1);
-	const [entriesPerPage, setEntriesPerPage] = React.useState(10);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [entriesPerPage, setEntriesPerPage] = useState(10);
+	const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
 
 	// Check if the data is in the new format
 	const isNewFormat = (data: any[]): data is DailyLog[] => {
@@ -136,9 +137,14 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 		};
 	}, [viewOptions]);
 
-	// Pagination logic
+	// Calculate pagination values
 	const totalPages = Math.ceil(transformedData.length / entriesPerPage);
-	const paginatedData = transformedData.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+	const startIndex = (currentPage - 1) * entriesPerPage;
+	const endIndex = Math.min(startIndex + entriesPerPage, transformedData.length);
+	const currentEntries = transformedData.slice(startIndex, endIndex);
+
+	// Entry options for the dropdown
+	const entryOptions = [10, 25, 50];
 
 	const formatDuration = (duration: number) => {
 		const hours = Math.floor(duration / 3600);
@@ -175,86 +181,93 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 
 	return (
 		<div className="space-y-4">
-			{paginatedData.map((dayLog, index) => (
-				<div key={index} className="bg-white dark:bg-dark-2 rounded-lg shadow">
-					<div className="p-4 border-b border-gray-200 dark:border-dark-3">
-						<div className="flex justify-between items-center">
-							<div className="text-sm text-gray-500 dark:text-gray-400">
+			{currentEntries.map((dayLog, index) => (
+				<div key={index} className="bg-white rounded-lg border border-gray-200">
+					<div className="p-4 border-b border-gray-200">
+						<div className="flex flex-col gap-2">
+							<div className="text-base text-gray-900">
 								{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}
 							</div>
-							<div className="flex gap-4">
-								<div className="text-sm">
-									Hours: <span className="font-medium">{formatDuration(dayLog.sum)}</span>
-								</div>
+							<div className="flex gap-6 text-sm text-gray-600">
+								<span>Hours: {formatDuration(dayLog.sum)}</span>
 								{columnVisibility.earnings && (
-									<div className="text-sm">
-										Earnings: <span className="font-medium">{dayLog.earnings?.toFixed(2)} USD</span>
-									</div>
+									<span>Earnings: {dayLog.earnings?.toFixed(2)} USD</span>
 								)}
-								{columnVisibility.activityLevel && (
-									<div className="text-sm">
-										Average Activity: <span className="font-medium">{dayLog.activity}%</span>
-									</div>
-								)}
+								<span>Average Activity: {dayLog.activity}%</span>
 							</div>
 						</div>
 					</div>
 					<Table>
 						<TableHeader>
 							<TableRow>
-								{columnVisibility.project && <TableHead>Project</TableHead>}
-								{columnVisibility.task && <TableHead>Task</TableHead>}
-								{columnVisibility.trackedHours && <TableHead>Tracked Hours</TableHead>}
-								{columnVisibility.earnings && <TableHead>Earnings</TableHead>}
-								{columnVisibility.activityLevel && <TableHead>Activity Level</TableHead>}
+								{columnVisibility.project && (
+									<TableHead className="text-sm font-medium text-gray-500">Project</TableHead>
+								)}
+								{columnVisibility.task && (
+									<TableHead className="text-sm font-medium text-gray-500">Task</TableHead>
+								)}
+								{columnVisibility.trackedHours && (
+									<TableHead className="text-sm font-medium text-gray-500">Tracked Hours</TableHead>
+								)}
+								{columnVisibility.earnings && (
+									<TableHead className="text-sm font-medium text-gray-500">Earnings</TableHead>
+								)}
+								{columnVisibility.activityLevel && (
+									<TableHead className="text-sm font-medium text-gray-500">Activity Level</TableHead>
+								)}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{dayLog.logs.flatMap((projectLog) =>
 								projectLog.employeeLogs.flatMap((employeeLog) =>
 									employeeLog.tasks.map((taskLog, taskIndex) => (
-										<TableRow key={`${projectLog.project.id}-${taskIndex}`}>
+										<TableRow
+											key={`${projectLog.project.id}-${taskIndex}`}
+											className="hover:bg-gray-50"
+										>
 											{columnVisibility.project && (
 												<TableCell>
-													<div className="flex items-center gap-2">
-														<Avatar className="w-6 h-6 rounded">
+													<div className="flex items-center gap-3">
+														<Avatar className="w-8 h-8 rounded">
 															<img
 																src={projectLog.project.imageUrl}
 																alt={projectLog.project.name}
-																className="w-full h-full object-cover"
+																className="w-full h-full object-cover rounded"
 															/>
 														</Avatar>
-														<span>{projectLog.project.name}</span>
+														<span className="text-gray-900">{projectLog.project.name}</span>
 													</div>
 												</TableCell>
 											)}
 											{columnVisibility.task && (
 												<TableCell>
 													<div className="flex items-center gap-2">
-														<span>#{taskLog.task.taskNumber}</span>
-														<span>{taskLog.task.title}</span>
+														<span className="text-gray-500">#{taskLog.task.taskNumber}</span>
+														<span className="text-gray-900">{taskLog.task.title}</span>
 													</div>
 												</TableCell>
 											)}
 											{columnVisibility.trackedHours && (
 												<TableCell>
-													<div className="flex items-center gap-2">
-														<span>{formatDuration(taskLog.duration)}</span>
+													<div className="flex items-center">
+														<span className="text-gray-900">{formatDuration(taskLog.duration)}</span>
 													</div>
 												</TableCell>
 											)}
 											{columnVisibility.earnings && (
 												<TableCell>
-													<div className="flex items-center gap-2">
-														<span>{taskLog.earnings?.toFixed(2)} USD</span>
+													<div className="flex items-center">
+														<span className="text-gray-900">{taskLog.earnings?.toFixed(2)} USD</span>
 													</div>
 												</TableCell>
 											)}
 											{columnVisibility.activityLevel && (
 												<TableCell>
-													<div className="flex items-center gap-2">
-														<ProgressBar progress={employeeLog.activity} />
-														<span>{employeeLog.activity}%</span>
+													<div className="flex items-center gap-3">
+														<div className="flex-1 max-w-[120px]">
+															<ProgressBar progress={employeeLog.activity} />
+														</div>
+														<span className="text-gray-900">{employeeLog.activity}%</span>
 													</div>
 												</TableCell>
 											)}
@@ -269,46 +282,85 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 
 			{/* Pagination controls */}
 			<div className="flex justify-between items-center mt-4">
-				<div className="flex items-center gap-2">
-					<select
-						className="border rounded px-2 py-1"
-						value={entriesPerPage}
-						onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-					>
-						<option value={10}>Show 10</option>
-						<option value={25}>Show 25</option>
-						<option value={50}>Show 50</option>
-					</select>
+				<div className="flex items-center gap-4">
+					<div className="relative">
+						<button
+							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
+							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+						>
+							Show {entriesPerPage}
+							<svg
+								className="w-4 h-4 ml-2 inline-block"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M19 9l-7 7-7-7"
+								/>
+							</svg>
+						</button>
+						{showEntriesDropdown && (
+							<div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-10">
+								{entryOptions.map((option) => (
+									<button
+										key={option}
+										onClick={() => {
+											setEntriesPerPage(option);
+											setShowEntriesDropdown(false);
+										}}
+										className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+									>
+										Show {option}
+									</button>
+								))}
+							</div>
+						)}
+					</div>
 					<span className="text-sm text-gray-500">
-						Showing 1 to {Math.min(entriesPerPage, transformedData.length)} of {transformedData.length}{' '}
-						entries
+						Showing {startIndex + 1} to {endIndex} of {transformedData.length} entries
 					</span>
 				</div>
 				<div className="flex gap-2">
 					<button
-						className="px-3 py-1 border rounded disabled:opacity-50"
-						onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={() => setCurrentPage(1)}
+						disabled={currentPage === 1}
+					>
+						First
+					</button>
+					<button
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
 						disabled={currentPage === 1}
 					>
 						Previous
 					</button>
-					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+					<div className="relative">
 						<button
-							key={page}
-							className={`px-3 py-1 border rounded ${
-								page === currentPage ? 'bg-blue-500 text-white' : ''
-							}`}
-							onClick={() => setCurrentPage(page)}
+							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							onClick={() => setShowEntriesDropdown(false)}
 						>
-							{page}
+							Page {currentPage} of {totalPages}
 						</button>
-					))}
+					</div>
 					<button
-						className="px-3 py-1 border rounded disabled:opacity-50"
-						onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
 						disabled={currentPage === totalPages}
 					>
 						Next
+					</button>
+					<button
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={() => setCurrentPage(totalPages)}
+						disabled={currentPage === totalPages}
+					>
+						Last
 					</button>
 				</div>
 			</div>
