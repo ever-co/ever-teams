@@ -3,7 +3,6 @@ import { Avatar } from '@components/ui/avatar';
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import ProgressBar from './progress-bar';
-import { ViewOption } from './time-activity-header';
 import { ITimerLogGrouped, ITimerTask } from '@/app/interfaces';
 import { format } from 'date-fns';
 
@@ -51,10 +50,9 @@ interface DailyLog {
 
 interface ActivityTableProps {
 	rapportDailyActivity: ITimerLogGrouped[] | DailyLog[];
-	viewOptions?: ViewOption[];
 }
 
-const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, viewOptions = [] }) => {
+const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [entriesPerPage, setEntriesPerPage] = useState(10);
 	const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
@@ -126,17 +124,6 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 		});
 	}, [rapportDailyActivity]);
 
-	const columnVisibility = React.useMemo(() => {
-		const visibilityMap = new Map(viewOptions.map((opt) => [opt.id, opt.checked]));
-		return {
-			project: visibilityMap.get('project') ?? true,
-			task: visibilityMap.get('task') ?? true,
-			trackedHours: visibilityMap.get('trackedHours') ?? true,
-			earnings: visibilityMap.get('earnings') ?? true,
-			activityLevel: visibilityMap.get('activityLevel') ?? true
-		};
-	}, [viewOptions]);
-
 	// Calculate pagination values
 	const totalPages = Math.ceil(transformedData.length / entriesPerPage);
 	const startIndex = (currentPage - 1) * entriesPerPage;
@@ -149,131 +136,111 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 	const formatDuration = (duration: number) => {
 		const hours = Math.floor(duration / 3600);
 		const minutes = Math.floor((duration % 3600) / 60);
-		return `${hours}:${minutes.toString().padStart(2, '0')}h`;
+		const seconds = Math.floor(duration % 60);
+		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}h`;
 	};
-
-	// Check if any columns are visible
-	const hasVisibleColumns = Object.values(columnVisibility).some((visible) => visible);
-
-	if (!hasVisibleColumns) {
-		return (
-			<div className="flex flex-col items-center justify-center gap-2 w-full min-h-[500px] text-gray-500 dark:text-gray-400">
-				<svg
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-					className="w-6 h-6 text-gray-400"
-				>
-					<path
-						d="M3 10H21M7 15H8M12 15H13"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
-				<p>Please select at least one column to display</p>
-			</div>
-		);
-	}
 
 	return (
 		<div className="space-y-4">
 			{currentEntries.map((dayLog, index) => (
-				<div key={index} className="bg-white rounded-lg border border-gray-200">
+				<div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200">
 					<div className="p-4 border-b border-gray-200">
 						<div className="flex flex-col gap-2">
-							<div className="text-base text-gray-900">
+							<div className="text-base font-medium text-gray-900">
 								{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}
 							</div>
 							<div className="flex gap-6 text-sm text-gray-600">
-								<span>Hours: {formatDuration(dayLog.sum)}</span>
-								{columnVisibility.earnings && (
-									<span>Earnings: {dayLog.earnings?.toFixed(2)} USD</span>
-								)}
-								<span>Average Activity: {dayLog.activity}%</span>
+								<span className="font-medium">Hours: {formatDuration(dayLog.sum)}</span>
+								<span className="font-medium">Earnings: {dayLog.earnings?.toFixed(2)} USD</span>
+								<span className="font-medium">Average Activity: {dayLog.activity}%</span>
 							</div>
 						</div>
 					</div>
 					<Table>
 						<TableHeader>
-							<TableRow>
-								{columnVisibility.project && (
-									<TableHead className="text-sm font-medium text-gray-500">Project</TableHead>
-								)}
-								{columnVisibility.task && (
-									<TableHead className="text-sm font-medium text-gray-500">Task</TableHead>
-								)}
-								{columnVisibility.trackedHours && (
-									<TableHead className="text-sm font-medium text-gray-500">Tracked Hours</TableHead>
-								)}
-								{columnVisibility.earnings && (
-									<TableHead className="text-sm font-medium text-gray-500">Earnings</TableHead>
-								)}
-								{columnVisibility.activityLevel && (
-									<TableHead className="text-sm font-medium text-gray-500">Activity Level</TableHead>
-								)}
+							<TableRow className="border-b border-gray-200">
+								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Member ↑</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Project ↑</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Tracked Hours ↑</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Earnings ↑</TableHead>
+								<TableHead className="text-sm font-medium text-gray-500 whitespace-nowrap px-4">Activity Level ↑</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{dayLog.logs.flatMap((projectLog) =>
-								projectLog.employeeLogs.flatMap((employeeLog) =>
-									employeeLog.tasks.map((taskLog, taskIndex) => (
-										<TableRow
-											key={`${projectLog.project.id}-${taskIndex}`}
-											className="hover:bg-gray-50"
-										>
-											{columnVisibility.project && (
-												<TableCell>
-													<div className="flex items-center gap-3">
-														<Avatar className="w-8 h-8 rounded">
-															<img
-																src={projectLog.project.imageUrl}
-																alt={projectLog.project.name}
-																className="w-full h-full object-cover rounded"
-															/>
-														</Avatar>
-														<span className="text-gray-900">{projectLog.project.name}</span>
-													</div>
-												</TableCell>
-											)}
-											{columnVisibility.task && (
-												<TableCell>
-													<div className="flex items-center gap-2">
-														<span className="text-gray-500">#{taskLog.task.taskNumber}</span>
-														<span className="text-gray-900">{taskLog.task.title}</span>
-													</div>
-												</TableCell>
-											)}
-											{columnVisibility.trackedHours && (
-												<TableCell>
-													<div className="flex items-center">
-														<span className="text-gray-900">{formatDuration(taskLog.duration)}</span>
-													</div>
-												</TableCell>
-											)}
-											{columnVisibility.earnings && (
-												<TableCell>
-													<div className="flex items-center">
-														<span className="text-gray-900">{taskLog.earnings?.toFixed(2)} USD</span>
-													</div>
-												</TableCell>
-											)}
-											{columnVisibility.activityLevel && (
-												<TableCell>
-													<div className="flex items-center gap-3">
-														<div className="flex-1 max-w-[120px]">
-															<ProgressBar progress={employeeLog.activity} />
-														</div>
-														<span className="text-gray-900">{employeeLog.activity}%</span>
-													</div>
-												</TableCell>
-											)}
-										</TableRow>
-									))
-								)
+								projectLog.employeeLogs.map((employeeLog, empIndex) => (
+									<TableRow key={`${projectLog.project.id}-${empIndex}`} className="hover:bg-gray-50">
+										<TableCell className="px-4">
+											<div className="flex items-center gap-3">
+												<Avatar className="w-8 h-8 rounded-full">
+													<img
+														src={employeeLog.employee.user.imageUrl}
+														alt={employeeLog.employee.fullName}
+														className="w-full h-full object-cover rounded-full"
+													/>
+												</Avatar>
+												<span className="text-gray-900 font-medium">
+													{employeeLog.employee.fullName}
+												</span>
+											</div>
+										</TableCell>
+										<TableCell className="px-4">
+											<div className="flex items-center gap-3">
+												<Avatar className="w-8 h-8 rounded">
+													<img
+														src={projectLog.project.imageUrl}
+														alt={projectLog.project.name}
+														className="w-full h-full object-cover rounded"
+													/>
+												</Avatar>
+												<span className="text-gray-900">{projectLog.project.name}</span>
+											</div>
+										</TableCell>
+										<TableCell className="px-4">
+											<div className="flex items-center">
+												<span className="text-gray-900">{formatDuration(employeeLog.sum)}</span>
+											</div>
+										</TableCell>
+										<TableCell className="px-4">
+											<div className="flex items-center">
+												<span className="text-gray-900">{employeeLog.earnings?.toFixed(2)} USD</span>
+											</div>
+										</TableCell>
+										<TableCell className="px-4">
+											<div className="flex items-center gap-3">
+												<div className="flex-1 max-w-[120px]">
+													<ProgressBar progress={employeeLog.activity} />
+												</div>
+												<span className="text-gray-900">{employeeLog.activity}%</span>
+											</div>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+							{dayLog.logs.some((log) =>
+								log.employeeLogs.some((empLog) => empLog.sum === 0)
+							) && (
+								<TableRow>
+									<TableCell colSpan={5} className="px-4">
+										<div className="flex items-center gap-3 text-gray-500">
+											<svg
+												className="w-4 h-4"
+												viewBox="0 0 24 24"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+													stroke="currentColor"
+													strokeWidth="2"
+													strokeLinecap="round"
+													strokeLinejoin="round"
+												/>
+											</svg>
+											<span className="font-medium">No time activity</span>
+										</div>
+									</TableCell>
+								</TableRow>
 							)}
 						</TableBody>
 					</Table>
@@ -296,12 +263,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 								viewBox="0 0 24 24"
 								xmlns="http://www.w3.org/2000/svg"
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M19 9l-7 7-7-7"
-								/>
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 							</svg>
 						</button>
 						{showEntriesDropdown && (
